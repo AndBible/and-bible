@@ -25,17 +25,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
+import net.bible.sharedcore.ai.AiDocumentFilterController
+import net.bible.sharedcore.ai.AiModelsController
+import net.bible.sharedcore.ai.DocumentFilterService
+import net.bible.sharedcore.ai.GlobalToolPermissionsController
+import net.bible.sharedcore.ai.LlmModelService
+import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedui.AbAppTheme
+import net.bible.sharedui.ai.nav.AiDocumentFilterDeps
+import net.bible.sharedui.ai.nav.AiModelsDeps
 import net.bible.sharedui.ai.nav.AiNavDeps
+import net.bible.sharedui.ai.nav.GlobalToolPermissionsDeps
 import net.bible.sharedui.ai.nav.ToolInfoDeps
 import net.bible.sharedui.ai.nav.aiNavGraph
+import org.koin.android.ext.android.inject
 
 /**
  * The single Android host for the Compose navigation graph. Screens migrated off their own
@@ -46,6 +57,9 @@ import net.bible.sharedui.ai.nav.aiNavGraph
  * one that matters for this cluster — `awaitIntent`, which the SAF flows need.
  */
 class NavHostComposeActivity : ActivityBase() {
+    private val documentFilterService: DocumentFilterService by inject()
+    private val toolPermissionService: ToolPermissionService by inject()
+    private val llmModelService: LlmModelService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +70,15 @@ class NavHostComposeActivity : ActivityBase() {
             AbAppTheme {
                 val navController = rememberNavController()
                 val allTools = remember { ToolRegistry.getAllTools() }
+                val aiDocumentFilterController = remember {
+                    AiDocumentFilterController(service = documentFilterService, scope = lifecycleScope)
+                }
+                val globalToolPermissionsController = remember {
+                    GlobalToolPermissionsController(service = toolPermissionService, scope = lifecycleScope)
+                }
+                val aiModelsController = remember {
+                    AiModelsController(service = llmModelService, scope = lifecycleScope)
+                }
                 val deps = remember(allTools) {
                     AiNavDeps(
                         exitHost = { finish() },
@@ -64,6 +87,22 @@ class NavHostComposeActivity : ActivityBase() {
                             writeTools = allTools.filter { it.requiresPermission }.map { it.toToolVd() },
                             helpBody = getString(R.string.help_tool_info_text),
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#ai-tools",
+                        ),
+                        aiDocumentFilter = AiDocumentFilterDeps(
+                            controller = aiDocumentFilterController,
+                            helpBody = getString(R.string.help_ai_document_filter_text),
+                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-data-and-documents",
+                        ),
+                        globalToolPermissions = GlobalToolPermissionsDeps(
+                            controller = globalToolPermissionsController,
+                            helpBody = getString(R.string.help_global_tool_permissions_text),
+                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#setting-permissions",
+                        ),
+                        aiModels = AiModelsDeps(
+                            controller = aiModelsController,
+                            providersForPicker = { llmModelService.providersForPicker() },
+                            helpBody = getString(R.string.help_ai_models_text),
+                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-models",
                         ),
                     )
                 }
@@ -82,6 +121,15 @@ class NavHostComposeActivity : ActivityBase() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Parity with classic AiModelsComposeActivity's onResume refresh (models/keys may have
+        // changed elsewhere). Host-level rather than scoped to the AI_MODELS destination — this
+        // Activity has no per-destination lifecycle hook to hang it off, and an extra refresh
+        // while a different destination is showing is harmless.
+        llmModelService.refresh()
     }
 
     companion object {

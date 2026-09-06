@@ -52,6 +52,27 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
+    fun aiDocumentFilterResolvesToTheNavHostCarryingItsRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.AiDocumentFilter)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.AI_DOCUMENT_FILTER, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    @Test
+    fun globalToolPermissionsResolvesToTheNavHostCarryingItsRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.GlobalToolPermissions)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    @Test
+    fun aiModelsResolvesToTheNavHostCarryingItsRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.AiModels)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.AI_MODELS, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    @Test
     fun anUnmigratedScreenStillResolvesToItsOwnActivity() {
         val intent = ScreenLauncher.intentFor(context, Screen.Bookmarks)
         assertEquals(

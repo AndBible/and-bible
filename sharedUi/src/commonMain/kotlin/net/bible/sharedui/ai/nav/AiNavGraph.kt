@@ -17,12 +17,28 @@
 
 package net.bible.sharedui.ai.nav
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import net.bible.sharedcore.ai.AiDocumentFilterController
+import net.bible.sharedcore.ai.AiModelsController
+import net.bible.sharedcore.ai.GlobalToolPermissionsController
+import net.bible.sharedcore.ai.ProviderVd
+import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.ai.ToolVd
+import net.bible.sharedui.PlatformBackHandler
+import net.bible.sharedui.ai.AiDocumentFilterScreen
+import net.bible.sharedui.ai.AiModelsScreen
+import net.bible.sharedui.ai.GlobalToolPermissionsScreen
 import net.bible.sharedui.ai.ToolInfoScreen
+import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.strings.LocalStrings
 
 /**
  * [ToolInfoScreen]'s platform-supplied slots. One such holder per destination, nested under
@@ -38,6 +54,36 @@ class ToolInfoDeps(
 )
 
 /**
+ * [AiDocumentFilterScreen]'s platform-supplied slots. [controller] is constructed by the host
+ * (it needs a `CoroutineScope` — the host's `lifecycleScope` — that `commonMain` cannot provide).
+ */
+class AiDocumentFilterDeps(
+    val controller: AiDocumentFilterController,
+    val helpBody: String,
+    val helpReadMoreUrl: String,
+)
+
+/** [GlobalToolPermissionsScreen]'s platform-supplied slots. Same shape as [AiDocumentFilterDeps]. */
+class GlobalToolPermissionsDeps(
+    val controller: GlobalToolPermissionsController,
+    val helpBody: String,
+    val helpReadMoreUrl: String,
+)
+
+/**
+ * [AiModelsScreen]'s platform-supplied slots. [providersForPicker] mirrors classic's
+ * `service.providersForPicker()` call (`LlmModelService` stays a host-side detail; the graph only
+ * needs the resolved list, recomputed by the host the same way — `remember(models) { ... }` —
+ * that [net.bible.android.view.activity.ai.AiModelsComposeActivity] already did).
+ */
+class AiModelsDeps(
+    val controller: AiModelsController,
+    val providersForPicker: () -> List<ProviderVd>,
+    val helpBody: String,
+    val helpReadMoreUrl: String,
+)
+
+/**
  * Platform-supplied slots the AI destinations need but `commonMain` cannot provide: help text
  * (Android string resources today), the data each screen renders, and — via [exitHost] — the way
  * to leave the graph entirely. [exitHost] sits at the top level rather than in a per-destination
@@ -48,6 +94,12 @@ class AiNavDeps(
     val exitHost: () -> Unit,
     // — TOOL INFO —
     val toolInfo: ToolInfoDeps,
+    // — AI DOCUMENT FILTER —
+    val aiDocumentFilter: AiDocumentFilterDeps,
+    // — GLOBAL TOOL PERMISSIONS —
+    val globalToolPermissions: GlobalToolPermissionsDeps,
+    // — AI MODELS —
+    val aiModels: AiModelsDeps,
 )
 
 /**
@@ -90,6 +142,116 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             onUp = { navController.popOrExit(deps.exitHost) },
             helpBody = deps.toolInfo.helpBody,
             helpReadMoreUrl = deps.toolInfo.helpReadMoreUrl,
+        )
+    }
+    composable(NavRoutes.AI_DOCUMENT_FILTER) {
+        val strings = LocalStrings.current
+        val controller = deps.aiDocumentFilter.controller
+        val groups by controller.state.collectAsState()
+        val isDirty by controller.isDirty.collectAsState()
+        var showDiscardConfirm by remember { mutableStateOf(false) }
+
+        // System back gesture/button: the plain composable's own up-navigation icon already gates
+        // itself behind a discard-confirm dialog (see AiDocumentFilterScreen's kdoc), but that does
+        // not intercept system back — mirrors classic AiDocumentFilterComposeActivity's BackHandler.
+        PlatformBackHandler(enabled = isDirty) { showDiscardConfirm = true }
+
+        AiDocumentFilterScreen(
+            groups = groups,
+            isDirty = isDirty,
+            onUp = { navController.popOrExit(deps.exitHost) },
+            onToggle = controller::toggle,
+            onResetAll = controller::resetAll,
+            onSave = { controller.save(); navController.popOrExit(deps.exitHost) },
+            helpBody = deps.aiDocumentFilter.helpBody,
+            helpReadMoreUrl = deps.aiDocumentFilter.helpReadMoreUrl,
+        )
+
+        if (showDiscardConfirm) {
+            AbConfirmDialog(
+                title = null,
+                message = strings.discardChangesConfirmation,
+                confirmText = strings.yes,
+                dismissText = strings.no,
+                onConfirm = { showDiscardConfirm = false; navController.popOrExit(deps.exitHost) },
+                onDismiss = { showDiscardConfirm = false },
+            )
+        }
+    }
+    composable(NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS) {
+        val strings = LocalStrings.current
+        val controller = deps.globalToolPermissions.controller
+        val groups by controller.state.collectAsState()
+        val permissions by controller.permissions.collectAsState()
+        val isDirty by controller.isDirty.collectAsState()
+        var showDiscardConfirm by remember { mutableStateOf(false) }
+
+        // Same system-back gate as AI_DOCUMENT_FILTER above — see that arm's comment.
+        PlatformBackHandler(enabled = isDirty) { showDiscardConfirm = true }
+
+        GlobalToolPermissionsScreen(
+            groups = groups,
+            permissionFor = { permissions[it] ?: ToolPermission.ASK },
+            isDirty = isDirty,
+            onUp = { navController.popOrExit(deps.exitHost) },
+            onSetPermission = controller::setPermission,
+            onSetCategoryRead = controller::setCategoryRead,
+            onSetCategoryWrite = controller::setCategoryWrite,
+            onResetAll = controller::resetAll,
+            onSave = { controller.save(); navController.popOrExit(deps.exitHost) },
+            helpBody = deps.globalToolPermissions.helpBody,
+            helpReadMoreUrl = deps.globalToolPermissions.helpReadMoreUrl,
+        )
+
+        if (showDiscardConfirm) {
+            AbConfirmDialog(
+                title = null,
+                message = strings.discardChangesConfirmation,
+                confirmText = strings.yes,
+                dismissText = strings.no,
+                onConfirm = { showDiscardConfirm = false; navController.popOrExit(deps.exitHost) },
+                onDismiss = { showDiscardConfirm = false },
+            )
+        }
+    }
+    composable(NavRoutes.AI_MODELS) {
+        val controller = deps.aiModels.controller
+        val models by controller.models.collectAsState()
+        val editState by controller.dialog.collectAsState()
+        val providers = remember(models) { deps.aiModels.providersForPicker() }
+
+        // Swallows the single synchronous `onDismiss` that `AbListChoiceDialog` fires right after
+        // `onSelect` when a provider is picked — see AiModelsComposeActivity's kdoc for the full
+        // rationale. No Activity to hold a plain field on here, so `remember`ed state instead.
+        var swallowNextDismiss by remember { mutableStateOf(false) }
+
+        AiModelsScreen(
+            models = models,
+            providers = providers,
+            editState = editState,
+            onUp = { navController.popOrExit(deps.exitHost) },
+            onAdd = controller::startAdd,
+            onPickProvider = { providerId ->
+                swallowNextDismiss = true
+                controller.pickProvider(providerId)
+            },
+            onPickModel = controller::pickModel,
+            onStartEdit = controller::startEdit,
+            onField = controller::updateField,
+            onSave = controller::save,
+            onDelete = controller::delete,
+            onSetDefault = controller::setDefault,
+            onSetAsDefault = controller::setAsDefault,
+            onSetShowUnsupported = controller::setShowUnsupported,
+            onDismiss = {
+                if (swallowNextDismiss) {
+                    swallowNextDismiss = false
+                } else {
+                    controller.dismissDialog()
+                }
+            },
+            helpBody = deps.aiModels.helpBody,
+            helpReadMoreUrl = deps.aiModels.helpReadMoreUrl,
         )
     }
 }

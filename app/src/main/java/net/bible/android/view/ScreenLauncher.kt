@@ -102,6 +102,9 @@ object ScreenLauncher {
      */
     val MIGRATED: Map<Screen, String> = mapOf(
         Screen.ToolInfo to NavRoutes.AI_TOOL_INFO,
+        Screen.AiDocumentFilter to NavRoutes.AI_DOCUMENT_FILTER,
+        Screen.GlobalToolPermissions to NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS,
+        Screen.AiModels to NavRoutes.AI_MODELS,
     )
 
     /** The Activity class implementing [screen]. */
