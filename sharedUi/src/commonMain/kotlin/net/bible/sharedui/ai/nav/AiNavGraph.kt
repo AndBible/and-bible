@@ -22,6 +22,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -75,12 +77,23 @@ class GlobalToolPermissionsDeps(
  * `service.providersForPicker()` call (`LlmModelService` stays a host-side detail; the graph only
  * needs the resolved list, recomputed by the host the same way — `remember(models) { ... }` —
  * that [net.bible.android.view.activity.ai.AiModelsComposeActivity] already did).
+ *
+ * [onResume] is the established shape for a per-destination resume-refresh (parity with classic's
+ * `Activity.onResume()`): the destination itself invokes it via [androidx.lifecycle.compose.LifecycleEventEffect]
+ * on [androidx.lifecycle.Lifecycle.Event.ON_RESUME], scoped to only the composable arm that is
+ * actually resumed — NOT a host-wide `Activity.onResume()` override, which would fire the refresh
+ * (real DB work, for `LlmModelService`) on every resume of the shared nav host regardless of which
+ * destination is showing. Later destinations with an analogous service `refresh()` (`RawLogService`,
+ * `AiSettingsService`, `PromptService`, `LlmProviderService`) should add the same
+ * `val onResume: (() -> Unit)? = null` field to their own `Deps` holder rather than growing a list
+ * of unrelated refreshes on the host.
  */
 class AiModelsDeps(
     val controller: AiModelsController,
     val providersForPicker: () -> List<ProviderVd>,
     val helpBody: String,
     val helpReadMoreUrl: String,
+    val onResume: (() -> Unit)? = null,
 )
 
 /**
@@ -219,6 +232,13 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val models by controller.models.collectAsState()
         val editState by controller.dialog.collectAsState()
         val providers = remember(models) { deps.aiModels.providersForPicker() }
+
+        // Parity with classic AiModelsComposeActivity's onResume() -> service.refresh() (models/keys
+        // may have changed elsewhere). Route-scoped: fires only while THIS destination is resumed,
+        // not on every resume of the shared nav host — see AiModelsDeps.onResume's kdoc. Called
+        // unconditionally (a no-op when null) rather than behind an `if`, so the composable call
+        // shape here never depends on a value that could differ between recompositions.
+        LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { deps.aiModels.onResume?.invoke() }
 
         // Swallows the single synchronous `onDismiss` that `AbListChoiceDialog` fires right after
         // `onSelect` when a provider is picked — see AiModelsComposeActivity's kdoc for the full

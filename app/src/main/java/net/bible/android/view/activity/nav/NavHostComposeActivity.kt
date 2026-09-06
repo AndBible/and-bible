@@ -103,6 +103,7 @@ class NavHostComposeActivity : ActivityBase() {
                             providersForPicker = { llmModelService.providersForPicker() },
                             helpBody = getString(R.string.help_ai_models_text),
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-models",
+                            onResume = { llmModelService.refresh() },
                         ),
                     )
                 }
@@ -121,15 +122,6 @@ class NavHostComposeActivity : ActivityBase() {
                 }
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // Parity with classic AiModelsComposeActivity's onResume refresh (models/keys may have
-        // changed elsewhere). Host-level rather than scoped to the AI_MODELS destination — this
-        // Activity has no per-destination lifecycle hook to hang it off, and an extra refresh
-        // while a different destination is showing is harmless.
-        llmModelService.refresh()
     }
 
     companion object {
