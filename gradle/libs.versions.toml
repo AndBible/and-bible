@@ -24,6 +24,12 @@ roborazzi = "1.67.0"             # golden-image harness (bumped from 1.54.0 — 
 robolectric = "4.14.1"           # bumped from 4.9 — Roborazzi Compose needs NATIVE graphics (>=4.10)
 materialKolor = "2.1.1"          # KMP HCT / M3 dynamic-scheme derivation (A/B batch 4b); latest STABLE (3.0.0 is beta); publishes iossimulatorarm64
 reorderable = "3.1.0"            # CMP drag-reorder engine (doc-mgmt Task 1); newest with an iosArm64 variant (verified in .module); API identical to 2.4.x; requires Compose>=1.7.0/Kotlin-stdlib>=1.9.0 (both satisfied)
+# JetBrains Compose-Multiplatform navigation (KMP). 2.9.2 is the version matched to CMP 1.11.1 --
+# NOT "one version behind" androidx 2.10.0, which publishes linux_x64 as its only native target and
+# so cannot be a commonMain dependency of a module that compiles for iOS. Different group
+# (org.jetbrains.androidx.navigation) from the held androidx.* artifacts, so no conflict. Verified
+# not to escalate compileSdk past 36 (see this task's Step 5).
+navigationCompose = "2.9.2"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -56,6 +62,7 @@ roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit
 # CMP drag-reorder library (doc-mgmt Task 1) — wrapped behind net.bible.sharedui.components.AbReorderableColumn
 materialkolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
+jetbrains-navigation-compose = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -43,6 +43,14 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(libs.reorderable)    // CMP drag-reorder engine (wrapped by AbReorderableColumn)
             implementation(libs.materialkolor)  // seed -> M3 ColorScheme derivation (A/B batch 4b)
+            // `api`, not `implementation`: :app's NavHostComposeActivity creates the NavController
+            // it passes into the graph, so the type must be on its compile classpath.
+            api(libs.jetbrains.navigation.compose)
+        }
+        androidMain.dependencies {
+            // PlatformBackHandler's android actual delegates to androidx.activity.compose.BackHandler.
+            // This is :sharedUi's first androidMain dependency block.
+            implementation(libs.androidx.activity.compose)
         }
         iosMain { kotlin.srcDir(iosStringsOutDir) }
     }
