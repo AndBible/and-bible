@@ -22,11 +22,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
 import net.bible.android.activity.R
-import net.bible.android.view.Screen
-import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.ai.RawLogHistoryController
 import net.bible.sharedcore.ai.RawLogService
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.RawLogHistoryScreen
 import org.koin.android.ext.android.inject
@@ -36,13 +36,19 @@ import org.koin.android.ext.android.inject
  * [RawLogHistoryActivity]. Wires the shared [RawLogHistoryController] over [RawLogService] and renders
  * [RawLogHistoryScreen].
  *
+ * **Dead code as of Task 8 (kept for Task 10 to delete, not deleted here).** The `RawLogHistory`
+ * screen is now in `ScreenLauncher.MIGRATED`, so routing to it always resolves to
+ * `NavHostComposeActivity` — this class is never launched by anything any more (verified by grep:
+ * no other caller names it). [onOpenLog] below was neutralized to the equivalent
+ * `NavHostComposeActivity`/`NavRoutes` call rather than left in its old `ScreenLauncher`-plus-a-
+ * chained-extra shape (which would otherwise trip
+ * `NavHostRoutingGuardTest.migratedScreenArgumentIsNeverDroppedByAPutExtra` now that the `RawLlmLog`
+ * screen is migrated too) — same call, cheaper than carving out a guard-test exclusion for dead
+ * code, per Task 7's precedent (`AiConnectionSettingsComposeActivity.launchEasySetup`).
+ *
  * **Refresh on resume.** Like classic [RawLogHistoryActivity.onResume]→`refreshList()`, this host calls
  * [RawLogService.refresh] in [onResume] so the list reflects records deleted from the detail screen /
  * added since the activity was created.
- *
- * **Opening a log.** [RawLogHistoryController.onOpenLog] routes through [ScreenLauncher]
- * ([Screen.RawLlmLog] — Batch 9d task 11), passing the classic [RawLlmLogKeys.EXTRA_LOG_RECORD_ID]
- * extra name, reused verbatim so the extra key matches what classic sent.
  */
 class RawLogHistoryComposeActivity : ActivityBase() {
     private val service: RawLogService by inject()
@@ -52,10 +58,7 @@ class RawLogHistoryComposeActivity : ActivityBase() {
             service = service,
             scope = lifecycleScope,
             onOpenLog = { id ->
-                startActivity(
-                    ScreenLauncher.intentFor(this, Screen.RawLlmLog)
-                        .putExtra(RawLlmLogKeys.EXTRA_LOG_RECORD_ID, id),
-                )
+                startActivity(NavHostComposeActivity.intentFor(this, NavRoutes.rawLlmLog(logRecordId = id)))
             },
         )
     }

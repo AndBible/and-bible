@@ -171,7 +171,9 @@ class AgentLogHostTest {
 
         // onOpenRawLog: exactly the call path `AgentLogPanel`'s "view raw" link drives
         // (`onRawLogClick` -> `onOpenRawLog()`, which in the real host builds the
-        // ScreenLauncher.intentFor(activity, Screen.RawLlmLog) intent).
+        // NavHostComposeActivity.intentFor(activity, NavRoutes.rawLlmLog(workspaceId = ...)) intent
+        // -- Screen.RawLlmLog joined ScreenLauncher.MIGRATED in Task 8, so the route is now built
+        // directly rather than through ScreenLauncher.intentFor + a dropped putExtra).
         controller.onRawLogClick()
         assertEquals(1, rawLogOpened)
 

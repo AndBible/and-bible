@@ -127,7 +127,7 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.database.IdType
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.ai.RawLlmLogKeys
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.navigation.DocRowMapper
@@ -183,6 +183,7 @@ import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
 import net.bible.sharedcore.ai.reading.ReadingLlmService
 import net.bible.sharedcore.history.HistoryController
 import net.bible.sharedcore.history.HistoryEntry
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentQuickTab
 import net.bible.sharedcore.navigation.DocumentQuickTabs
@@ -829,9 +830,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         hostScope,
         onCompletedToast = { ABEventBus.post(ToastEvent(R.string.ai_task_completed)) },
         onOpenRawLog = {
-            val intent = ScreenLauncher.intentFor(activity, Screen.RawLlmLog).apply {
-                putExtra(RawLlmLogKeys.EXTRA_WORKSPACE_ID, agentSessionService.currentWorkspaceId())
-            }
+            val intent = NavHostComposeActivity.intentFor(
+                activity,
+                NavRoutes.rawLlmLog(workspaceId = agentSessionService.currentWorkspaceId()),
+            )
             activity.startActivity(intent)
         },
     )

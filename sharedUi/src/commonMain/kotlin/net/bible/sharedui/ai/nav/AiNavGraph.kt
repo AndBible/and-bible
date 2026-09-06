@@ -34,6 +34,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.savedstate.read
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.ai.AiConnectionNav
 import net.bible.sharedcore.ai.AiConnectionSettingsController
@@ -44,6 +46,8 @@ import net.bible.sharedcore.ai.GlobalToolPermissionsController
 import net.bible.sharedcore.ai.ProviderVd
 import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptEditController
+import net.bible.sharedcore.ai.RawLlmLogController
+import net.bible.sharedcore.ai.RawLogHistoryController
 import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.nav.NavRoutes
@@ -60,6 +64,8 @@ import net.bible.sharedui.ai.EasySetupTestResult
 import net.bible.sharedui.ai.EasySetupWizard
 import net.bible.sharedui.ai.GlobalToolPermissionsScreen
 import net.bible.sharedui.ai.PromptEditScreen
+import net.bible.sharedui.ai.RawLlmLogScreen
+import net.bible.sharedui.ai.RawLogHistoryScreen
 import net.bible.sharedui.ai.ToolInfoScreen
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.strings.LocalStrings
@@ -135,12 +141,12 @@ class AiModelsDeps(
  *   (`net.bible.android.view.activity.ai.resolvedCustomPromptValue`) must stay in the `:app`
  *   module — the existing `AiConnectionSettingsComposeActivityTest` targets that top-level function
  *   by name, unqualified, so it cannot move to `:sharedCore` without breaking that test's imports.
- * - [launchRawLogHistory] starts the `RawLogHistory` Activity via `ScreenLauncher` — it is not a
- *   nav-graph destination yet (Task 8), so coexistence means this edge stays an Activity launch for
- *   now. The `PROVIDERS`/`EASY_SETUP` edges no longer need an equivalent field here — `AiProviders`
- *   is a destination in THIS graph as of Task 6, so both navigate straight there
- *   (`navController.navigate(NavRoutes.aiProviders(...))`), same as `MODELS`/`TOOL_PERMISSIONS`/
- *   `DOCUMENTS`.
+ * - `RAW_LOG_HISTORY` no longer needs an equivalent field here — `RawLogHistory` is a destination
+ *   in THIS graph as of Task 8 (like `AiProviders` since Task 6), so it navigates straight there
+ *   (`navController.navigate(NavRoutes.AI_RAW_LOG_HISTORY)`), same as `MODELS`/`TOOL_PERMISSIONS`/
+ *   `DOCUMENTS`/`PROVIDERS`/`EASY_SETUP`. Every one of the hub's six nav edges now stays inside
+ *   this graph; `RESET_USAGE` alone remains a host callback (it opens a platform dialog, not a
+ *   destination).
  * - [onResetUsageConfirm] shows a platform `AlertDialog` and runs `LlmCostTracker.reset` over
  *   `DatabaseContainer` — neither has a `:sharedUi`/`:sharedCore` equivalent, so it stays a host
  *   callback rather than becoming a `:sharedUi` dialog.
@@ -156,7 +162,6 @@ class AiConnectionSettingsDeps(
     val customLanguageTag: String,
     val onCustomPromptSave: (key: String, value: String?) -> Unit,
     val customPromptTextFor: (key: String) -> String,
-    val launchRawLogHistory: () -> Unit,
     val onResetUsageConfirm: () -> Unit,
     val actions: @Composable RowScope.() -> Unit,
     val onResume: (() -> Unit)? = null,
@@ -233,6 +238,62 @@ class PromptEditDeps(
 )
 
 /**
+ * [RawLlmLogScreen]'s platform-supplied slots — the cluster's only destination with two
+ * mutually-exclusive argument modes (a DB record id XOR an in-memory workspace id; both absent is
+ * a third, degenerate "nothing to show" case). Ported from classic [RawLlmLogController]'s host,
+ * `RawLlmLogComposeActivity`, except for what genuinely cannot live in commonMain:
+ *
+ * - [controllerFor] builds a fresh [RawLlmLogController] per backstack entry — same shape as
+ *   [PromptEditDeps.controllerFor] — since (unlike every earlier single-instance `Deps.controller`)
+ *   two different navigations into this route must not share load state. The graph `remember`s the
+ *   result keyed on the decoded `(recordId, workspaceId)` arguments, mirroring
+ *   [PromptEditDeps.controllerFor]'s convention.
+ * - [defaultTitle]/[recordTitleFor] are the DB-mode title text: the static fallback
+ *   (`R.string.raw_llm_log_title`) and a suspend DB lookup + `SimpleDateFormat`/`Locale` format
+ *   (classic's `"<modelName> — <yyyy-MM-dd HH:mm>"`) that cannot move into `:sharedCore`/
+ *   `:sharedUi` — neither `DatabaseContainer` nor `java.text.SimpleDateFormat` exist on the iOS
+ *   target. [recordTitleFor] returns `null` when the record is gone, mirroring classic: the title
+ *   stays [defaultTitle] and the graph does not await `recordText`.
+ * - [onCopy]/[onShare]/[onReportBug] take the CURRENT `(recordId, workspaceId, recordText)` the
+ *   graph already holds, rather than re-deriving classic's `getLogText()` from a stashed controller
+ *   reference — the host has no other way to reach this per-entry controller's state, since it is
+ *   built and `remember`ed inside the graph, not held on `Deps`. Ported verbatim from classic
+ *   `getLogText()`/`copyLog()`/`shareLog()`/`reportBug()`.
+ * - [onDelete] performs ONLY the DB delete ([net.bible.sharedcore.ai.RawLogService.deleteByIds]);
+ *   popping back to `RawLogHistory` is the graph's job ([popOrExit]), not this lambda's — see the
+ *   `RAW_LLM_LOG_PATTERN` arm's kdoc for why that pop is also what keeps the parent list consistent.
+ */
+class RawLlmLogDeps(
+    val controllerFor: () -> RawLlmLogController,
+    val defaultTitle: String,
+    val recordTitleFor: suspend (recordId: String) -> String?,
+    val onCopy: (recordId: String?, workspaceId: String?, recordText: String?) -> Unit,
+    val onShare: (recordId: String?, workspaceId: String?, recordText: String?) -> Unit,
+    val onDelete: (recordId: String) -> Unit,
+    val onReportBug: (recordId: String?, workspaceId: String?) -> Unit,
+)
+
+/**
+ * [RawLogHistoryScreen]'s platform-supplied slots. [controllerFor] takes the graph's own
+ * `onOpenLog` navigation lambda (`navController.navigate(NavRoutes.rawLlmLog(logRecordId = id))`)
+ * and builds the [RawLogHistoryController] around it — unlike every earlier single-instance
+ * `Deps.controller`, this one needs `navController`, which is only available inside the graph's
+ * composable arm, so it cannot simply be `remember`ed on the host like [AiModelsDeps.controller].
+ * [onResume] is classic `RawLogHistoryComposeActivity.onResume { service.refresh() }`, ported per
+ * [AiModelsDeps.onResume]'s established convention — this is also what keeps the list consistent
+ * after a delete on the child [RawLlmLogScreen] returns here (see the `RAW_LLM_LOG_PATTERN` arm's
+ * kdoc): `NavBackStackEntry` lifecycle re-enters `RESUMED` when this destination becomes the top of
+ * the back stack again, the same mechanism [AiModelsDeps.onResume]/[AiProvidersDeps.onResume]
+ * already rely on for a returning navigation, not only a fresh Activity `onResume()`.
+ */
+class RawLogHistoryDeps(
+    val controllerFor: (onOpenLog: (String) -> Unit) -> RawLogHistoryController,
+    val helpBody: String,
+    val helpReadMoreUrl: String,
+    val onResume: (() -> Unit)? = null,
+)
+
+/**
  * Platform-supplied slots the AI destinations need but `commonMain` cannot provide: help text
  * (Android string resources today), the data each screen renders, and — via [exitHost] — the way
  * to leave the graph entirely. [exitHost] sits at the top level rather than in a per-destination
@@ -255,6 +316,10 @@ class AiNavDeps(
     val aiProviders: AiProvidersDeps,
     // — PROMPT EDIT —
     val promptEdit: PromptEditDeps,
+    // — RAW LLM LOG —
+    val rawLlmLog: RawLlmLogDeps,
+    // — RAW LOG HISTORY —
+    val rawLogHistory: RawLogHistoryDeps,
 )
 
 /**
@@ -434,11 +499,10 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             customPromptTextFor = d.customPromptTextFor,
             languageChoices = d.languageChoices,
             customLanguageValue = d.customLanguageTag,
-            // The hub's six nav edges: MODELS/TOOL_PERMISSIONS/DOCUMENTS/PROVIDERS/EASY_SETUP now
-            // all have destinations in THIS graph (AiProviders joined as of Task 6), so they
-            // navigate straight there. Only RAW_LOG_HISTORY still targets an Activity (Task 8) via
-            // the host-supplied lambda — see AiConnectionSettingsDeps' kdoc. RESET_USAGE has no
-            // destination at all (a dialog), so it always stays a host callback.
+            // The hub's six nav edges: MODELS/TOOL_PERMISSIONS/DOCUMENTS/PROVIDERS/EASY_SETUP/
+            // RAW_LOG_HISTORY all have destinations in THIS graph now (RawLogHistory joined as of
+            // Task 8, AiProviders as of Task 6), so every one navigates straight there. RESET_USAGE
+            // has no destination at all (a dialog), so it always stays a host callback.
             onNavigate = { key ->
                 when (key) {
                     AiConnectionNav.EASY_SETUP -> navController.navigate(NavRoutes.aiProviders(startEasySetup = true))
@@ -446,7 +510,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                     AiConnectionNav.MODELS -> navController.navigate(NavRoutes.AI_MODELS)
                     AiConnectionNav.TOOL_PERMISSIONS -> navController.navigate(NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS)
                     AiConnectionNav.DOCUMENTS -> navController.navigate(NavRoutes.AI_DOCUMENT_FILTER)
-                    AiConnectionNav.RAW_LOG_HISTORY -> d.launchRawLogHistory()
+                    AiConnectionNav.RAW_LOG_HISTORY -> navController.navigate(NavRoutes.AI_RAW_LOG_HISTORY)
                     AiConnectionNav.RESET_USAGE -> d.onResetUsageConfirm()
                 }
             },
@@ -722,5 +786,111 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                 onDismiss = { showDiscardConfirm = false },
             )
         }
+    }
+    // Registered BEFORE RAW_LOG_HISTORY on purpose: RawLogHistory.onOpenLog navigates to
+    // NavRoutes.rawLlmLog(...), so registering that arm first means the route it targets already
+    // exists in the graph the moment RawLogHistory's own arm is added below.
+    composable(
+        route = NavRoutes.RAW_LLM_LOG_PATTERN,
+        arguments = listOf(
+            navArgument(NavRoutes.ARG_LOG_RECORD_ID) { type = NavType.StringType; nullable = true; defaultValue = null },
+            navArgument(NavRoutes.ARG_WORKSPACE_ID) { type = NavType.StringType; nullable = true; defaultValue = null },
+        ),
+    ) { backStackEntry ->
+        val d = deps.rawLlmLog
+
+        // Both ids are IdType-shaped strings (unreserved characters only, like ARG_PROMPT_ID),
+        // never free text, so — matching that precedent — neither is run through
+        // NavRoutes.decodeArg here.
+        val recordId = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_LOG_RECORD_ID) }
+        val workspaceId = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_WORKSPACE_ID) }
+
+        // Mirrors classic RawLlmLogComposeActivity's per-Activity-instance controller: a fresh
+        // RawLlmLogController per (recordId, workspaceId) combination, i.e. once per backstack
+        // entry — see RawLlmLogDeps.controllerFor's kdoc.
+        val controller = remember(recordId, workspaceId) { d.controllerFor() }
+        val recordText by controller.recordText.collectAsState()
+        val entries by controller.entries.collectAsState()
+        val expandedIndices by controller.expandedIndices.collectAsState()
+        val canReportBug by controller.canReportBug.collectAsState()
+
+        var loading by remember(recordId, workspaceId) { mutableStateOf(true) }
+        var title by remember(recordId, workspaceId) { mutableStateOf(d.defaultTitle) }
+
+        // Ported unchanged from classic RawLlmLogComposeActivity's onCreate LaunchedEffect(Unit) —
+        // see RawLlmLogDeps' kdoc for what moved to the host (recordTitleFor) and why.
+        LaunchedEffect(recordId, workspaceId) {
+            when {
+                recordId != null -> {
+                    controller.loadRecord(recordId)
+                    val recordTitle = d.recordTitleFor(recordId)
+                    if (recordTitle != null) {
+                        title = recordTitle
+                        // Await the decompress so we don't flash the empty state before the text arrives.
+                        controller.recordText.filterNotNull().first()
+                    }
+                    loading = false
+                }
+                workspaceId != null -> {
+                    controller.loadSession(workspaceId)
+                    loading = false
+                }
+                else -> loading = false
+            }
+        }
+
+        RawLlmLogScreen(
+            title = title,
+            loading = loading,
+            recordText = recordText,
+            entries = entries,
+            expandedIndices = expandedIndices,
+            canReportBug = canReportBug,
+            onToggleExpanded = controller::toggleExpanded,
+            onCopy = { d.onCopy(recordId, workspaceId, recordText) },
+            onShare = { d.onShare(recordId, workspaceId, recordText) },
+            // DB mode only (the screen only surfaces delete when recordText != null). The DB
+            // delete itself is host-side (d.onDelete); popping back to RawLogHistory is this
+            // graph's job — its LifecycleEventEffect(ON_RESUME) is what re-collects the now-stale
+            // row away, see RawLogHistoryDeps' kdoc.
+            onDelete = {
+                recordId?.let { d.onDelete(it) }
+                navController.popOrExit(deps.exitHost)
+            },
+            onReportBug = { d.onReportBug(recordId, workspaceId) },
+            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+        )
+    }
+    composable(NavRoutes.AI_RAW_LOG_HISTORY) {
+        val d = deps.rawLogHistory
+
+        // Needs navController (the onOpenLog edge below), so built here rather than remembered on
+        // the host — see RawLogHistoryDeps' kdoc.
+        val controller = remember {
+            d.controllerFor { id -> navController.navigate(NavRoutes.rawLlmLog(logRecordId = id)) }
+        }
+        val summaries by controller.summaries.collectAsState()
+        val selection by controller.selection.collectAsState()
+        val selectionMode by controller.selectionMode.collectAsState()
+
+        // Parity with classic RawLogHistoryComposeActivity's onResume() -> service.refresh() — see
+        // RawLogHistoryDeps.onResume's kdoc for why this is also what keeps the list consistent
+        // after a delete on the child RawLlmLogScreen returns here.
+        LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { d.onResume?.invoke() }
+
+        RawLogHistoryScreen(
+            summaries = summaries,
+            selection = selection,
+            selectionMode = selectionMode,
+            onOpenLog = controller::openLog,
+            onToggleSelect = controller::toggleSelect,
+            onClearSelection = controller::clearSelection,
+            onDeleteSelected = controller::deleteSelected,
+            onDeleteOlderThan = controller::deleteOlderThan,
+            onDeleteAll = controller::deleteAll,
+            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            helpBody = d.helpBody,
+            helpReadMoreUrl = d.helpReadMoreUrl,
+        )
     }
 }

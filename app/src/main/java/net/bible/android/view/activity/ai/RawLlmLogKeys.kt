@@ -20,9 +20,18 @@ package net.bible.android.view.activity.ai
  * Raw LLM log intent keys, lifted out of the classic `RawLlmLogActivity`'s companion so that they
  * would outlive it (Batch Z-late phase 1). That class, and the classic `RawLogHistoryActivity` and
  * `AgentLogWidget` that also read these keys, are all gone now — slice S10-B deleted the first two
- * and the epilogue's Task 5 the widget. The surviving readers are `RawLlmLogComposeActivity`,
- * `RawLogHistoryComposeActivity` and `ComposeReadingViewHost` (plus `IntentKeysTest`, which pins the
- * two literals so a rename cannot silently break an intent that classic once built).
+ * and the epilogue's Task 5 the widget.
+ *
+ * **No live reader as of Task 8.** `RawLlmLogComposeActivity` and `RawLogHistoryComposeActivity`
+ * still name these two constants in their own dead code (both are unreachable via `ScreenLauncher`
+ * now that `Screen.RawLlmLog`/`Screen.RawLogHistory` are in `MIGRATED` — Task 10 deletes them), and
+ * `ComposeReadingViewHost` stopped reading [EXTRA_WORKSPACE_ID] the same task (it now builds
+ * `NavRoutes.rawLlmLog(workspaceId = ...)` directly). Kept anyway, deliberately, rather than deleted
+ * along with [net.bible.android.view.activity.IntentKeysTest.rawLlmLogKeysAreUnchanged]: the object
+ * is free to keep (a plain `String` pair, no maintenance burden) and documents the wire-format
+ * history of the two extra names the nav-graph route arguments ([net.bible.sharedcore.nav.NavRoutes.ARG_LOG_RECORD_ID]/
+ * [net.bible.sharedcore.nav.NavRoutes.ARG_WORKSPACE_ID]) replaced — deleting it would erase that
+ * trail for no benefit. Revisit at Task 10 alongside the two dead Activities that still reference it.
  */
 object RawLlmLogKeys {
     const val EXTRA_WORKSPACE_ID = "workspace_id"

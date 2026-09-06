@@ -17,6 +17,8 @@
 package net.bible.android.view.activity.nav
 
 import android.app.AlertDialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -40,18 +42,21 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
-import net.bible.android.view.Screen
-import net.bible.android.view.ScreenLauncher
+import net.bible.android.control.report.AiBugReport
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
+import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.sharedcore.ai.AgentPermissionModeIds
@@ -67,6 +72,9 @@ import net.bible.sharedcore.ai.LlmModelService
 import net.bible.sharedcore.ai.LlmProviderService
 import net.bible.sharedcore.ai.PromptEditController
 import net.bible.sharedcore.ai.PromptService
+import net.bible.sharedcore.ai.RawLlmLogController
+import net.bible.sharedcore.ai.RawLogHistoryController
+import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.settings.SettingsItem
@@ -78,6 +86,8 @@ import net.bible.sharedui.ai.nav.AiNavDeps
 import net.bible.sharedui.ai.nav.AiProvidersDeps
 import net.bible.sharedui.ai.nav.GlobalToolPermissionsDeps
 import net.bible.sharedui.ai.nav.PromptEditDeps
+import net.bible.sharedui.ai.nav.RawLlmLogDeps
+import net.bible.sharedui.ai.nav.RawLogHistoryDeps
 import net.bible.sharedui.ai.nav.ToolInfoDeps
 import net.bible.sharedui.ai.nav.aiNavGraph
 import org.koin.android.ext.android.inject
@@ -97,6 +107,7 @@ class NavHostComposeActivity : ActivityBase() {
     private val aiSettingsService: AiSettingsService by inject()
     private val llmProviderService: LlmProviderService by inject()
     private val promptService: PromptService by inject()
+    private val rawLogService: RawLogService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -164,9 +175,6 @@ class NavHostComposeActivity : ActivityBase() {
                             customLanguageTag = CUSTOM_LANGUAGE_TAG,
                             onCustomPromptSave = { key, value -> onAiConnectionCustomPromptSave(key, value) },
                             customPromptTextFor = { key -> aiConnectionCustomPromptTextFor(key) },
-                            launchRawLogHistory = {
-                                startActivity(ScreenLauncher.intentFor(this@NavHostComposeActivity, Screen.RawLogHistory))
-                            },
                             onResetUsageConfirm = { showAiConnectionResetUsageConfirm() },
                             actions = { AiConnectionHelpAction() },
                             onResume = { aiSettingsService.refresh() },
@@ -201,6 +209,23 @@ class NavHostComposeActivity : ActivityBase() {
                             onPromptCopied = {
                                 Toast.makeText(this@NavHostComposeActivity, R.string.prompt_copied, Toast.LENGTH_SHORT).show()
                             },
+                        ),
+                        rawLlmLog = RawLlmLogDeps(
+                            controllerFor = { RawLlmLogController(service = rawLogService, scope = lifecycleScope) },
+                            defaultTitle = getString(R.string.raw_llm_log_title),
+                            recordTitleFor = ::rawLlmLogRecordTitle,
+                            onCopy = ::copyRawLlmLog,
+                            onShare = ::shareRawLlmLog,
+                            onDelete = { recordId -> rawLogService.deleteByIds(setOf(recordId)) },
+                            onReportBug = ::reportRawLlmLogBug,
+                        ),
+                        rawLogHistory = RawLogHistoryDeps(
+                            controllerFor = { onOpenLog ->
+                                RawLogHistoryController(service = rawLogService, scope = lifecycleScope, onOpenLog = onOpenLog)
+                            },
+                            helpBody = getString(R.string.help_ai_connection_text),
+                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
+                            onResume = { rawLogService.refresh() },
                         ),
                     )
                 }
@@ -368,6 +393,53 @@ class NavHostComposeActivity : ActivityBase() {
                     helpPath = "ai.html#getting-started",
                 )
             })
+        }
+    }
+
+    // --- RawLlmLog host baggage ---------------------------------------------------------------
+    // Ported from classic RawLlmLogComposeActivity (not deleted — Task 10 does that): none of
+    // this can move into commonMain (DatabaseContainer/SimpleDateFormat are Android-JVM-only; the
+    // clipboard/share/AiBugReport calls are platform APIs) — see RawLlmLogDeps' kdoc.
+
+    /** DB-mode title text, or `null` if the record is gone (mirrors classic `onCreate`'s title logic). */
+    private suspend fun rawLlmLogRecordTitle(recordId: String): String? {
+        val record = withContext(Dispatchers.IO) {
+            DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().getById(IdType(recordId))
+        } ?: return null
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        return "${record.modelName} — ${dateFormat.format(Date(record.timestamp))}"
+    }
+
+    /** Mirrors classic `getLogText()`: DB text (as displayed, header included) or the session `format()`. */
+    private fun rawLlmLogTextFor(recordId: String?, workspaceId: String?, recordText: String?): String {
+        recordId?.let { return recordText ?: "" }
+        val wid = workspaceId ?: return ""
+        return AgentSessionManager.getSession(IdType(wid))?.rawLlmLog?.format() ?: ""
+    }
+
+    private fun copyRawLlmLog(recordId: String?, workspaceId: String?, recordText: String?) {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText("Raw LLM Log", rawLlmLogTextFor(recordId, workspaceId, recordText)))
+        Toast.makeText(this, R.string.raw_llm_log_copied, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun shareRawLlmLog(recordId: String?, workspaceId: String?, recordText: String?) {
+        val sendIntent = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_TEXT, rawLlmLogTextFor(recordId, workspaceId, recordText))
+            type = "text/plain"
+        }
+        startActivity(Intent.createChooser(sendIntent, getString(R.string.share)))
+    }
+
+    private fun reportRawLlmLogBug(recordId: String?, workspaceId: String?) {
+        lifecycleScope.launch {
+            if (recordId != null) {
+                AiBugReport.reportAiBug(this@NavHostComposeActivity, IdType(recordId))
+            } else {
+                val wid = workspaceId ?: return@launch
+                val log = AgentSessionManager.getSession(IdType(wid))?.rawLlmLog ?: return@launch
+                AiBugReport.reportAiBugFromRawLog(this@NavHostComposeActivity, log)
+            }
         }
     }
 
