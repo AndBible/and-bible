@@ -108,6 +108,13 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
+    fun aiPromptsResolvesToTheNavHostCarryingItsRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.AiPrompts)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.AI_PROMPTS, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    @Test
     fun promptEditResolvesToTheNavHostCarryingItsRoute() {
         val intent = ScreenLauncher.intentFor(context, Screen.PromptEdit)
         assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)

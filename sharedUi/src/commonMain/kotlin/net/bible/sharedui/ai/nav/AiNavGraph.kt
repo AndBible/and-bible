@@ -42,6 +42,7 @@ import net.bible.sharedcore.ai.AiConnectionSettingsController
 import net.bible.sharedcore.ai.AiDocumentFilterController
 import net.bible.sharedcore.ai.AiModelsController
 import net.bible.sharedcore.ai.AiProvidersController
+import net.bible.sharedcore.ai.AiPromptsController
 import net.bible.sharedcore.ai.GlobalToolPermissionsController
 import net.bible.sharedcore.ai.ProviderVd
 import net.bible.sharedcore.ai.PromptCategoryVd
@@ -63,6 +64,7 @@ import net.bible.sharedui.ai.EasySetupStep
 import net.bible.sharedui.ai.EasySetupTestResult
 import net.bible.sharedui.ai.EasySetupWizard
 import net.bible.sharedui.ai.GlobalToolPermissionsScreen
+import net.bible.sharedui.ai.AiPromptsScreen
 import net.bible.sharedui.ai.PromptEditScreen
 import net.bible.sharedui.ai.RawLlmLogScreen
 import net.bible.sharedui.ai.RawLogHistoryScreen
@@ -202,6 +204,43 @@ class AiProvidersDeps(
 )
 
 /**
+ * [AiPromptsScreen]'s platform-supplied slots — the AI cluster's entry destination, and the only
+ * one with a hard platform-async dependency (SAF, Android's Storage Access Framework).
+ *
+ * - [controllerFor] builds the (single, host-lifetime) [AiPromptsController] — but unlike every
+ *   earlier single-instance `Deps.controller`, its three navigation callbacks
+ *   (`onOpenPrompt`/`onNewPrompt`/`onOpenConnectionSettings`) can only be supplied from inside the
+ *   graph's composable arm, since they call `navController.navigate(...)` — same shape as
+ *   [RawLogHistoryDeps.controllerFor]'s `onOpenLog` param, extended to three callbacks instead of
+ *   one. The graph `remember`s the result once with no keys (parity with every other
+ *   single-instance controller here): the lambdas close over `navController` itself, which is
+ *   stable across recompositions, so nothing about them ever changes between builds.
+ * - [onImportCsv]/[onExportCsv] are the SAF seam. Classic `exportPrompts()`/`importPrompts()` (now
+ *   ported verbatim onto the HOST, not reimplemented — see
+ *   [net.bible.android.view.activity.nav.NavHostComposeActivity]'s kdoc) need `awaitIntent` (an
+ *   [net.bible.android.view.activity.base.ActivityBase] suspend bridge to a system file picker),
+ *   `AlertDialog.Builder`, `Toast`, `contentResolver` and `SharedConstants.modulesDir` — none of
+ *   which `commonMain` can reach. [AiPromptsScreen]'s own `onImportCsv`/`onExportCsv` are plain
+ *   `() -> Unit`, so the `AI_PROMPTS` arm below launches these `suspend` lambdas on its own
+ *   `rememberCoroutineScope()` — see that arm's comment for why that scope, not the host's
+ *   `lifecycleScope`, is the right one here.
+ * - [onResume] is classic `AiPromptsComposeActivity.onResume { service.refresh() }`, ported per
+ *   [AiModelsDeps.onResume]'s established convention.
+ */
+class AiPromptsDeps(
+    val controllerFor: (
+        onOpenPrompt: (promptId: String) -> Unit,
+        onNewPrompt: () -> Unit,
+        onOpenConnectionSettings: () -> Unit,
+    ) -> AiPromptsController,
+    val helpBody: String,
+    val helpReadMoreUrl: String,
+    val onImportCsv: suspend () -> Unit,
+    val onExportCsv: suspend () -> Unit,
+    val onResume: (() -> Unit)? = null,
+)
+
+/**
  * [PromptEditScreen]'s platform-supplied slots.
  *
  * - [controllerFor] builds a fresh [PromptEditController] from the (already-decoded) nav
@@ -314,6 +353,8 @@ class AiNavDeps(
     val aiConnectionSettings: AiConnectionSettingsDeps,
     // — AI PROVIDERS —
     val aiProviders: AiProvidersDeps,
+    // — AI PROMPTS —
+    val aiPrompts: AiPromptsDeps,
     // — PROMPT EDIT —
     val promptEdit: PromptEditDeps,
     // — RAW LLM LOG —
@@ -669,6 +710,65 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                 },
             )
         }
+    }
+    composable(NavRoutes.AI_PROMPTS) {
+        val d = deps.aiPrompts
+
+        // Same shape as RawLogHistoryDeps.controllerFor's onOpenLog -- these three callbacks need
+        // navController, which only exists here, so the controller is built once inside this arm
+        // rather than remembered on the host (which owns the platform SAF-only Deps below, but
+        // never navigation). navController is stable, so a no-args remember still builds this
+        // exactly once, same as every other single-instance controller in this graph.
+        val controller = remember {
+            d.controllerFor(
+                { promptId -> navController.navigate(NavRoutes.promptEdit(promptId = promptId)) },
+                { navController.navigate(NavRoutes.promptEdit()) },
+                { navController.navigate(NavRoutes.AI_CONNECTION_SETTINGS) },
+            )
+        }
+        val configured by controller.configured.collectAsState()
+        val groups by controller.groups.collectAsState()
+        val showHidden by controller.showHidden.collectAsState()
+        val hasHiddenPrompts by controller.hasHiddenPrompts.collectAsState()
+
+        // Parity with classic AiPromptsComposeActivity's onResume() -> service.refresh() -- see
+        // AiPromptsDeps.onResume's kdoc.
+        LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { d.onResume?.invoke() }
+
+        // AiPromptsScreen's onImportCsv/onExportCsv are plain () -> Unit, but the SAF work behind
+        // them (d.onImportCsv/onExportCsv) is suspending -- classic launched it on the Activity's
+        // own lifecycleScope. This arm has no Activity to launch on, only this composable's own
+        // scope, same as the AI_PROVIDERS arm's easy-setup test/confirm calls above -- see that
+        // arm's `val scope = rememberCoroutineScope()` for the same reasoning.
+        val scope = rememberCoroutineScope()
+
+        AiPromptsScreen(
+            configured = configured,
+            groups = groups,
+            showHidden = showHidden,
+            hasHiddenPrompts = hasHiddenPrompts,
+            onUp = { navController.popOrExit(deps.exitHost) },
+            onOpenPrompt = controller::onOpenPrompt,
+            onNewPrompt = controller::onNewPrompt,
+            onToggleFavorite = controller::onToggleFavorite,
+            onSetPromptHidden = controller::onSetPromptHidden,
+            onSetCategoryHidden = controller::onSetCategoryHidden,
+            onDeletePrompt = controller::onDeletePrompt,
+            onDeleteCategory = controller::onDeleteCategory,
+            onMovePrompt = controller::onMovePrompt,
+            onMoveCategory = controller::onMoveCategory,
+            onCreateCategory = controller::onCreateCategory,
+            onRenameCategory = controller::onRenameCategory,
+            onSetShowHidden = controller::onSetShowHidden,
+            onOpenConnectionSettings = controller::onOpenConnectionSettings,
+            onImportCsv = { scope.launch { d.onImportCsv() } },
+            onExportCsv = { scope.launch { d.onExportCsv() } },
+            onCopyPrompt = controller::onCopyPrompt,
+            onMovePromptToCategory = controller::onMovePromptToCategory,
+            categoriesProvider = { controller.categories() },
+            helpBody = d.helpBody,
+            helpReadMoreUrl = d.helpReadMoreUrl,
+        )
     }
     composable(
         route = NavRoutes.PROMPT_EDIT_PATTERN,

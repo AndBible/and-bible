@@ -107,6 +107,7 @@ object ScreenLauncher {
         Screen.AiModels to NavRoutes.AI_MODELS,
         Screen.AiConnectionSettings to NavRoutes.AI_CONNECTION_SETTINGS,
         Screen.AiProviders to NavRoutes.aiProviders(startEasySetup = false),
+        Screen.AiPrompts to NavRoutes.AI_PROMPTS,
         Screen.PromptEdit to NavRoutes.promptEdit(),
         Screen.RawLlmLog to NavRoutes.rawLlmLog(),
         Screen.RawLogHistory to NavRoutes.AI_RAW_LOG_HISTORY,

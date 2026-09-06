@@ -21,7 +21,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -42,29 +44,40 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.report.AiBugReport
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
+import net.bible.service.llm.PromptCsvUtils
+import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
+import net.bible.service.sword.csvprompt.addCsvPromptBook
 import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.ai.AiConnectionLabels
 import net.bible.sharedcore.ai.AiConnectionSettingsController
 import net.bible.sharedcore.ai.AiDocumentFilterController
 import net.bible.sharedcore.ai.AiModelsController
 import net.bible.sharedcore.ai.AiProvidersController
+import net.bible.sharedcore.ai.AiPromptsController
 import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.ai.DocumentFilterService
 import net.bible.sharedcore.ai.GlobalToolPermissionsController
@@ -84,6 +97,7 @@ import net.bible.sharedui.ai.nav.AiDocumentFilterDeps
 import net.bible.sharedui.ai.nav.AiModelsDeps
 import net.bible.sharedui.ai.nav.AiNavDeps
 import net.bible.sharedui.ai.nav.AiProvidersDeps
+import net.bible.sharedui.ai.nav.AiPromptsDeps
 import net.bible.sharedui.ai.nav.GlobalToolPermissionsDeps
 import net.bible.sharedui.ai.nav.PromptEditDeps
 import net.bible.sharedui.ai.nav.RawLlmLogDeps
@@ -185,6 +199,22 @@ class NavHostComposeActivity : ActivityBase() {
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#choosing-a-provider",
                             unknownErrorMessage = getString(R.string.unknown_error),
                             onResume = { llmProviderService.refresh() },
+                        ),
+                        aiPrompts = AiPromptsDeps(
+                            controllerFor = { onOpenPrompt, onNewPrompt, onOpenConnectionSettings ->
+                                AiPromptsController(
+                                    service = promptService,
+                                    scope = lifecycleScope,
+                                    onOpenPrompt = onOpenPrompt,
+                                    onNewPrompt = onNewPrompt,
+                                    onOpenConnectionSettings = onOpenConnectionSettings,
+                                )
+                            },
+                            helpBody = getString(R.string.help_ai_settings_text),
+                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
+                            onImportCsv = ::importPrompts,
+                            onExportCsv = ::exportPrompts,
+                            onResume = { promptService.refresh() },
                         ),
                         promptEdit = PromptEditDeps(
                             controllerFor = { promptId, template, defaultContext ->
@@ -443,7 +473,153 @@ class NavHostComposeActivity : ActivityBase() {
         }
     }
 
+    // --- AiPrompts host baggage — the SAF (Storage Access Framework) seam ---------------------
+    // Ported VERBATIM from classic AiPromptsComposeActivity (not deleted — Task 10 does that),
+    // which itself mirrors classic AiSettingsActivity's exportPrompts/importPrompts exactly: the
+    // editable-vs-addon chooser, the ACTION_CREATE_DOCUMENT/ACTION_OPEN_DOCUMENT intents, and the
+    // result Toasts/error dialogs. None of `awaitIntent` (this Activity's ActivityBase suspend
+    // bridge to the system file picker), AlertDialog.Builder, Toast, contentResolver or
+    // SharedConstants.modulesDir has a commonMain equivalent — see AiPromptsDeps' kdoc.
+
+    private suspend fun exportPrompts() {
+        try {
+            val dao = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
+            val userPrompts = withContext(Dispatchers.IO) { dao.allPrompts() }
+
+            if (userPrompts.isEmpty()) {
+                Toast.makeText(this, getString(R.string.no_prompts_to_export), Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "text/csv"
+                val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.US).format(Date())
+                putExtra(Intent.EXTRA_TITLE, "ai_prompts_$timestamp.csv")
+            }
+
+            val result = awaitIntent(intent)
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    withContext(Dispatchers.IO) {
+                        contentResolver.openOutputStream(uri)?.use { outputStream ->
+                            PromptCsvUtils.exportPromptsToCsv(outputStream, userPrompts)
+                        } ?: throw IllegalArgumentException("Could not open output stream")
+                    }
+                    Toast.makeText(
+                        this,
+                        getString(R.string.prompts_csv_export_success, userPrompts.size),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG_AI_PROMPTS, "Error exporting prompts to CSV", e)
+            ErrorReportControl.showErrorDialog(
+                this,
+                getString(R.string.csv_export_failed, e.message),
+                exception = e
+            )
+        }
+    }
+
+    private suspend fun importPrompts() {
+        val options = arrayOf(
+            getString(R.string.import_prompts_editable),
+            getString(R.string.import_prompts_addon),
+        )
+        val installAsAddon = suspendCancellableCoroutine<Boolean?> { cont ->
+            AlertDialog.Builder(this)
+                .setTitle(R.string.import_prompts_csv)
+                .setItems(options) { _, which -> cont.resume(which == 1) }
+                .setNegativeButton(R.string.cancel) { _, _ -> cont.resume(null) }
+                .setOnCancelListener { cont.resume(null) }
+                .show()
+        } ?: return
+
+        try {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "text/*"
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/csv", "text/plain", "text/comma-separated-values"))
+            }
+
+            val result = awaitIntent(intent)
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    if (installAsAddon) {
+                        installCsvAsAddon(uri)
+                    } else {
+                        importCsvAsEditable(uri)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG_AI_PROMPTS, "Error importing prompts from CSV", e)
+            ErrorReportControl.showErrorDialog(
+                this,
+                getString(R.string.csv_import_failed, e.message),
+                exception = e
+            )
+        }
+    }
+
+    private suspend fun importCsvAsEditable(uri: Uri) {
+        val importResult = withContext(Dispatchers.IO) {
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                PromptCsvUtils.importPromptsFromCsv(inputStream)
+            } ?: throw IllegalArgumentException("Could not open input stream")
+        }
+
+        if (importResult.errors > 0) {
+            val message =
+                getString(R.string.csv_import_errors, importResult.created, importResult.updated, importResult.errors) +
+                    "\n\n" + importResult.errorMessages.take(5).joinToString("\n") +
+                    if (importResult.errorMessages.size > 5) "\n..." else ""
+
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.import_prompts_csv))
+                .setMessage(message)
+                .setPositiveButton(R.string.okay, null)
+                .show()
+        } else {
+            Toast.makeText(
+                this,
+                getString(R.string.csv_import_success, importResult.created, importResult.updated),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        promptService.refresh()
+    }
+
+    private suspend fun installCsvAsAddon(uri: Uri) {
+        val displayName = contentResolver.query(uri, null, null, null, null)?.use {
+            if (it.moveToFirst()) {
+                val idx = it.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                if (idx >= 0) it.getString(idx) else null
+            } else null
+        } ?: "prompts.csv"
+
+        withContext(Dispatchers.IO) {
+            val outDir = File(SharedConstants.modulesDir, "prompts")
+            outDir.mkdirs()
+            val outFile = File(outDir, displayName)
+            contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(outFile).use { output -> input.copyTo(output) }
+            }
+            addCsvPromptBook(outFile)
+            AndBibleAddons.clearCaches()
+        }
+
+        PromptRepository.clearAddonCache()
+        Toast.makeText(this, R.string.install_zip_successfull, Toast.LENGTH_SHORT).show()
+        promptService.refresh()
+    }
+
     companion object {
+        private const val TAG_AI_PROMPTS = "AiPromptsCompose"
+
         const val EXTRA_ROUTE: String = "nav_route"
 
         /** Sentinel identifying the "Custom…" entry in the AI-language picker (mirrors classic). */
