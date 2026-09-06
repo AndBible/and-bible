@@ -205,11 +205,25 @@ class NavHostRoutingGuardTest {
      *    list once per call and searching it for a word-bounded `Screen.X` anywhere inside, rather
      *    than anchoring on "right before the closing paren".
      *
+     * **Hardened again in Task 8's fix round 1** against a fourth fail-open shape a reviewer
+     * constructed and ran against the round-1 version of this scan: `.also { it.putExtra(...) }`
+     * (and equally `.let`/`.run`) — chained-scope-function forms other than `.apply`, which the
+     * scan did not look for at all. No live caller uses one of these today (verified by grep over
+     * every `ScreenLauncher.intentFor` call site in `app/src`), but `.also`/`.let` on an `Intent` is
+     * idiomatic enough Kotlin that a future caller will write one. Fixed by matching any of
+     * `apply`/`also`/`let`/`run` after the call, then checking the captured block for `putExtra(...)`
+     * with the receiver reference each form actually uses: `apply`/`run` rebind `this`, so a bare
+     * `putExtra(...)` is what a real caller writes; `also`/`let` do NOT rebind `this` -- the receiver
+     * is only reachable as the implicit `it` or an explicit named lambda parameter (`.also { intent ->
+     * intent.putExtra(...) }`), so the scan looks for `it.putExtra(...)` OR `<paramName>.putExtra(...)`
+     * for those two, reading the parameter name off the lambda's own `name ->` header when present.
+     *
      * The general shape is now: find each `ScreenLauncher.intentFor(` call by locating its own
      * matching closing paren ([matchingParenIndex]); read every migrated screen named ANYWHERE in
      * that balanced argument list; then check independently, relative to that call's OWN
-     * boundaries, for a chained `.putExtra`, a chained `.apply { ... putExtra(...) ... }`, or an
-     * assignment (typed or not) whose variable later receives a nearby `.putExtra(...)`.
+     * boundaries, for a chained `.putExtra`, a chained `.apply`/`.also`/`.let`/`.run { ... }` whose
+     * body reaches `putExtra(...)` through the receiver form that scope function actually uses, or
+     * an assignment (typed or not) whose variable later receives a nearby `.putExtra(...)`.
      *
      * **Known, deliberate bound** (stated rather than overclaimed, matching this file's sibling
      * scans in [ClassicRemovalScan]'s own kdoc style): the assignment shape's forward look for
@@ -256,12 +270,32 @@ class NavHostRoutingGuardTest {
 
                 val chainedPutExtra = Regex("""^\s*\.putExtra\s*\(""").containsMatchIn(afterCall.take(200))
 
-                var chainedApply = false
-                val chainedApplyMatch = Regex("""^\s*\.apply\s*\{""").find(afterCall.take(200))
-                if (chainedApplyMatch != null) {
-                    val braceIndex = closeParenIndex + 1 + chainedApplyMatch.range.last
+                // apply/also/let/run: apply/run rebind `this` to the receiver, so a real caller's
+                // body calls putExtra(...) bare; also/let do NOT rebind `this` -- the receiver is
+                // only reachable as the implicit `it` or an explicit named lambda parameter, so
+                // those two are checked for `it.putExtra(...)`/`<param>.putExtra(...)` instead.
+                var chainedScopeFunctionDescription: String? = null
+                val chainedScopeMatch = Regex("""^\s*\.(apply|also|let|run)\s*\{""").find(afterCall.take(200))
+                if (chainedScopeMatch != null) {
+                    val functionName = chainedScopeMatch.groupValues[1]
+                    val braceIndex = closeParenIndex + 1 + chainedScopeMatch.range.last
                     val block = balancedBraceBlock(text, braceIndex)
-                    chainedApply = block != null && block.contains("putExtra(")
+                    if (block != null) {
+                        val body = block.removePrefix("{").removeSuffix("}")
+                        val bodyHasPutExtra = when (functionName) {
+                            "apply", "run" -> body.contains("putExtra(")
+                            else -> {
+                                // "also"/"let": an explicit named lambda parameter ("intent ->"),
+                                // or the implicit "it" when none is declared.
+                                val namedParam = Regex("""^\s*(\w+)\s*->""").find(body)?.groupValues?.get(1)
+                                val receiverName = namedParam ?: "it"
+                                Regex("""\b${Regex.escape(receiverName)}\.putExtra\s*\(""").containsMatchIn(body)
+                            }
+                        }
+                        if (bodyHasPutExtra) {
+                            chainedScopeFunctionDescription = "chained with .$functionName { ... putExtra(...) ... }"
+                        }
+                    }
                 }
 
                 // Is this call the RHS of an assignment -- i.e. does "<name>(: Type)? = " (or
@@ -282,7 +316,7 @@ class NavHostRoutingGuardTest {
 
                 val shapeDescriptions = mutableListOf<String>()
                 if (chainedPutExtra) shapeDescriptions.add("chained directly with .putExtra(...)")
-                if (chainedApply) shapeDescriptions.add("chained with .apply { ... putExtra(...) ... }")
+                chainedScopeFunctionDescription?.let { shapeDescriptions.add(it) }
                 assignedPutExtraName?.let { name ->
                     shapeDescriptions.add("assigned to `$name`, then `$name.putExtra(...)` nearby")
                 }

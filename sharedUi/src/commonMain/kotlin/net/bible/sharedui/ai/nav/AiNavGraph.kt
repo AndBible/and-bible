@@ -787,9 +787,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             )
         }
     }
-    // Registered BEFORE RAW_LOG_HISTORY on purpose: RawLogHistory.onOpenLog navigates to
-    // NavRoutes.rawLlmLog(...), so registering that arm first means the route it targets already
-    // exists in the graph the moment RawLogHistory's own arm is added below.
+    // RawLogHistory.onOpenLog (below) navigates to NavRoutes.rawLlmLog(...), so this arm must
+    // exist in the SAME graph -- but NavGraphBuilder.composable(...) calls are independent,
+    // order-insensitive registrations resolved by route string at navigate time, not sequential
+    // references, so which of the two is written first here has no runtime effect. This one is
+    // simply listed first because it is the target of the other's edge, not because registration
+    // order matters to Navigation.
     composable(
         route = NavRoutes.RAW_LLM_LOG_PATTERN,
         arguments = listOf(
