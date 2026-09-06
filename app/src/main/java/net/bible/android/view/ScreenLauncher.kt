@@ -105,6 +105,7 @@ object ScreenLauncher {
         Screen.AiDocumentFilter to NavRoutes.AI_DOCUMENT_FILTER,
         Screen.GlobalToolPermissions to NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS,
         Screen.AiModels to NavRoutes.AI_MODELS,
+        Screen.AiConnectionSettings to NavRoutes.AI_CONNECTION_SETTINGS,
     )
 
     /** The Activity class implementing [screen]. */

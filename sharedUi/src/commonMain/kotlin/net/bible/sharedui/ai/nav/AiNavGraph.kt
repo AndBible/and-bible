@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.ai.nav
 
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +29,8 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import net.bible.sharedcore.ai.AiConnectionNav
+import net.bible.sharedcore.ai.AiConnectionSettingsController
 import net.bible.sharedcore.ai.AiDocumentFilterController
 import net.bible.sharedcore.ai.AiModelsController
 import net.bible.sharedcore.ai.GlobalToolPermissionsController
@@ -34,7 +38,9 @@ import net.bible.sharedcore.ai.ProviderVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.ai.ToolVd
+import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.PlatformBackHandler
+import net.bible.sharedui.ai.AiConnectionSettingsScreen
 import net.bible.sharedui.ai.AiDocumentFilterScreen
 import net.bible.sharedui.ai.AiModelsScreen
 import net.bible.sharedui.ai.GlobalToolPermissionsScreen
@@ -97,6 +103,48 @@ class AiModelsDeps(
 )
 
 /**
+ * [AiConnectionSettingsScreen]'s platform-supplied slots. This is the cluster's hub, so it carries
+ * more Android-resource baggage than any destination migrated so far:
+ *
+ * - [controller] is built by the host (needs `labels: AiConnectionLabels`, all `getString` calls,
+ *   plus the host's `lifecycleScope`) — same shape as [AiDocumentFilterDeps.controller] etc. Its
+ *   own constructor `onNavigate` is a host-supplied no-op; the real navigation branching lives in
+ *   THIS graph's `composable(NavRoutes.AI_CONNECTION_SETTINGS)` arm below (see the class kdoc on
+ *   [aiNavGraph]), not on the controller — three of the six edges are `navController.navigate(...)`
+ *   and cannot be decided from `:sharedCore`.
+ * - [languageChoices]/[customLanguageTag] are the AI-language picker's Android locale-array data
+ *   (F32) — read from `R.array.prefs_interface_locale_*`, so they cannot be resolved here.
+ * - [onCustomPromptSave]/[customPromptTextFor] wrap [net.bible.sharedcore.ai.AiSettingsService]
+ *   calls, but the reset-vs-blank decision they apply
+ *   (`net.bible.android.view.activity.ai.resolvedCustomPromptValue`) must stay in the `:app`
+ *   module — the existing `AiConnectionSettingsComposeActivityTest` targets that top-level function
+ *   by name, unqualified, so it cannot move to `:sharedCore` without breaking that test's imports.
+ * - [launchProviders]/[launchRawLogHistory] start the `AiProviders`/`RawLogHistory` Activities via
+ *   `ScreenLauncher` — neither is a nav-graph destination yet (Tasks 6 and 8), so coexistence means
+ *   these two edges stay Activity launches for now.
+ * - [onResetUsageConfirm] shows a platform `AlertDialog` and runs `LlmCostTracker.reset` over
+ *   `DatabaseContainer` — neither has a `:sharedUi`/`:sharedCore` equivalent, so it stays a host
+ *   callback rather than becoming a `:sharedUi` dialog.
+ * - [actions] is the help overflow (`CommonUtils.showHelpDialog`), same shape as every other
+ *   destination's `helpBody`/`helpReadMoreUrl` pair, except this screen already takes a full
+ *   `actions` slot rather than plain strings, so the host supplies the whole composable.
+ * - [onResume] is classic's `AiConnectionSettingsComposeActivity.onResume { service.refresh() }`,
+ *   ported per [AiModelsDeps.onResume]'s established convention (route-scoped, not host-wide).
+ */
+class AiConnectionSettingsDeps(
+    val controller: AiConnectionSettingsController,
+    val languageChoices: List<SettingsItem.Choice>,
+    val customLanguageTag: String,
+    val onCustomPromptSave: (key: String, value: String?) -> Unit,
+    val customPromptTextFor: (key: String) -> String,
+    val launchProviders: (startEasySetup: Boolean) -> Unit,
+    val launchRawLogHistory: () -> Unit,
+    val onResetUsageConfirm: () -> Unit,
+    val actions: @Composable RowScope.() -> Unit,
+    val onResume: (() -> Unit)? = null,
+)
+
+/**
  * Platform-supplied slots the AI destinations need but `commonMain` cannot provide: help text
  * (Android string resources today), the data each screen renders, and — via [exitHost] — the way
  * to leave the graph entirely. [exitHost] sits at the top level rather than in a per-destination
@@ -113,6 +161,8 @@ class AiNavDeps(
     val globalToolPermissions: GlobalToolPermissionsDeps,
     // — AI MODELS —
     val aiModels: AiModelsDeps,
+    // — AI CONNECTION SETTINGS —
+    val aiConnectionSettings: AiConnectionSettingsDeps,
 )
 
 /**
@@ -272,6 +322,45 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             },
             helpBody = deps.aiModels.helpBody,
             helpReadMoreUrl = deps.aiModels.helpReadMoreUrl,
+        )
+    }
+    composable(NavRoutes.AI_CONNECTION_SETTINGS) {
+        val d = deps.aiConnectionSettings
+        val state by d.controller.state.collectAsState()
+
+        // Parity with classic AiConnectionSettingsComposeActivity's onResume() -> service.refresh()
+        // — see AiConnectionSettingsDeps.onResume's kdoc for why this is route-scoped, not host-wide.
+        LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { d.onResume?.invoke() }
+
+        AiConnectionSettingsScreen(
+            state = state,
+            onUp = { navController.popOrExit(deps.exitHost) },
+            onSwitch = d.controller::onSwitch,
+            onListChoice = d.controller::onListChoice,
+            onTextInputInt = d.controller::onTextInputInt,
+            onCustomPromptSave = d.onCustomPromptSave,
+            customPromptTextFor = d.customPromptTextFor,
+            languageChoices = d.languageChoices,
+            customLanguageValue = d.customLanguageTag,
+            // The hub's six nav edges: MODELS/TOOL_PERMISSIONS/DOCUMENTS already have destinations
+            // in THIS graph, so they navigate straight there. EASY_SETUP/PROVIDERS/RAW_LOG_HISTORY
+            // target AiProviders (Task 6) / RawLogHistory (Task 8), neither migrated yet, so those
+            // three stay ScreenLauncher Activity launches via the host-supplied lambdas — see
+            // AiConnectionSettingsDeps' kdoc. RESET_USAGE has no destination at all (a dialog), so
+            // it always stays a host callback.
+            onNavigate = { key ->
+                when (key) {
+                    AiConnectionNav.EASY_SETUP -> d.launchProviders(true)
+                    AiConnectionNav.PROVIDERS -> d.launchProviders(false)
+                    AiConnectionNav.MODELS -> navController.navigate(NavRoutes.AI_MODELS)
+                    AiConnectionNav.TOOL_PERMISSIONS -> navController.navigate(NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS)
+                    AiConnectionNav.DOCUMENTS -> navController.navigate(NavRoutes.AI_DOCUMENT_FILTER)
+                    AiConnectionNav.RAW_LOG_HISTORY -> d.launchRawLogHistory()
+                    AiConnectionNav.RESET_USAGE -> d.onResetUsageConfirm()
+                }
+            },
+            actions = d.actions,
+            backHandler = { onBack -> PlatformBackHandler(enabled = true, onBack = onBack) },
         )
     }
 }

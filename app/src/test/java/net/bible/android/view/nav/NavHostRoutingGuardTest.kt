@@ -73,6 +73,16 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
+    fun aiConnectionSettingsResolvesToTheNavHostCarryingItsRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.AiConnectionSettings)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(
+            NavRoutes.AI_CONNECTION_SETTINGS,
+            intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE),
+        )
+    }
+
+    @Test
     fun anUnmigratedScreenStillResolvesToItsOwnActivity() {
         val intent = ScreenLauncher.intentFor(context, Screen.Bookmarks)
         assertEquals(

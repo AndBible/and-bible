@@ -51,6 +51,11 @@ kotlin {
             // `api`, not `implementation`: :app's NavHostComposeActivity creates the NavController
             // it passes into the graph, so the type must be on its compile classpath.
             api(libs.jetbrains.navigation.compose)
+            // Declared explicitly (Task 5) rather than left to arrive transitively through
+            // navigation-compose's own dependency graph — see the version-catalog comment.
+            // `implementation`: only AiNavGraph.kt's LifecycleEventEffect uses it, never exposed
+            // through :app's compile classpath the way NavHostController is.
+            implementation(libs.jetbrains.lifecycle.runtime.compose)
         }
         androidMain.dependencies {
             // PlatformBackHandler's android actual delegates to androidx.activity.compose.BackHandler.

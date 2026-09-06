@@ -16,30 +16,58 @@
  */
 package net.bible.android.view.activity.nav
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.ai.AiProvidersComposeActivity
+import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
+import net.bible.sharedcore.ai.AgentPermissionModeIds
+import net.bible.sharedcore.ai.AiConnectionLabels
+import net.bible.sharedcore.ai.AiConnectionSettingsController
 import net.bible.sharedcore.ai.AiDocumentFilterController
 import net.bible.sharedcore.ai.AiModelsController
+import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.ai.DocumentFilterService
 import net.bible.sharedcore.ai.GlobalToolPermissionsController
 import net.bible.sharedcore.ai.LlmModelService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedcore.ai.ToolVd
+import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.AbAppTheme
+import net.bible.sharedui.ai.nav.AiConnectionSettingsDeps
 import net.bible.sharedui.ai.nav.AiDocumentFilterDeps
 import net.bible.sharedui.ai.nav.AiModelsDeps
 import net.bible.sharedui.ai.nav.AiNavDeps
@@ -60,6 +88,7 @@ class NavHostComposeActivity : ActivityBase() {
     private val documentFilterService: DocumentFilterService by inject()
     private val toolPermissionService: ToolPermissionService by inject()
     private val llmModelService: LlmModelService by inject()
+    private val aiSettingsService: AiSettingsService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +107,19 @@ class NavHostComposeActivity : ActivityBase() {
                 }
                 val aiModelsController = remember {
                     AiModelsController(service = llmModelService, scope = lifecycleScope)
+                }
+                val aiConnectionSettingsController = remember {
+                    AiConnectionSettingsController(
+                        service = aiSettingsService,
+                        scope = lifecycleScope,
+                        labels = buildAiConnectionLabels(),
+                        // The real navigation branching lives in aiNavGraph's
+                        // AI_CONNECTION_SETTINGS arm (three edges are navController.navigate(...)),
+                        // not here — see AiConnectionSettingsDeps' kdoc. This constructor param is
+                        // required but unused: the screen's onNavigate is wired directly in the
+                        // graph, never through controller::onNavigate.
+                        onNavigate = {},
+                    )
                 }
                 val deps = remember(allTools) {
                     AiNavDeps(
@@ -105,6 +147,26 @@ class NavHostComposeActivity : ActivityBase() {
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-models",
                             onResume = { llmModelService.refresh() },
                         ),
+                        aiConnectionSettings = AiConnectionSettingsDeps(
+                            controller = aiConnectionSettingsController,
+                            languageChoices = buildAiLanguageChoices(),
+                            customLanguageTag = CUSTOM_LANGUAGE_TAG,
+                            onCustomPromptSave = { key, value -> onAiConnectionCustomPromptSave(key, value) },
+                            customPromptTextFor = { key -> aiConnectionCustomPromptTextFor(key) },
+                            launchProviders = { startEasySetup ->
+                                val intent = ScreenLauncher.intentFor(this@NavHostComposeActivity, Screen.AiProviders)
+                                if (startEasySetup) {
+                                    intent.putExtra(AiProvidersComposeActivity.EXTRA_START_EASY_SETUP, true)
+                                }
+                                startActivity(intent)
+                            },
+                            launchRawLogHistory = {
+                                startActivity(ScreenLauncher.intentFor(this@NavHostComposeActivity, Screen.RawLogHistory))
+                            },
+                            onResetUsageConfirm = { showAiConnectionResetUsageConfirm() },
+                            actions = { AiConnectionHelpAction() },
+                            onResume = { aiSettingsService.refresh() },
+                        ),
                     )
                 }
                 NavHost(
@@ -124,8 +186,161 @@ class NavHostComposeActivity : ActivityBase() {
         }
     }
 
+    // --- AiConnectionSettings host baggage ----------------------------------------------------
+    // Ported from the classic AiConnectionSettingsComposeActivity (not deleted — Task 10 does
+    // that): Android-resource labels/locale arrays, the reset-usage AlertDialog, and the help
+    // overflow. See AiConnectionSettingsDeps' kdoc for why each stays host-side rather than
+    // moving into :sharedCore/:sharedUi.
+
+    private fun buildAiConnectionLabels() = AiConnectionLabels(
+        screenTitle = getString(R.string.ai_connection_settings),
+        disclaimerWarningTitle = getString(R.string.ai_disclaimer_warning_title),
+        disclaimerWarningSummary = getString(R.string.ai_disclaimer_warning_summary),
+        gettingStartedTitle = getString(R.string.easy_setup_title),
+        gettingStartedSummary = getString(R.string.easy_setup_pref_summary),
+        providersModelsCategoryTitle = getString(R.string.ai_providers_models_category),
+        providersTitle = getString(R.string.ai_providers_category),
+        providersSummaryNone = getString(R.string.ai_providers_summary_none),
+        modelsTitle = getString(R.string.ai_models_category),
+        modelsSummaryNone = getString(R.string.ai_models_summary_none),
+        behaviorCategoryTitle = getString(R.string.ai_behavior_category),
+        agentPermissionModeTitle = getString(R.string.prompt_permission_mode),
+        toolPermissionsTitle = getString(R.string.manage_tool_permissions_title),
+        toolPermissionsSummary = getString(R.string.manage_tool_permissions_summary),
+        documentsTitle = getString(R.string.ai_document_filter_title),
+        documentsSummary = getString(R.string.ai_document_filter_summary),
+        aiLanguageTitle = getString(R.string.ai_language_title),
+        commentaryMaxResponseTitle = getString(R.string.commentary_max_response_title),
+        commentaryMaxResponseNoLimit = getString(R.string.commentary_max_response_no_limit),
+        commentaryMaxResponseValueFormat = getString(R.string.commentary_max_response_value),
+        maxIterationsTitle = getString(R.string.agent_max_iterations_title),
+        maxIterationsSummary = getString(R.string.agent_max_iterations_summary),
+        maxIterationsUnlimitedSuffix = getString(R.string.prompt_max_iterations_unlimited),
+        askModelBeforeRunTitle = getString(R.string.ask_model_before_run_title),
+        askModelBeforeRunSummary = getString(R.string.ask_model_before_run_summary),
+        autoHideAgentLogTitle = getString(R.string.auto_hide_agent_log_title),
+        autoHideAgentLogSummary = getString(R.string.auto_hide_agent_log_summary),
+        advancedCategoryTitle = getString(R.string.ai_advanced_category),
+        customAgentSystemPromptTitle = getString(R.string.custom_agent_system_prompt_title),
+        customTextTransformSystemPromptTitle = getString(R.string.custom_text_transform_system_prompt_title),
+        customSystemPromptDefault = getString(R.string.custom_system_prompt_default),
+        customSystemPromptCustom = getString(R.string.custom_system_prompt_custom),
+        usageCategoryTitle = getString(R.string.ai_usage_category),
+        usageSummaryTitle = getString(R.string.llm_usage_summary_title),
+        resetUsageTitle = getString(R.string.llm_reset_usage_title),
+        resetUsageSummary = getString(R.string.llm_reset_usage_summary),
+        rawLogHistoryTitle = getString(R.string.raw_log_history_title),
+        rawLogHistorySummary = getString(R.string.raw_log_history_summary),
+        rawLogRetentionTitle = getString(R.string.raw_log_retention_title),
+        rawLogRetentionSummaryDisabled = getString(R.string.raw_log_retention_summary_disabled),
+        rawLogRetentionSummaryDaysFormat = getString(R.string.raw_log_retention_summary_days),
+        permissionModeLabels = AgentPermissionModeIds.ordered.associateWith { id ->
+            when (id) {
+                "ALWAYS_ASK" -> getString(R.string.permission_always_ask)
+                "ASK_ONCE_PER_RUN" -> getString(R.string.permission_ask_once_per_run)
+                "ALLOW_ALL" -> getString(R.string.permission_allow_all)
+                "DENY_ALL" -> getString(R.string.permission_deny_all)
+                else -> id
+            }
+        },
+    )
+
+    /**
+     * Builds the language option list from the `prefs_interface_locale_*` string-arrays — mirrors
+     * classic `AiConnectionSettingsActivity.setupAiLanguage`'s option set (an "app default" entry,
+     * one per non-empty locale code, and a trailing [CUSTOM_LANGUAGE_TAG] sentinel).
+     */
+    private fun buildAiLanguageChoices(): List<SettingsItem.Choice> {
+        val descriptions = resources.getStringArray(R.array.prefs_interface_locale_descriptions)
+        val codes = resources.getStringArray(R.array.prefs_interface_locale_values)
+        val choices = mutableListOf<SettingsItem.Choice>()
+        choices.add(
+            SettingsItem.Choice(
+                value = "",
+                label = getString(R.string.ai_language_app_default, Locale.getDefault().displayLanguage),
+            ),
+        )
+        for (i in codes.indices) {
+            val code = codes[i]
+            if (code.isNotEmpty()) choices.add(SettingsItem.Choice(value = code, label = descriptions[i]))
+        }
+        choices.add(SettingsItem.Choice(value = CUSTOM_LANGUAGE_TAG, label = getString(R.string.ai_language_custom)))
+        return choices
+    }
+
+    /**
+     * Reset-vs-blank parity with classic `showCustomSystemPromptEditor`, see
+     * [resolvedCustomPromptValue]'s kdoc for why the comparison must be against the RAW built-in
+     * default, never [aiConnectionCustomPromptTextFor]'s result.
+     */
+    private fun onAiConnectionCustomPromptSave(key: String, value: String?) {
+        val builtInDefault = aiConnectionBuiltInPromptTextFor(key)
+        when (key) {
+            "custom_agent_prompt" ->
+                aiSettingsService.setCustomAgentSystemPrompt(resolvedCustomPromptValue(value, builtInDefault))
+            "custom_text_transform_prompt" ->
+                aiSettingsService.setCustomTextTransformationSystemPrompt(resolvedCustomPromptValue(value, builtInDefault))
+        }
+    }
+
+    /** Current custom text, or the built-in default (editor prefill only). */
+    private fun aiConnectionCustomPromptTextFor(key: String): String = when (key) {
+        "custom_agent_prompt" -> aiSettingsService.customAgentSystemPromptText()
+        "custom_text_transform_prompt" -> aiSettingsService.customTextTransformationSystemPromptText()
+        else -> ""
+    }
+
+    /** Raw built-in default text for [key] (ignores any custom override). */
+    private fun aiConnectionBuiltInPromptTextFor(key: String): String = when (key) {
+        "custom_agent_prompt" -> aiSettingsService.builtInAgentSystemPromptText()
+        "custom_text_transform_prompt" -> aiSettingsService.builtInTextTransformationSystemPromptText()
+        else -> ""
+    }
+
+    /** Per-model [LlmCostTracker.reset], ported from classic's `showResetUsageConfirm`. */
+    private fun showAiConnectionResetUsageConfirm() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.llm_reset_usage_confirm_title)
+            .setMessage(R.string.llm_reset_usage_confirm_message)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        for (model in DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().all()) {
+                            LlmCostTracker.reset(model.id)
+                        }
+                    }
+                    aiSettingsService.refresh()
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    /** Help overflow (parity with classic `ai_connection_options_menu`). */
+    @Composable
+    private fun RowScope.AiConnectionHelpAction() {
+        var expanded by remember { mutableStateOf(false) }
+        IconButton(onClick = { expanded = true }) {
+            Text("⋮", fontSize = 24.sp) // vertical ellipsis; Material icons aren't on the app-module classpath
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(text = { Text(getString(R.string.help)) }, onClick = {
+                expanded = false
+                CommonUtils.showHelpDialog(
+                    activity = this@NavHostComposeActivity,
+                    titleResId = R.string.help,
+                    messageResId = R.string.help_ai_connection_text,
+                    helpPath = "ai.html#getting-started",
+                )
+            })
+        }
+    }
+
     companion object {
         const val EXTRA_ROUTE: String = "nav_route"
+
+        /** Sentinel identifying the "Custom…" entry in the AI-language picker (mirrors classic). */
+        private const val CUSTOM_LANGUAGE_TAG = "\u0000custom"
 
         fun intentFor(context: Context, route: String): Intent =
             Intent(context, NavHostComposeActivity::class.java).putExtra(EXTRA_ROUTE, route)

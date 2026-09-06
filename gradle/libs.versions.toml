@@ -30,6 +30,12 @@ reorderable = "3.1.0"            # CMP drag-reorder engine (doc-mgmt Task 1); ne
 # (org.jetbrains.androidx.navigation) from the held androidx.* artifacts, so no conflict. Verified
 # not to escalate compileSdk past 36 (see this task's Step 5).
 navigationCompose = "2.9.2"
+# Declared explicitly (Task 5) rather than relying on it arriving transitively through
+# navigation-compose: the resolved version is two hops deep through a library whose dependency
+# graph is not ours (navigation-compose -> ... -> lifecycle-runtime-compose), so an implicit bump
+# or drop there would be a silent Android-only failure with nothing in this file to flag it.
+# Measured via `./gradlew :sharedUi:dependencies --configuration iosSimulatorArm64CompileKlibraries`.
+lifecycleRuntimeCompose = "2.9.6"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
@@ -63,6 +69,7 @@ roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit
 materialkolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 jetbrains-navigation-compose = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+jetbrains-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
