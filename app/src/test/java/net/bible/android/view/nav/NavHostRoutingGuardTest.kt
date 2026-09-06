@@ -218,12 +218,46 @@ class NavHostRoutingGuardTest {
      * intent.putExtra(...) }`), so the scan looks for `it.putExtra(...)` OR `<paramName>.putExtra(...)`
      * for those two, reading the parameter name off the lambda's own `name ->` header when present.
      *
+     * **Hardened again in Task 8's fix round 2** against two more fail-open gaps a second reviewer
+     * found — one of them against a LIVE call site, not merely a future risk:
+     *  - **`putExtras` (plural, a whole `Bundle`) matched none of the three checks**, because every
+     *    one of them searched literally for `"putExtra("` / `\.putExtra\s*\(`, and the character
+     *    after `putExtra` in `putExtras(` is `s`, not `(`. Live today:
+     *    `LinkControl.kt`'s `intent.putExtras(searchParams)` after a plain assignment, targeting
+     *    `Screen.SearchIndex`/`Screen.SearchResults` (not migrated yet, so not a live BUG today --
+     *    but the guard existed to catch exactly this shape the day one of those screens migrates,
+     *    and it silently would not have). Fixed by giving every check the shared
+     *    [PUT_EXTRA_METHODS] alternation (`putExtras?`) instead of the bare singular name — see its
+     *    kdoc for why this cannot also match an unrelated identifier that merely starts with those
+     *    characters.
+     *  - **A TYPED `also`/`let` lambda parameter** (`.also { intent: Intent -> intent.putExtra(...) }`)
+     *    defeated the named-parameter read: the header regex's `\w+` stopped at the `:`, so the
+     *    match failed outright and the code silently fell back to `it` (which is not a substring of
+     *    `intent`). Fixed by accepting an optional, uncaptured `: <type>` between the parameter name
+     *    and `->`.
+     *
+     * **Known, deliberate, NOT fixed** (explicitly out of scope for this hardening, so the next
+     * person here does not have to rediscover why):
+     *  - `with(intentVar) { putExtra(...) }` -- no live caller uses `with` on a `ScreenLauncher
+     *    .intentFor(...)` result today; purely theoretical.
+     *  - A helper function that receives the built `Intent` and adds extras to it elsewhere (e.g.
+     *    `fun addSearchExtras(intent: Intent) { intent.putExtra(...) }` called on the result) -- an
+     *    inherent limit of a textual/regex scan; catching it needs real static analysis (a
+     *    call-graph/data-flow pass), not a bigger regex.
+     *  - The pre-existing looseness of the `apply`/`run` bare-substring check (now
+     *    `\bputExtras?\s*\(`, previously `.contains("putExtra(")`): since `apply`/`run` rebind
+     *    `this`, the scan cannot tell a bare `putExtra(...)` on the actual `Intent` receiver from
+     *    one on some OTHER value the block happens to also touch (e.g. a `someOtherIntent
+     *    .putExtra(...)` sitting in the same block) -- a same-block false positive is possible in
+     *    principle, predates this hardening round, and is accepted rather than chased.
+     *
      * The general shape is now: find each `ScreenLauncher.intentFor(` call by locating its own
      * matching closing paren ([matchingParenIndex]); read every migrated screen named ANYWHERE in
      * that balanced argument list; then check independently, relative to that call's OWN
-     * boundaries, for a chained `.putExtra`, a chained `.apply`/`.also`/`.let`/`.run { ... }` whose
-     * body reaches `putExtra(...)` through the receiver form that scope function actually uses, or
-     * an assignment (typed or not) whose variable later receives a nearby `.putExtra(...)`.
+     * boundaries, for a chained `.putExtra(s)`, a chained `.apply`/`.also`/`.let`/`.run { ... }`
+     * whose body reaches `putExtra(s)(...)` through the receiver form that scope function actually
+     * uses, or an assignment (typed or not) whose variable later receives a nearby
+     * `.putExtra(s)(...)`.
      *
      * **Known, deliberate bound** (stated rather than overclaimed, matching this file's sibling
      * scans in [ClassicRemovalScan]'s own kdoc style): the assignment shape's forward look for
@@ -268,12 +302,12 @@ class NavHostRoutingGuardTest {
 
                 val afterCall = text.substring(closeParenIndex + 1)
 
-                val chainedPutExtra = Regex("""^\s*\.putExtra\s*\(""").containsMatchIn(afterCall.take(200))
+                val chainedPutExtra = Regex("""^\s*\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(afterCall.take(200))
 
                 // apply/also/let/run: apply/run rebind `this` to the receiver, so a real caller's
-                // body calls putExtra(...) bare; also/let do NOT rebind `this` -- the receiver is
-                // only reachable as the implicit `it` or an explicit named lambda parameter, so
-                // those two are checked for `it.putExtra(...)`/`<param>.putExtra(...)` instead.
+                // body calls putExtra(s)(...) bare; also/let do NOT rebind `this` -- the receiver
+                // is only reachable as the implicit `it` or an explicit named lambda parameter, so
+                // those two are checked for `it.putExtra(s)(...)`/`<param>.putExtra(s)(...)` instead.
                 var chainedScopeFunctionDescription: String? = null
                 val chainedScopeMatch = Regex("""^\s*\.(apply|also|let|run)\s*\{""").find(afterCall.take(200))
                 if (chainedScopeMatch != null) {
@@ -283,13 +317,16 @@ class NavHostRoutingGuardTest {
                     if (block != null) {
                         val body = block.removePrefix("{").removeSuffix("}")
                         val bodyHasPutExtra = when (functionName) {
-                            "apply", "run" -> body.contains("putExtra(")
+                            "apply", "run" -> Regex("""\b$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(body)
                             else -> {
-                                // "also"/"let": an explicit named lambda parameter ("intent ->"),
-                                // or the implicit "it" when none is declared.
-                                val namedParam = Regex("""^\s*(\w+)\s*->""").find(body)?.groupValues?.get(1)
+                                // "also"/"let": an explicit named lambda parameter ("intent ->" or
+                                // the typed "intent: Intent ->"), or the implicit "it" when none is
+                                // declared. The optional type annotation is matched but not
+                                // captured -- only the parameter NAME is needed.
+                                val namedParam = Regex("""^\s*(\w+)\s*(?::\s*.+?)?\s*->""")
+                                    .find(body)?.groupValues?.get(1)
                                 val receiverName = namedParam ?: "it"
-                                Regex("""\b${Regex.escape(receiverName)}\.putExtra\s*\(""").containsMatchIn(body)
+                                Regex("""\b${Regex.escape(receiverName)}\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(body)
                             }
                         }
                         if (bodyHasPutExtra) {
@@ -309,7 +346,7 @@ class NavHostRoutingGuardTest {
                 if (assignedTo != null) {
                     val name = assignedTo.groupValues[1]
                     val window = afterCall.take(ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS)
-                    if (Regex("""\b${Regex.escape(name)}\.putExtra\s*\(""").containsMatchIn(window)) {
+                    if (Regex("""\b${Regex.escape(name)}\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(window)) {
                         assignedPutExtraName = name
                     }
                 }
@@ -339,9 +376,22 @@ class NavHostRoutingGuardTest {
         )
     }
 
-    /** See [migratedScreenArgumentIsNeverDroppedByAPutExtra]'s kdoc, the assignment shape's known bound. */
     private companion object {
+        /** See [migratedScreenArgumentIsNeverDroppedByAPutExtra]'s kdoc, the assignment shape's known bound. */
         const val ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS = 600
+
+        /**
+         * The literal method-name alternation every offender check searches for, explicit and
+         * shared rather than hand-repeated per call site: `putExtra` (singular, one key/value) OR
+         * `putExtras` (plural, an entire `Bundle`) -- both silently dropped the same way by a
+         * MIGRATED screen's intent, and `Intent` exposes both. Deliberately NOT a bare `putExtra`
+         * prefix match (which would also match unrelated identifiers merely starting with those
+         * characters, e.g. a hypothetical `putExtraValidator(...)`): the `s?` alternation matches
+         * only the two real `Intent` method names, and every use site additionally requires the
+         * immediately following `(` (via `\s*\(` after this fragment), so this can only match an
+         * actual method call, not a bare word.
+         */
+        const val PUT_EXTRA_METHODS = "putExtras?"
     }
 
     /**
