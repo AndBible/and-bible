@@ -24,7 +24,6 @@ import android.view.ViewConfiguration
 
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
-import net.bible.android.view.util.TouchOwner
 import net.bible.service.common.BibleViewSwipeMode
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.AutoFullscreenTracking
@@ -104,38 +103,39 @@ class BibleGestureListener(
             return false
         }
 
-        // prevent interference with window separator drag - fast drags were causing a fling
-        if (!TouchOwner.isTouchOwned) {
-            // get distance between points of the fling
-            val vertical = abs(flingEv.y - e2.y).toDouble()
-            val horizontal = abs(flingEv.x - e2.x).toDouble()
+        // The `if (!TouchOwner.isTouchOwned)` guard that used to wrap this block is gone with
+        // TouchOwner itself: its only two callers, `setTouchOwner` and `releaseOwnership`, were
+        // the classic split reading area's separator drag, so after the epilogue the property
+        // was permanently false and this branch was taken unconditionally (spec 10.3).
+        // get distance between points of the fling
+        val vertical = abs(flingEv.y - e2.y).toDouble()
+        val horizontal = abs(flingEv.x - e2.x).toDouble()
 
-            Log.i(TAG, "onFling vertical:$vertical horizontal:$horizontal VelocityX$velocityX")
+        Log.i(TAG, "onFling vertical:$vertical horizontal:$horizontal VelocityX$velocityX")
 
-            // test vertical distance, make sure it's a swipe
-            if (vertical > scaledMinimumDistance) {
-                return false
-            } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
-                // right to left swipe - sometimes velocity seems to have wrong sign so use raw positions to determine direction
-                var goNext = flingEv.x > e2.x
-                if(CommonUtils.isRtl)
-                    goNext = !goNext
+        // test vertical distance, make sure it's a swipe
+        if (vertical > scaledMinimumDistance) {
+            return false
+        } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
+            // right to left swipe - sometimes velocity seems to have wrong sign so use raw positions to determine direction
+            var goNext = flingEv.x > e2.x
+            if(CommonUtils.isRtl)
+                goNext = !goNext
 
-                if (goNext) {
-                    when(CommonUtils.settings.bibleViewSwipeMode) {
-                        BibleViewSwipeMode.CHAPTER -> mainBibleActivity.next()
-                        BibleViewSwipeMode.PAGE -> bibleView.volumeDownPressed()
-                        BibleViewSwipeMode.NONE -> {}
-                    }
-                } else {
-                    when(CommonUtils.settings.bibleViewSwipeMode) {
-                        BibleViewSwipeMode.CHAPTER -> mainBibleActivity.previous()
-                        BibleViewSwipeMode.PAGE -> bibleView.volumeUpPressed()
-                        BibleViewSwipeMode.NONE -> {}
-                    }
+            if (goNext) {
+                when(CommonUtils.settings.bibleViewSwipeMode) {
+                    BibleViewSwipeMode.CHAPTER -> mainBibleActivity.next()
+                    BibleViewSwipeMode.PAGE -> bibleView.volumeDownPressed()
+                    BibleViewSwipeMode.NONE -> {}
                 }
-                return true
+            } else {
+                when(CommonUtils.settings.bibleViewSwipeMode) {
+                    BibleViewSwipeMode.CHAPTER -> mainBibleActivity.previous()
+                    BibleViewSwipeMode.PAGE -> bibleView.volumeUpPressed()
+                    BibleViewSwipeMode.NONE -> {}
+                }
             }
+            return true
         }
         return false
     }

@@ -87,17 +87,20 @@ class ClassicRemovalScanAssertionsTest {
      * resolved by `LayoutInflater` at RUNTIME, so nothing else in the gate can see it.
      */
     @Test fun assertNoSourceNamesFailsOnAClassOnlyALayoutNames() {
-        // BookmarkListItem is inflated by name from ONE layout (studypad_list_item.xml:19) and is
-        // written UNQUALIFIED everywhere in Kotlin — view binding
-        // (Slice S9 deleted the second, bookmark_list_item.xml. THIS TEST NOW DEPENDS ON
-        // studypad_list_item.xml SURVIVING, and that layout is on the epilogue's dead-layout
-        // delete list: when the epilogue removes it, the assertion below fails with "no resource
-        // XML names $fq any more" — that is this coupling, not a regression. The fix then is to
-        // pick a different class that only a surviving layout names fully-qualified.)
-        // does the rest — so its fully-qualified name appears in NO shipping .kt/.java file. Both
-        // premises are asserted before use: if either stops holding, this test would pass for the
-        // wrong reason, which is the exact vacuity it exists to prevent.
-        val fq = "net.bible.android.view.util.widget.BookmarkListItem"
+        // SwitchCompat is inflated by name from ONE surviving layout (share_verses.xml, twelve
+        // times) and is written UNQUALIFIED nowhere in Kotlin either -- ShareWidget.kt goes
+        // through view binding -- so its fully-qualified name appears in NO shipping .kt/.java
+        // file. Both premises are asserted before use: if either stops holding, this test would
+        // pass for the wrong reason, which is the exact vacuity it exists to prevent.
+        //
+        // The fixture used to be net.bible.android.view.util.widget.BookmarkListItem, named by
+        // studypad_list_item.xml. The epilogue deleted that layout, and with it the LAST resource
+        // XML in the tree naming any net.bible class fully-qualified -- settings.xml's three
+        // InverseMultiSelectListPreference tags went in the same commit. So there is no net.bible
+        // candidate left at all, and the fixture is a third-party view class instead. The helper
+        // does not care about the package: what it needs is a class that resource XML names and
+        // source does not.
+        val fq = "androidx.appcompat.widget.SwitchCompat"
         val ref = ClassicRemovalScan.refsFor(listOf(fq)).single()
         val namedInSource = ClassicRemovalScan.appSources()
             .filter { ref.containsMatchIn(ClassicRemovalScan.codeLinesOf(it.path, keepImports = true)) }

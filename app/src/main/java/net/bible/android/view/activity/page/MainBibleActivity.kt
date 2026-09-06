@@ -318,8 +318,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Offsets with system insets only - will be updated by setupEdgeToEdge()
     private var bottomOffset1 = 0
     private var bottomOffset1WithoutIme = 0  // Always excludes IME (keyboard) height
-    var rightOffset1 = 0
-    var leftOffset1 = 0
 
     // Bottom offset with navigation bar, transport bar and agent log.
     // The term is dropped when the mainBibleView padding is handling the keyboard, and is the
@@ -673,8 +671,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
                 // Store base system bar offsets (without IME)
                 bottomOffset1WithoutIme = systemBarInsets.bottom  // Always system bars only, never includes IME
-                leftOffset1 = systemBarInsets.left
-                rightOffset1 = systemBarInsets.right
 
                 // bottomOffset1 includes IME when keyboard is visible (for Android UI positioning)
                 if (imeInsets.bottom > 0) {
@@ -1051,17 +1047,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             Log.i(TAG, "Back Long")
             // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
             // been performed on the long press, so will set the cancelled flag for the following up event.
-            // Round 15b T4: on the Compose reading view, History opens as a quick sheet over the
-            // reading view instead of the classic full-screen Activity. Null host = classic path,
-            // unchanged below.
+            // Round 15b T4: History opens as a quick sheet over the reading view. The epilogue
+            // deleted the classic Activity, HistoryComposeActivity and the `Screen.History` enum
+            // entry, so there is no Intent route left to fall back to. `composeReadingViewHost` is
+            // declared nullable, so SOME null handling is compiler-mandated; a null host now falls
+            // through to `super.onKeyLongPress` -- i.e. long BACK is simply not consumed -- rather
+            // than launching anything. The host is installed in `setupUi` before a key event can
+            // reach this activity, so that arm is unreachable in practice.
             val host = composeReadingViewHost
             if (host != null) {
                 host.showHistorySheet()
                 return true
             }
-            val intent = ScreenLauncher.intentFor(this, Screen.History)
-            startActivityForResult(intent, STD_REQUEST_CODE)
-            return true
         }
 
         return super.onKeyLongPress(keyCode, event)

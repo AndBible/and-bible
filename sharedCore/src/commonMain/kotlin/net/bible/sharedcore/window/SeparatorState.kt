@@ -17,6 +17,9 @@
 
 package net.bible.sharedcore.window
 
+// Z-late epilogue: the classic resources this file cites by name no longer exist -- they were
+// deleted once the Compose reading view replaced what used them. The citations stay as the
+// provenance of the numbers below, which is the whole reason they are recorded.
 /**
  * True when either window adjacent to a separator is the active window — the Compose port of
  * classic `Separator.isActive` (`screen/Separator.kt:88`), which selects `separator_active` vs

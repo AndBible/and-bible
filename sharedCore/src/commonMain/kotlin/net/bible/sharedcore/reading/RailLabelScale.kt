@@ -17,6 +17,9 @@
 
 package net.bible.sharedcore.reading
 
+// Z-late epilogue: the classic resources this file cites by name no longer exist -- they were
+// deleted once the Compose reading view replaced what used them. The citations stay as the
+// provenance of the numbers below, which is the whole reason they are recorded.
 /**
  * How much to shrink the restore-rail button's two label lines so they fit the space left below
  * its badge row.

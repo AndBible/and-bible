@@ -188,15 +188,18 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.AiPrompts)
                 }
                 R.id.historyButton -> {
-                    // Round 15b T4: on the Compose reading view, History opens as a quick sheet
-                    // over the reading view instead of the classic full-screen Activity. Null host
-                    // = classic path, unchanged below.
+                    // Round 15b T4: History opens as a quick sheet over the reading view. The
+                    // epilogue deleted the classic Activity, HistoryComposeActivity and the
+                    // `Screen.History` enum entry, so there is no Intent route left to fall back
+                    // to. `composeReadingViewHost` is declared nullable, so SOME null handling is
+                    // compiler-mandated; this takes the same shape `speakButton` below does --
+                    // fall through with `isHandled` still false, leaving the menu row an unhandled
+                    // no-op. The host is installed in `setupUi` before any menu can be opened, so
+                    // the null arm is unreachable in practice.
                     val host = mainBibleActivity.composeReadingViewHost
                     if (host != null) {
                         host.showHistorySheet()
                         isHandled = true
-                    } else {
-                        handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.History)
                     }
                 }
                 R.id.bookmarksButton -> handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.Bookmarks)

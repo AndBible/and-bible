@@ -36,6 +36,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.bible.sharedui.theme.LocalDisableAnimations
 
+// Z-late epilogue: the classic resources this file cites by name no longer exist -- they were
+// deleted once the Compose reading view replaced what used them. The citations stay as the
+// provenance of the numbers below, which is the whole reason they are recorded.
 /** Classic `bible_ref_overlay_offset` = 80dip (`res/values/dimens.xml`). */
 private val OverlayBottomOffset = 80.dp
 

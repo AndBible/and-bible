@@ -53,7 +53,8 @@ fun Context.findActivity(): Activity? {
  *   `ReadingProgressPalette.textColorForBackground`. Classic only ever set light-icon mode for
  *   monochrome+day, which would leave white icons unreadable on a light workspace colour.
  * - **Floating windows are skipped for both the colour and the appearance write** (A/B batch 3
- *   review fix, Minor 7). A dialog-themed Activity (`HistoryComposeActivity`,
+ *   review fix, Minor 7). A dialog-themed Activity (the since-deleted `HistoryComposeActivity`
+ *   was this codebase's one example,
  *   `Theme.AppCompat...Dialog.Alert`) does not own the real status bar: `statusBarColor` is already
  *   ignored on one by the platform, but `isAppearanceLightStatusBars` is a
  *   `WindowInsetsController` property that DOES still apply while the floating window has focus —

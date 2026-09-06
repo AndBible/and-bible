@@ -33,6 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+// Z-late epilogue: the classic resources this file cites by name no longer exist -- they were
+// deleted once the Compose reading view replaced what used them. The citations stay as the
+// provenance of the numbers below, which is the whole reason they are recorded.
 /**
  * Draggable divider between two panes in the native Compose split (see the reading-view
  * design spec §2.3). [isVertical] mirrors the split direction: `true` = panes stacked

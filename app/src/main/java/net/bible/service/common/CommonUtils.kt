@@ -67,12 +67,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
-import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceManager
-import androidx.preference.PreferenceScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -219,21 +214,6 @@ fun htmlToSpan(html: String?): Spanned {
     return spanned
 }
 
-fun PreferenceFragmentCompat.getPreferenceList(p_: Preference? = null, list_: ArrayList<Preference>? = null): ArrayList<Preference> {
-    val p = p_?: preferenceScreen
-    val list = list_?: ArrayList()
-    if (p is PreferenceCategory || p is PreferenceScreen) {
-        val pGroup: PreferenceGroup = p as PreferenceGroup
-        val pCount: Int = pGroup.preferenceCount
-        for (i in 0 until pCount) {
-            getPreferenceList(pGroup.getPreference(i), list) // recursive call
-        }
-    } else {
-        list.add(p)
-    }
-    return list
-}
-
 const val promoAndNewFeaturesPlaylistAutostart = "https://www.youtube.com/watch?v=f2cf6-7liMo&list=PLD-W_Iw-N2MlOXgRTLQqoXZpQxkqf119a&index=1"
 // "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlOXgRTLQqoXZpQxkqf119a" // What's new 4.0 playlist
 
@@ -243,7 +223,6 @@ const val bookmarksMyNotesPlaylist = "https://www.youtube.com/playlist?list=PLD-
 const val notesAndStudyPadsPlayList= "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m" // 4.0 (playlist for notes & study pads)
 const val speakPlayList = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Ml4arSb_fDBYqgiYtVPmjFo" // playlist for speak related tutorials
 
-const val textDisplaySettingsVideo = windowsAndWorkspacesPlaylist
 const val windowPinningVideo = windowsAndWorkspacesPlaylist
 const val studyPadsVideo = notesAndStudyPadsPlayList
 const val workspacesVideo = windowsAndWorkspacesPlaylist
@@ -503,6 +482,11 @@ object CommonUtils : CommonUtilsBase() {
         get() = realSharedPreferences.getString("locale_pref", null)
 
     // Note: use AndBibleSettings always if possible to save preferences. They are persisted in DB.
+    //
+    // This `PreferenceManager` call is, since the Z-late epilogue, the ONLY androidx.preference use
+    // left anywhere in the tree -- so it alone is what keeps the two `androidx.preference` gradle
+    // dependencies (app/build.gradle.kts) earning their place. It is not dead weight: the default
+    // SharedPreferences file it names is the one every pre-DB setting was written to.
     val realSharedPreferences: SharedPreferences
         get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 

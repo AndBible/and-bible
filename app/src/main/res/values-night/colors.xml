@@ -18,18 +18,10 @@
 
 <resources>
 
-    <color name="bible_reference_overlay">#DE5A5A5A</color>
 
-    <color name="bar_window_button_text_colour">#939393</color>
-    <color name="bar_window_button_icon_tint">@color/bar_window_button_text_colour</color>
-    <color name="bar_window_button_category_tint">@color/bar_window_button_text_colour</color>
-    <color name="bar_window_button_background_colour">#2E2E2E</color>
-    <color name="bar_window_button_background_colour_visible">#6A6A6A</color>
-    <color name="bar_window_button_stroke_color">#686868</color>
 
     <color name="status_bar">@color/black</color>
 
-    <color name="window_button_text_colour">#32FFFFFF</color>
 
     <color name="navigation_bar">@color/black</color>
     <color name="high_contrast">@color/white</color>

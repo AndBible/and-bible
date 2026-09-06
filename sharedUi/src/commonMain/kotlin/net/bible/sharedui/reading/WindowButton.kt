@@ -52,6 +52,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.reading.railLabelFontScale
 
+// Z-late epilogue: the classic resources this file cites by name no longer exist -- they were
+// deleted once the Compose reading view replaced what used them. The citations stay as the
+// provenance of the numbers below, which is the whole reason they are recorded.
 /**
  * The two call sites of classic Android's single `WindowButtonWidget(isRestoreButton = true/false)`:
  * [Rail] is the restore rail's per-window button (Plan A Task 5, `isRestoreButton = true`); [Pane]

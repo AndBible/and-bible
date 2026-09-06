@@ -147,7 +147,7 @@ class WindowButtonGoldenTest {
             )
             // pane-pinned: fix-round-1 — the pin indicator's classic-accurate position, start edge
             // directly under the sync badge, and syncGroup=1 is set alongside it so the capture also
-            // proves the two badges don't collide (window_button.xml:97-107 Top_toBottomOf=synchronize).
+            // proves the two badges don't collide (window_button.xml:97-107 Top_toBottomOf=synchronize -- that layout was deleted by the Z-late epilogue; the citation is provenance).
             WindowButton(
                 label = "☰",
                 isActive = false,

@@ -56,6 +56,9 @@ import net.bible.sharedcore.window.separatorDrag
 import net.bible.sharedcore.window.separatorIsActive
 import net.bible.sharedcore.window.splitIsHorizontal
 
+// Z-late epilogue: the classic resources this file cites by name no longer exist -- they were
+// deleted once the Compose reading view replaced what used them. The citations stay as the
+// provenance of the numbers below, which is the whole reason they are recorded.
 /** Classic `window_separator_width` (`res/values/dimens.xml:32`): the only space the seam occupies in flow. */
 private val SEPARATOR_THICKNESS = 4.dp
 

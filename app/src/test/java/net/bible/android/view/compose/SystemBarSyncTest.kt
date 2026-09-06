@@ -32,7 +32,8 @@ class SystemBarSyncTest {
     private fun activity(): AppCompatActivity =
         Robolectric.buildActivity(AppCompatActivity::class.java).setup().get()
 
-    /** Stand-in for `HistoryComposeActivity`'s window theme (`Theme.AbComposeDialog`, parent
+    /** Stand-in for the window theme the since-deleted `HistoryComposeActivity` used
+     *  (`Theme.AbComposeDialog`, itself deleted with it; parent
      *  `Theme.AppCompat...Dialog.Alert` — floating), for Minor 7's coverage. Same idiom
      *  [ComposeHostActionBarTest] uses for its themed probes: `setTheme` runs BEFORE
      *  `super.onCreate`, so AppCompat's delegate reads it exactly as it would read a manifest
@@ -151,7 +152,8 @@ class SystemBarSyncTest {
         assertNull(appContext.findActivity())
     }
 
-    // A/B batch 3 review fix (Minor 7): a floating window (HistoryComposeActivity's dialog theme)
+    // A/B batch 3 review fix (Minor 7): a floating window (the dialog theme the since-deleted
+    // HistoryComposeActivity used)
     // does not own the real status bar. `statusBarColor` is already ignored by the platform there,
     // but `isAppearanceLightStatusBars` is NOT — it would otherwise leak icon-contrast changes onto
     // whichever Activity is really showing the status bar, with nothing restoring it on dismiss.

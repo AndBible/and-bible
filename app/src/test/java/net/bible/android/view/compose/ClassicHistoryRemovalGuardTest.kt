@@ -19,26 +19,36 @@ package net.bible.android.view.compose
 import org.junit.Test
 
 /**
- * Batch Z-late phase 1, slice S14: the classic history screen was deleted with its two layouts, and
- * `ScreenLauncher`'s arm collapsed to `HistoryComposeActivity`.
+ * Batch Z-late phase 1, slice S14: the classic history screen was deleted with its two layouts.
  *
- * Spec §5's S14 row also lists `HistoryComposeActivity` — dead since round 15b rerouted history to a
- * sheet — for deletion in this slice. It is deliberately NOT deleted here, and
- * `theDeadComposeHistoryActivityIsStillHere` below is what stops that decision eroding into a
- * silent under-delivery. Deleting it would leave `Screen.History` with no Activity of any kind,
- * make flag-OFF History a no-op rather than the ordinary "flag-OFF now opens Compose" change, orphan
- * `@style/Theme.AbComposeDialog`, and — the expensive one — strand `sharedUi`'s full-screen
- * `HistoryScreen` as test-only code still carrying 7 goldens, which the next tidy-up would move.
- * All three cost nothing to defer to the epilogue, where §10.2 already collapses the two classic
- * branches that make the Compose activity unreachable.
+ * The epilogue finished the job. S14 had deliberately KEPT `HistoryComposeActivity` — dead since
+ * round 15b rerouted history to a sheet — because deleting it then would have left `Screen.History`
+ * with no Activity of any kind while the flag could still route to it. The epilogue removed the
+ * last two branches that could reach it, so the activity, its `<activity>` manifest block, its
+ * `@style/Theme.AbComposeDialog` window theme and the `Screen.History` enum entry all went
+ * together, and both remaining callers (`MenuCommandHandler.historyButton`,
+ * `MainBibleActivity.onKeyLongPress`) now only call `host.showHistorySheet()`.
+ *
+ * What that leaves behind is recorded rather than swept: `sharedUi`'s full-screen `HistoryScreen`
+ * composable is now test-only code carrying 7 goldens. It is NOT deleted — `:sharedUi` cleanup is
+ * out of this phase's scope (spec 2.3), and a composable with goldens is not the same thing as
+ * dead code. `HistoryListContent`, the sheet's own body, stays live.
  */
 class ClassicHistoryRemovalGuardTest {
+    /**
+     * A LEADING boundary is as necessary as the trailing one [ClassicRemovalScan.refsFor] adds:
+     * `net.bible.android.view.activity.ai.RawLogHistoryComposeActivity` is live and ends in the
+     * substring `HistoryComposeActivity`, so the entry below is written fully qualified with its
+     * own `navigation.` package segment in front.
+     */
     private val doomedClassNames = listOf(
         "net.bible.android.view.activity.navigation.History",
+        "net.bible.android.view.activity.navigation.HistoryComposeActivity",
     )
 
     private val doomedPaths = listOf(
         "src/main/java/net/bible/android/view/activity/navigation/History.kt",
+        "src/main/java/net/bible/android/view/activity/navigation/HistoryComposeActivity.kt",
         "src/main/res/layout/history.xml",
         "src/main/res/layout/history_list_item.xml",
     )
@@ -46,43 +56,27 @@ class ClassicHistoryRemovalGuardTest {
     @Test fun theClassicHistoryFilesAndLayoutsAreGone() {
         ClassicRemovalScan.assertPathsGone(
             doomedPaths,
-            "the classic history screen or one of its layouts should have been deleted in S14",
+            "the classic history screen or one of its layouts should have been deleted in S14, and " +
+                "the unreachable HistoryComposeActivity in the epilogue",
         )
     }
 
     @Test fun noSourceFileNamesTheClassicHistory() {
         ClassicRemovalScan.assertNoSourceNames(
             doomedClassNames,
-            "these files still name the classic navigation.History deleted in S14. The FQN's " +
-                "trailing boundary spares navigation.HistoryComposeActivity, which survives this " +
-                "slice — so a hit here is a real reference to the deleted class, not the Compose one.",
+            "these files still name a history Activity: the classic navigation.History deleted in " +
+                "S14, or navigation.HistoryComposeActivity deleted in the epilogue. Both entries " +
+                "carry their navigation. package segment, so neither matches the live " +
+                "ai.RawLogHistoryComposeActivity.",
         )
     }
 
     @Test fun noManifestEntryNamesTheClassicHistory() {
         ClassicRemovalScan.assertNoManifestNames(
             doomedClassNames,
-            "a manifest still names the class S14 deletes. The HistoryComposeActivity block at " +
-                "main:487-492 is NOT it and must stay.",
-        )
-    }
-
-    @Test fun screenLauncherDoesNotBranchForHistory() {
-        ClassicRemovalScan.assertLauncherArmsUnconditional(
-            listOf("Screen.History"),
-            "the History arm still branches on the flag (or is missing entirely) — S14 collapses it " +
-                "to HistoryComposeActivity unconditionally",
-        )
-    }
-
-    @Test fun theDeadComposeHistoryActivityIsStillHere() {
-        ClassicRemovalScan.assertPathsPresent(
-            listOf("src/main/java/net/bible/android/view/activity/navigation/HistoryComposeActivity.kt"),
-            "HistoryComposeActivity is unreachable production code and its deletion belongs to the " +
-                "epilogue (spec §10.2), together with the two classic branches that make it " +
-                "unreachable. Deleting it here would strand sharedUi's full-screen HistoryScreen as " +
-                "test-only code holding 7 goldens, and leave Screen.History with no target class. " +
-                "If it should go, take the branches and the style with it in the same change.",
+            "a manifest still names a deleted history Activity. Both blocks are gone: the classic " +
+                "one in S14, and HistoryComposeActivity's (src/main/AndroidManifest.xml:360-365 " +
+                "before removal) in the epilogue.",
         )
     }
 }

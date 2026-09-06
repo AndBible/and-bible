@@ -37,9 +37,11 @@ import net.bible.sharedui.ai.EasySetupWizard
 import org.koin.android.ext.android.inject
 
 /**
- * Compose host for the AI providers list/edit screen — the new-path twin of classic
- * [AiProvidersActivity]/[AiProvidersFragment]. Wires the shared [AiProvidersController] over
- * [LlmProviderService] and renders [AiProvidersScreen].
+ * Compose host for the AI providers list/edit screen. It began as the new-path twin of the classic
+ * `AiProvidersActivity`/`AiProvidersFragment` pair, both of which Batch Z-late phase 1 deleted —
+ * the names are left here as plain text, not KDoc links, because a link to a deleted class resolves
+ * to nothing. Wires the shared [AiProvidersController] over [LlmProviderService] and renders
+ * [AiProvidersScreen].
  *
  * Two things stay host-side (Android-resource / dialog concerns the shared layer can't own):
  * - **Disclaimer gate**: [onAdd] runs [ensureDisclaimerAccepted] before opening the add-provider

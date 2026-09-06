@@ -92,7 +92,6 @@ import net.bible.android.control.event.onMain
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
-import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument
@@ -175,6 +174,14 @@ import kotlin.math.min
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
+/**
+ * POSTED WITH NO SUBSCRIBERS since Batch Z-late phase 1 removed the classic reading view.
+ *
+ * Recorded rather than swept, deliberately and consistently across the whole batch: deleting an
+ * unreachable HANDLER is a local tidy-up, while deleting a posted EVENT changes what the app
+ * announces about itself, and any later subscriber -- Compose, iOS or a future feature -- would
+ * want it back. Whoever revisits this should decide the poster's fate first, not the class's.
+ */
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
 
@@ -1171,14 +1178,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     on<MainBibleActivity.ImePaddingChanged> { event ->
                         updateOffsets(true)
                     }
-                    on<WindowSizeChangedEvent> { event ->
-                        Log.i(TAG, "window size changed")
-                        separatorMoving = !event.isFinished
-                        if(!separatorMoving && !mainBibleActivity.isSplitVertically) {
-                            checkWindows = true
-                            doCheckWindows()
-                        }
-                    }
                     // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here
                     // and finish a deferred teardown. Both events were posted only by the classic
                     // split reading area, so they became unpostable when it went; the live teardown
@@ -2040,11 +2039,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     / mainBibleActivity.resources.displayMetrics.density)
             else 0F
 
-    private var separatorMoving = false
-
     override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {
         super.onSizeChanged(w, h, ow, oh)
-        if(lastUpdated != 0L && !separatorMoving && w != ow) {
+        // `separatorMoving` used to gate this: the classic split reading area suppressed the check
+        // while a separator was being dragged. Its only writer was the `WindowSizeChangedEvent`
+        // handler, whose only poster was that separator, so the epilogue removed the whole chain
+        // (spec 10.3) and the check is unconditional again.
+        if(lastUpdated != 0L && w != ow) {
             doCheckWindows()
         }
     }

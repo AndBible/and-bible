@@ -45,7 +45,6 @@ import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
-import net.bible.android.view.activity.navigation.HistoryComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentsComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
 import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
@@ -69,8 +68,13 @@ import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivi
  * The screens [ScreenLauncher] routes to. Named for what they ARE, not for how they are built --
  * this used to be "screens that have both a classic (XML) and a new (Compose) implementation", and
  * after Batch Z-late phase 1 none of them has a classic half left.
+ *
+ * Not every screen is an Activity, so not every screen is in here. `History` and `BibleSpeak` both
+ * left the enum in the epilogue: each is now a sheet drawn over the reading view by
+ * `ComposeReadingViewHost`, so a routing target for either would name an Activity that no longer
+ * exists. Reaching them is a host call (`showHistorySheet()`, `showSpeakTransport()`), not a launch.
  */
-enum class Screen { Calculator, History, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
+enum class Screen { Calculator, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
 
 /**
  * Central routing indirection, and all that survives of the old/new Strangler Fig: [targetFor] is a
@@ -88,7 +92,6 @@ object ScreenLauncher {
     /** The Activity class implementing [screen]. */
     fun targetFor(screen: Screen): Class<*> = when (screen) {
         Screen.Calculator -> CalculatorComposeActivity::class.java
-        Screen.History -> HistoryComposeActivity::class.java
         Screen.SearchIndexProgress -> SearchIndexProgressComposeActivity::class.java
         Screen.SearchIndex -> SearchIndexComposeActivity::class.java
         Screen.SearchResults -> SearchResultsComposeActivity::class.java

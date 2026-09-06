@@ -110,10 +110,13 @@ class ClassicReadingViewRemovalGuardTest {
 
     /**
      * `net.bible.android.view.util.widget.TwoLineListItem` is deliberately NOT in this list even
-     * though it sits in the very directory `WindowButtonWidget.kt` was deleted from (trap 12): it
-     * SURVIVES, inflated by name from `list_item_2_highlighted.xml` and subclassed by
-     * `KeyItemAdapter`, and `sharedUi` separately owns an unrelated composable of the same bare
-     * name. Listing it would fail this guard against live code.
+     * though it sits in the very directory `WindowButtonWidget.kt` was deleted from (trap 12).
+     * While the split reading area was collapsed it still SURVIVED, inflated by name from
+     * `list_item_2_highlighted.xml`, so listing it here would have failed this guard against live
+     * code. The Z-late epilogue then deleted that layout and the widget with it -- but as its own
+     * orphan sweep, not as split-reading-area residue, so it stays out of this list. `sharedUi`
+     * separately owns an unrelated composable of the same bare name, which is why every entry
+     * below is FULLY QUALIFIED.
      *
      * The names are FULLY QUALIFIED, as [ClassicRemovalScan.assertNoSourceNames] requires -- a bare
      * `Separator` would match ~100 unrelated lines, `sharedUi`'s own `Separator` composable among

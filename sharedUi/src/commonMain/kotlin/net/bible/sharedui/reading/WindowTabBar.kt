@@ -55,6 +55,9 @@ private val RailEntrySpacing = 6.dp
 private val GroupSeparatorWidth = 1.dp
 private val GroupSeparatorHeight = 24.dp
 
+// Z-late epilogue: the classic resources this file cites by name no longer exist -- they were
+// deleted once the Compose reading view replaced what used them. The citations stay as the
+// provenance of the numbers below, which is the whole reason they are recorded.
 /** Classic `window_bar_background`'s `padding left=5dp top=2dp` (right/bottom are 0). */
 private val RailPaddingStart = 5.dp
 private val RailPaddingTop = 2.dp

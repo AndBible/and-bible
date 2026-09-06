@@ -14,24 +14,14 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-package net.bible.android.view.util
+package net.bible.android.control.event.window
 
-import android.content.Context
-import android.graphics.Color
-import android.view.MotionEvent
-import android.view.View
-
-/** TouchDelegate was not working with the split WebViews so created this simple replacement.
- * Partially overlay another view with this to redirect touch events to a delegate View
+/**
+ * Marker for every event about the window/workspace layout.
  *
- * @author Martin Denham [mjdenham at gmail dot com]
+ * It used to live at the top of `WindowSizeChangedEvent.kt`, sharing a file with the one event it
+ * happened to be declared next to. Batch Z-late phase 1's epilogue deleted that event with the
+ * classic split reading area (its sole poster), which would have taken this interface -- and its
+ * five other implementors -- with it, so it moved into a file of its own.
  */
-class TouchDelegateView(context: Context?, private val delegate: View) : View(context) {
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        return delegate.onTouchEvent(event)
-    }
-
-    init {
-        setBackgroundColor(Color.TRANSPARENT)
-    }
-}
+interface WindowEvent

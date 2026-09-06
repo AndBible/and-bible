@@ -41,7 +41,6 @@ import net.bible.android.view.activity.download.DownloadComposeActivity
 import net.bible.android.view.activity.download.ProgressStatusComposeActivity
 import net.bible.android.view.activity.installzip.InstallZipComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
-import net.bible.android.view.activity.navigation.HistoryComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
@@ -77,11 +76,6 @@ class ScreenLauncherTest {
     @After
     fun tearDown() {
         DatabaseResetter.resetDatabase()
-    }
-
-    @Test
-    fun history_routes_to_compose() {
-        assertEquals(HistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.History))
     }
 
     @Test

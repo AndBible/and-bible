@@ -421,6 +421,8 @@ dependencies {
     implementation("androidx.media:media:1.7.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    // Kept deliberately: after the Z-late epilogue the whole tree's only androidx.preference use
+    // is CommonUtils.realSharedPreferences' PreferenceManager.getDefaultSharedPreferences.
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.recyclerview:recyclerview:1.4.0")

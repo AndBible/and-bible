@@ -78,7 +78,6 @@ open class WindowControl constructor() {
 
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
     fun windowPosition(windowId: IdType) = windowRepository.windowList.indexOf(windowRepository.getWindow(windowId))
-    val isSingleWindow get () = !windowRepository.isMultiWindow && windowRepository.minimisedWindows.isEmpty() && !windowRepository.isMaximized
 
     init {
         ABEventBus.register(this) {
@@ -221,13 +220,6 @@ open class WindowControl constructor() {
     fun orientationChange() {
         // causes BibleViews to be created and laid out
         windowRepository.notifyWindowsChanged()
-    }
-
-    var isSeparatorMoving = false
-        set(value) {
-        field = value
-        val isMoveFinished = !value
-        windowRepository.notifyWindowSizeChanged(isMoveFinished)
     }
 
     fun windowSizesChanged() {

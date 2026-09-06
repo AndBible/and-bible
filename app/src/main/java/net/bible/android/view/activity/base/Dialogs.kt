@@ -295,15 +295,19 @@ object Dialogs {
             // right-hand side compile and pass while granting the wrong permission).
             return choice.toResult()
         }
-        return classicAgentPermissionDialog(context, toolDisplayName, toolDescription, actionDescription)
+        return nativeAgentPermissionDialog(context, toolDisplayName, toolDescription, actionDescription)
     }
 
     /**
      * The native `AlertDialog` implementation, used whenever the foreground activity is not a
      * [MainBibleActivity] with the reading view mounted. Moved here verbatim from
      * [agentPermissionDialog] so this fallback stays behaviourally byte-for-byte identical.
+     *
+     * It was called `classicAgentPermissionDialog` while a classic reading view still existed; the
+     * Z-late epilogue renamed it, because it is not the classic arm of anything any more -- it is
+     * the general fallback for every host that is not the reading view.
      */
-    private suspend fun classicAgentPermissionDialog(
+    private suspend fun nativeAgentPermissionDialog(
         context: Context,
         toolDisplayName: String,
         toolDescription: String,

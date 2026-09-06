@@ -780,7 +780,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val historyManager: HistoryManager by inject()
 
     /**
-     * The [HistoryEntry] list, mirroring `HistoryComposeActivity`'s `controller` verbatim
+     * The [HistoryEntry] list, mirroring the `controller` of the since-deleted
+     * `HistoryComposeActivity` verbatim
      * (`historyManager.getHistory(activeWindow.id)` + the `"h:mm a, E d MMM "` timestamp format
      * both the classic screen and the goldens depend on). [historyItems] is stashed alongside so
      * [revertToHistoryItem] can resolve an entry's `id` (its list index, not a stable key) back to
@@ -1333,7 +1334,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         when (val sheet = quickSheet.value) {
             null -> Unit
             ReadingQuickSheet.History -> {
-                // Built per opening, exactly as HistoryComposeActivity.kt:46-64 builds it: the
+                // Built per opening, exactly as HistoryComposeActivity.kt:46-64 built it before
+                // the Z-late epilogue deleted that file: the
                 // controller reads the history once at construction, so a stale instance would show
                 // a stale list.
                 val controller = remember(sheet) {
@@ -1347,7 +1349,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 val listState = rememberLazyListState()
                 AbQuickSheet(
                     open = true,
-                    // Exactly HistoryComposeActivity.kt:68's arguments — the format string is
+                    // Exactly the arguments HistoryComposeActivity.kt:68 passed before the
+                    // Z-late epilogue deleted that file — the format string is
                     // "History (%1$s: Window %2$d)" and the goldens depend on both.
                     title = activity.getString(
                         R.string.history_for,

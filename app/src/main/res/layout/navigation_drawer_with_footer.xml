@@ -23,7 +23,11 @@
     android:orientation="vertical"
     android:background="?attr/android:windowBackground">
 
-    <!-- Navigation View (takes up most of the space) -->
+    <!-- Navigation View (takes up most of the space).
+         nav_header_main.xml is LIVE: the app:headerLayout below is its only referrer, and
+         this layout is included from main_bible_view.xml. The Z-late epilogue checked it
+         (an earlier sketch had listed it among the already-dead resources) and left it in
+         place, because the classic navigation drawer is kept. Do not re-derive this. -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigationView"
         android:layout_width="wrap_content"

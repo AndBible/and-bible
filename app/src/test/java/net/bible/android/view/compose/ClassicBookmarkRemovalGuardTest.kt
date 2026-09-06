@@ -71,10 +71,11 @@ class ClassicBookmarkRemovalGuardTest {
      * `BookmarkStyleAdapterHelper.kt`'s only consumer was the deleted `ManageLabelItemAdapter`
      * (`:25,43`); after S9 its sole occurrence in the whole tree is its own declaration.
      * `BookmarkListItem.kt` was inflated by fully-qualified name from two layouts, and S9 deletes
-     * one of them (`bookmark_list_item.xml`); the survivor, `studypad_list_item.xml`, is itself on
-     * the epilogue's dead-layout list, so this widget is now reachable from exactly one place and
-     * that place is scheduled to go. Neither may be swept up as "obviously unused": spec 2.4
-     * protects `view/util/widget/` by name.
+     * one of them (`bookmark_list_item.xml`); the survivor, `studypad_list_item.xml`, was itself on
+     * the epilogue's dead-layout list. The epilogue duly deleted it, so `BookmarkListItem.kt` now
+     * has NO referrer anywhere in the tree -- its last layout referrer went there. It is kept all
+     * the same, and this list is what keeps it: neither file may be swept up as "obviously
+     * unused", because spec 2.4 protects `view/util/widget/` by name.
      *
      * `res/layout/list_content_simple.xml` is NOT in this list on purpose. It is also kept, but
      * it is not referenceless — `ListActivityBase.kt:178` still inflates it and three classic

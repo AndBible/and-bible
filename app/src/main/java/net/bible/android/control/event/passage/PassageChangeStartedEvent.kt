@@ -16,4 +16,12 @@
  */
 package net.bible.android.control.event.passage
 
+/**
+ * POSTED WITH NO SUBSCRIBERS since Batch Z-late phase 1 removed the classic reading view.
+ *
+ * Recorded rather than swept, deliberately and consistently across the whole batch: deleting an
+ * unreachable HANDLER is a local tidy-up, while deleting a posted EVENT changes what the app
+ * announces about itself, and any later subscriber -- Compose, iOS or a future feature -- would
+ * want it back. Whoever revisits this should decide the poster's fate first, not the class's.
+ */
 class PassageChangeStartedEvent 

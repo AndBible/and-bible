@@ -23,7 +23,6 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
-import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.event.window.WorkspaceChanged
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.control.page.CurrentPageManager
@@ -370,10 +369,6 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     fun notifyActiveWindowChanged(window: Window) {
         windowStateService.refresh(this)
         ABEventBus.post(CurrentWindowChangedEvent(window))
-    }
-    fun notifyWindowSizeChanged(moveFinished: Boolean) {
-        windowStateService.refresh(this)
-        ABEventBus.post(WindowSizeChangedEvent(moveFinished))
     }
     fun notifyWindowChanged(window: Window) {
         windowStateService.refresh(this)
