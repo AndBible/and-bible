@@ -122,6 +122,7 @@
 	<color name="yellow_200">#59fff59d</color>
 	<color name="yellow_300">#59fff176</color>
 	<color name="yellow_400">#59ffee58</color>
+	<color name="yellow_500">#ffeb3b</color>
 	<color name="yellow_600">#fdd835</color>
 	<color name="yellow_700">#fbc02d</color>
 	<color name="yellow_800">#f9a825</color>

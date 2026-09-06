@@ -20,9 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.painter.Painter
 
-// Z-late epilogue: the classic resources this file cites by name no longer exist -- they were
-// deleted once the Compose reading view replaced what used them. The citations stay as the
-// provenance of the numbers below, which is the whole reason they are recorded.
+// Z-late epilogue: of the two classic resources cited below, `res/layout/window_button.xml` no
+// longer exists -- it was deleted once the Compose reading view replaced what used it. `ic_pin`
+// itself is LIVE and still has four referrers; it is the drawable the Android host provides
+// through this seam. The layout citation stays as the provenance of the glyph's placement.
 /**
  * Host seam supplying the "window is pinned" glyph as a [Painter] — classic's `ic_pin`
  * (`res/layout/window_button.xml:97-107`).

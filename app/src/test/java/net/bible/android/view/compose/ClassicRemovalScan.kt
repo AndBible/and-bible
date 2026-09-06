@@ -188,13 +188,24 @@ object ClassicRemovalScan {
      *
      * The resource arm was added in the S6+S16+S18+S19 batch, after batch S4+S5+S7+S8's final
      * review found the KDoc here claimed a fully-qualified name "cannot escape" while the walk
-     * opened only `.kt`/`.java`. **Layout XML is exactly where this repo names classes
-     * fully-qualified**: eight layouts carry a bare `<net.bible.…>` element tag, `res/xml/settings.xml`
-     * names a custom `Preference` class three times, and `CalendarHeatmapView`'s only two
-     * instantiation sites in the whole tree were `reading_progress.xml:191` and `:485`. Such a
-     * reference is resolved by `LayoutInflater` at RUNTIME: the compiler, the unit suite and
-     * Roborazzi all miss it alike and `assembleStandardGithubDebug` packages it happily, so a
-     * regression surfaces only as an `InflateException` on a user's device.
+     * opened only `.kt`/`.java`. **Layout XML was exactly where this repo named classes
+     * fully-qualified**: eight layouts carried a bare `<net.bible.…>` element tag,
+     * `res/xml/settings.xml` named a custom `Preference` class three times, and
+     * `CalendarHeatmapView`'s only two instantiation sites in the whole tree were
+     * `reading_progress.xml:191` and `:485`. Such a reference is resolved by `LayoutInflater` at
+     * RUNTIME: the compiler, the unit suite and Roborazzi all miss it alike and
+     * `assembleStandardGithubDebug` packages it happily, so a regression surfaces only as an
+     * `InflateException` on a user's device.
+     *
+     * The past tense is load-bearing. **After the Z-late epilogue's tail sweep, BOTH counts are
+     * zero**: no resource XML in this repo names any `net.bible` class fully qualified any more
+     * (the last layouts to do so went with the classic screens, and `settings.xml`'s three custom
+     * `Preference` tags were retagged when that widget was deleted). The arm is kept because it is
+     * cheap and because the hazard returns the moment anyone writes such a tag again -- but a
+     * reader must not conclude from this paragraph that live examples still exist. The one test
+     * that must drive this arm with a real input,
+     * `ClassicRemovalScanAssertionsTest.assertNoSourceNamesFailsOnAClassOnlyALayoutNames`, now uses
+     * a third-party view class for exactly that reason.
      *
      * The two arms differ deliberately. Source: imports are KEPT ([codeLinesOf]
      * `keepImports = true`) because for a fully-qualified sweep an import IS the reference being
