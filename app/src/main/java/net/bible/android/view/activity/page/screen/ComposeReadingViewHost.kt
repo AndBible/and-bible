@@ -2488,9 +2488,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * two-way sync with the real `DrawerState` (Batch Z-early A7 fix D made that sync symmetric, so
      * this is true for a drawer opened by ANY route, not just [toggleDrawer]).
      *
-     * Read by [MainBibleActivity]'s key/back handlers, which on the classic path ask
-     * `drawerLayout.isDrawerVisible(GravityCompat.START)` — always `false` on the compose path,
-     * since `setupUi` locks the native `DrawerLayout` there.
+     * Read by [MainBibleActivity]'s key/back handlers, which separately ask
+     * `drawerLayout.isDrawerVisible(GravityCompat.START)` on the native `DrawerLayout` — always
+     * `false` there, since `setupUi` locks it as soon as the host is installed.
      */
     val isDrawerOpen: Boolean get() = drawerOpen.value
 
@@ -2591,7 +2591,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * Pushes the Compose reading view's state forward from a *classic* refresh point — see
      * [HostedStateRefresher]. Called as `composeReadingViewHost?.refreshHostedState(...)` from
      * `MainBibleActivity.updateActions()`, `preferenceSettingsChanged()` and the two Strongs
-     * mutators, so it is inert on the classic path (the host is null there).
+     * mutators, so it is inert only before the host is installed.
      */
     fun refreshHostedState(rebuildComposition: Boolean = false) =
         hostedStateRefresher.refresh(rebuildComposition)
@@ -2705,7 +2705,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * [MainBibleActivity.onDestroy] — each activity (re-)creation builds a fresh
      * [ComposeReadingViewHost], so without this the previous instance's registration/scope would
      * leak (an activity-recreating config change would accumulate one stale registration per
-     * rotation). Safe to call unconditionally even when [install] was never invoked (classic path).
+     * rotation). Safe to call unconditionally even if [install] hasn't run yet.
      */
     fun dispose() {
         ABEventBus.unregister(this)

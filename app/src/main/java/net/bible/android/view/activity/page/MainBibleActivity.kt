@@ -301,7 +301,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     // F6 Task 8b Step 3: the Compose reading-view search sheet's (visible, measured-height-in-px)
     // pair, fed by ComposeReadingViewHost.install() — see updateSearchSheetOffsets. Mirrors
-    // agentLogVisible/agentLogHeight above (Compose-only; always false/0 on the classic path).
+    // agentLogVisible/agentLogHeight above (Compose-only; always false/0 before the host is installed).
     private var searchSheetVisible = false
     private var searchSheetHeight = 0
 
@@ -343,8 +343,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     val imeHeight get() = bottomOffset1 - bottomOffset1WithoutIme
 
     /**
-     * Whether the Compose reading-view search field currently holds focus. `false` on the classic path
-     * (no host), which is what keeps that path byte-identical.
+     * Whether the Compose reading-view search field currently holds focus. `false` only in the
+     * brief window before `setupUi()` installs the host.
      */
     internal val composeSearchFieldFocused: Boolean
         get() = composeReadingViewHost?.searchFieldFocused?.value == true
@@ -978,8 +978,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // check: the native `isDrawerVisible` branch below is always false on the compose path (that
         // drawer is locked), so without this line, back with the Compose drawer open would fall
         // through to WebView-back → `historyTraversal.goBack()` → the double-back exit toast, drawer
-        // still open. Inert on the classic path (no host → `false`), which keeps the branch order
-        // below byte-identical. Once that opt-out is removed (see the Z-late pointer below), the two
+        // still open. Inert only before the host is installed (`false`), which keeps the branch
+        // order below correct regardless. Once that opt-out is removed (see the Z-late pointer below), the two
         // dispatch routes become mutually exclusive (the dispatcher intercepts first while the drawer
         // is open, and this method is not reached) — so the guard stays correct either way, it just
         // becomes redundant on that future path rather than dead now.
@@ -991,8 +991,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // though the two can never both apply anyway: entering search always leaves fullscreen
         // first (`ReadingSearchController.open`'s `onLeaveFullScreen`), so the fullscreen branch is
         // already unreachable while search is open — this ordering just makes that explicit rather
-        // than relying on it. Inert on the classic path (no host -> `false`), which keeps the
-        // branch order below byte-identical.
+        // than relying on it. Inert only before the host is installed (`false`), which keeps the
+        // branch order below correct regardless.
         //
         // Z-late pointer: this method is reached at all only because `AndroidManifest.xml` declares
         // `android:enableOnBackInvokedCallback="false"` (a temporary opt-out, documented there as
@@ -1027,14 +1027,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent): Boolean {
         // Batch Z-early A7 fix C: the same swallow for the Compose drawer — classic consumes a long
         // BACK while the drawer is open (without closing it) rather than launching History, and the
-        // native check below can no longer see an open drawer on the compose path. Inert on the
-        // classic path (no host → `false`).
+        // native check below can no longer see an open drawer on the compose path. Inert only
+        // before the host is installed (`false`).
         if (composeDrawerOpen && keyCode == KeyEvent.KEYCODE_BACK) {
             return true
         }
         // F6 Task 9: the same swallow for the Compose reading-view search — a focused search field
         // is reachable here now, and a long-press back must not fall through to opening History out
-        // from under it. Inert on the classic path (no host -> `false`).
+        // from under it. Inert only before the host is installed (`false`).
         if (composeSearchModeActive && keyCode == KeyEvent.KEYCODE_BACK) {
             return true
         }
@@ -1145,16 +1145,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     /**
-     * Whether the Compose drawer is open — `false` on the classic path (no host), where the native
-     * `binding.drawerLayout.isDrawerVisible(GravityCompat.START)` remains the answer. Batch Z-early
-     * A7 fix C.
+     * Whether the Compose drawer is open — `false` only before the host is installed, where the
+     * native `binding.drawerLayout.isDrawerVisible(GravityCompat.START)` remains the answer used
+     * elsewhere. Batch Z-early A7 fix C.
      */
     internal val composeDrawerOpen: Boolean get() = composeReadingViewHost?.isDrawerOpen == true
 
     /**
      * Closes the Compose drawer if it is open; returns whether it did (i.e. whether the caller's
-     * event has been consumed). Always `false` on the classic path, so a caller can use it as a
-     * leading guard without changing classic behaviour at all. Batch Z-early A7 fix A/C.
+     * event has been consumed). Always `false` before the host is installed, so a caller can use it
+     * as a leading guard without changing anything either way. Batch Z-early A7 fix A/C.
      */
     internal fun composeCloseDrawerIfOpen(): Boolean {
         val host = composeReadingViewHost ?: return false
@@ -1164,9 +1164,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     /**
-     * Opens the Compose drawer if this activity is on the compose path; returns whether it did.
-     * Always `false` on the classic path, so a caller can use it as a leading guard and fall
-     * through to its existing native `drawerLayout.open()`.
+     * Opens the Compose drawer if a host is installed; returns whether it did.
+     * Always `false` before the host is installed, so a caller can use it as a leading guard and
+     * fall through to its existing native `drawerLayout.open()`.
      *
      * Batch Z-early A7 fix B: `setupUi`'s `LOCK_MODE_LOCKED_CLOSED` only gates `ViewDragHelper`
      * gestures — `DrawerLayout.openDrawer(View, Boolean)` makes no `getDrawerLockMode` call at all —
@@ -1239,7 +1239,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     /**
      * Opens the reading-view search for a hosted Compose activity; returns whether it did. Always
-     * `false` on the classic path (no host), so every caller can use this as a leading guard and fall
+     * `false` before the host is installed, so every caller can use this as a leading guard and fall
      * through to its existing classic `Intent` unchanged — the same idiom as
      * [composeOpenDrawerIfHosted]. F6 Task 8b entry points 4 (`MenuCommandHandler`'s drawer search
      * row), 5 (`BibleJavascriptInterface`'s Ctrl+F) and 6 (the device SEARCH key, below).
@@ -1281,14 +1281,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * F6 Task 9: the reading-view search's two-stage back, wired into [onBackPressed] as a leading
      * guard right after [composeCloseDrawerIfOpen] — first press closes the results/index sheet
      * (keeping the query and results), second leaves search mode. Returns whether the press was
-     * consumed. Always `false` on the classic path (no host), same idiom as [composeCloseDrawerIfOpen].
+     * consumed. Always `false` before the host is installed, same idiom as [composeCloseDrawerIfOpen].
      */
     internal fun composeCloseSearchIfOpen(): Boolean = composeReadingViewHost?.closeSearchIfOpen() ?: false
 
     /**
-     * Whether the Compose reading-view search mode is active — `false` on the classic path (no
-     * host). F6 Task 9: used in [onKeyLongPress] to swallow a long-press back while a search field
-     * is focused, the same role [composeDrawerOpen] plays for the drawer there.
+     * Whether the Compose reading-view search mode is active — `false` only before the host is
+     * installed. F6 Task 9: used in [onKeyLongPress] to swallow a long-press back while a search
+     * field is focused, the same role [composeDrawerOpen] plays for the drawer there.
      */
     internal val composeSearchModeActive: Boolean
         get() = composeReadingViewHost?.searchController?.searchModeActive?.value == true
@@ -2345,14 +2345,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             navigationView.menu.findItem(R.id.speakButton).isEnabled = showSpeak
             // Batch Z-early A6: push the same two values into the Compose drawer. They are locals
             // of this function, so they must be pushed from here — the host caches them for
-            // rebuilds triggered from elsewhere. No-op only if the host isn't installed yet
-            // (or has been disposed) — not a live "classic" branch.
+            // rebuilds triggered from elsewhere. No-op only if the host isn't installed yet —
+            // ComposeReadingViewHost.dispose() does not null this var, so it is never a live
+            // "classic" branch after that either.
             composeReadingViewHost?.rebuildDrawer(showSearch = showSearch, showSpeak = showSpeak)
             // Pre-A/B P3: same reasoning one level up — this function is classic's own "toolbar
             // state may have changed" signal (12 call sites), but only 3 of them coincide with an
             // event `ToolbarStateServiceImpl` subscribes to, so the Compose toolbar would stay
             // stale after e.g. a finished download, a document chooser result or a return from
-            // background. Also a no-op on the classic path.
+            // background. Also a no-op before the host is installed.
             composeReadingViewHost?.refreshHostedState()
         }
     }
@@ -2663,10 +2664,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         super.onDestroy()
         beforeDestroy()
         ABEventBus.unregister(this)
-        // No-op only if the host was never installed or has already been disposed; ordinarily
-        // this unregisters the host's own ABEventBus subscriptions (NightModeChanged/
-        // FullScreenEvent) so an activity recreation (e.g. config change) doesn't leak one
-        // registration per rotation — see ComposeReadingViewHost.dispose kdoc.
+        // No-op only if the host was never installed (dispose() does not null this var, so a
+        // second onDestroy call would still find it non-null); ordinarily this unregisters the
+        // host's own ABEventBus subscriptions (NightModeChanged/FullScreenEvent) so an activity
+        // recreation (e.g. config change) doesn't leak one registration per rotation — see
+        // ComposeReadingViewHost.dispose kdoc.
         composeReadingViewHost?.dispose()
     }
 
@@ -3013,8 +3015,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 binding.drawerLayout.closeDrawers()
             }
             // Batch Z-early A7 fix C: same close for the Compose drawer, which the native check
-            // above can no longer see on the compose path. Inert on the classic path (no host), and
-            // placed after the classic write so its behaviour is untouched either way.
+            // above can no longer see on the compose path. Inert only before the host is installed,
+            // and placed after the classic write so its behaviour is untouched either way.
             composeCloseDrawerIfOpen()
             return true
         }

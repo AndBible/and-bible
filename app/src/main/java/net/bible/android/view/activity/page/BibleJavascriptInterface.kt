@@ -877,8 +877,8 @@ class BibleJavascriptInterface(
                     // — but the lock gates ViewDragHelper gestures only, and `open()` bypasses it
                     // entirely, so this shortcut used to raise the native NavigationView on top of
                     // the Compose drawer (two drawers at once). Retarget it; the guard returns
-                    // `false` on the classic path (no compose host), leaving the two classic lines
-                    // below to run exactly as before.
+                    // `false` only before the host is installed, leaving the two lines below to run
+                    // exactly as before in that brief window.
                     if (mainBibleActivity.composeOpenDrawerIfHosted()) return@launch
                     mainBibleActivity.binding.drawerLayout.open()
                     mainBibleActivity.binding.drawerLayout.requestFocus()

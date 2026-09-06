@@ -156,8 +156,9 @@ class SettingsComposeActivity : ActivityBase() {
     private fun onNavigate(key: String) {
         when (key) {
             AppSettingsNav.SYNC -> ScreenLauncher.open(this, Screen.SyncSettings)
-            // The AI settings screen has no classic counterpart -- ScreenLauncher has always
-            // routed it straight to Compose (Batch 9).
+            // Screen.AiPrompts' classic twin was AiSettingsActivity (the manage-prompts screen,
+            // despite its name) -- flag-branched since Batch 9c, deleted in Z-late slice S10-B.
+            // ScreenLauncher's arm is unconditional Compose now.
             AppSettingsNav.AI -> ScreenLauncher.open(this, Screen.AiPrompts)
             AppSettingsNav.READING_PROGRESS -> ScreenLauncher.open(this, Screen.ReadingProgressSettings)
             AppSettingsNav.TEXT_DISPLAY -> openGlobalTextDisplaySettings()
