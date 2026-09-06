@@ -1221,10 +1221,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * cannot be searched at all is handled downstream by `searchKindFor` → `Unavailable` →
      * [ComposeReadingViewHost.searchUnavailableDocName]'s snackbar, not by keeping it off this path.
      *
-     * The Intent route survives only for the classic case, where `composeReadingViewHost` is null.
-     * This method is only reached from the Compose toolbar, so that branch is unreachable in
-     * practice; it is kept so the flag-OFF behaviour of this body is unchanged by inspection — the
-     * same idiom as the Z-early drawer retargeting.
+     * The Intent route survives only for the case where `composeReadingViewHost` is null — in
+     * practice only the brief window before `setupUi()` installs it. This method is only reached
+     * from the Compose toolbar, so that branch is unreachable in practice; it is kept as a
+     * defensive fallback rather than removed, the same idiom as the Z-early drawer retargeting.
      */
     internal fun composeSearch() {
         val host = composeReadingViewHost
@@ -2345,7 +2345,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             navigationView.menu.findItem(R.id.speakButton).isEnabled = showSpeak
             // Batch Z-early A6: push the same two values into the Compose drawer. They are locals
             // of this function, so they must be pushed from here — the host caches them for
-            // rebuilds triggered from elsewhere. No-op on the classic path (host is null there).
+            // rebuilds triggered from elsewhere. No-op only if the host isn't installed yet
+            // (or has been disposed) — not a live "classic" branch.
             composeReadingViewHost?.rebuildDrawer(showSearch = showSearch, showSpeak = showSpeak)
             // Pre-A/B P3: same reasoning one level up — this function is classic's own "toolbar
             // state may have changed" signal (12 call sites), but only 3 of them coincide with an
@@ -2662,7 +2663,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         super.onDestroy()
         beforeDestroy()
         ABEventBus.unregister(this)
-        // No-op on the classic path (composeReadingViewHost is null there); on the compose path
+        // No-op only if the host was never installed or has already been disposed; ordinarily
         // this unregisters the host's own ABEventBus subscriptions (NightModeChanged/
         // FullScreenEvent) so an activity recreation (e.g. config change) doesn't leak one
         // registration per rotation — see ComposeReadingViewHost.dispose kdoc.

@@ -156,7 +156,8 @@ class SettingsComposeActivity : ActivityBase() {
     private fun onNavigate(key: String) {
         when (key) {
             AppSettingsNav.SYNC -> ScreenLauncher.open(this, Screen.SyncSettings)
-            // Batch 9's AI settings screen is already flag-routed.
+            // The AI settings screen has no classic counterpart -- ScreenLauncher has always
+            // routed it straight to Compose (Batch 9).
             AppSettingsNav.AI -> ScreenLauncher.open(this, Screen.AiPrompts)
             AppSettingsNav.READING_PROGRESS -> ScreenLauncher.open(this, Screen.ReadingProgressSettings)
             AppSettingsNav.TEXT_DISPLAY -> openGlobalTextDisplaySettings()
