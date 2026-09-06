@@ -22,6 +22,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.view.compose.ClassicRemovalScan
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -139,5 +140,134 @@ class NavHostRoutingGuardTest {
         ScreenLauncher.MIGRATED.forEach { (screen, route) ->
             assertTrue(route.isNotBlank(), "$screen has a blank route")
         }
+    }
+
+    /**
+     * Task 7 fix round 1's durable net. `ScreenLauncher.MIGRATED` is a `Map<Screen, String>` — it
+     * can only carry an argument-LESS route: [ScreenLauncher.intentFor] resolves a MIGRATED screen
+     * straight to `NavHostComposeActivity.intentFor(context, route)`, which reads only
+     * [NavHostComposeActivity.EXTRA_ROUTE]. A caller that then adds a `.putExtra(...)` on TOP of
+     * `ScreenLauncher.intentFor(context, Screen.X)` for a MIGRATED `X` gets an Intent whose extra is
+     * silently dropped — no compiler error, no crash, just the wrong screen state. This is exactly
+     * what broke `AiPromptsComposeActivity.onOpenPrompt` and `BibleJavascriptInterface
+     * .openPromptEditor` the moment `Screen.PromptEdit` was migrated (Task 7), and
+     * `AiConnectionSettingsComposeActivity.launchEasySetup` the same way against `Screen.AiProviders`
+     * (Task 6) — all three fixed in the same round as this test, by building the concrete route
+     * directly instead: `NavHostComposeActivity.intentFor(context, NavRoutes.xyz(...))`.
+     *
+     * Scans every shipping source file ([ClassicRemovalScan.appSources]) for three shapes, per
+     * screen currently in [ScreenLauncher.MIGRATED]:
+     *  1. `ScreenLauncher.intentFor(..., Screen.X).putExtra(...)` — chained directly.
+     *  2. `ScreenLauncher.intentFor(..., Screen.X).apply { ... putExtra(...) ... }` — chained via
+     *     `apply` (the block is captured by brace-balance, not by a fixed-width window, since an
+     *     `apply` block can itself contain nested braces).
+     *  3. `val name = ScreenLauncher.intentFor(..., Screen.X)` followed nearby by
+     *     `name.putExtra(...)` — the shape that actually broke `openPromptEditor`; a scan limited to
+     *     shapes 1-2 would have missed it.
+     *
+     * **Known, deliberate bound** (stated rather than overclaimed, matching this file's sibling
+     * scans in [ClassicRemovalScan]'s own kdoc style): shape 3's forward look for `name.putExtra(`
+     * is windowed to the next [ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS] characters, not the rest of the
+     * file. Every real occurrence in this repo today has its `.putExtra` within a few lines of the
+     * assignment; an unbounded look would risk a same-named variable in a LATER, unrelated function
+     * reading as a false offender.
+     */
+    @Test
+    fun migratedScreenArgumentIsNeverDroppedByAPutExtra() {
+        val migratedScreenNames = ScreenLauncher.MIGRATED.keys.map { it.name }
+        assertTrue(migratedScreenNames.isNotEmpty(), "ScreenLauncher.MIGRATED is empty -- this scan would pass vacuously")
+
+        val offenders = mutableListOf<String>()
+        for (file in ClassicRemovalScan.appSources()) {
+            val text = file.readText()
+            val path = file.path.replace('\\', '/')
+            for (screenName in migratedScreenNames) {
+                val marker = "Screen.$screenName)"
+                var searchFrom = 0
+                while (true) {
+                    val markerIndex = text.indexOf(marker, searchFrom)
+                    if (markerIndex < 0) break
+                    val afterMarker = markerIndex + marker.length
+                    searchFrom = afterMarker
+
+                    // Only a genuine ScreenLauncher.intentFor(..., Screen.X) call -- i.e. no
+                    // closing paren between the call's opening "(" and this "Screen.X)" (there is
+                    // none in this repo today; intentFor's `screen` parameter is always last).
+                    val callStart = text.lastIndexOf("ScreenLauncher.intentFor(", markerIndex)
+                    if (callStart < 0 || text.substring(callStart, markerIndex).contains(')')) continue
+
+                    val tail = text.substring(afterMarker)
+                    val chainedPutExtraMatch = Regex("""^\s*\.putExtra\s*\(""").find(tail)
+                    val chainedApplyMatch = Regex("""^\s*\.apply\s*\{""").find(tail)
+                    when {
+                        chainedPutExtraMatch != null ->
+                            offenders.add("$path: Screen.$screenName chained directly with .putExtra(...)")
+
+                        chainedApplyMatch != null -> {
+                            val braceIndex = afterMarker + chainedApplyMatch.range.last
+                            val block = balancedBraceBlock(text, braceIndex)
+                            if (block != null && block.contains("putExtra(")) {
+                                offenders.add(
+                                    "$path: Screen.$screenName chained with .apply { ... putExtra(...) ... }",
+                                )
+                            }
+                        }
+
+                        else -> {
+                            // Shape 3: is this "Screen.X)" the tail of an assignment's RHS -- i.e.
+                            // does "<name> = " immediately precede "ScreenLauncher.intentFor("?
+                            val beforeCall = text.substring(0, callStart)
+                            val assignedTo = Regex("""(\w+)\s*=\s*$""").find(beforeCall)
+                            if (assignedTo != null) {
+                                val name = assignedTo.groupValues[1]
+                                val window = tail.take(ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS)
+                                if (Regex("""\b${Regex.escape(name)}\.putExtra\s*\(""").containsMatchIn(window)) {
+                                    offenders.add(
+                                        "$path: Screen.$screenName assigned to `$name`, " +
+                                            "then `$name.putExtra(...)` nearby",
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        assertEquals(
+            emptyList<String>(),
+            offenders.sorted(),
+            "a MIGRATED screen's ScreenLauncher.intentFor(...) intent still receives .putExtra(...) " +
+                "-- ScreenLauncher.MIGRATED can only carry an argument-less route, so the extra is " +
+                "silently dropped (NavHostComposeActivity reads only EXTRA_ROUTE). Build the concrete " +
+                "route explicitly instead: NavHostComposeActivity.intentFor(context, NavRoutes.xyz(...)). " +
+                "Offenders:\n${offenders.joinToString("\n")}",
+        )
+    }
+
+    /** See [migratedScreenArgumentIsNeverDroppedByAPutExtra]'s kdoc, shape 3's known bound. */
+    private companion object {
+        const val ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS = 600
+    }
+
+    /**
+     * The `{ ... }` block starting at [text]\[openBraceIndex\] (which must be `'{'`), matched by
+     * brace-balance rather than a fixed window, since an `apply` block can itself contain nested
+     * braces (e.g. a lambda argument to one of its own calls). Returns `null` if [openBraceIndex]
+     * is not a `'{'`, or the braces never balance before the file ends (truncated/malformed input --
+     * treated as "no block found" rather than a false positive).
+     */
+    private fun balancedBraceBlock(text: String, openBraceIndex: Int): String? {
+        if (text.getOrNull(openBraceIndex) != '{') return null
+        var depth = 0
+        for (i in openBraceIndex until text.length) {
+            when (text[i]) {
+                '{' -> depth++
+                '}' -> {
+                    depth--
+                    if (depth == 0) return text.substring(openBraceIndex, i + 1)
+                }
+            }
+        }
+        return null
     }
 }

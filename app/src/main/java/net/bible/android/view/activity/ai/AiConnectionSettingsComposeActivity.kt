@@ -41,6 +41,8 @@ import net.bible.android.activity.R
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
@@ -129,7 +131,8 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
 
     // --- Navigation --------------------------------------------------------------------------
     // Routed through ScreenLauncher (Screen enum) rather than naming the host classes here.
-    // EASY_SETUP opens AiProvidersComposeActivity's wizard via EXTRA_START_EASY_SETUP.
+    // EASY_SETUP opens the AiProviders destination straight into its easy-setup wizard; see
+    // launchEasySetup's kdoc for why it builds the concrete route rather than using ScreenLauncher.
     private fun onNavigate(key: String) {
         when (key) {
             AiConnectionNav.EASY_SETUP -> launchEasySetup()
@@ -143,20 +146,20 @@ class AiConnectionSettingsComposeActivity : ActivityBase() {
     }
 
     /**
-     * Opens the AI-providers screen for [AiConnectionNav.EASY_SETUP], carrying
-     * [AiProvidersComposeActivity.EXTRA_START_EASY_SETUP] so it opens straight into the easy-setup
-     * wizard rather than the plain provider list.
+     * Opens the AI-providers screen straight into the easy-setup wizard.
      *
-     * Batch Z-late epilogue, Task 7 fix round 1: this used to read the routing target back out of
-     * [ScreenLauncher] and add the extra only `if (target == AiProvidersComposeActivity::class.java)`,
-     * because the other side of that comparison was the classic `AiProvidersActivity`, which had no
-     * ported wizard. That class is deleted, so the comparison was unconditionally true -- dead code
-     * under a kdoc that still promised the fallback. Both are gone; the extra is now added
-     * unconditionally, which is exactly what the branch already did.
+     * Nav-graph Task 7 fix round 1: this class is itself unreachable — `Screen.AiConnectionSettings`
+     * is migrated (Task 5), so `ScreenLauncher`/`intentFor` never resolves to this Activity any more
+     * (Task 10 deletes it outright). But `Screen.AiProviders` is ALSO migrated (Task 6), which made
+     * this method's old `ScreenLauncher.intentFor(this, Screen.AiProviders)
+     * .putExtra(AiProvidersComposeActivity.EXTRA_START_EASY_SETUP, true)` doubly dead: `MIGRATED`
+     * can only carry an argument-less route, so that extra was silently dropped even before
+     * `NavHostRoutingGuardTest`'s `migratedScreenArgumentIsNeverDroppedByAPutExtra` existed to catch it. Fixed
+     * to build the concrete route directly rather than leaving a guard-test carve-out for a call
+     * site that costs nothing to fix, dead or not.
      */
     private fun launchEasySetup() {
-        val intent = ScreenLauncher.intentFor(this, Screen.AiProviders)
-            .putExtra(AiProvidersComposeActivity.EXTRA_START_EASY_SETUP, true)
+        val intent = NavHostComposeActivity.intentFor(this, NavRoutes.aiProviders(startEasySetup = true))
         startActivity(intent)
     }
 

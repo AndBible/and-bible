@@ -62,8 +62,9 @@ import net.bible.android.view.activity.progress.ReadingProgressKeys
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.ai.PromptEditComposeActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
@@ -1073,8 +1074,12 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openPromptEditor(promptId: String) {
         scope.launch(Dispatchers.Main) {
-            val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.PromptEdit)
-            intent.putExtra(PromptEditComposeActivity.EXTRA_PROMPT_ID, promptId)
+            // Screen.PromptEdit is migrated (Task 7) -- ScreenLauncher.MIGRATED can only carry an
+            // argument-less route, so a caller needing promptId must build the concrete route
+            // itself and go straight to NavHostComposeActivity (a putExtra on top of
+            // ScreenLauncher.intentFor's result would be silently dropped; see
+            // NavHostRoutingGuardTest's migratedScreenArgumentIsNeverDroppedByAPutExtra).
+            val intent = NavHostComposeActivity.intentFor(mainBibleActivity, NavRoutes.promptEdit(promptId = promptId))
             mainBibleActivity.startActivity(intent)
         }
     }

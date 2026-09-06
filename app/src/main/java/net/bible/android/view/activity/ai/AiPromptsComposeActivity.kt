@@ -37,6 +37,8 @@ import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.PromptCsvUtils
@@ -85,9 +87,13 @@ class AiPromptsComposeActivity : ActivityBase() {
         AiPromptsController(
             service = service,
             scope = lifecycleScope,
+            // Screen.PromptEdit is migrated (Task 7), and ScreenLauncher.MIGRATED can only carry
+            // an argument-less route (Map<Screen, String>) -- see NavHostRoutingGuardTest's
+            // "a putExtra onto a MIGRATED screen's intent is silently dropped" guard. A caller
+            // that needs an argument (this one needs promptId) must build the concrete route
+            // itself and go straight to NavHostComposeActivity, not through ScreenLauncher.
             onOpenPrompt = { promptId ->
-                startActivity(ScreenLauncher.intentFor(this, Screen.PromptEdit)
-                    .putExtra(PromptEditComposeActivity.EXTRA_PROMPT_ID, promptId))
+                startActivity(NavHostComposeActivity.intentFor(this, NavRoutes.promptEdit(promptId = promptId)))
             },
             onNewPrompt = { startActivity(ScreenLauncher.intentFor(this, Screen.PromptEdit)) },
             onOpenConnectionSettings = { ScreenLauncher.open(this, Screen.AiConnectionSettings) },
