@@ -67,10 +67,15 @@ internal fun mapEntry(e: AgentLogEntry): AgentLogEntryVd = AgentLogEntryVd(
 internal fun AgentStopReason.toVd(): AgentStopReasonVd = AgentStopReasonVd.valueOf(name)
 
 /**
- * Android impl of [AgentSessionService], bridging the three [ABEventBus] events the classic
- * `AgentLogWidget` listens to ([AgentLogUpdatedEvent], [AgentSessionStatusChangedEvent],
- * [DefaultModelChangedEvent]) into a [StateFlow] of an immutable [AgentLogSnapshot], scoped to the
- * current workspace (same `windowControl.windowRepository.id` lookup as the classic widget).
+ * Android impl of [AgentSessionService], bridging three [ABEventBus] events
+ * ([AgentLogUpdatedEvent], [AgentSessionStatusChangedEvent], [DefaultModelChangedEvent]) into a
+ * [StateFlow] of an immutable [AgentLogSnapshot], scoped to the current workspace. All three are
+ * still posted by live code, and each has other subscribers besides this one
+ * (`AgentForegroundService`, `AiSettingsServiceImpl`, `LlmModelServiceImpl`). What is gone is the
+ * classic `AgentLogWidget`, which used to subscribe to all three directly and which the Z-late
+ * epilogue deleted (Task 5, decision D1); the `windowControl.windowRepository.id` lookup below was
+ * taken from it.
+ *
  * Registered as a Koin single (lives for the process); the host calls [refresh] on workspace switch.
  */
 class AgentSessionServiceImpl : AgentSessionService, KoinComponent {

@@ -2665,7 +2665,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun onDestroy() {
         bibleViewFactory.clear()
         super.onDestroy()
-        beforeDestroy()
         ABEventBus.unregister(this)
         // No-op only if the host was never installed (dispose() does not null this var, so a
         // second onDestroy call would still find it non-null); ordinarily this unregisters the
@@ -2769,10 +2768,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     var currentNightMode: Boolean = false
 
-    private fun beforeDestroy() {
-        documentViewManager.destroy()
-    }
-
     fun refreshIfNightModeChange(): Boolean {
         // colour may need to change which affects View colour and html
         // first refresh the night mode setting using light meter if appropriate
@@ -2787,8 +2782,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // there is no toolbar view left for this function to lay out or animate. What remains is
         // the system-bar hide/show, which was never toolbar-specific: fullscreen must still
         // hide/show the OS status/navigation bars. The classic `speakTransport` bar's horizontal
-        // padding write went with the bar itself (spec 10.4); the Compose `SpeakTransportBar`
-        // consumes the cutout/system-bar insets in `ReadingViewScreen`.
+        // padding write went with the bar itself (spec 10.4): it wrote the left/right system-bar
+        // insets into a View that `ComposeReadingViewHost.install()` had already set to GONE, so
+        // nothing observable was lost. The Compose `SpeakTransportBar` does not replace that write
+        // -- it applies a NAVIGATION-BAR inset of its own
+        // (`WindowInsets.navigationBars.exclude(WindowInsets.ime)`, and only when its
+        // `applyNavBarInset` argument is true), and no horizontal or display-cutout inset at all.
         if(isFullScreen) {
             hideSystemUI()
             Log.i(TAG, "Fullscreen on")

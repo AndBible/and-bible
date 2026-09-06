@@ -300,11 +300,25 @@ object ClassicRemovalScan {
      * Asserts each named arm of `ScreenLauncher.targetFor` is unconditional.
      *
      * Batch Z-late's epilogue retired this function's old precondition — that the launcher still
-     * reads `use_compose_ui` — because the flag no longer exists (spec 10.6). The assertion is not
-     * vacuous without it: the detector below looks for `useComposeFor` OR an `else` inside the arm
-     * text, and a genuinely re-branched arm would contain one of them. What the precondition used
-     * to catch (a whole-file rewrite silently emptying the scan) is now caught by
-     * `FlagRemovalGuardTest`, which asserts the flag is absent everywhere rather than present here.
+     * reads `use_compose_ui` — because the flag no longer exists (spec 10.6). Two consequences,
+     * stated as they actually stand rather than as the retiring task first wrote them (the
+     * epilogue's final review, finding I1):
+     *
+     * **`\belse\b` is the ENTIRE live detector.** The detector below looks for `useComposeFor` OR
+     * an `else` inside the arm text, but `FlagRemovalGuardTest` now asserts `useComposeFor` cannot
+     * appear in any production source, so against the real [LAUNCHER_PATH] the first clause can
+     * never fire. It is kept because the one non-production caller — the hand-written fixture in
+     * `ClassicRemovalScanAssertionsTest` — still exercises the flag-branching shape this file
+     * spent the phase deleting. That fixture carries a THIRD arm that branches with no flag token,
+     * so the `else` clause is proven on its own; without it the fixture satisfied both clauses at
+     * once and a broken `else` regex went undetected.
+     *
+     * **What the precondition used to catch — a whole-file rewrite silently emptying the scan — is
+     * caught HERE, not by `FlagRemovalGuardTest`.** An emptied `ScreenLauncher.kt` contains no flag
+     * token and passes that guard green. It fails this function instead, by the two anti-vacuity
+     * checks below: the `File(path).isFile` assert (a deleted file), and the `start < 0` branch of
+     * the filter (a missing arm counts as an offender), which between them mean every named arm
+     * must still be found in the file for the assertion to pass at all.
      */
     internal fun assertLauncherArmsUnconditionalIn(path: String, screens: List<String>, hint: String) {
         assertTrue("$path is missing — this assertion would pass vacuously", File(path).isFile)

@@ -483,10 +483,20 @@ object CommonUtils : CommonUtilsBase() {
 
     // Note: use AndBibleSettings always if possible to save preferences. They are persisted in DB.
     //
-    // This `PreferenceManager` call is, since the Z-late epilogue, the ONLY androidx.preference use
-    // left anywhere in the tree -- so it alone is what keeps the two `androidx.preference` gradle
-    // dependencies (app/build.gradle.kts) earning their place. It is not dead weight: the default
-    // SharedPreferences file it names is the one every pre-DB setting was written to.
+    // This `PreferenceManager` call is, since the Z-late epilogue, the only androidx.preference
+    // reference left in CODE anywhere in the tree -- so it alone is what keeps the two
+    // `androidx.preference` gradle dependencies (app/build.gradle.kts) earning their place. It is
+    // not dead weight: the default SharedPreferences file it names is the one every pre-DB setting
+    // was written to.
+    //
+    // Stated as "in code" on purpose, because the wider claim is false: four res/xml files
+    // (settings, sync_settings, reading_progress_settings, prompt_advanced_settings) still use
+    // androidx.preference element names as tags -- including three `MultiSelectListPreference`
+    // tags the epilogue itself introduced, retagging the rows of the deleted
+    // `InverseMultiSelectListPreference`. They are not runtime uses: nothing inflates those files
+    // any more, and `SettingsIconParityTest` reads them with a raw `XmlResourceParser`, so no
+    // androidx.preference class is ever loaded from them (spec 10.5, S12 decision D6). Deleting the
+    // dependency would still not be safe, and not because of them -- because of the call below.
     val realSharedPreferences: SharedPreferences
         get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 

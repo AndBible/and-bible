@@ -150,9 +150,11 @@ class ClassicRemovalScanAssertionsTest {
      * The fixture is written to a temp file and scanned by
      * [ClassicRemovalScan.assertLauncherArmsUnconditionalIn], the same body
      * [ClassicRemovalScan.assertLauncherArmsUnconditional] runs — only the path is a parameter. So
-     * this still exercises the real detector rather than a re-implementation of it: the fixture
-     * carries BOTH a branching arm (must fail) and a collapsed one (must pass), and the
-     * clean-direction call against the real file below keeps the production path covered too.
+     * this still exercises the real detector rather than a re-implementation of it. The fixture
+     * carries THREE arms: one that branches on the flag (must fail), one that is collapsed (must
+     * pass), and one that branches WITHOUT naming the flag (must fail, and can only be caught by
+     * the `else` clause — see the comment on it below). The clean-direction call against the real
+     * file below keeps the production path covered too.
      */
     @Test fun assertLauncherArmsUnconditionalFailsOnAnArmThatStillBranches() {
         val fixture = File.createTempFile("ScreenLauncherFixture", ".kt").apply { deleteOnExit() }
@@ -165,6 +167,9 @@ class ClassicRemovalScanAssertionsTest {
                         if (useComposeFor(screen)) NewActivity::class.java
                         else OldActivity::class.java
                     Screen.AlreadyCollapsed -> NewActivity::class.java
+                    Screen.BranchesWithoutTheFlag ->
+                        if (someRuntimeCondition) NewActivity::class.java
+                        else OldActivity::class.java
                 }
             }
             """.trimIndent(),
@@ -199,6 +204,36 @@ class ClassicRemovalScanAssertionsTest {
             listOf("Screen.AlreadyCollapsed"),
             "this arm is collapsed, so the helper must pass",
         )
+
+        // The clause that is actually LIVE in production, exercised ALONE. Task 6 retired this
+        // helper's flag precondition on the argument that the detector looks for `useComposeFor`
+        // OR an `else`; Task 7 then deleted the flag, and `FlagRemovalGuardTest` now asserts
+        // `useComposeFor` can never appear in a production source at all. So `\belse\b` is the
+        // whole live detector — but the branching arm above satisfies BOTH clauses, so this test
+        // would keep passing with the `else` regex broken (verified by injection in the epilogue's
+        // fix wave). This arm branches with no flag token in it, so only the `else` clause can
+        // catch it.
+        val fixtureCode = ClassicRemovalScan.codeLinesOf(fixture.path)
+        val flaglessArmStart = fixtureCode.indexOf("Screen.BranchesWithoutTheFlag ->")
+        assertTrue(
+            "the flagless arm is not written in the shape the scan looks for",
+            flaglessArmStart >= 0,
+        )
+        assertTrue(
+            "the flagless arm must contain no flag token, or it would satisfy the other clause too " +
+                "and prove nothing about `else`. It is written LAST in the fixture on purpose: the " +
+                "helper's arm slice runs to the next `Screen.` token or, for the last arm, to the " +
+                "end of the file — so this substring IS the text the helper scans, not a re-derived " +
+                "approximation of it",
+            !fixtureCode.substring(flaglessArmStart).contains("useComposeFor"),
+        )
+        assertThrows(AssertionError::class.java) {
+            ClassicRemovalScan.assertLauncherArmsUnconditionalIn(
+                fixture.path,
+                listOf("Screen.BranchesWithoutTheFlag"),
+                "this arm branches without naming the flag, so the helper must fail",
+            )
+        }
         // A MISSING arm counts as an offender too — that is what stops a deleted enum entry from
         // passing silently, and nothing else in this class covers it.
         assertThrows(AssertionError::class.java) {

@@ -73,7 +73,9 @@ class FlagRemovalGuardTest {
      * alone would swallow all five), leaving a whole source set unscanned while the absence
      * assertion below still passed green.
      *
-     * The floors sit safely under today's counts (866 / 1 / 8 / 5 / 283 / 147). Said plainly: for
+     * The floors sit safely under today's counts (826 / 1 / 8 / 5 / 283 / 147, re-measured at the
+     * end of the epilogue — the 866 first written here predated Task 8's deletions, which is the
+     * drift this whole file exists to warn against). Said plainly: for
      * the three flavor roots the floor is a weak quantity check and is not doing the real work —
      * `app/src/standard` legitimately holds ONE file, so its floor can only be 1. What actually
      * defends those three is [scannableFilesIn]'s eager `isDirectory` assert, which fires in BOTH

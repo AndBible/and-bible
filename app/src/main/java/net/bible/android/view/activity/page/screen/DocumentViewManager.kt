@@ -28,8 +28,6 @@ import net.bible.android.view.activity.page.MainBibleActivity
 class DocumentViewManager(val mainBibleActivity: MainBibleActivity) {
     private val windowControl get() = mainBibleActivity.windowControl
 
-    fun destroy() {}
-
     /**
      * Batch Z-late epilogue (spec 10.3): with the classic split gone, the only rebuild this class
      * still performs is forwarding a forced update to the Compose host. `documentView` survives

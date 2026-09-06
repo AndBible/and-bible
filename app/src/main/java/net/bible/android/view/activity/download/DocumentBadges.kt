@@ -31,10 +31,21 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
  *
  * These are top-level declarations, not members, and they outlive the classic Activities that
  * happened to host them: [BookCategory.imageResource] and [Book.imageResource] are consumed by
- * `view/util/widget/WindowButtonWidget.kt` (inside the directory spec 2.4 protects wholesale, so it
- * cannot be rewritten) and by `page/MainBibleActivity.kt`; [Book.isRecommended], [BadDocumentAction],
- * [Book.isBadDocument] and [Book.isInstalled] are consumed by the SURVIVING
- * `DownloadComposeActivity` and by the surviving `base/DocumentSelectionBase`.
+ * `page/MainBibleActivity.kt` alone (`:1638`, the doc-type icon on the Compose restore rail) — the
+ * Z-late epilogue deleted their only other reader, `view/util/widget/WindowButtonWidget.kt`;
+ * [Book.isRecommended], [BadDocumentAction], [Book.isBadDocument] and [Book.isInstalled] are
+ * consumed by the SURVIVING `DownloadComposeActivity` and by the surviving
+ * `base/DocumentSelectionBase`.
+ *
+ * That deleted reader used to be cited here as unrewritable because spec 2.4 protects
+ * `view/util/widget/` wholesale. **Do not carry that reading forward as a precedent.** The Z-late
+ * epilogue deleted four files out of that very directory — `WindowButtonWidget` (with
+ * `AddNewWindowButtonWidget` inside it) and `TwoLineListItem` under decision D2, `SpeakTransportWidget`
+ * and `AgentLogWidget` under D1 — each a named, user-approved exception rather than a general rule.
+ * §2.4 itself still stands as the default, and still keeps files nothing references at all:
+ * `BookmarkListItem.kt` and `BookmarkStyleAdapterHelper.kt` in the same directory are referenceless
+ * since S9 and are deliberately retained (`ClassicBookmarkRemovalGuardTest.survivingCollaborators`).
+ * So "referenceless and in `view/util/widget/`" does not license a deletion; a named decision does.
  *
  * [customRepositoriesHelpUrl] is also kept here rather than deleted: it is pinned against the
  * `:sharedUi` copy ([net.bible.sharedui.download.customRepositoriesHelpUrl]) by

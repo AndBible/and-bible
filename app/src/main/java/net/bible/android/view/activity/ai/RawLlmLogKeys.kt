@@ -17,9 +17,12 @@
 package net.bible.android.view.activity.ai
 
 /**
- * Raw LLM log intent keys, lifted out of the about-to-be-deleted `RawLlmLogActivity`'s companion
- * (Batch Z-late phase 1) because `RawLlmLogComposeActivity`, `RawLogHistoryActivity`,
- * `RawLogHistoryComposeActivity`, `ComposeReadingViewHost` and `AgentLogWidget` all read them.
+ * Raw LLM log intent keys, lifted out of the classic `RawLlmLogActivity`'s companion so that they
+ * would outlive it (Batch Z-late phase 1). That class, and the classic `RawLogHistoryActivity` and
+ * `AgentLogWidget` that also read these keys, are all gone now — slice S10-B deleted the first two
+ * and the epilogue's Task 5 the widget. The surviving readers are `RawLlmLogComposeActivity`,
+ * `RawLogHistoryComposeActivity` and `ComposeReadingViewHost` (plus `IntentKeysTest`, which pins the
+ * two literals so a rename cannot silently break an intent that classic once built).
  */
 object RawLlmLogKeys {
     const val EXTRA_WORKSPACE_ID = "workspace_id"
