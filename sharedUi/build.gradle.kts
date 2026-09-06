@@ -23,6 +23,11 @@ kotlin {
         compileSdk = 36
         minSdk = 23
         compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+        // Host-side (JVM, no device/emulator) unit tests for this module's `commonTest`/
+        // `androidUnitTest` sources. Added for Task 3 fix round 1's `popOrExitOnFailedPop` test —
+        // :sharedUi had no test source set at all before this; the test needs no Android API, so
+        // no Robolectric runner is configured, only plain JUnit via kotlin("test").
+        withHostTest {}
     }
 
     // iOS targets: configure + compile-check on Linux; the framework LINK tasks run only
@@ -51,6 +56,11 @@ kotlin {
             // PlatformBackHandler's android actual delegates to androidx.activity.compose.BackHandler.
             // This is :sharedUi's first androidMain dependency block.
             implementation(libs.androidx.activity.compose)
+        }
+        commonTest.dependencies {
+            // :sharedUi's first test source set (Task 3 fix round 1); kotlin("test") is enough —
+            // the covered logic (popOrExitOnFailedPop) touches no Android/Compose API.
+            implementation(kotlin("test"))
         }
         iosMain { kotlin.srcDir(iosStringsOutDir) }
     }

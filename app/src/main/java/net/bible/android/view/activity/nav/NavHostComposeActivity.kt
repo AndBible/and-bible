@@ -34,6 +34,7 @@ import net.bible.service.llm.tools.ToolRegistry
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.nav.AiNavDeps
+import net.bible.sharedui.ai.nav.ToolInfoDeps
 import net.bible.sharedui.ai.nav.aiNavGraph
 
 /**
@@ -57,11 +58,13 @@ class NavHostComposeActivity : ActivityBase() {
                 val allTools = remember { ToolRegistry.getAllTools() }
                 val deps = remember(allTools) {
                     AiNavDeps(
-                        toolInfoReadTools = allTools.filter { !it.requiresPermission }.map { it.toToolVd() },
-                        toolInfoWriteTools = allTools.filter { it.requiresPermission }.map { it.toToolVd() },
-                        toolInfoHelpBody = getString(R.string.help_tool_info_text),
-                        toolInfoHelpReadMoreUrl =
-                            "https://docs.andbible.org/en/latest/ai.html#ai-tools",
+                        exitHost = { finish() },
+                        toolInfo = ToolInfoDeps(
+                            readTools = allTools.filter { !it.requiresPermission }.map { it.toToolVd() },
+                            writeTools = allTools.filter { it.requiresPermission }.map { it.toToolVd() },
+                            helpBody = getString(R.string.help_tool_info_text),
+                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#ai-tools",
+                        ),
                     )
                 }
                 NavHost(
