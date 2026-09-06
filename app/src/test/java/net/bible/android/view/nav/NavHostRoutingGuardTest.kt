@@ -107,6 +107,23 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
+    fun promptEditResolvesToTheNavHostCarryingItsRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.PromptEdit)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.promptEdit(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    @Test
+    fun promptEditTemplateRoundTripsThroughDecodeArg() {
+        // Free text, deliberately containing reserved/percent/unicode characters that would
+        // corrupt the route if encodeArg/decodeArg were not both applied — see NavRoutes' kdoc.
+        val freeText = "Rock & Roll: 100% <great> \"quoted\" — täst\nwith newline"
+        val route = NavRoutes.promptEdit(template = freeText)
+        val encoded = route.substringAfter("${NavRoutes.ARG_PROMPT_TEMPLATE}=").substringBefore("&")
+        assertEquals(freeText, NavRoutes.decodeArg(encoded))
+    }
+
+    @Test
     fun anUnmigratedScreenStillResolvesToItsOwnActivity() {
         val intent = ScreenLauncher.intentFor(context, Screen.Bookmarks)
         assertEquals(

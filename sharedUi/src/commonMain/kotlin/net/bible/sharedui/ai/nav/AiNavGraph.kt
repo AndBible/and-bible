@@ -42,6 +42,9 @@ import net.bible.sharedcore.ai.AiModelsController
 import net.bible.sharedcore.ai.AiProvidersController
 import net.bible.sharedcore.ai.GlobalToolPermissionsController
 import net.bible.sharedcore.ai.ProviderVd
+import net.bible.sharedcore.ai.PromptCategoryVd
+import net.bible.sharedcore.ai.PromptEditController
+import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.ai.ToolVd
@@ -56,6 +59,7 @@ import net.bible.sharedui.ai.EasySetupStep
 import net.bible.sharedui.ai.EasySetupTestResult
 import net.bible.sharedui.ai.EasySetupWizard
 import net.bible.sharedui.ai.GlobalToolPermissionsScreen
+import net.bible.sharedui.ai.PromptEditScreen
 import net.bible.sharedui.ai.ToolInfoScreen
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.strings.LocalStrings
@@ -193,6 +197,42 @@ class AiProvidersDeps(
 )
 
 /**
+ * [PromptEditScreen]'s platform-supplied slots.
+ *
+ * - [controllerFor] builds a fresh [PromptEditController] from the (already-decoded) nav
+ *   arguments. Unlike every earlier `Deps.controller` (one instance, alive for the host's whole
+ *   lifetime), this destination needs a NEW controller whenever its arguments change — both on a
+ *   fresh entry into the route and on the self-navigating "Copy to customize" edge (see
+ *   [aiNavGraph]'s `PROMPT_EDIT_PATTERN` arm) — mirroring classic's `by lazy { PromptEditController(...) }`
+ *   which read `intent` once per Activity instance. The graph `remember`s the result keyed on the
+ *   three constructor arguments, so it is still built exactly once per backstack entry.
+ * - [categories]/[toolsByCategory]/[modelChoices]/[globalToolPermission] wrap plain
+ *   `PromptService` reads (no Android resource involved) — same shape as [AiModelsDeps.providersForPicker].
+ * - [globalMaxIterationsLabel] is the one piece of Android-resource text this screen's reference
+ *   data needs (`CommonUtils.aiSettings.maxIterations` formatted via
+ *   `R.string.prompt_max_iterations_unlimited`) — kept here for the same reason [AiModelsDeps.helpBody]
+ *   etc. live on `Deps`.
+ * - [onPromptCopied] shows the "Prompt copied" toast (`R.string.prompt_copied`, `Toast.makeText`);
+ *   platform-only, ported verbatim from classic `copyToCustomizeAndFinish`.
+ *
+ * **No result slot.** Classic's `saveAndMaybeFinish()` conditionally set
+ * `RESULT_PROMPT_ID`/`EXTRA_EXECUTE_AFTER_SAVE` on save — dead code with no consumer anywhere in
+ * `app/src` (verified by grep; see Task 7's report), so it is simply not ported: `onSave` below
+ * only pops.
+ */
+class PromptEditDeps(
+    val controllerFor: (promptId: String?, template: String?, defaultContext: String?) -> PromptEditController,
+    val categories: () -> List<PromptCategoryVd>,
+    val toolsByCategory: () -> List<Pair<ToolCategoryVd, List<ToolVd>>>,
+    val modelChoices: () -> List<SettingsItem.Choice>,
+    val globalToolPermission: (toolId: String) -> ToolPermission,
+    val globalMaxIterationsLabel: () -> String,
+    val helpBody: String,
+    val helpReadMoreUrl: String,
+    val onPromptCopied: () -> Unit,
+)
+
+/**
  * Platform-supplied slots the AI destinations need but `commonMain` cannot provide: help text
  * (Android string resources today), the data each screen renders, and — via [exitHost] — the way
  * to leave the graph entirely. [exitHost] sits at the top level rather than in a per-destination
@@ -213,6 +253,8 @@ class AiNavDeps(
     val aiConnectionSettings: AiConnectionSettingsDeps,
     // — AI PROVIDERS —
     val aiProviders: AiProvidersDeps,
+    // — PROMPT EDIT —
+    val promptEdit: PromptEditDeps,
 )
 
 /**
@@ -561,6 +603,123 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                         easySetupState = null
                     }
                 },
+            )
+        }
+    }
+    composable(
+        route = NavRoutes.PROMPT_EDIT_PATTERN,
+        arguments = listOf(
+            navArgument(NavRoutes.ARG_PROMPT_ID) { type = NavType.StringType; nullable = true; defaultValue = null },
+            navArgument(NavRoutes.ARG_PROMPT_TEMPLATE) { type = NavType.StringType; nullable = true; defaultValue = null },
+            navArgument(NavRoutes.ARG_DEFAULT_CONTEXT) { type = NavType.StringType; nullable = true; defaultValue = null },
+            navArgument(NavRoutes.ARG_EXECUTE_AFTER_SAVE) { type = NavType.BoolType; defaultValue = false },
+        ),
+    ) { backStackEntry ->
+        val d = deps.promptEdit
+        val strings = LocalStrings.current
+
+        val promptId = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_PROMPT_ID) }
+        // template/defaultContext are FREE TEXT: NavRoutes.promptEdit() percent-encoded them on
+        // the way in (see NavRoutes' kdoc), so they must be decoded here, at the read site.
+        // executeAfterSave is registered (dormant parity port, plan D3) but never read: the
+        // result it used to gate is dead code, deleted rather than ported — see PromptEditDeps' kdoc.
+        val template = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_PROMPT_TEMPLATE) }
+            ?.let(NavRoutes::decodeArg)
+        val defaultContext = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_DEFAULT_CONTEXT) }
+            ?.let(NavRoutes::decodeArg)
+
+        // Mirrors classic PromptEditComposeActivity's `by lazy { PromptEditController(...) }`:
+        // built once per (promptId, template, defaultContext) — i.e. once per backstack entry,
+        // since a fresh entry (including the self-navigation below) always carries fresh
+        // arguments. See PromptEditDeps.controllerFor's kdoc.
+        val controller = remember(promptId, template, defaultContext) {
+            d.controllerFor(promptId, template, defaultContext)
+        }
+
+        val state by controller.state.collectAsState()
+        val tab by controller.tab.collectAsState()
+        val availableTabs by controller.availableTabs.collectAsState()
+        val isDirty by controller.isDirty.collectAsState()
+        val canSave by controller.canSave.collectAsState()
+
+        val categories = remember { d.categories() }
+        val toolsByCategory = remember { d.toolsByCategory() }
+        val modelChoices = remember { d.modelChoices() }
+        val globalMaxIterationsLabel = remember { d.globalMaxIterationsLabel() }
+
+        var showDiscardConfirm by remember { mutableStateOf(false) }
+        // System back gesture/button: PromptEditScreen's own up-navigation icon already gates
+        // itself behind a discard-confirm dialog (see that screen's kdoc), but that does not
+        // intercept system back — mirrors classic PromptEditComposeActivity's BackHandler.
+        PlatformBackHandler(enabled = isDirty) { showDiscardConfirm = true }
+
+        PromptEditScreen(
+            state = state,
+            tab = tab,
+            availableTabs = availableTabs,
+            disabledContexts = controller.disabledContexts,
+            hiddenAdvancedKeys = controller.hiddenAdvancedKeys,
+            isDirty = isDirty,
+            canSave = canSave,
+            isReadOnly = state.isReadOnly,
+            isBuiltIn = state.isBuiltIn,
+            isNew = controller.isNew,
+            categories = categories,
+            toolsByCategory = toolsByCategory,
+            modelChoices = modelChoices,
+            globalToolPermission = d.globalToolPermission,
+            globalMaxIterationsLabel = globalMaxIterationsLabel,
+            onSelectTab = controller::selectTab,
+            onSetName = controller::setName,
+            onSetDescription = controller::setDescription,
+            onSetTemplate = controller::setTemplate,
+            onSetCategory = controller::setCategory,
+            onToggleContext = controller::toggleContext,
+            onSetBibleOnly = controller::setBibleOnly,
+            onSetTextTransformation = controller::setTextTransformation,
+            onSetPermissionMode = controller::setPermissionMode,
+            onSetToolPermission = controller::setToolPermission,
+            onSetCategoryRead = controller::setCategoryRead,
+            onSetCategoryWrite = controller::setCategoryWrite,
+            onResetToolPermissions = controller::resetToolPermissions,
+            onSetModelOverride = controller::setModelOverride,
+            onSetMaxIterations = controller::setMaxIterations,
+            onSetSwitch = controller::setSwitch,
+            // No result to report — see PromptEditDeps' kdoc "No result slot". Only pop when a
+            // save actually happened (controller.save() returns null if canSave was false,
+            // defensively — the Save action is already disabled in that case).
+            onSave = { if (controller.save() != null) navController.popOrExit(deps.exitHost) },
+            onDelete = { controller.delete(); navController.popOrExit(deps.exitHost) },
+            // Self-replacing navigation (mirrors classic copyToCustomizeAndFinish): navigate to a
+            // fresh PROMPT_EDIT entry for the copy, popping the CURRENT entry off so the old
+            // (now-stale) editor never lingers on the back stack. popUpTo targets the PATTERN
+            // (not this entry's own concrete route) because NavController resolves popUpTo by
+            // route identity, and every PROMPT_EDIT entry — this one and the new one about to be
+            // pushed — shares that same registered route; popping by pattern removes exactly the
+            // one entry currently on the stack for it, which is what "replace" means here.
+            onCopyToCustomize = {
+                val newId = controller.copyToCustomize()
+                if (newId != null) {
+                    d.onPromptCopied()
+                    navController.navigate(NavRoutes.promptEdit(promptId = newId)) {
+                        popUpTo(NavRoutes.PROMPT_EDIT_PATTERN) { inclusive = true }
+                    }
+                }
+            },
+            onViewTools = { navController.navigate(NavRoutes.AI_TOOL_INFO) },
+            onBack = { navController.popOrExit(deps.exitHost) },
+            helpBody = d.helpBody,
+            helpReadMoreUrl = d.helpReadMoreUrl,
+        )
+
+        if (showDiscardConfirm) {
+            AbConfirmDialog(
+                title = null,
+                message = strings.discardChangesConfirmation,
+                confirmText = strings.yes,
+                dismissText = strings.no,
+                onConfirm = { showDiscardConfirm = false; navController.popOrExit(deps.exitHost) },
+                onDismiss = { showDiscardConfirm = false },
             )
         }
     }

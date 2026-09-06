@@ -107,6 +107,7 @@ object ScreenLauncher {
         Screen.AiModels to NavRoutes.AI_MODELS,
         Screen.AiConnectionSettings to NavRoutes.AI_CONNECTION_SETTINGS,
         Screen.AiProviders to NavRoutes.aiProviders(startEasySetup = false),
+        Screen.PromptEdit to NavRoutes.promptEdit(),
     )
 
     /** The Activity class implementing [screen]. */

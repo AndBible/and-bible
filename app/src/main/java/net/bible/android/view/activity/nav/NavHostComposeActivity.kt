@@ -20,6 +20,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.RowScope
@@ -64,6 +65,8 @@ import net.bible.sharedcore.ai.DocumentFilterService
 import net.bible.sharedcore.ai.GlobalToolPermissionsController
 import net.bible.sharedcore.ai.LlmModelService
 import net.bible.sharedcore.ai.LlmProviderService
+import net.bible.sharedcore.ai.PromptEditController
+import net.bible.sharedcore.ai.PromptService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.settings.SettingsItem
@@ -74,6 +77,7 @@ import net.bible.sharedui.ai.nav.AiModelsDeps
 import net.bible.sharedui.ai.nav.AiNavDeps
 import net.bible.sharedui.ai.nav.AiProvidersDeps
 import net.bible.sharedui.ai.nav.GlobalToolPermissionsDeps
+import net.bible.sharedui.ai.nav.PromptEditDeps
 import net.bible.sharedui.ai.nav.ToolInfoDeps
 import net.bible.sharedui.ai.nav.aiNavGraph
 import org.koin.android.ext.android.inject
@@ -92,6 +96,7 @@ class NavHostComposeActivity : ActivityBase() {
     private val llmModelService: LlmModelService by inject()
     private val aiSettingsService: AiSettingsService by inject()
     private val llmProviderService: LlmProviderService by inject()
+    private val promptService: PromptService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -172,6 +177,30 @@ class NavHostComposeActivity : ActivityBase() {
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#choosing-a-provider",
                             unknownErrorMessage = getString(R.string.unknown_error),
                             onResume = { llmProviderService.refresh() },
+                        ),
+                        promptEdit = PromptEditDeps(
+                            controllerFor = { promptId, template, defaultContext ->
+                                PromptEditController(
+                                    service = promptService,
+                                    promptId = promptId,
+                                    template = template,
+                                    defaultContext = defaultContext,
+                                )
+                            },
+                            categories = { promptService.categories() },
+                            toolsByCategory = { promptService.toolsByCategory() },
+                            modelChoices = { promptService.modelChoices() },
+                            globalToolPermission = { toolId -> promptService.globalToolPermission(toolId) },
+                            globalMaxIterationsLabel = {
+                                val globalMaxIterations = CommonUtils.aiSettings.maxIterations
+                                if (globalMaxIterations <= 0) getString(R.string.prompt_max_iterations_unlimited)
+                                else globalMaxIterations.toString()
+                            },
+                            helpBody = getString(R.string.help_prompt_edit_text),
+                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#custom-prompts",
+                            onPromptCopied = {
+                                Toast.makeText(this@NavHostComposeActivity, R.string.prompt_copied, Toast.LENGTH_SHORT).show()
+                            },
                         ),
                     )
                 }
