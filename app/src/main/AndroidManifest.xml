@@ -240,6 +240,13 @@
             android:parentActivityName="net.bible.android.view.activity.ai.PromptEditComposeActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.nav.NavHostComposeActivity"
+            android:theme="@style/Theme.AbCompose"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.ai.RawLlmLogComposeActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/raw_llm_log_title"

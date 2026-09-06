@@ -19,6 +19,8 @@ package net.bible.android.view
 
 import android.content.Context
 import android.content.Intent
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity
 import net.bible.android.view.activity.ai.AiModelsComposeActivity
 import net.bible.android.view.activity.ai.AiProvidersComposeActivity
@@ -89,6 +91,19 @@ enum class Screen { Calculator, SearchIndexProgress, SearchIndex, SearchResults,
  * changes -- which is exactly what the navigation graph will change it to.
  */
 object ScreenLauncher {
+    /**
+     * Screens that now live in the Compose navigation graph rather than in an Activity of their
+     * own, mapped to the route that opens them. [intentFor] aims these at
+     * [NavHostComposeActivity]; every other screen still resolves through [targetFor].
+     *
+     * This is the coexistence seam for the nav-graph migration: because 91 of this object's 99 call
+     * sites take the Intent from [intentFor] and drive it themselves, moving a screen into the
+     * graph changes NO caller. Entries are added one cluster at a time.
+     */
+    val MIGRATED: Map<Screen, String> = mapOf(
+        Screen.ToolInfo to NavRoutes.AI_TOOL_INFO,
+    )
+
     /** The Activity class implementing [screen]. */
     fun targetFor(screen: Screen): Class<*> = when (screen) {
         Screen.Calculator -> CalculatorComposeActivity::class.java
@@ -146,7 +161,10 @@ object ScreenLauncher {
      * Intent for [screen], routed old/new. Callers that need the result (the calculator's PIN
      * unlock uses `startActivityForResult` / `awaitIntent`) build on this instead of [open].
      */
-    fun intentFor(context: Context, screen: Screen): Intent = Intent(context, targetFor(screen))
+    fun intentFor(context: Context, screen: Screen): Intent =
+        MIGRATED[screen]
+            ?.let { route -> NavHostComposeActivity.intentFor(context, route) }
+            ?: Intent(context, targetFor(screen))
 
     fun open(context: Context, screen: Screen) {
         context.startActivity(intentFor(context, screen))

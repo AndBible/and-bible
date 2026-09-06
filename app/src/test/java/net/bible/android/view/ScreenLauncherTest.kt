@@ -28,7 +28,6 @@ import net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity
 import net.bible.android.view.activity.ai.PromptEditComposeActivity
 import net.bible.android.view.activity.ai.RawLlmLogComposeActivity
 import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
-import net.bible.android.view.activity.ai.ToolInfoComposeActivity
 import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
 import net.bible.android.view.activity.bookmark.LabelEditComposeActivity
@@ -62,6 +61,7 @@ import net.bible.android.view.activity.settings.SyncSettingsComposeActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -214,8 +214,9 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun toolInfo_routes_to_compose() {
-        assertEquals(ToolInfoComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ToolInfo))
+    fun toolInfo_routes_to_the_nav_graph() {
+        // Migrated in the nav-graph phase's slice 1; targetFor no longer answers for it.
+        assertEquals(NavRoutes.AI_TOOL_INFO, ScreenLauncher.MIGRATED[Screen.ToolInfo])
     }
 
     @Test
