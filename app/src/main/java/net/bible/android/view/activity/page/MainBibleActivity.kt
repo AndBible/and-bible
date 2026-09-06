@@ -1182,7 +1182,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     // ---- Compose drawer side-effect parity (Batch Z-early A7) ----
-    // The classic `DrawerLayout.DrawerListener` installed in `setupUi` (~585-610) has three side
+    // The classic `DrawerLayout.DrawerListener` installed in `setupUi` (:634-665) has three side
     // effects; on the compose path the native listener never fires (that drawer is locked closed),
     // so `ComposeReadingViewHost` derives the same edges from the Material3 `DrawerState` and calls
     // these. Each one only *forwards* to the private logic classic already used, so nothing on the
@@ -1402,11 +1402,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * view instead of starting their full screen; everything else takes the classic path below,
      * unchanged.
      *
-     * Three separate conditions fall through to the classic path, and each is a real case, not
-     * belt-and-braces: no host mounted yet, a page shape `KeyChooserRoute`
-     * deliberately keeps on its own screen (dictionary, StudyPad, my-document, multi-document), and
-     * a chosen kind whose key list is EMPTY — where both chooser activities apply a fallback
-     * selection and finish without drawing anything, which a sheet cannot reproduce (E3).
+     * Three separate conditions fall through to the classic path. Two are real cases, not
+     * belt-and-braces: a page shape `KeyChooserRoute` deliberately keeps on its own screen
+     * (dictionary, StudyPad, my-document, multi-document), and a chosen kind whose key list is
+     * EMPTY — where both chooser activities apply a fallback selection and finish without drawing
+     * anything, which a sheet cannot reproduce (E3). The third, no host mounted yet, is defensive
+     * rather than reachable in practice: this method's only caller is the Compose toolbar's title
+     * tap ([ComposeReadingViewHost.install]'s `onTitleTap`), wired inside `install()` itself, so the
+     * host is already non-null by the time this can fire.
      *
      * `CurrentPage.startKeyChooser` itself is deliberately NOT touched, so `CurrentPageManager`'s
      * auto-open and `BibleJavascriptInterface.refChooserDialog` — which needs a real Intent result —
