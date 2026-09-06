@@ -238,11 +238,15 @@ class LlmProviderServiceImpl : LlmProviderService {
             )
             modelDao.insert(configuredModel)
             settings.defaultModelId = configuredModel.id
-
-            prefetchModels(provider, key)
         }
+        // The writes above are the commit; broadcast it BEFORE prefetchModels below (whole-branch
+        // review I3). prefetchModels is a cache warm-up (see its own kdoc: "best-effort"), not part
+        // of the commit -- hoisted out of the withContext(Dispatchers.IO) block above so a
+        // cancellation during its network fetch can no longer swallow this post()/refresh() and
+        // leave the DB configured while every consumer outside the AI cluster never hears about it.
         ABEventBus.post(AppSettingsUpdated())
         refresh()
+        withContext(Dispatchers.IO) { prefetchModels(provider, key) }
     }
 
     override fun disclaimerAccepted(): Boolean = settings.aiDisclaimerAccepted

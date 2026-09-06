@@ -97,4 +97,24 @@ class AiDocumentFilterControllerTest {
         assertEquals(emptySet<String>(), f.lastExcluded)
         assertFalse(c.isDirty.value)
     }
+
+    /**
+     * Regression for the whole-branch review's C1 ("Discard changes?" does not discard): the host
+     * used to build ONE controller instance and hold it for the whole Activity (`remember {}` at
+     * host scope), so an unsaved toggle discarded via Back survived into the next visit and could
+     * ride along into a LATER save(). The fix (AiNavGraph.kt's `controllerFor` factory, `remember`ed
+     * per back-stack entry) relies on exactly this property: a controller freshly constructed over
+     * the same service never carries an earlier, never-saved instance's staged edits.
+     */
+    @Test fun freshControllerOverSameService_isCleanRegardlessOfEarlierUnsavedEdits() = runTest {
+        val f = Fake(groups)
+        val first = controller(f)
+        first.toggle("KJV")
+        assertTrue(first.isDirty.value)
+        assertEquals(0, f.setExcludedCount) // never saved
+
+        val second = controller(f)
+        assertFalse(second.isDirty.value)
+        assertEquals(groups, second.state.value)
+    }
 }

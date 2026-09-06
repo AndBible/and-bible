@@ -86,9 +86,10 @@ object ScreenLauncher {
      * own, mapped to the route that opens them. [intentFor] aims these at
      * [NavHostComposeActivity]; every other screen still resolves through [targetFor].
      *
-     * This is the coexistence seam for the nav-graph migration: because 91 of this object's 99 call
-     * sites take the Intent from [intentFor] and drive it themselves, moving a screen into the
-     * graph changes NO caller. Entries are added one cluster at a time.
+     * This is the coexistence seam for the nav-graph migration: because 85 of this object's 86 call
+     * sites reach a screen through [intentFor] or [open] rather than [targetFor] directly (measured
+     * 2026-09-06: 79 [intentFor] + 6 [open], vs. one direct [targetFor] call), moving a screen into
+     * the graph changes NO caller. Entries are added one cluster at a time.
      */
     val MIGRATED: Map<Screen, String> = mapOf(
         Screen.ToolInfo to NavRoutes.AI_TOOL_INFO,
@@ -99,7 +100,13 @@ object ScreenLauncher {
         Screen.AiProviders to NavRoutes.aiProviders(startEasySetup = false),
         Screen.AiPrompts to NavRoutes.AI_PROMPTS,
         Screen.PromptEdit to NavRoutes.promptEdit(),
-        Screen.RawLlmLog to NavRoutes.rawLlmLog(),
+        // Screen.RawLlmLog is deliberately NOT here (whole-branch review M2): unlike
+        // Screen.PromptEdit, an argument-less RawLlmLog route has no "new X" meaning — both ids
+        // null just renders an empty screen with no log to show. NavRoutes.rawLlmLog() would be
+        // silently wrong for a caller reaching this route via a bare Screen. Every real edge into
+        // this screen builds NavRoutes.rawLlmLog(...) directly with a real id, bypassing this map,
+        // so a stray ScreenLauncher.open(ctx, Screen.RawLlmLog) now falls through to targetFor,
+        // which throws loudly instead of opening a screen with nothing to show.
         Screen.RawLogHistory to NavRoutes.AI_RAW_LOG_HISTORY,
     )
 

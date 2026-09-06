@@ -74,7 +74,7 @@ import net.bible.sharedui.strings.LocalStrings
 
 /**
  * [ToolInfoScreen]'s platform-supplied slots. One such holder per destination, nested under
- * [AiNavDeps] — kept small and grouped rather than flattened, because at nine destinations a flat
+ * [AiNavDeps] — kept small and grouped rather than flattened, because at ten destinations a flat
  * [AiNavDeps] would mix ~40 fields (plain data, per-item lambdas, Task 9's suspend lambdas) in one
  * namespace with nothing but a naming convention telling them apart.
  */
@@ -86,18 +86,32 @@ class ToolInfoDeps(
 )
 
 /**
- * [AiDocumentFilterScreen]'s platform-supplied slots. [controller] is constructed by the host
- * (it needs a `CoroutineScope` — the host's `lifecycleScope` — that `commonMain` cannot provide).
+ * [AiDocumentFilterScreen]'s platform-supplied slots. [controllerFor] is a no-arg factory the host
+ * supplies (it needs a `CoroutineScope` — the host's `lifecycleScope` — that `commonMain` cannot
+ * provide); the graph `remember`s the result INSIDE its own composable arm, same shape as
+ * [RawLlmLogDeps.controllerFor], so the back-stack entry's own composition owns the instance and
+ * its staged (save-on-apply) state.
+ *
+ * This is why "Discard changes?" actually discards (whole-branch review C1): both
+ * [AiDocumentFilterController] and [GlobalToolPermissionsController] seed their working set once,
+ * in the constructor, and have no reload/reseed method — only [AiDocumentFilterController.save],
+ * which re-baselines. A `controller: AiDocumentFilterController` field built with a bare
+ * `remember {}` at HOST scope (as this used to be) is constructed exactly once for the whole
+ * Activity, so an unsaved toggle discarded via Back on one visit was still sitting in that same
+ * instance's working set on the NEXT visit, ready to ride along into a later `save()`. A factory
+ * `remember`ed per back-stack entry gives every (re-)entry a fresh, freshly-seeded instance
+ * instead.
  */
 class AiDocumentFilterDeps(
-    val controller: AiDocumentFilterController,
+    val controllerFor: () -> AiDocumentFilterController,
     val helpBody: String,
     val helpReadMoreUrl: String,
 )
 
-/** [GlobalToolPermissionsScreen]'s platform-supplied slots. Same shape as [AiDocumentFilterDeps]. */
+/** [GlobalToolPermissionsScreen]'s platform-supplied slots. Same shape as [AiDocumentFilterDeps] —
+ * see its kdoc for why [controllerFor] is a per-entry factory rather than a host-held instance. */
 class GlobalToolPermissionsDeps(
-    val controller: GlobalToolPermissionsController,
+    val controllerFor: () -> GlobalToolPermissionsController,
     val helpBody: String,
     val helpReadMoreUrl: String,
 )
@@ -131,10 +145,10 @@ class AiModelsDeps(
  * more Android-resource baggage than any destination migrated so far:
  *
  * - [controller] is built by the host (needs `labels: AiConnectionLabels`, all `getString` calls,
- *   plus the host's `lifecycleScope`) — same shape as [AiDocumentFilterDeps.controller] etc. Its
+ *   plus the host's `lifecycleScope`) — same shape as [AiDocumentFilterDeps.controllerFor] etc. Its
  *   own constructor `onNavigate` is a host-supplied no-op; the real navigation branching lives in
  *   THIS graph's `composable(NavRoutes.AI_CONNECTION_SETTINGS)` arm below (see the class kdoc on
- *   [aiNavGraph]), not on the controller — three of the six edges are `navController.navigate(...)`
+ *   [aiNavGraph]), not on the controller — six of its seven edges are `navController.navigate(...)`
  *   and cannot be decided from `:sharedCore`.
  * - [languageChoices]/[customLanguageTag] are the AI-language picker's Android locale-array data
  *   (F32) — read from `R.array.prefs_interface_locale_*`, so they cannot be resolved here.
@@ -391,9 +405,13 @@ internal fun popOrExitOnFailedPop(popped: Boolean, exitHost: () -> Unit) {
 /**
  * Up-navigation for a destination that may be the graph's START destination. `popBackStack()`
  * returns false and does nothing on a single-entry back stack, so a bare `popBackStack()` binding
- * makes the up-arrow a dead button whenever the destination was entered directly — which is the
- * normal case while `ScreenLauncher` launches each migrated screen straight into the host (today,
- * `ToolInfo` is always the graph's only entry, since nothing else is migrated yet).
+ * makes the up-arrow a dead button whenever the destination was entered directly. All ten AI-cluster
+ * screens are migrated now, and eight of them normally sit on top of an in-graph parent (reached via
+ * `navController.navigate(...)` from elsewhere in this same graph) — so falling through to
+ * [AiNavDeps.exitHost] is the EXCEPTION today, not the normal case: it only fires for the two screens
+ * `ScreenLauncher`/the host launch directly as the graph's sole entry (`AiPrompts` from the Settings
+ * menu, `PromptEdit` from the Vue reading view's `openPromptEditor`), or after a process-death
+ * restore drops the back stack down to one.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
     popOrExitOnFailedPop(popBackStack(), exitHost)
@@ -419,7 +437,8 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
     }
     composable(NavRoutes.AI_DOCUMENT_FILTER) {
         val strings = LocalStrings.current
-        val controller = deps.aiDocumentFilter.controller
+        // Fresh per back-stack entry, not host-held — see AiDocumentFilterDeps' kdoc (C1).
+        val controller = remember { deps.aiDocumentFilter.controllerFor() }
         val groups by controller.state.collectAsState()
         val isDirty by controller.isDirty.collectAsState()
         var showDiscardConfirm by remember { mutableStateOf(false) }
@@ -453,7 +472,8 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
     }
     composable(NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS) {
         val strings = LocalStrings.current
-        val controller = deps.globalToolPermissions.controller
+        // Fresh per back-stack entry, not host-held — see AiDocumentFilterDeps' kdoc (C1).
+        val controller = remember { deps.globalToolPermissions.controllerFor() }
         val groups by controller.state.collectAsState()
         val permissions by controller.permissions.collectAsState()
         val isDirty by controller.isDirty.collectAsState()
@@ -594,6 +614,11 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         // AiModelsDeps.onResume's kdoc for why this is route-scoped, not host-wide.
         LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { d.onResume?.invoke() }
 
+        // Destination-scoped on purpose (unlike AI_PROMPTS' importPrompts/exportPrompts, which
+        // deliberately use the HOST's lifecycleScope -- see AiPromptsDeps' onImportCsv/onExportCsv
+        // kdoc): testConnection/performEasySetup below only feed local easySetupState, so being
+        // cancelled the instant this destination leaves composition is correct, not a hazard -- there
+        // is no file/DB side effect here that navigating away should let keep running.
         val scope = rememberCoroutineScope()
 
         // F31: the continuation stashed while the "Accept AI disclaimer" dialog is shown (`null` =

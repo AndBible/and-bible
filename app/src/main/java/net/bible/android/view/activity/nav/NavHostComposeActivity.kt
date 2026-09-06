@@ -132,12 +132,6 @@ class NavHostComposeActivity : ActivityBase() {
             AbAppTheme {
                 val navController = rememberNavController()
                 val allTools = remember { ToolRegistry.getAllTools() }
-                val aiDocumentFilterController = remember {
-                    AiDocumentFilterController(service = documentFilterService, scope = lifecycleScope)
-                }
-                val globalToolPermissionsController = remember {
-                    GlobalToolPermissionsController(service = toolPermissionService, scope = lifecycleScope)
-                }
                 val aiModelsController = remember {
                     AiModelsController(service = llmModelService, scope = lifecycleScope)
                 }
@@ -168,12 +162,16 @@ class NavHostComposeActivity : ActivityBase() {
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#ai-tools",
                         ),
                         aiDocumentFilter = AiDocumentFilterDeps(
-                            controller = aiDocumentFilterController,
+                            // A fresh instance per back-stack entry -- see AiDocumentFilterDeps'
+                            // kdoc (C1: this used to be a single remember{} at host scope, which is
+                            // why "Discard changes?" did not actually discard anything).
+                            controllerFor = { AiDocumentFilterController(service = documentFilterService, scope = lifecycleScope) },
                             helpBody = getString(R.string.help_ai_document_filter_text),
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-data-and-documents",
                         ),
                         globalToolPermissions = GlobalToolPermissionsDeps(
-                            controller = globalToolPermissionsController,
+                            // Same fix, same reason -- see AiDocumentFilterDeps' kdoc (C1).
+                            controllerFor = { GlobalToolPermissionsController(service = toolPermissionService, scope = lifecycleScope) },
                             helpBody = getString(R.string.help_global_tool_permissions_text),
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#setting-permissions",
                         ),

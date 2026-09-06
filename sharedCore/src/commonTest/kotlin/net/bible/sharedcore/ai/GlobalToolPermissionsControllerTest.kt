@@ -177,4 +177,23 @@ class GlobalToolPermissionsControllerTest {
         c.setCategoryWrite("READ_ONLY", ToolPermission.DENY)
         assertEquals(before, c.permissions.value)
     }
+
+    /**
+     * Regression for the whole-branch review's C1 ("Discard changes?" does not discard) — see
+     * AiDocumentFilterControllerTest's twin of this test for the full story. Pins the property the
+     * fix (AiNavGraph.kt's `controllerFor` factory, `remember`ed per back-stack entry) relies on: a
+     * controller freshly constructed over the same service never carries an earlier, never-saved
+     * instance's staged edits.
+     */
+    @Test fun freshControllerOverSameService_isCleanRegardlessOfEarlierUnsavedEdits() = runTest {
+        val f = Fake(catalog)
+        val first = controller(f)
+        first.setPermission("addBookmark", ToolPermission.ALLOW)
+        assertTrue(first.isDirty.value)
+        assertEquals(0, f.saveCount) // never saved
+
+        val second = controller(f)
+        assertFalse(second.isDirty.value)
+        assertEquals(ToolPermission.ASK, second.permissions.value["addBookmark"])
+    }
 }

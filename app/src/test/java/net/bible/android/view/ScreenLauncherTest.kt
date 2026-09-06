@@ -56,6 +56,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -227,8 +228,12 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun rawLlmLog_routes_to_the_nav_graph() {
-        assertEquals(NavRoutes.rawLlmLog(), ScreenLauncher.MIGRATED[Screen.RawLlmLog])
+    fun rawLlmLog_isNotMigrated_argumentLessRouteHasNoSafeMeaning() {
+        // Whole-branch review M2: unlike Screen.PromptEdit's argument-less "new prompt" meaning,
+        // an argument-less RawLlmLog route has no safe interpretation (both ids null just renders
+        // an empty screen), so it is deliberately absent from MIGRATED rather than mapped to
+        // NavRoutes.rawLlmLog(). See NavHostRoutingGuardTest.rawLlmLogIsNotInMigratedAndIntentForThrows.
+        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.RawLlmLog))
     }
 
     @Test

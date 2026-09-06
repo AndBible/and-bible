@@ -31,6 +31,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 /**
@@ -122,10 +123,14 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
-    fun rawLlmLogResolvesToTheNavHostCarryingItsRoute() {
-        val intent = ScreenLauncher.intentFor(context, Screen.RawLlmLog)
-        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
-        assertEquals(NavRoutes.rawLlmLog(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    fun rawLlmLogIsNotInMigratedAndIntentForThrows() {
+        // Whole-branch review M2: unlike Screen.PromptEdit, an argument-less RawLlmLog route has
+        // no safe meaning (both ids null renders an empty screen with no log), so it was dropped
+        // from ScreenLauncher.MIGRATED rather than mapped to NavRoutes.rawLlmLog(). intentFor then
+        // falls through to targetFor, whose targetForMigratedAiScreen guard throws loudly instead
+        // of silently opening a blank screen.
+        assertTrue(Screen.RawLlmLog !in ScreenLauncher.MIGRATED)
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.RawLlmLog) }
     }
 
     @Test
