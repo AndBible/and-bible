@@ -19,10 +19,13 @@ package net.bible.android.view.compose
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -155,83 +158,32 @@ class ComposeHostActionBarTest {
         assertNull(build<WorkspaceSelectorHostProbe>().supportActionBar)
     }
 
-    @Test fun `AiConnectionSettingsComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+    /**
+     * Nav-graph Task 10 deleted the ten classic AI-cluster host Activities that used to each carry
+     * their own no-native-ActionBar test here (`AiConnectionSettingsComposeActivity` through
+     * `RawLlmLogComposeActivity`, ten test functions). All ten AI screens now render as destinations
+     * inside this ONE host, so their ten narrow probes collapse into this single one -- a coverage
+     * CONSOLIDATION, not a coverage drop: every one of those ten screens is reachable only through
+     * `NavHostComposeActivity`'s manifest-declared `Theme.AbCompose` now, so proving IT has no
+     * native ActionBar proves the property for all ten (and every other nav-graph destination)
+     * at once, the same way [CloudDocumentsComposeActivity]/`InstallZipComposeActivity` above prove
+     * it for their own single manifest entries. Built with a real route
+     * ([NavRoutes.AI_CONNECTION_SETTINGS]) via [NavHostComposeActivity.intentFor] because `onCreate`
+     * requires `EXTRA_ROUTE` and throws without it.
+     */
+    @Test fun `NavHostComposeActivity has no native ActionBar (Theme_AbCompose)`() {
+        val activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(
+                ApplicationProvider.getApplicationContext(),
+                NavRoutes.AI_CONNECTION_SETTINGS,
+            ),
+        ).create().get()
         assertNull(
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity::class.java
-            ).create().get().supportActionBar
-        )
-    }
-
-    @Test fun `AiProvidersComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        assertNull(
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.ai.AiProvidersComposeActivity::class.java
-            ).create().get().supportActionBar
-        )
-    }
-
-    @Test fun `AiModelsComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        assertNull(
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.ai.AiModelsComposeActivity::class.java
-            ).create().get().supportActionBar
-        )
-    }
-
-    @Test fun `AiPromptsComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        assertNull(
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.ai.AiPromptsComposeActivity::class.java
-            ).create().get().supportActionBar
-        )
-    }
-
-    @Test fun `PromptEditComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        assertNull(
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.ai.PromptEditComposeActivity::class.java
-            ).create().get().supportActionBar
-        )
-    }
-
-    @Test fun `GlobalToolPermissionsComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        assertNull(
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity::class.java
-            ).create().get().supportActionBar
-        )
-    }
-
-    @Test fun `ToolInfoComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        assertNull(
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.ai.ToolInfoComposeActivity::class.java
-            ).create().get().supportActionBar
-        )
-    }
-
-    @Test fun `AiDocumentFilterComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        assertNull(
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity::class.java
-            ).create().get().supportActionBar
-        )
-    }
-
-    @Test fun `RawLogHistoryComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        assertNull(
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.ai.RawLogHistoryComposeActivity::class.java
-            ).create().get().supportActionBar
-        )
-    }
-
-    @Test fun `RawLlmLogComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        assertNull(
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.ai.RawLlmLogComposeActivity::class.java
-            ).create().get().supportActionBar
+            "NavHostComposeActivity must use Theme.AbCompose (NoActionBar); a non-null " +
+                "supportActionBar means the manifest entry lost the theme -> double app bar for " +
+                "every nav-graph destination it hosts (all ten former AI-cluster screens included).",
+            activity.supportActionBar,
         )
     }
 

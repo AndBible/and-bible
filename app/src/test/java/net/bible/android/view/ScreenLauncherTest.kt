@@ -19,15 +19,6 @@ package net.bible.android.view
 
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity
-import net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity
-import net.bible.android.view.activity.ai.AiModelsComposeActivity
-import net.bible.android.view.activity.ai.AiProvidersComposeActivity
-import net.bible.android.view.activity.ai.AiPromptsComposeActivity
-import net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity
-import net.bible.android.view.activity.ai.PromptEditComposeActivity
-import net.bible.android.view.activity.ai.RawLlmLogComposeActivity
-import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
 import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
 import net.bible.android.view.activity.bookmark.LabelEditComposeActivity
@@ -183,34 +174,40 @@ class ScreenLauncherTest {
         )
     }
 
+    // The nine tests below were converted from `targetFor(Screen.X) == XComposeActivity::class.java`
+    // to the MIGRATED[Screen.X] shape by nav-graph Task 10, which deleted all ten classic AI-cluster
+    // ComposeActivity classes outright (targetFor throws for these Screens now -- see
+    // ScreenLauncher.targetForMigratedAiScreen). `toolInfo_routes_to_the_nav_graph` already used
+    // this shape from an earlier task (slice 1) and needed no change.
+
     @Test
-    fun aiConnectionSettings_routes_to_compose() {
-        assertEquals(AiConnectionSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiConnectionSettings))
+    fun aiConnectionSettings_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.AI_CONNECTION_SETTINGS, ScreenLauncher.MIGRATED[Screen.AiConnectionSettings])
     }
 
     @Test
-    fun aiProviders_routes_to_compose() {
-        assertEquals(AiProvidersComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiProviders))
+    fun aiProviders_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.aiProviders(startEasySetup = false), ScreenLauncher.MIGRATED[Screen.AiProviders])
     }
 
     @Test
-    fun aiModels_routes_to_compose() {
-        assertEquals(AiModelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiModels))
+    fun aiModels_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.AI_MODELS, ScreenLauncher.MIGRATED[Screen.AiModels])
     }
 
     @Test
-    fun aiPrompts_routes_to_compose() {
-        assertEquals(AiPromptsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiPrompts))
+    fun aiPrompts_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.AI_PROMPTS, ScreenLauncher.MIGRATED[Screen.AiPrompts])
     }
 
     @Test
-    fun promptEdit_routes_to_compose() {
-        assertEquals(PromptEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.PromptEdit))
+    fun promptEdit_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.promptEdit(), ScreenLauncher.MIGRATED[Screen.PromptEdit])
     }
 
     @Test
-    fun globalToolPermissions_routes_to_compose() {
-        assertEquals(GlobalToolPermissionsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GlobalToolPermissions))
+    fun globalToolPermissions_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS, ScreenLauncher.MIGRATED[Screen.GlobalToolPermissions])
     }
 
     @Test
@@ -220,18 +217,18 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun aiDocumentFilter_routes_to_compose() {
-        assertEquals(AiDocumentFilterComposeActivity::class.java, ScreenLauncher.targetFor(Screen.AiDocumentFilter))
+    fun aiDocumentFilter_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.AI_DOCUMENT_FILTER, ScreenLauncher.MIGRATED[Screen.AiDocumentFilter])
     }
 
     @Test
-    fun rawLogHistory_routes_to_compose() {
-        assertEquals(RawLogHistoryComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLogHistory))
+    fun rawLogHistory_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.AI_RAW_LOG_HISTORY, ScreenLauncher.MIGRATED[Screen.RawLogHistory])
     }
 
     @Test
-    fun rawLlmLog_routes_to_compose() {
-        assertEquals(RawLlmLogComposeActivity::class.java, ScreenLauncher.targetFor(Screen.RawLlmLog))
+    fun rawLlmLog_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.rawLlmLog(), ScreenLauncher.MIGRATED[Screen.RawLlmLog])
     }
 
     @Test

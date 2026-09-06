@@ -284,8 +284,8 @@ class NavHostComposeActivity : ActivityBase() {
     }
 
     // --- AiConnectionSettings host baggage ----------------------------------------------------
-    // Ported from the classic AiConnectionSettingsComposeActivity (not deleted — Task 10 does
-    // that): Android-resource labels/locale arrays, the reset-usage AlertDialog, and the help
+    // Ported from the classic AiConnectionSettingsComposeActivity (deleted in nav-graph Task 10):
+    // Android-resource labels/locale arrays, the reset-usage AlertDialog, and the help
     // overflow. See AiConnectionSettingsDeps' kdoc for why each stays host-side rather than
     // moving into :sharedCore/:sharedUi.
 
@@ -434,7 +434,7 @@ class NavHostComposeActivity : ActivityBase() {
     }
 
     // --- RawLlmLog host baggage ---------------------------------------------------------------
-    // Ported from classic RawLlmLogComposeActivity (not deleted — Task 10 does that): none of
+    // Ported from classic RawLlmLogComposeActivity (deleted in nav-graph Task 10): none of
     // this can move into commonMain (DatabaseContainer/SimpleDateFormat are Android-JVM-only; the
     // clipboard/share/AiBugReport calls are platform APIs) — see RawLlmLogDeps' kdoc.
 
@@ -481,7 +481,7 @@ class NavHostComposeActivity : ActivityBase() {
     }
 
     // --- AiPrompts host baggage — the SAF (Storage Access Framework) seam ---------------------
-    // Ported VERBATIM from classic AiPromptsComposeActivity (not deleted — Task 10 does that),
+    // Ported VERBATIM from classic AiPromptsComposeActivity (deleted in nav-graph Task 10),
     // which itself mirrors classic AiSettingsActivity's exportPrompts/importPrompts exactly: the
     // editable-vs-addon chooser, the ACTION_CREATE_DOCUMENT/ACTION_OPEN_DOCUMENT intents, and the
     // result Toasts/error dialogs. None of `awaitIntent` (this Activity's ActivityBase suspend

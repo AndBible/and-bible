@@ -21,16 +21,6 @@ import android.content.Context
 import android.content.Intent
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity
-import net.bible.android.view.activity.ai.AiModelsComposeActivity
-import net.bible.android.view.activity.ai.AiProvidersComposeActivity
-import net.bible.android.view.activity.ai.AiPromptsComposeActivity
-import net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity
-import net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity
-import net.bible.android.view.activity.ai.PromptEditComposeActivity
-import net.bible.android.view.activity.ai.RawLlmLogComposeActivity
-import net.bible.android.view.activity.ai.RawLogHistoryComposeActivity
-import net.bible.android.view.activity.ai.ToolInfoComposeActivity
 import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
 import net.bible.android.view.activity.bookmark.LabelEditComposeActivity
@@ -140,16 +130,24 @@ object ScreenLauncher {
         Screen.MyDocumentPages -> MyDocumentPagesComposeActivity::class.java
         Screen.CloudDocuments -> CloudDocumentsComposeActivity::class.java
         Screen.WorkspaceSelector -> WorkspaceSelectorComposeActivity::class.java
-        Screen.AiConnectionSettings -> AiConnectionSettingsComposeActivity::class.java
-        Screen.AiProviders -> AiProvidersComposeActivity::class.java
-        Screen.AiModels -> AiModelsComposeActivity::class.java
-        Screen.AiPrompts -> AiPromptsComposeActivity::class.java
-        Screen.PromptEdit -> PromptEditComposeActivity::class.java
-        Screen.GlobalToolPermissions -> GlobalToolPermissionsComposeActivity::class.java
-        Screen.ToolInfo -> ToolInfoComposeActivity::class.java
-        Screen.AiDocumentFilter -> AiDocumentFilterComposeActivity::class.java
-        Screen.RawLogHistory -> RawLogHistoryComposeActivity::class.java
-        Screen.RawLlmLog -> RawLlmLogComposeActivity::class.java
+        // The ten classic AI-cluster *ComposeActivity classes were deleted in nav-graph Task 10;
+        // every one of these Screens is now a permanent MIGRATED entry (see the map above) with no
+        // Activity of its own, so intentFor never falls through to targetFor for them. Each arm
+        // below exists only to keep the `when` exhaustive over Screen -- calling targetFor
+        // directly for one of these (as opposed to intentFor/open) is a caller bug. Kept as ten
+        // separate arms (not one combined `Screen.A, Screen.B -> ...`) because
+        // ClassicAiSettingsRemovalGuardTest/ClassicAiPromptsRemovalGuardTest text-scan this file
+        // for a literal "Screen.X ->" per screen.
+        Screen.AiConnectionSettings -> targetForMigratedAiScreen(screen)
+        Screen.AiProviders -> targetForMigratedAiScreen(screen)
+        Screen.AiModels -> targetForMigratedAiScreen(screen)
+        Screen.AiPrompts -> targetForMigratedAiScreen(screen)
+        Screen.PromptEdit -> targetForMigratedAiScreen(screen)
+        Screen.GlobalToolPermissions -> targetForMigratedAiScreen(screen)
+        Screen.ToolInfo -> targetForMigratedAiScreen(screen)
+        Screen.AiDocumentFilter -> targetForMigratedAiScreen(screen)
+        Screen.RawLogHistory -> targetForMigratedAiScreen(screen)
+        Screen.RawLlmLog -> targetForMigratedAiScreen(screen)
         Screen.LabelEdit -> LabelEditComposeActivity::class.java
         Screen.ManageLabels -> ManageLabelsComposeActivity::class.java
         Screen.Bookmarks -> BookmarksComposeActivity::class.java
@@ -165,6 +163,15 @@ object ScreenLauncher {
         Screen.Backup -> BackupComposeActivity::class.java
         Screen.ProgressStatus -> ProgressStatusComposeActivity::class.java
     }
+
+    /**
+     * Every caller reaches these ten AI screens through [MIGRATED] via [intentFor]/[open]; nothing
+     * in the tree calls [targetFor] on one of them directly. This throws rather than returning a
+     * real class so that misuse (a future caller reintroducing a direct [targetFor] call for a
+     * MIGRATED-only screen) fails loudly instead of returning a class that no longer exists.
+     */
+    private fun targetForMigratedAiScreen(screen: Screen): Nothing =
+        error("$screen is fully migrated into the Compose nav graph; use MIGRATED/intentFor, not targetFor")
 
     /**
      * Intent for [screen], routed old/new. Callers that need the result (the calculator's PIN

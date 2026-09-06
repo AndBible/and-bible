@@ -179,86 +179,11 @@
             android:parentActivityName="net.bible.android.view.activity.bookmark.BookmarksComposeActivity"
             />
         <activity
-            android:name="net.bible.android.view.activity.ai.AiPromptsComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/ai_settings"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/ai_connection_settings"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiPromptsComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.PromptEditComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/edit_prompt"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiPromptsComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.AiProvidersComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/ai_providers_category"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.AiModelsComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/ai_models_category"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.GlobalToolPermissionsComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/global_tool_permissions_title"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.AiDocumentFilterComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/ai_document_filter_activity_title"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.ToolInfoComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/ai_available_tools"
-            android:parentActivityName="net.bible.android.view.activity.ai.PromptEditComposeActivity"
-            />
-        <activity
             android:name="net.bible.android.view.activity.nav.NavHostComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.RawLlmLogComposeActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/raw_llm_log_title"
-            android:theme="@style/Theme.AbCompose"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.ai.RawLogHistoryComposeActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/raw_log_history_title"
-            android:theme="@style/Theme.AbCompose"
-            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity"

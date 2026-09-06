@@ -16,7 +16,6 @@
  */
 package net.bible.android.view.activity
 
-import net.bible.android.view.activity.ai.PromptEditComposeActivity
 import net.bible.android.view.activity.download.DownloadKeys
 import net.bible.android.view.activity.ai.RawLlmLogKeys
 import net.bible.android.view.activity.progress.ReadingProgressKeys
@@ -51,12 +50,18 @@ class IntentKeysTest {
         assertEquals("net.bible.android.view.activity.readingplan.Day", ReadingPlanKeys.DAY)
     }
 
-    @Test fun promptIdExtraStaysEqualAcrossBothPromptEditScreens() {
-        // PromptEditActivity.EXTRA_PROMPT_ID was borrowed WITHOUT a new *Keys holder: its two
-        // consumers were repointed onto PromptEditComposeActivity's own pre-existing duplicate
-        // constant instead. So there are two independent "prompt_id" string literals (classic's
-        // and the Compose activity's own) that must keep the same value while both screens exist;
-        // nothing else pins that.
-        assertEquals("prompt_id", PromptEditComposeActivity.EXTRA_PROMPT_ID)
-    }
+    // promptIdExtraStaysEqualAcrossBothPromptEditScreens was DELETED here (nav-graph Task 10),
+    // not converted, and deliberately NOT kept the way rawLlmLogKeysAreUnchanged/RawLlmLogKeys was
+    // at Task 8. That test pinned two INDEPENDENT "prompt_id" Intent-extra literals (classic's
+    // PromptEditActivity and PromptEditComposeActivity's own pre-existing duplicate constant)
+    // agreeing while both screens existed; Task 10 deletes the second and last of those screens,
+    // so there is no longer a second literal for this test to keep in sync with. Unlike
+    // RawLlmLogKeys, EXTRA_PROMPT_ID was never lifted into its own standalone *Keys holder, was
+    // read nowhere else in the tree (verified: `grep -rn '"prompt_id"' app/src sharedCore/src
+    // sharedUi/src` had exactly one non-test hit, the deleted class's own constant), and the
+    // nav-graph's own prompt-id argument is `NavRoutes.ARG_PROMPT_ID = "promptId"` -- a DIFFERENT
+    // string serving a route-argument name, not an Intent-extra key, so "moving" this pinned value
+    // onto it would not preserve what the test asserted; it would compare a literal to itself.
+    // RawLlmLogKeys survives Task 10 as deliberate wire-format documentation (see its KDoc); this
+    // constant leaves no such trail worth keeping.
 }

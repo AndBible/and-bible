@@ -37,9 +37,13 @@ import org.junit.Test
 class ClassicHistoryRemovalGuardTest {
     /**
      * A LEADING boundary is as necessary as the trailing one [ClassicRemovalScan.refsFor] adds:
-     * `net.bible.android.view.activity.ai.RawLogHistoryComposeActivity` is live and ends in the
-     * substring `HistoryComposeActivity`, so the entry below is written fully qualified with its
-     * own `navigation.` package segment in front.
+     * the entry below is written fully qualified with its own `navigation.` package segment in
+     * front, to distinguish it from any other class ending in the substring
+     * `HistoryComposeActivity`. That used to matter for a live sibling,
+     * `net.bible.android.view.activity.ai.RawLogHistoryComposeActivity` -- nav-graph Task 10
+     * deleted that class too, so the carve-out this qualification exists for is now dead (nothing
+     * left to collide with), but harmless, and is kept rather than loosened to an unqualified
+     * `HistoryComposeActivity` in case a future screen reintroduces the same suffix.
      */
     private val doomedClassNames = listOf(
         "net.bible.android.view.activity.navigation.History",
@@ -66,8 +70,8 @@ class ClassicHistoryRemovalGuardTest {
             doomedClassNames,
             "these files still name a history Activity: the classic navigation.History deleted in " +
                 "S14, or navigation.HistoryComposeActivity deleted in the epilogue. Both entries " +
-                "carry their navigation. package segment, so neither matches the live " +
-                "ai.RawLogHistoryComposeActivity.",
+                "carry their navigation. package segment so neither would have matched " +
+                "ai.RawLogHistoryComposeActivity, which nav-graph Task 10 has since deleted too.",
         )
     }
 

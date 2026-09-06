@@ -183,3 +183,22 @@ class AiSettingsServiceImpl : AiSettingsService {
         _snapshot.value = build()
     }
 }
+
+/**
+ * Reset-vs-blank decision for a saved custom-prompt edit, matching classic
+ * `showCustomSystemPromptEditor`'s `if (text == defaultPrompt) null else text.ifBlank { null }`:
+ * store `null` (reset to the built-in default) when the typed [value] is blank/absent OR equals
+ * the RAW BUILT-IN default (`builtInDefault`); otherwise store [value] as-is. `builtInDefault`
+ * MUST be the raw built-in prompt text (e.g. [AiSettingsService.builtInAgentSystemPromptText]),
+ * never the "current custom text" used to prefill the editor — comparing against the prefill
+ * would make an unedited save of an existing custom prompt equal its own prefill and silently
+ * discard it.
+ *
+ * Moved here from the classic `AiConnectionSettingsComposeActivity` (deleted in Task 10, which
+ * ported the AI settings hub into the Compose nav graph): `NavHostComposeActivity` and
+ * `AiConnectionSettingsComposeActivityTest` both need this top-level function to keep living in
+ * the `net.bible.android.view.activity.ai` package after that Activity is gone (see
+ * `AiNavGraph.kt`'s `AiConnectionSettingsDeps` KDoc for why it cannot move to `:sharedCore`).
+ */
+internal fun resolvedCustomPromptValue(value: String?, builtInDefault: String): String? =
+    if (value.isNullOrBlank() || value == builtInDefault) null else value
