@@ -19,20 +19,27 @@ package net.bible.sharedui.ai.nav
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import androidx.savedstate.read
+import kotlinx.coroutines.launch
 import net.bible.sharedcore.ai.AiConnectionNav
 import net.bible.sharedcore.ai.AiConnectionSettingsController
 import net.bible.sharedcore.ai.AiDocumentFilterController
 import net.bible.sharedcore.ai.AiModelsController
+import net.bible.sharedcore.ai.AiProvidersController
 import net.bible.sharedcore.ai.GlobalToolPermissionsController
 import net.bible.sharedcore.ai.ProviderVd
 import net.bible.sharedcore.ai.ToolPermission
@@ -43,6 +50,11 @@ import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.ai.AiConnectionSettingsScreen
 import net.bible.sharedui.ai.AiDocumentFilterScreen
 import net.bible.sharedui.ai.AiModelsScreen
+import net.bible.sharedui.ai.AiProvidersScreen
+import net.bible.sharedui.ai.EasySetupState
+import net.bible.sharedui.ai.EasySetupStep
+import net.bible.sharedui.ai.EasySetupTestResult
+import net.bible.sharedui.ai.EasySetupWizard
 import net.bible.sharedui.ai.GlobalToolPermissionsScreen
 import net.bible.sharedui.ai.ToolInfoScreen
 import net.bible.sharedui.components.AbConfirmDialog
@@ -119,9 +131,12 @@ class AiModelsDeps(
  *   (`net.bible.android.view.activity.ai.resolvedCustomPromptValue`) must stay in the `:app`
  *   module — the existing `AiConnectionSettingsComposeActivityTest` targets that top-level function
  *   by name, unqualified, so it cannot move to `:sharedCore` without breaking that test's imports.
- * - [launchProviders]/[launchRawLogHistory] start the `AiProviders`/`RawLogHistory` Activities via
- *   `ScreenLauncher` — neither is a nav-graph destination yet (Tasks 6 and 8), so coexistence means
- *   these two edges stay Activity launches for now.
+ * - [launchRawLogHistory] starts the `RawLogHistory` Activity via `ScreenLauncher` — it is not a
+ *   nav-graph destination yet (Task 8), so coexistence means this edge stays an Activity launch for
+ *   now. The `PROVIDERS`/`EASY_SETUP` edges no longer need an equivalent field here — `AiProviders`
+ *   is a destination in THIS graph as of Task 6, so both navigate straight there
+ *   (`navController.navigate(NavRoutes.aiProviders(...))`), same as `MODELS`/`TOOL_PERMISSIONS`/
+ *   `DOCUMENTS`.
  * - [onResetUsageConfirm] shows a platform `AlertDialog` and runs `LlmCostTracker.reset` over
  *   `DatabaseContainer` — neither has a `:sharedUi`/`:sharedCore` equivalent, so it stays a host
  *   callback rather than becoming a `:sharedUi` dialog.
@@ -137,10 +152,43 @@ class AiConnectionSettingsDeps(
     val customLanguageTag: String,
     val onCustomPromptSave: (key: String, value: String?) -> Unit,
     val customPromptTextFor: (key: String) -> String,
-    val launchProviders: (startEasySetup: Boolean) -> Unit,
     val launchRawLogHistory: () -> Unit,
     val onResetUsageConfirm: () -> Unit,
     val actions: @Composable RowScope.() -> Unit,
+    val onResume: (() -> Unit)? = null,
+)
+
+/**
+ * [AiProvidersScreen]'s platform-supplied slots — the AI cluster's first destination that takes a
+ * navigation argument ([NavRoutes.ARG_START_EASY_SETUP], read by this graph's
+ * `composable(NavRoutes.AI_PROVIDERS_PATTERN)` arm, not stored here) and the one carrying the most
+ * non-Compose Activity state ported from classic `AiProvidersComposeActivity`:
+ *
+ * - [controller] is built by the host (needs the host's `lifecycleScope`) — same shape as
+ *   [AiDocumentFilterDeps.controller] etc. It also owns the easy-setup wizard's service
+ *   pass-throughs ([AiProvidersController.recommendedSetups], [AiProvidersController.testConnection],
+ *   [AiProvidersController.performEasySetup]) and the disclaimer gate
+ *   ([AiProvidersController.disclaimerAccepted]/`acceptDisclaimer`) — none of that needs an
+ *   Android resource, so it lives on the controller rather than as ad hoc lambdas here (Task 4
+ *   review guidance).
+ * - [unknownErrorMessage] is the one piece of Android-resource text the easy-setup flow needs
+ *   (`R.string.unknown_error`, classic's fallback when a test/setup failure carries no message) —
+ *   kept here rather than on the controller for the same reason [AiModelsDeps.helpBody] etc. live
+ *   on `Deps`: `:sharedCore` stays string-resource-free.
+ * - The wizard's open/closed state ([net.bible.sharedui.ai.EasySetupState]), the disclaimer gate's
+ *   stashed continuation, and the two dialog-dismiss "swallow" flags are NOT on this `Deps` — they
+ *   are UI-flow state with no cross-process-death meaning (the continuation is a lambda, which
+ *   plainly cannot survive it; the wizard and the swallow flags are transient interaction state),
+ *   so they live in `remember` inside this graph's composable arm, same as
+ *   [AiModelsScreen]'s `swallowNextDismiss` in the `AI_MODELS` arm.
+ * - [onResume] is classic's `AiProvidersComposeActivity.onResume { service.refresh() }`, ported per
+ *   [AiModelsDeps.onResume]'s established convention.
+ */
+class AiProvidersDeps(
+    val controller: AiProvidersController,
+    val helpBody: String,
+    val helpReadMoreUrl: String,
+    val unknownErrorMessage: String,
     val onResume: (() -> Unit)? = null,
 )
 
@@ -163,6 +211,8 @@ class AiNavDeps(
     val aiModels: AiModelsDeps,
     // — AI CONNECTION SETTINGS —
     val aiConnectionSettings: AiConnectionSettingsDeps,
+    // — AI PROVIDERS —
+    val aiProviders: AiProvidersDeps,
 )
 
 /**
@@ -342,16 +392,15 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             customPromptTextFor = d.customPromptTextFor,
             languageChoices = d.languageChoices,
             customLanguageValue = d.customLanguageTag,
-            // The hub's six nav edges: MODELS/TOOL_PERMISSIONS/DOCUMENTS already have destinations
-            // in THIS graph, so they navigate straight there. EASY_SETUP/PROVIDERS/RAW_LOG_HISTORY
-            // target AiProviders (Task 6) / RawLogHistory (Task 8), neither migrated yet, so those
-            // three stay ScreenLauncher Activity launches via the host-supplied lambdas — see
-            // AiConnectionSettingsDeps' kdoc. RESET_USAGE has no destination at all (a dialog), so
-            // it always stays a host callback.
+            // The hub's six nav edges: MODELS/TOOL_PERMISSIONS/DOCUMENTS/PROVIDERS/EASY_SETUP now
+            // all have destinations in THIS graph (AiProviders joined as of Task 6), so they
+            // navigate straight there. Only RAW_LOG_HISTORY still targets an Activity (Task 8) via
+            // the host-supplied lambda — see AiConnectionSettingsDeps' kdoc. RESET_USAGE has no
+            // destination at all (a dialog), so it always stays a host callback.
             onNavigate = { key ->
                 when (key) {
-                    AiConnectionNav.EASY_SETUP -> d.launchProviders(true)
-                    AiConnectionNav.PROVIDERS -> d.launchProviders(false)
+                    AiConnectionNav.EASY_SETUP -> navController.navigate(NavRoutes.aiProviders(startEasySetup = true))
+                    AiConnectionNav.PROVIDERS -> navController.navigate(NavRoutes.aiProviders(startEasySetup = false))
                     AiConnectionNav.MODELS -> navController.navigate(NavRoutes.AI_MODELS)
                     AiConnectionNav.TOOL_PERMISSIONS -> navController.navigate(NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS)
                     AiConnectionNav.DOCUMENTS -> navController.navigate(NavRoutes.AI_DOCUMENT_FILTER)
@@ -362,5 +411,157 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             actions = d.actions,
             backHandler = { onBack -> PlatformBackHandler(enabled = true, onBack = onBack) },
         )
+    }
+    composable(
+        route = NavRoutes.AI_PROVIDERS_PATTERN,
+        arguments = listOf(
+            navArgument(NavRoutes.ARG_START_EASY_SETUP) { type = NavType.BoolType; defaultValue = false },
+        ),
+    ) { backStackEntry ->
+        val d = deps.aiProviders
+        val controller = d.controller
+        val providers by controller.providers.collectAsState()
+        val dialog by controller.dialog.collectAsState()
+
+        // Classic showAddProviderTypeDialog hides already-configured builtin types and always
+        // keeps CUSTOM. Recompute on every provider-list change — see AiProvidersDeps' kdoc for why
+        // this stays a controller-method call rather than a raw-service lambda on Deps.
+        val providerTypes = remember(providers) {
+            val configuredTypeIds = providers.map { it.providerTypeId }.toSet()
+            controller.providerTypes().filter { it.isCustom || it.id !in configuredTypeIds }
+        }
+
+        // Parity with classic AiProvidersComposeActivity's onResume() -> service.refresh() — see
+        // AiModelsDeps.onResume's kdoc for why this is route-scoped, not host-wide.
+        LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { d.onResume?.invoke() }
+
+        val scope = rememberCoroutineScope()
+
+        // F31: the continuation stashed while the "Accept AI disclaimer" dialog is shown (`null` =
+        // no dialog pending). A lambda, so it cannot survive process death — kept in `remember`,
+        // never routed through a SavedStateHandle. See AiProvidersDeps' kdoc.
+        var pendingDisclaimerAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+        fun ensureDisclaimerAccepted(onAccepted: () -> Unit) {
+            if (controller.disclaimerAccepted()) onAccepted() else pendingDisclaimerAction = onAccepted
+        }
+
+        // Swallows the single synchronous onDismiss the PICK_TYPE-step AbListChoiceDialog fires
+        // right after onSelect when a provider type is picked — same class of fix as AiModelsScreen's
+        // swallowNextDismiss (AI_MODELS arm above). Ported from AiProvidersComposeActivity's
+        // swallowNextPickTypeDismiss.
+        var swallowNextPickTypeDismiss by remember { mutableStateOf(false) }
+
+        // Same fix, for the easy-setup wizard's step-1 AbListChoiceDialog. Ported from
+        // AiProvidersComposeActivity's swallowNextEasySetupDismiss.
+        var swallowNextEasySetupDismiss by remember { mutableStateOf(false) }
+
+        // Host-owned UI-flow state for the easy-setup wizard (null = wizard closed). Ported from
+        // AiProvidersComposeActivity's easySetupState.
+        var easySetupState by remember { mutableStateOf<EasySetupState?>(null) }
+
+        fun startEasySetup() {
+            swallowNextEasySetupDismiss = false
+            easySetupState = EasySetupState.initial(controller.recommendedSetups())
+        }
+
+        // Pre-existing wart, PRESERVED not fixed (see Task 6 report): classic read
+        // EXTRA_START_EASY_SETUP in onCreate, i.e. on every Activity (re)create, so a configuration
+        // change reopened the easy-setup wizard. LaunchedEffect(Unit) is this arm's analogue of
+        // onCreate — it (re)runs once per fresh entry into composition, which happens again whenever
+        // the host Activity is recreated (e.g. by a config change without configChanges handling).
+        LaunchedEffect(Unit) {
+            val startEasySetupArg = backStackEntry.arguments?.read {
+                getBooleanOrNull(NavRoutes.ARG_START_EASY_SETUP)
+            } ?: false
+            if (startEasySetupArg) {
+                ensureDisclaimerAccepted { startEasySetup() }
+            }
+        }
+
+        AiProvidersScreen(
+            providers = providers,
+            providerTypes = providerTypes,
+            editState = dialog,
+            onUp = { navController.popOrExit(deps.exitHost) },
+            onAdd = { ensureDisclaimerAccepted { controller.startAdd() } },
+            onPickType = { typeId ->
+                swallowNextPickTypeDismiss = true
+                controller.pickType(typeId)
+            },
+            onStartEdit = controller::startEdit,
+            onField = controller::updateField,
+            onSave = controller::save,
+            onDelete = controller::delete,
+            onDismiss = {
+                if (swallowNextPickTypeDismiss) {
+                    swallowNextPickTypeDismiss = false
+                } else {
+                    controller.dismissDialog()
+                }
+            },
+            helpBody = d.helpBody,
+            helpReadMoreUrl = d.helpReadMoreUrl,
+            showAcceptDisclaimerDialog = pendingDisclaimerAction != null,
+            onAcceptDisclaimer = {
+                controller.acceptDisclaimer()
+                val onAccepted = pendingDisclaimerAction
+                pendingDisclaimerAction = null
+                onAccepted?.invoke()
+            },
+            onDismissAcceptDisclaimer = { pendingDisclaimerAction = null },
+        )
+
+        easySetupState?.let { state ->
+            EasySetupWizard(
+                state = state,
+                onPick = { setupId ->
+                    swallowNextEasySetupDismiss = true
+                    easySetupState = state.copy(selectedSetupId = setupId, step = EasySetupStep.ENTER_KEY)
+                },
+                onKeyChange = { key ->
+                    easySetupState = easySetupState?.copy(apiKey = key, testResult = null)
+                },
+                onTest = {
+                    val current = easySetupState
+                    val setup = current?.selectedSetup
+                    if (current != null && setup != null) {
+                        easySetupState = current.copy(testing = true, testResult = null)
+                        scope.launch {
+                            val result = controller.testConnection(setup.providerTypeId, current.apiKey)
+                            val testResult = if (result.isSuccess) {
+                                EasySetupTestResult.Success
+                            } else {
+                                EasySetupTestResult.Failure(result.exceptionOrNull()?.message ?: d.unknownErrorMessage)
+                            }
+                            easySetupState = easySetupState?.copy(testing = false, testResult = testResult)
+                        }
+                    }
+                },
+                onConfirm = {
+                    val current = easySetupState
+                    val setupId = current?.selectedSetupId
+                    if (current != null && setupId != null) {
+                        scope.launch {
+                            runCatching { controller.performEasySetup(setupId, current.apiKey) }
+                                .onSuccess {
+                                    easySetupState = easySetupState?.copy(step = EasySetupStep.DONE)
+                                }
+                                .onFailure { e ->
+                                    easySetupState = easySetupState?.copy(
+                                        testResult = EasySetupTestResult.Failure(e.message ?: d.unknownErrorMessage),
+                                    )
+                                }
+                        }
+                    }
+                },
+                onDismiss = {
+                    if (swallowNextEasySetupDismiss) {
+                        swallowNextEasySetupDismiss = false
+                    } else {
+                        easySetupState = null
+                    }
+                },
+            )
+        }
     }
 }

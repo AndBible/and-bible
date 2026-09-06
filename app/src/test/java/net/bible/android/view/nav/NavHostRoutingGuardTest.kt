@@ -83,6 +83,30 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
+    fun aiProvidersResolvesToTheNavHostCarryingItsRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.AiProviders)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(
+            NavRoutes.aiProviders(startEasySetup = false),
+            intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE),
+        )
+    }
+
+    @Test
+    fun aiProvidersEasySetupRouteCarriesTheArgument() {
+        val plainRoute = NavRoutes.aiProviders(startEasySetup = false)
+        val easySetupRoute = NavRoutes.aiProviders(startEasySetup = true)
+        assertTrue(
+            easySetupRoute.contains("${NavRoutes.ARG_START_EASY_SETUP}=true"),
+            "the easy-setup route must carry startEasySetup=true: $easySetupRoute",
+        )
+        assertTrue(
+            plainRoute != easySetupRoute,
+            "the easy-setup route must be distinguishable from the plain AiProviders route",
+        )
+    }
+
+    @Test
     fun anUnmigratedScreenStillResolvesToItsOwnActivity() {
         val intent = ScreenLauncher.intentFor(context, Screen.Bookmarks)
         assertEquals(

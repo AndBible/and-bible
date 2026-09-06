@@ -26,7 +26,7 @@ class AiProvidersControllerTest {
         val apiKey: String, val endpoint: String, val apiFormatId: String,
     )
 
-    private class Fake(
+    private open class Fake(
         initialProviders: List<ProviderVd> = emptyList(),
         val types: List<ProviderTypeVd>,
         val apiKeys: MutableMap<String, String> = mutableMapOf(),
@@ -180,5 +180,57 @@ class AiProvidersControllerTest {
         assertNotNull(c.dialog.value)
         c.dismissDialog()
         assertNull(c.dialog.value)
+    }
+
+    // --- Task 6: easy-setup + disclaimer pass-throughs --------------------------------------
+
+    @Test fun providerTypes_returnsServiceList() = runTest {
+        val f = Fake(types = listOf(builtinType, customType))
+        val c = controller(f)
+        assertEquals(listOf(builtinType, customType), c.providerTypes())
+    }
+
+    @Test fun disclaimerAccepted_reflectsService() = runTest {
+        val f = Fake(types = listOf(builtinType, customType))
+        val c = controller(f)
+        assertTrue(c.disclaimerAccepted()) // Fake defaults to true
+    }
+
+    @Test fun recommendedSetups_returnsServiceList() = runTest {
+        val f = Fake(types = listOf(builtinType, customType))
+        val c = controller(f)
+        assertEquals(emptyList(), c.recommendedSetups())
+    }
+
+    @Test fun testConnection_delegatesWithEmptyEndpoint() = runTest {
+        var seenTypeId: String? = null
+        var seenEndpoint: String? = null
+        var seenApiKey: String? = null
+        val f = object : Fake(types = listOf(builtinType, customType)) {
+            override suspend fun testConnection(typeId: String, endpoint: String, apiKey: String): Result<Unit> {
+                seenTypeId = typeId; seenEndpoint = endpoint; seenApiKey = apiKey
+                return Result.success(Unit)
+            }
+        }
+        val c = controller(f)
+        val result = c.testConnection("OPENAI", "sk-123")
+        assertTrue(result.isSuccess)
+        assertEquals("OPENAI", seenTypeId)
+        assertEquals("", seenEndpoint)
+        assertEquals("sk-123", seenApiKey)
+    }
+
+    @Test fun performEasySetup_delegatesToService() = runTest {
+        var seenSetupId: String? = null
+        var seenApiKey: String? = null
+        val f = object : Fake(types = listOf(builtinType, customType)) {
+            override suspend fun performEasySetup(setupId: String, apiKey: String) {
+                seenSetupId = setupId; seenApiKey = apiKey
+            }
+        }
+        val c = controller(f)
+        c.performEasySetup("setup1", "sk-999")
+        assertEquals("setup1", seenSetupId)
+        assertEquals("sk-999", seenApiKey)
     }
 }

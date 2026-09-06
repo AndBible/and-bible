@@ -46,7 +46,6 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.ai.AiProvidersComposeActivity
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
@@ -59,10 +58,12 @@ import net.bible.sharedcore.ai.AiConnectionLabels
 import net.bible.sharedcore.ai.AiConnectionSettingsController
 import net.bible.sharedcore.ai.AiDocumentFilterController
 import net.bible.sharedcore.ai.AiModelsController
+import net.bible.sharedcore.ai.AiProvidersController
 import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.ai.DocumentFilterService
 import net.bible.sharedcore.ai.GlobalToolPermissionsController
 import net.bible.sharedcore.ai.LlmModelService
+import net.bible.sharedcore.ai.LlmProviderService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.settings.SettingsItem
@@ -71,6 +72,7 @@ import net.bible.sharedui.ai.nav.AiConnectionSettingsDeps
 import net.bible.sharedui.ai.nav.AiDocumentFilterDeps
 import net.bible.sharedui.ai.nav.AiModelsDeps
 import net.bible.sharedui.ai.nav.AiNavDeps
+import net.bible.sharedui.ai.nav.AiProvidersDeps
 import net.bible.sharedui.ai.nav.GlobalToolPermissionsDeps
 import net.bible.sharedui.ai.nav.ToolInfoDeps
 import net.bible.sharedui.ai.nav.aiNavGraph
@@ -89,6 +91,7 @@ class NavHostComposeActivity : ActivityBase() {
     private val toolPermissionService: ToolPermissionService by inject()
     private val llmModelService: LlmModelService by inject()
     private val aiSettingsService: AiSettingsService by inject()
+    private val llmProviderService: LlmProviderService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,6 +123,9 @@ class NavHostComposeActivity : ActivityBase() {
                         // graph, never through controller::onNavigate.
                         onNavigate = {},
                     )
+                }
+                val aiProvidersController = remember {
+                    AiProvidersController(service = llmProviderService, scope = lifecycleScope)
                 }
                 val deps = remember(allTools) {
                     AiNavDeps(
@@ -153,19 +159,19 @@ class NavHostComposeActivity : ActivityBase() {
                             customLanguageTag = CUSTOM_LANGUAGE_TAG,
                             onCustomPromptSave = { key, value -> onAiConnectionCustomPromptSave(key, value) },
                             customPromptTextFor = { key -> aiConnectionCustomPromptTextFor(key) },
-                            launchProviders = { startEasySetup ->
-                                val intent = ScreenLauncher.intentFor(this@NavHostComposeActivity, Screen.AiProviders)
-                                if (startEasySetup) {
-                                    intent.putExtra(AiProvidersComposeActivity.EXTRA_START_EASY_SETUP, true)
-                                }
-                                startActivity(intent)
-                            },
                             launchRawLogHistory = {
                                 startActivity(ScreenLauncher.intentFor(this@NavHostComposeActivity, Screen.RawLogHistory))
                             },
                             onResetUsageConfirm = { showAiConnectionResetUsageConfirm() },
                             actions = { AiConnectionHelpAction() },
                             onResume = { aiSettingsService.refresh() },
+                        ),
+                        aiProviders = AiProvidersDeps(
+                            controller = aiProvidersController,
+                            helpBody = getString(R.string.help_ai_providers_text),
+                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#choosing-a-provider",
+                            unknownErrorMessage = getString(R.string.unknown_error),
+                            onResume = { llmProviderService.refresh() },
                         ),
                     )
                 }

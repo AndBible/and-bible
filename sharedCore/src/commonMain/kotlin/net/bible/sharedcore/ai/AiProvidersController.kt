@@ -126,6 +126,31 @@ class AiProvidersController(
      *  service directly. */
     fun acceptDisclaimer() = service.acceptDisclaimer()
 
+    /** F31: whether the AI disclaimer has already been accepted (the Quick-setup / Add-provider
+     *  gate check). Routed through the controller for the same reason as [acceptDisclaimer]. */
+    fun disclaimerAccepted(): Boolean = service.disclaimerAccepted()
+
+    /**
+     * The picker's builtin provider types + the synthetic CUSTOM choice (classic
+     * `showAddProviderTypeDialog`'s source list, unfiltered — the caller applies the
+     * already-configured-builtin filter, since that depends on [providers], which changes
+     * independently of this list).
+     */
+    fun providerTypes(): List<ProviderTypeVd> = service.providerTypes()
+
+    // --- Easy-setup wizard (Task 6): thin pass-throughs, no Android-resource dependency ---------
+
+    /** The wizard's step-1 choice list. */
+    fun recommendedSetups(): List<RecommendedSetupVd> = service.recommendedSetups()
+
+    /** Step-2 "Test connection": validates [apiKey] against [typeId]'s provider (empty endpoint,
+     *  same as classic — easy-setup providers are never CUSTOM). */
+    suspend fun testConnection(typeId: String, apiKey: String): Result<Unit> =
+        service.testConnection(typeId, "", apiKey)
+
+    /** Step-2 "OK": creates the provider + default model for [setupId]. */
+    suspend fun performEasySetup(setupId: String, apiKey: String) = service.performEasySetup(setupId, apiKey)
+
     private fun publish(next: ProviderEditState) {
         _dialog.value = next.copy(canSave = canSave(next))
     }
