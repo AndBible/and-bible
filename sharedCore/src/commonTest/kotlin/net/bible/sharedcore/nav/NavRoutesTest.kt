@@ -2,6 +2,7 @@ package net.bible.sharedcore.nav
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class NavRoutesTest {
@@ -45,6 +46,42 @@ class NavRoutesTest {
         assertTrue("/" !in encoded, "a raw slash would split the route path")
         assertTrue("?" !in encoded && "&" !in encoded, "raw query separators would corrupt later args")
         assertTrue("#" !in encoded, "a raw fragment marker would truncate the arg")
+    }
+
+    /**
+     * FINDING 1 (Task 1 review round 1): the round-trip above never exercised multi-byte UTF-8,
+     * even though that is the stated reason it exists. This app ships 30+ locales, so a Cyrillic
+     * or CJK prompt template is realistic content, not a hypothetical — Б is a 2-byte UTF-8
+     * sequence, 语 a 3-byte one.
+     */
+    @Test
+    fun freeTextArgsSurviveARoundTripWithMultiByteUtf8() {
+        val template = "Молитва Б: 语言 study notes"
+        val route = NavRoutes.promptEdit(template = template)
+        val encoded = route.substringAfter("template=").substringBefore("&")
+        assertEquals(template, NavRoutes.decodeArg(encoded))
+        assertTrue(
+            encoded.all { it.code <= 0x7F },
+            "encodeArg must leave no raw non-ASCII byte in the route: \"$encoded\"",
+        )
+    }
+
+    /**
+     * FINDING 2 (Task 1 review round 1): a malformed percent sequence must fail loudly, not
+     * silently decode to a plausible-looking but wrong string.
+     */
+    @Test
+    fun decodeArgThrowsOnInvalidHexEscape() {
+        assertFailsWith<IllegalArgumentException> { NavRoutes.decodeArg("%G5") }
+    }
+
+    /**
+     * FINDING 2 follow-up: a `%` truncated at end-of-string is just as malformed as a bad hex
+     * digit, so it must throw too rather than silently falling through as literal text.
+     */
+    @Test
+    fun decodeArgThrowsOnTruncatedEscapeAtEndOfString() {
+        assertFailsWith<IllegalArgumentException> { NavRoutes.decodeArg("abc%A") }
     }
 
     @Test

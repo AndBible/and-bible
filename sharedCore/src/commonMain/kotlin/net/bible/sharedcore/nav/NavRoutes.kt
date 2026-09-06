@@ -75,6 +75,12 @@ object NavRoutes {
     fun encodeArg(raw: String): String {
         val sb = StringBuilder(raw.length)
         for (byte in raw.encodeToByteArray()) {
+            // A UTF-8 continuation/lead byte is always >= 0x80, i.e. negative as a signed Byte.
+            // `byte.toInt()` sign-extends it (e.g. 0x80.toByte().toInt() == -128, not 128), so the
+            // Char this produces is in 0xFF80..0xFFFF — nowhere near any range isUnreserved() tests
+            // (all of which sit below 0x7F) — so every non-ASCII byte always falls to the escape
+            // branch below. This is deliberate, not incidental: a future edit to isUnreserved() must
+            // not add a range up there, or a raw high byte could start passing through unescaped.
             val c = byte.toInt().toChar()
             if (c.isUnreserved()) sb.append(c)
             else sb.append('%').append(HEX[(byte.toInt() shr 4) and 0xF]).append(HEX[byte.toInt() and 0xF])
@@ -82,13 +88,31 @@ object NavRoutes {
         return sb.toString()
     }
 
+    /**
+     * Inverse of [encodeArg]. Every route reaching this function was built by [encodeArg], so a
+     * `%` that is not followed by exactly two hex digits — whether malformed or merely truncated
+     * at the end of the string — means the input is corrupt or hand-crafted. Both deserve to fail
+     * loudly: silently decoding a bad escape (or silently treating a truncated one as literal text)
+     * would produce a plausible-looking but wrong string with nothing to catch it before it
+     * navigates to a subtly wrong screen.
+     */
     fun decodeArg(encoded: String): String {
         val out = ArrayList<Byte>(encoded.length)
         var i = 0
         while (i < encoded.length) {
             val c = encoded[i]
-            if (c == '%' && i + 2 < encoded.length) {
-                out.add(((hexVal(encoded[i + 1]) shl 4) or hexVal(encoded[i + 2])).toByte())
+            if (c == '%') {
+                require(i + 2 < encoded.length) {
+                    "Malformed percent-encoding in \"$encoded\" at index $i: " +
+                        "\"${encoded.substring(i)}\" is truncated (a % must be followed by two hex digits)"
+                }
+                val hi = encoded[i + 1]
+                val lo = encoded[i + 2]
+                require(hi.isHexDigit() && lo.isHexDigit()) {
+                    "Malformed percent-encoding in \"$encoded\" at index $i: " +
+                        "\"%$hi$lo\" is not a valid hex escape"
+                }
+                out.add(((hexVal(hi) shl 4) or hexVal(lo)).toByte())
                 i += 3
             } else {
                 for (b in c.toString().encodeToByteArray()) out.add(b)
@@ -104,11 +128,16 @@ object NavRoutes {
         this in 'A'..'Z' || this in 'a'..'z' || this in '0'..'9' || this == '-' ||
             this == '_' || this == '.' || this == '~'
 
+    private fun Char.isHexDigit(): Boolean =
+        this in '0'..'9' || this in 'a'..'f' || this in 'A'..'F'
+
     private fun hexVal(c: Char): Int = when (c) {
         in '0'..'9' -> c - '0'
         in 'a'..'f' -> c - 'a' + 10
         in 'A'..'F' -> c - 'A' + 10
-        else -> 0
+        // Unreachable: every caller validates with isHexDigit() first. Throwing rather than
+        // returning a sentinel keeps this function honest if that guarantee is ever broken.
+        else -> throw IllegalArgumentException("Not a hex digit: '$c'")
     }
 
     private class RouteBuilder(private val base: String) {
