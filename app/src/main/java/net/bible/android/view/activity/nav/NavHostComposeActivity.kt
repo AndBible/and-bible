@@ -212,8 +212,15 @@ class NavHostComposeActivity : ActivityBase() {
                             },
                             helpBody = getString(R.string.help_ai_settings_text),
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
-                            onImportCsv = ::importPrompts,
-                            onExportCsv = ::exportPrompts,
+                            // Launched on THIS host's lifecycleScope, not a scope owned by the
+                            // graph's composable arm -- see AiPromptsDeps' kdoc for why: a
+                            // rememberCoroutineScope() in that arm would be cancelled the instant
+                            // its back-stack entry stops being the top one (near-instant on
+                            // Up/navigate), unlike lifecycleScope (cancelled only at
+                            // onDestroy()), and interrupting installCsvAsAddon's file-copy+DB
+                            // sequence mid-way is strictly worse than classic's behaviour.
+                            onImportCsv = { lifecycleScope.launch { importPrompts() } },
+                            onExportCsv = { lifecycleScope.launch { exportPrompts() } },
                             onResume = { promptService.refresh() },
                         ),
                         promptEdit = PromptEditDeps(

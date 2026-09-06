@@ -220,12 +220,24 @@ class AiProvidersDeps(
  *   [net.bible.android.view.activity.nav.NavHostComposeActivity]'s kdoc) need `awaitIntent` (an
  *   [net.bible.android.view.activity.base.ActivityBase] suspend bridge to a system file picker),
  *   `AlertDialog.Builder`, `Toast`, `contentResolver` and `SharedConstants.modulesDir` — none of
- *   which `commonMain` can reach. [AiPromptsScreen]'s own `onImportCsv`/`onExportCsv` are plain
- *   `() -> Unit`, so the `AI_PROMPTS` arm below launches these `suspend` lambdas on its own
- *   `rememberCoroutineScope()` — see that arm's comment for why that scope, not the host's
- *   `lifecycleScope`, is the right one here.
- * - [onResume] is classic `AiPromptsComposeActivity.onResume { service.refresh() }`, ported per
- *   [AiModelsDeps.onResume]'s established convention.
+ *   which `commonMain` can reach. Both are plain `() -> Unit` here, NOT `suspend` — deliberately,
+ *   because of what launches them: a `rememberCoroutineScope()` in the `AI_PROMPTS` composable arm
+ *   would be cancelled the instant that back-stack entry stops being the top one (Navigation
+ *   disposes a popped/navigated-away-from entry's composition immediately), which is almost
+ *   instantly on any Up-press or intra-cluster navigate — unlike classic's Activity
+ *   `lifecycleScope`, cancelled only at `onDestroy()`. `installCsvAsAddon`'s file copy +
+ *   `addCsvPromptBook` + cache-clear + `refresh()` sequence must not be cut mid-way (a partial
+ *   write that is already registered as an add-on, with stale caches, is strictly worse than
+ *   before). So the HOST launches these on its own `lifecycleScope` (`NavHostComposeActivity`
+ *   supplies `onImportCsv = { lifecycleScope.launch { importPrompts() } }` and the equivalent for
+ *   export) and the graph's arm merely calls the lambda — no coroutine scope of its own needed.
+ * - [onResume] is classic `AiPromptsComposeActivity.onResume { service.refresh() }`: a child
+ *   PromptEdit save already posts `AppSettingsUpdated` (picked up elsewhere), but CSV imports and
+ *   add-on installs performed here (or an add-on installed from somewhere else entirely) need an
+ *   explicit re-query that nothing else triggers — same domain reason
+ *   [RawLogHistoryDeps.onResume]'s kdoc restates for its own destination, and
+ *   [AiModelsDeps.onResume]'s kdoc for the general route-scoped-not-host-wide convention this
+ *   follows.
  */
 class AiPromptsDeps(
     val controllerFor: (
@@ -235,8 +247,8 @@ class AiPromptsDeps(
     ) -> AiPromptsController,
     val helpBody: String,
     val helpReadMoreUrl: String,
-    val onImportCsv: suspend () -> Unit,
-    val onExportCsv: suspend () -> Unit,
+    val onImportCsv: () -> Unit,
+    val onExportCsv: () -> Unit,
     val onResume: (() -> Unit)? = null,
 )
 
@@ -735,13 +747,6 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         // AiPromptsDeps.onResume's kdoc.
         LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { d.onResume?.invoke() }
 
-        // AiPromptsScreen's onImportCsv/onExportCsv are plain () -> Unit, but the SAF work behind
-        // them (d.onImportCsv/onExportCsv) is suspending -- classic launched it on the Activity's
-        // own lifecycleScope. This arm has no Activity to launch on, only this composable's own
-        // scope, same as the AI_PROVIDERS arm's easy-setup test/confirm calls above -- see that
-        // arm's `val scope = rememberCoroutineScope()` for the same reasoning.
-        val scope = rememberCoroutineScope()
-
         AiPromptsScreen(
             configured = configured,
             groups = groups,
@@ -761,8 +766,15 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             onRenameCategory = controller::onRenameCategory,
             onSetShowHidden = controller::onSetShowHidden,
             onOpenConnectionSettings = controller::onOpenConnectionSettings,
-            onImportCsv = { scope.launch { d.onImportCsv() } },
-            onExportCsv = { scope.launch { d.onExportCsv() } },
+            // Plain () -> Unit straight through -- d.onImportCsv/onExportCsv already launch on
+            // the HOST's lifecycleScope, not a scope owned by this composable arm. See
+            // AiPromptsDeps' kdoc for why: a rememberCoroutineScope() here would be cancelled the
+            // instant this back-stack entry stops being the top one (near-instant on Up/navigate),
+            // unlike the host lifecycleScope classic relied on (cancelled only at onDestroy()),
+            // and cutting installCsvAsAddon's file-copy+DB-write sequence mid-way is strictly
+            // worse than the old behaviour.
+            onImportCsv = d.onImportCsv,
+            onExportCsv = d.onExportCsv,
             onCopyPrompt = controller::onCopyPrompt,
             onMovePromptToCategory = controller::onMovePromptToCategory,
             categoriesProvider = { controller.categories() },
