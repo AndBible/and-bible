@@ -14,20 +14,17 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-import {ComputedRef, ref, Ref, watch} from "vue";
+import {ComputedRef, ref, watch} from "vue";
 import {setupWindowEventListener} from "@/utils";
 import {throttle} from "lodash";
-import {CalculatedConfig, Config} from "@/composables/config";
+import {CalculatedConfig} from "@/composables/config";
 import {UseAndroid} from "@/composables/android";
 import {useScroll} from "@/composables/scroll";
 import {Nullable} from "@/types/common";
 
 export function useVerseNotifier(
-    config: Config,
     calculatedConfig: CalculatedConfig,
-    mounted: Ref<boolean>,
     {scrolledToOrdinal}: UseAndroid,
-    topElement: Ref<HTMLElement | null>,
     {isScrolling}: ReturnType<typeof useScroll>,
     lineHeight: ComputedRef<number>,
 ) {
@@ -40,6 +37,16 @@ export function useVerseNotifier(
     );
 
     let lastDirection = "ltr";
+    // scrollY at the point the currently displayed verse was last confirmed. Anchoring
+    // direction detection here (instead of to the previous throttled sample) survives the
+    // sample-to-sample jitter of real touch/momentum scrolling - see the guard below.
+    let lastAcceptedScrollY = window.scrollY;
+    // How far above the anchor the guard stays active. The superscript bleed it protects
+    // against only occurs within a line or so of a verse boundary - which is exactly where
+    // the anchor sits, since the anchor is only moved when a verse is confirmed. Bounding it
+    // keeps an anchor that has gone stale (a bare window.scrollTo from the resize handler, an
+    // infinite-scroll insert at the top) from blocking forward movement indefinitely.
+    const jitterWindow = () => 2 * lineHeight.value;
     const step = 10;
 
     function* iterate(direction = "ltr") {
@@ -57,7 +64,15 @@ export function useVerseNotifier(
     // Throttle is preferred over debounce because do not want that bible ref display is
     // totally frozen during scrolling
     const onScroll = throttle(() => {
-        if (isScrolling.value) return;
+        if (isScrolling.value) {
+            // Programmatic scrolling (scrollToId, toolbar offset compensation) moves scrollY
+            // without the user scrolling, and a config change reflows the document underneath
+            // it. Re-anchor rather than leaving the anchor in the pre-jump coordinate system.
+            lastAcceptedScrollY = window.scrollY;
+            return;
+        }
+        const distanceUp = lastAcceptedScrollY - window.scrollY;
+        const scrollingUp = distanceUp > 0 && distanceUp < jitterWindow();
         let y = calculatedConfig.value.topOffset + lineHeight.value * 0.3;
 
         // Find element, starting from right
@@ -77,9 +92,25 @@ export function useVerseNotifier(
                                 lastDirection = direction;
                                 break;
                             }
-                            currentVerse.value = parseInt(element.dataset.ordinal!)
+                            const newVerse = parseInt(element.dataset.ordinal!)
                             const doc = element.closest(".document") as Nullable<HTMLElement>
-                            currentKey.value = doc?.dataset.osisRef || ""
+                            const newKey = doc?.dataset.osisRef || ""
+                            // While scrolling up, the detected verse must never advance past the
+                            // previously confirmed one within the same document - a superscript verse
+                            // number can visually bleed into the line above (negative top offset) and
+                            // make the elementFromPoint probe hit the next verse too early (#3865).
+                            if (scrollingUp && currentVerse.value !== null && newKey === currentKey.value
+                                && newVerse > currentVerse.value) {
+                                return;
+                            }
+                            // Only move the anchor on a real change - re-confirming the same verse
+                            // (a no-op pass through here) must not let the anchor drift with every
+                            // sample, or it loses its resistance to jitter (see the guard above).
+                            if (newVerse !== currentVerse.value || newKey !== currentKey.value) {
+                                lastAcceptedScrollY = window.scrollY;
+                            }
+                            currentVerse.value = newVerse
+                            currentKey.value = newKey
                             return;
                         }
                     }

@@ -17,12 +17,14 @@
 package net.bible.android.control.page
 
 import android.util.Log
+import net.bible.android.common.toV11n
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 
@@ -54,6 +56,20 @@ abstract class VersePage protected constructor(
         }
 
     val currentPassageBook get() = currentDocument as AbstractPassageBook
+
+    /**
+     * A verse page keeps only a single verse (see their doSetKey) of a document that may cover a
+     * whole range - a commentary entry spanning several verses - so the location it is at is the
+     * range *containing* that verse, not only the range starting at it.
+     *
+     * The difference matters because window sync moves this page to any verse of the entry on
+     * screen: syncing to Heb 11:7 while the entry covering 11:5-8 is displayed must not make the
+     * next scroll report of that entry look like a move back to 11:5 (#3866).
+     */
+    override fun isAtSameLocationAs(key: Key): Boolean {
+        val current = this.key ?: return false
+        return key.contains(KeyUtil.getVerse(current).toV11n(versification))
+    }
 
     override fun localSetCurrentDocument(doc: Book?) { // update current verse possibly remapped to v11n of new bible
         doc ?: return

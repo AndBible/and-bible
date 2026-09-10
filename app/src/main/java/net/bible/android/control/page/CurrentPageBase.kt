@@ -116,6 +116,25 @@ abstract class CurrentPageBase protected constructor(
         pageChange()
     }
 
+    override fun isAtSameLocationAs(key: Key): Boolean = key == this.key
+
+    override fun updateKeyFromScrolledOsisRef(osisRef: String): Boolean {
+        if(key?.osisRef == osisRef) return false
+        val newKey = try {
+            currentDocument?.getKey(osisRef)
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not resolve scrolled osisRef $osisRef", e)
+            null
+        } ?: return false
+        // The osisRef the client reports is the displayed document's, which for a commentary is the
+        // entry's whole annotateRef range (e.g. Heb.11.5-Heb.11.8) while the page key is a single
+        // verse of it. Asking the page whether that is where it already is - rather than comparing
+        // osisRefs above - is what keeps scrolling inside one entry from counting as a move.
+        if(isAtSameLocationAs(newKey)) return false
+        doSetKey(newKey)
+        return true
+    }
+
     override fun next() {}
     override fun previous() {}
 

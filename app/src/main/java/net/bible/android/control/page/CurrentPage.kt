@@ -64,6 +64,25 @@ interface CurrentPage {
     /** set key without updating screens  */
     fun doSetKey(key: Key?)
 
+    /**
+     * Whether [key] describes the location this page is already at.
+     *
+     * Not simply key equality: a commentary page is addressed by a single verse but displays a
+     * whole entry, so every verse of that entry is the same location. Lets callers tell "the client
+     * is reporting where we already are" from "the client has moved", without the side effects of
+     * actually setting the key.
+     */
+    fun isAtSameLocationAs(key: Key): Boolean
+
+    /**
+     * Move the page to the location the BibleView reports having scrolled to, given as the
+     * osisRef of the document that is now in view.
+     *
+     * @return true if this changed the page location, i.e. if listeners (title bar, window sync)
+     * need to be notified. Scrolling within the location the page is already at returns false.
+     */
+    fun updateKeyFromScrolledOsisRef(osisRef: String): Boolean
+
     val isSingleKey: Boolean
     // bible and commentary share a key (verse)
     val isShareKeyBetweenDocs: Boolean
