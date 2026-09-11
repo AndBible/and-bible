@@ -310,11 +310,17 @@ class SearchIndexProgressDeps(
  *
  * - [controllerFor] builds the `SearchResultsController` host-side: it needs `BibleSearchService`,
  *   the `SearchResultsCache` and the host's `lifecycleScope`.
- * - [tryToOpenRef] is classic's ref-detection short circuit (`:90-95`): `linkControl.tryToOpenRef`
- *   opens a plain scripture reference directly instead of searching for it, and when it does,
- *   classic ALSO popped two `HistoryManager` items (this screen's and its launcher's) before
- *   finishing. Both halves are host state, so both live behind this one call: **true means the
- *   reference was opened and the history already trimmed** — all the graph has left to do is leave.
+ * - [isScriptureReference] and [openScriptureReference] are classic's ref-detection short circuit
+ *   (`:90-95`) **split into its pure half and its effectful half**, deliberately. Classic called
+ *   `linkControl.tryToOpenRef` — which both DECIDES and, if the text parses as a reference, opens
+ *   it in the reading view and trims history — from `onCreate`, before `setContent`. A graph arm
+ *   has no `onCreate`: the decision has to be made during composition (so the results screen is
+ *   never drawn and no Lucene search is started for a query that is really a reference), but the
+ *   mutation must NOT be, because a composition calculation may be abandoned or re-run. So
+ *   [isScriptureReference] is `linkControl.resolveRef(...) != null`, a pure read of the window's
+ *   default Bible (`WindowControl.defaultBibleDoc` + `SwordContentFacade.resolveRef`, neither of
+ *   which mutates anything), safe inside `remember`; and [openScriptureReference] — the
+ *   `showLink` + the ONE history pop, see the host's kdoc for why one — runs in a `LaunchedEffect`.
  * - [title] is `R.string.multi_search_results` with the result total and the number of translations
  *   currently selected, so it re-renders for free when the selector changes the selection.
  * - [showError] is classic's `Toast` (`:126-136`) — and a toast, not a dialog, deliberately: the
@@ -330,7 +336,8 @@ class SearchIndexProgressDeps(
  */
 class SearchResultsDeps(
     val controllerFor: () -> SearchResultsController,
-    val tryToOpenRef: (searchText: String) -> Boolean,
+    val isScriptureReference: (searchText: String) -> Boolean,
+    val openScriptureReference: (searchText: String) -> Unit,
     val title: (total: Int, selectedCount: Int) -> String,
     val showError: () -> Unit,
     val openReference: (
@@ -415,11 +422,17 @@ sealed interface EpubSearchTarget {
  *   overflow affordance — `SearchControl.MAX_SEARCH_RESULTS` is an `:app` constant, so the whole
  *   formatting stays host-side rather than leaking the cap into `commonMain`.
  * - [showError] is the same `Toast` as [SearchResultsDeps.showError].
+ * - [logSearch] restores classic's one-line trace of what is being searched where
+ *   (`EpubSearchResultsComposeActivity.kt:210`, `Log.i(TAG, "Searching '<text>' (<mode>) in <doc>")`).
+ *   It is a deps slot rather than a call because `commonMain` has no logger at all in this project —
+ *   there is no `expect`/`actual` log seam — and the trace is genuinely useful when a search comes
+ *   back empty and the question is which document and mode it actually ran with.
  */
 class EpubSearchResultsDeps(
     val resolve: (searchDocument: String?) -> EpubSearchTarget?,
     val modeFromWireName: (String?) -> EpubSearchMode,
     val controllerFor: (documentId: String) -> EpubSearchResultsController,
+    val logSearch: (documentId: String, searchText: String, mode: EpubSearchMode) -> Unit,
     val title: (resultCount: Int, documentAbbreviation: String) -> String,
     val showError: () -> Unit,
 )
@@ -815,13 +828,50 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                 ?: emptyList()
         }
 
-        // Classic's ref-detection short circuit (`:90-95`), which ran BEFORE setContent — so it
-        // must be decided before the first frame, not in a LaunchedEffect that would flash an
-        // empty result list first. `true` means the reference is already open and the two history
-        // items already popped host-side; all that is left is to leave.
-        val openedAsRef = remember(searchText) { d.tryToOpenRef(searchText) }
-        if (openedAsRef) {
-            LaunchedEffect(Unit) { navController.popOrExit(deps.exitHost) }
+        // The token this destination's history route is published under. Hoisted above the
+        // reference branch because BOTH branches publish: see the LaunchedEffect below for why the
+        // short-circuit has to publish before it jumps.
+        val historyOwner = remember { Any() }
+
+        // Classic's ref-detection short circuit (`:90-95`), split. DECIDING happens during
+        // composition, as classic decided before setContent: nothing is drawn and no Lucene search
+        // is started for a query that is really a reference. It is safe here because
+        // isScriptureReference only RESOLVES the text (see SearchResultsDeps). ACTING happens in an
+        // effect — it mutates the active window, navigates the reader and touches history, none of
+        // which belongs in a calculation `remember` is free to abandon or re-run.
+        val isReference = remember(searchText) { d.isScriptureReference(searchText) }
+        if (isReference) {
+            LaunchedEffect(Unit) {
+                // Publish FIRST, and this is load-bearing rather than tidy. Opening the reference
+                // ends in `setCurrentDocumentAndKey`, which posts `AddHistoryItem`, and
+                // `HistoryManager.createHistoryItem` then reads THIS HOST's
+                // `isIntegrateWithHistoryManager` + `intentForHistoryList` — i.e. whatever
+                // setHistoryRoute last published. Without this line the item it pushes is either
+                // absent (a cold entry, where nothing has published yet) or, coming from the search
+                // form, stamped with the FORM's route, because navigation-compose has not disposed
+                // the form yet. Publishing here makes it deterministically ONE item naming THIS
+                // destination — which is exactly the one openScriptureReference pops back off.
+                deps.setHistoryRoute(
+                    historyOwner,
+                    NavRoutes.searchResults(
+                        searchText = searchText,
+                        highlightText = args.highlightText,
+                        searchDocument = args.searchDocument,
+                        selectedTranslations = selectedTranslations,
+                        isStrongsSearch = args.isStrongsSearch,
+                    ),
+                )
+                d.openScriptureReference(searchText)
+                // Published only across the jump: this destination is leaving and must not be what
+                // a later AddHistoryItem records. A no-op if the DisposableEffect below got there
+                // first (compare-and-clear by owner identity).
+                deps.clearHistoryRoute(historyOwner)
+                navController.popOrExit(deps.exitHost)
+            }
+            // Covers the case where the effect is cancelled between the publish and the clear.
+            DisposableEffect(Unit) {
+                onDispose { deps.clearHistoryRoute(historyOwner) }
+            }
         } else {
             // Eager, inside remember, for the same reason: classic ran the search in onCreate, so
             // the very first frame already showed the controller's `loading` state. Deferring to a
@@ -880,8 +930,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
             // selection rather than only from the route's own arguments, so a revert re-opens the
             // results the user is actually looking at after the document selector changed them.
             // The compare-and-clear on dispose is what makes Search -> SearchResults safe; see
-            // SearchNavDeps.clearHistoryRoute.
-            val historyOwner = remember { Any() }
+            // SearchNavDeps.clearHistoryRoute. (historyOwner is hoisted above the reference branch.)
             LaunchedEffect(selected) {
                 deps.setHistoryRoute(
                     historyOwner,
@@ -1044,6 +1093,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                 // Eager for the same reason as the SWORD results arm: classic ran the search in
                 // onCreate, so the first frame already showed `loading`.
                 val controller = remember(target, mode, searchText) {
+                    d.logSearch(target.documentId, searchText, mode)
                     d.controllerFor(target.documentId).also { it.run(target.documentId, searchText, mode) }
                 }
 

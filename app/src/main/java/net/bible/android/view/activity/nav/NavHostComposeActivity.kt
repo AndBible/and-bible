@@ -677,7 +677,8 @@ class NavHostComposeActivity : ActivityBase() {
                         ),
                         searchResults = SearchResultsDeps(
                             controllerFor = { buildSearchResultsController() },
-                            tryToOpenRef = { searchText -> tryToOpenSearchRef(searchText) },
+                            isScriptureReference = { searchText -> isScriptureReference(searchText) },
+                            openScriptureReference = { searchText -> openScriptureReference(searchText) },
                             title = { total, selectedCount ->
                                 getString(R.string.multi_search_results, total, selectedCount)
                             },
@@ -700,6 +701,9 @@ class NavHostComposeActivity : ActivityBase() {
                             resolve = { searchDocument -> resolveEpubSearchTarget(searchDocument) },
                             modeFromWireName = { name -> epubSearchModeFromClassicName(name) },
                             controllerFor = { documentId -> buildEpubSearchResultsController(documentId) },
+                            logSearch = { documentId, searchText, mode ->
+                                Log.i(TAG_EPUB_SEARCH_RESULTS, "Searching '$searchText' ($mode) in $documentId")
+                            },
                             title = { resultCount, documentAbbreviation ->
                                 epubSearchResultsTitle(resultCount, documentAbbreviation)
                             },
@@ -1524,20 +1528,57 @@ class NavHostComposeActivity : ActivityBase() {
     // --- Search RESULTS host baggage (classic SearchResultsComposeActivity) -----------------------
 
     /** Classic's `SearchResultsController(bibleSearchService, lifecycleScope, searchResultsCache)`. */
-    private fun buildSearchResultsController() =
-        SearchResultsController(bibleSearchService, lifecycleScope, searchResultsCache)
+    private fun buildSearchResultsController(): SearchResultsController {
+        Log.i(TAG_SEARCH_RESULTS, "Displaying Compose search results view")
+        return SearchResultsController(bibleSearchService, lifecycleScope, searchResultsCache)
+    }
 
     /**
-     * Classic `SearchResultsComposeActivity.kt:90-95`: a plain scripture reference bypasses the
-     * search and opens the verse directly. BOTH halves are here — the `tryToOpenRef` attempt and,
-     * when it succeeds, the two `HistoryManager` pops that drop this screen and its launcher from
-     * the history stack. The graph only needs the boolean: true == "already handled, leave".
+     * The DECIDING half of classic `SearchResultsComposeActivity.kt:90-95`'s ref short circuit:
+     * does this search text parse as a plain scripture reference? Pure — `LinkControl.resolveRef`
+     * reads `WindowControl.defaultBibleDoc` (a getter over the active window's current Bible) and
+     * calls `SwordContentFacade.resolveRef`, and neither mutates anything — which is what lets the
+     * graph ask it during composition, as classic asked it before `setContent`.
      */
-    private fun tryToOpenSearchRef(searchText: String): Boolean {
-        if (!linkControl.tryToOpenRef(searchText)) return false
-        historyTraversal.historyManager.popHistoryItem()
-        historyTraversal.historyManager.popHistoryItem()
-        return true
+    private fun isScriptureReference(searchText: String): Boolean =
+        linkControl.resolveRef(searchText) != null
+
+    /**
+     * The ACTING half: open the reference in the reading view and undo the one history item that
+     * opening it pushes.
+     *
+     * **Why ONE pop, where classic did two.** Classic popped `{this results screen's item, the
+     * launcher's item}`, and in the graph the second of those does not exist:
+     *
+     *  - `ActivityBase.startActivity` (`:198-203`) posts `AddHistoryItem` only when the `open val`
+     *    `integrateWithHistoryManager` is true, and this host deliberately does not override it
+     *    (see [setHistoryRoute]'s kdoc for why it drives the `var` instead), so it is permanently
+     *    false. And the in-graph `Search form -> results` hop is a `navigate`, not a
+     *    `startActivity`, so there is nothing to gate anyway: **no launcher item is ever pushed for
+     *    these screens.** Classic's second pop would therefore eat the entry BELOW — which is the
+     *    `KeyHistoryItem` `MainBibleActivity` (whose `integrateWithHistoryManager` IS true,
+     *    `:373`) pushed for the user's reading position when it launched the search. Every
+     *    "the search text was actually a reference" jump would silently lose the way back.
+     *  - The one item that IS pushed comes from this very call: `tryToOpenRef` ->
+     *    `showLink(forceOpenHere = true)` -> `setCurrentDocumentAndKey` -> `setKey` ->
+     *    `ABEventBus.post(AddHistoryItem)` (`CurrentPageBase.kt:112`) ->
+     *    `HistoryManager.createHistoryItem`, which for this host builds an `IntentHistoryItem` from
+     *    `isIntegrateWithHistoryManager` + [intentForHistoryList]. The graph publishes this
+     *    destination's route immediately before calling this, precisely so that item exists and
+     *    names the results screen — so exactly one pop removes exactly what classic's first pop
+     *    removed, and the reading position below it survives.
+     *
+     * The `canGoBack()` guard is not decoration: `HistoryManager.popHistoryItem` is a bare
+     * `Stack.pop()` (`:145-147`), which throws `EmptyStackException` on an empty stack — and the
+     * stack it pops is the ACTIVE window's, which `showLink` can have changed under us when the
+     * user has "open links in a new window" configured (`WindowMode.WINDOW_MODE_NEW` ->
+     * `addNewWindow`). Classic had the same hazard, twice over.
+     */
+    private fun openScriptureReference(searchText: String) {
+        if (!linkControl.tryToOpenRef(searchText)) return
+        if (historyTraversal.historyManager.canGoBack()) {
+            historyTraversal.historyManager.popHistoryItem()
+        }
     }
 
     /** Classic's error path (`:126-136`): a transient toast, then out — never a dialog. */
@@ -1610,7 +1651,11 @@ class NavHostComposeActivity : ActivityBase() {
     private fun prepareEpubSearchForm(): EpubSearchSetup? {
         Log.i(TAG_EPUB_SEARCH, "Displaying Compose EPUB search view")
         CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
-        val doc = pageControl.currentPageManager.currentPage.currentDocument ?: return null
+        val doc = pageControl.currentPageManager.currentPage.currentDocument
+        if (doc == null) {
+            Log.w(TAG_EPUB_SEARCH, "No current document to search in; leaving the EPUB search form")
+            return null
+        }
         return EpubSearchSetup(
             title = getString(R.string.search_in, doc.abbreviation),
             documentId = doc.initials,
@@ -1643,7 +1688,12 @@ class NavHostComposeActivity : ActivityBase() {
         )
         val d = AlertDialog.Builder(this)
             .setPositiveButton(R.string.okay, null)
-            .setTitle(title)
+            // Classic read the ACTIVITY's `title`, which for EpubSearchComposeActivity was its
+            // manifest label android:label="@string/search" (AndroidManifest.xml:140) -- it never
+            // called setTitle. This host's window title is whatever the CURRENT destination set
+            // (here "Search in <abbrev>"), which is both a different string and shared mutable
+            // state across six destinations, so the label is named explicitly instead.
+            .setTitle(R.string.search)
             .setIcon(R.drawable.ic_logo)
             .setMessage(span)
             .create()
@@ -1660,7 +1710,11 @@ class NavHostComposeActivity : ActivityBase() {
     private fun resolveEpubSearchTarget(searchDocument: String?): EpubSearchTarget? {
         val docId =
             if (searchDocument.isNullOrEmpty())
-                windowControl.activeWindowPageManager.currentBible.currentDocument?.initials ?: return null
+                windowControl.activeWindowPageManager.currentBible.currentDocument?.initials
+                    ?: run {
+                        Log.e(TAG_EPUB_SEARCH_RESULTS, "No searchDocument and no current Bible document; aborting")
+                        return null
+                    }
             else searchDocument
         val doc = Books.installed().getBook(docId)
         if (doc == null || !doc.isEpub) {
