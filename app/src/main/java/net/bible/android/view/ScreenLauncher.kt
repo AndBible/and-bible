@@ -39,21 +39,8 @@ import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKe
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentsComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
-import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
-import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
-import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
-import net.bible.android.view.activity.progress.ReadingProgressComposeActivity
-import net.bible.android.view.activity.settings.ReadingProgressSettingsComposeActivity
-import net.bible.android.view.activity.settings.SettingsComposeActivity
-import net.bible.android.view.activity.settings.SyncSettingsComposeActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupComposeActivity
-import net.bible.android.view.activity.search.EpubSearchComposeActivity
-import net.bible.android.view.activity.search.EpubSearchResultsComposeActivity
-import net.bible.android.view.activity.search.SearchComposeActivity
-import net.bible.android.view.activity.search.SearchIndexComposeActivity
-import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
-import net.bible.android.view.activity.search.SearchResultsComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 
 /**
@@ -170,12 +157,12 @@ object ScreenLauncher {
     /** The Activity class implementing [screen]. */
     fun targetFor(screen: Screen): Class<*> = when (screen) {
         Screen.Calculator -> CalculatorComposeActivity::class.java
-        Screen.SearchIndexProgress -> SearchIndexProgressComposeActivity::class.java
-        Screen.SearchIndex -> SearchIndexComposeActivity::class.java
-        Screen.SearchResults -> SearchResultsComposeActivity::class.java
-        Screen.ReadingPlanSelector -> ReadingPlanSelectorComposeActivity::class.java
-        Screen.DailyReadingList -> DailyReadingListComposeActivity::class.java
-        Screen.ReadingPlan -> DailyReadingComposeActivity::class.java
+        Screen.SearchIndexProgress -> targetForMigratedScreen(screen)
+        Screen.SearchIndex -> targetForMigratedScreen(screen)
+        Screen.SearchResults -> targetForMigratedScreen(screen)
+        Screen.ReadingPlanSelector -> targetForMigratedScreen(screen)
+        Screen.DailyReadingList -> targetForMigratedScreen(screen)
+        Screen.ReadingPlan -> targetForMigratedScreen(screen)
         Screen.ChooseGeneralBookKey -> ChooseGeneralBookKeyComposeActivity::class.java
         Screen.ChooseMapKey -> ChooseMapKeyComposeActivity::class.java
         Screen.ChooseDictionaryWord -> ChooseDictionaryWordComposeActivity::class.java
@@ -187,38 +174,33 @@ object ScreenLauncher {
             // intentFor stays generic (no extra injected here); callers add
             // DownloadComposeActivity.EXTRA_FIRST_DOWNLOAD themselves.
             DownloadComposeActivity::class.java
-        Screen.Search -> SearchComposeActivity::class.java
-        Screen.EpubSearch -> EpubSearchComposeActivity::class.java
-        Screen.EpubSearchResults -> EpubSearchResultsComposeActivity::class.java
+        Screen.Search -> targetForMigratedScreen(screen)
+        Screen.EpubSearch -> targetForMigratedScreen(screen)
+        Screen.EpubSearchResults -> targetForMigratedScreen(screen)
         Screen.MyDocuments -> MyDocumentsComposeActivity::class.java
         Screen.MyDocumentPages -> MyDocumentPagesComposeActivity::class.java
         Screen.CloudDocuments -> CloudDocumentsComposeActivity::class.java
         Screen.WorkspaceSelector -> WorkspaceSelectorComposeActivity::class.java
         // The ten classic AI-cluster *ComposeActivity classes were deleted in nav-graph Task 10;
-        // every one of these Screens is now a permanent MIGRATED entry (see the map above) with no
-        // Activity of its own, so intentFor never falls through to targetFor for them. Each arm
-        // below exists only to keep the `when` exhaustive over Screen -- calling targetFor
-        // directly for one of these (as opposed to intentFor/open) is a caller bug. Kept as ten
-        // separate arms (not one combined `Screen.A, Screen.B -> ...`) because
-        // ClassicAiSettingsRemovalGuardTest/ClassicAiPromptsRemovalGuardTest text-scan this file
-        // for a literal "Screen.X ->" per screen.
-        Screen.AiConnectionSettings -> targetForMigratedAiScreen(screen)
-        Screen.AiProviders -> targetForMigratedAiScreen(screen)
-        Screen.AiModels -> targetForMigratedAiScreen(screen)
-        Screen.AiPrompts -> targetForMigratedAiScreen(screen)
-        Screen.PromptEdit -> targetForMigratedAiScreen(screen)
-        Screen.GlobalToolPermissions -> targetForMigratedAiScreen(screen)
-        Screen.ToolInfo -> targetForMigratedAiScreen(screen)
-        Screen.AiDocumentFilter -> targetForMigratedAiScreen(screen)
-        Screen.RawLogHistory -> targetForMigratedAiScreen(screen)
-        Screen.RawLlmLog -> targetForMigratedAiScreen(screen)
+        // the reading-plan, search and settings clusters followed in nav-graph 3/5/6 Task 9. See
+        // targetForMigratedScreen below for why all 23 of those arms are kept, one per screen.
+        Screen.AiConnectionSettings -> targetForMigratedScreen(screen)
+        Screen.AiProviders -> targetForMigratedScreen(screen)
+        Screen.AiModels -> targetForMigratedScreen(screen)
+        Screen.AiPrompts -> targetForMigratedScreen(screen)
+        Screen.PromptEdit -> targetForMigratedScreen(screen)
+        Screen.GlobalToolPermissions -> targetForMigratedScreen(screen)
+        Screen.ToolInfo -> targetForMigratedScreen(screen)
+        Screen.AiDocumentFilter -> targetForMigratedScreen(screen)
+        Screen.RawLogHistory -> targetForMigratedScreen(screen)
+        Screen.RawLlmLog -> targetForMigratedScreen(screen)
         Screen.LabelEdit -> LabelEditComposeActivity::class.java
         Screen.ManageLabels -> ManageLabelsComposeActivity::class.java
         Screen.Bookmarks -> BookmarksComposeActivity::class.java
-        Screen.ReadingProgress -> ReadingProgressComposeActivity::class.java
-        Screen.Settings -> SettingsComposeActivity::class.java
-        Screen.ReadingProgressSettings -> ReadingProgressSettingsComposeActivity::class.java
-        Screen.SyncSettings -> SyncSettingsComposeActivity::class.java
+        Screen.ReadingProgress -> targetForMigratedScreen(screen)
+        Screen.Settings -> targetForMigratedScreen(screen)
+        Screen.ReadingProgressSettings -> targetForMigratedScreen(screen)
+        Screen.SyncSettings -> targetForMigratedScreen(screen)
         Screen.Startup -> StartupComposeActivity::class.java
         Screen.InstallZip -> InstallZipComposeActivity::class.java
         Screen.TextDisplaySettings -> TextDisplaySettingsComposeActivity::class.java
@@ -229,12 +211,23 @@ object ScreenLauncher {
     }
 
     /**
-     * Every caller reaches these ten AI screens through [MIGRATED] via [intentFor]/[open]; nothing
-     * in the tree calls [targetFor] on one of them directly. This throws rather than returning a
-     * real class so that misuse (a future caller reintroducing a direct [targetFor] call for a
-     * MIGRATED-only screen) fails loudly instead of returning a class that no longer exists.
+     * The body of every arm above whose screen now lives wholly in the Compose navigation graph and
+     * has no Activity of its own: the ten AI screens (nav-graph Task 10) plus the reading-plan,
+     * search and settings clusters (nav-graph 3/5/6 Tasks 1-8). Twenty of the 23 reach the graph
+     * through [MIGRATED] via [intentFor]/[open], so [intentFor] never falls through to [targetFor]
+     * for them; the other three (`SearchResults`, `EpubSearchResults`, `SearchIndexProgress`) are
+     * deliberately absent from [MIGRATED] because an argument-free route for them would render an
+     * empty screen, so reaching one by a bare [Screen] throws here instead.
+     *
+     * This throws rather than returning a real class so that misuse (a future caller reintroducing
+     * a direct [targetFor] call for a graph-only screen) fails loudly instead of returning a class
+     * that no longer exists.
+     *
+     * The arms are kept as 23 SEPARATE arms -- never merged into one combined
+     * `Screen.A, Screen.B -> ...` -- because the Classic*RemovalGuardTest family text-scans this
+     * file for a literal "Screen.X ->" per screen and treats a missing arm as an offender.
      */
-    private fun targetForMigratedAiScreen(screen: Screen): Nothing =
+    private fun targetForMigratedScreen(screen: Screen): Nothing =
         error("$screen is fully migrated into the Compose nav graph; use MIGRATED/intentFor, not targetFor")
 
     /**

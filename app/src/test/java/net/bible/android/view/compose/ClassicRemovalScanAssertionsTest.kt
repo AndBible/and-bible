@@ -182,7 +182,7 @@ class ClassicRemovalScanAssertionsTest {
         assertTrue(
             "ScreenLauncher.kt no longer writes collapsed arms as `Screen.X -> XComposeActivity::class.java`" +
                 " — the fixture below no longer resembles the file this helper scans",
-            real.contains("Screen.Settings -> SettingsComposeActivity::class.java"),
+            real.contains("Screen.Bookmarks -> BookmarksComposeActivity::class.java"),
         )
 
         // Anti-vacuity: a MISSING arm also counts as an offender (asserted below), so without this

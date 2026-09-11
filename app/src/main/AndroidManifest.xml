@@ -127,44 +127,6 @@
             android:configChanges="keyboardHidden|locale"
             android:theme="@style/Theme.AbCompose" />
         <activity
-            android:name="net.bible.android.view.activity.search.SearchComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity
-            android:name="net.bible.android.view.activity.search.EpubSearchComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity
-            android:name="net.bible.android.view.activity.search.SearchResultsComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.search.EpubSearchResultsComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.search.SearchIndexComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search_index"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.search.SearchIndexProgressComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search_index"
-            />
-        <activity
             android:name="net.bible.android.view.activity.bookmark.BookmarksComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
@@ -226,49 +188,9 @@
             android:label="@string/doc_type_map"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
-            android:name="net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/rdg_plan_selector_title"
-            android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReadingComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/rdg_plan_title"
-            android:parentActivityName="net.bible.android.view.activity.readingplan.DailyReadingComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.readingplan.DailyReadingComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/rdg_plan_title"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.progress.ReadingProgressComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/reading_progress_title"
-            android:launchMode="singleTop"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.settings.ReadingProgressSettingsComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/reading_progress_settings"
-            android:parentActivityName="net.bible.android.view.activity.progress.ReadingProgressComposeActivity" />
-        <activity
             android:name=".view.activity.StartupComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:exported="false" />
-        <activity
-            android:name="net.bible.android.view.activity.settings.SettingsComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/settings"
-            android:launchMode="singleTop"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity"
             android:theme="@style/Theme.AbCompose"
@@ -290,12 +212,6 @@
             android:label="@string/my_document_pages_title"
             android:parentActivityName="net.bible.android.view.mydocuments.MyDocumentsComposeActivity"
             />
-        <activity
-            android:name="net.bible.android.view.activity.settings.SyncSettingsComposeActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/cloud_sync_title"
-            android:theme="@style/Theme.AbCompose"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
             android:name="net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity"
             android:theme="@style/Theme.AbCompose"

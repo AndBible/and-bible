@@ -127,7 +127,7 @@ class NavHostRoutingGuardTest {
         // Whole-branch review M2: unlike Screen.PromptEdit, an argument-less RawLlmLog route has
         // no safe meaning (both ids null renders an empty screen with no log), so it was dropped
         // from ScreenLauncher.MIGRATED rather than mapped to NavRoutes.rawLlmLog(). intentFor then
-        // falls through to targetFor, whose targetForMigratedAiScreen guard throws loudly instead
+        // falls through to targetFor, whose targetForMigratedScreen guard throws loudly instead
         // of silently opening a blank screen.
         assertTrue(Screen.RawLlmLog !in ScreenLauncher.MIGRATED)
         assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.RawLlmLog) }
@@ -194,27 +194,16 @@ class NavHostRoutingGuardTest {
      * Screen.SearchIndexProgress)` would open a progress screen watching nothing, which then has
      * no document to route onward to when indexing completes.
      *
-     * Note what this asserts TODAY versus what the AI-cluster twin asserts. `Screen.RawLlmLog`'s
-     * `targetFor` arm throws because its Activity was already deleted; the six search Activities
-     * are still in the tree (they leave in Task 9 of this plan), so `intentFor` here still falls
-     * through to `SearchIndexProgressComposeActivity` rather than throwing. The guarantee that
-     * matters either way, and the one asserted here, is that it never resolves to the NAV HOST
-     * with an argument-free route. When Task 9 deletes the Activity and its `targetFor` arm starts
-     * throwing, this test should become the `assertFailsWith<IllegalStateException>` form.
+     * Task 9 deleted the six search host Activities, so this now asserts exactly what the
+     * AI-cluster twin does: absent from MIGRATED, and `intentFor` falls through to `targetFor`,
+     * whose `targetForMigratedScreen` guard throws. (Between slice 5 and Task 9 it asserted the
+     * weaker "never the nav host with an argument-free route", because the classic Activity was
+     * still a legal fallback target; the guarantee that matters is unchanged, and is now stronger.)
      */
     @Test
     fun searchIndexProgressIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt() {
         assertTrue(Screen.SearchIndexProgress !in ScreenLauncher.MIGRATED)
-        val intent = ScreenLauncher.intentFor(context, Screen.SearchIndexProgress)
-        assertTrue(
-            intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE) == null,
-            "a bare Screen.SearchIndexProgress must not resolve to the nav host: an argument-free " +
-                "index-progress route watches nothing and can route nowhere when indexing ends",
-        )
-        assertEquals(
-            "net.bible.android.view.activity.search.SearchIndexProgressComposeActivity",
-            intent.component?.className,
-        )
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.SearchIndexProgress) }
     }
 
     @Test
@@ -231,30 +220,18 @@ class NavHostRoutingGuardTest {
 
     /**
      * A second slice-5 twin of [rawLlmLogIsNotInMigratedAndIntentForThrows] — see
-     * [searchIndexProgressIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt] for the full reasoning,
-     * including why this asserts "never the nav host with an argument-free route" rather than
-     * `assertFailsWith` while the classic Activity is still in the tree.
+     * [searchIndexProgressIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt] for the full reasoning
+     * and for why Task 9 turned this into the `assertFailsWith` form.
      *
      * `Screen.SearchResults` specifically: a results route with no `searchText` has nothing to
      * search for. Every real edge builds `NavRoutes.searchResults(...)` with a query (the graph's
-     * `SEARCH_FORM_PATTERN`/`SEARCH_INDEX_PROGRESS_PATTERN` arms; `BibleView` and `LinkControl` in
-     * Task 6), bypassing this map. When Task 9 deletes `SearchResultsComposeActivity` and its
-     * `targetFor` arm starts throwing, this should become the `assertFailsWith<IllegalStateException>`
-     * form.
+     * `SEARCH_FORM_PATTERN`/`SEARCH_INDEX_PROGRESS_PATTERN` arms; `BibleView` and `LinkControl`
+     * since Task 6), bypassing this map.
      */
     @Test
     fun searchResultsIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt() {
         assertTrue(Screen.SearchResults !in ScreenLauncher.MIGRATED)
-        val intent = ScreenLauncher.intentFor(context, Screen.SearchResults)
-        assertTrue(
-            intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE) == null,
-            "a bare Screen.SearchResults must not resolve to the nav host: an argument-free " +
-                "results route renders an empty search with no query to run",
-        )
-        assertEquals(
-            "net.bible.android.view.activity.search.SearchResultsComposeActivity",
-            intent.component?.className,
-        )
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.SearchResults) }
     }
 
     /**
@@ -263,21 +240,13 @@ class NavHostRoutingGuardTest {
      * (`NavRoutes.epubSearchResults` takes it as a non-null parameter), so there is no argument-free
      * route to map here even in principle. Every real edge builds one with a query — the graph's
      * `EPUB_SEARCH` arm on submit, and its `SEARCH_INDEX_PROGRESS_PATTERN` arm after an epub index
-     * completes. Task 9 should convert this to the `assertFailsWith<IllegalStateException>` form.
+     * completes. Task 9 converted this to the `assertFailsWith<IllegalStateException>` form when it
+     * deleted `EpubSearchResultsComposeActivity`.
      */
     @Test
     fun epubSearchResultsIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt() {
         assertTrue(Screen.EpubSearchResults !in ScreenLauncher.MIGRATED)
-        val intent = ScreenLauncher.intentFor(context, Screen.EpubSearchResults)
-        assertTrue(
-            intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE) == null,
-            "a bare Screen.EpubSearchResults must not resolve to the nav host: the EPUB results " +
-                "route requires a searchText and has no argument-free form",
-        )
-        assertEquals(
-            "net.bible.android.view.activity.search.EpubSearchResultsComposeActivity",
-            intent.component?.className,
-        )
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.EpubSearchResults) }
     }
 
     @Test

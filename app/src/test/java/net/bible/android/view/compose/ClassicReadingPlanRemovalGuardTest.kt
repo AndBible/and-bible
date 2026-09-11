@@ -82,10 +82,15 @@ class ClassicReadingPlanRemovalGuardTest {
                 if (!declared.endsWith("ComposeActivity")) null
                 else declared to parent.find(openingTag)?.groupValues?.get(1)
             }
+        // Anti-vacuity only: the point is "the regex really parsed the manifest", not a census.
+        // The threshold was `> 30` while the app still declared ~35 Compose activities; nav-graph
+        // 3/5/6 Task 9 deleted 13 of them (the reading-plan, search and settings hosts, which now
+        // live in the nav graph) and left 22, so the old number had become a count of a moving
+        // target rather than a vacuity floor. Every further nav-graph slice lowers it again.
         assertTrue(
             "$path declared ${composeActivities.size} Compose activities — the scan is not " +
                 "seeing the manifest, so it would pass vacuously",
-            composeActivities.size > 30,
+            composeActivities.size > 15,
         )
         assertEquals(
             "these SURVIVING Compose activities declare an Up parent that S2 deletes. " +
@@ -138,16 +143,18 @@ class ClassicReadingPlanRemovalGuardTest {
      * `ReadingPlanKeys.kt` is this slice's trap: it sits in the doomed directory, it is named
      * after the feature being deleted, and it holds `ReadingPlanKeys` (the PLAN/DAY intent-extra
      * keys) and `ReadingPlanCatalog` — both lifted out of `DailyReading`'s companion by the
-     * prologue's P2 precisely so they could outlive it. `DailyReadingComposeActivity` and
+     * prologue's P2 precisely so they could outlive it. `HistoryManager` and
      * `service/readingplan/ReadingPlanTextFileDao` read them. Asserting these files exist turns
      * "deleted too much" into a failure instead of a silence.
+     *
+     * nav-graph 3/5/6 Task 9 dropped the three reading-plan `*ComposeActivity.kt` paths from this
+     * list: those hosts moved wholly into the Compose nav graph and were deleted, so pinning them
+     * here would assert the opposite of what the migration did. `ReadingPlanKeys.kt` stays — it is
+     * still the trap this test was written for, now read by the graph's arms rather than by a host.
      */
     @Test fun theSurvivingReadingPlanCollaboratorsStillExist() {
         val expected = listOf(
             "src/main/java/net/bible/android/view/activity/readingplan/ReadingPlanKeys.kt",
-            "src/main/java/net/bible/android/view/activity/readingplan/DailyReadingComposeActivity.kt",
-            "src/main/java/net/bible/android/view/activity/readingplan/DailyReadingListComposeActivity.kt",
-            "src/main/java/net/bible/android/view/activity/readingplan/ReadingPlanSelectorComposeActivity.kt",
             "src/main/res/layout/list_content_simple.xml",
         )
         val missing = expected.filterNot { File(it).isFile }

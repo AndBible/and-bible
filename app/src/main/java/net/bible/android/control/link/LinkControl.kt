@@ -16,8 +16,6 @@
  */
 package net.bible.android.control.link
 
-import android.content.Intent
-import android.os.Bundle
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
@@ -33,8 +31,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.Screen
-import net.bible.android.view.ScreenLauncher
 import net.bible.service.common.CommonUtils.settings
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.download.FakeBookFactory

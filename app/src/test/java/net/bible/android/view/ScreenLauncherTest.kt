@@ -17,6 +17,7 @@
 
 package net.bible.android.view
 
+import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.backup.BackupComposeActivity
@@ -36,19 +37,6 @@ import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivi
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentsComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
-import net.bible.android.view.activity.readingplan.DailyReadingComposeActivity
-import net.bible.android.view.activity.readingplan.DailyReadingListComposeActivity
-import net.bible.android.view.activity.readingplan.ReadingPlanSelectorComposeActivity
-import net.bible.android.view.activity.progress.ReadingProgressComposeActivity
-import net.bible.android.view.activity.settings.ReadingProgressSettingsComposeActivity
-import net.bible.android.view.activity.search.EpubSearchComposeActivity
-import net.bible.android.view.activity.search.EpubSearchResultsComposeActivity
-import net.bible.android.view.activity.search.SearchComposeActivity
-import net.bible.android.view.activity.search.SearchIndexComposeActivity
-import net.bible.android.view.activity.search.SearchIndexProgressComposeActivity
-import net.bible.android.view.activity.search.SearchResultsComposeActivity
-import net.bible.android.view.activity.settings.SettingsComposeActivity
-import net.bible.android.view.activity.settings.SyncSettingsComposeActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
@@ -61,6 +49,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.test.assertFailsWith
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -70,24 +59,39 @@ class ScreenLauncherTest {
         DatabaseResetter.resetDatabase()
     }
 
+    private val context get() = ApplicationProvider.getApplicationContext<android.content.Context>()
+
+    // The thirteen tests below were converted from `targetFor(Screen.X) == XComposeActivity::class.java`
+    // by nav-graph 3/5/6 Task 9, which deleted all thirteen reading-plan/search/settings host
+    // Activities outright (targetFor throws for these Screens now -- see
+    // ScreenLauncher.targetForMigratedScreen). Ten assert the MIGRATED route; the three whose
+    // Screen is deliberately absent from MIGRATED assert that absence plus a throwing intentFor.
+
     @Test
-    fun searchIndexProgress_routes_to_compose() {
-        assertEquals(SearchIndexProgressComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SearchIndexProgress))
+    fun searchIndexProgress_isNotMigrated_argumentLessRouteHasNoSafeMeaning() {
+        // An argument-free index-progress route watches nothing and can route nowhere when
+        // indexing ends, so Screen.SearchIndexProgress is deliberately absent from MIGRATED; with
+        // the classic Activity gone, intentFor falls through to targetFor and throws.
+        // See NavHostRoutingGuardTest.searchIndexProgressIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt.
+        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.SearchIndexProgress))
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.SearchIndexProgress) }
     }
 
     @Test
-    fun readingPlanSelector_routes_to_compose() {
-        assertEquals(ReadingPlanSelectorComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingPlanSelector))
+    fun readingPlanSelector_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.READING_PLAN_SELECTOR, ScreenLauncher.MIGRATED[Screen.ReadingPlanSelector])
     }
 
     @Test
-    fun dailyReadingList_routes_to_compose() {
-        assertEquals(DailyReadingListComposeActivity::class.java, ScreenLauncher.targetFor(Screen.DailyReadingList))
+    fun dailyReadingList_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.READING_PLAN_DAY_LIST, ScreenLauncher.MIGRATED[Screen.DailyReadingList])
     }
 
     @Test
-    fun readingPlan_routes_to_compose() {
-        assertEquals(DailyReadingComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingPlan))
+    fun readingPlan_routes_to_the_nav_graph() {
+        // The ARGUMENT-FREE daily-reading route: "no plan, no day" means "the current plan's
+        // current day", which is a real state rather than a dropped argument.
+        assertEquals(NavRoutes.dailyReading(), ScreenLauncher.MIGRATED[Screen.ReadingPlan])
     }
 
     @Test
@@ -128,28 +132,33 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun search_routes_to_compose() {
-        assertEquals(SearchComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Search))
+    fun search_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.searchForm(), ScreenLauncher.MIGRATED[Screen.Search])
     }
 
     @Test
-    fun searchIndex_routes_to_compose() {
-        assertEquals(SearchIndexComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SearchIndex))
+    fun searchIndex_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.searchIndex(), ScreenLauncher.MIGRATED[Screen.SearchIndex])
     }
 
     @Test
-    fun searchResults_routes_to_compose() {
-        assertEquals(SearchResultsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SearchResults))
+    fun searchResults_isNotMigrated_argumentLessRouteHasNoSafeMeaning() {
+        // A results route with no searchText has nothing to search for.
+        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.SearchResults))
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.SearchResults) }
     }
 
     @Test
-    fun epubSearch_routes_to_compose() {
-        assertEquals(EpubSearchComposeActivity::class.java, ScreenLauncher.targetFor(Screen.EpubSearch))
+    fun epubSearch_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.EPUB_SEARCH, ScreenLauncher.MIGRATED[Screen.EpubSearch])
     }
 
     @Test
-    fun epubSearchResults_routes_to_compose() {
-        assertEquals(EpubSearchResultsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.EpubSearchResults))
+    fun epubSearchResults_isNotMigrated_routeRequiresASearchText() {
+        // NavRoutes.epubSearchResults takes searchText as a NON-NULL parameter: there is no
+        // argument-free form of this route even in principle.
+        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.EpubSearchResults))
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.EpubSearchResults) }
     }
 
     @Test
@@ -178,7 +187,7 @@ class ScreenLauncherTest {
     // The nine tests below were converted from `targetFor(Screen.X) == XComposeActivity::class.java`
     // to the MIGRATED[Screen.X] shape by nav-graph Task 10, which deleted all ten classic AI-cluster
     // ComposeActivity classes outright (targetFor throws for these Screens now -- see
-    // ScreenLauncher.targetForMigratedAiScreen). `toolInfo_routes_to_the_nav_graph` already used
+    // ScreenLauncher.targetForMigratedScreen). `toolInfo_routes_to_the_nav_graph` already used
     // this shape from an earlier task (slice 1) and needed no change.
 
     @Test
@@ -252,23 +261,25 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun readingProgress_routes_to_compose() {
-        assertEquals(ReadingProgressComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgress))
+    fun readingProgress_routes_to_the_nav_graph() {
+        // The ARGUMENT-FREE reading-progress route: an absent tab means "the tab the user was last
+        // on", which the screen resolves from the persisted setting.
+        assertEquals(NavRoutes.readingProgress(), ScreenLauncher.MIGRATED[Screen.ReadingProgress])
     }
 
     @Test
-    fun settings_routes_to_compose() {
-        assertEquals(SettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Settings))
+    fun settings_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.SETTINGS, ScreenLauncher.MIGRATED[Screen.Settings])
     }
 
     @Test
-    fun readingProgressSettings_routes_to_compose() {
-        assertEquals(ReadingProgressSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ReadingProgressSettings))
+    fun readingProgressSettings_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.READING_PROGRESS_SETTINGS, ScreenLauncher.MIGRATED[Screen.ReadingProgressSettings])
     }
 
     @Test
-    fun syncSettings_routes_to_compose() {
-        assertEquals(SyncSettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.SyncSettings))
+    fun syncSettings_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.SYNC_SETTINGS, ScreenLauncher.MIGRATED[Screen.SyncSettings])
     }
 
     @Test

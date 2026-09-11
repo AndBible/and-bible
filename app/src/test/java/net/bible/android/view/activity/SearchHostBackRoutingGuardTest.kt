@@ -59,7 +59,7 @@ private fun stripComments(text: String): String {
  * *shape* of routing -- a back entry point (`onBackPressed` override or a Compose `BackHandler`)
  * that also references the host's search-mode state -- not that the logic inside is correct.
  *
- * Two shapes are in use, by design, not by omission: seven hosts override the deprecated
+ * Two shapes are in use, by design, not by omission: six hosts override the deprecated
  * `onBackPressed()`; `TextDisplaySettingsComposeActivity` uses `BackHandler` instead, because it
  * already has a registered `OnBackPressedCallback` for its own destination-stack navigation, and a
  * registered callback wins over the deprecated override -- so a second `onBackPressed` override
@@ -81,13 +81,21 @@ private fun stripComments(text: String): String {
 class SearchHostBackRoutingGuardTest {
 
     companion object {
-        /** The eight activities that host an in-toolbar search bar. Add a new host here. */
+        /**
+         * The seven activities that host an in-toolbar search bar. Add a new host here.
+         *
+         * `SettingsComposeActivity.kt` left this list in nav-graph 3/5/6 Task 9, with the Activity
+         * itself: the settings search bar now lives in the graph's own arm
+         * (`sharedUi/.../settings/nav/SettingsNavGraph.kt`), where hardware back is routed by
+         * `PlatformBackHandler(enabled = searchModeActive) { searchMode.close() }` rather than by
+         * an Activity override. That arm is Compose-common source, not an Activity, so it is not a
+         * "search HOST file" in this guard's sense.
+         */
         private val SEARCH_HOST_FILES = listOf(
             "src/main/java/net/bible/android/view/activity/download/DownloadComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/navigation/ChooseDocumentComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/bookmark/BookmarksComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/cloud/CloudDocumentsComposeActivity.kt",
-            "src/main/java/net/bible/android/view/activity/settings/SettingsComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettingsComposeActivity.kt",
             "src/main/java/net/bible/android/view/mydocuments/MyDocumentsComposeActivity.kt",
             "src/main/java/net/bible/android/view/mydocuments/MyDocumentPagesComposeActivity.kt",
