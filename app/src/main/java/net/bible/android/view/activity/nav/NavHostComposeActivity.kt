@@ -332,11 +332,24 @@ class NavHostComposeActivity : ActivityBase() {
      * would normally read them off its `NavBackStackEntry` exists (or, in the no-op-navigate case,
      * without it ever re-reading them).
      *
-     * Reads the values RAW, with no [NavRoutes.decodeArg], because that is exactly what the graph's
-     * arm does with the same two arguments — the two must agree, and a lone decode here would make
-     * them disagree. (The encode/decode asymmetry itself — `NavRoutes.dailyReading` percent-encodes
-     * `plan` on the way in — is a known, separately tracked item for the whole-branch review; it is
-     * a no-op for real plan codes, which contain only unreserved characters.)
+     * **[NavRoutes.ARG_PLAN] must be decoded here**, and that is not a redundant belt on top of the
+     * arm's read — it is the step this parser is missing and the arm gets for free. `NavRoutes
+     * .dailyReading` percent-encodes every value (`RouteBuilder.optional` -> `NavRoutes.encodeArg`),
+     * and the arm reaches its copy through the navigation library, whose
+     * `NavDeepLink.getMatchingQueryArguments` reads query values with `Uri.getQueryParameters` —
+     * which returns them ALREADY `Uri.decode`-ed. So the arm sees `My Plan` where a plain string
+     * split sees `My%20Plan`; "the arm does not decode" only ever meant "it does not need a SECOND,
+     * `NavRoutes.decodeArg` pass". Feeding the encoded form to `ReadingPlanControl.setReadingPlan`
+     * would write a non-existent plan code into the `READING_PLAN` preference and then throw — and
+     * plan codes are filenames (`ReadingPlanTextFileDao.userPlanCodes`, `AndBibleAddons
+     * .providedReadingPlans`), so a space or a non-ASCII character in one is ordinary, not exotic.
+     * `decodeArg`'s malformed-escape `require` cannot fire: every daily-reading route reaching
+     * [EXTRA_ROUTE] was built by `NavRoutes.dailyReading`. [NavRoutes.ARG_DAY] is digits, so it
+     * needs no decode.
+     *
+     * An EMPTY value counts as absent, matching the library: its query-parameter regex is `(.+?)`,
+     * so `plan=` does not match and the argument falls back to its `null` default — whereas `""`
+     * here would reach `setReadingPlan("")` and wipe the preference.
      */
     private fun readingPlanArgsOf(route: String): Pair<String?, Int?> {
         val query = route.substringAfter('?', "")
@@ -344,7 +357,8 @@ class NavHostComposeActivity : ActivityBase() {
         val arguments = query.split("&")
             .filter { it.contains('=') }
             .associate { it.substringBefore('=') to it.substringAfter('=') }
-        return arguments[NavRoutes.ARG_PLAN] to arguments[NavRoutes.ARG_DAY]?.toIntOrNull()
+        val plan = arguments[NavRoutes.ARG_PLAN]?.takeIf { it.isNotEmpty() }?.let(NavRoutes::decodeArg)
+        return plan to arguments[NavRoutes.ARG_DAY]?.toIntOrNull()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
