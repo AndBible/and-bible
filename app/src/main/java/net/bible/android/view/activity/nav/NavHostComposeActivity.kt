@@ -38,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -166,6 +167,16 @@ class NavHostComposeActivity : ActivityBase() {
     private var historyRoute: String? = null
 
     /**
+     * Which back-stack entry published [historyRoute] — an opaque per-entry token the destination
+     * `remember`s. Identity, not value: two entries for the SAME destination publish the identical
+     * route string (both read the host-global [loadedReadingDay]), so a value comparison in
+     * [clearHistoryRoute] would let a disposing lower entry wipe the route the visible one had just
+     * published. That is reachable since [onNewIntent] can push a second `DAILY_READING_PATTERN`
+     * entry while a child destination is on top.
+     */
+    private var historyRouteOwner: Any? = null
+
+    /**
      * Classic `DailyReadingComposeActivity` mutated ITS OWN intent with `ReadingPlanKeys.PLAN`/`DAY`
      * so `HistoryManager` could re-launch it on the right day (`HistoryManager.kt:173-175` ->
      * `IntentHistoryItem.revertTo()`). A nav destination has no intent of its own, so the host
@@ -186,20 +197,27 @@ class NavHostComposeActivity : ActivityBase() {
      * at `ActivityBase.kt:275-278` — never the `open val`. An overridden getter would therefore be
      * sampled while `historyRoute` is still null and never fire again. So this drives that var
      * directly, through the same setter classic `DailyReadingComposeActivity.kt:77` used.
+     *
+     * [owner] is the publishing back-stack entry's token — see [historyRouteOwner].
      */
-    private fun setHistoryRoute(route: String?) {
+    private fun setHistoryRoute(owner: Any, route: String) {
+        historyRouteOwner = owner
         historyRoute = route
-        isIntegrateWithHistoryManager = route != null
+        isIntegrateWithHistoryManager = true
     }
 
     /**
      * The compare-and-clear half of the seam — see [ReadingPlanNavDeps.clearHistoryRoute] for the
      * ordering hazard it exists for: navigation-compose runs the ENTERING destination's effects
      * before disposing the exiting one, so a leaving destination that cleared unconditionally would
-     * wipe the route its successor had just published.
+     * wipe the route its successor had just published. The comparison is on the OWNER's identity
+     * rather than the route's value, which is strictly stronger — see [historyRouteOwner].
      */
-    private fun clearHistoryRoute(expected: String) {
-        if (historyRoute == expected) setHistoryRoute(null)
+    private fun clearHistoryRoute(owner: Any) {
+        if (historyRouteOwner !== owner) return
+        historyRouteOwner = null
+        historyRoute = null
+        isIntegrateWithHistoryManager = false
     }
 
     /**
@@ -224,14 +242,63 @@ class NavHostComposeActivity : ActivityBase() {
      */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // Later reads of `intent` (including a recreate()) must see the new one, not the launching one.
-        setIntent(intent)
+        // The route check comes FIRST: a route-less new intent must not become this Activity's
+        // intent, or a later recreate() (the ReadingPlansUpdatedViaSyncEvent handler calls one)
+        // would re-run onCreate's requireNotNull(EXTRA_ROUTE) against it and throw.
         val route = intent.getStringExtra(EXTRA_ROUTE) ?: return
-        val controller = navController ?: return
-        // launchSingleTop: re-delivering the route that is already on top must not stack a
-        // duplicate entry. Anything already below stays put, so Back still returns where the user
-        // was — the same thing a reordered-to-front Activity would have done.
-        controller.navigate(route) { launchSingleTop = true }
+        setIntent(intent)
+
+        // The daily-reading destination prefers its LAST LOADED day over its route arguments, so a
+        // child-pop re-entry cannot revert the screen (see ReadingPlanNavGraph's initial-load
+        // effect). A new-intent route is the opposite situation — an explicit "show exactly this" —
+        // so that memory has to go, or a host that has ever shown a reading day would silently
+        // ignore the day this intent asks for, which is the very failure this override exists to
+        // fix. Skipped when the requested route is the one already published, because then the day
+        // asked for is the day on screen and clearing would only drop a correct history route.
+        if (isDailyReadingRoute(route) && route != historyRoute) loadedReadingDay.value = null
+
+        val controller = navController
+        if (controller == null) {
+            // Reachable: a restored-then-reordered Activity can receive LaunchActivityItem and
+            // NewIntentItem in one client transaction, i.e. before setContent's first composition
+            // commits (onCreate has already captured its startRoute by then). Stash and let the
+            // composition consume it — see the LaunchedEffect next to the publishing
+            // DisposableEffect in onCreate.
+            pendingNewIntentRoute = route
+            return
+        }
+        navigateToRoute(controller, route)
+    }
+
+    /**
+     * A route delivered by [onNewIntent] that arrived before there was a graph to navigate; the
+     * composition consumes it. Null whenever nothing is pending.
+     */
+    private var pendingNewIntentRoute: String? = null
+
+    /**
+     * `launchSingleTop`: re-delivering a route whose destination is already on top must not stack a
+     * duplicate entry. Anything already below stays put, so Back still returns where the user was —
+     * the same thing a reordered-to-front Activity would have done.
+     *
+     * Wrapped in `runCatching` because `NavController.navigate` throws `IllegalArgumentException`
+     * for a route no destination matches. Not externally reachable (this Activity has no
+     * intent-filter and is not exported), but turning a main-thread crash into the same silent
+     * no-op the two `?: return`s above already establish costs one line.
+     */
+    private fun navigateToRoute(controller: NavHostController, route: String) {
+        runCatching { controller.navigate(route) { launchSingleTop = true } }
+            .onFailure { Log.w(TAG_READING_PLAN, "Ignoring an unroutable EXTRA_ROUTE: $route", it) }
+    }
+
+    /**
+     * Whether [route] addresses the daily-reading destination. The `?` boundary is load-bearing:
+     * [NavRoutes.READING_PLAN_DAY_LIST] (`readingPlan/dayList`) shares the argument-free
+     * daily-reading route's prefix (`readingPlan/day`), so a bare `startsWith` would match it too.
+     */
+    private fun isDailyReadingRoute(route: String): Boolean {
+        val base = NavRoutes.dailyReading()
+        return route == base || route.startsWith("$base?")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -247,6 +314,14 @@ class NavHostComposeActivity : ActivityBase() {
                 DisposableEffect(navController) {
                     this@NavHostComposeActivity.navController = navController
                     onDispose { this@NavHostComposeActivity.navController = null }
+                }
+                // An onNewIntent route that arrived before this composition existed — see
+                // onNewIntent's null-controller branch.
+                LaunchedEffect(navController) {
+                    pendingNewIntentRoute?.let { route ->
+                        pendingNewIntentRoute = null
+                        navigateToRoute(navController, route)
+                    }
                 }
                 val allTools = remember { ToolRegistry.getAllTools() }
                 val aiModelsController = remember {
@@ -387,8 +462,8 @@ class NavHostComposeActivity : ActivityBase() {
                     ReadingPlanNavDeps(
                         exitHost = { finish() },
                         setWindowTitle = { title -> setTitle(title) },
-                        setHistoryRoute = { route -> setHistoryRoute(route) },
-                        clearHistoryRoute = { expected -> clearHistoryRoute(expected) },
+                        setHistoryRoute = { owner, route -> setHistoryRoute(owner, route) },
+                        clearHistoryRoute = { owner -> clearHistoryRoute(owner) },
                         pendingSelection = pendingReadingPlanSelection,
                         dailyReading = DailyReadingDeps(
                             controllerFor = { onChangePlan, onChangeDay ->
@@ -818,9 +893,16 @@ class NavHostComposeActivity : ActivityBase() {
      * Captured here (rather than created here) because the controller needs the graph's two
      * navigation edges, while [pushReadingPlanUi]/[pushReadingPlanSpeakState] need to push INTO it
      * from host code — and because navigation-compose disposes this destination's composition while
-     * a child is on top, a new instance replaces the old one on every re-entry. Only one
-     * `DAILY_READING_PATTERN` entry can exist at a time (nothing in this graph navigates to it), so
-     * the field can never point at a stale instance while a live one is showing.
+     * a child is on top, a new instance replaces the old one on every re-entry.
+     *
+     * What keeps the field pointing at the instance the user can see is NOT that only one
+     * `DAILY_READING_PATTERN` entry exists — [onNewIntent] can push a second one while the day list
+     * or selector is on top, giving `[dailyReading, dayList, dailyReading]`. It is that
+     * navigation-compose composes only the VISIBLE entries: `controllerFor` runs as an entry becomes
+     * visible, so the last write always comes from the entry now on top, and an entry further down
+     * (whose composition is disposed, and whose controller nothing can reach) can never write again
+     * until it is composed once more — at which point it IS the visible one. During a transition
+     * both are briefly composed; the entering one composes second, so it wins.
      */
     private var dailyReadingController: DailyReadingController? = null
     private var readingsDto: OneDaysReadingsDto? = null
