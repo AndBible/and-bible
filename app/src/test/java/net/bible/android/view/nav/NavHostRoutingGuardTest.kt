@@ -299,6 +299,33 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
+    fun readingProgressSettingsResolvesToTheNavHostCarryingItsRoute() {
+        // slice 6, Task 8. No arguments at all: the classic host read no extras.
+        val intent = ScreenLauncher.intentFor(context, Screen.ReadingProgressSettings)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(
+            NavRoutes.READING_PROGRESS_SETTINGS,
+            intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE),
+        )
+    }
+
+    @Test
+    fun readingProgressResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
+        // The ARGUMENT-FREE route is the correct MIGRATED value, and argument-free MEANS something
+        // here: classic ReadingProgressComposeActivity.kt:76-82 defaults an ABSENT
+        // ReadingProgressKeys.EXTRA_TAB to the persisted `reading_progress_last_tab` setting, so
+        // "no tab" is the real state "open the tab the user was last on" — not a dropped argument.
+        // The one caller that DOES know a tab (BibleJavascriptInterface.openReadingProgress) builds
+        // NavRoutes.readingProgress(tab) directly, bypassing this map.
+        val intent = ScreenLauncher.intentFor(context, Screen.ReadingProgress)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(
+            NavRoutes.readingProgress(),
+            intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE),
+        )
+    }
+
+    @Test
     fun promptEditTemplateRoundTripsThroughDecodeArg() {
         // Free text, deliberately containing reserved/percent/unicode characters that would
         // corrupt the route if encodeArg/decodeArg were not both applied — see NavRoutes' kdoc.

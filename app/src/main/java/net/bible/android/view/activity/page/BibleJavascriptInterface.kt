@@ -555,15 +555,29 @@ class BibleJavascriptInterface(
         ABEventBus.post(ReadingProgressSettingsChangedEvent())
     }
 
+    /**
+     * The ONLY caller that names a tab. `Screen.ReadingProgress` is MIGRATED and its MIGRATED route
+     * is the argument-FREE one, so a `ScreenLauncher.intentFor(...).putExtra(EXTRA_TAB, tab)` would
+     * silently drop the tab — the route is the only thing `NavHostComposeActivity` reads. The route
+     * is therefore built directly, as `NavHostRoutingGuardTest
+     * .migratedScreenArgumentIsNeverDroppedByAPutExtra` requires.
+     *
+     * `startActivityForResult(..., STD_REQUEST_CODE)` is unchanged and still matters: this screen
+     * returns `ActivityResultKind.ReadingProgress` to `MainBibleActivity.onActivityResult`.
+     */
     @JavascriptInterface
     fun openReadingProgress(tab: Int) {
         scope.launch(Dispatchers.Main) {
-            val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ReadingProgress)
-            intent.putExtra(ReadingProgressKeys.EXTRA_TAB, tab)
+            val intent = NavHostComposeActivity.intentFor(mainBibleActivity, NavRoutes.readingProgress(tab))
             mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
         }
     }
 
+    /**
+     * Still `startActivityForResult` although this screen never calls `setResult`, so it always
+     * returns `RESULT_CANCELED` into `MainBibleActivity.kt:2882-2890`'s early branch. That is
+     * pre-existing, harmless and deliberately NOT changed here.
+     */
     @JavascriptInterface
     fun openReadingProgressSettings() {
         scope.launch(Dispatchers.Main) {

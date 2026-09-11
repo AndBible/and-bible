@@ -26,17 +26,37 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import androidx.savedstate.read
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.progress.PassageRow
+import net.bible.sharedcore.progress.ReadingProgressController
+import net.bible.sharedcore.progress.ReadingTab
+import net.bible.sharedcore.progress.TargetRow
 import net.bible.sharedcore.search.SearchModeController
 import net.bible.sharedcore.settings.AppSettingsController
 import net.bible.sharedcore.settings.AppSettingsNav
+import net.bible.sharedcore.settings.ReadingProgressSettingsController
 import net.bible.sharedcore.settings.SyncSettingsController
 import net.bible.sharedui.PlatformBackHandler
+import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.progress.AbReadHistorySheet
+import net.bible.sharedui.progress.MemorizeTabBody
+import net.bible.sharedui.progress.ReadHistoryRow
+import net.bible.sharedui.progress.ReadingProgressScreen
+import net.bible.sharedui.settings.AbSettingsScreen
 import net.bible.sharedui.settings.AppSettingsScreen
 import net.bible.sharedui.settings.SyncSettingsScreen
+import net.bible.sharedui.strings.LocalStrings
 
 /**
  * [AppSettingsScreen]'s platform-supplied slots, ported from classic `SettingsComposeActivity`.
@@ -76,12 +96,9 @@ import net.bible.sharedui.settings.SyncSettingsScreen
  * - [onOpenTextDisplaySettings], [onOpenLinksSettings] and [onCrashApp] are the three navigation
  *   rows with no destination in this graph: an Activity that is still an Activity (it is launched
  *   with a `settingsBundle` extra), the Android app-links system screen
- *   (`Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS`) and a deliberate delayed crash.
- * - [onOpenReadingProgressSettings] is a host `ScreenLauncher.open` TODAY only because
- *   `Screen.ReadingProgressSettings` is not a destination yet. **Task 8 adds that destination to
- *   this very graph**; when it does, this slot should be deleted and the `READING_PROGRESS` arm of
- *   the `when` below become `navController.navigate(NavRoutes.READING_PROGRESS_SETTINGS)`, joining
- *   `SYNC` and `AI`.
+ *   (`Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS`) and a deliberate delayed crash. The
+ *   reading-progress-settings row used to be a fourth; Task 8 made it a destination in THIS graph,
+ *   so it navigates directly and its host slot is gone.
  * - [resetContentDescription] is `R.string.reset_settings`, a frozen parameter of the screen.
  * - [onResume] is classic's `onResume { service.refresh() }` (`:139-144`), driven from a
  *   lifecycle-aware effect scoped to THIS destination (see the arm). Never host-wide: one host now
@@ -94,7 +111,6 @@ class AppSettingsDeps(
     val onConfirmReset: () -> Unit,
     val onShowDiscreteHelp: () -> Unit,
     val onOpenTextDisplaySettings: () -> Unit,
-    val onOpenReadingProgressSettings: () -> Unit,
     val onOpenLinksSettings: () -> Unit,
     val onCrashApp: () -> Unit,
     val resetContentDescription: String,
@@ -126,16 +142,103 @@ class SyncSettingsDeps(
 )
 
 /**
+ * One read-history dialog request: the sheet's title and the rows to show. Classic
+ * `ReadingProgressComposeActivity` held the identical pair as a private `HistoryReq` data class
+ * plus a `mutableStateOf` Activity FIELD (`:56-57`, `:84`), because its three `showXHistory`
+ * functions are suspending (each hits the read-history DAO) and had nowhere else to put the answer.
+ * The shape survives the move; only the owner changes — see [ReadingProgressDeps.controllerFor].
+ *
+ * [ReadHistoryRow] is already a `commonMain` type, so nothing Android crosses this boundary.
+ */
+class ReadHistoryRequest(val title: String, val rows: List<ReadHistoryRow>)
+
+/**
+ * [ReadingProgressScreen]'s platform-supplied slots, ported from classic
+ * `ReadingProgressComposeActivity`.
+ *
+ * **This is the batch's one destination whose result leaves the batch**, and the whole edge lives
+ * inside [controllerFor] rather than in a slot of its own. Classic's `navigateToChapter` (`:190-196`)
+ * and `navigateToMemorize` (`:200-208`) each build an `Intent`, `setResult(RESULT_OK, it)` and
+ * `finish()`; `MainBibleActivity.kt:2930-2958` consumes them by reading
+ * `extras.getString(ActivityResultKind.EXTRA)` — NOT the result Intent's component class — which is
+ * exactly what lets the edge survive the migration: the nav host sets a byte-identical result and
+ * the consumer cannot tell which host produced it. Both are already constructor lambdas of
+ * [ReadingProgressController] (`onNavigateToChapter`, `onNavigateToMemorize`), so the host wires
+ * them there, unchanged. They are deliberately NOT a `(Intent) -> Unit` deps slot: `android.content
+ * .Intent` is an Android type and this file is `commonMain`.
+ *
+ * - [controllerFor] is a per-back-stack-entry FACTORY (the reading-plan/search shape, not the
+ *   app-settings `by lazy` one): this controller's state is the reading-progress model for ONE
+ *   entry, it is reloaded on entry anyway ([ReadingProgressController.load]), and nothing about it
+ *   should outlive the entry. Being a factory is also what keeps it LAZY in the sense Task 7's fix
+ *   round established — the deps literal that the host assembles on EVERY launch, for every
+ *   cluster, holds a lambda and constructs nothing, so opening a search screen never touches the
+ *   read-history DAO.
+ *
+ *   `tabArg` is the route's optional [NavRoutes.ARG_TAB], null when absent — and absent is a REAL
+ *   state, not a missing argument: classic (`:76-82`) defaulted an absent
+ *   `ReadingProgressKeys.EXTRA_TAB` to the persisted `reading_progress_last_tab` setting, so the
+ *   host resolves null the same way. That resolution stays host-side because the persisted value is
+ *   an Android `CommonUtils.settings` read.
+ *
+ *   `onShowHistory` is how the host's three suspending history loaders (classic `:212-239`) hand
+ *   their answer back to the arm, which owns the dialog state — the inverse of classic, where the
+ *   Activity owned the state and the composition merely read it.
+ * - [persistTab] is classic's `persistTab` (`:264-266`), called from `onSelectTab` AFTER the
+ *   controller's `selectTab`, exactly as classic ordered it.
+ * - [onApplyHistoryDeletes] is classic's sheet callback (`:173-178`): a suspending
+ *   `deleteReadHistoryEntries` followed by a controller refresh. Both the `cycle` and the refresh
+ *   come from the arm's controller (`controller.model.value.cycle`, `controller::refresh` — classic
+ *   read exactly those off its own field), so the host needs no reference to a per-entry object it
+ *   does not own; `onDeleted` runs AFTER the suspending delete, as classic sequenced it.
+ * - [onShowHelp] is `CommonUtils.showHelpDialog` (`:255-262`) — a platform dialog, left platform.
+ * - [unmarkConfirmMessage] / [removeTargetConfirmMessage] are the two `AbConfirmDialog` bodies,
+ *   each a `getString(..., row.rangeName)` format. Lambdas, not strings: the argument is only known
+ *   when a row is tapped. [confirmText] / [dismissText] are `android.R.string.ok` / `cancel` —
+ *   classic's own choice of the SYSTEM strings, kept rather than swapped for `LocalStrings`.
+ */
+class ReadingProgressDeps(
+    val controllerFor: (
+        tabArg: Int?,
+        onShowHistory: (ReadHistoryRequest) -> Unit,
+    ) -> ReadingProgressController,
+    val persistTab: (ReadingTab) -> Unit,
+    val onApplyHistoryDeletes: (ids: List<String>, cycle: Int, onDeleted: () -> Unit) -> Unit,
+    val onShowHelp: () -> Unit,
+    val unmarkConfirmMessage: (rangeName: String) -> String,
+    val removeTargetConfirmMessage: (rangeName: String) -> String,
+    val confirmText: String,
+    val dismissText: String,
+)
+
+/**
+ * [AbSettingsScreen]'s platform-supplied slots for the reading-progress/memorization settings
+ * screen — the batch's thinnest destination, and the batch's thinnest holder with it. Classic
+ * `ReadingProgressSettingsComposeActivity` is a controller, an [AbSettingsScreen] call and nothing
+ * else: no navigation rows, no reset action, no recreate parity, no `onResume` refresh.
+ *
+ * [controller] is a GETTER over a host `by lazy`, matching [AppSettingsDeps.controller] rather than
+ * [ReadingProgressDeps.controllerFor]. The cost it defers is smaller (one
+ * `ReadingProgressSettingsService` snapshot plus ~13 `getString`s) but the reason is the same one
+ * Task 7's fix round established: the deps literal is assembled on every launch of a host that now
+ * serves four clusters, so nothing settings-specific may be CONSTRUCTED there. `by lazy` rather
+ * than a factory for [AppSettingsDeps.controller]'s reason — its snapshot collector should outlive
+ * one back-stack entry's composition.
+ */
+class ReadingProgressSettingsDeps(
+    val controller: () -> ReadingProgressSettingsController,
+)
+
+/**
  * Platform-supplied slots the settings destinations need but `commonMain` cannot provide.
  * Mirrors [net.bible.sharedui.search.nav.SearchNavDeps]: [exitHost] and [setWindowTitle] are
  * graph-wide and sit at the top level, one nested holder per destination below.
  *
- * **Two holders now, four when the cluster is complete.** Task 7 declared [appSettings] and
- * [syncSettings]; **Task 8 appends `readingProgress` and `readingProgressSettings` to the END of
- * this constructor** (a holder cannot exist before the destination it supplies — the host would
- * have nothing to construct it from). Nothing above needs to move for that: the two top-level
- * slots stay first, the holders stay in destination order, and the only other Task 8 edit inside
- * this file is the one noted on [AppSettingsDeps.onOpenReadingProgressSettings].
+ * **Four holders, one per destination, in destination order.** Task 7 declared [appSettings] and
+ * [syncSettings]; Task 8 appended [readingProgress] and [readingProgressSettings] to the END of
+ * this constructor (a holder cannot exist before the destination it supplies — the host would have
+ * nothing to construct it from). The two top-level slots stay first; a fifth destination appends
+ * likewise.
  *
  * There is deliberately NO history seam here (no `setHistoryRoute`/`clearHistoryRoute` pair, unlike
  * the reading-plan and search clusters): none of classic's four settings hosts declares
@@ -155,6 +258,10 @@ class SettingsNavDeps(
     val appSettings: AppSettingsDeps,
     // — SYNC SETTINGS —
     val syncSettings: SyncSettingsDeps,
+    // — READING PROGRESS —
+    val readingProgress: ReadingProgressDeps,
+    // — READING PROGRESS SETTINGS —
+    val readingProgressSettings: ReadingProgressSettingsDeps,
 )
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
@@ -194,15 +301,14 @@ private fun NavHostController.popOrExit(exitHost: () -> Unit) {
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 
 /**
- * The settings cluster's destinations — [NavRoutes.SETTINGS] and [NavRoutes.SYNC_SETTINGS] as of
- * Task 7, plus reading progress and its settings screen in Task 8. Registered into the app's single
- * `NavHost` by the host Activity.
+ * The settings cluster's four destinations — [NavRoutes.SETTINGS], [NavRoutes.SYNC_SETTINGS],
+ * [NavRoutes.READING_PROGRESS_PATTERN] and [NavRoutes.READING_PROGRESS_SETTINGS]. Registered into
+ * the app's single `NavHost` by the host Activity.
  *
- * Neither destination takes a navigation argument, so nothing in this file reads
- * `backStackEntry.arguments` — and when Task 8's `READING_PROGRESS_PATTERN` arm does, remember the
- * rule the search cluster documents at length: **the navigation library has ALREADY percent-decoded
- * a query value by the time it reaches `arguments`**, so `NavRoutes.decodeArg` must NOT be applied
- * to one a second time.
+ * Exactly one of them takes a navigation argument ([NavRoutes.ARG_TAB]), and it obeys the rule the
+ * search cluster documents at length: **the navigation library has ALREADY percent-decoded a query
+ * value by the time it reaches `arguments`**, so `NavRoutes.decodeArg` must NOT be applied to one a
+ * second time.
  *
  * All inter-screen navigation lives HERE rather than in the host: two of app settings' seven
  * navigation rows (`sync_settings_shortcut`, `ai_settings_shortcut`) address destinations in this
@@ -272,15 +378,15 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
             // Bound to this `when` rather than to controller::onNavigate (whose host lambda is left
             // unused), for AiNavGraph's AI_CONNECTION_SETTINGS reason: SYNC and AI are routes in
             // this host's graph and cannot be decided from :sharedCore. The other five rows have no
-            // destination in any graph — TWO still-classic Activity launches (text display, and
-            // reading-progress settings until Task 8 migrates it), a platform dialog, an Android
-            // system screen and a deliberate crash — and stay host callbacks.
+            // destination in any graph — ONE still-classic Activity launch (text display), a
+            // platform dialog, an Android system screen and a deliberate crash — and stay host
+            // callbacks.
             onNavigate = { key ->
                 when (key) {
                     AppSettingsNav.SYNC -> navController.navigate(NavRoutes.SYNC_SETTINGS)
                     AppSettingsNav.AI -> navController.navigate(NavRoutes.AI_PROMPTS)
-                    // Task 8 turns this into navigate(NavRoutes.READING_PROGRESS_SETTINGS).
-                    AppSettingsNav.READING_PROGRESS -> d.onOpenReadingProgressSettings()
+                    AppSettingsNav.READING_PROGRESS ->
+                        navController.navigate(NavRoutes.READING_PROGRESS_SETTINGS)
                     AppSettingsNav.TEXT_DISPLAY -> d.onOpenTextDisplaySettings()
                     AppSettingsNav.DISCRETE_HELP -> d.onShowDiscreteHelp()
                     AppSettingsNav.OPEN_LINKS -> d.onOpenLinksSettings()
@@ -322,6 +428,151 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
             onConfirmReset = controller::confirmReset,
             onConfirmEnableDocuments = controller::confirmEnableDocuments,
             onDismissDialog = controller::dismissDialog,
+        )
+    }
+
+    // ——— READING PROGRESS ———
+    composable(
+        route = NavRoutes.READING_PROGRESS_PATTERN,
+        arguments = listOf(
+            // A String, not NavType.IntType, for DAILY_READING_PATTERN's reason: an ABSENT optional
+            // Int has no representation this pattern can express without inventing a sentinel, and
+            // absence must stay distinguishable from tab 0 — classic defaulted an absent extra to
+            // the PERSISTED tab, which may well be 1.
+            navArgument(NavRoutes.ARG_TAB) { type = NavType.StringType; nullable = true; defaultValue = null },
+        ),
+    ) { backStackEntry ->
+        val d = deps.readingProgress
+        // NOT run through NavRoutes.decodeArg: the navigation library has already percent-decoded
+        // this query value by the time it reaches `arguments`, and a second pass would corrupt a
+        // literal '%'. (A tab index cannot contain one, but the rule is the rule — see this file's
+        // kdoc and AiNavGraph's long-form version.)
+        val tabArg = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_TAB) }?.toIntOrNull()
+
+        // Classic's `historyDialog` Activity field (`:84`), moved into the arm — the state belongs
+        // where it is rendered. `remember`, not `rememberSaveable`: it is a transient one-shot
+        // request holding a loaded row list, and classic's plain Activity field did not survive
+        // process death either. This destination pushes no child, so nothing disposes it mid-use.
+        var historyDialog by remember { mutableStateOf<ReadHistoryRequest?>(null) }
+
+        // A per-entry factory, so nothing is constructed until this destination composes. `tabArg`
+        // is passed as-is, null included: the host resolves an ABSENT tab to the persisted
+        // `reading_progress_last_tab`, exactly as classic's getIntExtra default did.
+        val controller = remember {
+            d.controllerFor(tabArg) { request -> historyDialog = request }
+        }
+
+        // Classic's manifest label was `android:label="@string/reading_progress_title"`, and the
+        // screen's own top bar draws LocalStrings.readingProgressTitle — the same string. Keyed on
+        // the VALUE, per this graph's window-title convention.
+        val windowTitle = LocalStrings.current.readingProgressTitle
+        LaunchedEffect(windowTitle) { deps.setWindowTitle(windowTitle) }
+
+        // Classic ran `controller.load()` once at the end of onCreate (`:185`). LaunchedEffect(Unit)
+        // is the per-entry equivalent: once per composition of THIS back-stack entry.
+        LaunchedEffect(Unit) { controller.load() }
+
+        val model by controller.model.collectAsState()
+        val loading by controller.loading.collectAsState()
+        var unmarkRow by remember { mutableStateOf<PassageRow?>(null) }
+        var removeRow by remember { mutableStateOf<TargetRow?>(null) }
+
+        ReadingProgressScreen(
+            model = model,
+            loading = loading,
+            // Classic's `finish()`. popOrExit because this destination is normally entered directly
+            // (BibleJavascriptInterface) but may also sit on a back stack one day; a bare
+            // popBackStack() would be a dead up-arrow in the direct case.
+            onUp = { navController.popOrExit(deps.exitHost) },
+            onSelectTab = { controller.selectTab(it); d.persistTab(it) },
+            onPrevCycle = controller::prevCycle,
+            onNextCycle = controller::nextCycle,
+            onNewCycle = controller::newCycle,
+            onBookClick = controller::openChapterDetail,
+            onBookLongClick = controller::bookLongPress,
+            onChapterClick = { chapter -> model.chapterDetail?.let { controller.chapterTap(it.bookId, chapter) } },
+            onChapterLongClick = { ch -> model.chapterDetail?.let { controller.chapterLongPress(it.bookId, ch) } },
+            onCalendarDayClick = controller::calendarDayTap,
+            // Classic opened this with ScreenLauncher.open(Screen.ReadingProgressSettings); it is a
+            // destination in THIS graph now, so it navigates directly — the SYNC/AI precedent.
+            onOpenSettings = { navController.navigate(NavRoutes.READING_PROGRESS_SETTINGS) },
+            onShowHelp = d.onShowHelp,
+            memorizeTabContent = {
+                val m = model.memorize
+                if (m == null) {
+                    Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
+                } else {
+                    MemorizeTabBody(
+                        memorize = m,
+                        onSetOverview = controller::setMemOverview,
+                        onBookClick = controller::openMemChapterDetail,
+                        onChapterClick = { ch -> m.memChapterDetail?.let { controller.chapterTap(it.bookId, ch) } },
+                        onCalendarDayClick = {},
+                        onPassageTap = controller::memorizePassageTap,
+                        onPassageUnmark = { row -> unmarkRow = row },
+                        onTargetTap = controller::memorizePassageTap,
+                        onTargetRemove = { row -> removeRow = row },
+                        onShowMorePassages = controller::showMorePassages,
+                        onShowMoreTargets = controller::showMoreTargets,
+                    )
+                }
+            },
+        )
+
+        unmarkRow?.let { row ->
+            AbConfirmDialog(
+                title = null,
+                message = d.unmarkConfirmMessage(row.rangeName),
+                confirmText = d.confirmText,
+                dismissText = d.dismissText,
+                onConfirm = { controller.unmarkPassage(row.startOrdinal, row.endOrdinal); unmarkRow = null },
+                onDismiss = { unmarkRow = null },
+            )
+        }
+        removeRow?.let { row ->
+            AbConfirmDialog(
+                title = null,
+                message = d.removeTargetConfirmMessage(row.rangeName),
+                confirmText = d.confirmText,
+                dismissText = d.dismissText,
+                onConfirm = { controller.removeTarget(row.id); removeRow = null },
+                onDismiss = { removeRow = null },
+            )
+        }
+
+        historyDialog?.let { req ->
+            AbReadHistorySheet(
+                title = req.title,
+                rows = req.rows,
+                // The cycle is read at APPLY time from the live model, as classic read
+                // `controller.model.value.cycle` inside its own lambda.
+                onApplyDeletes = { ids ->
+                    d.onApplyHistoryDeletes(ids, controller.model.value.cycle, controller::refresh)
+                },
+                onDismiss = { historyDialog = null },
+            )
+        }
+    }
+
+    // ——— READING PROGRESS SETTINGS ———
+    composable(NavRoutes.READING_PROGRESS_SETTINGS) {
+        val d = deps.readingProgressSettings
+        val controller = remember { d.controller() }
+        val state by controller.state.collectAsState()
+
+        // Same convention as the two Task 7 arms: the screen draws state.title, and that string
+        // (`@string/reading_progress_settings`) is what the classic host's manifest label carried.
+        LaunchedEffect(state.title) { deps.setWindowTitle(state.title) }
+
+        AbSettingsScreen(
+            state = state,
+            onUp = { navController.popOrExit(deps.exitHost) },
+            onSwitch = controller::onSwitch,
+            onListChoice = controller::onListChoice,
+            // Classic's two no-op slots (`:64-65`): this screen has no text input and no
+            // navigation row, so both stay empty rather than reaching the controller.
+            onTextInput = { _, _ -> },
+            onNavigate = { _ -> },
         )
     }
 }

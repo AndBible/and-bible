@@ -152,6 +152,19 @@ object ScreenLauncher {
         // MainBibleActivity.onActivityResult when the host finishes.
         Screen.Settings to NavRoutes.SETTINGS,
         Screen.SyncSettings to NavRoutes.SYNC_SETTINGS,
+        // — slice 6: the settings cluster (part B) —
+        // The ARGUMENT-FREE reading-progress route, deliberately: classic
+        // ReadingProgressComposeActivity.kt:76-82 defaulted an ABSENT ReadingProgressKeys.EXTRA_TAB
+        // to the persisted `reading_progress_last_tab`, so "no tab" is the real state "the tab the
+        // user was last on" rather than a missing argument. The one caller that DOES name a tab
+        // (BibleJavascriptInterface.openReadingProgress) builds NavRoutes.readingProgress(tab)
+        // directly, bypassing this map.
+        //
+        // This screen is the batch's one OUTBOUND result producer: it sets
+        // ActivityResultKind.ReadingProgress and MainBibleActivity dispatches on that extra rather
+        // than on the result Intent's component class, so the edge survives the move untouched.
+        Screen.ReadingProgress to NavRoutes.readingProgress(),
+        Screen.ReadingProgressSettings to NavRoutes.READING_PROGRESS_SETTINGS,
     )
 
     /** The Activity class implementing [screen]. */

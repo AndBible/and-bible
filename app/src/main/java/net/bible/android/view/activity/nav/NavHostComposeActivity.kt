@@ -75,6 +75,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.control.link.LinkControl
+import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
@@ -89,6 +90,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
@@ -138,6 +140,9 @@ import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.progress.ReadHistoryEntry
+import net.bible.sharedcore.progress.ReadingProgressController
+import net.bible.sharedcore.progress.ReadingTab
 import net.bible.sharedcore.readingplan.DailyReadingController
 import net.bible.sharedcore.readingplan.DailyReadingListController
 import net.bible.sharedcore.readingplan.DailyReadingUi
@@ -160,6 +165,9 @@ import net.bible.sharedcore.search.SearchType
 import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedcore.settings.AppSettingsController
 import net.bible.sharedcore.settings.AppSettingsLabels
+import net.bible.sharedcore.settings.ReadingProgressSettingsController
+import net.bible.sharedcore.settings.ReadingProgressSettingsLabels
+import net.bible.sharedcore.settings.ReadingProgressSettingsService
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SyncSettingsController
 import net.bible.sharedcore.settings.SyncSettingsLabels
@@ -176,6 +184,7 @@ import net.bible.sharedui.ai.nav.RawLlmLogDeps
 import net.bible.sharedui.ai.nav.RawLogHistoryDeps
 import net.bible.sharedui.ai.nav.ToolInfoDeps
 import net.bible.sharedui.ai.nav.aiNavGraph
+import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.readingplan.nav.DailyReadingDeps
 import net.bible.sharedui.readingplan.nav.DailyReadingLoad
 import net.bible.sharedui.readingplan.nav.DayListDeps
@@ -200,6 +209,9 @@ import net.bible.sharedui.search.nav.SearchSubmission
 import net.bible.sharedui.search.nav.TranslationSelection
 import net.bible.sharedui.search.nav.searchNavGraph
 import net.bible.sharedui.settings.nav.AppSettingsDeps
+import net.bible.sharedui.settings.nav.ReadHistoryRequest
+import net.bible.sharedui.settings.nav.ReadingProgressDeps
+import net.bible.sharedui.settings.nav.ReadingProgressSettingsDeps
 import net.bible.sharedui.settings.nav.SettingsNavDeps
 import net.bible.sharedui.settings.nav.SyncSettingsDeps
 import net.bible.sharedui.settings.nav.settingsNavGraph
@@ -240,6 +252,15 @@ class NavHostComposeActivity : ActivityBase() {
     private val searchResultsCache: SearchResultsCache by inject()
     private val epubSearchService: EpubSearchService by inject()
     private val linkControl: LinkControl by inject()
+
+    /**
+     * Classic `ReadingProgressComposeActivity.kt:74` injects the CONCRETE impl, not the portable
+     * `ReadingProgressService` seam, and this host must too: `osisIdForChapter` (the chapter result
+     * intent) and the read-history/date-formatting helpers live only on the impl.
+     */
+    private val readingProgressService: ReadingProgressServiceImpl by inject()
+
+    private val readingProgressSettingsService: ReadingProgressSettingsService by inject()
 
     /**
      * Classic `SettingsComposeActivity`'s own `by lazy` service — NOT a Koin singleton, matching
@@ -294,6 +315,24 @@ class NavHostComposeActivity : ActivityBase() {
             // Screen.CloudDocuments is still its own Activity, so this branch stays on the
             // controller exactly as classic had it.
             onOpenCloudDocuments = { ScreenLauncher.open(this, Screen.CloudDocuments) },
+        )
+    }
+
+    /**
+     * The reading-progress SETTINGS controller, `by lazy` for [appSettingsController]'s reason —
+     * cheaper to build (one service snapshot, ~13 `getString`s) but still settings-specific work
+     * that no other cluster's destination should pay for when the deps literal is assembled.
+     *
+     * There is deliberately NO lazy field for the reading-progress SCREEN's controller: that one is
+     * a per-back-stack-entry factory ([ReadingProgressDeps.controllerFor], built in
+     * [readingProgressControllerFor] below), because its model belongs to one entry and is reloaded
+     * on entry anyway.
+     */
+    private val readingProgressSettingsController by lazy {
+        ReadingProgressSettingsController(
+            service = readingProgressSettingsService,
+            scope = lifecycleScope,
+            labels = buildReadingProgressSettingsLabels(),
         )
     }
 
@@ -801,9 +840,6 @@ class NavHostComposeActivity : ActivityBase() {
                             onConfirmReset = { confirmResetSettings() },
                             onShowDiscreteHelp = { showDiscreteHelpDialog() },
                             onOpenTextDisplaySettings = { openGlobalTextDisplaySettings() },
-                            onOpenReadingProgressSettings = {
-                                ScreenLauncher.open(this@NavHostComposeActivity, Screen.ReadingProgressSettings)
-                            },
                             onOpenLinksSettings = { openLinksSettings() },
                             onCrashApp = { crashApp() },
                             // One getString, unlike the ~90 the label bundle needs — cheap enough
@@ -814,6 +850,34 @@ class NavHostComposeActivity : ActivityBase() {
                         syncSettings = SyncSettingsDeps(
                             controller = { syncSettingsController },
                             onResume = { syncSettingsService.refresh() },
+                        ),
+                        readingProgress = ReadingProgressDeps(
+                            // A factory, so nothing here constructs a controller or touches the
+                            // read-history DAO until the destination actually composes — the same
+                            // rule the two getters above follow. See readingProgressControllerFor.
+                            controllerFor = { tabArg, onShowHistory ->
+                                readingProgressControllerFor(tabArg, onShowHistory)
+                            },
+                            persistTab = { tab -> persistReadingProgressTab(tab) },
+                            onApplyHistoryDeletes = { ids, cycle, onDeleted ->
+                                lifecycleScope.launch {
+                                    readingProgressService.deleteReadHistoryEntries(ids, cycle)
+                                    onDeleted()
+                                }
+                            },
+                            onShowHelp = { showReadingProgressHelp() },
+                            unmarkConfirmMessage = { rangeName ->
+                                getString(R.string.memorize_confirm_unmark, rangeName)
+                            },
+                            removeTargetConfirmMessage = { rangeName ->
+                                getString(R.string.memorize_confirm_remove_target, rangeName)
+                            },
+                            // classic's android.R.string.ok / cancel — the SYSTEM strings, kept.
+                            confirmText = getString(android.R.string.ok),
+                            dismissText = getString(android.R.string.cancel),
+                        ),
+                        readingProgressSettings = ReadingProgressSettingsDeps(
+                            controller = { readingProgressSettingsController },
                         ),
                     )
                 }
@@ -2137,7 +2201,199 @@ class NavHostComposeActivity : ActivityBase() {
         documentsEnableDialogTitle = getString(R.string.document_sync_enable_dialog_title),
     )
 
+    // --- Reading-progress host baggage (slice 6, Task 8) ---------------------------------------
+    // Ported from classic ReadingProgressComposeActivity / ReadingProgressSettingsComposeActivity
+    // (both deleted in nav-graph Task 9): the two RESULT intents that leave this batch, the
+    // Android-settings-backed tab persistence, the suspending read-history loaders and their
+    // resource-formatted rows, and the help dialog. See ReadingProgressDeps' kdoc.
+
+    /**
+     * [ReadingProgressDeps.controllerFor] — classic `ReadingProgressComposeActivity.kt:86-99`,
+     * lambda for lambda. A FACTORY (one controller per back-stack entry) rather than a `by lazy`
+     * host field: the model belongs to one entry, is reloaded on entry, and nothing about it should
+     * outlive the entry's composition. Being a factory is also what keeps the deps literal free of
+     * construction work — assembling it must not touch the read-history DAO for a user who opened a
+     * search screen.
+     */
+    private fun readingProgressControllerFor(
+        tabArg: Int?,
+        onShowHistory: (ReadHistoryRequest) -> Unit,
+    ): ReadingProgressController {
+        // The three history loaders need the cycle the user is CURRENTLY VIEWING, not
+        // service.currentCycle(): the screen's prev/next-cycle arrows move the model to an older
+        // cycle and classic read `controller.model.value.cycle` off its own `by lazy` field. The
+        // callbacks only ever run after construction returns, so a lateinit self-reference is the
+        // faithful equivalent of that field.
+        lateinit var controller: ReadingProgressController
+        controller = ReadingProgressController(
+            service = readingProgressService,
+            scope = lifecycleScope,
+            initialTab = readingProgressInitialTab(tabArg),
+            onNavigateToChapter = ::finishWithChapterResult,
+            onShowDayHistory = { day ->
+                showDayHistory(day, controller.model.value.cycle, onShowHistory)
+            },
+            onShowBookHistory = { bookId ->
+                showBookHistory(bookId, controller.model.value.cycle, onShowHistory)
+            },
+            onShowChapterHistory = { bookId, chapter ->
+                showChapterHistory(bookId, chapter, controller.model.value.cycle, onShowHistory)
+            },
+            initialOverviewActive = CommonUtils.settings.getBoolean("reading_progress_mem_overview", true),
+            onNavigateToMemorize = ::finishWithMemorizeResult,
+            persistOverview = { CommonUtils.settings.setBoolean("reading_progress_mem_overview", it) },
+        )
+        return controller
+    }
+
+    /**
+     * Classic `ReadingProgressComposeActivity.kt:76-82`, expressed against a nullable route
+     * argument instead of an Intent extra. `intent.getIntExtra(EXTRA_TAB, settings.getInt(PREF, 0))`
+     * returns the PERSISTED tab when the extra is absent — it is the extra's default value, not a
+     * fallback to 0 — so an absent [NavRoutes.ARG_TAB] must resolve the same way. The elvis below is
+     * that same expression: the persisted read happens only when [tabArg] is null, and 0 is merely
+     * the persisted setting's own default.
+     */
+    private fun readingProgressInitialTab(tabArg: Int?): ReadingTab {
+        val tab = tabArg ?: CommonUtils.settings.getInt(PREF_READING_PROGRESS_LAST_TAB, 0)
+        return if (tab == 1) ReadingTab.MEMORIZE else ReadingTab.READING
+    }
+
+    /** Classic's `persistTab` (`:264-266`). */
+    private fun persistReadingProgressTab(tab: ReadingTab) {
+        CommonUtils.settings.setInt(PREF_READING_PROGRESS_LAST_TAB, if (tab == ReadingTab.MEMORIZE) 1 else 0)
+    }
+
+    /**
+     * **THE ONE RESULT THAT LEAVES THIS BATCH.** Classic
+     * `ReadingProgressComposeActivity.navigateToChapter` (`:190-196`), byte for byte: the same two
+     * extras in the same order, the same `RESULT_OK`, the same `finish()`.
+     * `MainBibleActivity.kt:2930-2958` dispatches on `extras.getString(ActivityResultKind.EXTRA)`
+     * and NOT on the result Intent's component class, so it cannot tell that the producer is now
+     * this host rather than the classic Activity — which is the whole reason this edge survives
+     * slices 3/5/6 without `Screen.ReadingProgress` having to move into slice 7 with its consumer.
+     */
+    private fun finishWithChapterResult(bookId: String, chapter: Int) {
+        val resultIntent = Intent()
+            .putExtra("verse", readingProgressService.osisIdForChapter(bookId, chapter))
+            .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ReadingProgress.name)
+        setResult(RESULT_OK, resultIntent)
+        finish()
+    }
+
+    /** The second half of the same edge — classic `navigateToMemorize` (`:200-208`), verbatim. */
+    private fun finishWithMemorizeResult(start: Int, end: Int) {
+        val resultIntent = Intent()
+            .putExtra("action", "memorize")
+            .putExtra("startOrdinal", start)
+            .putExtra("endOrdinal", end)
+            .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ReadingProgress.name)
+        setResult(RESULT_OK, resultIntent)
+        finish()
+    }
+
+    // The three read-history loaders, classic `:212-239`, unchanged except that each now hands its
+    // answer to the ARM's dialog state through `emit` instead of writing an Activity field. They
+    // stay host-side because every line of formatting is an Android resource or a
+    // ReadingProgressServiceImpl helper.
+
+    private fun showDayHistory(dayTimestamp: Long, cycle: Int, emit: (ReadHistoryRequest) -> Unit) {
+        lifecycleScope.launch {
+            val entries = readingProgressService.readHistoryForDay(dayTimestamp, cycle)
+            emit(
+                ReadHistoryRequest(
+                    title = getString(
+                        R.string.reading_progress_history_for,
+                        readingProgressService.dayTitle(dayTimestamp),
+                    ),
+                    rows = entries.map {
+                        val date = readingProgressService.formatEntryDate(it.readAt)
+                        val time = readingProgressService.formatEntryTime(it.readAt)
+                        val version = it.bookInitials.ifEmpty {
+                            getString(R.string.reading_progress_history_version_unknown)
+                        }
+                        ReadHistoryRow(id = it.id, primary = "$date $time", secondary = version)
+                    },
+                ),
+            )
+        }
+    }
+
+    private fun showBookHistory(bookId: String, cycle: Int, emit: (ReadHistoryRequest) -> Unit) {
+        lifecycleScope.launch {
+            val entries = readingProgressService.readHistoryForBook(bookId, cycle)
+            emit(
+                ReadHistoryRequest(
+                    title = getString(
+                        R.string.reading_progress_history_for,
+                        readingProgressService.bookLongName(bookId),
+                    ),
+                    rows = entries.map { it.toReadHistoryRow() },
+                ),
+            )
+        }
+    }
+
+    private fun showChapterHistory(
+        bookId: String,
+        chapter: Int,
+        cycle: Int,
+        emit: (ReadHistoryRequest) -> Unit,
+    ) {
+        lifecycleScope.launch {
+            val entries = readingProgressService.readHistoryForChapter(bookId, chapter, cycle)
+            emit(
+                ReadHistoryRequest(
+                    title = getString(
+                        R.string.reading_progress_history_for,
+                        "${readingProgressService.bookShortName(bookId)} $chapter",
+                    ),
+                    rows = entries.map { it.toReadHistoryRow() },
+                ),
+            )
+        }
+    }
+
+    /** Classic's `ReadHistoryEntry.toRow()` (`:241-247`). */
+    private fun ReadHistoryEntry.toReadHistoryRow(): ReadHistoryRow {
+        val chapterRef = "${readingProgressService.bookShortName(bookId)} $chapter"
+        val time = readingProgressService.formatEntryTime(readAt)
+        val date = readingProgressService.formatEntryDate(readAt)
+        val version = bookInitials.ifEmpty { getString(R.string.reading_progress_history_version_unknown) }
+        return ReadHistoryRow(id = id, primary = "$chapterRef · $time", secondary = "$date · $version")
+    }
+
+    /** Classic's overflow help item (`:255-262`), a platform dialog left platform. */
+    private fun showReadingProgressHelp() {
+        CommonUtils.showHelpDialog(
+            activity = this,
+            titleResId = R.string.help,
+            messageResId = R.string.help_reading_progress_text,
+            helpPath = "reading_progress.html",
+        )
+    }
+
+    /** Classic `ReadingProgressSettingsComposeActivity.buildLabels()` (`:71-85`), verbatim. */
+    private fun buildReadingProgressSettingsLabels() = ReadingProgressSettingsLabels(
+        screenTitle = getString(R.string.reading_progress_settings),
+        autoMarkMemorizedTitle = getString(R.string.memorize_auto_mark),
+        autoMarkMemorizedSummary = getString(R.string.memorize_auto_mark_summary),
+        memorizeTypeFullWordsTitle = getString(R.string.memorize_type_full_words),
+        memorizeTypeFullWordsSummary = getString(R.string.memorize_type_full_words_summary),
+        memorizeWordVisibilityTitle = getString(R.string.memorize_word_visibility),
+        memorizeWordVisibilitySummary = getString(R.string.memorize_word_visibility_summary),
+        memorizeErrorHeatmapTitle = getString(R.string.memorize_error_heatmap),
+        memorizeErrorHeatmapSummary = getString(R.string.memorize_error_heatmap_summary),
+        memorizeScrambleHideUsedTitle = getString(R.string.memorize_scramble_hide_used),
+        memorizeScrambleHideUsedSummary = getString(R.string.memorize_scramble_hide_used_summary),
+        memorizeIncludeReferenceTitle = getString(R.string.memorize_include_reference),
+        memorizeIncludeReferenceSummary = getString(R.string.memorize_include_reference_summary),
+    )
+
     companion object {
+        /** Classic `ReadingProgressComposeActivity.kt:54`'s file-private constant. */
+        private const val PREF_READING_PROGRESS_LAST_TAB = "reading_progress_last_tab"
+
         private const val TAG_AI_PROMPTS = "AiPromptsCompose"
         private const val TAG_READING_PLAN = "DailyReadingNavHost"
         private const val TAG_SEARCH = "SearchCompose"
