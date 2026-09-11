@@ -116,10 +116,14 @@ enum class DailyReadingLoad {
  *   run through this destination's [loadDay], because its composition re-enters (and so re-loads)
  *   every time the selector pops — so something must remember that the selector has already been
  *   offered once, or Up out of the selector would bounce the user straight back into it forever.
- *   That memory cannot be a `remember` in this arm (disposed while the child is on top) and
- *   `rememberSaveable` is not on `:sharedUi`'s `commonMain` classpath, so it lives on the host,
- *   whose lifetime spans the whole cluster: this lambda returns true when the caller should offer
- *   the selector and false when the host has already offered it once and is now leaving.
+ *   That memory cannot be a `remember` in this arm — the arm is disposed while the child is on top —
+ *   so it lives on the host, whose lifetime spans the whole cluster: this lambda returns true when
+ *   the caller should offer the selector and false when the host has already offered it once and is
+ *   now leaving. (An earlier revision of this sentence claimed `rememberSaveable` is not on
+ *   `:sharedUi`'s `commonMain` classpath. That was simply WRONG — `SearchNavGraph.kt` imports and
+ *   uses it, and `SettingsNavGraph.kt` relies on it for exactly this disposal case. It is a usable
+ *   option here too; the host field is kept because this flag is a cluster-wide "already offered
+ *   once", not per-entry UI state.)
  * - [title] is the WINDOW title (classic's `android:label="@string/rdg_plan_title"`), not an
  *   on-screen one — [DailyReadingScreen] draws the plan name and day in its own top bar.
  */

@@ -259,6 +259,45 @@ class NavHostComposeActivity : ActivityBase() {
     }
 
     /**
+     * The settings cluster's two controllers, LAZY on purpose. `SettingsNavDeps` is assembled on
+     * every launch of this host — which now serves four clusters — but constructing either of these
+     * is expensive and settings-specific: [AppSettingsController] forces [appSettingsService]
+     * (four JSword `Books.installed()` dictionary scans and ~51 `CommonUtils.settings` reads, each
+     * a Room query on the main thread), builds the whole `SettingsScreenState` item tree, needs
+     * ~90 `getString` calls for its labels and launches a permanent snapshot collector;
+     * [SyncSettingsController] forces [syncSettingsService]'s eager `build()` (`CloudSync.signedIn`,
+     * the adapter summaries) plus ~35 more `getString`s. Classic paid that only when Settings
+     * itself opened, and a `by lazy` behind the deps' `() -> Controller` getter keeps it that way:
+     * nothing is built until a settings DESTINATION composes.
+     *
+     * Lazy rather than the reading-plan/search clusters' per-entry `controllerFor` factories,
+     * deliberately: the state here (the collector, the snapshot) should outlive one back-stack
+     * entry's composition, so a destination re-entered after a child pops keeps what it had.
+     */
+    private val appSettingsController by lazy {
+        AppSettingsController(
+            service = appSettingsService,
+            scope = lifecycleScope,
+            labels = buildAppSettingsLabels(),
+            // Unused by design: the screen's onNavigate is wired directly in settingsNavGraph's
+            // SETTINGS arm, because two of its seven rows are routes in this host's graph. See
+            // AppSettingsDeps' kdoc.
+            onNavigate = {},
+        )
+    }
+
+    private val syncSettingsController by lazy {
+        SyncSettingsController(
+            service = syncSettingsService,
+            scope = lifecycleScope,
+            labels = buildSyncSettingsLabels(),
+            // Screen.CloudDocuments is still its own Activity, so this branch stays on the
+            // controller exactly as classic had it.
+            onOpenCloudDocuments = { ScreenLauncher.open(this, Screen.CloudDocuments) },
+        )
+    }
+
+    /**
      * The route `HistoryManager` should re-launch for whatever this host currently shows, or null
      * when no destination wants a history entry. Set by the reading-plan destinations (and, from
      * slice 5, the search ones) through [ReadingPlanNavDeps.setHistoryRoute] — see [setHistoryRoute].
@@ -752,15 +791,12 @@ class NavHostComposeActivity : ActivityBase() {
                         exitHost = { finish() },
                         setWindowTitle = { title -> setTitle(title) },
                         appSettings = AppSettingsDeps(
-                            controller = AppSettingsController(
-                                service = appSettingsService,
-                                scope = lifecycleScope,
-                                labels = buildAppSettingsLabels(),
-                                // Unused by design: the screen's onNavigate is wired directly in
-                                // settingsNavGraph's SETTINGS arm, because two of its seven rows
-                                // are routes in this host's graph. See AppSettingsDeps' kdoc.
-                                onNavigate = {},
-                            ),
+                            // A getter over the host's `by lazy`, never an instance built here:
+                            // assembling these deps runs on EVERY host launch, for every cluster,
+                            // and building this controller costs four Books.installed() scans plus
+                            // ~51 Room-backed settings reads on the main thread. See
+                            // [appSettingsController] and AppSettingsDeps.controller's kdoc.
+                            controller = { appSettingsController },
                             maybeRecreate = { key -> maybeRecreateForSettingsKey(key) },
                             onConfirmReset = { confirmResetSettings() },
                             onShowDiscreteHelp = { showDiscreteHelpDialog() },
@@ -770,20 +806,13 @@ class NavHostComposeActivity : ActivityBase() {
                             },
                             onOpenLinksSettings = { openLinksSettings() },
                             onCrashApp = { crashApp() },
+                            // One getString, unlike the ~90 the label bundle needs — cheap enough
+                            // to stay eager.
                             resetContentDescription = getString(R.string.reset_settings),
                             onResume = { appSettingsService.refresh() },
                         ),
                         syncSettings = SyncSettingsDeps(
-                            controller = SyncSettingsController(
-                                service = syncSettingsService,
-                                scope = lifecycleScope,
-                                labels = buildSyncSettingsLabels(),
-                                // Screen.CloudDocuments is still its own Activity, so this branch
-                                // stays on the controller exactly as classic had it.
-                                onOpenCloudDocuments = {
-                                    ScreenLauncher.open(this@NavHostComposeActivity, Screen.CloudDocuments)
-                                },
-                            ),
+                            controller = { syncSettingsController },
                             onResume = { syncSettingsService.refresh() },
                         ),
                     )

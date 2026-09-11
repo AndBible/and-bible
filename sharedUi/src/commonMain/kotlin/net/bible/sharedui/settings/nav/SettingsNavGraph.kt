@@ -22,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -41,11 +42,22 @@ import net.bible.sharedui.settings.SyncSettingsScreen
  * [AppSettingsScreen]'s platform-supplied slots, ported from classic `SettingsComposeActivity`.
  *
  * - [controller] is built by the HOST (it needs the host's `lifecycleScope` and an
- *   `AppSettingsLabels` assembled from `strings.xml`) — same shape as
- *   [net.bible.sharedui.ai.nav.AiConnectionSettingsDeps.controller]. Its own `onNavigate`
- *   constructor lambda is left unused: two of this screen's seven navigation rows are destinations
- *   in the host's ONE graph, so the branching belongs in this file's `composable` arm, where a
- *   `navController` exists — see the `onNavigate` binding below.
+ *   `AppSettingsLabels` assembled from `strings.xml`) but reached through a GETTER, not handed over
+ *   as an instance — and that distinction is the expensive one on this screen. Building this
+ *   controller forces `AppSettingsServiceImpl`, whose constructor does four JSword
+ *   `Books.installed()` dictionary scans and ~51 `CommonUtils.settings` reads (each a Room query,
+ *   on the main thread), then builds the whole `SettingsScreenState` item tree and launches a
+ *   permanent snapshot collector. The host now serves four clusters, so an eagerly constructed
+ *   controller would charge all of that to someone opening a SEARCH or reading-plan screen who
+ *   never touches settings — a cost classic paid only when Settings itself opened. The host backs
+ *   this getter with a `by lazy`, so it is still built at most once per host (NOT once per
+ *   back-stack entry, which is what the reading-plan/search clusters' `controllerFor` factories
+ *   deliberately do): the arm below `remember`s the result, and a destination that re-enters
+ *   composition after a child pops gets the same instance, with its state intact.
+ *
+ *   Its own `onNavigate` constructor lambda is left unused: two of this screen's seven navigation
+ *   rows are destinations in the host's ONE graph, so the branching belongs in this file's
+ *   `composable` arm, where a `navController` exists — see the `onNavigate` binding below.
  * - [maybeRecreate] is classic's `maybeRecreate(key)` (`SettingsComposeActivity.kt:148-150`): a
  *   write to `locale_pref` / `night_mode_pref3` / `display_color_mode` / `discrete_mode` forces an
  *   Activity `recreate()`, because none of those is observed reactively — the locale is attached in
@@ -77,7 +89,7 @@ import net.bible.sharedui.settings.SyncSettingsScreen
  *   is the thing on screen.
  */
 class AppSettingsDeps(
-    val controller: AppSettingsController,
+    val controller: () -> AppSettingsController,
     val maybeRecreate: (key: String) -> Unit,
     val onConfirmReset: () -> Unit,
     val onShowDiscreteHelp: () -> Unit,
@@ -97,16 +109,19 @@ class AppSettingsDeps(
  * - [controller] is host-built for a reason sharper than the usual `lifecycleScope` one: its
  *   service is `SyncSettingsServiceImpl(scope, activityProvider = { this })`, and that provider
  *   must return an `ActivityBase` (`CloudSync.signIn` requires one, not a `Context`). The nav host
- *   IS an `ActivityBase`, so the classic construction carries over verbatim. The controller's own
- *   `onOpenCloudDocuments` stays where classic put it — `Screen.CloudDocuments` has no destination
- *   in any graph, so there is nothing for this file to route to and no reason to lift the branch
- *   out of [SyncSettingsController.onNavigate].
+ *   IS an `ActivityBase`, so the classic construction carries over verbatim. It is a GETTER backed
+ *   by a host `by lazy` for [AppSettingsDeps.controller]'s reason — building it runs
+ *   `SyncSettingsServiceImpl`'s eager `build()` (`CloudSync.signedIn`, the adapter summaries) and
+ *   ~35 `getString` calls for the labels, none of which another cluster's destination should pay
+ *   for. The controller's own `onOpenCloudDocuments` stays where classic put it —
+ *   `Screen.CloudDocuments` has no destination in any graph, so there is nothing for this file to
+ *   route to and no reason to lift the branch out of [SyncSettingsController.onNavigate].
  * - [onResume] is classic's `onResume { service.refresh() }` (`:77-81`) — a sign-in/out or a
  *   `DocumentSyncSettings` change may have happened while this destination was not the visible
  *   one. Per-destination and lifecycle-aware, for the reason given on [AppSettingsDeps.onResume].
  */
 class SyncSettingsDeps(
-    val controller: SyncSettingsController,
+    val controller: () -> SyncSettingsController,
     val onResume: () -> Unit,
 )
 
@@ -200,7 +215,11 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
     // ——— APP SETTINGS ———
     composable(NavRoutes.SETTINGS) {
         val d = deps.appSettings
-        val state by d.controller.state.collectAsState()
+        // The host's lazy getter: one instance per HOST, resolved here rather than when the deps
+        // were assembled, so another cluster's destination never pays for building it. See
+        // AppSettingsDeps.controller.
+        val controller = remember { d.controller() }
+        val state by controller.state.collectAsState()
 
         // The screen's own top bar renders `state.title` (AbSettingsScreen's AbScaffold), so that
         // is the value the window title follows too — and it equals the manifest label
@@ -216,11 +235,24 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
         // Classic hoisted these two onto the ACTIVITY (`SettingsComposeActivity.kt:99-103`) purely
         // so its onBackPressed override could reach them, with a comment that :sharedUi is
         // commonMain and cannot use BackHandler. That is no longer true — slice 1 added
-        // PlatformBackHandler — so the state belongs where it is used: in this arm, per back-stack
-        // entry, disposed with the destination.
-        var searchQuery by remember { mutableStateOf("") }
-        val searchMode = remember { SearchModeController(onClearQuery = { searchQuery = "" }) }
+        // PlatformBackHandler — so the state belongs where it is used: in this arm.
+        //
+        // rememberSaveable, NOT remember, and that is not a process-death nicety: this arm's
+        // composition is DISPOSED while a child destination (sync settings, the AI cluster) sits on
+        // top of it, so a plain `remember` would drop the user's filter every time they tapped a
+        // navigation row and came back — something classic, whose Activity was merely paused, never
+        // did. NavHost wraps each entry in a SaveableStateHolder, which is exactly what makes
+        // rememberSaveable survive that disposal. SearchModeController keeps its `active` flag in a
+        // StateFlow (it is shared :sharedCore policy, not a Compose type), so the saveable half is a
+        // plain Boolean mirror: read back when the controller is rebuilt, and kept in step below.
+        var searchQuery by rememberSaveable { mutableStateOf("") }
+        var searchWasActive by rememberSaveable { mutableStateOf(false) }
+        val searchMode = remember {
+            SearchModeController(onClearQuery = { searchQuery = "" })
+                .also { if (searchWasActive) it.open() }
+        }
         val searchModeActive by searchMode.active.collectAsState()
+        LaunchedEffect(searchModeActive) { searchWasActive = searchModeActive }
 
         // Classic's `onBackPressed` override (`:133-137`): Back closes the top bar's inline search
         // field instead of leaving the screen. Enabled ONLY while search mode is active, so every
@@ -232,16 +264,17 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
             onUp = { navController.popOrExit(deps.exitHost) },
             // The controller write FIRST, then the recreate check — classic's order. See
             // AppSettingsDeps.maybeRecreate.
-            onSwitch = { key, checked -> d.controller.onSwitch(key, checked); d.maybeRecreate(key) },
-            onListChoice = { key, value -> d.controller.onListChoice(key, value); d.maybeRecreate(key) },
-            onTextInput = d.controller::onTextInput,
-            onSliderChange = d.controller::onSliderChange,
-            onMultiSelectChange = d.controller::onMultiSelectChange,
+            onSwitch = { key, checked -> controller.onSwitch(key, checked); d.maybeRecreate(key) },
+            onListChoice = { key, value -> controller.onListChoice(key, value); d.maybeRecreate(key) },
+            onTextInput = controller::onTextInput,
+            onSliderChange = controller::onSliderChange,
+            onMultiSelectChange = controller::onMultiSelectChange,
             // Bound to this `when` rather than to controller::onNavigate (whose host lambda is left
             // unused), for AiNavGraph's AI_CONNECTION_SETTINGS reason: SYNC and AI are routes in
             // this host's graph and cannot be decided from :sharedCore. The other five rows have no
-            // destination — a still-classic Activity, two platform dialogs/system screens, a crash
-            // — and stay host callbacks.
+            // destination in any graph — TWO still-classic Activity launches (text display, and
+            // reading-progress settings until Task 8 migrates it), a platform dialog, an Android
+            // system screen and a deliberate crash — and stay host callbacks.
             onNavigate = { key ->
                 when (key) {
                     AppSettingsNav.SYNC -> navController.navigate(NavRoutes.SYNC_SETTINGS)
@@ -267,7 +300,8 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
     // ——— SYNC SETTINGS ———
     composable(NavRoutes.SYNC_SETTINGS) {
         val d = deps.syncSettings
-        val uiState by d.controller.state.collectAsState()
+        val controller = remember { d.controller() }
+        val uiState by controller.state.collectAsState()
 
         // As above: the screen draws uiState.screen.title, and the classic host's manifest label
         // (`android:label="@string/cloud_sync_title"`) was the same string.
@@ -278,16 +312,16 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
         SyncSettingsScreen(
             uiState = uiState,
             onUp = { navController.popOrExit(deps.exitHost) },
-            onSwitch = d.controller::onSwitch,
-            onListChoice = d.controller::onListChoice,
-            onTextInput = d.controller::onTextInput,
+            onSwitch = controller::onSwitch,
+            onListChoice = controller::onListChoice,
+            onTextInput = controller::onTextInput,
             // Straight to the controller, unlike the app-settings arm: this screen's only
             // navigation row (`document_sync_manage`) opens Screen.CloudDocuments, which has no
             // destination in any graph — see SyncSettingsDeps.controller.
-            onNavigate = d.controller::onNavigate,
-            onConfirmReset = d.controller::confirmReset,
-            onConfirmEnableDocuments = d.controller::confirmEnableDocuments,
-            onDismissDialog = d.controller::dismissDialog,
+            onNavigate = controller::onNavigate,
+            onConfirmReset = controller::confirmReset,
+            onConfirmEnableDocuments = controller::confirmEnableDocuments,
+            onDismissDialog = controller::dismissDialog,
         )
     }
 }
