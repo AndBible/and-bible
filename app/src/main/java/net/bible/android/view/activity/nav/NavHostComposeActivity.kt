@@ -2208,17 +2208,67 @@ class NavHostComposeActivity : ActivityBase() {
     // resource-formatted rows, and the help dialog. See ReadingProgressDeps' kdoc.
 
     /**
+     * The reading-progress screen's controller, built AT MOST ONCE per host instance and kept alive
+     * across the destination's composition being disposed — see [readingProgressControllerFor].
+     * Null until a reading-progress destination first composes, which is what keeps it lazy: the
+     * deps literal (assembled on every launch of a host serving four clusters) holds only a lambda
+     * and constructs nothing.
+     */
+    private var readingProgressController: ReadingProgressController? = null
+
+    /**
+     * Where the three read-history loaders deliver their answer: the read-history dialog state of
+     * whichever COMPOSITION of the reading-progress arm is currently live. Re-pointed on every
+     * [readingProgressControllerFor] call, because a surviving controller outlives the composition
+     * that first supplied one — the previous arm's `historyDialog` setter writes into a disposed
+     * composition's state, where nothing would ever render it.
+     */
+    private var readingProgressHistorySink: ((ReadHistoryRequest) -> Unit)? = null
+
+    /**
      * [ReadingProgressDeps.controllerFor] — classic `ReadingProgressComposeActivity.kt:86-99`,
-     * lambda for lambda. A FACTORY (one controller per back-stack entry) rather than a `by lazy`
-     * host field: the model belongs to one entry, is reloaded on entry, and nothing about it should
-     * outlive the entry's composition. Being a factory is also what keeps the deps literal free of
-     * construction work — assembling it must not touch the read-history DAO for a user who opened a
-     * search screen.
+     * lambda for lambda.
+     *
+     * **Why the instance is CACHED on the host rather than rebuilt per back-stack entry (Task 8 fix
+     * round 1).** The arm calls this from a `remember`, and navigation-compose DISPOSES a covered
+     * entry's composition — the very fact Task 7's [appSettingsService] kdoc records. This screen
+     * covers itself: its overflow opens reading-progress settings, now a destination in the same
+     * graph. With a per-entry controller, coming back from that child rebuilt the controller and
+     * lost every piece of state the model holds but nothing persists — the open book's
+     * chapter-detail panel (`model.chapterDetail`), the memorize tab's chapter detail, and the
+     * "show more" paging counts (`passagesShown`/`targetsShown`). Classic lost none of it: its
+     * Activity merely PAUSED behind the settings Activity and its `by lazy` controller field lived
+     * until `finish()`.
+     *
+     * Caching restores exactly that lifetime rather than approximating it. Reading progress is only
+     * ever a START destination (nothing in any graph navigates TO
+     * [NavRoutes.READING_PROGRESS_PATTERN]; `MenuCommandHandler` and `BibleJavascriptInterface`
+     * both launch the host fresh with `startActivityForResult`, and `singleTop` cannot collapse
+     * onto a host that is not already on top), so "one per host instance" and "one per back-stack
+     * entry" are the SAME object here — while a host recreate or process death rebuilds it, which
+     * is what classic's Activity did too. An explicit tab in the route still wins on a re-entry,
+     * through the public [ReadingProgressController.selectTab].
+     *
+     * This is deliberately NOT the reading-plan/search per-entry `controllerFor` shape despite the
+     * name: those clusters' destinations genuinely want fresh state per entry. It is also not a
+     * `by lazy` field, because the initial tab is a ROUTE argument a `by lazy` cannot receive; a
+     * nullable var built on first call is the same "construct at most once, and only on demand".
      */
     private fun readingProgressControllerFor(
         tabArg: Int?,
         onShowHistory: (ReadHistoryRequest) -> Unit,
     ): ReadingProgressController {
+        readingProgressHistorySink = onShowHistory
+
+        readingProgressController?.let { existing ->
+            // Re-entry after the reading-progress-settings child popped. Keep the controller — that
+            // is the whole point — but honour an EXPLICIT tab if the route carries one. An absent
+            // tab means "the tab the user was last on", which is precisely what `existing` already
+            // shows, so it must NOT be re-resolved from the persisted setting here.
+            if (tabArg != null) existing.selectTab(readingProgressInitialTab(tabArg))
+            return existing
+        }
+
         // The three history loaders need the cycle the user is CURRENTLY VIEWING, not
         // service.currentCycle(): the screen's prev/next-cycle arrows move the model to an older
         // cycle and classic read `controller.model.value.cycle` off its own `by lazy` field. The
@@ -2230,20 +2280,27 @@ class NavHostComposeActivity : ActivityBase() {
             scope = lifecycleScope,
             initialTab = readingProgressInitialTab(tabArg),
             onNavigateToChapter = ::finishWithChapterResult,
+            // Through the sink, never through this call's `onShowHistory`: the controller outlives
+            // the composition that supplied that lambda.
             onShowDayHistory = { day ->
-                showDayHistory(day, controller.model.value.cycle, onShowHistory)
+                showDayHistory(day, controller.model.value.cycle, ::emitReadingProgressHistory)
             },
             onShowBookHistory = { bookId ->
-                showBookHistory(bookId, controller.model.value.cycle, onShowHistory)
+                showBookHistory(bookId, controller.model.value.cycle, ::emitReadingProgressHistory)
             },
             onShowChapterHistory = { bookId, chapter ->
-                showChapterHistory(bookId, chapter, controller.model.value.cycle, onShowHistory)
+                showChapterHistory(bookId, chapter, controller.model.value.cycle, ::emitReadingProgressHistory)
             },
             initialOverviewActive = CommonUtils.settings.getBoolean("reading_progress_mem_overview", true),
             onNavigateToMemorize = ::finishWithMemorizeResult,
             persistOverview = { CommonUtils.settings.setBoolean("reading_progress_mem_overview", it) },
         )
+        readingProgressController = controller
         return controller
+    }
+
+    private fun emitReadingProgressHistory(request: ReadHistoryRequest) {
+        readingProgressHistorySink?.invoke(request)
     }
 
     /**

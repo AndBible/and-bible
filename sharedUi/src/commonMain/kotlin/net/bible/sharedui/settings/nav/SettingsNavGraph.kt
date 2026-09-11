@@ -167,13 +167,17 @@ class ReadHistoryRequest(val title: String, val rows: List<ReadHistoryRow>)
  * them there, unchanged. They are deliberately NOT a `(Intent) -> Unit` deps slot: `android.content
  * .Intent` is an Android type and this file is `commonMain`.
  *
- * - [controllerFor] is a per-back-stack-entry FACTORY (the reading-plan/search shape, not the
- *   app-settings `by lazy` one): this controller's state is the reading-progress model for ONE
- *   entry, it is reloaded on entry anyway ([ReadingProgressController.load]), and nothing about it
- *   should outlive the entry. Being a factory is also what keeps it LAZY in the sense Task 7's fix
- *   round established — the deps literal that the host assembles on EVERY launch, for every
- *   cluster, holds a lambda and constructs nothing, so opening a search screen never touches the
- *   read-history DAO.
+ * - [controllerFor] is a lambda, so the deps literal the host assembles on EVERY launch, for every
+ *   cluster, constructs nothing and opening a search screen never touches the read-history DAO —
+ *   the laziness rule Task 7's fix round established. It is NOT a per-entry factory despite the
+ *   name it shares with the reading-plan/search clusters': **the host must return the SAME
+ *   controller when this arm re-composes** (Task 8 fix round 1). This destination covers itself —
+ *   its overflow opens [NavRoutes.READING_PROGRESS_SETTINGS], a destination in this same graph —
+ *   and navigation-compose DISPOSES a covered entry's composition, so a fresh controller on the way
+ *   back would drop `model.chapterDetail`, the memorize tab's chapter detail and the "show more"
+ *   paging counts. Classic's Activity merely PAUSED behind the settings Activity and kept all
+ *   three. The arm's `remember` is therefore a cache of the host's cache, not the thing that owns
+ *   the controller's lifetime. `tabArg` is still honoured on such a re-entry when it is non-null.
  *
  *   `tabArg` is the route's optional [NavRoutes.ARG_TAB], null when absent — and absent is a REAL
  *   state, not a missing argument: classic (`:76-82`) defaulted an absent
@@ -452,12 +456,21 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
         // Classic's `historyDialog` Activity field (`:84`), moved into the arm — the state belongs
         // where it is rendered. `remember`, not `rememberSaveable`: it is a transient one-shot
         // request holding a loaded row list, and classic's plain Activity field did not survive
-        // process death either. This destination pushes no child, so nothing disposes it mid-use.
+        // process death either. It IS dropped when this arm is disposed by the settings child,
+        // unlike classic — accepted because that is unreachable: the sheet is a modal
+        // ModalBottomSheet, so the overflow that opens settings cannot be tapped while it is up.
         var historyDialog by remember { mutableStateOf<ReadHistoryRequest?>(null) }
 
-        // A per-entry factory, so nothing is constructed until this destination composes. `tabArg`
-        // is passed as-is, null included: the host resolves an ABSENT tab to the persisted
-        // `reading_progress_last_tab`, exactly as classic's getIntExtra default did.
+        // Nothing is constructed until this destination composes. `tabArg` is passed as-is, null
+        // included: the host resolves an ABSENT tab to the persisted `reading_progress_last_tab`,
+        // exactly as classic's getIntExtra default did.
+        //
+        // The `remember` is NOT what keeps this controller alive — see ReadingProgressDeps
+        // .controllerFor. This arm is disposed while the reading-progress SETTINGS child sits on
+        // top of it, and the host returns the same controller when it re-composes, which is what
+        // preserves the open chapter-detail panel and the memorize "show more" paging across that
+        // round trip. The history-dialog setter below is re-pointed by the host on every call, so
+        // a loader started by the previous composition still reaches the live one.
         val controller = remember {
             d.controllerFor(tabArg) { request -> historyDialog = request }
         }
@@ -468,8 +481,12 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
         val windowTitle = LocalStrings.current.readingProgressTitle
         LaunchedEffect(windowTitle) { deps.setWindowTitle(windowTitle) }
 
-        // Classic ran `controller.load()` once at the end of onCreate (`:185`). LaunchedEffect(Unit)
-        // is the per-entry equivalent: once per composition of THIS back-stack entry.
+        // Classic ran `controller.load()` once at the end of onCreate (`:185`). This runs once per
+        // COMPOSITION of the entry, so it also re-runs when the reading-progress-settings child
+        // pops — deliberately kept: it is what makes a just-changed memorization setting visible
+        // immediately, and it is not a state loss, because `load()` preserves the open
+        // chapter-detail book id and `loadMemorize()` preserves `memChapterDetail` and the paging
+        // counts off the SURVIVING controller.
         LaunchedEffect(Unit) { controller.load() }
 
         val model by controller.model.collectAsState()
