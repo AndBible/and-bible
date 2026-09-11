@@ -181,13 +181,22 @@
         <!-- No android:label: one host serves four clusters, so the window title is set per
              destination via <Cluster>NavDeps.setWindowTitle (nav-graph slices 3/5/6, plan D2).
              The label that used to live here ("@string/ai_settings") was slice 1's M5 fix for
-             Recents/TalkBack falling back to the application label; the deps slot replaces it. -->
+             Recents/TalkBack falling back to the application label; the deps slot replaces it.
+
+             android:launchMode="singleTop" (Task 3 fix round 1, finding I3): HistoryManager
+             re-launches a stored intent with FLAG_ACTIVITY_REORDER_TO_FRONT, which matches on the
+             COMPONENT alone. With one component serving every cluster, the default "standard" mode
+             let a reading-plan history entry reorder an existing AI-cluster instance to the front
+             and drop the stored EXTRA_ROUTE, showing an unrelated screen. singleTop routes the
+             re-launch into NavHostComposeActivity.onNewIntent, which navigates the live graph to
+             the requested route. Spec section 7 #2 sanctions collapsing launchMode to route level. -->
         <activity
             android:name="net.bible.android.view.activity.nav.NavHostComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            android:launchMode="singleTop"
             />
         <activity
             android:name="net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity"

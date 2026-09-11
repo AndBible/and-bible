@@ -37,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -44,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import java.io.File
@@ -190,6 +192,48 @@ class NavHostComposeActivity : ActivityBase() {
         isIntegrateWithHistoryManager = route != null
     }
 
+    /**
+     * The compare-and-clear half of the seam — see [ReadingPlanNavDeps.clearHistoryRoute] for the
+     * ordering hazard it exists for: navigation-compose runs the ENTERING destination's effects
+     * before disposing the exiting one, so a leaving destination that cleared unconditionally would
+     * wipe the route its successor had just published.
+     */
+    private fun clearHistoryRoute(expected: String) {
+        if (historyRoute == expected) setHistoryRoute(null)
+    }
+
+    /**
+     * The graph's [NavHostController], published out of the composition so [onNewIntent] can reach
+     * it. Compose owns the instance ([rememberNavController]); this field is only a handle, bound
+     * and unbound by a `DisposableEffect` keyed on the controller inside [onCreate]'s `setContent`,
+     * so it is null exactly when there is no live composition to navigate.
+     */
+    private var navController: NavHostController? = null
+
+    /**
+     * A history entry ([intentForHistoryList]) is re-launched by `IntentHistoryItem.revertTo()`
+     * (`IntentHistoryItem.kt:59-65`) with `FLAG_ACTIVITY_REORDER_TO_FRONT`, which matches on the
+     * COMPONENT alone. One component now serves every migrated cluster, so without this override a
+     * reading-plan history entry could reorder an existing AI-cluster instance of this host to the
+     * front and simply drop the stored [EXTRA_ROUTE] — showing an unrelated screen. The manifest
+     * declares `android:launchMode="singleTop"` so the re-launch lands here instead of building a
+     * second instance, and this navigates the live graph to the requested route.
+     *
+     * It works for ANY cluster's route because every cluster's graph is registered into the one
+     * `NavHost` below, regardless of which route the host was started with.
+     */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        // Later reads of `intent` (including a recreate()) must see the new one, not the launching one.
+        setIntent(intent)
+        val route = intent.getStringExtra(EXTRA_ROUTE) ?: return
+        val controller = navController ?: return
+        // launchSingleTop: re-delivering the route that is already on top must not stack a
+        // duplicate entry. Anything already below stays put, so Back still returns where the user
+        // was — the same thing a reordered-to-front Activity would have done.
+        controller.navigate(route) { launchSingleTop = true }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val startRoute = requireNotNull(intent.getStringExtra(EXTRA_ROUTE)) {
@@ -198,6 +242,12 @@ class NavHostComposeActivity : ActivityBase() {
         setContent {
             AbAppTheme {
                 val navController = rememberNavController()
+                // Publish the controller for onNewIntent (see its kdoc); unbound with the
+                // composition, so the field is never a handle onto a dead graph.
+                DisposableEffect(navController) {
+                    this@NavHostComposeActivity.navController = navController
+                    onDispose { this@NavHostComposeActivity.navController = null }
+                }
                 val allTools = remember { ToolRegistry.getAllTools() }
                 val aiModelsController = remember {
                     AiModelsController(service = llmModelService, scope = lifecycleScope)
@@ -338,6 +388,7 @@ class NavHostComposeActivity : ActivityBase() {
                         exitHost = { finish() },
                         setWindowTitle = { title -> setTitle(title) },
                         setHistoryRoute = { route -> setHistoryRoute(route) },
+                        clearHistoryRoute = { expected -> clearHistoryRoute(expected) },
                         pendingSelection = pendingReadingPlanSelection,
                         dailyReading = DailyReadingDeps(
                             controllerFor = { onChangePlan, onChangeDay ->
@@ -800,9 +851,12 @@ class NavHostComposeActivity : ActivityBase() {
             // read() posts AddHistoryItem synchronously, and HistoryManager then reads
             // isIntegrateWithHistoryManager + intentForHistoryList off this host — both already
             // pointing at the day on screen, because the destination set the history route when it
-            // loaded. The assignment below is classic's own belt-and-braces line, kept verbatim.
+            // loaded. Classic's belt-and-braces `isIntegrateWithHistoryManager = true` here is NOT
+            // ported: on classic it was a no-op on an already-true val, but here it would set the
+            // flag independently of `historyRoute`, and a true flag with a null route falls back to
+            // super.intentForHistoryList — the argument-free route, i.e. the wrong day. The two
+            // halves of the seam only ever move together, through setHistoryRoute.
             readingPlanControl.read(dayLoaded, readingNo, key)
-            isIntegrateWithHistoryManager = true
             finish()
         },
         onSpeak = { readingNo ->
@@ -966,6 +1020,14 @@ class NavHostComposeActivity : ActivityBase() {
             onMain<ReadingPlansUpdatedViaSyncEvent> { recreate() }
             onMain<SpeakEvent> { pushReadingPlanSpeakState() }
         }
+        // Seed the fresh controller with the CURRENT speak state. Classic never needed this: its
+        // Activity (and its controller) merely paused behind the selector / day list, so the state
+        // pushed by the last SpeakEvent was still there on return. Here the arm's composition is
+        // disposed and the controller rebuilt, so without this seed the screen would sit at
+        // SpeakState.NONE — and DailyReadingScreen.kt:90 gates the pause/play and stop buttons on
+        // `speakState != NONE`, so a user who changed day or plan mid-speech would lose the
+        // transport controls until the next SpeakEvent happened to fire.
+        pushReadingPlanSpeakState()
         return { ABEventBus.unregister(token) }
     }
 

@@ -173,6 +173,41 @@ class NavHostRoutingGuardTest {
         assertEquals(freeText, NavRoutes.decodeArg(encoded))
     }
 
+    /**
+     * Task 3 fix round 1, finding I3. `HistoryManager` re-launches a stored history intent through
+     * `IntentHistoryItem.revertTo()` (`IntentHistoryItem.kt:59-65`) with
+     * `FLAG_ACTIVITY_REORDER_TO_FRONT`, which matches on the **component** alone — it carries no
+     * notion of this host's `EXTRA_ROUTE`. One component now serves every migrated cluster, so with
+     * the default `standard` launch mode a reading-plan history entry could reorder an EXISTING
+     * AI-cluster instance to the front, drop the stored route, and show a completely unrelated
+     * screen. `singleTop` is what routes that re-launch into
+     * [NavHostComposeActivity.onNewIntent], which navigates the live graph to the requested route
+     * instead.
+     *
+     * A text scan of the manifest rather than a behavioural test: `launchMode` is a manifest-only
+     * fact with no runtime accessor that a Robolectric unit test can read back, and the failure it
+     * guards against (a silently wrong screen after a history revert) has nothing else watching it.
+     */
+    @Test
+    fun theNavHostIsSingleTopSoAHistoryRevertCannotShowAnotherClustersScreen() {
+        val manifest = java.io.File("src/main/AndroidManifest.xml")
+        assertTrue(manifest.isFile, "src/main/AndroidManifest.xml is missing — this guard would pass vacuously")
+
+        val block = manifest.readText()
+            .substringAfter("""android:name="${NavHostComposeActivity::class.java.name}"""", "")
+            .substringBefore("/>")
+        assertTrue(
+            block.isNotBlank(),
+            "no <activity> block for ${NavHostComposeActivity::class.java.name} in the manifest",
+        )
+        assertTrue(
+            block.contains("""android:launchMode="singleTop""""),
+            "the nav host must be singleTop so a FLAG_ACTIVITY_REORDER_TO_FRONT history revert " +
+                "reaches onNewIntent with its EXTRA_ROUTE instead of silently reordering an " +
+                "instance serving a different cluster. Block was:\n$block",
+        )
+    }
+
     @Test
     fun anUnmigratedScreenStillResolvesToItsOwnActivity() {
         val intent = ScreenLauncher.intentFor(context, Screen.Bookmarks)

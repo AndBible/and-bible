@@ -21,6 +21,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -186,9 +187,23 @@ class ReadingPlanNavDeps(
      *
      * Slices 5 and 6 reuse this seam unchanged: four search destinations declare
      * `integrateWithHistoryManager = true` and mutate their own intent the same way classic
-     * `DailyReadingComposeActivity` did.
+     * `DailyReadingComposeActivity` did. Pair every call with [clearHistoryRoute] on the way out —
+     * see that field for the ordering hazard a plain `setHistoryRoute(null)` walks into.
      */
     val setHistoryRoute: (String?) -> Unit,
+    /**
+     * Clears the history route, but ONLY if it is still the one this destination published —
+     * a compare-and-clear, not a plain clear.
+     *
+     * navigation-compose composes the ENTERING destination (and runs its `LaunchedEffect`s) before
+     * it disposes the exiting one. So on any A -> B where both write a history route, a plain
+     * `onDispose { setHistoryRoute(null) }` on A runs AFTER B has already published its own route,
+     * and wipes it: B ends up showing with `isIntegrateWithHistoryManager == false` and no gate
+     * anywhere sees it. Slice 3 never hits it (neither child destination writes a route), but
+     * slice 5's `Search -> SearchResults` and `EpubSearch -> EpubSearchResults` are exactly that
+     * shape, so the seam is built correctly here rather than four copies later.
+     */
+    val clearHistoryRoute: (expected: String) -> Unit,
     /**
      * Child -> parent channel replacing two `setResult(Intent(<value as action>))` round trips —
      * see [ReadingPlanSelection]. Created by the HOST, not `remember`ed in a destination's arm:
@@ -210,8 +225,11 @@ class ReadingPlanNavDeps(
  * from [popOrExit] as a plain boolean-in function — rather than folded into it — so this branch is
  * unit-testable without a real `NavHostController`: that class requires an Android `Context` to
  * construct and has no lightweight fake, while `:sharedUi` has no Robolectric-style test runner,
- * only plain JUnit via `kotlin("test")`. `internal` rather than `private` for exactly that reason —
- * a visible seam that is tested beats a private one that is not.
+ * only plain JUnit via `kotlin("test")`. `internal` rather than `private` keeps that door open
+ * here too — but be honest about the state of it: the AI cluster's identical copy is the one
+ * `AiNavGraphPopOrExitTest` covers, and THIS copy has no test of its own yet (a three-line mirror
+ * test is all it needs; it was not added in Task 3 because `:sharedUi`'s test task was not one of
+ * that task's two sanctioned gates).
  *
  * Duplicated from `AiNavGraph.kt` rather than shared: each cluster's graph file is self-contained,
  * and widening the AI cluster's copy into a cross-package utility would make an implementation
@@ -287,13 +305,21 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         // this route instead. Keyed on `loaded`, which the host updates on EVERY load path (route
         // arguments, a day/plan picked below, "Done" moving to the next day, the date picker) —
         // this is why the graph, not the host, is the single writer of the route.
+        // `publishedRoute` is what THIS destination last put there, remembered so the clear below
+        // can compare rather than wipe — see ReadingPlanNavDeps.clearHistoryRoute.
+        val publishedRoute = remember { mutableStateOf<String?>(null) }
         LaunchedEffect(loaded) {
-            deps.setHistoryRoute(loaded?.let { NavRoutes.dailyReading(it.planCode, it.day) })
+            val route = loaded?.let { NavRoutes.dailyReading(it.planCode, it.day) }
+            val previous = publishedRoute.value
+            publishedRoute.value = route
+            if (route != null) deps.setHistoryRoute(route) else previous?.let(deps.clearHistoryRoute)
         }
         // Leaving this destination (Up, or another cluster's route in a recreated host) must clear
         // it: a null route is what tells the host to stop integrating with HistoryManager at all.
+        // Compare-and-clear, never a bare setHistoryRoute(null): this runs AFTER the entering
+        // destination's LaunchedEffect has already published its own route.
         DisposableEffect(Unit) {
-            onDispose { deps.setHistoryRoute(null) }
+            onDispose { publishedRoute.value?.let(deps.clearHistoryRoute) }
         }
 
         /** NO_PLAN -> classic's selector-then-finish pair; see DailyReadingDeps.onPlanMissing. */
