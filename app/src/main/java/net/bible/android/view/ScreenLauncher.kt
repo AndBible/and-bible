@@ -117,6 +117,21 @@ object ScreenLauncher {
         // plan/day (HistoryManager's stored intent) build NavRoutes.dailyReading(plan, day)
         // directly, bypassing this map.
         Screen.ReadingPlan to NavRoutes.dailyReading(),
+        // — slice 5: the search cluster (part A) —
+        // The ARGUMENT-FREE search form: classic SearchComposeActivity opened with no extras IS
+        // the empty Find screen, so this is a real state rather than a missing argument. Callers
+        // that know a query/type/section (HistoryManager's stored route) build
+        // NavRoutes.searchForm(...) directly, bypassing this map.
+        Screen.Search to NavRoutes.searchForm(),
+        // Likewise argument-free: SearchIndexComposeActivity.kt:46 falls back to the CURRENT page's
+        // document when SEARCH_DOCUMENT is absent, so "index the book I am reading" is a defined
+        // meaning. Callers that name a document build NavRoutes.searchIndex(searchDocument = ...).
+        Screen.SearchIndex to NavRoutes.searchIndex(),
+        // Screen.SearchIndexProgress is deliberately NOT here, for the same reason as
+        // Screen.RawLlmLog above: an argument-free index-progress route watches nothing and has
+        // nowhere to route when indexing completes. Every real edge into it (the graph's
+        // SEARCH_INDEX_PATTERN arm, classic SearchIndexComposeActivity.kt:72) builds a route
+        // carrying the chain's five arguments.
     )
 
     /** The Activity class implementing [screen]. */

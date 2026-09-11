@@ -164,6 +164,60 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
+    fun searchResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
+        // The argument-free search form is a real screen (classic `SearchComposeActivity` opened
+        // with no extras is the empty Find screen), so it is a valid MIGRATED value. Callers that
+        // DO know a query/search-type/section (HistoryManager's stored route) build
+        // NavRoutes.searchForm(...) directly, bypassing this map.
+        val intent = ScreenLauncher.intentFor(context, Screen.Search)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.searchForm(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    @Test
+    fun searchIndexResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
+        // Also a real screen without arguments: classic `SearchIndexComposeActivity.kt:46` falls
+        // back to the CURRENT PAGE's document when SEARCH_DOCUMENT is absent, so an argument-free
+        // index prompt has a defined meaning ("index the book I am reading").
+        val intent = ScreenLauncher.intentFor(context, Screen.SearchIndex)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.searchIndex(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    /**
+     * The slice-5 twin of [rawLlmLogIsNotInMigratedAndIntentForThrows], and the reason
+     * `Screen.SearchIndexProgress` is deliberately absent from [ScreenLauncher.MIGRATED] even
+     * though its destination now exists in the graph: an ARGUMENT-FREE index-progress route has no
+     * safe meaning. Every real edge into that screen (classic
+     * `SearchIndexComposeActivity.kt:72`, now the graph's `SEARCH_INDEX_PATTERN` arm) builds a
+     * route carrying the chain's five arguments; a bare `ScreenLauncher.open(ctx,
+     * Screen.SearchIndexProgress)` would open a progress screen watching nothing, which then has
+     * no document to route onward to when indexing completes.
+     *
+     * Note what this asserts TODAY versus what the AI-cluster twin asserts. `Screen.RawLlmLog`'s
+     * `targetFor` arm throws because its Activity was already deleted; the six search Activities
+     * are still in the tree (they leave in Task 9 of this plan), so `intentFor` here still falls
+     * through to `SearchIndexProgressComposeActivity` rather than throwing. The guarantee that
+     * matters either way, and the one asserted here, is that it never resolves to the NAV HOST
+     * with an argument-free route. When Task 9 deletes the Activity and its `targetFor` arm starts
+     * throwing, this test should become the `assertFailsWith<IllegalStateException>` form.
+     */
+    @Test
+    fun searchIndexProgressIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt() {
+        assertTrue(Screen.SearchIndexProgress !in ScreenLauncher.MIGRATED)
+        val intent = ScreenLauncher.intentFor(context, Screen.SearchIndexProgress)
+        assertTrue(
+            intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE) == null,
+            "a bare Screen.SearchIndexProgress must not resolve to the nav host: an argument-free " +
+                "index-progress route watches nothing and can route nowhere when indexing ends",
+        )
+        assertEquals(
+            "net.bible.android.view.activity.search.SearchIndexProgressComposeActivity",
+            intent.component?.className,
+        )
+    }
+
+    @Test
     fun promptEditTemplateRoundTripsThroughDecodeArg() {
         // Free text, deliberately containing reserved/percent/unicode characters that would
         // corrupt the route if encodeArg/decodeArg were not both applied — see NavRoutes' kdoc.
