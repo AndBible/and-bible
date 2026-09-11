@@ -178,17 +178,16 @@
             android:label="@string/manage_labels"
             android:parentActivityName="net.bible.android.view.activity.bookmark.BookmarksComposeActivity"
             />
-        <!-- Generic label for the whole AI-cluster nav graph (whole-branch review M5): without it,
-             Recents/TalkBack fell back to the application label for all ten destinations, since
-             each draws its own on-screen top-bar title but that isn't a window title. A
-             per-destination window title is a nav-graph-era gap this seam has no slot for. -->
+        <!-- No android:label: one host serves four clusters, so the window title is set per
+             destination via <Cluster>NavDeps.setWindowTitle (nav-graph slices 3/5/6, plan D2).
+             The label that used to live here ("@string/ai_settings") was slice 1's M5 fix for
+             Recents/TalkBack falling back to the application label; the deps slot replaces it. -->
         <activity
             android:name="net.bible.android.view.activity.nav.NavHostComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            android:label="@string/ai_settings"
             />
         <activity
             android:name="net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity"

@@ -367,6 +367,14 @@ class RawLogHistoryDeps(
  */
 class AiNavDeps(
     val exitHost: () -> Unit,
+    /**
+     * Sets the HOST WINDOW's title (Recents, TalkBack), which is not the same thing as the on-screen
+     * top-bar title a screen draws for itself. One host now serves four clusters, so a static
+     * `android:label` in the manifest cannot be right for every destination — see plan D2. Called
+     * from each destination's `LaunchedEffect(Unit)`, never from a screen composable: screen
+     * signatures are frozen for this migration.
+     */
+    val setWindowTitle: (String) -> Unit,
     // — TOOL INFO —
     val toolInfo: ToolInfoDeps,
     // — AI DOCUMENT FILTER —
@@ -427,6 +435,9 @@ private fun NavHostController.popOrExit(exitHost: () -> Unit) {
  */
 fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps) {
     composable(NavRoutes.AI_TOOL_INFO) {
+        val strings = LocalStrings.current
+        val title = strings.viewToolsMenuLabel
+        LaunchedEffect(title) { deps.setWindowTitle(title) }
         ToolInfoScreen(
             readTools = deps.toolInfo.readTools,
             writeTools = deps.toolInfo.writeTools,
@@ -437,6 +448,8 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
     }
     composable(NavRoutes.AI_DOCUMENT_FILTER) {
         val strings = LocalStrings.current
+        val title = strings.aiDocumentFilterTitle
+        LaunchedEffect(title) { deps.setWindowTitle(title) }
         // Fresh per back-stack entry, not host-held — see AiDocumentFilterDeps' kdoc (C1).
         val controller = remember { deps.aiDocumentFilter.controllerFor() }
         val groups by controller.state.collectAsState()
@@ -472,6 +485,8 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
     }
     composable(NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS) {
         val strings = LocalStrings.current
+        val title = strings.globalToolPermissionsTitle
+        LaunchedEffect(title) { deps.setWindowTitle(title) }
         // Fresh per back-stack entry, not host-held — see AiDocumentFilterDeps' kdoc (C1).
         val controller = remember { deps.globalToolPermissions.controllerFor() }
         val groups by controller.state.collectAsState()
@@ -508,6 +523,9 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         }
     }
     composable(NavRoutes.AI_MODELS) {
+        val strings = LocalStrings.current
+        val title = strings.aiModelsTitle
+        LaunchedEffect(title) { deps.setWindowTitle(title) }
         val controller = deps.aiModels.controller
         val models by controller.models.collectAsState()
         val editState by controller.dialog.collectAsState()
@@ -558,6 +576,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val d = deps.aiConnectionSettings
         val state by d.controller.state.collectAsState()
 
+        // No `strings.xxxTitle` constant here: this screen's own top bar renders `state.title`
+        // (an AbScaffold(title = state.title) inside AbSettingsScreen — see
+        // AiConnectionSettingsController's SettingsScreenState builder), so that is the value this
+        // destination's window title follows too.
+        LaunchedEffect(state.title) { deps.setWindowTitle(state.title) }
+
         // Parity with classic AiConnectionSettingsComposeActivity's onResume() -> service.refresh()
         // — see AiConnectionSettingsDeps.onResume's kdoc for why this is route-scoped, not host-wide.
         LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { d.onResume?.invoke() }
@@ -597,6 +621,9 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             navArgument(NavRoutes.ARG_START_EASY_SETUP) { type = NavType.BoolType; defaultValue = false },
         ),
     ) { backStackEntry ->
+        val strings = LocalStrings.current
+        val title = strings.aiProvidersTitle
+        LaunchedEffect(title) { deps.setWindowTitle(title) }
         val d = deps.aiProviders
         val controller = d.controller
         val providers by controller.providers.collectAsState()
@@ -749,6 +776,9 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         }
     }
     composable(NavRoutes.AI_PROMPTS) {
+        val strings = LocalStrings.current
+        val title = strings.aiPromptsTitle
+        LaunchedEffect(title) { deps.setWindowTitle(title) }
         val d = deps.aiPrompts
 
         // Same shape as RawLogHistoryDeps.controllerFor's onOpenLog -- these three callbacks need
@@ -842,6 +872,16 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val availableTabs by controller.availableTabs.collectAsState()
         val isDirty by controller.isDirty.collectAsState()
         val canSave by controller.canSave.collectAsState()
+
+        // Mirrors PromptEditScreen's own top-bar title logic (see that screen's `val title = when
+        // {...}` below its parameter list) rather than a single `strings.xxxTitle` constant, since
+        // this destination's title genuinely depends on state (new / built-in / user-edited).
+        val title = when {
+            controller.isNew -> strings.newPrompt
+            state.isBuiltIn -> strings.promptEditTitleBuiltIn
+            else -> strings.promptEditTitleEdit
+        }
+        LaunchedEffect(title) { deps.setWindowTitle(title) }
 
         val categories = remember { d.categories() }
         val toolsByCategory = remember { d.toolsByCategory() }
@@ -956,6 +996,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
 
         var loading by remember(recordId, workspaceId) { mutableStateOf(true) }
         var title by remember(recordId, workspaceId) { mutableStateOf(d.defaultTitle) }
+        LaunchedEffect(title) { deps.setWindowTitle(title) }
 
         // Ported unchanged from classic RawLlmLogComposeActivity's onCreate LaunchedEffect(Unit) —
         // see RawLlmLogDeps' kdoc for what moved to the host (recordTitleFor) and why.
@@ -1002,6 +1043,9 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         )
     }
     composable(NavRoutes.AI_RAW_LOG_HISTORY) {
+        val strings = LocalStrings.current
+        val title = strings.rawLogHistoryTitle
+        LaunchedEffect(title) { deps.setWindowTitle(title) }
         val d = deps.rawLogHistory
 
         // Needs navController (the onOpenLog edge below), so built here rather than remembered on

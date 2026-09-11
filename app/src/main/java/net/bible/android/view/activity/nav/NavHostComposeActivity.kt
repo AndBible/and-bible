@@ -155,6 +155,7 @@ class NavHostComposeActivity : ActivityBase() {
                 val deps = remember(allTools) {
                     AiNavDeps(
                         exitHost = { finish() },
+                        setWindowTitle = { title -> setTitle(title) },
                         toolInfo = ToolInfoDeps(
                             readTools = allTools.filter { !it.requiresPermission }.map { it.toToolVd() },
                             writeTools = allTools.filter { it.requiresPermission }.map { it.toToolVd() },
