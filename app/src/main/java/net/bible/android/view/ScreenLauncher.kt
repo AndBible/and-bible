@@ -108,6 +108,15 @@ object ScreenLauncher {
         // so a stray ScreenLauncher.open(ctx, Screen.RawLlmLog) now falls through to targetFor,
         // which throws loudly instead of opening a screen with nothing to show.
         Screen.RawLogHistory to NavRoutes.AI_RAW_LOG_HISTORY,
+        // — slice 3: the reading plan cluster —
+        Screen.ReadingPlanSelector to NavRoutes.READING_PLAN_SELECTOR,
+        Screen.DailyReadingList to NavRoutes.READING_PLAN_DAY_LIST,
+        // The ARGUMENT-FREE daily-reading route, deliberately: the classic host branched on
+        // `extras.containsKey(ReadingPlanKeys.PLAN/DAY)`, so "no plan, no day" is a real state
+        // meaning "the current plan's current day" — not a missing argument. Callers that DO know a
+        // plan/day (HistoryManager's stored intent) build NavRoutes.dailyReading(plan, day)
+        // directly, bypassing this map.
+        Screen.ReadingPlan to NavRoutes.dailyReading(),
     )
 
     /** The Activity class implementing [screen]. */

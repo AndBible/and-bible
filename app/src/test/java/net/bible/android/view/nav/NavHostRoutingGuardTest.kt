@@ -141,6 +141,29 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
+    fun readingPlanSelectorResolvesToTheNavHostCarryingItsRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.ReadingPlanSelector)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.READING_PLAN_SELECTOR, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    @Test
+    fun dailyReadingListResolvesToTheNavHostCarryingItsRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.DailyReadingList)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.READING_PLAN_DAY_LIST, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    @Test
+    fun readingPlanResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
+        // The argument-free route is the correct MIGRATED value: the classic host branched on
+        // extras.containsKey, so "no plan, no day" is a real state meaning "current plan day".
+        val intent = ScreenLauncher.intentFor(context, Screen.ReadingPlan)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.dailyReading(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    @Test
     fun promptEditTemplateRoundTripsThroughDecodeArg() {
         // Free text, deliberately containing reserved/percent/unicode characters that would
         // corrupt the route if encodeArg/decodeArg were not both applied — see NavRoutes' kdoc.

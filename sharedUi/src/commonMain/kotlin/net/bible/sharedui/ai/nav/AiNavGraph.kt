@@ -371,8 +371,10 @@ class AiNavDeps(
      * Sets the HOST WINDOW's title (Recents, TalkBack), which is not the same thing as the on-screen
      * top-bar title a screen draws for itself. One host now serves four clusters, so a static
      * `android:label` in the manifest cannot be right for every destination — see plan D2. Called
-     * from each destination's `LaunchedEffect(Unit)`, never from a screen composable: screen
-     * signatures are frozen for this migration.
+     * from each destination's `LaunchedEffect(title)` — keyed on the VALUE, not `Unit`, so a
+     * state-derived title (the `AI_CONNECTION_SETTINGS` and `PROMPT_EDIT` arms both have one)
+     * cannot go stale — and never from a screen composable: screen signatures are frozen for this
+     * migration.
      */
     val setWindowTitle: (String) -> Unit,
     // — TOOL INFO —
