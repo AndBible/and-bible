@@ -67,6 +67,153 @@ object NavRoutes {
             optional(ARG_WORKSPACE_ID, workspaceId)
         }
 
+    // ——— slice 3: Reading plan ———
+    const val ARG_PLAN: String = "plan"
+    const val ARG_DAY: String = "day"
+
+    const val READING_PLAN_SELECTOR: String = "readingPlan/selector"
+    const val READING_PLAN_DAY_LIST: String = "readingPlan/dayList"
+    const val DAILY_READING_PATTERN: String =
+        "readingPlan/day?$ARG_PLAN={$ARG_PLAN}&$ARG_DAY={$ARG_DAY}"
+
+    /**
+     * Both arguments are OPTIONAL and their ABSENCE is meaningful: the classic host branched on
+     * `extras.containsKey(...)`, not on null, and fell through to `readingPlanControl.currentPlanDay`
+     * when neither key was present. Emitting `plan=` for a null plan would make the destination call
+     * `setReadingPlan("")`, so a null argument is omitted from the route entirely.
+     */
+    fun dailyReading(plan: String? = null, day: Int? = null): String =
+        buildRoute("readingPlan/day") {
+            optional(ARG_PLAN, plan)
+            optional(ARG_DAY, day?.toString())
+        }
+
+    // ——— slice 5: Search ———
+    const val ARG_SEARCH_TEXT: String = "searchText"
+    const val ARG_SEARCH_HIGHLIGHT_TEXT: String = "highlightText"
+    const val ARG_SEARCH_DOCUMENT: String = "searchDocument"
+    const val ARG_SELECTED_TRANSLATIONS: String = "selectedTranslations"
+    const val ARG_IS_STRONGS_SEARCH: String = "isStrongsSearch"
+    const val ARG_SEARCH_TYPE: String = "searchType"
+    const val ARG_SEARCH_SECTION: String = "searchSection"
+    const val ARG_BIBLE_BOOK: String = "bibleBook"
+    const val ARG_EPUB_SEARCH_MODE: String = "epubMode"
+
+    const val EPUB_SEARCH: String = "search/epub"
+    const val SEARCH_FORM_PATTERN: String =
+        "search/form?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
+            "&$ARG_SEARCH_TYPE={$ARG_SEARCH_TYPE}" +
+            "&$ARG_SEARCH_SECTION={$ARG_SEARCH_SECTION}" +
+            "&$ARG_BIBLE_BOOK={$ARG_BIBLE_BOOK}"
+    const val SEARCH_RESULTS_PATTERN: String =
+        "search/results?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
+            "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
+            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
+            "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
+            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}"
+    const val SEARCH_INDEX_PATTERN: String =
+        "search/index?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
+            "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
+            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
+            "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
+            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}"
+    const val SEARCH_INDEX_PROGRESS_PATTERN: String =
+        "search/indexProgress?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
+            "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
+            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
+            "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
+            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}"
+    const val EPUB_SEARCH_RESULTS_PATTERN: String =
+        "search/epubResults?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
+            "&$ARG_EPUB_SEARCH_MODE={$ARG_EPUB_SEARCH_MODE}" +
+            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}"
+
+    fun searchForm(
+        searchText: String? = null,
+        searchType: String? = null,
+        searchSection: String? = null,
+        bibleBook: String? = null,
+    ): String = buildRoute("search/form") {
+        optional(ARG_SEARCH_TEXT, searchText)
+        optional(ARG_SEARCH_TYPE, searchType)
+        optional(ARG_SEARCH_SECTION, searchSection)
+        optional(ARG_BIBLE_BOOK, bibleBook)
+    }
+
+    fun searchResults(
+        searchText: String,
+        highlightText: String? = null,
+        searchDocument: String? = null,
+        selectedTranslations: List<String> = emptyList(),
+        isStrongsSearch: Boolean = false,
+    ): String = searchChainRoute("search/results", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch)
+
+    fun searchIndex(
+        searchText: String? = null,
+        highlightText: String? = null,
+        searchDocument: String? = null,
+        selectedTranslations: List<String> = emptyList(),
+        isStrongsSearch: Boolean = false,
+    ): String = searchChainRoute("search/index", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch)
+
+    fun searchIndexProgress(
+        searchText: String? = null,
+        highlightText: String? = null,
+        searchDocument: String? = null,
+        selectedTranslations: List<String> = emptyList(),
+        isStrongsSearch: Boolean = false,
+    ): String = searchChainRoute("search/indexProgress", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch)
+
+    fun epubSearchResults(searchText: String, epubMode: String? = null, searchDocument: String? = null): String =
+        buildRoute("search/epubResults") {
+            required(ARG_SEARCH_TEXT, searchText)
+            optional(ARG_EPUB_SEARCH_MODE, epubMode)
+            optional(ARG_SEARCH_DOCUMENT, searchDocument)
+        }
+
+    /**
+     * The five arguments the classic `SearchIndex -> SearchIndexProgress -> SearchResults` chain
+     * forwarded as an opaque `putExtras(intent)` bundle (plan D3). Naming them here is what makes
+     * the chain's third hop keep the scope the first hop was given: a route has no bundle, so an
+     * argument nobody names is an argument silently lost.
+     */
+    private fun searchChainRoute(
+        base: String,
+        searchText: String?,
+        highlightText: String?,
+        searchDocument: String?,
+        selectedTranslations: List<String>,
+        isStrongsSearch: Boolean,
+    ): String = buildRoute(base) {
+        optional(ARG_SEARCH_TEXT, searchText)
+        optional(ARG_SEARCH_HIGHLIGHT_TEXT, highlightText)
+        optional(ARG_SEARCH_DOCUMENT, searchDocument)
+        optional(ARG_SELECTED_TRANSLATIONS, selectedTranslations.takeIf { it.isNotEmpty() }?.let(::encodeList))
+        required(ARG_IS_STRONGS_SEARCH, isStrongsSearch.toString())
+    }
+
+    // ——— slice 6: Settings ———
+    const val ARG_TAB: String = "tab"
+
+    const val SETTINGS: String = "settings/app"
+    const val SYNC_SETTINGS: String = "settings/sync"
+    const val READING_PROGRESS_SETTINGS: String = "settings/readingProgress"
+    const val READING_PROGRESS_PATTERN: String = "progress/reading?$ARG_TAB={$ARG_TAB}"
+
+    fun readingProgress(tab: Int? = null): String =
+        buildRoute("progress/reading") { optional(ARG_TAB, tab?.toString()) }
+
+    /**
+     * Joins a list into ONE route argument (plan D4). The join happens before [encodeArg] runs over
+     * the whole string, so a member containing a comma would still round-trip as two members — that
+     * is acceptable because every live caller passes document initials, which cannot contain one.
+     */
+    fun encodeList(values: List<String>): String = values.joinToString(",")
+
+    /** Inverse of [encodeList]. Blanks are dropped so a stray separator cannot yield an empty id. */
+    fun decodeList(encoded: String?): List<String> =
+        encoded?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
+
     /**
      * Percent-encodes everything that is not an unreserved URI character. Hand-rolled rather than
      * pulled from a library because this must compile for iOS and JS as well as the JVM, and
