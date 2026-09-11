@@ -26,7 +26,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -67,6 +69,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
+import net.bible.android.control.link.LinkControl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
@@ -79,9 +82,16 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
+import net.bible.android.view.activity.search.epubKeyFor
+import net.bible.android.view.activity.search.epubSearchModeFromClassicName
+import net.bible.android.view.activity.search.toClassicSearchTypeName
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.pause
+import net.bible.service.common.htmlToSpan
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.device.speak.event.SpeakEvent
@@ -93,6 +103,8 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.readingplan.OneDaysReadingsDto
 import net.bible.service.sword.csvprompt.addCsvPromptBook
+import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
 import net.bible.sharedcore.ai.AgentPermissionModeIds
@@ -124,11 +136,17 @@ import net.bible.sharedcore.readingplan.ReadingItem
 import net.bible.sharedcore.readingplan.ReadingPlanSelectorController
 import net.bible.sharedcore.readingplan.SpeakState
 import net.bible.sharedcore.search.BibleSearchService
+import net.bible.sharedcore.search.EpubSearchMode
+import net.bible.sharedcore.search.EpubSearchResultsController
+import net.bible.sharedcore.search.EpubSearchService
 import net.bible.sharedcore.search.ProgressJob
 import net.bible.sharedcore.search.SearchFormController
 import net.bible.sharedcore.search.SearchIndexService
 import net.bible.sharedcore.search.SearchRequest
+import net.bible.sharedcore.search.SearchResultsCache
+import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
+import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.nav.AiConnectionSettingsDeps
@@ -152,12 +170,17 @@ import net.bible.sharedui.readingplan.nav.ReadingPlanSelection
 import net.bible.sharedui.readingplan.nav.SelectorDeps
 import net.bible.sharedui.readingplan.nav.readingPlanNavGraph
 import net.bible.sharedui.search.nav.IndexOutcome
+import net.bible.sharedui.search.nav.EpubSearchFormDeps
+import net.bible.sharedui.search.nav.EpubSearchResultsDeps
+import net.bible.sharedui.search.nav.EpubSearchSetup
+import net.bible.sharedui.search.nav.EpubSearchTarget
 import net.bible.sharedui.search.nav.IndexTarget
 import net.bible.sharedui.search.nav.SearchFormDeps
 import net.bible.sharedui.search.nav.SearchFormSetup
 import net.bible.sharedui.search.nav.SearchIndexPromptDeps
 import net.bible.sharedui.search.nav.SearchIndexProgressDeps
 import net.bible.sharedui.search.nav.SearchNavDeps
+import net.bible.sharedui.search.nav.SearchResultsDeps
 import net.bible.sharedui.search.nav.SearchSubmission
 import net.bible.sharedui.search.nav.TranslationSelection
 import net.bible.sharedui.search.nav.searchNavGraph
@@ -165,6 +188,7 @@ import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType as JSwordSearchType
@@ -194,6 +218,9 @@ class NavHostComposeActivity : ActivityBase() {
     private val searchIndexService: SearchIndexService by inject()
     private val windowControl: WindowControl by inject()
     private val pageControl: PageControl by inject()
+    private val searchResultsCache: SearchResultsCache by inject()
+    private val epubSearchService: EpubSearchService by inject()
+    private val linkControl: LinkControl by inject()
 
     /**
      * The route `HistoryManager` should re-launch for whatever this host currently shows, or null
@@ -647,6 +674,36 @@ class NavHostComposeActivity : ActivityBase() {
                             observeJobs = { onJobs, onJobFinished -> observeIndexJobs(onJobs, onJobFinished) },
                             awaitIndexed = { documentId -> awaitIndexed(documentId) },
                             title = getString(R.string.search_index),
+                        ),
+                        searchResults = SearchResultsDeps(
+                            controllerFor = { buildSearchResultsController() },
+                            tryToOpenRef = { searchText -> tryToOpenSearchRef(searchText) },
+                            title = { total, selectedCount ->
+                                getString(R.string.multi_search_results, total, selectedCount)
+                            },
+                            showError = { showSearchError() },
+                            openReference = { referenceName, translationId, selectedTranslations ->
+                                openSearchResult(referenceName, translationId, selectedTranslations)
+                            },
+                            openResultsInWindow = { rows, selectedTranslations ->
+                                openSearchResultsInAWindow(rows, selectedTranslations)
+                            },
+                        ),
+                        epubSearch = EpubSearchFormDeps(
+                            prepare = { prepareEpubSearchForm() },
+                            loadMode = { loadEpubSearchMode() },
+                            saveMode = { mode -> saveEpubSearchMode(mode) },
+                            modeWireName = { mode -> mode.toClassicSearchTypeName() },
+                            showHelp = { showEpubSearchHelp() },
+                        ),
+                        epubSearchResults = EpubSearchResultsDeps(
+                            resolve = { searchDocument -> resolveEpubSearchTarget(searchDocument) },
+                            modeFromWireName = { name -> epubSearchModeFromClassicName(name) },
+                            controllerFor = { documentId -> buildEpubSearchResultsController(documentId) },
+                            title = { resultCount, documentAbbreviation ->
+                                epubSearchResultsTitle(resultCount, documentAbbreviation)
+                            },
+                            showError = { showSearchError() },
                         ),
                     )
                 }
@@ -1464,6 +1521,191 @@ class NavHostComposeActivity : ActivityBase() {
         }
     }
 
+    // --- Search RESULTS host baggage (classic SearchResultsComposeActivity) -----------------------
+
+    /** Classic's `SearchResultsController(bibleSearchService, lifecycleScope, searchResultsCache)`. */
+    private fun buildSearchResultsController() =
+        SearchResultsController(bibleSearchService, lifecycleScope, searchResultsCache)
+
+    /**
+     * Classic `SearchResultsComposeActivity.kt:90-95`: a plain scripture reference bypasses the
+     * search and opens the verse directly. BOTH halves are here — the `tryToOpenRef` attempt and,
+     * when it succeeds, the two `HistoryManager` pops that drop this screen and its launcher from
+     * the history stack. The graph only needs the boolean: true == "already handled, leave".
+     */
+    private fun tryToOpenSearchRef(searchText: String): Boolean {
+        if (!linkControl.tryToOpenRef(searchText)) return false
+        historyTraversal.historyManager.popHistoryItem()
+        historyTraversal.historyManager.popHistoryItem()
+        return true
+    }
+
+    /** Classic's error path (`:126-136`): a transient toast, then out — never a dialog. */
+    private fun showSearchError() {
+        Toast.makeText(this, R.string.error_executing_search, Toast.LENGTH_SHORT).show()
+    }
+
+    /**
+     * Classic `resolveBook` (`:166-168`): the row's own translation, else the first of the current
+     * selection. [selectedTranslations] is passed in because the graph owns that state now (it is
+     * the results controller's live selection), where classic kept a mutable field.
+     */
+    private fun resolveSearchResultBook(
+        translationId: String?,
+        selectedTranslations: List<String>,
+    ): SwordBook? =
+        (translationId?.let { SwordDocumentFacade.getDocumentByInitials(it) }
+            ?: selectedTranslations.firstOrNull()?.let { SwordDocumentFacade.getDocumentByInitials(it) }) as? SwordBook
+
+    /**
+     * Classic `onSelect` (`:171-183`), unchanged apart from the dropped `intent.putExtra(
+     * LIST_POSITION, ...)`: the list position now lives in the destination's own `rememberSaveable`,
+     * so there is no intent left to write it onto. The `MainBibleActivity` start with
+     * `FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP` stays exactly as it was — the reading
+     * view is not part of this nav graph.
+     */
+    private fun openSearchResult(
+        referenceName: String,
+        translationId: String?,
+        selectedTranslations: List<String>,
+    ) {
+        val book = resolveSearchResultBook(translationId, selectedTranslations) ?: return
+        try {
+            val key = book.getKey(referenceName)
+            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+            startActivity(
+                Intent(this, MainBibleActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+            )
+        } catch (e: Exception) {
+            Log.e(TAG_SEARCH_RESULTS, "Could not resolve key '$referenceName' in ${book.initials}", e)
+        }
+    }
+
+    /** Classic `openResultsInAWindow` (`:208-224`) minus its `finish()`, which is the graph's pop. */
+    private fun openSearchResultsInAWindow(rows: List<SwordResultRow>, selectedTranslations: List<String>) {
+        val list = BookAndKeyList()
+        for (row in rows) {
+            for (match in row.matches) {
+                val book = resolveSearchResultBook(match.translationId, selectedTranslations) ?: continue
+                val key = try {
+                    book.getKey(row.referenceName)
+                } catch (e: Exception) {
+                    Log.e(TAG_SEARCH_RESULTS, "openResultsInAWindow: bad key '${row.referenceName}' in ${book.initials}", e)
+                    continue
+                }
+                list.addAll(BookAndKey(key, book))
+            }
+        }
+        linkControl.showLink(FakeBookFactory.multiDocument, list)
+    }
+
+    // --- EPUB search host baggage (classic EpubSearch/EpubSearchResultsComposeActivity) -----------
+
+    /**
+     * Classic `EpubSearchComposeActivity.onCreate`'s preamble. Null is the one deliberate
+     * difference: classic wrote `currentPage.currentDocument!!` and would have thrown.
+     */
+    private fun prepareEpubSearchForm(): EpubSearchSetup? {
+        Log.i(TAG_EPUB_SEARCH, "Displaying Compose EPUB search view")
+        CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
+        val doc = pageControl.currentPageManager.currentPage.currentDocument ?: return null
+        return EpubSearchSetup(
+            title = getString(R.string.search_in, doc.abbreviation),
+            documentId = doc.initials,
+        )
+    }
+
+    /** The persisted word-mode, through the shared classic wire format (`EpubSearchModeWire.kt`). */
+    private fun loadEpubSearchMode(): EpubSearchMode =
+        epubSearchModeFromClassicName(CommonUtils.settings.getString(EPUB_SEARCH_TYPE_KEY))
+
+    private fun saveEpubSearchMode(mode: EpubSearchMode) {
+        CommonUtils.settings.setString(EPUB_SEARCH_TYPE_KEY, mode.toClassicSearchTypeName())
+    }
+
+    /**
+     * Classic `EpubSearch.help()` (`:115-132`), verbatim: an FTS5 query-syntax **platform
+     * `AlertDialog`** whose message is an HTML span with a live link (hence the
+     * `LinkMovementMethod`). It stays a platform dialog deliberately — the separately specified
+     * platform-dialog-removal phase owns converting it, and converting it here would move a
+     * `:sharedUi` golden.
+     */
+    private fun showEpubSearchHelp() {
+        val ftsLink = "https://www.sqlite.org/fts5.html#full_text_query_syntax"
+        val link = """<a href="$ftsLink">${getString(R.string.help_fts5)}</a>"""
+        val span = htmlToSpan(
+            """
+            ${getString(R.string.help_search_epub)}<br><br>
+            ${getString(R.string.help_search_details, link)}
+            """.trimIndent()
+        )
+        val d = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay, null)
+            .setTitle(title)
+            .setIcon(R.drawable.ic_logo)
+            .setMessage(span)
+            .create()
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    /**
+     * Classic `EpubSearchResultsComposeActivity.onCreate`'s document resolution and its two guards
+     * (`:205-227`) as one call. Null == "not installed, or not an epub" (classic's `Log.e` +
+     * `finish()`); the `!!` on the current Bible's document is a `?: return null` for the same
+     * reason [prepareEpubSearchForm]'s is.
+     */
+    private fun resolveEpubSearchTarget(searchDocument: String?): EpubSearchTarget? {
+        val docId =
+            if (searchDocument.isNullOrEmpty())
+                windowControl.activeWindowPageManager.currentBible.currentDocument?.initials ?: return null
+            else searchDocument
+        val doc = Books.installed().getBook(docId)
+        if (doc == null || !doc.isEpub) {
+            Log.e(TAG_EPUB_SEARCH_RESULTS, "Document ${doc?.name} is not an epub; aborting")
+            return null
+        }
+        return if (!epubSearchService.isIndexed(docId)) EpubSearchTarget.NeedsIndex(docId)
+        else EpubSearchTarget.Ready(documentId = docId, documentAbbreviation = doc.abbreviation)
+    }
+
+    /** The EPUB results controller, with classic's `onSelect` (`:280-291`) already bound to [documentId]. */
+    private fun buildEpubSearchResultsController(documentId: String) = EpubSearchResultsController(
+        lifecycleScope,
+        epubSearchService,
+        onSelect = { keyId, ordinal -> openEpubSearchResult(documentId, keyId, ordinal) },
+    )
+
+    /** Classic `EpubSearchResults.onSelect`: re-resolve the hit's key, then open the reading view. */
+    private fun openEpubSearchResult(documentId: String, keyId: String, ordinal: Int) {
+        val book = Books.installed().getBook(documentId) ?: return
+        try {
+            val key = epubKeyFor(book, documentId, keyId, ordinal)
+            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+            startActivity(
+                Intent(this, MainBibleActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+            )
+        } catch (e: Exception) {
+            Log.e(TAG_EPUB_SEARCH_RESULTS, "Could not resolve key '$keyId' in $documentId", e)
+        }
+    }
+
+    /**
+     * Classic's results title INCLUDING its "+" overflow affordance (`:253-257`): the service caps
+     * at `MAX_SEARCH_RESULTS + 1`, so a size over the cap is detectable and shown as "5000+".
+     * Host-side because `SearchControl.MAX_SEARCH_RESULTS` is an `:app` constant.
+     */
+    private fun epubSearchResultsTitle(resultCount: Int, documentAbbreviation: String): String {
+        val resultAmount =
+            if (resultCount > SearchControl.MAX_SEARCH_RESULTS) "${SearchControl.MAX_SEARCH_RESULTS}+"
+            else resultCount.toString()
+        return getString(R.string.search_with_results2, resultAmount, documentAbbreviation)
+    }
+
     /** The SAF seam for plan import, ported verbatim from classic `:268-271`. */
     private val importPlanLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri ?: return@registerForActivityResult
@@ -1484,6 +1726,9 @@ class NavHostComposeActivity : ActivityBase() {
         private const val TAG_READING_PLAN = "DailyReadingNavHost"
         private const val TAG_SEARCH = "SearchCompose"
         private const val TAG_SEARCH_INDEX = "SearchIndexProgCompose"
+        private const val TAG_SEARCH_RESULTS = "SearchResultsCompose"
+        private const val TAG_EPUB_SEARCH = "EpubSearchCompose"
+        private const val TAG_EPUB_SEARCH_RESULTS = "EpubSearchResultsCompose"
 
         /** Classic Search's settings keys, unchanged so a user's saved state survives the migration. */
         private const val SEARCH_SELECTED_TRANSLATIONS_KEY = "search_selected_translations"

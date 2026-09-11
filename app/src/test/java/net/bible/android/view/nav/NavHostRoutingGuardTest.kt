@@ -218,6 +218,69 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
+    fun epubSearchResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
+        // The EPUB search FORM is argument-free by construction — classic
+        // `EpubSearchComposeActivity` read no extras at all and took its document from the current
+        // page — so `NavRoutes.EPUB_SEARCH` is the whole route and a valid MIGRATED value. (Its two
+        // callers, `SearchControl.getSearchIntent` and classic `SearchIndexProgressComposeActivity`,
+        // both build it with no extras.)
+        val intent = ScreenLauncher.intentFor(context, Screen.EpubSearch)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.EPUB_SEARCH, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    /**
+     * A second slice-5 twin of [rawLlmLogIsNotInMigratedAndIntentForThrows] — see
+     * [searchIndexProgressIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt] for the full reasoning,
+     * including why this asserts "never the nav host with an argument-free route" rather than
+     * `assertFailsWith` while the classic Activity is still in the tree.
+     *
+     * `Screen.SearchResults` specifically: a results route with no `searchText` has nothing to
+     * search for. Every real edge builds `NavRoutes.searchResults(...)` with a query (the graph's
+     * `SEARCH_FORM_PATTERN`/`SEARCH_INDEX_PROGRESS_PATTERN` arms; `BibleView` and `LinkControl` in
+     * Task 6), bypassing this map. When Task 9 deletes `SearchResultsComposeActivity` and its
+     * `targetFor` arm starts throwing, this should become the `assertFailsWith<IllegalStateException>`
+     * form.
+     */
+    @Test
+    fun searchResultsIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt() {
+        assertTrue(Screen.SearchResults !in ScreenLauncher.MIGRATED)
+        val intent = ScreenLauncher.intentFor(context, Screen.SearchResults)
+        assertTrue(
+            intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE) == null,
+            "a bare Screen.SearchResults must not resolve to the nav host: an argument-free " +
+                "results route renders an empty search with no query to run",
+        )
+        assertEquals(
+            "net.bible.android.view.activity.search.SearchResultsComposeActivity",
+            intent.component?.className,
+        )
+    }
+
+    /**
+     * The EPUB twin of [searchResultsIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt], and for the
+     * same reason: `NavRoutes.EPUB_SEARCH_RESULTS_PATTERN`'s `searchText` is REQUIRED
+     * (`NavRoutes.epubSearchResults` takes it as a non-null parameter), so there is no argument-free
+     * route to map here even in principle. Every real edge builds one with a query — the graph's
+     * `EPUB_SEARCH` arm on submit, and its `SEARCH_INDEX_PROGRESS_PATTERN` arm after an epub index
+     * completes. Task 9 should convert this to the `assertFailsWith<IllegalStateException>` form.
+     */
+    @Test
+    fun epubSearchResultsIsNotInMigratedSoNoArgumentFreeRouteCanOpenIt() {
+        assertTrue(Screen.EpubSearchResults !in ScreenLauncher.MIGRATED)
+        val intent = ScreenLauncher.intentFor(context, Screen.EpubSearchResults)
+        assertTrue(
+            intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE) == null,
+            "a bare Screen.EpubSearchResults must not resolve to the nav host: the EPUB results " +
+                "route requires a searchText and has no argument-free form",
+        )
+        assertEquals(
+            "net.bible.android.view.activity.search.EpubSearchResultsComposeActivity",
+            intent.component?.className,
+        )
+    }
+
+    @Test
     fun promptEditTemplateRoundTripsThroughDecodeArg() {
         // Free text, deliberately containing reserved/percent/unicode characters that would
         // corrupt the route if encodeArg/decodeArg were not both applied — see NavRoutes' kdoc.

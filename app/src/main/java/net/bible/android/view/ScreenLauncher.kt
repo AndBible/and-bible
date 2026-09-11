@@ -132,6 +132,18 @@ object ScreenLauncher {
         // nowhere to route when indexing completes. Every real edge into it (the graph's
         // SEARCH_INDEX_PATTERN arm, classic SearchIndexComposeActivity.kt:72) builds a route
         // carrying the chain's five arguments.
+        // — slice 5: the search cluster (part B) —
+        // Argument-free by construction: classic EpubSearchComposeActivity read NO extras at all
+        // and took its document from the current page, so NavRoutes.EPUB_SEARCH is the whole route.
+        // Both of its callers (SearchControl.getSearchIntent, classic
+        // SearchIndexProgressComposeActivity) build it with no extras.
+        Screen.EpubSearch to NavRoutes.EPUB_SEARCH,
+        // Screen.SearchResults and Screen.EpubSearchResults are deliberately NOT here, again for
+        // Screen.RawLlmLog's reason: a results route with no searchText renders an empty search
+        // with nothing to run (and NavRoutes.epubSearchResults cannot even be called without one —
+        // its searchText parameter is non-null). Every real edge builds
+        // NavRoutes.searchResults(...)/epubSearchResults(...) with a query: the graph's own arms,
+        // and BibleView/LinkControl once Task 6 rewrites them.
     )
 
     /** The Activity class implementing [screen]. */
