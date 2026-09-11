@@ -126,6 +126,7 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.page.screen.PageTiltScroller
@@ -140,6 +141,7 @@ import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.currentWorkspaceThemeSeedArgb
 import net.bible.sharedui.theme.themeColorsJson
 import net.bible.service.sword.BookAndKey
@@ -458,19 +460,27 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     return true
                 }
 
-                val searchParams = Bundle().apply {
-                    putString(SearchControl.SEARCH_TEXT, searchText)
-                    putString(SearchControl.SEARCH_HIGHLIGHT_TEXT, highlightText)
-                    putString(SearchControl.SEARCH_DOCUMENT, currentBible.initials)
+                // nav-graph slice 5/Task 6: the search cluster lives in the graph now, so the
+                // screen's arguments travel IN the route. `ScreenLauncher.intentFor(..., Screen
+                // .SearchIndex)` resolves to the nav host with an ARGUMENT-FREE route, and the
+                // three-key bundle this used to putExtras() would land nowhere (the host reads
+                // only EXTRA_ROUTE) -- see NavHostRoutingGuardTest
+                // .migratedScreenArgumentIsNeverDroppedByAPutExtra. No SELECTED_TRANSLATIONS and
+                // no IS_STRONGS_SEARCH here, exactly as the classic bundle carried neither.
+                val route = if (currentBible.indexStatus != IndexStatus.DONE) {
+                    NavRoutes.searchIndex(
+                        searchText = searchText,
+                        highlightText = highlightText,
+                        searchDocument = currentBible.initials,
+                    )
+                } else {
+                    NavRoutes.searchResults(
+                        searchText = searchText,
+                        highlightText = highlightText,
+                        searchDocument = currentBible.initials,
+                    )
                 }
-
-                val intent = ScreenLauncher.intentFor(
-                    mainBibleActivity,
-                    if (currentBible.indexStatus != IndexStatus.DONE) Screen.SearchIndex else Screen.SearchResults
-                ).apply {
-                    putExtras(searchParams)
-                }
-                mainBibleActivity.startActivity(intent)
+                mainBibleActivity.startActivity(NavHostComposeActivity.intentFor(mainBibleActivity, route))
 
                 return true
             }

@@ -32,9 +32,11 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.service.common.CommonUtils.settings
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
@@ -400,19 +402,34 @@ class LinkControl constructor(
         val highlightText = searchControl.highlightSearchString("strong:$ref", SearchType.ANY_WORDS)
         val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, bibleSection, null)
         Log.i(TAG, "Search text:$searchText")
-        val searchParams = Bundle()
-        searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
-        searchParams.putString(SearchControl.SEARCH_HIGHLIGHT_TEXT, highlightText)
-        searchParams.putString(SearchControl.SEARCH_DOCUMENT, searchBible.initials)
-        searchParams.putBoolean(SearchControl.IS_STRONGS_SEARCH, true)
-        val intent = if (needToIndex) {
-            ScreenLauncher.intentFor(activity, Screen.SearchIndex)
-        } else { //If an indexed Strong's module is in place then do the search - the normal situation
-            ScreenLauncher.intentFor(activity, Screen.SearchResults)
+        // nav-graph slice 5/Task 6: the search cluster lives in the graph, so every argument
+        // travels IN the route. This used to build a four-key Bundle plus a fifth
+        // putStringArrayListExtra and hang them on `ScreenLauncher.intentFor(..., Screen
+        // .SearchIndex/SearchResults)`; since Task 4 migrated `Screen.SearchIndex` that intent is
+        // the nav host with an ARGUMENT-FREE route and every one of those extras was silently
+        // dropped -- a Strong's link into an unindexed module indexed the CURRENT page's book
+        // instead of `searchBible` and then landed on an empty search form. `isStrongsSearch` is
+        // unconditionally true here (that is what this whole function is).
+        // (else branch = an indexed Strong's module is in place, so run the search directly --
+        // the normal situation.)
+        val route = if (needToIndex) {
+            NavRoutes.searchIndex(
+                searchText = searchText,
+                highlightText = highlightText,
+                searchDocument = searchBible.initials,
+                selectedTranslations = selection.map { it.initials },
+                isStrongsSearch = true,
+            )
+        } else {
+            NavRoutes.searchResults(
+                searchText = searchText,
+                highlightText = highlightText,
+                searchDocument = searchBible.initials,
+                selectedTranslations = selection.map { it.initials },
+                isStrongsSearch = true,
+            )
         }
-        intent.putExtras(searchParams)
-        intent.putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, ArrayList(selection.map { it.initials }))
-        activity.startActivity(intent)
+        activity.startActivity(NavHostComposeActivity.intentFor(activity, route))
     }
 
     /** ensure a book is indexed and the index contains typical Greek or Hebrew Strongs Numbers

@@ -423,8 +423,45 @@ class NavHostRoutingGuardTest {
      *    `intent`). Fixed by accepting an optional, uncaptured `: <type>` between the parameter name
      *    and `->`.
      *
+     * **Hardened again in nav-graph 3/5/6 Task 6** against a fifth fail-open shape -- and this one
+     * failed open on a LIVE BUG, not a future risk, which is the worst thing a guard can do:
+     *  - **The call as a BRANCH of a conditional whose RESULT is assigned**, i.e.
+     *    `val intent = if (needToIndex) { ScreenLauncher.intentFor(a, Screen.SearchIndex) } else {
+     *    ScreenLauncher.intentFor(a, Screen.SearchResults) }` followed by `intent.putExtras(...)`.
+     *    Both assignment regexes anchor immediately before the call (`(\w+)\s*=\s*$` and its typed
+     *    twin), and what sits there is the branch opener `if (needToIndex) {` -- not `intent =` --
+     *    so neither matched, no scope-function form applied either, and the scan reported nothing.
+     *    `LinkControl.showAllOccurrences` had exactly this shape, and the day Task 4 migrated
+     *    `Screen.SearchIndex` it became a real dropped-argument bug (a Strong's link into an
+     *    unindexed module indexed the CURRENT page's book instead of the Strong's Bible, then
+     *    landed on an empty search form) that this test passed straight over. Fixed by a third
+     *    assignment check: find the NEAREST `name = if (` / `name = when (` within
+     *    [CONDITIONAL_ASSIGN_LOOKBEHIND_CHARS] behind the call, confirm the call is still INSIDE
+     *    that conditional expression, then look ahead for `name.putExtra(s)(...)` exactly as the
+     *    plain-assignment check does. Containment is decided from the text between the
+     *    conditional's opening `(`/`{` and the call, with comments blanked ([withoutComments]):
+     *    more `{` than `}` (a braced branch -- `} else {` nets back to depth 1), or depth 0 ending
+     *    in `)` (the brace-less `= if (cond) intentFor(...)` form); and no `;` or local
+     *    `val`/`var`, either of which means a new statement began and the conditional is no longer
+     *    what we are inside of. Run only when the plain-assignment check did not already fire, so
+     *    one offender cannot be reported twice.
+     *
      * **Known, deliberate, NOT fixed** (explicitly out of scope for this hardening, so the next
      * person here does not have to rediscover why):
+     *  - **A conditional branch that declares a local before the call**
+     *    (`val intent = if (x) { val ctx = foo(); ScreenLauncher.intentFor(ctx, Screen.X) } ...`).
+     *    The containment check treats a `val`/`var` between the conditional head and the call as
+     *    "a new statement started", which is what keeps an unrelated earlier `val foo = if (...)`
+     *    from being read as this call's assignment. Trading that miss for the false positives is
+     *    deliberate: a false offender here blocks a green branch on a non-bug, and no live caller
+     *    in the tree writes the declaring form.
+     *  - **A conditional whose result is RETURNED rather than assigned** and whose extras are added
+     *    by the caller (`return if (x) intentFor(..) else intentFor(..)`, then
+     *    `getSearchIntent(...)?.putExtra(...)` at the call site). There is no local name to follow,
+     *    so this is the cross-function case below by another route -- it needs data flow, not a
+     *    regex. `SearchControl.getSearchIntent` is precisely this shape; Task 6 verified by hand
+     *    that all five of its callers pass the Intent straight to `startActivityForResult` with no
+     *    extras added, and rewrote its `Screen.SearchIndex` branch to build a concrete route anyway.
      *  - `with(intentVar) { putExtra(...) }` -- no live caller uses `with` on a `ScreenLauncher
      *    .intentFor(...)` result today; purely theoretical.
      *  - A helper function that receives the built `Intent` and adds extras to it elsewhere (e.g.
@@ -443,8 +480,9 @@ class NavHostRoutingGuardTest {
      * that balanced argument list; then check independently, relative to that call's OWN
      * boundaries, for a chained `.putExtra(s)`, a chained `.apply`/`.also`/`.let`/`.run { ... }`
      * whose body reaches `putExtra(s)(...)` through the receiver form that scope function actually
-     * uses, or an assignment (typed or not) whose variable later receives a nearby
-     * `.putExtra(s)(...)`.
+     * uses, an assignment (typed or not) whose variable later receives a nearby
+     * `.putExtra(s)(...)`, or -- when that last one does not fire -- an enclosing `if`/`when` whose
+     * own result is assigned to a variable that then receives one.
      *
      * **Known, deliberate bound** (stated rather than overclaimed, matching this file's sibling
      * scans in [ClassicRemovalScan]'s own kdoc style): the assignment shape's forward look for
@@ -538,11 +576,56 @@ class NavHostRoutingGuardTest {
                     }
                 }
 
+                // Is this call a BRANCH of a conditional that is itself the RHS of an assignment --
+                // `val name = if (cond) { intentFor(..) } else { intentFor(..) }` -- followed by
+                // `name.putExtra(s)(...)`? Neither regex above can see this shape: what immediately
+                // precedes the call is the branch opener (`if (needToIndex) {`), not `name =`. See
+                // the kdoc's Task 6 hardening entry; live in LinkControl.showAllOccurrences.
+                var conditionalAssignedPutExtraName: String? = null
+                if (assignedPutExtraName == null) {
+                    val lookBehind = beforeCall.takeLast(CONDITIONAL_ASSIGN_LOOKBEHIND_CHARS)
+                    // The NEAREST preceding conditional assignment (typed or not); an earlier,
+                    // already-closed one would be rejected by the containment check below anyway,
+                    // but starting from the nearest keeps `between` as short as possible.
+                    val conditionalAssignment =
+                        Regex("""(\w+)\s*(?::\s*[^=\n]*)?=\s*(?:if|when)\s*[({]""")
+                            .findAll(lookBehind)
+                            .lastOrNull()
+                    if (conditionalAssignment != null) {
+                        val name = conditionalAssignment.groupValues[1]
+                        // Everything between the conditional's opening `(`/`{` and this call. The
+                        // call is still INSIDE that conditional expression when the text in
+                        // between opens more braces than it closes (a braced branch, including the
+                        // `} else {` hop, which nets back to depth 1), or when it closes the
+                        // condition's paren and opens nothing (the brace-less
+                        // `= if (cond) intentFor(...)` form). A `;` or a local `val`/`var`
+                        // declaration in between means a new statement started, so the conditional
+                        // is no longer what we are inside of.
+                        val between = withoutComments(lookBehind.substring(conditionalAssignment.range.last + 1))
+                        val braceDepth = between.count { it == '{' } - between.count { it == '}' }
+                        val stillInsideTheConditional =
+                            !between.contains(';') &&
+                                !Regex("""\b(?:val|var)\b""").containsMatchIn(between) &&
+                                (braceDepth >= 1 || (braceDepth == 0 && between.trimEnd().endsWith(')')))
+                        if (stillInsideTheConditional) {
+                            val window = afterCall.take(ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS)
+                            if (Regex("""\b${Regex.escape(name)}\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(window)) {
+                                conditionalAssignedPutExtraName = name
+                            }
+                        }
+                    }
+                }
+
                 val shapeDescriptions = mutableListOf<String>()
                 if (chainedPutExtra) shapeDescriptions.add("chained directly with .putExtra(...)")
                 chainedScopeFunctionDescription?.let { shapeDescriptions.add(it) }
                 assignedPutExtraName?.let { name ->
                     shapeDescriptions.add("assigned to `$name`, then `$name.putExtra(...)` nearby")
+                }
+                conditionalAssignedPutExtraName?.let { name ->
+                    shapeDescriptions.add(
+                        "a branch of an if/when assigned to `$name`, then `$name.putExtra(...)` nearby",
+                    )
                 }
 
                 for (screenName in matchedScreens) {
@@ -566,6 +649,15 @@ class NavHostRoutingGuardTest {
     private companion object {
         /** See [migratedScreenArgumentIsNeverDroppedByAPutExtra]'s kdoc, the assignment shape's known bound. */
         const val ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS = 600
+
+        /**
+         * The conditional-RHS shape's backward twin of [ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS]: how far
+         * BEHIND a call the scan looks for the `name = if (`/`name = when (` that the call may be a
+         * branch of. Bounded for the same reason the forward look is -- an unbounded search would
+         * keep finding some conditional assignment eventually, in an unrelated earlier function,
+         * and lean entirely on the containment check to reject it.
+         */
+        const val CONDITIONAL_ASSIGN_LOOKBEHIND_CHARS = 600
 
         /**
          * The literal method-name alternation every offender check searches for, explicit and
@@ -602,6 +694,22 @@ class NavHostRoutingGuardTest {
         }
         return null
     }
+
+    /**
+     * [text] with `//` line comments and `/* ... */` block comments blanked to a space, so the
+     * conditional-RHS containment check counts braces in CODE rather than in prose -- a live
+     * precedent sits between `LinkControl`'s two branches (`} else { //If an indexed Strong's
+     * module is in place ...`), and a comment is exactly where an unbalanced `{` or the word `val`
+     * shows up without meaning anything.
+     *
+     * Known bound, stated rather than hidden: this is a textual strip, not a lexer, so a `//`
+     * inside a string literal (a URL, say) blanks the rest of that line. The only consequence is
+     * that the containment check may see less text than it should and decline to flag -- the same
+     * fail-open direction the rest of this scan's bounds have, never a false positive.
+     */
+    private fun withoutComments(text: String): String = text
+        .replace(Regex("""/\*[\s\S]*?\*/"""), " ")
+        .replace(Regex("""//[^\n]*"""), " ")
 
     /**
      * The index of the `')'` matching [text]\[openParenIndex\] (which must be `'('`), by
