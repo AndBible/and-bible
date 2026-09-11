@@ -248,14 +248,34 @@ class NavHostComposeActivity : ActivityBase() {
         val route = intent.getStringExtra(EXTRA_ROUTE) ?: return
         setIntent(intent)
 
-        // The daily-reading destination prefers its LAST LOADED day over its route arguments, so a
-        // child-pop re-entry cannot revert the screen (see ReadingPlanNavGraph's initial-load
-        // effect). A new-intent route is the opposite situation — an explicit "show exactly this" —
-        // so that memory has to go, or a host that has ever shown a reading day would silently
-        // ignore the day this intent asks for, which is the very failure this override exists to
-        // fix. Skipped when the requested route is the one already published, because then the day
-        // asked for is the day on screen and clearing would only drop a correct history route.
-        if (isDailyReadingRoute(route) && route != historyRoute) loadedReadingDay.value = null
+        // A daily-reading route is applied HOST-SIDE, here, BEFORE the navigate — never by leaving
+        // it to the destination to notice. The destination prefers its last loaded day over its
+        // route arguments (that preference is what stops a child-pop re-entry from reverting the
+        // screen — see ReadingPlanNavGraph's initial-load effect), and the navigate below cannot be
+        // relied on to override it: `launchSingleTop` compares DESTINATIONS, so re-navigating onto
+        // an already-top daily-reading entry goes through `launchSingleTopInternal`, which rebuilds
+        // the entry from the old one — same id, same saved state — and `NavHost` keys its
+        // `AnimatedContent` on that id, so the arm is not even disposed. If the rebuilt entry's
+        // arguments happen to equal the old ones, `NavBackStackEntry.equals` holds, the back stack's
+        // StateFlow conflates the identical list and NOTHING recomposes: no effect restarts, no
+        // reload happens. That is reachable whenever the entry was stamped with (plan, day) by an
+        // earlier revert and the user has since drifted to another day via the day list, "Done" or
+        // the date picker.
+        //
+        // So the host performs the load itself. It is the same call the graph's `loadDay` dep makes,
+        // which means `loadedReadingDay` ends up SET to the requested day (never null) and the live
+        // controller — if there is one — gets the pushed snapshot immediately. Every path then
+        // converges: a composed arm is already showing the right day whether or not the navigate
+        // does anything, and a fresh composition (selector/day list on top) reads the now-correct
+        // `loaded` through its own `last != null` branch. The cost is one redundant reload when the
+        // arguments DO change and the destination reloads too; the outcome is identical either way.
+        //
+        // The load's result is deliberately ignored: NO_PLAN/FAILED are the graph's business, and
+        // whichever path follows re-runs the same load through the arm's own handling of them.
+        if (isDailyReadingRoute(route)) {
+            val (plan, day) = readingPlanArgsOf(route)
+            loadReadingPlanDay(plan, day)
+        }
 
         val controller = navController
         if (controller == null) {
@@ -281,14 +301,19 @@ class NavHostComposeActivity : ActivityBase() {
      * duplicate entry. Anything already below stays put, so Back still returns where the user was —
      * the same thing a reordered-to-front Activity would have done.
      *
-     * Wrapped in `runCatching` because `NavController.navigate` throws `IllegalArgumentException`
-     * for a route no destination matches. Not externally reachable (this Activity has no
-     * intent-filter and is not exported), but turning a main-thread crash into the same silent
-     * no-op the two `?: return`s above already establish costs one line.
+     * Catches `IllegalArgumentException` — and ONLY that — because it is what
+     * `NavController.navigate` throws for a route no destination matches. Not externally reachable
+     * (this Activity has no intent-filter and is not exported), but turning a main-thread crash
+     * into the same silent no-op the two `?: return`s above already establish costs one line. A
+     * broader catch would also swallow the `IllegalStateException` a controller with no graph set
+     * throws, i.e. degrade a wiring bug into a logged no-op; that one must still crash.
      */
     private fun navigateToRoute(controller: NavHostController, route: String) {
-        runCatching { controller.navigate(route) { launchSingleTop = true } }
-            .onFailure { Log.w(TAG_READING_PLAN, "Ignoring an unroutable EXTRA_ROUTE: $route", it) }
+        try {
+            controller.navigate(route) { launchSingleTop = true }
+        } catch (e: IllegalArgumentException) {
+            Log.w(TAG_NAV_HOST, "Ignoring an unroutable EXTRA_ROUTE: $route", e)
+        }
     }
 
     /**
@@ -299,6 +324,27 @@ class NavHostComposeActivity : ActivityBase() {
     private fun isDailyReadingRoute(route: String): Boolean {
         val base = NavRoutes.dailyReading()
         return route == base || route.startsWith("$base?")
+    }
+
+    /**
+     * [NavRoutes.ARG_PLAN] and [NavRoutes.ARG_DAY] read off a daily-reading route string, for
+     * [onNewIntent]'s host-side load — which has to reach those values BEFORE the destination that
+     * would normally read them off its `NavBackStackEntry` exists (or, in the no-op-navigate case,
+     * without it ever re-reading them).
+     *
+     * Reads the values RAW, with no [NavRoutes.decodeArg], because that is exactly what the graph's
+     * arm does with the same two arguments — the two must agree, and a lone decode here would make
+     * them disagree. (The encode/decode asymmetry itself — `NavRoutes.dailyReading` percent-encodes
+     * `plan` on the way in — is a known, separately tracked item for the whole-branch review; it is
+     * a no-op for real plan codes, which contain only unreserved characters.)
+     */
+    private fun readingPlanArgsOf(route: String): Pair<String?, Int?> {
+        val query = route.substringAfter('?', "")
+        if (query.isEmpty()) return null to null
+        val arguments = query.split("&")
+            .filter { it.contains('=') }
+            .associate { it.substringBefore('=') to it.substringAfter('=') }
+        return arguments[NavRoutes.ARG_PLAN] to arguments[NavRoutes.ARG_DAY]?.toIntOrNull()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -1140,6 +1186,9 @@ class NavHostComposeActivity : ActivityBase() {
     companion object {
         private const val TAG_AI_PROMPTS = "AiPromptsCompose"
         private const val TAG_READING_PLAN = "DailyReadingNavHost"
+
+        /** Host-wide concerns (onNewIntent routing), as opposed to one cluster's baggage. */
+        private const val TAG_NAV_HOST = "NavHostCompose"
 
         const val EXTRA_ROUTE: String = "nav_route"
 

@@ -345,11 +345,14 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         // the day list is not in this entry's arguments, so reloading the arguments would silently
         // revert the screen to the plan's current day.
         //
-        // The one case where the ARGUMENTS must win over that memory is a history revert into a
-        // live host (`NavHostComposeActivity.onNewIntent`), which asks for a specific plan+day. The
-        // host handles it at the source — it drops `loaded` before navigating — so this branch sees
-        // `last == null` and honours the route. Keeping the decision there rather than here is what
-        // keeps the child-pop path above untouched: nothing else ever clears `loaded`.
+        // A history revert into a live host (`NavHostComposeActivity.onNewIntent`) asks for a
+        // specific plan+day, which this memory would otherwise override. It is handled entirely at
+        // the source: the host performs that load ITSELF before navigating, so by the time this
+        // effect runs, `loaded` already NAMES the requested day and the `last` branch below loads
+        // exactly it. Nothing there is conditional on the navigate having changed anything — which
+        // matters, because a re-navigation onto an already-top daily-reading entry can be a
+        // complete no-op that never re-runs this effect at all (see that override's comment). The
+        // child-pop path above is untouched by any of it: `loaded` is only ever SET, never cleared.
         LaunchedEffect(plan, day) {
             if (deps.pendingSelection.value != null) return@LaunchedEffect // handled below instead
             val last = d.loaded.value
