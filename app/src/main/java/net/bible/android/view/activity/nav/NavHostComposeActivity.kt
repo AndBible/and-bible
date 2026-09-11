@@ -23,9 +23,11 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.widget.TextView
@@ -60,11 +62,14 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlin.coroutines.resume
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -78,6 +83,8 @@ import net.bible.android.control.report.AiBugReport
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
+import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
@@ -87,7 +94,11 @@ import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
 import net.bible.android.view.activity.search.epubSearchModeFromClassicName
 import net.bible.android.view.activity.search.toClassicSearchTypeName
+import net.bible.android.view.activity.settings.AppSettingsServiceImpl
+import net.bible.android.view.activity.settings.SettingsReset
+import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
 import net.bible.service.common.AndBibleAddons
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.pause
 import net.bible.service.common.htmlToSpan
@@ -147,7 +158,11 @@ import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
 import net.bible.sharedcore.search.SwordResultRow
+import net.bible.sharedcore.settings.AppSettingsController
+import net.bible.sharedcore.settings.AppSettingsLabels
 import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.settings.SyncSettingsController
+import net.bible.sharedcore.settings.SyncSettingsLabels
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.nav.AiConnectionSettingsDeps
 import net.bible.sharedui.ai.nav.AiDocumentFilterDeps
@@ -184,6 +199,10 @@ import net.bible.sharedui.search.nav.SearchResultsDeps
 import net.bible.sharedui.search.nav.SearchSubmission
 import net.bible.sharedui.search.nav.TranslationSelection
 import net.bible.sharedui.search.nav.searchNavGraph
+import net.bible.sharedui.settings.nav.AppSettingsDeps
+import net.bible.sharedui.settings.nav.SettingsNavDeps
+import net.bible.sharedui.settings.nav.SyncSettingsDeps
+import net.bible.sharedui.settings.nav.settingsNavGraph
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
@@ -221,6 +240,23 @@ class NavHostComposeActivity : ActivityBase() {
     private val searchResultsCache: SearchResultsCache by inject()
     private val epubSearchService: EpubSearchService by inject()
     private val linkControl: LinkControl by inject()
+
+    /**
+     * Classic `SettingsComposeActivity`'s own `by lazy` service — NOT a Koin singleton, matching
+     * classic: it caches four JSword `Books.installed()` dictionary scans for the screen's lifetime.
+     * Host-held because the settings destination's composition is disposed and re-entered whenever
+     * another destination sits on top of it, and a service rebuilt then would re-run those scans.
+     */
+    private val appSettingsService by lazy { AppSettingsServiceImpl() }
+
+    /**
+     * Classic `SyncSettingsComposeActivity`'s own `by lazy` service, constructed EXACTLY as it was:
+     * `activityProvider` must yield an `ActivityBase` (`CloudSync.signIn` demands one, not a
+     * `Context`), and this host is one — so `{ this }` carries over verbatim.
+     */
+    private val syncSettingsService by lazy {
+        SyncSettingsServiceImpl(scope = lifecycleScope, activityProvider = { this })
+    }
 
     /**
      * The route `HistoryManager` should re-launch for whatever this host currently shows, or null
@@ -711,6 +747,47 @@ class NavHostComposeActivity : ActivityBase() {
                         ),
                     )
                 }
+                val settingsDeps = remember {
+                    SettingsNavDeps(
+                        exitHost = { finish() },
+                        setWindowTitle = { title -> setTitle(title) },
+                        appSettings = AppSettingsDeps(
+                            controller = AppSettingsController(
+                                service = appSettingsService,
+                                scope = lifecycleScope,
+                                labels = buildAppSettingsLabels(),
+                                // Unused by design: the screen's onNavigate is wired directly in
+                                // settingsNavGraph's SETTINGS arm, because two of its seven rows
+                                // are routes in this host's graph. See AppSettingsDeps' kdoc.
+                                onNavigate = {},
+                            ),
+                            maybeRecreate = { key -> maybeRecreateForSettingsKey(key) },
+                            onConfirmReset = { confirmResetSettings() },
+                            onShowDiscreteHelp = { showDiscreteHelpDialog() },
+                            onOpenTextDisplaySettings = { openGlobalTextDisplaySettings() },
+                            onOpenReadingProgressSettings = {
+                                ScreenLauncher.open(this@NavHostComposeActivity, Screen.ReadingProgressSettings)
+                            },
+                            onOpenLinksSettings = { openLinksSettings() },
+                            onCrashApp = { crashApp() },
+                            resetContentDescription = getString(R.string.reset_settings),
+                            onResume = { appSettingsService.refresh() },
+                        ),
+                        syncSettings = SyncSettingsDeps(
+                            controller = SyncSettingsController(
+                                service = syncSettingsService,
+                                scope = lifecycleScope,
+                                labels = buildSyncSettingsLabels(),
+                                // Screen.CloudDocuments is still its own Activity, so this branch
+                                // stays on the controller exactly as classic had it.
+                                onOpenCloudDocuments = {
+                                    ScreenLauncher.open(this@NavHostComposeActivity, Screen.CloudDocuments)
+                                },
+                            ),
+                            onResume = { syncSettingsService.refresh() },
+                        ),
+                    )
+                }
                 NavHost(
                     navController = navController,
                     startDestination = startRoute,
@@ -725,6 +802,7 @@ class NavHostComposeActivity : ActivityBase() {
                     aiNavGraph(navController, deps)
                     readingPlanNavGraph(navController, readingPlanDeps)
                     searchNavGraph(navController, searchDeps)
+                    settingsNavGraph(navController, settingsDeps)
                 }
             }
         }
@@ -1775,6 +1853,261 @@ class NavHostComposeActivity : ActivityBase() {
         // parity with classic: imported plan is not auto-loaded (InstallZip does not yet return the code)
     }
 
+    // --- Settings cluster host baggage (slice 6) ------------------------------------------------
+    // Ported from classic SettingsComposeActivity / SyncSettingsComposeActivity (both deleted in
+    // nav-graph Task 9): Android-resource label bundles, the two platform AlertDialogs, the
+    // recreate() parity rule, and the three navigation rows that have no destination in the graph.
+    // See SettingsNavGraph's AppSettingsDeps kdoc for why each stays host-side.
+
+    /**
+     * Classic's `maybeRecreate` (`SettingsComposeActivity.kt:148-150`). The four keys' effects are
+     * read only at Activity-creation time — the locale through `attachBaseContext`, the three theme
+     * values once per composition — so nothing observes them reactively and a recreate is what makes
+     * the change visible at once.
+     *
+     * **Plan D5, a recorded behaviour change:** on this host `recreate()` recreates EVERY
+     * destination and rebuilds the whole back stack, not just the settings screen that asked for
+     * it. The behaviour is kept deliberately (it is what makes a locale or theme change take
+     * effect); Task 10 records it.
+     */
+    private fun maybeRecreateForSettingsKey(key: String) {
+        if (key in RECREATE_ON_CHANGE_KEYS) recreate()
+    }
+
+    /**
+     * Classic's reset confirmation (`SettingsComposeActivity.kt:245-254`), a PLATFORM AlertDialog.
+     * It stays one: the separately specified platform-dialog-removal phase owns this dialog and the
+     * discrete-help one below, and converting either here would move a Roborazzi golden.
+     */
+    private fun confirmResetSettings() {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.reset_app_prefs)
+            .setCancelable(true)
+            .setPositiveButton(R.string.yes) { _, _ -> resetSettings() }
+            .setNegativeButton(R.string.cancel, null)
+            .create()
+            .show()
+    }
+
+    /** Classic `:264-268` verbatim, recreate() included — see [maybeRecreateForSettingsKey]. */
+    private fun resetSettings() {
+        SettingsReset.performReset()
+        appSettingsService.refresh()
+        recreate()
+    }
+
+    /**
+     * Classic's persecution-help dialog (`SettingsComposeActivity.kt:189-216`), unchanged: a
+     * platform AlertDialog whose HTML body carries a wiki link that needs a `LinkMovementMethod` on
+     * the message TextView. Kept platform for the reason given on [confirmResetSettings].
+     */
+    private fun showDiscreteHelpDialog() {
+        val linkUrl = "https://github.com/AndBible/and-bible/wiki/Discrete-build"
+        val linkText = "<a href=\"$linkUrl\">$linkUrl</a>"
+
+        val dPar1 = getString(R.string.discrete_mode_info_par1)
+        val dPar2 = getString(R.string.discrete_mode_info_par2)
+        val dLink = getString(R.string.discrete_mode_link, linkText)
+
+        val calcPar1 = getString(R.string.calculator_par1)
+        val calcPar2 = getString(R.string.calculator_par2)
+        val calcPar3 = getString(R.string.calculator_par3)
+
+        val dText = "$dPar1<br><br>$dPar2<br><br>$dLink<br><br>"
+        val calcText = "$calcPar1$calcPar2<br><br>$calcPar3<br><br>$dLink"
+        val htmlMessage = if (!BuildVariant.Appearance.isDiscrete) dText else calcText
+
+        val spanned = htmlToSpan(htmlMessage)
+
+        val d = AlertDialog.Builder(this).apply {
+            setTitle(getString(R.string.prefs_persecution_cat))
+            setMessage(spanned)
+            setPositiveButton(R.string.okay, null)
+            setCancelable(true)
+        }.create()
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    /**
+     * Classic's `global_text_display_settings` row (`SettingsComposeActivity.kt:179-187`). Still an
+     * Activity launch rather than a graph navigation: `Screen.TextDisplaySettings` is not migrated,
+     * and it is handed a `settingsBundle` extra. GLOBAL scope comes from the ABSENT
+     * `EXTRA_SCOPE_LEVEL` extra, i.e. that screen's own `scopeFromIntent` fallthrough.
+     */
+    private fun openGlobalTextDisplaySettings() {
+        val settingsBundle = SettingsBundle(
+            level = SettingsLevel.GLOBAL,
+            globalSettings = CommonUtils.globalTextDisplaySettings,
+        )
+        val intent = ScreenLauncher.intentFor(this, Screen.TextDisplaySettings)
+        intent.putExtra("settingsBundle", settingsBundle.toJson())
+        startActivity(intent)
+    }
+
+    /** Classic's `open_links` row (`:218-227`) — the Android app-links system screen, gated to S+. */
+    private fun openLinksSettings() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val intent = Intent(
+                Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
+                Uri.parse("package:$packageName"),
+            )
+            startActivity(intent)
+        }
+    }
+
+    /**
+     * Classic's `crash_app` row (`:229-241`), beta-gated, including its fresh
+     * lifecycle-INDEPENDENT [CoroutineScope]: the delayed crash must still fire if the user leaves
+     * the settings screen within the ten seconds. That is now a destination change rather than an
+     * Activity finish, which if anything makes the point stronger.
+     */
+    private fun crashApp() {
+        CoroutineScope(Dispatchers.Main).launch {
+            ABEventBus.post(BibleApplication.ErrorNotificationEvent("Crashing app in 10 seconds!"))
+            delay(10000)
+            throw RuntimeException("Crash app!")
+        }
+    }
+
+    private fun buildAppSettingsLabels() = AppSettingsLabels(
+        screenTitle = getString(R.string.settings),
+        fontSizePercentFormat = getString(R.string.pref_font_size_multiplier_percent_format),
+
+        dictionariesCat = getString(R.string.prefs_dictionaries_cat),
+        behaviorCat = getString(R.string.prefs_behavior_customization_cat),
+        displayCat = getString(R.string.prefs_display_customization_cat),
+        einkCat = getString(R.string.prefs_eink_settings_cat),
+        persecutionCat = getString(R.string.prefs_persecution_cat),
+        featuresCat = getString(R.string.prefs_features_cat),
+        advancedCat = getString(R.string.prefs_advanced_settings_cat),
+
+        strongsGreekDictionaryTitle = getString(R.string.choose_strongs_greek_dictionary_title),
+        strongsGreekDictionarySummary = getString(R.string.choose_strongs_greek_dictionary_summary),
+        strongsHebrewDictionaryTitle = getString(R.string.choose_strongs_hebrew_dictionary_title),
+        strongsHebrewDictionarySummary = getString(R.string.choose_strongs_hebrew_dictionary_summary),
+        robinsonGreekMorphologyTitle = getString(R.string.choose_strongs_greek_morphology_title),
+        robinsonGreekMorphologySummary = getString(R.string.choose_strongs_greek_morphology_summary),
+        disabledWordLookupDictionariesTitle = getString(R.string.choose_word_lookup_dictionary_title),
+        disabledWordLookupDictionariesSummary = getString(R.string.choose_word_lookup_dictionary_summary),
+
+        navigateToVerseTitle = getString(R.string.prefs_navigate_to_verse_title),
+        navigateToVerseSummary = getString(R.string.prefs_navigate_to_verse_summary),
+        openLinksInSpecialWindowTitle = getString(R.string.prefs_open_links_in_special_window_title),
+        openLinksInSpecialWindowSummary = getString(R.string.prefs_open_links_in_special_window_summary),
+        screenKeepOnTitle = getString(R.string.prefs_screen_keep_on_title),
+        screenKeepOnSummary = getString(R.string.prefs_screen_keep_on_summary),
+        doubleTapToFullscreenTitle = getString(R.string.prefs_double_tap_to_fullscreen_title),
+        doubleTapToFullscreenSummary = getString(R.string.prefs_double_tap_to_fullscreen_summary),
+        autoFullscreenTitle = getString(R.string.auto_fullscreen),
+        autoFullscreenSummary = getString(R.string.auto_fullscreen_summary),
+        toolbarButtonActionsTitle = getString(R.string.prefs_toolbar_button_action_title),
+        toolbarButtonActionsSummary = getString(R.string.prefs_toolbar_button_action_summary),
+        bibleViewSwipeModeTitle = getString(R.string.prefs_bible_view_swipe_mode_title),
+        bibleViewSwipeModeSummary = getString(R.string.prefs_bible_view_swipe_mode_summary),
+        disableTwoStepBookmarkingTitle = getString(R.string.prefs_disable_two_step_bookmarking_title),
+        disableTwoStepBookmarkingSummary = getString(R.string.prefs_disable_two_step_bookmarking_summary),
+        volumeKeysScrollTitle = getString(R.string.prefs_volume_keys_scroll_title),
+        volumeKeysScrollSummary = getString(R.string.prefs_volume_keys_scroll_summary),
+        nightModeTitle = getString(R.string.prefs_night_mode_title),
+        nightModeSummary = getString(R.string.prefs_night_mode_summary),
+
+        localeTitle = getString(R.string.prefs_interface_locale_title),
+        localeSummary = getString(R.string.prefs_interface_locale_summary),
+        disableClickToEditTitle = getString(R.string.prefs_disable_click_to_edit_title),
+        disableClickToEditSummary = getString(R.string.prefs_disable_click_to_edit_summary),
+        notesContentTypeTitle = getString(R.string.prefs_notes_content_type_title),
+        notesContentTypeSummary = getString(R.string.prefs_notes_content_type_summary),
+        fontSizeMultiplierTitle = getString(R.string.pref_font_size_multiplier_title),
+        hideStatusBarTitle = getString(R.string.prefs_hide_status_bar_title),
+        hideStatusBarSummary = getString(R.string.prefs_hide_status_bar_summary),
+        fullScreenHideButtonsTitle = getString(R.string.full_screen_hide_buttons_pref_title),
+        fullScreenHideButtonsSummary = getString(R.string.full_screen_hide_buttons_pref_summary),
+        hideWindowButtonsTitle = getString(R.string.hide_window_buttons_title),
+        hideWindowButtonsSummary = getString(R.string.hide_window_buttons_summary),
+        hideBibleReferenceOverlayTitle = getString(R.string.hide_bible_reference_overlay_title),
+        hideBibleReferenceOverlaySummary = getString(R.string.hide_bible_reference_overlay_summary),
+        showActiveWindowIndicatorTitle = getString(R.string.active_window_indicator_title),
+        showActiveWindowIndicatorSummary = getString(R.string.active_window_indicator_summary),
+        disableBibleBookmarkModalButtonsTitle = getString(R.string.prefs_in_window_bible_bookmark_modal_buttons_title),
+        disableBibleBookmarkModalButtonsSummary = getString(R.string.prefs_in_window_bookmark_modal_buttons_description),
+        disableGenBookmarkModalButtonsTitle = getString(R.string.prefs_in_window_gen_bookmark_modal_buttons_title),
+        disableGenBookmarkModalButtonsSummary = getString(R.string.prefs_in_window_bookmark_modal_buttons_description),
+
+        displayColorModeTitle = getString(R.string.prefs_display_color_mode_title),
+        displayColorModeSummary = getString(R.string.prefs_display_color_mode_summary),
+        einkModeTitle = getString(R.string.prefs_eink_display_title),
+        einkModeSummary = getString(R.string.prefs_eink_display_summary),
+        disableAnimationsTitle = getString(R.string.prefs_disable_animations_title),
+        disableAnimationsSummary = getString(R.string.prefs_disable_animations_summary),
+
+        discreteHelpTitle = getString(R.string.prefs_persecuted_help),
+        discreteHelpSummary = getString(R.string.prefs_persecuted_summary),
+        discreteModeTitle = getString(R.string.prefs_discrete_mode),
+        discreteModeSummary = getString(R.string.prefs_discrete_mode_desc),
+        showCalculatorTitle = getString(R.string.prefs_show_calculator),
+        calculatorPinTitle = getString(R.string.prefs_calculator_pin),
+        calculatorPinSummary = getString(R.string.prefs_calculator_pin_desc),
+
+        experimentalFeaturesTitle = getString(R.string.prefs_experimental_features_title),
+        experimentalFeaturesSummary = getString(R.string.prefs_experimental_features_summary),
+        enableBluetoothTitle = getString(R.string.prefs_enable_bluetooth_title),
+        enableBluetoothSummary = getString(R.string.prefs_enable_bluetooth_summary),
+        requestSdcardPermissionTitle = getString(R.string.prefs_request_sdcard_permission_title),
+        requestSdcardPermissionSummary = getString(R.string.prefs_request_sdcard_permission_summary),
+        showErrorboxTitle = getString(R.string.prefs_show_error_box_title),
+        showErrorboxSummary = getString(R.string.prefs_show_error_box_summary),
+        openLinksTitle = getString(R.string.open_bible_links_title),
+        openLinksSummary = getString(R.string.open_bible_links_summary),
+        crashAppTitle = getString(R.string.crash_app),
+        crashAppSummary = getString(R.string.crash_app_summary),
+
+        syncShortcutTitle = getString(R.string.cloud_sync_title),
+        syncShortcutSummary = getString(R.string.sync_settings_shortcut_summary),
+        aiShortcutTitle = getString(R.string.ai_settings),
+        aiShortcutSummary = getString(R.string.ai_settings_shortcut_summary),
+        readingProgressShortcutTitle = getString(R.string.reading_progress_settings),
+        readingProgressShortcutSummary = getString(R.string.reading_progress_settings_summary),
+        textDisplayShortcutTitle = getString(R.string.global_text_display_settings_title),
+        textDisplayShortcutSummary = getString(R.string.global_text_display_settings_summary),
+    )
+
+    private fun buildSyncSettingsLabels() = SyncSettingsLabels(
+        screenTitle = getString(R.string.cloud_sync_title),
+        generalCat = getString(R.string.sync_general_settings),
+        syncCat = getString(R.string.synchronization_categories),
+        documentSyncCat = getString(R.string.document_sync_category_title),
+        adapterTitle = getString(R.string.sync_adapter),
+        resetTitle = getString(R.string.reset_sync),
+        resetSummary = getString(R.string.prefs_reset_sync_summary),
+        cloudInfoTitle = getString(R.string.cloud_info),
+        serverUrlTitle = getString(R.string.auth_server_uri),
+        usernameTitle = getString(R.string.auth_username),
+        passwordTitle = getString(R.string.auth_password),
+        folderPathTitle = getString(R.string.auth_folder_path),
+        folderPathSummary = getString(R.string.auth_folder_path_summary),
+        bookmarksTitle = getString(R.string.bookmarks),
+        workspacesTitle = getString(R.string.help_workspaces_title),
+        myDocumentsTitle = getString(R.string.my_documents_title),
+        aiSettingsTitle = getString(R.string.ai_settings_sync_title),
+        progressTitle = getString(R.string.progress_sync_title),
+        documentsTitle = getString(R.string.document_sync_title),
+        documentsSummary = getString(R.string.document_sync_contents),
+        autoDownloadTitle = getString(R.string.document_sync_auto_download_title),
+        autoDownloadSummary = getString(R.string.document_sync_auto_download_summary),
+        autoUploadTitle = getString(R.string.document_sync_auto_upload_title),
+        autoUploadSummary = getString(R.string.document_sync_auto_upload_summary),
+        autoDeleteTitle = getString(R.string.document_sync_auto_delete_title),
+        autoDeleteSummary = getString(R.string.document_sync_auto_delete_summary),
+        wifiOnlyTitle = getString(R.string.document_sync_wifi_only_title),
+        wifiOnlySummary = getString(R.string.document_sync_wifi_only_summary),
+        manageTitle = getString(R.string.document_sync_manage_title),
+        manageSummary = getString(R.string.document_sync_manage_summary),
+        resetConfirmMessage = getString(R.string.sync_confirmation),
+        invalidUrlMessage = getString(R.string.invalid_url_message),
+        documentsEnableDialogTitle = getString(R.string.document_sync_enable_dialog_title),
+    )
+
     companion object {
         private const val TAG_AI_PROMPTS = "AiPromptsCompose"
         private const val TAG_READING_PLAN = "DailyReadingNavHost"
@@ -1795,6 +2128,17 @@ class NavHostComposeActivity : ActivityBase() {
 
         /** Sentinel identifying the "Custom…" entry in the AI-language picker (mirrors classic). */
         private const val CUSTOM_LANGUAGE_TAG = "\u0000custom"
+
+        /**
+         * Classic `SettingsComposeActivity.kt:67-72`'s key set, moved here with the screen: a write
+         * to any of these forces a recreate — see [maybeRecreateForSettingsKey].
+         */
+        private val RECREATE_ON_CHANGE_KEYS = setOf(
+            "locale_pref",
+            "night_mode_pref3",
+            "display_color_mode",
+            "discrete_mode",
+        )
 
         fun intentFor(context: Context, route: String): Intent =
             Intent(context, NavHostComposeActivity::class.java).putExtra(EXTRA_ROUTE, route)

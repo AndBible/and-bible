@@ -144,6 +144,14 @@ object ScreenLauncher {
         // its searchText parameter is non-null). Every real edge builds
         // NavRoutes.searchResults(...)/epubSearchResults(...) with a query: the graph's own arms,
         // and BibleView/LinkControl once Task 6 rewrites them.
+
+        // — slice 6: the settings cluster (part A) —
+        // The REFRESH_DISPLAY_ON_FINISH edge survives this row untouched: MenuCommandHandler.kt:182-186
+        // launches Screen.Settings with that request code through startActivityForResult, and the
+        // intent still names an Activity — the nav host — so the code still comes back to
+        // MainBibleActivity.onActivityResult when the host finishes.
+        Screen.Settings to NavRoutes.SETTINGS,
+        Screen.SyncSettings to NavRoutes.SYNC_SETTINGS,
     )
 
     /** The Activity class implementing [screen]. */

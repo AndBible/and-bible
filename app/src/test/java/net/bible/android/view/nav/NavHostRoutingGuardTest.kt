@@ -281,6 +281,24 @@ class NavHostRoutingGuardTest {
     }
 
     @Test
+    fun settingsResolvesToTheNavHostCarryingItsRoute() {
+        // slice 6, Task 7. The REFRESH_DISPLAY_ON_FINISH edge (MenuCommandHandler.kt:182-186)
+        // survives this move untouched: the intent still names an Activity — the nav host — so
+        // `startActivityForResult(handlerIntent, REFRESH_DISPLAY_ON_FINISH)` still returns its
+        // request code to MainBibleActivity.onActivityResult when the host finishes.
+        val intent = ScreenLauncher.intentFor(context, Screen.Settings)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.SETTINGS, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    @Test
+    fun syncSettingsResolvesToTheNavHostCarryingItsRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.SyncSettings)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.SYNC_SETTINGS, intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    @Test
     fun promptEditTemplateRoundTripsThroughDecodeArg() {
         // Free text, deliberately containing reserved/percent/unicode characters that would
         // corrupt the route if encodeArg/decodeArg were not both applied — see NavRoutes' kdoc.
