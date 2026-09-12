@@ -28,6 +28,12 @@ import net.bible.sharedcore.settings.textSettingEditorPageFor
  * `MainBibleActivity.showOptionsMenu()`/`handlePrefItem()` (`R.menu.main_bible_options_menu`),
  * ported for Batch 12b-C (Task 3).
  *
+ * Those two classic functions were DELETED in nav-graph slice 7 Task 2 (their last live caller, the
+ * `"AltKeyO"` shortcut, now opens `ComposeReadingViewHost.openOverflowMenu()`), so this object is
+ * the only runtime implementation left. `R.menu.main_bible_options_menu` survives until the classic
+ * layout goes, and nothing reads it any more — `ReadingOptionsMenuTest` compares [staticItemIds]
+ * against it so the two cannot drift apart unnoticed.
+ *
  * [build] and [dispatch] both take the real `getItemOptions(itemId, order)` lookup as a
  * parameter rather than calling it directly: the actual implementation
  * ([net.bible.android.view.activity.page.MainBibleActivity]'s `getItemOptions`) is `private`
@@ -64,6 +70,15 @@ object OptionsMenuStateBuilder {
         StaticEntry(R.id.llmActionsSubMenu, "llmActionsSubMenu", R.string.llm_actions, "icon_robot"),
         StaticEntry(R.id.allTextOptions, "allTextOptions", R.string.all_text_options_window_menutitle, "ic_text_options_24dp"),
     )
+    /**
+     * Every static (XML-backed) item id this builder knows, in `R.menu.main_bible_options_menu`'s
+     * *declaration* order. Exposed so `ReadingOptionsMenuTest` can compare it against that XML — the
+     * menu resource is still the contract until it is deleted, but nothing reads it at runtime any
+     * more, so nothing else would notice the two drifting apart. Note this is NOT [build]'s emit
+     * order: [build] moves `allTextOptions` to the end (see its kdoc).
+     */
+    val staticItemIds: List<String> get() = staticEntries.map { it.idName }
+
     private val staticEntryByResId: Map<Int, StaticEntry> = staticEntries.associateBy { it.resId }
     private val staticEntryByName: Map<String, StaticEntry> = staticEntries.associateBy { it.idName }
 

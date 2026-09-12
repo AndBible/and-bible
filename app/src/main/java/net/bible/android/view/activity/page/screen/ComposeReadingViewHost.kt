@@ -196,6 +196,7 @@ import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.KeyChooserPage
 import net.bible.sharedcore.reading.OptionsMenuItem
+import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
 import net.bible.sharedcore.reading.ReadingOverlay
 import net.bible.sharedcore.reading.ReadingOverlayExclusion
@@ -2394,8 +2395,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * Mirrors [MainBibleActivity.fullScreen]. Kept current via [MainBibleActivity.FullScreenEvent]
      * (see [init]) so entering/leaving fullscreen from ANY path — the Compose overflow menu's
      * "Full screen" row (Batch 12b-C Task 3, dispatched via [MainBibleActivity.handleOptionsMenuItem]),
-     * the classic native options menu reached via the hardware menu key / `BibleJavascriptInterface`
-     * (still [MainBibleActivity.showOptionsMenu]), or `onBackPressed` — is reflected here. There is
+     * the same menu reached by the `"AltKeyO"` shortcut (slice 7 Task 2 repointed it at
+     * [openOverflowMenu]), or `onBackPressed` — is reflected here. There is
      * no dedicated "toggle fullscreen" entry point in [ReadingToolbarCallbacks]/`ReadingViewScreen`
      * (only the overflow-menu row), so mirroring [MainBibleActivity.fullScreen] is what keeps this
      * host's `AbTheme`/`ReadingViewScreen` in sync regardless of which path set it.
@@ -2429,14 +2430,51 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     /**
      * Host-owned state for the Bible/Commentary quick-document picker menus (Batch 12g Task 8) —
      * the compose-path replacement for the native `menuForDocs` `PopupMenu` on the non-swap
-     * short-press branch of [ReadingToolbarCallbacks.onBible]/`onCommentary` (see [install]).
-     * Mirrors [overflowItems]/[overflowExpanded] above: built fresh from
+     * short-press branch of [ReadingToolbarCallbacks.onBible]/`onCommentary` (see [install]) and,
+     * since nav-graph slice 7 Task 2, on the `swap-menu` long press too (via [openBibleQuickDoc]/
+     * [openCommentaryQuickDoc]). Mirrors [overflowItems]/[overflowExpanded] above: built fresh from
      * [MainBibleActivity.composeQuickDocItems] on each tap, cleared by `onQuickDocSelect`/
      * `onQuickDocDismiss`. Only one of the two is ever expanded at a time (the toolbar only lets
      * one menu be open), so a single [MainBibleActivity.composeQuickDocSelect] can resolve either.
      */
     private val bibleQuickDoc = mutableStateOf(QuickDocMenuState())
     private val commentaryQuickDoc = mutableStateOf(QuickDocMenuState())
+
+    /**
+     * Opens the Compose overflow ("3-dot") options menu: exactly what
+     * [ReadingToolbarCallbacks.onOverflow] does (that callback delegates here), exposed publicly so
+     * the OTHER entry point to the reading view's options menu — the `"AltKeyO"` keyboard shortcut
+     * in [net.bible.android.view.activity.page.BibleJavascriptInterface] — reaches the SAME Compose
+     * menu. Nav-graph slice 7 Task 2: that shortcut used to call the native
+     * `MainBibleActivity.showOptionsMenu()` `PopupMenu`, which has been deleted.
+     */
+    fun openOverflowMenu() {
+        overflowItems.value = activity.buildOptionsMenuItems()
+        overflowExpanded.value = true
+    }
+
+    /**
+     * Opens the Bible toolbar button's Compose quick-document menu with [items] (built by
+     * [MainBibleActivity.composeQuickDocItems], which decides the "exactly 2 docs -> switch
+     * directly" shortcut itself and returns an empty list in that case — hence `expanded` is gated
+     * on the list being non-empty). Both the short-press ([ReadingToolbarCallbacks.onBible]'s
+     * non-swap branch) and the `swap-menu` long press ([MainBibleActivity.composeBibleLongClick])
+     * go through here, so there is one mechanism rather than two.
+     */
+    fun openBibleQuickDoc(items: List<QuickDocMenuItem>) {
+        bibleQuickDoc.value = QuickDocMenuState(expanded = items.isNotEmpty(), items = items)
+    }
+
+    /** [openBibleQuickDoc]'s counterpart for the Commentary toolbar button. */
+    fun openCommentaryQuickDoc(items: List<QuickDocMenuItem>) {
+        commentaryQuickDoc.value = QuickDocMenuState(expanded = items.isNotEmpty(), items = items)
+    }
+
+    /** Test-only reads of the three menu states above — same convention as [paneMenuWindowIdForTest]. */
+    internal val overflowExpandedForTest: Boolean get() = overflowExpanded.value
+    internal val overflowItemsForTest: List<OptionsMenuItem> get() = overflowItems.value
+    internal val bibleQuickDocForTest: QuickDocMenuState get() = bibleQuickDoc.value
+    internal val commentaryQuickDocForTest: QuickDocMenuState get() = commentaryQuickDoc.value
 
     /**
      * The Compose navigation drawer's item list (Batch Z-early A6) — the compose-path replacement
@@ -2759,26 +2797,28 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 onTitleLongPress = { activity.composeChooseDocument() },
                 onTitleFlingVertical = { showWorkspaceSheet() },
                 onTitleFlingHorizontal = { forward -> activity.composeCycleWorkspace(forward) },
-                // Batch 12g Task 8: the non-swap short-press branch now drives the real Compose
-                // quick-doc menu (`bibleQuickDoc`/`commentaryQuickDoc` below) instead of bridging to
-                // the classic native `menuForDocs` `PopupMenu`. The swap-doc shortcut (short-press
-                // with `toolbarButtonSetting` = "swap-*") and both long-press branches are UNCHANGED
-                // bridges to `container` (the ComposeView) since the classic anchors (bibleButton/
-                // commentaryButton) live inside the now-GONE toolbarLayout and would position a
-                // native popup at a stale/zero location — long-press still opens the native
-                // `menuForDocs`/`ChooseDocument` (device A/B backlog item, not this task's scope).
-                // The overflow options menu is NOT bridged this way (Batch 12b-C Task 3 replaced
-                // that native PopupMenu bridge with the real Compose `ReadingOverflowMenu` below —
-                // see `onOverflow`/`overflowItems`).
+                // Batch 12g Task 8: the non-swap short-press branch drives the real Compose
+                // quick-doc menu (`bibleQuickDoc`/`commentaryQuickDoc` above) instead of bridging to
+                // the classic native `menuForDocs` `PopupMenu`. Nav-graph slice 7 Task 2 finished
+                // the job: the `swap-menu` LONG press now goes through the same
+                // `openBibleQuickDoc`/`openCommentaryQuickDoc` seam, so no native popup is anchored
+                // on `container` (the ComposeView) any more — the classic anchors (bibleButton/
+                // commentaryButton) live inside the now-GONE toolbarLayout and would have positioned
+                // a native popup at a stale/zero location. The long press's OTHER branch still opens
+                // `ChooseDocument` (a full-screen chooser, no anchoring problem; slice 7 Task 9's
+                // business). The short-press swap-doc shortcut (`toolbarButtonSetting` = "swap-*")
+                // sets the document directly and opens no menu at all.
+                // The overflow options menu is NOT bridged this way either (Batch 12b-C Task 3
+                // replaced that native PopupMenu bridge with the real Compose `ReadingOverflowMenu`
+                // below — see `onOverflow`/`openOverflowMenu`).
                 onBible = {
                     if (activity.toolbarButtonSetting?.startsWith("swap-") == true) {
                         activity.composeBibleClick(container)
                     } else {
-                        val items = activity.composeQuickDocItems(activity.documentControl.biblesForVerse)
-                        bibleQuickDoc.value = QuickDocMenuState(expanded = items.isNotEmpty(), items = items)
+                        openBibleQuickDoc(activity.composeQuickDocItems(activity.documentControl.biblesForVerse))
                     }
                 },
-                onBibleLong = { activity.composeBibleLongClick(container) },
+                onBibleLong = { activity.composeBibleLongClick() },
                 onCommentary = {
                     if (activity.toolbarButtonSetting?.startsWith("swap-") == true) {
                         activity.composeCommentaryClick(container)
@@ -2786,11 +2826,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                         val books = activity.documentControl.commentariesForVerse +
                             SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK) +
                             SwordDocumentFacade.getBooks(BookCategory.DICTIONARY)
-                        val items = activity.composeQuickDocItems(books)
-                        commentaryQuickDoc.value = QuickDocMenuState(expanded = items.isNotEmpty(), items = items)
+                        openCommentaryQuickDoc(activity.composeQuickDocItems(books))
                     }
                 },
-                onCommentaryLong = { activity.composeCommentaryLongClick(container) },
+                onCommentaryLong = { activity.composeCommentaryLongClick() },
                 // The Strongs refresh now lives inside `composeCycleStrongs`/`composeStrongsLong`,
                 // next to their `updateStrongsButton()` call — `StrongsPreference.handle()` posts
                 // none of the 5 ABEventBus events `toolbarStateService` subscribes to, and keeping
@@ -2802,10 +2841,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 onSpeak = { activity.composeToggleSpeak() },
                 onSpeakLong = { activity.composeSpeakLong() },
                 onWorkspace = { showWorkspaceSheet() },
-                onOverflow = {
-                    overflowItems.value = activity.buildOptionsMenuItems()
-                    overflowExpanded.value = true
-                },
+                onOverflow = { openOverflowMenu() },
             ),
             fullScreenState = fullScreen,
             overlayTextState = overlayText,

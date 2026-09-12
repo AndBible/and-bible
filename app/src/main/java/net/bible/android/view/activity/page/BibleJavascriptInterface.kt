@@ -895,7 +895,13 @@ class BibleJavascriptInterface(
                     mainBibleActivity.binding.drawerLayout.open()
                     mainBibleActivity.binding.drawerLayout.requestFocus()
                 }
-                "AltKeyO" -> mainBibleActivity.showOptionsMenu()
+                // Nav-graph slice 7 Task 2: this used to call the native `showOptionsMenu()`
+                // `PopupMenu`, which anchored on `binding.optionsMenu` inside the now-GONE classic
+                // `toolbarLayout`. It now opens the SAME Compose overflow menu the toolbar's own
+                // 3-dot button opens. `composeReadingViewHost` is null only before the host is
+                // installed in `setupUi`, and this interface is reachable only from a `BibleView`
+                // the host has already mounted, so the shortcut is not lost in practice.
+                "AltKeyO" -> mainBibleActivity.composeReadingViewHost?.openOverflowMenu()
                 // Round 15b Task 9: deliberately NOT rerouted to the quick sheet, unlike the
                 // toolbar title's tap. `startKeyChooser` is left untouched precisely so its
                 // non-reading-view callers keep working, and this is one of them: the shortcut acts

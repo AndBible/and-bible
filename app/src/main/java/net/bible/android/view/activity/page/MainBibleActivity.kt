@@ -1066,9 +1066,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun setupToolbarButtons() {
         binding.apply {
-            optionsMenu.setOnClickListener {
-                showOptionsMenu()
-            }
+            // `optionsMenu`'s click listener is gone with `showOptionsMenu` (nav-graph slice 7
+            // Task 2): the button lives in the classic `toolbarLayout`, which the Compose host sets
+            // to GONE, and the Compose toolbar's own overflow button drives
+            // `ComposeReadingViewHost.openOverflowMenu` instead. The view itself goes with the XML
+            // in Task 11.
             homeButton.setOnClickListener {
                 if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
                     drawerLayout.closeDrawers()
@@ -1529,10 +1531,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    /** @param anchor the Compose toolbar's ComposeView (classic `bibleButton` is inside the now-GONE `toolbarLayout` on this path). */
-    internal fun composeBibleLongClick(anchor: View) {
+    /**
+     * Nav-graph slice 7 Task 2: the `swap-menu` branch opens the Compose quick-doc menu (the same
+     * `openBibleQuickDoc` seam the non-swap SHORT press already used), not the native `menuForDocs`
+     * `PopupMenu` — so this no longer needs a `View` to anchor on.
+     */
+    internal fun composeBibleLongClick() {
         if (toolbarButtonSetting == "swap-menu") {
-            menuForDocs(anchor, documentControl.biblesForVerse)
+            composeReadingViewHost?.openBibleQuickDoc(composeQuickDocItems(documentControl.biblesForVerse))
         } else {
             startDocumentChooser("BIBLE")
         }
@@ -1552,13 +1558,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    /** @param anchor the Compose toolbar's ComposeView (classic `commentaryButton` is inside the now-GONE `toolbarLayout` on this path). */
-    internal fun composeCommentaryLongClick(anchor: View) {
+    /** [composeBibleLongClick]'s counterpart; same slice 7 Task 2 change. */
+    internal fun composeCommentaryLongClick() {
         if (toolbarButtonSetting == "swap-menu") {
             // Mirrors classic `commentaryLongPress` exactly: unlike `commentaryClick`/
-            // `composeCommentaryClick`, the long-press popup does NOT append
+            // `composeCommentaryClick`, the long-press menu does NOT append
             // GENERAL_BOOK/DICTIONARY books.
-            menuForDocs(anchor, documentControl.commentariesForVerse)
+            composeReadingViewHost?.openCommentaryQuickDoc(composeQuickDocItems(documentControl.commentariesForVerse))
         } else {
             startDocumentChooser("COMMENTARY")
         }
@@ -1745,96 +1751,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             else -> throw RuntimeException("Illegal menu item")
         }
     }
-    private fun getItemOptions(item: MenuItem) = getItemOptions(item.itemId, item.order)
-
-    /** @param anchor defaults to the classic `optionsMenu` button; the Compose toolbar bridge (`ComposeReadingViewHost`) passes its ComposeView instead, since `binding.optionsMenu` lives inside the now-GONE `toolbarLayout` on that path. */
-    @SuppressLint("RestrictedApi")
-    fun showOptionsMenu(anchor: View = binding.optionsMenu) {
-        val popup = PopupMenu(this, anchor)
-        val menu = popup.menu
-        val menuHelper = MenuPopupHelper(this, menu as MenuBuilder, anchor)
-        popup.setOnMenuItemClickListener { menuItem ->
-            handlePrefItem(menuItem)
-            true
-        }
-        menuHelper.setForceShowIcon(true)
-
-        menuInflater.inflate(R.menu.main_bible_options_menu, menu)
-
-        val lastSettings = CommonUtils.lastDisplaySettingsSorted
-        if(lastSettings.isNotEmpty()) {
-            for ((idx, t) in lastSettings.withIndex()) {
-                val itm = getItemOptions(R.id.textOptionItem, idx)
-                if(itm.enabled && itm.visible) {
-                    menu.add(R.id.textOptionsGroup, R.id.textOptionItem, idx, t.name)
-                }
-            }
-        }
-
-        // LLM actions: visibility handled by getItemOptions, click opens dialog
-
-        MenuCompat.setGroupDividerEnabled(menu, true)
-
-        fun handleMenu(menu: Menu) {
-            for(item in menu.children) {
-                val itmOptions = getItemOptions(item)
-                item.isVisible = itmOptions.visible
-                item.isEnabled = itmOptions.enabled
-                item.isCheckable = itmOptions.isBoolean
-                if(itmOptions.title != null) {
-                    item.title = itmOptions.title
-                }
-                if(itmOptions.icon != null) {
-                    item.setIcon(itmOptions.icon!!)
-                    item.icon = CommonUtils.combineIcons(itmOptions.icon!!, R.drawable.ic_workspace_overlay_24dp)
-                }
-                if(item.hasSubMenu()) {
-                    handleMenu(item.subMenu!!)
-                    continue;
-                }
-
-                item.isChecked = itmOptions.value == true
-                if(itmOptions.opensDialog) {
-                    item.title = getString(R.string.add_ellipsis, item.title.toString())
-                }
-            }
-        }
-        menu.findItem(R.id.allTextOptions).icon = CommonUtils.combineIcons(R.drawable.ic_text_options_24dp, R.drawable.ic_workspace_overlay_24dp)
-        handleMenu(menu)
-        menuHelper.show()
-    }
-
-    private fun handlePrefItem(item: MenuItem) {
-        val itemOptions = getItemOptions(item)
-        if(itemOptions is SubMenuPreference)
-            return
-        if(itemOptions.isBoolean) {
-            itemOptions.value = itemOptions.value != true
-            itemOptions.handle()
-            item.isChecked = itemOptions.value == true
-            if(itemOptions is Preference) {
-                windowRepository.updateWindowTextDisplaySettingsValues(setOf(itemOptions.type), windowRepository.textDisplaySettings)
-            }
-        } else {
-            val onReady = {
-                if(itemOptions is Preference) {
-                    windowRepository.updateWindowTextDisplaySettingsValues(setOf(itemOptions.type), windowRepository.textDisplaySettings)
-                }
-                windowRepository.updateAllWindowsTextDisplaySettings()
-            }
-            // Reset is implemented by each Preference.openDialog calling setNonSpecific() before
-            // invoking this callback. setNonSpecific clears the workspace/window value (sets it to
-            // null), which is what makes the value inherit from the parent level (global → default).
-            // Do NOT write `value = default` here: at WORKSPACE/WINDOW level, the value setter
-            // re-stores an explicit default value when the parent (global) differs from default,
-            // overriding the just-cleared null and breaking inheritance from global.
-            itemOptions.openDialog(this, {onReady()}, {onReady()})
-        }
-    }
 
     /**
      * Builds the Compose reading-view toolbar's overflow menu item list — the Compose counterpart
-     * of [showOptionsMenu]'s build loop, delegated to [OptionsMenuStateBuilder.build]. Exists as a
+     * of the deleted native `showOptionsMenu`'s build loop, delegated to
+     * [OptionsMenuStateBuilder.build]. Exists as a
      * thin bridge (rather than widening [getItemOptions] itself) so the private method's access
      * stays unchanged; see [OptionsMenuStateBuilder]'s kdoc. Called by
      * [net.bible.android.view.activity.page.screen.ComposeReadingViewHost] when the overflow
@@ -1846,7 +1767,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     /**
      * Dispatches a click on one of [buildOptionsMenuItems]' rows — the Compose counterpart of
-     * [handlePrefItem], delegated to [OptionsMenuStateBuilder.dispatch]. Returns whether the
+     * the deleted native `handlePrefItem`, delegated to [OptionsMenuStateBuilder.dispatch]. Returns whether the
      * overflow menu should stay open (see that function's kdoc): `true` for a boolean toggle
      * (the host rebuilds the list to show the flipped check), `false` once a dialog/activity/
      * action has been launched (the host closes the menu).
