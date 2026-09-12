@@ -284,6 +284,85 @@ object NavRoutes {
     fun readingProgress(tab: Int? = null): String =
         buildRoute("progress/reading") { optional(ARG_TAB, tab?.toString()) }
 
+    // ——— slice 4: Documents + downloads ———
+    const val ARG_DOCUMENT_ID: String = "documentId"
+    const val ARG_DOCUMENT_INITIALS: String = "documentInitials"
+    const val ARG_DOCUMENT_NAME: String = "documentName"
+    const val ARG_FIRST_DOWNLOAD: String = "firstDownload"
+    const val ARG_DOWNLOAD_RECOMMENDED: String = "downloadRecommended"
+    const val ARG_DOWNLOAD_SEARCH: String = "search"
+    const val ARG_DOWNLOAD_ADDONS: String = "addons"
+    const val ARG_DOCUMENT_IDS: String = "documentIds"
+
+    /**
+     * NOT `"data"`. Slice 2 already has two `"data"`-valued constants — [ARG_MANAGE_LABELS_DATA]
+     * and [ARG_LABEL_DATA] — because each carries its own destination's whole payload blob. This
+     * one carries an id (plan D9), so it gets its own name. Do not "de-duplicate" the two above:
+     * they are separate arguments of separate routes that happen to share a wire name.
+     */
+    const val ARG_REPOSITORY_ID: String = "repositoryId"
+
+    const val MY_DOCUMENTS_PATTERN: String = "documents/list"
+    const val MY_DOCUMENT_PAGES_PATTERN: String =
+        "documents/pages?$ARG_DOCUMENT_ID={$ARG_DOCUMENT_ID}" +
+            "&$ARG_DOCUMENT_INITIALS={$ARG_DOCUMENT_INITIALS}" +
+            "&$ARG_DOCUMENT_NAME={$ARG_DOCUMENT_NAME}"
+    const val DOWNLOAD_PATTERN: String =
+        "documents/download?$ARG_FIRST_DOWNLOAD={$ARG_FIRST_DOWNLOAD}" +
+            "&$ARG_DOWNLOAD_RECOMMENDED={$ARG_DOWNLOAD_RECOMMENDED}" +
+            "&$ARG_DOWNLOAD_SEARCH={$ARG_DOWNLOAD_SEARCH}" +
+            "&$ARG_DOWNLOAD_ADDONS={$ARG_DOWNLOAD_ADDONS}" +
+            "&$ARG_DOCUMENT_IDS={$ARG_DOCUMENT_IDS}"
+    const val CUSTOM_REPOSITORIES_PATTERN: String = "documents/repositories"
+    const val CUSTOM_REPOSITORY_EDITOR_PATTERN: String =
+        "documents/repositories/edit?$ARG_REPOSITORY_ID={$ARG_REPOSITORY_ID}"
+    const val PROGRESS_STATUS_PATTERN: String = "documents/progress"
+    const val CLOUD_DOCUMENTS_PATTERN: String = "documents/cloud"
+
+    fun myDocuments(): String = MY_DOCUMENTS_PATTERN
+
+    fun myDocumentPages(documentId: String, documentInitials: String, documentName: String): String =
+        buildRoute("documents/pages") {
+            required(ARG_DOCUMENT_ID, documentId)
+            required(ARG_DOCUMENT_INITIALS, documentInitials)
+            required(ARG_DOCUMENT_NAME, documentName)
+        }
+
+    /**
+     * The download screen, with every argument its eight classic launch sites used to attach as an
+     * Intent extra. A flag is emitted ONLY when true (plan D2): `download()` is the bare route, and
+     * an arm reads a flag as `getStringOrNull(ARG_X) == "true"`.
+     *
+     * [firstDownload] is what `Screen.FirstDownload` used to mean — the enum value is gone, because
+     * a route with arguments has no use for an alias (design §5).
+     */
+    fun download(
+        firstDownload: Boolean = false,
+        downloadRecommended: Boolean = false,
+        search: String? = null,
+        addons: Boolean = false,
+        documentIds: String? = null,
+    ): String = buildRoute("documents/download") {
+        optional(ARG_FIRST_DOWNLOAD, if (firstDownload) "true" else null)
+        optional(ARG_DOWNLOAD_RECOMMENDED, if (downloadRecommended) "true" else null)
+        optional(ARG_DOWNLOAD_SEARCH, search)
+        optional(ARG_DOWNLOAD_ADDONS, if (addons) "true" else null)
+        optional(ARG_DOCUMENT_IDS, documentIds)
+    }
+
+    fun customRepositories(): String = CUSTOM_REPOSITORIES_PATTERN
+
+    /**
+     * [id] is `null` for a NEW repository, and the argument is then omitted entirely (plan D9) —
+     * absent, not present-and-empty, so the arm never has to guess what the fork does with `=`.
+     */
+    fun customRepositoryEditor(id: Long?): String =
+        buildRoute("documents/repositories/edit") { optional(ARG_REPOSITORY_ID, id?.toString()) }
+
+    fun progressStatus(): String = PROGRESS_STATUS_PATTERN
+
+    fun cloudDocuments(): String = CLOUD_DOCUMENTS_PATTERN
+
     /**
      * Joins a list into ONE route argument (plan D4). The join happens before [encodeArg] runs over
      * the whole string, so a member containing a comma would still round-trip as two members — that

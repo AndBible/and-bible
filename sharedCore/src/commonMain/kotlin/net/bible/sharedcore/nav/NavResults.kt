@@ -90,6 +90,37 @@ sealed interface LabelEditResult {
     data object Cancelled : LabelEditResult
 }
 
+/**
+ * What the My-Documents list hands back. Three variants, because classic had three exits:
+ * [Selected] is `MyDocumentsComposeActivity`'s relay of the pages child's pick (`:222-233`),
+ * [Saved] is `finishOk()` with no selection (`:126`), [Cancelled] is `finishCanceled()` (`:127`).
+ *
+ * `MainBibleActivity.kt:2914-2929` reads only `documentInitials`/`pageKey`; the classic `"changed"`
+ * extra (`MyDocumentsComposeActivity.kt:172`) is NOT carried, because nothing reads it for this
+ * kind — the tree's only `getBoolean("changed")` is the WORKSPACE_CHANGED branch (plan D8).
+ */
+sealed interface MyDocumentsResult {
+    data class Selected(val documentInitials: String, val pageKey: String) : MyDocumentsResult
+
+    data object Saved : MyDocumentsResult
+
+    data object Cancelled : MyDocumentsResult
+}
+
+/**
+ * What the pages editor hands back — the same three shapes, consumed in two places:
+ * `MainBibleActivity.kt:2902-2913` when entered from `CurrentGeneralBookPage`, and the
+ * My-Documents arm when entered from inside the graph, which re-delivers it as
+ * [MyDocumentsResult.Selected].
+ */
+sealed interface MyDocumentPagesResult {
+    data class Selected(val documentInitials: String, val pageKey: String) : MyDocumentPagesResult
+
+    data object Saved : MyDocumentPagesResult
+
+    data object Cancelled : MyDocumentPagesResult
+}
+
 // No `@Serializable` anywhere in this file, deliberately. A result is packed into an Intent's
 // EXTRAS by `NavResultIntents`, never encoded as JSON, and the two `:app` contract types slice 2
 // carries (`ManageLabelsData`, `LabelData`) embed Room entities (`BookmarkEntities.Label`,
