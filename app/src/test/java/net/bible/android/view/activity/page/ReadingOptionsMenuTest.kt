@@ -306,8 +306,15 @@ class ReadingOptionsMenuTest {
      *   installed, but [net.bible.service.download.FakeBookFactory]'s two
      *   pseudo-commentaries (`MyNote`, `Compare`) are always appended, so the bare list is 2 ->
      *   `SwitchDirectly` -> no menu, and the current document becomes one of those two.
-     * - the extras the SHORT press appends are 2 more (`strongsgreek`, `strongshebrew`), so
-     *   appending them would make it 4 -> `ShowPopup` -> a menu with four rows and no switch.
+     * - the extras the SHORT press appends are at least the two Strong's lexicons
+     *   (`strongsgreek`, `strongshebrew`), so appending them takes the list past 2 ->
+     *   `ShowPopup` -> a menu and no switch.
+     *
+     * The extras count is asserted as "at least one", NOT as an exact number: in the FULL `:app`
+     * suite (one JVM, shared JSword state) an earlier test registers a third GENERAL_BOOK,
+     * `AIDocuments`, so an `assertEquals(2, extras.size)` premise passes in a scoped `--tests` run
+     * and fails in the real gate. What the argument actually needs is only that appending the
+     * extras would push the list past the switch-directly threshold.
      *
      * Hence both assertions below can see the regression, from opposite sides.
      */
@@ -323,11 +330,11 @@ class ReadingOptionsMenuTest {
         )
         val extras = SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK) +
             SwordDocumentFacade.getBooks(BookCategory.DICTIONARY)
-        assertEquals(
-            2,
-            extras.size,
-            "fixture premise: appending the short press's extras would make it 4 -> a popup, not a " +
-                "switch; got ${extras.map { it.initials }}",
+        assertTrue(
+            commentaries.size + extras.size > 2,
+            "fixture premise: appending the short press's extras must push the list past the " +
+                "switch-directly threshold of 2, or this test cannot see the regression; got " +
+                "${commentaries.map { it.initials }} + ${extras.map { it.initials }}",
         )
         val host = ComposeReadingViewHost(activity)
         activity.composeReadingViewHost = host
