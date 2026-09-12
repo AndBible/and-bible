@@ -69,10 +69,15 @@ class ClassicReadingProgressRemovalGuardTest {
                 "src/main/java/net/bible/android/view/activity/progress/ReadHistoryDialog.kt",
             ),
             "S5 deleted a file it was supposed to keep. All three sit in the deleted screen's own " +
-                "package and are named after the same feature, but each has a surviving consumer: " +
-                "the Compose twin, and BibleJavascriptInterface, which calls " +
-                "ReadHistoryDialog.showForChapter and reads ReadingProgressKeys.EXTRA_TAB from the " +
-                "WebView — a path with no compile-time signal from this module.",
+                "package and are named after the same feature. Consumers as of nav-graph 3/5/6 " +
+                "Task 9, checked rather than assumed: ReadHistoryDialog is called from " +
+                "BibleJavascriptInterface.kt:627 (showForChapter, off the WebView — a path with " +
+                "no compile-time signal from this module) and reads ReadingProgressColors' " +
+                "COLOR_HEAT_MAX, so those two pin each other and the dialog pins both. " +
+                "ReadingProgressKeys is the exception: its EXTRA_TAB lost BOTH readers in this " +
+                "migration (the screen moved into the nav graph, where the tab travels in the " +
+                "route), leaving IntentKeysTest:43 as its only consumer — kept deliberately as an " +
+                "epilogue question for the maintainer, see that file's own kdoc.",
         )
     }
 

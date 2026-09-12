@@ -21,7 +21,19 @@ import net.bible.android.activity.R
 
 /**
  * Reading-plan intent keys, lifted out of the about-to-be-deleted `DailyReading`'s companion
- * (Batch Z-late phase 1) because `DailyReadingComposeActivity` reads them.
+ * (Batch Z-late phase 1) because `DailyReadingComposeActivity` read them at the time.
+ *
+ * **That reader is gone.** nav-graph 3/5/6 moved the daily-reading screen into the Compose
+ * navigation graph, where the plan and day travel IN the route (`NavRoutes.dailyReading(plan,
+ * day)`), and Task 9 deleted the host. As of Task 9 [PLAN] and [DAY] have no live reader or writer
+ * anywhere in the repo; their only consumer is `IntentKeysTest:49-50`, which pins the two key
+ * STRINGS so that a stored intent written by an older install still decodes to the same names.
+ *
+ * The FILE must stay regardless of what happens to this object: [ReadingPlanCatalog] below shares
+ * it and has a live production reader (`ReadingPlanTextFileDao`). Whether this object in
+ * particular should outlive the migration is an epilogue question for the maintainer, not a
+ * cleanup task's call — see `ClassicReadingPlanRemovalGuardTest.theSurvivingReadingPlanCollaborators-
+ * StillExist`, which pins the path.
  */
 object ReadingPlanKeys {
     val PLAN = "net.bible.android.view.activity.readingplan.Plan"

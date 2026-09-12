@@ -182,7 +182,15 @@ class ClassicRemovalScanAssertionsTest {
         assertTrue(
             "ScreenLauncher.kt no longer writes collapsed arms as `Screen.X -> XComposeActivity::class.java`" +
                 " — the fixture below no longer resembles the file this helper scans",
-            real.contains("Screen.Bookmarks -> BookmarksComposeActivity::class.java"),
+            // Matched as a SHAPE, not as one named screen. This premise has now been repointed
+            // twice by unrelated migrations (it named Screen.Settings until nav-graph 3/5/6
+            // Task 9 moved that arm onto the throwing helper, then Screen.Bookmarks, which the
+            // same migration will eventually move too), and every named witness is scheduled to
+            // rot the same way while the SHAPE it stands for does not: any one surviving
+            // collapsed arm proves the fixture still resembles the real file, and when the LAST
+            // one goes this assertion is SUPPOSED to fail, because the fixture really will have
+            // stopped standing in for anything.
+            Regex("""Screen\.\w+ -> \w+ComposeActivity::class\.java""").containsMatchIn(real),
         )
 
         // Anti-vacuity: a MISSING arm also counts as an offender (asserted below), so without this

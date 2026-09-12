@@ -82,15 +82,25 @@ class ClassicReadingPlanRemovalGuardTest {
                 if (!declared.endsWith("ComposeActivity")) null
                 else declared to parent.find(openingTag)?.groupValues?.get(1)
             }
-        // Anti-vacuity only: the point is "the regex really parsed the manifest", not a census.
-        // The threshold was `> 30` while the app still declared ~35 Compose activities; nav-graph
-        // 3/5/6 Task 9 deleted 13 of them (the reading-plan, search and settings hosts, which now
-        // live in the nav graph) and left 22, so the old number had become a count of a moving
-        // target rather than a vacuity floor. Every further nav-graph slice lowers it again.
+        // Anti-vacuity, expressed STRUCTURALLY so it never needs editing again. This used to be
+        // `composeActivities.size > 30`, a census dressed as a vacuity floor: it went red for a
+        // CORRECT change (nav-graph 3/5/6 Task 9 deleted 13 of the ~35 declared Compose
+        // activities, leaving 22, of which 21 are themselves migration targets), and the only
+        // possible repair was to edit the number down — which the next multi-host slice would
+        // have forced again. Against the failure it actually protects, a broken <activity> parse,
+        // any count-based floor and `isNotEmpty()` are equally strong: a broken parse yields 0.
         assertTrue(
-            "$path declared ${composeActivities.size} Compose activities — the scan is not " +
-                "seeing the manifest, so it would pass vacuously",
-            composeActivities.size > 15,
+            "no <activity> block parsed — the scan is not seeing the manifest",
+            composeActivities.isNotEmpty(),
+        )
+        // The one that was MISSING from the count-based version, and the more important of the
+        // two: this guard's whole subject is parentActivityName. If the `parent` regex ever stops
+        // matching, every upParent is null, the offender filter below is silently empty, and a
+        // size floor stays green while the guard checks nothing at all.
+        assertTrue(
+            "no parentActivityName parsed — the Up-parent regex matched nothing, so the offender " +
+                "filter below is vacuous",
+            composeActivities.any { (_, upParent) -> upParent != null },
         )
         assertEquals(
             "these SURVIVING Compose activities declare an Up parent that S2 deletes. " +
@@ -141,16 +151,26 @@ class ClassicReadingPlanRemovalGuardTest {
 
     /**
      * `ReadingPlanKeys.kt` is this slice's trap: it sits in the doomed directory, it is named
-     * after the feature being deleted, and it holds `ReadingPlanKeys` (the PLAN/DAY intent-extra
-     * keys) and `ReadingPlanCatalog` — both lifted out of `DailyReading`'s companion by the
-     * prologue's P2 precisely so they could outlive it. `HistoryManager` and
-     * `service/readingplan/ReadingPlanTextFileDao` read them. Asserting these files exist turns
+     * after the feature being deleted, and it holds TWO objects — `ReadingPlanKeys` (the PLAN/DAY
+     * intent-extra keys) and `ReadingPlanCatalog` — both lifted out of `DailyReading`'s companion
+     * by the prologue's P2 precisely so they could outlive it. Asserting the file exists turns
      * "deleted too much" into a failure instead of a silence.
      *
-     * nav-graph 3/5/6 Task 9 dropped the three reading-plan `*ComposeActivity.kt` paths from this
-     * list: those hosts moved wholly into the Compose nav graph and were deleted, so pinning them
-     * here would assert the opposite of what the migration did. `ReadingPlanKeys.kt` stays — it is
-     * still the trap this test was written for, now read by the graph's arms rather than by a host.
+     * What actually pins it today, verified rather than assumed (nav-graph 3/5/6 Task 9 fix round
+     * 1 — the earlier wording here named `HistoryManager`, which reads neither object and contains
+     * no occurrence of `ReadingPlan` at all):
+     *
+     *  - `ReadingPlanCatalog` — a LIVE production reader, `service/readingplan/ReadingPlanTextFileDao`
+     *    (`:25` import, `:215`, `:220`), plus `ReadingPlanCatalogTest`. This half of the file is
+     *    load-bearing on its own and settles the question of whether the file may be deleted.
+     *  - `ReadingPlanKeys` (PLAN/DAY) — no live reader left anywhere in the repo; its only
+     *    consumer is `IntentKeysTest:49-50`, which pins the two key STRINGS. Task 9 left that
+     *    as-is deliberately: whether a key object with no producer and no consumer should survive
+     *    the migration is an epilogue question for the maintainer, not a cleanup task's call.
+     *
+     * nav-graph 3/5/6 Task 9 also dropped the three reading-plan `*ComposeActivity.kt` paths from
+     * the list below: those hosts moved wholly into the Compose nav graph and were deleted, so
+     * pinning them here would assert the opposite of what the migration did.
      */
     @Test fun theSurvivingReadingPlanCollaboratorsStillExist() {
         val expected = listOf(

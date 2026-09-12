@@ -213,11 +213,13 @@ object ScreenLauncher {
     /**
      * The body of every arm above whose screen now lives wholly in the Compose navigation graph and
      * has no Activity of its own: the ten AI screens (nav-graph Task 10) plus the reading-plan,
-     * search and settings clusters (nav-graph 3/5/6 Tasks 1-8). Twenty of the 23 reach the graph
+     * search and settings clusters (nav-graph 3/5/6 Tasks 1-8). Nineteen of the 23 reach the graph
      * through [MIGRATED] via [intentFor]/[open], so [intentFor] never falls through to [targetFor]
-     * for them; the other three (`SearchResults`, `EpubSearchResults`, `SearchIndexProgress`) are
-     * deliberately absent from [MIGRATED] because an argument-free route for them would render an
-     * empty screen, so reaching one by a bare [Screen] throws here instead.
+     * for them; the other FOUR -- `RawLlmLog`, `SearchResults`, `EpubSearchResults` and
+     * `SearchIndexProgress` -- are deliberately absent from [MIGRATED] because an argument-free
+     * route for them would render an empty screen with nothing to show, so reaching one by a bare
+     * [Screen] throws here instead. (That is the whole of [MIGRATED]: its 19 entries are exactly
+     * these 19 screens, since every screen in the map is by definition graph-only.)
      *
      * This throws rather than returning a real class so that misuse (a future caller reintroducing
      * a direct [targetFor] call for a graph-only screen) fails loudly instead of returning a class
