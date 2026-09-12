@@ -17,10 +17,12 @@
 
 package net.bible.android.view.activity.nav
 
+import android.app.Activity
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import net.bible.android.TEST_SDK
 import net.bible.android.view.activity.page.ActivityResultKind
+import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ReadingProgressResult
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,5 +75,37 @@ class NavResultIntentsTest {
         assertEquals("memorize", intent.getStringExtra("action"))
         assertEquals(3, intent.getIntExtra("startOrdinal", -1))
         assertEquals(7, intent.getIntExtra("endOrdinal", -1))
+    }
+
+    /**
+     * Fix round 1, Finding 2. The `"data"` extra is the WHOLE payload
+     * `ManageLabelsComposeActivity`'s `registerForActivityResult` launcher reads back from the label
+     * editor (classic `LabelEditComposeActivity.finishWithData`, `:249-254`) -- and `RESULT_OK` is
+     * half of it, which is why the result code is asserted here beside the extra rather than left to
+     * the caller. Until this test existed the contract lived only in an `exitWithResult` lambda that
+     * nothing could exercise.
+     */
+    @Test
+    fun forLabelEditSavedCarriesTheDataExtraWithResultOk() {
+        val payload = """{"label":{"name":"Prayer"}}"""
+
+        val result = NavResultIntents.forLabelEdit(LabelEditResult.Saved(payload))
+
+        assertEquals(Activity.RESULT_OK, result.resultCode)
+        assertEquals(payload, result.data?.getStringExtra("data"))
+    }
+
+    /**
+     * The other half, classic's `Cancel` arm (`LabelEditComposeActivity.kt:242-245`): a bare
+     * `setResult(RESULT_CANCELED)` with NO `Intent` at all. The null is as load-bearing as the
+     * payload above -- `ManageLabelsComposeActivity`'s launcher branches on the result code and then
+     * reads `"data"`, so `RESULT_OK` with an empty extra would be read as a save of nothing.
+     */
+    @Test
+    fun forLabelEditCancelledCarriesNoDataAndResultCanceled() {
+        val result = NavResultIntents.forLabelEdit(LabelEditResult.Cancelled)
+
+        assertEquals(Activity.RESULT_CANCELED, result.resultCode)
+        assertNull(result.data)
     }
 }

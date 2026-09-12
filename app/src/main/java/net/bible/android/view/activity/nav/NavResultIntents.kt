@@ -17,16 +17,29 @@
 
 package net.bible.android.view.activity.nav
 
+import android.app.Activity
 import android.content.Intent
+import androidx.activity.result.ActivityResult
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.view.activity.page.ActivityResultKind
+import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ReadingProgressResult
 
 /**
- * The one place a [ReadingProgressResult] is packed into an `Intent`, byte-identical to what
- * `NavHostComposeActivity.finishWithChapterResult` / `finishWithMemorizeResult` built by hand
- * before `NavResultChannel` existed — same keys, same order, same [ActivityResultKind.EXTRA] tag.
- * `MainBibleActivity.kt:2930-2957` reads exactly these extras and is not touched by this move.
+ * The one place a `commonMain` nav RESULT is packed into the `Intent` (and result code) the
+ * classic `Activity` contract expects. Each function is byte-identical to the host code that
+ * built the same `Intent` by hand before `NavResultChannel` existed, and each is covered by
+ * `NavResultIntentsTest` — which is the point of this object. An `exitWithResult` lambda inside
+ * `NavHostComposeActivity` can only be exercised by launching the host, so in practice it is not
+ * tested at all; a pure function over a result type is.
+ *
+ * An earlier revision of this kdoc scoped the object to [ReadingProgressResult]. That described
+ * the one function it then had, not a boundary: any result type a destination delivers belongs
+ * here. A result type earns a function the moment a destination actually delivers on its
+ * channel — a channel whose destination has not landed yet keeps a placeholder lambda at its
+ * declaration instead (`NavHostComposeActivity`'s `bookmarkResults`/`manageLabelsResults`), so
+ * that the packing and the test that pins it arrive together, in the task that builds the
+ * destination.
  *
  * [readingProgressService] is a fresh, stateless instance (as
  * `ReadingProgressServiceImplTest` builds its own) rather than the host's Koin-injected one:
@@ -36,6 +49,10 @@ import net.bible.sharedcore.nav.ReadingProgressResult
 object NavResultIntents {
     private val readingProgressService = ReadingProgressServiceImpl()
 
+    /**
+     * `MainBibleActivity.kt:2930-2957` reads exactly these extras — same keys, same order, same
+     * [ActivityResultKind.EXTRA] tag — and is not touched by this move.
+     */
     fun forReadingProgress(result: ReadingProgressResult): Intent = when (result) {
         is ReadingProgressResult.Chapter ->
             Intent()
@@ -48,5 +65,30 @@ object NavResultIntents {
                 .putExtra("startOrdinal", result.startOrdinal)
                 .putExtra("endOrdinal", result.endOrdinal)
                 .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ReadingProgress.name)
+    }
+
+    /**
+     * The label editor's exit: classic `LabelEditComposeActivity.finishWithData` (`:249-254`) and
+     * the `Cancel` arm of its `onFinish` (`:242-245`). This pair — the `"data"` extra carrying
+     * `LabelEditContract.LabelData`'s JSON, and the OK/CANCELED split — is the WHOLE result contract
+     * `ManageLabelsComposeActivity`'s `registerForActivityResult` launcher reads back, which makes it
+     * the part of that destination that most needs a test rather than a comment.
+     *
+     * Returns the result code WITH the `Intent` rather than an `Intent?` for the caller to grade,
+     * because here the two are ONE decision: [LabelEditResult.Cancelled] is `RESULT_CANCELED` and no
+     * `data` extra at all, not `RESULT_OK` with an empty one. Split across two call sites, that is
+     * exactly the kind of pairing that drifts. [ActivityResult] is reused rather than a local pair
+     * type — it is already the framework's name for "a result code and its optional Intent", and
+     * `ActivityBase` already speaks it.
+     *
+     * The controller's three outcomes became these two earlier, in
+     * `NavHostComposeActivity.labelEditControllerFor`; by the time a result reaches here it is
+     * already one of the two.
+     */
+    fun forLabelEdit(result: LabelEditResult): ActivityResult = when (result) {
+        is LabelEditResult.Saved ->
+            ActivityResult(Activity.RESULT_OK, Intent().putExtra("data", result.data))
+
+        LabelEditResult.Cancelled -> ActivityResult(Activity.RESULT_CANCELED, null)
     }
 }

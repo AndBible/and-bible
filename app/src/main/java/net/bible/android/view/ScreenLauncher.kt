@@ -152,6 +152,14 @@ object ScreenLauncher {
         // than on the result Intent's component class, so the edge survives the move untouched.
         Screen.ReadingProgress to NavRoutes.readingProgress(),
         Screen.ReadingProgressSettings to NavRoutes.READING_PROGRESS_SETTINGS,
+        // — slice 2: the bookmark cluster —
+        // Screen.LabelEdit is deliberately NOT here, for Screen.RawLlmLog's reason above:
+        // NavRoutes.LABEL_EDIT_PATTERN's `data` argument carries the whole LabelEditContract
+        // .LabelData payload, so an argument-free route would open the editor with no label to
+        // edit — and NavRoutes.labelEdit(data) cannot even be called without one, its parameter
+        // being non-null. Every real edge builds NavRoutes.labelEdit(data) directly: the graph's
+        // own ManageLabels arm once that lands, and until then the classic LabelEditComposeActivity
+        // that targetFor still resolves this screen to.
     )
 
     /** The Activity class implementing [screen]. */

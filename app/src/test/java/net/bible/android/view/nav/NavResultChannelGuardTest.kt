@@ -17,7 +17,6 @@
 
 package net.bible.android.view.nav
 
-import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -111,8 +110,9 @@ class NavResultChannelGuardTest {
 
     /**
      * The bookmark cluster's twin of [readingProgressArmActuallyDeliversThroughTheChannel], and it
-     * matters more here: [BookmarkNavDeps] declares THREE channels (see its kdoc for why they are
-     * created together) and only `labelEditResults` has a destination so far, so two of the three
+     * matters more here: [net.bible.sharedui.bookmark.nav.BookmarkNavDeps] declares THREE channels
+     * (see its kdoc for why they are created together) and only `labelEditResults` has a
+     * destination so far, so two of the three
      * fields are legitimately used nowhere. That makes
      * [everyNavResultChannelFieldOnADepsClassIsOnlyEverDelivered] vacuous for them by design — this
      * pins the one that is not, so the label editor's result cannot silently stop reaching the

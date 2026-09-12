@@ -84,7 +84,6 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.control.backup.SaveOrShare
-import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
@@ -104,7 +103,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.LabelEditContract
 import net.bible.android.view.activity.bookmark.LabelEditMapper
 import net.bible.android.view.activity.bookmark.customIconMap
-import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
@@ -1580,66 +1578,65 @@ class NavHostComposeActivity : ActivityBase() {
     // ——— The bookmark cluster's three result channels ————————————————————————————————————————
     // All three are created here, and handed to `BookmarkNavDeps` together, even though only the
     // label editor's destination exists so far: the alternative is a deps class that every later
-    // task has to widen. Each `exitWithResult` is the classic host's own exit, ported verbatim from
-    // the Activity named in its kdoc, so the destination that arrives later inherits a packing that
-    // is already right rather than one it must also write.
+    // task has to widen.
+    //
+    // Only the LIVE one has a real `exitWithResult`. Fix round 1, Finding 1: the first version of
+    // this block also ported the other two exits "so the later task inherits a packing that is
+    // already right" -- and the bookmark one had ALREADY lost classic's try/catch (which logs and
+    // toasts `error_occurred` around `addHistoryItem`/`setResult`), with no caller and no test able
+    // to notice. That is the cost of unreachable code. The plan assigns both packings to the tasks
+    // that build their destinations, each with a red-then-green test in `NavResultIntentsTest`, so
+    // what stays here is the half that is genuinely useful now: the pointer to the classic source
+    // each of those tasks must port from.
 
     /**
-     * The bookmark LIST's exit, from classic `BookmarksComposeActivity.onSelectBookmark`
-     * (`BookmarksComposeActivity.kt:165-194`), which itself mirrors `Bookmarks.bookmarkSelected`.
-     * Everything before the exit — resolving the id, the speak-bookmark side effect, the error
-     * toast — stays with the destination that produces the result; what is packed here is only the
-     * `Intent` those lines ended at, plus the `addHistoryItem` that must run against the SAME
-     * Intent before it is returned.
-     *
-     * The `ActivityResultKind.Bookmarks` tag is added here rather than carried in [BookmarkResult]
-     * for the reason [NavResultIntents.forReadingProgress] adds its own: the tag names the Intent's
-     * SHAPE to `MainBibleActivity`'s dispatcher, and is not part of what the destination decided.
+     * The bookmark LIST's channel. Its exit is classic `BookmarksComposeActivity.onSelectBookmark`
+     * (`BookmarksComposeActivity.kt:165-194`), itself a mirror of `Bookmarks.bookmarkSelected` —
+     * and note that `addHistoryItem` + `setResult` + `finish()` sit together inside a `try` whose
+     * `catch` logs and toasts `R.string.error_occurred`, so the task that ports it must keep that
+     * wrapper. The `ActivityResultKind.Bookmarks` tag belongs in the packing rather than in
+     * [BookmarkResult], for the reason [NavResultIntents.forReadingProgress] carries its own: the
+     * tag names the Intent's SHAPE to `MainBibleActivity`'s dispatcher, and is not part of what the
+     * destination decided.
      */
-    private val bookmarkResults = NavResultChannel<BookmarkResult> { result ->
-        val intent = Intent()
-            .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.Bookmarks.name)
-            .putExtra("description", result.description)
-            .putExtra(BookmarkControl.LABEL_NO_EXTRA, result.labelNo)
-            .putExtra("listPosition", result.listPosition)
-        result.verse?.let { intent.putExtra("verse", it) }
-        result.key?.let { intent.putExtra("key", it) }
-        result.book?.let { intent.putExtra("book", it) }
-        result.ordinal?.let { intent.putExtra("ordinal", it) }
-        historyTraversal.historyManager.addHistoryItem(null, intent)
-        setResult(RESULT_OK, intent)
-        finish()
+    private val bookmarkResults = NavResultChannel<BookmarkResult> {
+        error(
+            "no destination delivers on this channel until the Bookmarks arm lands (Task 6); its " +
+                "Intent packing belongs in NavResultIntents.forBookmarks, with the test that brief " +
+                "requires"
+        )
     }
 
     /**
-     * The label MANAGER's exit. Both of classic's exits — `saveAndExit`
+     * The label MANAGER's channel. Both of classic's exits — `saveAndExit`
      * (`ManageLabelsComposeActivity.kt:573-644`) and the HIDELABELS reset path (`:663-668`) — build
      * the identical `Intent().putExtra("data", data.toJSON())`, which is why [ManageLabelsResult]
-     * carries just the one string and this lambda has no branch.
+     * carries just the one string and the packing Task 5 writes will need no branch.
      */
-    private val manageLabelsResults = NavResultChannel<ManageLabelsResult> { result ->
-        setResult(RESULT_OK, Intent().putExtra("data", result.data))
-        finish()
+    private val manageLabelsResults = NavResultChannel<ManageLabelsResult> {
+        error(
+            "no destination delivers on this channel until the ManageLabels arm lands (Task 5); " +
+                "its Intent packing belongs in NavResultIntents.forManageLabels, with the test " +
+                "that brief requires"
+        )
     }
 
     /**
-     * The label EDITOR's exit, classic `LabelEditComposeActivity.finishWithData` (`:249-254`) and
-     * the `Cancel` arm of its `onFinish` (`:242-245`), which is the whole of the RESULT contract
-     * `ManageLabelsComposeActivity`'s `registerForActivityResult` launcher reads back. The
-     * three-outcomes-to-two collapse happened earlier, in [labelEditControllerFor]; by the time a
-     * result reaches here it is already one of these two.
+     * The label EDITOR's exit — the one channel here with a live destination. The packing itself is
+     * [NavResultIntents.forLabelEdit] (classic `LabelEditComposeActivity.finishWithData`, `:249-254`,
+     * and the `Cancel` arm of its `onFinish`, `:242-245`), delegated for the same reason
+     * `readingProgressResults` three fields above delegates: a lambda in this class can only be
+     * exercised by launching the host, and the `"data"` extra plus the OK/CANCELED split IS the
+     * contract `ManageLabelsComposeActivity`'s launcher reads back. `NavResultIntentsTest` pins both
+     * cases.
+     *
+     * The three-outcomes-to-two collapse happened earlier, in [labelEditControllerFor]; by the time
+     * a result reaches here it is already one of these two.
      */
     private val labelEditResults = NavResultChannel<NavLabelEditResult> { result ->
-        when (result) {
-            is NavLabelEditResult.Saved -> {
-                setResult(RESULT_OK, Intent().putExtra("data", result.data))
-                finish()
-            }
-            NavLabelEditResult.Cancelled -> {
-                setResult(RESULT_CANCELED)
-                finish()
-            }
-        }
+        val activityResult = NavResultIntents.forLabelEdit(result)
+        setResult(activityResult.resultCode, activityResult.data)
+        finish()
     }
 
     private fun buildDailyReadingController(
