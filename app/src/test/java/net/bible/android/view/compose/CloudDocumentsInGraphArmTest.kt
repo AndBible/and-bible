@@ -277,16 +277,23 @@ class CloudDocumentsInGraphArmTest {
     }
 
     /**
-     * Task-8 fix round 1, the behaviour the per-entry `controllerFor` restores. Unlike `Download`
-     * (always the cluster's start destination, never independently left and reopened within a
-     * session) `CloudDocuments` has two distinct entry points and no covering child, so a genuine
-     * leave-and-reopen inside one host session is real and reachable -- and classic reset every
-     * filter/selection/search/arrangement on each such open, because it always got a fresh Activity
-     * and a fresh controller. A host-memoised singleton would let all of that silently survive the
-     * round trip instead; this proves it does not.
+     * **Honest scope (task-8 fix round 2, finding B corrected an overclaiming name here).** This
+     * test drives the arm with a FAKE `CloudDocumentsDeps` whose `controllerFor` (below) builds a
+     * new controller UNCONDITIONALLY on every call -- so what this actually proves is that the
+     * arm's own `remember { d.controllerFor() }` re-invokes the factory on a genuine new back-stack
+     * entry rather than caching the controller at some wider scope. That property was never broken
+     * and this test would pass unchanged even if the REAL host's `controllerFor` were reverted to a
+     * `by lazy` singleton -- it exercises the arm's contract with whatever `controllerFor` the host
+     * supplies, not the host's own implementation of it.
+     *
+     * The host-side behaviour fix round 1 restored (`NavHostComposeActivity.cloudDocumentsControllerRef`
+     * + `buildCloudDocumentsController()`, a real per-entry factory rather than a `by lazy` field) is
+     * covered separately by `CloudDocumentsControllerRebuildIsolationTest`, which reflects into the
+     * real Activity because the arm-level fake here has no equivalent shared-mutable-ref bug to
+     * reproduce -- the bug (and its fix) live entirely in the host's own field, never in the arm.
      */
     @Test
-    fun aLeaveAndReopenGetsAFreshControllerNotThePreviousEntrysState() {
+    fun theArmAsksControllerForAfreshOnEveryGenuineNewEntry() {
         setGraph(NavRoutes.cloudDocuments())
         val first = assertNotNull(controller)
         assertEquals(1, controllerBuildCount)

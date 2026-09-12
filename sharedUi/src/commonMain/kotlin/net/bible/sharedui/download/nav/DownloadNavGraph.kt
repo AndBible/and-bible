@@ -857,10 +857,11 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         // ever covers this entry's composition -- CloudDocuments has no children of its own, unlike
         // Download (covered by CustomRepositories) or the bookmark siblings -- so the only way this
         // composition is torn down and rebuilt is a genuinely fresh back-stack entry or a real
-        // process/host rebuild, and deps.controllerFor's host-memoised controller is rebuilt exactly
-        // then too. A rememberSaveable flag would restore `true` after process death while that
-        // controller came back empty, silently skipping the gate and the seed -- see this task's
-        // report for the fuller account of this carry-forward.
+        // process/host rebuild, and the `controller` val above (from a PER-ENTRY controllerFor --
+        // see CloudDocumentsDeps.controllerFor's kdoc) is rebuilt exactly then too. A rememberSaveable
+        // flag would restore `true` after process death while that fresh controller came back empty,
+        // silently skipping the gate and the seed -- see this task's report for the fuller account of
+        // this carry-forward.
         var ranOpenOrGate by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
             if (ranOpenOrGate) return@LaunchedEffect
