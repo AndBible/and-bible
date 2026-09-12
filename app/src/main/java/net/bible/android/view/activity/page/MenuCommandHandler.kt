@@ -258,7 +258,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     isHandled = true
                 }
                 R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {
-                    handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.Download)
+                    handlerIntent = NavHostComposeActivity.intentFor(mainBibleActivity, NavRoutes.download())
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                 }
                 R.id.helpButton -> {

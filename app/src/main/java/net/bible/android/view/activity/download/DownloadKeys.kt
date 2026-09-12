@@ -23,5 +23,4 @@ package net.bible.android.view.activity.download
  */
 object DownloadKeys {
     const val DOCUMENT_IDS_EXTRA = "documentIds"
-    const val DOWNLOAD_FINISH = 1
 }

@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose
 
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -122,11 +123,36 @@ class ClassicDocumentSelectionRemovalGuardTest {
             listOf(
                 "Screen.ChooseDocument",
                 "Screen.Download",
-                "Screen.FirstDownload",
                 "Screen.CustomRepositories",
                 "Screen.CustomRepositoryEditor",
             ),
             "a document-selection arm still branches; slice S6 deleted the classic " +
                 "class it would branch to",
         )
+
+    /**
+     * nav-graph slice 4 Task 7b's backstop for spec §9 risk 3.
+     * `migratedScreenArgumentIsNeverDroppedByAPutExtra` (`NavHostRoutingGuardTest.kt`) cannot see
+     * this shape: `StartupComposeActivity.firstDownloadIntent()` used to be an expression-bodied
+     * function whose OTHER two extras were attached 14 and 49 lines away by its own callers, and
+     * `Screen.Download` was never in `ScreenLauncher.MIGRATED` in the first place (five arguments),
+     * so that guard's putExtra scan does not even look at these call sites. A plain containment
+     * scan over every shipping source catches what the shape-aware scan cannot: none of the five
+     * classic Download intent extras may survive anywhere, because Task 7b moved every one of them
+     * onto `NavRoutes.download(...)`'s route arguments instead.
+     */
+    @Test
+    fun noCallSiteStillPutsADownloadExtraOnAnIntent() {
+        val offenders = ClassicRemovalScan.appSources().filter { file ->
+            val text = file.readText()
+            listOf(
+                """putExtra("download-recommended"""",
+                """putExtra("search"""",
+                """putExtra("addons"""",
+                "putExtra(DownloadKeys.DOCUMENT_IDS_EXTRA",
+                "EXTRA_FIRST_DOWNLOAD",
+            ).any { text.contains(it) }
+        }
+        assertTrue("download extras survive at: ${offenders.map { it.path }}", offenders.isEmpty())
+    }
 }

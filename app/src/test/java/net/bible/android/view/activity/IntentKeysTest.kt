@@ -21,6 +21,7 @@ import net.bible.android.view.activity.ai.RawLlmLogKeys
 import net.bible.android.view.activity.progress.ReadingProgressKeys
 import net.bible.android.view.activity.readingplan.ReadingPlanKeys
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 /**
@@ -31,7 +32,22 @@ import org.junit.Test
 class IntentKeysTest {
     @Test fun downloadKeysAreUnchanged() {
         assertEquals("documentIds", DownloadKeys.DOCUMENT_IDS_EXTRA)
-        assertEquals(1, DownloadKeys.DOWNLOAD_FINISH)
+    }
+
+    /**
+     * nav-graph slice 4 Task 7b, plan D7: `DownloadKeys.DOWNLOAD_FINISH` is a dead result code — all
+     * ten launch edges into Download discarded the result code, and both post-hooks
+     * (`StartupActivity.afterDownload`, `StartupComposeActivity.afterFlow`) re-derive whether to
+     * proceed from `SwordDocumentFacade.bibles` instead of reading it. Reflection rather than a
+     * direct `DownloadKeys.DOWNLOAD_FINISH` reference, so this test keeps compiling after the
+     * constant is deleted instead of failing to build the moment it lands.
+     */
+    @Test fun downloadFinishIsGone() {
+        assertFalse(
+            "DownloadKeys.DOWNLOAD_FINISH is a dead result code (plan D7); every consumer already " +
+                "ignores it, and both post-hooks re-derive from SwordDocumentFacade.bibles instead",
+            DownloadKeys::class.java.declaredFields.any { it.name == "DOWNLOAD_FINISH" },
+        )
     }
 
     @Test fun rawLlmLogKeysAreUnchanged() {

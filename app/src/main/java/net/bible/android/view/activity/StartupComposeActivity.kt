@@ -40,13 +40,13 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.download.DownloadComposeActivity
-import net.bible.android.view.activity.download.DownloadKeys
 import net.bible.android.view.activity.installzip.InstallZipEvent
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.startup.StartupWelcomeController
 import net.bible.sharedcore.startup.StartupWelcomeInfo
 import net.bible.sharedui.AbAppTheme
@@ -152,23 +152,23 @@ class StartupComposeActivity : ActivityBase() {
         }
     }
 
-    private fun firstDownloadIntent(): Intent =
-        ScreenLauncher.intentFor(this, Screen.FirstDownload)
-            .apply { putExtra(DownloadComposeActivity.EXTRA_FIRST_DOWNLOAD, true) }
-
     private fun onDownload() {
         if (CommonUtils.megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
             Dialogs.showErrorMsg(getString(R.string.storage_space_warning)) { finish() }
             return
         }
+        val intent = NavHostComposeActivity.intentFor(this, NavRoutes.download(firstDownload = true))
         lifecycleScope.launch {
-            awaitIntent(firstDownloadIntent())
+            awaitIntent(intent)
             afterFlow()
         }
     }
 
     private fun onEasyStart() {
-        val intent = firstDownloadIntent().apply { putExtra("download-recommended", true) }
+        val intent = NavHostComposeActivity.intentFor(
+            this,
+            NavRoutes.download(firstDownload = true, downloadRecommended = true),
+        )
         lifecycleScope.launch {
             awaitIntent(intent)
             afterFlow()
@@ -202,8 +202,10 @@ class StartupComposeActivity : ActivityBase() {
     }
 
     private fun launchRedownload(books: List<SwordDocumentInfo>) {
-        val intent = firstDownloadIntent()
-            .apply { putExtra(DownloadKeys.DOCUMENT_IDS_EXTRA, json.encodeToString(serializer(), books)) }
+        val intent = NavHostComposeActivity.intentFor(
+            this,
+            NavRoutes.download(firstDownload = true, documentIds = json.encodeToString(serializer(), books)),
+        )
         lifecycleScope.launch {
             awaitIntent(intent)
             afterFlow()

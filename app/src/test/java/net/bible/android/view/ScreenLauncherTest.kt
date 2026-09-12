@@ -121,13 +121,6 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun firstDownload_routes_to_compose() {
-        // same DownloadComposeActivity as Screen.Download (the firstDownload extra, added by the
-        // caller, differentiates behaviour)
-        assertEquals(DownloadComposeActivity::class.java, ScreenLauncher.targetFor(Screen.FirstDownload))
-    }
-
-    @Test
     fun search_routes_to_the_nav_graph() {
         assertEquals(NavRoutes.searchForm(), ScreenLauncher.MIGRATED[Screen.Search])
     }

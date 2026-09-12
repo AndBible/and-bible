@@ -362,8 +362,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openDownloads() {
         if (!downloadControl.checkDownloadOkay()) return
-        val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.Download)
-        intent.putExtra("addons", true)
+        val intent = NavHostComposeActivity.intentFor(mainBibleActivity, NavRoutes.download(addons = true))
         mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
     }
 

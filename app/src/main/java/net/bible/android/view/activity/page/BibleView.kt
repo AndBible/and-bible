@@ -1484,8 +1484,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         UriConstants.SCHEME_DOWNLOAD -> {
             val initials = uri.getQueryParameter("initials")
 
-            val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.Download)
-            intent.putExtra("search", initials)
+            val intent = NavHostComposeActivity.intentFor(mainBibleActivity, NavRoutes.download(search = initials))
             mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
             true
         }

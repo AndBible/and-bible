@@ -40,6 +40,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
@@ -47,6 +48,7 @@ import net.bible.service.download.DownloadManager
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocSortKey
@@ -392,7 +394,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
     private fun onDownload() {
         try {
             if (downloadControl.checkDownloadOkay()) {
-                val handlerIntent = ScreenLauncher.intentFor(this, Screen.Download)
+                val handlerIntent = NavHostComposeActivity.intentFor(this, NavRoutes.download())
                 lifecycleScope.launch {
                     awaitIntent(handlerIntent)
                     ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())

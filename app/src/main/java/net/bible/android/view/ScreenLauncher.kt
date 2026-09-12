@@ -49,7 +49,7 @@ import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivi
  * `ComposeReadingViewHost`, so a routing target for either would name an Activity that no longer
  * exists. Reaching them is a host call (`showHistorySheet()`, `showSpeakTransport()`), not a launch.
  */
-enum class Screen { Calculator, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, FirstDownload, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
+enum class Screen { Calculator, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
 
 /**
  * Central routing indirection, and all that survives of the old/new Strangler Fig: [targetFor] is a
@@ -225,11 +225,6 @@ object ScreenLauncher {
         Screen.GridChoosePassageBook -> GridChoosePassageComposeActivity::class.java
         Screen.ChooseDocument -> ChooseDocumentComposeActivity::class.java
         Screen.Download -> DownloadComposeActivity::class.java
-        Screen.FirstDownload ->
-            // Compose FirstDownload = the shared DownloadComposeActivity + EXTRA_FIRST_DOWNLOAD.
-            // intentFor stays generic (no extra injected here); callers add
-            // DownloadComposeActivity.EXTRA_FIRST_DOWNLOAD themselves.
-            DownloadComposeActivity::class.java
         Screen.Search -> targetForMigratedScreen(screen)
         Screen.EpubSearch -> targetForMigratedScreen(screen)
         Screen.EpubSearchResults -> targetForMigratedScreen(screen)

@@ -55,9 +55,8 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.download.DownloadComposeActivity
-import net.bible.android.view.activity.download.DownloadKeys
 import net.bible.android.view.activity.installzip.InstallZipEvent
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
@@ -66,6 +65,7 @@ import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.nav.NavRoutes
 
 import org.apache.commons.lang3.StringUtils
 import java.util.*
@@ -297,9 +297,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
                     lifecycleScope.launch(Dispatchers.Main) {
                         val books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
                         if (books != null) {
-                            val intent = ScreenLauncher.intentFor(this@StartupActivity, Screen.FirstDownload)
-                                .apply { putExtra(DownloadComposeActivity.EXTRA_FIRST_DOWNLOAD, true) }
-                            intent.putExtra(DownloadKeys.DOCUMENT_IDS_EXTRA, json.encodeToString(serializer(), books))
+                            val intent = NavHostComposeActivity.intentFor(
+                                this@StartupActivity,
+                                NavRoutes.download(firstDownload = true, documentIds = json.encodeToString(serializer(), books)),
+                            )
                             lifecycleScope.launch {
                                 awaitIntent(intent)
                                 afterDownload()
@@ -323,9 +324,10 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     private fun easyStart() {
-        val intent = ScreenLauncher.intentFor(this@StartupActivity, Screen.FirstDownload)
-            .apply { putExtra(DownloadComposeActivity.EXTRA_FIRST_DOWNLOAD, true) }
-        intent.putExtra("download-recommended", true)
+        val intent = NavHostComposeActivity.intentFor(
+            this@StartupActivity,
+            NavRoutes.download(firstDownload = true, downloadRecommended = true),
+        )
         lifecycleScope.launch {
             awaitIntent(intent)
             afterDownload()
@@ -373,8 +375,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         }
 
         if (StringUtils.isBlank(errorMessage)) {
-            val handlerIntent = ScreenLauncher.intentFor(this, Screen.FirstDownload)
-                .apply { putExtra(DownloadComposeActivity.EXTRA_FIRST_DOWNLOAD, true) }
+            val handlerIntent = NavHostComposeActivity.intentFor(this, NavRoutes.download(firstDownload = true))
             lifecycleScope.launch {
                 awaitIntent(handlerIntent)
                 afterDownload()

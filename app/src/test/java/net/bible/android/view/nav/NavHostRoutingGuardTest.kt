@@ -577,6 +577,22 @@ class NavHostRoutingGuardTest {
     }
 
     /**
+     * Task 7b deletes `Screen.FirstDownload` (plan design §5): a route with five arguments has no
+     * use for an alias, since `NavRoutes.download(firstDownload = true, ...)` already says the same
+     * thing explicitly. Scanned via [Screen.entries] rather than a direct `Screen.FirstDownload`
+     * reference, so this test keeps compiling after the enum value is gone instead of failing to
+     * build the moment the deletion lands.
+     */
+    @Test
+    fun firstDownloadIsNoLongerAScreen() {
+        assertFalse(
+            Screen.entries.any { it.name == "FirstDownload" },
+            "Screen.FirstDownload should be gone -- NavRoutes.download(firstDownload = true) is its " +
+                "replacement, and a route with arguments has no use for an argument-free alias",
+        )
+    }
+
+    /**
      * The coexistence seam's other half. `Screen.Backup` stands in for "not migrated yet" here; it
      * used to be `Screen.MyDocuments`, which nav-graph slice 4 Task 6 moved into
      * [ScreenLauncher.MIGRATED] -- so this assertion had to move with it rather than be deleted,
@@ -1099,14 +1115,19 @@ class NavHostRoutingGuardTest {
          * and 8). Added by the whole-branch review's M2: the scan was written for the ScreenLauncher
          * shape only, but a `.putExtra(...)` chained onto a direct call is dropped exactly as
          * silently -- the host reads only [NavHostComposeActivity.EXTRA_ROUTE] -- and there are
-         * thirteen such production call sites now (`BibleJavascriptInterface.kt` x2, `BibleView.kt`
-         * x2, `ComposeReadingViewHost.kt`, `SearchControl.kt`, `LinkControl.kt`,
-         * `MenuCommandHandler.kt`, `OptionsMenuItems.kt` x2, `CurrentGeneralBookPage.kt` x2,
-         * `TextDisplaySettingsComposeActivity.kt`) -- six of them added by nav-graph slices 2+4
-         * Task 7 when it deleted `ManageLabelsComposeActivity` and repointed its six outside callers
-         * at this direct shape, and `CurrentGeneralBookPage.kt`'s second one added by nav-graph
-         * slice 4 Task 5 when it repointed the `MyDocumentPages` branch the same way -- none of
-         * which is an offender today.
+         * twenty-three such production call sites now (`BibleJavascriptInterface.kt` x3, `BibleView.kt`
+         * x3, `ComposeReadingViewHost.kt`, `SearchControl.kt`, `LinkControl.kt`,
+         * `MenuCommandHandler.kt` x2, `OptionsMenuItems.kt` x2, `CurrentGeneralBookPage.kt` x2,
+         * `TextDisplaySettingsComposeActivity.kt`, `StartupComposeActivity.kt` x3,
+         * `StartupActivity.kt` x3, `ChooseDocumentComposeActivity.kt`) -- six of them added by
+         * nav-graph slices 2+4 Task 7 when it deleted `ManageLabelsComposeActivity` and repointed
+         * its six outside callers at this direct shape, `CurrentGeneralBookPage.kt`'s second one
+         * added by nav-graph slice 4 Task 5 when it repointed the `MyDocumentPages` branch the same
+         * way, and ten more added by nav-graph slice 4 Task 7b, which repointed every launch edge of
+         * `Screen.Download`/the deleted `Screen.FirstDownload` at `NavRoutes.download(...)` instead:
+         * one each in `BibleJavascriptInterface.kt`, `BibleView.kt`, `MenuCommandHandler.kt` and
+         * `ChooseDocumentComposeActivity.kt` (new to this list), and three each in the newly-added
+         * `StartupComposeActivity.kt` and `StartupActivity.kt` -- none of which is an offender today.
          */
         const val NAV_HOST_CALL_MARKER = "NavHostComposeActivity.intentFor("
 

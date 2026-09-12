@@ -166,8 +166,17 @@ open class DownloadComposeActivity : ActivityBase() {
 
     private val downloadDefaults get() = intent.extras?.getBoolean("download-recommended") == true
 
-    /** FirstDownload onboarding variant (classic [FirstDownload]): shows an OK gate + hides installZip. */
-    private val firstDownload get() = intent.getBooleanExtra(EXTRA_FIRST_DOWNLOAD, false)
+    /**
+     * FirstDownload onboarding variant (classic [FirstDownload]): shows an OK gate + hides
+     * installZip. Always `false` now (nav-graph slice 4 Task 7b): this classic Activity is no
+     * longer reachable from any launch edge -- all ten were repointed at
+     * `NavHostComposeActivity.intentFor(context, NavRoutes.download(firstDownload = ...))`,
+     * which resolves into the nav-graph destination (`DownloadNavGraph.kt`), not here. Kept as a
+     * `val` rather than deleted along with every arm it gates: this class survives until Task 9
+     * deletes it outright, and a hardcoded constant is clearer at each of those call sites than an
+     * inlined `false` would be.
+     */
+    private val firstDownload = false
 
     /**
      * Drives the OK button's enabled state in [firstDownload] mode: true once ≥1 Bible is installed.
@@ -349,7 +358,8 @@ open class DownloadComposeActivity : ActivityBase() {
                     )
 
                     // FirstDownload onboarding OK gate: overlay a bottom button, enabled once a
-                    // Bible is installed; returns DOWNLOAD_FINISH so StartupActivity proceeds.
+                    // Bible is installed; just finishes (nav-graph slice 4 Task 7b, plan D7 --
+                    // StartupActivity/StartupComposeActivity re-derive from SwordDocumentFacade.bibles).
                     if (firstDownload) {
                         Button(
                             onClick = { onOkay() },
@@ -367,9 +377,14 @@ open class DownloadComposeActivity : ActivityBase() {
         }
     }
 
-    /** Classic FirstDownload.onOkay: return DOWNLOAD_FINISH so StartupActivity advances to the main app. */
+    /**
+     * Classic FirstDownload.onOkay. Used to `setResult(DownloadKeys.DOWNLOAD_FINISH)` first, but
+     * every one of its ten launch edges discarded the result code, and both post-hooks
+     * (`StartupActivity.afterDownload`, `StartupComposeActivity.afterFlow`) re-derive whether to
+     * proceed from `SwordDocumentFacade.bibles` instead of reading it -- so the code was dead
+     * (nav-graph slice 4 Task 7b, plan D7).
+     */
     private fun onOkay() {
-        setResult(DownloadKeys.DOWNLOAD_FINISH)
         finish()
     }
 
@@ -935,8 +950,6 @@ open class DownloadComposeActivity : ActivityBase() {
     }
 
     companion object {
-        /** Intent extra: run the FirstDownload onboarding variant (OK gate + installZip hidden). */
-        const val EXTRA_FIRST_DOWNLOAD = "firstDownload"
         private const val REPO_REFRESH_DATE = "repoRefreshDate"
         private const val REPO_LIST_STALE_AFTER_DAYS: Long = 1
         private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
