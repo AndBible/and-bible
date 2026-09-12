@@ -275,16 +275,22 @@ class DownloadDeps(
  * composes, then may leave (plan D3), the way [DownloadDeps.askIfWantToProceed] already does.
  *
  * - [controllerFor] builds the [CloudDocumentsController] around the sync/action/arrangement seams
- *   the host wires. It is HOST-MEMOISED, not per-entry, for [DownloadDeps.controllerFor]'s reason
- *   rather than [CustomRepositoriesDeps.controllerFor]'s: [openOrGate] and [refreshFromNetwork] are
+ *   the host wires. It is a PER-ENTRY factory, [CustomRepositoriesDeps.controllerFor]'s idiom rather
+ *   than [DownloadDeps.controllerFor]'s host-memoised one (task-8 fix round 1): this destination has
+ *   TWO distinct entry points (`Download`'s overflow row, Settings' sync row) and no covering child,
+ *   so a genuine leave-and-reopen within one host session is a real, reachable path, and classic reset
+ *   every filter/selection/search/arrangement on each such open by getting a fresh Activity and a
+ *   fresh controller -- a memoised singleton would let all of that silently survive a round trip
+ *   instead, a user-visible behaviour change from classic. [openOrGate] and [refreshFromNetwork] are
  *   `suspend () -> Boolean`/`suspend () -> Unit` with no controller parameter of their own (their
- *   signatures are frozen the same way a screen's are), so the ONLY way either can seed or refresh
- *   the list the arm renders is by mutating the SAME controller instance the arm reads via
- *   `collectAsState` -- which requires one shared instance behind both, not a fresh one per entry.
- *   This also reproduces classic's own observable shape verbatim: classic's `isRefreshing` is
- *   hard-coded `false` and the loading spinner is driven entirely by `controller.busy`
- *   (`pushBusy`/`pushBusy` pairs inside `openOrGate`/`refreshFromNetwork` themselves), which only
- *   works when those functions already hold the controller they push busy onto.
+ *   signatures are frozen the same way a screen's are), so the host reaches the CURRENT entry's
+ *   controller through a reassignable var [controllerFor]'s own implementation updates, the same
+ *   idiom [CustomRepositoriesDeps.controllerFor]'s `.apply { this.onDuplicate = onDuplicate }` uses
+ *   to hand a per-entry callback to a per-entry controller. This also reproduces classic's own
+ *   observable shape verbatim: classic's `isRefreshing` is hard-coded `false` and the loading spinner
+ *   is driven entirely by `controller.busy` (`pushBusy`/`pushBusy` pairs inside
+ *   `openOrGate`/`refreshFromNetwork` themselves), which only works when those functions already
+ *   hold the controller they push busy onto -- the CURRENT one, via that var, not a fixed one.
  *
  * - [title] is BOTH the window title and the string [CloudDocumentsScreen] draws in its own top bar
  *   (classic `R.string.document_sync_manage_title`, both the manifest label and the screen's own

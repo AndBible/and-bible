@@ -1194,10 +1194,10 @@ class NavHostComposeActivity : ActivityBase() {
                             observeJobs = { onJobs -> observeProgressStatusJobs(onJobs) },
                         ),
                         cloudDocuments = CloudDocumentsDeps(
-                            // Host-memoised singleton -- see CloudDocumentsDeps.controllerFor's own
-                            // kdoc for why (openOrGate/refreshFromNetwork have no controller
-                            // parameter of their own, so they need the SAME instance the arm reads).
-                            controllerFor = { cloudDocumentsController },
+                            // PER-ENTRY factory (task-8 fix round 1) -- see
+                            // cloudDocumentsControllerRef's kdoc for why a fresh instance every call
+                            // (not a host-memoised singleton) is required here.
+                            controllerFor = { buildCloudDocumentsController() },
                             title = getString(R.string.document_sync_manage_title),
                             topBarActions = { CloudDocumentsOverflowMenu() },
                             openOrGate = { cloudDocumentsOpenOrGate() },
@@ -5397,8 +5397,29 @@ class NavHostComposeActivity : ActivityBase() {
      * differs from [CustomRepositoriesDeps.controllerFor]'s per-entry factory. Classic's own
      * `controller by lazy` field (`CloudDocumentsComposeActivity.kt:80-100`), ported verbatim.
      */
-    private val cloudDocumentsController by lazy {
-        CloudDocumentsController(
+    /**
+     * The CURRENT entry's controller -- task-8 fix round 1. [buildCloudDocumentsController] REASSIGNS
+     * this every time [CloudDocumentsDeps.controllerFor] is called, one per genuine composition
+     * entry, the [CustomRepositoriesDeps.controllerFor] idiom rather than a `by lazy` singleton: this
+     * destination has TWO distinct entry points (Download's overflow row, Settings' sync row) and no
+     * covering child, so a genuine leave-and-reopen within one host session is a real, reachable
+     * path, and classic reset every filter/selection/search/arrangement on each such open by getting
+     * a fresh Activity and a fresh controller. A singleton would have let all of that silently
+     * survive a round trip instead. Every function below runs only after the destination has composed
+     * at least once (they are either called from the arm's own effects or from a callback
+     * [buildCloudDocumentsController] itself just wired), so the `requireNotNull` in
+     * [cloudDocumentsController] never actually fires in practice -- it exists so a wiring bug fails
+     * loudly instead of silently reading a stale instance.
+     */
+    private var cloudDocumentsControllerRef: CloudDocumentsController? = null
+    private val cloudDocumentsController: CloudDocumentsController
+        get() = requireNotNull(cloudDocumentsControllerRef) {
+            "CloudDocuments controller read before its destination composed"
+        }
+
+    /** Classic's own `controller by lazy` field (`CloudDocumentsComposeActivity.kt:80-100`), ported as a PER-ENTRY factory -- see [cloudDocumentsControllerRef]'s kdoc. */
+    private fun buildCloudDocumentsController(): CloudDocumentsController {
+        val controller = CloudDocumentsController(
             syncEnabled = { DocumentSyncSettings.enabled },
             onAction = ::handleCloudDocumentsAction,
             onBulkAction = ::handleCloudDocumentsBulkAction,
@@ -5414,6 +5435,8 @@ class NavHostComposeActivity : ActivityBase() {
             },
             scope = lifecycleScope,
         )
+        cloudDocumentsControllerRef = controller
+        return controller
     }
 
     /** Classic's `lastPlan` field (`:78`): the last resolved Sync-now plan, retained so confirming it dispatches without a second resolve. */
