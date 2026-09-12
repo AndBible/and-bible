@@ -38,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.progress.PassageRow
 import net.bible.sharedcore.progress.ReadingProgressController
 import net.bible.sharedcore.progress.ReadingTab
@@ -49,6 +50,7 @@ import net.bible.sharedcore.settings.ReadingProgressSettingsController
 import net.bible.sharedcore.settings.SyncSettingsController
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.nav.popOrExitOnFailedPop
 import net.bible.sharedui.progress.AbReadHistorySheet
 import net.bible.sharedui.progress.MemorizeTabBody
@@ -158,15 +160,18 @@ class ReadHistoryRequest(val title: String, val rows: List<ReadHistoryRow>)
  * `ReadingProgressComposeActivity`.
  *
  * **This is the batch's one destination whose result leaves the batch**, and the whole edge lives
- * inside [controllerFor] rather than in a slot of its own. Classic's `navigateToChapter` (`:190-196`)
- * and `navigateToMemorize` (`:200-208`) each build an `Intent`, `setResult(RESULT_OK, it)` and
- * `finish()`; `MainBibleActivity.kt:2930-2958` consumes them by reading
+ * inside [controllerFor]'s `onResult` rather than in a slot of its own. Classic's `navigateToChapter`
+ * (`:190-196`) and `navigateToMemorize` (`:200-208`) each built an `Intent`, `setResult(RESULT_OK, it)`
+ * and `finish()` directly; `MainBibleActivity.kt:2930-2958` still consumes them by reading
  * `extras.getString(ActivityResultKind.EXTRA)` — NOT the result Intent's component class — which is
  * exactly what lets the edge survive the migration: the nav host sets a byte-identical result and
  * the consumer cannot tell which host produced it. Both are already constructor lambdas of
- * [ReadingProgressController] (`onNavigateToChapter`, `onNavigateToMemorize`), so the host wires
- * them there, unchanged. They are deliberately NOT a `(Intent) -> Unit` deps slot: `android.content
- * .Intent` is an Android type and this file is `commonMain`.
+ * [ReadingProgressController] (`onNavigateToChapter`, `onNavigateToMemorize`), which the host now
+ * wires to `onResult` rather than to the two `finish()`-ing functions directly — `onResult` hands a
+ * [net.bible.sharedcore.nav.ReadingProgressResult] to this arm's [NavResultChannel], which is what
+ * decides whether that means popping back to a parent entry or exiting the host with the packed
+ * `Intent`; see [NavResultChannel]'s own kdoc. `onResult` is deliberately NOT a `(Intent) -> Unit`
+ * deps slot: `android.content.Intent` is an Android type and this file is `commonMain`.
  *
  * - [controllerFor] is a lambda, so the deps literal the host assembles on EVERY launch, for every
  *   cluster, constructs nothing and opening a search screen never touches the read-history DAO —
@@ -206,6 +211,7 @@ class ReadingProgressDeps(
     val controllerFor: (
         tabArg: Int?,
         onShowHistory: (ReadHistoryRequest) -> Unit,
+        onResult: (ReadingProgressResult) -> Unit,
     ) -> ReadingProgressController,
     val persistTab: (ReadingTab) -> Unit,
     val onApplyHistoryDeletes: (ids: List<String>, cycle: Int, onDeleted: () -> Unit) -> Unit,
@@ -265,6 +271,13 @@ class SettingsNavDeps(
     val syncSettings: SyncSettingsDeps,
     // — READING PROGRESS —
     val readingProgress: ReadingProgressDeps,
+    /**
+     * [NavResultChannel] for [ReadingProgressResult] -- declared here, on the GRAPH-wide deps, per
+     * [NavResultChannel]'s own kdoc: it is created by the HOST (`NavHostComposeActivity`) and
+     * handed down, never `remember`ed by an arm, because an arm's composition is disposed before a
+     * parent could read what it published.
+     */
+    val readingProgressResults: NavResultChannel<ReadingProgressResult>,
     // — READING PROGRESS SETTINGS —
     val readingProgressSettings: ReadingProgressSettingsDeps,
 )
@@ -462,7 +475,11 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
         // round trip. The history-dialog setter below is re-pointed by the host on every call, so
         // a loader started by the previous composition still reaches the live one.
         val controller = remember {
-            d.controllerFor(tabArg) { request -> historyDialog = request }
+            d.controllerFor(
+                tabArg,
+                { request -> historyDialog = request },
+                { deps.readingProgressResults.deliver(navController, it) },
+            )
         }
 
         // Classic's manifest label was `android:label="@string/reading_progress_title"`, and the

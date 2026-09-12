@@ -741,60 +741,6 @@ class NavHostRoutingGuardTest {
     }
 
     /**
-     * The §5.2 caveat of the whole-branch review, closed as a guard rather than left as a comment.
-     *
-     * `ReadingProgress` exits with `finish()` when the user taps a chapter, because it produces a
-     * RESULT (`ActivityResultKind.ReadingProgress` + the verse extra) that `MainBibleActivity` reads.
-     * That is only safe because the destination is, in practice, always the host's START destination:
-     * nothing in any graph navigates TO it, so the host it finishes is a host launched for it alone.
-     * The kdoc on `NavHostComposeActivity.readingProgressControllerFor` argues exactly that, and is
-     * right today -- but nothing enforced it.
-     *
-     * What a later slice could break by adding one row: if a graph navigated to
-     * [NavRoutes.READING_PROGRESS_PATTERN] from inside a host launched for another reason -- say from
-     * Settings, launched by `MenuCommandHandler` with `REFRESH_DISPLAY_ON_FINISH` -- then tapping a
-     * chapter would `finish()` the WHOLE host, tearing down the parent back stack the user was in,
-     * AND deliver the chapter extras under a request code whose `MainBibleActivity` branch does not
-     * read them. The verse jump would be silently dropped and the user thrown out of settings.
-     *
-     * So: no in-graph navigation to that route. A slice that genuinely needs one must first replace
-     * the `finish()` exit with a result the graph can carry (a pop plus a shared result holder), and
-     * then delete this test as part of that change -- not loosen it.
-     */
-    @Test
-    fun noGraphNavigatesToTheReadingProgressRoute() {
-        val offenders = mutableListOf<String>()
-        for (file in navGraphSources()) {
-            val text = withoutComments(file.readText())
-            val path = file.path.replace('\\', '/')
-            var searchFrom = 0
-            while (true) {
-                val callStart = text.indexOf(NAVIGATE_CALL_MARKER, searchFrom)
-                if (callStart < 0) break
-                val openParenIndex = callStart + NAVIGATE_CALL_MARKER.length - 1
-                val closeParenIndex = matchingParenIndex(text, openParenIndex) ?: break
-                searchFrom = closeParenIndex + 1
-                val argsText = text.substring(openParenIndex + 1, closeParenIndex)
-                // The pattern constant, or the builder that produces a route matching it. The word
-                // boundary is load-bearing: NavRoutes.READING_PROGRESS_SETTINGS is a DIFFERENT
-                // destination (a child of this one) and navigating to it is entirely correct.
-                if (Regex("""NavRoutes\.READING_PROGRESS_PATTERN\b""").containsMatchIn(argsText) ||
-                    Regex("""NavRoutes\.readingProgress\s*\(""").containsMatchIn(argsText)
-                ) {
-                    offenders.add("$path: navigate(${argsText.trim()})")
-                }
-            }
-        }
-        assertEquals(
-            emptyList<String>(),
-            offenders.sorted(),
-            "a graph navigates to the reading-progress route from inside the host. That destination " +
-                "exits with finish() to return its chapter result, which is only safe while it is " +
-                "always a START destination -- see this test's kdoc. Offenders:\n${offenders.joinToString("\n")}",
-        )
-    }
-
-    /**
      * Every `*NavGraph.kt` in `:sharedUi`'s `commonMain`. Globbed rather than listed so the slices
      * still queued behind this batch are covered the moment their graph file lands, instead of being
      * silently skipped by a hard-coded list nobody remembers to extend.
@@ -855,9 +801,6 @@ class NavHostRoutingGuardTest {
         const val NAV_HOST_CALL_MARKER = "NavHostComposeActivity.intentFor("
 
         val INTENT_FOR_CALL_MARKERS = listOf(SCREEN_LAUNCHER_CALL_MARKER, NAV_HOST_CALL_MARKER)
-
-        /** `navController.navigate(`, matched by its bare tail -- see [noGraphNavigatesToTheReadingProgressRoute]. */
-        const val NAVIGATE_CALL_MARKER = "navigate("
 
         /** See [migratedScreenArgumentIsNeverDroppedByAPutExtra]'s kdoc, the assignment shape's known bound. */
         const val ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS = 600

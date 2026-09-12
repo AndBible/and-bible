@@ -90,7 +90,6 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
@@ -140,6 +139,7 @@ import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.progress.ReadHistoryEntry
 import net.bible.sharedcore.progress.ReadingProgressController
 import net.bible.sharedcore.progress.ReadingTab
@@ -172,6 +172,7 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.settings.SyncSettingsController
 import net.bible.sharedcore.settings.SyncSettingsLabels
 import net.bible.sharedui.AbAppTheme
+import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.ai.nav.AiConnectionSettingsDeps
 import net.bible.sharedui.ai.nav.AiDocumentFilterDeps
 import net.bible.sharedui.ai.nav.AiModelsDeps
@@ -853,8 +854,8 @@ class NavHostComposeActivity : ActivityBase() {
                             // A factory, so nothing here constructs a controller or touches the
                             // read-history DAO until the destination actually composes — the same
                             // rule the two getters above follow. See readingProgressControllerFor.
-                            controllerFor = { tabArg, onShowHistory ->
-                                readingProgressControllerFor(tabArg, onShowHistory)
+                            controllerFor = { tabArg, onShowHistory, onResult ->
+                                readingProgressControllerFor(tabArg, onShowHistory, onResult)
                             },
                             persistTab = { tab -> persistReadingProgressTab(tab) },
                             onApplyHistoryDeletes = { ids, cycle, onDeleted ->
@@ -874,6 +875,7 @@ class NavHostComposeActivity : ActivityBase() {
                             confirmText = getString(android.R.string.ok),
                             dismissText = getString(android.R.string.cancel),
                         ),
+                        readingProgressResults = readingProgressResults,
                         readingProgressSettings = ReadingProgressSettingsDeps(
                             controller = { readingProgressSettingsController },
                         ),
@@ -1276,6 +1278,18 @@ class NavHostComposeActivity : ActivityBase() {
 
     /** Child -> parent channel for the day list / selector — see [ReadingPlanSelection]. */
     private val pendingReadingPlanSelection = MutableStateFlow<ReadingPlanSelection?>(null)
+
+    /**
+     * How the reading-progress destination delivers its result, in either of the two ways it can
+     * be entered — see [NavResultChannel]'s own kdoc. `exitWithResult` here is exactly what
+     * `finishWithChapterResult`/`finishWithMemorizeResult` did by hand before this class existed:
+     * pack the byte-identical `Intent` ([NavResultIntents.forReadingProgress]), `setResult` and
+     * `finish()`.
+     */
+    private val readingProgressResults = NavResultChannel<ReadingProgressResult> { result ->
+        setResult(RESULT_OK, NavResultIntents.forReadingProgress(result))
+        finish()
+    }
 
     private fun buildDailyReadingController(
         onChangePlan: () -> Unit,
@@ -2293,6 +2307,7 @@ class NavHostComposeActivity : ActivityBase() {
     private fun readingProgressControllerFor(
         tabArg: Int?,
         onShowHistory: (ReadHistoryRequest) -> Unit,
+        onResult: (ReadingProgressResult) -> Unit,
     ): ReadingProgressController {
         readingProgressHistorySink = onShowHistory
 
@@ -2317,7 +2332,7 @@ class NavHostComposeActivity : ActivityBase() {
             service = readingProgressService,
             scope = lifecycleScope,
             initialTab = readingProgressInitialTab(tabArg),
-            onNavigateToChapter = ::finishWithChapterResult,
+            onNavigateToChapter = { bookId, chapter -> onResult(ReadingProgressResult.Chapter(bookId, chapter)) },
             // Through the sink, never through this call's `onShowHistory`: the controller outlives
             // the composition that supplied that lambda.
             onShowDayHistory = { day ->
@@ -2330,7 +2345,7 @@ class NavHostComposeActivity : ActivityBase() {
                 showChapterHistory(bookId, chapter, controller.model.value.cycle, ::emitReadingProgressHistory)
             },
             initialOverviewActive = CommonUtils.settings.getBoolean("reading_progress_mem_overview", true),
-            onNavigateToMemorize = ::finishWithMemorizeResult,
+            onNavigateToMemorize = { start, end -> onResult(ReadingProgressResult.Memorize(start, end)) },
             persistOverview = { CommonUtils.settings.setBoolean("reading_progress_mem_overview", it) },
         )
         readingProgressController = controller
@@ -2360,33 +2375,13 @@ class NavHostComposeActivity : ActivityBase() {
         CommonUtils.settings.setInt(PREF_READING_PROGRESS_LAST_TAB, if (tab == ReadingTab.MEMORIZE) 1 else 0)
     }
 
-    /**
-     * **THE ONE RESULT THAT LEAVES THIS BATCH.** Classic
-     * `ReadingProgressComposeActivity.navigateToChapter` (`:190-196`), byte for byte: the same two
-     * extras in the same order, the same `RESULT_OK`, the same `finish()`.
-     * `MainBibleActivity.kt:2930-2958` dispatches on `extras.getString(ActivityResultKind.EXTRA)`
-     * and NOT on the result Intent's component class, so it cannot tell that the producer is now
-     * this host rather than the classic Activity — which is the whole reason this edge survives
-     * slices 3/5/6 without `Screen.ReadingProgress` having to move into slice 7 with its consumer.
-     */
-    private fun finishWithChapterResult(bookId: String, chapter: Int) {
-        val resultIntent = Intent()
-            .putExtra("verse", readingProgressService.osisIdForChapter(bookId, chapter))
-            .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ReadingProgress.name)
-        setResult(RESULT_OK, resultIntent)
-        finish()
-    }
-
-    /** The second half of the same edge — classic `navigateToMemorize` (`:200-208`), verbatim. */
-    private fun finishWithMemorizeResult(start: Int, end: Int) {
-        val resultIntent = Intent()
-            .putExtra("action", "memorize")
-            .putExtra("startOrdinal", start)
-            .putExtra("endOrdinal", end)
-            .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ReadingProgress.name)
-        setResult(RESULT_OK, resultIntent)
-        finish()
-    }
+    // finishWithChapterResult / finishWithMemorizeResult used to live here — classic
+    // `ReadingProgressComposeActivity.navigateToChapter`/`navigateToMemorize` (`:190-196`,
+    // `:200-208`), byte for byte. Both exits now go through [readingProgressResults]
+    // ([NavResultChannel]), whose `exitWithResult` lambda calls
+    // [NavResultIntents.forReadingProgress] to build the same `Intent` these two functions built by
+    // hand; `MainBibleActivity.kt:2930-2958` still dispatches on
+    // `extras.getString(ActivityResultKind.EXTRA)`, unchanged.
 
     // The three read-history loaders, classic `:212-239`, unchanged except that each now hands its
     // answer to the ARM's dialog state through `emit` instead of writing an Activity field. They
