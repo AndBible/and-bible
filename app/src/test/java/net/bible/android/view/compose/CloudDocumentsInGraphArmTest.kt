@@ -146,6 +146,7 @@ class CloudDocumentsInGraphArmTest {
         ),
         download = DownloadDeps(
             controllerFor = { error("not exercised here") },
+            sessionToken = { "session" },
             title = "Download",
             topBarActions = {},
             askIfWantToProceed = { error("not exercised here") },

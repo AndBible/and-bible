@@ -43,7 +43,9 @@ import net.bible.sharedui.nav.popOrExitOnFailedPop
 
 /**
  * [MyDocumentPagesScreen]'s platform-supplied slots, ported from classic
- * [net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity].
+ * `MyDocumentPagesComposeActivity` (deleted by nav-graph slice 4 Task 9; a prose citation, not a
+ * KDoc link, because the class no longer exists to link to -- the line references below are against
+ * that file as it stood at the port).
  *
  * This is the cluster's CHILD destination -- reached both from inside the graph, via the
  * `MyDocuments` arm below (nav-graph slice 4 Task 6), and from a classic caller entirely outside it,
@@ -88,8 +90,9 @@ class MyDocumentPagesDeps(
 )
 
 /**
- * [MyDocumentsScreen]'s platform-supplied slots, ported from classic
- * [net.bible.android.view.mydocuments.MyDocumentsComposeActivity]. This is the cluster's PARENT
+ * [MyDocumentsScreen]'s platform-supplied slots, ported from classic `MyDocumentsComposeActivity`
+ * (deleted by nav-graph slice 4 Task 9 -- prose, not a KDoc link, for the reason
+ * [MyDocumentPagesDeps]'s own kdoc gives). This is the cluster's PARENT
  * destination and the batch's root: reached only as the host's start destination through
  * [net.bible.android.view.ScreenLauncher.MIGRATED] (nav-graph slice 4 Task 6), it navigates IN to
  * [MyDocumentPagesDeps] and must survive that child sitting on top of it.
@@ -299,6 +302,16 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
                 val route = d.routeForPages(id)
                 if (route != null) {
                     // Classic auto-saved before leaving rather than prompting (:212-213).
+                    //
+                    // LATCHED, like every other exit from this arm (slice 4 final-review fix M2).
+                    // The navigate disposes this composition, which fires the autosave
+                    // `DisposableEffect` below -- and `save()` does not clear `dirty` (D6's whole
+                    // premise), so without the latch that dispose would run `applyChanges` a SECOND
+                    // time: a second delete pass and a second `AiDocPagesChangedEvent` on top of the
+                    // save the user just got. `finished` is a plain `remember`, so popping back
+                    // rebuilds this composition with it reset to false and the autosave is armed
+                    // again for the next leave.
+                    finished.value = true
                     if (controller.dirty.value) controller.save()
                     navController.navigate(route)
                 }

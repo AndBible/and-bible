@@ -24,10 +24,16 @@ import net.bible.service.download.toEntity
 import net.bible.sharedcore.download.RepositoryResult
 
 /**
- * The classic `"data"` Intent-JSON extra shape shared by [CustomRepositoryEditor],
- * [CustomRepositoryEditorComposeActivity] and [CustomRepositoriesComposeActivity]. Moved here
- * (out of classic [CustomRepositoryEditor], which used to host it) because this file's whole
- * purpose is already mapping between it and the portable [RepositoryResult] below.
+ * The classic `"data"` Intent-JSON extra shape, once shared by `CustomRepositoryEditor`,
+ * `CustomRepositoryEditorComposeActivity` and `CustomRepositoriesComposeActivity`. Moved here (out
+ * of classic `CustomRepositoryEditor`, which used to host it) because this file's whole purpose is
+ * already mapping between it and the portable [RepositoryResult] below.
+ *
+ * **All three of those classes are gone** -- the classic editor with the classic
+ * document-selection cluster, the two Compose hosts with nav-graph slice 4 Task 9 -- so the names
+ * above are prose citations of what this shape used to serve, not KDoc links. Nothing in `:app`'s
+ * main source set constructs a [RepositoryData] any more; see [toRepositoryResult] for why the type
+ * is nevertheless kept.
  */
 @Serializable
 data class RepositoryData (
@@ -44,11 +50,23 @@ data class RepositoryData (
 
 /**
  * Maps between the classic `RepositoryData` Intent-JSON contract ([RepositoryData], declared
- * immediately above in this file and used verbatim by [CustomRepositoriesComposeActivity] for the
- * `"data"` extra it exchanges with [CustomRepositoryEditorComposeActivity]) and the portable
- * [RepositoryResult] the `:sharedCore` download controllers speak. Kept as a single pair of
- * functions so both Compose hosts (and `CustomRepositoryMapperTest`'s JSON-parity check) share one
- * mapping.
+ * immediately above in this file) and the portable [RepositoryResult] the `:sharedCore` download
+ * controllers speak.
+ *
+ * **This file is now TEST-ONLY infrastructure, deliberately kept.** `RepositoryData` was the
+ * `"data"` Intent extra `CustomRepositoriesComposeActivity` used to exchange with
+ * `CustomRepositoryEditorComposeActivity`; nav-graph slice 4 deleted both -- the editor is an
+ * in-graph destination now and its result travels as a typed [RepositoryResult] over a
+ * `NavResultChannel`, with no Intent and no `fromJSON(...)!!` anywhere (plan D5). The last caller of
+ * either function is `CustomRepositoryMapperTest`.
+ *
+ * **The queued collapse this is waiting for: unify the `RepositoryData`/`RepositoryResult` MIRROR
+ * PAIR into the one `:sharedCore` type.** Design §6 puts that out of slice 4's scope, and plan D5
+ * keeps this mapper and its test alive until it happens -- precisely because
+ * `CustomRepositoryMapperTest`'s JSON-parity check (a [RepositoryResult] must serialise to
+ * byte-identical JSON to the classic [RepositoryData] built from the same row) is what would catch
+ * that collapse silently changing the on-disk/on-wire shape. Delete this file WITH the collapse,
+ * not before it: removing it early would retire the only assertion that the two shapes still agree.
  */
 fun RepositoryData.toRepositoryResult(): RepositoryResult = RepositoryResult(
     repository = repository?.toData(),

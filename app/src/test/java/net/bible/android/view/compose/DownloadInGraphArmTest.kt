@@ -16,8 +16,10 @@
  */
 package net.bible.android.view.compose
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.NavHostController
@@ -89,8 +91,21 @@ class DownloadInGraphArmTest {
     /** How often the arm asked the host whether a catalogue reload was armed -- once per (re)composition. */
     private var reloadChecks = 0
 
-    /** Host-memoised the way `NavHostComposeActivity.downloadControllerFor` memoises it. */
+    /**
+     * Host-memoised the way `NavHostComposeActivity.downloadControllerFor` memoises it -- and, like
+     * the host's own `downloadSession` field, NOT saved state: a test that models an Activity
+     * recreation drops this before restoring.
+     */
     private var controller: DocumentSelectionController? = null
+
+    /**
+     * `NavHostComposeActivity.downloadSessionToken` modelled exactly: regenerated ONLY when a new
+     * session (here, a new controller) is built, never otherwise. Unique per build rather than a
+     * per-instance counter, for the same reason the host uses a UUID -- a counter restarting at zero
+     * after a recreation would hand a rebuilt session the identity of the one it replaced.
+     */
+    private var sessionToken: String = "session-0"
+    private var sessionBuilds = 0
 
     private val hasBible = MutableStateFlow(false)
 
@@ -122,8 +137,13 @@ class DownloadInGraphArmTest {
                     langComparator = { _, _ -> 0 },
                     onSelect = {}, onDelete = {}, onDeleteIndex = {},
                     onAbout = {}, onUnlock = {}, onStickyLanguage = {},
-                ).also { it.setTypeFilter(initialTypeFilter); controller = it }
+                ).also {
+                    it.setTypeFilter(initialTypeFilter)
+                    controller = it
+                    sessionToken = "session-${++sessionBuilds}"
+                }
             },
+            sessionToken = { sessionToken },
             title = "Download",
             topBarActions = {},
             askIfWantToProceed = { calls.add("gate"); gateAnswer },
@@ -173,15 +193,53 @@ class DownloadInGraphArmTest {
     private fun setGraph(startDestination: String) {
         val d = deps()
         compose.setContent {
-            navController = rememberNavController()
-            ProvideAppLocals {
-                AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
-                    NavHost(navController = navController, startDestination = startDestination) {
-                        downloadNavGraph(navController, d)
-                    }
+            graph(d, startDestination)
+        }
+        compose.waitForIdle()
+    }
+
+    /**
+     * The same graph, hosted by a [StateRestorationTester] so the test can emulate the Activity
+     * recreation [aRebuiltSessionUnderRestoredSaveableStateRerunsTheEntrySetup] is about: saveable
+     * state is saved, the composition is thrown away and rebuilt, and the saved state is restored
+     * into it -- exactly what a dark-mode toggle, a font-size change or a low-memory kill does to
+     * this host (its manifest `configChanges` covers neither `uiMode` nor `fontScale`).
+     */
+    private fun setGraphWithStateRestoration(startDestination: String): StateRestorationTester {
+        val d = deps()
+        val tester = StateRestorationTester(compose)
+        tester.setContent {
+            graph(d, startDestination)
+        }
+        compose.waitForIdle()
+        return tester
+    }
+
+    @Composable
+    private fun graph(d: DownloadNavDeps, startDestination: String) {
+        navController = rememberNavController()
+        ProvideAppLocals {
+            AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
+                NavHost(navController = navController, startDestination = startDestination) {
+                    downloadNavGraph(navController, d)
                 }
             }
         }
+    }
+
+    /**
+     * The ONLY shape in which a route reaches a live host in production:
+     * `NavHostComposeActivity.navigateToRoute` (`:706`) is
+     * `controller.navigate(route) { launchSingleTop = true }`, and every inbound route --
+     * `onNewIntent`'s and the pending-route replay's alike -- goes through it. A bare
+     * `navController.navigate(route)` is NOT that contract: it always stacks a new entry with fresh
+     * saveable state, which is the easy case. `launchSingleTop` onto an already-top `Download` takes
+     * `launchSingleTopInternal`, which rebuilds the entry from the old one -- same id, same saved
+     * state, composition never disposed -- which is the case the arm's one-shots actually have to
+     * survive.
+     */
+    private fun navigateAsHostWould(route: String) {
+        compose.runOnIdle { navController.navigate(route) { launchSingleTop = true } }
         compose.waitForIdle()
     }
 
@@ -333,10 +391,19 @@ class DownloadInGraphArmTest {
     }
 
     /**
-     * The other half of the same contract. The host is `singleTop`, so a second
-     * `NavRoutes.download(...)` into a live host is a NEW back-stack entry over a HOST-MEMOISED
-     * controller -- it must show ITS route's filter and search state, not the previous entry's.
-     * A new entry gets fresh saveable state, so the one-shot above re-applies for it.
+     * The other half of the same contract, driven through the shape production actually uses. The
+     * host is `singleTop`, so a second `NavRoutes.download(...)` arrives through
+     * `NavHostComposeActivity.navigateToRoute`, i.e. `navigate(route) { launchSingleTop = true }`
+     * -- see [navigateAsHostWould]. That does NOT stack a fresh entry: `launchSingleTopInternal`
+     * rebuilds the entry from the old one with the SAME id and the SAME saved state, and `NavHost`
+     * keys its `AnimatedContent` on that id, so the arm is never disposed and its `rememberSaveable`
+     * one-shots survive verbatim. A bare `navigate(route)` (what this test used before the final
+     * review) sidesteps all of that and proves only the easy case.
+     *
+     * The route's own arguments DO change, so the entry is not equal to the old one and the arm
+     * recomposes with them -- which is why keying the one-shots on (session, arguments) rather than
+     * on a bare boolean is what makes this pass: the new route's filter, search state and
+     * `onCreate` work must all apply, exactly as classic got by being launched afresh.
      */
     @Test
     fun aSecondEntryAppliesItsOwnTypeFilterAndSearchState() {
@@ -345,14 +412,82 @@ class DownloadInGraphArmTest {
         assertEquals(DocTypeFilter.ALL, c.selectedTypeFilter.value)
 
         compose.runOnIdle { c.setQuery("mine"); c.openSearch() }
-        compose.runOnIdle { navController.navigate(NavRoutes.download(addons = true)) }
-        compose.waitForIdle()
+        navigateAsHostWould(NavRoutes.download(addons = true))
 
         assertEquals(DocTypeFilter.ADDON, c.selectedTypeFilter.value, "the new entry's addons argument was dropped")
         assertEquals("", c.query.value, "the previous entry's query survived into a fresh launch")
         assertFalse(c.searchModeActive.value, "the previous entry's search bar survived into a fresh launch")
-        // A new entry IS a fresh launch, so classic's onCreate work runs for it -- exactly once.
+        // A re-delivered route IS a fresh launch, so classic's onCreate work runs for it -- exactly once.
         assertEquals(2, calls.count { it == "gate" })
+    }
+
+    /**
+     * The same keying, seen from its OTHER symptom: an Activity recreation that preserves saved
+     * state while the host rebuilds its (unsaved) `DownloadSession` field.
+     *
+     * `NavHostComposeActivity.downloadSession` is a plain Activity field -- not saved state -- while
+     * the arm's one-shots are `rememberSaveable`. A recreation therefore restores the flags `true`
+     * over a session rebuilt EMPTY, and a bare boolean would skip the gate, the permission request,
+     * the catalogue refresh and the auto-download, leaving a blank list. This is NOT a narrow
+     * process-death window: the host declares
+     * `configChanges="keyboardHidden|orientation|screenSize|locale"` (`AndroidManifest.xml:137`),
+     * so a system dark-mode toggle or a font-size change while this screen is open recreates it,
+     * as do "Don't keep activities" and an ordinary low-memory kill. The worst instance is
+     * first-run onboarding, where the dropped auto-download is the whole point of the screen.
+     *
+     * Dropping the memoised controller alongside the restore is what makes this the REAL defect
+     * rather than a composition round trip: it models the host field that recreation does not carry.
+     */
+    @Test
+    fun aRebuiltSessionUnderRestoredSaveableStateRerunsTheEntrySetup() {
+        val tester = setGraphWithStateRestoration(
+            NavRoutes.download(downloadRecommended = true, search = "ESV", documentIds = """[{"initials":"ESV"}]"""),
+        )
+        assertEquals(
+            listOf("gate", "permission", "refresh=false", "autoDownload"),
+            calls.filterNot { it.endsWith("+") },
+        )
+        assertEquals("""[{"initials":"ESV"}]""" to true, autoDownloadArgs)
+
+        // The recreation: saveable state survives, the host's session field does not.
+        controller = null
+        autoDownloadArgs = null
+        calls.clear()
+
+        tester.emulateSavedInstanceStateRestore()
+        compose.waitForIdle()
+
+        assertEquals(
+            listOf("gate", "permission", "refresh=false", "autoDownload"),
+            calls.filterNot { it.endsWith("+") },
+            "the rebuilt session was left unseeded: the restored one-shots skipped classic's onCreate work",
+        )
+        assertEquals(
+            """[{"initials":"ESV"}]""" to true,
+            autoDownloadArgs,
+            "the onboarding auto-download was silently dropped by the recreation",
+        )
+        assertEquals("ESV", assertNotNull(controller).query.value, "the route's search seed was not re-applied")
+    }
+
+    /**
+     * The guard on the fix's other edge: keying on (session, arguments) must NOT make the arm
+     * re-run its `onCreate` work on an ordinary round trip to a child destination, where the session
+     * and the arguments are both unchanged. [aRoundTripToAChildDestinationRerunsNothingButTheReloadCheck]
+     * proves that for a bare boolean; this pins it for the key, so a key that accidentally varied
+     * per composition (a fresh token per call, say) could not pass.
+     */
+    @Test
+    fun aRedeliveryOfTheSAMERouteChangesNothing() {
+        setGraph(NavRoutes.download())
+        val c = assertNotNull(controller)
+
+        compose.runOnIdle { c.setQuery("mine"); c.openSearch() }
+        navigateAsHostWould(NavRoutes.download())
+
+        assertEquals(1, calls.count { it == "gate" }, "an identical re-delivery re-ran classic's onCreate work")
+        assertEquals("mine", c.query.value, "an identical re-delivery clobbered the user's query")
+        assertTrue(c.searchModeActive.value, "an identical re-delivery closed the user's search bar")
     }
 
     /**

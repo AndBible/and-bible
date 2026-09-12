@@ -19,6 +19,8 @@ package net.bible.android.view.compose
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -28,6 +30,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.view.activity.nav.NavResultIntents
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.common.DisplayColorMode
+import net.bible.sharedcore.mydocuments.MyDocItem
 import net.bible.sharedcore.mydocuments.MyDocumentPagesController
 import net.bible.sharedcore.mydocuments.MyDocumentsController
 import net.bible.sharedcore.nav.MyDocumentPagesResult
@@ -99,6 +102,11 @@ class MyDocumentsInGraphResultTest {
      *  screen UI so a test can drive `openPage` directly. */
     private var pagesController: MyDocumentPagesController? = null
 
+    /** The `MyDocuments` arm's own controller, captured the same way, plus what its `onSave` seam
+     *  (classic `applyChanges`) actually received -- the subject of the D6 latch test below. */
+    private var myDocumentsController: MyDocumentsController? = null
+    private val myDocumentsSaves = mutableListOf<Set<Long>>()
+
     private lateinit var navController: NavHostController
 
     private fun deps(): MyDocumentsNavDeps = MyDocumentsNavDeps(
@@ -140,8 +148,8 @@ class MyDocumentsInGraphResultTest {
                     onExport = {},
                     onCreate = {},
                     onExportSelected = {},
-                    onSave = { _, _, _ -> },
-                )
+                    onSave = { _, changed, _ -> myDocumentsSaves.add(changed) },
+                ).also { myDocumentsController = it }
             },
             title = "My Documents",
             onImport = {},
@@ -318,6 +326,55 @@ class MyDocumentsInGraphResultTest {
         assertEquals(ActivityResultKind.MyDocuments.name, extras.getString(ActivityResultKind.EXTRA))
         assertEquals("MyDoc_1", extras.getString("documentInitials"))
         assertEquals("page-1", extras.getString("pageKey"))
+    }
+
+    /**
+     * Plan D6's latch, on the ONE path the batch left unlatched: "open a document while dirty".
+     *
+     * `onOpen` auto-saves before navigating (classic `MyDocumentsComposeActivity:212-213`), and
+     * `save()` deliberately does NOT clear `dirty` -- that is D6's whole premise. So unless `onOpen`
+     * also latches `finished`, the arm's `DisposableEffect(controller)` fires on the way in to
+     * `MyDocumentPages` and runs a SECOND `applyChanges`: a second delete pass and a second
+     * `AiDocPagesChangedEvent` on top of a save the user already got. Every other exit from this arm
+     * (Save, Dismiss, the relayed page selection) latches; this one did not, which is exactly the
+     * asymmetry D6 exists to prevent. The batch never wrote a dispose-while-dirty test for D6 at
+     * all -- this is it.
+     */
+    @Test
+    fun openingADocumentWhileDirtyLatchesFinishedSoTheDisposeDoesNotSaveAgain() {
+        setGraph(startDestination = NavRoutes.MY_DOCUMENTS_PATTERN)
+        val c = assertNotNull(myDocumentsController)
+
+        compose.runOnIdle {
+            c.setDocuments(
+                listOf(
+                    MyDocItem(
+                        id = 1L,
+                        initials = "MyDoc_1",
+                        name = "My Doc",
+                        description = "",
+                        isAiGenerated = false,
+                        canDelete = true,
+                    ),
+                ),
+            )
+        }
+        // A pending edit: dirty, and save() will not clear it.
+        compose.runOnIdle { c.rename(1L, "Renamed") }
+        compose.waitForIdle()
+        assertTrue(c.dirty.value, "the arm's premise: an edit leaves the controller dirty")
+
+        // The row click IS onOpen -- the arm's own lambda, not the controller's onOpen seam.
+        compose.onNodeWithText("Renamed").performClick()
+        compose.waitForIdle()
+
+        assertEquals(NavRoutes.MY_DOCUMENT_PAGES_PATTERN, currentRoute, "onOpen did not navigate")
+        assertTrue(c.dirty.value, "save() must NOT clear dirty -- if it did, this test proves nothing")
+        assertEquals(
+            listOf(setOf(1L)),
+            myDocumentsSaves,
+            "the dispose ran a SECOND applyChanges on top of onOpen's own save (plan D6's latch is missing)",
+        )
     }
 
     private companion object {

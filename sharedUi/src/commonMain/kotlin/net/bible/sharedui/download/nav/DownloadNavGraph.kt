@@ -254,6 +254,37 @@ class ProgressStatusDeps(
  */
 class DownloadDeps(
     val controllerFor: (initialTypeFilter: DocTypeFilter) -> DocumentSelectionController,
+    /**
+     * Identity of the session [controllerFor] is memoised on -- a value the host regenerates ONLY
+     * when it builds a NEW session, and never otherwise. Read AFTER [controllerFor] in the arm, so
+     * a first composition sees the token of the session that call just built.
+     *
+     * The arm's one-shots are keyed on this and on the route's own arguments (see
+     * [downloadSeedKey]) rather than on a bare boolean, because "this entry has been set up" is not
+     * the proposition they need to encode -- "this entry has been set up AGAINST THIS SESSION, WITH
+     * THESE ARGUMENTS" is. The two halves close two distinct symptoms of the same defect, found by
+     * slice 4's final whole-batch review:
+     *
+     * - **Session identity.** The host's session is a plain Activity field and is NOT saved state,
+     *   while the one-shots are `rememberSaveable`. Any recreation that preserves saved state --
+     *   a system dark-mode toggle or a font-size change (the host's manifest `configChanges` covers
+     *   neither `uiMode` nor `fontScale`), "Don't keep activities", an ordinary low-memory kill, or
+     *   process death -- restores the flags `true` over a session rebuilt EMPTY, and a bare boolean
+     *   then skips [askIfWantToProceed], [requestNotificationPermission], [refreshCatalogue] and
+     *   [onAutoDownload] alike, leaving a blank, unrefreshed catalogue. Classic re-ran `onCreate`
+     *   and recovered; the token restores that. The worst instance is first-run onboarding, where
+     *   the dropped call IS the auto-download the screen exists to perform.
+     *
+     * - **Argument signature.** Every inbound route reaches a live host through
+     *   `NavHostComposeActivity.navigateToRoute`, i.e. `navigate(route) { launchSingleTop = true }`.
+     *   When `Download` is already top that takes `launchSingleTopInternal`, which rebuilds the
+     *   entry from the old one with the SAME id and the SAME saved state and does not dispose the
+     *   arm -- so a bare boolean stays `true` and the new route's `addons`, `search` and
+     *   `documentIds` are silently dropped. Keying on the arguments makes the re-delivery behave
+     *   like the fresh launch classic got. An IDENTICAL re-delivery still changes nothing, which is
+     *   the other edge of the same contract.
+     */
+    val sessionToken: () -> String,
     val title: String,
     val topBarActions: @Composable (firstDownload: Boolean) -> Unit,
     val askIfWantToProceed: suspend () -> Boolean,
@@ -436,6 +467,27 @@ private fun NavHostController.popOrExit(exitHost: () -> Unit) {
     popOrExitOnFailedPop(popBackStack(), exitHost)
 }
 
+/**
+ * The `Download` arm's one-shot key: WHICH session, with WHICH route arguments -- see
+ * [DownloadDeps.sessionToken] for why both halves are needed and what each one closes.
+ *
+ * The two nullable strings are LENGTH-PREFIXED rather than interpolated plainly, so an absent
+ * argument and a present-but-empty (or literally `"null"`) one cannot collide into the same key.
+ * [sessionToken] itself is opaque to this function; the host guarantees only that it changes exactly
+ * when a new session is built.
+ */
+private fun downloadSeedKey(
+    sessionToken: String,
+    firstDownload: Boolean,
+    downloadRecommended: Boolean,
+    search: String?,
+    addons: Boolean,
+    documentIds: String?,
+): String {
+    fun enc(value: String?) = if (value == null) "-" else "${value.length}:$value"
+    return "$sessionToken|$firstDownload|$downloadRecommended|$addons|${enc(search)}|${enc(documentIds)}"
+}
+
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 // The graph
 // ——————————————————————————————————————————————————————————————————————————————————————————————
@@ -467,7 +519,6 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         val d = deps.customRepositories
         val controller = remember { d.controllerFor(d.onDuplicate) }
         val state by controller.state.collectAsState()
-        val scope = rememberCoroutineScope()
 
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
 
@@ -649,21 +700,42 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         // initial state is applied by the effect below rather than only at construction.
         val controller = remember { d.controllerFor(d.initialTypeFilter(addons)) }
 
-        // The route's initial state, applied ONCE PER BACK-STACK ENTRY. rememberSaveable, never a
-        // plain remember: this entry's composition is DISPOSED while CustomRepositories (reached
-        // from this screen's own overflow menu) sits on top of it, and a plain remember would
-        // re-apply the route's `addons` filter and `search` over whatever the user has filtered or
-        // typed since -- the exact failure BookmarkNavGraph.kt:610-622 documents for its own seed.
+        // WHICH session, with WHICH arguments -- the proposition both one-shots below encode. Read
+        // AFTER the `remember` above, so a first composition sees the token of the session that call
+        // just built. [DownloadDeps.sessionToken]'s kdoc carries the whole argument; in short, "this
+        // entry has been set up" is not a strong enough claim for a flag that outlives both the
+        // session it was set up against (an Activity recreation) and the arguments it was set up
+        // from (a `launchSingleTop` re-delivery).
+        val seedKey = downloadSeedKey(
+            sessionToken = d.sessionToken(),
+            firstDownload = firstDownload,
+            downloadRecommended = downloadRecommended,
+            search = search,
+            addons = addons,
+            documentIds = documentIds,
+        )
+
+        // The route's initial state, applied ONCE PER (ENTRY, SESSION, ARGUMENTS). rememberSaveable,
+        // never a plain remember: this entry's composition is DISPOSED while CustomRepositories
+        // (reached from this screen's own overflow menu) sits on top of it, and a plain remember
+        // would re-apply the route's `addons` filter and `search` over whatever the user has
+        // filtered or typed since -- the exact failure BookmarkNavGraph.kt:610-622 documents for its
+        // own seed. That round trip changes neither the session nor the arguments, so the key holds
+        // and nothing re-applies.
         //
-        // A NEW entry gets fresh saveable state and therefore re-applies, which is the other half
-        // of the contract: the host is singleTop, so `NavRoutes.download(addons = true)` arriving
-        // while a Download entry is already open must show the ADDON filter and this route's search
-        // state, not the previous entry's. `closeSearch()` clears the query as well as closing the
-        // bar (SearchModeController.clearOnClose), which is exactly a fresh launch's state.
-        var seededRouteState by rememberSaveable { mutableStateOf(false) }
-        LaunchedEffect(Unit) {
-            if (seededRouteState) return@LaunchedEffect
-            seededRouteState = true
+        // A genuinely fresh launch re-applies, which is the other half of the contract: the host is
+        // singleTop, so `NavRoutes.download(addons = true)` arriving while a Download entry is
+        // already open must show the ADDON filter and this route's search state, not the previous
+        // entry's -- and it arrives through `launchSingleTop`, which keeps this entry's saved state
+        // alive, so only the ARGUMENT half of the key can tell the two apart. The effect is KEYED on
+        // seedKey, not on Unit, precisely because that re-delivery does not dispose the arm: an
+        // effect keyed on Unit would never restart to notice the new arguments at all.
+        // `closeSearch()` clears the query as well as closing the bar
+        // (SearchModeController.clearOnClose), which is exactly a fresh launch's state.
+        var seededRouteStateFor by rememberSaveable { mutableStateOf<String?>(null) }
+        LaunchedEffect(seedKey) {
+            if (seededRouteStateFor == seedKey) return@LaunchedEffect
+            seededRouteStateFor = seedKey
             controller.setTypeFilter(d.initialTypeFilter(addons))
             if (search != null) {
                 controller.setQuery(search)
@@ -680,17 +752,23 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         // sequenced BEHIND the gate exactly as classic's single onCreate coroutine sequenced them:
         // a user who says no downloads nothing and is asked for no permission.
         //
-        // ONCE PER BACK-STACK ENTRY, for [seededRouteState]'s reason and more sharply: this is
-        // classic's onCreate, and that round trip did not recreate the Activity. Re-running it on
-        // every return would re-ask the download question, re-fire the permission request, re-fetch
-        // the catalogue -- and re-enqueue every requested/recommended book, since onAutoDownload's
-        // downloadRequestedBooks has no BEING_INSTALLED guard of its own. The flag is set BEFORE the
-        // first suspension point on purpose: the gate is a modal dialog, so nothing can navigate
-        // away underneath it, and a flag set only on success would re-ask after a refusal.
-        var ranEntrySetup by rememberSaveable { mutableStateOf(false) }
-        LaunchedEffect(Unit) {
-            if (ranEntrySetup) return@LaunchedEffect
-            ranEntrySetup = true
+        // ONCE PER (ENTRY, SESSION, ARGUMENTS), for [seededRouteStateFor]'s reason and more sharply:
+        // this is classic's onCreate, and that round trip did not recreate the Activity. Re-running
+        // it on every return would re-ask the download question, re-fire the permission request,
+        // re-fetch the catalogue -- and re-enqueue every requested/recommended book, since
+        // onAutoDownload's downloadRequestedBooks has no BEING_INSTALLED guard of its own. The key
+        // is stamped BEFORE the first suspension point on purpose: the gate is a modal dialog, so
+        // nothing can navigate away underneath it, and a flag set only on success would re-ask after
+        // a refusal.
+        //
+        // The session half of the key matters MOST here: a recreation rebuilds the session empty and
+        // this block is what fills it (`refreshCatalogue`, and on onboarding `onAutoDownload`), so a
+        // bare boolean restoring `true` is exactly a blank, unrefreshed catalogue with the
+        // onboarding auto-download silently dropped.
+        var ranEntrySetupFor by rememberSaveable { mutableStateOf<String?>(null) }
+        LaunchedEffect(seedKey) {
+            if (ranEntrySetupFor == seedKey) return@LaunchedEffect
+            ranEntrySetupFor = seedKey
             if (!d.askIfWantToProceed()) {
                 navController.popOrExit(deps.exitHost)
                 return@LaunchedEffect

@@ -77,6 +77,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.CompletableDeferred
@@ -1155,6 +1156,9 @@ class NavHostComposeActivity : ActivityBase() {
                             // CustomRepositories sits on top of this destination, disposing its
                             // composition. Same shape as myDocumentsControllerFor.
                             controllerFor = { initialTypeFilter -> downloadControllerFor(initialTypeFilter) },
+                            // Read by the arm AFTER controllerFor, so it is the token of whichever
+                            // session that call returned or built.
+                            sessionToken = { downloadSessionToken },
                             // Classic's manifest label AND the string its screen drew are both
                             // @string/download (AndroidManifest.xml:216, AndroidStrings.kt:75).
                             title = getString(R.string.download),
@@ -4708,8 +4712,27 @@ class NavHostComposeActivity : ActivityBase() {
     /**
      * `Download` has no re-entry of its own (its only child destination is `CustomRepositories`), so
      * this is built once and never dropped -- [myDocumentsSession]'s own reasoning.
+     *
+     * It is a plain field, so it does NOT survive an Activity recreation, while the arm's one-shot
+     * guards are `rememberSaveable` and DO -- see [downloadSessionToken], which is what keeps the
+     * two from disagreeing.
      */
     private var downloadSession: DownloadSession? = null
+
+    /**
+     * Identity of the CURRENT [downloadSession], handed to the graph as [DownloadDeps.sessionToken]
+     * and regenerated ONLY by [downloadControllerFor] when it actually builds a new session.
+     *
+     * Slice 4 final-review fix (findings I1+I2). The arm's `seededRouteStateFor`/`ranEntrySetupFor`
+     * one-shots are keyed on this token combined with the route's own argument signature, so that
+     * "this entry has been set up" becomes "this entry has been set up AGAINST THIS SESSION, WITH
+     * THESE ARGUMENTS" -- see [DownloadDeps.sessionToken]'s kdoc for the two symptoms that closes.
+     * The value must be unique across Activity INSTANCES, not merely within one, or a restored
+     * saveable key would match a token a rebuilt session happened to reuse; a counter restarting at
+     * zero on every recreation would do exactly that, which is why this is a random UUID rather
+     * than a sequence number.
+     */
+    private var downloadSessionToken: String = UUID.randomUUID().toString()
 
     /**
      * Drives the `firstDownload` OK gate's enabled state: true once >=1 Bible is installed. Latches
@@ -4776,6 +4799,10 @@ class NavHostComposeActivity : ActivityBase() {
         )
         session.controller.setTypeFilter(initialTypeFilter)
         downloadSession = session
+        // A NEW session, so a new identity: every one-shot the arm stamped against the previous one
+        // (in this Activity instance or in the one a recreation replaced) is now stale by
+        // construction. See [downloadSessionToken].
+        downloadSessionToken = UUID.randomUUID().toString()
         return session.controller
     }
 
@@ -5506,13 +5533,20 @@ class NavHostComposeActivity : ActivityBase() {
     /**
      * Classic `openOrGate()` in full (`:193-208`) -- see [CloudDocumentsDeps.openOrGate]'s kdoc.
      * A single cache scan serves both the sign-in-gate's emptiness check and the seed, exactly as
-     * classic's own `cached` local did. `controller` is captured ONCE, before the sign-in/scan
-     * suspension points, and used for both calls after them -- see [cloudDocumentsEntryRef]'s
-     * kdoc (fix round 3): this function has no `finally`, so a cancellation here simply stops it
-     * (the two calls below never run at all rather than running against a stale reference), but the
-     * single capture keeps this function's behaviour visibly consistent with every other one below.
+     * classic's own `cached` local did.
+     *
+     * `controller` is captured on the FIRST LINE, ahead of the `CloudSync.signIn` and
+     * [cloudDocumentsSeedItems] suspension points -- see [cloudDocumentsEntryRef]'s kdoc (fix round
+     * 3). Slice 4's final-review finding M1: the capture used to sit BELOW both of them, which was
+     * still safe (the caller is the arm's own `LaunchedEffect`, so a disposal cancels this
+     * coroutine and neither call below runs at all) but did not match what this kdoc claimed, and
+     * the guard protecting the invariant -- `CloudDocumentsControllerRebuildIsolationTest` --
+     * counted occurrences without checking position, so it could not have caught the drift its own
+     * message described. The capture is now genuinely first, and that guard now asserts the position
+     * as well as the count.
      */
     private suspend fun cloudDocumentsOpenOrGate(): Boolean {
+        val controller = cloudDocumentsController
         var signedIn = CloudSync.signedIn
         if (!signedIn) signedIn = CloudSync.signIn(this@NavHostComposeActivity) == true
         val items = cloudDocumentsSeedItems()
@@ -5520,7 +5554,6 @@ class NavHostComposeActivity : ActivityBase() {
             Toast.makeText(this, R.string.document_sync_signin_required, Toast.LENGTH_LONG).show()
             return false
         }
-        val controller = cloudDocumentsController
         controller.setShowRemoved(DocumentSyncSettings.showRemovedDocuments)
         controller.setItems(items)
         if (signedIn && (!DocumentSyncSettings.enabled || items.isEmpty())) cloudDocumentsRefreshFromNetwork()

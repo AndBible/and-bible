@@ -177,6 +177,7 @@ class CustomRepositoryEditorInGraphResultTest {
                         onAbout = {}, onUnlock = {}, onStickyLanguage = {},
                     )
                 },
+                sessionToken = { "session" },
                 title = "Download",
                 topBarActions = {},
                 askIfWantToProceed = { true },

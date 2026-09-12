@@ -334,6 +334,18 @@ class CloudDocumentsControllerRebuildIsolationTest {
         stripComments(File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt").readText())
     }
 
+    /**
+     * Both halves of the invariant: the ref is read EXACTLY ONCE, and that one read is the
+     * function's FIRST statement.
+     *
+     * The position half is slice 4's final-review finding M1. Counting alone could not catch the
+     * drift this test's own message describes: `cloudDocumentsOpenOrGate` read the ref exactly once
+     * but did so BELOW `CloudSync.signIn(...)` and `cloudDocumentsSeedItems()`, i.e. after two
+     * suspension points -- precisely "a second read ... after another suspension point" in
+     * everything but the count. A guard that only counts passes that, so it asserts the position
+     * too, which is as mechanical as the count: the capture must be the first non-blank line of the
+     * body.
+     */
     private fun assertControllerReadExactlyOnce(functionName: String) {
         val body = extractFunctionBody(navHostComposeActivitySource, functionName)
         val hits = Regex("""\bcloudDocumentsController\b""").findAll(body).count()
@@ -345,6 +357,17 @@ class CloudDocumentsControllerRebuildIsolationTest {
                 "point) can resolve to a DIFFERENT (later) entry's controller if a leave-and-reopen " +
                 "rebuilt the ref while this function was suspended (task-8 fix round 3, finding 2). Found " +
                 "$hits occurrence(s) in:\n$body",
+        )
+
+        val firstStatement = body.lines().map { it.trim() }.first { it.isNotEmpty() }
+        assertEquals(
+            "val controller = cloudDocumentsController", firstStatement,
+            "$functionName must CAPTURE the controller on its FIRST line, ahead of every suspension " +
+                "point -- not merely read it once somewhere in the body. A capture below a `suspend` " +
+                "call resolves to whichever entry's controller is current AFTER the suspension, which " +
+                "is the very drift the count above is meant to prevent (slice 4 final-review finding " +
+                "M1: cloudDocumentsOpenOrGate read the ref once, but below two suspension points, and " +
+                "this guard could not tell). Found `$firstStatement` in:\n$body",
         )
     }
 
