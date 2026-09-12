@@ -2447,8 +2447,26 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * in [net.bible.android.view.activity.page.BibleJavascriptInterface] — reaches the SAME Compose
      * menu. Nav-graph slice 7 Task 2: that shortcut used to call the native
      * `MainBibleActivity.showOptionsMenu()` `PopupMenu`, which has been deleted.
+     *
+     * The menu needs a toolbar to anchor on, and there are two states where `ReadingToolbar` — which
+     * hosts both the overflow button and the `ReadingOverflowMenu` `DropdownMenu` that
+     * [overflowExpanded] drives — is not composed at all. `"AltKeyO"` reaches both (the BibleView
+     * has focus, so `keyboard.ts` keeps sending it), and merely setting the flag in either left it
+     * stuck true, so the menu popped open unrequested the next time the toolbar reappeared
+     * (fix round 1, Major 1). Each state is handled the way that state deserves:
+     *
+     * - **fullscreen** (`ReadingViewScreen` composes the toolbar only `if (!fullScreen)`): leave
+     *   fullscreen first, then open. This is [searchController]'s `onLeaveFullScreen` precedent —
+     *   Ctrl+F solves the identical problem that way, and the assignment is idempotent.
+     * - **search mode** ([ReadingToolbar] renders the search row and `return`s before the normal
+     *   toolbar): return without touching anything. Closing search mode instead would throw away the
+     *   user's typed query, and there is no classic behaviour to preserve — toolbar search mode is a
+     *   Compose-era feature, classic search was a separate Activity — so no menu is the honest
+     *   answer for a shortcut pressed in a mode that has no overflow button.
      */
     fun openOverflowMenu() {
+        if (searchController.searchModeActive.value) return
+        activity.fullScreen = false
         overflowItems.value = activity.buildOptionsMenuItems()
         overflowExpanded.value = true
     }
@@ -2773,9 +2791,24 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // this is simply where it has always lived.
         //
         // What the XML could NOT do is delete the row, and that is not what this does.
-        // toolbarLayout's children are still bound and used -- binding.syncIcon's visibility, and
-        // bibleButton/commentaryButton/optionsMenu as popup anchors -- so the row stays inflated
-        // and merely GONE.
+        // toolbarLayout's children are still WRITTEN TO by MainBibleActivity code that runs on this
+        // path, so the views have to exist: binding.syncIcon's visibility (the `CloudSyncEvent`
+        // subscription and `setupUi`), binding.speakButton's alpha (the `transportBarVisible`
+        // setter), binding.strongsButton's image + alpha + tint (`updateStrongsButton`),
+        // binding.bibleButton's image (`onCreate`'s `isDiscrete` branch), and
+        // binding.pageTitleContainer's touch listener (`setupToolbarFlingDetection`).
+        // Those writes are all invisible -- the row is GONE -- but removing the row now would make
+        // them NPE, so it stays inflated and merely GONE until Task 11/13 delete the writes, the XML
+        // and the Activity together.
+        //
+        // What is NO LONGER true (this comment said it until slice 7 Task 2's fix round): none of
+        // these children anchors a native popup for the Compose path any more. `optionsMenu` has no
+        // click listener at all now (`showOptionsMenu` is deleted), and the Compose path's
+        // Bible/Commentary presses go through `openBibleQuickDoc`/`openCommentaryQuickDoc` rather
+        // than anchoring `menuForDocs` on `bibleButton`/`commentaryButton`. Those two buttons DO
+        // still carry `menuForDocs` listeners from `setupToolbarButtons`, but a GONE view is not
+        // clickable, so they are dead code that Task 11 removes with the XML -- not a reason to
+        // keep the row.
         activity.binding.toolbarLayout.visibility = View.GONE
         activity.binding.toolbarDivider.visibility = View.GONE
         (container.layoutParams as? ConstraintLayout.LayoutParams)?.let { params ->

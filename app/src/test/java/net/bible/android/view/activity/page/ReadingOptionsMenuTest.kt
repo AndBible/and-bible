@@ -24,7 +24,9 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
+import net.bible.service.sword.SwordDocumentFacade
 import net.bible.test.DatabaseResetter
+import org.crosswire.jsword.book.BookCategory
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -87,6 +89,8 @@ class ReadingOptionsMenuTest {
     fun tearDown() {
         CommonUtils.settings.setString("toolbar_button_actions", null)
         CommonUtils.settings.setString("lastDisplaySettings", null)
+        // `setCurrentDocument` persists this; the commentary long-press test really does switch.
+        CommonUtils.settings.setString("default-COMMENTARY", null)
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
@@ -193,10 +197,62 @@ class ReadingOptionsMenuTest {
         host.openOverflowMenu()
 
         assertTrue(host.overflowExpandedForTest, "the Compose overflow menu must be expanded")
+        // Without this the comparison below is vacuous: an empty list equals an empty list.
+        assertTrue(host.overflowItemsForTest.isNotEmpty(), "sanity: the menu must have rows")
         assertEquals(
             activity.buildOptionsMenuItems().map { it.id },
             host.overflowItemsForTest.map { it.id },
             "it must show exactly what the bridge builds",
+        )
+    }
+
+    /**
+     * Fix round 1, Major 1. `ReadingViewScreen` composes `ReadingToolbar` only `if (!fullScreen)`,
+     * and the toolbar is what hosts both the overflow button and the `ReadingOverflowMenu`
+     * `DropdownMenu` that `overflowExpanded` drives. `"AltKeyO"` is reachable in fullscreen (the
+     * BibleView has focus, so `keyboard.ts` sends it), so setting the flag there used to show
+     * nothing AND leave it stuck true until the toolbar came back — at which point the menu popped
+     * open unrequested. Leaving fullscreen first is what `ReadingSearchController` already does for
+     * the identical problem (`onLeaveFullScreen`).
+     */
+    @Test
+    fun openOverflowMenuLeavesFullscreenSoThereIsAToolbarToAnchorTheMenuOn() {
+        val host = ComposeReadingViewHost(activity)
+        activity.fullScreen = true
+        assertTrue(activity.fullScreen, "sanity: the fixture really is in fullscreen")
+
+        host.openOverflowMenu()
+
+        assertFalse(
+            activity.fullScreen,
+            "opening the overflow menu must leave fullscreen — in fullscreen no ReadingToolbar is " +
+                "composed, so the DropdownMenu has nothing to anchor on",
+        )
+        assertTrue(host.overflowExpandedForTest, "…and then the menu opens")
+    }
+
+    /**
+     * Fix round 1, Major 1, the other toolbar-less state: `ReadingToolbar` renders the search row
+     * and `return`s before the normal toolbar, so the overflow button and its menu do not exist in
+     * search mode either. Here the fix is to do NOTHING rather than to close search mode: closing
+     * it would throw away the user's typed query, and there is no classic behaviour to preserve
+     * (toolbar search mode is a Compose-era feature; classic search was a separate Activity).
+     */
+    @Test
+    fun openOverflowMenuDoesNothingWhileTheToolbarIsInSearchMode() {
+        val host = ComposeReadingViewHost(activity)
+        host.searchController.open()
+        assertTrue(host.searchController.searchModeActive.value, "sanity: search mode is active")
+
+        host.openOverflowMenu()
+
+        assertFalse(
+            host.overflowExpandedForTest,
+            "the search row has no overflow button to anchor the menu on, so nothing may be set",
+        )
+        assertTrue(
+            host.searchController.searchModeActive.value,
+            "…and the user's search session (and typed query) must survive untouched",
         )
     }
 
@@ -241,12 +297,64 @@ class ReadingOptionsMenuTest {
     }
 
     /**
+     * Fix round 1, Minor 5: the commentary long press's omission of GENERAL_BOOK/DICTIONARY books,
+     * pinned **behaviourally** rather than only by the source scan below.
+     *
+     * What makes the difference observable is `QuickDocPicker`'s "exactly 2 documents -> switch
+     * directly, show no menu" rule and the measured fixture:
+     * - `commentariesForVerse` is exactly 2 here. NOT zero: no commentary SWORD module is
+     *   installed, but [net.bible.service.download.FakeBookFactory]'s two
+     *   pseudo-commentaries (`MyNote`, `Compare`) are always appended, so the bare list is 2 ->
+     *   `SwitchDirectly` -> no menu, and the current document becomes one of those two.
+     * - the extras the SHORT press appends are 2 more (`strongsgreek`, `strongshebrew`), so
+     *   appending them would make it 4 -> `ShowPopup` -> a menu with four rows and no switch.
+     *
+     * Hence both assertions below can see the regression, from opposite sides.
+     */
+    @Test
+    fun commentaryLongPressSwitchesToACommentaryAndNeverOffersDictionaries() {
+        CommonUtils.settings.setString("toolbar_button_actions", "swap-menu")
+        val commentaries = activity.documentControl.commentariesForVerse
+        assertEquals(
+            2,
+            commentaries.size,
+            "fixture premise: the bare list is the 2 pseudo-commentaries, the size QuickDocPicker " +
+                "switches directly on; got ${commentaries.map { it.initials }}",
+        )
+        val extras = SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK) +
+            SwordDocumentFacade.getBooks(BookCategory.DICTIONARY)
+        assertEquals(
+            2,
+            extras.size,
+            "fixture premise: appending the short press's extras would make it 4 -> a popup, not a " +
+                "switch; got ${extras.map { it.initials }}",
+        )
+        val host = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = host
+        val before = activity.documentControl.currentDocument?.initials
+
+        activity.composeCommentaryLongClick()
+
+        assertFalse(
+            host.commentaryQuickDocForTest.expanded,
+            "with exactly 2 documents the picker switches directly and shows no menu — a menu here " +
+                "means the GENERAL_BOOK/DICTIONARY extras were appended (4 rows)",
+        )
+        val after = activity.documentControl.currentDocument?.initials
+        assertTrue(after != before, "…and the direct switch really happened; still on $before")
+        assertTrue(
+            after in commentaries.map { it.initials },
+            "the long press must switch to one of ITS OWN book list's documents, never to a " +
+                "dictionary; got $after, list ${commentaries.map { it.initials }}",
+        )
+    }
+
+    /**
      * The commentary long-press book list must stay **verbatim** what classic's `commentaryLongPress`
      * passed: `commentariesForVerse` and nothing else. Unlike the short-press
      * (`composeCommentaryClick`/`onCommentary`), it deliberately does NOT append GENERAL_BOOK +
-     * DICTIONARY books. A behavioural assertion cannot see this difference in a test fixture with no
-     * commentary modules installed (both lists would be trivially short), so it is pinned on the
-     * source: the branch must pass the bare property.
+     * DICTIONARY books. Kept alongside the behavioural test above: this one names the mistake in
+     * the source, which is the faster diagnosis when it is made again.
      */
     @Test
     fun theTwoLongPressBranchesUseTheComposeQuickDocMenuWithTheirOwnBookLists() {
@@ -292,6 +400,10 @@ class ReadingOptionsMenuTest {
      * listeners in `setupToolbarButtons` (and from `composeBibleClick`/`composeCommentaryClick`'s
      * non-swap `else` branches, which the Compose host never takes). Removing those belongs to the
      * XML/drawer removal task, not here.
+     *
+     * Expect this to go RED at Task 11, which deletes `menuForDocs` along with the classic toolbar
+     * XML and its listeners: the correct count becomes 0 then, and that red is the reminder, not a
+     * mystery.
      */
     @Test
     fun mainBibleActivityHasNoNativeOptionsPopupLeft() {
