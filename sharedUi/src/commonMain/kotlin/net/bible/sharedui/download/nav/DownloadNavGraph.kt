@@ -17,6 +17,14 @@
 
 package net.bible.sharedui.download.nav
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,7 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -34,10 +46,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import net.bible.sharedcore.download.CustomRepositoryController
 import net.bible.sharedcore.download.CustomRepositoryEditorController
 import net.bible.sharedcore.download.RepositoryResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.navigation.DocTypeFilter
+import net.bible.sharedcore.navigation.DocumentSelectionController
+import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedcore.search.ProgressJob
 import net.bible.sharedcore.search.SearchIndexProgressController
 import net.bible.sharedui.PlatformBackHandler
@@ -46,8 +63,10 @@ import net.bible.sharedui.download.CustomRepositoriesScreen
 import net.bible.sharedui.download.CustomRepositoryEditorScreen
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.navigation.DocumentSelectionScreen
 import net.bible.sharedui.search.SearchIndexProgressScreen
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.Strings
 
 /**
  * [CustomRepositoriesScreen]'s platform-supplied slots, ported from classic
@@ -147,20 +166,110 @@ class ProgressStatusDeps(
 )
 
 /**
+ * [NavRoutes.DOWNLOAD_PATTERN]'s platform-supplied slots, ported from classic
+ * `DownloadComposeActivity` -- the cluster's largest host, and the only one whose destination is
+ * BOTH a document list and a live download manager.
+ *
+ * - [controllerFor] builds the screen's [DocumentSelectionController] around the type filter the arm
+ *   resolved from the route (classic `onCreate`'s `controller.setTypeFilter(initialTypeFilter())`,
+ *   `DownloadComposeActivity.kt:228`). It is HOST-MEMOISED, not per-entry: the controller is only
+ *   half of this screen's state -- the host also holds the loaded `Book` list, the repoIdentity
+ *   maps and the `DocRow` mirror that every JSword seam below reads -- and `CustomRepositories`
+ *   sits on top of this destination, disposing its composition. Same shape as
+ *   [net.bible.sharedui.mydocuments.nav.MyDocumentsDeps.controllerFor].
+ *
+ * - [title] is BOTH the window title and the title [DocumentSelectionScreen] draws, the way
+ *   [ProgressStatusDeps.title] is: classic fed the screen `strings.downloadDocuments` (`:280`) and
+ *   the window the manifest's `android:label`, which are the same string.
+ *
+ * - [topBarActions] is the overflow menu, host-composed because every row of it is host work
+ *   (`R.drawable` icons, the `hasErrors` flags, an `awaitIntent` for Install zip). It takes
+ *   `firstDownload` because classic's menu HIDES the Install-zip row in that mode (`:857`), and
+ *   `firstDownload` is a ROUTE argument only the arm can read.
+ *
+ * - [askIfWantToProceed] is the "do you want to download over mobile data" gate (`:460-478`), a
+ *   platform `AlertDialog` that can answer NO. Classic ran it before `setContent`; an arm cannot
+ *   refuse to compose, so it runs as an effect and LEAVES on a no (plan D3 -- "compose, then maybe
+ *   leave"). Everything after it in classic's `onCreate` coroutine is sequenced behind it here too.
+ *
+ * - [refreshCatalogue] is classic's `downloadDocJson()` + `loadDocuments(refresh)` +
+ *   `updateLastRepoRefreshDate()` block (`:239-243`) as one suspend call. [refresh] means FORCE a
+ *   repository re-fetch (the pull-to-refresh gesture); the host still applies its own
+ *   `isRepoBookListOld` staleness cache when it is false, which is why the arm's first call passes
+ *   `false` rather than trying to read `settings` from `commonMain`.
+ *
+ * - [onAutoDownload] is `handleAutoDownloadExtras()` (`:757-786`): the `documentIds` JSON payload
+ *   and the `downloadRecommended` defaults list, both now route arguments rather than Intent extras.
+ *
+ * - [onCancelDownload] is the per-row cancel button (`:344`), which resolves the row's docId back to
+ *   a `Book` through the host's map and calls `downloadControl.cancelDownload`. **The plan's deps
+ *   list omits it**; the screen takes an `onCancel` slot regardless, and there is nothing in
+ *   `commonMain` that could fill it.
+ *
+ * - [hasBible] drives the `firstDownload` OK gate's enabled state (`:353`). It LATCHES host-side --
+ *   once a Bible is installed the button stays enabled -- so it is a flow the host owns, not arm
+ *   state.
+ *
+ * - [subscribeDownloadProgress] is classic's `lifecycleScope.launch { bridge.statuses.collect {
+ *   applyProgress(it) } }` (`:253-255`), scoped to this destination's composition instead of the
+ *   Activity, and returning the unsubscribe. **It carries no payload callback**, unlike the plan's
+ *   `(onStatuses: (Map<String, RowDownloadStatus>) -> Unit) -> () -> Unit`: `RowDownloadStatus` is an
+ *   `:app` type (`DownloadProgressBridge.kt:29`) that `commonMain` cannot name, and applying a
+ *   status needs `booksById` and the `currentRows` mirror, which are host state -- classic's
+ *   `applyProgress` (`:565`) is host code, and [DocumentSelectionController] has no `applyProgress`
+ *   of its own to hand the map to. So the arm owns the SUBSCRIPTION WINDOW and the host owns the
+ *   payload. The narrowing is deliberate, the same kind [ProgressStatusDeps.observeJobs] documents.
+ *
+ * - [subscribeMonitoring] is the whole `onStart`/`onStop` pair (`:376-394`) as one call: register
+ *   the progress bridge, start `downloadControl`'s monitoring, and -- only when `firstDownload` --
+ *   add the `JobManager` work listener that flips [hasBible]. It is keyed on `firstDownload`
+ *   because that extra listener is conditional on it, and STARTED-scoped rather than
+ *   composition-scoped because that is what classic's pair was.
+ *
+ * - [persistTypeFilter] is the `selected_document_filter_no` write classic did inline in
+ *   `onTypeFilterChange` (`:311`), and [initialTypeFilter] its read, plus the `addons` branch. The
+ *   `"type"` extra classic also read is deliberately NOT part of it (plan D1): the tree's only
+ *   `putExtra("type"` is gone, so the argument would be dead.
+ *
+ * **Fields the plan's list named that are not here.** `confirmDownload`, `confirmDelete`,
+ * `confirmDeleteIndex`, `onAbout` and `onUnlock` are the [DocumentSelectionController]'s OWN
+ * constructor seams (`onSelect`/`onDelete`/`onDeleteIndex`/`onAbout`/`onUnlock`), so the host wires
+ * them into the controller it builds in [controllerFor] and the arm never names them; `showErrors`
+ * and `onInstallZip` are rows of [topBarActions], which the host composes. Adding deps fields the
+ * arm cannot call would be scaffolding, not a seam -- the platform dialogs behind those names are
+ * exactly as host-side as the plan says, just reached through the two slots above.
+ */
+class DownloadDeps(
+    val controllerFor: (initialTypeFilter: DocTypeFilter) -> DocumentSelectionController,
+    val title: String,
+    val topBarActions: @Composable (firstDownload: Boolean) -> Unit,
+    val askIfWantToProceed: suspend () -> Boolean,
+    val requestNotificationPermission: () -> Unit,
+    val refreshCatalogue: suspend (refresh: Boolean) -> Unit,
+    val onAutoDownload: suspend (documentIds: String?, downloadRecommended: Boolean) -> Unit,
+    val onCancelDownload: (docId: String) -> Unit,
+    val hasBible: StateFlow<Boolean>,
+    val subscribeDownloadProgress: () -> () -> Unit,
+    val subscribeMonitoring: (firstDownload: Boolean) -> () -> Unit,
+    val persistTypeFilter: (DocTypeFilter) -> Unit,
+    val initialTypeFilter: (addons: Boolean) -> DocTypeFilter,
+)
+
+/**
  * Platform-supplied slots the Documents/downloads cluster's destinations need but `commonMain`
  * cannot provide. Same top-level shape as [net.bible.sharedui.bookmark.nav.BookmarkNavDeps]:
  * [exitHost] and [setWindowTitle] are graph-wide, one nested holder per destination below.
  *
- * **This class GROWS.** Slice 4 migrates seven Documents/downloads destinations across four tasks,
- * and this task builds only the first two -- [customRepositories] and [customRepositoryEditor].
- * Tasks 4 (`ProgressStatus`), 7a (`Download`) and 8 (`CloudDocuments`) each add their own nested deps
- * field to this class and their own arm to [downloadNavGraph], the same way
- * [net.bible.sharedui.bookmark.nav.BookmarkNavDeps] grew its three nested holders one task at a
- * time. Only [repositoryEditorResults] is declared up front, for [BookmarkNavDeps]'s own reason:
- * this is the file that owns it, and creating it later would widen this class's constructor for
- * every caller that already built one. A per-destination deps field cannot be front-loaded the same
- * way -- Tasks 4, 7a and 8 introduce the very types it would have to name -- so building one now
- * would be scaffolding for a destination this task does not implement.
+ * **This class GROWS, one task at a time.** Slice 4 migrates the cluster's destinations across four
+ * tasks, and each adds its own nested deps field here and its own arm to [downloadNavGraph], the
+ * same way [net.bible.sharedui.bookmark.nav.BookmarkNavDeps] grew its three nested holders. Task 3
+ * built [customRepositories] and [customRepositoryEditor], Task 4 [progressStatus], Task 7a
+ * [download]; Task 8 (`CloudDocuments`) adds the last one, and needs to add nothing else. Only
+ * [repositoryEditorResults] was declared up front, for [net.bible.sharedui.bookmark.nav.BookmarkNavDeps]'s
+ * own reason: this is the file that owns it, and creating it later would widen this class's
+ * constructor for every caller that already built one. A per-destination deps field cannot be
+ * front-loaded the same way -- each task introduces the very type it would have to name -- so
+ * building one early would be scaffolding for a destination that does not exist yet.
  */
 class DownloadNavDeps(
     val exitHost: () -> Unit,
@@ -194,6 +303,8 @@ class DownloadNavDeps(
     val customRepositoryEditor: CustomRepositoryEditorDeps,
     // — PROGRESS STATUS —
     val progressStatus: ProgressStatusDeps,
+    // — DOWNLOAD —
+    val download: DownloadDeps,
 )
 
 /**
@@ -377,4 +488,212 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
             buttonLabel = strings.okay,
         )
     }
+
+    // ——— DOWNLOAD ———
+    composable(
+        route = NavRoutes.DOWNLOAD_PATTERN,
+        arguments = listOf(
+            navArgument(NavRoutes.ARG_FIRST_DOWNLOAD) {
+                type = NavType.StringType; nullable = true; defaultValue = null
+            },
+            navArgument(NavRoutes.ARG_DOWNLOAD_RECOMMENDED) {
+                type = NavType.StringType; nullable = true; defaultValue = null
+            },
+            navArgument(NavRoutes.ARG_DOWNLOAD_SEARCH) {
+                type = NavType.StringType; nullable = true; defaultValue = null
+            },
+            navArgument(NavRoutes.ARG_DOWNLOAD_ADDONS) {
+                type = NavType.StringType; nullable = true; defaultValue = null
+            },
+            navArgument(NavRoutes.ARG_DOCUMENT_IDS) {
+                type = NavType.StringType; nullable = true; defaultValue = null
+            },
+        ),
+    ) { backStackEntry ->
+        val d = deps.download
+        val strings = LocalStrings.current
+        val scope = rememberCoroutineScope()
+
+        // Five arguments, all OPTIONAL, all read plainly -- never through NavRoutes.decodeArg, which
+        // would double-decode a value the library already decoded (SearchNavGraph's searchArgs()
+        // kdoc documents that trap). A flag is emitted only when true (plan D2), so "true" is the
+        // whole truth test and an ABSENT argument is false.
+        val args = backStackEntry.arguments
+        val firstDownload = args?.read { getStringOrNull(NavRoutes.ARG_FIRST_DOWNLOAD) } == "true"
+        val downloadRecommended = args?.read { getStringOrNull(NavRoutes.ARG_DOWNLOAD_RECOMMENDED) } == "true"
+        val search = args?.read { getStringOrNull(NavRoutes.ARG_DOWNLOAD_SEARCH) }
+        val addons = args?.read { getStringOrNull(NavRoutes.ARG_DOWNLOAD_ADDONS) } == "true"
+        val documentIds = args?.read { getStringOrNull(NavRoutes.ARG_DOCUMENT_IDS) }
+
+        // Classic :228-231, before setContent.
+        val controller = remember { d.controllerFor(d.initialTypeFilter(addons)) }
+        LaunchedEffect(search) { if (search != null) { controller.setQuery(search); controller.openSearch() } }
+
+        LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
+
+        // Classic :233-246: the gate is already "compose, then maybe leave" (plan D3), so it stays
+        // an arm-side effect rather than moving ahead of the navigate. The three calls after it are
+        // sequenced BEHIND the gate exactly as classic's single onCreate coroutine sequenced them:
+        // a user who says no downloads nothing and is asked for no permission.
+        LaunchedEffect(Unit) {
+            if (!d.askIfWantToProceed()) {
+                navController.popOrExit(deps.exitHost)
+                return@LaunchedEffect
+            }
+            d.requestNotificationPermission()
+            // false = do not FORCE a repository re-fetch; the host still honours its own
+            // isRepoBookListOld staleness cache (classic :241-243). Positional because Kotlin
+            // forbids named arguments on function types.
+            d.refreshCatalogue(false)
+            d.onAutoDownload(documentIds, downloadRecommended)
+        }
+
+        // Classic :253-255: bridge.statuses -> applyProgress, for the lifetime of the screen.
+        DisposableEffect(Unit) {
+            val stop = d.subscribeDownloadProgress()
+            onDispose { stop() }
+        }
+
+        // Classic onStart/onStop (:376-394): bridge.register()/unregister() and
+        // downloadControl.startMonitoringDownloads()/stop..., PLUS -- only when firstDownload --
+        // JobManager.addWorkListener(downloadCompletionListener) and a re-updateHasBible().
+        // STARTED-scoped, not composition-scoped, and keyed on firstDownload because the extra
+        // listener is conditional on it.
+        LifecycleStartEffect(firstDownload) {
+            val stop = d.subscribeMonitoring(firstDownload)
+            onStopOrDispose { stop() }
+        }
+
+        val loading by controller.loading.collectAsState()
+        val displayed by controller.displayed.collectAsState()
+        val grouped by controller.grouped.collectAsState()
+        val languages by controller.languages.collectAsState()
+        val selectedLanguage by controller.selectedLanguage.collectAsState()
+        val selectedTypeFilter by controller.selectedTypeFilter.collectAsState()
+        val query by controller.query.collectAsState()
+        val resultCount by controller.resultCount.collectAsState()
+        val selectionMode by controller.selectionMode.collectAsState()
+        val selectedIds by controller.selectedIds.collectAsState()
+        val error by controller.error.collectAsState()
+        val searchModeActive by controller.searchModeActive.collectAsState()
+        val arrangement by controller.arrangement.collectAsState()
+        val repositories by controller.repositories.collectAsState()
+        val rememberArrangement by controller.rememberArrangement.collectAsState()
+        val arrangementIsDefault by controller.arrangementIsDefault.collectAsState()
+        val bibleInstalled by d.hasBible.collectAsState()
+
+        // The pull-to-refresh spinner, classic's host `refreshing` MutableStateFlow (:163). Plain
+        // remember, not rememberSaveable: it is the in-flight state of a coroutine this composition
+        // owns, so it must NOT survive the composition -- a restored `true` would spin forever.
+        var isRefreshing by remember { mutableStateOf(false) }
+
+        // Classic's onBackPressed override (:396-403): back dismisses what is visually on top, so
+        // the selection bar goes before the search bar (AbSelectionScaffold's precedence), and
+        // anything else is the plain leave the NavHost already does. ONE gated handler with the
+        // branch inside it, never two stacked ones -- two would work only by declaration ORDER
+        // (back goes to the most recently registered ENABLED callback), the invisible dependency
+        // BookmarkNavGraph.kt:652-659 argues against. PlatformBackHandler, never
+        // androidx.activity.compose.BackHandler: this is commonMain.
+        PlatformBackHandler(enabled = selectionMode || searchModeActive) {
+            if (selectionMode) controller.clearSelection() else controller.closeSearch()
+        }
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            DocumentSelectionScreen(
+                title = d.title,
+                downloadMode = true,
+                loading = loading,
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    scope.launch {
+                        isRefreshing = true
+                        try {
+                            controller.closeSearch()
+                            d.refreshCatalogue(true)
+                        } finally {
+                            isRefreshing = false
+                        }
+                    }
+                },
+                grouped = grouped,
+                languages = languages,
+                selectedLanguage = selectedLanguage,
+                typeFilters = typeFilterLabels(strings),
+                selectedTypeFilter = selectedTypeFilter,
+                query = query,
+                resultCount = strings.docFilterResults(resultCount),
+                selectionMode = selectionMode,
+                selectedIds = selectedIds,
+                error = error,
+                topBarActions = { d.topBarActions(firstDownload) },
+                onQueryChange = controller::setQuery,
+                searchModeActive = searchModeActive,
+                onOpenSearch = controller::openSearch,
+                onCloseSearch = controller::closeSearch,
+                onLanguageChange = controller::setLanguage,
+                onTypeFilterChange = { d.persistTypeFilter(it); controller.setTypeFilter(it) },
+                arrangement = arrangement,
+                groupKeys = controller.groupKeys,
+                repositories = repositories,
+                rememberArrangement = rememberArrangement,
+                arrangementIsDefault = arrangementIsDefault,
+                onMoveSort = controller::moveSortCriterion,
+                onToggleSortDirection = controller::toggleSortDirection,
+                onGroupByChange = controller::setGroupBy,
+                onRepositoryChange = controller::setRepositoryFilter,
+                onRememberChange = controller::setRememberArrangement,
+                onResetArrangement = controller::resetArrangement,
+                onRowClick = { row ->
+                    if (selectionMode) controller.toggle(row.docId) else controller.select(row.docId)
+                },
+                onRowLongClick = { row ->
+                    controller.enterSelection()
+                    controller.toggle(row.docId)
+                },
+                onDownload = { controller.select(it.docId) },
+                onCancel = { row -> d.onCancelDownload(row.docId) },
+                onSelectionAbout = controller::about,
+                onSelectionDelete = controller::delete,
+                onSelectionDeleteIndex = controller::deleteIndex,
+                onSelectionUnlock = controller::unlock,
+                unlockVisible = displayed.firstOrNull { it.docId in selectedIds }?.enciphered == true,
+                deleteVisible = anySelectedDeletable(displayed, selectedIds),
+                onDismissError = controller::dismissError,
+                onNavigateUp = { navController.popOrExit(deps.exitHost) },
+                onExitSelection = controller::clearSelection,
+            )
+
+            // FirstDownload onboarding OK gate, a sibling in the same Box exactly as classic
+            // (:351-364): a bottom button, enabled once a Bible is installed. Classic returned
+            // DownloadKeys.DOWNLOAD_FINISH here; every one of its consumers ignored the code, so
+            // OK is now the ordinary exit this destination already has (plan D7).
+            if (firstDownload) {
+                Button(
+                    onClick = { navController.popOrExit(deps.exitHost) },
+                    enabled = bibleInstalled,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                ) {
+                    Text(strings.okay)
+                }
+            }
+        }
+    }
 }
+
+/**
+ * The seven type-filter rows [DocumentSelectionScreen] shows, classic
+ * `DownloadComposeActivity.typeFilterLabels` (`:918-926`). Pure [Strings] lookup with no platform
+ * dependency, so it is arm code rather than a deps slot.
+ */
+private fun typeFilterLabels(strings: Strings): List<Pair<DocTypeFilter, String>> = listOf(
+    DocTypeFilter.ALL to strings.docTypeAll,
+    DocTypeFilter.BIBLE to strings.docTypeBible,
+    DocTypeFilter.COMMENTARY to strings.docTypeCommentary,
+    DocTypeFilter.DICTIONARY to strings.docTypeDictionary,
+    DocTypeFilter.GENERAL_BOOK to strings.docTypeGeneralBook,
+    DocTypeFilter.MAPS to strings.docTypeMaps,
+    DocTypeFilter.ADDON to strings.docTypeAddon,
+)

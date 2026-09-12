@@ -550,6 +550,33 @@ class NavHostRoutingGuardTest {
     }
 
     /**
+     * nav-graph slice 4, Task 7a -- the third destination in the batch that is registered by a graph
+     * but deliberately absent from [ScreenLauncher.MIGRATED], and the one with the strongest reason:
+     * [NavRoutes.DOWNLOAD_PATTERN] carries FIVE arguments (`firstDownload`, `downloadRecommended`,
+     * `search`, `addons`, `documentIds`), every one of which a classic launch site used to attach as
+     * an Intent extra. A bare `Screen.Download` entry could only map to the argument-free route, so
+     * the six call sites that DO attach an argument would silently open the plain download list --
+     * the `migratedScreenArgumentIsNeverDroppedByAPutExtra` failure mode, except unguardable here
+     * because `StartupComposeActivity.firstDownloadIntent()`'s extras are attached by its callers,
+     * lines away. Task 7b repoints all ten launch edges at explicit `NavRoutes.download(...)` routes
+     * instead, which is why this assertion is `assertFalse` and not a MIGRATED round trip.
+     *
+     * The second half is the one that matters for THIS task: the destination has to actually be
+     * registered by some `*NavGraph.kt`, or nothing Task 7b repoints can resolve.
+     */
+    @Test
+    fun downloadIsNotInMigratedAndItsPatternIsRegisteredByAGraph() {
+        assertFalse(
+            Screen.Download in ScreenLauncher.MIGRATED,
+            "the download route has five arguments, so an argument-free MIGRATED entry would be a lie",
+        )
+        assertTrue(
+            NavRoutes.DOWNLOAD_PATTERN in registeredRoutePatterns(),
+            "no graph registers the download screen's pattern",
+        )
+    }
+
+    /**
      * The coexistence seam's other half. `Screen.Backup` stands in for "not migrated yet" here; it
      * used to be `Screen.MyDocuments`, which nav-graph slice 4 Task 6 moved into
      * [ScreenLauncher.MIGRATED] -- so this assertion had to move with it rather than be deleted,

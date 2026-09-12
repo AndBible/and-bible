@@ -32,8 +32,12 @@ import net.bible.sharedcore.download.ManifestResult
 import net.bible.sharedcore.download.RepositoryResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.ProvideAppLocals
+import kotlinx.coroutines.flow.MutableStateFlow
+import net.bible.sharedcore.navigation.DocTypeFilter
+import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedui.download.nav.CustomRepositoriesDeps
 import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
+import net.bible.sharedui.download.nav.DownloadDeps
 import net.bible.sharedui.download.nav.DownloadNavDeps
 import net.bible.sharedui.download.nav.ProgressStatusDeps
 import net.bible.sharedui.download.nav.downloadNavGraph
@@ -157,11 +161,33 @@ class CustomRepositoryEditorInGraphResultTest {
                 readClipboard = { null },
             ),
             // This test drives only the CustomRepositories/CustomRepositoryEditor pair; ProgressStatus
-            // is exercised by its own test (nav-graph slice 4, Task 4), so these are unexercised stubs.
+            // and Download are exercised by their own tests (nav-graph slice 4, Tasks 4 and 7a), so
+            // these are unexercised stubs.
             progressStatus = ProgressStatusDeps(
                 title = "Progress",
                 requestNotificationPermission = {},
                 observeJobs = { { } },
+            ),
+            download = DownloadDeps(
+                controllerFor = {
+                    DocumentSelectionController(
+                        langComparator = { _, _ -> 0 },
+                        onSelect = {}, onDelete = {}, onDeleteIndex = {},
+                        onAbout = {}, onUnlock = {}, onStickyLanguage = {},
+                    )
+                },
+                title = "Download",
+                topBarActions = {},
+                askIfWantToProceed = { true },
+                requestNotificationPermission = {},
+                refreshCatalogue = {},
+                onAutoDownload = { _, _ -> },
+                onCancelDownload = {},
+                hasBible = MutableStateFlow(false),
+                subscribeDownloadProgress = { { } },
+                subscribeMonitoring = { { } },
+                persistTypeFilter = {},
+                initialTypeFilter = { DocTypeFilter.ALL },
             ),
         )
     }

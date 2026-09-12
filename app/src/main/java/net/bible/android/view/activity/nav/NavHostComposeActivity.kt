@@ -33,6 +33,8 @@ import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.ArrayAdapter
+import android.widget.ListView
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -44,6 +46,8 @@ import androidx.compose.material3.AlertDialog as ComposeAlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -80,7 +84,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.serialization.serializer
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
@@ -92,6 +100,12 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
+import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.document.canDelete
+import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
+import net.bible.android.control.download.DownloadControl
+import net.bible.android.control.download.LanguageGrouping
+import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
@@ -110,11 +124,15 @@ import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.android.database.mydocument.MyDocumentPageWithContent
+import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.base.DocumentConfiguration
+import net.bible.android.view.activity.base.PseudoBook
+import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.android.view.activity.bookmark.LabelEditContract
 import net.bible.android.view.activity.bookmark.LabelEditMapper
@@ -123,6 +141,12 @@ import net.bible.android.view.activity.bookmark.ManageLabelsMapper
 import net.bible.android.view.activity.bookmark.customIconMap
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.bookmark.toLabelItem
+import net.bible.android.view.activity.download.BadDocumentAction
+import net.bible.android.view.activity.download.DownloadProgressBridge
+import net.bible.android.view.activity.download.RowDownloadStatus
+import net.bible.android.view.activity.download.isBadDocument
+import net.bible.android.view.activity.download.isInstalled
+import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
@@ -134,12 +158,17 @@ import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
+import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.common.CommonUtils.pause
 import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.labelsAndBookmarksPlaylist
 import net.bible.service.common.studyPadsVideo
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.DownloadManager
+import net.bible.service.download.GenericFileDownloader
+import net.bible.service.download.RepoFactory
+import net.bible.service.download.isPseudoBook
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.exportStudyPads
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
@@ -195,6 +224,13 @@ import net.bible.sharedcore.download.CustomRepositoryEditorController
 import net.bible.sharedcore.download.CustomRepositoryService
 import net.bible.sharedcore.download.RepositoryResult
 import net.bible.sharedcore.mydocuments.ContentType
+import net.bible.sharedcore.navigation.DocGroupBy
+import net.bible.sharedcore.navigation.DocInstallStatus
+import net.bible.sharedcore.navigation.DocRow
+import net.bible.sharedcore.navigation.DocSortKey
+import net.bible.sharedcore.navigation.DocTypeFilter
+import net.bible.sharedcore.navigation.DocumentSelectionController
+import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedcore.mydocuments.MyDocItem
 import net.bible.sharedcore.mydocuments.MyDocPageItem
 import net.bible.sharedcore.mydocuments.MyDocumentPagesController
@@ -258,8 +294,10 @@ import net.bible.sharedui.bookmark.nav.LabelEditDeps
 import net.bible.sharedui.bookmark.nav.ManageLabelsDeps
 import net.bible.sharedui.bookmark.nav.bookmarkNavGraph
 import net.bible.sharedui.download.nav.CustomRepositoriesDeps
+import net.bible.sharedui.docCategoryOf
 import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
 import net.bible.sharedui.download.nav.DownloadNavDeps
+import net.bible.sharedui.download.nav.DownloadDeps
 import net.bible.sharedui.download.nav.ProgressStatusDeps
 import net.bible.sharedui.download.nav.downloadNavGraph
 import net.bible.sharedui.mydocuments.nav.MyDocumentPagesDeps
@@ -308,7 +346,10 @@ import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType as JSwordSearchType
 import org.crosswire.jsword.versification.BookName
@@ -366,6 +407,10 @@ class NavHostComposeActivity : ActivityBase() {
 
     /** The custom-repository list/editor pair's Room-backed service -- see `CoreModule.kt:88`. */
     private val customRepositoryService: CustomRepositoryService by inject()
+
+    /** The Download destination's two JSword controls, classic `DownloadComposeActivity.kt:135-136`. */
+    private val downloadControl: DownloadControl by inject()
+    private val documentControl: DocumentControl by inject()
 
     /**
      * Classic `SettingsComposeActivity`'s own `by lazy` service — NOT a Koin singleton, matching
@@ -1088,6 +1133,39 @@ class NavHostComposeActivity : ActivityBase() {
                             title = getString(R.string.custom_repositories),
                             initialFor = { id -> customRepositoryEditorInitialFor(id) },
                             readClipboard = { readCustomRepositoryClipboard() },
+                        ),
+                        download = DownloadDeps(
+                            // Host-memoised, not per-entry: the controller is only half of this
+                            // screen's state -- downloadSession holds the loaded Books, the
+                            // repoIdentity maps and the DocRow mirror every seam below reads -- and
+                            // CustomRepositories sits on top of this destination, disposing its
+                            // composition. Same shape as myDocumentsControllerFor.
+                            controllerFor = { initialTypeFilter -> downloadControllerFor(initialTypeFilter) },
+                            // Classic's manifest label AND the string its screen drew are both
+                            // @string/download (AndroidManifest.xml:216, AndroidStrings.kt:75).
+                            title = getString(R.string.download),
+                            topBarActions = { firstDownload -> DownloadOverflowMenu(navController, firstDownload) },
+                            askIfWantToProceed = { askIfWantToProceedWithDownload() },
+                            // Classic DownloadComposeActivity.kt:238, a suspend call: the host owns
+                            // the scope so the graph's deps slot can stay a plain () -> Unit, the
+                            // same shape ProgressStatusDeps.requestNotificationPermission uses.
+                            requestNotificationPermission = {
+                                lifecycleScope.launch {
+                                    CommonUtils.requestNotificationPermission(this@NavHostComposeActivity)
+                                }
+                            },
+                            refreshCatalogue = { refresh -> refreshDownloadCatalogue(refresh) },
+                            onAutoDownload = { documentIds, downloadRecommended ->
+                                handleAutoDownloadExtras(documentIds, downloadRecommended)
+                            },
+                            onCancelDownload = { docId -> cancelDownload(docId) },
+                            hasBible = downloadHasBible,
+                            subscribeDownloadProgress = { subscribeDownloadProgress() },
+                            subscribeMonitoring = { firstDownload -> subscribeDownloadMonitoring(firstDownload) },
+                            persistTypeFilter = { filter ->
+                                CommonUtils.settings.setInt("selected_document_filter_no", filter.ordinal)
+                            },
+                            initialTypeFilter = { addons -> initialDownloadTypeFilter(addons) },
                         ),
                         progressStatus = ProgressStatusDeps(
                             title = getString(R.string.progress_status),
@@ -4545,6 +4623,702 @@ class NavHostComposeActivity : ActivityBase() {
         memorizeIncludeReferenceSummary = getString(R.string.memorize_include_reference_summary),
     )
 
+    // --- Download host baggage ------------------------------------------------------------------
+    // Ported from classic DownloadComposeActivity (which Task 9 deletes): the download screen's
+    // network JSON fetches, its JSword load/delete/unlock seams, its six platform AlertDialogs and
+    // its live per-row progress bridge. None of it can cross into commonMain -- every line names a
+    // JSword type, an Android dialog or a `settings` key -- so it reaches the destination as the
+    // lambdas of DownloadDeps.
+
+    private val swordDocumentInfoDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+    private val downloadBookmarksDao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+
+    /**
+     * Classic `DownloadComposeActivity`'s own fields (`:139-166`) plus the controller they are
+     * memoised alongside -- see [DownloadDeps.controllerFor] for why this whole session must survive
+     * `CustomRepositories` sitting on top of its destination, the same shape [MyDocumentsSession]
+     * uses for the pages editor.
+     */
+    private class DownloadSession {
+        lateinit var controller: DocumentSelectionController
+        lateinit var downloadManager: DownloadManager
+        lateinit var repoFactory: RepoFactory
+        lateinit var genericFileDownloader: GenericFileDownloader
+        val bridge = DownloadProgressBridge()
+
+        /** Network-fetched configs (parity with classic `Ref<…>` fields). */
+        var recommendedDocuments: DocumentConfiguration? = null
+        var defaultDocuments: DocumentConfiguration? = null
+        var badDocuments: DocumentConfiguration? = null
+        var pseudoBooks: List<PseudoBook>? = null
+
+        /** docId (`Book.repoIdentity`) -> Book, rebuilt on every (re)load. */
+        var booksById: Map<String, Book> = emptyMap()
+        /** The full loaded book list (for `findBookByInitials` in the auto-download extras). */
+        var allBooks: List<Book> = emptyList()
+        /** Current `DocRow`s host-side so progress updates can rebuild only the affected rows. */
+        var currentRows: List<DocRow> = emptyList()
+        /** groupingKey -> sort rank from `downloadControl.sortLanguages` (RelevantLanguageSorter). */
+        var langRank: Map<String, Int> = emptyMap()
+        val booksNotFound = ArrayList<String>()
+
+        val hasErrors get() =
+            genericFileDownloader.errors.isNotEmpty() || downloadManager.failedRepos.isNotEmpty()
+    }
+
+    /**
+     * `Download` has no re-entry of its own (its only child destination is `CustomRepositories`), so
+     * this is built once and never dropped -- [myDocumentsSession]'s own reasoning.
+     */
+    private var downloadSession: DownloadSession? = null
+
+    /**
+     * Drives the `firstDownload` OK gate's enabled state: true once >=1 Bible is installed. Latches
+     * (classic `okayButtonEnabled` never flips back off), fed by [downloadCompletionListener].
+     *
+     * A HOST field rather than a session one because [DownloadDeps] is built before any destination
+     * has asked for a controller, so the flow has to exist ahead of the session.
+     */
+    private val downloadHasBible = MutableStateFlow(false)
+
+    /** Mirror of classic FirstDownload's `JobManager` WorkListener: enable OK once a Bible lands. */
+    private val downloadCompletionListener = object : WorkListener {
+        override fun workProgressed(workEvent: WorkEvent) {
+            if (workEvent.job.isFinished) updateHasBible()
+        }
+        // Never called by JSword in practice, so all the work is done in workProgressed (classic note).
+        override fun workStateChanged(workEvent: WorkEvent) {}
+    }
+
+    /** Latching check: once a Bible is installed, OK stays enabled (classic `enableOkayButtonIfBibles`). */
+    private fun updateHasBible() {
+        if (!downloadHasBible.value) {
+            downloadHasBible.value = Books.installed().books.any { it.bookCategory == BookCategory.BIBLE }
+        }
+    }
+
+    /**
+     * Classic `DownloadComposeActivity`'s `controller` (`:196-227`) and the `onCreate` setup around
+     * it (`:229-231`), memoised on [downloadSession].
+     */
+    private fun downloadControllerFor(initialTypeFilter: DocTypeFilter): DocumentSelectionController {
+        downloadSession?.let { return it.controller }
+
+        val session = DownloadSession()
+        session.downloadManager = DownloadManager { }
+        session.repoFactory = RepoFactory(session.downloadManager)
+        session.genericFileDownloader = GenericFileDownloader(this) { }
+
+        session.controller = DocumentSelectionController(
+            // classic sortLanguages order (RelevantLanguageSorter): rank by the precomputed index.
+            langComparator = Comparator { a, b ->
+                (session.langRank[a.groupingKey] ?: Int.MAX_VALUE)
+                    .compareTo(session.langRank[b.groupingKey] ?: Int.MAX_VALUE)
+            },
+            onSelect = { docId -> handleDownloadSelection(docId) },
+            onDelete = { ids -> handleDownloadDelete(ids) },
+            onDeleteIndex = { ids -> handleDownloadDeleteIndex(ids) },
+            onAbout = { docId -> handleDownloadAbout(docId) },
+            onUnlock = { docId -> handleDownloadUnlock(docId) },
+            onStickyLanguage = { lang -> CommonUtils.settings.setString("selected_language_code", lang?.code) },
+            // Every key applies here: this list is the only one with an install size, and the only
+            // one that loads the recommended-documents config.
+            applicableSortKeys = DocSortKey.entries.toSet(),
+            applicableGroupKeys = listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.LANGUAGE, DocGroupBy.REPOSITORY),
+            storedArrangement = if (CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true))
+                CommonUtils.settings.getString(ARRANGEMENT_KEY, null) else null,
+            rememberArrangementInitially = CommonUtils.settings.getBoolean(ARRANGEMENT_REMEMBER_KEY, true),
+            onArrangementChange = { encoded, remember ->
+                CommonUtils.settings.setBoolean(ARRANGEMENT_REMEMBER_KEY, remember)
+                CommonUtils.settings.setString(ARRANGEMENT_KEY, encoded)
+            },
+            // Round 17e-1 final-review fix (I3): debounces the drag-reorder commit.
+            scope = lifecycleScope,
+        )
+        session.controller.setTypeFilter(initialTypeFilter)
+        downloadSession = session
+        return session.controller
+    }
+
+    /**
+     * Classic `initialTypeFilter()` (`:909-916`) minus its `"type"` extra (plan D1): the tree's only
+     * `putExtra("type"` is gone, so only the `addons` branch and the persisted fallback remain.
+     */
+    private fun initialDownloadTypeFilter(addons: Boolean): DocTypeFilter =
+        if (addons) DocTypeFilter.ADDON
+        else DocTypeFilter.entries.getOrElse(
+            CommonUtils.settings.getInt("selected_document_filter_no", 0),
+        ) { DocTypeFilter.ALL }
+
+    /** Classic `askIfWantToProceed()` (`:460-478`), a platform AlertDialog that can answer NO. */
+    private suspend fun askIfWantToProceedWithDownload(): Boolean = withContext(Dispatchers.Main) {
+        if (CommonUtils.settings.getBoolean("download_do_not_ask", false)) {
+            true
+        } else {
+            suspendCoroutine { cont ->
+                AlertDialog.Builder(this@NavHostComposeActivity)
+                    .setTitle(R.string.download_question_title)
+                    .setMessage(getString(R.string.download_question_message))
+                    .setPositiveButton(R.string.yes) { _, _ -> cont.resume(true) }
+                    .setNegativeButton(R.string.do_not_ask_again) { _, _ ->
+                        CommonUtils.settings.setBoolean("download_do_not_ask", true)
+                        cont.resume(true)
+                    }
+                    .setNeutralButton(R.string.cancel) { _, _ -> cont.resume(false) }
+                    .setOnCancelListener { cont.resume(false) }
+                    .show()
+            }
+        }
+    }
+
+    /**
+     * Classic's `downloadDocJson()` + `loadDocuments()` + `updateLastRepoRefreshDate()` block
+     * (`:239-243` on entry, `:286-297` on pull-to-refresh) as one call.
+     *
+     * [refresh] means FORCE a repository re-fetch (the gesture). The staleness cache stays here,
+     * where `settings` lives: a non-forced call still refreshes when the repo list is old, which is
+     * exactly what classic's `val refresh = isRepoBookListOld` did on entry.
+     */
+    private suspend fun refreshDownloadCatalogue(refresh: Boolean) {
+        val session = downloadSession ?: return
+        downloadDocJson(session)
+        val doRefresh = refresh || isRepoBookListOld
+        loadDownloadDocuments(session, doRefresh)
+        if (doRefresh) CommonUtils.settings.setLong(REPO_REFRESH_DATE, Date().time)
+    }
+
+    /** Classic `downloadDocJson()` (`:406-414`), minus the defaults list -- see [handleAutoDownloadExtras]. */
+    private suspend fun downloadDocJson(session: DownloadSession) = coroutineScope {
+        awaitAll(
+            async { loadRecommendedDocuments(session) },
+            async { loadPseudoBooks(session) },
+            async { loadBadDocuments(session) },
+        )
+    }
+
+    private suspend fun loadRecommendedDocuments(session: DownloadSession) = withContext(Dispatchers.IO) {
+        val source = java.net.URL("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
+        val target = File(SharedConstants.modulesDir, SharedConstants.RECOMMENDED_JSON)
+        session.genericFileDownloader.downloadFile(source, target, "Recommendations", reportError = !target.canRead())
+        if (target.canRead()) {
+            session.recommendedDocuments =
+                CommonUtils.json.decodeFromString(DocumentConfiguration.serializer(), String(target.readBytes()))
+        } else {
+            Log.e(TAG_DOWNLOAD, "Could not load recommendations")
+        }
+    }
+
+    private suspend fun loadBadDocuments(session: DownloadSession) = withContext(Dispatchers.IO) {
+        val source = java.net.URL("https://andbible.github.io/data/${SharedConstants.BAD_DOCS_JSON}")
+        val target = File(SharedConstants.modulesDir, SharedConstants.BAD_DOCS_JSON)
+        session.genericFileDownloader.downloadFile(source, target, "Bad documents list", reportError = !target.canRead())
+        if (target.canRead()) {
+            session.badDocuments =
+                CommonUtils.json.decodeFromString(DocumentConfiguration.serializer(), String(target.readBytes()))
+        } else {
+            Log.e(TAG_DOWNLOAD, "Could not load bad documents list")
+        }
+    }
+
+    private suspend fun loadDefaultDocuments(session: DownloadSession) = withContext(Dispatchers.IO) {
+        val source = java.net.URL("https://andbible.github.io/data/${SharedConstants.DEFAULT_JSON}")
+        val target = File(SharedConstants.modulesDir, SharedConstants.DEFAULT_JSON)
+        session.genericFileDownloader.downloadFile(source, target, "Defaults", reportError = !target.canRead())
+        if (target.canRead()) {
+            session.defaultDocuments =
+                CommonUtils.json.decodeFromString(DocumentConfiguration.serializer(), String(target.readBytes()))
+        } else {
+            Log.e(TAG_DOWNLOAD, "Could not load default document list")
+        }
+    }
+
+    private suspend fun loadPseudoBooks(session: DownloadSession) = withContext(Dispatchers.IO) {
+        val source = java.net.URL("https://andbible.github.io/data/${SharedConstants.PSEUDO_BOOKS}")
+        val target = File(SharedConstants.modulesDir, SharedConstants.PSEUDO_BOOKS)
+        session.genericFileDownloader.downloadFile(source, target, "Pseudo books", reportError = !target.canRead())
+        if (target.canRead()) {
+            session.pseudoBooks = CommonUtils.json.decodeFromString(serializer(), String(target.readBytes()))
+        } else {
+            Log.e(TAG_DOWNLOAD, "Could not load pseudo book list")
+        }
+    }
+
+    /**
+     * (Re)load downloadable Books off-main, rebuild the docId->Book map and the `DocRow` list, and
+     * push them into the controller. Classic `loadDocuments()` (`:485-528`).
+     */
+    private suspend fun loadDownloadDocuments(session: DownloadSession, refresh: Boolean) {
+        try {
+            val books = withContext(Dispatchers.Default) {
+                session.downloadManager.refreshInstallManager()
+                val docs = downloadControl.getDownloadableDocuments(session.repoFactory, refresh)
+                if (docs.isNotEmpty()) docs + FakeBookFactory.pseudoDocuments(session.pseudoBooks) else docs
+            }
+            val rows = withContext(Dispatchers.Default) {
+                val grouping = LanguageGrouping(books.mapNotNull { it.language })
+                val langByKey: Map<String, LangOption> = grouping.representatives.mapNotNull { lang ->
+                    val key = grouping.key(lang) ?: return@mapNotNull null
+                    key to LangOption(lang.code ?: "", lang.name, key)
+                }.toMap()
+                // classic sortLanguages(representatives) order -> groupingKey -> rank index.
+                session.langRank = downloadControl.sortLanguages(grouping.representatives)
+                    .mapIndexedNotNull { i, lang -> grouping.key(lang)?.let { it to i } }
+                    .toMap()
+                // Bad documents flagged HIDE are excluded (classic filterDocuments); WARN -> badWarn.
+                books.filterNot { it.isBadDocument(session.badDocuments, BadDocumentAction.HIDE) }
+                    .map { it.toDocRow(session, grouping, langByKey) }
+            }
+            session.allBooks = books
+            // docId is the opaque repoIdentity ("repo--initials"), unique per repo+initials.
+            session.booksById = books.associateBy { it.repoIdentity }
+            // Progress events already carry repoIdentity as DocumentStatus.id, and docId ==
+            // repoIdentity now, so the bridge's repoIdentity -> docId map is the identity.
+            session.bridge.setRepoIdentityMap(books.associate { it.repoIdentity to it.repoIdentity })
+            session.currentRows = rows
+            session.controller.setDocuments(rows)
+        } catch (e: Exception) {
+            Log.e(TAG_DOWNLOAD, "Error loading download documents", e)
+            session.controller.showError()
+        }
+    }
+
+    private fun Book.toDocRow(
+        session: DownloadSession,
+        grouping: LanguageGrouping,
+        langByKey: Map<String, LangOption>,
+    ): DocRow {
+        val status = downloadControl.getDocumentStatus(this)
+        val key = grouping.key(language) ?: (language.code ?: "")
+        val sizeMb = bookMetaData.getProperty(SwordBookMetaData.KEY_INSTALL_SIZE)
+            ?.toDoubleOrNull()?.let { it / 1e6 }
+        return DocRow(
+            docId = repoIdentity,
+            osisId = osisID,
+            abbreviation = abbreviation,
+            name = name,
+            language = langByKey[key] ?: LangOption(language.code ?: "", language.name, key),
+            repository = getProperty(DownloadManager.REPOSITORY_KEY) ?: "",
+            category = docCategoryOf(bookCategory),
+            installStatus = status.documentInstallStatus.toDocInstallStatus(),
+            percentDone = status.percentDone,
+            recommended = isRecommended(session.recommendedDocuments),
+            badWarn = isBadDocument(session.badDocuments, BadDocumentAction.WARN),
+            locked = isLocked,
+            enciphered = isEnciphered,
+            canDelete = canDeleteNow(this),
+            installSizeMb = sizeMb,
+        )
+    }
+
+    /**
+     * From the INSTALLED copy, not the repository catalogue entry: a repo Book's driver is an
+     * installer driver and is never deletable. Re-resolved on every in-place row update, because the
+     * installed copy does not exist until the download finishes (classic `canDeleteNow`, `:559-560`).
+     */
+    private fun canDeleteNow(book: Book?): Boolean =
+        runCatching { book?.installedDocument?.canDelete ?: false }.getOrDefault(false)
+
+    /**
+     * Classic's `lifecycleScope.launch { bridge.statuses.collect { applyProgress(it) } }`
+     * (`:253-255`), started and stopped by the destination instead of by an Activity -- see
+     * [DownloadDeps.subscribeDownloadProgress] for why no payload crosses into the graph.
+     */
+    private fun subscribeDownloadProgress(): () -> Unit {
+        val session = downloadSession ?: return {}
+        val job = lifecycleScope.launch {
+            session.bridge.statuses.collect { statusMap -> applyDownloadProgress(session, statusMap) }
+        }
+        return { job.cancel() }
+    }
+
+    /** Classic `onStart`/`onStop` (`:376-394`) as one subscribe/unsubscribe pair. */
+    private fun subscribeDownloadMonitoring(firstDownload: Boolean): () -> Unit {
+        val session = downloadSession ?: return {}
+        session.bridge.register()
+        downloadControl.startMonitoringDownloads()
+        if (firstDownload) {
+            updateHasBible()
+            JobManager.addWorkListener(downloadCompletionListener)
+        }
+        return {
+            session.bridge.unregister()
+            downloadControl.stopMonitoringDownloads()
+            if (firstDownload) JobManager.removeWorkListener(downloadCompletionListener)
+        }
+    }
+
+    /** Classic `applyProgress` (`:565-590`), verbatim apart from the session indirection. */
+    private fun applyDownloadProgress(session: DownloadSession, statusMap: Map<String, RowDownloadStatus>) {
+        if (statusMap.isEmpty()) return
+        // Push each row's live status straight into the controller, which updates it IN PLACE -- no
+        // re-sort, no clearSelection() -- unlike setDocuments()/refilter(). Keep the host-side
+        // currentRows mirror in sync so a later refreshRowStatus()/setDocuments() doesn't revert the
+        // in-progress status.
+        var mirror = session.currentRows
+        for ((docId, s) in statusMap) {
+            // A completed install arrives HERE, not through refreshRowStatus, so this is the path on
+            // which canDelete actually flips, and it has to be re-resolved.
+            val canDelete = canDeleteNow(session.booksById[docId])
+            session.controller.updateDownloadStatus(docId, s.status, s.percentDone, canDelete)
+            mirror = mirror.map { row ->
+                if (row.docId == docId &&
+                    (row.installStatus != s.status || row.percentDone != s.percentDone || row.canDelete != canDelete)
+                ) {
+                    row.copy(installStatus = s.status, percentDone = s.percentDone, canDelete = canDelete)
+                } else row
+            }
+        }
+        session.currentRows = mirror
+    }
+
+    /** Refresh one row's status directly from getDocumentStatus (classic `refreshRowStatus`, `:593-617`). */
+    private fun refreshDownloadRowStatus(session: DownloadSession, book: Book) {
+        val status = downloadControl.getDocumentStatus(book)
+        val canDelete = canDeleteNow(book)
+        val updated = session.currentRows.map { row ->
+            if (row.docId == book.repoIdentity) {
+                row.copy(
+                    installStatus = status.documentInstallStatus.toDocInstallStatus(),
+                    percentDone = status.percentDone,
+                    canDelete = canDelete,
+                )
+            } else row
+        }
+        if (updated != session.currentRows) {
+            session.currentRows = updated
+            // updateDownloadStatus() updates the row IN PLACE, never re-sorting/clearing selection.
+            session.controller.updateDownloadStatus(
+                book.repoIdentity,
+                status.documentInstallStatus.toDocInstallStatus(),
+                status.percentDone,
+                canDelete,
+            )
+        }
+    }
+
+    /** Classic `handleDocumentSelection` (`:622-631`): a selection starts a download, in place. */
+    private fun handleDownloadSelection(docId: String) {
+        val session = downloadSession ?: return
+        val book = session.booksById[docId] ?: return
+        Log.i(TAG_DOWNLOAD, "Document selected:" + book.initials)
+        try {
+            manageDownload(session, book)
+        } catch (e: Exception) {
+            Log.e(TAG_DOWNLOAD, "Error on attempt to download", e)
+            Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /** Classic `manageDownload` (`:633-654`), including its confirm-before-download AlertDialog. */
+    private fun manageDownload(session: DownloadSession, documentToDownload: Book?) {
+        if (documentToDownload != null &&
+            downloadControl.getDocumentStatus(documentToDownload).documentInstallStatus != DocumentInstallStatus.BEING_INSTALLED &&
+            !documentToDownload.isPseudoBook
+        ) {
+            if (documentToDownload.isInstalled && DatabaseContainer.ready &&
+                downloadBookmarksDao.genericBookmarkCountFor(documentToDownload) > 0
+            ) {
+                lifecycleScope.launch {
+                    if (CommonUtils.documentUpgradeConfirmation(this@NavHostComposeActivity)) {
+                        doDownload(session, documentToDownload)
+                    }
+                }
+            } else {
+                AlertDialog.Builder(this)
+                    .setMessage(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.okay) { _, _ -> doDownload(session, documentToDownload) }
+                    .setNegativeButton(R.string.cancel) { _, _ -> }.create().show()
+            }
+        }
+    }
+
+    /**
+     * Classic's own `downloadScope` (`DownloadComposeActivity.kt:167`), deliberately NOT
+     * [lifecycleScope]: `downloadControl.downloadDocument` is a SUSPEND call, so a cancellation
+     * between "user tapped" and "job enqueued" would silently drop the download -- and leaving the
+     * screen is exactly when that happens.
+     */
+    private val downloadScope = CoroutineScope(Dispatchers.Default)
+
+    /** Classic `doDownload` (`:656-665`). */
+    private fun doDownload(session: DownloadSession, document: Book) = downloadScope.launch(Dispatchers.Main) {
+        try {
+            downloadControl.downloadDocument(session.repoFactory, document)
+            refreshDownloadRowStatus(session, document)
+            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+        } catch (e: Exception) {
+            Log.e(TAG_DOWNLOAD, "Error on attempt to download", e)
+            Toast.makeText(this@NavHostComposeActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /** Classic `onCancel` (`:344`): the per-row cancel button, resolved through the session's map. */
+    private fun cancelDownload(docId: String) {
+        val session = downloadSession ?: return
+        session.booksById[docId]?.let { downloadControl.cancelDownload(it) }
+    }
+
+    /**
+     * Classic `handleDelete` (`:673-707`): ONE dialog listing every document that will be deleted,
+     * with the non-deletable remainder reported once rather than once per document.
+     */
+    private fun handleDownloadDelete(ids: Set<String>) {
+        val session = downloadSession ?: return
+        val selected = ids.mapNotNull { session.booksById[it] }
+        val (deletable, rest) = selected.partition { documentControl.canDelete(it.installedDocument) }
+        if (rest.isNotEmpty()) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
+        if (deletable.isEmpty()) return
+        val msg: CharSequence = if (deletable.size == 1) {
+            getString(R.string.delete_doc, deletable.single().name)
+        } else {
+            getString(R.string.delete_docs_confirm) + "\n\n" + deletable.joinToString("\n") { it.name }
+        }
+        AlertDialog.Builder(this)
+            .setMessage(msg).setCancelable(true)
+            .setPositiveButton(R.string.yes) { _, _ ->
+                // Re-checked per document INSIDE the loop: Book.canDelete is `!lastBible && ...`, so
+                // with exactly two Bibles installed both pass the partition, and deleting them both
+                // would leave zero Bibles. Deleting one flips the other's flag.
+                var skipped = false
+                for (document in deletable) {
+                    if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
+                    try {
+                        Log.i(TAG_DOWNLOAD, "Deleting:$document")
+                        documentControl.deleteDocument(document.installedDocument)
+                    } catch (e: Exception) {
+                        Log.e(TAG_DOWNLOAD, "Deleting document crashed", e)
+                        Dialogs.showErrorMsg(R.string.error_occurred, e)
+                    }
+                }
+                if (skipped) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
+                lifecycleScope.launch { loadDownloadDocuments(session, false) }
+                ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+            }
+            .setNegativeButton(R.string.no, null)
+            .create().show()
+    }
+
+    /** Classic `handleDeleteIndex` (`:710-727`). */
+    private fun handleDownloadDeleteIndex(ids: Set<String>) {
+        val session = downloadSession ?: return
+        for (document in ids.mapNotNull { session.booksById[it] }) {
+            val msg: CharSequence = getString(R.string.delete_search_index_doc, document.name)
+            AlertDialog.Builder(this)
+                .setMessage(msg).setCancelable(true)
+                .setPositiveButton(R.string.okay) { _, _ ->
+                    try {
+                        Log.i(TAG_DOWNLOAD, "Deleting index:$document")
+                        SwordDocumentFacade.deleteDocumentIndex(document.installedDocument)
+                    } catch (e: Exception) {
+                        Log.e(TAG_DOWNLOAD, "Deleting index crashed", e)
+                        Dialogs.showErrorMsg(R.string.error_occurred, e)
+                    }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .create().show()
+        }
+    }
+
+    /** Classic `handleAbout` (`:730-746`): reload the SBMD (retaining repo/BadDocument), then showAbout. */
+    private fun handleDownloadAbout(docId: String) {
+        val session = downloadSession ?: return
+        val document = session.booksById[docId] ?: return
+        try {
+            val sbmd = document.bookMetaData as SwordBookMetaData
+            val repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY)
+            val badDocument = sbmd.getProperty("BadDocument")
+            sbmd.reload()
+            sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey)
+            sbmd.putProperty("BadDocument", badDocument)
+            lifecycleScope.launch(Dispatchers.Main) {
+                CommonUtils.showAbout(this@NavHostComposeActivity, document)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG_DOWNLOAD, "Error expanding SwordBookMetaData for $document", e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
+        }
+    }
+
+    /** Classic `handleUnlock` (`:748-756`). */
+    private fun handleDownloadUnlock(docId: String) {
+        val session = downloadSession ?: return
+        val document = session.booksById[docId] ?: return
+        lifecycleScope.launch(Dispatchers.Main) {
+            CommonUtils.unlockDocument(this@NavHostComposeActivity, document)
+            loadDownloadDocuments(session, false)
+        }
+    }
+
+    /**
+     * Classic `handleAutoDownloadExtras` (`:759-786`), with its two Intent extras now route
+     * arguments. The defaults list is fetched HERE rather than in [downloadDocJson]: classic fetched
+     * it in parallel with the other three but gated on the same `download-recommended` extra this
+     * takes, and nothing else reads `defaultDocuments` -- so the fetch follows its one consumer
+     * instead of needing a flag [DownloadDeps.refreshCatalogue] does not carry.
+     */
+    private suspend fun handleAutoDownloadExtras(documentIds: String?, downloadRecommended: Boolean) {
+        val session = downloadSession ?: return
+        withContext(Dispatchers.Main) {
+            if (documentIds != null) {
+                val booksToDownload: List<SwordDocumentInfo> =
+                    CommonUtils.json.decodeFromString(serializer(), documentIds)
+                downloadRequestedBooks(session, booksToDownload)
+                if (session.booksNotFound.size > 0) {
+                    warnUserBooksNotDownloaded(session)
+                }
+            }
+            if (!downloadRecommended) return@withContext
+            loadDefaultDocuments(session)
+            val defaults = session.defaultDocuments ?: return@withContext
+            for (l in listOf(
+                defaults.bibles["en"], defaults.commentaries["en"], defaults.addons["en"],
+                defaults.books["en"], defaults.dictionaries["en"], defaults.maps["en"],
+            )) {
+                val l2 = l?.map {
+                    if (it.contains("::")) {
+                        val (initials, repository) = it.split("::")
+                        SwordDocumentInfo(initials = initials, repository = repository, language = "en", abbreviation = "", name = "")
+                    } else {
+                        SwordDocumentInfo(initials = it, repository = "", language = "en", abbreviation = "", name = "")
+                    }
+                }
+                downloadRequestedBooks(session, l2)
+            }
+        }
+    }
+
+    /** Classic `downloadRequestedBooks` (`:789-800`). */
+    private fun downloadRequestedBooks(session: DownloadSession, osisIds: List<SwordDocumentInfo>?) {
+        osisIds ?: return
+        for (it in osisIds) {
+            Log.i(TAG_DOWNLOAD, "User request to download $it")
+            val book: Book? = findBookByInitials(session, it.initials, if (it.repository == "") null else it.repository)
+            if (book != null) {
+                doDownload(session, book)
+            } else {
+                session.booksNotFound.add(it.initials)
+            }
+        }
+    }
+
+    private fun findBookByInitials(session: DownloadSession, initials: String, repository: String?): Book? =
+        session.allBooks.find {
+            if (repository != null) {
+                it.initials == initials && it.getProperty(DownloadManager.REPOSITORY_KEY) == repository
+            } else {
+                it.initials == initials
+            }
+        }
+
+    /**
+     * Classic `warnUserBooksNotDownloaded` (`:803-821`) -- the one dialog in this cluster that
+     * inflates a LAYOUT (`R.layout.books_not_downloaded_dialog`). Converting the six platform
+     * dialogs in this section to Compose is a separate, queued port goal; both layouts are pinned as
+     * survivors by `ClassicDocumentSelectionRemovalGuardTest`.
+     */
+    private fun warnUserBooksNotDownloaded(session: DownloadSession) {
+        val books = session.booksNotFound.toTypedArray()
+        lifecycleScope.launch {
+            val notInstalled: Array<String> = books.mapNotNull { swordDocumentInfoDao.getBook(it)?.name }.toTypedArray()
+            withContext(Dispatchers.Main) {
+                val v = layoutInflater.inflate(R.layout.books_not_downloaded_dialog, null)
+                val adapter = ArrayAdapter(this@NavHostComposeActivity, R.layout.books_not_downloaded_list_item, notInstalled)
+                v.findViewById<ListView>(R.id.bookListView).adapter = adapter
+                AlertDialog.Builder(this@NavHostComposeActivity)
+                    .setView(v)
+                    .setPositiveButton(R.string.okay, null)
+                    .show()
+            }
+        }
+    }
+
+    /** Classic `isRepoBookListOld` (`:826-831`): not refreshed in a day means old. */
+    private val isRepoBookListOld: Boolean
+        get() {
+            val repoRefreshDate = CommonUtils.settings.getLong(REPO_REFRESH_DATE, 0)
+            return (Date().time - repoRefreshDate) / MILLISECS_IN_DAY > REPO_LIST_STALE_AFTER_DAYS
+        }
+
+    /**
+     * Classic's overflow menu (`:839-876`). `AbMenuItem`, never `DropdownMenuItem`: this file is
+     * scanned by `MenuSeamGuardTest`.
+     */
+    @Composable
+    private fun DownloadOverflowMenu(navController: NavHostController, firstDownload: Boolean) {
+        AbOverflowMenu(contentDescription = null) { close ->
+            if (downloadSession?.hasErrors == true) {
+                AbMenuItem(
+                    text = getString(R.string.download_errors),
+                    onClick = { close(); showDownloadErrors() },
+                    icon = { Icon(painterResource(R.drawable.ic_error_outline_black_24dp), contentDescription = null) },
+                )
+            }
+            if (!firstDownload) { // classic FirstDownload hides installZip
+                AbMenuItem(
+                    text = getString(R.string.install_zip),
+                    onClick = { close(); onInstallZip() },
+                    icon = { Icon(painterResource(R.drawable.ic_unarchive_white_24dp), contentDescription = null) },
+                )
+            }
+            AbMenuItem(
+                text = getString(R.string.custom_repositories),
+                // An in-graph hop, not classic's awaitIntent(Screen.CustomRepositories): that
+                // destination lives in THIS graph (Task 3), so an Intent would launch this host at
+                // itself. Classic's follow-up `loadDocuments(true)` has no in-graph equivalent yet
+                // -- there is no result to await -- and Task 7b owns this hop.
+                onClick = { close(); navController.navigate(NavRoutes.customRepositories()) },
+                // Icons.Filled.Dns (a stack of servers) rather than the "Install zip" unarchive
+                // glyph this row used to share.
+                icon = { Icon(Icons.Filled.Dns, contentDescription = null) },
+            )
+            if (DocumentSyncSettings.enabled) {
+                AbMenuItem(
+                    text = getString(R.string.document_sync_manage_title),
+                    // Still an Intent: Screen.CloudDocuments is an Activity until Task 8 registers
+                    // its destination, and Task 7b turns this row into a navigate then.
+                    onClick = { close(); startActivity(ScreenLauncher.intentFor(this@NavHostComposeActivity, Screen.CloudDocuments)) },
+                    icon = { Icon(painterResource(R.drawable.ic_syncdb_24dp), contentDescription = null) },
+                )
+            }
+        }
+    }
+
+    /** Classic `showErrors` (`:878-890`). */
+    private fun showDownloadErrors() {
+        val session = downloadSession ?: return
+        var message = ""
+        if (session.downloadManager.failedRepos.isNotEmpty()) {
+            message += getString(R.string.failed_repositories_message, session.downloadManager.failedRepos.joinToString(",\n"))
+        }
+        if (session.genericFileDownloader.errors.isNotEmpty()) {
+            message += getString(R.string.failed_downloads_message, session.genericFileDownloader.errors.joinToString(",\n"))
+        }
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.download_errors))
+            .setMessage(message)
+            .setPositiveButton(R.string.okay, null)
+            .create().show()
+    }
+
+    /** Classic `onInstallZip` (`:891-897`): InstallZip stays an Activity (design section 6). */
+    private fun onInstallZip() {
+        val intent = ScreenLauncher.intentFor(this, Screen.InstallZip)
+        lifecycleScope.launch {
+            awaitIntent(intent)
+            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+        }
+    }
+
+    private fun DocumentInstallStatus.toDocInstallStatus(): DocInstallStatus = when (this) {
+        DocumentInstallStatus.INSTALLED -> DocInstallStatus.INSTALLED
+        DocumentInstallStatus.NOT_INSTALLED -> DocInstallStatus.NOT_INSTALLED
+        DocumentInstallStatus.BEING_INSTALLED -> DocInstallStatus.BEING_INSTALLED
+        DocumentInstallStatus.UPGRADE_AVAILABLE -> DocInstallStatus.UPGRADE_AVAILABLE
+        DocumentInstallStatus.ERROR_DOWNLOADING -> DocInstallStatus.ERROR_DOWNLOADING
+        DocumentInstallStatus.INSTALL_CANCELLED -> DocInstallStatus.INSTALL_CANCELLED
+    }
+
     companion object {
         /** Classic `ReadingProgressComposeActivity.kt:54`'s file-private constant. */
         private const val PREF_READING_PROGRESS_LAST_TAB = "reading_progress_last_tab"
@@ -4560,6 +5334,20 @@ class NavHostComposeActivity : ActivityBase() {
         private const val TAG_BOOKMARKS = "BookmarksNavHost"
         private const val TAG_MY_DOCUMENT_PAGES = "MyDocPagesNavHost"
         private const val TAG_MY_DOCUMENTS = "MyDocumentsNavHost"
+        private const val TAG_DOWNLOAD = "DownloadNavHost"
+
+        /**
+         * Per-SCREEN arrangement preference keys, classic `DownloadComposeActivity.kt:113-114`:
+         * sorting a download list by size is a different intent from ordering the reading view's
+         * document picker, so they are deliberately NOT the chooser's keys.
+         */
+        private const val ARRANGEMENT_KEY = "download.arrangement"
+        private const val ARRANGEMENT_REMEMBER_KEY = "download.arrangement.remember"
+
+        /** Classic's repository-staleness cache (`DownloadComposeActivity.kt:938-940`). */
+        private const val REPO_REFRESH_DATE = "repoRefreshDate"
+        private const val REPO_LIST_STALE_AFTER_DAYS: Long = 1
+        private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
 
         /**
          * Classic `ManageLabels.kt`'s own key, unchanged so a user's persisted StudyPad
