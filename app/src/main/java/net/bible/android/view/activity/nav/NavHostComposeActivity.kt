@@ -365,6 +365,40 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType as JSwordSearchType
 import org.crosswire.jsword.versification.BookName
+import net.bible.android.control.navigation.NavigationControl
+import net.bible.android.view.activity.base.SharedActivityState
+import net.bible.android.view.activity.navigation.DocRowMapper
+import net.bible.android.view.activity.navigation.genbookmap.keyChooserKeys
+import net.bible.android.view.activity.navigation.buildGridStep
+import net.bible.android.view.activity.navigation.initialGridOptions
+import net.bible.android.view.activity.navigation.persistGridOptions
+import net.bible.android.view.activity.navigation.pickGridBook
+import net.bible.android.view.activity.navigation.pickGridChapter
+import net.bible.service.download.hideFromSelector
+import net.bible.service.sword.OsisError
+import net.bible.service.sword.SwordContentFacade.readOsisFragment
+import net.bible.service.sword.nameWithoutDocument
+import net.bible.sharedcore.nav.DocumentResult
+import net.bible.sharedcore.nav.KeyChooserResult
+import net.bible.sharedcore.nav.PassageResult
+import net.bible.sharedcore.navigation.ChooseDictionaryWordController
+import net.bible.sharedcore.navigation.ChooseGeneralBookKeyController
+import net.bible.sharedcore.navigation.ChooseMapKeyController
+import net.bible.sharedcore.navigation.DictRow
+import net.bible.sharedcore.navigation.GridChoosePassageController
+import net.bible.sharedcore.navigation.KeyRow
+import net.bible.sharedcore.navigation.anySelectedDeletable
+import net.bible.sharedui.navigation.nav.ChooseDictionaryWordDeps
+import net.bible.sharedui.navigation.nav.ChooseDocumentDeps
+import net.bible.sharedui.navigation.nav.ChooseGeneralBookKeyDeps
+import net.bible.sharedui.navigation.nav.ChooseMapKeyDeps
+import net.bible.sharedui.navigation.nav.ChooserNavDeps
+import net.bible.sharedui.navigation.nav.GridChoosePassageDeps
+import net.bible.sharedui.navigation.nav.chooserNavGraph
+import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.BibleBook
+import org.jdom2.Element
 import org.koin.android.ext.android.inject
 
 /**
@@ -423,6 +457,11 @@ class NavHostComposeActivity : ActivityBase() {
     /** The Download destination's two JSword controls, classic `DownloadComposeActivity.kt:135-136`. */
     private val downloadControl: DownloadControl by inject()
     private val documentControl: DocumentControl by inject()
+
+    /** The passage grid's versification/book-list source, classic
+     *  `GridChoosePassageComposeActivity.kt:43`. `documentControl`/`downloadControl` above are the
+     *  document chooser's own two, shared with Download. */
+    private val navigationControl: NavigationControl by inject()
 
     /**
      * Classic `SettingsComposeActivity`'s own `by lazy` service — NOT a Koin singleton, matching
@@ -1285,6 +1324,55 @@ class NavHostComposeActivity : ActivityBase() {
                         ),
                     )
                 }
+                val chooserDeps = remember {
+                    ChooserNavDeps(
+                        exitHost = { finish() },
+                        setWindowTitle = { title -> setTitle(title) },
+                        keyChooserResults = keyChooserResults,
+                        passageResults = passageResults,
+                        documentResults = documentResults,
+                        chooseGeneralBookKey = ChooseGeneralBookKeyDeps(
+                            // Classic's manifest android:label AND the screen's own title.
+                            title = getString(R.string.general_book),
+                            controllerFor = { onResult -> chooseGeneralBookKeyControllerFor(onResult) },
+                            emptyResult = { generalBookKeyResult(null) },
+                        ),
+                        chooseMapKey = ChooseMapKeyDeps(
+                            title = getString(R.string.doc_type_map),
+                            controllerFor = { onResult -> chooseMapKeyControllerFor(onResult) },
+                            emptyResult = { mapKeyResult(null) },
+                        ),
+                        chooseDictionaryWord = ChooseDictionaryWordDeps(
+                            title = getString(R.string.dictionary),
+                            hint = getString(R.string.search),
+                            controllerFor = { onResult -> chooseDictionaryWordControllerFor(onResult) },
+                            loadRows = { loadChooseDictionaryRows() },
+                            loadSnippet = { keyId -> chooseDictionarySnippet(keyId) },
+                        ),
+                        gridChoosePassage = GridChoosePassageDeps(
+                            // The ONE destination of the five whose classic Activity had no
+                            // android:label, so its window title fell back to the APPLICATION label
+                            // (AndroidManifest.xml:119-121). Reproduced rather than replaced by the
+                            // screen's own step-dependent title.
+                            windowTitle = applicationInfo.loadLabel(packageManager).toString(),
+                            controllerFor = { isScripture, onResult ->
+                                gridChoosePassageControllerFor(isScripture, onResult)
+                            },
+                        ),
+                        chooseDocument = ChooseDocumentDeps(
+                            title = getString(R.string.chooseBook),
+                            controllerFor = { initialTypeFilter, onResult ->
+                                chooseDocumentControllerFor(initialTypeFilter, onResult)
+                            },
+                            initialTypeFilter = { type -> chooseDocumentInitialTypeFilter(type) },
+                            persistTypeFilter = { filter ->
+                                CommonUtils.settings.setInt("selected_document_filter_no", filter.ordinal)
+                            },
+                            loadDocuments = { loadChooseDocuments() },
+                            topBarActions = { ChooseDocumentOverflowMenu() },
+                        ),
+                    )
+                }
                 NavHost(
                     navController = navController,
                     startDestination = startRoute,
@@ -1303,6 +1391,7 @@ class NavHostComposeActivity : ActivityBase() {
                     settingsNavGraph(navController, settingsDeps)
                     downloadNavGraph(navController, downloadDeps)
                     myDocumentsNavGraph(navController, myDocumentsDeps)
+                    chooserNavGraph(navController, chooserDeps)
                 }
 
                 // Host-level, deliberately OUTSIDE the NavHost: `exportStudyPads` runs in
@@ -5913,6 +6002,529 @@ class NavHostComposeActivity : ActivityBase() {
         getString(R.string.doc_type_addons),
     )
 
+    // --- Chooser host baggage (nav-graph slice 7, Task 4) ----------------------------------------
+    // Ported from the five classic chooser Activities: ChooseGeneralBookKeyComposeActivity,
+    // ChooseMapKeyComposeActivity, ChooseDictionaryWordComposeActivity,
+    // GridChoosePassageComposeActivity and ChooseDocumentComposeActivity. Every one of them is STILL
+    // IN THE TREE and still reachable through its own `Screen.X` arm -- the phase's standing rule is
+    // that no Activity is deleted before Task 13 -- so each of these seams has two copies for now:
+    // the Activity's own, and this one behind the graph's deps. Task 13 deletes the Activity half.
+    //
+    // None of it can cross into `commonMain`: every line names a JSword type, an Android dialog, an
+    // `R.string` or a `settings` key.
+
+    // ——— The chooser cluster's three result channels ————————————————————————————————————————————
+    // THREE channels for FIVE destinations (design §6.2) -- see `ChooserNavDeps`' own kdoc: the three
+    // key choosers already produce an identical payload consumed by a single arm.
+    //
+    // All three `exitWithResult` lambdas are a hard `error(...)`, which in this file only
+    // [repositoryEditorResults] does otherwise. Design §1.1 is the reason and it is stronger here
+    // than it was there: slice 7 migrates the producing destinations TOGETHER WITH their consumer
+    // (the reading view, Task 9), so every one of these results is delivered in-graph by
+    // construction and slice 2's host-side `exitWithResult` shim is deliberately not used for any of
+    // them. If one of these ever runs, a destination has been given an external entry without being
+    // given a result contract; fail loudly rather than pack an Intent nobody defined.
+
+    private val keyChooserResults = NavResultChannel<KeyChooserResult> {
+        error("slice 7 destinations are only entered in-graph")
+    }
+
+    private val passageResults = NavResultChannel<PassageResult> {
+        error("slice 7 destinations are only entered in-graph")
+    }
+
+    private val documentResults = NavResultChannel<DocumentResult> {
+        error("slice 7 destinations are only entered in-graph")
+    }
+
+    // ——— ChooseGeneralBookKey ————————————————————————————————————————————————————————————————————
+
+    /** Classic `ChooseGeneralBookKeyComposeActivity.page` (`:43-44`) -- a GETTER, not a captured
+     *  value, so every read sees the currently active window's general book exactly as classic did. */
+    private val chooseGeneralBookPage get() = windowControl.activeWindowPageManager.currentGeneralBook
+
+    /** Resolved once per chooser entry; the index into this list is the `KeyRow.keyId`
+     *  (classic `:46-47`). */
+    private var chooseGeneralBookKeys: List<Key> = emptyList()
+
+    /**
+     * Classic `buildResult` (`:49-61`) with the `Intent` removed: the same two shapes, the same
+     * fallback (`doc!!.globalKeyList.first()` when no key was chosen, double-bang included -- it is
+     * classic's, and this task is a port, not a fix), minus the `ActivityResultKind.GenBookKey` tag,
+     * which named the INTENT's shape to `MainBibleActivity`'s dispatcher and has no meaning in-graph.
+     */
+    private fun generalBookKeyResult(key: Key?): KeyChooserResult {
+        val doc = chooseGeneralBookPage.currentDocument
+        return if (key is BookAndKey) {
+            KeyChooserResult(bookAndKeyJson = key.serialized)
+        } else {
+            KeyChooserResult(
+                key = key?.osisRef ?: doc!!.globalKeyList.first().osisRef,
+                book = doc?.initials,
+            )
+        }
+    }
+
+    /** Null exactly where classic's `onCreate` returned early on an EMPTY key list (`:77-83`); the
+     *  arm then delivers [generalBookKeyResult] with a null key, which is classic's own fallback. */
+    private fun chooseGeneralBookKeyControllerFor(
+        onResult: (KeyChooserResult) -> Unit,
+    ): ChooseGeneralBookKeyController? {
+        chooseGeneralBookKeys = chooseGeneralBookPage.keyChooserKeys()
+        if (chooseGeneralBookKeys.isEmpty()) return null
+        return ChooseGeneralBookKeyController(
+            loadRows = {
+                chooseGeneralBookKeys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) }
+            },
+            currentRow = {
+                chooseGeneralBookPage.key?.let { cur ->
+                    chooseGeneralBookKeys.indexOf(cur).takeIf { it >= 0 }?.toString()
+                }
+            },
+            onSelect = { keyId ->
+                onResult(generalBookKeyResult(chooseGeneralBookKeys.getOrNull(keyId.toIntOrNull() ?: -1)))
+            },
+        )
+    }
+
+    // ——— ChooseMapKey ————————————————————————————————————————————————————————————————————————————
+
+    /** Classic `ChooseMapKeyComposeActivity.page` (`:42-43`). */
+    private val chooseMapPage get() = windowControl.activeWindowPageManager.currentMap
+
+    private var chooseMapKeys: List<Key> = emptyList()
+
+    /** Classic `buildResult` (`:47-53`): `key`+`book` unconditionally -- the map chooser never
+     *  produces a `bookAndKey`, unlike [generalBookKeyResult]. */
+    private fun mapKeyResult(key: Key?): KeyChooserResult = KeyChooserResult(
+        key = key?.osisRef,
+        book = chooseMapPage.currentDocument?.initials,
+    )
+
+    /** Null on an empty key list, classic `:69-74` -- see [chooseGeneralBookKeyControllerFor]. */
+    private fun chooseMapKeyControllerFor(onResult: (KeyChooserResult) -> Unit): ChooseMapKeyController? {
+        chooseMapKeys = chooseMapPage.keyChooserKeys()
+        if (chooseMapKeys.isEmpty()) return null
+        return ChooseMapKeyController(
+            loadRows = { chooseMapKeys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) } },
+            currentRow = {
+                chooseMapPage.key?.let { cur -> chooseMapKeys.indexOf(cur).takeIf { it >= 0 }?.toString() }
+            },
+            onSelect = { keyId ->
+                onResult(mapKeyResult(chooseMapKeys.getOrNull(keyId.toIntOrNull() ?: -1)))
+            },
+        )
+    }
+
+    // ——— ChooseDictionaryWord ————————————————————————————————————————————————————————————————————
+
+    /** Classic `ChooseDictionaryWordComposeActivity.page` (`:49`). */
+    private val chooseDictionaryPage get() = windowControl.activeWindowPageManager.currentDictionary
+
+    /** The global key list, resolved OFF-MAIN by [loadChooseDictionaryRows]; the index into it is the
+     *  `DictRow.keyId` (classic `:51-52`). */
+    private var chooseDictionaryKeys: List<Key> = emptyList()
+
+    /** Null where classic finished immediately with NO result -- `page.currentDocument == null`
+     *  (`:72`). Unlike the two key choosers above there is no fallback key to hand back. */
+    private fun chooseDictionaryWordControllerFor(
+        onResult: (KeyChooserResult) -> Unit,
+    ): ChooseDictionaryWordController? {
+        if (chooseDictionaryPage.currentDocument == null) return null
+        chooseDictionaryKeys = emptyList()
+        return ChooseDictionaryWordController(
+            onSelect = { keyId ->
+                val key = chooseDictionaryKeys.getOrNull(keyId.toIntOrNull() ?: -1)
+                    ?: return@ChooseDictionaryWordController
+                // Classic `:58-63`: the dictionary shares ChooseGeneralBookKey's result shape.
+                onResult(
+                    KeyChooserResult(
+                        key = key.osisRef,
+                        book = chooseDictionaryPage.currentDocument?.initials,
+                    ),
+                )
+            },
+        )
+    }
+
+    /**
+     * Classic's `lifecycleScope.launch { withContext(Dispatchers.IO) { page.cachedGlobalKeyList } }`
+     * (`:77-85`). NULL means the load failed -- the `Log.e` is classic's, and it stays here because
+     * `commonMain` has no logger; the arm turns a null into the `controller.showError()` classic's
+     * own `catch` called.
+     */
+    private suspend fun loadChooseDictionaryRows(): List<DictRow>? = try {
+        chooseDictionaryKeys = withContext(Dispatchers.IO) {
+            chooseDictionaryPage.cachedGlobalKeyList ?: emptyList()
+        }
+        chooseDictionaryKeys.mapIndexed { i, k -> DictRow(i.toString(), k.name) }
+    } catch (e: Exception) {
+        Log.e(TAG_CHOOSERS, "Error creating dictionary key list", e)
+        null
+    }
+
+    /** Classic `snippetFor` (`:110-116`) plus its `withContext(Dispatchers.IO)` call-site wrapper
+     *  (`:100`): JSword `readOsisFragment` and jdom2 walking, neither of which can leave `:app`. */
+    private suspend fun chooseDictionarySnippet(keyId: String): String = withContext(Dispatchers.IO) {
+        val key = chooseDictionaryKeys.getOrNull(keyId.toIntOrNull() ?: -1) ?: return@withContext ""
+        val book: Book = chooseDictionaryPage.currentDocument ?: return@withContext ""
+        val text = try { readOsisFragment(book, key) } catch (e: OsisError) { e.xml }
+        dictionaryEntrySnippet(text, key.toString())
+    }
+
+    /** Classic `getEntrySnippet` (`:118-124`). */
+    private fun dictionaryEntrySnippet(text: Element, key: String): String {
+        text.removeChild("title")
+        val entry = text.getChild("entryFree") ?: return cleanUpDictionarySnippet(text.value, key)
+        val greekOrHebrew = entry.getChildren("orth")?.map { it.text }?.filter { it != "" }?.joinToString(" - ") ?: ""
+        if (greekOrHebrew != "") return greekOrHebrew
+        return cleanUpDictionarySnippet(entry.value, key)
+    }
+
+    /** Classic `cleanUpSnippet` (`:126-130`). */
+    private fun cleanUpDictionarySnippet(snippet: String, key: String): String {
+        var noNewLines = snippet.replace('\n', ' ')
+        if (noNewLines.startsWith(key)) noNewLines = noNewLines.substring(key.length)
+        return maxDictionaryLettersWholeWords(noNewLines)
+    }
+
+    /** Classic `maxLettersWholeWords` (`:132-138`). */
+    private fun maxDictionaryLettersWholeWords(text: String, max: Int = 50): String {
+        val words = text.split(' ').toMutableList()
+        var result = ""
+        while (result.length < max && words.isNotEmpty()) { result += words[0] + ' '; words.removeAt(0) }
+        val append = if (words.isNotEmpty()) "..." else ""
+        return "$result$append"
+    }
+
+    // ——— GridChoosePassage ———————————————————————————————————————————————————————————————————————
+
+    /**
+     * Classic `GridChoosePassageComposeActivity.onCreate` (`:52-82`) in one factory. The two step
+     * fields classic held as Activity state (`selectedBookNo`, `selectedChapter`, `:47-48`) are local
+     * `var`s of this call, so they belong to the entry that asked for the controller rather than to
+     * the host -- which is what makes a second, later entry start from a clean step state the way a
+     * fresh Activity did.
+     *
+     * **`navigateToVerse` is read from the PREF, not from an argument** (design §6.1.1). Classic read
+     * `intent.getBooleanExtra("navigateToVerse", CommonUtils.settings.getBoolean("navigate_to_verse_pref",
+     * false))` (`:56`); the extra's single producer (`BibleJavascriptInterface.refChooserDialog`)
+     * moves to the ref-chooser sheet this slice, so what survives is exactly the fallback both
+     * remaining callers already got. The JS caller's `navigateToVerse = true` (and its `isScripture =
+     * true`) is Task 10's to re-home onto the sheet -- do not read this factory as proof that
+     * `isScripture`'s only producers are the two `CurrentPage` classes.
+     *
+     * The `"title"` extra classic also read (`:55`) is deliberately dropped: it has no producer
+     * anywhere in the tree (design §6.1, re-verified against test sources for this task), so the base
+     * title is unconditionally `R.string.choosePassageBookName`.
+     */
+    private fun gridChoosePassageControllerFor(
+        isScripture: Boolean,
+        onResult: (PassageResult) -> Unit,
+    ): GridChoosePassageController {
+        val navigateToVerse = CommonUtils.settings.getBoolean("navigate_to_verse_pref", false)
+        var selectedBookNo = 0
+        var selectedChapter = 1
+        val baseTitle = getString(R.string.choosePassageBookName)
+        val workspaceName = SharedActivityState.currentWorkspaceName
+        return GridChoosePassageController(
+            initialOptions = initialGridOptions(navigationControl, isScripture),
+            buildStep = { step, opts ->
+                buildGridStep(
+                    step, opts, baseTitle, workspaceName, selectedBookNo, selectedChapter,
+                    navigationControl, windowControl,
+                )
+            },
+            onPersistOptions = { persistGridOptions(it, navigationControl) },
+            onPickBook = { bookNo ->
+                selectedBookNo = bookNo
+                pickGridBook(bookNo, navigateToVerse, navigationControl) { selectedChapter = it }
+            },
+            onPickChapter = { chapter ->
+                selectedChapter = chapter
+                pickGridChapter(chapter, selectedBookNo, navigateToVerse, navigationControl, windowControl)
+            },
+            onPickVerse = { verse ->
+                Verse(
+                    navigationControl.versification,
+                    BibleBook.values()[selectedBookNo],
+                    selectedChapter,
+                    verse,
+                ).osisID
+            },
+            // Classic `finishWithVerse` (`:101-107`) with the Intent removed.
+            onFinish = { osisId -> onResult(PassageResult(verse = osisId)) },
+        )
+    }
+
+    // ——— ChooseDocument ——————————————————————————————————————————————————————————————————————————
+
+    /**
+     * Classic `ChooseDocumentComposeActivity`'s `booksById` field (`:89-90`) plus the controller it is
+     * rebuilt alongside. A SESSION per entry, not a host-memoised one (see `ChooseDocumentDeps
+     * .controllerFor`): the picker is opened over and over from the reading view and classic gave
+     * every open a fresh Activity, so a memoised controller would carry the previous open's filter,
+     * search and selection into the next.
+     */
+    private class ChooseDocumentSession {
+        lateinit var controller: DocumentSelectionController
+
+        /** docId (`Book.initials`) -> Book, rebuilt on every (re)load. */
+        var booksById: Map<String, Book> = emptyMap()
+    }
+
+    /** The CURRENT entry's session. Reassigned by [chooseDocumentControllerFor], read by every seam
+     *  below -- the `CloudDocuments` idiom for a per-entry controller whose host-side seams have
+     *  frozen signatures of their own. */
+    private var chooseDocumentSession: ChooseDocumentSession? = null
+
+    /** Classic's controller construction (`:92-124`), with `onSelect` routed into the graph's channel
+     *  instead of `setResult`+`finish`. */
+    private fun chooseDocumentControllerFor(
+        initialTypeFilter: DocTypeFilter,
+        onResult: (DocumentResult) -> Unit,
+    ): DocumentSelectionController {
+        val session = ChooseDocumentSession()
+        session.controller = DocumentSelectionController(
+            // Classic ChooseDocument.sortLanguages: alphabetical by display name.
+            langComparator = compareBy { it.displayName },
+            onSelect = { docId -> handleChooseDocumentSelection(docId, onResult) },
+            onDelete = { ids -> handleChooseDocumentDelete(ids) },
+            onDeleteIndex = { ids -> handleChooseDocumentDeleteIndex(ids) },
+            onAbout = { docId -> handleChooseDocumentAbout(docId) },
+            onUnlock = { docId -> handleChooseDocumentUnlock(docId) },
+            onStickyLanguage = { lang ->
+                // Classic `:101-106`: a sticky record like classic's lastSelectedLanguage, not read
+                // back on launch here (this screen starts with no language filter).
+                CommonUtils.settings.setString("selected_language_code", lang?.code)
+            },
+            // No SIZE and no RECOMMENDED: this screen has neither datum (classic `:107-112`).
+            applicableSortKeys = setOf(
+                DocSortKey.STATUS, DocSortKey.TYPE, DocSortKey.NAME,
+                DocSortKey.LANGUAGE, DocSortKey.REPOSITORY,
+            ),
+            applicableGroupKeys = listOf(
+                DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.LANGUAGE, DocGroupBy.REPOSITORY,
+            ),
+            storedArrangement = if (CommonUtils.settings.getBoolean(CHOOSE_DOC_ARRANGEMENT_REMEMBER_KEY, true))
+                CommonUtils.settings.getString(CHOOSE_DOC_ARRANGEMENT_KEY, null) else null,
+            rememberArrangementInitially = CommonUtils.settings.getBoolean(CHOOSE_DOC_ARRANGEMENT_REMEMBER_KEY, true),
+            onArrangementChange = { encoded, remember ->
+                CommonUtils.settings.setBoolean(CHOOSE_DOC_ARRANGEMENT_REMEMBER_KEY, remember)
+                CommonUtils.settings.setString(CHOOSE_DOC_ARRANGEMENT_KEY, encoded)
+            },
+            scope = lifecycleScope,
+        )
+        chooseDocumentSession = session
+        // Classic `onCreate:130`, immediately after construction.
+        session.controller.setTypeFilter(initialTypeFilter)
+        return session.controller
+    }
+
+    /**
+     * Classic `initialTypeFilter()` (`:425-432`) minus its `addons` branch: nothing in the tree puts
+     * an `addons` extra on an Intent any more (design §6.1), and
+     * `ClassicDocumentSelectionRemovalGuardTest.noCallSiteStillPutsADownloadExtraOnAnIntent` already
+     * asserts as much -- by a plain CONTAINMENT scan over every shipping source, which is why this
+     * comment spells the extra's name out rather than quoting the `putExtra` call it forbids. The
+     * branch would be unreachable by construction.
+     */
+    private fun chooseDocumentInitialTypeFilter(type: String?): DocTypeFilter = when (type) {
+        "BIBLE" -> DocTypeFilter.BIBLE
+        "COMMENTARY" -> DocTypeFilter.COMMENTARY
+        else -> DocTypeFilter.entries.getOrElse(
+            CommonUtils.settings.getInt("selected_document_filter_no", 0),
+        ) { DocTypeFilter.ALL }
+    }
+
+    /** Classic's `loadDocuments()` (`:236-258`). */
+    private suspend fun loadChooseDocuments() {
+        val session = chooseDocumentSession ?: return
+        try {
+            val books = withContext(Dispatchers.Default) {
+                SwordDocumentFacade.documents + FakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
+            }
+            val rows = withContext(Dispatchers.Default) {
+                // The Book -> DocRow mapping (language grouping included) lives in DocRowMapper,
+                // shared with the reading view's document quick sheet. One mapper per book list.
+                val mapper = DocRowMapper(downloadControl, books)
+                books.map { mapper.toDocRow(it) }
+            }
+            session.booksById = books.associateBy { it.initials }
+            session.controller.setDocuments(rows)
+        } catch (e: Exception) {
+            Log.e(TAG_CHOOSE_DOCUMENT, "Error loading documents", e)
+            session.controller.showError()
+        }
+    }
+
+    /** Classic `handleDocumentSelection` (`:262-278`) with `setResult`+`finish` replaced by the
+     *  channel: the unlock gate and its reload are unchanged. */
+    private fun handleChooseDocumentSelection(docId: String, onResult: (DocumentResult) -> Unit) {
+        val book = chooseDocumentSession?.booksById?.get(docId) ?: return
+        if (book.bookCategory == BookCategory.AND_BIBLE) return
+        lifecycleScope.launch(Dispatchers.Main) {
+            if (book.isLocked && !CommonUtils.unlockDocument(this@NavHostComposeActivity, book)) {
+                loadChooseDocuments()
+                return@launch
+            }
+            Log.i(TAG_CHOOSE_DOCUMENT, "Book selected:" + book.initials)
+            onResult(DocumentResult(book = book.initials))
+        }
+    }
+
+    /** Classic `handleDelete` (`:287-321`), including its one-dialog-for-the-whole-selection shape
+     *  and the per-document `canDelete` re-check inside the loop (the lastBible guard). */
+    private fun handleChooseDocumentDelete(ids: Set<String>) {
+        val booksById = chooseDocumentSession?.booksById ?: return
+        val selected = ids.mapNotNull { booksById[it] }
+        val (deletable, rest) = selected.partition { documentControl.canDelete(it.installedDocument) }
+        if (rest.isNotEmpty()) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
+        if (deletable.isEmpty()) return
+        val msg: CharSequence = if (deletable.size == 1) {
+            getString(R.string.delete_doc, deletable.single().name)
+        } else {
+            getString(R.string.delete_docs_confirm) + "\n\n" + deletable.joinToString("\n") { it.name }
+        }
+        AlertDialog.Builder(this)
+            .setMessage(msg).setCancelable(true)
+            .setPositiveButton(R.string.yes) { _, _ ->
+                var skipped = false
+                for (document in deletable) {
+                    if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
+                    try {
+                        Log.i(TAG_CHOOSE_DOCUMENT, "Deleting:$document")
+                        documentControl.deleteDocument(document.installedDocument)
+                    } catch (e: Exception) {
+                        Log.e(TAG_CHOOSE_DOCUMENT, "Deleting document crashed", e)
+                        Dialogs.showErrorMsg(R.string.error_occurred, e)
+                    }
+                }
+                if (skipped) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
+                lifecycleScope.launch { loadChooseDocuments() }
+                ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+            }
+            .setNegativeButton(R.string.no, null)
+            .create().show()
+    }
+
+    /** Classic `handleDeleteIndex` (`:324-341`). */
+    private fun handleChooseDocumentDeleteIndex(ids: Set<String>) {
+        val booksById = chooseDocumentSession?.booksById ?: return
+        for (document in ids.mapNotNull { booksById[it] }) {
+            val msg: CharSequence = getString(R.string.delete_search_index_doc, document.name)
+            AlertDialog.Builder(this)
+                .setMessage(msg).setCancelable(true)
+                .setPositiveButton(R.string.okay) { _, _ ->
+                    try {
+                        Log.i(TAG_CHOOSE_DOCUMENT, "Deleting index:$document")
+                        SwordDocumentFacade.deleteDocumentIndex(document.installedDocument)
+                    } catch (e: Exception) {
+                        Log.e(TAG_CHOOSE_DOCUMENT, "Deleting index crashed", e)
+                        Dialogs.showErrorMsg(R.string.error_occurred, e)
+                    }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .create().show()
+        }
+    }
+
+    /** Classic `handleAbout` (`:344-360`): reload the SBMD (retaining repo/BadDocument), then show. */
+    private fun handleChooseDocumentAbout(docId: String) {
+        val document = chooseDocumentSession?.booksById?.get(docId) ?: return
+        try {
+            val sbmd = document.bookMetaData as SwordBookMetaData
+            val repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY)
+            val badDocument = sbmd.getProperty("BadDocument")
+            sbmd.reload()
+            sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey)
+            sbmd.putProperty("BadDocument", badDocument)
+            lifecycleScope.launch(Dispatchers.Main) {
+                CommonUtils.showAbout(this@NavHostComposeActivity, document)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG_CHOOSE_DOCUMENT, "Error expanding SwordBookMetaData for $document", e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
+        }
+    }
+
+    /** Classic `handleUnlock` (`:363-369`). */
+    private fun handleChooseDocumentUnlock(docId: String) {
+        val document = chooseDocumentSession?.booksById?.get(docId) ?: return
+        lifecycleScope.launch(Dispatchers.Main) {
+            CommonUtils.unlockDocument(this@NavHostComposeActivity, document)
+            loadChooseDocuments()
+        }
+    }
+
+    /**
+     * Classic `OverflowMenu()` (`:373-392`) -- Download / Backup modules / Install zip. Host-composed
+     * in full: `R.drawable` painters, `getString`s, and two `awaitIntent` round trips that need an
+     * `ActivityBase`.
+     *
+     * **Both `awaitIntent` consumers are kept exactly as classic wrote them, by this task's
+     * instruction.** `InstallZip` is still an Activity and belongs to slice 8; `Download` is already
+     * a destination of this very graph, and THAT is worth a second look before anything routes to
+     * this destination (Task 8): the host is `launchMode="singleTop"`, so
+     * `awaitIntent(NavHostComposeActivity.intentFor(this, NavRoutes.download()))` issued FROM the
+     * host aims an Intent at the host itself. Slice 4 already met this shape and converted its
+     * equivalent hop to an in-graph `navigate` for exactly that reason -- see
+     * [DownloadDeps.reloadCatalogueIfRequested]'s kdoc, which says so in as many words. Left as-is
+     * here deliberately, and reported rather than silently fixed.
+     */
+    @Composable
+    private fun ChooseDocumentOverflowMenu() {
+        AbOverflowMenu(contentDescription = null) { close ->
+            AbMenuItem(
+                text = getString(R.string.download),
+                onClick = { close(); onChooseDocumentDownload() },
+                icon = { Icon(painterResource(R.drawable.ic_file_download_24dp), contentDescription = null) },
+            )
+            AbMenuItem(
+                text = getString(R.string.backup_modules2),
+                onClick = { close(); onChooseDocumentBackup() },
+                icon = { Icon(painterResource(R.drawable.ic_backup_black_24dp), contentDescription = null) },
+            )
+            AbMenuItem(
+                text = getString(R.string.install_zip),
+                onClick = { close(); onChooseDocumentInstallZip() },
+                icon = { Icon(painterResource(R.drawable.ic_unarchive_white_24dp), contentDescription = null) },
+            )
+        }
+    }
+
+    /** Classic `onDownload()` (`:394-408`), unchanged -- see [ChooseDocumentOverflowMenu]'s kdoc. */
+    private fun onChooseDocumentDownload() {
+        try {
+            if (downloadControl.checkDownloadOkay()) {
+                val handlerIntent = intentFor(this, NavRoutes.download())
+                lifecycleScope.launch {
+                    awaitIntent(handlerIntent)
+                    ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                    loadChooseDocuments()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG_CHOOSE_DOCUMENT, "Error opening download", e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
+        }
+    }
+
+    /** Classic `onBackup()` (`:410-412`). */
+    private fun onChooseDocumentBackup() {
+        lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@NavHostComposeActivity) }
+    }
+
+    /** Classic `onInstallZip()` (`:414-421`) -- still an Activity hop, slice 8's to migrate. */
+    private fun onChooseDocumentInstallZip() {
+        val intent = ScreenLauncher.intentFor(this, Screen.InstallZip)
+        lifecycleScope.launch {
+            awaitIntent(intent)
+            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+            loadChooseDocuments()
+        }
+    }
+
     companion object {
         /** Classic `ReadingProgressComposeActivity.kt:54`'s file-private constant. */
         private const val PREF_READING_PROGRESS_LAST_TAB = "reading_progress_last_tab"
@@ -5937,6 +6549,19 @@ class NavHostComposeActivity : ActivityBase() {
          */
         private const val ARRANGEMENT_KEY = "download.arrangement"
         private const val ARRANGEMENT_REMEMBER_KEY = "download.arrangement.remember"
+
+        private const val TAG_CHOOSERS = "ChoosersNavHost"
+        private const val TAG_CHOOSE_DOCUMENT = "ChooseDocumentNavHost"
+
+        /**
+         * The document CHOOSER's own arrangement keys, classic
+         * `ChooseDocumentComposeActivity.kt:73-74`, reused VERBATIM so a user's persisted picker
+         * arrangement survives while the classic Activity and this arm coexist. Deliberately NOT
+         * [ARRANGEMENT_KEY]'s pair: sorting a download list by size is a different intent from
+         * ordering the reading view's document picker, and changing one must not reorder the other.
+         */
+        private const val CHOOSE_DOC_ARRANGEMENT_KEY = "chooseDoc.arrangement"
+        private const val CHOOSE_DOC_ARRANGEMENT_REMEMBER_KEY = "chooseDoc.arrangement.remember"
 
         /**
          * Classic `CloudDocumentsComposeActivity`'s own key prefix (round 17e-2), reused VERBATIM

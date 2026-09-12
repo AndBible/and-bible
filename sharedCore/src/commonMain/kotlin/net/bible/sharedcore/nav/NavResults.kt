@@ -121,6 +121,54 @@ sealed interface MyDocumentPagesResult {
     data object Cancelled : MyDocumentPagesResult
 }
 
+/**
+ * What the three KEY choosers -- `ChooseGeneralBookKey`, `ChooseMapKey`, `ChooseDictionaryWord` --
+ * hand back. ONE type and, on `ChooserNavDeps`, one channel for
+ * all three (design §6.2): their three classic result `Intent`s are deliberately identical, and
+ * `MainBibleActivity.onActivityResult` dispatches all of them through the single
+ * `ActivityResultKind.GenBookKey` arm into `applyChosenGenBookKey`. Three channels would be three
+ * ways to say the same thing.
+ *
+ * Two shapes in one flat type, mirroring the extras rather than inventing a sealed hierarchy (the
+ * reason [BookmarkResult] is flat too -- the Intent itself carries one optional field per shape):
+ *
+ * - [bookAndKeyJson] is `ChooseGeneralBookKeyComposeActivity`'s `"bookAndKey"` extra, set only when
+ *   the chosen key is a `BookAndKey` -- `BookAndKey.serialized`, i.e. `BookAndKeySerialized` encoded
+ *   as JSON, which is what the consumer's `BookAndKeySerialized.fromJSON` reads back. Hence
+ *   `...Json` in the name: it is not an opaque token, and the consumer decodes it.
+ * - [key] + [book] are the `"key"` (osisRef) / `"book"` (initials) pair every other exit uses, and
+ *   the branch the consumer takes when [bookAndKeyJson] is null.
+ *
+ * The `ActivityResultKind.GenBookKey` tag the classic Intents also carried is NOT a field here, for
+ * the reason [ReadingProgressResult]'s own kdoc gives: a kind tag names the INTENT's shape to
+ * `MainBibleActivity`'s dispatcher, and is not part of what the destination decided. These
+ * destinations are entered only from inside the graph (design §1.1), so no Intent is ever packed
+ * from this type at all.
+ */
+data class KeyChooserResult(
+    val bookAndKeyJson: String? = null,
+    val key: String? = null,
+    val book: String? = null,
+)
+
+/**
+ * What `GridChoosePassage` hands back: the chosen passage's `osisID`, classic's `"verse"` extra
+ * (`GridChoosePassageComposeActivity.finishWithVerse`), consumed by `applyChosenVerse`.
+ *
+ * One non-null field and no cancellation variant, deliberately: classic never called `setResult` on
+ * any other path out of that Activity -- backing out simply finished, and the consumer saw
+ * `RESULT_CANCELED` with no data. The in-graph equivalent of that path is a plain pop with nothing
+ * published, not a variant of this type.
+ */
+data class PassageResult(val verse: String)
+
+/**
+ * What `ChooseDocument` hands back: the chosen document's `initials`, classic's `"book"` extra
+ * (`ChooseDocumentComposeActivity.handleDocumentSelection`), consumed by `applyChosenDocument`.
+ * Single-field and variant-free for [PassageResult]'s reason.
+ */
+data class DocumentResult(val book: String)
+
 // No `@Serializable` anywhere in this file, deliberately. A result is packed into an Intent's
 // EXTRAS by `NavResultIntents`, never encoded as JSON, and the two `:app` contract types slice 2
 // carries (`ManageLabelsData`, `LabelData`) embed Room entities (`BookmarkEntities.Label`,
