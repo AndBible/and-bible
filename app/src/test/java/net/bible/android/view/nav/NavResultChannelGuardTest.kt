@@ -175,6 +175,14 @@ class NavResultChannelGuardTest {
      * would notice, since every other path through `LabelEdit` takes the exit branch. Both halves
      * are asserted: the collection (so the result is seen) and the `consume()` (so a recomposition
      * cannot apply it twice).
+     *
+     * **Fix round 1, Important 2.** The first version stopped there, and so could not detect the
+     * failure this kdoc names: deleting `d.onLabelEditResult(result)` from the arm leaves both
+     * `pending` and `consume()` in place -- the result is read, cleared, and thrown away -- and the
+     * test stayed green while the user's edit was silently dropped. `consume()` without a consumer
+     * is strictly worse than not collecting at all, since it also destroys the value. The third
+     * assertion is what makes this a real guard rather than a spelling check, and it was
+     * mutation-proved by deleting that call and watching this test go red.
      */
     @Test
     fun manageLabelsArmConsumesTheLabelEditChannel() {
@@ -188,6 +196,12 @@ class NavResultChannelGuardTest {
             text.contains("labelEditResults.consume()"),
             "BookmarkNavGraph.kt does not clear labelEditResults with consume() -- a pending " +
                 "result would be re-applied on every recomposition",
+        )
+        assertTrue(
+            text.contains("onLabelEditResult("),
+            "BookmarkNavGraph.kt consumes labelEditResults but hands the result to nobody -- " +
+                "ManageLabelsDeps.onLabelEditResult is never called, so a label edited from inside " +
+                "the graph is read, cleared and DROPPED",
         )
     }
 
@@ -224,6 +238,14 @@ class NavResultChannelGuardTest {
          * calls to pick up what a child published before it popped. Anything else -- the
          * `publishForTest` seam, or any member added later -- is a way around the channel and fails
          * [everyNavResultChannelFieldOnADepsClassIsOnlyEverDelivered].
+         *
+         * This is one flat set, deliberately. A per-FIELD allow-map (`labelEditResults` may be
+         * consumed, the others delivered only) was considered and rejected: it would have to be
+         * hand-maintained in lock-step with every new parent/child pairing the migration adds, which
+         * is the kind of list that silently goes stale, and the thing it would buy -- catching an arm
+         * that consumed a channel it has no business consuming -- is not a failure mode anyone has
+         * hit. So, as written, ANY arm may read ANY channel's `pending`; what the guard still pins is
+         * that nothing reaches around the channel's contract altogether.
          */
         val ALLOWED_MEMBERS = setOf("deliver", "pending", "consume")
     }

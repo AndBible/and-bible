@@ -165,11 +165,13 @@ class LabelEditDeps(
  *   end in it, and all three of those stay host-side for the same Room reasons.
  *
  * - [titleFor] is the WINDOW title, and it is a lambda rather than a `String` because classic read it
- *   as `getString(data.titleId)` (`ManageLabelsComposeActivity.kt:170`): the title is an Android
- *   string RESOURCE ID carried inside the route's payload (`ManageLabelsContract.kt`'s `titleId`,
- *   one of four depending on the mode), and no `commonMain` arm can resolve one. It is also the
- *   title [ManageLabelsScreen] draws in its own top bar, exactly as classic passed the same string
- *   to both.
+ *   as `getString(data.titleId)` (`ManageLabelsComposeActivity.kt:170`). `titleId` is not a stored
+ *   field on the payload: it is a computed getter on `ManageLabelsContract.ManageLabelsData`
+ *   (`ManageLabelsContract.kt:90`) that maps the payload's `mode` onto one of four Android string
+ *   RESOURCE IDS -- and neither the `:app` mode enum nor an Android resource id can be resolved from
+ *   `commonMain`, which is why the whole two-step is a host lambda over the raw payload string. It is
+ *   also the title [ManageLabelsScreen] draws in its own top bar, exactly as classic passed the same
+ *   string to both.
  *
  * - [onLabelEditResult] is where the child editor's result lands: classic's `editLabel` continuation
  *   (`:499-551`), which reconciles the edit into `labelsById`, the controller and the workspace
@@ -178,10 +180,13 @@ class LabelEditDeps(
  *   splitting the cancel branch up into the arm. The host does not need the controller passed back: it
  *   holds the memoised session that owns it.
  *
- * - [initialSearchMode] / [persistSearchMode] are classic's `labels_list_search_mode` setting, seeded
- *   before `setContent` (`:153-156`) and written in `saveAndExit` (`:576-578`). Both are ints
- *   (a [SearchMode] ordinal) because `CommonUtils.settings` is a host type. The arm applies the
- *   STUDYPAD gate classic applied, and writes ON CHANGE rather than on exit -- see the arm's comment.
+ * - [initialSearchMode] is the READ half of classic's `labels_list_search_mode` setting, seeded
+ *   before `setContent` (`:153-156`); it is an int (a [SearchMode] ordinal) because
+ *   `CommonUtils.settings` is a host type, and the arm applies the STUDYPAD gate classic applied.
+ *   There is deliberately no `persistSearchMode` twin: the WRITE half stays exactly where classic
+ *   put it, inside the host's `saveAndExit` (`:576-578`), which every exit this screen has --
+ *   up-arrow, Back and the StudyPad selection alike -- already routes through. An arm-side write
+ *   would be a second writer of the same setting buying nothing.
  *
  * - [iconSlot], [actions] and [searchActions] are the three slots [ManageLabelsScreen]'s FROZEN
  *   signature requires and `commonMain` cannot fill: every one of them ends in
@@ -205,7 +210,6 @@ class ManageLabelsDeps(
     val titleFor: (data: String) -> String,
     val onLabelEditResult: (result: NavLabelEditResult) -> Unit,
     val initialSearchMode: () -> Int,
-    val persistSearchMode: (ordinal: Int) -> Unit,
     val iconSlot: @Composable (customIcon: String?, tint: Color, studyPadMode: Boolean) -> Unit,
     val actions: @Composable RowScope.(controller: ManageLabelsController) -> Unit,
     val searchActions: @Composable RowScope.(controller: ManageLabelsController) -> Unit,
@@ -290,9 +294,11 @@ private fun NavHostController.popOrExit(exitHost: () -> Unit) {
  * `ScreenLauncher.MIGRATED` and that is correct rather than an oversight -- both take a REQUIRED
  * `data` argument, so an argument-free route would open a screen with nothing to show (the
  * `Screen.RawLlmLog` precedent), and every real edge builds `NavRoutes.manageLabels(data)` /
- * `NavRoutes.labelEdit(data)` directly. Live traffic from outside therefore still goes to the
- * classic Activities through the coexistence seam until a later task deletes them; the edge that is
- * live TODAY is the in-graph one, manager -> editor.
+ * `NavRoutes.labelEdit(data)` directly. Live traffic still goes to the classic Activities through
+ * the coexistence seam, and NOTHING in production reaches either arm yet: the manager's route is
+ * built only by tests today. Both edges go live together -- the in-graph one (manager -> editor)
+ * when `Bookmarks` navigates here instead of launching an Intent, and the outside one when the
+ * classic hosts are deleted.
  *
  * **Almost every exit here carries a RESULT**, which is why [popOrExit] is used in exactly one
  * place. The up-arrow, Back, Save, Delete and the StudyPad selection all go through a
@@ -360,18 +366,16 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
         // one for one), so the arm can read the same gate without the payload's type crossing over.
         val isStudyPad = controller.mode == ManageLabelsMode.STUDYPAD
 
-        // Classic's `labels_list_search_mode` round trip (`ManageLabelsComposeActivity.kt:153-156`
-        // and `:576-578`), with one deliberate difference: it is written ON CHANGE rather than in
-        // `saveAndExit`. Classic could write it at the exit because every exit went through
-        // saveAndExit; here the exits are the HOST's (they need Room), so an arm that only wrote on
-        // its own up-arrow would silently miss the StudyPad-selection exit -- which is the one exit
-        // that only STUDYPAD mode, the only mode this setting applies to, can even take. Writing on
-        // change persists the same value the user last chose and cannot miss a path.
+        // The SEED half of classic's `labels_list_search_mode` round trip
+        // (`ManageLabelsComposeActivity.kt:153-156`). The WRITE half stays where classic put it, in
+        // the host's `saveAndExit` (`:576-578`) -- every exit this screen has, the StudyPad
+        // selection included, routes through `controller.save()`, so there is no path for an
+        // exit-time write to miss and no reason for the arm to write at all.
         //
         // rememberSaveable, NOT remember: this arm's composition is DISPOSED while the label editor
-        // sits on top of it (the reason SettingsNavGraph's search filter is saveable too), and a
-        // plain remember would re-run the seed below on every return. `null` means "not seeded yet",
-        // which is also what stops the write-back effect firing before the seed has happened.
+        // sits on top of it (the reason SettingsNavGraph's search filter is saveable too), so a
+        // plain remember would re-read the setting and re-seed the controller on every return from
+        // the editor -- overwriting a mode the user changed since. `null` means "not seeded yet".
         var persistedSearchMode by rememberSaveable { mutableStateOf<Int?>(null) }
         LaunchedEffect(controller) {
             if (!isStudyPad) return@LaunchedEffect
@@ -380,12 +384,6 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             // Guarded because setSearchMode re-dispatches the search; classic could seed
             // unconditionally only because it ran once, before the first collection.
             if (controller.searchMode.value != mode) controller.setSearchMode(mode)
-        }
-        LaunchedEffect(searchMode) {
-            val seeded = persistedSearchMode ?: return@LaunchedEffect
-            if (searchMode.ordinal == seeded) return@LaunchedEffect
-            persistedSearchMode = searchMode.ordinal
-            d.persistSearchMode(searchMode.ordinal)
         }
 
         // ——— the channel's IN-GRAPH branch, consumed ———
@@ -404,17 +402,21 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             d.onLabelEditResult(result)
         }
 
-        // Classic's `onBackPressed` override (`:319-326`): back closes the search bar if it is open,
-        // and otherwise SAVES -- this screen has no cancel, and reading these two the wrong way
-        // round would silently discard the user's label edits.
+        // Classic's `onBackPressed` override (`:319-326`), line for line: back closes the search bar
+        // if it is open, and otherwise SAVES -- this screen has no cancel, so reading the two the
+        // wrong way round would silently discard the user's label edits.
         //
-        // Two handlers rather than one branch, matching SettingsNavGraph's search handler, and the
-        // ORDER is load-bearing: back is dispatched to the most recently registered ENABLED handler
-        // (Compose's documented "inner-most consumes"), so the always-enabled save must be declared
-        // FIRST and the conditional search one SECOND. PlatformBackHandler, never
-        // androidx.activity.compose.BackHandler: this is commonMain.
-        PlatformBackHandler(enabled = true) { controller.save() }
-        PlatformBackHandler(enabled = searchModeActive) { controller.closeSearch() }
+        // ONE handler with the branch inside it, not two gated handlers. Two would work only because
+        // back is dispatched to the most recently registered ENABLED callback, i.e. correct by
+        // declaration ORDER -- an invisible dependency guarding a bug (back saving and exiting out
+        // of search mode) that no test here could catch. SettingsNavGraph has one handler too; its
+        // `enabled = searchModeActive` gating is right THERE because its non-search back is the
+        // NavHost's own pop, which needs no handler at all. Here it is a save, so the handler must
+        // always be enabled. PlatformBackHandler, never androidx.activity.compose.BackHandler: this
+        // is commonMain.
+        PlatformBackHandler(enabled = true) {
+            if (searchModeActive) controller.closeSearch() else controller.save()
+        }
 
         ManageLabelsScreen(
             title = title,

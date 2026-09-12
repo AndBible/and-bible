@@ -966,9 +966,6 @@ class NavHostComposeActivity : ActivityBase() {
                                     SearchMode.NAME_START.ordinal,
                                 )
                             },
-                            persistSearchMode = { ordinal ->
-                                CommonUtils.settings.setInt(MANAGE_LABELS_SEARCH_MODE_KEY, ordinal)
-                            },
                             iconSlot = { customIcon, tint, studyPadMode ->
                                 ManageLabelIcon(customIcon, tint, studyPadMode)
                             },
@@ -1356,16 +1353,24 @@ class NavHostComposeActivity : ActivityBase() {
      * replaced by the channel delivery — which is the whole of the change, because every line of the
      * rest is Room work.
      *
-     * The one line NOT ported is classic's `labels_list_search_mode` write (`:576-578`): the arm
-     * owns that setting now and writes it on change rather than on exit, so that the StudyPad
-     * selection exit — the only exit the one mode this setting applies to actually takes — cannot
-     * miss it. See `ManageLabelsDeps.initialSearchMode`.
+     * That includes classic's `labels_list_search_mode` write (`:576-578`), which stays HERE rather
+     * than moving into the arm: every exit this screen has routes through `controller.save()` and so
+     * through this function — the up-arrow, Back, and `selectStudyPad`, which ends by calling it —
+     * so there is no exit an exit-time write can miss. Only the READ half is a deps lambda, because
+     * only the seeding happens inside the arm's composition.
      */
     private fun saveManageLabelsAndExit(
         session: ManageLabelsSession,
         onResult: (ManageLabelsResult) -> Unit,
     ) {
         val controller = session.controller
+
+        // Classic `ManageLabelsComposeActivity.kt:576-578` (itself classic `ManageLabels`'
+        // saveFilteringSettings): STUDYPAD only, because it is the only mode with a content search.
+        if (session.data.mode == ManageLabelsContract.Mode.STUDYPAD) {
+            CommonUtils.settings.setInt(MANAGE_LABELS_SEARCH_MODE_KEY, controller.searchMode.value.ordinal)
+        }
+
         val deletedIds = controller.resultDeleted()
         val orphanedIds = controller.resultDeletedWithOrphaned()
         val withoutOrphaned = deletedIds.filterNot { orphanedIds.contains(it) }.map { IdType(it) }
