@@ -49,6 +49,7 @@ import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
 import net.bible.sharedcore.search.SwordResultRow
+import net.bible.sharedui.nav.popOrExitOnFailedPop
 import net.bible.sharedui.search.EpubSearchResultsScreen
 import net.bible.sharedui.search.EpubSearchScreen
 import net.bible.sharedui.search.SearchIndexProgressScreen
@@ -501,27 +502,16 @@ class SearchNavDeps(
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 
 /**
- * Whether an up-navigation attempt that just tried to pop the back stack should fall through to
- * exiting the host outright, given [popped] (`navController.popBackStack()`'s result).
- *
- * Duplicated from `AiNavGraph.kt` / `ReadingPlanNavGraph.kt` rather than shared: each cluster's
- * graph file is self-contained, and widening one copy into a cross-package utility would make an
- * implementation detail of that file part of `:sharedUi`'s surface. `internal` rather than
- * `private` for the same reason as the other copies — it keeps a plain-JUnit mirror test possible
- * without a real `NavHostController` (which needs an Android `Context` to construct, and
- * `:sharedUi` has no Robolectric-style runner). As in slice 3, THIS copy has no test of its own
- * yet; `AiNavGraphPopOrExitTest` covers the AI cluster's identical one.
- */
-internal fun popOrExitOnFailedPop(popped: Boolean, exitHost: () -> Unit) {
-    if (!popped) exitHost()
-}
-
-/**
  * Up-navigation for a destination that may be the graph's START destination. `popBackStack()`
  * returns false and does nothing on a single-entry back stack, so a bare `popBackStack()` binding
  * makes the up-arrow a dead button whenever the destination was entered directly. Both branches are
  * live here: the search form and the index prompt are each reachable directly from
  * `ScreenLauncher` AND as a child of the other.
+ *
+ * The boolean branch itself is [net.bible.sharedui.nav.popOrExitOnFailedPop] — ONE `internal`
+ * helper shared by all four cluster graphs and tested there (whole-branch review M1, which
+ * retired four byte-identical copies covered by a single test). What stays here is the part that
+ * is genuinely cluster-specific: which of its two branches is live for THIS cluster.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
     popOrExitOnFailedPop(popBackStack(), exitHost)

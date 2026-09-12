@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-package net.bible.sharedui.ai.nav
+package net.bible.sharedui.nav
 
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -25,11 +25,17 @@ import kotlin.test.assertTrue
  * Task 3 fix round 1, Finding 1: a bare `popBackStack()` binding for up-navigation is a dead
  * button whenever the destination is the graph's only (start) entry, because `popBackStack()`
  * then returns `false` and does nothing. [popOrExitOnFailedPop] is the branch that fixes it —
- * tested directly, as a plain boolean-in function, because the real caller
- * (`NavHostController.popOrExit`) needs an Android `Context` to construct and `:sharedUi` has no
- * Robolectric-style runner to provide one.
+ * tested directly, as a plain boolean-in function, because the real callers (each cluster graph's
+ * `private NavHostController.popOrExit`) need an Android `Context` to construct and `:sharedUi` has
+ * no Robolectric-style runner to provide one.
+ *
+ * Was `AiNavGraphPopOrExitTest` in `net.bible.sharedui.ai.nav`, covering one of FOUR byte-identical
+ * per-cluster copies of the function while the other three (reading plan, search, settings) each
+ * carried a kdoc admitting it had no test. Whole-branch review M1 hoisted the function into
+ * `net.bible.sharedui.nav` and moved this test with it, so the single implementation every cluster
+ * now calls is the one under test — rather than growing three more mirror tests.
  */
-class AiNavGraphPopOrExitTest {
+class PopOrExitTest {
 
     @Test
     fun exitsTheHostWhenThereWasNothingToPop() {

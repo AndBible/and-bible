@@ -70,6 +70,7 @@ import net.bible.sharedui.ai.RawLlmLogScreen
 import net.bible.sharedui.ai.RawLogHistoryScreen
 import net.bible.sharedui.ai.ToolInfoScreen
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.nav.popOrExitOnFailedPop
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -77,11 +78,26 @@ import net.bible.sharedui.strings.LocalStrings
  * [AiNavDeps] — kept small and grouped rather than flattened, because at ten destinations a flat
  * [AiNavDeps] would mix ~40 fields (plain data, per-item lambdas, Task 9's suspend lambdas) in one
  * namespace with nothing but a naming convention telling them apart.
+ *
+ * **Why [readTools]/[writeTools]/[helpBody] are `() -> …` getters rather than plain values — the
+ * convention the whole AI cluster follows, stated once here** (whole-branch review I2). An
+ * `AiNavDeps` literal is assembled on EVERY launch of the host, which since slices 3/5/6 also serves
+ * Search, Reading plan, Reading progress and Settings. Anything spelled as a value in that literal
+ * is therefore computed on the main thread before the first frame of screens that have nothing to do
+ * with AI: `ToolRegistry.getAllTools()` plus two `map`/`filter` passes for the two tool lists, and an
+ * Android `getString` for each help body. A getter defers all of it to the arm's own
+ * `remember { deps.…() }`, so a host that never opens an AI destination never pays it. The same shape
+ * covers [AiModelsDeps.controller], [AiConnectionSettingsDeps.controller]/[AiConnectionSettingsDeps.languageChoices],
+ * [AiProvidersDeps.controller]/[AiProvidersDeps.unknownErrorMessage] and [RawLlmLogDeps.defaultTitle];
+ * it is the settings cluster's `AppSettingsDeps.controller` pattern, applied to this cluster.
+ *
+ * [helpReadMoreUrl] stays a plain `String`: it is a compile-time literal on the host, not a resource
+ * lookup, so deferring it would buy nothing.
  */
 class ToolInfoDeps(
-    val readTools: List<ToolVd>,
-    val writeTools: List<ToolVd>,
-    val helpBody: String,
+    val readTools: () -> List<ToolVd>,
+    val writeTools: () -> List<ToolVd>,
+    val helpBody: () -> String,
     val helpReadMoreUrl: String,
 )
 
@@ -104,7 +120,7 @@ class ToolInfoDeps(
  */
 class AiDocumentFilterDeps(
     val controllerFor: () -> AiDocumentFilterController,
-    val helpBody: String,
+    val helpBody: () -> String,
     val helpReadMoreUrl: String,
 )
 
@@ -112,7 +128,7 @@ class AiDocumentFilterDeps(
  * see its kdoc for why [controllerFor] is a per-entry factory rather than a host-held instance. */
 class GlobalToolPermissionsDeps(
     val controllerFor: () -> GlobalToolPermissionsController,
-    val helpBody: String,
+    val helpBody: () -> String,
     val helpReadMoreUrl: String,
 )
 
@@ -133,9 +149,10 @@ class GlobalToolPermissionsDeps(
  * of unrelated refreshes on the host.
  */
 class AiModelsDeps(
-    val controller: AiModelsController,
+    /** Resolved by the arm's `remember { … }`, behind the host's `by lazy` — see [ToolInfoDeps]. */
+    val controller: () -> AiModelsController,
     val providersForPicker: () -> List<ProviderVd>,
-    val helpBody: String,
+    val helpBody: () -> String,
     val helpReadMoreUrl: String,
     val onResume: (() -> Unit)? = null,
 )
@@ -145,7 +162,10 @@ class AiModelsDeps(
  * more Android-resource baggage than any destination migrated so far:
  *
  * - [controller] is built by the host (needs `labels: AiConnectionLabels`, all `getString` calls,
- *   plus the host's `lifecycleScope`) — same shape as [AiDocumentFilterDeps.controllerFor] etc. Its
+ *   plus the host's `lifecycleScope`) — same shape as [AiDocumentFilterDeps.controllerFor] etc., and
+ *   a `() -> …` getter over a host `by lazy` rather than an instance, per [ToolInfoDeps]' convention:
+ *   this constructor alone costs ~45 `getString` calls and starts a permanent snapshot collector that
+ *   rebuilds the whole AI settings item tree, which no Search or Settings launch should pay for. Its
  *   own constructor `onNavigate` is a host-supplied no-op; the real navigation branching lives in
  *   THIS graph's `composable(NavRoutes.AI_CONNECTION_SETTINGS)` arm below (see the class kdoc on
  *   [aiNavGraph]), not on the controller — six of its seven edges are `navController.navigate(...)`
@@ -173,8 +193,8 @@ class AiModelsDeps(
  *   ported per [AiModelsDeps.onResume]'s established convention (route-scoped, not host-wide).
  */
 class AiConnectionSettingsDeps(
-    val controller: AiConnectionSettingsController,
-    val languageChoices: List<SettingsItem.Choice>,
+    val controller: () -> AiConnectionSettingsController,
+    val languageChoices: () -> List<SettingsItem.Choice>,
     val customLanguageTag: String,
     val onCustomPromptSave: (key: String, value: String?) -> Unit,
     val customPromptTextFor: (key: String) -> String,
@@ -190,7 +210,8 @@ class AiConnectionSettingsDeps(
  * non-Compose Activity state ported from classic `AiProvidersComposeActivity`:
  *
  * - [controller] is built by the host (needs the host's `lifecycleScope`) — same shape as
- *   [AiDocumentFilterDeps.controller] etc. It also owns the easy-setup wizard's service
+ *   [AiDocumentFilterDeps.controllerFor] etc., a `() -> …` getter over a host `by lazy` per
+ *   [ToolInfoDeps]' convention. It also owns the easy-setup wizard's service
  *   pass-throughs ([AiProvidersController.recommendedSetups], [AiProvidersController.testConnection],
  *   [AiProvidersController.performEasySetup]) and the disclaimer gate
  *   ([AiProvidersController.disclaimerAccepted]/`acceptDisclaimer`) — none of that needs an
@@ -210,10 +231,10 @@ class AiConnectionSettingsDeps(
  *   [AiModelsDeps.onResume]'s established convention.
  */
 class AiProvidersDeps(
-    val controller: AiProvidersController,
-    val helpBody: String,
+    val controller: () -> AiProvidersController,
+    val helpBody: () -> String,
     val helpReadMoreUrl: String,
-    val unknownErrorMessage: String,
+    val unknownErrorMessage: () -> String,
     val onResume: (() -> Unit)? = null,
 )
 
@@ -259,7 +280,7 @@ class AiPromptsDeps(
         onNewPrompt: () -> Unit,
         onOpenConnectionSettings: () -> Unit,
     ) -> AiPromptsController,
-    val helpBody: String,
+    val helpBody: () -> String,
     val helpReadMoreUrl: String,
     val onImportCsv: () -> Unit,
     val onExportCsv: () -> Unit,
@@ -297,7 +318,7 @@ class PromptEditDeps(
     val modelChoices: () -> List<SettingsItem.Choice>,
     val globalToolPermission: (toolId: String) -> ToolPermission,
     val globalMaxIterationsLabel: () -> String,
-    val helpBody: String,
+    val helpBody: () -> String,
     val helpReadMoreUrl: String,
     val onPromptCopied: () -> Unit,
 )
@@ -330,7 +351,7 @@ class PromptEditDeps(
  */
 class RawLlmLogDeps(
     val controllerFor: () -> RawLlmLogController,
-    val defaultTitle: String,
+    val defaultTitle: () -> String,
     val recordTitleFor: suspend (recordId: String) -> String?,
     val onCopy: (recordId: String?, workspaceId: String?, recordText: String?) -> Unit,
     val onShare: (recordId: String?, workspaceId: String?, recordText: String?) -> Unit,
@@ -353,7 +374,7 @@ class RawLlmLogDeps(
  */
 class RawLogHistoryDeps(
     val controllerFor: (onOpenLog: (String) -> Unit) -> RawLogHistoryController,
-    val helpBody: String,
+    val helpBody: () -> String,
     val helpReadMoreUrl: String,
     val onResume: (() -> Unit)? = null,
 )
@@ -400,19 +421,6 @@ class AiNavDeps(
 )
 
 /**
- * Whether an up-navigation attempt that just tried to pop the back stack should fall through to
- * exiting the host outright, given [popped] (`navController.popBackStack()`'s result). Split out
- * from [popOrExit] as a plain boolean-in function — rather than folded into it — so this branch is
- * unit-testable without a real `NavHostController`: that class requires an Android `Context` to
- * construct and has no lightweight fake, while `:sharedUi` (as of this file) has no Robolectric-
- * style test runner, only plain JUnit via `kotlin("test")`. `internal` rather than `private` for
- * exactly that reason — a visible seam that is tested beats a private one that is not.
- */
-internal fun popOrExitOnFailedPop(popped: Boolean, exitHost: () -> Unit) {
-    if (!popped) exitHost()
-}
-
-/**
  * Up-navigation for a destination that may be the graph's START destination. `popBackStack()`
  * returns false and does nothing on a single-entry back stack, so a bare `popBackStack()` binding
  * makes the up-arrow a dead button whenever the destination was entered directly. All ten AI-cluster
@@ -422,6 +430,11 @@ internal fun popOrExitOnFailedPop(popped: Boolean, exitHost: () -> Unit) {
  * `ScreenLauncher`/the host launch directly as the graph's sole entry (`AiPrompts` from the Settings
  * menu, `PromptEdit` from the Vue reading view's `openPromptEditor`), or after a process-death
  * restore drops the back stack down to one.
+ *
+ * The boolean branch itself is [net.bible.sharedui.nav.popOrExitOnFailedPop] — ONE `internal`
+ * helper shared by all four cluster graphs and tested there (whole-branch review M1, which
+ * retired four byte-identical copies covered by a single test). What stays here is the part that
+ * is genuinely cluster-specific: which of its two branches is live for THIS cluster.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
     popOrExitOnFailedPop(popBackStack(), exitHost)
@@ -441,10 +454,10 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val title = strings.viewToolsMenuLabel
         LaunchedEffect(title) { deps.setWindowTitle(title) }
         ToolInfoScreen(
-            readTools = deps.toolInfo.readTools,
-            writeTools = deps.toolInfo.writeTools,
+            readTools = remember { deps.toolInfo.readTools() },
+            writeTools = remember { deps.toolInfo.writeTools() },
             onUp = { navController.popOrExit(deps.exitHost) },
-            helpBody = deps.toolInfo.helpBody,
+            helpBody = remember { deps.toolInfo.helpBody() },
             helpReadMoreUrl = deps.toolInfo.helpReadMoreUrl,
         )
     }
@@ -470,7 +483,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             onToggle = controller::toggle,
             onResetAll = controller::resetAll,
             onSave = { controller.save(); navController.popOrExit(deps.exitHost) },
-            helpBody = deps.aiDocumentFilter.helpBody,
+            helpBody = remember { deps.aiDocumentFilter.helpBody() },
             helpReadMoreUrl = deps.aiDocumentFilter.helpReadMoreUrl,
         )
 
@@ -509,7 +522,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             onSetCategoryWrite = controller::setCategoryWrite,
             onResetAll = controller::resetAll,
             onSave = { controller.save(); navController.popOrExit(deps.exitHost) },
-            helpBody = deps.globalToolPermissions.helpBody,
+            helpBody = remember { deps.globalToolPermissions.helpBody() },
             helpReadMoreUrl = deps.globalToolPermissions.helpReadMoreUrl,
         )
 
@@ -528,7 +541,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val strings = LocalStrings.current
         val title = strings.aiModelsTitle
         LaunchedEffect(title) { deps.setWindowTitle(title) }
-        val controller = deps.aiModels.controller
+        val controller = remember { deps.aiModels.controller() }
         val models by controller.models.collectAsState()
         val editState by controller.dialog.collectAsState()
         val providers = remember(models) { deps.aiModels.providersForPicker() }
@@ -570,13 +583,14 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                     controller.dismissDialog()
                 }
             },
-            helpBody = deps.aiModels.helpBody,
+            helpBody = remember { deps.aiModels.helpBody() },
             helpReadMoreUrl = deps.aiModels.helpReadMoreUrl,
         )
     }
     composable(NavRoutes.AI_CONNECTION_SETTINGS) {
         val d = deps.aiConnectionSettings
-        val state by d.controller.state.collectAsState()
+        val controller = remember { d.controller() }
+        val state by controller.state.collectAsState()
 
         // No `strings.xxxTitle` constant here: this screen's own top bar renders `state.title`
         // (an AbScaffold(title = state.title) inside AbSettingsScreen — see
@@ -591,12 +605,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         AiConnectionSettingsScreen(
             state = state,
             onUp = { navController.popOrExit(deps.exitHost) },
-            onSwitch = d.controller::onSwitch,
-            onListChoice = d.controller::onListChoice,
-            onTextInputInt = d.controller::onTextInputInt,
+            onSwitch = controller::onSwitch,
+            onListChoice = controller::onListChoice,
+            onTextInputInt = controller::onTextInputInt,
             onCustomPromptSave = d.onCustomPromptSave,
             customPromptTextFor = d.customPromptTextFor,
-            languageChoices = d.languageChoices,
+            languageChoices = remember { d.languageChoices() },
             customLanguageValue = d.customLanguageTag,
             // The hub's six nav edges: MODELS/TOOL_PERMISSIONS/DOCUMENTS/PROVIDERS/EASY_SETUP/
             // RAW_LOG_HISTORY all have destinations in THIS graph now (RawLogHistory joined as of
@@ -627,7 +641,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val title = strings.aiProvidersTitle
         LaunchedEffect(title) { deps.setWindowTitle(title) }
         val d = deps.aiProviders
-        val controller = d.controller
+        val controller = remember { d.controller() }
         val providers by controller.providers.collectAsState()
         val dialog by controller.dialog.collectAsState()
 
@@ -712,7 +726,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                     controller.dismissDialog()
                 }
             },
-            helpBody = d.helpBody,
+            helpBody = remember { d.helpBody() },
             helpReadMoreUrl = d.helpReadMoreUrl,
             showAcceptDisclaimerDialog = pendingDisclaimerAction != null,
             onAcceptDisclaimer = {
@@ -744,7 +758,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                             val testResult = if (result.isSuccess) {
                                 EasySetupTestResult.Success
                             } else {
-                                EasySetupTestResult.Failure(result.exceptionOrNull()?.message ?: d.unknownErrorMessage)
+                                EasySetupTestResult.Failure(result.exceptionOrNull()?.message ?: d.unknownErrorMessage())
                             }
                             easySetupState = easySetupState?.copy(testing = false, testResult = testResult)
                         }
@@ -761,7 +775,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                                 }
                                 .onFailure { e ->
                                     easySetupState = easySetupState?.copy(
-                                        testResult = EasySetupTestResult.Failure(e.message ?: d.unknownErrorMessage),
+                                        testResult = EasySetupTestResult.Failure(e.message ?: d.unknownErrorMessage()),
                                     )
                                 }
                         }
@@ -835,7 +849,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             onCopyPrompt = controller::onCopyPrompt,
             onMovePromptToCategory = controller::onMovePromptToCategory,
             categoriesProvider = { controller.categories() },
-            helpBody = d.helpBody,
+            helpBody = remember { d.helpBody() },
             helpReadMoreUrl = d.helpReadMoreUrl,
         )
     }
@@ -951,7 +965,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             },
             onViewTools = { navController.navigate(NavRoutes.AI_TOOL_INFO) },
             onBack = { navController.popOrExit(deps.exitHost) },
-            helpBody = d.helpBody,
+            helpBody = remember { d.helpBody() },
             helpReadMoreUrl = d.helpReadMoreUrl,
         )
 
@@ -997,7 +1011,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val canReportBug by controller.canReportBug.collectAsState()
 
         var loading by remember(recordId, workspaceId) { mutableStateOf(true) }
-        var title by remember(recordId, workspaceId) { mutableStateOf(d.defaultTitle) }
+        var title by remember(recordId, workspaceId) { mutableStateOf(d.defaultTitle()) }
         LaunchedEffect(title) { deps.setWindowTitle(title) }
 
         // Ported unchanged from classic RawLlmLogComposeActivity's onCreate LaunchedEffect(Unit) —
@@ -1075,7 +1089,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             onDeleteOlderThan = controller::deleteOlderThan,
             onDeleteAll = controller::deleteAll,
             onNavigateUp = { navController.popOrExit(deps.exitHost) },
-            helpBody = d.helpBody,
+            helpBody = remember { d.helpBody() },
             helpReadMoreUrl = d.helpReadMoreUrl,
         )
     }

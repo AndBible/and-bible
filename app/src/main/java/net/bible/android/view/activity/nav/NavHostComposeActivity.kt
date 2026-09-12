@@ -280,6 +280,60 @@ class NavHostComposeActivity : ActivityBase() {
     }
 
     /**
+     * The AI cluster's three host-lifetime controllers and its two tool lists, LAZY for exactly the
+     * reason [appSettingsController] below is (whole-branch review I2).
+     *
+     * In slice 1 this host served ONLY the AI cluster, so assembling `AiNavDeps` eagerly inside
+     * `setContent` cost nothing that opening an AI screen would not have cost anyway. After slices
+     * 3/5/6 the same host also serves Search, Reading plan, Reading progress and Settings — the
+     * app's most common non-reading screens — and every one of those launches was paying the whole
+     * AI cluster's construction on the main thread before its first frame:
+     *
+     * - [AiModelsController]'s `init` starts a permanent `scope.launch { service.models.collect {…} }`
+     *   on `lifecycleScope`;
+     * - [AiConnectionSettingsController] needs [buildAiConnectionLabels] (~45 `getString` calls) and
+     *   its `init` starts a SECOND permanent collector that rebuilds the entire AI settings item tree
+     *   on every snapshot;
+     * - [AiProvidersController] is a third service-backed instance;
+     * - `ToolRegistry.getAllTools()` plus two full `map`/`filter` passes build the tool-info view data.
+     *
+     * Behind the deps' `() -> …` getters, none of it runs until an AI DESTINATION composes — which is
+     * what the arms' `remember { d.controller() }` / `remember { d.readTools() }` resolve to. Lazy
+     * FIELDS rather than per-entry factories, deliberately, for [appSettingsController]'s reason: the
+     * collectors and the snapshot should outlive one back-stack entry's composition.
+     */
+    private val aiModelsController by lazy {
+        AiModelsController(service = llmModelService, scope = lifecycleScope)
+    }
+
+    private val aiConnectionSettingsController by lazy {
+        AiConnectionSettingsController(
+            service = aiSettingsService,
+            scope = lifecycleScope,
+            labels = buildAiConnectionLabels(),
+            // The real navigation branching lives in aiNavGraph's AI_CONNECTION_SETTINGS arm (six of
+            // its seven edges are navController.navigate(...); RESET_USAGE is the one host callback),
+            // not here — see AiConnectionSettingsDeps' kdoc. This constructor param is required but
+            // unused: the screen's onNavigate is wired directly in the graph, never through
+            // controller::onNavigate.
+            onNavigate = {},
+        )
+    }
+
+    private val aiProvidersController by lazy {
+        AiProvidersController(service = llmProviderService, scope = lifecycleScope)
+    }
+
+    /**
+     * `ToolRegistry.getAllTools()` once, split the way `ToolInfoScreen` wants it. One `by lazy`
+     * behind the other two so a host that never opens Tool info never calls into the registry at
+     * all — and a host that does still walks it exactly once.
+     */
+    private val allAiTools by lazy { ToolRegistry.getAllTools() }
+    private val aiReadTools by lazy { allAiTools.filter { !it.requiresPermission }.map { it.toToolVd() } }
+    private val aiWriteTools by lazy { allAiTools.filter { it.requiresPermission }.map { it.toToolVd() } }
+
+    /**
      * The settings cluster's two controllers, LAZY on purpose. `SettingsNavDeps` is assembled on
      * every launch of this host — which now serves four clusters — but constructing either of these
      * is expensive and settings-specific: [AppSettingsController] forces [appSettingsService]
@@ -450,7 +504,7 @@ class NavHostComposeActivity : ActivityBase() {
         // The load's result is deliberately ignored: NO_PLAN/FAILED are the graph's business, and
         // whichever path follows re-runs the same load through the arm's own handling of them.
         if (isDailyReadingRoute(route)) {
-            val (plan, day) = readingPlanArgsOf(route)
+            val (plan, day) = NavRoutes.readDailyReading(route)
             loadReadingPlanDay(plan, day)
         }
 
@@ -503,41 +557,6 @@ class NavHostComposeActivity : ActivityBase() {
         return route == base || route.startsWith("$base?")
     }
 
-    /**
-     * [NavRoutes.ARG_PLAN] and [NavRoutes.ARG_DAY] read off a daily-reading route string, for
-     * [onNewIntent]'s host-side load — which has to reach those values BEFORE the destination that
-     * would normally read them off its `NavBackStackEntry` exists (or, in the no-op-navigate case,
-     * without it ever re-reading them).
-     *
-     * **[NavRoutes.ARG_PLAN] must be decoded here**, and that is not a redundant belt on top of the
-     * arm's read — it is the step this parser is missing and the arm gets for free. `NavRoutes
-     * .dailyReading` percent-encodes every value (`RouteBuilder.optional` -> `NavRoutes.encodeArg`),
-     * and the arm reaches its copy through the navigation library, whose
-     * `NavDeepLink.getMatchingQueryArguments` reads query values with `Uri.getQueryParameters` —
-     * which returns them ALREADY `Uri.decode`-ed. So the arm sees `My Plan` where a plain string
-     * split sees `My%20Plan`; "the arm does not decode" only ever meant "it does not need a SECOND,
-     * `NavRoutes.decodeArg` pass". Feeding the encoded form to `ReadingPlanControl.setReadingPlan`
-     * would write a non-existent plan code into the `READING_PLAN` preference and then throw — and
-     * plan codes are filenames (`ReadingPlanTextFileDao.userPlanCodes`, `AndBibleAddons
-     * .providedReadingPlans`), so a space or a non-ASCII character in one is ordinary, not exotic.
-     * `decodeArg`'s malformed-escape `require` cannot fire: every daily-reading route reaching
-     * [EXTRA_ROUTE] was built by `NavRoutes.dailyReading`. [NavRoutes.ARG_DAY] is digits, so it
-     * needs no decode.
-     *
-     * An EMPTY value counts as absent, matching the library: its query-parameter regex is `(.+?)`,
-     * so `plan=` does not match and the argument falls back to its `null` default — whereas `""`
-     * here would reach `setReadingPlan("")` and wipe the preference.
-     */
-    private fun readingPlanArgsOf(route: String): Pair<String?, Int?> {
-        val query = route.substringAfter('?', "")
-        if (query.isEmpty()) return null to null
-        val arguments = query.split("&")
-            .filter { it.contains('=') }
-            .associate { it.substringBefore('=') to it.substringAfter('=') }
-        val plan = arguments[NavRoutes.ARG_PLAN]?.takeIf { it.isNotEmpty() }?.let(NavRoutes::decodeArg)
-        return plan to arguments[NavRoutes.ARG_DAY]?.toIntOrNull()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val startRoute = requireNotNull(intent.getStringExtra(EXTRA_ROUTE)) {
@@ -560,35 +579,14 @@ class NavHostComposeActivity : ActivityBase() {
                         navigateToRoute(navController, route)
                     }
                 }
-                val allTools = remember { ToolRegistry.getAllTools() }
-                val aiModelsController = remember {
-                    AiModelsController(service = llmModelService, scope = lifecycleScope)
-                }
-                val aiConnectionSettingsController = remember {
-                    AiConnectionSettingsController(
-                        service = aiSettingsService,
-                        scope = lifecycleScope,
-                        labels = buildAiConnectionLabels(),
-                        // The real navigation branching lives in aiNavGraph's
-                        // AI_CONNECTION_SETTINGS arm (six of its seven edges are
-                        // navController.navigate(...); RESET_USAGE is the one host callback),
-                        // not here — see AiConnectionSettingsDeps' kdoc. This constructor param is
-                        // required but unused: the screen's onNavigate is wired directly in the
-                        // graph, never through controller::onNavigate.
-                        onNavigate = {},
-                    )
-                }
-                val aiProvidersController = remember {
-                    AiProvidersController(service = llmProviderService, scope = lifecycleScope)
-                }
-                val deps = remember(allTools) {
+                val deps = remember {
                     AiNavDeps(
                         exitHost = { finish() },
                         setWindowTitle = { title -> setTitle(title) },
                         toolInfo = ToolInfoDeps(
-                            readTools = allTools.filter { !it.requiresPermission }.map { it.toToolVd() },
-                            writeTools = allTools.filter { it.requiresPermission }.map { it.toToolVd() },
-                            helpBody = getString(R.string.help_tool_info_text),
+                            readTools = { aiReadTools },
+                            writeTools = { aiWriteTools },
+                            helpBody = { getString(R.string.help_tool_info_text) },
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#ai-tools",
                         ),
                         aiDocumentFilter = AiDocumentFilterDeps(
@@ -596,25 +594,25 @@ class NavHostComposeActivity : ActivityBase() {
                             // kdoc (C1: this used to be a single remember{} at host scope, which is
                             // why "Discard changes?" did not actually discard anything).
                             controllerFor = { AiDocumentFilterController(service = documentFilterService, scope = lifecycleScope) },
-                            helpBody = getString(R.string.help_ai_document_filter_text),
+                            helpBody = { getString(R.string.help_ai_document_filter_text) },
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-data-and-documents",
                         ),
                         globalToolPermissions = GlobalToolPermissionsDeps(
                             // Same fix, same reason -- see AiDocumentFilterDeps' kdoc (C1).
                             controllerFor = { GlobalToolPermissionsController(service = toolPermissionService, scope = lifecycleScope) },
-                            helpBody = getString(R.string.help_global_tool_permissions_text),
+                            helpBody = { getString(R.string.help_global_tool_permissions_text) },
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#setting-permissions",
                         ),
                         aiModels = AiModelsDeps(
-                            controller = aiModelsController,
+                            controller = { aiModelsController },
                             providersForPicker = { llmModelService.providersForPicker() },
-                            helpBody = getString(R.string.help_ai_models_text),
+                            helpBody = { getString(R.string.help_ai_models_text) },
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-models",
                             onResume = { llmModelService.refresh() },
                         ),
                         aiConnectionSettings = AiConnectionSettingsDeps(
-                            controller = aiConnectionSettingsController,
-                            languageChoices = buildAiLanguageChoices(),
+                            controller = { aiConnectionSettingsController },
+                            languageChoices = { buildAiLanguageChoices() },
                             customLanguageTag = CUSTOM_LANGUAGE_TAG,
                             onCustomPromptSave = { key, value -> onAiConnectionCustomPromptSave(key, value) },
                             customPromptTextFor = { key -> aiConnectionCustomPromptTextFor(key) },
@@ -623,10 +621,10 @@ class NavHostComposeActivity : ActivityBase() {
                             onResume = { aiSettingsService.refresh() },
                         ),
                         aiProviders = AiProvidersDeps(
-                            controller = aiProvidersController,
-                            helpBody = getString(R.string.help_ai_providers_text),
+                            controller = { aiProvidersController },
+                            helpBody = { getString(R.string.help_ai_providers_text) },
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#choosing-a-provider",
-                            unknownErrorMessage = getString(R.string.unknown_error),
+                            unknownErrorMessage = { getString(R.string.unknown_error) },
                             onResume = { llmProviderService.refresh() },
                         ),
                         aiPrompts = AiPromptsDeps(
@@ -639,7 +637,7 @@ class NavHostComposeActivity : ActivityBase() {
                                     onOpenConnectionSettings = onOpenConnectionSettings,
                                 )
                             },
-                            helpBody = getString(R.string.help_ai_settings_text),
+                            helpBody = { getString(R.string.help_ai_settings_text) },
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                             // Launched on THIS host's lifecycleScope, not a scope owned by the
                             // graph's composable arm -- see AiPromptsDeps' kdoc for why: a
@@ -670,7 +668,7 @@ class NavHostComposeActivity : ActivityBase() {
                                 if (globalMaxIterations <= 0) getString(R.string.prompt_max_iterations_unlimited)
                                 else globalMaxIterations.toString()
                             },
-                            helpBody = getString(R.string.help_prompt_edit_text),
+                            helpBody = { getString(R.string.help_prompt_edit_text) },
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#custom-prompts",
                             onPromptCopied = {
                                 Toast.makeText(this@NavHostComposeActivity, R.string.prompt_copied, Toast.LENGTH_SHORT).show()
@@ -678,7 +676,7 @@ class NavHostComposeActivity : ActivityBase() {
                         ),
                         rawLlmLog = RawLlmLogDeps(
                             controllerFor = { RawLlmLogController(service = rawLogService, scope = lifecycleScope) },
-                            defaultTitle = getString(R.string.raw_llm_log_title),
+                            defaultTitle = { getString(R.string.raw_llm_log_title) },
                             recordTitleFor = ::rawLlmLogRecordTitle,
                             onCopy = ::copyRawLlmLog,
                             onShare = ::shareRawLlmLog,
@@ -689,7 +687,7 @@ class NavHostComposeActivity : ActivityBase() {
                             controllerFor = { onOpenLog ->
                                 RawLogHistoryController(service = rawLogService, scope = lifecycleScope, onOpenLog = onOpenLog)
                             },
-                            helpBody = getString(R.string.help_ai_connection_text),
+                            helpBody = { getString(R.string.help_ai_connection_text) },
                             helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
                             onResume = { rawLogService.refresh() },
                         ),
@@ -1879,6 +1877,12 @@ class NavHostComposeActivity : ActivityBase() {
      * reason [prepareEpubSearchForm]'s is.
      */
     private fun resolveEpubSearchTarget(searchDocument: String?): EpubSearchTarget? {
+        // Classic `EpubSearchResultsComposeActivity.onCreate`'s FIRST line (`:63`) — the one classic
+        // log line slices 3/5/6 left behind (whole-branch review M7). It belongs here, at the first
+        // host call the EPUB-results arm makes, for the same reason its two siblings sit where they
+        // do: [prepareEpubSearchForm] opens with the EPUB search form's line, and
+        // [buildSearchResultsController] with the SWORD results' one.
+        Log.i(TAG_EPUB_SEARCH_RESULTS, "Displaying Compose EPUB search results view")
         val docId =
             if (searchDocument.isNullOrEmpty())
                 windowControl.activeWindowPageManager.currentBible.currentDocument?.initials
@@ -2226,6 +2230,17 @@ class NavHostComposeActivity : ActivityBase() {
     private var readingProgressHistorySink: ((ReadHistoryRequest) -> Unit)? = null
 
     /**
+     * The raw [NavRoutes.ARG_TAB] value that was last APPLIED to [readingProgressController], so a
+     * re-entry can tell "the route names a tab I have not acted on yet" from "the same route
+     * argument the surviving controller was already built with". Set on construction and on every
+     * subsequent application; stays null for a route that named no tab.
+     *
+     * See [readingProgressControllerFor]'s re-entry paragraph — this field IS the fix for the
+     * whole-branch review's I1.
+     */
+    private var readingProgressAppliedTabArg: Int? = null
+
+    /**
      * [ReadingProgressDeps.controllerFor] — classic `ReadingProgressComposeActivity.kt:86-99`,
      * lambda for lambda.
      *
@@ -2246,8 +2261,29 @@ class NavHostComposeActivity : ActivityBase() {
      * both launch the host fresh with `startActivityForResult`, and `singleTop` cannot collapse
      * onto a host that is not already on top), so "one per host instance" and "one per back-stack
      * entry" are the SAME object here — while a host recreate or process death rebuilds it, which
-     * is what classic's Activity did too. An explicit tab in the route still wins on a re-entry,
-     * through the public [ReadingProgressController.selectTab].
+     * is what classic's Activity did too.
+     *
+     * **The re-entry tab policy: an explicit tab is applied ONCE, when it is NEW** (whole-branch
+     * review I1). The arm calls this from a `remember`, and that `remember` re-runs on every
+     * re-composition of the entry — including the one caused by the reading-progress-SETTINGS child
+     * popping, which is the very disposal this caching exists to survive. The route argument is
+     * unchanged across that pop, so a re-entry that re-applied `tabArg` unconditionally overwrote
+     * whatever tab the USER had since selected: open on Memorize via
+     * `BibleJavascriptInterface.openReadingProgress(1)`, switch to Reading, open the settings child,
+     * press Back, and the screen snapped back to Memorize — with `onSelectTab` having already
+     * persisted "Reading", so the shown and persisted tabs then disagreed. [readingProgressAppliedTabArg]
+     * gates it: an explicit tab wins only when it DIFFERS from the one last applied, which is exactly
+     * the `onNewIntent` case the line was written for (a fresh delivery naming a different tab) and
+     * never the pop case. The neighbouring cluster reaches the same conclusion from the other end —
+     * `ReadingPlanNavGraph`'s daily-reading `LaunchedEffect` deliberately reloads the LAST LOADED day
+     * rather than the entry's own arguments, for this same reason.
+     *
+     * Residual, stated rather than hidden: a re-delivery naming the SAME tab the controller was
+     * built with is not re-applied either. That is currently unreachable — the only caller naming a
+     * tab is `BibleJavascriptInterface.openReadingProgress`, which launches from `MainBibleActivity`
+     * via `startActivityForResult`, so the host is never already on top and always gets a fresh
+     * instance (and hence a fresh controller) — and if it ever becomes reachable, "keep the tab the
+     * user is on" is the better of the two answers anyway.
      *
      * This is deliberately NOT the reading-plan/search per-entry `controllerFor` shape despite the
      * name: those clusters' destinations genuinely want fresh state per entry. It is also not a
@@ -2261,11 +2297,13 @@ class NavHostComposeActivity : ActivityBase() {
         readingProgressHistorySink = onShowHistory
 
         readingProgressController?.let { existing ->
-            // Re-entry after the reading-progress-settings child popped. Keep the controller — that
-            // is the whole point — but honour an EXPLICIT tab if the route carries one. An absent
-            // tab means "the tab the user was last on", which is precisely what `existing` already
-            // shows, so it must NOT be re-resolved from the persisted setting here.
-            if (tabArg != null) existing.selectTab(readingProgressInitialTab(tabArg))
+            // Re-entry. Keep the controller — that is the whole point — and apply an explicit tab
+            // ONLY when it is one this controller has not already been given, i.e. a genuinely NEW
+            // route argument. See the kdoc above for why an unconditional re-apply was a bug.
+            if (tabArg != null && tabArg != readingProgressAppliedTabArg) {
+                readingProgressAppliedTabArg = tabArg
+                existing.selectTab(readingProgressInitialTab(tabArg))
+            }
             return existing
         }
 
@@ -2296,6 +2334,7 @@ class NavHostComposeActivity : ActivityBase() {
             persistOverview = { CommonUtils.settings.setBoolean("reading_progress_mem_overview", it) },
         )
         readingProgressController = controller
+        readingProgressAppliedTabArg = tabArg
         return controller
     }
 

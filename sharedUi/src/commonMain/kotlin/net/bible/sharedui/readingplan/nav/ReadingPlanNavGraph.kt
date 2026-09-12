@@ -34,6 +34,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.readingplan.DailyReadingController
 import net.bible.sharedcore.readingplan.DailyReadingListController
 import net.bible.sharedcore.readingplan.ReadingPlanSelectorController
+import net.bible.sharedui.nav.popOrExitOnFailedPop
 import net.bible.sharedui.readingplan.DailyReadingListScreen
 import net.bible.sharedui.readingplan.DailyReadingScreen
 import net.bible.sharedui.readingplan.ReadingPlanSelectorScreen
@@ -64,9 +65,14 @@ data class LoadedReadingDay(val planCode: String, val day: Int)
 /**
  * The outcome of one [DailyReadingDeps.loadDay] call. [LOADED] and [FAILED] are both "nothing for
  * the graph to do" (on failure the host has already pushed the error state into the controller, so
- * the screen shows classic's error dialog) — they are still distinct values rather than a boolean
- * so the graph's `when` states, rather than implies, that a failure is deliberately not routed
- * anywhere.
+ * the screen shows classic's error dialog) — they are still distinct values rather than a boolean so
+ * that the ONE outcome the graph does route on, [NO_PLAN], is named rather than encoded as `false`.
+ *
+ * The graph's `applyLoad` is therefore a single `if (result == NO_PLAN)`, not a `when` over all
+ * three: an earlier version of this kdoc claimed a `when` and was simply wrong about the code
+ * beneath it (whole-branch review M7). What the third value buys is not an extra branch but the
+ * ability to read `FAILED` at the call site and see that "handled by the host, deliberately not
+ * routed" is a decision rather than an omission.
  */
 enum class DailyReadingLoad {
     LOADED,
@@ -234,26 +240,6 @@ class ReadingPlanNavDeps(
 )
 
 /**
- * Whether an up-navigation attempt that just tried to pop the back stack should fall through to
- * exiting the host outright, given [popped] (`navController.popBackStack()`'s result). Split out
- * from [popOrExit] as a plain boolean-in function — rather than folded into it — so this branch is
- * unit-testable without a real `NavHostController`: that class requires an Android `Context` to
- * construct and has no lightweight fake, while `:sharedUi` has no Robolectric-style test runner,
- * only plain JUnit via `kotlin("test")`. `internal` rather than `private` keeps that door open
- * here too — but be honest about the state of it: the AI cluster's identical copy is the one
- * `AiNavGraphPopOrExitTest` covers, and THIS copy has no test of its own yet (a three-line mirror
- * test is all it needs; it was not added in Task 3 because `:sharedUi`'s test task was not one of
- * that task's two sanctioned gates).
- *
- * Duplicated from `AiNavGraph.kt` rather than shared: each cluster's graph file is self-contained,
- * and widening the AI cluster's copy into a cross-package utility would make an implementation
- * detail of that file part of `:sharedUi`'s surface.
- */
-internal fun popOrExitOnFailedPop(popped: Boolean, exitHost: () -> Unit) {
-    if (!popped) exitHost()
-}
-
-/**
  * Up-navigation for a destination that may be the graph's START destination. `popBackStack()`
  * returns false and does nothing on a single-entry back stack, so a bare `popBackStack()` binding
  * makes the up-arrow a dead button whenever the destination was entered directly. All three
@@ -261,6 +247,11 @@ internal fun popOrExitOnFailedPop(popped: Boolean, exitHost: () -> Unit) {
  * `Screen.ReadingPlanSelector`/`Screen.DailyReadingList` from `ScreenLauncher`), and all three are
  * also reachable as a child of `DAILY_READING_PATTERN` within this graph — so both branches are
  * live here.
+ *
+ * The boolean branch itself is [net.bible.sharedui.nav.popOrExitOnFailedPop] — ONE `internal`
+ * helper shared by all four cluster graphs and tested there (whole-branch review M1, which
+ * retired four byte-identical copies covered by a single test). What stays here is the part that
+ * is genuinely cluster-specific: which of its two branches is live for THIS cluster.
  */
 private fun NavHostController.popOrExit(exitHost: () -> Unit) {
     popOrExitOnFailedPop(popBackStack(), exitHost)

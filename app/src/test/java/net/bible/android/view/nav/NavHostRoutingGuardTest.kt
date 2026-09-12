@@ -33,6 +33,7 @@ import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import java.io.File
 
 /**
  * The coexistence seam's contract: a MIGRATED screen resolves to the nav host carrying its route,
@@ -371,7 +372,8 @@ class NavHostRoutingGuardTest {
      * directly instead: `NavHostComposeActivity.intentFor(context, NavRoutes.xyz(...))`.
      *
      * Scans every shipping source file ([ClassicRemovalScan.appSources]) for three shapes, per
-     * `ScreenLauncher.intentFor(...)` call site whose argument list names a screen currently in
+     * nav-host-bound `intentFor(...)` call site -- either marker in [INTENT_FOR_CALL_MARKERS]; for
+     * the `ScreenLauncher` one, only when its argument list names a screen currently in
      * [ScreenLauncher.MIGRATED]:
      *  1. `ScreenLauncher.intentFor(..., Screen.X).putExtra(...)` — chained directly.
      *  2. `ScreenLauncher.intentFor(..., Screen.X).apply { ... putExtra(...) ... }` — chained via
@@ -489,7 +491,28 @@ class NavHostRoutingGuardTest {
      *    .putExtra(...)` sitting in the same block) -- a same-block false positive is possible in
      *    principle, predates this hardening round, and is accepted rather than chased.
      *
-     * The general shape is now: find each `ScreenLauncher.intentFor(` call by locating its own
+     * **Hardened again by the whole-branch review's M2** against a fifth fail-open shape -- not a
+     * missed syntax this time but a missed CALL SITE. Tasks 6 and 8 established
+     * `NavHostComposeActivity.intentFor(context, NavRoutes.xyz(...))` as the PRESCRIBED way to reach
+     * a route that takes arguments, and the tree now has six such production call sites
+     * (`BibleJavascriptInterface.kt:570` and `:1094`, `BibleView.kt:482`,
+     * `ComposeReadingViewHost.kt:833`, `SearchControl.kt:109`, `LinkControl.kt:428`). A
+     * `.putExtra(...)` chained onto any of them is dropped exactly as silently as the three defects
+     * this scan was written for -- [NavHostComposeActivity] reads only
+     * [NavHostComposeActivity.EXTRA_ROUTE] and nothing else (verified: that is its only
+     * `intent.get*Extra` read, in `onCreate` and in `onNewIntent`) -- yet the scan looked only for the
+     * `ScreenLauncher` spelling. Fixed by scanning BOTH markers in the same loop. The direct marker
+     * needs no screen-name gate: its route argument IS the whole payload, so any extra on it is wrong
+     * regardless of which route it carries. No live call site is an offender today (verified by
+     * reading all six, and by this scan passing).
+     *
+     * Known, deliberate bound of the second marker, in the same fail-open direction as the rest: the
+     * scan is textual, so the marker also matches inside a STRING LITERAL -- `NavHostComposeActivity`'s
+     * own `requireNotNull` message names `NavHostComposeActivity.intentFor()` in prose. That match has
+     * an empty argument list and nothing chained after it, so it reports nothing; a literal that DID
+     * spell a chained `.putExtra` would be a false positive, which no shipping string does.
+     *
+     * The general shape is now: find each `intentFor(` call (by either marker) by locating its own
      * matching closing paren ([matchingParenIndex]); read every migrated screen named ANYWHERE in
      * that balanced argument list; then check independently, relative to that call's OWN
      * boundaries, for a chained `.putExtra(s)`, a chained `.apply`/`.also`/`.let`/`.run { ... }`
@@ -510,141 +533,151 @@ class NavHostRoutingGuardTest {
         val migratedScreenNames = ScreenLauncher.MIGRATED.keys.map { it.name }
         assertTrue(migratedScreenNames.isNotEmpty(), "ScreenLauncher.MIGRATED is empty -- this scan would pass vacuously")
 
-        val callMarker = "ScreenLauncher.intentFor("
         val offenders = mutableListOf<String>()
         for (file in ClassicRemovalScan.appSources()) {
             val text = file.readText()
             val path = file.path.replace('\\', '/')
 
-            var searchFrom = 0
-            while (true) {
-                val callStart = text.indexOf(callMarker, searchFrom)
-                if (callStart < 0) break
+            for (callMarker in INTENT_FOR_CALL_MARKERS) {
+                var searchFrom = 0
+                while (true) {
+                    val callStart = text.indexOf(callMarker, searchFrom)
+                    if (callStart < 0) break
 
-                val openParenIndex = callStart + callMarker.length - 1
-                val closeParenIndex = matchingParenIndex(text, openParenIndex)
-                if (closeParenIndex == null) {
-                    // Truncated/malformed input -- nothing further to find from here either.
-                    break
-                }
-                searchFrom = closeParenIndex + 1
+                    val openParenIndex = callStart + callMarker.length - 1
+                    val closeParenIndex = matchingParenIndex(text, openParenIndex)
+                    if (closeParenIndex == null) {
+                        // Truncated/malformed input -- nothing further to find from here either.
+                        break
+                    }
+                    searchFrom = closeParenIndex + 1
 
-                // Which MIGRATED screens does this call's own argument list name, anywhere in it
-                // (not just as the last argument -- see the named/reordered-arguments hardening
-                // above)? A word boundary keeps e.g. "Screen.RawLlmLog" from matching a longer
-                // hypothetical "Screen.RawLlmLogSomethingElse".
-                val argsText = text.substring(openParenIndex + 1, closeParenIndex)
-                val matchedScreens = migratedScreenNames.filter { name ->
-                    Regex("""Screen\.${Regex.escape(name)}\b""").containsMatchIn(argsText)
-                }
-                if (matchedScreens.isEmpty()) continue
+                    // Which MIGRATED screens does this call's own argument list name, anywhere in it
+                    // (not just as the last argument -- see the named/reordered-arguments hardening
+                    // above)? A word boundary keeps e.g. "Screen.RawLlmLog" from matching a longer
+                    // hypothetical "Screen.RawLlmLogSomethingElse".
+                    val argsText = text.substring(openParenIndex + 1, closeParenIndex)
+                    // What this call would silently drop an extra FOR. The ScreenLauncher marker names
+                    // one subject per MIGRATED screen its argument list mentions; the direct-host marker
+                    // has no screen in it at all -- its route IS the whole payload, so every one of its
+                    // call sites is a subject unconditionally.
+                    val subjects =
+                        if (callMarker == SCREEN_LAUNCHER_CALL_MARKER) {
+                            migratedScreenNames.filter { name ->
+                                Regex("""Screen\.${Regex.escape(name)}\b""").containsMatchIn(argsText)
+                            }.map { "Screen.$it" }
+                        } else {
+                            listOf(NAV_HOST_CALL_MARKER.removeSuffix("("))
+                        }
+                    if (subjects.isEmpty()) continue
 
-                val afterCall = text.substring(closeParenIndex + 1)
+                    val afterCall = text.substring(closeParenIndex + 1)
 
-                val chainedPutExtra = Regex("""^\s*\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(afterCall.take(200))
+                    val chainedPutExtra = Regex("""^\s*\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(afterCall.take(200))
 
-                // apply/also/let/run: apply/run rebind `this` to the receiver, so a real caller's
-                // body calls putExtra(s)(...) bare; also/let do NOT rebind `this` -- the receiver
-                // is only reachable as the implicit `it` or an explicit named lambda parameter, so
-                // those two are checked for `it.putExtra(s)(...)`/`<param>.putExtra(s)(...)` instead.
-                var chainedScopeFunctionDescription: String? = null
-                val chainedScopeMatch = Regex("""^\s*\.(apply|also|let|run)\s*\{""").find(afterCall.take(200))
-                if (chainedScopeMatch != null) {
-                    val functionName = chainedScopeMatch.groupValues[1]
-                    val braceIndex = closeParenIndex + 1 + chainedScopeMatch.range.last
-                    val block = balancedBraceBlock(text, braceIndex)
-                    if (block != null) {
-                        val body = block.removePrefix("{").removeSuffix("}")
-                        val bodyHasPutExtra = when (functionName) {
-                            "apply", "run" -> Regex("""\b$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(body)
-                            else -> {
-                                // "also"/"let": an explicit named lambda parameter ("intent ->" or
-                                // the typed "intent: Intent ->"), or the implicit "it" when none is
-                                // declared. The optional type annotation is matched but not
-                                // captured -- only the parameter NAME is needed.
-                                val namedParam = Regex("""^\s*(\w+)\s*(?::\s*.+?)?\s*->""")
-                                    .find(body)?.groupValues?.get(1)
-                                val receiverName = namedParam ?: "it"
-                                Regex("""\b${Regex.escape(receiverName)}\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(body)
+                    // apply/also/let/run: apply/run rebind `this` to the receiver, so a real caller's
+                    // body calls putExtra(s)(...) bare; also/let do NOT rebind `this` -- the receiver
+                    // is only reachable as the implicit `it` or an explicit named lambda parameter, so
+                    // those two are checked for `it.putExtra(s)(...)`/`<param>.putExtra(s)(...)` instead.
+                    var chainedScopeFunctionDescription: String? = null
+                    val chainedScopeMatch = Regex("""^\s*\.(apply|also|let|run)\s*\{""").find(afterCall.take(200))
+                    if (chainedScopeMatch != null) {
+                        val functionName = chainedScopeMatch.groupValues[1]
+                        val braceIndex = closeParenIndex + 1 + chainedScopeMatch.range.last
+                        val block = balancedBraceBlock(text, braceIndex)
+                        if (block != null) {
+                            val body = block.removePrefix("{").removeSuffix("}")
+                            val bodyHasPutExtra = when (functionName) {
+                                "apply", "run" -> Regex("""\b$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(body)
+                                else -> {
+                                    // "also"/"let": an explicit named lambda parameter ("intent ->" or
+                                    // the typed "intent: Intent ->"), or the implicit "it" when none is
+                                    // declared. The optional type annotation is matched but not
+                                    // captured -- only the parameter NAME is needed.
+                                    val namedParam = Regex("""^\s*(\w+)\s*(?::\s*.+?)?\s*->""")
+                                        .find(body)?.groupValues?.get(1)
+                                    val receiverName = namedParam ?: "it"
+                                    Regex("""\b${Regex.escape(receiverName)}\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(body)
+                                }
                             }
-                        }
-                        if (bodyHasPutExtra) {
-                            chainedScopeFunctionDescription = "chained with .$functionName { ... putExtra(...) ... }"
-                        }
-                    }
-                }
-
-                // Is this call the RHS of an assignment -- i.e. does "<name>(: Type)? = " (or
-                // nothing at all) immediately precede "ScreenLauncher.intentFor("? Typed first
-                // (fixes the type-annotation miss above), bare as a fallback.
-                var assignedPutExtraName: String? = null
-                val beforeCall = text.substring(0, callStart)
-                val typedAssignment = Regex("""(\w+)\s*:\s*[^=\n]*=\s*$""").find(beforeCall)
-                val bareAssignment = Regex("""(\w+)\s*=\s*$""").find(beforeCall)
-                val assignedTo = typedAssignment ?: bareAssignment
-                if (assignedTo != null) {
-                    val name = assignedTo.groupValues[1]
-                    val window = afterCall.take(ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS)
-                    if (Regex("""\b${Regex.escape(name)}\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(window)) {
-                        assignedPutExtraName = name
-                    }
-                }
-
-                // Is this call a BRANCH of a conditional that is itself the RHS of an assignment --
-                // `val name = if (cond) { intentFor(..) } else { intentFor(..) }` -- followed by
-                // `name.putExtra(s)(...)`? Neither regex above can see this shape: what immediately
-                // precedes the call is the branch opener (`if (needToIndex) {`), not `name =`. See
-                // the kdoc's Task 6 hardening entry; live in LinkControl.showAllOccurrences.
-                var conditionalAssignedPutExtraName: String? = null
-                if (assignedPutExtraName == null) {
-                    val lookBehind = beforeCall.takeLast(CONDITIONAL_ASSIGN_LOOKBEHIND_CHARS)
-                    // The NEAREST preceding conditional assignment (typed or not); an earlier,
-                    // already-closed one would be rejected by the containment check below anyway,
-                    // but starting from the nearest keeps `between` as short as possible.
-                    val conditionalAssignment =
-                        Regex("""(\w+)\s*(?::\s*[^=\n]*)?=\s*(?:if|when)\s*[({]""")
-                            .findAll(lookBehind)
-                            .lastOrNull()
-                    if (conditionalAssignment != null) {
-                        val name = conditionalAssignment.groupValues[1]
-                        // Everything between the conditional's opening `(`/`{` and this call. The
-                        // call is still INSIDE that conditional expression when the text in
-                        // between opens more braces than it closes (a braced branch, including the
-                        // `} else {` hop, which nets back to depth 1), or when it closes the
-                        // condition's paren and opens nothing (the brace-less
-                        // `= if (cond) intentFor(...)` form). A `;` or a local `val`/`var`
-                        // declaration in between means a new statement started, so the conditional
-                        // is no longer what we are inside of.
-                        val between = withoutComments(lookBehind.substring(conditionalAssignment.range.last + 1))
-                        val braceDepth = between.count { it == '{' } - between.count { it == '}' }
-                        val stillInsideTheConditional =
-                            !between.contains(';') &&
-                                !Regex("""\b(?:val|var)\b""").containsMatchIn(between) &&
-                                (braceDepth >= 1 || (braceDepth == 0 && between.trimEnd().endsWith(')')))
-                        if (stillInsideTheConditional) {
-                            val window = afterCall.take(ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS)
-                            if (Regex("""\b${Regex.escape(name)}\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(window)) {
-                                conditionalAssignedPutExtraName = name
+                            if (bodyHasPutExtra) {
+                                chainedScopeFunctionDescription = "chained with .$functionName { ... putExtra(...) ... }"
                             }
                         }
                     }
-                }
 
-                val shapeDescriptions = mutableListOf<String>()
-                if (chainedPutExtra) shapeDescriptions.add("chained directly with .putExtra(...)")
-                chainedScopeFunctionDescription?.let { shapeDescriptions.add(it) }
-                assignedPutExtraName?.let { name ->
-                    shapeDescriptions.add("assigned to `$name`, then `$name.putExtra(...)` nearby")
-                }
-                conditionalAssignedPutExtraName?.let { name ->
-                    shapeDescriptions.add(
-                        "a branch of an if/when assigned to `$name`, then `$name.putExtra(...)` nearby",
-                    )
-                }
+                    // Is this call the RHS of an assignment -- i.e. does "<name>(: Type)? = " (or
+                    // nothing at all) immediately precede "ScreenLauncher.intentFor("? Typed first
+                    // (fixes the type-annotation miss above), bare as a fallback.
+                    var assignedPutExtraName: String? = null
+                    val beforeCall = text.substring(0, callStart)
+                    val typedAssignment = Regex("""(\w+)\s*:\s*[^=\n]*=\s*$""").find(beforeCall)
+                    val bareAssignment = Regex("""(\w+)\s*=\s*$""").find(beforeCall)
+                    val assignedTo = typedAssignment ?: bareAssignment
+                    if (assignedTo != null) {
+                        val name = assignedTo.groupValues[1]
+                        val window = afterCall.take(ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS)
+                        if (Regex("""\b${Regex.escape(name)}\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(window)) {
+                            assignedPutExtraName = name
+                        }
+                    }
 
-                for (screenName in matchedScreens) {
-                    for (description in shapeDescriptions) {
-                        offenders.add("$path: Screen.$screenName $description")
+                    // Is this call a BRANCH of a conditional that is itself the RHS of an assignment --
+                    // `val name = if (cond) { intentFor(..) } else { intentFor(..) }` -- followed by
+                    // `name.putExtra(s)(...)`? Neither regex above can see this shape: what immediately
+                    // precedes the call is the branch opener (`if (needToIndex) {`), not `name =`. See
+                    // the kdoc's Task 6 hardening entry; live in LinkControl.showAllOccurrences.
+                    var conditionalAssignedPutExtraName: String? = null
+                    if (assignedPutExtraName == null) {
+                        val lookBehind = beforeCall.takeLast(CONDITIONAL_ASSIGN_LOOKBEHIND_CHARS)
+                        // The NEAREST preceding conditional assignment (typed or not); an earlier,
+                        // already-closed one would be rejected by the containment check below anyway,
+                        // but starting from the nearest keeps `between` as short as possible.
+                        val conditionalAssignment =
+                            Regex("""(\w+)\s*(?::\s*[^=\n]*)?=\s*(?:if|when)\s*[({]""")
+                                .findAll(lookBehind)
+                                .lastOrNull()
+                        if (conditionalAssignment != null) {
+                            val name = conditionalAssignment.groupValues[1]
+                            // Everything between the conditional's opening `(`/`{` and this call. The
+                            // call is still INSIDE that conditional expression when the text in
+                            // between opens more braces than it closes (a braced branch, including the
+                            // `} else {` hop, which nets back to depth 1), or when it closes the
+                            // condition's paren and opens nothing (the brace-less
+                            // `= if (cond) intentFor(...)` form). A `;` or a local `val`/`var`
+                            // declaration in between means a new statement started, so the conditional
+                            // is no longer what we are inside of.
+                            val between = withoutComments(lookBehind.substring(conditionalAssignment.range.last + 1))
+                            val braceDepth = between.count { it == '{' } - between.count { it == '}' }
+                            val stillInsideTheConditional =
+                                !between.contains(';') &&
+                                    !Regex("""\b(?:val|var)\b""").containsMatchIn(between) &&
+                                    (braceDepth >= 1 || (braceDepth == 0 && between.trimEnd().endsWith(')')))
+                            if (stillInsideTheConditional) {
+                                val window = afterCall.take(ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS)
+                                if (Regex("""\b${Regex.escape(name)}\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(window)) {
+                                    conditionalAssignedPutExtraName = name
+                                }
+                            }
+                        }
+                    }
+
+                    val shapeDescriptions = mutableListOf<String>()
+                    if (chainedPutExtra) shapeDescriptions.add("chained directly with .putExtra(...)")
+                    chainedScopeFunctionDescription?.let { shapeDescriptions.add(it) }
+                    assignedPutExtraName?.let { name ->
+                        shapeDescriptions.add("assigned to `$name`, then `$name.putExtra(...)` nearby")
+                    }
+                    conditionalAssignedPutExtraName?.let { name ->
+                        shapeDescriptions.add(
+                            "a branch of an if/when assigned to `$name`, then `$name.putExtra(...)` nearby",
+                        )
+                    }
+
+                    for (subject in subjects) {
+                        for (description in shapeDescriptions) {
+                            offenders.add("$path: $subject $description")
+                        }
                     }
                 }
             }
@@ -652,15 +685,180 @@ class NavHostRoutingGuardTest {
         assertEquals(
             emptyList<String>(),
             offenders.sorted(),
-            "a MIGRATED screen's ScreenLauncher.intentFor(...) intent still receives .putExtra(...) " +
-                "-- ScreenLauncher.MIGRATED can only carry an argument-less route, so the extra is " +
-                "silently dropped (NavHostComposeActivity reads only EXTRA_ROUTE). Build the concrete " +
-                "route explicitly instead: NavHostComposeActivity.intentFor(context, NavRoutes.xyz(...)). " +
-                "Offenders:\n${offenders.joinToString("\n")}",
+            "an intent aimed at the nav host still receives .putExtra(...) -- the host reads ONLY " +
+                "EXTRA_ROUTE, so the extra is silently dropped. For a ScreenLauncher.intentFor(context, " +
+                "Screen.X) on a MIGRATED screen, build the concrete route instead: " +
+                "NavHostComposeActivity.intentFor(context, NavRoutes.xyz(...)). For a direct " +
+                "NavHostComposeActivity.intentFor(...) call, put the value in the ROUTE -- add the " +
+                "argument to NavRoutes' builder and pattern. Offenders:\n${offenders.joinToString("\n")}",
         )
     }
 
+    /**
+     * Whole-branch review M3. [everyMigratedScreenHasARouteAndNoneIsBlank] only checks that a
+     * MIGRATED value is not blank -- it cannot tell a real route from a typo. A value matching no
+     * registered `composable(route = ...)` pattern throws `IllegalArgumentException` at the host's
+     * first composition on the LAUNCH path, and is **silently swallowed** on the `onNewIntent` path,
+     * where `NavHostComposeActivity.navigateToRoute` catches exactly that exception by design
+     * (turning an unroutable extra into a logged no-op). So the cheapest possible typo -- a renamed
+     * route constant updated in the graph but not in the map, or the reverse -- surfaces as "the
+     * screen just does not open" rather than as a failure.
+     *
+     * This asserts the whole map against what the graphs actually REGISTER, read out of the
+     * `*NavGraph.kt` files in `:sharedUi` (the same cross-module source read
+     * `SheetExpansionGuardTest`/`AgentLogHeaderStructureGuardTest` already do) and resolved back to
+     * their values through [NavRoutes]' own constants. Matching is on the route BASE -- everything
+     * before the `?` -- which is what decides destination resolution: a pattern's query arguments are
+     * all declared with `defaultValue`s, so navigation-compose matches a concrete route that omits
+     * them, and every MIGRATED value is an argument-free (or default-argument) route by construction.
+     *
+     * Two structural floors keep it from passing vacuously, both of which would otherwise hide a
+     * silently-empty scan: at least as many registered patterns as MIGRATED entries, and EVERY
+     * `composable(` occurrence in those files accounted for by the `NavRoutes.`-constant regex -- so
+     * a destination registered with a hand-written string literal fails here rather than quietly
+     * shrinking the set this test compares against.
+     */
+    @Test
+    fun everyMigratedRouteResolvesToARegisteredDestinationPattern() {
+        val registered = registeredRoutePatterns()
+        assertTrue(
+            registered.size >= ScreenLauncher.MIGRATED.size,
+            "only ${registered.size} registered route patterns were found for ${ScreenLauncher.MIGRATED.size} " +
+                "MIGRATED screens -- the graph scan is reading less than it should",
+        )
+
+        val registeredBases = registered.map { it.substringBefore('?') }.toSet()
+        val unroutable = ScreenLauncher.MIGRATED
+            .filter { (_, route) -> route.substringBefore('?') !in registeredBases }
+            .map { (screen, route) -> "$screen -> \"$route\"" }
+        assertEquals(
+            emptyList<String>(),
+            unroutable.sorted(),
+            "a MIGRATED route matches no destination registered by any *NavGraph.kt. The host would " +
+                "throw on the launch path and silently no-op on the onNewIntent path. Registered " +
+                "bases: ${registeredBases.sorted()}. Offenders:\n${unroutable.joinToString("\n")}",
+        )
+    }
+
+    /**
+     * The §5.2 caveat of the whole-branch review, closed as a guard rather than left as a comment.
+     *
+     * `ReadingProgress` exits with `finish()` when the user taps a chapter, because it produces a
+     * RESULT (`ActivityResultKind.ReadingProgress` + the verse extra) that `MainBibleActivity` reads.
+     * That is only safe because the destination is, in practice, always the host's START destination:
+     * nothing in any graph navigates TO it, so the host it finishes is a host launched for it alone.
+     * The kdoc on `NavHostComposeActivity.readingProgressControllerFor` argues exactly that, and is
+     * right today -- but nothing enforced it.
+     *
+     * What a later slice could break by adding one row: if a graph navigated to
+     * [NavRoutes.READING_PROGRESS_PATTERN] from inside a host launched for another reason -- say from
+     * Settings, launched by `MenuCommandHandler` with `REFRESH_DISPLAY_ON_FINISH` -- then tapping a
+     * chapter would `finish()` the WHOLE host, tearing down the parent back stack the user was in,
+     * AND deliver the chapter extras under a request code whose `MainBibleActivity` branch does not
+     * read them. The verse jump would be silently dropped and the user thrown out of settings.
+     *
+     * So: no in-graph navigation to that route. A slice that genuinely needs one must first replace
+     * the `finish()` exit with a result the graph can carry (a pop plus a shared result holder), and
+     * then delete this test as part of that change -- not loosen it.
+     */
+    @Test
+    fun noGraphNavigatesToTheReadingProgressRoute() {
+        val offenders = mutableListOf<String>()
+        for (file in navGraphSources()) {
+            val text = withoutComments(file.readText())
+            val path = file.path.replace('\\', '/')
+            var searchFrom = 0
+            while (true) {
+                val callStart = text.indexOf(NAVIGATE_CALL_MARKER, searchFrom)
+                if (callStart < 0) break
+                val openParenIndex = callStart + NAVIGATE_CALL_MARKER.length - 1
+                val closeParenIndex = matchingParenIndex(text, openParenIndex) ?: break
+                searchFrom = closeParenIndex + 1
+                val argsText = text.substring(openParenIndex + 1, closeParenIndex)
+                // The pattern constant, or the builder that produces a route matching it. The word
+                // boundary is load-bearing: NavRoutes.READING_PROGRESS_SETTINGS is a DIFFERENT
+                // destination (a child of this one) and navigating to it is entirely correct.
+                if (Regex("""NavRoutes\.READING_PROGRESS_PATTERN\b""").containsMatchIn(argsText) ||
+                    Regex("""NavRoutes\.readingProgress\s*\(""").containsMatchIn(argsText)
+                ) {
+                    offenders.add("$path: navigate(${argsText.trim()})")
+                }
+            }
+        }
+        assertEquals(
+            emptyList<String>(),
+            offenders.sorted(),
+            "a graph navigates to the reading-progress route from inside the host. That destination " +
+                "exits with finish() to return its chapter result, which is only safe while it is " +
+                "always a START destination -- see this test's kdoc. Offenders:\n${offenders.joinToString("\n")}",
+        )
+    }
+
+    /**
+     * Every `*NavGraph.kt` in `:sharedUi`'s `commonMain`. Globbed rather than listed so the slices
+     * still queued behind this batch are covered the moment their graph file lands, instead of being
+     * silently skipped by a hard-coded list nobody remembers to extend.
+     */
+    private fun navGraphSources(): List<File> {
+        val root = File("../sharedUi/src/commonMain/kotlin/net/bible/sharedui")
+        assertTrue(root.isDirectory, "cannot find :sharedUi sources at ${root.absolutePath}")
+        val files = root.walkTopDown().filter { it.isFile && it.name.endsWith("NavGraph.kt") }.toList()
+        assertTrue(files.isNotEmpty(), "no *NavGraph.kt found under ${root.absolutePath}")
+        return files
+    }
+
+    /**
+     * Every route pattern the graphs REGISTER, read as `composable(NavRoutes.X)` /
+     * `composable(route = NavRoutes.X, ...)` and resolved to `NavRoutes.X`'s value by reflection
+     * (a `const val` in a Kotlin `object` is a static field, so `get(null)` reads it).
+     *
+     * The registration count is asserted against the raw `composable(` count in the same files: a
+     * destination registered with anything other than a `NavRoutes` constant -- a string literal, a
+     * local val -- would otherwise just shrink this set silently, which is the wrong direction for a
+     * test whose whole job is to prove a route resolves.
+     */
+    private fun registeredRoutePatterns(): List<String> {
+        val constantCall = Regex("""\bcomposable\(\s*(?:route\s*=\s*)?NavRoutes\.(\w+)""")
+        val anyCall = Regex("""\bcomposable\(""")
+        val patterns = mutableListOf<String>()
+        for (file in navGraphSources()) {
+            val text = withoutComments(file.readText())
+            val names = constantCall.findAll(text).map { it.groupValues[1] }.toList()
+            assertEquals(
+                anyCall.findAll(text).count(),
+                names.size,
+                "${file.path}: a composable(...) destination is registered with something other than a " +
+                    "NavRoutes constant -- this scan cannot resolve its route",
+            )
+            for (name in names) {
+                val field = NavRoutes::class.java.getDeclaredField(name)
+                field.isAccessible = true
+                patterns.add(field.get(null) as String)
+            }
+        }
+        return patterns
+    }
+
     private companion object {
+        /** `ScreenLauncher.intentFor(context, Screen.X)` -- the indirect route into the nav host. */
+        const val SCREEN_LAUNCHER_CALL_MARKER = "ScreenLauncher.intentFor("
+
+        /**
+         * `NavHostComposeActivity.intentFor(context, NavRoutes.xyz(...))` -- the DIRECT route in, and
+         * the prescribed way to reach a destination that takes arguments (Tasks 6 and 8). Added by
+         * the whole-branch review's M2: the scan was written for the ScreenLauncher shape only, but a
+         * `.putExtra(...)` chained onto a direct call is dropped exactly as silently -- the host reads
+         * only [NavHostComposeActivity.EXTRA_ROUTE] -- and there are six such production call sites
+         * now (`BibleJavascriptInterface.kt` x2, `BibleView.kt`, `ComposeReadingViewHost.kt`,
+         * `SearchControl.kt`, `LinkControl.kt`), none of which is an offender today.
+         */
+        const val NAV_HOST_CALL_MARKER = "NavHostComposeActivity.intentFor("
+
+        val INTENT_FOR_CALL_MARKERS = listOf(SCREEN_LAUNCHER_CALL_MARKER, NAV_HOST_CALL_MARKER)
+
+        /** `navController.navigate(`, matched by its bare tail -- see [noGraphNavigatesToTheReadingProgressRoute]. */
+        const val NAVIGATE_CALL_MARKER = "navigate("
+
         /** See [migratedScreenArgumentIsNeverDroppedByAPutExtra]'s kdoc, the assignment shape's known bound. */
         const val ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS = 600
 

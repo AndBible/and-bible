@@ -88,6 +88,48 @@ object NavRoutes {
             optional(ARG_DAY, day?.toString())
         }
 
+    /**
+     * The INVERSE of [dailyReading]: [ARG_PLAN] and [ARG_DAY] read back off a route string this
+     * object built. Its one caller is `NavHostComposeActivity.onNewIntent`, which has to reach
+     * those values BEFORE the destination that would normally read them off its `NavBackStackEntry`
+     * exists (or, when the re-navigation is a no-op, without it ever re-reading them).
+     *
+     * It lives HERE, next to the builder, rather than as a private helper on that Activity, because
+     * emit and parse are one contract and only a pair that sits together can be tested as one — the
+     * whole-branch review's M5. The hand-written parse produced a defect that needed four fix rounds
+     * before it matched what the navigation library does; both of the things it got wrong are
+     * asserted by `NavRoutesSlices356Test`'s round-trip cases now:
+     *
+     * - **[ARG_PLAN] must be [decodeArg]-ed**, and that is not a redundant belt on top of the
+     *   destination's own read — it is the step this parser is missing and the destination gets for
+     *   free. [dailyReading] percent-encodes every value (`RouteBuilder.optional` -> [encodeArg]),
+     *   and the destination reaches its copy through the navigation library, whose
+     *   `NavDeepLink.getMatchingQueryArguments` reads query values with `Uri.getQueryParameters` —
+     *   which returns them ALREADY `Uri.decode`-ed. So the destination sees `My Plan` where a plain
+     *   string split sees `My%20Plan`. Feeding the encoded form to `ReadingPlanControl.setReadingPlan`
+     *   would write a non-existent plan code into the `READING_PLAN` preference and then throw — and
+     *   plan codes are filenames (`ReadingPlanTextFileDao.userPlanCodes`,
+     *   `AndBibleAddons.providedReadingPlans`), so a space or a non-ASCII character in one is
+     *   ordinary, not exotic. [decodeArg]'s malformed-escape `require` cannot fire for a route this
+     *   object built.
+     * - **An EMPTY value counts as ABSENT**, matching the library: its query-parameter regex is
+     *   `(.+?)`, so `plan=` does not match and the argument falls back to its `null` default —
+     *   whereas `""` here would reach `setReadingPlan("")` and wipe the preference.
+     *
+     * [ARG_DAY] is digits, so it needs no decode; a non-numeric value reads as absent rather than
+     * throwing, which is the same thing the library's `NavType.IntType` parse failure ends up doing
+     * for a route nothing in this app can emit.
+     */
+    fun readDailyReading(route: String): Pair<String?, Int?> {
+        val query = route.substringAfter('?', "")
+        if (query.isEmpty()) return null to null
+        val arguments = query.split("&")
+            .filter { it.contains('=') }
+            .associate { it.substringBefore('=') to it.substringAfter('=') }
+        val plan = arguments[ARG_PLAN]?.takeIf { it.isNotEmpty() }?.let(::decodeArg)
+        return plan to arguments[ARG_DAY]?.toIntOrNull()
+    }
+
     // ——— slice 5: Search ———
     const val ARG_SEARCH_TEXT: String = "searchText"
     const val ARG_SEARCH_HIGHLIGHT_TEXT: String = "highlightText"
