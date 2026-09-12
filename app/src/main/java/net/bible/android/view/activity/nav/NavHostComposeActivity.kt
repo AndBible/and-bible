@@ -83,6 +83,7 @@ import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -6112,10 +6113,6 @@ class NavHostComposeActivity : ActivityBase() {
      *  value, so every read sees the currently active window's general book exactly as classic did. */
     private val chooseGeneralBookPage get() = windowControl.activeWindowPageManager.currentGeneralBook
 
-    /** Resolved once per chooser entry; the index into this list is the `KeyRow.keyId`
-     *  (classic `:46-47`). */
-    private var chooseGeneralBookKeys: List<Key> = emptyList()
-
     /**
      * Classic `buildResult` (`:49-61`) with the `Intent` removed: the same two shapes, the same
      * fallback (`doc!!.globalKeyList.first()` when no key was chosen, double-bang included -- it is
@@ -6134,24 +6131,34 @@ class NavHostComposeActivity : ActivityBase() {
         }
     }
 
-    /** Null exactly where classic's `onCreate` returned early on an EMPTY key list (`:77-83`); the
-     *  arm then delivers [generalBookKeyResult] with a null key, which is classic's own fallback. */
+    /**
+     * Null exactly where classic's `onCreate` returned early on an EMPTY key list (`:77-83`); the
+     * arm then delivers [generalBookKeyResult] with a null key, which is classic's own fallback.
+     *
+     * The key list is a LOCAL closed over by the controller this call returns, never a host field,
+     * for the reason [ChooseDocumentSession] exists: the destination is per-entry, so two entries of
+     * this route alive at once (one pushed over the other, or one paused under a child) would share
+     * a single host field and the popped-back controller would resolve its `KeyRow.keyId` -- a plain
+     * INDEX, see `KeyRow.keyId` -- against the other entry's list and publish the wrong `osisRef`.
+     * A local cannot be cross-wired: each controller keeps the list that was resolved when IT was
+     * built.
+     */
     private fun chooseGeneralBookKeyControllerFor(
         onResult: (KeyChooserResult) -> Unit,
     ): ChooseGeneralBookKeyController? {
-        chooseGeneralBookKeys = chooseGeneralBookPage.keyChooserKeys()
-        if (chooseGeneralBookKeys.isEmpty()) return null
+        val keys = chooseGeneralBookPage.keyChooserKeys()
+        if (keys.isEmpty()) return null
         return ChooseGeneralBookKeyController(
             loadRows = {
-                chooseGeneralBookKeys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) }
+                keys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) }
             },
             currentRow = {
                 chooseGeneralBookPage.key?.let { cur ->
-                    chooseGeneralBookKeys.indexOf(cur).takeIf { it >= 0 }?.toString()
+                    keys.indexOf(cur).takeIf { it >= 0 }?.toString()
                 }
             },
             onSelect = { keyId ->
-                onResult(generalBookKeyResult(chooseGeneralBookKeys.getOrNull(keyId.toIntOrNull() ?: -1)))
+                onResult(generalBookKeyResult(keys.getOrNull(keyId.toIntOrNull() ?: -1)))
             },
         )
     }
@@ -6161,8 +6168,6 @@ class NavHostComposeActivity : ActivityBase() {
     /** Classic `ChooseMapKeyComposeActivity.page` (`:42-43`). */
     private val chooseMapPage get() = windowControl.activeWindowPageManager.currentMap
 
-    private var chooseMapKeys: List<Key> = emptyList()
-
     /** Classic `buildResult` (`:47-53`): `key`+`book` unconditionally -- the map chooser never
      *  produces a `bookAndKey`, unlike [generalBookKeyResult]. */
     private fun mapKeyResult(key: Key?): KeyChooserResult = KeyChooserResult(
@@ -6170,17 +6175,18 @@ class NavHostComposeActivity : ActivityBase() {
         book = chooseMapPage.currentDocument?.initials,
     )
 
-    /** Null on an empty key list, classic `:69-74` -- see [chooseGeneralBookKeyControllerFor]. */
+    /** Null on an empty key list, classic `:69-74` -- see [chooseGeneralBookKeyControllerFor], whose
+     *  kdoc also covers why the key list is a local of this call rather than a host field. */
     private fun chooseMapKeyControllerFor(onResult: (KeyChooserResult) -> Unit): ChooseMapKeyController? {
-        chooseMapKeys = chooseMapPage.keyChooserKeys()
-        if (chooseMapKeys.isEmpty()) return null
+        val keys = chooseMapPage.keyChooserKeys()
+        if (keys.isEmpty()) return null
         return ChooseMapKeyController(
-            loadRows = { chooseMapKeys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) } },
+            loadRows = { keys.mapIndexed { i, k -> KeyRow(i.toString(), k.nameWithoutDocument) } },
             currentRow = {
-                chooseMapPage.key?.let { cur -> chooseMapKeys.indexOf(cur).takeIf { it >= 0 }?.toString() }
+                chooseMapPage.key?.let { cur -> keys.indexOf(cur).takeIf { it >= 0 }?.toString() }
             },
             onSelect = { keyId ->
-                onResult(mapKeyResult(chooseMapKeys.getOrNull(keyId.toIntOrNull() ?: -1)))
+                onResult(mapKeyResult(keys.getOrNull(keyId.toIntOrNull() ?: -1)))
             },
         )
     }
@@ -6190,9 +6196,24 @@ class NavHostComposeActivity : ActivityBase() {
     /** Classic `ChooseDictionaryWordComposeActivity.page` (`:49`). */
     private val chooseDictionaryPage get() = windowControl.activeWindowPageManager.currentDictionary
 
-    /** The global key list, resolved OFF-MAIN by [loadChooseDictionaryRows]; the index into it is the
-     *  `DictRow.keyId` (classic `:51-52`). */
-    private var chooseDictionaryKeys: List<Key> = emptyList()
+    /**
+     * One dictionary-chooser ENTRY's baggage: the global key list [loadChooseDictionaryRows] resolves
+     * off-main, whose index is the `DictRow.keyId` (classic `:51-52`).
+     *
+     * A session rather than three host fields, for [ChooseDocumentSession]'s reason: the destination
+     * is per-entry, so a host field shared by two live entries would let a popped-back controller
+     * resolve its `keyId` -- a plain INDEX -- against the other entry's list and publish the wrong
+     * `osisRef`. The two key choosers above close their list over the controller instead; this one
+     * cannot, because [loadChooseDictionaryRows] WRITES the list and [chooseDictionarySnippet] reads
+     * it, and both are deps slots with frozen signatures that carry no controller.
+     */
+    private class ChooseDictionarySession {
+        var keys: List<Key> = emptyList()
+    }
+
+    /** The CURRENT entry's session, the `ChooseDocument`/`CloudDocuments` idiom: reassigned by
+     *  [chooseDictionaryWordControllerFor], read by the two seams below. */
+    private var chooseDictionarySession: ChooseDictionarySession? = null
 
     /** Null where classic finished immediately with NO result -- `page.currentDocument == null`
      *  (`:72`). Unlike the two key choosers above there is no fallback key to hand back. */
@@ -6200,10 +6221,11 @@ class NavHostComposeActivity : ActivityBase() {
         onResult: (KeyChooserResult) -> Unit,
     ): ChooseDictionaryWordController? {
         if (chooseDictionaryPage.currentDocument == null) return null
-        chooseDictionaryKeys = emptyList()
+        val session = ChooseDictionarySession()
+        chooseDictionarySession = session
         return ChooseDictionaryWordController(
             onSelect = { keyId ->
-                val key = chooseDictionaryKeys.getOrNull(keyId.toIntOrNull() ?: -1)
+                val key = session.keys.getOrNull(keyId.toIntOrNull() ?: -1)
                     ?: return@ChooseDictionaryWordController
                 // Classic `:58-63`: the dictionary shares ChooseGeneralBookKey's result shape.
                 onResult(
@@ -6222,20 +6244,34 @@ class NavHostComposeActivity : ActivityBase() {
      * `commonMain` has no logger; the arm turns a null into the `controller.showError()` classic's
      * own `catch` called.
      */
-    private suspend fun loadChooseDictionaryRows(): List<DictRow>? = try {
-        chooseDictionaryKeys = withContext(Dispatchers.IO) {
-            chooseDictionaryPage.cachedGlobalKeyList ?: emptyList()
+    private suspend fun loadChooseDictionaryRows(): List<DictRow>? {
+        // No session means no controller was built for this entry, i.e. the arm never reached its
+        // load effect -- unreachable by construction, and a null here is the arm's "failed" signal.
+        val session = chooseDictionarySession ?: return null
+        return try {
+            session.keys = withContext(Dispatchers.IO) {
+                chooseDictionaryPage.cachedGlobalKeyList ?: emptyList()
+            }
+            session.keys.mapIndexed { i, k -> DictRow(i.toString(), k.name) }
+        } catch (e: CancellationException) {
+            // Classic ran this in `lifecycleScope`, where leaving the screen simply cancelled the
+            // job. In-graph it runs in the arm's `LaunchedEffect`, whose job is cancelled on every
+            // navigate-away -- and `CancellationException` IS an `Exception`, so without this
+            // rethrow the generic catch below would swallow the cancellation, log a bogus error and
+            // hand the arm a null, which is its "the load FAILED" signal and calls the
+            // NON-suspending `controller.showError()`. That runs even in a cancelled coroutine.
+            throw e
+        } catch (e: Exception) {
+            Log.e(TAG_CHOOSERS, "Error creating dictionary key list", e)
+            null
         }
-        chooseDictionaryKeys.mapIndexed { i, k -> DictRow(i.toString(), k.name) }
-    } catch (e: Exception) {
-        Log.e(TAG_CHOOSERS, "Error creating dictionary key list", e)
-        null
     }
 
     /** Classic `snippetFor` (`:110-116`) plus its `withContext(Dispatchers.IO)` call-site wrapper
      *  (`:100`): JSword `readOsisFragment` and jdom2 walking, neither of which can leave `:app`. */
     private suspend fun chooseDictionarySnippet(keyId: String): String = withContext(Dispatchers.IO) {
-        val key = chooseDictionaryKeys.getOrNull(keyId.toIntOrNull() ?: -1) ?: return@withContext ""
+        val keys = chooseDictionarySession?.keys ?: return@withContext ""
+        val key = keys.getOrNull(keyId.toIntOrNull() ?: -1) ?: return@withContext ""
         val book: Book = chooseDictionaryPage.currentDocument ?: return@withContext ""
         val text = try { readOsisFragment(book, key) } catch (e: OsisError) { e.xml }
         dictionaryEntrySnippet(text, key.toString())
@@ -6421,6 +6457,12 @@ class NavHostComposeActivity : ActivityBase() {
             }
             session.booksById = books.associateBy { it.initials }
             session.controller.setDocuments(rows)
+        } catch (e: CancellationException) {
+            // See [loadChooseDictionaryRows]: classic's `lifecycleScope` job simply died on leaving,
+            // but this one runs in the arm's `LaunchedEffect` and is cancelled on every
+            // navigate-away. `showError()` does not suspend, so swallowing the cancellation here
+            // would paint an error over a screen the user has already left.
+            throw e
         } catch (e: Exception) {
             Log.e(TAG_CHOOSE_DOCUMENT, "Error loading documents", e)
             session.controller.showError()

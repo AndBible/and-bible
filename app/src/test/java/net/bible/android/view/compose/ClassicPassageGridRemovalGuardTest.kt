@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose
 
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -79,6 +80,38 @@ class ClassicPassageGridRemovalGuardTest {
             listOf("Screen.GridChoosePassageBook"),
             "the passage-grid arm still branches on the flag (or is missing entirely) — S4 " +
                 "collapses it to the Compose class unconditionally",
+        )
+    }
+
+    /**
+     * nav-graph slice 7 Task 4 dropped the passage grid's `"title"` Intent extra when the screen
+     * became a nav destination: it had no producer left anywhere in the tree, so carrying it onto a
+     * route argument would have invented a contract rather than preserved one, and the base title is
+     * now unconditionally `R.string.choosePassageBookName`.
+     *
+     * Without this, that drop was guarded by nothing at all -- the ChooseDocument cluster's two
+     * dropped extras have
+     * [ClassicDocumentSelectionRemovalGuardTest.noCallSiteStillPutsADownloadExtraOnAnIntent], and
+     * this one is the same containment scan for the grid's own extra. It lives here rather than on
+     * that test's list because that test's NAME says Download, and this extra is the passage grid's.
+     *
+     * Note what the scan can and cannot see: [ClassicRemovalScan.appSources] walks every SHIPPING
+     * source set and deliberately skips `src/test` and `src/androidTest`, so a test-only producer
+     * would not be caught -- and, because this file lives in `src/test`, it cannot flag itself
+     * either. The needle is nevertheless assembled from two pieces rather than written out whole, so
+     * that widening the scan later cannot turn this guard into its own first offender; the same trap
+     * has already bitten two tasks in this batch from the shipping side, where a COMMENT quoting the
+     * forbidden call is text like any other.
+     */
+    @Test
+    fun noCallSiteStillPutsAPassageGridTitleExtraOnAnIntent() {
+        val forbidden = "putExtra(" + "\"title\""
+        val offenders = ClassicRemovalScan.appSources().filter { it.readText().contains(forbidden) }
+        assertTrue(
+            "the passage grid's dropped title extra is back at: ${offenders.map { it.path }} -- " +
+                "nav-graph slice 7 Task 4 removed its only reader, so an extra put on an Intent " +
+                "under that name is now written to nobody",
+            offenders.isEmpty(),
         )
     }
 }

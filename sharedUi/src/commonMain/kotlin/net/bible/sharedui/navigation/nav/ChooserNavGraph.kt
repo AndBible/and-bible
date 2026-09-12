@@ -139,6 +139,12 @@ class ChooseDictionaryWordDeps(
  *   false)` (`GridChoosePassageComposeActivity.kt:56`) -- which is a `settings` read, i.e. host-side,
  *   and is applied inside this factory. An argument with no producer would read to a later reader as
  *   a live contract.
+ *
+ *   The screen's `"title"` extra (`:55`) is dropped for the same producerless reason, and is now held
+ *   down by `ClassicPassageGridRemovalGuardTest.noCallSiteStillPutsAPassageGridTitleExtraOnAnIntent`
+ *   -- the same containment scan over shipping sources the two ChooseDocument extras get, and with
+ *   the same limit: `ClassicRemovalScan.appSources()` does not look at `src/test` or
+ *   `src/androidTest`.
  * - [windowTitle] exists because this is the ONE destination of the five whose classic Activity had
  *   **no `android:label`** (`AndroidManifest.xml:119-121`): its window title fell back to the
  *   application label, while the title the SCREEN draws is step-dependent and comes from the
@@ -188,12 +194,18 @@ class GridChoosePassageDeps(
  *   [DocumentSelectionController]'s constructor seams, wired host-side inside [controllerFor], so the
  *   arm never names them.
  *
- * **Two classic Intent extras are deliberately not carried** (design §6.1, verified against test
- * sources as well as `app/src/main` for this task): `"search"` (`:132`), which pre-seeded the free-text
- * filter, and `"addons"` (`:428`), which forced the ADDON type filter. Neither has a producer anywhere
- * in the tree -- `ClassicDocumentSelectionRemovalGuardTest.noCallSiteStillPutsADownloadExtraOnAnIntent`
- * already asserts that no source puts either of them on an Intent -- so carrying them onto route
- * arguments would be inventing a contract, not preserving one.
+ * **Two classic Intent extras are deliberately not carried** (design §6.1): `"search"` (`:132`), which
+ * pre-seeded the free-text filter, and `"addons"` (`:428`), which forced the ADDON type filter.
+ * Neither had a producer left anywhere in the tree, so carrying them onto route arguments would be
+ * inventing a contract rather than preserving one.
+ *
+ * What is actually GUARDED, and what is not, because the difference matters to whoever reads this
+ * next: `ClassicDocumentSelectionRemovalGuardTest.noCallSiteStillPutsADownloadExtraOnAnIntent` scans
+ * `ClassicRemovalScan.appSources()`, which skips `src/test` and `src/androidTest` -- so it keeps the
+ * two extras out of the SHIPPING sources, and only those. The test and androidTest trees were swept
+ * by hand when this destination was ported and had no producer either, but nothing keeps that true;
+ * a test-only producer would reappear silently. Widening the scan is a guard-suite change, not this
+ * cluster's, and is called out in this task's report.
  */
 class ChooseDocumentDeps(
     val title: String,
