@@ -181,6 +181,19 @@ object ScreenLauncher {
         // MenuCommandHandler.kt:205, passes no labelNo at all and so goes through this map; a caller
         // that knew one would build NavRoutes.bookmarks(labelNo) directly, bypassing it.
         Screen.Bookmarks to NavRoutes.bookmarks(),
+        // — nav-graph slice 4, Task 3: the custom-repository pair —
+        // The ARGUMENT-FREE custom-repositories route, and correctly so:
+        // NavRoutes.CUSTOM_REPOSITORIES_PATTERN takes no argument at all. The one live caller,
+        // DownloadComposeActivity.onCustomRepositories(), passes through this map unchanged
+        // (Task 3's coexistence seam; Task 7b replaces it with an in-graph navigate).
+        //
+        // Screen.CustomRepositoryEditor is deliberately NOT here, for Screen.LabelEdit's reason:
+        // NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN's repositoryId argument is OPTIONAL, and its
+        // ABSENCE means "new repository" -- a real state, but one only the CustomRepositories arm's
+        // own navigate(customRepositoryEditor(null)) call can mean deliberately. A bare
+        // ScreenLauncher.open(ctx, Screen.CustomRepositoryEditor) has no such context, so it stays
+        // absent here and falls through to targetFor instead.
+        Screen.CustomRepositories to NavRoutes.customRepositories(),
     )
 
     /** The Activity class implementing [screen]. */
@@ -251,8 +264,11 @@ object ScreenLauncher {
      * [MIGRATED] because an argument-free route for them would render an empty screen with nothing
      * to show (the first four) or because the argument is required and non-null (the label pair,
      * whose `data`/`ManageLabelsData` payload has no meaningful empty default), so reaching one by a
-     * bare [Screen] throws here instead. (That is the whole of [MIGRATED]: its 20 entries are
-     * exactly these 20 screens, since every screen in the map is by definition graph-only.) The
+     * bare [Screen] throws here instead. ([MIGRATED] has 21 entries now, not 20: nav-graph slice 4
+     * Task 3 added `Screen.CustomRepositories`, whose [targetFor] arm still returns the real
+     * `CustomRepositoriesComposeActivity` class rather than calling this function -- that class is
+     * not deleted until Task 9, so it is not yet one of the 20 this paragraph describes. The other
+     * 20 entries ARE exactly these 20 screens, since every one of them is graph-only.) The
      * label pair's six outside callers (`MenuCommandHandler`, `OptionsMenuItems` x2, `BibleView`,
      * `CurrentGeneralBookPage`, `TextDisplaySettingsComposeActivity`) build
      * `NavHostComposeActivity.intentFor(context, NavRoutes.manageLabels(data))` directly instead of

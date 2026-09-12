@@ -32,6 +32,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import java.io.File
 
@@ -431,6 +432,48 @@ class NavHostRoutingGuardTest {
         val intent = ScreenLauncher.intentFor(context, Screen.Bookmarks)
         assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
         assertEquals(NavRoutes.bookmarks(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    /**
+     * nav-graph slice 4, Task 3. The ARGUMENT-FREE custom-repositories route is the correct
+     * [ScreenLauncher.MIGRATED] value: [NavRoutes.CUSTOM_REPOSITORIES_PATTERN] takes no argument at
+     * all, unlike its child editor -- same shape as [aMigratedScreenResolvesToTheNavHostCarryingItsRoute]
+     * and its argument-free siblings. `DownloadComposeActivity.onCustomRepositories()` is the one
+     * live caller, and it keeps working unchanged through this map (Task 3's coexistence seam).
+     */
+    @Test
+    fun customRepositoriesResolvesToTheNavHostCarryingItsRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.CustomRepositories)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.customRepositories(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    /**
+     * nav-graph slice 4, Task 3 -- [labelEditIsNotInMigratedAndItsPatternIsRegisteredByAGraph]'s
+     * twin, but only the FIRST half of that test's shape: `Screen.CustomRepositoryEditor` is
+     * deliberately absent from [ScreenLauncher.MIGRATED], because
+     * [NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN]'s `repositoryId` argument is OPTIONAL, so a bare
+     * [Screen] entry has no way to say which of "edit this row" / "start a new one" it means -- the
+     * only real edge into it is [net.bible.sharedui.download.nav.CustomRepositoriesDeps]'s own
+     * `navController.navigate(...)` calls, in-graph.
+     *
+     * The `assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(...) }` half
+     * [labelEditIsNotInMigratedAndItsPatternIsRegisteredByAGraph] also carries does NOT hold yet:
+     * `CustomRepositoryEditorComposeActivity` still exists and `ScreenLauncher.targetFor` still
+     * resolves to it, so `intentFor` still returns an Intent rather than throwing. That assertion
+     * moves in here once Task 9 deletes the classic Activity (mirroring `Screen.LabelEdit`'s own
+     * deletion in nav-graph slices 2+4 Task 7) -- not before, per this test's own brief.
+     */
+    @Test
+    fun customRepositoryEditorIsNotInMigratedAndItsPatternIsRegisteredByAGraph() {
+        assertFalse(
+            Screen.CustomRepositoryEditor in ScreenLauncher.MIGRATED,
+            "the editor's route requires a payload, so an argument-free MIGRATED entry would be a lie",
+        )
+        assertTrue(
+            NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN in registeredRoutePatterns(),
+            "no graph registers the editor's pattern",
+        )
     }
 
     /**

@@ -267,6 +267,56 @@ class NavResultChannelGuardTest {
         )
     }
 
+    /**
+     * nav-graph slice 4, Task 3's producer half, [labelEditArmActuallyDeliversThroughTheChannel]'s
+     * twin for the new `download/nav` cluster. Without this, the repository editor could pop back
+     * to the list without ever handing its `RepositoryResult` to the channel -- every one of
+     * classic's exits (save/delete/cancel) would then silently do nothing.
+     */
+    @Test
+    fun repositoryEditorArmActuallyDeliversThroughTheChannel() {
+        val sources = navGraphSources()
+        val file = sources.firstOrNull { it.name == "DownloadNavGraph.kt" }
+        assertTrue(file != null, "cannot find DownloadNavGraph.kt among ${sources.map { it.path }}")
+        val text = withoutComments(file.readText())
+        assertTrue(
+            text.contains("repositoryEditorResults.deliver("),
+            "DownloadNavGraph.kt no longer calls repositoryEditorResults.deliver(...) -- the " +
+                "repository editor would pop without ever handing its result back",
+        )
+    }
+
+    /**
+     * nav-graph slice 4, Task 3's consumer half, [manageLabelsArmConsumesTheLabelEditChannel]'s
+     * twin: the CUSTOM_REPOSITORIES arm is the parent that must collect and consume
+     * `repositoryEditorResults.pending`, or an edit made in the child editor would be read, cleared
+     * and dropped instead of reaching [net.bible.sharedcore.download.CustomRepositoryController
+     * .applyResult].
+     */
+    @Test
+    fun customRepositoriesArmConsumesTheRepositoryEditorChannel() {
+        val sources = navGraphSources()
+        val file = sources.firstOrNull { it.name == "DownloadNavGraph.kt" }
+        assertTrue(file != null, "cannot find DownloadNavGraph.kt among ${sources.map { it.path }}")
+        val text = withoutComments(file.readText())
+        assertTrue(
+            text.contains("repositoryEditorResults.pending"),
+            "DownloadNavGraph.kt does not collect repositoryEditorResults.pending -- a repository " +
+                "edited from inside the graph would pop with the change dropped",
+        )
+        assertTrue(
+            text.contains("repositoryEditorResults.consume()"),
+            "DownloadNavGraph.kt does not clear repositoryEditorResults with consume() -- a pending " +
+                "result would be re-applied on every recomposition",
+        )
+        assertTrue(
+            text.contains("applyResult("),
+            "DownloadNavGraph.kt consumes repositoryEditorResults but hands the result to nobody -- " +
+                "CustomRepositoryController.applyResult is never called, so an edit made inside the " +
+                "graph is read, cleared and DROPPED",
+        )
+    }
+
     // ——— The bookmark list's exit lambda ————————————————————————————————————————————————————
     // Four properties of `NavHostComposeActivity.bookmarkResults`' `exitWithResult`, none of which
     // any other test in the repo can see.

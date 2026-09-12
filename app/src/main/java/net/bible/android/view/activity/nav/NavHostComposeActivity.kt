@@ -85,6 +85,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
@@ -180,6 +181,10 @@ import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedcore.bookmark.defaultLabelName
 import net.bible.sharedcore.bookmark.LabelEditResult as ControllerLabelEditResult
+import net.bible.sharedcore.download.CustomRepositoryController
+import net.bible.sharedcore.download.CustomRepositoryEditorController
+import net.bible.sharedcore.download.CustomRepositoryService
+import net.bible.sharedcore.download.RepositoryResult
 import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.LabelEditResult as NavLabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
@@ -236,6 +241,10 @@ import net.bible.sharedui.bookmark.nav.BookmarksDeps
 import net.bible.sharedui.bookmark.nav.LabelEditDeps
 import net.bible.sharedui.bookmark.nav.ManageLabelsDeps
 import net.bible.sharedui.bookmark.nav.bookmarkNavGraph
+import net.bible.sharedui.download.nav.CustomRepositoriesDeps
+import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
+import net.bible.sharedui.download.nav.DownloadNavDeps
+import net.bible.sharedui.download.nav.downloadNavGraph
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbActionSheet
 import net.bible.sharedui.components.AbActionSheetRow
@@ -333,6 +342,9 @@ class NavHostComposeActivity : ActivityBase() {
      * one of the list's host-side actions needs, and none of it is on the seam.
      */
     private val bookmarksService: BookmarksServiceImpl by inject()
+
+    /** The custom-repository list/editor pair's Room-backed service -- see `CoreModule.kt:88`. */
+    private val customRepositoryService: CustomRepositoryService by inject()
 
     /**
      * Classic `SettingsComposeActivity`'s own `by lazy` service — NOT a Koin singleton, matching
@@ -1026,6 +1038,38 @@ class NavHostComposeActivity : ActivityBase() {
                         ),
                     )
                 }
+                val downloadDeps = remember {
+                    DownloadNavDeps(
+                        exitHost = { finish() },
+                        setWindowTitle = { title -> setTitle(title) },
+                        repositoryEditorResults = repositoryEditorResults,
+                        customRepositories = CustomRepositoriesDeps(
+                            // A per-entry factory, not host-memoised -- see CustomRepositoriesDeps
+                            // .controllerFor: this destination is the host's start destination on
+                            // every live edge, so there is no sitting child for a memoised
+                            // controller to survive.
+                            controllerFor = { onDuplicate ->
+                                CustomRepositoryController(customRepositoryService, lifecycleScope).apply {
+                                    this.onDuplicate = onDuplicate
+                                }
+                            },
+                            title = getString(R.string.custom_repositories),
+                            onDuplicate = { name ->
+                                ABEventBus.post(ToastEvent(getString(R.string.duplicate_custom_repository, name)))
+                            },
+                        ),
+                        customRepositoryEditor = CustomRepositoryEditorDeps(
+                            controllerFor = { initial ->
+                                CustomRepositoryEditorController(customRepositoryService, lifecycleScope, initial)
+                            },
+                            // Classic's manifest gives BOTH Activities in this cluster the same
+                            // android:label ("Custom repositories"); one host now serves both.
+                            title = getString(R.string.custom_repositories),
+                            initialFor = { id -> customRepositoryEditorInitialFor(id) },
+                            readClipboard = { readCustomRepositoryClipboard() },
+                        ),
+                    )
+                }
                 NavHost(
                     navController = navController,
                     startDestination = startRoute,
@@ -1042,6 +1086,7 @@ class NavHostComposeActivity : ActivityBase() {
                     readingPlanNavGraph(navController, readingPlanDeps)
                     searchNavGraph(navController, searchDeps)
                     settingsNavGraph(navController, settingsDeps)
+                    downloadNavGraph(navController, downloadDeps)
                 }
 
                 // Host-level, deliberately OUTSIDE the NavHost: `exportStudyPads` runs in
@@ -2546,6 +2591,36 @@ class NavHostComposeActivity : ActivityBase() {
         val activityResult = NavResultIntents.forLabelEdit(result)
         setResult(activityResult.resultCode, activityResult.data)
         finish()
+    }
+
+    /**
+     * Deliberately unreachable, and the only channel in the tree whose exit throws. Every other
+     * channel's exit packs an Intent for an external caller; `CustomRepositoryEditor` has none --
+     * it is registered only as a child of `CustomRepositories`, is absent from
+     * `ScreenLauncher.MIGRATED`, and its route is built in exactly one place (the list arm). If
+     * this ever runs, someone gave the editor an external entry without giving it a result
+     * contract; fail loudly instead of packing an Intent nobody defined.
+     */
+    private val repositoryEditorResults = NavResultChannel<RepositoryResult> {
+        error("CustomRepositoryEditor is reachable only from CustomRepositories; it has no external entry")
+    }
+
+    /**
+     * [id] resolves through the same [customRepositoryService] the list uses; `null` (a NEW
+     * repository, plan D9) maps to a blank [RepositoryResult] -- classic's `newItem()` -- rather
+     * than throwing, and an id that no longer resolves (deleted from under the editor) falls back
+     * to the same blank state instead of crashing the editor arm.
+     */
+    private suspend fun customRepositoryEditorInitialFor(id: Long?): RepositoryResult {
+        val repo = id?.let { wanted -> customRepositoryService.list().find { it.id == wanted } }
+        return RepositoryResult(repository = repo)
+    }
+
+    /** Classic `CustomRepositoryEditorComposeActivity.pasteFromClipboard()`: the clipboard's
+     *  primary text clip, or null when there is none. */
+    private fun readCustomRepositoryClipboard(): String? {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        return clipboard.primaryClip?.getItemAt(0)?.text?.toString()
     }
 
     private fun buildDailyReadingController(
