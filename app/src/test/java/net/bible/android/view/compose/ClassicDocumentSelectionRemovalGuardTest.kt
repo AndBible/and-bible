@@ -64,8 +64,8 @@ class ClassicDocumentSelectionRemovalGuardTest {
      * alone — deleting them is a runtime Resources$NotFoundException, not a compile error). Their
      * inflater is now `NavHostComposeActivity.warnUserBooksNotDownloaded`, which nav-graph slice 4
      * Task 7a ported out of `DownloadComposeActivity` along with the rest of the Download host's
-     * baggage; the classic Activity still inflates them too until Task 9 deletes it, so the two
-     * layouts outlive BOTH of those facts changing. The rest are spec 2.4 residue: the base,
+     * baggage; the classic Activity inflated them too until nav-graph slice 4 Task 9 deleted it, so
+     * the two layouts outlive both of those facts changing. The rest are spec 2.4 residue: the base,
      * its layout and its action-mode menu stay even though the base now has zero subclasses.
      *
      * `document_context_menu.xml` was on this slice's DELETE list until the compile gate rejected
@@ -96,8 +96,8 @@ class ClassicDocumentSelectionRemovalGuardTest {
             "a collaborator slice S6 deliberately kept has been deleted: DocumentSelectionBase and " +
                 "document_selection.xml are spec 2.4 residue, DocumentBadges.kt holds the top-level " +
                 "declarations that outlived the deleted classes, both books_not_downloaded " +
-                "layouts are inflated by the SURVIVING NavHostComposeActivity (and, until Task 9, " +
-                "by DownloadComposeActivity as well), and " +
+                "layouts are inflated by the SURVIVING NavHostComposeActivity (DownloadComposeActivity " +
+                "inflated them too until nav-graph slice 4 Task 9 deleted it), and " +
                 "document_context_menu.xml is the sole definer of the R.id.about and " +
                 "R.id.delete_index that DocumentSelectionBase still names",
         )

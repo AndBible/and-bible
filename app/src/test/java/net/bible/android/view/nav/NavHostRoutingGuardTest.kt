@@ -450,19 +450,20 @@ class NavHostRoutingGuardTest {
 
     /**
      * nav-graph slice 4, Task 3 -- [labelEditIsNotInMigratedAndItsPatternIsRegisteredByAGraph]'s
-     * twin, but only the FIRST half of that test's shape: `Screen.CustomRepositoryEditor` is
-     * deliberately absent from [ScreenLauncher.MIGRATED], because
-     * [NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN]'s `repositoryId` argument is OPTIONAL, so a bare
-     * [Screen] entry has no way to say which of "edit this row" / "start a new one" it means -- the
-     * only real edge into it is [net.bible.sharedui.download.nav.CustomRepositoriesDeps]'s own
-     * `navController.navigate(...)` calls, in-graph.
+     * twin, now the FULL shape: `Screen.CustomRepositoryEditor` is deliberately absent from
+     * [ScreenLauncher.MIGRATED], because [NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN]'s
+     * `repositoryId` argument is OPTIONAL, so a bare [Screen] entry has no way to say which of
+     * "edit this row" / "start a new one" it means -- the only real edge into it is
+     * [net.bible.sharedui.download.nav.CustomRepositoriesDeps]'s own `navController.navigate(...)`
+     * calls, in-graph.
      *
      * The `assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(...) }` half
-     * [labelEditIsNotInMigratedAndItsPatternIsRegisteredByAGraph] also carries does NOT hold yet:
-     * `CustomRepositoryEditorComposeActivity` still exists and `ScreenLauncher.targetFor` still
-     * resolves to it, so `intentFor` still returns an Intent rather than throwing. That assertion
-     * moves in here once Task 9 deletes the classic Activity (mirroring `Screen.LabelEdit`'s own
-     * deletion in nav-graph slices 2+4 Task 7) -- not before, per this test's own brief.
+     * [labelEditIsNotInMigratedAndItsPatternIsRegisteredByAGraph] also carries did NOT hold until
+     * now: Task 3 through Task 8 kept classic `CustomRepositoryEditorComposeActivity` alive, so
+     * `ScreenLauncher.targetFor` still resolved to it and `intentFor` returned a real Intent rather
+     * than throwing. Task 9 deletes the classic Activity (mirroring `Screen.LabelEdit`'s own
+     * deletion in nav-graph slices 2+4 Task 7) and points the `targetFor` arm at
+     * `targetForMigratedScreen`, which is what makes the throw assertion below hold at last.
      */
     @Test
     fun customRepositoryEditorIsNotInMigratedAndItsPatternIsRegisteredByAGraph() {
@@ -470,6 +471,7 @@ class NavHostRoutingGuardTest {
             Screen.CustomRepositoryEditor in ScreenLauncher.MIGRATED,
             "the editor's route requires a payload, so an argument-free MIGRATED entry would be a lie",
         )
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.CustomRepositoryEditor) }
         assertTrue(
             NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN in registeredRoutePatterns(),
             "no graph registers the editor's pattern",
@@ -507,14 +509,15 @@ class NavHostRoutingGuardTest {
     }
 
     /**
-     * nav-graph slice 4, Task 6. `Screen.MyDocuments` is the batch's last direct
+     * nav-graph slice 4, Task 6. `Screen.MyDocuments` was the batch's last direct
      * `ScreenLauncher.targetFor` caller (`MyDocumentsComposeActivity.kt:215`, inside `openDocument`)
-     * -- once it is in [ScreenLauncher.MIGRATED], `intentFor` never falls through to `targetFor` for
-     * it, so that call becomes unreachable dead code rather than a live crash path (`targetFor`'s own
-     * `Screen.MyDocuments` arm now throws via `targetForMigratedScreen`). The ARGUMENT-FREE route is
-     * correct for the same reason as [customRepositoriesResolvesToTheNavHostCarryingItsRoute]: classic
-     * `MyDocumentsComposeActivity` read no extras of its own, and `NavRoutes.MY_DOCUMENTS_PATTERN`
-     * takes none either.
+     * -- once it went into [ScreenLauncher.MIGRATED], `intentFor` never fell through to `targetFor`
+     * for it, so that call became unreachable dead code rather than a live crash path, and Task 9
+     * deleted both the class and the call along with it (`targetFor`'s own `Screen.MyDocuments` arm
+     * now throws via `targetForMigratedScreen`; see [noDirectTargetForCallSurvivesInAppSrcMain]).
+     * The ARGUMENT-FREE route is correct for the same reason as
+     * [customRepositoriesResolvesToTheNavHostCarryingItsRoute]: classic `MyDocumentsComposeActivity`
+     * read no extras of its own, and `NavRoutes.MY_DOCUMENTS_PATTERN` takes none either.
      */
     @Test
     fun myDocumentsResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
@@ -529,16 +532,44 @@ class NavHostRoutingGuardTest {
      * either, so the ARGUMENT-FREE route is the correct [ScreenLauncher.MIGRATED] value -- the same
      * shape as [myDocumentsResolvesToTheNavHostCarryingItsArgumentFreeRoute] and
      * [customRepositoriesResolvesToTheNavHostCarryingItsRoute]. `CloudDocumentsComposeActivity`
-     * itself is not deleted until Task 9, so `ScreenLauncher.targetFor`'s own arm still resolves to
-     * it (unlike `Screen.MyDocuments`'s, which throws) -- this test only exercises the MIGRATED path,
-     * which is now the ONLY one any caller actually reaches (85 of 86 call sites go through
-     * `intentFor`/`open`, per [ScreenLauncher.MIGRATED]'s own kdoc).
+     * itself was not deleted until Task 9, which is also when its `targetFor` arm switched to
+     * `targetForMigratedScreen` (unlike `Screen.MyDocuments`'s, which already threw from Task 6) --
+     * this test only exercises the MIGRATED path, which is now the ONLY one any caller actually
+     * reaches for this screen.
      */
     @Test
     fun cloudDocumentsResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
         val intent = ScreenLauncher.intentFor(context, Screen.CloudDocuments)
         assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
         assertEquals(NavRoutes.cloudDocuments(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    /**
+     * nav-graph slice 4, Task 9 -- the assertion Task 6 could only RECORD, not make. Task 6 found
+     * `MyDocumentsComposeActivity.kt:215` (inside `openDocument`) to be the tree's last direct
+     * `ScreenLauncher.targetFor` call, and put `Screen.MyDocuments` into [ScreenLauncher.MIGRATED]
+     * so `intentFor` no longer reached it -- but the call site itself, and the class hosting it,
+     * were both still there, just unreachable. Task 9 deletes the class and the call along with it,
+     * so this scan -- the automated form of Task 9's own `grep -rn "ScreenLauncher.targetFor"
+     * app/src/main` check -- can finally hold. `ScreenLauncher.kt` itself is excluded: `targetFor`
+     * is defined there and `intentFor` calls it there, which is the one legitimate call in the whole
+     * tree. A future caller reintroducing a direct call for a graph-only screen would otherwise slip
+     * past `targetForMigratedScreen`'s loud failure entirely, by simply not going through
+     * `targetFor`'s throwing arm for a screen that still returns a real class.
+     */
+    @Test
+    fun noDirectTargetForCallSurvivesInAppSrcMain() {
+        val callers = ClassicRemovalScan.appSources()
+            .filter { it.name != "ScreenLauncher.kt" }
+            .filter { file -> file.readLines().any { it.contains("ScreenLauncher.targetFor(") } }
+            .map { it.path.replace('\\', '/') }
+            .sorted()
+        assertEquals(
+            emptyList<String>(),
+            callers,
+            "a direct ScreenLauncher.targetFor(...) call survives outside ScreenLauncher.kt -- every " +
+                "caller should reach a screen through intentFor/open instead: $callers",
+        )
     }
 
     /**
@@ -550,9 +581,11 @@ class NavHostRoutingGuardTest {
      * precedent, not the editor's OPTIONAL-argument one.
      *
      * The `assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(...) }` half those two
-     * tests also carry does NOT hold here either, for `Screen.CustomRepositoryEditor`'s own reason:
-     * `MyDocumentPagesComposeActivity` still exists and `ScreenLauncher.targetFor` still resolves to
-     * it (Task 9 deletes it), so `intentFor` still returns an Intent rather than throwing.
+     * tests also carry did NOT hold until now, for `Screen.CustomRepositoryEditor`'s own reason:
+     * Tasks 5 through 8 kept classic `MyDocumentPagesComposeActivity` alive, so
+     * `ScreenLauncher.targetFor` still resolved to it and `intentFor` returned a real Intent rather
+     * than throwing. Task 9 deletes the class and points the `targetFor` arm at
+     * `targetForMigratedScreen`, which is what makes the throw assertion below hold at last.
      */
     @Test
     fun myDocumentPagesIsNotInMigratedAndItsPatternIsRegisteredByAGraph() {
@@ -561,6 +594,7 @@ class NavHostRoutingGuardTest {
             "all three of the pages editor's route arguments are required, so an argument-free " +
                 "MIGRATED entry would be a lie",
         )
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.MyDocumentPages) }
         assertTrue(
             NavRoutes.MY_DOCUMENT_PAGES_PATTERN in registeredRoutePatterns(),
             "no graph registers the pages editor's pattern",

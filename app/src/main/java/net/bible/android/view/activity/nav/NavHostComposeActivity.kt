@@ -2836,9 +2836,10 @@ class NavHostComposeActivity : ActivityBase() {
     }
 
     // --- MyDocumentPages host baggage ---------------------------------------------------------
-    // Ported from classic MyDocumentPagesComposeActivity (which Task 9 deletes): the pages-within-
-    // a-document editor also lives in the nav graph now, entered both from CurrentGeneralBookPage
-    // (outside) and, once nav-graph slice 4 Task 6 lands, from MyDocuments (inside). Every Room/
+    // Ported from classic MyDocumentPagesComposeActivity (deleted by nav-graph slice 4 Task 9):
+    // the pages-within-a-document editor also lives in the nav graph now, entered both from
+    // CurrentGeneralBookPage (outside) and, once nav-graph slice 4 Task 6 lands, from MyDocuments
+    // (inside). Every Room/
     // SWORD/SAF/EventBus side effect stays host-side, exactly as it did in the classic Activity.
 
     private val myDocumentDao get() = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
@@ -3097,8 +3098,9 @@ class NavHostComposeActivity : ActivityBase() {
     }
 
     // --- MyDocuments host baggage ---------------------------------------------------------------
-    // Ported from classic MyDocumentsComposeActivity (which Task 9 deletes): the document-list
-    // editor's Room/SAF/EventBus side effects. Every one of them is host-side (plan D4/Room can't
+    // Ported from classic MyDocumentsComposeActivity (deleted by nav-graph slice 4 Task 9): the
+    // document-list editor's Room/SAF/EventBus side effects. Every one of them is host-side (plan
+    // D4/Room can't
     // cross into commonMain).
 
     /**
@@ -4660,8 +4662,9 @@ class NavHostComposeActivity : ActivityBase() {
     )
 
     // --- Download host baggage ------------------------------------------------------------------
-    // Ported from classic DownloadComposeActivity (which Task 9 deletes): the download screen's
-    // network JSON fetches, its JSword load/delete/unlock seams, its six platform AlertDialogs and
+    // Ported from classic DownloadComposeActivity (deleted by nav-graph slice 4 Task 9): the
+    // download screen's network JSON fetches, its JSword load/delete/unlock seams, its six
+    // platform AlertDialogs and
     // its live per-row progress bridge. None of it can cross into commonMain -- every line names a
     // JSword type, an Android dialog or a `settings` key -- so it reaches the destination as the
     // lambdas of DownloadDeps.

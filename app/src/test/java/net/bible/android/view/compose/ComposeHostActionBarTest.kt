@@ -130,17 +130,11 @@ class ComposeHostActionBarTest {
         assertNull(build<MyDocumentPagesHostProbe>().supportActionBar)
     }
 
-    @Test
-    fun `CloudDocumentsComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        val activity = Robolectric.buildActivity(
-            net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity::class.java
-        ).create().get()
-        assertNull(
-            "CloudDocumentsComposeActivity must use Theme.AbCompose (NoActionBar); a non-null " +
-                "supportActionBar means the manifest entry lost the theme → double app bar.",
-            activity.supportActionBar,
-        )
-    }
+    // Nav-graph slice 4 Task 9: CloudDocumentsComposeActivity was deleted -- its `CloudDocuments`
+    // destination has been hosted inside NavHostComposeActivity's own graph (via
+    // `downloadNavGraph`) since Task 8, so its dedicated no-native-ActionBar probe folds into
+    // `NavHostComposeActivity has no native ActionBar (Theme_AbCompose)` below, the same
+    // consolidation nav-graph Task 10 did for the ten AI-cluster hosts.
 
     // Round 13a T4: BibleSpeakComposeActivity and SpeakSettingsComposeActivity were deleted (the
     // Compose Speak entry point moves to a bottom sheet over the reading view, Task 13) — their
@@ -165,9 +159,10 @@ class ComposeHostActionBarTest {
      * inside this ONE host, so their ten narrow probes collapse into this single one -- a coverage
      * CONSOLIDATION, not a coverage drop: every one of those ten screens is reachable only through
      * `NavHostComposeActivity`'s manifest-declared `Theme.AbCompose` now, so proving IT has no
-     * native ActionBar proves the property for all ten (and every other nav-graph destination)
-     * at once, the same way [CloudDocumentsComposeActivity]/`InstallZipComposeActivity` above prove
-     * it for their own single manifest entries. Built with a real route
+     * native ActionBar proves the property for all ten (and every other nav-graph destination,
+     * `CloudDocuments` among them since nav-graph slice 4 Task 9) at once, the same way
+     * `InstallZipComposeActivity` below proves it for its own single manifest entry. Built with a
+     * real route
      * ([NavRoutes.AI_CONNECTION_SETTINGS]) via [NavHostComposeActivity.intentFor] because `onCreate`
      * requires `EXTRA_ROUTE` and throws without it.
      */
@@ -193,9 +188,8 @@ class ComposeHostActionBarTest {
      * host above. Built with Robolectric's default (no-action) launch Intent, its own `dispatchEntry()`
      * classifies that as [net.bible.android.view.activity.installzip.InstallZipEntryDecision.PickFile]
      * (the in-app "choose a file" prelude) -- a real, harmless entry path (no SAF/service side effects
-     * happen synchronously in `create()`), so this exercises the real Activity exactly as the other
-     * real-activity cases above (`CloudDocumentsComposeActivity`, ...) do,
-     * not a stand-in probe.
+     * happen synchronously in `create()`), so this exercises the real Activity, not a stand-in
+     * probe.
      */
     @Test fun `InstallZipComposeActivity has no native ActionBar (Theme_AbCompose)`() {
         assertNull(

@@ -22,19 +22,13 @@ import android.content.Intent
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.backup.BackupComposeActivity
-import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
-import net.bible.android.view.activity.download.CustomRepositoriesComposeActivity
-import net.bible.android.view.activity.download.CustomRepositoryEditorComposeActivity
-import net.bible.android.view.activity.download.DownloadComposeActivity
-import net.bible.android.view.activity.download.ProgressStatusComposeActivity
 import net.bible.android.view.activity.installzip.InstallZipComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
-import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
@@ -69,10 +63,12 @@ object ScreenLauncher {
      * own, mapped to the route that opens them. [intentFor] aims these at
      * [NavHostComposeActivity]; every other screen still resolves through [targetFor].
      *
-     * This is the coexistence seam for the nav-graph migration: because 85 of this object's 86 call
-     * sites reach a screen through [intentFor] or [open] rather than [targetFor] directly (measured
-     * 2026-09-06: 79 [intentFor] + 6 [open], vs. one direct [targetFor] call), moving a screen into
-     * the graph changes NO caller. Entries are added one cluster at a time.
+     * This is the coexistence seam for the nav-graph migration: every outside call site reaches a
+     * screen through [intentFor] or [open] rather than [targetFor] directly -- nav-graph slice 4
+     * Task 9 deleted the tree's last direct [targetFor] caller
+     * (`MyDocumentsComposeActivity.kt:215`, inside `openDocument`) along with the class that hosted
+     * it -- so moving a screen into the graph changes NO caller. Entries are added one cluster at a
+     * time.
      */
     val MIGRATED: Map<Screen, String> = mapOf(
         Screen.ToolInfo to NavRoutes.AI_TOOL_INFO,
@@ -182,16 +178,20 @@ object ScreenLauncher {
         Screen.Bookmarks to NavRoutes.bookmarks(),
         // — nav-graph slice 4, Task 3: the custom-repository pair —
         // The ARGUMENT-FREE custom-repositories route, and correctly so:
-        // NavRoutes.CUSTOM_REPOSITORIES_PATTERN takes no argument at all. The one live caller,
-        // DownloadComposeActivity.onCustomRepositories(), passes through this map unchanged
-        // (Task 3's coexistence seam; Task 7b replaces it with an in-graph navigate).
+        // NavRoutes.CUSTOM_REPOSITORIES_PATTERN takes no argument at all. Task 3's coexistence seam
+        // (classic DownloadComposeActivity.onCustomRepositories() passing through this map) was
+        // replaced by Task 7b's in-graph `navController.navigate(NavRoutes.customRepositories())`
+        // (NavHostComposeActivity's DownloadOverflowMenu), and DownloadComposeActivity itself is
+        // gone (nav-graph slice 4 Task 9) -- this entry now backs `targetFor`'s throwing arm below
+        // for the same reason every other graph-only screen keeps one.
         //
         // Screen.CustomRepositoryEditor is deliberately NOT here, for Screen.LabelEdit's reason:
         // NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN's repositoryId argument is OPTIONAL, and its
         // ABSENCE means "new repository" -- a real state, but one only the CustomRepositories arm's
         // own navigate(customRepositoryEditor(null)) call can mean deliberately. A bare
         // ScreenLauncher.open(ctx, Screen.CustomRepositoryEditor) has no such context, so it stays
-        // absent here and falls through to targetFor instead.
+        // absent here and falls through to targetFor instead, which now throws (nav-graph slice 4
+        // Task 9 deleted classic CustomRepositoryEditorComposeActivity).
         Screen.CustomRepositories to NavRoutes.customRepositories(),
         // — nav-graph slice 4, Task 4: the notification-launched progress screen —
         // The ARGUMENT-FREE progress-status route, correctly so: classic
@@ -203,18 +203,18 @@ object ScreenLauncher {
         Screen.ProgressStatus to NavRoutes.progressStatus(),
         // — nav-graph slice 4, Task 6: the My-Documents list —
         // The ARGUMENT-FREE My-Documents route, correctly so: NavRoutes.MY_DOCUMENTS_PATTERN takes
-        // no argument at all, and classic MyDocumentsComposeActivity read no extras either. This is
-        // also the last screen whose Activity ScreenLauncher.targetFor was still reached through
-        // directly (MyDocumentsComposeActivity.kt:215, inside openDocument) -- see targetFor's own
-        // MyDocuments arm below.
+        // no argument at all, and classic MyDocumentsComposeActivity read no extras either. This
+        // used to be the last screen whose Activity ScreenLauncher.targetFor was still reached
+        // through directly (MyDocumentsComposeActivity.kt:215, inside openDocument); that direct
+        // call is gone along with the class itself (nav-graph slice 4 Task 9) -- see
+        // NavHostRoutingGuardTest's `no ScreenLauncher.targetFor call remains in app/src/main` guard.
         Screen.MyDocuments to NavRoutes.myDocuments(),
         // — nav-graph slice 4, Task 8: the gated cloud-documents destination —
         // The ARGUMENT-FREE cloud-documents route, correctly so: NavRoutes.CLOUD_DOCUMENTS_PATTERN
         // takes no argument at all, and classic CloudDocumentsComposeActivity read none either.
-        // `targetFor`'s own CloudDocuments arm still returns the real
-        // CloudDocumentsComposeActivity class below (Task 9 deletes it), the same shape
-        // Screen.CustomRepositories/Screen.ProgressStatus keep -- unlike Screen.MyDocuments, this
-        // screen is not yet one of targetForMigratedScreen's 21 arms.
+        // `targetFor`'s own CloudDocuments arm returned the real CloudDocumentsComposeActivity class
+        // until nav-graph slice 4 Task 9 deleted it and pointed the arm at targetForMigratedScreen,
+        // the same shape Screen.CustomRepositories/Screen.ProgressStatus now share.
         Screen.CloudDocuments to NavRoutes.cloudDocuments(),
     )
 
@@ -232,18 +232,20 @@ object ScreenLauncher {
         Screen.ChooseDictionaryWord -> ChooseDictionaryWordComposeActivity::class.java
         Screen.GridChoosePassageBook -> GridChoosePassageComposeActivity::class.java
         Screen.ChooseDocument -> ChooseDocumentComposeActivity::class.java
-        Screen.Download -> DownloadComposeActivity::class.java
+        Screen.Download -> targetForMigratedScreen(screen)
         Screen.Search -> targetForMigratedScreen(screen)
         Screen.EpubSearch -> targetForMigratedScreen(screen)
         Screen.EpubSearchResults -> targetForMigratedScreen(screen)
         Screen.MyDocuments -> targetForMigratedScreen(screen)
-        Screen.MyDocumentPages -> MyDocumentPagesComposeActivity::class.java
-        Screen.CloudDocuments -> CloudDocumentsComposeActivity::class.java
+        Screen.MyDocumentPages -> targetForMigratedScreen(screen)
+        Screen.CloudDocuments -> targetForMigratedScreen(screen)
         Screen.WorkspaceSelector -> WorkspaceSelectorComposeActivity::class.java
         // The ten classic AI-cluster *ComposeActivity classes were deleted in nav-graph Task 10;
-        // the reading-plan, search and settings clusters followed in nav-graph 3/5/6 Task 9, and the
-        // bookmark cluster (LabelEdit/ManageLabels/Bookmarks) in nav-graph slices 2+4 Task 7. See
-        // targetForMigratedScreen below for why all 26 of those arms are kept, one per screen.
+        // the reading-plan, search and settings clusters followed in nav-graph 3/5/6 Task 9, the
+        // bookmark cluster (LabelEdit/ManageLabels/Bookmarks) in nav-graph slices 2+4 Task 7, and
+        // MyDocuments/MyDocumentPages/Download/CustomRepositories/CustomRepositoryEditor/
+        // ProgressStatus/CloudDocuments in nav-graph slice 4 Task 9. See targetForMigratedScreen
+        // below for why all 33 of those arms are kept, one per screen.
         Screen.AiConnectionSettings -> targetForMigratedScreen(screen)
         Screen.AiProviders -> targetForMigratedScreen(screen)
         Screen.AiModels -> targetForMigratedScreen(screen)
@@ -264,32 +266,35 @@ object ScreenLauncher {
         Screen.Startup -> StartupComposeActivity::class.java
         Screen.InstallZip -> InstallZipComposeActivity::class.java
         Screen.TextDisplaySettings -> TextDisplaySettingsComposeActivity::class.java
-        Screen.CustomRepositories -> CustomRepositoriesComposeActivity::class.java
-        Screen.CustomRepositoryEditor -> CustomRepositoryEditorComposeActivity::class.java
+        Screen.CustomRepositories -> targetForMigratedScreen(screen)
+        Screen.CustomRepositoryEditor -> targetForMigratedScreen(screen)
         Screen.Backup -> BackupComposeActivity::class.java
-        Screen.ProgressStatus -> ProgressStatusComposeActivity::class.java
+        Screen.ProgressStatus -> targetForMigratedScreen(screen)
     }
 
     /**
      * The body of every arm above whose screen now lives wholly in the Compose navigation graph and
      * has no Activity of its own: the ten AI screens (nav-graph Task 10), the reading-plan, search
      * and settings clusters (nav-graph 3/5/6 Tasks 1-8), the bookmark cluster --
-     * `Bookmarks`/`ManageLabels`/`LabelEdit` (nav-graph slices 2+4 Task 7) -- and `MyDocuments`
-     * (nav-graph slice 4 Task 6). Twenty-one of the 27 reach the graph through [MIGRATED] via
-     * [intentFor]/[open], so [intentFor] never falls through to [targetFor] for them; the other SIX
-     * -- `RawLlmLog`, `SearchResults`, `EpubSearchResults`, `SearchIndexProgress`, `LabelEdit` and
-     * `ManageLabels` -- are deliberately absent from [MIGRATED] because an argument-free route for
-     * them would render an empty screen with nothing to show (the first four) or because the
-     * argument is required and non-null (the label pair, whose `data`/`ManageLabelsData` payload
-     * has no meaningful empty default), so reaching one by a bare [Screen] throws here instead.
-     * ([MIGRATED] has 24 entries now, not 21: nav-graph slice 4 Task 3 added
-     * `Screen.CustomRepositories`, Task 4 added `Screen.ProgressStatus` and Task 8 added
-     * `Screen.CloudDocuments`, whose [targetFor] arms still return the real
-     * `CustomRepositoriesComposeActivity` / `ProgressStatusComposeActivity` /
-     * `CloudDocumentsComposeActivity` classes rather than calling this function -- those classes are
-     * not deleted until Task 9, so they are not yet three of the 21 this paragraph describes. The
-     * other 21 entries ARE exactly these 21 screens, since every one of them is graph-only.) The
-     * label pair's six outside callers
+     * `Bookmarks`/`ManageLabels`/`LabelEdit` (nav-graph slices 2+4 Task 7) -- and the seven nav-graph
+     * slice 4 destinations whose classic Activities Task 9 deleted: `MyDocuments` (Task 6's arm was
+     * already pointed here; the class itself was deleted only now), `MyDocumentPages`, `Download`,
+     * `CustomRepositories`, `CustomRepositoryEditor`, `ProgressStatus` and `CloudDocuments`.
+     * Twenty-four of these 33 arms reach the graph through [MIGRATED] via [intentFor]/[open], so
+     * [intentFor] never falls through to [targetFor] for them; the other NINE -- `RawLlmLog`,
+     * `SearchResults`, `EpubSearchResults`, `SearchIndexProgress`, `LabelEdit`, `ManageLabels`,
+     * `MyDocumentPages`, `Download` and `CustomRepositoryEditor` -- are deliberately absent from
+     * [MIGRATED]. The first six: an argument-free route would render an empty screen with nothing
+     * to show (the first four) or the argument is required and non-null (the label pair, whose
+     * `data`/`ManageLabelsData` payload has no meaningful empty default). The last three, added by
+     * Task 9's deletion: `MyDocumentPages`'s route takes three REQUIRED arguments
+     * (documentId/documentInitials/documentName) with no empty default; `Download`'s route takes
+     * five arguments and every real caller needs to choose among them (firstDownload/addons/search/
+     * etc.), so a bare argument-free entry has no caller that actually wants it; and
+     * `CustomRepositoryEditor`'s `repositoryId` is OPTIONAL but its absence means "new repository",
+     * a meaning only the `CustomRepositories` arm's own `navigate(customRepositoryEditor(null))`
+     * call may supply deliberately. So reaching any of the nine by a bare [Screen] throws here
+     * instead. The label pair's six outside callers
      * (`MenuCommandHandler`, `OptionsMenuItems` x2, `BibleView`, `CurrentGeneralBookPage`,
      * `TextDisplaySettingsComposeActivity`) build
      * `NavHostComposeActivity.intentFor(context, NavRoutes.manageLabels(data))` directly instead of
@@ -300,7 +305,7 @@ object ScreenLauncher {
      * a direct [targetFor] call for a graph-only screen) fails loudly instead of returning a class
      * that no longer exists.
      *
-     * The arms are kept as 27 SEPARATE arms -- never merged into one combined
+     * The arms are kept as 33 SEPARATE arms -- never merged into one combined
      * `Screen.A, Screen.B -> ...` -- because the Classic*RemovalGuardTest family text-scans this
      * file for a literal "Screen.X ->" per screen and treats a missing arm as an offender.
      */

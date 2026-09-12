@@ -34,8 +34,9 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
  * `page/MainBibleActivity.kt` alone (`:1638`, the doc-type icon on the Compose restore rail) — the
  * Z-late epilogue deleted their only other reader, `view/util/widget/WindowButtonWidget.kt`;
  * [Book.isRecommended], [BadDocumentAction], [Book.isBadDocument] and [Book.isInstalled] are
- * consumed by the SURVIVING `DownloadComposeActivity` and by the surviving
- * `base/DocumentSelectionBase`.
+ * consumed by `nav/NavHostComposeActivity.kt` (the Download destination's host, successor to the
+ * classic `DownloadComposeActivity` deleted in nav-graph slice 4 Task 9) via explicit imports, and
+ * by the surviving `base/DocumentSelectionBase`.
  *
  * That deleted reader used to be cited here as unrewritable because spec 2.4 protects
  * `view/util/widget/` wholesale. **Do not carry that reading forward as a precedent.** The Z-late
@@ -51,9 +52,11 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
  * `:sharedUi` copy ([net.bible.sharedui.download.customRepositoriesHelpUrl]) by
  * `CustomRepositoryHelpUrlTest` to catch the two copies drifting apart.
  *
- * The package is deliberately unchanged (`net.bible.android.view.activity.download`):
- * `DownloadComposeActivity` reads four of these by bare name with NO import, because it sits in
- * this package. Moving the file to a "tidier" package is a compile break, not a cleanup.
+ * The package is deliberately unchanged (`net.bible.android.view.activity.download`): classic
+ * `DownloadComposeActivity` used to read four of these by bare name with no import, because it sat
+ * in this package, before nav-graph slice 4 Task 9 deleted it in favour of
+ * `nav/NavHostComposeActivity.kt`'s explicit imports. Moving the file to a "tidier" package is
+ * still a needless churn, not a cleanup.
  */
 val BookCategory.imageResource: Int
     get() = when(this) {

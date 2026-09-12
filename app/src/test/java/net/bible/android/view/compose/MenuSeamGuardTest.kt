@@ -55,9 +55,7 @@ class MenuSeamGuardTest {
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/speak/BibleSpeakScreen.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/speak/AdvancedSpeakSettingsScreen.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/cloud/CloudDocumentsScreen.kt",
-        "src/main/java/net/bible/android/view/activity/download/DownloadComposeActivity.kt",
         "src/main/java/net/bible/android/view/activity/navigation/ChooseDocumentComposeActivity.kt",
-        "src/main/java/net/bible/android/view/activity/cloud/CloudDocumentsComposeActivity.kt",
         // The nav host. It carries the label manager's overflow menu (`ManageLabelsActions`, seven
         // `AbMenuItem` calls) since nav-graph slices 2+4 Task 7 deleted `ManageLabelsComposeActivity`
         // and moved that menu here. The guard's `migratedFiles` dropped the deleted Activity in the

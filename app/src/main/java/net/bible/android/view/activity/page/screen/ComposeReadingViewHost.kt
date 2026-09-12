@@ -587,8 +587,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             activity.documentControl.commentariesForVerse).map { it.initials }.toSet()
         // The two keys ChooseDocument itself persists (its sticky-language seam and its type-filter
         // spinner), read here so the "Last filter" tab reproduces what the user last looked at.
-        // KNOWN: `selected_document_filter_no` is written by `DownloadComposeActivity` too
-        // (`:300`), so "Last filter" can reflect a filter the user last set on the DOWNLOAD screen.
+        // KNOWN: `selected_document_filter_no` is written by the Download destination too
+        // (`NavHostComposeActivity.persistTypeFilter`), so "Last filter" can reflect a filter the
+        // user last set on the DOWNLOAD screen.
         // That is the classic key's existing behaviour, shared by both document screens — not a bug
         // to fix here, and not a second key to invent.
         val lastLanguageCode = CommonUtils.settings.getString("selected_language_code", null)

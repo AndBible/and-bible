@@ -21,18 +21,12 @@ import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.backup.BackupComposeActivity
-import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
-import net.bible.android.view.activity.download.CustomRepositoriesComposeActivity
-import net.bible.android.view.activity.download.CustomRepositoryEditorComposeActivity
-import net.bible.android.view.activity.download.DownloadComposeActivity
-import net.bible.android.view.activity.download.ProgressStatusComposeActivity
 import net.bible.android.view.activity.installzip.InstallZipComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
-import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
@@ -116,8 +110,13 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun download_routes_to_compose() {
-        assertEquals(DownloadComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Download))
+    fun download_isNotMigrated_fiveArgumentRouteHasNoSafeArgumentFreeForm() {
+        // NavRoutes.download(...) carries five arguments, every one of which some classic launch
+        // site attached; an argument-free MIGRATED entry could not carry them, and classic
+        // DownloadComposeActivity is gone (nav-graph slice 4 Task 9), so targetFor throws too. See
+        // NavHostRoutingGuardTest.downloadIsNotInMigratedAndItsPatternIsRegisteredByAGraph.
+        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.Download))
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.Download) }
     }
 
     @Test
@@ -160,13 +159,17 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun myDocumentPages_routes_to_compose() {
-        assertEquals(MyDocumentPagesComposeActivity::class.java, ScreenLauncher.targetFor(Screen.MyDocumentPages))
+    fun myDocumentPages_isNotMigrated_threeArgumentRouteHasNoSafeArgumentFreeForm() {
+        // All three of NavRoutes.myDocumentPages(...)'s arguments are required, and classic
+        // MyDocumentPagesComposeActivity is gone (nav-graph slice 4 Task 9), so targetFor throws
+        // too. See NavHostRoutingGuardTest.myDocumentPagesIsNotInMigratedAndItsPatternIsRegisteredByAGraph.
+        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.MyDocumentPages))
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.MyDocumentPages) }
     }
 
     @Test
-    fun cloudDocuments_routes_to_compose() {
-        assertEquals(CloudDocumentsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CloudDocuments))
+    fun cloudDocuments_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.cloudDocuments(), ScreenLauncher.MIGRATED[Screen.CloudDocuments])
     }
 
     @Test
@@ -305,13 +308,20 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun customRepositories_routes_to_compose() {
-        assertEquals(CustomRepositoriesComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CustomRepositories))
+    fun customRepositories_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.customRepositories(), ScreenLauncher.MIGRATED[Screen.CustomRepositories])
     }
 
     @Test
-    fun customRepositoryEditor_routes_to_compose() {
-        assertEquals(CustomRepositoryEditorComposeActivity::class.java, ScreenLauncher.targetFor(Screen.CustomRepositoryEditor))
+    fun customRepositoryEditor_isNotMigrated_optionalIdOnlyMeaningfulInGraphContext() {
+        // NavRoutes.CUSTOM_REPOSITORY_EDITOR_PATTERN's repositoryId is OPTIONAL, but its absence
+        // means "new repository" -- a meaning only the CustomRepositories arm's own in-graph
+        // navigate(customRepositoryEditor(null)) call may supply deliberately. Classic
+        // CustomRepositoryEditorComposeActivity is gone (nav-graph slice 4 Task 9), so targetFor
+        // throws too. See
+        // NavHostRoutingGuardTest.customRepositoryEditorIsNotInMigratedAndItsPatternIsRegisteredByAGraph.
+        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.CustomRepositoryEditor))
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.CustomRepositoryEditor) }
     }
 
     @Test
@@ -320,7 +330,7 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun progressStatus_routes_to_compose() {
-        assertEquals(ProgressStatusComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ProgressStatus))
+    fun progressStatus_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.progressStatus(), ScreenLauncher.MIGRATED[Screen.ProgressStatus])
     }
 }
