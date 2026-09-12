@@ -163,6 +163,39 @@ data class KeyChooserResult(
 data class PassageResult(val verse: String)
 
 /**
+ * What `WorkspaceSelector` hands back on a SAVE or a workspace pick: classic
+ * `WorkspaceSelectorComposeActivity`'s two `RESULT_OK` extras, `workspaceId` (nullable -- a plain
+ * Save that changed nothing selects no workspace) and `changed`.
+ *
+ * No cancelled variant, for [PassageResult]'s reason: classic's cancel path set `RESULT_CANCELED`
+ * with an EMPTY Intent, and the consumer (`MainBibleActivity`'s `WORKSPACE_CHANGED` arm) does
+ * nothing at all on it. The in-graph equivalent of that path is a plain pop with nothing published,
+ * not a variant of this type -- there is no payload to carry.
+ *
+ * `changed` is deliberately kept even though [MyDocumentsResult] drops its own `"changed"` extra:
+ * this is the ONE result in the tree whose consumer actually reads that extra (plan D8), which is
+ * why `WORKSPACE_CHANGED` is also the one request code `MainBibleActivity` dispatches on.
+ */
+data class WorkspaceResult(val workspaceId: String? = null, val changed: Boolean)
+
+/**
+ * What `TextDisplaySettings` hands back to `WorkspaceSelector` on a DETACHED (selector-originated)
+ * edit: the edited `SettingsBundle` as JSON, plus whether the edit was a whole-scope reset.
+ *
+ * Produced on ONE condition, preserved exactly from classic's `finish()` override: only when the
+ * detached edit actually CHANGED (`DetachedWorkspaceEdit.changed`, i.e. dirty or reset -- plan D3).
+ * Merely opening the screen and leaving must not mark the workspace changed on the selector's next
+ * Save, which is what classic did before that condition existed.
+ *
+ * [settingsBundleJson] is opaque here and decoded only host-side: `SettingsBundle` embeds Room-backed
+ * `WorkspaceEntities` types that cannot cross into this module (see this file's closing note). The
+ * workspace id is NOT a second field, for the same reason classic did not echo one -- it is already
+ * inside the JSON, and the consumer reads it back out with `SettingsBundle.fromJson(...).workspaceId`
+ * so the round trip survives the host process being killed while the editor was foregrounded.
+ */
+data class TextSettingsResult(val settingsBundleJson: String, val reset: Boolean)
+
+/**
  * What `ChooseDocument` hands back: the chosen document's `initials`, classic's `"book"` extra
  * (`ChooseDocumentComposeActivity.handleDocumentSelection`), consumed by `applyChosenDocument`.
  * Single-field and variant-free for [PassageResult]'s reason.

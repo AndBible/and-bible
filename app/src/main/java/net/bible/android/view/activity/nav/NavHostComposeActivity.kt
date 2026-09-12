@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.nav
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.ClipData
@@ -37,6 +38,7 @@ import android.widget.Toast
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.activity.compose.setContent
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -80,6 +82,7 @@ import java.util.Locale
 import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -122,7 +125,6 @@ import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.database.SettingsLevel
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
@@ -156,8 +158,16 @@ import net.bible.android.view.activity.search.epubKeyFor
 import net.bible.android.view.activity.search.epubSearchModeFromClassicName
 import net.bible.android.view.activity.search.toClassicSearchTypeName
 import net.bible.android.view.activity.settings.AppSettingsServiceImpl
+import net.bible.android.view.activity.settings.BackgroundThumbnailResolver
+import net.bible.android.view.activity.settings.DetachedWorkspaceEdit
 import net.bible.android.view.activity.settings.SettingsReset
 import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
+import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
+import net.bible.android.view.activity.settings.buildBackgroundImageChooserLabels
+import net.bible.android.view.activity.settings.buildColorSettingsLabels
+import net.bible.android.view.activity.settings.buildTextDisplayControllerLabels
+import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
+import net.bible.android.view.activity.settings.scopeFromRoute
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
@@ -235,6 +245,9 @@ import net.bible.sharedcore.download.CustomRepositoryEditorController
 import net.bible.sharedcore.download.CustomRepositoryService
 import net.bible.sharedcore.download.RepositoryResult
 import net.bible.sharedcore.mydocuments.ContentType
+import net.bible.sharedcore.nav.TextDisplaySettingsArgs
+import net.bible.sharedcore.nav.TextSettingsResult
+import net.bible.sharedcore.nav.WorkspaceResult
 import net.bible.sharedcore.navigation.DocGroupBy
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
@@ -278,12 +291,18 @@ import net.bible.sharedcore.search.SearchType
 import net.bible.sharedcore.search.SwordResultRow
 import net.bible.sharedcore.settings.AppSettingsController
 import net.bible.sharedcore.settings.AppSettingsLabels
+import net.bible.sharedcore.settings.ColorSettingsController
 import net.bible.sharedcore.settings.ReadingProgressSettingsController
 import net.bible.sharedcore.settings.ReadingProgressSettingsLabels
 import net.bible.sharedcore.settings.ReadingProgressSettingsService
 import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.SyncSettingsController
 import net.bible.sharedcore.settings.SyncSettingsLabels
+import net.bible.sharedcore.settings.TextDisplaySettingsController
+import net.bible.sharedcore.settings.TextSettingType
+import net.bible.sharedcore.workspaces.WorkspaceSelectorController
+import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.ai.nav.AiConnectionSettingsDeps
@@ -353,6 +372,11 @@ import net.bible.sharedui.settings.nav.ReadingProgressSettingsDeps
 import net.bible.sharedui.settings.nav.SettingsNavDeps
 import net.bible.sharedui.settings.nav.SyncSettingsDeps
 import net.bible.sharedui.settings.nav.settingsNavGraph
+import net.bible.sharedui.workspaces.nav.TextDisplaySettingsDeps
+import net.bible.sharedui.workspaces.nav.TextDisplaySettingsSession
+import net.bible.sharedui.workspaces.nav.WorkspaceNavDeps
+import net.bible.sharedui.workspaces.nav.WorkspaceSelectorDeps
+import net.bible.sharedui.workspaces.nav.workspaceNavGraph
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
@@ -462,6 +486,13 @@ class NavHostComposeActivity : ActivityBase() {
      *  `GridChoosePassageComposeActivity.kt:43`. `documentControl`/`downloadControl` above are the
      *  document chooser's own two, shared with Download. */
     private val navigationControl: NavigationControl by inject()
+
+    /** The workspace cluster's two Koin services, classic `WorkspaceSelectorComposeActivity.kt:56`
+     *  and `TextDisplaySettingsComposeActivity.kt:102`. The text-display one is the CONCRETE impl,
+     *  not the `TextDisplaySettingsService` interface: the HIDELABELS bridge needs
+     *  `currentHideLabelsIds`, which is not part of the portable interface. */
+    private val workspaceService: WorkspaceService by inject()
+    private val sharedTextDisplaySettingsService: TextDisplaySettingsServiceImpl by inject()
 
     /**
      * Classic `SettingsComposeActivity`'s own `by lazy` service — NOT a Koin singleton, matching
@@ -1041,7 +1072,27 @@ class NavHostComposeActivity : ActivityBase() {
                             maybeRecreate = { key -> maybeRecreateForSettingsKey(key) },
                             onConfirmReset = { confirmResetSettings() },
                             onShowDiscreteHelp = { showDiscreteHelpDialog() },
-                            onOpenTextDisplaySettings = { openGlobalTextDisplaySettings() },
+                            // Classic's `global_text_display_settings` row
+                            // (`SettingsComposeActivity.kt:179-187`), now a graph navigation.
+                            //
+                            // THE FIX for design §3.2 item 2. What stood here built a classic
+                            // text-settings Activity Intent (through `ScreenLauncher`, named
+                            // without quoting the arm so the guard scan that hunts that launch can
+                            // see the real thing is gone) and hung a detached settings bundle on
+                            // it -- under the very extra key that screen uses to mean "a
+                            // selector-originated edit of THIS workspace", which its scope
+                            // resolution tested FIRST. So this row, which means GLOBAL, opened a
+                            // detached edit of the empty workspace (a `SettingsLevel.GLOBAL`
+                            // bundle's workspace id is `IdType.empty()`), and the edit's echo went
+                            // nowhere because the launch was `startActivity` and read no result.
+                            // The kdoc that stood above it asserted the opposite.
+                            //
+                            // A route argument is named, so the row now simply says which scope it
+                            // means and carries no bundle at all. `TextDisplaySettingsScopeTest`
+                            // pins both halves.
+                            onOpenTextDisplaySettings = {
+                                navController.navigate(NavRoutes.textDisplaySettings(scopeLevel = "global"))
+                            },
                             onOpenLinksSettings = { openLinksSettings() },
                             onCrashApp = { crashApp() },
                             // One getString, unlike the ~90 the label bundle needs — cheap enough
@@ -1373,6 +1424,39 @@ class NavHostComposeActivity : ActivityBase() {
                         ),
                     )
                 }
+                val workspaceDeps = remember {
+                    WorkspaceNavDeps(
+                        exitHost = { finish() },
+                        setWindowTitle = { title -> setTitle(title) },
+                        workspaceResults = workspaceResults,
+                        textSettingsResults = textSettingsResults,
+                        workspaceSelector = WorkspaceSelectorDeps(
+                            controllerFor = { onResult, onCancel, onEditSettings ->
+                                workspaceSelectorControllerFor(onResult, onCancel, onEditSettings)
+                            },
+                            // Classic's manifest android:label AND the string the screen draws.
+                            title = getString(R.string.workspace_selector_title),
+                            settingsBundleJson = { id -> workspaceService.settingsBundleJson(id) },
+                            workspaceIdOf = { json -> SettingsBundle.fromJson(json).workspaceId.toString() },
+                            onHelp = {
+                                CommonUtils.showHelp(this, listOf(R.string.help_workspaces_title))
+                            },
+                        ),
+                        textDisplaySettings = TextDisplaySettingsDeps(
+                            sessionFor = { args -> textDisplaySettingsSessionFor(args) },
+                            // Classic's manifest android:label. NOT the screen's own top-bar title,
+                            // which is scope-dependent and comes from the controller state.
+                            windowTitle = getString(R.string.text_display_settings_activity_title),
+                            activeWorkspaceId = { windowControl.windowRepository.id.toString() },
+                            screenLabels = textDisplayScreenLabels,
+                            colorSettingsLabels = textDisplayColorSettingsLabels,
+                            backgroundImageChooserLabels = textDisplayBackgroundImageChooserLabels,
+                            inheritedFromWorkspace = getString(R.string.text_options_inherited_workspace),
+                            inheritedFromGlobal = getString(R.string.text_options_inherited_global),
+                            thumbnailFor = { token -> textDisplayThumbnailResolver.resolve(token) },
+                        ),
+                    )
+                }
                 NavHost(
                     navController = navController,
                     startDestination = startRoute,
@@ -1392,6 +1476,7 @@ class NavHostComposeActivity : ActivityBase() {
                     downloadNavGraph(navController, downloadDeps)
                     myDocumentsNavGraph(navController, myDocumentsDeps)
                     chooserNavGraph(navController, chooserDeps)
+                    workspaceNavGraph(navController, workspaceDeps)
                 }
 
                 // Host-level, deliberately OUTSIDE the NavHost: `exportStudyPads` runs in
@@ -4305,22 +4390,6 @@ class NavHostComposeActivity : ActivityBase() {
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
-    /**
-     * Classic's `global_text_display_settings` row (`SettingsComposeActivity.kt:179-187`). Still an
-     * Activity launch rather than a graph navigation: `Screen.TextDisplaySettings` is not migrated,
-     * and it is handed a `settingsBundle` extra. GLOBAL scope comes from the ABSENT
-     * `EXTRA_SCOPE_LEVEL` extra, i.e. that screen's own `scopeFromIntent` fallthrough.
-     */
-    private fun openGlobalTextDisplaySettings() {
-        val settingsBundle = SettingsBundle(
-            level = SettingsLevel.GLOBAL,
-            globalSettings = CommonUtils.globalTextDisplaySettings,
-        )
-        val intent = ScreenLauncher.intentFor(this, Screen.TextDisplaySettings)
-        intent.putExtra("settingsBundle", settingsBundle.toJson())
-        startActivity(intent)
-    }
-
     /** Classic's `open_links` row (`:218-227`) — the Android app-links system screen, gated to S+. */
     private fun openLinksSettings() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -6522,6 +6591,189 @@ class NavHostComposeActivity : ActivityBase() {
             awaitIntent(intent)
             ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
             loadChooseDocuments()
+        }
+    }
+
+    // --- Workspace-cluster host baggage (nav-graph slice 7, Task 5) -------------------------------
+    // Ported from classic WorkspaceSelectorComposeActivity and TextDisplaySettingsComposeActivity.
+    // Both are STILL IN THE TREE and still reachable through their own `Screen.X` arms -- no Activity
+    // is deleted before Task 13 -- so each seam below has two copies for now: the Activity's own, and
+    // this one behind the graph's deps. Task 13 deletes the Activity half.
+    //
+    // None of it can cross into `commonMain`: every line names a Room-backed `SettingsBundle`, an
+    // `R.string`, an `ActivityResultLauncher` or `awaitIntent`.
+
+    // ——— The cluster's two result channels ———————————————————————————————————————————————————————
+    // Both `exitWithResult` lambdas are a hard `error(...)`, the shape the chooser cluster already
+    // uses. Design §1.1: slice 7 migrates these destinations together with their consumers -- the
+    // selector's result is the reading view's (Task 9), and the settings editor's is consumed by the
+    // selector arm INSIDE this very graph -- so every result here is delivered in-graph by
+    // construction. If one of these ever runs, a destination has been given an external entry
+    // without being given a result contract; fail loudly rather than pack an Intent nobody defined.
+
+    private val workspaceResults = NavResultChannel<WorkspaceResult> {
+        error("slice 7 destinations are only entered in-graph")
+    }
+
+    private val textSettingsResults = NavResultChannel<TextSettingsResult> {
+        error("slice 7 destinations are only entered in-graph")
+    }
+
+    // ——— WorkspaceSelector ———————————————————————————————————————————————————————————————————————
+
+    /**
+     * The selector's memoised controller -- see [WorkspaceSelectorDeps.controllerFor] for why this
+     * one must be host-held rather than built per back-stack entry (it navigates to the settings
+     * editor, and navigation-compose disposes its arm's composition while that child is on top).
+     *
+     * Dropped at every exit, like [manageLabelsSession], so a re-entry after this visit has finished
+     * is seeded afresh rather than resuming a finished working set. It is keyed on nothing because
+     * the route carries no arguments -- there is only one selector.
+     */
+    private var workspaceSelectorController: WorkspaceSelectorController? = null
+
+    /**
+     * Classic `WorkspaceSelectorComposeActivity`'s `controller` (`:59-83`) plus its `onCreate` side
+     * effects (`:89-90`). Both side effects run HERE, at construction, rather than in an arm effect:
+     * classic ran them once per Activity, and the in-graph equivalent of that is once per memoised
+     * controller -- a `LaunchedEffect` in the arm would re-run on every return from the settings
+     * editor and `load()` would wipe the user's unsaved working set.
+     */
+    private fun workspaceSelectorControllerFor(
+        onResult: (workspaceId: String?, changed: Boolean) -> Unit,
+        onCancel: () -> Unit,
+        onEditSettings: (workspaceId: String) -> Unit,
+    ): WorkspaceSelectorController {
+        workspaceSelectorController?.let { return it }
+        val controller = WorkspaceSelectorController(
+            service = workspaceService,
+            scope = lifecycleScope,
+            onResult = { workspaceId, changed ->
+                workspaceSelectorController = null
+                onResult(workspaceId, changed)
+            },
+            onCancel = {
+                workspaceSelectorController = null
+                onCancel()
+            },
+            onEditSettings = onEditSettings,
+        )
+        workspaceSelectorController = controller
+        workspaceService.saveCurrentIntoDb()
+        controller.load()
+        return controller
+    }
+
+    // ——— TextDisplaySettings —————————————————————————————————————————————————————————————————————
+
+    /** Classic's four `by lazy` label bundles (`:112-115`) -- ~90 `getString` calls between them, so
+     *  they stay lazy here too and cost nothing on a host launch that never opens this destination. */
+    private val textDisplayControllerLabels by lazy { buildTextDisplayControllerLabels(this) }
+    private val textDisplayScreenLabels by lazy { buildTextDisplayScreenLabels(this) }
+    private val textDisplayColorSettingsLabels by lazy { buildColorSettingsLabels(this) }
+    private val textDisplayBackgroundImageChooserLabels by lazy { buildBackgroundImageChooserLabels(this) }
+
+    /** Classic's `thumbnailResolver` (`:377`), cache and all. */
+    private val textDisplayThumbnailResolver = BackgroundThumbnailResolver()
+
+    /**
+     * Classic's photo picker (`:144-165`), unchanged by instruction: a constructor-time
+     * `registerForActivityResult` (it must be registered before RESUMED) bridged to a suspend
+     * function through a [CancellableContinuation], and handed to every [ColorSettingsController]
+     * this host builds. It is a PARAMETER of that controller rather than a property of the Koin
+     * service, for the reason `TextDisplaySettingsService.importBackgroundImage`'s kdoc gives.
+     */
+    private var pendingTextDisplayPick: CancellableContinuation<String?>? = null
+    private val textDisplayPhotoPicker = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        pendingTextDisplayPick?.resume(uri?.toString())
+        pendingTextDisplayPick = null
+    }
+    private val textDisplayImagePicker: suspend () -> String? = {
+        suspendCancellableCoroutine { cont ->
+            pendingTextDisplayPick = cont
+            textDisplayPhotoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            cont.invokeOnCancellation { pendingTextDisplayPick = null }
+        }
+    }
+
+    /**
+     * Everything one entry into the text-display-settings destination needs, resolved from the
+     * route's own arguments -- classic's three coupled `by lazy` fields (`detachedEdit`, `service`
+     * and the `finish()` override that reads them) as one object. See [TextDisplaySettingsSession].
+     *
+     * The DETACHED branch builds its own service instance rather than the Koin singleton, exactly as
+     * classic did and for [DetachedWorkspaceEdit]'s stated reason: a selector-originated edit must
+     * touch neither the active workspace nor the shared service.
+     */
+    private fun textDisplaySettingsSessionFor(args: TextDisplaySettingsArgs): TextDisplaySettingsSession {
+        val detachedEdit = args.settingsBundleJson?.let { DetachedWorkspaceEdit(SettingsBundle.fromJson(it)) }
+        val service = detachedEdit?.let { TextDisplaySettingsServiceImpl(it) } ?: sharedTextDisplaySettingsService
+        return TextDisplaySettingsSession(
+            initialScope = scopeFromRoute(args),
+            controllerFor = { scope, onNavigate ->
+                TextDisplaySettingsController(
+                    service = service,
+                    settingsScope = scope,
+                    labels = textDisplayControllerLabels,
+                    onNavigateCallback = onNavigate,
+                )
+            },
+            colorControllerFor = { scope ->
+                ColorSettingsController(
+                    service = service,
+                    scope = scope,
+                    coroutineScope = lifecycleScope,
+                    imagePicker = textDisplayImagePicker,
+                )
+            },
+            openHideLabels = { scope, controller -> openTextDisplayHideLabels(service, scope, controller) },
+            // Classic's `finish()` override (`:282-293`), condition included: a result ONLY when the
+            // detached edit actually changed (plan D3). Null on every other exit -- which is classic
+            // simply not calling `setResult`.
+            resultOnLeave = {
+                detachedEdit?.takeIf { it.changed }?.let {
+                    TextSettingsResult(settingsBundleJson = it.bundle.toJson(), reset = it.reset)
+                }
+            },
+        )
+    }
+
+    /**
+     * Classic's BOOKMARKS_HIDELABELS bridge (`:381-406`), reproducing classic
+     * `HideLabelsPreference.openDialog`'s payload plus the `workspaceSettings.updateFrom(data)`
+     * recent-labels side effect.
+     *
+     * It keeps its `awaitIntent` round trip unchanged this slice, by instruction -- the same
+     * treatment Task 4 gave `ChooseDocument`'s Download and Install-zip rows. `Screen.ManageLabels`
+     * stays out of `ScreenLauncher.MIGRATED` (its `data` argument is required), so the nav-host
+     * Intent is built directly. **This is the one seam here that wants revisiting once anything
+     * routes to this destination from inside the graph**: the host is `singleTop`, so an
+     * `awaitIntent` aimed at the host's own `ManageLabels` route is the shape
+     * `DownloadDeps.reloadCatalogueIfRequested` had to stop using.
+     */
+    private fun openTextDisplayHideLabels(
+        service: TextDisplaySettingsServiceImpl,
+        scope: SettingsScope,
+        controller: TextDisplaySettingsController,
+    ) {
+        val data = ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.HIDELABELS,
+            selectedLabels = service.currentHideLabelsIds(scope).toMutableSet(),
+            isWindow = scope is SettingsScope.Window,
+        ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
+        val intent = intentFor(this, NavRoutes.manageLabels(data))
+        lifecycleScope.launch(Dispatchers.Main) {
+            val result = awaitIntent(intent)
+            if (result.resultCode == Activity.RESULT_OK) {
+                val resultData = ManageLabelsContract.ManageLabelsData
+                    .fromJSON(result.data?.getStringExtra("data")!!)
+                if (resultData.reset) {
+                    controller.onRevert(TextSettingType.BOOKMARKS_HIDELABELS.name)
+                } else {
+                    windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
+                    controller.onHideLabelsChange(resultData.selectedLabels.map { it.toString() })
+                }
+            }
         }
     }
 

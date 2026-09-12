@@ -438,6 +438,36 @@ object NavRoutes {
     }
 
     /**
+     * The inverse of [textDisplaySettings], as one value rather than five reads — this route has
+     * more arguments than any other in this object, and four of the five decide the same thing (the
+     * scope the destination opens at), so handing them around as a group keeps the host's scope
+     * resolution a single function of a single input.
+     *
+     * [readDailyReading]'s two rules apply unchanged and for its reasons: an EMPTY value counts as
+     * ABSENT (the navigation library's query-parameter regex is `(.+?)`, so `scopeLevel=` does not
+     * match and the argument falls back to its `null` default), and every text-valued argument is
+     * [decodeArg]ed exactly once — [ARG_SETTINGS_BUNDLE] most of all, since it is serialized JSON
+     * and every `{`, `"` and space in it was percent-encoded on the way out.
+     *
+     * [ARG_START_AT_COLORS] is written by [textDisplaySettings] as a `required` argument, so it is
+     * always present on a route this object built; "anything but a literal `true` is false" is the
+     * same rule [readGridChoosePassage] applies, and it makes the UNSUBSTITUTED pattern read as
+     * false rather than throw.
+     */
+    fun readTextDisplaySettings(route: String): TextDisplaySettingsArgs {
+        val arguments = routeArguments(route)
+        fun text(name: String): String? =
+            arguments[name]?.takeIf { it.isNotEmpty() }?.let(::decodeArg)
+        return TextDisplaySettingsArgs(
+            scopeLevel = text(ARG_SCOPE_LEVEL),
+            windowId = text(ARG_WINDOW_ID),
+            workspaceId = text(ARG_WORKSPACE_ID),
+            startAtColors = arguments[ARG_START_AT_COLORS] == "true",
+            settingsBundleJson = text(ARG_SETTINGS_BUNDLE),
+        )
+    }
+
+    /**
      * Joins a list into ONE route argument (plan D4). The join happens before [encodeArg] runs over
      * the whole string, so a member containing a comma would still round-trip as two members — that
      * is acceptable because every live caller passes document initials, which cannot contain one.
@@ -558,3 +588,29 @@ object NavRoutes {
     private fun buildRoute(base: String, block: RouteBuilder.() -> Unit): String =
         RouteBuilder(base).apply(block).build()
 }
+
+/**
+ * The five arguments of [NavRoutes.TEXT_DISPLAY_SETTINGS_PATTERN], already decoded — produced by
+ * [NavRoutes.readTextDisplaySettings] from an inbound route STRING, and assembled directly from the
+ * arguments bundle by the destination's own arm (a graph arm never has a route string: its
+ * `destination.route` is the unsubstituted pattern).
+ *
+ * A named group rather than five loose parameters because the four text fields are read together,
+ * by one function, to answer one question — which `SettingsScope` the screen opens at — and because
+ * `scopeLevel` and `settingsBundleJson` being SEPARATE, NAMED arguments is exactly what makes the
+ * defect design §3.2 item 2 records unrepeatable. Under the classic Intent both were extras and one
+ * of them silently won; here the caller says which it means, and a caller that means "global" says
+ * so and carries no bundle.
+ *
+ * Deliberately NOT a `SettingsScope`: that type lives in `:sharedCore`'s settings package and has no
+ * detached variant, and resolving [settingsBundleJson] into a workspace id means parsing the app's
+ * own `SettingsBundle` JSON, which is `:app` work. This is the transport shape; the resolution is
+ * the host's.
+ */
+data class TextDisplaySettingsArgs(
+    val scopeLevel: String? = null,
+    val windowId: String? = null,
+    val workspaceId: String? = null,
+    val startAtColors: Boolean = false,
+    val settingsBundleJson: String? = null,
+)

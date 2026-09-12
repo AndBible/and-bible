@@ -382,6 +382,62 @@ class NavResultChannelGuardTest {
         )
     }
 
+    /**
+     * nav-graph slice 7, Task 5's producer half for the workspace cluster. Without it, the selector
+     * could pop or exit without ever handing back the `workspaceId`/`changed` pair its consumer
+     * (`MainBibleActivity`'s `WORKSPACE_CHANGED` arm, migrated in Task 9) is waiting on -- and this
+     * is the one result in the tree whose consumer actually reads `changed`.
+     */
+    @Test
+    fun workspaceSelectorArmActuallyDeliversThroughTheChannel() {
+        val text = workspaceNavGraphSource()
+        assertTrue(
+            text.contains("workspaceResults.deliver("),
+            "WorkspaceNavGraph.kt no longer calls workspaceResults.deliver(...) -- the workspace " +
+                "selector would pop without ever handing its selection back",
+        )
+    }
+
+    /**
+     * nav-graph slice 7, Task 5's in-cluster round trip, which is BOTH halves in one graph file:
+     * the text-display-settings destination delivers a detached edit, and the selector arm collects
+     * and consumes it. Either half missing loses the user's workspace settings edit silently -- and
+     * the delivery half has a condition on it (only when the detached edit CHANGED, plan D3) that a
+     * careless edit could turn into "never".
+     */
+    @Test
+    fun theWorkspaceSelectorArmConsumesTheTextSettingsChannel() {
+        val text = workspaceNavGraphSource()
+        assertTrue(
+            text.contains("textSettingsResults.deliver("),
+            "WorkspaceNavGraph.kt no longer calls textSettingsResults.deliver(...) -- a detached " +
+                "workspace settings edit would never reach the selector",
+        )
+        assertTrue(
+            text.contains("textSettingsResults.pending"),
+            "WorkspaceNavGraph.kt does not collect textSettingsResults.pending -- an edit " +
+                "delivered from the settings destination would pop with the change dropped",
+        )
+        assertTrue(
+            text.contains("textSettingsResults.consume()"),
+            "WorkspaceNavGraph.kt does not clear textSettingsResults with consume() -- a pending " +
+                "result would be re-applied on every recomposition",
+        )
+        assertTrue(
+            text.contains("applyWorkspaceSettings("),
+            "WorkspaceNavGraph.kt consumes textSettingsResults but hands the result to nobody -- " +
+                "the controller's applyWorkspaceSettings is never called, so the edit is read, " +
+                "cleared and DROPPED",
+        )
+    }
+
+    private fun workspaceNavGraphSource(): String {
+        val sources = navGraphSources()
+        val file = sources.firstOrNull { it.name == "WorkspaceNavGraph.kt" }
+        assertTrue(file != null, "cannot find WorkspaceNavGraph.kt among ${sources.map { it.path }}")
+        return withoutComments(file.readText())
+    }
+
     private fun myDocumentsNavGraphSource(): String {
         val sources = navGraphSources()
         val file = sources.firstOrNull { it.name == "MyDocumentsNavGraph.kt" }
