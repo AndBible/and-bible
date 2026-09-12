@@ -57,6 +57,16 @@ import org.junit.Test
  * positively by [manageLabelsArmConsumesTheLabelEditChannel] below, so "allowed" does not become
  * "unused".
  *
+ * **slice 2, Task 6 extended the walk to `:app`.** The paragraph above notes that the two functions
+ * the original (decorative) guard was meant to catch lived only in `NavHostComposeActivity`, "which
+ * this class does not scan" -- and the bookmark list's exit is exactly that kind of code: a
+ * `NavResultChannel`'s `exitWithResult` lambda, unreachable by any unit test because it can only run
+ * inside a launched host, and carrying THREE properties no structural test of
+ * `NavResultIntents.forBookmarks` can see (see [theBookmarkExitBuildsOneIntentAndAliasesIt] and its
+ * three siblings). So the class now reads that file too. A source-text guard is the weaker tool, but
+ * the alternative here is not a stronger test -- it is no test, which is the state that already let
+ * this very lambda lose its `try`/`catch` once, unnoticed.
+ *
  * Dependency-free on purpose (no `@RunWith(RobolectricTestRunner::class)`): every test here is a
  * plain text walk over `.kt` sources and touches no Android type. The two tests that DO need
  * Robolectric -- `NavResultIntents.forReadingProgress`'s `Intent` extras -- moved out to
@@ -255,6 +265,163 @@ class NavResultChannelGuardTest {
                 "BookmarksDeps.onManageLabelsResult is never called, so an assign/manage round trip " +
                 "is read, cleared and DROPPED",
         )
+    }
+
+    // ——— The bookmark list's exit lambda ————————————————————————————————————————————————————
+    // Four properties of `NavHostComposeActivity.bookmarkResults`' `exitWithResult`, none of which
+    // any other test in the repo can see.
+    //
+    // `NavResultIntents.forBookmarks` is a pure function and is tested as one (`NavResultIntentsTest`),
+    // but everything that makes this exit CORRECT rather than merely well-packed lives in the lambda:
+    // classic `BookmarksComposeActivity.kt:187-194` builds ONE Intent, hands that same OBJECT to
+    // `historyTraversal.historyManager.addHistoryItem(null, it)` and then to `setResult`, in that
+    // order, all inside a `try` whose `catch` logs and toasts `R.string.error_occurred`. A test that
+    // built two structurally-equal Intents would agree with a version that built two -- which is the
+    // regression, since `HistoryManager.createHistoryItem` (`:153-155`) keeps the instance it is
+    // handed and `IntentHistoryItem.revertTo` (`:55-63`) replays its extras.
+    //
+    // Four separate tests rather than one offenders list, so a failure names the property rather
+    // than a line number, and so each could be mutation-proved on its own.
+
+    /**
+     * ONE Intent is built. Mutation-proved by replacing `addHistoryItem(null, resultIntent)` with
+     * `addHistoryItem(null, NavResultIntents.forBookmarks(result))`: two Intents, the history list
+     * keeping one the caller never sees.
+     */
+    @Test
+    fun theBookmarkExitBuildsOneIntentAndAliasesIt() {
+        val body = bookmarkResultsExitBody()
+        assertEquals(
+            1,
+            Regex("""\bval\s+resultIntent\s*=""").findAll(body).count(),
+            "NavHostComposeActivity's bookmarkResults exit must bind the result Intent exactly ONCE " +
+                "-- the same object goes to the history list and to setResult. Body was:\n$body",
+        )
+        assertEquals(
+            1,
+            Regex("""NavResultIntents\.forBookmarks\(""").findAll(body).count(),
+            "NavHostComposeActivity's bookmarkResults exit calls NavResultIntents.forBookmarks more " +
+                "than once -- a second, structurally-equal Intent is not the same Intent, and " +
+                "HistoryManager keeps the instance it is handed. Body was:\n$body",
+        )
+    }
+
+    /**
+     * The SAME IDENTIFIER reaches the history list -- not a second call, not a copy. This is the
+     * assertion the task brief asked for in so many words ("assert OBJECT IDENTITY"), expressed the
+     * only way a test outside a launched host can express it.
+     */
+    @Test
+    fun theBookmarkExitHandsTheSameIntentObjectToBothSinks() {
+        val body = bookmarkResultsExitBody()
+        assertTrue(
+            Regex("""addHistoryItem\(\s*null\s*,\s*resultIntent\s*\)""").containsMatchIn(body),
+            "NavHostComposeActivity's bookmarkResults exit must pass the resultIntent IDENTIFIER to " +
+                "addHistoryItem, not a freshly-built Intent. Body was:\n$body",
+        )
+        assertTrue(
+            Regex("""setResult\(\s*RESULT_OK\s*,\s*resultIntent\s*\)""").containsMatchIn(body),
+            "NavHostComposeActivity's bookmarkResults exit must pass the same resultIntent " +
+                "IDENTIFIER to setResult. Body was:\n$body",
+        )
+    }
+
+    /**
+     * The ORDER. Classic stores the history item BEFORE it sets the result and finishes; `finish()`
+     * runs last of the three. Mutation-proved by swapping the first two lines.
+     */
+    @Test
+    fun theBookmarkExitStoresHistoryBeforeSettingTheResult() {
+        val body = bookmarkResultsExitBody()
+        val history = body.indexOf("addHistoryItem(")
+        val setResult = body.indexOf("setResult(")
+        val finish = body.indexOf("finish()")
+        assertTrue(history >= 0 && setResult >= 0 && finish >= 0, "a call is missing entirely. Body was:\n$body")
+        assertTrue(
+            history < setResult,
+            "NavHostComposeActivity's bookmarkResults exit calls setResult BEFORE addHistoryItem -- " +
+                "classic (BookmarksComposeActivity.kt:188-189) stores the history item first. " +
+                "Body was:\n$body",
+        )
+        assertTrue(
+            setResult < finish,
+            "NavHostComposeActivity's bookmarkResults exit finishes before setting the result. " +
+                "Body was:\n$body",
+        )
+    }
+
+    /**
+     * The `try`/`catch` wrapper, which this exact lambda has already lost once (see the
+     * `bookmarkResults` field's own comment). All three calls must sit INSIDE the `try`, and the
+     * `catch` must still log and toast `error_occurred` -- a `try` whose `catch` swallowed silently
+     * would pass a mere "contains try" check.
+     */
+    @Test
+    fun theBookmarkExitKeepsClassicsTryCatchAroundAllThreeCalls() {
+        val body = bookmarkResultsExitBody()
+        val tryIndex = body.indexOf("try {")
+        assertTrue(
+            tryIndex >= 0,
+            "NavHostComposeActivity's bookmarkResults exit has no `try` at all -- classic " +
+                "(BookmarksComposeActivity.kt:168-194) wraps the history/setResult/finish trio. " +
+                "Body was:\n$body",
+        )
+        val tryBlock = balancedBraceBlock(body, body.indexOf('{', tryIndex))
+        assertTrue(tryBlock != null, "could not read the try block. Body was:\n$body")
+        for (call in listOf("addHistoryItem(", "setResult(", "finish()")) {
+            assertTrue(
+                tryBlock!!.contains(call),
+                "NavHostComposeActivity's bookmarkResults exit leaves `$call` OUTSIDE its try block. " +
+                    "Body was:\n$body",
+            )
+        }
+        assertTrue(
+            Regex("""catch\s*\(""").containsMatchIn(body) &&
+                body.contains("error_occurred") &&
+                body.contains("Log.e("),
+            "NavHostComposeActivity's bookmarkResults exit lost classic's catch (log + " +
+                "R.string.error_occurred toast). Body was:\n$body",
+        )
+    }
+
+    /**
+     * The `exitWithResult` lambda of `NavHostComposeActivity`'s `bookmarkResults`, comments stripped.
+     * Read from `:app`'s own source tree -- the working directory of this module's unit tests is the
+     * `:app` project directory, which is how [net.bible.android.view.nav.NavHostRoutingGuardTest]
+     * already reads `src/main/AndroidManifest.xml`.
+     */
+    private fun bookmarkResultsExitBody(): String {
+        val file = File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+        assertTrue(file.isFile, "cannot find ${file.absolutePath} -- this guard would pass vacuously")
+        val text = file.readText()
+        val marker = "private val bookmarkResults = NavResultChannel<BookmarkResult> {"
+        val start = text.indexOf(marker)
+        assertTrue(
+            start >= 0,
+            "cannot find the bookmarkResults channel declaration in ${file.path}; if it was renamed, " +
+                "this guard must follow it rather than be deleted",
+        )
+        val block = balancedBraceBlock(text, start + marker.length - 1)
+        assertTrue(block != null, "the bookmarkResults lambda has unbalanced braces")
+        return withoutComments(block!!.removePrefix("{").removeSuffix("}"))
+    }
+
+    /** The `{ ... }` starting at [openIndex], braces balanced. Null when they are not. */
+    private fun balancedBraceBlock(text: String, openIndex: Int): String? {
+        if (openIndex < 0 || openIndex >= text.length || text[openIndex] != '{') return null
+        var depth = 0
+        var i = openIndex
+        while (i < text.length) {
+            when (text[i]) {
+                '{' -> depth++
+                '}' -> {
+                    depth--
+                    if (depth == 0) return text.substring(openIndex, i + 1)
+                }
+            }
+            i++
+        }
+        return null
     }
 
     @Test

@@ -120,14 +120,23 @@ class BookmarksInGraphResultTest {
     private var deliverManageLabelsResult: ((ManageLabelsResult) -> Unit)? = null
 
     private var exitHostCalls = 0
+
+    /**
+     * How often a channel took its EXIT branch, i.e. `exitWithResult`. Counted separately from
+     * [exitHostCalls] because the two are different failures with the same symptom: the arm calling
+     * `deps.exitHost()` directly, and `NavResultChannel.deliver` deciding there is no parent entry to
+     * publish to. An empty `exitWithResult` would have made the assertion below unfalsifiable.
+     */
+    private var channelExitWithResultCalls = 0
+
     private lateinit var navController: NavHostController
 
     private fun deps(): BookmarkNavDeps = BookmarkNavDeps(
         exitHost = { exitHostCalls++ },
         setWindowTitle = {},
-        bookmarkResults = NavResultChannel<BookmarkResult> {},
-        manageLabelsResults = NavResultChannel<ManageLabelsResult> {},
-        labelEditResults = NavResultChannel<LabelEditResult> {},
+        bookmarkResults = NavResultChannel<BookmarkResult> { channelExitWithResultCalls++ },
+        manageLabelsResults = NavResultChannel<ManageLabelsResult> { channelExitWithResultCalls++ },
+        labelEditResults = NavResultChannel<LabelEditResult> { channelExitWithResultCalls++ },
         bookmarks = BookmarksDeps(
             controllerFor = { initialFilterIndex, onSelectBookmark, navigate ->
                 navigateToManageLabels = navigate
@@ -225,9 +234,18 @@ class BookmarksInGraphResultTest {
         compose.runOnIdle { assertNotNull(deliverManageLabelsResult)(ManageLabelsResult(returned)) }
         compose.waitForIdle()
 
+        // The BRANCH first, then its consequences: a `deliver` that took the exit branch would fail
+        // every assertion below too, and "appliedResults was empty" names the symptom rather than the
+        // cause. Mutation-proved by forcing `hasParentEntry = false`.
+        assertEquals(
+            0,
+            channelExitWithResultCalls,
+            "deliver() took its EXIT branch: with Bookmarks on the stack below it, it must publish " +
+                "to pending and pop instead",
+        )
+        assertEquals(0, exitHostCalls, "no destination should have called deps.exitHost")
         assertEquals(listOf(returned), appliedResults)
         assertEquals(NavRoutes.BOOKMARKS_PATTERN, currentRoute)
-        assertEquals(0, exitHostCalls, "the in-graph branch must not exit the host")
     }
 
     /**

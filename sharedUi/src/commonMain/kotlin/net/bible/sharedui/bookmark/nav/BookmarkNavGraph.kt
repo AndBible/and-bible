@@ -516,6 +516,18 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             // host's start destination in every live edge, so popOrExit's boolean lands on the exit
             // branch -- but it is written as popOrExit rather than as `deps.exitHost()` so that a
             // future in-graph caller pops back to itself instead of killing the host under it.
+            //
+            // That half-readiness is DELIBERATE and INCOMPLETE, and this is the note that says so,
+            // because the other half is not free. `deps.bookmarkResults` has no `pending` consumer
+            // anywhere -- this arm is nobody's child today -- so if bookmarks were ever pushed onto a
+            // non-empty back stack (the host's own `onNewIntent` -> `navigateToRoute` always PUSHES,
+            // it never replaces), `deliver` would publish the picked row to a `pending` nothing reads
+            // and the selection would be silently dropped. Whoever adds the first in-graph edge into
+            // this destination must therefore also add the consuming `LaunchedEffect` in the PARENT
+            // arm, in the shape the `manageLabelsResults` consumption above uses, and
+            // `NavResultChannelGuardTest` should grow its per-channel line for it. Until then the
+            // safe reading of this line is "pops correctly if it is ever a child", not "is ready to
+            // be one".
             onUp = { navController.popOrExit(deps.exitHost) },
         )
     }
