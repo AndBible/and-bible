@@ -35,13 +35,18 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog as ComposeAlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +55,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
@@ -62,6 +70,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlin.coroutines.resume
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -74,6 +83,8 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
+import net.bible.android.control.backup.SaveOrShare
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
@@ -90,6 +101,10 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.bookmark.LabelEditContract
+import net.bible.android.view.activity.bookmark.LabelEditMapper
+import net.bible.android.view.activity.bookmark.customIconMap
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
@@ -105,6 +120,7 @@ import net.bible.service.common.CommonUtils.pause
 import net.bible.service.common.htmlToSpan
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.exportStudyPads
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.llm.LlmCostTracker
@@ -138,6 +154,14 @@ import net.bible.sharedcore.ai.RawLogHistoryController
 import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedcore.ai.ToolVd
+import net.bible.sharedcore.bookmark.DeletePrompt
+import net.bible.sharedcore.bookmark.LabelEditController
+import net.bible.sharedcore.bookmark.LabelEditService
+import net.bible.sharedcore.bookmark.LabelEditState
+import net.bible.sharedcore.bookmark.LabelEditResult as ControllerLabelEditResult
+import net.bible.sharedcore.nav.BookmarkResult
+import net.bible.sharedcore.nav.LabelEditResult as NavLabelEditResult
+import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.progress.ReadHistoryEntry
@@ -185,6 +209,14 @@ import net.bible.sharedui.ai.nav.RawLlmLogDeps
 import net.bible.sharedui.ai.nav.RawLogHistoryDeps
 import net.bible.sharedui.ai.nav.ToolInfoDeps
 import net.bible.sharedui.ai.nav.aiNavGraph
+import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
+import net.bible.sharedui.bookmark.nav.LabelEditDeps
+import net.bible.sharedui.bookmark.nav.bookmarkNavGraph
+import net.bible.sharedui.components.AbActionIconSize
+import net.bible.sharedui.components.AbActionSheet
+import net.bible.sharedui.components.AbActionSheetRow
+import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.readingplan.nav.DailyReadingDeps
 import net.bible.sharedui.readingplan.nav.DailyReadingLoad
@@ -262,6 +294,10 @@ class NavHostComposeActivity : ActivityBase() {
     private val readingProgressService: ReadingProgressServiceImpl by inject()
 
     private val readingProgressSettingsService: ReadingProgressSettingsService by inject()
+
+    /** The label editor's orphaned-bookmark counter and save/delete writes — classic
+     *  `LabelEditComposeActivity`'s own injected service, unchanged. */
+    private val labelEditService: LabelEditService by inject()
 
     /**
      * Classic `SettingsComposeActivity`'s own `by lazy` service — NOT a Koin singleton, matching
@@ -881,6 +917,36 @@ class NavHostComposeActivity : ActivityBase() {
                         ),
                     )
                 }
+                val bookmarkDeps = remember {
+                    BookmarkNavDeps(
+                        exitHost = { finish() },
+                        setWindowTitle = { title -> setTitle(title) },
+                        bookmarkResults = bookmarkResults,
+                        manageLabelsResults = manageLabelsResults,
+                        labelEditResults = labelEditResults,
+                        labelEdit = LabelEditDeps(
+                            // A factory, one controller per back-stack entry — and the place the
+                            // controller's three outcomes become the nav result's two.
+                            controllerFor = { data, onResult -> labelEditControllerFor(data, onResult) },
+                            // Classic carried this as android:label="@string/edit_label" on the
+                            // host; one host now serves every cluster. Same string the screen draws
+                            // in its own top bar.
+                            title = getString(R.string.edit_label),
+                            // Classic's `remember { customIconMap.keys.toList() + null }` — a pure
+                            // constant, so it is built once here instead of per composition. The
+                            // trailing null is the "no custom icon" cell.
+                            iconKeys = customIconMap.keys.toList() + null,
+                            iconSlot = { name, tint -> AndroidLabelIcon(name, tint) },
+                            actions = { data, state, onSave, onDelete ->
+                                LabelEditActions(data, state, onSave, onDelete)
+                            },
+                            deletePromptSlot = { prompt, labelName, onConfirm, onDismiss ->
+                                LabelEditDeletePrompt(prompt, labelName, onConfirm, onDismiss)
+                            },
+                            confirmDiscard = { onConfirm -> confirmDiscardLabelEdits(onConfirm) },
+                        ),
+                    )
+                }
                 NavHost(
                     navController = navController,
                     startDestination = startRoute,
@@ -893,12 +959,232 @@ class NavHostComposeActivity : ActivityBase() {
                         .background(MaterialTheme.colorScheme.background),
                 ) {
                     aiNavGraph(navController, deps)
+                    bookmarkNavGraph(navController, bookmarkDeps)
                     readingPlanNavGraph(navController, readingPlanDeps)
                     searchNavGraph(navController, searchDeps)
                     settingsNavGraph(navController, settingsDeps)
                 }
+
+                // Host-level, deliberately OUTSIDE the NavHost: `exportStudyPads` runs in
+                // lifecycleScope and outlives the destination that started it, so a chooser scoped
+                // to that destination's composition could be disposed mid-await and leave the
+                // export hanging on a deferred nobody can complete. Verbatim from classic
+                // `LabelEditComposeActivity.kt:128-153`, including the no-Cancel-row shape (round
+                // 14a G2.9): dismissing IS "chose nothing", completing with null.
+                destinationRequest?.let { req ->
+                    AbActionSheet(
+                        open = true,
+                        title = getString(R.string.export_destination_title),
+                        message = getString(R.string.export_destination_message),
+                        onDismiss = { req.complete(null) },
+                    ) {
+                        AbActionSheetRow(
+                            label = getString(R.string.share),
+                            onClick = { req.complete(SaveOrShare.SHARE) },
+                            icon = { Icon(painterResource(R.drawable.ic_baseline_share_24), contentDescription = null) },
+                        )
+                        AbActionSheetRow(
+                            label = getString(R.string.backup_phone_storage),
+                            onClick = { req.complete(SaveOrShare.SAVE) },
+                            icon = { Icon(painterResource(R.drawable.ic_save_24dp), contentDescription = null) },
+                        )
+                    }
+                }
             }
         }
+    }
+
+    // --- LabelEdit host baggage ---------------------------------------------------------------
+    // Ported from LabelEditComposeActivity (which a later task deletes): the Android-resource icon
+    // renderer, the top-bar actions, the delete confirmations, the discard-changes dialog and the
+    // export-destination chooser. Every one of them is here rather than in `BookmarkNavGraph.kt`
+    // because it ends in a platform call `commonMain` has no equivalent for — `painterResource`,
+    // `getString` with format arguments, or an `android.app.AlertDialog`.
+
+    /**
+     * Non-null while the "Export to where?" chooser is awaiting an answer — rendered as an
+     * [AbActionSheet] in [onCreate]'s `setContent`, so [exportStudyPads] (via `BackupControl
+     * .saveOrShare`) skips its own platform `AlertDialog` and awaits this one instead. Verbatim from
+     * classic `LabelEditComposeActivity.kt:89-95`, including the `finally` that clears the field and
+     * so closes the sheet.
+     */
+    private var destinationRequest: CompletableDeferred<SaveOrShare?>? by mutableStateOf(null)
+
+    private suspend fun askDestination(): SaveOrShare? {
+        val deferred = CompletableDeferred<SaveOrShare?>()
+        destinationRequest = deferred
+        return try { deferred.await() } finally { destinationRequest = null }
+    }
+
+    /**
+     * Builds the label editor's controller for one back-stack entry, AND collapses its three
+     * outcomes onto [NavLabelEditResult]'s two.
+     *
+     * The collapse is classic `onFinish` (`LabelEditComposeActivity.kt:234-247`) with `setResult` +
+     * `finish()` replaced by `onResult`, and nothing else changed:
+     * - [ControllerLabelEditResult.Save] → [NavLabelEditResult.Saved] carrying the updated payload's
+     *   JSON, which is exactly what `finishWithData` put in the `"data"` extra.
+     * - [ControllerLabelEditResult.Delete] → also [NavLabelEditResult.Saved], because classic's
+     *   `Delete` arm ALSO ended at `finishWithData`. It is not a third result shape: it sets
+     *   `delete`/`deleteOrphanedBookmarks` on the payload first and then returns the same extra, so
+     *   a completed delete IS a saved `LabelData` whose own `delete` flag is set. Collapsing it any
+     *   other way would change the contract `ManageLabels` reads back.
+     * - [ControllerLabelEditResult.Cancel] → [NavLabelEditResult.Cancelled], classic's bare
+     *   `setResult(RESULT_CANCELED)` with no `"data"` extra at all.
+     *
+     * It stays here rather than in the graph because every line of it needs `LabelEditMapper` and
+     * `LabelEditContract.LabelData`, `:app` types that embed Room entities and cannot cross into
+     * `commonMain`. [data] is parsed ONCE per controller, not per outcome: the `Delete` arm mutates
+     * that instance exactly as classic mutated its `lateinit var data` field.
+     */
+    private fun labelEditControllerFor(
+        data: String,
+        onResult: (NavLabelEditResult) -> Unit,
+    ): LabelEditController {
+        val labelData = LabelEditContract.LabelData.fromJSON(data)
+        return LabelEditController(
+            LabelEditMapper.toState(labelData),
+            labelEditService,
+            lifecycleScope,
+        ) { result ->
+            when (result) {
+                is ControllerLabelEditResult.Save ->
+                    onResult(NavLabelEditResult.Saved(LabelEditMapper.applyToData(labelData, result.state).toJSON()))
+                is ControllerLabelEditResult.Delete -> {
+                    labelData.delete = true
+                    labelData.deleteOrphanedBookmarks = result.deleteOrphaned
+                    onResult(NavLabelEditResult.Saved(LabelEditMapper.applyToData(labelData, result.state).toJSON()))
+                }
+                ControllerLabelEditResult.Cancel -> onResult(NavLabelEditResult.Cancelled)
+            }
+        }
+    }
+
+    /**
+     * Classic `shareLabel` (`LabelEditComposeActivity.kt:227-232`): applies the pending (unsaved)
+     * edits onto the payload before exporting, so the exported StudyPad matches what is on screen.
+     * Takes the route's [data] and the live [state] instead of reading two Activity fields — the
+     * editor's payload and controller belong to a back-stack entry now, not to this host.
+     */
+    private fun shareLabel(data: String, state: LabelEditState) {
+        val current = LabelEditMapper.applyToData(LabelEditContract.LabelData.fromJSON(data), state)
+        lifecycleScope.launch {
+            exportStudyPads(this@NavHostComposeActivity, current.label, chooseDestination = ::askDestination)
+        }
+    }
+
+    /**
+     * Renders the current custom-icon selection: [customIconMap]`[name]` or the default bookmark
+     * drawable, tinted with the caller-supplied [tint] rather than deriving one here (round-9a I1 —
+     * a single internal rule cannot serve both a colour-filled disc and a neutral background).
+     * Verbatim from classic `LabelEditComposeActivity.kt:285-294`.
+     */
+    @Composable
+    private fun AndroidLabelIcon(name: String?, tint: Color) {
+        val drawableId = customIconMap[name] ?: R.drawable.ic_baseline_bookmark_24
+        Icon(
+            painter = painterResource(drawableId),
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(24.dp),
+        )
+    }
+
+    /**
+     * The label editor's top-bar actions, verbatim from classic `LabelEditComposeActivity
+     * .LabelEditActions` (`:158-183`). [onSave] and [onDelete] are the GRAPH-owned controller's, so
+     * they arrive as parameters; [data] and [state] are the two halves [shareLabel] needs.
+     */
+    @Composable
+    private fun RowScope.LabelEditActions(
+        data: String,
+        state: LabelEditState,
+        onSave: () -> Unit,
+        onDelete: () -> Unit,
+    ) {
+        IconButton(onClick = onSave) {
+            Icon(
+                painter = painterResource(R.drawable.ic_check_24dp),
+                contentDescription = getString(R.string.okay),
+                modifier = Modifier.size(AbActionIconSize),
+            )
+        }
+        if (!state.isSpecialLabel) {
+            IconButton(onClick = onDelete) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_delete_24dp),
+                    contentDescription = getString(R.string.delete),
+                    modifier = Modifier.size(AbActionIconSize),
+                )
+            }
+        }
+        AbOverflowMenu(contentDescription = null) { close ->
+            AbMenuItem(
+                text = getString(R.string.export),
+                onClick = { close(); shareLabel(data, state) },
+                icon = { Icon(painterResource(R.drawable.ic_baseline_share_24), contentDescription = null) },
+            )
+        }
+    }
+
+    /**
+     * Classic `DeletePromptDialog` (`LabelEditComposeActivity.kt:190-224`), with the controller's
+     * two calls hoisted into [onConfirm]/[onDismiss] parameters. [labelName] comes from the LIVE
+     * controller state (not the route payload's name, which `LabelEditMapper.applyToData` only syncs
+     * at save/delete/share time) — otherwise a name typed but not yet saved would show stale here.
+     */
+    @Composable
+    private fun LabelEditDeletePrompt(
+        prompt: DeletePrompt,
+        labelName: String,
+        onConfirm: (deleteOrphaned: Boolean) -> Unit,
+        onDismiss: () -> Unit,
+    ) {
+        when (prompt) {
+            is DeletePrompt.Orphaned -> ComposeAlertDialog(
+                onDismissRequest = onDismiss,
+                title = { Text(getString(R.string.delete_label_confirmation, labelName)) },
+                text = { Text(getString(R.string.confirm_delete_orphaned_bookmarks, prompt.count)) },
+                confirmButton = {
+                    TextButton(onClick = { onConfirm(true) }) {
+                        Text(getString(R.string.delete_label_and_bookmarks))
+                    }
+                },
+                dismissButton = {
+                    Row {
+                        TextButton(onClick = { onConfirm(false) }) {
+                            Text(getString(R.string.delete_label_only))
+                        }
+                        TextButton(onClick = onDismiss) { Text(getString(R.string.cancel)) }
+                    }
+                },
+            )
+            DeletePrompt.Confirm -> ComposeAlertDialog(
+                onDismissRequest = onDismiss,
+                title = { Text(getString(R.string.delete_label_confirmation, labelName)) },
+                confirmButton = {
+                    TextButton(onClick = { onConfirm(false) }) { Text(getString(R.string.yes)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = onDismiss) { Text(getString(R.string.no)) }
+                },
+            )
+        }
+    }
+
+    /**
+     * Classic `requestUp`'s discard-changes confirmation (`LabelEditComposeActivity.kt:256-266`),
+     * kept as the platform `android.app.AlertDialog` it was. Converting the port's remaining
+     * platform dialogs to Compose is its own queued goal; doing it inside a navigation move would
+     * change behaviour under cover of a refactor. The arm decides WHEN to ask and what "yes" means;
+     * this only asks.
+     */
+    private fun confirmDiscardLabelEdits(onConfirm: () -> Unit) {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.discard_changes_confirmation)
+            .setPositiveButton(R.string.yes) { _, _ -> onConfirm() }
+            .setNegativeButton(R.string.no, null)
+            .show()
     }
 
     // --- AiConnectionSettings host baggage ----------------------------------------------------
@@ -1289,6 +1575,71 @@ class NavHostComposeActivity : ActivityBase() {
     private val readingProgressResults = NavResultChannel<ReadingProgressResult> { result ->
         setResult(RESULT_OK, NavResultIntents.forReadingProgress(result))
         finish()
+    }
+
+    // ——— The bookmark cluster's three result channels ————————————————————————————————————————
+    // All three are created here, and handed to `BookmarkNavDeps` together, even though only the
+    // label editor's destination exists so far: the alternative is a deps class that every later
+    // task has to widen. Each `exitWithResult` is the classic host's own exit, ported verbatim from
+    // the Activity named in its kdoc, so the destination that arrives later inherits a packing that
+    // is already right rather than one it must also write.
+
+    /**
+     * The bookmark LIST's exit, from classic `BookmarksComposeActivity.onSelectBookmark`
+     * (`BookmarksComposeActivity.kt:165-194`), which itself mirrors `Bookmarks.bookmarkSelected`.
+     * Everything before the exit — resolving the id, the speak-bookmark side effect, the error
+     * toast — stays with the destination that produces the result; what is packed here is only the
+     * `Intent` those lines ended at, plus the `addHistoryItem` that must run against the SAME
+     * Intent before it is returned.
+     *
+     * The `ActivityResultKind.Bookmarks` tag is added here rather than carried in [BookmarkResult]
+     * for the reason [NavResultIntents.forReadingProgress] adds its own: the tag names the Intent's
+     * SHAPE to `MainBibleActivity`'s dispatcher, and is not part of what the destination decided.
+     */
+    private val bookmarkResults = NavResultChannel<BookmarkResult> { result ->
+        val intent = Intent()
+            .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.Bookmarks.name)
+            .putExtra("description", result.description)
+            .putExtra(BookmarkControl.LABEL_NO_EXTRA, result.labelNo)
+            .putExtra("listPosition", result.listPosition)
+        result.verse?.let { intent.putExtra("verse", it) }
+        result.key?.let { intent.putExtra("key", it) }
+        result.book?.let { intent.putExtra("book", it) }
+        result.ordinal?.let { intent.putExtra("ordinal", it) }
+        historyTraversal.historyManager.addHistoryItem(null, intent)
+        setResult(RESULT_OK, intent)
+        finish()
+    }
+
+    /**
+     * The label MANAGER's exit. Both of classic's exits — `saveAndExit`
+     * (`ManageLabelsComposeActivity.kt:573-644`) and the HIDELABELS reset path (`:663-668`) — build
+     * the identical `Intent().putExtra("data", data.toJSON())`, which is why [ManageLabelsResult]
+     * carries just the one string and this lambda has no branch.
+     */
+    private val manageLabelsResults = NavResultChannel<ManageLabelsResult> { result ->
+        setResult(RESULT_OK, Intent().putExtra("data", result.data))
+        finish()
+    }
+
+    /**
+     * The label EDITOR's exit, classic `LabelEditComposeActivity.finishWithData` (`:249-254`) and
+     * the `Cancel` arm of its `onFinish` (`:242-245`), which is the whole of the RESULT contract
+     * `ManageLabelsComposeActivity`'s `registerForActivityResult` launcher reads back. The
+     * three-outcomes-to-two collapse happened earlier, in [labelEditControllerFor]; by the time a
+     * result reaches here it is already one of these two.
+     */
+    private val labelEditResults = NavResultChannel<NavLabelEditResult> { result ->
+        when (result) {
+            is NavLabelEditResult.Saved -> {
+                setResult(RESULT_OK, Intent().putExtra("data", result.data))
+                finish()
+            }
+            NavLabelEditResult.Cancelled -> {
+                setResult(RESULT_CANCELED)
+                finish()
+            }
+        }
     }
 
     private fun buildDailyReadingController(

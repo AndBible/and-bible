@@ -17,6 +17,7 @@
 
 package net.bible.android.view.nav
 
+import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -105,6 +106,28 @@ class NavResultChannelGuardTest {
             text.contains("readingProgressResults.deliver("),
             "SettingsNavGraph.kt no longer calls readingProgressResults.deliver(...) -- the " +
                 "reading-progress arm's result would silently stop reaching NavResultChannel",
+        )
+    }
+
+    /**
+     * The bookmark cluster's twin of [readingProgressArmActuallyDeliversThroughTheChannel], and it
+     * matters more here: [BookmarkNavDeps] declares THREE channels (see its kdoc for why they are
+     * created together) and only `labelEditResults` has a destination so far, so two of the three
+     * fields are legitimately used nowhere. That makes
+     * [everyNavResultChannelFieldOnADepsClassIsOnlyEverDelivered] vacuous for them by design — this
+     * pins the one that is not, so the label editor's result cannot silently stop reaching the
+     * channel. The two later arms bring their own line here.
+     */
+    @Test
+    fun labelEditArmActuallyDeliversThroughTheChannel() {
+        val sources = navGraphSources()
+        val file = sources.firstOrNull { it.name == "BookmarkNavGraph.kt" }
+        assertTrue(file != null, "cannot find BookmarkNavGraph.kt among ${sources.map { it.path }}")
+        val text = withoutComments(file.readText())
+        assertTrue(
+            text.contains("labelEditResults.deliver("),
+            "BookmarkNavGraph.kt no longer calls labelEditResults.deliver(...) -- the label editor " +
+                "would pop without ever handing its result back",
         )
     }
 

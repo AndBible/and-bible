@@ -295,6 +295,33 @@ class NavHostRoutingGuardTest {
         )
     }
 
+    /**
+     * slice 2, Task 4 -- the cousin of [rawLlmLogIsNotInMigratedAndIntentForThrows], asserting the
+     * half of it that CAN be asserted while the classic host still exists.
+     *
+     * `Screen.LabelEdit` is deliberately absent from [ScreenLauncher.MIGRATED] for exactly
+     * `Screen.RawLlmLog`'s reason: [NavRoutes.LABEL_EDIT_PATTERN]'s `data` argument carries the
+     * whole `LabelEditContract.LabelData` payload, so an argument-free route would open the editor
+     * with no label to edit. Every real edge builds `NavRoutes.labelEdit(data)` instead.
+     *
+     * It does NOT assert that `ScreenLauncher.intentFor(context, Screen.LabelEdit)` throws, unlike
+     * its AI and search cousins: `ScreenLauncher.targetFor` still resolves `Screen.LabelEdit` to
+     * the real `LabelEditComposeActivity`, which is still the Activity serving every live caller
+     * through the coexistence seam, and stays so until the task that deletes that host. What is
+     * assertable today -- and is the half this task is responsible for -- is that the destination
+     * the new arm registers is actually reachable by its pattern.
+     */
+    @Test
+    fun labelEditIsNotInMigratedAndItsPatternIsRegisteredByAGraph() {
+        assertTrue(Screen.LabelEdit !in ScreenLauncher.MIGRATED)
+        val registered = registeredRoutePatterns()
+        assertTrue(
+            NavRoutes.LABEL_EDIT_PATTERN in registered,
+            "no *NavGraph.kt registers NavRoutes.LABEL_EDIT_PATTERN, so nothing can navigate to the " +
+                "label editor inside the graph. Registered: ${registered.sorted()}",
+        )
+    }
+
     @Test
     fun promptEditTemplateRoundTripsThroughDecodeArg() {
         // Free text, deliberately containing reserved/percent/unicode characters that would
