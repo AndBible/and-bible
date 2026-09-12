@@ -130,17 +130,103 @@ class NavRoutesTest {
 
     @Test
     fun textDisplaySettingsCarriesAllFiveArgumentsAndEncodesTheBundle() {
+        val json = """{"a":"b/c d"}"""
         val route = NavRoutes.textDisplaySettings(
             scopeLevel = "workspace",
+            windowId = "win-1",
             workspaceId = "w-1",
-            settingsBundle = """{"a":"b/c d"}""",
+            startAtColors = true,
+            settingsBundle = json,
         )
         assertTrue(route.startsWith("settings/textDisplay"))
         assertTrue(route.contains("scopeLevel=workspace"))
+        // Fix round 1 (review M1): windowId had no test at all, so dropping its `optional(...)`
+        // line left the whole suite green.
+        assertTrue(route.contains("windowId=win-1"), route)
         assertTrue(route.contains("workspaceId=w-1"))
+        assertTrue(route.contains("startAtColors=true"), route)
         // A raw slash or space in the JSON would split the route.
         assertFalse(route.substringAfter("settings/textDisplay").contains(" "))
-        assertFalse(route.substringAfter("settingsBundle=").contains("/"))
+        assertFalse(route.substringAfter("settingsBundle=").substringBefore("&").contains("/"))
+        // Fix round 1 (review M2): a containment check passes just as happily on a DOUBLE-encoded
+        // bundle, which is the hazard the builder's kdoc warns about. Only a round trip sees it.
+        assertEquals(json, NavRoutes.decodeArg(route.substringAfter("settingsBundle=").substringBefore("&")))
+    }
+
+    /**
+     * Fix round 1 (review M1): `startAtColors` is `required`, not `optional`, precisely so a reader
+     * never has to tell "absent" from "false" — but nothing asserted it, so weakening it to
+     * `optional(..., null)` kept the suite green.
+     */
+    @Test
+    fun textDisplaySettingsAlwaysEmitsStartAtColorsAndNothingElseByDefault() {
+        assertEquals("settings/textDisplay?startAtColors=false", NavRoutes.textDisplaySettings())
+    }
+
+    /**
+     * Fix round 1 (review M1), mirroring `NavRoutesSlices356Test.everyPatternRegistersEveryArgumentItsBuilderCanEmit`:
+     * a pattern that forgets an argument its builder can emit silently drops it at navigate time.
+     */
+    @Test
+    fun everySlice7PatternRegistersEveryArgumentItsBuilderCanEmit() {
+        fun argsIn(s: String) = Regex("[?&]([A-Za-z]+)=").findAll(s).map { it.groupValues[1] }.toSet()
+        assertTrue(
+            argsIn(NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN)
+                .containsAll(argsIn(NavRoutes.gridChoosePassage(true))),
+        )
+        assertTrue(
+            argsIn(NavRoutes.CHOOSE_DOCUMENT_PATTERN).containsAll(argsIn(NavRoutes.chooseDocument("BIBLE"))),
+        )
+        assertTrue(
+            argsIn(NavRoutes.TEXT_DISPLAY_SETTINGS_PATTERN).containsAll(
+                argsIn(NavRoutes.textDisplaySettings("global", "win-1", "w-1", true, """{"a":1}""")),
+            ),
+        )
+    }
+
+    /**
+     * Fix round 1 (review n4): the pattern and the builder repeat the same base path as two separate
+     * literals, and a typo in either is a runtime "destination not found" that no other test sees.
+     */
+    @Test
+    fun slice7PatternsAndBuildersAgreeOnTheirBasePath() {
+        assertEquals(
+            NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN.substringBefore('?'),
+            NavRoutes.gridChoosePassage().substringBefore('?'),
+        )
+        assertEquals(
+            NavRoutes.CHOOSE_DOCUMENT_PATTERN.substringBefore('?'),
+            NavRoutes.chooseDocument("BIBLE").substringBefore('?'),
+        )
+        assertEquals(
+            NavRoutes.TEXT_DISPLAY_SETTINGS_PATTERN.substringBefore('?'),
+            NavRoutes.textDisplaySettings().substringBefore('?'),
+        )
+    }
+
+    /**
+     * Fix round 1 (review M3): `readChooseDocument`/`readGridChoosePassage` parse by argument NAME
+     * instead of the plan's `substringAfter("type=")`, and decode the value. Neither property was
+     * tested — `"BIBLE"` encodes to itself, so deleting the `decodeArg` step kept the suite green,
+     * and nothing exercised a foreign argument whose name ends in the same characters.
+     */
+    @Test
+    fun readChooseDocumentDecodesItsValueAndReadsOnlyItsOwnArgument() {
+        assertEquals("a b/c", NavRoutes.readChooseDocument(NavRoutes.chooseDocument("a b/c")))
+        // Empty counts as absent, as it does for the navigation library's own `(.+?)` regex.
+        assertNull(NavRoutes.readChooseDocument("navigation/chooseDocument?type="))
+        // A different argument whose name merely ENDS with "type".
+        assertNull(NavRoutes.readChooseDocument("search/form?searchType=BIBLE"))
+        // A bare flag with no '=' must not derail the parse of the arguments around it.
+        assertEquals("BIBLE", NavRoutes.readChooseDocument("navigation/chooseDocument?a=1&flag&type=BIBLE&b=2"))
+    }
+
+    @Test
+    fun readGridChoosePassageReadsOnlyItsOwnArgument() {
+        assertFalse(NavRoutes.readGridChoosePassage("navigation/gridChoosePassage?notIsScripture=true"))
+        // The unsubstituted pattern is not a route anyone navigated to; it must read as false
+        // rather than as "{isScripture}" being truthy.
+        assertFalse(NavRoutes.readGridChoosePassage(NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN))
     }
 
     @Test

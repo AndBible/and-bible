@@ -121,11 +121,7 @@ object NavRoutes {
      * for a route nothing in this app can emit.
      */
     fun readDailyReading(route: String): Pair<String?, Int?> {
-        val query = route.substringAfter('?', "")
-        if (query.isEmpty()) return null to null
-        val arguments = query.split("&")
-            .filter { it.contains('=') }
-            .associate { it.substringBefore('=') to it.substringAfter('=') }
+        val arguments = routeArguments(route)
         val plan = arguments[ARG_PLAN]?.takeIf { it.isNotEmpty() }?.let(::decodeArg)
         return plan to arguments[ARG_DAY]?.toIntOrNull()
     }
@@ -442,19 +438,6 @@ object NavRoutes {
     }
 
     /**
-     * Splits a built route's query string into raw (still-encoded) values. Parsing by name rather
-     * than by `substringAfter("name=")` so an argument cannot be read out of another whose name
-     * merely ends with the same characters.
-     */
-    private fun routeArguments(route: String): Map<String, String> {
-        val query = route.substringAfter('?', "")
-        if (query.isEmpty()) return emptyMap()
-        return query.split("&")
-            .filter { it.contains('=') }
-            .associate { it.substringBefore('=') to it.substringAfter('=') }
-    }
-
-    /**
      * Joins a list into ONE route argument (plan D4). The join happens before [encodeArg] runs over
      * the whole string, so a member containing a comma would still round-trip as two members — that
      * is acceptable because every live caller passes document initials, which cannot contain one.
@@ -518,6 +501,29 @@ object NavRoutes {
             }
         }
         return out.toByteArray().decodeToString()
+    }
+
+    /**
+     * Splits a built route's query string into its raw (still-encoded) values, keyed by argument
+     * name. Shared by every `read*Route` parser in this object — parsing by NAME rather than by
+     * `substringAfter("name=")` so an argument can never be read out of a different one whose name
+     * merely ends with the same characters (`searchType=` vs `type=`).
+     *
+     * Callers own the two steps this does NOT do, because they differ per argument: [decodeArg] for
+     * a value that was percent-encoded on the way in, and the `takeIf { it.isNotEmpty() }` that
+     * makes an EMPTY value count as ABSENT (matching the navigation library, whose query-parameter
+     * regex `(.+?)` does not match `name=`).
+     *
+     * A repeated name keeps the LAST occurrence, which is what `associate` does. Nothing this object
+     * builds can repeat a name, so the choice is arbitrary rather than load-bearing — but it is
+     * written down so a future caller does not assume "first wins".
+     */
+    private fun routeArguments(route: String): Map<String, String> {
+        val query = route.substringAfter('?', "")
+        if (query.isEmpty()) return emptyMap()
+        return query.split("&")
+            .filter { it.contains('=') }
+            .associate { it.substringBefore('=') to it.substringAfter('=') }
     }
 
     private const val HEX = "0123456789ABCDEF"
