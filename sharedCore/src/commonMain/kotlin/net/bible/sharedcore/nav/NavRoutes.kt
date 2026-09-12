@@ -234,6 +234,45 @@ object NavRoutes {
         required(ARG_IS_STRONGS_SEARCH, isStrongsSearch.toString())
     }
 
+    // ——— slice 2: Bookmarks + labels ———
+    const val ARG_LABEL_NO: String = "labelNo"
+    const val ARG_MANAGE_LABELS_DATA: String = "data"
+    const val ARG_LABEL_DATA: String = "data"
+
+    const val BOOKMARKS_PATTERN: String = "bookmarks/list?$ARG_LABEL_NO={$ARG_LABEL_NO}"
+    const val MANAGE_LABELS_PATTERN: String =
+        "bookmarks/manageLabels?$ARG_MANAGE_LABELS_DATA={$ARG_MANAGE_LABELS_DATA}"
+    const val LABEL_EDIT_PATTERN: String = "bookmarks/labelEdit?$ARG_LABEL_DATA={$ARG_LABEL_DATA}"
+
+    /**
+     * [labelNo] is OPTIONAL and its ABSENCE is meaningful, same discipline as [dailyReading]:
+     * classic `BookmarksComposeActivity.initialFilterIndex` (`BookmarksComposeActivity.kt:73-77`)
+     * branches on `intent.extras?.containsKey(BookmarkControl.LABEL_NO_EXTRA)`, not on a default
+     * value, so "no filter argument at all" must stay distinguishable from "filter present but
+     * empty" — a null [labelNo] is omitted from the route rather than emitted as `labelNo=`.
+     *
+     * The host also CLAMPS a negative [labelNo] to 0 before using it as a filter index. That clamp
+     * is deliberately NOT applied here: it is destination BEHAVIOUR, not route DATA, and belongs in
+     * the arm that reads this route back (a later task), not in the builder that constructs it.
+     */
+    fun bookmarks(labelNo: Int? = null): String =
+        buildRoute("bookmarks/list") { optional(ARG_LABEL_NO, labelNo?.toString()) }
+
+    /**
+     * [data] is the `ManageLabelsData` JSON string (`ManageLabelsContract.kt:43`) — that contract
+     * type embeds Room entities (`BookmarkEntities.Label`) and cannot cross into this `commonMain`
+     * module, so the route carries its JSON as an opaque, percent-encoded string instead.
+     */
+    fun manageLabels(data: String): String =
+        buildRoute("bookmarks/manageLabels") { required(ARG_MANAGE_LABELS_DATA, data) }
+
+    /**
+     * [data] is the `LabelData` JSON string (`LabelEditContract.kt:31`), same shape and same reason
+     * as [manageLabels].
+     */
+    fun labelEdit(data: String): String =
+        buildRoute("bookmarks/labelEdit") { required(ARG_LABEL_DATA, data) }
+
     // ——— slice 6: Settings ———
     const val ARG_TAB: String = "tab"
 
