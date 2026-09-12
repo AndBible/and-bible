@@ -112,7 +112,6 @@ class SearchHostBackRoutingGuardTest {
             "src/main/java/net/bible/android/view/activity/cloud/CloudDocumentsComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettingsComposeActivity.kt",
             "src/main/java/net/bible/android/view/mydocuments/MyDocumentsComposeActivity.kt",
-            "src/main/java/net/bible/android/view/mydocuments/MyDocumentPagesComposeActivity.kt",
         )
 
         /**
@@ -129,6 +128,7 @@ class SearchHostBackRoutingGuardTest {
         private val SEARCH_HOST_GRAPH_FILES = listOf(
             "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/settings/nav/SettingsNavGraph.kt",
             "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/bookmark/nav/BookmarkNavGraph.kt",
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/mydocuments/nav/MyDocumentsNavGraph.kt",
         )
 
         // Call-site patterns, not bare tokens: a bare "onBackPressed" also matches inside

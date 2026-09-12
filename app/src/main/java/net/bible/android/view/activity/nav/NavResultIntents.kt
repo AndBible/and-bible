@@ -26,6 +26,7 @@ import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
+import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.ReadingProgressResult
 
 /**
@@ -167,5 +168,39 @@ object NavResultIntents {
         intent.putExtra(BookmarkControl.LABEL_NO_EXTRA, result.labelNo)
         intent.putExtra("listPosition", result.listPosition)
         return intent
+    }
+
+    /**
+     * The pages-within-a-document editor's exit -- `MyDocumentPages`, the batch's second DUAL-ENTRY
+     * destination (`ManageLabels` was the first). `MainBibleActivity.kt:2902-2913` reads back
+     * exactly `documentInitials`/`pageKey`, tagged with [ActivityResultKind.MyDocumentPages] so the
+     * dispatcher's `when` can pick this branch out.
+     *
+     * Returns an [ActivityResult], like [forLabelEdit] and for the same reason: the result CODE and
+     * the Intent are one decision here, not two independent ones. Classic's shapes:
+     * - [MyDocumentPagesResult.Selected] is classic `returnWithPage`'s `resultIntent.putExtra(...)` +
+     *   `finishOk()` (`MyDocumentPagesComposeActivity.kt:224-226`) -- `RESULT_OK` with both keys.
+     * - [MyDocumentPagesResult.Saved] is the Save button's plain `finishOk()` (`:128`) with NEITHER
+     *   key set -- `MainBibleActivity`'s reader guards on `bookInitials != null && pageKey != null`
+     *   and no-ops otherwise, so an intentionally key-less `RESULT_OK` is inert there, exactly like
+     *   [Selected] would be if either key were missing.
+     * - [MyDocumentPagesResult.Cancelled] is the Dismiss button's `finishCanceled()` (`:129`, `:344`):
+     *   `RESULT_CANCELED`, but -- unlike [forLabelEdit]'s `Cancelled`, which carries no Intent at
+     *   all -- classic still attaches its tagged `resultIntent` on this path. The tag ends up inert
+     *   either way: `MainBibleActivity`'s dispatcher early-returns on `RESULT_CANCELED` before it
+     *   ever reads the kind (`:2870-2876`). Preserved rather than dropped anyway, to stay byte-for-
+     *   byte with what classic actually built.
+     */
+    fun forMyDocumentPages(result: MyDocumentPagesResult): ActivityResult {
+        val intent = Intent().putExtra(ActivityResultKind.EXTRA, ActivityResultKind.MyDocumentPages.name)
+        return when (result) {
+            is MyDocumentPagesResult.Selected -> {
+                intent.putExtra("documentInitials", result.documentInitials)
+                intent.putExtra("pageKey", result.pageKey)
+                ActivityResult(Activity.RESULT_OK, intent)
+            }
+            MyDocumentPagesResult.Saved -> ActivityResult(Activity.RESULT_OK, intent)
+            MyDocumentPagesResult.Cancelled -> ActivityResult(Activity.RESULT_CANCELED, intent)
+        }
     }
 }

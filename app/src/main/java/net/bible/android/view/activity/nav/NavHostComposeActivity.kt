@@ -27,6 +27,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.OpenableColumns
 import android.provider.Settings
 import android.text.method.LinkMovementMethod
 import android.util.Log
@@ -60,6 +61,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -86,6 +88,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
@@ -103,6 +106,8 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.SettingsLevel
+import net.bible.android.database.mydocument.MyDocumentContentType
+import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
@@ -151,6 +156,8 @@ import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.ai.AiConnectionLabels
 import net.bible.sharedcore.ai.AiConnectionSettingsController
@@ -185,9 +192,13 @@ import net.bible.sharedcore.download.CustomRepositoryController
 import net.bible.sharedcore.download.CustomRepositoryEditorController
 import net.bible.sharedcore.download.CustomRepositoryService
 import net.bible.sharedcore.download.RepositoryResult
+import net.bible.sharedcore.mydocuments.ContentType
+import net.bible.sharedcore.mydocuments.MyDocPageItem
+import net.bible.sharedcore.mydocuments.MyDocumentPagesController
 import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.LabelEditResult as NavLabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
+import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.progress.ReadHistoryEntry
@@ -246,6 +257,9 @@ import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
 import net.bible.sharedui.download.nav.DownloadNavDeps
 import net.bible.sharedui.download.nav.ProgressStatusDeps
 import net.bible.sharedui.download.nav.downloadNavGraph
+import net.bible.sharedui.mydocuments.nav.MyDocumentPagesDeps
+import net.bible.sharedui.mydocuments.nav.MyDocumentsNavDeps
+import net.bible.sharedui.mydocuments.nav.myDocumentsNavGraph
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbActionSheet
 import net.bible.sharedui.components.AbActionSheetRow
@@ -1082,6 +1096,38 @@ class NavHostComposeActivity : ActivityBase() {
                         ),
                     )
                 }
+                val myDocumentsDeps = remember {
+                    // Shared local vals rather than two independent copies of "launch the import
+                    // picker" / "export this page" / "export these pages": both
+                    // MyDocumentPagesDeps' own top-level fields AND the MyDocumentPagesController
+                    // myDocumentPagesControllerFor builds are wired to the SAME instances.
+                    val onImportMyDocumentPage: () -> Unit =
+                        { importMyDocumentPageLauncher.launch(arrayOf("text/*")) }
+                    val onExportMyDocumentPage: (Long) -> Unit = { id -> exportMyDocumentPage(id) }
+                    val onExportSelectedMyDocumentPages: (List<Long>) -> Unit = { ids ->
+                        pendingMyDocumentPagesExportIds = ids
+                        exportMyDocumentPagesTreeLauncher.launch(null)
+                    }
+                    MyDocumentsNavDeps(
+                        exitHost = { finish() },
+                        setWindowTitle = { title -> setTitle(title) },
+                        myDocumentPagesResults = myDocumentPagesResults,
+                        myDocumentPages = MyDocumentPagesDeps(
+                            controllerFor = { documentId, documentInitials, onResult ->
+                                myDocumentPagesControllerFor(
+                                    documentId, documentInitials, onResult,
+                                    onImport = onImportMyDocumentPage,
+                                    onExport = onExportMyDocumentPage,
+                                    onExportSelected = onExportSelectedMyDocumentPages,
+                                )
+                            },
+                            titleFor = { documentName -> getString(R.string.my_document_pages_title, documentName) },
+                            onImport = onImportMyDocumentPage,
+                            onExportSelected = onExportSelectedMyDocumentPages,
+                            onExportPage = onExportMyDocumentPage,
+                        ),
+                    )
+                }
                 NavHost(
                     navController = navController,
                     startDestination = startRoute,
@@ -1099,6 +1145,7 @@ class NavHostComposeActivity : ActivityBase() {
                     searchNavGraph(navController, searchDeps)
                     settingsNavGraph(navController, settingsDeps)
                     downloadNavGraph(navController, downloadDeps)
+                    myDocumentsNavGraph(navController, myDocumentsDeps)
                 }
 
                 // Host-level, deliberately OUTSIDE the NavHost: `exportStudyPads` runs in
@@ -2635,6 +2682,266 @@ class NavHostComposeActivity : ActivityBase() {
         return clipboard.primaryClip?.getItemAt(0)?.text?.toString()
     }
 
+    // --- MyDocumentPages host baggage ---------------------------------------------------------
+    // Ported from classic MyDocumentPagesComposeActivity (which Task 9 deletes): the pages-within-
+    // a-document editor also lives in the nav graph now, entered both from CurrentGeneralBookPage
+    // (outside) and, once nav-graph slice 4 Task 6 lands, from MyDocuments (inside). Every Room/
+    // SWORD/SAF/EventBus side effect stays host-side, exactly as it did in the classic Activity.
+
+    private val myDocumentDao get() = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+
+    /**
+     * The bits of the CURRENTLY open `MyDocumentPages` session the two SAF launchers below need to
+     * reach: the stable load-index-Long -> Room-entity map `myDocumentPagesControllerFor` rebuilds
+     * on every entry, so imports/exports can resolve the ids the controller hands them back to a
+     * real row. `registerForActivityResult` must run before `STARTED`, so the launchers themselves
+     * are host fields (plan D4) -- and since only one `MyDocumentPages` destination is ever composed
+     * at a time (it has no child destination of its own), this single mutable map is exactly
+     * classic's per-Activity-instance `entityByLong` field, moved one level up.
+     */
+    private var myDocumentPagesEntityByLong: Map<Long, MyDocumentPage> = emptyMap()
+    private var myDocumentPagesDocumentInitials: String = ""
+
+    /** The current session's own `addPage`, captured so [importMyDocumentPageFile] -- which runs
+     *  from a host-level launcher callback, outside the arm's own closures -- can add an imported
+     *  page to the right controller. Refreshed by every [myDocumentPagesControllerFor] call. */
+    private var addMyDocumentPageToList: ((title: String, contentType: MyDocumentContentType, content: String) -> Unit)? = null
+
+    /** [net.bible.sharedcore.mydocuments.MyDocumentPagesController.onExportSelected]'s pending ids,
+     *  moved host-side beside [exportMyDocumentPagesTreeLauncher] -- classic's own
+     *  `MyDocumentPagesComposeActivity.pendingExportIds` field. */
+    private var pendingMyDocumentPagesExportIds: List<Long> = emptyList()
+
+    /**
+     * Builds the pages-within-a-document editor's controller for one destination entry. Mirror of
+     * classic `MyDocumentPagesComposeActivity`'s `onCreate` + `reload` + `applyChanges` +
+     * `addPageToList`, all of which needed Room and therefore could not cross into `commonMain`.
+     *
+     * [onImport]/[onExport]/[onExportSelected] are threaded in from the SAME lambdas
+     * [MyDocumentPagesDeps] exposes at the top level (built once, alongside this factory, when the
+     * deps object is assembled below) rather than re-created here, so there is exactly one
+     * definition of "launch the import picker" / "export this page" / "export these pages", not two
+     * copies that could drift.
+     */
+    private fun myDocumentPagesControllerFor(
+        documentId: String,
+        documentInitials: String,
+        onResult: (MyDocumentPagesResult) -> Unit,
+        onImport: () -> Unit,
+        onExport: (id: Long) -> Unit,
+        onExportSelected: (ids: List<Long>) -> Unit,
+    ): MyDocumentPagesController {
+        val docId = IdType(documentId)
+        myDocumentPagesDocumentInitials = documentInitials
+        myDocumentPagesEntityByLong = emptyMap()
+
+        lateinit var controller: MyDocumentPagesController
+
+        fun nextLongId(): Long = (myDocumentPagesEntityByLong.keys.maxOrNull() ?: -1L) + 1L
+
+        /** Mirror of classic `addPageToList`: insert, assign the next stable Long id, notify the controller. */
+        fun addPageToList(title: String, contentType: MyDocumentContentType, content: String) {
+            val pageId = IdType()
+            val page = MyDocumentPage(
+                id = pageId,
+                documentId = docId,
+                title = title,
+                pageKey = "page_$pageId",
+                contentType = contentType,
+                orderNumber = controller.totalCount.value,
+            )
+            myDocumentDao.insertPageWithContent(page, content)
+            val id = nextLongId()
+            myDocumentPagesEntityByLong = myDocumentPagesEntityByLong + (id to page)
+            val ct = if (contentType == MyDocumentContentType.HTML) ContentType.HTML else ContentType.MARKDOWN
+            controller.addPage(MyDocPageItem(id, title, ct, isAiGenerated = false))
+        }
+        addMyDocumentPageToList = ::addPageToList
+
+        /** Mirror of classic `applyChanges`: delete removed pages, persist reorders/renames, always
+         *  refresh the SWORD book, and post `AiDocPagesChangedEvent` for the deletions. */
+        fun applyChanges(ordered: List<MyDocPageItem>, changed: Set<Long>, deleted: Set<Long>) {
+            deleted.mapNotNull { myDocumentPagesEntityByLong[it] }.forEach { p ->
+                myDocumentDao.pageById(p.id)?.let { myDocumentDao.deletePageWithContent(it) }
+            }
+            val toUpdate = ArrayList<MyDocumentPage>()
+            ordered.forEachIndexed { index, item ->
+                val p = myDocumentPagesEntityByLong[item.id] ?: return@forEachIndexed
+                p.orderNumber = index
+                p.title = item.name
+                if (item.id in changed) { p.updatedAt = System.currentTimeMillis(); toUpdate.add(p) }
+            }
+            if (toUpdate.isNotEmpty()) myDocumentDao.updatePages(toUpdate)
+            // Classic always refreshes: new pages are inserted directly to the DB in
+            // addPageToList() without going through `changed`, so the SWORD book would otherwise be
+            // stale.
+            MyDocumentBookManager.refreshDocument(documentInitials)
+            val deletedIds = deleted.mapNotNull { myDocumentPagesEntityByLong[it]?.id }
+            if (deletedIds.isNotEmpty()) ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = deletedIds))
+        }
+
+        controller = MyDocumentPagesController(
+            onOpenPage = { id ->
+                // Mirror of classic `openPage`/`returnWithPage`: auto-save-on-leave rather than
+                // classic's save-changes prompt, then refresh the SWORD book's key map (a snapshot)
+                // before the caller resolves the returned pageKey against it.
+                myDocumentPagesEntityByLong[id]?.let { page ->
+                    if (controller.dirty.value) controller.save() else MyDocumentBookManager.refreshDocument(documentInitials)
+                    onResult(MyDocumentPagesResult.Selected(documentInitials, page.pageKey))
+                }
+            },
+            onImport = onImport,
+            onExport = onExport,
+            onCreatePage = { name, type ->
+                val ct = if (type == ContentType.HTML) MyDocumentContentType.HTML else MyDocumentContentType.MARKDOWN
+                addPageToList(name, ct, "")
+            },
+            onExportSelected = onExportSelected,
+            onSave = { ordered, changed, deleted -> applyChanges(ordered, changed, deleted) },
+        )
+
+        lifecycleScope.launch {
+            val list = withContext(Dispatchers.IO) { myDocumentDao.pagesForDocument(docId) }
+            myDocumentPagesEntityByLong = list.mapIndexed { i, p -> i.toLong() to p }.toMap()
+            controller.setPages(
+                list.mapIndexed { i, p ->
+                    MyDocPageItem(
+                        id = i.toLong(),
+                        name = p.title,
+                        contentType = if (p.contentType == MyDocumentContentType.HTML) ContentType.HTML else ContentType.MARKDOWN,
+                        isAiGenerated = p.sourcePromptId != null,
+                    )
+                },
+            )
+        }
+
+        return controller
+    }
+
+    private val importMyDocumentPageLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenMultipleDocuments()
+    ) { uris ->
+        if (uris.isNullOrEmpty()) return@registerForActivityResult
+        // One page per picked file, in filename order -- the same rule the documents-side import
+        // uses (MyDocumentsComposeActivity.importFromFiles sorts by filename before numbering).
+        for (uri in uris.sortedBy { getMyDocumentPageFileName(it) ?: "" }) importMyDocumentPageFile(uri)
+    }
+
+    /** Import a single text file as a new page. Ported verbatim from classic
+     *  `MyDocumentPagesComposeActivity.importFile` (`:326`). */
+    private fun importMyDocumentPageFile(uri: Uri) {
+        try {
+            val fileName = getMyDocumentPageFileName(uri) ?: getString(R.string.my_document_imported_page_name)
+            val content = contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: return
+
+            val contentType = when {
+                fileName.endsWith(".html", ignoreCase = true) || fileName.endsWith(".htm", ignoreCase = true) ->
+                    MyDocumentContentType.HTML
+                else -> MyDocumentContentType.MARKDOWN
+            }
+
+            val title = fileName.substringBeforeLast(".")
+            addMyDocumentPageToList?.invoke(title, contentType, content)
+        } catch (e: Exception) {
+            Log.e(TAG_MY_DOCUMENT_PAGES, "Failed to import file", e)
+            Toast.makeText(this, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /** Export one page via `BackupControl.saveOrShare`, with the host's own destination chooser in
+     *  place of `saveOrShare`'s platform `AlertDialog` -- the seam [askDestination] already built for
+     *  the reading-plan export, not a dialog conversion. Ported verbatim from classic
+     *  `MyDocumentPagesComposeActivity.exportPage` (`:440`). */
+    private fun exportMyDocumentPage(id: Long) {
+        val page = myDocumentPagesEntityByLong[id] ?: return
+        lifecycleScope.launch(Dispatchers.IO) {
+            val pageWithContent = myDocumentDao.pageByIdWithContent(page.id) ?: return@launch
+            val ext = if (page.contentType == MyDocumentContentType.HTML) "html" else "md"
+            val sanitizedTitle = page.title.replace(Regex("[^a-zA-Z0-9._\\- ]"), "").take(50)
+                .ifEmpty { getString(R.string.my_document_export_fallback_name) }
+            val fileName = "$sanitizedTitle.$ext"
+            val targetDir = File(SharedConstants.internalFilesDir, "export/")
+            targetDir.mkdirs()
+            val targetFile = File(targetDir, fileName)
+            targetFile.writeText(pageWithContent.content ?: "")
+            val mimeType = if (ext == "html") "text/html" else "text/markdown"
+            BackupControl.saveOrShare(
+                activity = this@NavHostComposeActivity,
+                file = targetFile,
+                fileName = fileName,
+                shareMimeType = mimeType,
+                saveMimeType = mimeType,
+                chooserTitle = getString(R.string.my_document_export_page),
+                chooseDestination = ::askDestination,
+            )
+        }
+    }
+
+    private val exportMyDocumentPagesTreeLauncher =
+        registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+            val ids = pendingMyDocumentPagesExportIds
+            pendingMyDocumentPagesExportIds = emptyList()
+            if (uri != null && ids.isNotEmpty()) exportMyDocumentPagesToFolder(ids, uri)
+        }
+
+    /** Export several pages into one chosen folder. Ported verbatim from classic
+     *  `MyDocumentPagesComposeActivity.exportPagesToFolder` (`:497`). */
+    private fun exportMyDocumentPagesToFolder(ids: List<Long>, treeUri: Uri) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val treeDoc = DocumentFile.fromTreeUri(this@NavHostComposeActivity, treeUri) ?: return@launch
+                for ((index, id) in ids.withIndex()) {
+                    val page = myDocumentPagesEntityByLong[id] ?: continue
+                    val withContent = myDocumentDao.pageByIdWithContent(page.id) ?: continue
+                    val ext = if (page.contentType == MyDocumentContentType.HTML) "html" else "md"
+                    val mimeType = if (ext == "html") "text/html" else "text/markdown"
+                    val orderPrefix = String.format("%02d", index + 1)
+                    val sanitizedTitle = page.title
+                        .replace(Regex("[^a-zA-Z0-9._\\- ]"), "")
+                        .take(50)
+                        .ifEmpty { getString(R.string.my_document_export_fallback_name) }
+                    val file = treeDoc.createFile(mimeType, "$orderPrefix-$sanitizedTitle.$ext") ?: continue
+                    contentResolver.openOutputStream(file.uri)?.use { out ->
+                        out.write((withContent.content ?: "").toByteArray(Charsets.UTF_8))
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@NavHostComposeActivity, R.string.my_document_export_success, Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG_MY_DOCUMENT_PAGES, "Failed to export pages", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@NavHostComposeActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    /** Resolve a display file name for a content Uri. Ported verbatim from classic
+     *  `MyDocumentPagesComposeActivity.getFileName` (`:345`). */
+    private fun getMyDocumentPageFileName(uri: Uri): String? {
+        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (nameIndex >= 0 && cursor.moveToFirst()) {
+                return cursor.getString(nameIndex)
+            }
+        }
+        return uri.lastPathSegment
+    }
+
+    /**
+     * `MyDocumentPages`'s channel -- the batch's second DUAL-ENTRY destination. Entered from
+     * outside (`CurrentGeneralBookPage`, today) this exits the host with the packed
+     * [NavResultIntents.forMyDocumentPages] result, exactly [labelEditResults]' shape three
+     * fields below; entered from inside (`MyDocuments`, once nav-graph slice 4 Task 6 lands) it
+     * publishes to `pending` and pops instead.
+     */
+    private val myDocumentPagesResults = NavResultChannel<MyDocumentPagesResult> { result ->
+        val activityResult = NavResultIntents.forMyDocumentPages(result)
+        setResult(activityResult.resultCode, activityResult.data)
+        finish()
+    }
+
     private fun buildDailyReadingController(
         onChangePlan: () -> Unit,
         onChangeDay: () -> Unit,
@@ -3868,6 +4175,7 @@ class NavHostComposeActivity : ActivityBase() {
         private const val TAG_EPUB_SEARCH_RESULTS = "EpubSearchResultsCompose"
         private const val TAG_MANAGE_LABELS = "ManageLabelsNavHost"
         private const val TAG_BOOKMARKS = "BookmarksNavHost"
+        private const val TAG_MY_DOCUMENT_PAGES = "MyDocPagesNavHost"
 
         /**
          * Classic `ManageLabels.kt`'s own key, unchanged so a user's persisted StudyPad

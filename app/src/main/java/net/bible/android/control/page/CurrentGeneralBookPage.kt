@@ -105,11 +105,21 @@ class CurrentGeneralBookPage internal constructor(
                 doc?.isMyDocument == true -> {
                     val docId = doc.myDocumentId
                     if (docId != null) {
+                        // Screen.MyDocumentPages is deliberately not in ScreenLauncher.MIGRATED (all
+                        // three of its route arguments are required), and its classic
+                        // MyDocumentPagesComposeActivity survives until nav-graph slice 4 Task 9 --
+                        // so this builds the nav-host Intent directly rather than through
+                        // ScreenLauncher, the same shape the StudyPad branch above already uses for
+                        // ManageLabels.
                         context.startActivityForResult(
-                            ScreenLauncher.intentFor(context, Screen.MyDocumentPages)
-                                .putExtra("documentId", docId.toString())
-                                .putExtra("documentInitials", doc.initials)
-                                .putExtra("documentName", doc.name),
+                            NavHostComposeActivity.intentFor(
+                                context,
+                                NavRoutes.myDocumentPages(
+                                    documentId = docId.toString(),
+                                    documentInitials = doc.initials,
+                                    documentName = doc.name,
+                                ),
+                            ),
                             STD_REQUEST_CODE
                         )
                     }

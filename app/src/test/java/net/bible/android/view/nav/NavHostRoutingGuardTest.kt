@@ -507,6 +507,32 @@ class NavHostRoutingGuardTest {
     }
 
     /**
+     * nav-graph slice 4, Task 5 -- [customRepositoryEditorIsNotInMigratedAndItsPatternIsRegisteredByAGraph]'s
+     * shape, for the batch's second dual-entry destination. `Screen.MyDocumentPages` is deliberately
+     * absent from [ScreenLauncher.MIGRATED]: all THREE of [NavRoutes.MY_DOCUMENT_PAGES_PATTERN]'s
+     * arguments (`documentId`/`documentInitials`/`documentName`) are required, so an argument-free
+     * entry has nothing meaningful to show -- the `Screen.LabelEdit`/`Screen.ManageLabels`
+     * precedent, not the editor's OPTIONAL-argument one.
+     *
+     * The `assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(...) }` half those two
+     * tests also carry does NOT hold here either, for `Screen.CustomRepositoryEditor`'s own reason:
+     * `MyDocumentPagesComposeActivity` still exists and `ScreenLauncher.targetFor` still resolves to
+     * it (Task 9 deletes it), so `intentFor` still returns an Intent rather than throwing.
+     */
+    @Test
+    fun myDocumentPagesIsNotInMigratedAndItsPatternIsRegisteredByAGraph() {
+        assertFalse(
+            Screen.MyDocumentPages in ScreenLauncher.MIGRATED,
+            "all three of the pages editor's route arguments are required, so an argument-free " +
+                "MIGRATED entry would be a lie",
+        )
+        assertTrue(
+            NavRoutes.MY_DOCUMENT_PAGES_PATTERN in registeredRoutePatterns(),
+            "no graph registers the pages editor's pattern",
+        )
+    }
+
+    /**
      * The coexistence seam's other half. `Screen.MyDocuments` stands in for "not migrated yet" here;
      * it used to be `Screen.Bookmarks`, which slice 2 Task 6 moved into [ScreenLauncher.MIGRATED] --
      * so this assertion had to move with it rather than be deleted, since "an unmigrated screen
@@ -1025,12 +1051,14 @@ class NavHostRoutingGuardTest {
          * and 8). Added by the whole-branch review's M2: the scan was written for the ScreenLauncher
          * shape only, but a `.putExtra(...)` chained onto a direct call is dropped exactly as
          * silently -- the host reads only [NavHostComposeActivity.EXTRA_ROUTE] -- and there are
-         * twelve such production call sites now (`BibleJavascriptInterface.kt` x2, `BibleView.kt` x2,
-         * `ComposeReadingViewHost.kt`, `SearchControl.kt`, `LinkControl.kt`, `MenuCommandHandler.kt`,
-         * `OptionsMenuItems.kt` x2, `CurrentGeneralBookPage.kt`,
-         * `TextDisplaySettingsComposeActivity.kt`) -- the last six added by nav-graph slices 2+4
+         * thirteen such production call sites now (`BibleJavascriptInterface.kt` x2, `BibleView.kt`
+         * x2, `ComposeReadingViewHost.kt`, `SearchControl.kt`, `LinkControl.kt`,
+         * `MenuCommandHandler.kt`, `OptionsMenuItems.kt` x2, `CurrentGeneralBookPage.kt` x2,
+         * `TextDisplaySettingsComposeActivity.kt`) -- six of them added by nav-graph slices 2+4
          * Task 7 when it deleted `ManageLabelsComposeActivity` and repointed its six outside callers
-         * at this direct shape -- none of which is an offender today.
+         * at this direct shape, and `CurrentGeneralBookPage.kt`'s second one added by nav-graph
+         * slice 4 Task 5 when it repointed the `MyDocumentPages` branch the same way -- none of
+         * which is an offender today.
          */
         const val NAV_HOST_CALL_MARKER = "NavHostComposeActivity.intentFor("
 

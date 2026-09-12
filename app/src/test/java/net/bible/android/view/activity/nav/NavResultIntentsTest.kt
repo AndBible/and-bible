@@ -31,6 +31,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
+import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.ReadingProgressResult
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -242,5 +243,40 @@ class NavResultIntentsTest {
         val decoded = ManageLabelsContract.ManageLabelsData
             .fromJSON(intent.getStringExtra("data")!!)
         assertTrue(decoded.reset)
+    }
+
+    /**
+     * nav-graph slice 4, Task 5. `MyDocumentPages`'s open-a-page exit -- classic
+     * `MyDocumentPagesComposeActivity.returnWithPage`'s `resultIntent.putExtra(...)` + `finishOk()`
+     * (`:224-226`) -- and the pair `MainBibleActivity.kt:2902-2913` reads back.
+     */
+    @Test
+    fun myDocumentPagesSelectedCarriesTheKindAndBothKeys() {
+        val result = NavResultIntents.forMyDocumentPages(
+            MyDocumentPagesResult.Selected(documentInitials = "MyDoc_1", pageKey = "page-3"),
+        )
+        assertEquals(Activity.RESULT_OK, result.resultCode)
+        val extras = requireNotNull(result.data?.extras)
+        assertEquals(ActivityResultKind.MyDocumentPages.name, extras.getString(ActivityResultKind.EXTRA))
+        assertEquals("MyDoc_1", extras.getString("documentInitials"))
+        assertEquals("page-3", extras.getString("pageKey"))
+    }
+
+    /**
+     * The Dismiss button's exit (`MyDocumentPagesComposeActivity.kt:129`, `finishCanceled()` at
+     * `:344`): `RESULT_CANCELED`, but unlike [forLabelEdit]'s `Cancelled` it still carries the
+     * tagged Intent classic attached on this path.
+     */
+    @Test
+    fun myDocumentPagesCancelledIsAPlainCancelWithTheKindStillTagged() {
+        val result = NavResultIntents.forMyDocumentPages(MyDocumentPagesResult.Cancelled)
+        assertEquals(Activity.RESULT_CANCELED, result.resultCode)
+        // Classic still attached resultIntent on the cancelled path (:344); MainBibleActivity's
+        // dispatcher early-returns on RESULT_CANCELED (:2870-2876), so the tag is inert — but it
+        // is preserved rather than quietly dropped.
+        assertEquals(
+            ActivityResultKind.MyDocumentPages.name,
+            result.data?.extras?.getString(ActivityResultKind.EXTRA),
+        )
     }
 }

@@ -317,6 +317,26 @@ class NavResultChannelGuardTest {
         )
     }
 
+    /**
+     * nav-graph slice 4, Task 5's producer half, [repositoryEditorArmActuallyDeliversThroughTheChannel]'s
+     * twin for the new `mydocuments/nav` cluster and the batch's second dual-entry destination.
+     * Without this, `MyDocumentPages` could pop or exit without ever handing its
+     * `MyDocumentPagesResult` to the channel -- every one of classic's exits (open-a-page/Save/
+     * Dismiss) would then silently do nothing for a caller waiting on a result.
+     */
+    @Test
+    fun myDocumentPagesArmActuallyDeliversThroughTheChannel() {
+        val sources = navGraphSources()
+        val file = sources.firstOrNull { it.name == "MyDocumentsNavGraph.kt" }
+        assertTrue(file != null, "cannot find MyDocumentsNavGraph.kt among ${sources.map { it.path }}")
+        val text = withoutComments(file.readText())
+        assertTrue(
+            text.contains("myDocumentPagesResults.deliver("),
+            "MyDocumentsNavGraph.kt no longer calls myDocumentPagesResults.deliver(...) -- the " +
+                "pages editor would pop or exit without ever handing its result back",
+        )
+    }
+
     // ——— The bookmark list's exit lambda ————————————————————————————————————————————————————
     // Four properties of `NavHostComposeActivity.bookmarkResults`' `exitWithResult`, none of which
     // any other test in the repo can see.
