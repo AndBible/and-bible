@@ -17,9 +17,11 @@
 package net.bible.android.view.compose
 
 import androidx.test.core.app.ApplicationProvider
+import java.io.File
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.service.cloudsync.documents.SyncPlan
 import net.bible.sharedcore.cloud.CloudDocumentsController
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.test.DatabaseResetter
@@ -29,6 +31,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -152,5 +155,127 @@ class CloudDocumentsControllerRebuildIsolationTest {
 
         assertTrue(first.busy.value, "showSyncNow must push busy onto the controller it was given")
         assertFalse(second.busy.value, "showSyncNow must not leak onto the ref's current (later) controller")
+    }
+
+    /**
+     * Task-8 fix round 3, finding 1: `cloudDocumentsLastPlanByController` was pruned only on
+     * CONFIRM; DISMISS never told the host, so cancelling a Sync-now dialog pinned one controller
+     * plus its `SyncPlan` for the rest of the Activity's lifetime. Seeds the map directly (bypassing
+     * the IO-bound `computeSyncPlan` round trip `cloudDocumentsShowSyncNow` itself needs) and arms
+     * the SAME cleanup that function arms right after `controller.showSyncNow(...)`, then dismisses
+     * -- `dismissSyncNow()`/`confirmSyncNow(...)` both null `syncNowDialog`, and `Flow.first` fires
+     * on the FIRST such transition, on the SAME (main, immediate) thread, so no idling is needed.
+     */
+    @Test
+    fun `dismissing a Sync-now dialog prunes its pinned plan`() {
+        val activity = buildActivity()
+        val controller = buildController(activity)
+
+        val mapField = NavHostComposeActivity::class.java.getDeclaredField("cloudDocumentsLastPlanByController")
+        mapField.isAccessible = true
+        @Suppress("UNCHECKED_CAST")
+        val plans = mapField.get(activity) as MutableMap<CloudDocumentsController, SyncPlan>
+        plans[controller] = SyncPlan(emptyList(), emptyList(), emptyList(), 0L, 0L)
+
+        controller.showSyncNow(labels = listOf("a", "b", "c"), checked = listOf(false, false, false))
+        val armMethod = NavHostComposeActivity::class.java.getDeclaredMethod(
+            "cloudDocumentsPruneSyncNowPlanOnClose", CloudDocumentsController::class.java,
+        )
+        armMethod.isAccessible = true
+        armMethod.invoke(activity, controller)
+
+        assertTrue(plans.containsKey(controller), "sanity: still pinned while the dialog is open")
+        controller.dismissSyncNow()
+        assertFalse(plans.containsKey(controller), "dismissing the dialog must prune its pinned plan")
+    }
+
+    /**
+     * Task-8 fix round 3, finding 2. **What was tried first, and why it isn't what ships:** a
+     * reflection-driven test analogous to the ones above -- launch `cloudDocumentsRefreshFromNetwork`
+     * via the raw suspend-function ABI (a trailing `Continuation` parameter, no `kotlin-reflect`
+     * needed), build a second controller while it is suspended inside `withContext(Dispatchers.IO)`,
+     * then `job.cancel()` and `shadowOf(Looper.getMainLooper()).idle()` to let the `finally` run and
+     * assert it clears busy on the FIRST controller, not the second. It compiled and ran, but FAILED
+     * flakily against the ALREADY-FIXED code: `Dispatchers.IO` in a JVM/Robolectric unit test is a
+     * REAL background thread pool, and its resumption back onto `Dispatchers.Main` only happens once
+     * that real thread's work actually completes and posts back -- `idle()` only drains whatever the
+     * Android main-looper queue ALREADY holds, so if the background thread has not yet posted (a real
+     * wall-clock race, not a coroutine-ordering guarantee this test can control), `idle()` does
+     * nothing and the assertion sees a `finally` that has simply not run yet. A test that fails
+     * against correct code for timing reasons is worse than no test, so this is a deliberate SOURCE
+     * SCAN instead -- the same choice `SearchHostBackRoutingGuardTest`/`MenuSeamGuardTest` make for
+     * properties a runtime assertion cannot pin down without flakiness or invasive production changes
+     * (a swappable IO dispatcher `cloudDocumentsRefreshFromNetwork`/`cloudDocumentsOpenOrGate` do not
+     * have and should not gain just for this).
+     *
+     * The property fix round 3 established is entirely mechanical and exactly what a scan CAN prove
+     * deterministically: [assertControllerReadExactlyOnce] asserts the bare identifier
+     * `cloudDocumentsController` (the mutable ref's accessor) appears EXACTLY ONCE in each function's
+     * body -- the one `val controller = cloudDocumentsController` capture at the top, comments
+     * stripped so a stray mention in a doc comment cannot inflate the count. A regression that
+     * re-introduced a second read (in a `finally`, or anywhere after another suspension point) would
+     * push the count to two and fail here, with no dependence on real thread timing at all.
+     */
+    @Test
+    fun `cloudDocumentsRefreshFromNetwork reads the mutable controller ref exactly once`() {
+        assertControllerReadExactlyOnce("cloudDocumentsRefreshFromNetwork")
+    }
+
+    /** The other function [cloudDocumentsControllerRef]'s kdoc names as reading the property directly. */
+    @Test
+    fun `cloudDocumentsOpenOrGate reads the mutable controller ref exactly once`() {
+        assertControllerReadExactlyOnce("cloudDocumentsOpenOrGate")
+    }
+
+    private val navHostComposeActivitySource by lazy {
+        stripComments(File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt").readText())
+    }
+
+    private fun assertControllerReadExactlyOnce(functionName: String) {
+        val body = extractFunctionBody(navHostComposeActivitySource, functionName)
+        val hits = Regex("""\bcloudDocumentsController\b""").findAll(body).count()
+        assertEquals(
+            1, hits,
+            "$functionName must read the mutable cloudDocumentsController ref exactly ONCE (a " +
+                "`val controller = cloudDocumentsController` capture up front), never again later in the " +
+                "same function -- a second read (e.g. inside a `finally`, or after another suspension " +
+                "point) can resolve to a DIFFERENT (later) entry's controller if a leave-and-reopen " +
+                "rebuilt the ref while this function was suspended (task-8 fix round 3, finding 2). Found " +
+                "$hits occurrence(s) in:\n$body",
+        )
+    }
+
+    /**
+     * Extracts [functionName]'s body -- the braces immediately following its signature -- from
+     * [source] by simple brace counting. Fine for this file: neither function this test scans
+     * contains a string or char literal with an unbalanced `{`/`}` inside it.
+     */
+    private fun extractFunctionBody(source: String, functionName: String): String {
+        val signatureIndex = source.indexOf("fun $functionName(")
+        require(signatureIndex >= 0) { "no `fun $functionName(` found in NavHostComposeActivity.kt -- has it been renamed or moved?" }
+        val openBraceIndex = source.indexOf('{', signatureIndex)
+        require(openBraceIndex >= 0) { "no opening brace found after `fun $functionName(...)`" }
+        var depth = 0
+        var i = openBraceIndex
+        while (i < source.length) {
+            when (source[i]) {
+                '{' -> depth++
+                '}' -> {
+                    depth--
+                    if (depth == 0) return source.substring(openBraceIndex + 1, i)
+                }
+            }
+            i++
+        }
+        error("unbalanced braces while scanning the body of $functionName")
+    }
+
+    /** [SearchHostBackRoutingGuardTest]'s own helper, copied rather than shared -- see that file's kdoc for why. */
+    private fun stripComments(text: String): String {
+        val noBlockComments = Regex("/\\*.*?\\*/", RegexOption.DOT_MATCHES_ALL).replace(text, "")
+        return noBlockComments.lines().joinToString("\n") { line ->
+            val commentAt = line.indexOf("//")
+            if (commentAt >= 0) line.substring(0, commentAt) else line
+        }
     }
 }

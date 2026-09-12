@@ -85,6 +85,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -5402,11 +5403,17 @@ class NavHostComposeActivity : ActivityBase() {
      * a fresh Activity and a fresh controller. A singleton would have let all of that silently
      * survive a round trip instead.
      *
-     * **Read ONLY from [cloudDocumentsOpenOrGate]/[cloudDocumentsRefreshFromNetwork] (both suspend
-     * functions the arm calls, and cancelled with the arm's own composition-scoped coroutine -- they
-     * can never resume after this ref has moved on) and from a composable's OWN composition-time
-     * snapshot (see [CloudDocumentsOverflowMenu]).** Every other function below that touches a
-     * controller does so through an EXPLICIT `controller: CloudDocumentsController` parameter,
+     * **Read ONLY from [cloudDocumentsOpenOrGate]/[cloudDocumentsRefreshFromNetwork], and only ONCE,
+     * synchronously, before either function's first suspension point** -- both capture it into a
+     * local `val controller` immediately and use ONLY that local afterward, INCLUDING inside a
+     * `finally` block (fix round 3: `finally` runs even when the surrounding coroutine is being
+     * CANCELLED, e.g. because the arm's composition was just disposed by a leave-and-reopen, so a
+     * `finally { cloudDocumentsController.pushBusy(false) }` that re-read the property there could
+     * clear busy on a SECOND entry's controller instead of the one that set it true -- capturing once
+     * up front removes the second read entirely, not just delays it). **Composable functions** get
+     * their own composition-time snapshot instead (see [CloudDocumentsOverflowMenu]). Every other
+     * function below that touches a controller does so through an EXPLICIT `controller:
+     * CloudDocumentsController` parameter,
      * captured once at the point the operation started, never by re-reading this property after a
      * suspension point or from a callback that can fire later than its origin (task-8 fix round 2,
      * finding A) -- `lifecycleScope.launch { ... }` is host-Activity-scoped, not cancelled when the
@@ -5468,7 +5475,11 @@ class NavHostComposeActivity : ActivityBase() {
     /**
      * Classic `openOrGate()` in full (`:193-208`) -- see [CloudDocumentsDeps.openOrGate]'s kdoc.
      * A single cache scan serves both the sign-in-gate's emptiness check and the seed, exactly as
-     * classic's own `cached` local did.
+     * classic's own `cached` local did. `controller` is captured ONCE, before the sign-in/scan
+     * suspension points, and used for both calls after them -- see [cloudDocumentsControllerRef]'s
+     * kdoc (fix round 3): this function has no `finally`, so a cancellation here simply stops it
+     * (the two calls below never run at all rather than running against a stale reference), but the
+     * single capture keeps this function's behaviour visibly consistent with every other one below.
      */
     private suspend fun cloudDocumentsOpenOrGate(): Boolean {
         var signedIn = CloudSync.signedIn
@@ -5478,8 +5489,9 @@ class NavHostComposeActivity : ActivityBase() {
             Toast.makeText(this, R.string.document_sync_signin_required, Toast.LENGTH_LONG).show()
             return false
         }
-        cloudDocumentsController.setShowRemoved(DocumentSyncSettings.showRemovedDocuments)
-        cloudDocumentsController.setItems(items)
+        val controller = cloudDocumentsController
+        controller.setShowRemoved(DocumentSyncSettings.showRemovedDocuments)
+        controller.setItems(items)
         if (signedIn && (!DocumentSyncSettings.enabled || items.isEmpty())) cloudDocumentsRefreshFromNetwork()
         return true
     }
@@ -5496,16 +5508,25 @@ class NavHostComposeActivity : ActivityBase() {
         DocumentSync.scanCached(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
     }
 
-    /** Classic `refreshFromNetwork()` (`:212-218`): a network scan, flattened and pushed with a busy pair around it. */
+    /**
+     * Classic `refreshFromNetwork()` (`:212-218`): a network scan, flattened and pushed with a busy
+     * pair around it. `controller` is captured ONCE, before the `finally` even exists to run --
+     * fix round 3: the property was read a second time inside `finally { cloudDocumentsController
+     * .pushBusy(false) }`, and `finally` blocks run even when this coroutine is CANCELLED (e.g. a
+     * leave-and-reopen disposed the arm's composition while the scan above was suspended), so that
+     * second read could resolve to a SECOND entry's controller and clear ITS busy flag instead of
+     * this call's own. Capturing once removes the second read entirely.
+     */
     private suspend fun cloudDocumentsRefreshFromNetwork() {
-        cloudDocumentsController.pushBusy(true)
+        val controller = cloudDocumentsController
+        controller.pushBusy(true)
         try {
             val items = withContext(Dispatchers.IO) {
                 DocumentSync.scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
             }
-            cloudDocumentsController.setItems(items)
+            controller.setItems(items)
         } finally {
-            cloudDocumentsController.pushBusy(false)
+            controller.pushBusy(false)
         }
     }
 
@@ -5699,6 +5720,31 @@ class NavHostComposeActivity : ActivityBase() {
                 DocumentSyncSettings.syncNowDownload, DocumentSyncSettings.syncNowUpload, DocumentSyncSettings.syncNowDelete,
             )
             controller.showSyncNow(labels, checked)
+            cloudDocumentsPruneSyncNowPlanOnClose(controller)
+        }
+    }
+
+    /**
+     * Task-8 fix round 3, finding 1. [cloudDocumentsLastPlanByController] was pruned only on
+     * CONFIRM (`handleCloudDocumentsSyncNowConfirm`'s own `.remove`); `CloudDocumentsController
+     * .dismissSyncNow()` (wired straight to the screen's cancel button as `controller
+     * ::dismissSyncNow` in `DownloadNavGraph.kt`, with no host callback of its own) only nulls the
+     * controller's `_syncNowDialog` and never told the host, so opening Sync-now and cancelling
+     * pinned one entry plus its resolved `SyncPlan` for the rest of the host Activity's lifetime,
+     * accumulating across open/cancel cycles.
+     *
+     * Fixed by watching, not by adding a callback to [CloudDocumentsController] for it: `syncNowDialog`
+     * is already a `StateFlow` the controller exposes, and BOTH `confirmSyncNow` and `dismissSyncNow`
+     * null it out before returning -- so the FIRST value this sees after showing the dialog is
+     * whichever happens. One-shot and explicit about its own lifetime: `Flow.first` completes (and
+     * this `launch` along with it) the moment that happens, so nothing lingers watching a
+     * closed dialog. Landing on CONFIRM is a harmless no-op re-`remove` of an already-removed entry
+     * (`MutableMap.remove` on a missing key is a no-op); landing on DISMISS is the fix.
+     */
+    private fun cloudDocumentsPruneSyncNowPlanOnClose(controller: CloudDocumentsController) {
+        lifecycleScope.launch {
+            controller.syncNowDialog.first { it == null }
+            cloudDocumentsLastPlanByController.remove(controller)
         }
     }
 
