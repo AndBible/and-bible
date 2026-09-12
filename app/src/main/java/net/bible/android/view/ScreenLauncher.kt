@@ -22,9 +22,6 @@ import android.content.Intent
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.backup.BackupComposeActivity
-import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
-import net.bible.android.view.activity.bookmark.LabelEditComposeActivity
-import net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.android.view.activity.download.CustomRepositoriesComposeActivity
@@ -157,30 +154,32 @@ object ScreenLauncher {
         // NavRoutes.LABEL_EDIT_PATTERN's `data` argument carries the whole LabelEditContract
         // .LabelData payload, so an argument-free route would open the editor with no label to
         // edit — and NavRoutes.labelEdit(data) cannot even be called without one, its parameter
-        // being non-null. Every real edge builds NavRoutes.labelEdit(data) directly: the graph's
-        // own ManageLabels arm (which now exists and does exactly that), and until the classic-host
-        // deletion task, the classic LabelEditComposeActivity that targetFor still resolves this
-        // screen to for callers outside the graph.
+        // being non-null. Its only caller is in-graph: the ManageLabels arm builds
+        // NavRoutes.labelEdit(data) directly. The classic LabelEditComposeActivity that targetFor
+        // used to resolve this screen to for outside callers is gone (nav-graph slices 2+4 Task 7);
+        // there never was an outside caller for it.
         //
         // Screen.ManageLabels is deliberately NOT here either, for the same reason and one more of
         // its own: NavRoutes.MANAGE_LABELS_PATTERN's `data` argument carries the whole
         // ManageLabelsContract.ManageLabelsData payload, whose `mode` field is what decides WHICH of
         // the four screens (StudyPads / assign / workspace auto-assign / hide-labels) is drawn — an
-        // argument-free route could not even pick one. All eight live callers put the payload in an
-        // Intent extra and go through targetFor: MenuCommandHandler.kt:207, OptionsMenuItems.kt:572
-        // and :602, BibleView.kt:618, CurrentGeneralBookPage.kt:80,
-        // TextDisplaySettingsComposeActivity.kt:379, and BookmarksComposeActivity.kt:206 and :258
-        // (the last two are in-graph navigate calls in the nav graph's own Bookmarks arm as of
-        // slice 2 Task 6; the classic host keeps its copies until the host-deletion task).
+        // argument-free route could not even pick one. All eight consumption sites build the payload
+        // as JSON: MenuCommandHandler.kt:207, OptionsMenuItems.kt:572 and :602, BibleView.kt:618,
+        // CurrentGeneralBookPage.kt:80 and TextDisplaySettingsComposeActivity.kt:379 (six outside the
+        // graph) build `NavHostComposeActivity.intentFor(context, NavRoutes.manageLabels(data))`
+        // directly, bypassing this map and targetFor entirely (nav-graph slices 2+4 Task 7 -- until
+        // then they went through targetFor to the classic ManageLabelsComposeActivity); the
+        // Bookmarks arm's two in-graph navigate calls build NavRoutes.manageLabels(data) the same
+        // way (slice 2 Task 6).
         //
         // Screen.Bookmarks, by contrast, IS here, and the difference is the one Screen.ReadingPlan
         // and Screen.ReadingProgress above turn on: NavRoutes.BOOKMARKS_PATTERN's `labelNo` argument
         // is OPTIONAL and its ABSENCE is a real state rather than a missing argument -- classic
-        // BookmarksComposeActivity.kt:73-77 branches on
-        // `intent.extras?.containsKey(BookmarkControl.LABEL_NO_EXTRA)`, and "no key" means "no label
-        // filter" (filter index 0). The one live caller, MenuCommandHandler.kt:205, passes no labelNo
-        // at all and so goes through this map; a caller that knew one would build
-        // NavRoutes.bookmarks(labelNo) directly, bypassing it.
+        // BookmarksComposeActivity.kt:73-77 (deleted, nav-graph slices 2+4 Task 7) branched on
+        // `intent.extras?.containsKey(BookmarkControl.LABEL_NO_EXTRA)`, and "no key" meant "no label
+        // filter" (filter index 0); the graph's Bookmarks arm reproduces that. The one live caller,
+        // MenuCommandHandler.kt:205, passes no labelNo at all and so goes through this map; a caller
+        // that knew one would build NavRoutes.bookmarks(labelNo) directly, bypassing it.
         Screen.Bookmarks to NavRoutes.bookmarks(),
     )
 
@@ -212,8 +211,9 @@ object ScreenLauncher {
         Screen.CloudDocuments -> CloudDocumentsComposeActivity::class.java
         Screen.WorkspaceSelector -> WorkspaceSelectorComposeActivity::class.java
         // The ten classic AI-cluster *ComposeActivity classes were deleted in nav-graph Task 10;
-        // the reading-plan, search and settings clusters followed in nav-graph 3/5/6 Task 9. See
-        // targetForMigratedScreen below for why all 23 of those arms are kept, one per screen.
+        // the reading-plan, search and settings clusters followed in nav-graph 3/5/6 Task 9, and the
+        // bookmark cluster (LabelEdit/ManageLabels/Bookmarks) in nav-graph slices 2+4 Task 7. See
+        // targetForMigratedScreen below for why all 26 of those arms are kept, one per screen.
         Screen.AiConnectionSettings -> targetForMigratedScreen(screen)
         Screen.AiProviders -> targetForMigratedScreen(screen)
         Screen.AiModels -> targetForMigratedScreen(screen)
@@ -224,9 +224,9 @@ object ScreenLauncher {
         Screen.AiDocumentFilter -> targetForMigratedScreen(screen)
         Screen.RawLogHistory -> targetForMigratedScreen(screen)
         Screen.RawLlmLog -> targetForMigratedScreen(screen)
-        Screen.LabelEdit -> LabelEditComposeActivity::class.java
-        Screen.ManageLabels -> ManageLabelsComposeActivity::class.java
-        Screen.Bookmarks -> BookmarksComposeActivity::class.java
+        Screen.LabelEdit -> targetForMigratedScreen(screen)
+        Screen.ManageLabels -> targetForMigratedScreen(screen)
+        Screen.Bookmarks -> targetForMigratedScreen(screen)
         Screen.ReadingProgress -> targetForMigratedScreen(screen)
         Screen.Settings -> targetForMigratedScreen(screen)
         Screen.ReadingProgressSettings -> targetForMigratedScreen(screen)
@@ -242,20 +242,28 @@ object ScreenLauncher {
 
     /**
      * The body of every arm above whose screen now lives wholly in the Compose navigation graph and
-     * has no Activity of its own: the ten AI screens (nav-graph Task 10) plus the reading-plan,
-     * search and settings clusters (nav-graph 3/5/6 Tasks 1-8). Nineteen of the 23 reach the graph
-     * through [MIGRATED] via [intentFor]/[open], so [intentFor] never falls through to [targetFor]
-     * for them; the other FOUR -- `RawLlmLog`, `SearchResults`, `EpubSearchResults` and
-     * `SearchIndexProgress` -- are deliberately absent from [MIGRATED] because an argument-free
-     * route for them would render an empty screen with nothing to show, so reaching one by a bare
-     * [Screen] throws here instead. (That is the whole of [MIGRATED]: its 19 entries are exactly
-     * these 19 screens, since every screen in the map is by definition graph-only.)
+     * has no Activity of its own: the ten AI screens (nav-graph Task 10), the reading-plan, search
+     * and settings clusters (nav-graph 3/5/6 Tasks 1-8), and the bookmark cluster --
+     * `Bookmarks`/`ManageLabels`/`LabelEdit` (nav-graph slices 2+4 Task 7). Twenty of the 26 reach
+     * the graph through [MIGRATED] via [intentFor]/[open], so [intentFor] never falls through to
+     * [targetFor] for them; the other SIX -- `RawLlmLog`, `SearchResults`, `EpubSearchResults`,
+     * `SearchIndexProgress`, `LabelEdit` and `ManageLabels` -- are deliberately absent from
+     * [MIGRATED] because an argument-free route for them would render an empty screen with nothing
+     * to show (the first four) or because the argument is required and non-null (the label pair,
+     * whose `data`/`ManageLabelsData` payload has no meaningful empty default), so reaching one by a
+     * bare [Screen] throws here instead. (That is the whole of [MIGRATED]: its 20 entries are
+     * exactly these 20 screens, since every screen in the map is by definition graph-only.) The
+     * label pair's six outside callers (`MenuCommandHandler`, `OptionsMenuItems` x2, `BibleView`,
+     * `CurrentGeneralBookPage`, `TextDisplaySettingsComposeActivity`) build
+     * `NavHostComposeActivity.intentFor(context, NavRoutes.manageLabels(data))` directly instead of
+     * going through [intentFor], for the same reason `RawLlmLog`'s callers already did (see
+     * `BibleJavascriptInterface.kt:1094`, `LinkControl.kt:428`, `SearchControl.kt:109`).
      *
      * This throws rather than returning a real class so that misuse (a future caller reintroducing
      * a direct [targetFor] call for a graph-only screen) fails loudly instead of returning a class
      * that no longer exists.
      *
-     * The arms are kept as 23 SEPARATE arms -- never merged into one combined
+     * The arms are kept as 26 SEPARATE arms -- never merged into one combined
      * `Screen.A, Screen.B -> ...` -- because the Classic*RemovalGuardTest family text-scans this
      * file for a literal "Screen.X ->" per screen and treats a missing arm as an offender.
      */

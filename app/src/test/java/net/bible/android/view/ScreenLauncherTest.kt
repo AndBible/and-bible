@@ -21,9 +21,6 @@ import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.backup.BackupComposeActivity
-import net.bible.android.view.activity.bookmark.BookmarksComposeActivity
-import net.bible.android.view.activity.bookmark.LabelEditComposeActivity
-import net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity
 import net.bible.android.view.activity.cloud.CloudDocumentsComposeActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
 import net.bible.android.view.activity.download.CustomRepositoriesComposeActivity
@@ -245,19 +242,33 @@ class ScreenLauncherTest {
         assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.RawLlmLog))
     }
 
+    // The three tests below were converted from `targetFor(Screen.X) == XComposeActivity::class.java`
+    // to the MIGRATED-map / throwing shape by nav-graph slices 2+4 Task 7, which deleted the classic
+    // Bookmarks/ManageLabels/LabelEdit ComposeActivity classes (targetFor throws for these Screens
+    // now -- see ScreenLauncher.targetForMigratedScreen).
+
     @Test
-    fun labelEdit_routes_to_compose() {
-        assertEquals(LabelEditComposeActivity::class.java, ScreenLauncher.targetFor(Screen.LabelEdit))
+    fun labelEdit_isNotMigrated_dataArgumentIsRequired() {
+        // NavRoutes.labelEdit(data) takes the whole LabelEditContract.LabelData payload as a
+        // NON-NULL parameter: there is no argument-free form of this route even in principle.
+        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.LabelEdit))
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.LabelEdit) }
     }
 
     @Test
-    fun manageLabels_routes_to_compose() {
-        assertEquals(ManageLabelsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ManageLabels))
+    fun manageLabels_isNotMigrated_dataArgumentIsRequired() {
+        // NavRoutes.manageLabels(data) takes the whole ManageLabelsContract.ManageLabelsData
+        // payload as a NON-NULL parameter, and its `mode` field is what decides WHICH of the four
+        // screens is drawn -- an argument-free route could not even pick one.
+        assertFalse(ScreenLauncher.MIGRATED.containsKey(Screen.ManageLabels))
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.ManageLabels) }
     }
 
     @Test
-    fun bookmarks_routes_to_compose() {
-        assertEquals(BookmarksComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Bookmarks))
+    fun bookmarks_routes_to_the_nav_graph() {
+        // Unlike LabelEdit/ManageLabels, NavRoutes.BOOKMARKS_PATTERN's `labelNo` argument is
+        // OPTIONAL and its absence is a real state ("no label filter"), so Bookmarks IS migrated.
+        assertEquals(NavRoutes.bookmarks(), ScreenLauncher.MIGRATED[Screen.Bookmarks])
     }
 
     @Test

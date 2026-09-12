@@ -33,6 +33,8 @@ import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
@@ -77,10 +79,17 @@ class CurrentGeneralBookPage internal constructor(
             val doc = currentDocument
             when {
                 doc == FakeBookFactory.journalDocument -> {
-                    val result = context.awaitIntent(ScreenLauncher.intentFor(context, Screen.ManageLabels)
-                        .putExtra("data", ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.STUDYPAD)
-                            .applyFrom(context.workspaceSettings)
-                            .toJSON())
+                    // Screen.ManageLabels is deliberately not in ScreenLauncher.MIGRATED (its `data`
+                    // argument is required), and the classic ManageLabelsComposeActivity
+                    // ScreenLauncher.targetFor used to resolve it to is gone (nav-graph slices 2+4
+                    // Task 7), so this builds the nav-host Intent directly. The "data" extra on the
+                    // RESULT is unchanged -- NavResultIntents.forManageLabels still writes it under
+                    // that key.
+                    val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.STUDYPAD)
+                        .applyFrom(context.workspaceSettings)
+                        .toJSON()
+                    val result = context.awaitIntent(
+                        NavHostComposeActivity.intentFor(context, NavRoutes.manageLabels(data))
                     )
                     if(result.resultCode == Activity.RESULT_OK) {
                         val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)

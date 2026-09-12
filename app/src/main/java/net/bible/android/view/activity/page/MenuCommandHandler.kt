@@ -39,6 +39,8 @@ import net.bible.android.control.report.BugReport
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
@@ -204,10 +206,17 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                 }
                 R.id.bookmarksButton -> handlerIntent = ScreenLauncher.intentFor(mainBibleActivity, Screen.Bookmarks)
                 R.id.studyPadsButton -> {
-                    val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ManageLabels)
-                    intent.putExtra("data", ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.STUDYPAD)
+                    // Screen.ManageLabels is deliberately not in ScreenLauncher.MIGRATED (its `data`
+                    // argument is required -- see ScreenLauncher.kt's MIGRATED-map comment), and the
+                    // classic ManageLabelsComposeActivity that ScreenLauncher.targetFor used to
+                    // resolve it to is gone (nav-graph slices 2+4 Task 7), so this builds the nav-host
+                    // Intent directly, the same way SearchControl/LinkControl reach argument-carrying
+                    // routes outside the graph. The "data" extra on the RESULT is unchanged --
+                    // NavResultIntents.forManageLabels still writes it under that key.
+                    val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.STUDYPAD)
                         .applyFrom(windowControl.windowRepository.workspaceSettings)
-                        .toJSON())
+                        .toJSON()
+                    val intent = NavHostComposeActivity.intentFor(mainBibleActivity, NavRoutes.manageLabels(data))
                     mainBibleActivity.lifecycleScope.launch (Dispatchers.Main) {
                         val result = mainBibleActivity.awaitIntent(intent)
                         if(result.resultCode == Activity.RESULT_OK) {

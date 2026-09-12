@@ -97,18 +97,18 @@ class SearchHostBackRoutingGuardTest {
 
     companion object {
         /**
-         * The seven `:app` ACTIVITIES that host an in-toolbar search bar. Add a new one here --
+         * The six `:app` ACTIVITIES that host an in-toolbar search bar. Add a new one here --
          * or, if the host lives in the nav graph, to [SEARCH_HOST_GRAPH_FILES] instead.
          *
          * `SettingsComposeActivity.kt` left this list in nav-graph 3/5/6 Task 9 when the Activity
-         * was deleted; its entry MOVED to [SEARCH_HOST_GRAPH_FILES] rather than disappearing.
-         * Every remaining entry here is a nav-graph migration target, so expect this list to
-         * shrink and the graph list to grow, one slice at a time.
+         * was deleted, and `BookmarksComposeActivity.kt` left it in nav-graph slices 2+4 Task 7;
+         * each entry MOVED to [SEARCH_HOST_GRAPH_FILES] rather than disappearing. Every remaining
+         * entry here is a nav-graph migration target, so expect this list to shrink and the graph
+         * list to grow, one slice at a time.
          */
         private val SEARCH_HOST_FILES = listOf(
             "src/main/java/net/bible/android/view/activity/download/DownloadComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/navigation/ChooseDocumentComposeActivity.kt",
-            "src/main/java/net/bible/android/view/activity/bookmark/BookmarksComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/cloud/CloudDocumentsComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettingsComposeActivity.kt",
             "src/main/java/net/bible/android/view/mydocuments/MyDocumentsComposeActivity.kt",
@@ -128,6 +128,7 @@ class SearchHostBackRoutingGuardTest {
          */
         private val SEARCH_HOST_GRAPH_FILES = listOf(
             "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/settings/nav/SettingsNavGraph.kt",
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/bookmark/nav/BookmarkNavGraph.kt",
         )
 
         // Call-site patterns, not bare tokens: a bare "onBackPressed" also matches inside

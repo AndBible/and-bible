@@ -615,12 +615,17 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.IO) {
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
-        val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ManageLabels)
-        intent.putExtra("data", ManageLabelsContract.ManageLabelsData(
+        // Screen.ManageLabels is deliberately not in ScreenLauncher.MIGRATED (its `data` argument is
+        // required), and the classic ManageLabelsComposeActivity ScreenLauncher.targetFor used to
+        // resolve it to is gone (nav-graph slices 2+4 Task 7), so this builds the nav-host Intent
+        // directly. The "data" extra on the RESULT is unchanged -- NavResultIntents.forManageLabels
+        // still writes it under that key.
+        val data = ManageLabelsContract.ManageLabelsData(
             mode = ManageLabelsContract.Mode.ASSIGN,
             selectedLabels = labels.toMutableSet(),
             bookmarkPrimaryLabel = bookmark.primaryLabelId
-        ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
+        ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
+        val intent = NavHostComposeActivity.intentFor(mainBibleActivity, NavRoutes.manageLabels(data))
         val result = mainBibleActivity.awaitIntent(intent)
 
         if(result.resultCode == Activity.RESULT_OK) {

@@ -90,9 +90,12 @@ class ClassicBookmarkRemovalGuardTest {
         ClassicRemovalScan.assertPathsGone(
             doomedPaths,
             "a classic bookmarks/labels source, layout or menu is back; slice S9 deleted all 16, " +
-                "each proven sole-referenced by name AND by every @+id/ it defines (spec 8.1), so " +
-                "the Compose BookmarksComposeActivity / ManageLabelsComposeActivity / " +
-                "LabelEditComposeActivity are the only implementations",
+                "each proven sole-referenced by name AND by every @+id/ it defines (spec 8.1). The " +
+                "Compose BookmarksComposeActivity / ManageLabelsComposeActivity / " +
+                "LabelEditComposeActivity that briefly replaced them are themselves gone as of " +
+                "nav-graph slices 2+4 Task 7; Bookmarks/ManageLabels/LabelEdit now live only as " +
+                "Compose nav-graph destinations (see ClassicRemovalScanAssertionsTest and " +
+                "ScreenLauncherTest)",
         )
 
     @Test fun theSurvivingBookmarkWidgetsStillExist() =

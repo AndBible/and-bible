@@ -296,24 +296,21 @@ class NavHostRoutingGuardTest {
     }
 
     /**
-     * slice 2, Task 4 -- the cousin of [rawLlmLogIsNotInMigratedAndIntentForThrows], asserting the
-     * half of it that CAN be asserted while the classic host still exists.
+     * slice 2, Task 4 -- the cousin of [rawLlmLogIsNotInMigratedAndIntentForThrows]. Nav-graph
+     * slices 2+4 Task 7 deleted the classic `LabelEditComposeActivity`, which is what makes the
+     * full assertion possible now (Tasks 4-6 could only assert the absent-from-MIGRATED /
+     * registered-pattern half, because `targetFor` still resolved to the real Activity then).
      *
      * `Screen.LabelEdit` is deliberately absent from [ScreenLauncher.MIGRATED] for exactly
      * `Screen.RawLlmLog`'s reason: [NavRoutes.LABEL_EDIT_PATTERN]'s `data` argument carries the
      * whole `LabelEditContract.LabelData` payload, so an argument-free route would open the editor
-     * with no label to edit. Every real edge builds `NavRoutes.labelEdit(data)` instead.
-     *
-     * It does NOT assert that `ScreenLauncher.intentFor(context, Screen.LabelEdit)` throws, unlike
-     * its AI and search cousins: `ScreenLauncher.targetFor` still resolves `Screen.LabelEdit` to
-     * the real `LabelEditComposeActivity`, which is still the Activity serving every live caller
-     * through the coexistence seam, and stays so until the task that deletes that host. What is
-     * assertable today -- and is the half this task is responsible for -- is that the destination
-     * the new arm registers is actually reachable by its pattern.
+     * with no label to edit. Every real edge builds `NavRoutes.labelEdit(data)` instead -- the
+     * graph's own `ManageLabels` arm is the only caller, in-graph.
      */
     @Test
     fun labelEditIsNotInMigratedAndItsPatternIsRegisteredByAGraph() {
         assertTrue(Screen.LabelEdit !in ScreenLauncher.MIGRATED)
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.LabelEdit) }
         val registered = registeredRoutePatterns()
         assertTrue(
             NavRoutes.LABEL_EDIT_PATTERN in registered,
@@ -324,25 +321,27 @@ class NavHostRoutingGuardTest {
 
     /**
      * slice 2, Task 5 -- [labelEditIsNotInMigratedAndItsPatternIsRegisteredByAGraph]'s twin, and it
-     * asserts exactly the same half for the same reason.
+     * asserts exactly the same for the same reason. Nav-graph slices 2+4 Task 7 deleted the classic
+     * `ManageLabelsComposeActivity`, which is what makes the `intentFor` throw assertion possible
+     * now.
      *
      * `Screen.ManageLabels` is deliberately absent from [ScreenLauncher.MIGRATED]:
      * [NavRoutes.MANAGE_LABELS_PATTERN]'s `data` argument carries the whole
      * `ManageLabelsContract.ManageLabelsData` payload -- the MODE among other things -- so an
      * argument-free route could not even choose which of the four screens (StudyPads, assign,
      * workspace auto-assign, hide-labels) to draw, and `NavRoutes.manageLabels(data)` cannot be
-     * called without one, its parameter being non-null. All eight live callers put the payload in an
-     * Intent extra and go through `targetFor`; the six outside the bookmark cluster keep doing that
-     * until the host-deletion task, and the two in `BookmarksComposeActivity` become in-graph
-     * `navigate` calls in Task 6.
-     *
-     * It does NOT assert that `ScreenLauncher.intentFor(context, Screen.ManageLabels)` throws:
-     * `targetFor` still resolves it to the real `ManageLabelsComposeActivity`, which is still the
-     * Activity serving every live caller through the coexistence seam.
+     * called without one, its parameter being non-null. All eight consumption sites build the
+     * payload as JSON: the six outside the bookmark cluster
+     * (`MenuCommandHandler`/`OptionsMenuItems` x2/`BibleView`/`CurrentGeneralBookPage`/
+     * `TextDisplaySettingsComposeActivity`) now build
+     * `NavHostComposeActivity.intentFor(context, NavRoutes.manageLabels(data))` directly, bypassing
+     * this map and `targetFor` entirely (Task 7); the two in the deleted `BookmarksComposeActivity`
+     * became in-graph `navigate` calls in Task 6.
      */
     @Test
     fun manageLabelsIsNotInMigratedAndItsPatternIsRegisteredByAGraph() {
         assertTrue(Screen.ManageLabels !in ScreenLauncher.MIGRATED)
+        assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.ManageLabels) }
         val registered = registeredRoutePatterns()
         assertTrue(
             NavRoutes.MANAGE_LABELS_PATTERN in registered,

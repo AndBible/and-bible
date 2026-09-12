@@ -55,7 +55,6 @@ class MenuSeamGuardTest {
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/speak/BibleSpeakScreen.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/speak/AdvancedSpeakSettingsScreen.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/cloud/CloudDocumentsScreen.kt",
-        "src/main/java/net/bible/android/view/activity/bookmark/ManageLabelsComposeActivity.kt",
         "src/main/java/net/bible/android/view/activity/download/DownloadComposeActivity.kt",
         "src/main/java/net/bible/android/view/activity/navigation/ChooseDocumentComposeActivity.kt",
         "src/main/java/net/bible/android/view/activity/cloud/CloudDocumentsComposeActivity.kt",

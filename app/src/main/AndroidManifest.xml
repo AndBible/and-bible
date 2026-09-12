@@ -116,30 +116,9 @@
             android:windowSoftInputMode="adjustResize"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
-            android:parentActivityName="net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity"
-            android:name="net.bible.android.view.activity.bookmark.LabelEditComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/edit_label"
-            />
-        <activity
             android:name="net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity"
             android:configChanges="keyboardHidden|locale"
             android:theme="@style/Theme.AbCompose" />
-        <activity
-            android:name="net.bible.android.view.activity.bookmark.BookmarksComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/bookmarks_and_mynotes_title"
-            android:launchMode="singleTop"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.bookmark.ManageLabelsComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/manage_labels"
-            android:parentActivityName="net.bible.android.view.activity.bookmark.BookmarksComposeActivity"
-            />
         <!-- No android:label: one host serves four clusters, so the window title is set per
              destination via <Cluster>NavDeps.setWindowTitle (nav-graph slices 3/5/6, plan D2).
              The label that used to live here ("@string/ai_settings") was slice 1's M5 fix for

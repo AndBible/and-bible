@@ -34,8 +34,8 @@ import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.Screen
-import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
@@ -569,15 +569,20 @@ class ColorPreference(settings: SettingsBundle): Preference(settings, TextDispla
 
 class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types): Preference(settings, type) {
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val intent = ScreenLauncher.intentFor(activity, Screen.ManageLabels)
         @Suppress("UNCHECKED_CAST")
         val originalValues = value as? List<IdType> ?: emptyList()
 
-        intent.putExtra("data", ManageLabelsContract.ManageLabelsData(
+        // Screen.ManageLabels is deliberately not in ScreenLauncher.MIGRATED (its `data` argument is
+        // required), and the classic ManageLabelsComposeActivity ScreenLauncher.targetFor used to
+        // resolve it to is gone (nav-graph slices 2+4 Task 7), so this builds the nav-host Intent
+        // directly. The "data" extra on the RESULT is unchanged -- NavResultIntents.forManageLabels
+        // still writes it under that key.
+        val data = ManageLabelsContract.ManageLabelsData(
             mode = ManageLabelsContract.Mode.HIDELABELS,
             selectedLabels = originalValues.toMutableSet(),
             isWindow = settings.windowId != null
-        ).applyFrom(windowRepository.workspaceSettings).toJSON())
+        ).applyFrom(windowRepository.workspaceSettings).toJSON()
+        val intent = NavHostComposeActivity.intentFor(activity, NavRoutes.manageLabels(data))
         activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
             if(result.resultCode == Activity.RESULT_OK) {
@@ -599,11 +604,10 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
 class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSettings): GeneralPreference() {
     override val isBoolean = false
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val intent = ScreenLauncher.intentFor(activity, Screen.ManageLabels)
-
-        intent.putExtra("data",
-            ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.WORKSPACE).applyFrom(workspaceSettings).toJSON()
-        )
+        // See HideLabelsPreference.openDialog above for why this bypasses ScreenLauncher.
+        val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.WORKSPACE)
+            .applyFrom(workspaceSettings).toJSON()
+        val intent = NavHostComposeActivity.intentFor(activity, NavRoutes.manageLabels(data))
 
         activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)

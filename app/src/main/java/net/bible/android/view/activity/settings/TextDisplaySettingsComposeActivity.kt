@@ -38,8 +38,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.bible.android.activity.R
 import net.bible.android.database.SettingsBundle
-import net.bible.android.view.Screen
-import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
@@ -82,7 +82,11 @@ import org.koin.android.ext.android.inject
  * classic `ColorSettingsActivity` via `service.colorsBundleJson`/`applyColorsResult`.
  *
  * One classic path is still bridged from here:
- * - BOOKMARKS_HIDELABELS: launches [Screen.ManageLabels] (old or new, via [ScreenLauncher]),
+ * - BOOKMARKS_HIDELABELS: launches the `ManageLabels` nav-graph destination directly (via
+ *   [net.bible.android.view.activity.nav.NavHostComposeActivity.intentFor] +
+ *   [net.bible.sharedcore.nav.NavRoutes.manageLabels] -- `Screen.ManageLabels` stays out of
+ *   `ScreenLauncher.MIGRATED` since its `data` argument is required, and the classic host
+ *   `ScreenLauncher.targetFor` used to resolve it to is gone, nav-graph slices 2+4 Task 7),
  *   reproducing classic `HideLabelsPreference.openDialog`'s payload + the
  *   `windowRepository.workspaceSettings.updateFrom(data)` recent-labels side-effect.
  */
@@ -376,15 +380,17 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
 
     private fun openHideLabels(scope: SettingsScope) {
         val controller = controllerFor(scope)
-        val intent = ScreenLauncher.intentFor(this, Screen.ManageLabels)
-        intent.putExtra(
-            "data",
-            ManageLabelsContract.ManageLabelsData(
-                mode = ManageLabelsContract.Mode.HIDELABELS,
-                selectedLabels = service.currentHideLabelsIds(scope).toMutableSet(),
-                isWindow = scope is SettingsScope.Window,
-            ).applyFrom(windowRepository.workspaceSettings).toJSON(),
-        )
+        // Screen.ManageLabels is deliberately not in ScreenLauncher.MIGRATED (its `data` argument is
+        // required), and the classic ManageLabelsComposeActivity ScreenLauncher.targetFor used to
+        // resolve it to is gone (nav-graph slices 2+4 Task 7), so this builds the nav-host Intent
+        // directly. The "data" extra on the RESULT is unchanged -- NavResultIntents.forManageLabels
+        // still writes it under that key.
+        val data = ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.HIDELABELS,
+            selectedLabels = service.currentHideLabelsIds(scope).toMutableSet(),
+            isWindow = scope is SettingsScope.Window,
+        ).applyFrom(windowRepository.workspaceSettings).toJSON()
+        val intent = NavHostComposeActivity.intentFor(this, NavRoutes.manageLabels(data))
         lifecycleScope.launch(Dispatchers.Main) {
             val result = awaitIntent(intent)
             if (result.resultCode == Activity.RESULT_OK) {
