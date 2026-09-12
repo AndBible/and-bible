@@ -363,6 +363,97 @@ object NavRoutes {
 
     fun cloudDocuments(): String = CLOUD_DOCUMENTS_PATTERN
 
+    // ——— slice 7: reading view, choosers, workspace ———
+    // ARG_WORKSPACE_ID is declared with the AI arguments above and reused here.
+    const val ARG_IS_SCRIPTURE: String = "isScripture"
+    const val ARG_DOCUMENT_TYPE: String = "type"
+    const val ARG_SCOPE_LEVEL: String = "scopeLevel"
+    const val ARG_WINDOW_ID: String = "windowId"
+    const val ARG_START_AT_COLORS: String = "startAtColors"
+    const val ARG_SETTINGS_BUNDLE: String = "settingsBundle"
+
+    /** The reading view itself — the graph's start destination once slice 7 lands. */
+    const val READING: String = "reading"
+    const val CHOOSE_GENERAL_BOOK_KEY: String = "navigation/chooseGeneralBookKey"
+    const val CHOOSE_MAP_KEY: String = "navigation/chooseMapKey"
+    const val CHOOSE_DICTIONARY_WORD: String = "navigation/chooseDictionaryWord"
+    const val WORKSPACE_SELECTOR: String = "workspaces/selector"
+
+    /**
+     * Design §6.1.1: `isScripture` is the ONLY argument this route carries. The classic activity
+     * also took a `navigateToVerse` extra, but its single producer moves to the ref-chooser sheet
+     * this slice, so an argument with no producer would be dead weight a later reader mistakes for
+     * a live contract.
+     */
+    const val GRID_CHOOSE_PASSAGE_PATTERN: String =
+        "navigation/gridChoosePassage?$ARG_IS_SCRIPTURE={$ARG_IS_SCRIPTURE}"
+    const val CHOOSE_DOCUMENT_PATTERN: String =
+        "navigation/chooseDocument?$ARG_DOCUMENT_TYPE={$ARG_DOCUMENT_TYPE}"
+    const val TEXT_DISPLAY_SETTINGS_PATTERN: String =
+        "settings/textDisplay?$ARG_SCOPE_LEVEL={$ARG_SCOPE_LEVEL}" +
+            "&$ARG_WINDOW_ID={$ARG_WINDOW_ID}" +
+            "&$ARG_WORKSPACE_ID={$ARG_WORKSPACE_ID}" +
+            "&$ARG_START_AT_COLORS={$ARG_START_AT_COLORS}" +
+            "&$ARG_SETTINGS_BUNDLE={$ARG_SETTINGS_BUNDLE}"
+
+    /**
+     * A boolean needs no percent-encoding, so this builds its string directly rather than through
+     * [buildRoute] — and it emits the argument even when false, so the route always matches
+     * [GRID_CHOOSE_PASSAGE_PATTERN]'s single-argument shape.
+     */
+    fun gridChoosePassage(isScripture: Boolean = false): String =
+        "navigation/gridChoosePassage?$ARG_IS_SCRIPTURE=$isScripture"
+
+    /** Anything but a literal `true` reads as false — including the unsubstituted pattern. */
+    fun readGridChoosePassage(route: String): Boolean =
+        routeArguments(route)[ARG_IS_SCRIPTURE] == "true"
+
+    fun chooseDocument(type: String? = null): String =
+        buildRoute("navigation/chooseDocument") { optional(ARG_DOCUMENT_TYPE, type) }
+
+    /**
+     * `null` means "no document type was requested" — and, as in [readDailyReading], an EMPTY
+     * value counts as absent, because the navigation library's query-parameter regex does not
+     * match `type=` either.
+     */
+    fun readChooseDocument(route: String): String? =
+        routeArguments(route)[ARG_DOCUMENT_TYPE]?.takeIf { it.isNotEmpty() }?.let(::decodeArg)
+
+    /**
+     * [settingsBundle] is serialized JSON, i.e. free text full of `/`, `"`, `{` and spaces — every
+     * one of which would split or corrupt a route. [buildRoute]'s `optional` runs it through
+     * [encodeArg], so it must NOT be encoded again here.
+     *
+     * [startAtColors] is `required` rather than `optional` so the flag is always present and a
+     * reader never has to distinguish "absent" from "false".
+     */
+    fun textDisplaySettings(
+        scopeLevel: String? = null,
+        windowId: String? = null,
+        workspaceId: String? = null,
+        startAtColors: Boolean = false,
+        settingsBundle: String? = null,
+    ): String = buildRoute("settings/textDisplay") {
+        optional(ARG_SCOPE_LEVEL, scopeLevel)
+        optional(ARG_WINDOW_ID, windowId)
+        optional(ARG_WORKSPACE_ID, workspaceId)
+        required(ARG_START_AT_COLORS, startAtColors.toString())
+        optional(ARG_SETTINGS_BUNDLE, settingsBundle)
+    }
+
+    /**
+     * Splits a built route's query string into raw (still-encoded) values. Parsing by name rather
+     * than by `substringAfter("name=")` so an argument cannot be read out of another whose name
+     * merely ends with the same characters.
+     */
+    private fun routeArguments(route: String): Map<String, String> {
+        val query = route.substringAfter('?', "")
+        if (query.isEmpty()) return emptyMap()
+        return query.split("&")
+            .filter { it.contains('=') }
+            .associate { it.substringBefore('=') to it.substringAfter('=') }
+    }
+
     /**
      * Joins a list into ONE route argument (plan D4). The join happens before [encodeArg] runs over
      * the whole string, so a member containing a comma would still round-trip as two members — that
