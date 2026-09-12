@@ -23,15 +23,19 @@ package net.bible.sharedcore.nav
  * `finishWithMemorizeResult` used to build by hand, and `NavResultIntents.forReadingProgress` is now
  * the only place those `Intent`s are built.
  *
- * The field names are the two host functions' own parameter names (`bookId`/`chapter`,
- * `start`/`end`) rather than [net.bible.sharedcore.progress.ReadingProgressController]'s
- * `onNavigateToMemorize(startOrdinal, endOrdinal)` — the two spellings name the same ordinals, and
- * this type mirrors the RESULT edge, not the controller's own callback signature.
+ * [Chapter]'s field names are the old host function's own parameter names (`bookId`/`chapter`).
+ * [Memorize]'s are `startOrdinal`/`endOrdinal`, NOT the old host function's own `start`/`end`
+ * (fix round 1): three of four naming sources agree on "ordinal" — the `"startOrdinal"`/
+ * `"endOrdinal"` extras keys themselves, the KJVA-ordinal semantics the values carry, and
+ * [net.bible.sharedcore.progress.ReadingProgressController]'s own
+ * `onNavigateToMemorize(startOrdinal, endOrdinal)` — and only the (now-deleted) private host
+ * function's parameter list said otherwise. This is new `commonMain` API iOS will consume, so the
+ * unit belongs in the name.
  */
 sealed interface ReadingProgressResult {
     data class Chapter(val bookId: String, val chapter: Int) : ReadingProgressResult
 
-    data class Memorize(val start: Int, val end: Int) : ReadingProgressResult
+    data class Memorize(val startOrdinal: Int, val endOrdinal: Int) : ReadingProgressResult
 }
 
 // No `@Serializable` anywhere in this file, deliberately. A result is packed into an Intent's

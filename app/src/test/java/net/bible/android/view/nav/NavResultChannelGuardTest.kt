@@ -20,14 +20,7 @@ package net.bible.android.view.nav
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import net.bible.android.TEST_SDK
-import net.bible.android.view.activity.nav.NavResultIntents
-import net.bible.android.view.activity.page.ActivityResultKind
-import net.bible.sharedcore.nav.ReadingProgressResult
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /**
  * Replaces `NavHostRoutingGuardTest.noGraphNavigatesToTheReadingProgressRoute`, deleted in the same
@@ -40,34 +33,78 @@ import org.robolectric.annotation.Config
  * guarding is the opposite: that every result-producing arm goes THROUGH the channel, and no arm
  * quietly grows a second exit-with-result path beside it.
  *
- * `@RunWith(RobolectricTestRunner::class)` -- not for the text-walk tests, which touch no Android
- * type, but for the two `forReadingProgress...` tests below: `android.content.Intent`'s
- * `putExtra`/`getStringExtra` are no-ops under the plain `isReturnDefaultValues` unit-test jar and
- * need Robolectric's shadow to actually round-trip a value (matching
- * `ReadingProgressServiceImplTest`'s reason for the same runner).
+ * **Fix round 1, Findings 1+2.** The original version of this class matched a regex
+ * (`onFinishWithResult|exitWithResult|finishWith[A-Za-z]*Result`) against `:sharedUi` sources --
+ * but none of those identifiers has EVER existed in `:sharedUi`; the two functions this guard was
+ * meant to catch a regression of lived only in `:app` (`NavHostComposeActivity`), which this class
+ * does not scan. That guard could never go red, so it was decorative, not a ratchet. Replaced with a
+ * genuinely POSITIVE guard: [everyNavResultChannelFieldOnADepsClassIsOnlyEverDelivered] discovers
+ * every `NavResultChannel<...>` field declared in `:sharedUi/commonMain` and asserts the ONLY member
+ * access on it, anywhere in a `*NavGraph.kt` file, is `.deliver(`; the anti-vacuity half,
+ * [readingProgressArmActuallyDeliversThroughTheChannel], asserts the wiring this batch actually
+ * added is still present, so the first test cannot pass merely because nobody uses the field at all.
+ *
+ * Dependency-free on purpose (no `@RunWith(RobolectricTestRunner::class)`): every test here is a
+ * plain text walk over `.kt` sources and touches no Android type. The two tests that DO need
+ * Robolectric -- `NavResultIntents.forReadingProgress`'s `Intent` extras -- moved out to
+ * `net.bible.android.view.activity.nav.NavResultIntentsTest` (fix round 1, Finding 3).
  */
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class NavResultChannelGuardTest {
 
     @Test
-    fun noGraphArmExitsWithAResultExceptThroughTheChannel() {
+    fun everyNavResultChannelFieldOnADepsClassIsOnlyEverDelivered() {
+        val fieldDeclaration = Regex("""\bval\s+(\w+)\s*:\s*NavResultChannel<""")
+        val files = navGraphSources().associateWith { withoutComments(it.readText()) }
+
+        val fields = mutableSetOf<String>()
+        for (text in files.values) {
+            fieldDeclaration.findAll(text).forEach { fields += it.groupValues[1] }
+        }
+        assertTrue(
+            fields.isNotEmpty(),
+            "no `NavResultChannel<...>` field was found declared in any *NavGraph.kt -- this guard " +
+                "would pass vacuously",
+        )
+
         val offenders = mutableListOf<String>()
-        for (file in navGraphSources()) {
-            val text = withoutComments(file.readText())
+        for ((file, text) in files) {
             val path = file.path.replace('\\', '/')
-            // A deps slot whose name says it carries a result out of the host, called anywhere
-            // other than as `channel.deliver(...)`, is a second mechanism -- the thing this batch
-            // exists to prevent.
-            Regex("""\b(onFinishWithResult|exitWithResult|finishWith[A-Za-z]*Result)\s*\(""")
-                .findAll(text)
-                .forEach { offenders.add("$path: ${it.value}") }
+            for (field in fields) {
+                // Any member access on the field OTHER than `.deliver(` is a second exit mechanism
+                // beside the channel -- e.g. reading `.pending` directly instead of collecting it,
+                // or calling `.consume()` from an arm rather than letting the channel decide.
+                Regex("""\b${Regex.escape(field)}\.(\w+)""").findAll(text).forEach { m ->
+                    val member = m.groupValues[1]
+                    if (member != "deliver") {
+                        offenders.add("$path: $field.$member")
+                    }
+                }
+            }
         }
         assertEquals(
             emptyList<String>(),
             offenders.sorted(),
-            "a graph arm exits with a result without going through NavResultChannel.deliver. " +
-                "Offenders:\n${offenders.joinToString("\n")}",
+            "a NavResultChannel field is used some way other than `.deliver(...)` -- a second exit " +
+                "path beside the channel. Offenders:\n${offenders.joinToString("\n")}",
+        )
+    }
+
+    /**
+     * The anti-vacuity half: without this, the previous test would pass just as well if
+     * `SettingsNavGraph.kt` stopped calling `.deliver(...)` on `readingProgressResults` entirely --
+     * "used nowhere but `.deliver`" is trivially true of a field used nowhere. This asserts the real
+     * wiring this batch added is actually THERE.
+     */
+    @Test
+    fun readingProgressArmActuallyDeliversThroughTheChannel() {
+        val sources = navGraphSources()
+        val file = sources.firstOrNull { it.name == "SettingsNavGraph.kt" }
+        assertTrue(file != null, "cannot find SettingsNavGraph.kt among ${sources.map { it.path }}")
+        val text = withoutComments(file.readText())
+        assertTrue(
+            text.contains("readingProgressResults.deliver("),
+            "SettingsNavGraph.kt no longer calls readingProgressResults.deliver(...) -- the " +
+                "reading-progress arm's result would silently stop reaching NavResultChannel",
         )
     }
 
@@ -75,32 +112,6 @@ class NavResultChannelGuardTest {
     fun theWalkActuallySeesSource() {
         val total = navGraphSources().sumOf { it.readText().length }
         assertTrue(total > 10_000, "the graph-source walk found almost nothing ($total chars)")
-    }
-
-    /**
-     * Step 7: proves the WIRING rather than the channel branch (unit-tested on
-     * `NavResultChannel` itself) -- that the reading-progress arm's `onResult` and the host's
-     * [NavResultIntents.forReadingProgress] together still produce what
-     * `NavHostComposeActivity.finishWithChapterResult` / `finishWithMemorizeResult` produced by
-     * hand before this batch: the same [ActivityResultKind.EXTRA] tag and the same `"verse"` /
-     * `"action"`/`"startOrdinal"`/`"endOrdinal"` extras.
-     */
-    @Test
-    fun forReadingProgressChapterCarriesTheSameExtrasTheOldFunctionDid() {
-        val intent = NavResultIntents.forReadingProgress(ReadingProgressResult.Chapter("GEN", 1))
-
-        assertEquals(ActivityResultKind.ReadingProgress.name, intent.getStringExtra(ActivityResultKind.EXTRA))
-        assertEquals("Gen.1.1", intent.getStringExtra("verse"))
-    }
-
-    @Test
-    fun forReadingProgressMemorizeCarriesTheSameExtrasTheOldFunctionDid() {
-        val intent = NavResultIntents.forReadingProgress(ReadingProgressResult.Memorize(start = 3, end = 7))
-
-        assertEquals(ActivityResultKind.ReadingProgress.name, intent.getStringExtra(ActivityResultKind.EXTRA))
-        assertEquals("memorize", intent.getStringExtra("action"))
-        assertEquals(3, intent.getIntExtra("startOrdinal", -1))
-        assertEquals(7, intent.getIntExtra("endOrdinal", -1))
     }
 
     private fun navGraphSources(): List<File> {

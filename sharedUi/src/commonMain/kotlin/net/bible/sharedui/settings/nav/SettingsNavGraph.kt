@@ -276,6 +276,14 @@ class SettingsNavDeps(
      * [NavResultChannel]'s own kdoc: it is created by the HOST (`NavHostComposeActivity`) and
      * handed down, never `remember`ed by an arm, because an arm's composition is disposed before a
      * parent could read what it published.
+     *
+     * Today NOTHING collects [NavResultChannel.pending] on this channel, which is correct: reading
+     * progress is only ever a START destination (see `NavHostComposeActivity
+     * .readingProgressControllerFor`'s kdoc), so every result always takes the `exitWithResult`
+     * branch. If a later change ever navigates to `NavRoutes.READING_PROGRESS_PATTERN` from INSIDE
+     * this graph, the new parent arm must collect [NavResultChannel.pending] and act on it FIRST --
+     * otherwise the child pops silently, the parent never applies the chapter/memorize result, and
+     * the user's tap does nothing.
      */
     val readingProgressResults: NavResultChannel<ReadingProgressResult>,
     // — READING PROGRESS SETTINGS —

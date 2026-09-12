@@ -2327,6 +2327,14 @@ class NavHostComposeActivity : ActivityBase() {
         // cycle and classic read `controller.model.value.cycle` off its own `by lazy` field. The
         // callbacks only ever run after construction returns, so a lateinit self-reference is the
         // faithful equivalent of that field.
+        // Unlike `onShowHistory` (repointed every call, through `readingProgressHistorySink`),
+        // `onResult` is captured into the controller ONLY HERE, on first construction, and lives
+        // for the controller's whole host-cached lifetime with no re-pointing. That is safe only
+        // because today's `onResult` closes over STABLE references — the arm's `NavHostController`
+        // and the host's `readingProgressResults` channel field, both of which outlive any single
+        // composition. It must stay that way: a future `onResult` that closed over per-composition
+        // LOCAL state (a `remember`ed value, say) would keep reading a stale snapshot from the
+        // FIRST composition across every re-entry, exactly the bug the history sink exists to avoid.
         lateinit var controller: ReadingProgressController
         controller = ReadingProgressController(
             service = readingProgressService,
@@ -2345,7 +2353,7 @@ class NavHostComposeActivity : ActivityBase() {
                 showChapterHistory(bookId, chapter, controller.model.value.cycle, ::emitReadingProgressHistory)
             },
             initialOverviewActive = CommonUtils.settings.getBoolean("reading_progress_mem_overview", true),
-            onNavigateToMemorize = { start, end -> onResult(ReadingProgressResult.Memorize(start, end)) },
+            onNavigateToMemorize = { startOrdinal, endOrdinal -> onResult(ReadingProgressResult.Memorize(startOrdinal, endOrdinal)) },
             persistOverview = { CommonUtils.settings.setBoolean("reading_progress_mem_overview", it) },
         )
         readingProgressController = controller

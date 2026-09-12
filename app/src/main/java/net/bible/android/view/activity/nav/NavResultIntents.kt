@@ -45,8 +45,8 @@ object NavResultIntents {
         is ReadingProgressResult.Memorize ->
             Intent()
                 .putExtra("action", "memorize")
-                .putExtra("startOrdinal", result.start)
-                .putExtra("endOrdinal", result.end)
+                .putExtra("startOrdinal", result.startOrdinal)
+                .putExtra("endOrdinal", result.endOrdinal)
                 .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ReadingProgress.name)
     }
 }
