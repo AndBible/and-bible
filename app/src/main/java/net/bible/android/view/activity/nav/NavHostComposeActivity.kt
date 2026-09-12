@@ -85,7 +85,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -1196,7 +1195,7 @@ class NavHostComposeActivity : ActivityBase() {
                         ),
                         cloudDocuments = CloudDocumentsDeps(
                             // PER-ENTRY factory (task-8 fix round 1) -- see
-                            // cloudDocumentsControllerRef's kdoc for why a fresh instance every call
+                            // cloudDocumentsEntryRef's kdoc for why a fresh instance every call
                             // (not a host-memoised singleton) is required here.
                             controllerFor = { buildCloudDocumentsController() },
                             title = getString(R.string.document_sync_manage_title),
@@ -5394,62 +5393,100 @@ class NavHostComposeActivity : ActivityBase() {
     // ═══════════════════════════════════════════════════════════════════════════════════════
 
     /**
-     * The CURRENT entry's controller -- task-8 fix round 1. [buildCloudDocumentsController] REASSIGNS
-     * this every time [CloudDocumentsDeps.controllerFor] is called, one per genuine composition
-     * entry, the [CustomRepositoriesDeps.controllerFor] idiom rather than a `by lazy` singleton: this
+     * One CloudDocuments back-stack entry's host-side state: the controller the arm renders, plus
+     * every piece of host scratch state whose lifetime is EXACTLY that controller's -- currently
+     * just [lastPlan]. This is classic's own shape restored: a `CloudDocumentsComposeActivity`
+     * instance WAS one entry, so its `controller by lazy` (`:80-100`) and its `lastPlan` field
+     * (`:78`) were born and died together and neither ever needed pruning. In the nav host ONE
+     * Activity hosts MANY entries, which pulled "per Activity" and "per entry" apart; this class
+     * puts them back together (task-8 fix round 4).
+     *
+     * **Why this, and not the host-lifetime `Map<CloudDocumentsController, SyncPlan>` fix rounds 2
+     * and 3 had:** a map keyed by controller is a container whose lifetime is the HOST's, so every
+     * way an entry can end needs its own pruning path -- and each round closed one and left the next
+     * open (confirm, then explicit dismiss, then "the destination was popped while the Sync-now
+     * sheet was still up", where neither of those ever fires, round 3's one-shot
+     * `syncNowDialog.first { it == null }` watcher waits forever, and the watcher itself -- a
+     * suspended `lifecycleScope` coroutine holding a hard reference -- pins the very controller it
+     * was meant to release). A field on a per-entry object needs no pruning path at all: when the
+     * entry is abandoned the whole object, plan included, becomes garbage as soon as the arm's
+     * composition and any coroutine still working for that entry let go of it.
+     */
+    private class CloudDocumentsEntry {
+        /** Assigned once, immediately after construction, before any of its callbacks can fire. */
+        lateinit var controller: CloudDocumentsController
+
+        /**
+         * Classic's `lastPlan` field (`:78`): the last resolved Sync-now plan, retained so
+         * confirming it dispatches without a second resolve. Set by [cloudDocumentsShowSyncNow],
+         * consumed AND cleared by [handleCloudDocumentsSyncNowConfirm], overwritten by the next
+         * open. Deliberately NOT cleared on dismiss -- classic did not clear it either, the screen
+         * only offers a confirm button while `syncNowDialog` is non-null (so a dismissed sheet has
+         * no path to a confirm without a fresh `showSyncNow` resolving a new plan first), and the
+         * value dies with this entry regardless.
+         */
+        var lastPlan: SyncPlan? = null
+    }
+
+    /**
+     * The CURRENT entry's state -- task-8 fix round 1 (the controller), round 4 (everything else
+     * that is per-entry). [buildCloudDocumentsController] REASSIGNS this every time
+     * [CloudDocumentsDeps.controllerFor] is called, one per genuine composition entry, the
+     * [CustomRepositoriesDeps.controllerFor] idiom rather than a `by lazy` singleton: this
      * destination has TWO distinct entry points (Download's overflow row, Settings' sync row) and no
      * covering child, so a genuine leave-and-reopen within one host session is a real, reachable
      * path, and classic reset every filter/selection/search/arrangement on each such open by getting
      * a fresh Activity and a fresh controller. A singleton would have let all of that silently
      * survive a round trip instead.
      *
-     * **Read ONLY from [cloudDocumentsOpenOrGate]/[cloudDocumentsRefreshFromNetwork], and only ONCE,
-     * synchronously, before either function's first suspension point** -- both capture it into a
-     * local `val controller` immediately and use ONLY that local afterward, INCLUDING inside a
-     * `finally` block (fix round 3: `finally` runs even when the surrounding coroutine is being
-     * CANCELLED, e.g. because the arm's composition was just disposed by a leave-and-reopen, so a
-     * `finally { cloudDocumentsController.pushBusy(false) }` that re-read the property there could
-     * clear busy on a SECOND entry's controller instead of the one that set it true -- capturing once
-     * up front removes the second read entirely, not just delays it). **Composable functions** get
-     * their own composition-time snapshot instead (see [CloudDocumentsOverflowMenu]). Every other
-     * function below that touches a controller does so through an EXPLICIT `controller:
-     * CloudDocumentsController` parameter,
-     * captured once at the point the operation started, never by re-reading this property after a
-     * suspension point or from a callback that can fire later than its origin (task-8 fix round 2,
-     * finding A) -- `lifecycleScope.launch { ... }` is host-Activity-scoped, not cancelled when the
-     * arm's composition is disposed, so a coroutine started by one entry (or an `AlertDialog`
-     * positive-button callback armed by one entry, which can fire arbitrarily later) can easily
-     * resume or fire AFTER a leave-and-reopen has already rebuilt this ref onto a second, DIFFERENT
-     * controller; reading the property at that point would silently misdirect the first entry's
-     * result onto the second entry's live controller. Binding every such callback to the specific
-     * controller it was built for -- the `lateinit var controller` capture in
+     * **Read ONLY from [cloudDocumentsOpenOrGate]/[cloudDocumentsRefreshFromNetwork] (through the
+     * [cloudDocumentsController] accessor below), and only ONCE, synchronously, before either
+     * function's first suspension point** -- both capture it into a local `val controller`
+     * immediately and use ONLY that local afterward, INCLUDING inside a `finally` block (fix round
+     * 3: `finally` runs even when the surrounding coroutine is being CANCELLED, e.g. because the
+     * arm's composition was just disposed by a leave-and-reopen, so a `finally {
+     * cloudDocumentsController.pushBusy(false) }` that re-read the property there could clear busy
+     * on a SECOND entry's controller instead of the one that set it true -- capturing once up front
+     * removes the second read entirely, not just delays it). **Composable functions** get their own
+     * composition-time snapshot instead (see [CloudDocumentsOverflowMenu]). Every other function
+     * below that touches an entry does so through an EXPLICIT `controller: CloudDocumentsController`
+     * (or `entry: CloudDocumentsEntry`) parameter, captured once at the point the operation started,
+     * never by re-reading this property after a suspension point or from a callback that can fire
+     * later than its origin (task-8 fix round 2, finding A) -- `lifecycleScope.launch { ... }` is
+     * host-Activity-scoped, not cancelled when the arm's composition is disposed, so a coroutine
+     * started by one entry (or an `AlertDialog` positive-button callback armed by one entry, which
+     * can fire arbitrarily later) can easily resume or fire AFTER a leave-and-reopen has already
+     * rebuilt this ref onto a second, DIFFERENT entry; reading the property at that point would
+     * silently misdirect the first entry's result onto the second entry's live controller. Binding
+     * every such callback to the specific entry it was built for -- the `entry` capture in
      * [buildCloudDocumentsController] -- makes that misdirection structurally impossible instead of
      * merely unlikely.
      */
-    private var cloudDocumentsControllerRef: CloudDocumentsController? = null
-    private val cloudDocumentsController: CloudDocumentsController
-        get() = requireNotNull(cloudDocumentsControllerRef) {
+    private var cloudDocumentsEntryRef: CloudDocumentsEntry? = null
+    private val cloudDocumentsEntry: CloudDocumentsEntry
+        get() = requireNotNull(cloudDocumentsEntryRef) {
             "CloudDocuments controller read before its destination composed"
         }
+    private val cloudDocumentsController: CloudDocumentsController
+        get() = cloudDocumentsEntry.controller
 
     /**
      * Classic's own `controller by lazy` field (`CloudDocumentsComposeActivity.kt:80-100`), ported as
-     * a PER-ENTRY factory -- see [cloudDocumentsControllerRef]'s kdoc for both halves of why: the
+     * a PER-ENTRY factory -- see [cloudDocumentsEntryRef]'s kdoc for both halves of why: the
      * per-entry rebuild itself, and why every constructor callback below is a LAMBDA closing over the
-     * local `controller` (a `lateinit var`, safe to reference before assignment because none of these
-     * callbacks can fire during construction itself) rather than a bare method reference -- a method
-     * reference is the SAME function for every instance and cannot tell "its own" controller from the
-     * ref's current one, which is exactly the bug fix round 2 closes.
+     * local `entry` (whose `controller` is assigned before any of them can fire) rather than a bare
+     * method reference -- a method reference is the SAME function for every instance and cannot tell
+     * "its own" entry from the ref's current one, which is exactly the bug fix round 2 closes.
      */
     private fun buildCloudDocumentsController(): CloudDocumentsController {
-        lateinit var controller: CloudDocumentsController
-        controller = CloudDocumentsController(
+        val entry = CloudDocumentsEntry()
+        entry.controller = CloudDocumentsController(
             syncEnabled = { DocumentSyncSettings.enabled },
-            onAction = { action, initials -> handleCloudDocumentsAction(controller, action, initials) },
-            onBulkAction = { action, initials -> handleCloudDocumentsBulkAction(controller, action, initials) },
-            onSyncNow = { download, upload, delete -> handleCloudDocumentsSyncNowConfirm(controller, download, upload, delete) },
-            onRescan = { cloudDocumentsRunSyncAction(controller) { DocumentSync.resetListingCache() } },
-            onShowRemovedChange = { show -> handleCloudDocumentsShowRemovedChange(controller, show) },
+            onAction = { action, initials -> handleCloudDocumentsAction(entry.controller, action, initials) },
+            onBulkAction = { action, initials -> handleCloudDocumentsBulkAction(entry.controller, action, initials) },
+            onSyncNow = { download, upload, delete -> handleCloudDocumentsSyncNowConfirm(entry, download, upload, delete) },
+            onRescan = { cloudDocumentsRunSyncAction(entry.controller) { DocumentSync.resetListingCache() } },
+            onShowRemovedChange = { show -> handleCloudDocumentsShowRemovedChange(entry.controller, show) },
             storedArrangement = if (CommonUtils.settings.getBoolean(CLOUD_ARRANGEMENT_REMEMBER_KEY, true))
                 CommonUtils.settings.getString(CLOUD_ARRANGEMENT_KEY, null) else null,
             rememberArrangementInitially = CommonUtils.settings.getBoolean(CLOUD_ARRANGEMENT_REMEMBER_KEY, true),
@@ -5459,24 +5496,15 @@ class NavHostComposeActivity : ActivityBase() {
             },
             scope = lifecycleScope,
         )
-        cloudDocumentsControllerRef = controller
-        return controller
+        cloudDocumentsEntryRef = entry
+        return entry.controller
     }
-
-    /**
-     * Classic's `lastPlan` field (`:78`): the last resolved Sync-now plan, retained so confirming it
-     * dispatches without a second resolve. Task-8 fix round 2: keyed by CONTROLLER INSTANCE (default
-     * `equals`/`hashCode` on a plain class is reference identity, so this is already an identity map)
-     * rather than a single shared field, for [cloudDocumentsControllerRef]'s reason -- a bare shared
-     * field would let one entry's resolved plan answer a LATER entry's confirm.
-     */
-    private val cloudDocumentsLastPlanByController = mutableMapOf<CloudDocumentsController, SyncPlan>()
 
     /**
      * Classic `openOrGate()` in full (`:193-208`) -- see [CloudDocumentsDeps.openOrGate]'s kdoc.
      * A single cache scan serves both the sign-in-gate's emptiness check and the seed, exactly as
      * classic's own `cached` local did. `controller` is captured ONCE, before the sign-in/scan
-     * suspension points, and used for both calls after them -- see [cloudDocumentsControllerRef]'s
+     * suspension points, and used for both calls after them -- see [cloudDocumentsEntryRef]'s
      * kdoc (fix round 3): this function has no `finally`, so a cancellation here simply stops it
      * (the two calls below never run at all rather than running against a stale reference), but the
      * single capture keeps this function's behaviour visibly consistent with every other one below.
@@ -5575,7 +5603,7 @@ class NavHostComposeActivity : ActivityBase() {
     /**
      * Classic `runSyncAction` (`:234-241`), used by [buildCloudDocumentsController]'s `onRescan`.
      * [controller] is the SPECIFIC instance the callback was bound to -- see
-     * [cloudDocumentsControllerRef]'s kdoc (fix round 2, finding A); this also launches on
+     * [cloudDocumentsEntryRef]'s kdoc (fix round 2, finding A); this also launches on
      * `lifecycleScope`, so the same "may resume after a leave-and-reopen" hazard applies.
      */
     private fun cloudDocumentsRunSyncAction(controller: CloudDocumentsController, block: suspend () -> Unit): kotlinx.coroutines.Job = lifecycleScope.launch {
@@ -5691,12 +5719,19 @@ class NavHostComposeActivity : ActivityBase() {
 
     /**
      * Classic `showSyncNow` (`:308-324`), triggered from [CloudDocumentsOverflowMenu]'s "Sync now"
-     * row. [controller] is the OverflowMenu's own composition-time snapshot (see that composable's
-     * kdoc), not [cloudDocumentsController]'s current value -- this launches on `lifecycleScope`
-     * and awaits a network round trip, so a leave-and-reopen could otherwise land the resolved plan
-     * and dialog on the WRONG (second) entry's controller (fix round 2, finding A).
+     * row. [entry] is the OverflowMenu's own composition-time snapshot (see that composable's
+     * kdoc), not [cloudDocumentsEntry]'s current value -- this launches on `lifecycleScope` and
+     * awaits a network round trip, so a leave-and-reopen could otherwise land the resolved plan and
+     * dialog on the WRONG (second) entry's controller (fix round 2, finding A).
+     *
+     * The resolved plan is parked on THAT entry ([CloudDocumentsEntry.lastPlan]), exactly where
+     * classic parked it (a field of the one Activity that was the one entry), so it needs no
+     * cleanup of its own on any of the ways this sheet can end -- confirm, cancel, or the
+     * destination being popped with the sheet still up (task-8 fix round 4; see
+     * [cloudDocumentsEntryRef]'s kdoc for the map-shaped predecessor this replaced and why).
      */
-    private fun cloudDocumentsShowSyncNow(controller: CloudDocumentsController) {
+    private fun cloudDocumentsShowSyncNow(entry: CloudDocumentsEntry) {
+        val controller = entry.controller
         lifecycleScope.launch {
             controller.pushBusy(true)
             val plan = try {
@@ -5707,55 +5742,43 @@ class NavHostComposeActivity : ActivityBase() {
             } finally {
                 controller.pushBusy(false)
             }
-            cloudDocumentsLastPlanByController[controller] = plan
-            val labels = listOf(
-                getString(R.string.cloud_doc_sync_now_download) + "\n" +
-                    cloudDocumentsCountLabel(plan.toDownload.size, plan.downloadBytes),
-                getString(R.string.cloud_doc_sync_now_upload) + "\n" +
-                    cloudDocumentsCountLabel(plan.toUpload.size, plan.uploadBytes),
-                getString(R.string.cloud_doc_sync_now_delete) + "\n" +
-                    cloudDocumentsCountLabel(plan.toUninstall.size, null),
-            )
-            val checked = listOf(
-                DocumentSyncSettings.syncNowDownload, DocumentSyncSettings.syncNowUpload, DocumentSyncSettings.syncNowDelete,
-            )
-            controller.showSyncNow(labels, checked)
-            cloudDocumentsPruneSyncNowPlanOnClose(controller)
+            cloudDocumentsPresentSyncNow(entry, plan)
         }
     }
 
     /**
-     * Task-8 fix round 3, finding 1. [cloudDocumentsLastPlanByController] was pruned only on
-     * CONFIRM (`handleCloudDocumentsSyncNowConfirm`'s own `.remove`); `CloudDocumentsController
-     * .dismissSyncNow()` (wired straight to the screen's cancel button as `controller
-     * ::dismissSyncNow` in `DownloadNavGraph.kt`, with no host callback of its own) only nulls the
-     * controller's `_syncNowDialog` and never told the host, so opening Sync-now and cancelling
-     * pinned one entry plus its resolved `SyncPlan` for the rest of the host Activity's lifetime,
-     * accumulating across open/cancel cycles.
-     *
-     * Fixed by watching, not by adding a callback to [CloudDocumentsController] for it: `syncNowDialog`
-     * is already a `StateFlow` the controller exposes, and BOTH `confirmSyncNow` and `dismissSyncNow`
-     * null it out before returning -- so the FIRST value this sees after showing the dialog is
-     * whichever happens. One-shot and explicit about its own lifetime: `Flow.first` completes (and
-     * this `launch` along with it) the moment that happens, so nothing lingers watching a
-     * closed dialog. Landing on CONFIRM is a harmless no-op re-`remove` of an already-removed entry
-     * (`MutableMap.remove` on a missing key is a no-op); landing on DISMISS is the fix.
+     * The tail of classic's `showSyncNow` (`:316-324`): park the resolved plan on the entry it was
+     * resolved FOR, label it, and put the sheet up. Split out of [cloudDocumentsShowSyncNow] so that
+     * parking decision -- the whole subject of task-8 fix round 4 -- is reachable without the IO
+     * round trip that resolves the plan; `CloudDocumentsControllerRebuildIsolationTest` drives this
+     * directly rather than writing [CloudDocumentsEntry.lastPlan] reflectively, so its "an abandoned
+     * entry pins nothing on the host" assertion is made against the REAL parking path.
      */
-    private fun cloudDocumentsPruneSyncNowPlanOnClose(controller: CloudDocumentsController) {
-        lifecycleScope.launch {
-            controller.syncNowDialog.first { it == null }
-            cloudDocumentsLastPlanByController.remove(controller)
-        }
+    private fun cloudDocumentsPresentSyncNow(entry: CloudDocumentsEntry, plan: SyncPlan) {
+        entry.lastPlan = plan
+        val labels = listOf(
+            getString(R.string.cloud_doc_sync_now_download) + "\n" +
+                cloudDocumentsCountLabel(plan.toDownload.size, plan.downloadBytes),
+            getString(R.string.cloud_doc_sync_now_upload) + "\n" +
+                cloudDocumentsCountLabel(plan.toUpload.size, plan.uploadBytes),
+            getString(R.string.cloud_doc_sync_now_delete) + "\n" +
+                cloudDocumentsCountLabel(plan.toUninstall.size, null),
+        )
+        val checked = listOf(
+            DocumentSyncSettings.syncNowDownload, DocumentSyncSettings.syncNowUpload, DocumentSyncSettings.syncNowDelete,
+        )
+        entry.controller.showSyncNow(labels, checked)
     }
 
     /**
-     * Classic `handleSyncNowConfirm` (`:326-337`). [controller] is the instance
-     * [buildCloudDocumentsController] bound `onSyncNow` to; the resolved plan is looked up (and
-     * consumed) from [cloudDocumentsLastPlanByController] BY that same instance, so a plan resolved
-     * for one entry can never answer another entry's confirm.
+     * Classic `handleSyncNowConfirm` (`:326-337`). [entry] is the one
+     * [buildCloudDocumentsController] bound `onSyncNow` to, and the resolved plan is read (and
+     * cleared) from THAT entry's own [CloudDocumentsEntry.lastPlan], so a plan resolved for one
+     * entry can never answer another entry's confirm.
      */
-    private fun handleCloudDocumentsSyncNowConfirm(controller: CloudDocumentsController, download: Boolean, upload: Boolean, delete: Boolean) {
-        val plan = cloudDocumentsLastPlanByController.remove(controller) ?: return
+    private fun handleCloudDocumentsSyncNowConfirm(entry: CloudDocumentsEntry, download: Boolean, upload: Boolean, delete: Boolean) {
+        val plan = entry.lastPlan ?: return
+        entry.lastPlan = null
         DocumentSyncSettings.syncNowDownload = download
         DocumentSyncSettings.syncNowUpload = upload
         DocumentSyncSettings.syncNowDelete = delete
@@ -5780,26 +5803,28 @@ class NavHostComposeActivity : ActivityBase() {
      * is host work (`R.drawable` icons, `CloudSync.signedIn`, `CommonUtils.showHelpDialog`).
      * `AbMenuItem`, never `DropdownMenuItem`: this file is scanned by `MenuSeamGuardTest`.
      *
-     * [controller] is read ONCE, as a composition-time snapshot of [cloudDocumentsController] --
-     * this composable recomposes fresh for every genuine entry (it is nested inside the arm's own
-     * composition via the `topBarActions` slot), so the snapshot always names the CURRENT entry's
-     * controller. Its `onClick` rows close over that local val, not the live property, so a tap
-     * (which can fire after the menu has been open for a moment) still targets the entry it was
-     * opened from rather than whatever the ref happens to hold at tap time (fix round 2, finding A).
+     * The [CloudDocumentsEntry] is read ONCE, as a composition-time snapshot of
+     * [cloudDocumentsEntry] -- this composable recomposes fresh for every genuine entry (it is
+     * nested inside the arm's own composition via the `topBarActions` slot), so the snapshot always
+     * names the CURRENT entry. Its `onClick` rows close over that local val, not the live property,
+     * so a tap (which can fire after the menu has been open for a moment) still targets the entry it
+     * was opened from rather than whatever the ref happens to hold at tap time (fix round 2,
+     * finding A) -- and "Sync now" parks its resolved plan on that same snapshot, so the plan cannot
+     * outlive the entry it was resolved for (fix round 4).
      */
     @Composable
     private fun CloudDocumentsOverflowMenu() {
-        val controller = cloudDocumentsController
+        val entry = cloudDocumentsEntry
         AbOverflowMenu(contentDescription = null) { close ->
             if (CloudSync.signedIn) {
                 AbMenuItem(
                     text = getString(R.string.cloud_doc_sync_now),
-                    onClick = { close(); cloudDocumentsShowSyncNow(controller) },
+                    onClick = { close(); cloudDocumentsShowSyncNow(entry) },
                     icon = { Icon(painterResource(R.drawable.ic_sync_white_24dp), contentDescription = null) },
                 )
                 AbMenuItem(
                     text = getString(R.string.cloud_doc_rescan),
-                    onClick = { close(); controller.rescan() },
+                    onClick = { close(); entry.controller.rescan() },
                     icon = { Icon(painterResource(R.drawable.ic_baseline_refresh_24), contentDescription = null) },
                 )
             }
