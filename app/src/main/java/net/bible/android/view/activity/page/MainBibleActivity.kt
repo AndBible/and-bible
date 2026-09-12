@@ -491,6 +491,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         ScreenSettings.refreshNightMode()
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
+        // TEMPORARY (slice 7 Task 3 -> Task 6), see onPause. This has to be here and not only in
+        // onResume: `ActivityBase.onCreate`'s FIRST line is `CurrentActivityHolder.activate(this)`,
+        // so the OLD predicate (`currentActivity is MainBibleActivity`) was true for the whole of
+        // onCreate/onStart — and this very method posts AddHistoryItem inside that window, through
+        // the `openLink` deep-link branch below (-> WindowControl.showLink ->
+        // setCurrentDocumentAndKey -> CurrentPageBase.setKey(addHistoryItem = true) ->
+        // ABEventBus.post(AddHistoryItem), and the bus is synchronous). With the flag false there,
+        // createHistoryItem would not merely drop the item: it would fall through to the
+        // `currentActivity is AndBibleActivity` arm — this class IS one, with
+        // integrateWithHistoryManager = true — and record a WRONG IntentHistoryItem carrying the
+        // deep-link intent, whose revertTo() re-starts it. The same window is what keeps goBack()'s
+        // new condition honest after a "Don't keep activities" recreation; see HistoryManager.goBack.
+        ReadingViewVisibility.setVisible(true)
 
         CommonUtils.prepareData()
 
@@ -3007,8 +3020,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         // TEMPORARY (slice 7 Task 3 -> Task 6). HistoryManager now asks ReadingViewVisibility
         // instead of `CurrentActivityHolder.currentActivity is MainBibleActivity` (spec §5.1);
         // while the reading view is still an Activity, this Activity's lifecycle is what drives the
-        // flag. Task 6 moves these three setVisible() calls into the reading destination's
-        // DisposableEffect and deletes them from here.
+        // flag. Task 6 moves these four setVisible() calls (onCreate, onResume, onPause,
+        // onActivityResult) into the reading destination's DisposableEffect and deletes them from
+        // here.
         ReadingViewVisibility.setVisible(false)
         windowControl.windowRepository.saveIntoDb(false)
         paused = true

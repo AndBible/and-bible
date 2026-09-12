@@ -25,11 +25,35 @@ import kotlinx.coroutines.flow.asStateFlow
  *
  * This replaces `CurrentActivityHolder.currentActivity is MainBibleActivity`, which was the only
  * path in `HistoryManager` that produced a `KeyHistoryItem` and therefore the only source of the
- * verse back-stack and of history persistence. The swap is behaviour-neutral: a sheet over the
- * reading view changes neither the Activity (before) nor the destination (after), and a screen over
- * it changes both. See the slice-7 design spec 5.1.
+ * verse back-stack and of history persistence. See the slice-7 design spec 5.1.
  *
- * A sheet is NOT a destination — do not set this false when opening one.
+ * **The swap is not behaviour-neutral by itself — it is made so by WHERE the flag is set.** The old
+ * predicate did not track "resumed": `ActivityBase.onCreate`'s first line is
+ * `CurrentActivityHolder.activate(this)` and the matching `deactivate` is in `onStop`, so the class
+ * check was true from the start of `onCreate` until the reading Activity was stopped or another
+ * Activity was created on top of it. That is why `MainBibleActivity` sets this flag in FOUR places
+ * while the reading view is still an Activity — `onCreate` (deep links posted from `openLink` land
+ * there, before `onResume`), `onResume`, `onPause`, and `onActivityResult` (chooser results are
+ * delivered before `onResume`) — and not in `onResume`/`onPause` alone. Getting `onCreate` wrong is
+ * worse than losing an item: `createHistoryItem` falls through to its
+ * `currentActivity is AndBibleActivity` arm, and `MainBibleActivity` is one, so a WRONG
+ * `IntentHistoryItem` is recorded instead.
+ *
+ * What is genuinely equivalent, once those four call sites are in place, is the part that matters:
+ * a **sheet** over the reading view (search, key chooser, text settings, Speak) changes neither the
+ * Activity (before) nor the destination (after), so the predicate stays true; a **screen** over it
+ * changes both, so it goes false. A sheet is NOT a destination — do not set this false when opening
+ * one.
+ *
+ * The one state where old and new still differ is the reverse of the `onCreate` gap: between
+ * `onPause` and the next Activity's `onCreate` the class check was still true while this flag is
+ * already false. Nothing posts `AddHistoryItem` there, and `goBack()` cannot run there (it is only
+ * reached from a resumed Activity's callbacks), so it is documented rather than papered over.
+ *
+ * TODO(Task 6): when the setter moves into the reading destination's `DisposableEffect`, make this
+ * a depth counter (`enter()`/`exit()`) rather than a boolean — `FLAG_ACTIVITY_MULTIPLE_TASK` can
+ * make a second reading instance real, and then one instance's exit would clear the flag while the
+ * other is still on screen.
  */
 object ReadingViewVisibility {
     private val _isVisible = MutableStateFlow(false)

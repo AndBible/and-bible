@@ -28,7 +28,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.AndBibleActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.database.WorkspaceEntities
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import org.crosswire.jsword.book.Books
@@ -199,9 +198,27 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
 
                     // finish current activity if not the Main screen
                     // Slice 7 / spec §5.3: the condition is now "the reading view is not what the
-                    // user is looking at" (was `currentActivity !is MainBibleActivity`); the two are
-                    // equivalent today. The finish() itself becomes popBackStack() in Task 7, once
-                    // the secondary screens are destinations of one host and there is a host to pop.
+                    // user is looking at" (was `currentActivity !is MainBibleActivity`).
+                    //
+                    // These are NOT equivalent by construction — they agree only because
+                    // `ReadingViewVisibility` is set true from `MainBibleActivity.onCreate`
+                    // onwards, not merely from `onResume`. The state that needs the onCreate
+                    // setter is this one: if the reading Activity was destroyed while a chooser
+                    // was on top ("Don't keep activities" / low memory) and is then recreated,
+                    // `onActivityResult`'s STD_REQUEST_CODE + RESULT_CANCELED path
+                    // (`MainBibleActivity.onActivityResult`, guarded by `currentPage.key == null`)
+                    // calls goBack() BEFORE onResume — and a flag that only went true at onResume
+                    // would finish() the freshly recreated reading Activity, which the old class
+                    // check never did.
+                    //
+                    // The remaining gap is the reverse one and is harmless: between onPause and
+                    // the next Activity's onCreate the old check was still true while the flag is
+                    // already false. goBack() is only reached from an Activity's back-press
+                    // (`ActivityBase`/`MainBibleActivity.onBackPressed`) or from
+                    // `onActivityResult`, and neither callback can run in that window.
+                    //
+                    // The finish() itself becomes popBackStack() in Task 7, once the secondary
+                    // screens are destinations of one host and there is a host to pop.
                     val currentActivity = CurrentActivityHolder.currentActivity
                     if (!ReadingViewVisibility.isVisible) {
                         currentActivity?.finish()
