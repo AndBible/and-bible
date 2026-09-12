@@ -58,6 +58,37 @@ class MenuSeamGuardTest {
         "src/main/java/net/bible/android/view/activity/download/DownloadComposeActivity.kt",
         "src/main/java/net/bible/android/view/activity/navigation/ChooseDocumentComposeActivity.kt",
         "src/main/java/net/bible/android/view/activity/cloud/CloudDocumentsComposeActivity.kt",
+        // The nav host. It carries the label manager's overflow menu (`ManageLabelsActions`, seven
+        // `AbMenuItem` calls) since nav-graph slices 2+4 Task 7 deleted `ManageLabelsComposeActivity`
+        // and moved that menu here. The guard's `migratedFiles` dropped the deleted Activity in the
+        // same task but did not follow the menu to its new home, so for one batch those seven items
+        // were unscanned -- see [preExistingExceptions] for the one site in this file that this
+        // guard cannot hold to the rule yet.
+        "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt",
+    )
+
+    /**
+     * Direct `DropdownMenuItem(` call sites that PREDATE this guard's coverage of their file and are
+     * therefore not failed here, keyed by scanned path and matched on the offending line's exact
+     * trimmed text.
+     *
+     * Exactly one entry, and it names its one subject rather than excusing a file: the `⋮` help menu
+     * of `AiConnectionHelpAction` in the nav host. It was written before `AbMenuItem` existed (it is
+     * present unchanged at the batch base `cfddb559`, where the host had ZERO `AbMenuItem` calls) and
+     * belongs to the AI-settings cluster, not to the bookmark migration that brought this file into
+     * the scan. Converting it is a real change to a different cluster's menu and is left to whoever
+     * owns that work; leaving the whole file unscanned to avoid mentioning it would have hidden seven
+     * menu items that ARE this batch's.
+     *
+     * An exception is a liability, so it is bounded in both directions by
+     * [every_declared_exception_still_matches_exactly_one_line]: it must match exactly one line, so
+     * it can never quietly cover a second offender, and it must keep matching, so it cannot outlive
+     * the site it names.
+     */
+    private val preExistingExceptions: Map<String, List<String>> = mapOf(
+        "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt" to listOf(
+            "DropdownMenuItem(text = { Text(getString(R.string.help)) }, onClick = {",
+        ),
     )
 
     private val directCall = Regex("""\bDropdownMenuItem\s*\(""")
@@ -76,16 +107,42 @@ class MenuSeamGuardTest {
         assertEquals("scanned paths that no longer exist (guard would pass vacuously)", emptyList<String>(), missing)
     }
 
+    /** Every direct `DropdownMenuItem(` call in [path], as `trimmed line text` -> 1-based line number. */
+    private fun directCallSites(path: String): List<Pair<String, Int>> =
+        File(path).readLines().withIndex().mapNotNull { (index, line) ->
+            val trimmed = line.trimStart()
+            val isProse = trimmed.startsWith("import ") || trimmed.startsWith("//") ||
+                trimmed.startsWith("*") || trimmed.startsWith("/*")
+            if (!isProse && directCall.containsMatchIn(line)) trimmed to (index + 1) else null
+        }
+
     @Test
     fun migrated_menus_call_AbMenuItem_not_DropdownMenuItem() {
         val offenders = migratedFiles.flatMap { path ->
-            File(path).readLines().withIndex().mapNotNull { (index, line) ->
-                val trimmed = line.trimStart()
-                val isProse = trimmed.startsWith("import ") || trimmed.startsWith("//") ||
-                    trimmed.startsWith("*") || trimmed.startsWith("/*")
-                if (!isProse && directCall.containsMatchIn(line)) "$path:${index + 1}: $trimmed" else null
-            }
+            val excepted = preExistingExceptions[path].orEmpty()
+            directCallSites(path)
+                .filterNot { (trimmed, _) -> trimmed in excepted }
+                .map { (trimmed, lineNumber) -> "$path:$lineNumber: $trimmed" }
         }
         assertEquals(emptyList<String>(), offenders)
+    }
+
+    /**
+     * The bound on [preExistingExceptions], in both directions. An exception that matched nothing
+     * would be a stale licence sitting in the file waiting to cover some future line; one that
+     * matched twice would already be covering a second site nobody signed off on. Either way the
+     * fix is to edit the exception, not to widen it.
+     */
+    @Test
+    fun every_declared_exception_still_matches_exactly_one_line() {
+        val problems = preExistingExceptions.flatMap { (path, exceptions) ->
+            assertTrue("excepted path is not scanned at all: $path", path in migratedFiles)
+            val sites = directCallSites(path)
+            exceptions.mapNotNull { exception ->
+                val hits = sites.count { (trimmed, _) -> trimmed == exception }
+                if (hits == 1) null else "$path: exception matched $hits lines (expected exactly 1): $exception"
+            }
+        }
+        assertEquals(emptyList<String>(), problems)
     }
 }

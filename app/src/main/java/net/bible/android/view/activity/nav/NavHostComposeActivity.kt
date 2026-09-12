@@ -1054,11 +1054,24 @@ class NavHostComposeActivity : ActivityBase() {
                 // `destinationRequest`'s reason above and for one of their own: both are raised from
                 // the ManageLabels top-bar overflow, which is a `RowScope` slot inside the nav
                 // graph's top app bar — a sheet composed there would be a child of the bar's own
-                // layout. Reading `manageLabelsSession` (a plain field, not state) is safe because
-                // recomposition here is driven by the two booleans, and the session is always set
-                // before either can be true.
-                manageLabelsSession?.second?.let { session ->
-                    if (manageLabelsHelpOpen) {
+                // layout.
+                //
+                // ORDER IS LOAD-BEARING, and this is the correction of a justification that used to
+                // stand here claiming the opposite. The two booleans are read UNCONDITIONALLY, with
+                // the plain-field [manageLabelsSession] looked up INSIDE each branch — never the
+                // other way round. `manageLabelsSession` is NOT snapshot state, so a scope that can
+                // only reach the booleans through a `?.let` on it registers no dependency on them
+                // whenever the field is null at the moment this lambda composes. This lambda
+                // composes ONCE per Activity (NavHost's own recompositions do not invalidate it),
+                // and when the host is launched on `bookmarks` and the user navigates to the label
+                // manager from there (`MenuCommandHandler.kt:207`), the field IS null then — so the
+                // overflow's Help and Export StudyPads items would flip a boolean nobody observes
+                // and open nothing. Reading the state first makes the subscription unconditional;
+                // the plain-field read inside is safe because it runs only when a boolean is true,
+                // and only a LIVE ManageLabels destination's overflow can make one true.
+                // `ManageLabelsOverflowSubscriptionTest` proves both halves — do not re-nest these.
+                if (manageLabelsHelpOpen) {
+                    manageLabelsSession?.second?.let { session ->
                         ManageLabelsHelpDialog(
                             mode = session.controller.mode,
                             title = getString(session.data.titleId),
@@ -1086,39 +1099,42 @@ class NavHostComposeActivity : ActivityBase() {
                             onDismiss = { manageLabelsHelpOpen = false },
                         )
                     }
+                }
 
-                    // Classic `ManageLabelsComposeActivity.kt:218-248` (the export_studypads menu
-                    // handler): a multiselect over every assignable label, then exportStudyPads for
-                    // the chosen ones.
-                    if (manageLabelsExportOpen) {
-                        val exportableLabels = remember(manageLabelsExportOpen) { bookmarkControl.assignableLabels }
-                        AbMultiSelectSheet(
-                            open = true,
-                            title = getString(R.string.export_something, getString(R.string.studypads)),
-                            options = exportableLabels,
-                            selectedIds = emptyList(),
-                            idOf = { it.id.toString() },
-                            labelOf = { it.displayName },
-                            confirmText = getString(R.string.okay),
-                            dismissText = getString(R.string.cancel),
-                            onConfirm = { ids ->
-                                manageLabelsExportOpen = false
-                                val selected = exportableLabels.filter { ids.contains(it.id.toString()) }
-                                if (selected.isNotEmpty()) {
-                                    lifecycleScope.launch(Dispatchers.Main) {
-                                        exportStudyPads(
-                                            this@NavHostComposeActivity,
-                                            *selected.toTypedArray(),
-                                            chooseDestination = ::askDestination,
-                                        )
-                                    }
+                // Classic `ManageLabelsComposeActivity.kt:218-248` (the export_studypads menu
+                // handler): a multiselect over every assignable label, then exportStudyPads for
+                // the chosen ones. The `manageLabelsSession != null` half keeps the old gate ("only
+                // while a label manager is live") without putting the session read in FRONT of the
+                // boolean — see the note above; `&&` short-circuits left to right, so the state is
+                // still read on every composition of this scope.
+                if (manageLabelsExportOpen && manageLabelsSession != null) {
+                    val exportableLabels = remember(manageLabelsExportOpen) { bookmarkControl.assignableLabels }
+                    AbMultiSelectSheet(
+                        open = true,
+                        title = getString(R.string.export_something, getString(R.string.studypads)),
+                        options = exportableLabels,
+                        selectedIds = emptyList(),
+                        idOf = { it.id.toString() },
+                        labelOf = { it.displayName },
+                        confirmText = getString(R.string.okay),
+                        dismissText = getString(R.string.cancel),
+                        onConfirm = { ids ->
+                            manageLabelsExportOpen = false
+                            val selected = exportableLabels.filter { ids.contains(it.id.toString()) }
+                            if (selected.isNotEmpty()) {
+                                lifecycleScope.launch(Dispatchers.Main) {
+                                    exportStudyPads(
+                                        this@NavHostComposeActivity,
+                                        *selected.toTypedArray(),
+                                        chooseDestination = ::askDestination,
+                                    )
                                 }
-                            },
-                            onDismiss = { manageLabelsExportOpen = false },
-                            selectAllText = getString(R.string.select_all),
-                            selectNoneText = getString(R.string.select_none),
-                        )
-                    }
+                            }
+                        },
+                        onDismiss = { manageLabelsExportOpen = false },
+                        selectAllText = getString(R.string.select_all),
+                        selectNoneText = getString(R.string.select_none),
+                    )
                 }
 
                 destinationRequest?.let { req ->

@@ -30,11 +30,17 @@ import net.bible.sharedcore.bookmark.BookmarkRow
 import net.bible.sharedcore.bookmark.BookmarkSortMode
 import net.bible.sharedcore.bookmark.BookmarksController
 import net.bible.sharedcore.bookmark.BookmarksService
+import net.bible.sharedcore.bookmark.LabelEditController
+import net.bible.sharedcore.bookmark.LabelEditService
+import net.bible.sharedcore.bookmark.LabelEditState
 import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsController
 import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
+import net.bible.sharedcore.bookmark.OverrideMode
+import net.bible.sharedcore.bookmark.SearchMode
+import net.bible.sharedcore.bookmark.LabelEditResult as CoreLabelEditResult
 import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
@@ -119,6 +125,31 @@ class BookmarksInGraphResultTest {
     /** The label manager's own delivery lambda — `deps.manageLabelsResults.deliver(navController, …)`. */
     private var deliverManageLabelsResult: ((ManageLabelsResult) -> Unit)? = null
 
+    /** The arm's `navController.navigate(NavRoutes.labelEdit(payload))`, captured the same way. */
+    private var navigateToLabelEdit: ((String) -> Unit)? = null
+
+    /**
+     * The live `ManageLabelsController`s, MEMOISED ON THE PAYLOAD — which is not a convenience but a
+     * faithfulness requirement. The real host memoises them the same way
+     * (`NavHostComposeActivity.manageLabelsSession`, keyed on the route's data), precisely so the
+     * label manager's working set survives the editor sitting on top of its destination. A test
+     * factory that minted a fresh controller per composition would hand every "did the state
+     * survive?" assertion a brand-new object to be satisfied by, and pass no matter what the arm did.
+     */
+    private val manageLabelsControllers = mutableMapOf<String, ManageLabelsController>()
+
+    /** The controller for the most recent payload, so a test can read and drive its search mode. */
+    private var manageLabelsController: ManageLabelsController? = null
+
+    /** The channel the label manager delivers through, so a test can inspect what it published. */
+    private lateinit var manageLabelsChannel: NavResultChannel<ManageLabelsResult>
+
+    /** How often the arm asked the host for the persisted search-mode setting. */
+    private var searchModeSeedReads = 0
+
+    /** The editor's `controller.save()`, captured so a test can finish the editor the way a user does. */
+    private var saveLabelEdit: (() -> Unit)? = null
+
     private var exitHostCalls = 0
 
     /**
@@ -131,11 +162,39 @@ class BookmarksInGraphResultTest {
 
     private lateinit var navController: NavHostController
 
-    private fun deps(): BookmarkNavDeps = BookmarkNavDeps(
+    /**
+     * A label the editor arm can be built around. Its CONTENT is irrelevant to every test here —
+     * what matters is that a second destination really composes on top of `ManageLabels`, which is
+     * what disposes the parent arm's composition.
+     */
+    private fun labelEditState() = LabelEditState(
+        labelId = "L1",
+        name = "Grace",
+        color = 0,
+        customIcon = null,
+        selectionStyle = BookmarkDisplayStyle.HIGHLIGHT,
+        wholeVerseStyle = null,
+        favourite = false,
+        isAssigning = false,
+        thisBookmarkSelected = false,
+        thisBookmarkPrimary = false,
+        hasWorkspaceContext = false,
+        autoAssign = false,
+        autoAssignPrimary = false,
+        overrideMode = OverrideMode.NONE,
+        isSpecialLabel = false,
+        isSpeakLabel = false,
+    )
+
+    private fun deps(
+        manageLabelsMode: ManageLabelsMode = ManageLabelsMode.WORKSPACE,
+        initialSearchMode: () -> Int = { 0 },
+    ): BookmarkNavDeps = BookmarkNavDeps(
         exitHost = { exitHostCalls++ },
         setWindowTitle = {},
         bookmarkResults = NavResultChannel<BookmarkResult> { channelExitWithResultCalls++ },
-        manageLabelsResults = NavResultChannel<ManageLabelsResult> { channelExitWithResultCalls++ },
+        manageLabelsResults = NavResultChannel<ManageLabelsResult> { channelExitWithResultCalls++ }
+            .also { manageLabelsChannel = it },
         labelEditResults = NavResultChannel<LabelEditResult> { channelExitWithResultCalls++ },
         bookmarks = BookmarksDeps(
             controllerFor = { initialFilterIndex, onSelectBookmark, navigate ->
@@ -161,32 +220,57 @@ class BookmarksInGraphResultTest {
             subscribeSyncEvents = { { } },
         ),
         manageLabels = ManageLabelsDeps(
-            controllerFor = { _, _, onResult ->
+            controllerFor = { data, onEditLabel, onResult ->
                 deliverManageLabelsResult = onResult
-                ManageLabelsController(
-                    mode = ManageLabelsMode.WORKSPACE,
-                    service = FakeManageLabelsService(),
-                    scope = scope,
-                    initialSelected = emptySet(),
-                    initialAutoAssign = emptySet(),
-                    initialAutoAssignPrimary = null,
-                    initialBookmarkPrimary = null,
-                    highlightLabelId = null,
-                    onEditLabel = {},
-                    onSelectStudyPad = { _, _ -> },
-                    onSave = {},
-                    onReset = {},
-                )
+                navigateToLabelEdit = onEditLabel
+                manageLabelsControllers.getOrPut(data) {
+                    ManageLabelsController(
+                        mode = manageLabelsMode,
+                        service = FakeManageLabelsService(),
+                        scope = scope,
+                        initialSelected = emptySet(),
+                        initialAutoAssign = emptySet(),
+                        initialAutoAssignPrimary = null,
+                        initialBookmarkPrimary = null,
+                        highlightLabelId = null,
+                        // The host's own shape: the controller reports a nullable label id (null =
+                        // "new"), the host turns it into a payload, the graph turns THAT into a route.
+                        onEditLabel = { id -> onEditLabel(id ?: "new") },
+                        onSelectStudyPad = { _, _ -> },
+                        onSave = {},
+                        onReset = {},
+                    )
+                }.also { manageLabelsController = it }
             },
             titleFor = { "Labels" },
             onLabelEditResult = {},
-            initialSearchMode = { 0 },
+            initialSearchMode = { searchModeSeedReads++; initialSearchMode() },
             iconSlot = { _, _, _ -> },
             actions = { },
             searchActions = { },
         ),
         labelEdit = LabelEditDeps(
-            controllerFor = { _, _ -> error("the label editor is not part of this test") },
+            // A REAL controller, unlike the `error(...)` stub this started as: the editor has to
+            // actually compose for the round trip the search-mode test drives, since what disposes
+            // the ManageLabels arm's composition is a second destination being on top of it.
+            controllerFor = { _, onResult ->
+                LabelEditController(
+                    initial = labelEditState(),
+                    service = object : LabelEditService {
+                        override fun orphanedBookmarkCount(labelId: String): Int = 0
+                    },
+                    scope = scope,
+                    onFinish = { outcome ->
+                        onResult(
+                            when (outcome) {
+                                is CoreLabelEditResult.Save -> LabelEditResult.Saved("saved")
+                                is CoreLabelEditResult.Delete -> LabelEditResult.Saved("deleted")
+                                CoreLabelEditResult.Cancel -> LabelEditResult.Cancelled
+                            },
+                        )
+                    },
+                ).also { saveLabelEdit = it::save }
+            },
             title = "Edit label",
             iconKeys = emptyList(),
             iconSlot = { _, _ -> },
@@ -196,13 +280,15 @@ class BookmarksInGraphResultTest {
         ),
     )
 
-    private fun setGraph() {
-        val d = deps()
+    private fun setGraph(
+        d: BookmarkNavDeps = deps(),
+        startDestination: String = NavRoutes.bookmarks(),
+    ) {
         compose.setContent {
             navController = rememberNavController()
             ProvideAppLocals {
                 AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
-                    NavHost(navController = navController, startDestination = NavRoutes.bookmarks()) {
+                    NavHost(navController = navController, startDestination = startDestination) {
                         bookmarkNavGraph(navController, d)
                     }
                 }
@@ -324,5 +410,101 @@ class BookmarksInGraphResultTest {
 
         assertTrue(seen.isNotEmpty(), "the ManageLabels arm never built a controller")
         assertEquals(payload, seen.single())
+    }
+
+    /**
+     * [NavResultChannel]'s OTHER branch, end to end — the one every EXTERNAL entry into `ManageLabels`
+     * takes, and the one nothing in this suite could see until this test.
+     *
+     * Six rewritten production call sites reach the label manager as the host's START destination
+     * (`MenuCommandHandler`, both `OptionsMenuItems` preferences, `BibleView.assignLabels`,
+     * `CurrentGeneralBookPage`, `TextDisplaySettingsComposeActivity`). With no parent entry on the
+     * stack, `deliver` must `exitWithResult` — the host's `setResult` + `finish`. The derivation that
+     * decides this, `navController.previousBackStackEntry != null`, had NO test: `NavResultChannelTest`
+     * exercises the boolean-consuming function with a boolean handed to it, and the three tests above
+     * only ever drive the in-graph branch. Mutating that one property to `currentBackStackEntry`
+     * (never null) would have turned all six live call sites into silent `RESULT_CANCELED` no-ops with
+     * the whole suite still green.
+     */
+    @Test
+    fun aManageLabelsResultProducedAsTheStartDestinationExitsTheHost() {
+        val payload = """{"mode":"WORKSPACE"}"""
+        setGraph(startDestination = NavRoutes.manageLabels(payload))
+        assertEquals(NavRoutes.MANAGE_LABELS_PATTERN, currentRoute)
+
+        compose.runOnIdle { assertNotNull(deliverManageLabelsResult)(ManageLabelsResult("""{"selected":[]}""")) }
+        compose.waitForIdle()
+
+        assertEquals(
+            1,
+            channelExitWithResultCalls,
+            "deliver() did not take its EXIT branch. As the START destination there is no parent " +
+                "entry, so the result must leave through exitWithResult (setResult + finish) — " +
+                "publishing it in-graph instead is what every external caller would silently lose",
+        )
+        assertTrue(appliedResults.isEmpty(), "nothing may be applied in-graph: appliedResults=$appliedResults")
+        assertEquals(0, exitHostCalls, "the exit must carry the RESULT, not be a bare deps.exitHost()")
+
+        // THE assertion of this test, and the one the obvious pair above cannot make. `deliver`'s
+        // publish-then-pop branch FALLS THROUGH to exitWithResult when the pop fails (plan D2), and
+        // popping the start destination does fail -- so a `hasParentEntry` that wrongly says "true"
+        // here still ends at exitWithResult, with the count at 1 and appliedResults empty, and both
+        // assertions above pass. What it cannot undo is the publish it made on the way: `pending`
+        // is left holding a result nobody will ever consume. That residue is the only visible
+        // difference between the right branch and the wrong one taken twice.
+        assertEquals(
+            null,
+            manageLabelsChannel.pending.value,
+            "deliver() published to pending before falling through to the exit: it took the IN-GRAPH " +
+                "branch and only reached exitWithResult because popping the start destination failed",
+        )
+    }
+
+    /**
+     * The StudyPad search mode the user chose must survive the label-editor round trip.
+     *
+     * The arm seeds the controller's search mode from the persisted setting in a `LaunchedEffect`,
+     * and its composition is DISPOSED while the editor sits on top of it — so the effect runs again
+     * on the way back. Seeding must therefore be gated on "have we seeded at all", not on "do we know
+     * the seed value": the earlier `persistedSearchMode` remembered only the VALUE, which stopped the
+     * setting being re-READ but not the original seed being re-APPLIED over a mode the user had
+     * changed since. Four taps reproduced it (StudyPads → switch to CONTENT → open the editor → save)
+     * and the mode flipped back to NAME_START, `dispatchSearchOrRebuild`ing the visible result set
+     * with it.
+     *
+     * STUDYPAD mode because that is the only mode the seeding runs in at all.
+     */
+    @Test
+    fun theStudyPadSearchModeSurvivesTheLabelEditorRoundTrip() {
+        setGraph(
+            d = deps(
+                manageLabelsMode = ManageLabelsMode.STUDYPAD,
+                initialSearchMode = { SearchMode.NAME_START.ordinal },
+            ),
+        )
+        compose.runOnIdle { assertNotNull(navigateToManageLabels)("""{"mode":"STUDYPAD"}""") }
+        compose.waitForIdle()
+
+        val controller = assertNotNull(manageLabelsController)
+        assertEquals(SearchMode.NAME_START, controller.searchMode.value, "the arm never seeded the mode")
+        assertEquals(1, searchModeSeedReads)
+
+        compose.runOnIdle { controller.setSearchMode(SearchMode.CONTENT) }
+        compose.waitForIdle()
+
+        compose.runOnIdle { assertNotNull(navigateToLabelEdit)("""{"id":"L1"}""") }
+        compose.waitForIdle()
+        assertEquals(NavRoutes.LABEL_EDIT_PATTERN, currentRoute)
+
+        compose.runOnIdle { assertNotNull(saveLabelEdit)() }
+        compose.waitForIdle()
+        assertEquals(NavRoutes.MANAGE_LABELS_PATTERN, currentRoute)
+
+        assertEquals(
+            SearchMode.CONTENT,
+            controller.searchMode.value,
+            "returning from the editor re-applied the ORIGINAL seed over the mode the user chose",
+        )
+        assertEquals(1, searchModeSeedReads, "the setting was re-read on the way back")
     }
 }

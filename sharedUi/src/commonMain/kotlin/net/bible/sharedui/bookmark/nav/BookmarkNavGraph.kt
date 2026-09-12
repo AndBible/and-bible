@@ -326,17 +326,28 @@ class BookmarkNavDeps(
      */
     val manageLabelsResults: NavResultChannel<ManageLabelsResult>,
     /**
-     * How the label EDITOR hands back its result, in either of the two ways it can be entered -- see
-     * [NavResultChannel]'s own kdoc.
+     * How the label EDITOR hands back its result -- see [NavResultChannel]'s own kdoc for the two
+     * branches the channel can take.
      *
-     * Both branches are real for this destination, which is why it gets a channel rather than a
-     * parent-supplied lambda: the label manager navigates to it from INSIDE this graph (publish and
-     * pop), and `ScreenLauncher`'s six-plus classic callers reach it as the host's START destination
-     * (exit the host with the result). **The `MANAGE_LABELS_PATTERN` arm is what collects
-     * [NavResultChannel.pending] here** -- the first and so far only parent in any of these graphs.
-     * Without that collection an edit made from inside the graph would pop with the user's changes
-     * silently dropped, and no test outside `NavResultChannelGuardTest` would notice, because every
-     * other path into the editor still takes the exit branch.
+     * **Only the IN-GRAPH branch is reachable for this destination today.** The editor is entered
+     * from exactly one place, the `MANAGE_LABELS_PATTERN` arm's `navigate(NavRoutes.labelEdit(...))`
+     * -- the only production call of `NavRoutes.labelEdit(` there is -- and `ScreenLauncher` routes
+     * `Screen.LabelEdit` to the throwing `targetForMigratedScreen`, so no classic caller can make it
+     * a start destination. (An earlier version of this kdoc claimed "six-plus classic callers" here;
+     * those six are the label MANAGER's, not the editor's, and at BASE `Screen.LabelEdit` had a
+     * single launcher -- `ManageLabelsComposeActivity`, i.e. the in-graph parent itself.)
+     *
+     * The consequence, stated rather than implied: this channel's `exitWithResult` lambda and
+     * `NavResultIntents.forLabelEdit`'s `ActivityResult` return type are NOT reachable in
+     * production. Both are kept -- they are the destination's other half if a classic caller is ever
+     * pointed at it, they cost nothing, and both are covered by tests -- but nothing outside a test
+     * runs them.
+     *
+     * It is still a channel rather than a parent-supplied lambda because which branch to take is
+     * [NavResultChannel.deliver]'s decision at runtime, not a destination's own knowledge of who
+     * opened it. **The `MANAGE_LABELS_PATTERN` arm is what collects [NavResultChannel.pending]
+     * here** -- the first and so far only parent in any of these graphs. Without that collection an
+     * edit would pop with the user's changes silently dropped.
      */
     val labelEditResults: NavResultChannel<NavLabelEditResult>,
     // — BOOKMARKS —
@@ -598,13 +609,21 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
         //
         // rememberSaveable, NOT remember: this arm's composition is DISPOSED while the label editor
         // sits on top of it (the reason SettingsNavGraph's search filter is saveable too), so a
-        // plain remember would re-read the setting and re-seed the controller on every return from
-        // the editor -- overwriting a mode the user changed since. `null` means "not seeded yet".
-        var persistedSearchMode by rememberSaveable { mutableStateOf<Int?>(null) }
+        // plain remember would re-seed the controller on every return from the editor.
+        //
+        // The flag is "have we seeded AT ALL", not "do we know the seed VALUE", and that distinction
+        // is the whole of it. Remembering the value only stops the SETTING being re-READ; the effect
+        // still re-ran on every return and re-APPLIED the original seed over a mode the user had
+        // changed since -- four taps in STUDYPAD mode (open StudyPads, switch to CONTENT, open the
+        // editor from the search bar's +, come back) and the mode silently flipped to NAME_START,
+        // taking the visible result set with it. The controller is the live owner of the mode once
+        // it has been seeded; this effect's whole job is the FIRST application, so it must run at
+        // most once per destination.
+        var seeded by rememberSaveable { mutableStateOf(false) }
         LaunchedEffect(controller) {
-            if (!isStudyPad) return@LaunchedEffect
-            val seed = persistedSearchMode ?: d.initialSearchMode().also { persistedSearchMode = it }
-            val mode = SearchMode.entries.getOrElse(seed) { SearchMode.NAME_START }
+            if (!isStudyPad || seeded) return@LaunchedEffect
+            seeded = true
+            val mode = SearchMode.entries.getOrElse(d.initialSearchMode()) { SearchMode.NAME_START }
             // Guarded because setSearchMode re-dispatches the search; classic could seed
             // unconditionally only because it ran once, before the first collection.
             if (controller.searchMode.value != mode) controller.setSearchMode(mode)

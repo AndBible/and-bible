@@ -845,6 +845,59 @@ class NavHostRoutingGuardTest {
     }
 
     /**
+     * The graph half of the guard that `noGraphNavigatesToTheReadingProgressRoute` used to be, for
+     * the destination that now has that shape. Nav-graph slices 2+4 Task 2 deleted that test when
+     * `ReadingProgress` moved onto [NavResultChannel] and no longer needed it -- correctly, per its
+     * own kdoc -- but nothing was left forbidding in-graph navigation to a root destination whose
+     * channel has NO consumer, and `BOOKMARKS_PATTERN` is exactly that destination now.
+     *
+     * The mechanism, stated in `BookmarkNavGraph`'s own comment at the bookmarks arm: nothing reads
+     * `deps.bookmarkResults.pending`. So if bookmarks were ever pushed onto a NON-EMPTY back stack
+     * -- and the host's `onNewIntent` -> `navigateToRoute` always PUSHES, it never replaces -- then
+     * `deliver` would see a parent entry, publish the row the user tapped to a flow nobody reads,
+     * pop, and do nothing at all. A silently dropped selection, from one added `navigate(` row.
+     *
+     * Unreachable today: the only inbound edge is `MenuCommandHandler.kt:207`, which launches the
+     * host WITH bookmarks as its start destination, so there is never a parent entry.
+     *
+     * **A slice that genuinely needs an in-graph edge into bookmarks must first add the consuming
+     * `LaunchedEffect` to the parent arm -- the shape the `manageLabelsResults` consumption in
+     * `BookmarkNavGraph` already uses -- and then DELETE this test as part of that change. Not
+     * loosen it, not add an exception to it.**
+     */
+    @Test
+    fun noGraphNavigatesToTheBookmarksRoute() {
+        val offenders = mutableListOf<String>()
+        for (file in navGraphSources()) {
+            val text = withoutComments(file.readText())
+            val path = file.path.replace('\\', '/')
+            var searchFrom = 0
+            while (true) {
+                val callStart = text.indexOf(NAVIGATE_CALL_MARKER, searchFrom)
+                if (callStart < 0) break
+                val openParenIndex = callStart + NAVIGATE_CALL_MARKER.length - 1
+                val closeParenIndex = matchingParenIndex(text, openParenIndex) ?: break
+                searchFrom = closeParenIndex + 1
+                val argsText = text.substring(openParenIndex + 1, closeParenIndex)
+                // The pattern constant, or the builder that produces a route matching it.
+                if (Regex("""NavRoutes\.BOOKMARKS_PATTERN\b""").containsMatchIn(argsText) ||
+                    Regex("""NavRoutes\.bookmarks\s*\(""").containsMatchIn(argsText)
+                ) {
+                    offenders.add("$path: navigate(${argsText.trim()})")
+                }
+            }
+        }
+        assertEquals(
+            emptyList<String>(),
+            offenders.sorted(),
+            "a graph navigates to the bookmarks route from inside the host. Nothing consumes " +
+                "bookmarkResults.pending, so the row the user taps would be published to a flow " +
+                "nobody reads and silently dropped -- see this test's kdoc. Offenders:\n" +
+                offenders.joinToString("\n"),
+        )
+    }
+
+    /**
      * Every `*NavGraph.kt` in `:sharedUi`'s `commonMain`. Globbed rather than listed so the slices
      * still queued behind this batch are covered the moment their graph file lands, instead of being
      * silently skipped by a hard-coded list nobody remembers to extend.
@@ -909,6 +962,9 @@ class NavHostRoutingGuardTest {
         const val NAV_HOST_CALL_MARKER = "NavHostComposeActivity.intentFor("
 
         val INTENT_FOR_CALL_MARKERS = listOf(SCREEN_LAUNCHER_CALL_MARKER, NAV_HOST_CALL_MARKER)
+
+        /** `navController.navigate(`, matched by its bare tail -- see [noGraphNavigatesToTheBookmarksRoute]. */
+        const val NAVIGATE_CALL_MARKER = "navigate("
 
         /** See [migratedScreenArgumentIsNeverDroppedByAPutExtra]'s kdoc, the assignment shape's known bound. */
         const val ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS = 600
