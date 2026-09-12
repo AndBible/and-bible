@@ -30,6 +30,7 @@ import net.bible.android.view.activity.base.AndBibleActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.database.WorkspaceEntities
+import net.bible.sharedcore.reading.ReadingViewVisibility
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
@@ -153,7 +154,11 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
         if (intent != null) {
             val title = intent.getStringExtra("description")?: "-"
             historyItem = IntentHistoryItem(title, intent, window)
-        } else if (currentActivity is MainBibleActivity) {
+        } else if (ReadingViewVisibility.isVisible) {
+            // Slice 7 / spec §5.1: was `currentActivity is MainBibleActivity`. This is the ONLY
+            // branch that produces a KeyHistoryItem — the verse back-stack and the only item type
+            // getEntities()/restoreFrom() persist — so it must be anchored on "the reading view is
+            // what the user is looking at" rather than on which Activity class is on top.
             val currentPage = window.pageManager.currentPage
             val doc = currentPage.currentDocument
             if (currentPage.key == null) {
@@ -193,8 +198,12 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
                     previousItem.revertTo()
 
                     // finish current activity if not the Main screen
+                    // Slice 7 / spec §5.3: the condition is now "the reading view is not what the
+                    // user is looking at" (was `currentActivity !is MainBibleActivity`); the two are
+                    // equivalent today. The finish() itself becomes popBackStack() in Task 7, once
+                    // the secondary screens are destinations of one host and there is a host to pop.
                     val currentActivity = CurrentActivityHolder.currentActivity
-                    if (currentActivity !is MainBibleActivity) {
+                    if (!ReadingViewVisibility.isVisible) {
                         currentActivity?.finish()
                     }
                 }

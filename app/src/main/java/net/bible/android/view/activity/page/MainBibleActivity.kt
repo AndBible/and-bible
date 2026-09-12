@@ -175,6 +175,7 @@ import net.bible.sharedcore.reading.QuickDocAction
 import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.QuickDocPicker
 import net.bible.sharedcore.reading.QuickDocRow
+import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.textSettingEditorPageFor
@@ -2814,6 +2815,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
                 STD_REQUEST_CODE -> {
                     CurrentActivityHolder.activate(this) // needed because startKeyChooser is using this
+                    // TEMPORARY (slice 7 Task 3 -> Task 6), see onPause. onActivityResult runs
+                    // BEFORE onResume, and the chooser results handled below call setKey(…,
+                    // addHistoryItem = true) / setCurrentDocument(…), which post AddHistoryItem.
+                    // The activate() above exists so the OLD predicate is true for exactly those
+                    // posts; this line keeps the NEW predicate true at the same moment, so the
+                    // swap really is behaviour-neutral while the reading view is still an Activity.
+                    ReadingViewVisibility.setVisible(true)
                     when (val kind = ActivityResultKind.fromExtra(extras.getString(ActivityResultKind.EXTRA))) {
                         null -> {}
                         ActivityResultKind.ChooseDocument -> {
@@ -3000,6 +3008,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private var paused = false
     override fun onPause() {
+        // TEMPORARY (slice 7 Task 3 -> Task 6). HistoryManager now asks ReadingViewVisibility
+        // instead of `CurrentActivityHolder.currentActivity is MainBibleActivity` (spec §5.1);
+        // while the reading view is still an Activity, this Activity's lifecycle is what drives the
+        // flag. Task 6 moves these three setVisible() calls into the reading destination's
+        // DisposableEffect and deletes them from here.
+        ReadingViewVisibility.setVisible(false)
         windowControl.windowRepository.saveIntoDb(false)
         paused = true
         fullScreen = false
@@ -3011,6 +3025,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onResume() {
+        // TEMPORARY (slice 7 Task 3 -> Task 6), see onPause.
+        ReadingViewVisibility.setVisible(true)
         paused = false
         var needRefresh = false
         if(windowControl.windowRepository != windowRepository) {
