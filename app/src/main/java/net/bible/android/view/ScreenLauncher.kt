@@ -194,6 +194,14 @@ object ScreenLauncher {
         // ScreenLauncher.open(ctx, Screen.CustomRepositoryEditor) has no such context, so it stays
         // absent here and falls through to targetFor instead.
         Screen.CustomRepositories to NavRoutes.customRepositories(),
+        // — nav-graph slice 4, Task 4: the notification-launched progress screen —
+        // The ARGUMENT-FREE progress-status route, correctly so: classic
+        // ProgressStatusComposeActivity read no extras at all, and its only inbound edge --
+        // ProgressNotificationManager's getActivity PendingIntent -- cannot carry one either. This
+        // is the whole point of the seam: intentFor now returns a nav-host Intent carrying
+        // EXTRA_ROUTE instead of an Intent naming the classic Activity directly, with no change to
+        // ProgressNotificationManager itself.
+        Screen.ProgressStatus to NavRoutes.progressStatus(),
     )
 
     /** The Activity class implementing [screen]. */
@@ -264,11 +272,12 @@ object ScreenLauncher {
      * [MIGRATED] because an argument-free route for them would render an empty screen with nothing
      * to show (the first four) or because the argument is required and non-null (the label pair,
      * whose `data`/`ManageLabelsData` payload has no meaningful empty default), so reaching one by a
-     * bare [Screen] throws here instead. ([MIGRATED] has 21 entries now, not 20: nav-graph slice 4
-     * Task 3 added `Screen.CustomRepositories`, whose [targetFor] arm still returns the real
-     * `CustomRepositoriesComposeActivity` class rather than calling this function -- that class is
-     * not deleted until Task 9, so it is not yet one of the 20 this paragraph describes. The other
-     * 20 entries ARE exactly these 20 screens, since every one of them is graph-only.) The
+     * bare [Screen] throws here instead. ([MIGRATED] has 22 entries now, not 20: nav-graph slice 4
+     * Task 3 added `Screen.CustomRepositories` and Task 4 added `Screen.ProgressStatus`, whose
+     * [targetFor] arms still return the real `CustomRepositoriesComposeActivity` /
+     * `ProgressStatusComposeActivity` classes rather than calling this function -- those classes are
+     * not deleted until Task 9, so they are not yet two of the 20 this paragraph describes. The
+     * other 20 entries ARE exactly these 20 screens, since every one of them is graph-only.) The
      * label pair's six outside callers (`MenuCommandHandler`, `OptionsMenuItems` x2, `BibleView`,
      * `CurrentGeneralBookPage`, `TextDisplaySettingsComposeActivity`) build
      * `NavHostComposeActivity.intentFor(context, NavRoutes.manageLabels(data))` directly instead of

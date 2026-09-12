@@ -244,6 +244,7 @@ import net.bible.sharedui.bookmark.nav.bookmarkNavGraph
 import net.bible.sharedui.download.nav.CustomRepositoriesDeps
 import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
 import net.bible.sharedui.download.nav.DownloadNavDeps
+import net.bible.sharedui.download.nav.ProgressStatusDeps
 import net.bible.sharedui.download.nav.downloadNavGraph
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbActionSheet
@@ -1067,6 +1068,17 @@ class NavHostComposeActivity : ActivityBase() {
                             title = getString(R.string.custom_repositories),
                             initialFor = { id -> customRepositoryEditorInitialFor(id) },
                             readClipboard = { readCustomRepositoryClipboard() },
+                        ),
+                        progressStatus = ProgressStatusDeps(
+                            title = getString(R.string.progress_status),
+                            // Classic ProgressStatusComposeActivity.kt:84, a suspend call: the host
+                            // owns the scope so the graph's deps slot can stay a plain () -> Unit.
+                            requestNotificationPermission = {
+                                lifecycleScope.launch {
+                                    CommonUtils.requestNotificationPermission(this@NavHostComposeActivity)
+                                }
+                            },
+                            observeJobs = { onJobs -> observeProgressStatusJobs(onJobs) },
                         ),
                     )
                 }
@@ -3004,6 +3016,28 @@ class NavHostComposeActivity : ActivityBase() {
             )
         }
         return snapshot
+    }
+
+    /**
+     * `PROGRESS_STATUS_PATTERN`'s `observeJobs`: classic `ProgressStatusComposeActivity`'s
+     * `onResume`/`onPause` PAIR (`:82-98`) as one call, reusing [indexJobSnapshot] -- the snapshot
+     * it builds is generic over JSword's `JobManager`, not index-specific. Unlike
+     * [observeIndexJobs], there is no `onJobFinished` callback and no `finishedIndexJobs`
+     * de-duplication: [net.bible.sharedui.download.nav.ProgressStatusDeps] has no "indexing
+     * finished" routing to drive, only a job-list refresh.
+     */
+    private fun observeProgressStatusJobs(onJobs: (List<ProgressJob>) -> Unit): () -> Unit {
+        onJobs(indexJobSnapshot())
+        val listener = object : WorkListener {
+            override fun workProgressed(ev: WorkEvent) {
+                indexProgressHandler.post { onJobs(indexJobSnapshot()) }
+            }
+            override fun workStateChanged(ev: WorkEvent) {
+                indexProgressHandler.post { onJobs(indexJobSnapshot()) }
+            }
+        }
+        JobManager.addWorkListener(listener)
+        return { JobManager.removeWorkListener(listener) }
     }
 
     /** Classic's `isAllJobsFinished`. */

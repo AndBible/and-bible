@@ -26,22 +26,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.savedstate.read
+import kotlinx.coroutines.delay
 import net.bible.sharedcore.download.CustomRepositoryController
 import net.bible.sharedcore.download.CustomRepositoryEditorController
 import net.bible.sharedcore.download.RepositoryResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.search.ProgressJob
+import net.bible.sharedcore.search.SearchIndexProgressController
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.download.CustomRepositoriesScreen
 import net.bible.sharedui.download.CustomRepositoryEditorScreen
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.nav.popOrExitOnFailedPop
+import net.bible.sharedui.search.SearchIndexProgressScreen
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -112,6 +117,36 @@ class CustomRepositoryEditorDeps(
 )
 
 /**
+ * `PROGRESS_STATUS_PATTERN`'s platform-supplied slots, ported from classic
+ * `ProgressStatusComposeActivity`. Modelled on [net.bible.sharedui.search.nav.SearchIndexProgressDeps]
+ * (`SearchNavGraph.kt:301-306`), minus the search-specific members -- this destination is a plain
+ * multi-job viewer with an OK button, not tied to a single document's index status.
+ *
+ * - [requestNotificationPermission] is classic `onResume`'s
+ *   `CommonUtils.requestNotificationPermission(this)` (`ProgressStatusComposeActivity.kt:84`), which
+ *   needs a real `Activity`. It is a plain `() -> Unit` here; the host launches the suspend call in
+ *   its own scope.
+ * - [observeJobs] is the `onResume`/`onPause` PAIR (`:82-98`) as one call: it runs classic's initial
+ *   `refreshJobs()`, registers the `WorkListener`, and returns the un-registration. The pair is
+ *   mandatory -- a leaked listener holds `onJobs`, which closes over this destination's controller,
+ *   so leaking it leaks the destination. The destination drives it from `LifecycleResumeEffect`,
+ *   whose `onPauseOrDispose` is exactly classic's `onPause`, plus the disposal case an Activity never
+ *   had to think about.
+ *
+ *   **Takes ONE callback, unlike [net.bible.sharedui.search.nav.SearchIndexProgressDeps.observeJobs]'s
+ *   two** (`SearchNavGraph.kt:303`): its second callback drives the search graph's "indexing
+ *   finished" routing, and `ProgressStatus` has no such routing -- it only ever refreshes its job
+ *   list. The narrowing is deliberate, not an oversight.
+ * - [title] is `R.string.progress_status`, screen and window. `Strings.kt` has no entry for it, so
+ *   it stays an `R.string` feed for now.
+ */
+class ProgressStatusDeps(
+    val title: String,
+    val requestNotificationPermission: () -> Unit,
+    val observeJobs: (onJobs: (List<ProgressJob>) -> Unit) -> () -> Unit,
+)
+
+/**
  * Platform-supplied slots the Documents/downloads cluster's destinations need but `commonMain`
  * cannot provide. Same top-level shape as [net.bible.sharedui.bookmark.nav.BookmarkNavDeps]:
  * [exitHost] and [setWindowTitle] are graph-wide, one nested holder per destination below.
@@ -157,6 +192,8 @@ class DownloadNavDeps(
     val customRepositories: CustomRepositoriesDeps,
     // — CUSTOM REPOSITORY EDITOR —
     val customRepositoryEditor: CustomRepositoryEditorDeps,
+    // — PROGRESS STATUS —
+    val progressStatus: ProgressStatusDeps,
 )
 
 /**
@@ -292,5 +329,52 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
                 onDismiss = { showDiscardConfirm = false },
             )
         }
+    }
+
+    // ——— PROGRESS STATUS ———
+    composable(route = NavRoutes.PROGRESS_STATUS_PATTERN) {
+        val d = deps.progressStatus
+        val strings = LocalStrings.current
+        // onHide used to be `setResult(RESULT_OK) + finish()` (ProgressStatusComposeActivity:123-126).
+        // The result was dead — the only inbound edge is a getActivity PendingIntent, which cannot
+        // receive one (design §7.3) — so hiding is now an ordinary exit.
+        val controller = remember { SearchIndexProgressController(onHide = { navController.popOrExit(deps.exitHost) }) }
+        val jobs by controller.jobs.collectAsState()
+        val noTasks by controller.noTasks.collectAsState()
+        val error by controller.error.collectAsState()
+
+        LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
+
+        // Classic's onResume/onPause pair (:82-94): request the permission, subscribe to JobManager
+        // while resumed, and reveal "no tasks" only after ~4s in case a just-launched job has not
+        // registered yet. LifecycleResumeEffect is the shape SearchNavGraph:747-755 already uses,
+        // and it is already imported in commonMain (SearchNavGraph.kt:30).
+        //
+        // The reveal is keyed on the RESUME, not on Unit. Classic posts it INSIDE onResume (:93),
+        // so it re-arms every time the screen comes back; a LaunchedEffect(Unit) would fire once
+        // per composition and lose that parity. SearchNavGraph:756-762 keeps the same parity with
+        // the same explicit resumeTicks counter.
+        var resumeTicks by remember { mutableStateOf(0) }
+        LifecycleResumeEffect(Unit) {
+            resumeTicks += 1
+            d.requestNotificationPermission()
+            val unsubscribe = d.observeJobs { controller.setJobs(it) }
+            onPauseOrDispose { unsubscribe() }
+        }
+        LaunchedEffect(resumeTicks) {
+            delay(4000)
+            controller.revealNoTasksIfIdle()
+        }
+
+        SearchIndexProgressScreen(
+            title = d.title,
+            jobs = jobs,
+            noTasks = noTasks,
+            error = error,
+            onHide = controller::hide,
+            onDismissError = controller::dismissError,
+            message = strings.taskKillWarning,
+            buttonLabel = strings.okay,
+        )
     }
 }

@@ -477,6 +477,36 @@ class NavHostRoutingGuardTest {
     }
 
     /**
+     * nav-graph slice 4, Task 4. The ARGUMENT-FREE progress-status route is correct:
+     * `ProgressStatusComposeActivity` read no extras at all, and its only inbound edge is a
+     * getActivity `PendingIntent` from `ProgressNotificationManager`, which cannot carry one
+     * either -- same shape as [settingsResolvesToTheNavHostCarryingItsRoute] and
+     * [customRepositoriesResolvesToTheNavHostCarryingItsRoute].
+     */
+    @Test
+    fun progressStatusResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.ProgressStatus)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.progressStatus(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    /**
+     * The host is `launchMode="singleTop"`
+     * ([theNavHostIsSingleTopSoAHistoryRevertCannotShowAnotherClustersScreen]), so a notification
+     * tap while the host is already open lands in `onNewIntent` -> `navigateToRoute`, which needs
+     * the pattern registered by SOME graph -- not just resolvable through [ScreenLauncher.MIGRATED].
+     */
+    @Test
+    fun progressStatusPatternIsRegisteredByAGraph() {
+        val registered = registeredRoutePatterns()
+        assertTrue(
+            NavRoutes.PROGRESS_STATUS_PATTERN in registered,
+            "no *NavGraph.kt registers NavRoutes.PROGRESS_STATUS_PATTERN, so a notification tap " +
+                "while the host is already open cannot navigate to it. Registered: ${registered.sorted()}",
+        )
+    }
+
+    /**
      * The coexistence seam's other half. `Screen.MyDocuments` stands in for "not migrated yet" here;
      * it used to be `Screen.Bookmarks`, which slice 2 Task 6 moved into [ScreenLauncher.MIGRATED] --
      * so this assertion had to move with it rather than be deleted, since "an unmigrated screen

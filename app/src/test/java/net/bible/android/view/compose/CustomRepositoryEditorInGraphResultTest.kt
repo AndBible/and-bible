@@ -35,6 +35,7 @@ import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.download.nav.CustomRepositoriesDeps
 import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
 import net.bible.sharedui.download.nav.DownloadNavDeps
+import net.bible.sharedui.download.nav.ProgressStatusDeps
 import net.bible.sharedui.download.nav.downloadNavGraph
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.theme.AbTheme
@@ -154,6 +155,13 @@ class CustomRepositoryEditorInGraphResultTest {
                     }
                 },
                 readClipboard = { null },
+            ),
+            // This test drives only the CustomRepositories/CustomRepositoryEditor pair; ProgressStatus
+            // is exercised by its own test (nav-graph slice 4, Task 4), so these are unexercised stubs.
+            progressStatus = ProgressStatusDeps(
+                title = "Progress",
+                requestNotificationPermission = {},
+                observeJobs = { { } },
             ),
         )
     }
