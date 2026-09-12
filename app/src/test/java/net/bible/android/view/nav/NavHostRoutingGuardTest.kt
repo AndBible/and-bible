@@ -322,6 +322,54 @@ class NavHostRoutingGuardTest {
         )
     }
 
+    /**
+     * slice 2, Task 5 -- [labelEditIsNotInMigratedAndItsPatternIsRegisteredByAGraph]'s twin, and it
+     * asserts exactly the same half for the same reason.
+     *
+     * `Screen.ManageLabels` is deliberately absent from [ScreenLauncher.MIGRATED]:
+     * [NavRoutes.MANAGE_LABELS_PATTERN]'s `data` argument carries the whole
+     * `ManageLabelsContract.ManageLabelsData` payload -- the MODE among other things -- so an
+     * argument-free route could not even choose which of the four screens (StudyPads, assign,
+     * workspace auto-assign, hide-labels) to draw, and `NavRoutes.manageLabels(data)` cannot be
+     * called without one, its parameter being non-null. All eight live callers put the payload in an
+     * Intent extra and go through `targetFor`; the six outside the bookmark cluster keep doing that
+     * until the host-deletion task, and the two in `BookmarksComposeActivity` become in-graph
+     * `navigate` calls in Task 6.
+     *
+     * It does NOT assert that `ScreenLauncher.intentFor(context, Screen.ManageLabels)` throws:
+     * `targetFor` still resolves it to the real `ManageLabelsComposeActivity`, which is still the
+     * Activity serving every live caller through the coexistence seam.
+     */
+    @Test
+    fun manageLabelsIsNotInMigratedAndItsPatternIsRegisteredByAGraph() {
+        assertTrue(Screen.ManageLabels !in ScreenLauncher.MIGRATED)
+        val registered = registeredRoutePatterns()
+        assertTrue(
+            NavRoutes.MANAGE_LABELS_PATTERN in registered,
+            "no *NavGraph.kt registers NavRoutes.MANAGE_LABELS_PATTERN, so nothing can navigate to " +
+                "the label manager inside the graph. Registered: ${registered.sorted()}",
+        )
+    }
+
+    /**
+     * slice 2, Task 5, the EXTERNAL entry mode's half that is assertable without composing a
+     * `NavHost`: the payload the six outside callers hand to `ManageLabels` survives the trip
+     * through the route argument byte for byte.
+     *
+     * This matters more here than for any earlier argument, because the payload is dense JSON --
+     * braces, quotes, commas and (in a label name) arbitrary user text. Same shape, and the same
+     * double-decode trap, as [promptEditTemplateRoundTripsThroughDecodeArg]: `NavRoutes.manageLabels`
+     * encodes exactly once, and the arm reads `arguments` PLAINLY because the navigation library has
+     * already decoded it by then. The manual `decodeArg` here stands in for that library step.
+     */
+    @Test
+    fun manageLabelsRouteRoundTripsAJsonPayloadThroughItsArgument() {
+        val payload = """{"mode":"HIDELABELS","selectedLabels":["a&b"],"name":"100% \"Rock\" — t\u00e4st"}"""
+        val route = NavRoutes.manageLabels(payload)
+        val encoded = route.substringAfter("${NavRoutes.ARG_MANAGE_LABELS_DATA}=").substringBefore("&")
+        assertEquals(payload, NavRoutes.decodeArg(encoded))
+    }
+
     @Test
     fun promptEditTemplateRoundTripsThroughDecodeArg() {
         // Free text, deliberately containing reserved/percent/unicode characters that would

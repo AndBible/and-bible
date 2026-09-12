@@ -158,8 +158,19 @@ object ScreenLauncher {
         // .LabelData payload, so an argument-free route would open the editor with no label to
         // edit — and NavRoutes.labelEdit(data) cannot even be called without one, its parameter
         // being non-null. Every real edge builds NavRoutes.labelEdit(data) directly: the graph's
-        // own ManageLabels arm once that lands, and until then the classic LabelEditComposeActivity
-        // that targetFor still resolves this screen to.
+        // own ManageLabels arm (which now exists and does exactly that), and until the classic-host
+        // deletion task, the classic LabelEditComposeActivity that targetFor still resolves this
+        // screen to for callers outside the graph.
+        //
+        // Screen.ManageLabels is deliberately NOT here either, for the same reason and one more of
+        // its own: NavRoutes.MANAGE_LABELS_PATTERN's `data` argument carries the whole
+        // ManageLabelsContract.ManageLabelsData payload, whose `mode` field is what decides WHICH of
+        // the four screens (StudyPads / assign / workspace auto-assign / hide-labels) is drawn — an
+        // argument-free route could not even pick one. All eight live callers put the payload in an
+        // Intent extra and go through targetFor: MenuCommandHandler.kt:207, OptionsMenuItems.kt:572
+        // and :602, BibleView.kt:618, CurrentGeneralBookPage.kt:80,
+        // TextDisplaySettingsComposeActivity.kt:379, and BookmarksComposeActivity.kt:206 and :258
+        // (the last two become in-graph navigate calls when Bookmarks is migrated).
     )
 
     /** The Activity class implementing [screen]. */

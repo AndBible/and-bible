@@ -23,6 +23,7 @@ import androidx.activity.result.ActivityResult
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.sharedcore.nav.LabelEditResult
+import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.ReadingProgressResult
 
 /**
@@ -37,8 +38,8 @@ import net.bible.sharedcore.nav.ReadingProgressResult
  * the one function it then had, not a boundary: any result type a destination delivers belongs
  * here. A result type earns a function the moment a destination actually delivers on its
  * channel — a channel whose destination has not landed yet keeps a placeholder lambda at its
- * declaration instead (`NavHostComposeActivity`'s `bookmarkResults`/`manageLabelsResults`), so
- * that the packing and the test that pins it arrive together, in the task that builds the
+ * declaration instead (`NavHostComposeActivity`'s `bookmarkResults`, the last one still waiting),
+ * so that the packing and the test that pins it arrive together, in the task that builds the
  * destination.
  *
  * [readingProgressService] is a fresh, stateless instance (as
@@ -91,4 +92,29 @@ object NavResultIntents {
 
         LabelEditResult.Cancelled -> ActivityResult(Activity.RESULT_CANCELED, null)
     }
+
+    /**
+     * The label MANAGER's exit: classic `ManageLabelsComposeActivity.saveAndExit` (`:635`) and the
+     * HIDELABELS branch of its `reset` (`:667`). Both build the *identical*
+     * `Intent().putExtra("data", data.toJSON())` — the reset path differs only in calling
+     * `ManageLabelsMapper.applyReset(data)` first, which flips a `reset` FIELD on the payload
+     * (`ManageLabelsContract.kt:60`) rather than producing a second Intent shape. That is why
+     * [ManageLabelsResult] carries just the JSON string and this function has no branch at all.
+     *
+     * Returns a bare [Intent], NOT an [ActivityResult] like [forLabelEdit], and the difference is
+     * not a style choice: [forLabelEdit] pairs the two because `Cancelled` flips BOTH halves
+     * (`RESULT_CANCELED` *and* no Intent), so splitting them across call sites is what would drift.
+     * `ManageLabels` has one result code on every exit — classic never calls `setResult` with
+     * anything but `RESULT_OK`, and has no cancel path at all (its Back press *saves*,
+     * `:320-326`) — so an [ActivityResult] here would be a constant `RESULT_OK` wrapped around the
+     * only thing that varies. The host lambda reads
+     * `setResult(RESULT_OK, NavResultIntents.forManageLabels(result)); finish()`.
+     *
+     * The eight callers that read this back — six outside the bookmark cluster and two in
+     * `BookmarksComposeActivity` — all do the same two steps: check `RESULT_OK`, then
+     * `ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)`. `NavResultIntentsTest`
+     * pins it by performing exactly that decode.
+     */
+    fun forManageLabels(result: ManageLabelsResult): Intent =
+        Intent().putExtra("data", result.data)
 }

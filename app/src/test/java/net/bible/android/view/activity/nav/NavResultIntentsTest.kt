@@ -20,9 +20,15 @@ package net.bible.android.view.activity.nav
 import android.app.Activity
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import net.bible.android.TEST_SDK
+import net.bible.android.database.IdType
+import net.bible.android.view.activity.bookmark.ManageLabelsContract
+import net.bible.android.view.activity.bookmark.ManageLabelsMapper
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.sharedcore.nav.LabelEditResult
+import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.ReadingProgressResult
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -107,5 +113,66 @@ class NavResultIntentsTest {
 
         assertEquals(Activity.RESULT_CANCELED, result.resultCode)
         assertNull(result.data)
+    }
+
+    /**
+     * slice 2, Task 5. The label MANAGER's exit, and the one the six classic callers outside the
+     * graph actually read: `MenuCommandHandler.kt:207`, `OptionsMenuItems.kt:572` and `:602`,
+     * `BibleView.kt:618`, `CurrentGeneralBookPage.kt:80` and
+     * `TextDisplaySettingsComposeActivity.kt:379` all do the SAME two things with the result --
+     * check `resultCode == RESULT_OK`, then
+     * `ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)`. So the assertion here is
+     * deliberately written as that decode rather than as a string comparison: a packing that put the
+     * JSON under a different key, or double-encoded it, would still pass a `getStringExtra("data")
+     * == json` test written the lazy way round only if the key were right, but this shape also pins
+     * that what comes back out is a readable payload with its fields intact.
+     *
+     * Unlike [forLabelEdit] this returns a bare `Intent`, not an `ActivityResult`: classic
+     * `ManageLabelsComposeActivity` has exactly one result code on BOTH of its exits
+     * (`saveAndExit`, `:635`, and the HIDELABELS reset path, `:667`) -- `RESULT_OK` -- so there is
+     * no code/Intent pairing to keep together, which is the whole reason `forLabelEdit` returns one.
+     */
+    @Test
+    fun forManageLabelsCarriesTheDataExtraTheClassicCallersDecode() {
+        val labelId = IdType()
+        val data = ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.HIDELABELS,
+            selectedLabels = mutableSetOf(labelId),
+            isWindow = true,
+        )
+
+        val intent = NavResultIntents.forManageLabels(ManageLabelsResult(data.toJSON()))
+
+        val decoded = ManageLabelsContract.ManageLabelsData
+            .fromJSON(intent.getStringExtra("data")!!)
+        assertEquals(ManageLabelsContract.Mode.HIDELABELS, decoded.mode)
+        assertEquals(mutableSetOf(labelId), decoded.selectedLabels)
+        assertTrue(decoded.isWindow)
+        // `reset` is a FIELD on the payload, not a second result shape -- and its default matters as
+        // much as its set value, because `HideLabelsPreference.openDialog` (OptionsMenuItems.kt:583)
+        // branches on it before touching `selectedLabels`.
+        assertFalse(decoded.reset)
+    }
+
+    /**
+     * The HIDELABELS reset exit (`ManageLabelsComposeActivity.kt:663-668`). It is NOT a different
+     * Intent shape -- `ManageLabelsMapper.applyReset` flips `reset` on the SAME payload and the same
+     * `"data"` extra is built -- which is exactly why [ManageLabelsResult] carries just the JSON and
+     * this packing needs no branch. `OptionsMenuItems.kt:583` (`HideLabelsPreference`),
+     * `:609` (`AutoAssignPreference`) and `TextDisplaySettingsComposeActivity.kt:392` all read the
+     * flag back off the decoded payload, so a packing that dropped it would silently turn "revert to
+     * the inherited value" into "hide nothing".
+     */
+    @Test
+    fun forManageLabelsCarriesTheResetFlagOnTheSameDataExtra() {
+        val data = ManageLabelsMapper.applyReset(
+            ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.HIDELABELS),
+        )
+
+        val intent = NavResultIntents.forManageLabels(ManageLabelsResult(data.toJSON()))
+
+        val decoded = ManageLabelsContract.ManageLabelsData
+            .fromJSON(intent.getStringExtra("data")!!)
+        assertTrue(decoded.reset)
     }
 }
