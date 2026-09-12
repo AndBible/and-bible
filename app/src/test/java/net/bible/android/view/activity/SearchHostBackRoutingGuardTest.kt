@@ -97,21 +97,23 @@ class SearchHostBackRoutingGuardTest {
 
     companion object {
         /**
-         * The six `:app` ACTIVITIES that host an in-toolbar search bar. Add a new one here --
+         * The `:app` ACTIVITIES that host an in-toolbar search bar. Add a new one here --
          * or, if the host lives in the nav graph, to [SEARCH_HOST_GRAPH_FILES] instead.
          *
          * `SettingsComposeActivity.kt` left this list in nav-graph 3/5/6 Task 9 when the Activity
-         * was deleted, and `BookmarksComposeActivity.kt` left it in nav-graph slices 2+4 Task 7;
-         * each entry MOVED to [SEARCH_HOST_GRAPH_FILES] rather than disappearing. Every remaining
-         * entry here is a nav-graph migration target, so expect this list to shrink and the graph
-         * list to grow, one slice at a time.
+         * was deleted, `BookmarksComposeActivity.kt` left it in nav-graph slices 2+4 Task 7, and
+         * `MyDocumentsComposeActivity.kt` left it in nav-graph slice 4 Task 6 -- its OWN `MyDocuments`
+         * arm landed in [SEARCH_HOST_GRAPH_FILES] via nav-graph slice 4 Task 5's `MyDocumentsNavGraph.kt`
+         * already, so Task 6 only had to move this entry, not add one. Each entry MOVED to
+         * [SEARCH_HOST_GRAPH_FILES] rather than disappearing. Every remaining entry here is a
+         * nav-graph migration target, so expect this list to shrink and the graph list to grow, one
+         * slice at a time.
          */
         private val SEARCH_HOST_FILES = listOf(
             "src/main/java/net/bible/android/view/activity/download/DownloadComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/navigation/ChooseDocumentComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/cloud/CloudDocumentsComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettingsComposeActivity.kt",
-            "src/main/java/net/bible/android/view/mydocuments/MyDocumentsComposeActivity.kt",
         )
 
         /**

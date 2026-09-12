@@ -34,7 +34,6 @@ import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
-import net.bible.android.view.mydocuments.MyDocumentsComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupComposeActivity
@@ -202,6 +201,13 @@ object ScreenLauncher {
         // EXTRA_ROUTE instead of an Intent naming the classic Activity directly, with no change to
         // ProgressNotificationManager itself.
         Screen.ProgressStatus to NavRoutes.progressStatus(),
+        // — nav-graph slice 4, Task 6: the My-Documents list —
+        // The ARGUMENT-FREE My-Documents route, correctly so: NavRoutes.MY_DOCUMENTS_PATTERN takes
+        // no argument at all, and classic MyDocumentsComposeActivity read no extras either. This is
+        // also the last screen whose Activity ScreenLauncher.targetFor was still reached through
+        // directly (MyDocumentsComposeActivity.kt:215, inside openDocument) -- see targetFor's own
+        // MyDocuments arm below.
+        Screen.MyDocuments to NavRoutes.myDocuments(),
     )
 
     /** The Activity class implementing [screen]. */
@@ -227,7 +233,7 @@ object ScreenLauncher {
         Screen.Search -> targetForMigratedScreen(screen)
         Screen.EpubSearch -> targetForMigratedScreen(screen)
         Screen.EpubSearchResults -> targetForMigratedScreen(screen)
-        Screen.MyDocuments -> MyDocumentsComposeActivity::class.java
+        Screen.MyDocuments -> targetForMigratedScreen(screen)
         Screen.MyDocumentPages -> MyDocumentPagesComposeActivity::class.java
         Screen.CloudDocuments -> CloudDocumentsComposeActivity::class.java
         Screen.WorkspaceSelector -> WorkspaceSelectorComposeActivity::class.java
@@ -264,22 +270,23 @@ object ScreenLauncher {
     /**
      * The body of every arm above whose screen now lives wholly in the Compose navigation graph and
      * has no Activity of its own: the ten AI screens (nav-graph Task 10), the reading-plan, search
-     * and settings clusters (nav-graph 3/5/6 Tasks 1-8), and the bookmark cluster --
-     * `Bookmarks`/`ManageLabels`/`LabelEdit` (nav-graph slices 2+4 Task 7). Twenty of the 26 reach
-     * the graph through [MIGRATED] via [intentFor]/[open], so [intentFor] never falls through to
-     * [targetFor] for them; the other SIX -- `RawLlmLog`, `SearchResults`, `EpubSearchResults`,
-     * `SearchIndexProgress`, `LabelEdit` and `ManageLabels` -- are deliberately absent from
-     * [MIGRATED] because an argument-free route for them would render an empty screen with nothing
-     * to show (the first four) or because the argument is required and non-null (the label pair,
-     * whose `data`/`ManageLabelsData` payload has no meaningful empty default), so reaching one by a
-     * bare [Screen] throws here instead. ([MIGRATED] has 22 entries now, not 20: nav-graph slice 4
-     * Task 3 added `Screen.CustomRepositories` and Task 4 added `Screen.ProgressStatus`, whose
-     * [targetFor] arms still return the real `CustomRepositoriesComposeActivity` /
-     * `ProgressStatusComposeActivity` classes rather than calling this function -- those classes are
-     * not deleted until Task 9, so they are not yet two of the 20 this paragraph describes. The
-     * other 20 entries ARE exactly these 20 screens, since every one of them is graph-only.) The
-     * label pair's six outside callers (`MenuCommandHandler`, `OptionsMenuItems` x2, `BibleView`,
-     * `CurrentGeneralBookPage`, `TextDisplaySettingsComposeActivity`) build
+     * and settings clusters (nav-graph 3/5/6 Tasks 1-8), the bookmark cluster --
+     * `Bookmarks`/`ManageLabels`/`LabelEdit` (nav-graph slices 2+4 Task 7) -- and `MyDocuments`
+     * (nav-graph slice 4 Task 6). Twenty-one of the 27 reach the graph through [MIGRATED] via
+     * [intentFor]/[open], so [intentFor] never falls through to [targetFor] for them; the other SIX
+     * -- `RawLlmLog`, `SearchResults`, `EpubSearchResults`, `SearchIndexProgress`, `LabelEdit` and
+     * `ManageLabels` -- are deliberately absent from [MIGRATED] because an argument-free route for
+     * them would render an empty screen with nothing to show (the first four) or because the
+     * argument is required and non-null (the label pair, whose `data`/`ManageLabelsData` payload
+     * has no meaningful empty default), so reaching one by a bare [Screen] throws here instead.
+     * ([MIGRATED] has 23 entries now, not 21: nav-graph slice 4 Task 3 added
+     * `Screen.CustomRepositories` and Task 4 added `Screen.ProgressStatus`, whose [targetFor] arms
+     * still return the real `CustomRepositoriesComposeActivity` / `ProgressStatusComposeActivity`
+     * classes rather than calling this function -- those classes are not deleted until Task 9, so
+     * they are not yet two of the 21 this paragraph describes. The other 21 entries ARE exactly
+     * these 21 screens, since every one of them is graph-only.) The label pair's six outside callers
+     * (`MenuCommandHandler`, `OptionsMenuItems` x2, `BibleView`, `CurrentGeneralBookPage`,
+     * `TextDisplaySettingsComposeActivity`) build
      * `NavHostComposeActivity.intentFor(context, NavRoutes.manageLabels(data))` directly instead of
      * going through [intentFor], for the same reason `RawLlmLog`'s callers already did (see
      * `BibleJavascriptInterface.kt:1094`, `LinkControl.kt:428`, `SearchControl.kt:109`).
@@ -288,7 +295,7 @@ object ScreenLauncher {
      * a direct [targetFor] call for a graph-only screen) fails loudly instead of returning a class
      * that no longer exists.
      *
-     * The arms are kept as 26 SEPARATE arms -- never merged into one combined
+     * The arms are kept as 27 SEPARATE arms -- never merged into one combined
      * `Screen.A, Screen.B -> ...` -- because the Classic*RemovalGuardTest family text-scans this
      * file for a literal "Screen.X ->" per screen and treats a missing arm as an offender.
      */

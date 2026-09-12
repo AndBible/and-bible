@@ -337,6 +337,58 @@ class NavResultChannelGuardTest {
         )
     }
 
+    /**
+     * nav-graph slice 4, Task 6's producer half, [myDocumentPagesArmActuallyDeliversThroughTheChannel]'s
+     * twin for the batch's PARENT destination. Without this, `MyDocuments` could pop or exit without
+     * ever handing its own `MyDocumentsResult` to the channel -- every one of classic's exits
+     * (relayed pick/Save/Dismiss) would then silently do nothing for the caller
+     * `MainBibleActivity.kt:2914-2929` is waiting on.
+     */
+    @Test
+    fun myDocumentsArmActuallyDeliversThroughTheChannel() {
+        val text = myDocumentsNavGraphSource()
+        assertTrue(
+            text.contains("myDocumentsResults.deliver("),
+            "MyDocumentsNavGraph.kt no longer calls myDocumentsResults.deliver(...) -- the " +
+                "My-Documents list would pop or exit without ever handing its result back",
+        )
+    }
+
+    /**
+     * nav-graph slice 4, Task 6's CONSUMER half, [manageLabelsArmConsumesTheLabelEditChannel]'s
+     * shape for this cluster: the `MyDocuments` arm is the parent that must collect and consume
+     * `myDocumentPagesResults.pending`, or a page picked from inside the graph would be read,
+     * cleared and dropped instead of being re-delivered as a `MyDocumentsResult.Selected` on
+     * `myDocumentsResults`.
+     */
+    @Test
+    fun myDocumentsArmConsumesTheMyDocumentPagesChannel() {
+        val text = myDocumentsNavGraphSource()
+        assertTrue(
+            text.contains("myDocumentPagesResults.pending"),
+            "MyDocumentsNavGraph.kt does not collect myDocumentPagesResults.pending -- a page " +
+                "picked from inside the graph would pop with the selection dropped",
+        )
+        assertTrue(
+            text.contains("myDocumentPagesResults.consume()"),
+            "MyDocumentsNavGraph.kt does not clear myDocumentPagesResults with consume() -- a " +
+                "pending result would be re-applied on every recomposition",
+        )
+        assertTrue(
+            text.contains("myDocumentsResults.deliver("),
+            "MyDocumentsNavGraph.kt consumes myDocumentPagesResults but hands the result to " +
+                "nobody -- myDocumentsResults.deliver is never called for it, so a page picked " +
+                "from inside the graph is read, cleared and DROPPED",
+        )
+    }
+
+    private fun myDocumentsNavGraphSource(): String {
+        val sources = navGraphSources()
+        val file = sources.firstOrNull { it.name == "MyDocumentsNavGraph.kt" }
+        assertTrue(file != null, "cannot find MyDocumentsNavGraph.kt among ${sources.map { it.path }}")
+        return withoutComments(file.readText())
+    }
+
     // ——— The bookmark list's exit lambda ————————————————————————————————————————————————————
     // Four properties of `NavHostComposeActivity.bookmarkResults`' `exitWithResult`, none of which
     // any other test in the repo can see.

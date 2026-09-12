@@ -32,6 +32,7 @@ import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
+import net.bible.sharedcore.nav.MyDocumentsResult
 import net.bible.sharedcore.nav.ReadingProgressResult
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -276,6 +277,53 @@ class NavResultIntentsTest {
         // is preserved rather than quietly dropped.
         assertEquals(
             ActivityResultKind.MyDocumentPages.name,
+            result.data?.extras?.getString(ActivityResultKind.EXTRA),
+        )
+    }
+
+    /**
+     * nav-graph slice 4, Task 6. The My-Documents LIST's relay-a-selection exit -- classic
+     * `MyDocumentsComposeActivity`'s `pagesLauncher` callback (`:222-233`) building the same two
+     * extras + `finishOk()`. Explicitly asserts `"changed"` is ABSENT (plan D8): classic's
+     * `resultIntent.putExtra("changed", true)` (`:172`) is dropped because nothing reads it for
+     * this kind -- see [MyDocumentsResult]'s own kdoc -- and this test is the only place that
+     * decision is visible.
+     */
+    @Test
+    fun myDocumentsSelectedCarriesTheKindAndBothKeysAndNoChangedExtra() {
+        val result = NavResultIntents.forMyDocuments(
+            MyDocumentsResult.Selected(documentInitials = "MyDoc_1", pageKey = "page-3"),
+        )
+        assertEquals(Activity.RESULT_OK, result.resultCode)
+        val extras = requireNotNull(result.data?.extras)
+        assertEquals(ActivityResultKind.MyDocuments.name, extras.getString(ActivityResultKind.EXTRA))
+        assertEquals("MyDoc_1", extras.getString("documentInitials"))
+        assertEquals("page-3", extras.getString("pageKey"))
+        assertFalse(extras.containsKey("changed"))
+    }
+
+    /**
+     * The Save button's exit, classic `{ controller.save(); finishOk() }` (`:126`) with NEITHER key
+     * set -- those are the relayed-selection path's alone.
+     */
+    @Test
+    fun myDocumentsSavedCarriesTheKindWithNoKeysAndNoChangedExtra() {
+        val result = NavResultIntents.forMyDocuments(MyDocumentsResult.Saved)
+        assertEquals(Activity.RESULT_OK, result.resultCode)
+        val extras = requireNotNull(result.data?.extras)
+        assertEquals(ActivityResultKind.MyDocuments.name, extras.getString(ActivityResultKind.EXTRA))
+        assertNull(extras.getString("documentInitials"))
+        assertNull(extras.getString("pageKey"))
+        assertFalse(extras.containsKey("changed"))
+    }
+
+    /** The Dismiss button's exit, classic `{ finishCanceled() }` (`:127`): `RESULT_CANCELED`. */
+    @Test
+    fun myDocumentsCancelledIsAPlainCancel() {
+        val result = NavResultIntents.forMyDocuments(MyDocumentsResult.Cancelled)
+        assertEquals(Activity.RESULT_CANCELED, result.resultCode)
+        assertEquals(
+            ActivityResultKind.MyDocuments.name,
             result.data?.extras?.getString(ActivityResultKind.EXTRA),
         )
     }

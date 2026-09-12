@@ -27,6 +27,7 @@ import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
+import net.bible.sharedcore.nav.MyDocumentsResult
 import net.bible.sharedcore.nav.ReadingProgressResult
 
 /**
@@ -201,6 +202,37 @@ object NavResultIntents {
             }
             MyDocumentPagesResult.Saved -> ActivityResult(Activity.RESULT_OK, intent)
             MyDocumentPagesResult.Cancelled -> ActivityResult(Activity.RESULT_CANCELED, intent)
+        }
+    }
+
+    /**
+     * The My-Documents LIST's exit -- nav-graph slice 4, Task 6, and this batch's ONLY caller that
+     * is also its last direct `ScreenLauncher.targetFor` caller (see that task's own report). Same
+     * three-shape pattern as [forMyDocumentPages], which [MyDocumentsResult] deliberately mirrors,
+     * and read back by the SAME `MainBibleActivity.kt:2914-2929` branch that already handles
+     * [ActivityResultKind.MyDocuments] -- untouched by this move.
+     * - [MyDocumentsResult.Selected] is classic's relay of the pages child's pick
+     *   (`MyDocumentsComposeActivity.kt:222-233`) -- `RESULT_OK` with both keys.
+     * - [MyDocumentsResult.Saved] is the Save button's plain `finishOk()` (`:126`) with NEITHER key
+     *   set, same as [MyDocumentPagesResult.Saved].
+     * - [MyDocumentsResult.Cancelled] is the Dismiss button's `finishCanceled()` (`:127`):
+     *   `RESULT_CANCELED`, with the tagged Intent still attached, same shape as
+     *   [MyDocumentPagesResult.Cancelled].
+     *
+     * Classic's `"changed"` extra (`:172`) is deliberately NOT carried -- see [MyDocumentsResult]'s
+     * own kdoc: nothing reads it for this kind, the tree's only `getBoolean("changed")` being the
+     * unrelated WORKSPACE_CHANGED branch (plan D8).
+     */
+    fun forMyDocuments(result: MyDocumentsResult): ActivityResult {
+        val intent = Intent().putExtra(ActivityResultKind.EXTRA, ActivityResultKind.MyDocuments.name)
+        return when (result) {
+            is MyDocumentsResult.Selected -> {
+                intent.putExtra("documentInitials", result.documentInitials)
+                intent.putExtra("pageKey", result.pageKey)
+                ActivityResult(Activity.RESULT_OK, intent)
+            }
+            MyDocumentsResult.Saved -> ActivityResult(Activity.RESULT_OK, intent)
+            MyDocumentsResult.Cancelled -> ActivityResult(Activity.RESULT_CANCELED, intent)
         }
     }
 }

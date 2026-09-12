@@ -29,14 +29,18 @@ import net.bible.android.view.activity.nav.NavResultIntents
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.mydocuments.MyDocumentPagesController
+import net.bible.sharedcore.mydocuments.MyDocumentsController
 import net.bible.sharedcore.nav.MyDocumentPagesResult
+import net.bible.sharedcore.nav.MyDocumentsResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.mydocuments.nav.MyDocumentPagesDeps
+import net.bible.sharedui.mydocuments.nav.MyDocumentsDeps
 import net.bible.sharedui.mydocuments.nav.MyDocumentsNavDeps
 import net.bible.sharedui.mydocuments.nav.myDocumentsNavGraph
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.theme.AbTheme
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,21 +52,20 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
- * The one COMPOSED test of `MyDocumentPages`'s navigation, driven through the real graph and the
- * real [NavResultChannel] -- modelled verbatim on [BookmarksInGraphResultTest], which is the
- * precedent for exactly this shape.
+ * The one COMPOSED test of the My-Documents cluster's navigation, driven through the real graph
+ * and the real [NavResultChannel] -- modelled verbatim on [BookmarksInGraphResultTest], which is
+ * the precedent for exactly this shape.
  *
  * `MyDocumentPages` is the batch's SECOND dual-entry destination (`ManageLabels` was the first, and
- * is `BookmarksInGraphResultTest`'s own subject) and, unlike `ManageLabels`, its parent --
- * `MyDocuments` -- does not exist yet: nav-graph slice 4 Task 6 builds it. So the in-graph mode here
- * is proved against a SYNTHETIC stand-in parent destination, registered in the SAME `NavHost` this
- * test builds, that consumes `myDocumentPagesResults.pending`/`consume()` in exactly the shape
- * Task 6's real `MyDocuments` arm will use (see nav-graph slice 4 Task 6's own brief, which quotes
- * that consuming `LaunchedEffect` verbatim). What is being proved is [NavResultChannel]'s own
- * publish-and-pop branch and `MyDocumentsNavGraph.kt`'s `myDocumentPagesResults.deliver(...)` call
- * site -- both real production code -- not `MyDocuments` itself, which this task does not build.
+ * is `BookmarksInGraphResultTest`'s own subject). Nav-graph slice 4 Task 5 built it alone, before
+ * its real parent `MyDocuments` existed, and proved the in-graph mode against a SYNTHETIC stand-in
+ * parent destination ([TEST_PARENT_ROUTE], still registered below) that consumed
+ * `myDocumentPagesResults.pending`/`consume()` in exactly the shape the real arm now uses. Task 6
+ * built that real arm, so this class also proves the TWO-LEVEL round trip end to end: a page picked
+ * in `MyDocumentPages`, relayed by the real `MyDocuments` arm, bubbling all the way out of the host
+ * -- since `MyDocuments` is itself the graph's start destination and has no parent of its own.
  *
- * `NavResultChannelGuardTest` proves the arm CONTAINS the right calls by walking the source text;
+ * `NavResultChannelGuardTest` proves the arms CONTAIN the right calls by walking the source text;
  * `NavResultChannelTest` proves `deliver`'s branch in isolation. Neither can tell you that the
  * branch actually takes the in-graph path once a real back stack is involved, that it applies the
  * result EXACTLY once, or that the destination pops back to its caller afterwards -- and those are
@@ -80,10 +83,16 @@ class MyDocumentsInGraphResultTest {
     private var exitHostCalls = 0
     private var channelExitWithResultCalls = 0
 
-    /** The result the channel's `exitWithResult` branch was handed, so a test can pin the packed
-     *  Intent [NavResultIntentsTest] pins in isolation -- this is what proves the SAME result
-     *  reaches the SAME packing when driven through the real graph. */
+    /** The result the pages channel's `exitWithResult` branch was handed, so a test can pin the
+     *  packed Intent [NavResultIntentsTest] pins in isolation -- this is what proves the SAME
+     *  result reaches the SAME packing when driven through the real graph. */
     private var deliveredExitResult: MyDocumentPagesResult? = null
+
+    /** `MyDocuments`' own channel: how many times its `exitWithResult` branch fired, and what it was
+     *  handed most recently -- [myDocumentPagesRoute]'s twin for the PARENT destination, since
+     *  `MyDocuments` is itself the graph's start destination and has no parent of its own. */
+    private var myDocumentsExitCalls = 0
+    private var deliveredMyDocumentsResult: MyDocumentsResult? = null
 
     /** The controller `MyDocumentPages` built for the most recent entry, captured the way
      *  `BookmarksInGraphResultTest` captures its `manageLabelsController` -- bypasses the real
@@ -98,6 +107,10 @@ class MyDocumentsInGraphResultTest {
         myDocumentPagesResults = NavResultChannel<MyDocumentPagesResult> { result ->
             channelExitWithResultCalls++
             deliveredExitResult = result
+        },
+        myDocumentsResults = NavResultChannel<MyDocumentsResult> { result ->
+            myDocumentsExitCalls++
+            deliveredMyDocumentsResult = result
         },
         myDocumentPages = MyDocumentPagesDeps(
             controllerFor = { _, documentInitials, onResult ->
@@ -114,6 +127,30 @@ class MyDocumentsInGraphResultTest {
             onImport = {},
             onExportSelected = {},
             onExportPage = {},
+        ),
+        // See MyDocumentsDeps.controllerFor's own kdoc: nothing in MyDocumentsController itself
+        // calls onResult, so it is unused here too -- the test drives the two-level relay by
+        // navigating directly to myDocumentPagesRoute(), the same technique the other tests below
+        // use, rather than through the arm's own onOpen (which this fake controller never reaches).
+        myDocuments = MyDocumentsDeps(
+            controllerFor = {
+                MyDocumentsController(
+                    onOpen = {},
+                    onImport = {},
+                    onExport = {},
+                    onCreate = {},
+                    onExportSelected = {},
+                    onSave = { _, _, _ -> },
+                )
+            },
+            title = "My Documents",
+            onImport = {},
+            onExport = {},
+            onExportSelected = {},
+            importNamePrompt = MutableStateFlow(null),
+            onConfirmImport = {},
+            onDismissImport = {},
+            routeForPages = { myDocumentPagesRoute() },
         ),
     )
 
@@ -233,6 +270,52 @@ class MyDocumentsInGraphResultTest {
         val extras = assertNotNull(activityResult.data?.extras)
         assertEquals(android.app.Activity.RESULT_OK, activityResult.resultCode)
         assertEquals(ActivityResultKind.MyDocumentPages.name, extras.getString(ActivityResultKind.EXTRA))
+        assertEquals("MyDoc_1", extras.getString("documentInitials"))
+        assertEquals("page-1", extras.getString("pageKey"))
+    }
+
+    /**
+     * Nav-graph slice 4, Task 6's own proof: the real `MyDocuments` arm, not the synthetic stand-in
+     * above, consuming `myDocumentPagesResults.pending`/`consume()` and re-delivering
+     * [MyDocumentsResult.Selected] on `myDocumentsResults`. `MyDocuments` is entered here as the
+     * graph's START destination -- the only way it is ever reached (see
+     * `MyDocumentsNavDeps.myDocumentsResults`'s own kdoc) -- so once the relayed result reaches it,
+     * it has no parent of its OWN either, and must exit the HOST in turn: the two-level bubble-up
+     * `MyDocumentPages` -> `MyDocuments` -> host that this task's whole design rests on.
+     */
+    @Test
+    fun aPageSelectedTwoLevelsInBubblesUpThroughMyDocumentsAndExitsTheHost() {
+        setGraph(startDestination = NavRoutes.MY_DOCUMENTS_PATTERN)
+        assertEquals(NavRoutes.MY_DOCUMENTS_PATTERN, currentRoute)
+
+        compose.runOnIdle { navController.navigate(myDocumentPagesRoute()) }
+        compose.waitForIdle()
+        assertEquals(NavRoutes.MY_DOCUMENT_PAGES_PATTERN, currentRoute)
+
+        compose.runOnIdle { assertNotNull(pagesController).openPage(1L) }
+        compose.waitForIdle()
+
+        // First level: MyDocumentPages had a parent (MyDocuments) on the stack, so it must publish
+        // to pending and pop, not exit the host itself.
+        assertEquals(
+            0,
+            channelExitWithResultCalls,
+            "MyDocumentPages must not exit directly -- MyDocuments was on the stack to receive it",
+        )
+        assertEquals(NavRoutes.MY_DOCUMENTS_PATTERN, currentRoute, "MyDocumentPages did not pop back to MyDocuments")
+
+        // Second level: MyDocuments itself has NO parent (it is the graph's start destination), so
+        // its own re-delivery of the relayed Selected must exit the HOST.
+        assertEquals(0, exitHostCalls, "the exit must carry the result, not be a bare deps.exitHost()")
+        assertEquals(1, myDocumentsExitCalls, "MyDocuments did not exit the host with the relayed result")
+
+        val result = assertNotNull(deliveredMyDocumentsResult)
+        assertEquals(MyDocumentsResult.Selected("MyDoc_1", "page-1"), result)
+
+        val activityResult = NavResultIntents.forMyDocuments(result)
+        val extras = assertNotNull(activityResult.data?.extras)
+        assertEquals(android.app.Activity.RESULT_OK, activityResult.resultCode)
+        assertEquals(ActivityResultKind.MyDocuments.name, extras.getString(ActivityResultKind.EXTRA))
         assertEquals("MyDoc_1", extras.getString("documentInitials"))
         assertEquals("page-1", extras.getString("pageKey"))
     }

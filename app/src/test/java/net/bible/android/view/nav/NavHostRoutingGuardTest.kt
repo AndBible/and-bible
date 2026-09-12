@@ -507,6 +507,23 @@ class NavHostRoutingGuardTest {
     }
 
     /**
+     * nav-graph slice 4, Task 6. `Screen.MyDocuments` is the batch's last direct
+     * `ScreenLauncher.targetFor` caller (`MyDocumentsComposeActivity.kt:215`, inside `openDocument`)
+     * -- once it is in [ScreenLauncher.MIGRATED], `intentFor` never falls through to `targetFor` for
+     * it, so that call becomes unreachable dead code rather than a live crash path (`targetFor`'s own
+     * `Screen.MyDocuments` arm now throws via `targetForMigratedScreen`). The ARGUMENT-FREE route is
+     * correct for the same reason as [customRepositoriesResolvesToTheNavHostCarryingItsRoute]: classic
+     * `MyDocumentsComposeActivity` read no extras of its own, and `NavRoutes.MY_DOCUMENTS_PATTERN`
+     * takes none either.
+     */
+    @Test
+    fun myDocumentsResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.MyDocuments)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.myDocuments(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    /**
      * nav-graph slice 4, Task 5 -- [customRepositoryEditorIsNotInMigratedAndItsPatternIsRegisteredByAGraph]'s
      * shape, for the batch's second dual-entry destination. `Screen.MyDocumentPages` is deliberately
      * absent from [ScreenLauncher.MIGRATED]: all THREE of [NavRoutes.MY_DOCUMENT_PAGES_PATTERN]'s
@@ -533,16 +550,20 @@ class NavHostRoutingGuardTest {
     }
 
     /**
-     * The coexistence seam's other half. `Screen.MyDocuments` stands in for "not migrated yet" here;
-     * it used to be `Screen.Bookmarks`, which slice 2 Task 6 moved into [ScreenLauncher.MIGRATED] --
-     * so this assertion had to move with it rather than be deleted, since "an unmigrated screen
-     * still reaches its own Activity" is the property, not the particular screen.
+     * The coexistence seam's other half. `Screen.Backup` stands in for "not migrated yet" here; it
+     * used to be `Screen.MyDocuments`, which nav-graph slice 4 Task 6 moved into
+     * [ScreenLauncher.MIGRATED] -- so this assertion had to move with it rather than be deleted,
+     * since "an unmigrated screen still reaches its own Activity" is the property, not the
+     * particular screen. `Screen.Backup` is verified still an Activity (`ScreenLauncher.kt`'s enum
+     * and its own `targetFor` arm -> `BackupComposeActivity`), is absent from [ScreenLauncher.MIGRATED],
+     * and is not a slice-4 target -- so it is not at risk of moving again mid-batch the way
+     * `Screen.Bookmarks` and `Screen.MyDocuments` each did in turn.
      */
     @Test
     fun anUnmigratedScreenStillResolvesToItsOwnActivity() {
-        val intent = ScreenLauncher.intentFor(context, Screen.MyDocuments)
+        val intent = ScreenLauncher.intentFor(context, Screen.Backup)
         assertEquals(
-            "net.bible.android.view.mydocuments.MyDocumentsComposeActivity",
+            "net.bible.android.view.activity.backup.BackupComposeActivity",
             intent.component?.className,
         )
         assertTrue(intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE) == null)

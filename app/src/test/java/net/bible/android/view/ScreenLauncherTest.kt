@@ -32,7 +32,6 @@ import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
-import net.bible.android.view.mydocuments.MyDocumentsComposeActivity
 import net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.StartupComposeActivity
@@ -158,9 +157,13 @@ class ScreenLauncherTest {
         assertFailsWith<IllegalStateException> { ScreenLauncher.intentFor(context, Screen.EpubSearchResults) }
     }
 
+    // Converted from `targetFor(Screen.MyDocuments) == MyDocumentsComposeActivity::class.java` to
+    // the MIGRATED[Screen.X] shape by nav-graph slice 4 Task 6, the same conversion the nine AI
+    // tests below document: `targetFor` now throws for this Screen (see
+    // ScreenLauncher.targetForMigratedScreen), so the real contract is what MIGRATED resolves it to.
     @Test
-    fun myDocuments_routes_to_compose() {
-        assertEquals(MyDocumentsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.MyDocuments))
+    fun myDocuments_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.myDocuments(), ScreenLauncher.MIGRATED[Screen.MyDocuments])
     }
 
     @Test

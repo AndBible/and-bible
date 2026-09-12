@@ -29,11 +29,15 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.savedstate.read
+import kotlinx.coroutines.flow.MutableStateFlow
 import net.bible.sharedcore.mydocuments.MyDocumentPagesController
+import net.bible.sharedcore.mydocuments.MyDocumentsController
 import net.bible.sharedcore.nav.MyDocumentPagesResult
+import net.bible.sharedcore.nav.MyDocumentsResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.mydocuments.MyDocumentPagesScreen
+import net.bible.sharedui.mydocuments.MyDocumentsScreen
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.nav.popOrExitOnFailedPop
 
@@ -41,8 +45,8 @@ import net.bible.sharedui.nav.popOrExitOnFailedPop
  * [MyDocumentPagesScreen]'s platform-supplied slots, ported from classic
  * [net.bible.android.view.mydocuments.MyDocumentPagesComposeActivity].
  *
- * This is the cluster's CHILD destination -- reached both from inside the graph (once Task 6 builds
- * the `MyDocuments` arm this file will grow to hold) and from a classic caller entirely outside it,
+ * This is the cluster's CHILD destination -- reached both from inside the graph, via the
+ * `MyDocuments` arm below (nav-graph slice 4 Task 6), and from a classic caller entirely outside it,
  * `CurrentGeneralBookPage.kt`'s `doc?.isMyDocument == true ->` branch. It is the batch's second
  * dual-entry destination (the first was `ManageLabels`), which is exactly what
  * [net.bible.sharedui.nav.NavResultChannel] exists for.
@@ -84,22 +88,72 @@ class MyDocumentPagesDeps(
 )
 
 /**
+ * [MyDocumentsScreen]'s platform-supplied slots, ported from classic
+ * [net.bible.android.view.mydocuments.MyDocumentsComposeActivity]. This is the cluster's PARENT
+ * destination and the batch's root: reached only as the host's start destination through
+ * [net.bible.android.view.ScreenLauncher.MIGRATED] (nav-graph slice 4 Task 6), it navigates IN to
+ * [MyDocumentPagesDeps] and must survive that child sitting on top of it.
+ *
+ * - [controllerFor] is a HOST-MEMOISED factory, not a per-entry one, for
+ *   [net.bible.sharedui.bookmark.nav.BookmarksDeps.controllerFor]'s own reason: this destination
+ *   NAVIGATES to [NavRoutes.MY_DOCUMENT_PAGES_PATTERN], navigation-compose disposes this arm's
+ *   composition while that child is on top, and the controller holds view state classic's
+ *   merely-paused Activity kept -- the document list, dirty flag, search query, multi-selection. A
+ *   per-entry factory rebuilt on every return from the pages editor would silently drop all of it.
+ *   [onResult] mirrors [MyDocumentPagesDeps.controllerFor]'s own parameter for shape parity, but
+ *   nothing in [MyDocumentsController] itself calls it: unlike the pages editor's `onOpenPage`,
+ *   `MyDocuments`' own "open a document" action is the arm's `onOpen` below (it needs
+ *   [routeForPages] and the `NavHostController`, neither of which a host-side factory has), and its
+ *   `Selected` result arrives instead through the pages child's own channel -- see the arm's
+ *   `myDocumentPagesResults.pending` consumption.
+ *
+ * - [title] is classic's plain `getString(R.string.my_documents_title)` (`:96`) -- no format
+ *   argument, unlike [MyDocumentPagesDeps.titleFor], so a bare `String` rather than a function.
+ *
+ * - [onImport]/[onExport]/[onExportSelected] are the three SAF-backed actions classic ran through
+ *   `registerForActivityResult` launchers (plan D4): those launchers must be registered before
+ *   `STARTED`, so they stay host-side, wired into the [MyDocumentsController] [controllerFor]
+ *   builds -- the arm reaches them through `controller::importDocuments`/`controller::export`/
+ *   `controller::exportSelected`, the same indirection [MyDocumentPagesDeps] uses for its own three.
+ *
+ * - [importNamePrompt] is classic's `importNamePrompt` Compose state (`:79`), seeded from
+ *   `getString(R.string.my_document_new_name, n)` when the SAF launcher returns URIs (`:235-244`)
+ *   and cleared by [onConfirmImport]/[onDismissImport] (`:246-258`). A host-created
+ *   `MutableStateFlow<String?>`, the shape [net.bible.sharedui.readingplan.nav
+ *   .ReadingPlanNavDeps.pendingSelection] established: a flow `remember`ed in the arm would be gone
+ *   before the launcher's callback (which fires with no destination composed at all, mid-SAF) could
+ *   write to it. **Not** `rememberSaveable` in the arm either, for the same reason -- the value's
+ *   owner is the launcher, not the composition.
+ *
+ * - [routeForPages] is the host building [NavRoutes.myDocumentPages] from its own `entityByLong`
+ *   row (`MyDocumentsComposeActivity.kt:211`), because the Room entity the id resolves to is
+ *   `:app`-only and cannot cross into `commonMain`. Returns null exactly where classic's
+ *   `entityByLong[id] ?: return` did -- an id with nothing behind it -- so the arm's `onOpen` can
+ *   no-op the same way.
+ */
+class MyDocumentsDeps(
+    val controllerFor: (onResult: (MyDocumentsResult) -> Unit) -> MyDocumentsController,
+    val title: String,
+    val onImport: () -> Unit,
+    val onExport: (id: Long) -> Unit,
+    val onExportSelected: (ids: List<Long>) -> Unit,
+    val importNamePrompt: MutableStateFlow<String?>,
+    val onConfirmImport: (name: String) -> Unit,
+    val onDismissImport: () -> Unit,
+    val routeForPages: (id: Long) -> String?,
+)
+
+/**
  * Platform-supplied slots the My-Documents cluster's destinations need but `commonMain` cannot
  * provide. Same top-level shape as [net.bible.sharedui.bookmark.nav.BookmarkNavDeps] and
  * [net.bible.sharedui.download.nav.DownloadNavDeps]: [exitHost] and [setWindowTitle] are graph-wide,
  * one nested holder per destination below.
  *
- * **This class GROWS.** This task builds only [MyDocumentPagesDeps] -- the CHILD destination --
- * because it is the one already provable in both entry modes without the parent existing: entered
- * from outside, it is the host's start destination today; entered from inside, [myDocumentPagesResults]
- * is declared here (rather than waiting for its own producing arm the way
- * [net.bible.sharedui.download.nav.DownloadNavDeps.repositoryEditorResults] was) because it is a
- * `NavResultChannel<MyDocumentPagesResult>` over a result type slice 4 Task 2 already shipped, not a
- * per-destination deps field naming a type that does not exist yet. Task 6 adds exactly two more
- * constructor parameters -- `myDocumentsResults: NavResultChannel<MyDocumentsResult>` and
- * `myDocuments: MyDocumentsDeps` -- plus the `MyDocuments` arm itself, and nothing above changes: a
- * pure addition, the same way `DownloadNavDeps` grew a `progressStatus` field in nav-graph slice 4
- * Task 4 without touching what Task 3 had already built.
+ * Nav-graph slice 4 Task 5 built [myDocumentPages] and [myDocumentPagesResults] alone, provable in
+ * both of [MyDocumentPagesDeps]'s entry modes without the parent existing. Task 6 adds
+ * [myDocumentsResults] and [myDocuments] -- the parent destination and the channel it produces on --
+ * a pure addition: nothing above changes, the same way `DownloadNavDeps` grew a `progressStatus`
+ * field in nav-graph slice 4 Task 4 without touching what Task 3 had already built.
  */
 class MyDocumentsNavDeps(
     val exitHost: () -> Unit,
@@ -113,12 +167,24 @@ class MyDocumentsNavDeps(
     /**
      * How `MyDocumentPages` hands its result back, in either of the two ways it can be entered --
      * see [NavResultChannel]'s own kdoc for the two branches. Both are live as of this task:
-     * `CurrentGeneralBookPage.kt` (outside, exit branch) and, once Task 6 lands, `MyDocuments`
-     * (inside, publish-and-pop branch).
+     * `CurrentGeneralBookPage.kt` (outside, exit branch) and `MyDocuments` (inside, publish-and-pop
+     * branch -- the arm below consumes it).
      */
     val myDocumentPagesResults: NavResultChannel<MyDocumentPagesResult>,
+    /**
+     * How `MyDocuments` hands its own result back. Unlike [myDocumentPagesResults] this destination
+     * has only ONE entry mode -- it is the batch's root, reached solely as the host's start
+     * destination -- so [NavResultChannel.deliver] always takes the exit branch here; the
+     * pending/consume half of its contract stays dead code for this particular field until some
+     * future caller navigates to [NavRoutes.MY_DOCUMENTS_PATTERN] from inside a graph. Declared as a
+     * channel anyway, not a bare host lambda, for the same reason every other result-producing
+     * destination in this tree is: one mechanism, not two.
+     */
+    val myDocumentsResults: NavResultChannel<MyDocumentsResult>,
     // — MY DOCUMENT PAGES —
     val myDocumentPages: MyDocumentPagesDeps,
+    // — MY DOCUMENTS —
+    val myDocuments: MyDocumentsDeps,
 )
 
 /**
@@ -140,14 +206,134 @@ private fun NavHostController.popOrExit(exitHost: () -> Unit) {
 
 /**
  * The My-Documents cluster's destinations. Registered into the app's single `NavHost` by the host
- * Activity. This task builds `MyDocumentPages` alone -- the CHILD half of the pair Task 6 completes
- * with `MyDocuments` -- because it is the one already reachable both ways: `CurrentGeneralBookPage`
- * reaches it from entirely outside the graph today, and `MyDocuments` will reach it from inside once
- * Task 6 lands. [NavRoutes.MY_DOCUMENT_PAGES_PATTERN] is deliberately absent from
- * `ScreenLauncher.MIGRATED`: all three of its arguments are required, so an argument-free entry has
- * nothing meaningful to show (the `Screen.LabelEdit`/`Screen.ManageLabels` precedent).
+ * Activity. Nav-graph slice 4 Task 5 built `MyDocumentPages` alone -- the CHILD half of the pair --
+ * because it was the one already reachable both ways: `CurrentGeneralBookPage` reaches it from
+ * entirely outside the graph, and `MyDocuments` (Task 6, below) reaches it from inside.
+ * [NavRoutes.MY_DOCUMENT_PAGES_PATTERN] is deliberately absent from `ScreenLauncher.MIGRATED`: all
+ * three of its arguments are required, so an argument-free entry has nothing meaningful to show
+ * (the `Screen.LabelEdit`/`Screen.ManageLabels` precedent).
  */
 fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: MyDocumentsNavDeps) {
+    // ——— MY DOCUMENTS ———
+    composable(route = NavRoutes.MY_DOCUMENTS_PATTERN) {
+        val d = deps.myDocuments
+
+        // Classic's `finished` latch (`:71`, `:452-453`, `:465-468`): set before every `deliver`,
+        // read by the autosave DisposableEffect below so a dispose AFTER an explicit save/cancel/
+        // relayed-selection does not run a second, redundant `save()` -- the controller never
+        // clears `dirty` inside `save()` itself, same as `MyDocumentPages` (Task 5).
+        val finished = remember { mutableStateOf(false) }
+
+        // HOST-MEMOISED (see MyDocumentsDeps.controllerFor's kdoc), so `remember` here is only
+        // "build it if this is the first composition" -- the host returns the SAME controller on
+        // every later call, across the pages editor sitting on top of this destination and popping
+        // back off it.
+        val controller = remember {
+            d.controllerFor { result ->
+                finished.value = true
+                deps.myDocumentsResults.deliver(navController, result)
+            }
+        }
+
+        val documents by controller.documents.collectAsState()
+        val dirty by controller.dirty.collectAsState()
+        val query by controller.query.collectAsState()
+        val filtering by controller.filtering.collectAsState()
+        val searchModeActive by controller.searchModeActive.collectAsState()
+        val selection by controller.selection.collectAsState()
+        val totalCount by controller.totalCount.collectAsState()
+        val importNamePrompt by d.importNamePrompt.collectAsState()
+
+        LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
+
+        // Classic's `onDetachedFromWindow` autosave (`:465-468`) with its `finished` latch. A window
+        // callback has no analogue here -- the arm's disposal is the equivalent moment, which
+        // includes the composition being torn down while `MyDocumentPages` sits on top of it (the
+        // arm's own `onOpen` below already saves before navigating in that case, so this is the
+        // redundant-but-harmless second write classic's own timing never had -- see the task
+        // report).
+        DisposableEffect(controller) {
+            onDispose { if (!finished.value && controller.dirty.value) controller.save() }
+        }
+
+        // The pages child's result, relayed. Classic's `pagesLauncher` callback relayed the two
+        // extras into its own `resultIntent` and called `finishOk()` (`:222-233`); the graph
+        // equivalent reads them off the channel `MyDocumentPages` published to before popping.
+        val pendingPages by deps.myDocumentPagesResults.pending.collectAsState()
+        LaunchedEffect(pendingPages) {
+            if (pendingPages == null) return@LaunchedEffect
+            val result = deps.myDocumentPagesResults.consume() ?: return@LaunchedEffect
+            if (result is MyDocumentPagesResult.Selected) {
+                finished.value = true
+                deps.myDocumentsResults.deliver(
+                    navController,
+                    MyDocumentsResult.Selected(result.documentInitials, result.pageKey),
+                )
+            }
+        }
+
+        // Classic's `onBackPressed` override (`:456-463`): back dismisses what is visually on top --
+        // the selection bar covers the search bar, so selection goes first. ONE gated handler with
+        // the branch inside it, never two stacked ones (`BookmarkNavGraph.kt:652-659` argues why).
+        PlatformBackHandler(enabled = selection.isNotEmpty() || searchModeActive) {
+            if (selection.isNotEmpty()) controller.clearSelection() else controller.closeSearch()
+        }
+
+        MyDocumentsScreen(
+            title = d.title,
+            documents = documents,
+            dirty = dirty,
+            query = query,
+            filtering = filtering,
+            searchModeActive = searchModeActive,
+            totalCount = totalCount,
+            onOpenSearch = controller::openSearch,
+            onCloseSearch = controller::closeSearch,
+            onQueryChange = controller::setQuery,
+            onMove = controller::moveItem,
+            // Classic built an Intent through `targetFor` and launched it with `pagesLauncher`
+            // (`:210-233`). Now a plain `navigate`: [MyDocumentsDeps.routeForPages] resolves the id
+            // to a route (or null, classic's `entityByLong[id] ?: return`) through the host's own
+            // Room-backed map, since the entity itself cannot cross into `commonMain`.
+            onOpen = { id ->
+                val route = d.routeForPages(id)
+                if (route != null) {
+                    // Classic auto-saved before leaving rather than prompting (:212-213).
+                    if (controller.dirty.value) controller.save()
+                    navController.navigate(route)
+                }
+            },
+            onRename = controller::rename,
+            onEditDescription = controller::editDescription,
+            onDelete = controller::delete,
+            onExport = controller::export,
+            onCreate = controller::create,
+            onImport = controller::importDocuments,
+            // Classic's Save button, `{ controller.save(); finishOk() }` (`:126`) -- `finishOk()`
+            // with NO documentInitials/pageKey extras, since those are the pages relay's alone; the
+            // honest nav-result shape for that is [MyDocumentsResult.Saved].
+            onSave = {
+                finished.value = true
+                controller.save()
+                deps.myDocumentsResults.deliver(navController, MyDocumentsResult.Saved)
+            },
+            // Classic's Dismiss button, `{ finishCanceled() }` (`:127`).
+            onCancel = {
+                finished.value = true
+                deps.myDocumentsResults.deliver(navController, MyDocumentsResult.Cancelled)
+            },
+            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            importNamePrompt = importNamePrompt,
+            onConfirmImport = d.onConfirmImport,
+            onDismissImport = d.onDismissImport,
+            selection = selection,
+            onToggleSelected = controller::toggleSelect,
+            onClearSelection = controller::clearSelection,
+            onDeleteSelected = controller::deleteSelected,
+            onExportSelected = controller::exportSelected,
+        )
+    }
+
     // ——— MY DOCUMENT PAGES ———
     composable(
         route = NavRoutes.MY_DOCUMENT_PAGES_PATTERN,
