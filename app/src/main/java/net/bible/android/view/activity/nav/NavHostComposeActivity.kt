@@ -107,11 +107,13 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.android.view.activity.bookmark.LabelEditContract
 import net.bible.android.view.activity.bookmark.LabelEditMapper
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.ManageLabelsMapper
 import net.bible.android.view.activity.bookmark.customIconMap
+import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.bookmark.toLabelItem
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
@@ -133,6 +135,7 @@ import net.bible.service.download.FakeBookFactory
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.exportStudyPads
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
+import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
@@ -166,6 +169,7 @@ import net.bible.sharedcore.ai.RawLogHistoryController
 import net.bible.sharedcore.ai.RawLogService
 import net.bible.sharedcore.ai.ToolPermissionService
 import net.bible.sharedcore.ai.ToolVd
+import net.bible.sharedcore.bookmark.BookmarksController
 import net.bible.sharedcore.bookmark.DeletePrompt
 import net.bible.sharedcore.bookmark.LabelEditController
 import net.bible.sharedcore.bookmark.LabelEditService
@@ -228,6 +232,7 @@ import net.bible.sharedui.ai.nav.ToolInfoDeps
 import net.bible.sharedui.ai.nav.aiNavGraph
 import net.bible.sharedui.bookmark.ManageLabelsHelpDialog
 import net.bible.sharedui.bookmark.nav.BookmarkNavDeps
+import net.bible.sharedui.bookmark.nav.BookmarksDeps
 import net.bible.sharedui.bookmark.nav.LabelEditDeps
 import net.bible.sharedui.bookmark.nav.ManageLabelsDeps
 import net.bible.sharedui.bookmark.nav.bookmarkNavGraph
@@ -320,6 +325,14 @@ class NavHostComposeActivity : ActivityBase() {
     private val labelEditService: LabelEditService by inject()
     private val manageLabelsService: ManageLabelsService by inject()
     private val bookmarkControl: BookmarkControl by inject()
+
+    /**
+     * Classic `BookmarksComposeActivity.kt:66` injects the CONCRETE impl, not the portable
+     * `BookmarksService` seam, and this host must too: resolving a selected/assigned/deleted ROW back
+     * to its Room bookmark entity (`bookmarkById`/`bookmarksByIds`/`loadedBookmarks`) is what every
+     * one of the list's host-side actions needs, and none of it is on the seam.
+     */
+    private val bookmarksService: BookmarksServiceImpl by inject()
 
     /**
      * Classic `SettingsComposeActivity`'s own `by lazy` service — NOT a Koin singleton, matching
@@ -946,6 +959,22 @@ class NavHostComposeActivity : ActivityBase() {
                         bookmarkResults = bookmarkResults,
                         manageLabelsResults = manageLabelsResults,
                         labelEditResults = labelEditResults,
+                        bookmarks = BookmarksDeps(
+                            // A HOST-memoised factory, not a per-entry one -- see
+                            // BookmarksDeps.controllerFor: this controller holds the user's
+                            // multi-selection, and the label manager they assign it with sits on top
+                            // of this destination.
+                            controllerFor = { initialFilterIndex, onSelectBookmark, navigateToManageLabels ->
+                                bookmarksControllerFor(initialFilterIndex, onSelectBookmark, navigateToManageLabels)
+                            },
+                            // Classic carried this as android:label on the host; one host now serves
+                            // every cluster. Same string the screen draws in its own top bar.
+                            title = getString(R.string.bookmarks_and_mynotes_title),
+                            onManageLabelsResult = { result -> applyBookmarksManageLabelsResult(result) },
+                            subscribeSyncEvents = { onBookmarksChanged ->
+                                subscribeBookmarksUpdated(onBookmarksChanged)
+                            },
+                        ),
                         manageLabels = ManageLabelsDeps(
                             // A HOST-memoised factory, not a per-entry one — see
                             // ManageLabelsDeps.controllerFor: this controller must survive the label
@@ -1113,6 +1142,254 @@ class NavHostComposeActivity : ActivityBase() {
                 }
             }
         }
+    }
+
+    // --- Bookmarks host baggage ----------------------------------------------------------------
+    // Ported from BookmarksComposeActivity (which a later task deletes). Everything here needs a
+    // `:app` type the graph cannot see -- the Room bookmark entities behind the rows, BookmarkControl,
+    // SpeakControl, the workspace settings, an `Activity` for the CSV chooser, and an
+    // `android.app.AlertDialog` -- which is the line that decides what is a deps slot and what is not.
+
+    /**
+     * The memo behind [BookmarksDeps.controllerFor], and the in-flight state of whichever label-manager
+     * round trip is open.
+     *
+     * [pendingAssign] is what makes ONE result channel serve classic's TWO round trips: the assign one
+     * (`BookmarksComposeActivity.kt:199-223`) has to write the returned label set onto the bookmarks the
+     * user had selected when it started, and the manage one (`:257-271`) only updates the workspace. A
+     * `ManageLabelsResult` carries the returned JSON and nothing else, so the DISTINCTION has to be
+     * remembered at the point the payload was built -- which is here, the same shape
+     * [ManageLabelsSession.pendingEdit] uses for the editor round trip one level down. The bookmark
+     * ENTITIES are held rather than their ids because that is what classic held across its own
+     * `awaitIntent`; re-resolving ids afterwards would depend on the list not having reloaded meanwhile.
+     */
+    private class BookmarksSession {
+        lateinit var controller: BookmarksController
+        var pendingAssign: List<BookmarkEntities.BaseBookmarkWithNotes>? = null
+    }
+
+    /**
+     * The bookmark list's memoised session, keyed on the route's filter index exactly as
+     * [manageLabelsSession] is keyed on its payload -- so a route naming a DIFFERENT label filter can
+     * never be served the previous list's controller. (No live edge re-navigates this host to a second
+     * bookmarks route today, since `BOOKMARKS_PATTERN` is a root destination reached only as the
+     * host's start destination; the key costs one word and removes the trap rather than relying on
+     * that staying true.)
+     *
+     * Unlike [manageLabelsSession] it is never DROPPED, and that is this destination's shape: being a
+     * root destination, it has no re-entry for a stale session to be resumed by, and the host dies
+     * with it. Dropping it at its exit would be a reload of a list that is about to disappear.
+     */
+    private var bookmarksSession: Pair<Int, BookmarksSession>? = null
+
+    /**
+     * Classic `BookmarksComposeActivity`'s `controller` (`:79-91`) plus its `onCreate` side effects
+     * (`:95`), memoised on [bookmarksSession] -- see [BookmarksDeps.controllerFor] for why this
+     * controller must survive the label manager sitting on top of its destination.
+     *
+     * The three lambdas that are NOT parameters here are the ones classic also kept private to the
+     * host: CSV export/import (they hand `this` to `BookmarkControl`, which wants an `Activity`) and
+     * the delete confirmation (an `android.app.AlertDialog`; converting platform dialogs is a
+     * separate, queued port goal). Each of them ends by refreshing the controller being built, which
+     * is why they close over [BookmarksSession] rather than being deps slots the arm would have to
+     * hand a self-reference to.
+     */
+    private fun bookmarksControllerFor(
+        initialFilterIndex: Int,
+        onSelectBookmark: (BookmarkResult) -> Unit,
+        navigateToManageLabels: (payload: String) -> Unit,
+    ): BookmarksController {
+        bookmarksSession?.let { (key, existing) -> if (key == initialFilterIndex) return existing.controller }
+
+        // Classic `BookmarksComposeActivity.onCreate` (`:95`). Once per opening of the list, as there.
+        CommonUtils.settings.setLong("bookmarks-last-used", System.currentTimeMillis())
+
+        val session = BookmarksSession()
+        session.controller = BookmarksController(
+            service = bookmarksService,
+            scope = lifecycleScope,
+            initialFilterIndex = initialFilterIndex,
+            onSelectBookmark = { id, listPosition ->
+                bookmarkResultFor(id, listPosition, session.controller.selectedFilterIndex.value)
+                    ?.let(onSelectBookmark)
+            },
+            onAssignLabels = { ids -> requestAssignLabels(session, ids, navigateToManageLabels) },
+            onDeleteSelected = { ids -> confirmDeleteBookmarks(session, ids) },
+            onExportCsv = { exportBookmarksCsv(session) },
+            onImportCsv = { importBookmarksCsv(session) },
+            onManageLabels = { requestManageLabels(session, navigateToManageLabels) },
+        )
+        bookmarksSession = initialFilterIndex to session
+        return session.controller
+    }
+
+    /**
+     * The half of classic `onSelectBookmark` (`BookmarksComposeActivity.kt:165-187`) that decides WHAT
+     * the result says; how it LEAVES is [bookmarkResults]'. Returns null when there is nothing to
+     * report -- an id with no loaded bookmark behind it (classic's `?: return`), or the failure its
+     * `try` caught.
+     *
+     * The `try` is classic's, split with the body it wrapped: what can throw here is the speak lookup
+     * and `verseRange.start.osisID`, and what can throw there is the history/`setResult` pair. Both
+     * halves keep the same log-and-toast, so a user sees exactly what classic showed them either way.
+     *
+     * [labelNo] is passed in rather than read off [BookmarksSession] so that this stays a function of
+     * what the caller saw: it is `controller.selectedFilterIndex.value` at the moment of the tap,
+     * which is what classic put in the extra (`:185`).
+     */
+    private fun bookmarkResultFor(id: String, listPosition: Int, labelNo: Int): BookmarkResult? {
+        val bookmark = bookmarksService.bookmarkById(id) ?: return null
+        Log.i(TAG_BOOKMARKS, "Bookmark selected:$bookmark")
+        return try {
+            if (bookmark is BookmarkEntities.BibleBookmarkWithNotes && bookmarkControl.isSpeakBookmark(bookmark)) {
+                speakControl.speakFromBookmark(bookmark)
+            }
+            // `title` is the HOST WINDOW's title, which the arm's LaunchedEffect has already set to
+            // this destination's -- the same CharSequence classic read off its own Activity (`:184`).
+            val description = title?.toString().orEmpty()
+            when (bookmark) {
+                is BookmarkEntities.BibleBookmarkWithNotes -> BookmarkResult(
+                    verse = bookmark.verseRange.start.osisID,
+                    description = description,
+                    labelNo = labelNo,
+                    listPosition = listPosition,
+                )
+                is BookmarkEntities.GenericBookmarkWithNotes -> BookmarkResult(
+                    key = bookmark.key,
+                    book = bookmark.book?.initials,
+                    ordinal = bookmark.ordinalStart,
+                    description = description,
+                    labelNo = labelNo,
+                    listPosition = listPosition,
+                )
+                else -> null
+            }
+        } catch (e: Exception) {
+            Log.e(TAG_BOOKMARKS, "Error on bookmarkSelected", e)
+            Toast.makeText(this, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+            null
+        }
+    }
+
+    /**
+     * Classic `assignLabels` (`BookmarksComposeActivity.kt:199-214`) up to the point it launched the
+     * Intent: the Room read that collects every label already on the selected bookmarks, on
+     * `Dispatchers.IO` exactly as classic ran it, then the ASSIGN-mode payload. The navigation itself
+     * is the arm's, so it is handed back on the MAIN thread -- `navController.navigate` is not
+     * thread-safe and classic's `awaitIntent` was reached from a main-dispatched continuation.
+     */
+    private fun requestAssignLabels(
+        session: BookmarksSession,
+        ids: List<String>,
+        navigateToManageLabels: (payload: String) -> Unit,
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val bookmarks = bookmarksService.bookmarksByIds(ids)
+            val labels = mutableSetOf<IdType>()
+            for (bookmark in bookmarks) {
+                labels.addAll(bookmarkControl.labelsForBookmark(bookmark).map { it.id })
+            }
+            val payload = ManageLabelsContract.ManageLabelsData(
+                mode = ManageLabelsContract.Mode.ASSIGN,
+                selectedLabels = labels,
+            ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
+            withContext(Dispatchers.Main) {
+                session.pendingAssign = bookmarks
+                navigateToManageLabels(payload)
+            }
+        }
+    }
+
+    /** Classic `manageLabels` (`:257-265`): the WORKSPACE-mode payload, and no pending assignment. */
+    private fun requestManageLabels(
+        session: BookmarksSession,
+        navigateToManageLabels: (payload: String) -> Unit,
+    ) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            val payload = ManageLabelsContract.ManageLabelsData(
+                mode = ManageLabelsContract.Mode.WORKSPACE,
+            ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
+            session.pendingAssign = null
+            navigateToManageLabels(payload)
+        }
+    }
+
+    /**
+     * Both of classic's label-manager continuations, joined at the one channel the arm consumes:
+     * `assignLabels`' (`:215-222`) and `manageLabels`' (`:266-270`). Which one runs is decided by the
+     * [BookmarksSession.pendingAssign] recorded when the payload was built, not by anything in the
+     * result -- see that field's kdoc.
+     *
+     * There is no `RESULT_OK` guard, and none is missing: classic's was always true on this edge,
+     * because the label manager has no cancel path at all (its Back press SAVES) and every exit it
+     * has delivers a result. A user who backs out of it has, by classic's own design, saved.
+     */
+    private fun applyBookmarksManageLabelsResult(result: ManageLabelsResult) {
+        val session = bookmarksSession?.second ?: return
+        val bookmarks = session.pendingAssign
+        session.pendingAssign = null
+
+        val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data)
+        if (bookmarks != null) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                for (bookmark in bookmarks) {
+                    bookmarkControl.changeLabelsForBookmark(bookmark, resultData.selectedLabels.toList())
+                }
+                windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
+                withContext(Dispatchers.Main) { session.controller.refresh() }
+            }
+        } else {
+            windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
+            session.controller.refresh()
+        }
+    }
+
+    /** Classic `onDelete` (`BookmarksComposeActivity.kt:227-240`), dialog and all. */
+    private fun confirmDeleteBookmarks(session: BookmarksSession, ids: List<String>) {
+        val bookmarks = bookmarksService.bookmarksByIds(ids)
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.confirm_delete_bookmarks, bookmarks.size))
+            .setPositiveButton(R.string.yes) { _, _ ->
+                for (bookmark in bookmarks) {
+                    bookmarkControl.deleteBookmark(bookmark)
+                }
+                session.controller.refresh()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .setCancelable(true)
+            .show()
+    }
+
+    /** Classic `onExportCsv` (`:244-248`) -- `exportBookmarksToCSV` wants an `Activity`, hence host-side. */
+    private fun exportBookmarksCsv(session: BookmarksSession) {
+        lifecycleScope.launch {
+            val bibleBookmarks = bookmarksService.loadedBookmarks()
+                .filterIsInstance<BookmarkEntities.BibleBookmarkWithNotes>()
+            bookmarkControl.exportBookmarksToCSV(this@NavHostComposeActivity, bibleBookmarks)
+            session.controller.refresh()
+        }
+    }
+
+    /** Classic `onImportCsv` (`:250-253`). */
+    private fun importBookmarksCsv(session: BookmarksSession) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            bookmarkControl.importBookmarksFromCSV(this@NavHostComposeActivity)
+            session.controller.refresh()
+        }
+    }
+
+    /**
+     * Classic's `ABEventBus.register(this) { onMain<BookmarksUpdatedViaSyncEvent> { controller.refresh() } }`
+     * (`BookmarksComposeActivity.kt:99`) and its `onDestroy` unregister (`:149`), as the per-destination
+     * seam [subscribeReadingPlansUpdated] established: a fresh token per subscription, so an unsubscribe
+     * can never take another cluster's listeners down with it.
+     */
+    private fun subscribeBookmarksUpdated(onBookmarksChanged: () -> Unit): () -> Unit {
+        val token = Any()
+        ABEventBus.register(token) {
+            onMain<BookmarksUpdatedViaSyncEvent> { onBookmarksChanged() }
+        }
+        return { ABEventBus.unregister(token) }
     }
 
     // --- ManageLabels host baggage -------------------------------------------------------------
@@ -2176,35 +2453,50 @@ class NavHostComposeActivity : ActivityBase() {
     }
 
     // ——— The bookmark cluster's three result channels ————————————————————————————————————————
-    // All three are created here, and handed to `BookmarkNavDeps` together, even though only the
-    // label editor's destination exists so far: the alternative is a deps class that every later
-    // task has to widen.
+    // All three were created here together, and handed to `BookmarkNavDeps` together, before their
+    // destinations existed: the alternative is a deps class that every later task has to widen.
     //
-    // Only the LIVE one has a real `exitWithResult`. Fix round 1, Finding 1: the first version of
-    // this block also ported the other two exits "so the later task inherits a packing that is
-    // already right" -- and the bookmark one had ALREADY lost classic's try/catch (which logs and
-    // toasts `error_occurred` around `addHistoryItem`/`setResult`), with no caller and no test able
-    // to notice. That is the cost of unreachable code. The plan assigns both packings to the tasks
-    // that build their destinations, each with a red-then-green test in `NavResultIntentsTest`, so
-    // what stays here is the half that is genuinely useful now: the pointer to the classic source
-    // each of those tasks must port from.
+    // Until Task 6 only the live ones had a real `exitWithResult`. Fix round 1, Finding 1: the first
+    // version of this block also ported the not-yet-reachable exits "so the later task inherits a
+    // packing that is already right" -- and the bookmark one had ALREADY lost classic's try/catch
+    // (which logs and toasts `error_occurred` around `addHistoryItem`/`setResult`), with no caller
+    // and no test able to notice. That is the cost of unreachable code, and it is why each packing
+    // landed with its own destination and its own red-then-green test in `NavResultIntentsTest`.
 
     /**
      * The bookmark LIST's channel. Its exit is classic `BookmarksComposeActivity.onSelectBookmark`
-     * (`BookmarksComposeActivity.kt:165-194`), itself a mirror of `Bookmarks.bookmarkSelected` —
-     * and note that `addHistoryItem` + `setResult` + `finish()` sit together inside a `try` whose
-     * `catch` logs and toasts `R.string.error_occurred`, so the task that ports it must keep that
-     * wrapper. The `ActivityResultKind.Bookmarks` tag belongs in the packing rather than in
-     * [BookmarkResult], for the reason [NavResultIntents.forReadingProgress] carries its own: the
-     * tag names the Intent's SHAPE to `MainBibleActivity`'s dispatcher, and is not part of what the
-     * destination decided.
+     * (`BookmarksComposeActivity.kt:165-194`), itself a mirror of `Bookmarks.bookmarkSelected`. The
+     * `ActivityResultKind.Bookmarks` tag belongs in the packing rather than in [BookmarkResult], for
+     * the reason [NavResultIntents.forReadingProgress] carries its own: the tag names the Intent's
+     * SHAPE to `MainBibleActivity`'s dispatcher, and is not part of what the destination decided.
+     *
+     * The half of the port that is HERE rather than in [NavResultIntents.forBookmarks] is the
+     * aliasing: classic hands ONE Intent object to `HistoryManager` and then to `setResult`, and a
+     * pure packing function cannot express "and the same object again". So this lambda holds the
+     * single `val`, the order of the two sinks, and classic's `try`/`catch` around them.
+     *
+     * Only [NavResultChannel]'s exit branch can ever run for it: nothing in any graph navigates to
+     * `BOOKMARKS_PATTERN`, so there is never a parent entry to publish to.
      */
-    private val bookmarkResults = NavResultChannel<BookmarkResult> {
-        error(
-            "no destination delivers on this channel until the Bookmarks arm lands (Task 6); its " +
-                "Intent packing belongs in NavResultIntents.forBookmarks, with the test that brief " +
-                "requires"
-        )
+    private val bookmarkResults = NavResultChannel<BookmarkResult> { result ->
+        // Classic `BookmarksComposeActivity.kt:187-194`, and the ORDER and the OBJECT are both part
+        // of it: ONE Intent is built, stored in the history list, and only then set as the result.
+        // `HistoryManager.createHistoryItem` (`:153-155`) keeps the very object it is handed inside
+        // an `IntentHistoryItem`, so building a second, structurally-equal Intent for `setResult`
+        // would silently unpick the aliasing classic relies on. Hence one `val` handed to both.
+        //
+        // The try/catch is classic's, kept deliberately: the first, speculative version of this
+        // lambda (written before this destination existed) had already lost it, with no caller and
+        // no test able to notice.
+        try {
+            val resultIntent = NavResultIntents.forBookmarks(result)
+            historyTraversal.historyManager.addHistoryItem(null, resultIntent)
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        } catch (e: Exception) {
+            Log.e(TAG_BOOKMARKS, "Error on bookmarkSelected", e)
+            Toast.makeText(this, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+        }
     }
 
     /**
@@ -3450,6 +3742,7 @@ class NavHostComposeActivity : ActivityBase() {
         private const val TAG_EPUB_SEARCH = "EpubSearchCompose"
         private const val TAG_EPUB_SEARCH_RESULTS = "EpubSearchResultsCompose"
         private const val TAG_MANAGE_LABELS = "ManageLabelsNavHost"
+        private const val TAG_BOOKMARKS = "BookmarksNavHost"
 
         /**
          * Classic `ManageLabels.kt`'s own key, unchanged so a user's persisted StudyPad

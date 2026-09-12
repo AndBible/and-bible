@@ -170,7 +170,18 @@ object ScreenLauncher {
         // Intent extra and go through targetFor: MenuCommandHandler.kt:207, OptionsMenuItems.kt:572
         // and :602, BibleView.kt:618, CurrentGeneralBookPage.kt:80,
         // TextDisplaySettingsComposeActivity.kt:379, and BookmarksComposeActivity.kt:206 and :258
-        // (the last two become in-graph navigate calls when Bookmarks is migrated).
+        // (the last two are in-graph navigate calls in the nav graph's own Bookmarks arm as of
+        // slice 2 Task 6; the classic host keeps its copies until the host-deletion task).
+        //
+        // Screen.Bookmarks, by contrast, IS here, and the difference is the one Screen.ReadingPlan
+        // and Screen.ReadingProgress above turn on: NavRoutes.BOOKMARKS_PATTERN's `labelNo` argument
+        // is OPTIONAL and its ABSENCE is a real state rather than a missing argument -- classic
+        // BookmarksComposeActivity.kt:73-77 branches on
+        // `intent.extras?.containsKey(BookmarkControl.LABEL_NO_EXTRA)`, and "no key" means "no label
+        // filter" (filter index 0). The one live caller, MenuCommandHandler.kt:205, passes no labelNo
+        // at all and so goes through this map; a caller that knew one would build
+        // NavRoutes.bookmarks(labelNo) directly, bypassing it.
+        Screen.Bookmarks to NavRoutes.bookmarks(),
     )
 
     /** The Activity class implementing [screen]. */

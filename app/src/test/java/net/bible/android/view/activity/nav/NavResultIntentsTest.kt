@@ -27,6 +27,8 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.ManageLabelsMapper
 import net.bible.android.view.activity.page.ActivityResultKind
+import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.ReadingProgressResult
@@ -152,6 +154,72 @@ class NavResultIntentsTest {
         // much as its set value, because `HideLabelsPreference.openDialog` (OptionsMenuItems.kt:583)
         // branches on it before touching `selectedLabels`.
         assertFalse(decoded.reset)
+    }
+
+    /**
+     * slice 2, Task 6. The bookmark LIST's exit, in its BIBLE-bookmark shape: classic
+     * `BookmarksComposeActivity.onSelectBookmark` (`:172-186`), itself a mirror of classic
+     * `Bookmarks.bookmarkSelected` (`Bookmarks.kt:295-323`). `MainBibleActivity.kt:2930-2957` is the
+     * reader, and it reads in this order: the [ActivityResultKind.EXTRA] tag to pick its branch,
+     * then `"verse"`, then -- for the generic shape -- `"key"`/`"book"`/`"ordinal"`. Every one of
+     * them is asserted here, including the ones that must be ABSENT: a `"key"` alongside a `"verse"`
+     * would not change what that dispatcher does today (it tests `verse` first), but it would make
+     * the two shapes indistinguishable to anything that looked the other way round.
+     *
+     * `"description"`, `LABEL_NO_EXTRA` and `"listPosition"` are not read by that dispatcher at all.
+     * They are read by the HISTORY seam: `HistoryManager.createHistoryItem` (`:153-155`) takes the
+     * `IntentHistoryItem`'s title from `intent.getStringExtra("description")`, and this same Intent
+     * OBJECT is the one stored there -- see the `bookmarkResults` channel in
+     * `NavHostComposeActivity`. So `"description"` must be a String extra, not a CharSequence one:
+     * `getStringExtra` returns null for the latter and the history row would read "-".
+     */
+    @Test
+    fun forBookmarksBibleShapeCarriesTheSameExtrasClassicBuilt() {
+        val intent = NavResultIntents.forBookmarks(
+            BookmarkResult(
+                verse = "Gen.1.1",
+                description = "Bookmarks and my notes",
+                labelNo = 3,
+                listPosition = 7,
+            ),
+        )
+
+        assertEquals(ActivityResultKind.Bookmarks.name, intent.getStringExtra(ActivityResultKind.EXTRA))
+        assertEquals("Gen.1.1", intent.getStringExtra("verse"))
+        assertNull(intent.getStringExtra("key"))
+        assertNull(intent.getStringExtra("book"))
+        assertEquals("Bookmarks and my notes", intent.getStringExtra("description"))
+        assertEquals(3, intent.getIntExtra(BookmarkControl.LABEL_NO_EXTRA, -1))
+        assertEquals(7, intent.getIntExtra("listPosition", -1))
+    }
+
+    /**
+     * The GENERIC half of the same exit (classic `:178-182`), which is the branch that carries three
+     * extras rather than one. `MainBibleActivity.kt:2947-2955` needs `"key"` AND `"book"` together
+     * -- it guards on `keyStr != null && bookStr != null` -- and then reads `"ordinal"` as an Int, so
+     * dropping any one of the three silently turns a generic-book bookmark into a no-op. `"verse"`
+     * must be absent: that dispatcher tests it FIRST, so a stray empty `"verse"` would send a
+     * general-book selection down the bible branch.
+     */
+    @Test
+    fun forBookmarksGenericShapeCarriesKeyBookAndOrdinal() {
+        val intent = NavResultIntents.forBookmarks(
+            BookmarkResult(
+                key = "some key",
+                book = "Pilgrim",
+                ordinal = 42,
+                description = "Bookmarks and my notes",
+                labelNo = 0,
+                listPosition = 0,
+            ),
+        )
+
+        assertEquals(ActivityResultKind.Bookmarks.name, intent.getStringExtra(ActivityResultKind.EXTRA))
+        assertNull(intent.getStringExtra("verse"))
+        assertEquals("some key", intent.getStringExtra("key"))
+        assertEquals("Pilgrim", intent.getStringExtra("book"))
+        assertEquals(42, intent.getIntExtra("ordinal", -1))
+        assertEquals(0, intent.getIntExtra(BookmarkControl.LABEL_NO_EXTRA, -1))
     }
 
     /**

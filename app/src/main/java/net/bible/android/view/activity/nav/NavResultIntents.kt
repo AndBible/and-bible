@@ -20,8 +20,10 @@ package net.bible.android.view.activity.nav
 import android.app.Activity
 import android.content.Intent
 import androidx.activity.result.ActivityResult
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.view.activity.page.ActivityResultKind
+import net.bible.sharedcore.nav.BookmarkResult
 import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.ReadingProgressResult
@@ -38,9 +40,9 @@ import net.bible.sharedcore.nav.ReadingProgressResult
  * the one function it then had, not a boundary: any result type a destination delivers belongs
  * here. A result type earns a function the moment a destination actually delivers on its
  * channel — a channel whose destination has not landed yet keeps a placeholder lambda at its
- * declaration instead (`NavHostComposeActivity`'s `bookmarkResults`, the last one still waiting),
- * so that the packing and the test that pins it arrive together, in the task that builds the
- * destination.
+ * declaration instead, so that the packing and the test that pins it arrive together, in the task
+ * that builds the destination. As of slice 2, Task 6 there is no such placeholder left: all four
+ * result types below have a live destination.
  *
  * [readingProgressService] is a fresh, stateless instance (as
  * `ReadingProgressServiceImplTest` builds its own) rather than the host's Koin-injected one:
@@ -117,4 +119,53 @@ object NavResultIntents {
      */
     fun forManageLabels(result: ManageLabelsResult): Intent =
         Intent().putExtra("data", result.data)
+
+    /**
+     * The bookmark LIST's exit: classic `BookmarksComposeActivity.onSelectBookmark`
+     * (`BookmarksComposeActivity.kt:172-186`), itself a mirror of classic `Bookmarks.bookmarkSelected`
+     * (`Bookmarks.kt:295-323`). Same keys, same order, same [ActivityResultKind.EXTRA] tag; the
+     * reader, `MainBibleActivity.kt:2930-2957`, is not touched by this move.
+     *
+     * Returns a bare [Intent] and not an [ActivityResult] like [forLabelEdit], for
+     * [forManageLabels]' reason and one more of its own: this path has exactly one result code
+     * (`RESULT_OK`) because it only exists when a row was actually picked — classic's list had no
+     * cancel result at all, its Back press just `finish()`ed with the default `RESULT_CANCELED` and
+     * no Intent, which is not something a [BookmarkResult] can even express.
+     *
+     * **The returned object's IDENTITY is load-bearing**, which is why this is a function that
+     * returns one Intent rather than something a caller might call twice. Classic passes the SAME
+     * instance to `historyTraversal.historyManager.addHistoryItem(null, intent)` and then to
+     * `setResult` (`:188-189`), and `HistoryManager.createHistoryItem` (`:153-155`) keeps the object
+     * it is handed inside an `IntentHistoryItem`. Two structurally-equal Intents would behave
+     * identically today, but the stored one carries NO component — `IntentHistoryItem.revertTo`
+     * (`:55-63`) replays extras — so anything that later mutated the result Intent on its way out
+     * would have to mutate the stored one too, exactly as it does now. See the `bookmarkResults`
+     * channel in `NavHostComposeActivity`, which is the one caller.
+     *
+     * The two row shapes mirror classic's `when (bookmark)`: a Bible bookmark carries `"verse"`
+     * alone, a generic one carries `"key"`/`"book"`/`"ordinal"` and no `"verse"` — and the ABSENCE
+     * is load-bearing, because `MainBibleActivity.kt:2945` tests `"verse"` first.
+     */
+    fun forBookmarks(result: BookmarkResult): Intent {
+        val intent = Intent()
+            .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.Bookmarks.name)
+        if (result.verse != null) {
+            intent.putExtra("verse", result.verse)
+        } else {
+            intent.putExtra("key", result.key)
+            // Nullable exactly as classic's `bookmark.book?.initials` is: a general-book bookmark
+            // whose book is gone puts a null extra rather than omitting the key, and the dispatcher's
+            // `keyStr != null && bookStr != null` guard is what handles it.
+            intent.putExtra("book", result.book)
+            intent.putExtra("ordinal", result.ordinal ?: 0)
+        }
+        // A String extra, NOT a CharSequence one: `HistoryManager.createHistoryItem` reads it with
+        // `getStringExtra`, which returns null for a CharSequence extra and would title the history
+        // row "-". Classic passed the Activity's `title` (a `CharSequence`) and got away with it
+        // only because it was in fact a String.
+        intent.putExtra("description", result.description)
+        intent.putExtra(BookmarkControl.LABEL_NO_EXTRA, result.labelNo)
+        intent.putExtra("listPosition", result.listPosition)
+        return intent
+    }
 }

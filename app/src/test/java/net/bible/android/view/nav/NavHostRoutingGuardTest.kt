@@ -415,11 +415,36 @@ class NavHostRoutingGuardTest {
         )
     }
 
+    /**
+     * slice 2, Task 6. The ARGUMENT-FREE bookmarks route is the correct [ScreenLauncher.MIGRATED]
+     * value, and argument-free MEANS something here -- which is why `Screen.Bookmarks` is in the map
+     * at all, unlike its two cluster siblings: classic `BookmarksComposeActivity.kt:73-77` branches
+     * on `intent.extras?.containsKey(BookmarkControl.LABEL_NO_EXTRA)`, so "no labelNo" is the real
+     * state "no label filter" (filter index 0), not a dropped argument. The precedent is
+     * [readingPlanResolvesToTheNavHostCarryingItsArgumentFreeRoute]: same optional-argument shape,
+     * same reasoning.
+     *
+     * The one live caller (`MenuCommandHandler.kt:205`) passes no labelNo at all, so it goes through
+     * this map; a caller that knew one would build `NavRoutes.bookmarks(labelNo)` directly.
+     */
+    @Test
+    fun bookmarksResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.Bookmarks)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.bookmarks(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    /**
+     * The coexistence seam's other half. `Screen.MyDocuments` stands in for "not migrated yet" here;
+     * it used to be `Screen.Bookmarks`, which slice 2 Task 6 moved into [ScreenLauncher.MIGRATED] --
+     * so this assertion had to move with it rather than be deleted, since "an unmigrated screen
+     * still reaches its own Activity" is the property, not the particular screen.
+     */
     @Test
     fun anUnmigratedScreenStillResolvesToItsOwnActivity() {
-        val intent = ScreenLauncher.intentFor(context, Screen.Bookmarks)
+        val intent = ScreenLauncher.intentFor(context, Screen.MyDocuments)
         assertEquals(
-            "net.bible.android.view.activity.bookmark.BookmarksComposeActivity",
+            "net.bible.android.view.mydocuments.MyDocumentsComposeActivity",
             intent.component?.className,
         )
         assertTrue(intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE) == null)

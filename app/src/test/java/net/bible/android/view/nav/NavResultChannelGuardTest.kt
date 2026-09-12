@@ -127,11 +127,10 @@ class NavResultChannelGuardTest {
     /**
      * The bookmark cluster's twin of [readingProgressArmActuallyDeliversThroughTheChannel], and it
      * matters more here: [net.bible.sharedui.bookmark.nav.BookmarkNavDeps] declares THREE channels
-     * (see its kdoc for why they are created together) and — after slice 2, Task 5 — two of them
-     * have destinations, so `bookmarkResults` is still legitimately used nowhere. That makes
-     * [everyNavResultChannelFieldOnADepsClassIsOnlyEverDelivered] vacuous for it by design — these
-     * tests pin the ones that are not, so a result cannot silently stop reaching its channel. The
-     * `Bookmarks` arm brings its own line here.
+     * (see its kdoc for why they are created together), and as of slice 2, Task 6 all three have
+     * destinations — so each one gets its own line below.
+     * [everyNavResultChannelFieldOnADepsClassIsOnlyEverDelivered] would be vacuous for a channel
+     * nothing used; these tests are what stop a result from silently ceasing to reach its channel.
      */
     @Test
     fun labelEditArmActuallyDeliversThroughTheChannel() {
@@ -202,6 +201,59 @@ class NavResultChannelGuardTest {
             "BookmarkNavGraph.kt consumes labelEditResults but hands the result to nobody -- " +
                 "ManageLabelsDeps.onLabelEditResult is never called, so a label edited from inside " +
                 "the graph is read, cleared and DROPPED",
+        )
+    }
+
+    /**
+     * slice 2, Task 6's producer half, and the last of the three. The bookmark LIST's only result is
+     * the row the user picked, and unlike the other two exits in this cluster it is not merely a
+     * payload handed back: the host lambda behind this channel ALSO stores the very same `Intent`
+     * OBJECT in `HistoryManager` before `setResult`s it (classic
+     * `BookmarksComposeActivity.kt:188-189`). Losing this call would therefore lose both the caller's
+     * result and the history entry, and `MainBibleActivity` would simply never move to the bookmark.
+     */
+    @Test
+    fun bookmarksArmActuallyDeliversThroughTheChannel() {
+        val text = bookmarkNavGraphSource()
+        assertTrue(
+            text.contains("bookmarkResults.deliver("),
+            "BookmarkNavGraph.kt no longer calls bookmarkResults.deliver(...) -- picking a bookmark " +
+                "row would leave without telling the caller which one",
+        )
+    }
+
+    /**
+     * slice 2, Task 6's CONSUMER half -- the second parent in these graphs, and the one that makes
+     * [net.bible.sharedui.nav.NavResultChannel]'s in-graph branch live for `ManageLabels` at last:
+     * until this arm existed, every entry into the label manager was the host's START destination,
+     * so `deliver` always took the exit branch and the `pending`/`consume` half of its contract was
+     * only ever exercised by `LabelEdit`.
+     *
+     * Both round trips this arm makes — assign-labels (classic `BookmarksComposeActivity.kt:206`)
+     * and manage-labels (`:258`) — come back through this one channel, and the host tells them apart
+     * from the request it recorded when it built the payload. Without the consumption the user's
+     * label assignment would be committed nowhere and the list would not refresh; the third
+     * assertion is the one that catches a `consume()` whose value is then thrown away, exactly as in
+     * [manageLabelsArmConsumesTheLabelEditChannel].
+     */
+    @Test
+    fun bookmarksArmConsumesTheManageLabelsChannel() {
+        val text = bookmarkNavGraphSource()
+        assertTrue(
+            text.contains("manageLabelsResults.pending"),
+            "BookmarkNavGraph.kt does not collect manageLabelsResults.pending -- labels assigned " +
+                "from inside the graph would pop with the user's choices dropped",
+        )
+        assertTrue(
+            text.contains("manageLabelsResults.consume()"),
+            "BookmarkNavGraph.kt does not clear manageLabelsResults with consume() -- a pending " +
+                "result would be re-applied on every recomposition",
+        )
+        assertTrue(
+            text.contains("onManageLabelsResult("),
+            "BookmarkNavGraph.kt consumes manageLabelsResults but hands the result to nobody -- " +
+                "BookmarksDeps.onManageLabelsResult is never called, so an assign/manage round trip " +
+                "is read, cleared and DROPPED",
         )
     }
 

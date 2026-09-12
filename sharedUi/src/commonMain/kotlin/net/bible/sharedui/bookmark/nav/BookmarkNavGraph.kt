@@ -19,6 +19,7 @@ package net.bible.sharedui.bookmark.nav
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,6 +34,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.savedstate.read
+import net.bible.sharedcore.bookmark.BookmarksController
 import net.bible.sharedcore.bookmark.DeletePrompt
 import net.bible.sharedcore.bookmark.LabelEditController
 import net.bible.sharedcore.bookmark.LabelEditState
@@ -45,6 +47,7 @@ import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.nav.LabelEditResult as NavLabelEditResult
 import net.bible.sharedui.PlatformBackHandler
+import net.bible.sharedui.bookmark.BookmarksScreen
 import net.bible.sharedui.bookmark.LabelEditScreen
 import net.bible.sharedui.bookmark.ManageLabelsScreen
 import net.bible.sharedui.nav.NavResultChannel
@@ -138,6 +141,70 @@ class LabelEditDeps(
 )
 
 /**
+ * [BookmarksScreen]'s platform-supplied slots, ported from classic `BookmarksComposeActivity`.
+ *
+ * This is the cluster's ROOT destination: nothing inside any graph navigates to it (it is reached
+ * only as the host's start destination, through `ScreenLauncher.MIGRATED`), and it is the only one
+ * of the three that navigates OUT to a sibling -- twice, both times to [NavRoutes.MANAGE_LABELS_PATTERN].
+ *
+ * - [controllerFor] builds the [BookmarksController] around the route's own `labelNo`, already
+ *   clamped by the arm. It is a HOST-MEMOISED factory, not a per-entry one, for exactly
+ *   [ManageLabelsDeps.controllerFor]'s reason: this destination NAVIGATES to the label manager,
+ *   navigation-compose disposes this arm's composition while that child is on top, and the
+ *   controller holds view state classic's merely-PAUSED Activity kept -- the multi-selection the
+ *   user is about to assign labels to, the search query, the expanded rows, the loaded list. A
+ *   per-entry factory would clear the user's selection at the exact moment they used it.
+ *
+ *   Its two lambdas are the halves only the graph can supply. `onSelectBookmark` is the channel
+ *   delivery -- the host builds the [BookmarkResult] (it needs the Room entity behind the row) and
+ *   the arm decides how it LEAVES. `navigateToManageLabels` is the single
+ *   `navController.navigate(NavRoutes.manageLabels(payload))` the host cannot make; the payload is
+ *   the host's, because both of classic's round trips build a `ManageLabelsContract.ManageLabelsData`
+ *   out of Room labels and the workspace settings, and that is also asynchronous work
+ *   (`Dispatchers.IO`) -- hence a callback rather than a return value.
+ *
+ *   Everything else classic's controller was built with stays inside this factory, host-side and
+ *   invisible here: the CSV export/import (`bookmarkControl.exportBookmarksToCSV` wants an
+ *   `Activity`), the delete confirmation (an `android.app.AlertDialog`; converting platform dialogs
+ *   is a separate, queued port goal) and the `bookmarks-last-used` setting classic wrote in
+ *   `onCreate`. Each of them ends by refreshing the controller it was built around, which only the
+ *   factory that built it can reach -- splitting them into deps slots of their own would buy the arm
+ *   nothing but a self-reference.
+ *
+ * - [title] is the WINDOW title, classic's `android:label` and the same string
+ *   [BookmarksScreen] draws in its own top bar (`R.string.bookmarks_and_mynotes_title`), exactly as
+ *   classic passed the one string to both.
+ *
+ * - [onManageLabelsResult] is where BOTH round trips land: classic's `assignLabels` continuation
+ *   (`BookmarksComposeActivity.kt:215-222`) and its `manageLabels` one (`:266-270`). They share one
+ *   channel, and the host tells them apart from the request it recorded when it built the payload --
+ *   not the arm, which has nothing to tell them apart WITH (a `ManageLabelsResult` carries only the
+ *   returned JSON). Both bodies are Room work (`changeLabelsForBookmark`, `workspaceSettings
+ *   .updateFrom`) plus a controller refresh, so the whole of both stays host-side.
+ *
+ *   There is deliberately no cancelled branch: [NavResultChannel] only ever carries the payload
+ *   classic's `RESULT_OK` carried, and the label manager has no cancel path at all (its Back press
+ *   SAVES). A user who backs out of it is delivering a result, and classic's `if (resultCode ==
+ *   RESULT_OK)` guard was therefore always true on this edge.
+ *
+ * - [subscribeSyncEvents] is classic's `ABEventBus.register(this) { onMain<BookmarksUpdatedViaSyncEvent>
+ *   { controller.refresh() } }` / `unregister` pair (`:99`, `:149`), as a `DisposableEffect` in this
+ *   arm -- the seam shape [net.bible.sharedui.readingplan.nav.DailyReadingDeps.subscribeEvents]
+ *   established, and route-scoped for its reason: the token is per-subscription, so an unsubscribe
+ *   can never take another cluster's listeners down with it.
+ */
+class BookmarksDeps(
+    val controllerFor: (
+        initialFilterIndex: Int,
+        onSelectBookmark: (BookmarkResult) -> Unit,
+        navigateToManageLabels: (payload: String) -> Unit,
+    ) -> BookmarksController,
+    val title: String,
+    val onManageLabelsResult: (ManageLabelsResult) -> Unit,
+    val subscribeSyncEvents: (onBookmarksChanged: () -> Unit) -> () -> Unit,
+)
+
+/**
  * [ManageLabelsScreen]'s platform-supplied slots, ported from classic `ManageLabelsComposeActivity`.
  *
  * This destination is the cluster's DUAL-ENTRY one: six callers outside the graph launch it and read
@@ -221,12 +288,13 @@ class ManageLabelsDeps(
  * [net.bible.sharedui.readingplan.nav.ReadingPlanNavDeps]: [exitHost] and [setWindowTitle] are
  * graph-wide and sit at the top, one nested holder per destination below.
  *
- * **All three result channels are declared here now, with only one destination built.** The cluster
- * has three result-producing destinations and this is the file that owns them; creating the channels
- * one per task would mean every later task WIDENING this type, and a widened deps class is the kind
- * of change that quietly leaves a caller behind. The two nested deps holders those destinations need
- * are a different matter and are added with the destinations themselves -- an unused
- * `NavResultChannel` field costs one line, an unused deps class costs a whole unverified port.
+ * **All three result channels were declared here at once, before their destinations existed.** The
+ * cluster has three result-producing destinations and this is the file that owns them; creating the
+ * channels one per task would have meant every later task WIDENING this type, and a widened deps
+ * class is the kind of change that quietly leaves a caller behind. The three nested deps holders
+ * were a different matter and arrived with the destinations themselves -- an unused
+ * `NavResultChannel` field costs one line, an unused deps class costs a whole unverified port. As of
+ * slice 2, Task 6 all three destinations are built.
  */
 class BookmarkNavDeps(
     val exitHost: () -> Unit,
@@ -239,16 +307,22 @@ class BookmarkNavDeps(
      */
     val setWindowTitle: (String) -> Unit,
     /**
-     * How the bookmark LIST hands back the row the user picked. Its destination arrives with the
-     * `BOOKMARKS_PATTERN` arm; the channel exists now for the reason [BookmarkNavDeps]' kdoc gives.
+     * How the bookmark LIST hands back the row the user picked. Only ONE of
+     * [NavResultChannel]'s two branches can ever run for it: `BOOKMARKS_PATTERN` is a root
+     * destination -- nothing in any graph navigates to it -- so there is never a parent entry and
+     * `deliver` always exits the host. It is a channel rather than a plain exit lambda anyway,
+     * because that decision belongs to [NavResultChannel] rather than to a destination's own
+     * knowledge of who opened it, and the bookmark list would otherwise be the only result producer
+     * in these graphs that had to be told.
      */
     val bookmarkResults: NavResultChannel<BookmarkResult>,
     /**
      * How the label MANAGER hands back its edited `ManageLabelsData`, in either of the two ways it
-     * can be entered -- see [NavResultChannel]'s own kdoc. Today only the outside entry is live
-     * (six classic callers reach it as the host's START destination), so every result takes the
-     * exit branch; `Bookmarks` makes the in-graph entry live too, and the arm needs no change for
-     * it, because the branch is [NavResultChannel.deliver]'s to take at runtime.
+     * can be entered -- see [NavResultChannel]'s own kdoc. BOTH entries are live as of slice 2,
+     * Task 6: six classic callers still reach it as the host's START destination (exit branch), and
+     * the `BOOKMARKS_PATTERN` arm navigates to it from inside (publish-and-pop branch, consumed
+     * there). The arm needed no change for the second one, because the branch is
+     * [NavResultChannel.deliver]'s to take at runtime.
      */
     val manageLabelsResults: NavResultChannel<ManageLabelsResult>,
     /**
@@ -265,6 +339,8 @@ class BookmarkNavDeps(
      * other path into the editor still takes the exit branch.
      */
     val labelEditResults: NavResultChannel<NavLabelEditResult>,
+    // — BOOKMARKS —
+    val bookmarks: BookmarksDeps,
     // — MANAGE LABELS —
     val manageLabels: ManageLabelsDeps,
     // — LABEL EDIT —
@@ -289,25 +365,161 @@ private fun NavHostController.popOrExit(exitHost: () -> Unit) {
  * The bookmark cluster's destinations. Registered into the app's single `NavHost` by the host
  * Activity.
  *
- * Today it holds two: [NavRoutes.MANAGE_LABELS_PATTERN], the label manager, and
- * [NavRoutes.LABEL_EDIT_PATTERN], the label editor it navigates to. Neither is reachable through
- * `ScreenLauncher.MIGRATED` and that is correct rather than an oversight -- both take a REQUIRED
- * `data` argument, so an argument-free route would open a screen with nothing to show (the
- * `Screen.RawLlmLog` precedent), and every real edge builds `NavRoutes.manageLabels(data)` /
- * `NavRoutes.labelEdit(data)` directly. Live traffic still goes to the classic Activities through
- * the coexistence seam, and NOTHING in production reaches either arm yet: the manager's route is
- * built only by tests today. Both edges go live together -- the in-graph one (manager -> editor)
- * when `Bookmarks` navigates here instead of launching an Intent, and the outside one when the
- * classic hosts are deleted.
+ * It holds three: [NavRoutes.BOOKMARKS_PATTERN], the bookmark list, and the two it navigates to --
+ * [NavRoutes.MANAGE_LABELS_PATTERN], the label manager, and [NavRoutes.LABEL_EDIT_PATTERN], the
+ * label editor the manager in turn navigates to.
  *
- * **Almost every exit here carries a RESULT**, which is why [popOrExit] is used in exactly one
- * place. The up-arrow, Back, Save, Delete and the StudyPad selection all go through a
- * [NavResultChannel], and [NavResultChannel.deliver] is what chooses between popping to a parent and
- * exiting the host; binding any of them to a plain `popOrExit` would leave without a result at all,
- * which classic never did. The exception is a destination reached with NO payload at all, which
- * cannot construct a result to leave with -- see the `MANAGE_LABELS_PATTERN` arm's guard.
+ * Only the FIRST is reachable through `ScreenLauncher.MIGRATED`, and that asymmetry is correct
+ * rather than an oversight: the other two take a REQUIRED `data` argument, so an argument-free
+ * route would open a screen with nothing to show (the `Screen.RawLlmLog` precedent), whereas the
+ * list's `labelNo` is OPTIONAL and its absence means something real ("no label filter"), the
+ * `Screen.ReadingPlan` precedent. Every real edge into the other two builds
+ * `NavRoutes.manageLabels(data)` / `NavRoutes.labelEdit(data)` directly.
+ *
+ * The in-graph edges are live as of slice 2, Task 6: `Bookmarks` navigates to the manager instead of
+ * launching an Intent, and the manager navigates to the editor. The OUTSIDE edges into the manager
+ * and the editor still go to the classic Activities through the coexistence seam, and stay there
+ * until the task that deletes those hosts.
+ *
+ * **Almost every exit in the two LABEL destinations carries a RESULT.** Their up-arrow, Back, Save,
+ * Delete and StudyPad selection all go through a [NavResultChannel], and [NavResultChannel.deliver]
+ * is what chooses between popping to a parent and exiting the host; binding any of them to a plain
+ * `popOrExit` would leave without a result at all, which classic never did. The exception there is a
+ * destination reached with NO payload, which cannot construct a result to leave with -- see the
+ * `MANAGE_LABELS_PATTERN` arm's guard.
+ *
+ * The bookmark LIST is the opposite shape and uses [popOrExit] for both of its own exits: its result
+ * exists only when a row was PICKED, so leaving by the up-arrow or by Back is classic's plain
+ * `finish()` with no result at all (`RESULT_CANCELED`), which is not something a
+ * [net.bible.sharedcore.nav.BookmarkResult] can express.
  */
 fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: BookmarkNavDeps) {
+    // ——— BOOKMARKS ———
+    composable(
+        route = NavRoutes.BOOKMARKS_PATTERN,
+        arguments = listOf(
+            // A String, not NavType.IntType, for DAILY_READING_PATTERN's and READING_PROGRESS_PATTERN's
+            // reason: an ABSENT optional Int has no representation this library can express (IntType is
+            // not nullable and any sentinel default is a value the route could legitimately carry), and
+            // absence is exactly what has to stay distinguishable here -- see NavRoutes.bookmarks.
+            navArgument(NavRoutes.ARG_LABEL_NO) { type = NavType.StringType; nullable = true; defaultValue = null },
+        ),
+    ) { backStackEntry ->
+        val d = deps.bookmarks
+
+        // Classic `BookmarksComposeActivity.initialFilterIndex` (`:73-77`), both halves of it: an
+        // ABSENT argument means "no label filter" and reads as 0, and a NEGATIVE one is CLAMPED to 0
+        // rather than passed on. The clamp lives here, not in `NavRoutes.bookmarks`, and deliberately
+        // -- see that builder's kdoc: it is destination BEHAVIOUR, not route DATA. Losing it would
+        // hand BookmarksController a negative index, which its own `coerceIn(0, ...)` would absorb
+        // silently today, so nothing downstream would report the loss.
+        val labelNo = backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_LABEL_NO) }?.toIntOrNull() ?: -1
+        val initialFilterIndex = if (labelNo >= 0) labelNo else 0
+
+        // remember(initialFilterIndex) over a HOST-MEMOISED factory -- see BookmarksDeps.controllerFor.
+        // The remember key and the host's memo key are the same value on purpose: a route with a
+        // different labelNo is a different list, and anything else is the same one being re-composed
+        // after the label manager was closed.
+        val controller = remember(initialFilterIndex) {
+            d.controllerFor(
+                initialFilterIndex,
+                { result -> deps.bookmarkResults.deliver(navController, result) },
+                // The one line the host cannot write: the payload is entirely the host's (Room
+                // labels, the workspace settings), turning it into a destination is this graph's.
+                { payload -> navController.navigate(NavRoutes.manageLabels(payload)) },
+            )
+        }
+
+        LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
+
+        // Classic's ABEventBus.register/unregister pair (`:99`, `:149`), route-scoped -- see
+        // BookmarksDeps.subscribeSyncEvents. Keyed on the controller so a rebuilt controller is the
+        // one a sync refreshes.
+        DisposableEffect(controller) {
+            val unsubscribe = d.subscribeSyncEvents { controller.refresh() }
+            onDispose { unsubscribe() }
+        }
+
+        // ——— the channel's IN-GRAPH branch, consumed ———
+        // This is where ManageLabels' in-graph ENTRY mode first runs in production: before this arm
+        // existed, every entry into the label manager was the host's start destination, so
+        // `deliver` always took the exit branch. Both of classic's round trips -- assign-labels
+        // (`BookmarksComposeActivity.kt:206`) and manage-labels (`:258`) -- come back through this
+        // one effect; the host tells them apart from the request it recorded when it built the
+        // payload, because a ManageLabelsResult carries only the returned JSON.
+        //
+        // Same shape as the MANAGE_LABELS_PATTERN arm's consumption of `labelEditResults`, and for
+        // the same reasons: `consume()` clears the channel in the same breath as reading it, so a
+        // recomposition cannot apply the same result twice -- and clearing re-triggers this effect
+        // with `null`, which is the early return.
+        val pendingManageLabels by deps.manageLabelsResults.pending.collectAsState()
+        LaunchedEffect(pendingManageLabels) {
+            if (pendingManageLabels == null) return@LaunchedEffect
+            val result = deps.manageLabelsResults.consume() ?: return@LaunchedEffect
+            d.onManageLabelsResult(result)
+        }
+
+        val rows by controller.rows.collectAsState()
+        val filterLabels by controller.filterLabels.collectAsState()
+        val selectedFilterIndex by controller.selectedFilterIndex.collectAsState()
+        val sortMode by controller.sortMode.collectAsState()
+        val searchText by controller.searchText.collectAsState()
+        val searchModeActive by controller.searchModeActive.collectAsState()
+        val showNotes by controller.showNotes.collectAsState()
+        val selection by controller.selection.collectAsState()
+        val expandedIds by controller.expandedIds.collectAsState()
+        val loading by controller.loading.collectAsState()
+
+        // Classic's `onBackPressed` override (`:153-161`), line for line: back dismisses what is
+        // visually on top -- the selection bar covers the search bar (AbSelectionScaffold's
+        // precedence), so selection goes first; closing search underneath a visible selection bar
+        // would clear the query and re-filter the list invisibly.
+        //
+        // GATED, unlike the two label arms' always-enabled handlers, and the difference is classic's:
+        // their third branch is a SAVE that must not be replaced by a bare pop, while this one is
+        // `super.onBackPressed()` -- a plain leave with no result, which is exactly what the NavHost
+        // does on its own. SettingsNavGraph's search handler is gated for the same reason.
+        // PlatformBackHandler, never androidx.activity.compose.BackHandler: this is commonMain.
+        PlatformBackHandler(enabled = selection.isNotEmpty() || searchModeActive) {
+            if (selection.isNotEmpty()) controller.clearSelection() else controller.closeSearch()
+        }
+
+        BookmarksScreen(
+            title = d.title,
+            rows = rows,
+            filterLabels = filterLabels,
+            selectedFilterIndex = selectedFilterIndex,
+            sortMode = sortMode,
+            searchText = searchText,
+            showNotes = showNotes,
+            selection = selection,
+            expandedIds = expandedIds,
+            loading = loading,
+            onSelectFilter = controller::setFilter,
+            onCycleSort = controller::cycleSort,
+            onSearch = controller::setSearch,
+            searchModeActive = searchModeActive,
+            onOpenSearch = controller::openSearch,
+            onCloseSearch = controller::closeSearch,
+            onToggleShowNotes = controller::toggleShowNotes,
+            onRowClick = controller::selectRow,
+            onRowLongClick = controller::enterSelection,
+            onToggleSelected = controller::toggleSelection,
+            onToggleExpand = controller::toggleExpanded,
+            onAssignSelected = controller::assignSelected,
+            onDeleteSelected = controller::deleteSelected,
+            onClearSelection = controller::clearSelection,
+            onManageLabels = controller::manageLabels,
+            onExportCsv = controller::exportCsv,
+            onImportCsv = controller::importCsv,
+            // Classic's `onUp = { finish() }`: a plain leave with NO result. This destination is the
+            // host's start destination in every live edge, so popOrExit's boolean lands on the exit
+            // branch -- but it is written as popOrExit rather than as `deps.exitHost()` so that a
+            // future in-graph caller pops back to itself instead of killing the host under it.
+            onUp = { navController.popOrExit(deps.exitHost) },
+        )
+    }
+
     // ——— MANAGE LABELS ———
     composable(
         route = NavRoutes.MANAGE_LABELS_PATTERN,
