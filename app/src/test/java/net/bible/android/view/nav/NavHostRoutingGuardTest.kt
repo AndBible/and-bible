@@ -591,19 +591,24 @@ class NavHostRoutingGuardTest {
      *    principle, predates this hardening round, and is accepted rather than chased.
      *
      * **Hardened again by the whole-branch review's M2** against a fifth fail-open shape -- not a
-     * missed syntax this time but a missed CALL SITE. Tasks 6 and 8 established
+     * missed syntax this time but a missed CALL SITE. Tasks 6 and 8 (of nav-graph 3+5+6) established
      * `NavHostComposeActivity.intentFor(context, NavRoutes.xyz(...))` as the PRESCRIBED way to reach
-     * a route that takes arguments, and the tree now has six such production call sites
+     * a route that takes arguments, and at that point the tree had six such production call sites
      * (`BibleJavascriptInterface.kt:570` and `:1094`, `BibleView.kt:482`,
-     * `ComposeReadingViewHost.kt:833`, `SearchControl.kt:109`, `LinkControl.kt:428`). A
-     * `.putExtra(...)` chained onto any of them is dropped exactly as silently as the three defects
-     * this scan was written for -- [NavHostComposeActivity] reads only
+     * `ComposeReadingViewHost.kt:833`, `SearchControl.kt:109`, `LinkControl.kt:428`). Nav-graph
+     * slices 2+4 Task 7 added six more, all `NavRoutes.manageLabels(data)` calls, when it deleted the
+     * classic `ManageLabelsComposeActivity` host and repointed its six outside callers:
+     * `MenuCommandHandler.kt:219`, `OptionsMenuItems.kt:585` and `:610`, `BibleView.kt:628` (so
+     * `BibleView.kt` now has two of its own), `CurrentGeneralBookPage.kt:92` and
+     * `TextDisplaySettingsComposeActivity.kt:393`. The tree has **twelve** such production call
+     * sites today. A `.putExtra(...)` chained onto any of them is dropped exactly as silently as the
+     * three defects this scan was written for -- [NavHostComposeActivity] reads only
      * [NavHostComposeActivity.EXTRA_ROUTE] and nothing else (verified: that is its only
      * `intent.get*Extra` read, in `onCreate` and in `onNewIntent`) -- yet the scan looked only for the
      * `ScreenLauncher` spelling. Fixed by scanning BOTH markers in the same loop. The direct marker
      * needs no screen-name gate: its route argument IS the whole payload, so any extra on it is wrong
      * regardless of which route it carries. No live call site is an offender today (verified by
-     * reading all six, and by this scan passing).
+     * reading all twelve, and by this scan passing).
      *
      * Known, deliberate bound of the second marker, in the same fail-open direction as the rest: the
      * scan is textual, so the marker also matches inside a STRING LITERAL -- `NavHostComposeActivity`'s
@@ -890,12 +895,16 @@ class NavHostRoutingGuardTest {
 
         /**
          * `NavHostComposeActivity.intentFor(context, NavRoutes.xyz(...))` -- the DIRECT route in, and
-         * the prescribed way to reach a destination that takes arguments (Tasks 6 and 8). Added by
-         * the whole-branch review's M2: the scan was written for the ScreenLauncher shape only, but a
-         * `.putExtra(...)` chained onto a direct call is dropped exactly as silently -- the host reads
-         * only [NavHostComposeActivity.EXTRA_ROUTE] -- and there are six such production call sites
-         * now (`BibleJavascriptInterface.kt` x2, `BibleView.kt`, `ComposeReadingViewHost.kt`,
-         * `SearchControl.kt`, `LinkControl.kt`), none of which is an offender today.
+         * the prescribed way to reach a destination that takes arguments (nav-graph 3+5+6 Tasks 6
+         * and 8). Added by the whole-branch review's M2: the scan was written for the ScreenLauncher
+         * shape only, but a `.putExtra(...)` chained onto a direct call is dropped exactly as
+         * silently -- the host reads only [NavHostComposeActivity.EXTRA_ROUTE] -- and there are
+         * twelve such production call sites now (`BibleJavascriptInterface.kt` x2, `BibleView.kt` x2,
+         * `ComposeReadingViewHost.kt`, `SearchControl.kt`, `LinkControl.kt`, `MenuCommandHandler.kt`,
+         * `OptionsMenuItems.kt` x2, `CurrentGeneralBookPage.kt`,
+         * `TextDisplaySettingsComposeActivity.kt`) -- the last six added by nav-graph slices 2+4
+         * Task 7 when it deleted `ManageLabelsComposeActivity` and repointed its six outside callers
+         * at this direct shape -- none of which is an offender today.
          */
         const val NAV_HOST_CALL_MARKER = "NavHostComposeActivity.intentFor("
 
