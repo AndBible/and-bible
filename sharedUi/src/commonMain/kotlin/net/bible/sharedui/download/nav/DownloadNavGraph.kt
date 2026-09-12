@@ -201,6 +201,13 @@ class ProgressStatusDeps(
  * - [onAutoDownload] is `handleAutoDownloadExtras()` (`:757-786`): the `documentIds` JSON payload
  *   and the `downloadRecommended` defaults list, both now route arguments rather than Intent extras.
  *
+ * - [reloadCatalogueIfRequested] is classic `onCustomRepositories()`'s second half (`:899-905`):
+ *   `awaitIntent(...)` then `loadDocuments(true)`. The hop is now an in-graph `navigate` -- an
+ *   Intent would launch the host at itself, since `CustomRepositories` is a destination of this very
+ *   graph -- and an in-graph hop has no result to await, so the host ARMS the reload when its menu
+ *   row navigates and this call performs it on the way back. The arm drives it from an effect that
+ *   is deliberately NOT one-shot: every (re)composition of this entry is exactly a return to it.
+ *
  * - [onCancelDownload] is the per-row cancel button (`:344`), which resolves the row's docId back to
  *   a `Book` through the host's map and calls `downloadControl.cancelDownload`. **The plan's deps
  *   list omits it**; the screen takes an `onCancel` slot regardless, and there is nothing in
@@ -247,6 +254,7 @@ class DownloadDeps(
     val requestNotificationPermission: () -> Unit,
     val refreshCatalogue: suspend (refresh: Boolean) -> Unit,
     val onAutoDownload: suspend (documentIds: String?, downloadRecommended: Boolean) -> Unit,
+    val reloadCatalogueIfRequested: suspend () -> Unit,
     val onCancelDownload: (docId: String) -> Unit,
     val hasBible: StateFlow<Boolean>,
     val subscribeDownloadProgress: () -> () -> Unit,
@@ -525,9 +533,34 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         val addons = args?.read { getStringOrNull(NavRoutes.ARG_DOWNLOAD_ADDONS) } == "true"
         val documentIds = args?.read { getStringOrNull(NavRoutes.ARG_DOCUMENT_IDS) }
 
-        // Classic :228-231, before setContent.
+        // Classic :228-231, before setContent. The controller is HOST-memoised (see
+        // DownloadDeps.controllerFor), so it outlives this entry -- which is why the route's own
+        // initial state is applied by the effect below rather than only at construction.
         val controller = remember { d.controllerFor(d.initialTypeFilter(addons)) }
-        LaunchedEffect(search) { if (search != null) { controller.setQuery(search); controller.openSearch() } }
+
+        // The route's initial state, applied ONCE PER BACK-STACK ENTRY. rememberSaveable, never a
+        // plain remember: this entry's composition is DISPOSED while CustomRepositories (reached
+        // from this screen's own overflow menu) sits on top of it, and a plain remember would
+        // re-apply the route's `addons` filter and `search` over whatever the user has filtered or
+        // typed since -- the exact failure BookmarkNavGraph.kt:610-622 documents for its own seed.
+        //
+        // A NEW entry gets fresh saveable state and therefore re-applies, which is the other half
+        // of the contract: the host is singleTop, so `NavRoutes.download(addons = true)` arriving
+        // while a Download entry is already open must show the ADDON filter and this route's search
+        // state, not the previous entry's. `closeSearch()` clears the query as well as closing the
+        // bar (SearchModeController.clearOnClose), which is exactly a fresh launch's state.
+        var seededRouteState by rememberSaveable { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            if (seededRouteState) return@LaunchedEffect
+            seededRouteState = true
+            controller.setTypeFilter(d.initialTypeFilter(addons))
+            if (search != null) {
+                controller.setQuery(search)
+                controller.openSearch()
+            } else {
+                controller.closeSearch()
+            }
+        }
 
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
 
@@ -535,7 +568,18 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         // an arm-side effect rather than moving ahead of the navigate. The three calls after it are
         // sequenced BEHIND the gate exactly as classic's single onCreate coroutine sequenced them:
         // a user who says no downloads nothing and is asked for no permission.
+        //
+        // ONCE PER BACK-STACK ENTRY, for [seededRouteState]'s reason and more sharply: this is
+        // classic's onCreate, and that round trip did not recreate the Activity. Re-running it on
+        // every return would re-ask the download question, re-fire the permission request, re-fetch
+        // the catalogue -- and re-enqueue every requested/recommended book, since onAutoDownload's
+        // downloadRequestedBooks has no BEING_INSTALLED guard of its own. The flag is set BEFORE the
+        // first suspension point on purpose: the gate is a modal dialog, so nothing can navigate
+        // away underneath it, and a flag set only on success would re-ask after a refusal.
+        var ranEntrySetup by rememberSaveable { mutableStateOf(false) }
         LaunchedEffect(Unit) {
+            if (ranEntrySetup) return@LaunchedEffect
+            ranEntrySetup = true
             if (!d.askIfWantToProceed()) {
                 navController.popOrExit(deps.exitHost)
                 return@LaunchedEffect
@@ -547,6 +591,12 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
             d.refreshCatalogue(false)
             d.onAutoDownload(documentIds, downloadRecommended)
         }
+
+        // Classic onCustomRepositories()'s `loadDocuments(true)` follow-up (:899-905), re-armed on
+        // the way back from the in-graph hop -- see DownloadDeps.reloadCatalogueIfRequested. NOT
+        // one-shot, deliberately, and that is the whole point of it: a (re)composition of this entry
+        // IS the return to it. The host answers "nothing pending" on a first entry.
+        LaunchedEffect(Unit) { d.reloadCatalogueIfRequested() }
 
         // Classic :253-255: bridge.statuses -> applyProgress, for the lifetime of the screen.
         DisposableEffect(Unit) {

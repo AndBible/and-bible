@@ -1158,6 +1158,7 @@ class NavHostComposeActivity : ActivityBase() {
                             onAutoDownload = { documentIds, downloadRecommended ->
                                 handleAutoDownloadExtras(documentIds, downloadRecommended)
                             },
+                            reloadCatalogueIfRequested = { reloadDownloadCatalogueIfRequested() },
                             onCancelDownload = { docId -> cancelDownload(docId) },
                             hasBible = downloadHasBible,
                             subscribeDownloadProgress = { subscribeDownloadProgress() },
@@ -4787,6 +4788,28 @@ class NavHostComposeActivity : ActivityBase() {
         if (doRefresh) CommonUtils.settings.setLong(REPO_REFRESH_DATE, Date().time)
     }
 
+    /**
+     * Armed when the overflow menu navigates to `CustomRepositories`, disarmed by
+     * [reloadDownloadCatalogueIfRequested]. Classic awaited that Activity's result and then reloaded
+     * (`DownloadComposeActivity.kt:899-905`); an in-graph hop has no result to await, so the
+     * "and then reloaded" half is carried here instead of being lost.
+     */
+    private var pendingDownloadCatalogueReload = false
+
+    /**
+     * Classic `onCustomRepositories()`'s `loadDocuments(true)` (`:904`), verbatim: a FORCED reload,
+     * not [refreshDownloadCatalogue]'s staleness-cached one -- adding or editing a repository is
+     * exactly what changes the downloadable set, and a `refresh = false` load may serve the day-old
+     * cached catalogue. No `downloadDocJson()` either: classic did not re-fetch the JSON configs on
+     * this path.
+     */
+    private suspend fun reloadDownloadCatalogueIfRequested() {
+        if (!pendingDownloadCatalogueReload) return
+        pendingDownloadCatalogueReload = false
+        val session = downloadSession ?: return
+        loadDownloadDocuments(session, refresh = true)
+    }
+
     /** Classic `downloadDocJson()` (`:406-414`), minus the defaults list -- see [handleAutoDownloadExtras]. */
     private suspend fun downloadDocJson(session: DownloadSession) = coroutineScope {
         awaitAll(
@@ -5159,6 +5182,10 @@ class NavHostComposeActivity : ActivityBase() {
      */
     private suspend fun handleAutoDownloadExtras(documentIds: String?, downloadRecommended: Boolean) {
         val session = downloadSession ?: return
+        // Cleared per run: the session outlives one visit to this destination (a second entry into
+        // the singleTop host reuses it), and a stale list would report books that were not found on
+        // a PREVIOUS visit in this visit's "books not downloaded" dialog.
+        session.booksNotFound.clear()
         withContext(Dispatchers.Main) {
             if (documentIds != null) {
                 val booksToDownload: List<SwordDocumentInfo> =
@@ -5265,9 +5292,14 @@ class NavHostComposeActivity : ActivityBase() {
                 text = getString(R.string.custom_repositories),
                 // An in-graph hop, not classic's awaitIntent(Screen.CustomRepositories): that
                 // destination lives in THIS graph (Task 3), so an Intent would launch this host at
-                // itself. Classic's follow-up `loadDocuments(true)` has no in-graph equivalent yet
-                // -- there is no result to await -- and Task 7b owns this hop.
-                onClick = { close(); navController.navigate(NavRoutes.customRepositories()) },
+                // itself. An in-graph hop has no result to await, so classic's follow-up
+                // `loadDocuments(true)` (:904) is ARMED here and performed by
+                // [reloadDownloadCatalogueIfRequested] when the destination composes again.
+                onClick = {
+                    close()
+                    pendingDownloadCatalogueReload = true
+                    navController.navigate(NavRoutes.customRepositories())
+                },
                 // Icons.Filled.Dns (a stack of servers) rather than the "Install zip" unarchive
                 // glyph this row used to share.
                 icon = { Icon(Icons.Filled.Dns, contentDescription = null) },

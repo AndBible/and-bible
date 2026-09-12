@@ -182,6 +182,7 @@ class CustomRepositoryEditorInGraphResultTest {
                 requestNotificationPermission = {},
                 refreshCatalogue = {},
                 onAutoDownload = { _, _ -> },
+                reloadCatalogueIfRequested = {},
                 onCancelDownload = {},
                 hasBible = MutableStateFlow(false),
                 subscribeDownloadProgress = { { } },

@@ -85,6 +85,9 @@ class DownloadInGraphArmTest {
     private var progressStops = 0
     private var monitoringStops = 0
 
+    /** How often the arm asked the host whether a catalogue reload was armed -- once per (re)composition. */
+    private var reloadChecks = 0
+
     /** Host-memoised the way `NavHostComposeActivity.downloadControllerFor` memoises it. */
     private var controller: DocumentSelectionController? = null
 
@@ -129,6 +132,7 @@ class DownloadInGraphArmTest {
                 calls.add("autoDownload")
                 autoDownloadArgs = documentIds to downloadRecommended
             },
+            reloadCatalogueIfRequested = { reloadChecks++ },
             onCancelDownload = {},
             hasBible = hasBible,
             subscribeDownloadProgress = {
@@ -143,7 +147,10 @@ class DownloadInGraphArmTest {
                 stop
             },
             persistTypeFilter = {},
-            initialTypeFilter = { addons -> addonsSeenByTypeFilter = addons; DocTypeFilter.ALL },
+            initialTypeFilter = { addons ->
+                addonsSeenByTypeFilter = addons
+                if (addons) DocTypeFilter.ADDON else DocTypeFilter.ALL
+            },
         ),
     )
 
@@ -273,6 +280,63 @@ class DownloadInGraphArmTest {
         pressBack()
         assertFalse(c.searchModeActive.value, "the second press must close the search bar")
         assertEquals(0, exitHostCalls, "neither press may leave the host while there is something to dismiss")
+    }
+
+    /**
+     * The defect this destination is most exposed to: its OWN overflow menu navigates to
+     * `CustomRepositories`, which disposes this entry's composition
+     * ([bothLifecycleSeamsAreReleasedWhenTheDestinationGoesAway] proves that), so anything in a
+     * plain `LaunchedEffect(Unit)` runs again on the way back. Classic ran all of this in `onCreate`
+     * and that round trip did not recreate the Activity -- re-running it would re-ask the download
+     * question, re-fetch the catalogue and RE-ENQUEUE every auto-download.
+     *
+     * The reload check is the deliberate exception, and counting it is what proves the composition
+     * genuinely re-ran rather than the test navigating nowhere.
+     */
+    @Test
+    fun aRoundTripToAChildDestinationRerunsNothingButTheReloadCheck() {
+        setGraph(NavRoutes.download(search = "ESV", documentIds = """[]"""))
+        val c = assertNotNull(controller)
+        assertEquals(1, reloadChecks)
+
+        // The user moves off what the route seeded; coming back must not undo either.
+        compose.runOnIdle { c.setQuery("mine") }
+        compose.runOnIdle { navController.navigate(NavRoutes.progressStatus()) }
+        compose.waitForIdle()
+        compose.runOnIdle { navController.popBackStack() }
+        compose.waitForIdle()
+
+        assertEquals(
+            listOf("gate", "permission", "refresh=false", "autoDownload"),
+            calls.filterNot { it.endsWith("+") },
+            "the onCreate block ran again on the way back",
+        )
+        assertEquals("mine", c.query.value, "the route's search seed was re-applied over the user's query")
+        assertTrue(c.searchModeActive.value, "the search bar the user left open was re-seeded shut")
+        assertEquals(2, reloadChecks, "the entry did not actually recompose, so this test proves nothing")
+    }
+
+    /**
+     * The other half of the same contract. The host is `singleTop`, so a second
+     * `NavRoutes.download(...)` into a live host is a NEW back-stack entry over a HOST-MEMOISED
+     * controller -- it must show ITS route's filter and search state, not the previous entry's.
+     * A new entry gets fresh saveable state, so the one-shot above re-applies for it.
+     */
+    @Test
+    fun aSecondEntryAppliesItsOwnTypeFilterAndSearchState() {
+        setGraph(NavRoutes.download())
+        val c = assertNotNull(controller)
+        assertEquals(DocTypeFilter.ALL, c.selectedTypeFilter.value)
+
+        compose.runOnIdle { c.setQuery("mine"); c.openSearch() }
+        compose.runOnIdle { navController.navigate(NavRoutes.download(addons = true)) }
+        compose.waitForIdle()
+
+        assertEquals(DocTypeFilter.ADDON, c.selectedTypeFilter.value, "the new entry's addons argument was dropped")
+        assertEquals("", c.query.value, "the previous entry's query survived into a fresh launch")
+        assertFalse(c.searchModeActive.value, "the previous entry's search bar survived into a fresh launch")
+        // A new entry IS a fresh launch, so classic's onCreate work runs for it -- exactly once.
+        assertEquals(2, calls.count { it == "gate" })
     }
 
     /**
