@@ -33,6 +33,7 @@ import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.download.RepositoryResult
 import net.bible.sharedui.ProvideAppLocals
+import net.bible.sharedui.download.nav.CloudDocumentsDeps
 import net.bible.sharedui.download.nav.CustomRepositoriesDeps
 import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
 import net.bible.sharedui.download.nav.DownloadDeps
@@ -151,6 +152,21 @@ class DownloadInGraphArmTest {
                 addonsSeenByTypeFilter = addons
                 if (addons) DocTypeFilter.ADDON else DocTypeFilter.ALL
             },
+        ),
+        // Task 8's destination -- not exercised by this test, which is scoped to the Download arm.
+        cloudDocuments = CloudDocumentsDeps(
+            controllerFor = { error("not exercised here") },
+            title = "Cloud documents",
+            topBarActions = {},
+            openOrGate = { error("not exercised here") },
+            seedItems = { error("not exercised here") },
+            refreshFromNetwork = { error("not exercised here") },
+            subscribeProgress = { error("not exercised here") },
+            statusFilterLabels = { error("not exercised here") },
+            categoryFilterLabels = { error("not exercised here") },
+            confirmRemove = { _, _, _ -> error("not exercised here") },
+            confirmPurge = { _, _, _ -> error("not exercised here") },
+            countLabel = { _, _ -> error("not exercised here") },
         ),
     )
 

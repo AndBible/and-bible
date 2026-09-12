@@ -524,6 +524,24 @@ class NavHostRoutingGuardTest {
     }
 
     /**
+     * nav-graph slice 4, Task 8 -- the batch's LAST destination. `NavRoutes.CLOUD_DOCUMENTS_PATTERN`
+     * takes no argument at all (Task 2), and classic `CloudDocumentsComposeActivity` read none
+     * either, so the ARGUMENT-FREE route is the correct [ScreenLauncher.MIGRATED] value -- the same
+     * shape as [myDocumentsResolvesToTheNavHostCarryingItsArgumentFreeRoute] and
+     * [customRepositoriesResolvesToTheNavHostCarryingItsRoute]. `CloudDocumentsComposeActivity`
+     * itself is not deleted until Task 9, so `ScreenLauncher.targetFor`'s own arm still resolves to
+     * it (unlike `Screen.MyDocuments`'s, which throws) -- this test only exercises the MIGRATED path,
+     * which is now the ONLY one any caller actually reaches (85 of 86 call sites go through
+     * `intentFor`/`open`, per [ScreenLauncher.MIGRATED]'s own kdoc).
+     */
+    @Test
+    fun cloudDocumentsResolvesToTheNavHostCarryingItsArgumentFreeRoute() {
+        val intent = ScreenLauncher.intentFor(context, Screen.CloudDocuments)
+        assertEquals(NavHostComposeActivity::class.java.name, intent.component?.className)
+        assertEquals(NavRoutes.cloudDocuments(), intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE))
+    }
+
+    /**
      * nav-graph slice 4, Task 5 -- [customRepositoryEditorIsNotInMigratedAndItsPatternIsRegisteredByAGraph]'s
      * shape, for the batch's second dual-entry destination. `Screen.MyDocumentPages` is deliberately
      * absent from [ScreenLauncher.MIGRATED]: all THREE of [NavRoutes.MY_DOCUMENT_PAGES_PATTERN]'s

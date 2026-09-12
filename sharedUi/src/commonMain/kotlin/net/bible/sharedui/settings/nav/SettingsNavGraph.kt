@@ -132,9 +132,11 @@ class AppSettingsDeps(
  *   by a host `by lazy` for [AppSettingsDeps.controller]'s reason — building it runs
  *   `SyncSettingsServiceImpl`'s eager `build()` (`CloudSync.signedIn`, the adapter summaries) and
  *   ~35 `getString` calls for the labels, none of which another cluster's destination should pay
- *   for. The controller's own `onOpenCloudDocuments` stays where classic put it —
- *   `Screen.CloudDocuments` has no destination in any graph, so there is nothing for this file to
- *   route to and no reason to lift the branch out of [SyncSettingsController.onNavigate].
+ *   for. The controller's own `onOpenCloudDocuments` stays where classic put it — nav-graph slice 4
+ *   Task 8 gave `Screen.CloudDocuments` a destination in the DOWNLOAD graph, not this one, and the
+ *   host's `onOpenCloudDocuments` callback now performs an in-graph `navigateToRoute` there directly
+ *   (`NavHostComposeActivity.kt`'s `syncSettingsController` lazy) — so there is still no reason to
+ *   lift the branch out of [SyncSettingsController.onNavigate] into THIS graph's arm below.
  * - [onResume] is classic's `onResume { service.refresh() }` (`:77-81`) — a sign-in/out or a
  *   `DocumentSyncSettings` change may have happened while this destination was not the visible
  *   one. Per-destination and lifecycle-aware, for the reason given on [AppSettingsDeps.onResume].
@@ -437,8 +439,10 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
             onListChoice = controller::onListChoice,
             onTextInput = controller::onTextInput,
             // Straight to the controller, unlike the app-settings arm: this screen's only
-            // navigation row (`document_sync_manage`) opens Screen.CloudDocuments, which has no
-            // destination in any graph — see SyncSettingsDeps.controller.
+            // navigation row (`document_sync_manage`) opens Screen.CloudDocuments, a destination in
+            // the DOWNLOAD graph, not this one — the host's onOpenCloudDocuments callback performs
+            // the in-graph hop itself, so there is nothing for THIS arm to route to. See
+            // SyncSettingsDeps.controller.
             onNavigate = controller::onNavigate,
             onConfirmReset = controller::confirmReset,
             onConfirmEnableDocuments = controller::confirmEnableDocuments,

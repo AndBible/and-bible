@@ -35,6 +35,7 @@ import net.bible.sharedui.ProvideAppLocals
 import kotlinx.coroutines.flow.MutableStateFlow
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
+import net.bible.sharedui.download.nav.CloudDocumentsDeps
 import net.bible.sharedui.download.nav.CustomRepositoriesDeps
 import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
 import net.bible.sharedui.download.nav.DownloadDeps
@@ -189,6 +190,21 @@ class CustomRepositoryEditorInGraphResultTest {
                 subscribeMonitoring = { { } },
                 persistTypeFilter = {},
                 initialTypeFilter = { DocTypeFilter.ALL },
+            ),
+            // Task 8's destination -- also unexercised by this test.
+            cloudDocuments = CloudDocumentsDeps(
+                controllerFor = { error("not exercised here") },
+                title = "Cloud documents",
+                topBarActions = {},
+                openOrGate = { error("not exercised here") },
+                seedItems = { error("not exercised here") },
+                refreshFromNetwork = { error("not exercised here") },
+                subscribeProgress = { error("not exercised here") },
+                statusFilterLabels = { error("not exercised here") },
+                categoryFilterLabels = { error("not exercised here") },
+                confirmRemove = { _, _, _ -> error("not exercised here") },
+                confirmPurge = { _, _, _ -> error("not exercised here") },
+                countLabel = { _, _ -> error("not exercised here") },
             ),
         )
     }

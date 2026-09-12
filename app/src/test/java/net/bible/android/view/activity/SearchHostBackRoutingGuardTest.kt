@@ -107,14 +107,16 @@ class SearchHostBackRoutingGuardTest {
          * already, so Task 6 only had to move this entry, not add one -- and
          * `DownloadComposeActivity.kt` left it in nav-graph slice 4 Task 7a, when its `Download` arm
          * landed in `DownloadNavGraph.kt` (the Activity itself survives until Task 9, but its search
-         * bar's back routing is the graph's from 7a on). Each entry MOVED to
-         * [SEARCH_HOST_GRAPH_FILES] rather than disappearing. Every remaining entry here is a
-         * nav-graph migration target, so expect this list to shrink and the graph list to grow, one
-         * slice at a time.
+         * bar's back routing is the graph's from 7a on). `CloudDocumentsComposeActivity.kt` left it
+         * in nav-graph slice 4 Task 8, when its `CloudDocuments` arm landed in `DownloadNavGraph.kt`
+         * too -- already in [SEARCH_HOST_GRAPH_FILES] since Task 7a, so Task 8 only had to remove
+         * THIS entry, not add another one (that list asserts presence, not a count). Each entry
+         * MOVED to [SEARCH_HOST_GRAPH_FILES] rather than disappearing. Every remaining entry here is
+         * a nav-graph migration target, so expect this list to shrink and the graph list to grow,
+         * one slice at a time.
          */
         private val SEARCH_HOST_FILES = listOf(
             "src/main/java/net/bible/android/view/activity/navigation/ChooseDocumentComposeActivity.kt",
-            "src/main/java/net/bible/android/view/activity/cloud/CloudDocumentsComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettingsComposeActivity.kt",
         )
 

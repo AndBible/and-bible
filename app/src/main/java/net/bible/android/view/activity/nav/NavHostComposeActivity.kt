@@ -29,6 +29,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.OpenableColumns
 import android.provider.Settings
+import android.text.format.Formatter
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.widget.TextView
@@ -83,6 +84,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -158,7 +160,15 @@ import net.bible.android.view.activity.settings.SyncSettingsServiceImpl
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
+import net.bible.android.view.activity.cloud.CloudSyncProgressBridge
+import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.documents.DocumentSync
+import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
+import net.bible.service.cloudsync.documents.SyncPlan
+import net.bible.sharedcore.cloud.CloudDocAction
+import net.bible.sharedcore.cloud.CloudDocItem
+import net.bible.sharedcore.cloud.CloudDocumentsController
 import net.bible.service.common.CommonUtils.pause
 import net.bible.service.common.displayName
 import net.bible.service.common.htmlToSpan
@@ -293,6 +303,7 @@ import net.bible.sharedui.bookmark.nav.BookmarksDeps
 import net.bible.sharedui.bookmark.nav.LabelEditDeps
 import net.bible.sharedui.bookmark.nav.ManageLabelsDeps
 import net.bible.sharedui.bookmark.nav.bookmarkNavGraph
+import net.bible.sharedui.download.nav.CloudDocumentsDeps
 import net.bible.sharedui.download.nav.CustomRepositoriesDeps
 import net.bible.sharedui.docCategoryOf
 import net.bible.sharedui.download.nav.CustomRepositoryEditorDeps
@@ -516,9 +527,12 @@ class NavHostComposeActivity : ActivityBase() {
             service = syncSettingsService,
             scope = lifecycleScope,
             labels = buildSyncSettingsLabels(),
-            // Screen.CloudDocuments is still its own Activity, so this branch stays on the
-            // controller exactly as classic had it.
-            onOpenCloudDocuments = { ScreenLauncher.open(this, Screen.CloudDocuments) },
+            // nav-graph slice 4 Task 8: CloudDocuments is now a destination in THIS graph, so an
+            // in-graph hop keeps a settings->cloud hop inside the host rather than starting a
+            // second one. `navController` is only null in the sliver before the graph's first
+            // composition; this callback cannot fire before then (nothing has rendered yet to call
+            // it from), so the `?.let` is a defensive no-op, never a live path.
+            onOpenCloudDocuments = { navController?.let { navigateToRoute(it, NavRoutes.cloudDocuments()) } },
         )
     }
 
@@ -1178,6 +1192,27 @@ class NavHostComposeActivity : ActivityBase() {
                                 }
                             },
                             observeJobs = { onJobs -> observeProgressStatusJobs(onJobs) },
+                        ),
+                        cloudDocuments = CloudDocumentsDeps(
+                            // Host-memoised singleton -- see CloudDocumentsDeps.controllerFor's own
+                            // kdoc for why (openOrGate/refreshFromNetwork have no controller
+                            // parameter of their own, so they need the SAME instance the arm reads).
+                            controllerFor = { cloudDocumentsController },
+                            title = getString(R.string.document_sync_manage_title),
+                            topBarActions = { CloudDocumentsOverflowMenu() },
+                            openOrGate = { cloudDocumentsOpenOrGate() },
+                            seedItems = { cloudDocumentsSeedItems() },
+                            refreshFromNetwork = { cloudDocumentsRefreshFromNetwork() },
+                            subscribeProgress = { onRunning -> cloudDocumentsSubscribeProgress(onRunning) },
+                            statusFilterLabels = { showRemoved -> cloudDocumentsStatusFilterLabels(showRemoved) },
+                            categoryFilterLabels = { cloudDocumentsCategoryFilterLabels() },
+                            confirmRemove = { initials, name, onConfirm ->
+                                cloudDocumentsConfirmRemove(initials, name, onConfirm)
+                            },
+                            confirmPurge = { initials, name, onConfirm ->
+                                cloudDocumentsConfirmPurge(initials, name, onConfirm)
+                            },
+                            countLabel = { count, bytes -> cloudDocumentsCountLabel(count, bytes) },
                         ),
                     )
                 }
@@ -5307,9 +5342,10 @@ class NavHostComposeActivity : ActivityBase() {
             if (DocumentSyncSettings.enabled) {
                 AbMenuItem(
                     text = getString(R.string.document_sync_manage_title),
-                    // Still an Intent: Screen.CloudDocuments is an Activity until Task 8 registers
-                    // its destination, and Task 7b turns this row into a navigate then.
-                    onClick = { close(); startActivity(ScreenLauncher.intentFor(this@NavHostComposeActivity, Screen.CloudDocuments)) },
+                    // An in-graph hop, not classic's awaitIntent(Screen.CloudDocuments): nav-graph
+                    // slice 4 Task 8 registered CloudDocuments as a destination in THIS graph, so an
+                    // Intent would launch this host at itself.
+                    onClick = { close(); navController.navigate(NavRoutes.cloudDocuments()) },
                     icon = { Icon(painterResource(R.drawable.ic_syncdb_24dp), contentDescription = null) },
                 )
             }
@@ -5351,6 +5387,344 @@ class NavHostComposeActivity : ActivityBase() {
         DocumentInstallStatus.INSTALL_CANCELLED -> DocInstallStatus.INSTALL_CANCELLED
     }
 
+    // ═══════════════════════════════════════════════════════════════════════════════════════
+    // CLOUD DOCUMENTS -- nav-graph slice 4, Task 8. Ported from classic
+    // CloudDocumentsComposeActivity, whose line numbers the comments below cite.
+    // ═══════════════════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Host-memoised singleton -- see [CloudDocumentsDeps.controllerFor]'s own kdoc for why this
+     * differs from [CustomRepositoriesDeps.controllerFor]'s per-entry factory. Classic's own
+     * `controller by lazy` field (`CloudDocumentsComposeActivity.kt:80-100`), ported verbatim.
+     */
+    private val cloudDocumentsController by lazy {
+        CloudDocumentsController(
+            syncEnabled = { DocumentSyncSettings.enabled },
+            onAction = ::handleCloudDocumentsAction,
+            onBulkAction = ::handleCloudDocumentsBulkAction,
+            onSyncNow = ::handleCloudDocumentsSyncNowConfirm,
+            onRescan = { cloudDocumentsRunSyncAction { DocumentSync.resetListingCache() } },
+            onShowRemovedChange = ::handleCloudDocumentsShowRemovedChange,
+            storedArrangement = if (CommonUtils.settings.getBoolean(CLOUD_ARRANGEMENT_REMEMBER_KEY, true))
+                CommonUtils.settings.getString(CLOUD_ARRANGEMENT_KEY, null) else null,
+            rememberArrangementInitially = CommonUtils.settings.getBoolean(CLOUD_ARRANGEMENT_REMEMBER_KEY, true),
+            onArrangementChange = { encoded, remember ->
+                CommonUtils.settings.setBoolean(CLOUD_ARRANGEMENT_REMEMBER_KEY, remember)
+                CommonUtils.settings.setString(CLOUD_ARRANGEMENT_KEY, encoded)
+            },
+            scope = lifecycleScope,
+        )
+    }
+
+    /** Classic's `lastPlan` field (`:78`): the last resolved Sync-now plan, retained so confirming it dispatches without a second resolve. */
+    private var cloudDocumentsLastPlan: SyncPlan? = null
+
+    /**
+     * Classic `openOrGate()` in full (`:193-208`) -- see [CloudDocumentsDeps.openOrGate]'s kdoc.
+     * A single cache scan serves both the sign-in-gate's emptiness check and the seed, exactly as
+     * classic's own `cached` local did.
+     */
+    private suspend fun cloudDocumentsOpenOrGate(): Boolean {
+        var signedIn = CloudSync.signedIn
+        if (!signedIn) signedIn = CloudSync.signIn(this@NavHostComposeActivity) == true
+        val items = cloudDocumentsSeedItems()
+        if (!signedIn && items.isEmpty()) {
+            Toast.makeText(this, R.string.document_sync_signin_required, Toast.LENGTH_LONG).show()
+            return false
+        }
+        cloudDocumentsController.setShowRemoved(DocumentSyncSettings.showRemovedDocuments)
+        cloudDocumentsController.setItems(items)
+        if (signedIn && (!DocumentSyncSettings.enabled || items.isEmpty())) cloudDocumentsRefreshFromNetwork()
+        return true
+    }
+
+    /**
+     * Classic's shared cache-only scan+flatten, the middle of both `openOrGate()` (`:198`, `:205`)
+     * and `renderFromCache()` (`:229`) -- see [CloudDocumentsDeps.seedItems]'s kdoc for why this
+     * stays PURE (no controller mutation): it is reached from [handleCloudDocumentsShowRemovedChange],
+     * itself reached from [CloudDocumentsController.setShowRemoved], which calls its
+     * `onShowRemovedChange` callback UNCONDITIONALLY on every invocation -- a `setShowRemoved` call
+     * inside this function would recurse through that callback forever.
+     */
+    private suspend fun cloudDocumentsSeedItems(): List<CloudDocItem> = withContext(Dispatchers.IO) {
+        DocumentSync.scanCached(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
+    }
+
+    /** Classic `refreshFromNetwork()` (`:212-218`): a network scan, flattened and pushed with a busy pair around it. */
+    private suspend fun cloudDocumentsRefreshFromNetwork() {
+        cloudDocumentsController.pushBusy(true)
+        try {
+            val items = withContext(Dispatchers.IO) {
+                DocumentSync.scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
+            }
+            cloudDocumentsController.setItems(items)
+        } finally {
+            cloudDocumentsController.pushBusy(false)
+        }
+    }
+
+    /**
+     * Classic's `renderFromCache()` (`:226-232`), reached only from
+     * [CloudDocumentsController.setShowRemoved]'s `onShowRemovedChange` callback -- persist the
+     * setting, then re-seed from the cache with the new `includeDeleted` value.
+     */
+    private fun handleCloudDocumentsShowRemovedChange(show: Boolean) {
+        DocumentSyncSettings.showRemovedDocuments = show
+        lifecycleScope.launch {
+            cloudDocumentsController.pushBusy(true)
+            try {
+                cloudDocumentsController.setItems(cloudDocumentsSeedItems())
+            } finally {
+                cloudDocumentsController.pushBusy(false)
+            }
+        }
+    }
+
+    /**
+     * Classic `bridge.register()`/`unregister()` plus the `bridge.running.drop(1).collect { ... }`
+     * body (`:105`, `:180`, `:111-116`) as one subscribe/stop pair -- see
+     * [CloudDocumentsDeps.subscribeProgress]'s kdoc. A fresh [CloudSyncProgressBridge] per call,
+     * mirroring classic's per-Activity-instance field: this destination can be entered and left
+     * multiple times within one host instance, and each entry needs its own register/unregister
+     * pair, not a single one shared for the host's whole lifetime.
+     */
+    private fun cloudDocumentsSubscribeProgress(onRunning: (Boolean) -> Unit): () -> Unit {
+        val bridge = CloudSyncProgressBridge()
+        bridge.register()
+        val job = lifecycleScope.launch {
+            bridge.running.drop(1).collect { running -> onRunning(running) }
+        }
+        return {
+            job.cancel()
+            bridge.unregister()
+        }
+    }
+
+    /** Classic `runSyncAction` (`:234-241`), used by [cloudDocumentsController]'s `onRescan`. */
+    private fun cloudDocumentsRunSyncAction(block: suspend () -> Unit): kotlinx.coroutines.Job = lifecycleScope.launch {
+        cloudDocumentsController.pushBusy(true)
+        try {
+            withContext(Dispatchers.IO) { block() }
+            val items = withContext(Dispatchers.IO) {
+                DocumentSync.scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
+            }
+            cloudDocumentsController.setItems(items)
+        } finally {
+            cloudDocumentsController.pushBusy(false)
+        }
+    }
+
+    /** Classic `handleAction` (`:258-268`). */
+    private fun handleCloudDocumentsAction(action: CloudDocAction, initials: String) {
+        val item = cloudDocumentsController.items.value.firstOrNull { it.initials == initials } ?: return
+        when (action) {
+            CloudDocAction.DOWNLOAD -> DocumentSyncService.start(this, emptyList(), listOf(initials))
+            CloudDocAction.PUSH, CloudDocAction.RESTORE -> DocumentSyncService.start(this, listOf(initials), emptyList())
+            CloudDocAction.BLOCK -> {
+                DocumentSyncSettings.blockList.block(initials)
+                cloudDocumentsController.setBlocked(initials, true)
+            }
+            CloudDocAction.UNBLOCK -> {
+                DocumentSyncSettings.blockList.unblock(initials)
+                cloudDocumentsController.setBlocked(initials, false)
+            }
+            CloudDocAction.REMOVE_CLOUD -> cloudDocumentsConfirmRemove(listOf(initials), item.name) {
+                DocumentSyncService.start(this, emptyList(), emptyList(), removeInitials = listOf(initials))
+                cloudDocumentsController.applyRemoval(initials)
+                cloudDocumentsController.clearSelection()
+            }
+            CloudDocAction.PURGE -> cloudDocumentsConfirmPurge(listOf(initials), item.name) {
+                DocumentSyncService.start(this, emptyList(), emptyList(), purgeInitials = listOf(initials))
+                cloudDocumentsController.applyPurge(initials)
+                cloudDocumentsController.clearSelection()
+            }
+        }
+    }
+
+    /** Classic `handleBulkAction` (`:270-279`). */
+    private fun handleCloudDocumentsBulkAction(action: CloudDocAction, initials: List<String>) {
+        when (action) {
+            CloudDocAction.DOWNLOAD -> {
+                DocumentSyncService.start(this, emptyList(), initials)
+                cloudDocumentsController.clearSelection()
+            }
+            CloudDocAction.PUSH, CloudDocAction.RESTORE -> {
+                DocumentSyncService.start(this, initials, emptyList())
+                cloudDocumentsController.clearSelection()
+            }
+            CloudDocAction.BLOCK -> {
+                initials.forEach { DocumentSyncSettings.blockList.block(it); cloudDocumentsController.setBlocked(it, true) }
+                cloudDocumentsController.clearSelection()
+            }
+            CloudDocAction.UNBLOCK -> {
+                initials.forEach { DocumentSyncSettings.blockList.unblock(it); cloudDocumentsController.setBlocked(it, false) }
+                cloudDocumentsController.clearSelection()
+            }
+            CloudDocAction.REMOVE_CLOUD -> cloudDocumentsConfirmRemove(initials, null) {
+                DocumentSyncService.start(this, emptyList(), emptyList(), removeInitials = initials)
+                initials.forEach { cloudDocumentsController.applyRemoval(it) }
+                cloudDocumentsController.clearSelection()
+            }
+            CloudDocAction.PURGE -> cloudDocumentsConfirmPurge(initials, null) {
+                DocumentSyncService.start(this, emptyList(), emptyList(), purgeInitials = initials)
+                initials.forEach { cloudDocumentsController.applyPurge(it) }
+                cloudDocumentsController.clearSelection()
+            }
+        }
+    }
+
+    /**
+     * Classic `confirmRemove` (`:281-293`) -- one of the batch's four plural call sites (design
+     * §2.4 counted three). Owns both the platform `AlertDialog` and the plural it resolves;
+     * [onConfirm] is what the positive button did inline, supplied by whichever caller is asking.
+     */
+    private fun cloudDocumentsConfirmRemove(initials: List<String>, name: String?, onConfirm: () -> Unit) {
+        val enabled = DocumentSyncSettings.enabled
+        val title = if (enabled) R.string.cloud_doc_action_remove_all_devices else R.string.cloud_doc_action_remove_cloud
+        val message = if (name != null) {
+            getString(if (enabled) R.string.cloud_doc_remove_all_confirm else R.string.cloud_doc_remove_cloud_confirm, name)
+        } else {
+            resources.getQuantityString(
+                if (enabled) R.plurals.cloud_doc_bulk_remove_all_confirm else R.plurals.cloud_doc_bulk_remove_cloud_confirm,
+                initials.size, initials.size,
+            )
+        }
+        AlertDialog.Builder(this).setTitle(title).setMessage(message)
+            .setPositiveButton(R.string.okay) { _, _ -> onConfirm() }
+            .setNegativeButton(R.string.cancel, null).show()
+    }
+
+    /** Classic `confirmPurge` (`:295-305`) -- the second of the batch's four plural call sites. */
+    private fun cloudDocumentsConfirmPurge(initials: List<String>, name: String?, onConfirm: () -> Unit) {
+        val message = if (name != null) {
+            getString(R.string.cloud_doc_purge_confirm, name)
+        } else {
+            resources.getQuantityString(R.plurals.cloud_doc_bulk_purge_confirm, initials.size, initials.size)
+        }
+        AlertDialog.Builder(this).setTitle(R.string.cloud_doc_action_purge).setMessage(message)
+            .setPositiveButton(R.string.okay) { _, _ -> onConfirm() }
+            .setNegativeButton(R.string.cancel, null).show()
+    }
+
+    /** Classic `showSyncNow` (`:308-324`), triggered from [CloudDocumentsOverflowMenu]'s "Sync now" row. */
+    private fun cloudDocumentsShowSyncNow() {
+        lifecycleScope.launch {
+            cloudDocumentsController.pushBusy(true)
+            val plan = try {
+                withContext(Dispatchers.IO) { DocumentSync.computeSyncPlan(download = true, upload = true, delete = true) }
+            } catch (e: Exception) {
+                Toast.makeText(this@NavHostComposeActivity, R.string.sync_error, Toast.LENGTH_SHORT).show()
+                return@launch
+            } finally {
+                cloudDocumentsController.pushBusy(false)
+            }
+            cloudDocumentsLastPlan = plan
+            val labels = listOf(
+                getString(R.string.cloud_doc_sync_now_download) + "\n" +
+                    cloudDocumentsCountLabel(plan.toDownload.size, plan.downloadBytes),
+                getString(R.string.cloud_doc_sync_now_upload) + "\n" +
+                    cloudDocumentsCountLabel(plan.toUpload.size, plan.uploadBytes),
+                getString(R.string.cloud_doc_sync_now_delete) + "\n" +
+                    cloudDocumentsCountLabel(plan.toUninstall.size, null),
+            )
+            val checked = listOf(
+                DocumentSyncSettings.syncNowDownload, DocumentSyncSettings.syncNowUpload, DocumentSyncSettings.syncNowDelete,
+            )
+            cloudDocumentsController.showSyncNow(labels, checked)
+        }
+    }
+
+    /** Classic `handleSyncNowConfirm` (`:326-337`). */
+    private fun handleCloudDocumentsSyncNowConfirm(download: Boolean, upload: Boolean, delete: Boolean) {
+        val plan = cloudDocumentsLastPlan ?: return
+        DocumentSyncSettings.syncNowDownload = download
+        DocumentSyncSettings.syncNowUpload = upload
+        DocumentSyncSettings.syncNowDelete = delete
+        DocumentSyncService.start(
+            this,
+            pushInitials = if (upload) plan.toUpload else emptyList(),
+            downloadInitials = if (download) plan.toDownload else emptyList(),
+            uninstallInitials = if (delete) plan.toUninstall else emptyList(),
+        )
+    }
+
+    /** Classic `countLabel` (`:339-343`) -- the third/fourth of the batch's four plural call sites. */
+    private fun cloudDocumentsCountLabel(count: Int, bytes: Long?): String = when {
+        count == 0 -> getString(R.string.cloud_doc_sync_now_count_none)
+        bytes != null && bytes > 0 ->
+            resources.getQuantityString(R.plurals.cloud_doc_sync_now_count_size, count, count, Formatter.formatShortFileSize(this, bytes))
+        else -> resources.getQuantityString(R.plurals.cloud_doc_sync_now_count, count, count)
+    }
+
+    /**
+     * Classic `OverflowMenu()` (`:346-375`) -- the `topBarActions` slot, host-side because every row
+     * is host work (`R.drawable` icons, `CloudSync.signedIn`, `CommonUtils.showHelpDialog`).
+     * `AbMenuItem`, never `DropdownMenuItem`: this file is scanned by `MenuSeamGuardTest`.
+     */
+    @Composable
+    private fun CloudDocumentsOverflowMenu() {
+        AbOverflowMenu(contentDescription = null) { close ->
+            if (CloudSync.signedIn) {
+                AbMenuItem(
+                    text = getString(R.string.cloud_doc_sync_now),
+                    onClick = { close(); cloudDocumentsShowSyncNow() },
+                    icon = { Icon(painterResource(R.drawable.ic_sync_white_24dp), contentDescription = null) },
+                )
+                AbMenuItem(
+                    text = getString(R.string.cloud_doc_rescan),
+                    onClick = { close(); cloudDocumentsController.rescan() },
+                    icon = { Icon(painterResource(R.drawable.ic_baseline_refresh_24), contentDescription = null) },
+                )
+            }
+            AbMenuItem(
+                text = getString(R.string.help),
+                onClick = {
+                    close()
+                    CommonUtils.showHelpDialog(
+                        activity = this@NavHostComposeActivity,
+                        titleResId = R.string.help,
+                        messageResId = R.string.help_document_sync_text,
+                        helpPath = "document_sync.html",
+                    )
+                },
+                icon = { Icon(painterResource(R.drawable.ic_help_white_24dp), contentDescription = null) },
+            )
+        }
+    }
+
+    /** Classic's view-data flatten (`:378-385`). */
+    private fun DocumentSync.DocumentStatusItem.toCloudDocItem(): CloudDocItem = CloudDocItem(
+        initials = initials, name = name, category = category?.let { docCategoryOf(it) },
+        cloudVersion = cloudVersion, localVersion = localVersion,
+        cloudOnly = cloudOnly, localOnly = localOnly, updateAvailable = updateAvailable, localNewer = localNewer,
+        blocked = blocked, canDeleteLocal = canDeleteLocal, cloudDeleted = cloudDeleted,
+        sizeLabel = if (sizeBytes > 0) Formatter.formatShortFileSize(this@NavHostComposeActivity, sizeBytes) else null,
+        sizeBytes = sizeBytes.takeIf { it > 0 },
+    )
+
+    /** Classic `statusFilterLabels` (`:387-396`), `getString` only -- see [CloudDocumentsDeps.statusFilterLabels]'s kdoc. */
+    private fun cloudDocumentsStatusFilterLabels(showRemoved: Boolean): List<String> = buildList {
+        add(getString(R.string.cloud_doc_filter_all))
+        add(getString(R.string.cloud_doc_filter_installed))
+        add(getString(R.string.cloud_doc_filter_cloud))
+        add(getString(R.string.cloud_doc_filter_updates))
+        add(getString(R.string.cloud_doc_filter_blocked))
+        add(getString(R.string.cloud_doc_filter_device_only))
+        add(getString(R.string.cloud_doc_filter_cloud_only))
+        if (showRemoved) add(getString(R.string.cloud_doc_filter_removed))
+    }
+
+    /** Classic `categoryFilterLabels` (`:398-406`), `getString` only. */
+    private fun cloudDocumentsCategoryFilterLabels(): List<String> = listOf(
+        getString(R.string.doc_type_all),
+        getString(R.string.doc_type_bible),
+        getString(R.string.doc_type_commentary),
+        getString(R.string.doc_type_dictionary),
+        getString(R.string.doc_type_book),
+        getString(R.string.doc_type_map),
+        getString(R.string.doc_type_addons),
+    )
+
     companion object {
         /** Classic `ReadingProgressComposeActivity.kt:54`'s file-private constant. */
         private const val PREF_READING_PROGRESS_LAST_TAB = "reading_progress_last_tab"
@@ -5375,6 +5749,15 @@ class NavHostComposeActivity : ActivityBase() {
          */
         private const val ARRANGEMENT_KEY = "download.arrangement"
         private const val ARRANGEMENT_REMEMBER_KEY = "download.arrangement.remember"
+
+        /**
+         * Classic `CloudDocumentsComposeActivity`'s own key prefix (round 17e-2), reused VERBATIM
+         * (not the Download cluster's [ARRANGEMENT_KEY] pair) so a user's persisted sync-list
+         * arrangement survives while the classic Activity and this arm coexist -- both read/write
+         * the same settings key.
+         */
+        private const val CLOUD_ARRANGEMENT_KEY = "cloudDocs.arrangement"
+        private const val CLOUD_ARRANGEMENT_REMEMBER_KEY = "cloudDocs.arrangement.remember"
 
         /** Classic's repository-staleness cache (`DownloadComposeActivity.kt:938-940`). */
         private const val REPO_REFRESH_DATE = "repoRefreshDate"

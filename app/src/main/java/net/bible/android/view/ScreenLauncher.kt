@@ -208,6 +208,14 @@ object ScreenLauncher {
         // directly (MyDocumentsComposeActivity.kt:215, inside openDocument) -- see targetFor's own
         // MyDocuments arm below.
         Screen.MyDocuments to NavRoutes.myDocuments(),
+        // — nav-graph slice 4, Task 8: the gated cloud-documents destination —
+        // The ARGUMENT-FREE cloud-documents route, correctly so: NavRoutes.CLOUD_DOCUMENTS_PATTERN
+        // takes no argument at all, and classic CloudDocumentsComposeActivity read none either.
+        // `targetFor`'s own CloudDocuments arm still returns the real
+        // CloudDocumentsComposeActivity class below (Task 9 deletes it), the same shape
+        // Screen.CustomRepositories/Screen.ProgressStatus keep -- unlike Screen.MyDocuments, this
+        // screen is not yet one of targetForMigratedScreen's 21 arms.
+        Screen.CloudDocuments to NavRoutes.cloudDocuments(),
     )
 
     /** The Activity class implementing [screen]. */
@@ -274,12 +282,14 @@ object ScreenLauncher {
      * them would render an empty screen with nothing to show (the first four) or because the
      * argument is required and non-null (the label pair, whose `data`/`ManageLabelsData` payload
      * has no meaningful empty default), so reaching one by a bare [Screen] throws here instead.
-     * ([MIGRATED] has 23 entries now, not 21: nav-graph slice 4 Task 3 added
-     * `Screen.CustomRepositories` and Task 4 added `Screen.ProgressStatus`, whose [targetFor] arms
-     * still return the real `CustomRepositoriesComposeActivity` / `ProgressStatusComposeActivity`
-     * classes rather than calling this function -- those classes are not deleted until Task 9, so
-     * they are not yet two of the 21 this paragraph describes. The other 21 entries ARE exactly
-     * these 21 screens, since every one of them is graph-only.) The label pair's six outside callers
+     * ([MIGRATED] has 24 entries now, not 21: nav-graph slice 4 Task 3 added
+     * `Screen.CustomRepositories`, Task 4 added `Screen.ProgressStatus` and Task 8 added
+     * `Screen.CloudDocuments`, whose [targetFor] arms still return the real
+     * `CustomRepositoriesComposeActivity` / `ProgressStatusComposeActivity` /
+     * `CloudDocumentsComposeActivity` classes rather than calling this function -- those classes are
+     * not deleted until Task 9, so they are not yet three of the 21 this paragraph describes. The
+     * other 21 entries ARE exactly these 21 screens, since every one of them is graph-only.) The
+     * label pair's six outside callers
      * (`MenuCommandHandler`, `OptionsMenuItems` x2, `BibleView`, `CurrentGeneralBookPage`,
      * `TextDisplaySettingsComposeActivity`) build
      * `NavHostComposeActivity.intentFor(context, NavRoutes.manageLabels(data))` directly instead of

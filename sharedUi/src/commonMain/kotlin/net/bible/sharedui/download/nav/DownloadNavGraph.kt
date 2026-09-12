@@ -18,6 +18,7 @@
 package net.bible.sharedui.download.nav
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -48,16 +49,21 @@ import androidx.savedstate.read
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import net.bible.sharedcore.cloud.CloudDocFilter
+import net.bible.sharedcore.cloud.CloudDocItem
+import net.bible.sharedcore.cloud.CloudDocumentsController
 import net.bible.sharedcore.download.CustomRepositoryController
 import net.bible.sharedcore.download.CustomRepositoryEditorController
 import net.bible.sharedcore.download.RepositoryResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.anySelectedDeletable
 import net.bible.sharedcore.search.ProgressJob
 import net.bible.sharedcore.search.SearchIndexProgressController
 import net.bible.sharedui.PlatformBackHandler
+import net.bible.sharedui.cloud.CloudDocumentsScreen
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.download.CustomRepositoriesScreen
 import net.bible.sharedui.download.CustomRepositoryEditorScreen
@@ -264,20 +270,117 @@ class DownloadDeps(
 )
 
 /**
+ * [NavRoutes.CLOUD_DOCUMENTS_PATTERN]'s platform-supplied slots, ported from classic
+ * `CloudDocumentsComposeActivity` -- the batch's LAST arm, and its only GATED one: the destination
+ * composes, then may leave (plan D3), the way [DownloadDeps.askIfWantToProceed] already does.
+ *
+ * - [controllerFor] builds the [CloudDocumentsController] around the sync/action/arrangement seams
+ *   the host wires. It is HOST-MEMOISED, not per-entry, for [DownloadDeps.controllerFor]'s reason
+ *   rather than [CustomRepositoriesDeps.controllerFor]'s: [openOrGate] and [refreshFromNetwork] are
+ *   `suspend () -> Boolean`/`suspend () -> Unit` with no controller parameter of their own (their
+ *   signatures are frozen the same way a screen's are), so the ONLY way either can seed or refresh
+ *   the list the arm renders is by mutating the SAME controller instance the arm reads via
+ *   `collectAsState` -- which requires one shared instance behind both, not a fresh one per entry.
+ *   This also reproduces classic's own observable shape verbatim: classic's `isRefreshing` is
+ *   hard-coded `false` and the loading spinner is driven entirely by `controller.busy`
+ *   (`pushBusy`/`pushBusy` pairs inside `openOrGate`/`refreshFromNetwork` themselves), which only
+ *   works when those functions already hold the controller they push busy onto.
+ *
+ * - [title] is BOTH the window title and the string [CloudDocumentsScreen] draws in its own top bar
+ *   (classic `R.string.document_sync_manage_title`, both the manifest label and the screen's own
+ *   title argument).
+ *
+ * - [topBarActions] is the overflow menu (Sync now / Re-scan / Help) -- classic's `OverflowMenu()`
+ *   (`:346-375`): three `painterResource` icons, `CommonUtils.showHelpDialog`, and a `CloudSync
+ *   .signedIn` read at composition, all host-side. `@Composable RowScope.() -> Unit`, exactly
+ *   [CloudDocumentsScreen.topBarActions]'s own type -- unlike [DownloadDeps.topBarActions] it takes
+ *   no argument, because this destination has no `firstDownload`-shaped route argument to gate a row
+ *   on.
+ *
+ * - [openOrGate] is classic `openOrGate()` in full (`:193-208`) -- the sign-in gate, the initial
+ *   cache seed and the conditional network refresh are ALL host-side and ALL sequenced inside this
+ *   one suspend call, because every one of them needs either an `ActivityBase` (`CloudSync.signIn`)
+ *   or the shared controller. `false` means it already toasted and wants the arm to leave (plan D3);
+ *   the arm's whole job on that branch is `navController.popOrExit(deps.exitHost)`. `true` means the
+ *   controller is already correctly seeded (and, if warranted, a network refresh already kicked off)
+ *   -- there is nothing further for the arm to do on that branch either.
+ *
+ * - [seedItems] is classic's cache-only scan+flatten (`DocumentSync.scanCached(...).map {
+ *   toCloudDocItem() }`, the shared middle of `openOrGate` `:203-206` and `renderFromCache`
+ *   `:226-232`). It is PURE -- no controller mutation of its own -- deliberately: `renderFromCache`
+ *   is reached from `onShowRemovedChange`, which [CloudDocumentsController.setShowRemoved] invokes
+ *   UNCONDITIONALLY on every call, so a [seedItems] that itself called `setShowRemoved` again would
+ *   recurse forever through that callback. [openOrGate]'s own host implementation calls this same
+ *   function for its one scan, so the two reload paths (initial gate, show-removed toggle) can never
+ *   silently drift apart.
+ *
+ * - [refreshFromNetwork] is classic `refreshFromNetwork()` (`:212-218`): a network
+ *   `DocumentSync.scan(...)`, flattened and pushed onto the shared controller with a `pushBusy`
+ *   pair around it. Called by [openOrGate]'s own conditional refresh, by the arm's pull-to-refresh,
+ *   and by the post-transfer collector [subscribeProgress] drives.
+ *
+ * - [subscribeProgress] is classic's `bridge.register()`/`unregister()` PLUS the
+ *   `bridge.running.drop(1).collect { ... }` body (`:105`, `:180`, `:111-116`) as one subscribe/stop
+ *   pair: it owns the whole `CloudSyncProgressBridge` lifetime and reports every POST-`drop(1)`
+ *   transfer-running transition to [onRunning]. The arm's own job on each callback is exactly
+ *   classic's collector body: flip `controller.setTransferRunning` and, on the false (transfer
+ *   finished) edge, call [refreshFromNetwork].
+ *
+ * - [statusFilterLabels]/[categoryFilterLabels] are classic's own `statusFilterLabels`/
+ *   `categoryFilterLabels` (`:387-406`) with the `getString` calls kept and the `CloudDocFilter`/
+ *   `DocCategory` pairing stripped -- `Strings` has no cloud-filter equivalent, so these stay
+ *   `R.string` feeds, and the arm zips the returned labels back onto the fixed filter ORDER classic's
+ *   spinners used (see `cloudStatusFilters`/`cloudCategoryFilters` below). [statusFilterLabels]
+ *   takes `showRemoved` because the REMOVED label is only the eighth one when it is true, exactly
+ *   like classic's own conditional `add`.
+ *
+ * - [confirmRemove]/[confirmPurge] are classic `confirmRemove`/`confirmPurge` (`:281-305`): each owns
+ *   BOTH the platform `AlertDialog` AND the plural it resolves (`Strings` has no plural equivalent
+ *   either) -- design §2.4 counted three plural call sites; there are FOUR (`:285` branches between
+ *   two, plus `:297`/`:341`/`:342`). `onConfirm` is what classic's positive button did inline
+ *   (`DocumentSyncService.start` + `applyRemoval`/`applyPurge` + `clearSelection`), supplied by
+ *   whichever of [CloudDocumentsController]'s `onAction`/`onBulkAction` closures is asking, so the
+ *   dialog itself stays ignorant of single-vs-bulk.
+ *
+ * - [countLabel] is classic `countLabel` (`:339-343`), the fourth plural call site, used by the
+ *   Sync-now preview the overflow menu's "Sync now" row builds -- also host-only (needs
+ *   `Formatter.formatShortFileSize` and `resources.getQuantityString`).
+ *
+ * **Every field above is reached one way or another from this destination's own composition or from
+ * [CloudDocumentsController]'s constructor closures the host builds around [controllerFor] -- none is
+ * scaffolding for a caller that does not exist.**
+ */
+class CloudDocumentsDeps(
+    val controllerFor: () -> CloudDocumentsController,
+    val title: String,
+    val topBarActions: @Composable RowScope.() -> Unit,
+    val openOrGate: suspend () -> Boolean,
+    val seedItems: suspend () -> List<CloudDocItem>,
+    val refreshFromNetwork: suspend () -> Unit,
+    val subscribeProgress: (onRunning: (Boolean) -> Unit) -> () -> Unit,
+    val statusFilterLabels: (showRemoved: Boolean) -> List<String>,
+    val categoryFilterLabels: () -> List<String>,
+    val confirmRemove: (initials: List<String>, name: String?, onConfirm: () -> Unit) -> Unit,
+    val confirmPurge: (initials: List<String>, name: String?, onConfirm: () -> Unit) -> Unit,
+    val countLabel: (count: Int, bytes: Long?) -> String,
+)
+
+/**
  * Platform-supplied slots the Documents/downloads cluster's destinations need but `commonMain`
  * cannot provide. Same top-level shape as [net.bible.sharedui.bookmark.nav.BookmarkNavDeps]:
  * [exitHost] and [setWindowTitle] are graph-wide, one nested holder per destination below.
  *
- * **This class GROWS, one task at a time.** Slice 4 migrates the cluster's destinations across four
- * tasks, and each adds its own nested deps field here and its own arm to [downloadNavGraph], the
- * same way [net.bible.sharedui.bookmark.nav.BookmarkNavDeps] grew its three nested holders. Task 3
- * built [customRepositories] and [customRepositoryEditor], Task 4 [progressStatus], Task 7a
- * [download]; Task 8 (`CloudDocuments`) adds the last one, and needs to add nothing else. Only
- * [repositoryEditorResults] was declared up front, for [net.bible.sharedui.bookmark.nav.BookmarkNavDeps]'s
- * own reason: this is the file that owns it, and creating it later would widen this class's
- * constructor for every caller that already built one. A per-destination deps field cannot be
- * front-loaded the same way -- each task introduces the very type it would have to name -- so
- * building one early would be scaffolding for a destination that does not exist yet.
+ * **This class GREW, one task at a time, and Task 8 is the last growth.** Slice 4 migrated the
+ * cluster's destinations across four tasks, each adding its own nested deps field here and its own
+ * arm to [downloadNavGraph], the same way [net.bible.sharedui.bookmark.nav.BookmarkNavDeps] grew its
+ * three nested holders. Task 3 built [customRepositories] and [customRepositoryEditor], Task 4
+ * [progressStatus], Task 7a [download], Task 8 [cloudDocuments] -- the cluster's seventh and final
+ * destination. Nothing further grows this class. Only [repositoryEditorResults] was declared up
+ * front, for [net.bible.sharedui.bookmark.nav.BookmarkNavDeps]'s own reason: this is the file that
+ * owns it, and creating it later would widen this class's constructor for every caller that already
+ * built one. A per-destination deps field cannot be front-loaded the same way -- each task introduces
+ * the very type it would have to name -- so building one early would have been scaffolding for a
+ * destination that did not exist yet.
  */
 class DownloadNavDeps(
     val exitHost: () -> Unit,
@@ -313,6 +416,8 @@ class DownloadNavDeps(
     val progressStatus: ProgressStatusDeps,
     // — DOWNLOAD —
     val download: DownloadDeps,
+    // — CLOUD DOCUMENTS —
+    val cloudDocuments: CloudDocumentsDeps,
 )
 
 /**
@@ -731,6 +836,150 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
             }
         }
     }
+
+    // ——— CLOUD DOCUMENTS ———
+    composable(route = NavRoutes.CLOUD_DOCUMENTS_PATTERN) {
+        val d = deps.cloudDocuments
+        val controller = remember { d.controllerFor() }
+        val scope = rememberCoroutineScope()
+
+        LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
+
+        // Classic openOrGate() in full (:193-208): the sign-in gate, the initial cache seed and the
+        // conditional network refresh are ALL inside deps.openOrGate (plan D3 -- "compose, then
+        // maybe leave"). Plain `remember`, deliberately NOT `rememberSaveable`: nothing in this graph
+        // ever covers this entry's composition -- CloudDocuments has no children of its own, unlike
+        // Download (covered by CustomRepositories) or the bookmark siblings -- so the only way this
+        // composition is torn down and rebuilt is a genuinely fresh back-stack entry or a real
+        // process/host rebuild, and deps.controllerFor's host-memoised controller is rebuilt exactly
+        // then too. A rememberSaveable flag would restore `true` after process death while that
+        // controller came back empty, silently skipping the gate and the seed -- see this task's
+        // report for the fuller account of this carry-forward.
+        var ranOpenOrGate by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            if (ranOpenOrGate) return@LaunchedEffect
+            ranOpenOrGate = true
+            if (!d.openOrGate()) navController.popOrExit(deps.exitHost)
+        }
+
+        // Classic bridge.register()/unregister() plus the running.drop(1) collector (:105, :180,
+        // :111-116): deps.subscribeProgress owns the whole EventBus bridge lifetime and reports every
+        // post-drop(1) transition; the arm's job is exactly the collector's old body.
+        DisposableEffect(Unit) {
+            val stop = d.subscribeProgress { running ->
+                controller.setTransferRunning(running)
+                if (!running) scope.launch { d.refreshFromNetwork() }
+            }
+            onDispose { stop() }
+        }
+
+        val grouped by controller.grouped.collectAsState()
+        val statusFilter by controller.statusFilter.collectAsState()
+        val categoryFilter by controller.categoryFilter.collectAsState()
+        val query by controller.query.collectAsState()
+        val searchModeActive by controller.searchModeActive.collectAsState()
+        val selectionMode by controller.selectionMode.collectAsState()
+        val selectedIds by controller.selectedIds.collectAsState()
+        val busy by controller.busy.collectAsState()
+        val transferRunning by controller.transferRunning.collectAsState()
+        val showRemoved by controller.showRemoved.collectAsState()
+        val syncNowDialog by controller.syncNowDialog.collectAsState()
+        val arrangement by controller.arrangement.collectAsState()
+        val rememberArrangement by controller.rememberArrangement.collectAsState()
+        val arrangementIsDefault by controller.arrangementIsDefault.collectAsState()
+
+        // Classic's onBackPressed override (:183-189): the selection bar goes before the search bar
+        // (AbSelectionScaffold's precedence) before an ordinary leave. ONE gated PlatformBackHandler
+        // with the branch inside, the shape BookmarkNavGraph.kt:494 uses -- never two stacked
+        // handlers (BookmarkNavGraph.kt:652-659 argues why). PlatformBackHandler, never
+        // androidx.activity.compose.BackHandler: this is commonMain.
+        PlatformBackHandler(enabled = selectionMode || searchModeActive) {
+            if (selectionMode) controller.clearSelection() else controller.closeSearch()
+        }
+
+        CloudDocumentsScreen(
+            title = d.title,
+            loading = busy || transferRunning,
+            isRefreshing = false,
+            onRefresh = { scope.launch { d.refreshFromNetwork() } },
+            grouped = grouped,
+            statusFilters = cloudStatusFilters(showRemoved, d.statusFilterLabels(showRemoved)),
+            selectedStatusFilter = statusFilter,
+            categoryFilters = cloudCategoryFilters(d.categoryFilterLabels()),
+            selectedCategoryFilter = categoryFilter,
+            query = query,
+            selectionMode = selectionMode,
+            selectedIds = selectedIds,
+            syncEnabled = controller.syncEnabled(),
+            syncNowDialog = syncNowDialog,
+            topBarActions = d.topBarActions,
+            onQueryChange = controller::setQuery,
+            searchModeActive = searchModeActive,
+            onOpenSearch = controller::openSearch,
+            onCloseSearch = controller::closeSearch,
+            onStatusFilterChange = controller::setStatusFilter,
+            onCategoryFilterChange = controller::setCategoryFilter,
+            arrangement = arrangement,
+            groupKeys = controller.groupKeys,
+            rememberArrangement = rememberArrangement,
+            arrangementIsDefault = arrangementIsDefault,
+            onMoveSort = controller::moveSortCriterion,
+            onToggleSortDirection = controller::toggleSortDirection,
+            onGroupByChange = controller::setGroupBy,
+            onRememberChange = controller::setRememberArrangement,
+            onResetArrangement = controller::resetArrangement,
+            showRemoved = showRemoved,
+            onShowRemovedChange = controller::setShowRemoved,
+            onRowClick = { if (selectionMode) controller.toggle(it.initials) },
+            onRowLongClick = { controller.enterSelection(); controller.toggle(it.initials) },
+            onRowAction = { item, action -> controller.performAction(item, action) },
+            onBulkAction = { controller.performBulk(it) },
+            onSyncNowConfirm = controller::confirmSyncNow,
+            onSyncNowDismiss = controller::dismissSyncNow,
+            onNavigateUp = {
+                if (selectionMode) controller.clearSelection() else navController.popOrExit(deps.exitHost)
+            },
+            onExitSelection = controller::clearSelection,
+        )
+    }
+}
+
+/**
+ * Zips [labels] (classic `statusFilterLabels()`'s `getString` results, `Strings` having no
+ * cloud-filter equivalent) onto the fixed [CloudDocFilter] order classic's own status spinner used
+ * (`CloudDocumentsComposeActivity.kt:387-396`), POSITIONALLY: REMOVED is the list's eighth entry
+ * only when [showRemoved] is true, exactly matching [labels]' own conditional length.
+ */
+private fun cloudStatusFilters(showRemoved: Boolean, labels: List<String>): List<Pair<CloudDocFilter, String>> {
+    val order = buildList {
+        add(CloudDocFilter.ALL)
+        add(CloudDocFilter.INSTALLED)
+        add(CloudDocFilter.CLOUD)
+        add(CloudDocFilter.UPDATES)
+        add(CloudDocFilter.BLOCKED)
+        add(CloudDocFilter.DEVICE_ONLY)
+        add(CloudDocFilter.CLOUD_ONLY)
+        if (showRemoved) add(CloudDocFilter.REMOVED)
+    }
+    return order.zip(labels)
+}
+
+/**
+ * Zips [labels] (classic `categoryFilterLabels()`'s `getString` results) onto the fixed
+ * [DocCategory] order classic's own category spinner used (`CloudDocumentsComposeActivity.kt:398-406`),
+ * POSITIONALLY -- the "all" row is `null`, never [DocCategory.OTHER].
+ */
+private fun cloudCategoryFilters(labels: List<String>): List<Pair<DocCategory?, String>> {
+    val order: List<DocCategory?> = listOf(
+        null,
+        DocCategory.BIBLE,
+        DocCategory.COMMENTARY,
+        DocCategory.DICTIONARY,
+        DocCategory.GENERAL_BOOK,
+        DocCategory.MAPS,
+        DocCategory.AND_BIBLE,
+    )
+    return order.zip(labels)
 }
 
 /**
