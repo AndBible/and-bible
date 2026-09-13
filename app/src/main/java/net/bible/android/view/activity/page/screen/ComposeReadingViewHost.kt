@@ -89,6 +89,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -536,8 +537,62 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      */
     internal val quickSheet = mutableStateOf<ReadingQuickSheet?>(null)
 
+    /**
+     * The verse an out-of-process caller — today only `BibleJavascriptInterface.refChooserDialog`,
+     * via [openVerseChooserSheetForResult] — is waiting for, or `null` when the Grid sheet is
+     * simply navigating the reading view as usual.
+     *
+     * A plain `var`, not snapshot state, for the same reason as [keyChooserKeys]: it is written
+     * before the [quickSheet] state that triggers the composition, and nothing ever recomposes off
+     * it. Every exit from the sheet MUST resolve it — a request left pending leaks a JS promise for
+     * the life of the page — which is why both [closeQuickSheet] and [showQuickSheet] abandon it.
+     */
+    private var pendingChosenVerse: CompletableDeferred<String?>? = null
+
+    /**
+     * Open the Grid quick sheet to pick ONE verse and hand it back, instead of navigating to it.
+     *
+     * nav-graph slice 7 §6.3: this is what `refChooserDialog` calls now, replacing a full-screen
+     * `Screen.GridChoosePassageBook` round-trip through `awaitIntent`. Two things the Intent forced
+     * are forced here instead — `navigateToVerse` (spec §6.1.1's trap: the ordinary sheet reads a
+     * preference that is off by default, and a reference chooser that stops at chapter level cannot
+     * answer the call) and scripture-only books, which the Grid arm already hard-codes because both
+     * of its other callers want it.
+     *
+     * The returned [CompletableDeferred] completes with the chosen verse's osisID, or with `null`
+     * if the sheet is dismissed or superseded.
+     */
+    internal fun openVerseChooserSheetForResult(): CompletableDeferred<String?> {
+        val pending = CompletableDeferred<String?>()
+        // Claim the slot AFTER opening: showQuickSheet abandons whatever request was outstanding.
+        showQuickSheet(ReadingQuickSheet.KeyChooser(KeyChooserKind.Grid, navigateToVerse = true))
+        pendingChosenVerse = pending
+        return pending
+    }
+
+    /**
+     * The Grid sheet's one exit with a verse in hand, shared by both of its openings: it answers an
+     * outstanding [openVerseChooserSheetForResult] request if there is one, and otherwise navigates
+     * the reading view through Task 7's single parse-and-apply path. Taking ownership of the pending
+     * request BEFORE closing is what stops [closeQuickSheet]'s abandon from resolving it with `null`.
+     */
+    internal fun onGridPassageChosen(osisId: String) {
+        val pending = pendingChosenVerse
+        pendingChosenVerse = null
+        closeQuickSheet()
+        if (pending != null) pending.complete(osisId) else activity.applyChosenVerse(osisId)
+    }
+
+    /** Answer an outstanding verse request with "no verse"; a no-op when there is none. */
+    private fun abandonPendingChosenVerse() {
+        val pending = pendingChosenVerse ?: return
+        pendingChosenVerse = null
+        pending.complete(null)
+    }
+
     /** Open a quick sheet, closing every other modal overlay first (spec §4.1). */
     internal fun showQuickSheet(sheet: ReadingQuickSheet) {
+        abandonPendingChosenVerse()
         ReadingOverlayExclusion.closedBy(ReadingOverlay.QuickSheet).forEach { overlay ->
             when (overlay) {
                 ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
@@ -549,7 +604,10 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         quickSheet.value = sheet
     }
 
-    internal fun closeQuickSheet() { quickSheet.value = null }
+    internal fun closeQuickSheet() {
+        quickSheet.value = null
+        abandonPendingChosenVerse()
+    }
 
     /** Round 15b: the reading view's History list as a quick sheet (spec §4.3). */
     internal fun showHistorySheet() = showQuickSheet(ReadingQuickSheet.History)
@@ -675,7 +733,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      */
     internal fun showKeyChooserSheet(kind: KeyChooserKind, keys: List<Key>) {
         keyChooserKeys = keys
-        showQuickSheet(ReadingQuickSheet.KeyChooser(kind))
+        showQuickSheet(
+            ReadingQuickSheet.KeyChooser(
+                kind,
+                // The same source the full-screen twin falls back to when nothing overrides it
+                // (`GridChoosePassageComposeActivity`) -- never a hard-coded true, which would force
+                // a verse step the user turned off. Read HERE rather than in the sheet's composable
+                // arm precisely so the other opening ([openVerseChooserSheetForResult]) can differ:
+                // spec §6.1.1. Meaningless for the two flat list kinds, which have no verse step.
+                navigateToVerse = kind == KeyChooserKind.Grid &&
+                    CommonUtils.settings.getBoolean("navigate_to_verse_pref", false),
+            ),
+        )
     }
 
     private val mapPage: CurrentMapPage get() = windowControl.activeWindowPageManager.currentMap
@@ -1490,16 +1559,15 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                             // The Bible/commentary key choosers that route here both pass
                             // isScripture=true (CurrentBiblePage.kt:55, CurrentCommentaryPage.kt:66).
                             isScripture = true,
-                            // The same source the activity falls back to when no intent extra
-                            // overrides it (GridChoosePassageComposeActivity.kt:55) -- never a
-                            // hard-coded true, which would force a verse step the user turned off.
-                            navigateToVerse = CommonUtils.settings.getBoolean("navigate_to_verse_pref", false),
-                            onFinish = { osisId ->
-                                closeQuickSheet()
-                                // Task 7's ONE parse-and-apply path, shared with the
-                                // onActivityResult arm. Never re-parse the verse here.
-                                activity.applyChosenVerse(osisId)
-                            },
+                            // Decided by the OPENING, not read here: the title tap follows the
+                            // user's preference while the JS reference chooser forces verse level
+                            // (spec §6.1.1). See `showKeyChooserSheet` and
+                            // `openVerseChooserSheetForResult`.
+                            navigateToVerse = sheet.navigateToVerse,
+                            // Answers a pending JS request if there is one, and otherwise runs
+                            // Task 7's ONE parse-and-apply path, shared with the onActivityResult
+                            // arm. Never re-parse the verse here.
+                            onFinish = ::onGridPassageChosen,
                         )
                     }
                     val ui by controller.ui.collectAsState()

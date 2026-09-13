@@ -101,6 +101,30 @@ private data class AiDocPageRef(
     val pageKey: String,
 )
 
+/**
+ * How [BibleJavascriptInterface.refChooserDialog] renders the chosen verse for the JS side: SHORT
+ * book-name form, whatever `BookName.isFullBookName()` happens to be globally, and that global
+ * restored afterwards. Verbatim from the version that read the chooser Activity's result — the
+ * format is part of the JS contract, not incidental — extracted only so it can be tested without a
+ * WebView (`RefChooserSheetTest`).
+ *
+ * `null` (a dismissed chooser) renders as the empty string, which is what the JS promise resolves
+ * to when the user picks nothing.
+ */
+internal fun refChooserVerseName(verseStr: String?): String {
+    val verse = if(verseStr == null) null else VerseFactory.fromString(KJVA, verseStr)
+
+    return synchronized(BookName::class.java) {
+        val oldValue = BookName.isFullBookName()
+        BookName.setFullBookName(false)
+        try {
+            verse?.name ?: ""
+        } finally {
+            BookName.setFullBookName(oldValue)
+        }
+    }
+}
+
 class BibleJavascriptInterface(
 	private val bibleView: BibleView
 ) {
@@ -194,28 +218,32 @@ class BibleJavascriptInterface(
         bibleView.parseRef(callId, s)
     }
 
+    /**
+     * The JS reference chooser (`deferredCall(... window.android.refChooserDialog(callId))`).
+     *
+     * nav-graph slice 7 §6.3: this opens the reading view's OWN Grid quick sheet and is resolved by
+     * the sheet's selection callback, replacing a full-screen chooser launched through
+     * `ScreenLauncher` and awaited as an Activity result. That removes one of the three documented
+     * paths that bypassed `MainBibleActivity.composeStartKeyChooser`'s sheet gate.
+     *
+     * Two behaviours the old Intent forced are forced on the sheet instead, or the JS chooser would
+     * change under the user: verse-level drill-down (spec §6.1.1 — the ordinary sheet follows a
+     * preference that is off by default, and a chooser that stops at a chapter cannot answer this
+     * call) and scripture-only books, which the sheet's Grid arm already hard-codes.
+     *
+     * The host is declared nullable so SOME null handling is compiler-mandated, but a `BibleView`
+     * only ever exists inside a mounted host's pane, so that arm is unreachable in practice; it
+     * answers JS with no verse rather than launching anything, the same shape as round 15b's
+     * History sheet (`MainBibleActivity.onKeyLongPress`).
+     */
     @JavascriptInterface
     fun refChooserDialog(callId: Long) {
         scope.launch {
-            val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.GridChoosePassageBook).apply {
-                putExtra("isScripture", true)
-                putExtra("navigateToVerse", true)
-            }
-            val result = mainBibleActivity.awaitIntent(intent)
-            val verseStr = result?.data?.getStringExtra("verse")
+            val verseStr = mainBibleActivity.composeReadingViewHost
+                ?.openVerseChooserSheetForResult()
+                ?.await()
 
-
-            val verse = if(verseStr == null) null else VerseFactory.fromString(KJVA, verseStr)
-
-            val verseName = synchronized(BookName::class.java) {
-                val oldValue = BookName.isFullBookName()
-                BookName.setFullBookName(false)
-                try {
-                    verse?.name ?: ""
-                } finally {
-                    BookName.setFullBookName(oldValue)
-                }
-            }
+            val verseName = refChooserVerseName(verseStr)
 
             bibleView.executeJavascriptOnUiThread("bibleView.response($callId, '$verseName');")
         }
@@ -906,9 +934,12 @@ class BibleJavascriptInterface(
                 // toolbar title's tap. `startKeyChooser` is left untouched precisely so its
                 // non-reading-view callers keep working, and this is one of them: the shortcut acts
                 // on `bibleView.window`, which is not necessarily the ACTIVE window the host's sheet
-                // would read -- and the same file's `refChooserDialog` needs a real Intent result
-                // that a sheet cannot produce. Rerouting either would be a behaviour change, not a
-                // consistency fix.
+                // would read. Rerouting it would be a behaviour change, not a consistency fix.
+                // (nav-graph slice 7 Task 10: the second reason this note used to give -- that the
+                // same file's `refChooserDialog` needed an Activity result a sheet could not produce
+                // -- is gone. That caller now opens the sheet and is resolved by a
+                // `CompletableDeferred`; this shortcut's active-window mismatch is unaffected, so
+                // it stays on the classic path. Spec §6.3 records the two remaining bypasses.)
                 "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
                 "CtrlKeyW" -> {
                     // M1 (whole-branch review fix wave): guard on the MOUNTED HOST -- see

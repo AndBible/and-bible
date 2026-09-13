@@ -1434,8 +1434,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * host is already non-null by the time this can fire.
      *
      * `CurrentPage.startKeyChooser` itself is deliberately NOT touched, so `CurrentPageManager`'s
-     * auto-open and `BibleJavascriptInterface.refChooserDialog` — which needs a real Intent result —
-     * behave exactly as today.
+     * auto-open behaves exactly as today. (`BibleJavascriptInterface.refChooserDialog`, which this
+     * note used to list alongside it because it needed an Activity result, no longer does:
+     * nav-graph slice 7 Task 10 moved it onto [ComposeReadingViewHost.openVerseChooserSheetForResult],
+     * a `CompletableDeferred` the sheet's own selection callback completes.)
      */
     internal fun composeStartKeyChooser() {
         val host = composeReadingViewHost

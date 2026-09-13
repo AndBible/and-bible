@@ -38,6 +38,19 @@ sealed interface ReadingQuickSheet {
     /** Round 15b Plan B: switch document; `ChooseDocument` is one footer row away. */
     object Documents : ReadingQuickSheet
 
-    /** Round 15b Plan B: the three key choosers simple enough for a sheet. */
-    data class KeyChooser(val kind: KeyChooserKind) : ReadingQuickSheet
+    /**
+     * Round 15b Plan B: the three key choosers simple enough for a sheet.
+     *
+     * [navigateToVerse] is meaningful only for [KeyChooserKind.Grid], where it decides whether
+     * picking a chapter finishes or opens a third, verse step. It is a property of the OPENING, not
+     * a global preference read inside the sheet, because the two openings disagree (nav-graph slice
+     * 7 spec §6.1.1): the reading view's own title tap follows the user's `navigate_to_verse_pref`,
+     * while the JS reference chooser (`BibleJavascriptInterface.refChooserDialog`) always drills to
+     * verse level — it has to return a verse, and that preference defaults to off. Deciding it at
+     * the call site is what keeps the JS chooser from silently stopping at chapter level.
+     */
+    data class KeyChooser(
+        val kind: KeyChooserKind,
+        val navigateToVerse: Boolean = false,
+    ) : ReadingQuickSheet
 }
