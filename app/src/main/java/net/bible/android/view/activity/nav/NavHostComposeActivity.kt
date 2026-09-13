@@ -43,6 +43,7 @@ import android.widget.ListView
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -84,6 +85,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 import kotlin.coroutines.resume
+import kotlin.reflect.KFunction1
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
@@ -156,6 +158,7 @@ import net.bible.android.view.activity.download.RowDownloadStatus
 import net.bible.android.view.activity.download.isBadDocument
 import net.bible.android.view.activity.download.isInstalled
 import net.bible.android.view.activity.download.isRecommended
+import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
@@ -853,10 +856,22 @@ class NavHostComposeActivity : ActivityBase() {
     }
 
     /** Classic's `InputDevice.getDevice(event.deviceId)?.isExternal` + `SOURCE_KEYBOARD` pair. */
-    private fun isExternalKeyboard(event: KeyEvent): Boolean {
-        if ((event.source and InputDevice.SOURCE_KEYBOARD) == 0) return false
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            InputDevice.getDevice(event.deviceId)?.isExternal ?: false
+    private fun isExternalKeyboard(event: KeyEvent): Boolean =
+        (event.source and InputDevice.SOURCE_KEYBOARD) != 0 && isExternalDevice(event.deviceId)
+
+    /**
+     * The device half of [isExternalKeyboard], as a replaceable member and not an inline call, for
+     * one reason: Robolectric's `InputManager` shadow registers no input devices and offers no
+     * public way to add one, so `InputDevice.getDevice(id)` is permanently null in a unit test and
+     * the POSITIVE external-keyboard branch would be unreachable. That branch is the one whose
+     * failure is silent — "external-keyboard BACK is never claimed" looks exactly like working
+     * software until someone plugs a keyboard in — so it gets a seam rather than no coverage. Only
+     * `ReadingDestinationInGraphTest` replaces it.
+     */
+    @VisibleForTesting
+    internal var isExternalDevice: (Int) -> Boolean = { deviceId ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            InputDevice.getDevice(deviceId)?.isExternal ?: false
         } else {
             false
         }
@@ -869,27 +884,49 @@ class NavHostComposeActivity : ActivityBase() {
      * classic reached and is null only before that window has ever been built.
      */
     private fun readingViewKeyPressed(key: ReadingViewKey): Boolean = when (key) {
-        ReadingViewKey.VolumeUp, ReadingViewKey.VolumeDown -> {
-            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager?
-            val volumeKeysScroll = CommonUtils.settings.getBoolean("volume_keys_scroll", true)
-            if (!speakControl.isSpeaking && audioManager?.isMusicActive != true && volumeKeysScroll) {
-                val bibleView = windowControl.activeWindow.bibleView
-                if (key == ReadingViewKey.VolumeDown) {
-                    bibleView?.volumeDownPressed() ?: false
-                } else {
-                    bibleView?.volumeUpPressed() ?: false
-                }
+        ReadingViewKey.VolumeUp, ReadingViewKey.VolumeDown ->
+            if (readingViewOwnsVolumeKeys()) {
+                windowControl.activeWindow.bibleView?.let { readingViewScrollFor(key)(it) } ?: false
             } else {
                 false
             }
-        }
         // Classic closed the drawer and returned true unconditionally. The close half is NOT
         // portable yet: classic wrote `binding.drawerLayout` (the XML Task 11 removes) and then
         // `composeCloseDrawerIfOpen()`, which is `ComposeReadingViewHost`'s drawer state — the same
         // object [ReadingNavDeps.content] cannot reach from here. It belongs with the content slot
-        // and lands with it; until then this reproduces classic's return value only.
+        // and lands with it; until then this reproduces classic's return value only. Recorded as
+        // owed work in [ReadingNavDeps.content]'s kdoc, where the task that pays it will see it —
+        // not only in this comment.
         ReadingViewKey.ExternalKeyboardBack -> true
     }
+
+    /**
+     * Classic's three volume-key gates, in classic's order: not speaking, no music playing, and the
+     * `volume_keys_scroll` preference on. Separated from [readingViewKeyPressed] so it can be tested
+     * — the call it guards needs a live `BibleView`, which a unit test has no way to produce (see
+     * [readingViewScrollFor]), so inlined here the gates would have no coverage at all.
+     */
+    private fun readingViewOwnsVolumeKeys(): Boolean {
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager?
+        val volumeKeysScroll = CommonUtils.settings.getBoolean("volume_keys_scroll", true)
+        return !speakControl.isSpeaking && audioManager?.isMusicActive != true && volumeKeysScroll
+    }
+
+    /**
+     * Which `BibleView` scroll a claimed volume key means — a method REFERENCE rather than a call,
+     * so that the mapping is assertable without a `BibleView` existing.
+     *
+     * `windowControl.activeWindow.bibleView` is null in every unit test (nothing builds a WebView)
+     * and `BibleView` is a final class this repo's Mockito cannot stub, so a plain
+     * `bibleView?.volumeDownPressed()` inside [readingViewKeyPressed] is a branch NO test in this
+     * repo can execute — which makes transposing the two calls a mutation the whole suite survives.
+     * Up/down transposition is precisely the defect a hand-port of this method is most likely to
+     * have, so the mapping is lifted out where
+     * `ReadingDestinationInGraphTest.theVolumeKeysMapToTheMatchingBibleViewScroll` can read its
+     * `name`.
+     */
+    private fun readingViewScrollFor(key: ReadingViewKey): KFunction1<BibleView, Boolean> =
+        if (key == ReadingViewKey.VolumeDown) BibleView::volumeDownPressed else BibleView::volumeUpPressed
 
     /**
      * Classic `MainBibleActivity.onScreenTurnedOn` (`:2693`), including its night-mode refresh.

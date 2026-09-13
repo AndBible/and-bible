@@ -216,9 +216,7 @@ class SpeakTransportVisibilityChanged(val value: Boolean)
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
     lateinit var empty: EmptyBinding
-    /** Only ever shown by the deleted `freeze()`; inflated but unused since nav-graph slice 7
-     *  Task 6, and deleted with this whole Activity in Task 13 (the phase's standing rule is that
-     *  nothing else goes before then). */
+    /** The placeholder [freeze] swaps in while another Activity is on top of this one. */
     lateinit var frozenBinding: FrozenBinding
 
     private var mWholeAppWasInBackground = false
@@ -374,11 +372,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override val disableBaseSetupUi: Boolean = true
     override val enableGenericVolumeScroll: Boolean get() = false
 
-    // Single set of ABEventBus subscriptions, registered from onCreate. (It was shared with
-    // unFreeze until nav-graph slice 7 Task 6 deleted freeze()/unFreeze() — design §9: they swap
-    // content views between MULTIPLE reading Activities, and after the migration there is one host.)
-    // `this` inside a handler lambda resolves to the Subscriptions DSL receiver, so any Activity
-    // reference is this@MainBibleActivity.
+    // Single set of ABEventBus subscriptions, shared by onCreate and unFreeze (which
+    // re-registers after freeze unregistered). `this` inside a handler lambda resolves
+    // to the Subscriptions DSL receiver, so any Activity reference is this@MainBibleActivity.
     private val eventSubscriptions: ABEventBus.Subscriptions.() -> Unit = {
         on<SpeakEvent> { event ->
             if(event.isSpeaking) {
@@ -3083,6 +3079,40 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 linkControl.openStudyPad(result.labelId, result.scrollToEntryId)
             }
         }
+    }
+
+    private var frozen = false
+
+    /**
+     * See [net.bible.android.view.activity.base.ActivityBase.freeze] for why this still exists.
+     *
+     * The `mainBibleActivities < 2` guard is the ordinary case: with only ONE reading Activity
+     * alive, whatever is on top of it is a secondary screen, and the reading view underneath must
+     * stay exactly as it is. Only a SECOND `MainBibleActivity` — which
+     * `StartupActivity.gotoMainBibleActivity()`'s `FLAG_ACTIVITY_MULTIPLE_TASK` branch really does
+     * create for an `ACTION_VIEW` deep link — makes freezing the right answer, and the
+     * `ABEventBus.unregister(this)` below is the half that matters: without it both instances
+     * handle every bus event.
+     */
+    override fun freeze() {
+        if(CurrentActivityHolder.mainBibleActivities < 2) return
+        if(!frozen) {
+            ABEventBus.unregister(this)
+            (window.decorView as ViewGroup).removeView(binding.root)
+            super.setContentView(frozenBinding.root)
+        }
+        frozen = true
+    }
+
+    /** @see freeze */
+    override fun unFreeze() {
+        if(frozen) {
+            windowControl.windowRepository = windowRepository
+            ABEventBus.register(this, eventSubscriptions)
+            (window.decorView as ViewGroup).removeView(frozenBinding.root)
+            super.setContentView(binding.root)
+        }
+        frozen = false
     }
 
     /**

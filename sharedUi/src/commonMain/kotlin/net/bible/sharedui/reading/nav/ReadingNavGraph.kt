@@ -20,6 +20,7 @@ package net.bible.sharedui.reading.nav
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -67,6 +68,26 @@ class ReadingNavDeps(
      * The reading view itself — see this class's kdoc for why it is one slot. Composed directly in
      * the destination arm, with no wrapper of any kind, so that what the destination renders is
      * byte-for-byte what `ComposeReadingViewHost.install` renders into the classic Activity.
+     *
+     * **Work this destination OWES, payable by the task that makes this slot real.** Three items,
+     * collected here because this is the parameter that task has to touch and a code comment
+     * somewhere else is not findable:
+     *
+     *  1. **`ExternalKeyboardBack` does not close the drawers.**
+     *     `NavHostComposeActivity.readingViewKeyPressed` returns `true` for it and does nothing
+     *     else; classic `MainBibleActivity.onKeyDown` closed BOTH the classic `binding.drawerLayout`
+     *     and, via `composeCloseDrawerIfOpen()`, the Compose drawer. Neither is reachable from the
+     *     host, because both live on the `ComposeReadingViewHost` this slot cannot build yet — so
+     *     the close half lands with the slot. Dead today (nothing routes here); the day it is not
+     *     dead, an external-keyboard BACK silently does nothing instead of closing the drawer.
+     *  2. **`ReadingViewVisibility` keeps `HistoryManager.goBack()` from finishing the screen on
+     *     top** once a composed destination's depth is live under a backgrounded host — a dead back
+     *     key. See that object's kdoc; it names this task as the one that must resolve it.
+     *  3. **`ReadingViewHostCallbacks.current` is "last published", not "the foreground host"**, the
+     *     same divergence on the callback seam, and it wants the same answer.
+     *
+     *  Items 2 and 3 are PRECONDITIONS, not follow-ups: both become user-visible the moment this
+     *  slot renders the real reading view.
      */
     val content: @Composable () -> Unit,
     /**
@@ -113,6 +134,15 @@ class ReadingNavDeps(
 @Suppress("UNUSED_PARAMETER")
 fun NavGraphBuilder.readingNavGraph(navController: NavHostController, deps: ReadingNavDeps) {
     composable(route = NavRoutes.READING) {
+        // The effect below is keyed on Unit and so captures whatever it captures ONCE. Publishing
+        // `deps.onKey` and friends straight into it would therefore pin the lambdas of the deps
+        // instance that happened to be current at the first composition: safe only as long as the
+        // host `remember`s its deps, which today's does but which nothing forces it to — a host
+        // that writes `ReadingNavDeps(...)` inline, the obvious thing and what several other
+        // clusters' call sites look like, would publish permanently stale handlers with no compile
+        // error. rememberUpdatedState + delegating handlers make that impossible without giving up
+        // the Unit key.
+        val currentDeps = rememberUpdatedState(deps)
         // One effect for both seams — see this function's kdoc. Keyed on Unit: the destination is
         // argument-free, so there is nothing that could legitimately re-key it, and a re-key would
         // mean an exit/enter pair that History would see as the reading view briefly leaving.
@@ -120,9 +150,9 @@ fun NavGraphBuilder.readingNavGraph(navController: NavHostController, deps: Read
             ReadingViewVisibility.enter()
             val unpublish = ReadingViewHostCallbacks.publish(
                 ReadingViewHostHandlers(
-                    onKey = deps.onKey,
-                    onScreenTurnedOn = deps.onScreenTurnedOn,
-                    onScreenTurnedOff = deps.onScreenTurnedOff,
+                    onKey = { key -> currentDeps.value.onKey(key) },
+                    onScreenTurnedOn = { currentDeps.value.onScreenTurnedOn() },
+                    onScreenTurnedOff = { currentDeps.value.onScreenTurnedOff() },
                 ),
             )
             onDispose {

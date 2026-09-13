@@ -16,7 +16,9 @@
  */
 package net.bible.android.view.compose
 
+import android.view.InputDevice
 import android.view.KeyEvent
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
@@ -40,6 +42,7 @@ import net.bible.sharedcore.reading.ReadingViewKey
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedui.reading.nav.ReadingNavDeps
 import net.bible.sharedui.reading.nav.readingNavGraph
+import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Before
@@ -50,9 +53,11 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import kotlin.reflect.KCallable
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNotSame
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -265,6 +270,39 @@ class ReadingDestinationInGraphTest {
     }
 
     /**
+     * The published handlers must DELEGATE to whatever deps the arm currently has, not carry the
+     * deps instance that happened to be current when the `DisposableEffect(Unit)` first ran. The
+     * effect is keyed on `Unit` on purpose (a re-key would be an exit/enter pair History would read
+     * as the reading view briefly leaving), so `onKey = deps.onKey` would pin the lambda forever:
+     * safe only because today's host `remember`s its deps, and silently wrong for a host that writes
+     * `ReadingNavDeps(...)` inline. `rememberUpdatedState` + delegating lambdas remove the
+     * dependency on that accident.
+     *
+     * Asserted by IDENTITY rather than behaviour, and that is not laziness: `deps` reaches the arm
+     * through the closure of the `composable(route) { … }` content lambda, which is built once when
+     * `NavHost` creates its graph. Handing the graph a new deps instance means a new builder lambda,
+     * which re-keys `NavHost`'s `remember` and rebuilds the graph — which pops and recreates the
+     * back stack, disposes the destination and re-runs the effect, so a behavioural version of this
+     * test would pass against the pinned version too. Identity is what actually distinguishes them.
+     * Mutation: publish `deps.onKey`/`deps.onScreenTurnedOn`/`deps.onScreenTurnedOff` directly and
+     * all three assertions fail.
+     */
+    @Test
+    fun theDestinationPublishesDelegatingHandlersRatherThanThePinnedDepsLambdas() {
+        val d = deps()
+        setGraph(d)
+        val handlers = assertNotNull(ReadingViewHostCallbacks.current)
+
+        assertNotSame(d.onKey, handlers.onKey, "onKey must be a delegate, not the deps' own lambda")
+        assertNotSame(d.onScreenTurnedOn, handlers.onScreenTurnedOn, "…and onScreenTurnedOn")
+        assertNotSame(d.onScreenTurnedOff, handlers.onScreenTurnedOff, "…and onScreenTurnedOff")
+
+        // …and the delegate still reaches the deps it delegates to.
+        assertTrue(handlers.onKey(ReadingViewKey.VolumeUp))
+        assertEquals(listOf(ReadingViewKey.VolumeUp), keys)
+    }
+
+    /**
      * The host sends a volume key to the published handler and reports the key CONSUMED. Driven
      * through the real `NavHostComposeActivity.onKeyDown`. Mutation: delete the `onKeyDown` override
      * from the host and the assertion fails (the base class's generic scroll finds no scrollable
@@ -377,23 +415,197 @@ class ReadingDestinationInGraphTest {
         assertEquals(1, probeScreenOns, "…and nothing is delivered to a destination that is gone")
     }
 
-    // ------------------------------------------------------------------ the one allowed deletion
+    // ------------------------------------------------------------------ the deletion that was NOT allowed
 
     /**
-     * `freeze()`/`unFreeze()` swap content views between MULTIPLE Activities; there is one host, so
-     * they are deleted rather than moved (plan Step 5, design §9), and with them the only caller of
-     * `CurrentActivityHolder.mainBibleActivities`. Reflection rather than a source scan: what must
-     * be gone is the CALLABLE member, and a scan would also match the word in a comment.
+     * **`freeze()`/`unFreeze()` STAY until Task 13 deletes `MainBibleActivity` itself.**
+     *
+     * Task 6 deleted them (plan Step 5, design §9) on the premise that "the migration leaves one
+     * host, so there is nothing to swap". Fix round 2 restored them, because the premise is false on
+     * this branch and this test pins the reason: `StartupActivity.gotoMainBibleActivity()` launches
+     * `MainBibleActivity` with `FLAG_ACTIVITY_MULTIPLE_TASK` for an `ACTION_VIEW` intent, so a deep
+     * link opened while the app is running produces a SECOND live `MainBibleActivity` — the same
+     * scenario [ReadingViewVisibility]'s depth counter and [ReadingViewHostCallbacks]'s list exist
+     * for. Two instances registered on `ABEventBus` at once handle every bus event twice
+     * (`AppToBackgroundEvent` syncing twice, `MainBibleAfterRestore` resetting twice,
+     * `WorkspacesUpdatedViaSyncEvent` judging workspace deletion against the wrong repository), and
+     * `freeze()`'s `ABEventBus.unregister(this)` is the only thing that prevents it.
+     *
+     * So this test is deliberately an argument, not just an assertion: a future deletion has to
+     * make the MULTIPLE_TASK launch go away first, and will trip over this scan when it does not.
      */
     @Test
-    fun freezeAndUnFreezeAreGoneWithTheirOnlyCaller() {
-        val members = ActivityBase::class.java.methods.map { it.name }
-        assertFalse(members.contains("freeze"), "ActivityBase.freeze() is deleted")
-        assertFalse(members.contains("unFreeze"), "ActivityBase.unFreeze() is deleted")
-        assertFalse(
-            CurrentActivityHolder::class.java.methods.map { it.name }.contains("getMainBibleActivities"),
-            "CurrentActivityHolder.mainBibleActivities had exactly one caller, inside freeze()",
+    fun freezeAndUnFreezeStayWhileASecondMainBibleActivityIsReachable() {
+        assertTrue(
+            ClassicRemovalScan.codeLinesOf(STARTUP_ACTIVITY).contains("FLAG_ACTIVITY_MULTIPLE_TASK"),
+            "the reason freeze()/unFreeze() still exist: StartupActivity can launch a SECOND " +
+                "MainBibleActivity. If this line is gone, re-argue the deletion — do not just " +
+                "delete this test",
         )
+
+        val members = ActivityBase::class.java.methods.map { it.name }
+        assertTrue(members.contains("freeze"), "ActivityBase.freeze() must still exist")
+        assertTrue(members.contains("unFreeze"), "ActivityBase.unFreeze() must still exist")
+        assertTrue(
+            CurrentActivityHolder::class.java.methods.map { it.name }.contains("getMainBibleActivities"),
+            "MainBibleActivity.freeze() asks CurrentActivityHolder.mainBibleActivities whether it is " +
+                "the only reading Activity there is",
+        )
+    }
+
+    /**
+     * The wiring, not just the members: `CurrentActivityHolder` unfreezes the Activity coming to the
+     * front, freezes everything underneath it, and unfreezes whatever is left on top when one
+     * leaves. Mutation: drop any one of the three calls and one assertion here fails.
+     *
+     * Bare `ActivityBase` instances, never created: `activate`/`deactivate` only add to a list, call
+     * these two overrides and post the app-level foreground/background event, so no Activity
+     * internals are touched and no Robolectric lifecycle is needed. Deltas rather than absolute
+     * counts because other tests in this JVM leave Activities in the holder.
+     */
+    @Test
+    fun activatingAnActivityOnTopFreezesTheOneUnderneathAndUnfreezesItOnTheWayBack() {
+        val under = FreezeProbeActivity()
+        val onTop = FreezeProbeActivity()
+        try {
+            CurrentActivityHolder.activate(under)
+            assertEquals(1, under.unFreezes, "activate() unfreezes the Activity coming to the front")
+            assertEquals(0, under.freezes, "…and nothing is on top of it yet")
+
+            CurrentActivityHolder.activate(onTop)
+            assertEquals(
+                1,
+                under.freezes,
+                "an Activity on top freezes the one underneath — which is what takes the second " +
+                    "MainBibleActivity's ABEventBus subscriptions out of the way",
+            )
+            assertEquals(1, onTop.unFreezes, "…and unfreezes the incoming one")
+
+            CurrentActivityHolder.deactivate(onTop)
+            assertEquals(2, under.unFreezes, "leaving unfreezes whatever is left on top")
+        } finally {
+            CurrentActivityHolder.deactivate(onTop)
+            CurrentActivityHolder.deactivate(under)
+        }
+    }
+
+    // ------------------------------------------------------------------ the host-side ports
+
+    /**
+     * The volume-key transposition gate. Every OTHER host-side test here publishes a probe handler,
+     * so `readingViewKeyPressed` itself never runs — and its `BibleView` calls cannot run in a unit
+     * test at all (no WebView is ever built, and `BibleView` is final). Swapping `volumeUpPressed()`
+     * and `volumeDownPressed()` was therefore a mutation the whole suite survived. The mapping is
+     * lifted into `readingViewScrollFor` for exactly this assertion; mutation: swap the two
+     * references and both assertions fail.
+     */
+    @Test
+    fun theVolumeKeysMapToTheMatchingBibleViewScroll() {
+        val activity = buildHost()
+        assertEquals("volumeDownPressed", scrollFor(activity, ReadingViewKey.VolumeDown).name)
+        assertEquals("volumeUpPressed", scrollFor(activity, ReadingViewKey.VolumeUp).name)
+    }
+
+    /**
+     * Classic's three gates, ported. Mutations: drop the `volume_keys_scroll` term (the second
+     * assertion fails) or invert `!speakControl.isSpeaking` (the first fails — nothing is speaking
+     * in a unit test, so the gate must be open).
+     */
+    @Test
+    fun theVolumeKeyGatesAreClassicsOwn() {
+        val activity = buildHost()
+        try {
+            assertTrue(
+                volumeKeysOwned(activity),
+                "nothing is speaking and no music is playing, and volume_keys_scroll defaults to " +
+                    "on — the reading view takes the key",
+            )
+
+            CommonUtils.settings.setBoolean("volume_keys_scroll", false)
+            assertFalse(
+                volumeKeysOwned(activity),
+                "volume_keys_scroll off means the key falls through to super.onKeyDown, as it did " +
+                    "in classic",
+            )
+        } finally {
+            CommonUtils.settings.removeBoolean("volume_keys_scroll")
+        }
+    }
+
+    /**
+     * The POSITIVE external-keyboard branch — the one
+     * [theHostDoesNotClaimAnOrdinaryBackPressForTheReadingView] cannot reach, and the one whose
+     * failure is silent (an external-keyboard BACK that is never claimed looks like working
+     * software until someone plugs a keyboard in). Robolectric registers no input devices, so the
+     * device half of the decode is replaced; the SOURCE half is real.
+     *
+     * Mutations: make `isExternalDevice` constantly false (the first assertion fails), or drop the
+     * `SOURCE_KEYBOARD` term from `isExternalKeyboard` (the second fails).
+     */
+    @Test
+    fun theHostClaimsBackOnlyFromAnExternalKeyboard() {
+        val activity = buildHost()
+        stubExternalDevice(activity, external = true)
+
+        assertEquals(
+            ReadingViewKey.ExternalKeyboardBack,
+            keyFor(activity, KeyEvent.KEYCODE_BACK, keyEvent(KeyEvent.KEYCODE_BACK, InputDevice.SOURCE_KEYBOARD)),
+            "BACK from an external keyboard is the reading view's",
+        )
+        assertNull(
+            keyFor(activity, KeyEvent.KEYCODE_BACK, keyEvent(KeyEvent.KEYCODE_BACK, InputDevice.SOURCE_TOUCHSCREEN)),
+            "…but the same external device on a non-keyboard source is not",
+        )
+
+        stubExternalDevice(activity, external = false)
+        assertNull(
+            keyFor(activity, KeyEvent.KEYCODE_BACK, keyEvent(KeyEvent.KEYCODE_BACK, InputDevice.SOURCE_KEYBOARD)),
+            "…and neither is a keyboard that is not external (the on-screen one)",
+        )
+    }
+
+    /**
+     * The screen-on port re-reads night mode and re-applies the theme — classic's
+     * `refreshIfNightModeChange()`. Only `applyTheme()` is observable from a test
+     * (`AppCompatDelegate`'s default night mode is process-global);
+     * `ScreenSettings.refreshNightMode()`/`checkMonitoring()` are no-ops unless automatic night mode
+     * is on, which needs a light sensor. Mutation: drop `applyTheme()` from
+     * `readingViewScreenTurnedOn` and this fails.
+     */
+    @Test
+    fun theScreenOnPortReAppliesTheNightModeTheme() {
+        val activity = buildHost()
+        val prefs = CommonUtils.realSharedPreferences
+        val hadNightMode = prefs.getBoolean("night_mode_pref", false)
+        val previousDefault = AppCompatDelegate.getDefaultNightMode()
+        try {
+            prefs.edit().putBoolean("night_mode_pref", true).commit()
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
+            invokeProtected(activity, "readingViewScreenTurnedOn")
+
+            assertEquals(
+                AppCompatDelegate.MODE_NIGHT_YES,
+                AppCompatDelegate.getDefaultNightMode(),
+                "the screen came on with night mode set — classic re-applied the theme here",
+            )
+        } finally {
+            prefs.edit().putBoolean("night_mode_pref", hadNightMode).commit()
+            AppCompatDelegate.setDefaultNightMode(previousDefault)
+        }
+    }
+
+    /**
+     * Both screen-state ports forward to `windowControl.activeWindow.bibleView`, which is null until
+     * a window has built its WebView — always, in a unit test. The forward itself therefore has no
+     * assertion available; what IS worth pinning is that neither port throws on that null, because
+     * `onScreenTurnedOff` runs on a broadcast and an exception there takes the host down.
+     */
+    @Test
+    fun theScreenStatePortsSurviveAWindowWithNoBibleView() {
+        val activity = buildHost()
+        invokeProtected(activity, "readingViewScreenTurnedOff")
+        invokeProtected(activity, "readingViewScreenTurnedOn")
     }
 
     // ------------------------------------------------------------------ fixture
@@ -429,6 +641,42 @@ class ReadingDestinationInGraphTest {
 
     private fun keyEvent(keyCode: Int) = KeyEvent(KeyEvent.ACTION_DOWN, keyCode)
 
+    /** A key event from device 7 on an explicit input SOURCE — what the external-keyboard decode reads. */
+    private fun keyEvent(keyCode: Int, source: Int) = KeyEvent(
+        0L, 0L, KeyEvent.ACTION_DOWN, keyCode, 0, 0, /* deviceId = */ 7, /* scancode = */ 0,
+        /* flags = */ 0, source,
+    )
+
+    /**
+     * Replaces the host's `isExternalDevice` seam. Written through the backing FIELD: the property
+     * is `internal`, and going through the field keeps the test independent of Kotlin's
+     * friend-module/name-mangling arrangements for the test source set.
+     */
+    private fun stubExternalDevice(activity: NavHostComposeActivity, external: Boolean) {
+        NavHostComposeActivity::class.java
+            .getDeclaredField("isExternalDevice")
+            .apply { isAccessible = true }
+            .set(activity) { _: Int -> external }
+    }
+
+    private fun keyFor(activity: NavHostComposeActivity, keyCode: Int, event: KeyEvent): ReadingViewKey? =
+        NavHostComposeActivity::class.java
+            .getDeclaredMethod("readingViewKeyFor", Int::class.java, KeyEvent::class.java)
+            .apply { isAccessible = true }
+            .invoke(activity, keyCode, event) as ReadingViewKey?
+
+    private fun volumeKeysOwned(activity: NavHostComposeActivity): Boolean =
+        NavHostComposeActivity::class.java
+            .getDeclaredMethod("readingViewOwnsVolumeKeys")
+            .apply { isAccessible = true }
+            .invoke(activity) as Boolean
+
+    private fun scrollFor(activity: NavHostComposeActivity, key: ReadingViewKey): KCallable<*> =
+        NavHostComposeActivity::class.java
+            .getDeclaredMethod("readingViewScrollFor", ReadingViewKey::class.java)
+            .apply { isAccessible = true }
+            .invoke(activity, key) as KCallable<*>
+
     private fun genericVolumeScroll(activity: NavHostComposeActivity): Boolean =
         NavHostComposeActivity::class.java
             .getDeclaredMethod("getEnableGenericVolumeScroll")
@@ -448,5 +696,19 @@ class ReadingDestinationInGraphTest {
             "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt"
         private const val NAV_HOST_ACTIVITY =
             "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"
+        private const val STARTUP_ACTIVITY =
+            "src/main/java/net/bible/android/view/activity/StartupActivity.kt"
     }
+}
+
+/**
+ * A bare [ActivityBase] whose only job is to count [ActivityBase.freeze]/[ActivityBase.unFreeze].
+ * Never created as an Activity — see
+ * [ReadingDestinationInGraphTest.activatingAnActivityOnTopFreezesTheOneUnderneathAndUnfreezesItOnTheWayBack].
+ */
+class FreezeProbeActivity : ActivityBase() {
+    var freezes = 0
+    var unFreezes = 0
+    override fun freeze() { freezes++ }
+    override fun unFreeze() { unFreezes++ }
 }

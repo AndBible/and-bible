@@ -16,10 +16,6 @@
  */
 package net.bible.sharedcore.reading
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-
 /**
  * Whether the reading view is what the user is currently looking at.
  *
@@ -68,13 +64,32 @@ import kotlinx.coroutines.flow.asStateFlow
  *    post `AddHistoryItem`, so the "wrong `IntentHistoryItem` recorded for a deep link" failure mode
  *    cannot come back there. (On the Activity path it is still the `onCreate` setter that closes
  *    it — which is why that setter exists and is not folded into `onResume`.)
- *  - The divergence moves to the other end: an `AddHistoryItem` posted while the app is in the
- *    BACKGROUND with the reading destination current now records a `KeyHistoryItem`, where the old
- *    predicate (after `onStop`) recorded none. Task 3's kdoc described the effect as "pause-like";
- *    measured, it is not. The failure mode is one history item too many, never a wrong one, which
- *    is the direction this seam is allowed to err in — and a lifecycle-aware effect
- *    (`LifecycleStartEffect`) would trade it for the `onCreate`-window defect above, which is the
- *    worse of the two.
+ *  - The divergence moves to the other end: the flag stays TRUE while the host is backgrounded
+ *    with the reading destination current, where the old predicate went false at `onStop`. That
+ *    one state has TWO consequences, and Task 6's kdoc recorded only the harmless one:
+ *
+ *      1. An `AddHistoryItem` posted while the app is in the background records a `KeyHistoryItem`
+ *         where the old predicate recorded none — one history item too many, never a wrong one.
+ *      2. **`HistoryManager.goBack()` stops finishing the screen on top.** Its condition is
+ *         `if (!isVisible) currentActivity?.finish()`, and with a classic secondary Activity over a
+ *         backgrounded host whose reading destination is still composed, `depth > 0` keeps
+ *         [isVisible] true — so nothing is finished. `ActivityBase.onBackPressed` returns WITHOUT
+ *         calling `super` whenever `historyTraversal.goBack()` returns true, so the user gets a back
+ *         press that reverts history and leaves them on the same secondary screen: a dead back key.
+ *         That is the opposite direction from the one (1) errs in.
+ *
+ *    Latent at this commit — nothing routes to `NavRoutes.READING`, so no destination is ever
+ *    composed in production — but it is real state, not a hypothetical, and it is the state
+ *    enumeration the next batch builds on.
+ *
+ *    **Resolving this is a precondition for the task that makes `ReadingNavDeps.content` real.**
+ *    The moment the reading destination renders the reading view, the depth counter is live and (2)
+ *    is a user-visible dead back key. Whoever owns that task decides how — a lifecycle-aware
+ *    effect, a separate "is the host resumed" input ANDed with the depth, or making `goBack`'s
+ *    finish condition ask something else entirely — and must NOT simply swap in
+ *    `LifecycleStartEffect` without re-checking the `onCreate` window above, which is the defect
+ *    that trade would bring back. Deliberately NOT fixed here: a half-made lifecycle change is
+ *    worse than an accurate comment.
  *
  * **Why the destination input is a depth counter, not a boolean** (Task 3's carried finding, done
  * in Task 6): `StartupActivity`'s `FLAG_ACTIVITY_MULTIPLE_TASK` can make a second reading instance
@@ -86,11 +101,19 @@ import kotlinx.coroutines.flow.asStateFlow
 object ReadingViewVisibility {
     private var depth = 0
     private var activityVisible = false
-    private val _isVisible = MutableStateFlow(false)
-    val visible: StateFlow<Boolean> = _isVisible.asStateFlow()
+    private var visible = false
 
-    /** `depth > 0 || activityVisible` — see the class kdoc for why those are two inputs, not one. */
-    val isVisible: Boolean get() = _isVisible.value
+    /**
+     * `depth > 0 || activityVisible` — see the class kdoc for why those are two inputs, not one.
+     *
+     * A plain `Boolean`. Task 6 published a `StateFlow` alongside it; nothing in either module ever
+     * collected it, and an unobserved flow is a second representation of the same state that can
+     * only ever drift, so fix round 2 dropped it. Every reader of this seam
+     * (`HistoryManager.createHistoryItem`, `HistoryManager.goBack`) asks the question at the
+     * instant it needs the answer; add the flow back the day something actually wants to react to a
+     * change.
+     */
+    val isVisible: Boolean get() = visible
 
     /** A reading DESTINATION became visible. Paired with exactly one [exit]. */
     fun enter() {
@@ -138,6 +161,6 @@ object ReadingViewVisibility {
     }
 
     private fun publish() {
-        _isVisible.value = depth > 0 || activityVisible
+        visible = depth > 0 || activityVisible
     }
 }

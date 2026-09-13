@@ -51,8 +51,9 @@ class ReadingViewHostHandlers(
 
 /**
  * How the reading DESTINATION gets at the two Activity-level callback families that are its own and
- * nobody else's — design §4.1's "only three members of `ActivityBase` are per-destination", minus
- * `freeze`/`unFreeze`, which are deleted rather than moved (§9).
+ * nobody else's — design §4.1's "only three members of `ActivityBase` are per-destination". Design
+ * §9's other pair, `freeze`/`unFreeze`, is NOT moved here and is NOT deleted either: see
+ * `ActivityBase.freeze` for why a second live `MainBibleActivity` keeps it alive until Task 13.
  *
  * **Why a seam at all.** A key event and a screen-on broadcast arrive at an *Activity*; a
  * destination is a composition. `NavHostComposeActivity` is the one host for every destination, so
@@ -78,13 +79,30 @@ class ReadingViewHostHandlers(
  *
  * A LIST, not a single nullable field, for [ReadingViewVisibility]'s reason: `FLAG_ACTIVITY_MULTIPLE_TASK`
  * can make a second reading instance real, and the one that leaves must not unpublish the one still
- * on screen. [current] is the last published — the one on top. All access is on the main thread (a
- * composition effect, or an Activity callback).
+ * on screen. All access is on the main thread (a composition effect, or an Activity callback).
+ *
+ * **[current] is LAST PUBLISHED, which is not the same thing as "the foreground host".** It is the
+ * same divergence [ReadingViewVisibility] has, in the same direction and for the same reason: a
+ * composition-scoped effect stays entered while its host Activity is in the background, so with two
+ * reading views alive the one on top of the *publish stack* can be the one the user cannot see.
+ * The host then dispatches volume keys and screen-on broadcasts — which arrive at the FOREGROUND
+ * Activity — into the backgrounded destination's handlers, and reports
+ * `enableGenericVolumeScroll` for it too. Latent at this commit, since nothing routes to
+ * `NavRoutes.READING` and only `MainBibleActivity` can be a second instance; **resolving it is a
+ * precondition for the task that makes `ReadingNavDeps.content` real**, alongside the
+ * [ReadingViewVisibility] item, and it wants the same answer as that one (whatever tells a
+ * published destination that its host is actually resumed). Not fixed here on purpose: the shape
+ * of that answer is the next batch's design decision, and half of it would be worse than an
+ * accurate comment.
  */
 object ReadingViewHostCallbacks {
     private val published = mutableListOf<ReadingViewHostHandlers>()
 
-    /** The handlers of the reading view on top, or `null` when no reading view is composed. */
+    /**
+     * The handlers of the LAST PUBLISHED reading view, or `null` when no reading view is composed.
+     * Read the class kdoc before treating "last published" as "the one the user is looking at" —
+     * with two instances alive they are not the same thing.
+     */
     val current: ReadingViewHostHandlers? get() = published.lastOrNull()
 
     /** Publishes [handlers] until the returned function is called. Call it exactly once. */
