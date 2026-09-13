@@ -6492,10 +6492,14 @@ class NavHostComposeActivity : ActivityBase() {
      * **`navigateToVerse` is read from the PREF, not from an argument** (design §6.1.1). Classic read
      * `intent.getBooleanExtra("navigateToVerse", CommonUtils.settings.getBoolean("navigate_to_verse_pref",
      * false))` (`:56`); the extra's single producer (`BibleJavascriptInterface.refChooserDialog`)
-     * moves to the ref-chooser sheet this slice, so what survives is exactly the fallback both
-     * remaining callers already got. The JS caller's `navigateToVerse = true` (and its `isScripture =
-     * true`) is Task 10's to re-home onto the sheet -- do not read this factory as proof that
-     * `isScripture`'s only producers are the two `CurrentPage` classes.
+     * moved to the ref-chooser sheet in Task 10, so what survives is exactly the fallback both
+     * remaining callers already got. That extra now has NO producer anywhere in `app/src/main`.
+     *
+     * Task 10 re-homed the JS caller's two forcings onto the quick sheet: `navigateToVerse = true`
+     * became a field of `ReadingQuickSheet.KeyChooser`, and `isScripture = true` needed nothing at
+     * all -- the sheet's Grid arm already hard-codes it. So as of Task 10 the two `CurrentPage`
+     * classes ARE `isScripture`'s only remaining producers; the warning this paragraph used to
+     * carry (that a third one was still out there) no longer applies.
      *
      * The `"title"` extra classic also read (`:55`) is deliberately dropped: it has no producer
      * anywhere in the tree (design §6.1, re-verified against test sources for this task), so the base
