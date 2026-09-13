@@ -200,18 +200,33 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
                     // Slice 7 / spec §5.3: the condition is now "the reading view is not what the
                     // user is looking at" (was `currentActivity !is MainBibleActivity`).
                     //
-                    // These are NOT equivalent by construction — they agree because the flag is
-                    // entered as the reading view's composition begins and exited as it is
-                    // disposed. Since nav-graph slice 7 Task 6 the one owner is the reading
-                    // DESTINATION's `DisposableEffect` (`ReadingNavGraph.kt`); Task 3's four
-                    // temporary setters in `MainBibleActivity` are gone.
+                    // These are NOT equivalent by construction — they agree because the flag has
+                    // an owner on BOTH of the paths a reading view can be on today, and
+                    // `ReadingViewVisibility.isVisible` is their OR:
                     //
-                    // **This condition is DEAD on the Activity path while `MainBibleActivity` is
-                    // still the launcher** (Task 6 -> Task 8): nothing enters the flag there, so it
-                    // is always false and every goBack() finishes the current Activity. That window
-                    // closes when the host becomes the launcher and this destination is actually
-                    // reachable — see Task 6's report, which also records why the destination
-                    // cannot render the reading view yet.
+                    //  - the `reading` DESTINATION's `DisposableEffect` (`ReadingNavGraph.kt`),
+                    //    entered as its composition begins and exited as it is disposed;
+                    //  - classic `MainBibleActivity`'s lifecycle, through the TEMPORARY
+                    //    `setActivityVisible` calls in `onCreate`, `onResume`, `onPause` and
+                    //    `onActivityResult` — which is the path that is actually live, since
+                    //    `MainBibleActivity` is still the launcher and the destination's content
+                    //    slot cannot render the reading view yet. That input (and these four call
+                    //    sites) goes away with the task that makes the slot real.
+                    //
+                    // The Activity input is what keeps this condition honest in the state it was
+                    // written for: if the reading Activity was destroyed while a chooser was on top
+                    // ("Don't keep activities" / low memory) and is then recreated,
+                    // `onActivityResult`'s STD_REQUEST_CODE + RESULT_CANCELED path (guarded by
+                    // `currentPage.key == null`) calls goBack() BEFORE onResume — and a flag that
+                    // only went true at onResume would finish() the freshly recreated reading
+                    // Activity, which the old class check never did. The `onCreate` setter closes
+                    // that window.
+                    //
+                    // The remaining gap is the reverse one and is harmless: between onPause and the
+                    // next Activity's onCreate the old check was still true while the flag is
+                    // already false. goBack() is only reached from an Activity's back-press
+                    // (`ActivityBase`/`MainBibleActivity.onBackPressed`) or from
+                    // `onActivityResult`, and neither callback can run in that window.
                     //
                     // The finish() itself becomes popBackStack() in Task 7, once the secondary
                     // screens are destinations of one host and there is a host to pop.

@@ -70,9 +70,11 @@ import kotlin.test.assertTrue
  *    reach a destination at all: a key event and a screen-on broadcast arrive at the HOST Activity.
  *    If the arm stops publishing, or the host stops consulting, volume-key scrolling and the
  *    screen-on night-mode refresh quietly do nothing.
- *  - The four temporary `ReadingViewVisibility.setVisible` calls Task 3 left in `MainBibleActivity`
- *    (`onCreate`, `onResume`, `onPause`, `onActivityResult`) must be gone, or the flag has two
- *    owners and the one that survives `MainBibleActivity`'s deletion (Task 13) is untested.
+ *  - `MainBibleActivity` must not FORCE the flag (`ReadingViewVisibility.setVisible`, the test-only
+ *    reset that ignores both inputs): its four temporary lifecycle call sites drive the separate,
+ *    orthogonal `setActivityVisible` input instead — see Task 6 fix round 1 and
+ *    [ReadingViewVisibility]'s kdoc — so the destination's depth counter, the input that survives
+ *    `MainBibleActivity`'s deletion (Task 13), can never be clobbered by the Activity path.
  *
  * The host-side half is driven against the REAL [NavHostComposeActivity] (the
  * `Robolectric.buildActivity(...).create()` idiom `CloudDocumentsControllerRebuildIsolationTest`
@@ -198,17 +200,21 @@ class ReadingDestinationInGraphTest {
     }
 
     /**
-     * Task 3's four temporary setters are gone, so the flag has exactly one owner. A source scan
-     * because the thing asserted is an ABSENCE in production code that no runtime path can prove:
-     * `MainBibleActivity` is still the launcher at this commit, so a leftover setter would keep
-     * every other test green.
+     * `MainBibleActivity` drives the ACTIVITY input (`setActivityVisible`, restored in Task 6 fix
+     * round 1 because the destination's content slot cannot render the reading view yet) and must
+     * never touch the forcing setter, which zeroes the depth counter this destination owns. A
+     * source scan because the thing asserted is an ABSENCE in production code that no runtime path
+     * can prove: `MainBibleActivity` is still the launcher at this commit, so a `setVisible(false)`
+     * smuggled into its `onPause` would clear a composed destination's depth and keep every other
+     * test green.
      */
     @Test
     fun mainBibleActivityNoLongerDrivesTheVisibilityFlag() {
         val src = ClassicRemovalScan.codeLinesOf(MAIN_BIBLE_ACTIVITY)
         assertFalse(
             src.contains("ReadingViewVisibility.setVisible"),
-            "the reading destination owns the flag now — MainBibleActivity must not set it",
+            "the destination owns the depth counter — MainBibleActivity must use the separate " +
+                "setActivityVisible input, never the forcing setter",
         )
     }
 

@@ -171,6 +171,7 @@ import net.bible.sharedcore.reading.QuickDocAction
 import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.QuickDocPicker
 import net.bible.sharedcore.reading.QuickDocRow
+import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.textSettingEditorPageFor
@@ -495,6 +496,24 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         ScreenSettings.refreshNightMode()
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
+        // TEMPORARY, with the three other setActivityVisible calls below (onResume, onPause,
+        // onActivityResult): they go away with the task that makes the reading destination's
+        // `content` slot render the real reading view. Until then `ComposeReadingViewHost` is
+        // constructed with a MainBibleActivity, so this Activity is the only live reading view and
+        // the destination's DisposableEffect never runs — leaving the flag with no owner at all.
+        //
+        // This has to be here and not only in onResume: `ActivityBase.onCreate`'s FIRST line is
+        // `CurrentActivityHolder.activate(this)`, so the OLD predicate (`currentActivity is
+        // MainBibleActivity`) was true for the whole of onCreate/onStart — and this very method
+        // posts AddHistoryItem inside that window, through the `openLink` deep-link branch below
+        // (-> WindowControl.showLink -> setCurrentDocumentAndKey -> CurrentPageBase.setKey(
+        // addHistoryItem = true) -> ABEventBus.post(AddHistoryItem), and the bus is synchronous).
+        // With the flag false there, createHistoryItem would not merely drop the item: it would
+        // fall through to the `currentActivity is AndBibleActivity` arm — this class IS one, with
+        // integrateWithHistoryManager = true — and record a WRONG IntentHistoryItem carrying the
+        // deep-link intent, whose revertTo() re-starts it. The same window is what keeps goBack()'s
+        // condition honest after a "Don't keep activities" recreation; see HistoryManager.goBack.
+        ReadingViewVisibility.setActivityVisible(true)
 
         CommonUtils.prepareData()
 
@@ -2815,6 +2834,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
                 STD_REQUEST_CODE -> {
                     CurrentActivityHolder.activate(this) // needed because startKeyChooser is using this
+                    // TEMPORARY, see onCreate. onActivityResult runs BEFORE onResume, and the
+                    // chooser results handled below call setKey(…, addHistoryItem = true) /
+                    // setCurrentDocument(…), which post AddHistoryItem. The activate() above exists
+                    // so the OLD predicate is true for exactly those posts; this line keeps the NEW
+                    // predicate true at the same moment, so the swap really is behaviour-neutral
+                    // while the reading view is still an Activity.
+                    ReadingViewVisibility.setActivityVisible(true)
                     when (val kind = ActivityResultKind.fromExtra(extras.getString(ActivityResultKind.EXTRA))) {
                         null -> {}
                         ActivityResultKind.ChooseDocument -> {
@@ -3001,6 +3027,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private var paused = false
     override fun onPause() {
+        // TEMPORARY, see onCreate. HistoryManager asks ReadingViewVisibility instead of
+        // `CurrentActivityHolder.currentActivity is MainBibleActivity` (spec §5.1); while the
+        // reading view is still an Activity, this Activity's lifecycle is what drives the flag's
+        // Activity input. The `reading` destination's DisposableEffect owns the OTHER input and is
+        // untouched by this call.
+        ReadingViewVisibility.setActivityVisible(false)
         windowControl.windowRepository.saveIntoDb(false)
         paused = true
         fullScreen = false
@@ -3012,6 +3044,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onResume() {
+        // TEMPORARY, see onCreate.
+        ReadingViewVisibility.setActivityVisible(true)
         paused = false
         var needRefresh = false
         if(windowControl.windowRepository != windowRepository) {
