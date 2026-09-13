@@ -23,6 +23,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -33,6 +34,8 @@ import android.provider.Settings
 import android.text.format.Formatter
 import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.view.InputDevice
+import android.view.KeyEvent
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ArrayAdapter
@@ -171,6 +174,7 @@ import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
+import net.bible.service.device.ScreenSettings
 import net.bible.android.view.activity.cloud.CloudSyncProgressBridge
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
@@ -269,6 +273,8 @@ import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.progress.ReadHistoryEntry
 import net.bible.sharedcore.progress.ReadingProgressController
 import net.bible.sharedcore.progress.ReadingTab
+import net.bible.sharedcore.reading.ReadingViewHostCallbacks
+import net.bible.sharedcore.reading.ReadingViewKey
 import net.bible.sharedcore.readingplan.DailyReadingController
 import net.bible.sharedcore.readingplan.DailyReadingListController
 import net.bible.sharedcore.readingplan.DailyReadingUi
@@ -343,6 +349,8 @@ import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectSheet
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.progress.ReadHistoryRow
+import net.bible.sharedui.reading.nav.ReadingNavDeps
+import net.bible.sharedui.reading.nav.readingNavGraph
 import net.bible.sharedui.readingplan.nav.DailyReadingDeps
 import net.bible.sharedui.readingplan.nav.DailyReadingLoad
 import net.bible.sharedui.readingplan.nav.DayListDeps
@@ -792,6 +800,127 @@ class NavHostComposeActivity : ActivityBase() {
     private fun isDailyReadingRoute(route: String): Boolean {
         val base = NavRoutes.dailyReading()
         return route == base || route.startsWith("$base?")
+    }
+
+    // ————————————————————————————————————————————————————————————————————————————————————————
+    // The two per-destination `ActivityBase` callback families (design §4.1, nav-graph slice 7
+    // Task 6). A key event and a screen-on broadcast arrive HERE, at the one host Activity, and the
+    // screen that wants them is a destination — so the reading destination publishes its handlers
+    // in [ReadingViewHostCallbacks] while it is composed and this host consults them. See that
+    // object's kdoc for why the seam exists at all; the LOGIC below is the classic
+    // `MainBibleActivity` code, ported, because every line of it is Android or `:app`.
+    //
+    // `MainBibleActivity` keeps its own copies of all of this until Task 13 deletes the Activity:
+    // it is still the launcher, so deleting them here would take volume-key scrolling and the
+    // screen-on refresh away from the live app for the rest of the batch. That is the phase's
+    // standing "nothing is deleted before Task 13" rule, not an oversight.
+    // ————————————————————————————————————————————————————————————————————————————————————————
+
+    /**
+     * OFF exactly while a reading view is on screen, ON otherwise — the inversion of classic
+     * `MainBibleActivity.enableGenericVolumeScroll = false` (`:372`). The reading view opts OUT of
+     * `ActivityBase`'s generic `VolumeButtonScroll.findScrollableView(android.R.id.content)` and
+     * scrolls its own `BibleView` instead; every other classic Activity took the base default, and
+     * so does every other destination of this host. Derived from the published handlers rather than
+     * tracked separately, so the flag and the handler cannot disagree about which screen is up.
+     */
+    override val enableGenericVolumeScroll: Boolean
+        get() = ReadingViewHostCallbacks.current == null
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        val handlers = ReadingViewHostCallbacks.current
+        if (handlers != null) {
+            val key = readingViewKeyFor(keyCode, event)
+            // A `false` from the destination means "not mine" — classic's gates (volume_keys_scroll
+            // off, speaking, music playing) reached `super.onKeyDown` the same way, which with
+            // `enableGenericVolumeScroll` false above is AppCompat's own handling.
+            if (key != null && handlers.onKey(key)) return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+    /**
+     * Which of the reading view's three keys this event is, or `null` for "not the reading view's".
+     * BACK counts only from an EXTERNAL KEYBOARD, exactly as classic
+     * `MainBibleActivity.onKeyDown` (`:2952`) tested it: the on-screen/system back belongs to the
+     * back dispatcher, and claiming it here would make back dead.
+     */
+    private fun readingViewKeyFor(keyCode: Int, event: KeyEvent): ReadingViewKey? = when {
+        keyCode == KeyEvent.KEYCODE_VOLUME_UP -> ReadingViewKey.VolumeUp
+        keyCode == KeyEvent.KEYCODE_VOLUME_DOWN -> ReadingViewKey.VolumeDown
+        keyCode == KeyEvent.KEYCODE_BACK && isExternalKeyboard(event) -> ReadingViewKey.ExternalKeyboardBack
+        else -> null
+    }
+
+    /** Classic's `InputDevice.getDevice(event.deviceId)?.isExternal` + `SOURCE_KEYBOARD` pair. */
+    private fun isExternalKeyboard(event: KeyEvent): Boolean {
+        if ((event.source and InputDevice.SOURCE_KEYBOARD) == 0) return false
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            InputDevice.getDevice(event.deviceId)?.isExternal ?: false
+        } else {
+            false
+        }
+    }
+
+    /**
+     * Classic `MainBibleActivity.onKeyDown`'s body (`:2934-2958`), as the reading destination's
+     * handler. The gates are classic's, in classic's order, and the scroll goes to the ACTIVE
+     * window's `BibleView` — `windowControl.activeWindow.bibleView`, which is the same object
+     * classic reached and is null only before that window has ever been built.
+     */
+    private fun readingViewKeyPressed(key: ReadingViewKey): Boolean = when (key) {
+        ReadingViewKey.VolumeUp, ReadingViewKey.VolumeDown -> {
+            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager?
+            val volumeKeysScroll = CommonUtils.settings.getBoolean("volume_keys_scroll", true)
+            if (!speakControl.isSpeaking && audioManager?.isMusicActive != true && volumeKeysScroll) {
+                val bibleView = windowControl.activeWindow.bibleView
+                if (key == ReadingViewKey.VolumeDown) {
+                    bibleView?.volumeDownPressed() ?: false
+                } else {
+                    bibleView?.volumeUpPressed() ?: false
+                }
+            } else {
+                false
+            }
+        }
+        // Classic closed the drawer and returned true unconditionally. The close half is NOT
+        // portable yet: classic wrote `binding.drawerLayout` (the XML Task 11 removes) and then
+        // `composeCloseDrawerIfOpen()`, which is `ComposeReadingViewHost`'s drawer state — the same
+        // object [ReadingNavDeps.content] cannot reach from here. It belongs with the content slot
+        // and lands with it; until then this reproduces classic's return value only.
+        ReadingViewKey.ExternalKeyboardBack -> true
+    }
+
+    /**
+     * Classic `MainBibleActivity.onScreenTurnedOn` (`:2693`), including its night-mode refresh.
+     *
+     * Classic forwarded to `documentViewManager.documentView`, which is
+     * `bibleViewFactory.getOrCreateBibleView(windowControl.activeWindow)` — the active window's
+     * `BibleView`, CREATED if it does not exist. This asks the window for the one it already has:
+     * building a WebView in order to tell it the screen came on would be work for nothing, and the
+     * factory itself lives on `MainBibleActivity`.
+     */
+    private fun readingViewScreenTurnedOn() {
+        ScreenSettings.refreshNightMode()
+        // Classic's `refreshIfNightModeChange()` (`:2702`), which is exactly these two calls.
+        ScreenSettings.checkMonitoring()
+        applyTheme()
+        windowControl.activeWindow.bibleView?.onScreenTurnedOn()
+    }
+
+    /** Classic `MainBibleActivity.onScreenTurnedOff` (`:2688`). */
+    private fun readingViewScreenTurnedOff() {
+        windowControl.activeWindow.bibleView?.onScreenTurnedOff()
+    }
+
+    override fun onScreenTurnedOn() {
+        super.onScreenTurnedOn()
+        ReadingViewHostCallbacks.current?.onScreenTurnedOn?.invoke()
+    }
+
+    override fun onScreenTurnedOff() {
+        super.onScreenTurnedOff()
+        ReadingViewHostCallbacks.current?.onScreenTurnedOff?.invoke()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -1465,6 +1594,47 @@ class NavHostComposeActivity : ActivityBase() {
                         ),
                     )
                 }
+                /**
+                 * The reading destination's deps (nav-graph slice 7 Task 6). Three of the four slots
+                 * are real ports of `MainBibleActivity` behaviour; [ReadingNavDeps.content] is the
+                 * one that cannot be, and says so loudly rather than rendering a blank screen.
+                 */
+                val readingNavDeps = remember {
+                    ReadingNavDeps(
+                        // Classic MainBibleActivity's manifest android:label (AndroidManifest.xml:103).
+                        // This host's own block carries no label at all, so without this the reading
+                        // view's window title would become the application label instead.
+                        windowTitle = getString(R.string.app_name_short),
+                        content = {
+                            // NOT YET BUILDABLE, and deliberately loud (the `error(...)` shape design
+                            // §1.1 uses for an unreachable branch that must never be reached quietly).
+                            //
+                            // The reading view's composition is `ComposeReadingViewHost
+                            // .ReadingViewContent`, which this task extracted so a destination CAN
+                            // render it with no ViewGroup. What it cannot do is build the ~70
+                            // arguments: they come from `ComposeReadingViewHost`, whose constructor
+                            // takes a `MainBibleActivity` and which reaches into it 130 times --
+                            // ~25 `compose*` toolbar entry points, `binding`, `bibleViewFactory`,
+                            // `documentViewManager` (itself `DocumentViewManager(MainBibleActivity)`),
+                            // `handleOptionsMenuItem`, `applyChosen*` and more. Re-typing that off the
+                            // Activity IS the reading view's own migration, and no task in the slice-7
+                            // plan owns it (Task 13 deletes `MainBibleActivity.kt` outright).
+                            //
+                            // Nothing routes here yet, so this is unreachable today:
+                            // `ScreenLauncher.MIGRATED` is Task 8's and `MainBibleActivity` is still
+                            // the launcher. Task 8 makes `reading` the START destination and must not
+                            // land before this slot is real -- see this task's report.
+                            error(
+                                "the reading destination has no content yet: ComposeReadingViewHost " +
+                                    "still takes a MainBibleActivity. See ReadingNavDeps' kdoc.",
+                            )
+                        },
+                        onKey = { key -> readingViewKeyPressed(key) },
+                        onScreenTurnedOn = { readingViewScreenTurnedOn() },
+                        onScreenTurnedOff = { readingViewScreenTurnedOff() },
+                        setWindowTitle = { title -> setTitle(title) },
+                    )
+                }
                 NavHost(
                     navController = navController,
                     startDestination = startRoute,
@@ -1485,6 +1655,7 @@ class NavHostComposeActivity : ActivityBase() {
                     myDocumentsNavGraph(navController, myDocumentsDeps)
                     chooserNavGraph(navController, chooserDeps)
                     workspaceNavGraph(navController, workspaceDeps)
+                    readingNavGraph(navController, readingNavDeps)
                 }
 
                 // Host-level, deliberately OUTSIDE the NavHost: `exportStudyPads` runs in

@@ -16,7 +16,6 @@
  */
 package net.bible.service.history
 
-import android.app.Activity
 import android.content.Intent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,8 +27,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.ReadingViewVisibility
@@ -42,7 +39,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.util.Date
@@ -181,102 +177,22 @@ class ReadingHistoryAnchorTest {
     // ------------------------------------------------------------------ the production wiring
 
     /**
-     * Fix round 1, Major 3. Every test above drives [ReadingViewVisibility] by hand, so deleting
-     * all the `setVisible` calls from `MainBibleActivity` leaves them all green while
-     * `KeyHistoryItem` is never created again in the real app — exactly the silent failure this
-     * task exists to prevent. These two tests are the gate on the PRODUCTION wiring.
+     * **The production wiring moved with the setter (nav-graph slice 7 Task 6).**
      *
-     * Fix round 1, Major 1. `ActivityBase.onCreate`'s FIRST line is
-     * `CurrentActivityHolder.activate(this)` (`ActivityBase.kt:88`), so the OLD predicate
-     * (`currentActivity is MainBibleActivity`) was true for the whole of `onCreate` — and
-     * `MainBibleActivity.onCreate` really does post `AddHistoryItem` inside that window, via its
-     * `openLink` deep-link branch -> `WindowControl.showLink` -> `setCurrentDocumentAndKey` ->
-     * `CurrentPageBase.setKey(key, addHistoryItem = true)` -> `ABEventBus.post(AddHistoryItem)`,
-     * and the bus is synchronous. A flag first set in `onResume` is false there, and
-     * `createHistoryItem` then falls through to the `currentActivity is AndBibleActivity` arm —
-     * `MainBibleActivity` IS an `AndBibleActivity` with `integrateWithHistoryManager = true`
-     * (`MainBibleActivity.kt:370`) — recording a WRONG `IntentHistoryItem` whose `revertTo()`
-     * re-runs the deep-link intent.
+     * Three tests used to live here, and each built a real [MainBibleActivity] to prove that its
+     * `onCreate`/`onResume`/`onPause`/`onActivityResult` drove [ReadingViewVisibility] — Task 3's
+     * four temporary setters. They were the gate on the production wiring, because every test above
+     * drives the flag by hand and so cannot see a flag nobody sets.
      *
-     * Task 6 note: when the setters move into the reading destination's `DisposableEffect`, these
-     * two tests are the one place to update — replace the Activity controller with whatever drives
-     * that composition; the assertions themselves stay.
+     * Task 6 gave the flag ONE owner, the reading destination's `DisposableEffect`, and deleted all
+     * four Activity setters, which is exactly the change those three tests were written to catch.
+     * They are not weakened here, they are re-pointed, as their own kdoc said to do: the same gate
+     * is `ReadingDestinationInGraphTest.theReadingDestinationOwnsTheVisibilityFlag` (entered when
+     * the destination composes, exited when a screen covers it, entered again on the way back) and
+     * `mainBibleActivityNoLongerDrivesTheVisibilityFlag` (the setters really are gone). The
+     * onCreate-window worry those tests carried cannot come back in that shape: a composition effect
+     * runs with the first composition, so there is no "before onResume" gap left to miss.
      */
-    @Test
-    fun theReadingActivityIsAlreadyVisibleAtTheEndOfOnCreate() {
-        ReadingViewVisibility.setVisible(false)
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
-        try {
-            controller.create()
-            assertTrue(
-                ReadingViewVisibility.isVisible,
-                "the old predicate was true from CurrentActivityHolder.activate() in " +
-                    "ActivityBase.onCreate onwards, and onCreate's openLink branch posts " +
-                    "AddHistoryItem inside that window",
-            )
-        } finally {
-            controller.close()
-        }
-    }
-
-    @Test
-    fun theReadingActivityLifecycleTurnsTheFlagOnAtResumeAndOffAtPause() {
-        ReadingViewVisibility.setVisible(false)
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
-        try {
-            controller.create().start().resume()
-            assertTrue(ReadingViewVisibility.isVisible, "a resumed reading view is visible")
-
-            controller.pause()
-            assertFalse(ReadingViewVisibility.isVisible, "a paused reading view is not visible")
-
-            // The assertion after the FIRST resume cannot see a deleted `onResume` setter — the
-            // onCreate one has already made the flag true. Coming BACK from paused is what only
-            // onResume can do.
-            controller.resume()
-            assertTrue(
-                ReadingViewVisibility.isVisible,
-                "returning from paused must turn it back on — this is the assertion that fails if " +
-                    "the onResume setter is deleted",
-            )
-        } finally {
-            controller.close()
-        }
-    }
-
-    /**
-     * The fourth call site. Chooser results are delivered BEFORE `onResume`, and the arms below
-     * the setter call `setKey(…, addHistoryItem = true)` / `setCurrentDocument(…)`, which post
-     * `AddHistoryItem` synchronously — so the flag has to be back on by then. The
-     * `CurrentActivityHolder.activate(this)` on the line above it is the old predicate's version of
-     * exactly this, which is what makes it the right place.
-     *
-     * An unknown `ActivityResultKind` extra is used deliberately: `fromExtra` returns null, the
-     * `when` does nothing, and the assertion is about the setter alone rather than about any
-     * chooser's payload handling.
-     */
-    @Test
-    fun aChooserResultMakesTheReadingViewVisibleAgainBeforeOnResume() {
-        ReadingViewVisibility.setVisible(false)
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
-        try {
-            val activity = controller.create().start().resume().pause().get()
-            assertFalse(ReadingViewVisibility.isVisible, "sanity: the chooser is on top")
-
-            activity.onActivityResult(
-                ActivityBase.STD_REQUEST_CODE,
-                Activity.RESULT_OK,
-                Intent().apply { putExtra(ActivityResultKind.EXTRA, "NoSuchKind") },
-            )
-
-            assertTrue(
-                ReadingViewVisibility.isVisible,
-                "the chooser result is handled before onResume, and its arms post AddHistoryItem",
-            )
-        } finally {
-            controller.close()
-        }
-    }
 
     // ------------------------------------------------------------------ the other two arms
 

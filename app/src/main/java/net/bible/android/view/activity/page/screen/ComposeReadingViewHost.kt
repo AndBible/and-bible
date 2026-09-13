@@ -3913,436 +3913,611 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             val composeView = ComposeView(container.context).apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+                // Nav-graph slice 7 Task 6: the content itself is [ReadingViewContent] now, so the
+                // reading DESTINATION can render it with no ViewGroup. Every parameter is forwarded
+                // EXPLICITLY and that function defaults none of them, so a parameter added to one
+                // list and not the other is a compile error here rather than a silently inert slot.
                 setContent {
-                    // AbAppTheme's darkTheme override (A/B batch 4b Task 3 fix round 1): this host
-                    // is long-lived inside MainBibleActivity and is never recreate()d on
-                    // ScreenSettings.NightModeChanged (including the ambient-light-sensor
-                    // auto-night-mode flip, which fires with no recreate at all), so it tracks night
-                    // mode itself in nightModeState and passes it through verbatim instead of
-                    // letting AbAppTheme re-read the static ScreenSettings.nightMode getter (which
-                    // would only catch up on some unrelated recomposition). See AbAppTheme's KDoc.
-                    AbAppTheme(darkTheme = nightModeState.value) {
-                            val layout by controller.layout.collectAsState()
-                            val toolbarState by toolbar.collectAsState()
-                            val gen by generationState
-                            val fullScreen by fullScreenState
-                            val overflowItems by overflowItemsState
-                            val overflowExpanded by overflowExpandedState
-                            val bibleQuickDoc by bibleQuickDocState
-                            val commentaryQuickDoc by commentaryQuickDocState
-                            val tabBarModel = buildTabBarModel(layout)
-                            val touchTick by touchTickState
-                            val paneMenuWindowId by paneMenuWindowIdState
-                            val paneMenuItems by paneMenuItemsState
-                            val paneMenuAnchor by paneMenuAnchorState
-                            // F6 Task 8a: `null` outside search mode, which is what makes
-                            // `ReadingToolbar` draw its normal row.
-                            val searchBar by searchBarState.collectAsState()
-                            // Classic `resetTouchTimer`'s 2s hide countdown (`SplitBibleArea.kt:511-524`),
-                            // restarted on every `touchTick` bump (a real touch, or `openPaneMenu`).
-                            // Suppressed entirely while a pane menu is open (mirrors classic
-                            // `showPopupMenu`/`menuHelper.setOnDismissListener` cancelling the timer
-                            // for the popup's lifetime, `SplitBibleArea.kt:731-732, 854-855`) — Compose
-                            // cancels/reruns this effect whenever either key changes, so closing the
-                            // menu starts a fresh 2s countdown with no manual bookkeeping.
-                            LaunchedEffect(touchTick, paneMenuWindowId) {
-                                if (paneMenuWindowId == null) {
-                                    delay(2000)
-                                    onWindowButtonsHideTimeout()
-                                }
-                            }
-                            val windowButtonsVisible by windowButtonsVisibleState
-                            val overlayText by overlayTextState
-                            val activeIsBibleShown by activeIsBibleShownState
-                            // Batch 12g Task 3: pure gate (`:sharedCore`) mirroring classic
-                            // `SplitBibleArea.updateBibleReferenceOverlay` — visible only fullscreen,
-                            // with the active window showing a Bible, while the (auto-hiding) window
-                            // buttons are shown, and the user hasn't disabled the overlay.
-                            val overlayVisible = bibleReferenceOverlayVisible(
-                                fullScreen = fullScreen,
-                                activeIsBibleShown = activeIsBibleShown,
-                                buttonsShown = windowButtonsVisible,
-                                hideSetting = CommonUtils.settings.getBoolean("hide_bible_reference_overlay", false),
-                            )
-                            // Hard gates (classic `BibleFrame.addWindowButton`'s early-outs, screen/BibleFrame.kt:157-158):
-                            // these genuinely remove the button. `windowButtonsVisible` is the 2s IDLE TIMER, which classic
-                            // expresses as an ALPHA fade, not a removal (SplitBibleArea.kt:528-575) — so it is passed
-                            // separately as `autoHidden` and must NOT be folded back in here.
-                            //
-                            // (never shown while `hide_window_buttons` is set, or while a window is maximised — the
-                            // floating button, specifically; the per-window MENU can still open via the rail's
-                            // unmaximise-button long-press; see `PaneWindowButtonOverlay`, which composes
-                            // `WindowPaneMenu` unconditionally).
-                            val showPaneButtons = layout.maximizedWindowId == null &&
-                                !CommonUtils.settings.getBoolean("hide_window_buttons", false)
-                            val paneButtonsAutoHidden = !windowButtonsVisible
-                            // Classic `SplitBibleArea`'s fullscreen auto-hide
-                            // (`autoHideWindowButtonBarInFullScreen`, `full_screen_hide_buttons_pref`,
-                            // default ON, `SplitBibleArea.kt:166-171`/365-366) — in fullscreen with the
-                            // pref on, drop the rail entirely (not merely collapsed, which is what
-                            // `tabBarModel.showButtons` already handles for the non-fullscreen
-                            // collapse toggle).
-                            val hideTabBarInFullScreen = fullScreen &&
-                                CommonUtils.settings.getBoolean("full_screen_hide_buttons_pref", true)
-                            // Batch Z-early A6: the Compose navigation drawer. The wrap sits OUTSIDE
-                            // `key(gen)`/`ReadingViewScreen` — never inside either — so (a) a
-                            // `rebuild()` generation bump disposes only the pane subtree and not the
-                            // drawer's own `DrawerState`, and (b) opening/closing the drawer cannot
-                            // re-key or re-parent any pane's `AndroidView`, which would destroy and
-                            // recreate every `BibleView` WebView. Same "add as an outer/sibling slot,
-                            // never inside the pane subtree" rule the 12e agent-log and 12f speak-bar
-                            // slots follow.
-                            val md3DrawerState = rememberDrawerState(DrawerValue.Closed)
-
-                            // Host request -> drawer.
-                            LaunchedEffect(drawerOpenState.value) {
-                                if (drawerOpenState.value) md3DrawerState.open() else md3DrawerState.close()
-                            }
-                            // Drawer -> host request, BOTH ways (Batch Z-early A7 fix D): a
-                            // swipe/scrim/back close must clear the request, else the next
-                            // `toggleDrawer()` would see a stale `true` and do nothing — and an open
-                            // that did NOT come from the request (predictive-back cancel, any future
-                            // gesture) must set it, else the next ☰ tap would re-request `true`, see
-                            // no change, and look dead until pressed twice. `snapshotFlow` only emits
-                            // on a CHANGE, so mirroring the settled value here cannot undo the
-                            // `open()` above while the open animation is still running.
-                            LaunchedEffect(md3DrawerState) {
-                                snapshotFlow { md3DrawerState.isClosed }
-                                    .collect { closed -> drawerOpenState.value = !closed }
-                            }
-                            // Classic DrawerListener parity (Batch Z-early A7): in-motion vs
-                            // idle-closed drive the system UI, and the transition TO closed restores
-                            // focus into the active pane's BibleView.
-                            LaunchedEffect(md3DrawerState) {
-                                snapshotFlow { md3DrawerState.currentValue != md3DrawerState.targetValue }
-                                    .collect { inMotion -> if (inMotion) onDrawerInMotion() }
-                            }
-                            LaunchedEffect(md3DrawerState) {
-                                snapshotFlow {
-                                    md3DrawerState.currentValue == md3DrawerState.targetValue &&
-                                        md3DrawerState.currentValue == DrawerValue.Closed
-                                }.collect { idleClosed -> if (idleClosed) onDrawerIdleClosed() }
-                            }
-                            // Edge-detect the close: `DrawerCloseLatch` seeds from the initial
-                            // snapshot and latches, so a (re)subscription replay cannot re-fire
-                            // `requestFocus`. This is the banked one-shot-side-effect lesson from the
-                            // earlier batches (a raw `collect {}` re-fires on every resubscribe).
-                            LaunchedEffect(md3DrawerState) {
-                                val latch = DrawerCloseLatch(
-                                    initiallyOpen = md3DrawerState.currentValue == DrawerValue.Open)
-                                snapshotFlow { md3DrawerState.currentValue }.collect { value ->
-                                    if (latch.observe(value == DrawerValue.Open)) onDrawerClosed()
-                                }
-                            }
-
-                            ModalNavigationDrawer(
-                                drawerState = md3DrawerState,
-                                // Batch Z-early A7 fix E: no drag-to-OPEN. Classic opens on a
-                                // ~20dp EDGE drag; M3's `gesturesEnabled` drags anywhere over the
-                                // content, which is a NEW gesture rather than parity — and the panes'
-                                // WebViews swallow horizontal drags, so it would only ever work over
-                                // the Compose chrome (toolbar, tab rail, inter-pane gaps), i.e.
-                                // unpredictably. Gate on the open state rather than hardcoding
-                                // `false`: in M3 1.4.0 `gesturesEnabled` ALSO gates the scrim's
-                                // dismiss handler (its `onClose` lambda short-circuits on this flag),
-                                // so disabling it outright silently kills tap-outside-to-dismiss too
-                                // (classic's `DrawerLayout` always dismisses on a scrim tap). With
-                                // `md3DrawerState.isOpen`, gestures stay off while closed (no
-                                // drag-to-open) but turn on once open, restoring scrim-tap-to-dismiss
-                                // and swipe-to-close parity with classic.
-                                gesturesEnabled = md3DrawerState.isOpen,
-                                // Classic `setupUi`: `if (monochromeMode) drawerLayout.setScrimColor(TRANSPARENT)`
-                                // — no dimming on e-ink.
-                                scrimColor = if (monochromeState.value) Color.Transparent
-                                             else DrawerDefaults.scrimColor,
-                                drawerContent = {
-                                    // A/B batch 1 F6: classic's `NavigationView` is `wrap_content`
-                                    // (~300dp in practice), while M3's `ModalDrawerSheet` defaults to
-                                    // a fixed 360dp — see `ReadingDrawerWidth`'s kdoc for why a fixed
-                                    // classic-scale width is used instead of reproducing wrap_content.
-                                    ModalDrawerSheet(modifier = Modifier.width(ReadingDrawerWidth)) {
-                                        ReadingDrawerContent(
-                                            state = drawerState.value,
-                                            icon = drawerIcon,
-                                            onItemClick = { id ->
-                                                drawerOpenState.value = false
-                                                onDrawerItemClick(id)
-                                            },
-                                        )
-                                    }
-                                },
-                            ) {
-                                // F6 Task 0: the search sheet's scaffold. UNCONDITIONALLY present
-                                // and ENCLOSING `key(gen)` — the same "outer wrap, never inside the
-                                // pane subtree" rule the drawer above follows. Conditionality, not
-                                // the wrapper, is what would re-parent every pane's `AndroidView`
-                                // and so destroy and recreate every `BibleView` WebView on each
-                                // search open/close. `skipHiddenState = false` is what makes
-                                // "always present" and "fully closable" compatible: the sheet
-                                // reaches `SheetValue.Hidden` while the scaffold never goes away.
-                                // Task 8a fills `sheetContent` (the index prompt/progress panel, or
-                                // the results) and drives the sheet from the session's
-                                // `sheetVisible` — see [DriveSearchSheet], which also carries why
-                                // `expand()` and not `partialExpand()` is what shows it.
-                                val searchSheetState = rememberBottomSheetScaffoldState(
-                                    bottomSheetState = rememberStandardBottomSheetState(
-                                        initialValue = SheetValue.Hidden,
-                                        skipHiddenState = false,
-                                    ),
-                                )
-                                val searchSheetVisible by searchSheetVisibleState.collectAsState()
-                                DriveSearchSheet(searchSheetState, searchSheetVisible, onSearchSheetDismissed)
-                                // Task 10: the "<document> cannot be searched" snackbar. Uses the
-                                // reading view's own scaffold's `snackbarHost` slot below — the one
-                                // `BottomSheetScaffold` this host mounts — rather than a second one
-                                // built just for this. `LocalStrings.current` is available here
-                                // because this whole tree sits inside `AbAppTheme`'s
-                                // `ProvideAppLocals`; `onUnavailable` itself fires outside
-                                // composition, which is why it only records the document name and
-                                // leaves formatting to this composable.
-                                val searchSnackbarHostState = remember { SnackbarHostState() }
-                                val searchUnavailableDocName by searchUnavailableDocNameState.collectAsState()
-                                DriveSearchUnavailableSnackbar(
-                                    snackbarHostState = searchSnackbarHostState,
-                                    docName = searchUnavailableDocName,
-                                    strings = LocalStrings.current,
-                                    onShown = onSearchUnavailableMessageShown,
-                                )
-                                // Task 8b Step 3: the sheet is self-sizing (see the 1.dp-floor/60%-
-                                // ceiling comment below), so its height for `bottomOffsetForWebView`
-                                // must be MEASURED off the real content, not guessed as a constant —
-                                // `onSizeChanged` reports each piece in px. Review Important 3: the
-                                // on-screen sheet is the CONTENT plus M3's own drag-handle band, which
-                                // `BottomSheetScaffold` renders as a SEPARATE composable above
-                                // `sheetContent` — measuring only the content under-counted the sheet
-                                // by the handle's height, leaving that much of the reading text hidden
-                                // behind it. Rather than hardcode the default handle's height (a
-                                // constant M3 could change under us), `sheetDragHandle` below is
-                                // supplied explicitly so its own real height is measured the same way.
-                                var searchSheetContentHeightPx by remember { mutableIntStateOf(0) }
-                                var searchSheetHandleHeightPx by remember { mutableIntStateOf(0) }
-                                LaunchedEffect(searchSheetVisible, searchSheetContentHeightPx, searchSheetHandleHeightPx) {
-                                    onSearchSheetOffsetsChanged(
-                                        searchSheetVisible,
-                                        searchSheetContentHeightPx + searchSheetHandleHeightPx,
-                                    )
-                                }
-                                BottomSheetScaffold(
-                                    scaffoldState = searchSheetState,
-                                    sheetPeekHeight = 0.dp,
-                                    snackbarHost = { SnackbarHost(searchSnackbarHostState) },
-                                    sheetDragHandle = {
-                                        Box(Modifier.onSizeChanged { size -> searchSheetHandleHeightPx = size.height }) {
-                                            BottomSheetDefaults.DragHandle()
-                                        }
-                                    },
-                                    sheetContent = {
-                                        // The sheet is exactly as tall as its content — a short
-                                        // index prompt stays short — but never taller than
-                                        // [SearchSheetMaxHeightFraction] of the window, so the
-                                        // reading text it was opened from stays visible above it.
-                                        // `BoxWithConstraints` supplies that ceiling in Dp without
-                                        // reaching for the (Android-only) configuration.
-                                        //
-                                        // The 1.dp FLOOR is load-bearing: an empty sheet measures to
-                                        // zero, and M3 publishes no `Expanded` anchor for a
-                                        // zero-height sheet at all — so an `expand()` that lands
-                                        // before the content's first layout pass would be a silent
-                                        // no-op. Keeping a hairline sheet keeps the anchor alive at
-                                        // all times (invisible: at 1.dp the sheet sits a pixel off
-                                        // the bottom edge, and `Hidden` is where it rests anyway).
-                                        BoxWithConstraints(Modifier.fillMaxWidth()) {
-                                            Box(
-                                                Modifier
-                                                    .heightIn(
-                                                        min = 1.dp,
-                                                        max = maxHeight * SearchSheetMaxHeightFraction,
-                                                    )
-                                                    .onSizeChanged { size -> searchSheetContentHeightPx = size.height }
-                                            ) { searchSheetSlot() }
-                                        }
-                                    },
-                                ) { _ ->
-                                    // Keying the whole screen on `gen` forces every pane's `AndroidView`
-                                    // factory to re-run on `rebuild()` — see the `generation` kdoc above.
-                                    key(gen) {
-                                        ReadingViewScreen(
-                                            layout = layout,
-                                            toolbar = toolbarState,
-                                            toolbarIcons = readingToolbarIcons(),
-                                            toolbarCallbacks = toolbarCallbacks,
-                                            fullScreen = fullScreen,
-                                            onWindowActivated = controller::onWindowActivated,
-                                            onSeparatorCommitted = controller::onSeparatorCommitted,
-                                            pane = pane,
-                                            paneBackground = paneBackground,
-                                            // F6 Task 8a: a non-null pair replaces the toolbar's
-                                            // normal row with the search field (Task 4).
-                                            searchBar = searchBar,
-                                            searchBarCallbacks = searchBarCallbacks,
-                                            overflowItems = overflowItems,
-                                            overflowExpanded = overflowExpanded,
-                                            onOverflowItemClick = onOverflowItemClick,
-                                            onOverflowDismiss = onOverflowDismiss,
-                                            overflowIcon = menuIcon,
-                                            bibleQuickDoc = bibleQuickDoc,
-                                            commentaryQuickDoc = commentaryQuickDoc,
-                                            onQuickDocSelect = onQuickDocSelect,
-                                            onQuickDocDismiss = onQuickDocDismiss,
-                                            paneOverlay = { windowId ->
-                                                val window = layout.windows.firstOrNull { it.id == windowId }
-                                                PaneWindowButtonOverlay(
-                                                    windowId = windowId,
-                                                    window = window,
-                                                    isActive = windowId == layout.activeWindowId,
-                                                    showButton = showPaneButtons,
-                                                    autoHidden = paneButtonsAutoHidden,
-                                                    autoPin = layout.autoPin,
-                                                    // Currently unreachable as true: `showPaneButtons` (passed as
-                                                    // `showButton` below) is a SINGLE value shared by every window
-                                                    // and is false whenever ANY window is maximised, so
-                                                    // `PaneWindowButtonOverlay` never composes `WindowButton` (and
-                                                    // therefore never evaluates `shouldShowPinIndicator` with this
-                                                    // argument) while `layout.maximizedWindowId == windowId` could
-                                                    // hold. Harmless, and kept per-window (not hard-coded false)
-                                                    // because it is the correct value if a future change ever composes
-                                                    // pane buttons during maximise.
-                                                    isMaximised = layout.maximizedWindowId == windowId,
-                                                    nightMode = nightModeState.value,
-                                                    disableAnimations = CommonUtils.settings.disableAnimations,
-                                                    monochrome = monochromeState.value,
-                                                    // A/B batch 3 F5b: this surface only reports a menu open
-                                                    // when it (not the rail) is the anchor — see [menuWindowIdFor].
-                                                    paneMenuWindowId = menuWindowIdFor(PaneMenuAnchor.Pane, paneMenuAnchor, paneMenuWindowId),
-                                                    paneMenuItems = paneMenuItems,
-                                                    controller = controller,
-                                                    onOpenPaneMenu = onOpenPaneMenu,
-                                                    onPaneMenuItemClick = onPaneMenuItemClick,
-                                                    onPaneMenuDismiss = onPaneMenuDismiss,
-                                                    icon = menuIcon,
-                                                )
-                                            },
-                                            agentLog = agentLogSlot,
-                                            speakBar = speakBarSlot,
-                                            agentLogVisible = agentLogVisibleState(),
-                                            speakBarVisible = speakBarVisibleState(),
-                                            bottomOverlay = { BibleReferenceOverlay(visible = overlayVisible, text = overlayText) },
-                                            tabBar = if (hideTabBarInFullScreen) null else {
-                                                {
-                                                    WindowTabBar(
-                                                        // Classic lifts restoreButtonsContainer clear of the
-                                                        // system/transport chrome with translationY(-bottomOffset2)
-                                                        // (SplitBibleArea.kt:619). mainBibleView is bottom-padded
-                                                        // only while the IME is open (MainBibleActivity.kt:642-648),
-                                                        // so the floating rail must consume the navigation-bar inset
-                                                        // itself. The agentLog/speakBar slots sit BELOW the split
-                                                        // and are unaffected by this padding.
-                                                        modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars),
-                                                        model = tabBarModel,
-                                                        onRestore = controller::onRestore,
-                                                        // Plan B Task 5: a rail long-press now opens the SAME
-                                                        // per-window ☰ menu as tapping the floating pane button.
-                                                        // Final-review fix: activate the window first, mirroring
-                                                        // classic `SplitBibleArea.showPopupMenu`'s
-                                                        // `if (window.isVisible) windowControl.activeWindow = window`
-                                                        // and the floating ☰ button's own gestures (both of which
-                                                        // activate before opening the menu).
-                                                        onWindowLongPress = { id ->
-                                                            controller.onWindowActivated(id)
-                                                            onOpenPaneMenu(id, PaneMenuAnchor.Rail)
-                                                        },
-                                                        // A/B batch 3 F5b: the rail renders its OWN anchored
-                                                        // `WindowPaneMenu` (Task 11) — only when the rail (not
-                                                        // the pane overlay) is the anchor. See [menuWindowIdFor].
-                                                        menuWindowId = menuWindowIdFor(PaneMenuAnchor.Rail, paneMenuAnchor, paneMenuWindowId),
-                                                        menuItems = paneMenuItems,
-                                                        onMenuItemClick = onPaneMenuItemClick,
-                                                        onMenuDismiss = onPaneMenuDismiss,
-                                                        menuIcon = menuIcon,
-                                                        onAddWindow = { controller.onAddWindow(layout.activeWindowId) },
-                                                        onUnMaximise = controller::onUnMaximise,
-                                                        onToggleCollapse = {
-                                                            controller.onSetRestoreButtonsVisible(!layout.restoreButtonsVisible)
-                                                        },
-                                                        windowLabel = windowLabel,
-                                                        windowIcon = windowIcon,
-                                                        windowTopLabel = windowTopLabel,
-                                                    )
-                                                }
-                                            },
-                                        )
-                                    }
-                                }
-                            }
-                            // Sibling of `ReadingViewScreen` (not nested inside `key(gen)`, which
-                            // only needs to scope the panes' `AndroidView` factories) — an
-                            // `AlertDialog` AND a `ModalBottomSheet` each overlay regardless of
-                            // where in the tree they are composed, and there is at most one
-                            // non-`None` arm at a time. Round 14a made two of the four arms sheets,
-                            // so this is now one of the reading view's modal-sheet overlays and is
-                            // subject to `ReadingOverlayExclusion` — applied where
-                            // `readingLlmDialogs` is constructed, not here.
-                            val llmDialog by llmDialogState.collectAsState()
-                            ReadingLlmDialogs(
-                                dialog = llmDialog.dialog,
-                                onPromptChosen = onLlmPromptChosen,
-                                onToggleFavorite = onLlmToggleFavorite,
-                                onCategoryExpandedChanged = onLlmCategoryExpandedChanged,
-                                onSpecifySubmitted = onLlmSpecifySubmitted,
-                                onModelChosen = onLlmModelChosen,
-                                onRegenerateConfirmed = onLlmRegenerateConfirmed,
-                                onDismiss = onLlmDismiss,
-                            )
-                            // Sibling overlay next to `ReadingLlmDialogs` above (same reasoning:
-                            // not nested inside `key(gen)`, at most one non-`None` dialog at a
-                            // time) — the Batch 12f speak-from-bookmark chooser.
-                            val speakDialog by speakDialogState.collectAsState()
-                            (speakDialog as? SpeakTransportDialog.ChooseSpeakBookmark)?.let { d ->
-                                ChooseSpeakBookmarkDialog(
-                                    rows = d.rows,
-                                    onChoose = onSpeakBookmarkChosen,
-                                    onDismiss = onSpeakDialogDismiss,
-                                )
-                            }
-                            // Z-early B4: the runtime agent tool-permission prompt — a third sibling
-                            // overlay alongside `ReadingLlmDialogs`/`ChooseSpeakBookmarkDialog`
-                            // above, for the same reason: an `AlertDialog` overlays regardless of
-                            // where in the tree it is composed, and composing it OUTSIDE `key(gen)`
-                            // (and outside every pane's `AndroidView`) means showing/dismissing it
-                            // can never re-key the pane subtree and destroy/recreate the panes'
-                            // BibleView WebViews.
-                            val pendingPermission by permissionState.collectAsState()
-                            pendingPermission?.let { req ->
-                                AgentPermissionDialog(
-                                    request = req,
-                                    onChoice = { onPermissionChoice(it) },
-                                    onDismiss = { onPermissionDismiss() },
-                                )
-                            }
-                            // F6 Task 8a: the modal search-settings sheet — a fourth sibling
-                            // overlay, for the same reason as the three above: a `ModalBottomSheet`
-                            // renders in its own window regardless of where it is composed, so
-                            // opening it can never re-key the pane subtree. It self-hides when
-                            // closed (`SearchSettingsSheet` returns early), so this stays
-                            // unconditional here.
-                            searchSettingsSlot()
-                            // Settings editor sheets T10: the in-place text-settings editor sheet —
-                            // a fifth sibling overlay, for the same reason as the four above: a
-                            // `ModalBottomSheet` renders in its own window regardless of where it is
-                            // composed, so opening it can never re-key the pane subtree and destroy
-                            // the panes' BibleView WebViews. It self-hides when closed, so this
-                            // stays unconditional here too.
-                            textSettingsEditorSlot()
-                            // Round 13a: the Speak settings sheet — a sixth sibling overlay, same
-                            // reason as the five above, and self-hiding when closed.
-                            speakSettingsSlot()
-                            // Round 15b: the quick sheets — a seventh sibling overlay, same reason
-                            // as the six above, and self-hiding when closed.
-                            quickSheetSlot()
-                    }
+                    ReadingViewContent(
+                        windowState = windowState,
+                        commands = commands,
+                        nightModeState = nightModeState,
+                        generationState = generationState,
+                        toolbar = toolbar,
+                        toolbarCallbacks = toolbarCallbacks,
+                        fullScreenState = fullScreenState,
+                        overlayTextState = overlayTextState,
+                        activeIsBibleShownState = activeIsBibleShownState,
+                        overflowItemsState = overflowItemsState,
+                        overflowExpandedState = overflowExpandedState,
+                        onOverflowItemClick = onOverflowItemClick,
+                        onOverflowDismiss = onOverflowDismiss,
+                        bibleQuickDocState = bibleQuickDocState,
+                        commentaryQuickDocState = commentaryQuickDocState,
+                        onQuickDocSelect = onQuickDocSelect,
+                        onQuickDocDismiss = onQuickDocDismiss,
+                        drawerState = drawerState,
+                        drawerOpenState = drawerOpenState,
+                        drawerIcon = drawerIcon,
+                        onDrawerItemClick = onDrawerItemClick,
+                        monochromeState = monochromeState,
+                        onDrawerInMotion = onDrawerInMotion,
+                        onDrawerIdleClosed = onDrawerIdleClosed,
+                        onDrawerClosed = onDrawerClosed,
+                        pane = pane,
+                        paneBackground = paneBackground,
+                        windowLabel = windowLabel,
+                        windowIcon = windowIcon,
+                        windowTopLabel = windowTopLabel,
+                        controller = controller,
+                        windowButtonsVisibleState = windowButtonsVisibleState,
+                        touchTickState = touchTickState,
+                        onWindowButtonsHideTimeout = onWindowButtonsHideTimeout,
+                        paneMenuWindowIdState = paneMenuWindowIdState,
+                        paneMenuItemsState = paneMenuItemsState,
+                        paneMenuAnchorState = paneMenuAnchorState,
+                        onOpenPaneMenu = onOpenPaneMenu,
+                        onPaneMenuItemClick = onPaneMenuItemClick,
+                        onPaneMenuDismiss = onPaneMenuDismiss,
+                        menuIcon = menuIcon,
+                        llmDialogState = llmDialogState,
+                        onLlmPromptChosen = onLlmPromptChosen,
+                        onLlmToggleFavorite = onLlmToggleFavorite,
+                        onLlmCategoryExpandedChanged = onLlmCategoryExpandedChanged,
+                        onLlmSpecifySubmitted = onLlmSpecifySubmitted,
+                        onLlmModelChosen = onLlmModelChosen,
+                        onLlmRegenerateConfirmed = onLlmRegenerateConfirmed,
+                        onLlmDismiss = onLlmDismiss,
+                        agentLogSlot = agentLogSlot,
+                        speakBarSlot = speakBarSlot,
+                        speakDialogState = speakDialogState,
+                        onSpeakBookmarkChosen = onSpeakBookmarkChosen,
+                        onSpeakDialogDismiss = onSpeakDialogDismiss,
+                        permissionState = permissionState,
+                        onPermissionChoice = onPermissionChoice,
+                        onPermissionDismiss = onPermissionDismiss,
+                        searchBarState = searchBarState,
+                        searchBarCallbacks = searchBarCallbacks,
+                        searchSheetVisibleState = searchSheetVisibleState,
+                        onSearchSheetDismissed = onSearchSheetDismissed,
+                        searchSheetSlot = searchSheetSlot,
+                        searchSettingsSlot = searchSettingsSlot,
+                        textSettingsEditorSlot = textSettingsEditorSlot,
+                        speakSettingsSlot = speakSettingsSlot,
+                        quickSheetSlot = quickSheetSlot,
+                        onSearchSheetOffsetsChanged = onSearchSheetOffsetsChanged,
+                        searchUnavailableDocNameState = searchUnavailableDocNameState,
+                        onSearchUnavailableMessageShown = onSearchUnavailableMessageShown,
+                        agentLogVisibleState = agentLogVisibleState,
+                        speakBarVisibleState = speakBarVisibleState,
+                    )
                 }
             }
             container.addView(composeView)
+        }
+
+        /**
+         * The reading view itself, as a composable -- everything [mountComposeView] used to hold
+         * inside its `setContent { }`, and nothing else. Extracted by nav-graph slice 7 Task 6 so that
+         * the `reading` DESTINATION (`ReadingNavGraph.kt` in `:sharedUi`) can render the reading view
+         * with no [ViewGroup] anywhere in sight: a destination has a composition, not a container, and
+         * [mountComposeView]'s only uses of its `container` were `ComposeView(container.context)` and
+         * `container.addView(...)`.
+         *
+         * **A move, not a restructure** -- the plan's Global Constraints and design §10 keep
+         * `install`/`mountComposeView` out of scope for this batch. The body below is
+         * [mountComposeView]'s former `setContent` body verbatim, `AbAppTheme` wrapper included, and
+         * [mountComposeView] still creates the same [ComposeView], gives it the same layout params and
+         * adds it to the same container. What changed is who calls the content.
+         *
+         * **No parameter here has a default, deliberately.** [mountComposeView] keeps the inert
+         * defaults its test callers rely on and forwards all 71 explicitly, so the two lists cannot
+         * drift apart without a compile error at that call. That call site also stays the
+         * authoritative documentation of what each slot is for: the per-parameter comments live on
+         * [mountComposeView] and are deliberately NOT copied here, since a copy is a second place to
+         * keep true.
+         */
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun ReadingViewContent(
+            windowState: WindowStateServiceImpl,
+            commands: WindowCommands,
+            nightModeState: State<Boolean>,
+            generationState: State<Int>,
+            toolbar: StateFlow<ToolbarState>,
+            toolbarCallbacks: ReadingToolbarCallbacks,
+            fullScreenState: State<Boolean>,
+            overlayTextState: State<String>,
+            activeIsBibleShownState: State<Boolean>,
+            overflowItemsState: State<List<OptionsMenuItem>>,
+            overflowExpandedState: State<Boolean>,
+            onOverflowItemClick: (id: String) -> Unit,
+            onOverflowDismiss: () -> Unit,
+            bibleQuickDocState: State<QuickDocMenuState>,
+            commentaryQuickDocState: State<QuickDocMenuState>,
+            onQuickDocSelect: (id: String) -> Unit,
+            onQuickDocDismiss: () -> Unit,
+            drawerState: State<DrawerMenuState>,
+            drawerOpenState: MutableState<Boolean>,
+            drawerIcon: @Composable (iconKey: String) -> Painter?,
+            onDrawerItemClick: (id: String) -> Unit,
+            monochromeState: State<Boolean>,
+            onDrawerInMotion: () -> Unit,
+            onDrawerIdleClosed: () -> Unit,
+            onDrawerClosed: () -> Unit,
+            pane: @Composable (windowId: String) -> Unit,
+            paneBackground: (windowId: String) -> Color?,
+            windowLabel: (WindowSnapshot) -> String,
+            windowIcon: (WindowSnapshot) -> Painter?,
+            windowTopLabel: (WindowSnapshot) -> String?,
+            controller: ReadingViewController,
+            windowButtonsVisibleState: State<Boolean>,
+            touchTickState: State<Int>,
+            onWindowButtonsHideTimeout: () -> Unit,
+            paneMenuWindowIdState: State<String?>,
+            paneMenuItemsState: State<List<WindowPaneMenuItem>>,
+            paneMenuAnchorState: State<PaneMenuAnchor>,
+            onOpenPaneMenu: (windowId: String, anchor: PaneMenuAnchor) -> Unit,
+            onPaneMenuItemClick: (windowId: String, id: String) -> Unit,
+            onPaneMenuDismiss: () -> Unit,
+            menuIcon: @Composable (iconKey: String) -> Painter?,
+            llmDialogState: StateFlow<ReadingLlmDialogState>,
+            onLlmPromptChosen: (promptId: String) -> Unit,
+            onLlmToggleFavorite: (promptId: String) -> Unit,
+            onLlmCategoryExpandedChanged: (categoryId: String?, expanded: Boolean) -> Unit,
+            onLlmSpecifySubmitted: (text: String) -> Unit,
+            onLlmModelChosen: (modelId: String, setAsDefault: Boolean) -> Unit,
+            onLlmRegenerateConfirmed: (instructions: String?, keepPrevious: Boolean, freshRun: Boolean) -> Unit,
+            onLlmDismiss: () -> Unit,
+            agentLogSlot: (@Composable (applyNavBarInset: Boolean, maxHeightDp: Float, collapsedHeightDp: Float, onCollapsedHeightMeasured: (Float) -> Unit) -> Unit)?,
+            speakBarSlot: (@Composable (applyNavBarInset: Boolean) -> Unit)?,
+            speakDialogState: StateFlow<SpeakTransportDialog>,
+            onSpeakBookmarkChosen: (id: String) -> Unit,
+            onSpeakDialogDismiss: () -> Unit,
+            permissionState: StateFlow<AgentPermissionRequest?>,
+            onPermissionChoice: (AgentPermissionChoice) -> Unit,
+            onPermissionDismiss: () -> Unit,
+            searchBarState: StateFlow<ReadingSearchBarState?>,
+            searchBarCallbacks: ReadingSearchBarCallbacks?,
+            searchSheetVisibleState: StateFlow<Boolean>,
+            onSearchSheetDismissed: () -> Unit,
+            searchSheetSlot: @Composable () -> Unit,
+            searchSettingsSlot: @Composable () -> Unit,
+            textSettingsEditorSlot: @Composable () -> Unit,
+            speakSettingsSlot: @Composable () -> Unit,
+            quickSheetSlot: @Composable () -> Unit,
+            onSearchSheetOffsetsChanged: (visible: Boolean, heightPx: Int) -> Unit,
+            searchUnavailableDocNameState: StateFlow<String?>,
+            onSearchUnavailableMessageShown: () -> Unit,
+            agentLogVisibleState: @Composable () -> Boolean,
+            speakBarVisibleState: @Composable () -> Boolean,
+        ) {
+            // AbAppTheme's darkTheme override (A/B batch 4b Task 3 fix round 1): this host
+            // is long-lived inside MainBibleActivity and is never recreate()d on
+            // ScreenSettings.NightModeChanged (including the ambient-light-sensor
+            // auto-night-mode flip, which fires with no recreate at all), so it tracks night
+            // mode itself in nightModeState and passes it through verbatim instead of
+            // letting AbAppTheme re-read the static ScreenSettings.nightMode getter (which
+            // would only catch up on some unrelated recomposition). See AbAppTheme's KDoc.
+            AbAppTheme(darkTheme = nightModeState.value) {
+                    val layout by controller.layout.collectAsState()
+                    val toolbarState by toolbar.collectAsState()
+                    val gen by generationState
+                    val fullScreen by fullScreenState
+                    val overflowItems by overflowItemsState
+                    val overflowExpanded by overflowExpandedState
+                    val bibleQuickDoc by bibleQuickDocState
+                    val commentaryQuickDoc by commentaryQuickDocState
+                    val tabBarModel = buildTabBarModel(layout)
+                    val touchTick by touchTickState
+                    val paneMenuWindowId by paneMenuWindowIdState
+                    val paneMenuItems by paneMenuItemsState
+                    val paneMenuAnchor by paneMenuAnchorState
+                    // F6 Task 8a: `null` outside search mode, which is what makes
+                    // `ReadingToolbar` draw its normal row.
+                    val searchBar by searchBarState.collectAsState()
+                    // Classic `resetTouchTimer`'s 2s hide countdown (`SplitBibleArea.kt:511-524`),
+                    // restarted on every `touchTick` bump (a real touch, or `openPaneMenu`).
+                    // Suppressed entirely while a pane menu is open (mirrors classic
+                    // `showPopupMenu`/`menuHelper.setOnDismissListener` cancelling the timer
+                    // for the popup's lifetime, `SplitBibleArea.kt:731-732, 854-855`) — Compose
+                    // cancels/reruns this effect whenever either key changes, so closing the
+                    // menu starts a fresh 2s countdown with no manual bookkeeping.
+                    LaunchedEffect(touchTick, paneMenuWindowId) {
+                        if (paneMenuWindowId == null) {
+                            delay(2000)
+                            onWindowButtonsHideTimeout()
+                        }
+                    }
+                    val windowButtonsVisible by windowButtonsVisibleState
+                    val overlayText by overlayTextState
+                    val activeIsBibleShown by activeIsBibleShownState
+                    // Batch 12g Task 3: pure gate (`:sharedCore`) mirroring classic
+                    // `SplitBibleArea.updateBibleReferenceOverlay` — visible only fullscreen,
+                    // with the active window showing a Bible, while the (auto-hiding) window
+                    // buttons are shown, and the user hasn't disabled the overlay.
+                    val overlayVisible = bibleReferenceOverlayVisible(
+                        fullScreen = fullScreen,
+                        activeIsBibleShown = activeIsBibleShown,
+                        buttonsShown = windowButtonsVisible,
+                        hideSetting = CommonUtils.settings.getBoolean("hide_bible_reference_overlay", false),
+                    )
+                    // Hard gates (classic `BibleFrame.addWindowButton`'s early-outs, screen/BibleFrame.kt:157-158):
+                    // these genuinely remove the button. `windowButtonsVisible` is the 2s IDLE TIMER, which classic
+                    // expresses as an ALPHA fade, not a removal (SplitBibleArea.kt:528-575) — so it is passed
+                    // separately as `autoHidden` and must NOT be folded back in here.
+                    //
+                    // (never shown while `hide_window_buttons` is set, or while a window is maximised — the
+                    // floating button, specifically; the per-window MENU can still open via the rail's
+                    // unmaximise-button long-press; see `PaneWindowButtonOverlay`, which composes
+                    // `WindowPaneMenu` unconditionally).
+                    val showPaneButtons = layout.maximizedWindowId == null &&
+                        !CommonUtils.settings.getBoolean("hide_window_buttons", false)
+                    val paneButtonsAutoHidden = !windowButtonsVisible
+                    // Classic `SplitBibleArea`'s fullscreen auto-hide
+                    // (`autoHideWindowButtonBarInFullScreen`, `full_screen_hide_buttons_pref`,
+                    // default ON, `SplitBibleArea.kt:166-171`/365-366) — in fullscreen with the
+                    // pref on, drop the rail entirely (not merely collapsed, which is what
+                    // `tabBarModel.showButtons` already handles for the non-fullscreen
+                    // collapse toggle).
+                    val hideTabBarInFullScreen = fullScreen &&
+                        CommonUtils.settings.getBoolean("full_screen_hide_buttons_pref", true)
+                    // Batch Z-early A6: the Compose navigation drawer. The wrap sits OUTSIDE
+                    // `key(gen)`/`ReadingViewScreen` — never inside either — so (a) a
+                    // `rebuild()` generation bump disposes only the pane subtree and not the
+                    // drawer's own `DrawerState`, and (b) opening/closing the drawer cannot
+                    // re-key or re-parent any pane's `AndroidView`, which would destroy and
+                    // recreate every `BibleView` WebView. Same "add as an outer/sibling slot,
+                    // never inside the pane subtree" rule the 12e agent-log and 12f speak-bar
+                    // slots follow.
+                    val md3DrawerState = rememberDrawerState(DrawerValue.Closed)
+
+                    // Host request -> drawer.
+                    LaunchedEffect(drawerOpenState.value) {
+                        if (drawerOpenState.value) md3DrawerState.open() else md3DrawerState.close()
+                    }
+                    // Drawer -> host request, BOTH ways (Batch Z-early A7 fix D): a
+                    // swipe/scrim/back close must clear the request, else the next
+                    // `toggleDrawer()` would see a stale `true` and do nothing — and an open
+                    // that did NOT come from the request (predictive-back cancel, any future
+                    // gesture) must set it, else the next ☰ tap would re-request `true`, see
+                    // no change, and look dead until pressed twice. `snapshotFlow` only emits
+                    // on a CHANGE, so mirroring the settled value here cannot undo the
+                    // `open()` above while the open animation is still running.
+                    LaunchedEffect(md3DrawerState) {
+                        snapshotFlow { md3DrawerState.isClosed }
+                            .collect { closed -> drawerOpenState.value = !closed }
+                    }
+                    // Classic DrawerListener parity (Batch Z-early A7): in-motion vs
+                    // idle-closed drive the system UI, and the transition TO closed restores
+                    // focus into the active pane's BibleView.
+                    LaunchedEffect(md3DrawerState) {
+                        snapshotFlow { md3DrawerState.currentValue != md3DrawerState.targetValue }
+                            .collect { inMotion -> if (inMotion) onDrawerInMotion() }
+                    }
+                    LaunchedEffect(md3DrawerState) {
+                        snapshotFlow {
+                            md3DrawerState.currentValue == md3DrawerState.targetValue &&
+                                md3DrawerState.currentValue == DrawerValue.Closed
+                        }.collect { idleClosed -> if (idleClosed) onDrawerIdleClosed() }
+                    }
+                    // Edge-detect the close: `DrawerCloseLatch` seeds from the initial
+                    // snapshot and latches, so a (re)subscription replay cannot re-fire
+                    // `requestFocus`. This is the banked one-shot-side-effect lesson from the
+                    // earlier batches (a raw `collect {}` re-fires on every resubscribe).
+                    LaunchedEffect(md3DrawerState) {
+                        val latch = DrawerCloseLatch(
+                            initiallyOpen = md3DrawerState.currentValue == DrawerValue.Open)
+                        snapshotFlow { md3DrawerState.currentValue }.collect { value ->
+                            if (latch.observe(value == DrawerValue.Open)) onDrawerClosed()
+                        }
+                    }
+
+                    ModalNavigationDrawer(
+                        drawerState = md3DrawerState,
+                        // Batch Z-early A7 fix E: no drag-to-OPEN. Classic opens on a
+                        // ~20dp EDGE drag; M3's `gesturesEnabled` drags anywhere over the
+                        // content, which is a NEW gesture rather than parity — and the panes'
+                        // WebViews swallow horizontal drags, so it would only ever work over
+                        // the Compose chrome (toolbar, tab rail, inter-pane gaps), i.e.
+                        // unpredictably. Gate on the open state rather than hardcoding
+                        // `false`: in M3 1.4.0 `gesturesEnabled` ALSO gates the scrim's
+                        // dismiss handler (its `onClose` lambda short-circuits on this flag),
+                        // so disabling it outright silently kills tap-outside-to-dismiss too
+                        // (classic's `DrawerLayout` always dismisses on a scrim tap). With
+                        // `md3DrawerState.isOpen`, gestures stay off while closed (no
+                        // drag-to-open) but turn on once open, restoring scrim-tap-to-dismiss
+                        // and swipe-to-close parity with classic.
+                        gesturesEnabled = md3DrawerState.isOpen,
+                        // Classic `setupUi`: `if (monochromeMode) drawerLayout.setScrimColor(TRANSPARENT)`
+                        // — no dimming on e-ink.
+                        scrimColor = if (monochromeState.value) Color.Transparent
+                                     else DrawerDefaults.scrimColor,
+                        drawerContent = {
+                            // A/B batch 1 F6: classic's `NavigationView` is `wrap_content`
+                            // (~300dp in practice), while M3's `ModalDrawerSheet` defaults to
+                            // a fixed 360dp — see `ReadingDrawerWidth`'s kdoc for why a fixed
+                            // classic-scale width is used instead of reproducing wrap_content.
+                            ModalDrawerSheet(modifier = Modifier.width(ReadingDrawerWidth)) {
+                                ReadingDrawerContent(
+                                    state = drawerState.value,
+                                    icon = drawerIcon,
+                                    onItemClick = { id ->
+                                        drawerOpenState.value = false
+                                        onDrawerItemClick(id)
+                                    },
+                                )
+                            }
+                        },
+                    ) {
+                        // F6 Task 0: the search sheet's scaffold. UNCONDITIONALLY present
+                        // and ENCLOSING `key(gen)` — the same "outer wrap, never inside the
+                        // pane subtree" rule the drawer above follows. Conditionality, not
+                        // the wrapper, is what would re-parent every pane's `AndroidView`
+                        // and so destroy and recreate every `BibleView` WebView on each
+                        // search open/close. `skipHiddenState = false` is what makes
+                        // "always present" and "fully closable" compatible: the sheet
+                        // reaches `SheetValue.Hidden` while the scaffold never goes away.
+                        // Task 8a fills `sheetContent` (the index prompt/progress panel, or
+                        // the results) and drives the sheet from the session's
+                        // `sheetVisible` — see [DriveSearchSheet], which also carries why
+                        // `expand()` and not `partialExpand()` is what shows it.
+                        val searchSheetState = rememberBottomSheetScaffoldState(
+                            bottomSheetState = rememberStandardBottomSheetState(
+                                initialValue = SheetValue.Hidden,
+                                skipHiddenState = false,
+                            ),
+                        )
+                        val searchSheetVisible by searchSheetVisibleState.collectAsState()
+                        DriveSearchSheet(searchSheetState, searchSheetVisible, onSearchSheetDismissed)
+                        // Task 10: the "<document> cannot be searched" snackbar. Uses the
+                        // reading view's own scaffold's `snackbarHost` slot below — the one
+                        // `BottomSheetScaffold` this host mounts — rather than a second one
+                        // built just for this. `LocalStrings.current` is available here
+                        // because this whole tree sits inside `AbAppTheme`'s
+                        // `ProvideAppLocals`; `onUnavailable` itself fires outside
+                        // composition, which is why it only records the document name and
+                        // leaves formatting to this composable.
+                        val searchSnackbarHostState = remember { SnackbarHostState() }
+                        val searchUnavailableDocName by searchUnavailableDocNameState.collectAsState()
+                        DriveSearchUnavailableSnackbar(
+                            snackbarHostState = searchSnackbarHostState,
+                            docName = searchUnavailableDocName,
+                            strings = LocalStrings.current,
+                            onShown = onSearchUnavailableMessageShown,
+                        )
+                        // Task 8b Step 3: the sheet is self-sizing (see the 1.dp-floor/60%-
+                        // ceiling comment below), so its height for `bottomOffsetForWebView`
+                        // must be MEASURED off the real content, not guessed as a constant —
+                        // `onSizeChanged` reports each piece in px. Review Important 3: the
+                        // on-screen sheet is the CONTENT plus M3's own drag-handle band, which
+                        // `BottomSheetScaffold` renders as a SEPARATE composable above
+                        // `sheetContent` — measuring only the content under-counted the sheet
+                        // by the handle's height, leaving that much of the reading text hidden
+                        // behind it. Rather than hardcode the default handle's height (a
+                        // constant M3 could change under us), `sheetDragHandle` below is
+                        // supplied explicitly so its own real height is measured the same way.
+                        var searchSheetContentHeightPx by remember { mutableIntStateOf(0) }
+                        var searchSheetHandleHeightPx by remember { mutableIntStateOf(0) }
+                        LaunchedEffect(searchSheetVisible, searchSheetContentHeightPx, searchSheetHandleHeightPx) {
+                            onSearchSheetOffsetsChanged(
+                                searchSheetVisible,
+                                searchSheetContentHeightPx + searchSheetHandleHeightPx,
+                            )
+                        }
+                        BottomSheetScaffold(
+                            scaffoldState = searchSheetState,
+                            sheetPeekHeight = 0.dp,
+                            snackbarHost = { SnackbarHost(searchSnackbarHostState) },
+                            sheetDragHandle = {
+                                Box(Modifier.onSizeChanged { size -> searchSheetHandleHeightPx = size.height }) {
+                                    BottomSheetDefaults.DragHandle()
+                                }
+                            },
+                            sheetContent = {
+                                // The sheet is exactly as tall as its content — a short
+                                // index prompt stays short — but never taller than
+                                // [SearchSheetMaxHeightFraction] of the window, so the
+                                // reading text it was opened from stays visible above it.
+                                // `BoxWithConstraints` supplies that ceiling in Dp without
+                                // reaching for the (Android-only) configuration.
+                                //
+                                // The 1.dp FLOOR is load-bearing: an empty sheet measures to
+                                // zero, and M3 publishes no `Expanded` anchor for a
+                                // zero-height sheet at all — so an `expand()` that lands
+                                // before the content's first layout pass would be a silent
+                                // no-op. Keeping a hairline sheet keeps the anchor alive at
+                                // all times (invisible: at 1.dp the sheet sits a pixel off
+                                // the bottom edge, and `Hidden` is where it rests anyway).
+                                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                                    Box(
+                                        Modifier
+                                            .heightIn(
+                                                min = 1.dp,
+                                                max = maxHeight * SearchSheetMaxHeightFraction,
+                                            )
+                                            .onSizeChanged { size -> searchSheetContentHeightPx = size.height }
+                                    ) { searchSheetSlot() }
+                                }
+                            },
+                        ) { _ ->
+                            // Keying the whole screen on `gen` forces every pane's `AndroidView`
+                            // factory to re-run on `rebuild()` — see the `generation` kdoc above.
+                            key(gen) {
+                                ReadingViewScreen(
+                                    layout = layout,
+                                    toolbar = toolbarState,
+                                    toolbarIcons = readingToolbarIcons(),
+                                    toolbarCallbacks = toolbarCallbacks,
+                                    fullScreen = fullScreen,
+                                    onWindowActivated = controller::onWindowActivated,
+                                    onSeparatorCommitted = controller::onSeparatorCommitted,
+                                    pane = pane,
+                                    paneBackground = paneBackground,
+                                    // F6 Task 8a: a non-null pair replaces the toolbar's
+                                    // normal row with the search field (Task 4).
+                                    searchBar = searchBar,
+                                    searchBarCallbacks = searchBarCallbacks,
+                                    overflowItems = overflowItems,
+                                    overflowExpanded = overflowExpanded,
+                                    onOverflowItemClick = onOverflowItemClick,
+                                    onOverflowDismiss = onOverflowDismiss,
+                                    overflowIcon = menuIcon,
+                                    bibleQuickDoc = bibleQuickDoc,
+                                    commentaryQuickDoc = commentaryQuickDoc,
+                                    onQuickDocSelect = onQuickDocSelect,
+                                    onQuickDocDismiss = onQuickDocDismiss,
+                                    paneOverlay = { windowId ->
+                                        val window = layout.windows.firstOrNull { it.id == windowId }
+                                        PaneWindowButtonOverlay(
+                                            windowId = windowId,
+                                            window = window,
+                                            isActive = windowId == layout.activeWindowId,
+                                            showButton = showPaneButtons,
+                                            autoHidden = paneButtonsAutoHidden,
+                                            autoPin = layout.autoPin,
+                                            // Currently unreachable as true: `showPaneButtons` (passed as
+                                            // `showButton` below) is a SINGLE value shared by every window
+                                            // and is false whenever ANY window is maximised, so
+                                            // `PaneWindowButtonOverlay` never composes `WindowButton` (and
+                                            // therefore never evaluates `shouldShowPinIndicator` with this
+                                            // argument) while `layout.maximizedWindowId == windowId` could
+                                            // hold. Harmless, and kept per-window (not hard-coded false)
+                                            // because it is the correct value if a future change ever composes
+                                            // pane buttons during maximise.
+                                            isMaximised = layout.maximizedWindowId == windowId,
+                                            nightMode = nightModeState.value,
+                                            disableAnimations = CommonUtils.settings.disableAnimations,
+                                            monochrome = monochromeState.value,
+                                            // A/B batch 3 F5b: this surface only reports a menu open
+                                            // when it (not the rail) is the anchor — see [menuWindowIdFor].
+                                            paneMenuWindowId = menuWindowIdFor(PaneMenuAnchor.Pane, paneMenuAnchor, paneMenuWindowId),
+                                            paneMenuItems = paneMenuItems,
+                                            controller = controller,
+                                            onOpenPaneMenu = onOpenPaneMenu,
+                                            onPaneMenuItemClick = onPaneMenuItemClick,
+                                            onPaneMenuDismiss = onPaneMenuDismiss,
+                                            icon = menuIcon,
+                                        )
+                                    },
+                                    agentLog = agentLogSlot,
+                                    speakBar = speakBarSlot,
+                                    agentLogVisible = agentLogVisibleState(),
+                                    speakBarVisible = speakBarVisibleState(),
+                                    bottomOverlay = { BibleReferenceOverlay(visible = overlayVisible, text = overlayText) },
+                                    tabBar = if (hideTabBarInFullScreen) null else {
+                                        {
+                                            WindowTabBar(
+                                                // Classic lifts restoreButtonsContainer clear of the
+                                                // system/transport chrome with translationY(-bottomOffset2)
+                                                // (SplitBibleArea.kt:619). mainBibleView is bottom-padded
+                                                // only while the IME is open (MainBibleActivity.kt:642-648),
+                                                // so the floating rail must consume the navigation-bar inset
+                                                // itself. The agentLog/speakBar slots sit BELOW the split
+                                                // and are unaffected by this padding.
+                                                modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars),
+                                                model = tabBarModel,
+                                                onRestore = controller::onRestore,
+                                                // Plan B Task 5: a rail long-press now opens the SAME
+                                                // per-window ☰ menu as tapping the floating pane button.
+                                                // Final-review fix: activate the window first, mirroring
+                                                // classic `SplitBibleArea.showPopupMenu`'s
+                                                // `if (window.isVisible) windowControl.activeWindow = window`
+                                                // and the floating ☰ button's own gestures (both of which
+                                                // activate before opening the menu).
+                                                onWindowLongPress = { id ->
+                                                    controller.onWindowActivated(id)
+                                                    onOpenPaneMenu(id, PaneMenuAnchor.Rail)
+                                                },
+                                                // A/B batch 3 F5b: the rail renders its OWN anchored
+                                                // `WindowPaneMenu` (Task 11) — only when the rail (not
+                                                // the pane overlay) is the anchor. See [menuWindowIdFor].
+                                                menuWindowId = menuWindowIdFor(PaneMenuAnchor.Rail, paneMenuAnchor, paneMenuWindowId),
+                                                menuItems = paneMenuItems,
+                                                onMenuItemClick = onPaneMenuItemClick,
+                                                onMenuDismiss = onPaneMenuDismiss,
+                                                menuIcon = menuIcon,
+                                                onAddWindow = { controller.onAddWindow(layout.activeWindowId) },
+                                                onUnMaximise = controller::onUnMaximise,
+                                                onToggleCollapse = {
+                                                    controller.onSetRestoreButtonsVisible(!layout.restoreButtonsVisible)
+                                                },
+                                                windowLabel = windowLabel,
+                                                windowIcon = windowIcon,
+                                                windowTopLabel = windowTopLabel,
+                                            )
+                                        }
+                                    },
+                                )
+                            }
+                        }
+                    }
+                    // Sibling of `ReadingViewScreen` (not nested inside `key(gen)`, which
+                    // only needs to scope the panes' `AndroidView` factories) — an
+                    // `AlertDialog` AND a `ModalBottomSheet` each overlay regardless of
+                    // where in the tree they are composed, and there is at most one
+                    // non-`None` arm at a time. Round 14a made two of the four arms sheets,
+                    // so this is now one of the reading view's modal-sheet overlays and is
+                    // subject to `ReadingOverlayExclusion` — applied where
+                    // `readingLlmDialogs` is constructed, not here.
+                    val llmDialog by llmDialogState.collectAsState()
+                    ReadingLlmDialogs(
+                        dialog = llmDialog.dialog,
+                        onPromptChosen = onLlmPromptChosen,
+                        onToggleFavorite = onLlmToggleFavorite,
+                        onCategoryExpandedChanged = onLlmCategoryExpandedChanged,
+                        onSpecifySubmitted = onLlmSpecifySubmitted,
+                        onModelChosen = onLlmModelChosen,
+                        onRegenerateConfirmed = onLlmRegenerateConfirmed,
+                        onDismiss = onLlmDismiss,
+                    )
+                    // Sibling overlay next to `ReadingLlmDialogs` above (same reasoning:
+                    // not nested inside `key(gen)`, at most one non-`None` dialog at a
+                    // time) — the Batch 12f speak-from-bookmark chooser.
+                    val speakDialog by speakDialogState.collectAsState()
+                    (speakDialog as? SpeakTransportDialog.ChooseSpeakBookmark)?.let { d ->
+                        ChooseSpeakBookmarkDialog(
+                            rows = d.rows,
+                            onChoose = onSpeakBookmarkChosen,
+                            onDismiss = onSpeakDialogDismiss,
+                        )
+                    }
+                    // Z-early B4: the runtime agent tool-permission prompt — a third sibling
+                    // overlay alongside `ReadingLlmDialogs`/`ChooseSpeakBookmarkDialog`
+                    // above, for the same reason: an `AlertDialog` overlays regardless of
+                    // where in the tree it is composed, and composing it OUTSIDE `key(gen)`
+                    // (and outside every pane's `AndroidView`) means showing/dismissing it
+                    // can never re-key the pane subtree and destroy/recreate the panes'
+                    // BibleView WebViews.
+                    val pendingPermission by permissionState.collectAsState()
+                    pendingPermission?.let { req ->
+                        AgentPermissionDialog(
+                            request = req,
+                            onChoice = { onPermissionChoice(it) },
+                            onDismiss = { onPermissionDismiss() },
+                        )
+                    }
+                    // F6 Task 8a: the modal search-settings sheet — a fourth sibling
+                    // overlay, for the same reason as the three above: a `ModalBottomSheet`
+                    // renders in its own window regardless of where it is composed, so
+                    // opening it can never re-key the pane subtree. It self-hides when
+                    // closed (`SearchSettingsSheet` returns early), so this stays
+                    // unconditional here.
+                    searchSettingsSlot()
+                    // Settings editor sheets T10: the in-place text-settings editor sheet —
+                    // a fifth sibling overlay, for the same reason as the four above: a
+                    // `ModalBottomSheet` renders in its own window regardless of where it is
+                    // composed, so opening it can never re-key the pane subtree and destroy
+                    // the panes' BibleView WebViews. It self-hides when closed, so this
+                    // stays unconditional here too.
+                    textSettingsEditorSlot()
+                    // Round 13a: the Speak settings sheet — a sixth sibling overlay, same
+                    // reason as the five above, and self-hiding when closed.
+                    speakSettingsSlot()
+                    // Round 15b: the quick sheets — a seventh sibling overlay, same reason
+                    // as the six above, and self-hiding when closed.
+                    quickSheetSlot()
+            }
         }
     }
 }

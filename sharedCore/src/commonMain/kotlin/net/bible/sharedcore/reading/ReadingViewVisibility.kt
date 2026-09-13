@@ -27,37 +27,77 @@ import kotlinx.coroutines.flow.asStateFlow
  * path in `HistoryManager` that produced a `KeyHistoryItem` and therefore the only source of the
  * verse back-stack and of history persistence. See the slice-7 design spec 5.1.
  *
- * **The swap is not behaviour-neutral by itself — it is made so by WHERE the flag is set.** The old
- * predicate did not track "resumed": `ActivityBase.onCreate`'s first line is
- * `CurrentActivityHolder.activate(this)` and the matching `deactivate` is in `onStop`, so the class
- * check was true from the start of `onCreate` until the reading Activity was stopped or another
- * Activity was created on top of it. That is why `MainBibleActivity` sets this flag in FOUR places
- * while the reading view is still an Activity — `onCreate` (deep links posted from `openLink` land
- * there, before `onResume`), `onResume`, `onPause`, and `onActivityResult` (chooser results are
- * delivered before `onResume`) — and not in `onResume`/`onPause` alone. Getting `onCreate` wrong is
- * worse than losing an item: `createHistoryItem` falls through to its
- * `currentActivity is AndBibleActivity` arm, and `MainBibleActivity` is one, so a WRONG
- * `IntentHistoryItem` is recorded instead.
+ * **The swap is not behaviour-neutral by itself — it is made so by WHERE the flag is set.** Since
+ * nav-graph slice 7 Task 6 that place is ONE place: the `reading` destination's `DisposableEffect`
+ * (`ReadingNavGraph.kt`), entered when the destination composes and exited when it is disposed.
+ * The four temporary `setVisible` calls Task 3 put in `MainBibleActivity` (`onCreate`, `onResume`,
+ * `onPause`, `onActivityResult`) are gone with it — a test asserts they are, because leaving one
+ * behind would mean two owners for one flag.
  *
- * What is genuinely equivalent, once those four call sites are in place, is the part that matters:
- * a **sheet** over the reading view (search, key chooser, text settings, Speak) changes neither the
- * Activity (before) nor the destination (after), so the predicate stays true; a **screen** over it
- * changes both, so it goes false. A sheet is NOT a destination — do not set this false when opening
- * one.
+ * What is genuinely equivalent is the part that matters: a **sheet** over the reading view (search,
+ * key chooser, text settings, Speak) changes neither the Activity (before) nor the destination
+ * (after), so the predicate stays true; a **screen** over it changes both, so it goes false. A
+ * sheet is NOT a destination — do not set this false when opening one.
  *
- * The one state where old and new still differ is the reverse of the `onCreate` gap: between
- * `onPause` and the next Activity's `onCreate` the class check was still true while this flag is
- * already false. Nothing posts `AddHistoryItem` there, and `goBack()` cannot run there (it is only
- * reached from a resumed Activity's callbacks), so it is documented rather than papered over.
+ * **What the old predicate covered and this does not, measured rather than assumed.** The old check
+ * was true from `ActivityBase.onCreate`'s first line (`CurrentActivityHolder.activate(this)`) until
+ * `onStop`'s `deactivate` — so it spanned a backgrounded-but-not-stopped reading view, and went
+ * false once the app was stopped. A composition-scoped effect is neither of those things: it is
+ * "while the reading destination is the current destination", and it stays entered while the host
+ * is in the background, because navigation-compose does not dispose the current entry's content
+ * when the Activity stops. Two consequences, both deliberate:
  *
- * TODO(Task 6): when the setter moves into the reading destination's `DisposableEffect`, make this
- * a depth counter (`enter()`/`exit()`) rather than a boolean — `FLAG_ACTIVITY_MULTIPLE_TASK` can
- * make a second reading instance real, and then one instance's exit would clear the flag while the
- * other is still on screen.
+ *  - The `onCreate` window Task 3's kdoc was worried about is closed for good: the destination's
+ *    effect runs with its first composition, before anything it hosts can post `AddHistoryItem`, so
+ *    the "wrong `IntentHistoryItem` recorded for a deep link" failure mode cannot come back.
+ *  - The divergence moves to the other end: an `AddHistoryItem` posted while the app is in the
+ *    BACKGROUND with the reading destination current now records a `KeyHistoryItem`, where the old
+ *    predicate (after `onStop`) recorded none. Task 3's kdoc described the effect as "pause-like";
+ *    measured, it is not. The failure mode is one history item too many, never a wrong one, which
+ *    is the direction this seam is allowed to err in — and a lifecycle-aware effect
+ *    (`LifecycleStartEffect`) would trade it for the `onCreate`-window defect above, which is the
+ *    worse of the two.
+ *
+ * **A depth counter, not a boolean** (Task 3's carried finding, done in Task 6): `StartupActivity`'s
+ * `FLAG_ACTIVITY_MULTIPLE_TASK` can make a second reading instance real, and with a process-wide
+ * boolean the instance that left would clear the flag for the one still on screen. [enter] and
+ * [exit] are balanced by the destination's own `DisposableEffect`, and [isVisible] is `depth > 0`.
+ * All calls are on the main thread (a composition effect, or a test), so the counter is plain.
  */
 object ReadingViewVisibility {
+    private var depth = 0
     private val _isVisible = MutableStateFlow(false)
     val visible: StateFlow<Boolean> = _isVisible.asStateFlow()
     val isVisible: Boolean get() = _isVisible.value
-    fun setVisible(visible: Boolean) { _isVisible.value = visible }
+
+    /** A reading view became visible. Paired with exactly one [exit]. */
+    fun enter() {
+        depth += 1
+        publish()
+    }
+
+    /**
+     * A reading view went away. Never drives the depth below zero: an unbalanced [exit] is a bug in
+     * the caller, and turning it into a negative depth would hide it behind a flag that can no
+     * longer be turned on.
+     */
+    fun exit() {
+        if (depth > 0) depth -= 1
+        publish()
+    }
+
+    /**
+     * Force the flag, ignoring the counter. The only callers are TESTS that need a known starting
+     * state (or that drive the predicate directly instead of composing the destination); production
+     * code goes through [enter]/[exit]. `true` sets the depth to exactly 1, so a following [exit]
+     * still lands on false.
+     */
+    fun setVisible(visible: Boolean) {
+        depth = if (visible) 1 else 0
+        publish()
+    }
+
+    private fun publish() {
+        _isVisible.value = depth > 0
+    }
 }

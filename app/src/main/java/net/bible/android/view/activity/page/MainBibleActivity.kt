@@ -171,7 +171,6 @@ import net.bible.sharedcore.reading.QuickDocAction
 import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.QuickDocPicker
 import net.bible.sharedcore.reading.QuickDocRow
-import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.textSettingEditorPageFor
@@ -216,6 +215,9 @@ class SpeakTransportVisibilityChanged(val value: Boolean)
 class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var binding: MainBibleViewBinding
     lateinit var empty: EmptyBinding
+    /** Only ever shown by the deleted `freeze()`; inflated but unused since nav-graph slice 7
+     *  Task 6, and deleted with this whole Activity in Task 13 (the phase's standing rule is that
+     *  nothing else goes before then). */
     lateinit var frozenBinding: FrozenBinding
 
     private var mWholeAppWasInBackground = false
@@ -371,9 +373,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override val disableBaseSetupUi: Boolean = true
     override val enableGenericVolumeScroll: Boolean get() = false
 
-    // Single set of ABEventBus subscriptions, shared by onCreate and unFreeze (which
-    // re-registers after freeze unregistered). `this` inside a handler lambda resolves
-    // to the Subscriptions DSL receiver, so any Activity reference is this@MainBibleActivity.
+    // Single set of ABEventBus subscriptions, registered from onCreate. (It was shared with
+    // unFreeze until nav-graph slice 7 Task 6 deleted freeze()/unFreeze() — design §9: they swap
+    // content views between MULTIPLE reading Activities, and after the migration there is one host.)
+    // `this` inside a handler lambda resolves to the Subscriptions DSL receiver, so any Activity
+    // reference is this@MainBibleActivity.
     private val eventSubscriptions: ABEventBus.Subscriptions.() -> Unit = {
         on<SpeakEvent> { event ->
             if(event.isSpeaking) {
@@ -491,19 +495,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         ScreenSettings.refreshNightMode()
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
-        // TEMPORARY (slice 7 Task 3 -> Task 6), see onPause. This has to be here and not only in
-        // onResume: `ActivityBase.onCreate`'s FIRST line is `CurrentActivityHolder.activate(this)`,
-        // so the OLD predicate (`currentActivity is MainBibleActivity`) was true for the whole of
-        // onCreate/onStart — and this very method posts AddHistoryItem inside that window, through
-        // the `openLink` deep-link branch below (-> WindowControl.showLink ->
-        // setCurrentDocumentAndKey -> CurrentPageBase.setKey(addHistoryItem = true) ->
-        // ABEventBus.post(AddHistoryItem), and the bus is synchronous). With the flag false there,
-        // createHistoryItem would not merely drop the item: it would fall through to the
-        // `currentActivity is AndBibleActivity` arm — this class IS one, with
-        // integrateWithHistoryManager = true — and record a WRONG IntentHistoryItem carrying the
-        // deep-link intent, whose revertTo() re-starts it. The same window is what keeps goBack()'s
-        // new condition honest after a "Don't keep activities" recreation; see HistoryManager.goBack.
-        ReadingViewVisibility.setVisible(true)
 
         CommonUtils.prepareData()
 
@@ -2824,13 +2815,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
                 STD_REQUEST_CODE -> {
                     CurrentActivityHolder.activate(this) // needed because startKeyChooser is using this
-                    // TEMPORARY (slice 7 Task 3 -> Task 6), see onPause. onActivityResult runs
-                    // BEFORE onResume, and the chooser results handled below call setKey(…,
-                    // addHistoryItem = true) / setCurrentDocument(…), which post AddHistoryItem.
-                    // The activate() above exists so the OLD predicate is true for exactly those
-                    // posts; this line keeps the NEW predicate true at the same moment, so the
-                    // swap really is behaviour-neutral while the reading view is still an Activity.
-                    ReadingViewVisibility.setVisible(true)
                     when (val kind = ActivityResultKind.fromExtra(extras.getString(ActivityResultKind.EXTRA))) {
                         null -> {}
                         ActivityResultKind.ChooseDocument -> {
@@ -3017,13 +3001,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private var paused = false
     override fun onPause() {
-        // TEMPORARY (slice 7 Task 3 -> Task 6). HistoryManager now asks ReadingViewVisibility
-        // instead of `CurrentActivityHolder.currentActivity is MainBibleActivity` (spec §5.1);
-        // while the reading view is still an Activity, this Activity's lifecycle is what drives the
-        // flag. Task 6 moves these four setVisible() calls (onCreate, onResume, onPause,
-        // onActivityResult) into the reading destination's DisposableEffect and deletes them from
-        // here.
-        ReadingViewVisibility.setVisible(false)
         windowControl.windowRepository.saveIntoDb(false)
         paused = true
         fullScreen = false
@@ -3035,8 +3012,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onResume() {
-        // TEMPORARY (slice 7 Task 3 -> Task 6), see onPause.
-        ReadingViewVisibility.setVisible(true)
         paused = false
         var needRefresh = false
         if(windowControl.windowRepository != windowRepository) {
@@ -3072,28 +3047,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 linkControl.openStudyPad(result.labelId, result.scrollToEntryId)
             }
         }
-    }
-
-    private var frozen = false
-
-    override fun freeze() {
-        if(CurrentActivityHolder.mainBibleActivities < 2) return
-        if(!frozen) {
-            ABEventBus.unregister(this)
-            (window.decorView as ViewGroup).removeView(binding.root)
-            super.setContentView(frozenBinding.root)
-        }
-        frozen = true
-    }
-
-    override fun unFreeze() {
-        if(frozen) {
-            windowControl.windowRepository = windowRepository
-            ABEventBus.register(this, eventSubscriptions)
-            (window.decorView as ViewGroup).removeView(frozenBinding.root)
-            super.setContentView(binding.root)
-        }
-        frozen = false
     }
 
     /**

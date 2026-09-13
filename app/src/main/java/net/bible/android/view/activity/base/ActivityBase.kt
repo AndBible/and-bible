@@ -479,10 +479,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
     }
 
-    open fun freeze() {}
-
-    open fun unFreeze() {}
-
     val TAG get() = "Base-${this::class.java.simpleName}"
 
     companion object {

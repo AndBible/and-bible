@@ -18,7 +18,6 @@ package net.bible.android.view.activity.base
 
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
-import net.bible.android.view.activity.page.MainBibleActivity
 
 /** Allow operations form middle tier that require a reference to the current Activity
  *
@@ -30,30 +29,29 @@ object CurrentActivityHolder {
 
     val currentActivity: ActivityBase? get() = try { activities.last() } catch (e: NoSuchElementException) {null}
 
+    /**
+     * Nav-graph slice 7 Task 6 (design §9) deleted `ActivityBase.freeze()`/`unFreeze()` and with
+     * them this object's three calls into them, plus `mainBibleActivities` — the count that existed
+     * only so `MainBibleActivity.freeze()` could skip itself when it was the only reading Activity.
+     * Freezing swapped one Activity's content view out while another was on top; the migration
+     * leaves one host, so there is nothing to swap. What stays is the FOREGROUND/BACKGROUND event
+     * pair, which is about the app as a whole and has nothing to do with freezing.
+     */
     fun activate(activity: ActivityBase) {
         if(activity == currentActivity) return
         val wasEmpty = activities.isEmpty()
         activities.add(activity)
-        activity.unFreeze()
         if (wasEmpty) {
             ABEventBus
                 .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.FOREGROUND))
-        } else {
-            for (a in activities.filterNot { it == activity }) {
-                a.freeze()
-            }
         }
     }
-
-    val mainBibleActivities get() = activities.filterIsInstance<MainBibleActivity>().size
 
     fun deactivate(activity: ActivityBase) {
         activities.remove(activity)
         if (activities.isEmpty()) {
             ABEventBus
                 .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.BACKGROUND))
-        } else {
-            currentActivity!!.unFreeze()
         }
     }
 
