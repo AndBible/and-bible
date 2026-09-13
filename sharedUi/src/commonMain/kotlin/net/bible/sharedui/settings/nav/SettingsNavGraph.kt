@@ -97,11 +97,18 @@ import net.bible.sharedui.strings.LocalStrings
  *   golden, which this migration is not allowed to do. [onConfirmReset] is the whole classic
  *   chain — confirm, `SettingsReset.performReset()`, `service.refresh()`, `recreate()`.
  * - [onOpenTextDisplaySettings], [onOpenLinksSettings] and [onCrashApp] are the three navigation
- *   rows with no destination in this graph: an Activity that is still an Activity (it is launched
- *   with a `settingsBundle` extra), the Android app-links system screen
- *   (`Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS`) and a deliberate delayed crash. The
- *   reading-progress-settings row used to be a fourth; Task 8 made it a destination in THIS graph,
- *   so it navigates directly and its host slot is gone.
+ *   rows with no destination in THIS graph: the text-display-settings destination (which lives in
+ *   `WorkspaceNavGraph`, migrated together with the workspace selector because the two are one round
+ *   trip), the Android app-links system screen (`Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS`) and
+ *   a deliberate delayed crash. The reading-progress-settings row used to be a fourth; Task 8 made
+ *   it a destination in this graph, so it navigates directly and its host slot is gone.
+ *
+ *   [onOpenTextDisplaySettings] is an in-graph `navController.navigate(...)` since nav-graph slice 7
+ *   Task 5, and it carries NO settings bundle. This kdoc used to describe it as "an Activity that is
+ *   still an Activity (it is launched with a `settingsBundle` extra)" -- which is the defect design
+ *   §3.2 item 2 records, and the comment outliving the fix is the very mistake that item complains
+ *   about: hanging a detached bundle on the row that means GLOBAL opened a detached edit of the
+ *   EMPTY workspace. The row now says `scopeLevel = "global"` and says nothing else.
  * - [resetContentDescription] is `R.string.reset_settings`, a frozen parameter of the screen.
  * - [onResume] is classic's `onResume { service.refresh() }` (`:139-144`), driven from a
  *   lifecycle-aware effect scoped to THIS destination (see the arm). Never host-wide: one host now

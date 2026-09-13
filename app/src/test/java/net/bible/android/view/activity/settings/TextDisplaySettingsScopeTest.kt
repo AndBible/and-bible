@@ -46,16 +46,26 @@ import org.robolectric.annotation.Config
  * to read. The kdoc above that row asserted the opposite ("GLOBAL scope comes from the ABSENT
  * scope-level extra"), so the comment was wrong too.
  *
- * **Why it cannot recur.** A route argument is named. `scopeLevel` and `settingsBundle` are two
- * distinct arguments of [NavRoutes.TEXT_DISPLAY_SETTINGS_PATTERN], and the global row now sets only
- * the first — [theGlobalSettingsRowOpensGlobalScopeNotADetachedEdit] would fail the moment either
- * half of that regressed (the row re-acquiring a bundle, or [scopeFromRoute] re-acquiring the old
- * precedence over an explicit scope level).
+ * **Why it cannot recur, stated as what these tests actually prove** (corrected in fix round 1; the
+ * version that stood here claimed two failure modes this class does not have). A route argument is
+ * named, so `scopeLevel` and `settingsBundle` are two distinct arguments of
+ * [NavRoutes.TEXT_DISPLAY_SETTINGS_PATTERN] — but naming only makes the mistake VISIBLE in the
+ * source, and the old kdoc went on to claim that
+ * [theGlobalSettingsRowOpensGlobalScopeNotADetachedEdit] would catch "the row re-acquiring a bundle,
+ * or `scopeFromRoute` re-acquiring the old precedence". Neither held: that test never touches the
+ * row (it builds its own route), and there was no precedence left to *re*-acquire, since
+ * `scopeFromRoute` still resolved a bundle ahead of an explicit `scopeLevel` — a sibling test pinned
+ * that it did. A future caller passing both would still have landed silently in detached mode.
  *
- * [aDetachedBundleStillWinsWhenItIsTheOnlyThingSaidAboutScope] and
- * [aGlobalBundleAsADetachedEditIsTheEmptyWorkspace] keep the classic precedence and the defect's own
- * mechanism as LIVE premises rather than claims in a comment: the detached branch is a real launch
- * shape (the workspace selector's round trip), and it must go on behaving exactly as it did.
+ * So the guarantee is structural now, not documentary: `scopeFromRoute` REJECTS a route that says
+ * both ([aRouteThatNamesBothAScopeLevelAndABundleIsRejected]), which is the thing "the precedence
+ * cannot be ambiguous again" was always claiming. The two halves of the row's own fix are pinned
+ * separately — the route it builds, here, and the host source that builds it, by
+ * [theHostsGlobalTextSettingsRowNavigatesToTheGlobalRoute].
+ *
+ * [aGlobalBundleAsADetachedEditIsTheEmptyWorkspace] keeps the defect's own mechanism as a LIVE
+ * premise rather than a claim in a comment: a bundle-only route is a real launch shape (the workspace
+ * selector's round trip), and it must go on behaving exactly as it did.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
@@ -113,19 +123,32 @@ class TextDisplaySettingsScopeTest {
         assertEquals(SettingsScope.Workspace(id.toString()), scopeOf(route))
     }
 
+    /**
+     * Fix round 1's structural replacement for classic's precedence. Saying both is now an ERROR
+     * rather than a silent win for the bundle: a caller that means GLOBAL and also hangs a bundle on
+     * the route -- which is the defect design §3.2 item 2 records, in its general form -- fails
+     * loudly instead of opening a detached edit of whatever workspace the bundle names.
+     *
+     * The check lives on the READING side deliberately, so it covers every route `scopeFromRoute` is
+     * handed and not only the ones the typed builder produced; `NavRoutes.textDisplaySettings` still
+     * accepts both, and `NavRoutesTest` still round-trips all five arguments through it.
+     *
+     * Mutation this catches: deleting the `require` and restoring the bundle-first precedence -- with
+     * which this route resolves to `Workspace(id)` instead of throwing.
+     */
     @Test
-    fun aDetachedBundleStillWinsWhenItIsTheOnlyThingSaidAboutScope() {
-        // Classic's documented precedence, preserved: a detached launch scopes to the BUNDLE's own
-        // workspace, never the active one. Keeping it is safe now only because the global row no
-        // longer sets a bundle -- see this class's kdoc.
-        val id = IdType()
+    fun aRouteThatNamesBothAScopeLevelAndABundleIsRejected() {
         val route = NavRoutes.textDisplaySettings(
             scopeLevel = "window",
             windowId = IdType().toString(),
             workspaceId = IdType().toString(),
-            settingsBundle = workspaceBundle(id).toJson(),
+            settingsBundle = workspaceBundle(IdType()).toJson(),
         )
-        assertEquals(SettingsScope.Workspace(id.toString()), scopeOf(route))
+        val thrown = runCatching { scopeOf(route) }.exceptionOrNull()
+        assertTrue(
+            "a route that says both must be rejected, not silently resolved: $thrown",
+            thrown is IllegalArgumentException,
+        )
     }
 
     @Test

@@ -27,15 +27,24 @@ import net.bible.sharedcore.settings.SettingsScope
  * deletes it, so the two exist side by side for now, exactly as the five chooser seams Task 4
  * ported do).
  *
- * **A detached bundle still wins over an explicit scope level**, and that is the classic behaviour
- * preserved rather than a bug carried over: a selector-originated edit scopes to the workspace the
- * SELECTOR named, never to whatever is active, and there is no coherent reading in which a
- * scope-level argument should override the bundle whose contents are about to be edited. What made
- * that precedence dangerous under Intents was that the "detached bundle" extra key and the plain
- * "global settings" launch were told apart by nothing but which extra happened to be set, and the
- * host's global-settings row set both meanings at once (design §3.2 item 2). Route arguments are
- * named and the builder is typed, so the global row now asks for `scopeLevel = "global"` and carries
- * no bundle at all; see `TextDisplaySettingsScopeTest`, which pins both halves.
+ * **There is no precedence any more: saying both is an ERROR** (fix round 1). What stood here was
+ * classic's rule -- a detached bundle wins over an explicit scope level -- defended as "safe now
+ * because the global row no longer sets a bundle". That defence is about one CALLER, and the defect
+ * design §3.2 item 2 records is about what happens when some caller sets both by accident: under the
+ * old rule such a caller still landed, silently, in a detached edit of whatever workspace its bundle
+ * named. The commit message claimed "the precedence cannot be ambiguous again" on the strength of
+ * the arguments being NAMED, but naming only makes the mistake visible in the source; it does not
+ * make it fail.
+ *
+ * The [require] below does. A route that says both is rejected at the point it is read, with a
+ * message naming both arguments, instead of resolving to one of them. `scopeLevel` then means what
+ * it says at every call site, and a detached bundle is the ONLY thing a detached route carries --
+ * which is what every caller in the tree does today: the selector arm passes `settingsBundle` alone
+ * (`WorkspaceNavGraph.kt`), and the host's global-settings row passes `scopeLevel = "global"` alone.
+ *
+ * The check deliberately lives HERE, on the reading side, and not on `NavRoutes.textDisplaySettings`:
+ * it then covers every route this function is ever handed, including one assembled by hand or
+ * restored from a saved state, not only the ones that went through the builder.
  *
  * Lives in `:app` rather than in the graph because resolving the detached branch means parsing
  * [SettingsBundle] JSON, and [SettingsBundle] embeds Room-backed `WorkspaceEntities` types that
@@ -49,6 +58,11 @@ import net.bible.sharedcore.settings.SettingsScope
  * a caller that had got its arguments wrong.
  */
 fun scopeFromRoute(args: TextDisplaySettingsArgs): SettingsScope {
+    require(args.settingsBundleJson == null || args.scopeLevel == null) {
+        "a text-display-settings route may name a scopeLevel or carry a detached settingsBundle, " +
+            "never both: scopeLevel=${args.scopeLevel} with a bundle present is the ambiguity " +
+            "design §3.2 item 2 records"
+    }
     args.settingsBundleJson?.let {
         return SettingsScope.Workspace(SettingsBundle.fromJson(it).workspaceId.toString())
     }

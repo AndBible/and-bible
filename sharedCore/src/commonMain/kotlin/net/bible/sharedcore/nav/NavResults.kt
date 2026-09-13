@@ -176,7 +176,7 @@ data class PassageResult(val verse: String)
  * this is the ONE result in the tree whose consumer actually reads that extra (plan D8), which is
  * why `WORKSPACE_CHANGED` is also the one request code `MainBibleActivity` dispatches on.
  */
-data class WorkspaceResult(val workspaceId: String? = null, val changed: Boolean)
+data class WorkspaceResult(val workspaceId: String?, val changed: Boolean)
 
 /**
  * What `TextDisplaySettings` hands back to `WorkspaceSelector` on a DETACHED (selector-originated)

@@ -170,7 +170,25 @@ class WorkspaceSelectorController(
         onResult(null, true)
     }
 
-    fun cancel() { service.deleteCreated(created.toList()); onCancel() }
+    fun cancel() { discardCreated(); onCancel() }
+
+    /**
+     * [cancel]'s cleanup WITHOUT its exit -- the half a host needs when it is being destroyed
+     * mid-visit and there is nobody left to navigate.
+     *
+     * Classic `WorkspaceSelectorComposeActivity.onDetachedFromWindow` ran the whole of `cancel()`
+     * there, exit included, because "the exit" was just `finish()` on an Activity that was already
+     * going away. In the nav-graph host it is a `popBackStack()`/`finish()` on a host that is
+     * mid-`onDestroy`, which is both meaningless and unsafe -- so the host calls this instead.
+     *
+     * Idempotent: [created] is cleared, so a later [cancel] on the same controller does not ask the
+     * service to delete the same rows twice.
+     */
+    fun discardCreated() {
+        if (created.isEmpty()) return
+        service.deleteCreated(created.toList())
+        created.clear()
+    }
 
     private fun order(): List<String> = working.map { it.id }
 }

@@ -32,6 +32,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import kotlinx.coroutines.flow.MutableStateFlow
+import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.nav.TextDisplaySettingsArgs
 import net.bible.sharedcore.nav.TextSettingsResult
@@ -48,6 +49,7 @@ import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedcore.workspaces.WorkspaceSelectorController
 import net.bible.sharedui.PlatformBackHandler
 import net.bible.sharedui.nav.NavResultChannel
+import net.bible.sharedui.nav.NavSessionMemo
 import net.bible.sharedui.nav.popOrExitOnFailedPop
 import net.bible.sharedui.settings.BackgroundImageChooserLabels
 import net.bible.sharedui.settings.BackgroundImageChooserScreen
@@ -101,16 +103,28 @@ import net.bible.sharedui.workspaces.WorkspaceSelectorScreen
  *
  * - [onHelp] is `CommonUtils.showHelp(activity, ...)`, which wants an `Activity`.
  *
- * **One classic member is deliberately NOT ported: `onDetachedFromWindow`'s
+ * **One classic member is deliberately NOT ported HERE: `onDetachedFromWindow`'s
  * `if (!finished) controller.cancel()`.** It is an Activity-lifetime hook, and the nearest in-graph
- * shape -- a `DisposableEffect`'s `onDispose` -- is actively WRONG here, because navigation-compose
- * disposes this arm's composition every time the settings editor is pushed on top of it. Porting it
- * literally would fire `cancel()` mid-round-trip, and `cancel()` calls
- * `service.deleteCreated(...)`: it would hard-delete the workspaces the user had just created, in
- * the middle of editing one of them. Every exit the user can actually take is covered without it --
- * the up-arrow, the back press and the screen's own Cancel all route through `controller.cancel()`
- * -- and what it covered beyond those (the host being destroyed outright) now belongs to the host,
- * which classic's own guard could not have reached either.
+ * shape -- a `DisposableEffect`'s `onDispose` in THIS arm -- is actively WRONG, because
+ * navigation-compose disposes this arm's composition every time the settings editor is pushed on
+ * top of it. Porting it literally would fire `cancel()` mid-round-trip, and `cancel()` calls
+ * `service.deleteCreated(...)`: it would hard-delete the workspaces this visit CLONED, in the middle
+ * of editing one of them. (Cloned, not created -- `WorkspaceSelectorController.createNew` tracks
+ * nothing in `created`; only `clone` does, because classic's own `createNewWorkspace` did not stage
+ * its workspace either. An earlier version of this note said "created", which named the one case
+ * `cancel()` does NOT delete.)
+ *
+ * **Its consequence is covered on the HOST instead, and had to be**, which is the fix-round-1
+ * correction to this paragraph. `clone` inserts into the database immediately and the memo that
+ * tracks the clone lives only as long as the host Activity; the host's `configChanges` does not
+ * list `uiMode`/`fontScale`/`density`, so a dark-mode flip or a font-scale change destroys and
+ * recreates the host mid-visit. Before the host-side hook, that left the clone as a permanent
+ * workspace no `created` set tracked any more -- not even an explicit Cancel afterwards could
+ * remove it. `NavHostComposeActivity.onDestroy` now calls
+ * `WorkspaceSelectorController.discardCreated()` on a memo that is still non-null, i.e. exactly on a
+ * visit that ended without a result, which is what classic's guard covered. It is a HOST hook and
+ * not an arm one for the reason above: this arm's dispose is precisely the event that must not fire
+ * it.
  */
 class WorkspaceSelectorDeps(
     val controllerFor: (
@@ -151,10 +165,24 @@ class WorkspaceSelectorDeps(
  *   shown, so a cached instance would reopen showing pre-reset values. It also closes over the
  *   host's photo picker (`registerForActivityResult(PickVisualMedia)`), which stays an Activity
  *   registration by instruction -- it is why this is a host factory at all.
- * - [openHideLabels] is classic's `openHideLabels` bridge: it builds a `ManageLabelsData` payload
- *   out of Room labels and awaits the `ManageLabels` destination through `awaitIntent`, then applies
- *   the answer to the controller the arm hands it. It keeps its `awaitIntent` shape unchanged this
- *   slice, by instruction, exactly as `ChooseDocument`'s Download/Install-zip rows did in Task 4.
+ * - [hideLabelsPayload] and [applyHideLabelsResult] are the two halves of classic's `openHideLabels`
+ *   bridge, split apart because the hop between them is now an IN-GRAPH navigation rather than an
+ *   `awaitIntent`. The first builds the `ManageLabelsData` JSON out of Room labels (classic
+ *   `HideLabelsPreference.openDialog`'s payload); the second is classic's `RESULT_OK` branch, line
+ *   for line -- a `reset` answer reverts the row, anything else updates the workspace's recent
+ *   labels and hands the chosen ids to the controller.
+ *
+ *   **This is the fix round 1 correction to the shape Task 5 shipped**, and it was a live defect,
+ *   not a latent one. What stood here was one `openHideLabels` lambda that did
+ *   `awaitIntent(intentFor(this, NavRoutes.manageLabels(data)))` -- a `startActivityForResult`
+ *   aimed at the host ITSELF, which is `singleTop` and is the activity on top. The system answers
+ *   such a launch with `onNewIntent`, so the host navigated its LIVE graph to `manageLabels` and the
+ *   pending request never resolved OK; the chosen labels were dropped, and the label manager then
+ *   sat ABOVE `settings/textDisplay`, so its own exit took the in-graph branch and published into
+ *   `manageLabelsResults.pending` -- which nothing in this arm was collecting. Unlike
+ *   `ChooseDocument`'s Download row (dormant until Task 8, which is why Task 4 was allowed to leave
+ *   its `awaitIntent` alone), `settings/textDisplay` is reachable today from the live `settings`
+ *   destination, and the Hide-labels row is drawn at every non-window scope.
  * - [resultOnLeave] is the whole of classic's `finish()` override, and the condition inside it is
  *   load-bearing: it returns non-null **only when the detached edit actually changed**
  *   (`DetachedWorkspaceEdit.changed`, i.e. dirty or reset -- plan D3), and null on every other exit,
@@ -168,7 +196,8 @@ class TextDisplaySettingsSession(
         onNavigate: (key: String) -> Unit,
     ) -> TextDisplaySettingsController,
     val colorControllerFor: (scope: SettingsScope) -> ColorSettingsController,
-    val openHideLabels: (scope: SettingsScope, controller: TextDisplaySettingsController) -> Unit,
+    val hideLabelsPayload: (scope: SettingsScope) -> String,
+    val applyHideLabelsResult: (resultJson: String, controller: TextDisplaySettingsController) -> Unit,
     val resultOnLeave: () -> TextSettingsResult?,
 )
 
@@ -186,6 +215,24 @@ class TextDisplaySettingsSession(
  * remembered state; see [textDisplaySettingsNavState].
  *
  * - [sessionFor] resolves the whole entry in one host-side call; see [TextDisplaySettingsSession].
+ * - [navStateMemo] is what keeps ONE visit's working set alive across a child destination, and it is
+ *   the fix-round-1 answer to a hazard Task 5 wrote about the SELECTOR and then reproduced here.
+ *   That commit's own argument -- navigation-compose disposes an arm's composition while a child
+ *   sits on top of it, so anything held in a plain `remember` is rebuilt from the route on the way
+ *   back -- applies verbatim to this destination, whose entire working set (the drill-up `navStack`,
+ *   the per-scope controller cache, `colorsScope`, the hoisted search state and, worst, the
+ *   `DetachedWorkspaceEdit` inside [TextDisplaySettingsSession]) was a plain `remember(args)`. With
+ *   the Hide-labels row now pushing a real child (see [TextDisplaySettingsSession.hideLabelsPayload])
+ *   the loss is not hypothetical: edit a workspace's settings from the selector, open Hide labels,
+ *   come back, leave -- and `resultOnLeave` sees a FRESH edit whose `changed` is false, so nothing is
+ *   published and the selector never learns of the edit. Silent data loss, no error anywhere.
+ *
+ *   It is a HOST-owned object passed in (like the two result channels) rather than something the arm
+ *   could create, for [NavSessionMemo]'s stated reason: a memo `remember`ed in the arm would be
+ *   disposed by the very event it exists to survive. The arm DROPS it on both branches of `leave()`
+ *   -- result delivered and popped-with-nothing alike -- so a re-entry starts a fresh visit rather
+ *   than resuming a finished one, exactly as `NavHostComposeActivity.manageLabelsSession` is nulled
+ *   on every exit.
  * - [windowTitle] is classic's `android:label="@string/text_display_settings_activity_title"`. It is
  *   a separate slot from anything the screen draws, for [net.bible.sharedui.navigation.nav
  *   .GridChoosePassageDeps.windowTitle]'s reason in reverse: here the screen's own top-bar title is
@@ -194,8 +241,14 @@ class TextDisplaySettingsSession(
  *   tapped rather than captured: the host always edits the ACTIVE workspace, and classic re-read it
  *   on every tap.
  * - [screenLabels], [colorSettingsLabels] and [backgroundImageChooserLabels] are the three resolved
- *   string bundles the three screens take. ~90 `getString` calls between them, so the host builds
- *   them lazily; they are plain values here because they do not change while the destination lives.
+ *   string bundles the three screens take -- ~90 `getString` calls between them, which is why they
+ *   are FUNCTIONS and not values. Fix round 1: they were plain values, and this kdoc claimed the
+ *   host built them lazily. It does (three `by lazy` fields), but a value slot is read where the
+ *   deps object is CONSTRUCTED, inside the host's one `remember { }`, so every one of those ~90
+ *   `getString` calls ran on every host launch no matter which of the host's four clusters the route
+ *   asked for. A `() -> Labels` slot is read where it is USED -- in this arm, i.e. only when this
+ *   destination is actually shown -- which is what the claim always said. The `by lazy` behind them
+ *   still means the strings are resolved at most once per host.
  * - [inheritedFromWorkspace]/[inheritedFromGlobal] are the two strings classic's `badgeLabel` chose
  *   between. The `when` itself lives in the arm ([badgeLabel] below) -- it is ordinary `:sharedCore`
  *   enum work -- and only the two resolved strings need the host.
@@ -204,11 +257,12 @@ class TextDisplaySettingsSession(
  */
 class TextDisplaySettingsDeps(
     val sessionFor: (args: TextDisplaySettingsArgs) -> TextDisplaySettingsSession,
+    val navStateMemo: NavSessionMemo<TextDisplaySettingsArgs, TextDisplaySettingsNavState>,
     val windowTitle: String,
     val activeWorkspaceId: () -> String,
-    val screenLabels: TextDisplaySettingsScreenLabels,
-    val colorSettingsLabels: ColorSettingsLabels,
-    val backgroundImageChooserLabels: BackgroundImageChooserLabels,
+    val screenLabels: () -> TextDisplaySettingsScreenLabels,
+    val colorSettingsLabels: () -> ColorSettingsLabels,
+    val backgroundImageChooserLabels: () -> BackgroundImageChooserLabels,
     val inheritedFromWorkspace: String,
     val inheritedFromGlobal: String,
     val thumbnailFor: (token: String) -> ImageBitmap?,
@@ -253,6 +307,22 @@ class WorkspaceNavDeps(
      * destination delivers, and the `WORKSPACE_SELECTOR` arm collects [NavResultChannel.pending].
      */
     val textSettingsResults: NavResultChannel<TextSettingsResult>,
+    /**
+     * **The label manager's channel, which this graph does not own** -- it belongs to
+     * `BookmarkNavGraph`, whose `MANAGE_LABELS_PATTERN` arm produces it, and the HOST passes the very
+     * same [NavResultChannel] instance to both graphs. It is here because the text-display-settings
+     * destination's Hide-labels row navigates to that destination in-graph (fix round 1, see
+     * [TextDisplaySettingsSession.hideLabelsPayload]) and therefore has to collect the answer, which
+     * is the first time a destination outside the bookmark cluster consumes a bookmark-cluster
+     * result.
+     *
+     * Two arms in two graphs collect the same channel, and that is safe for one reason worth stating:
+     * navigation-compose composes only the destination on TOP, so at most one of them is live when a
+     * result lands. The text-settings arm additionally refuses to consume unless it is the one that
+     * asked (`TextDisplaySettingsNavState.awaitingHideLabels`), so it cannot swallow a result the
+     * bookmark list was waiting for.
+     */
+    val manageLabelsResults: NavResultChannel<ManageLabelsResult>,
     // — WORKSPACE SELECTOR —
     val workspaceSelector: WorkspaceSelectorDeps,
     // — TEXT DISPLAY SETTINGS —
@@ -290,8 +360,13 @@ private fun NavHostController.popOrExit(exitHost: () -> Unit) {
  * [shouldCloseSearchOnBack]'s gate is `atListDestination && searchActive` and not `searchActive`
  * alone -- those sub-destinations render no search UI, so a back press from inside one must always
  * [pop], never close an invisible search bar and swallow the press.
+ *
+ * **Held by [TextDisplaySettingsDeps.navStateMemo], not by the arm's `remember`** (fix round 1): one
+ * instance is one VISIT to this destination, and a visit now outlives a child destination being
+ * pushed on top of it. Public rather than private only so the host can name the memo's type; nothing
+ * outside this file constructs one.
  */
-private class TextDisplaySettingsNavState(
+class TextDisplaySettingsNavState internal constructor(
     val session: TextDisplaySettingsSession,
     /**
      * True for a `startAtColors` route, where the colours destination is the ROOT rather than
@@ -300,6 +375,13 @@ private class TextDisplaySettingsNavState(
      */
     val startedAtColors: Boolean,
     val activeWorkspaceId: () -> String,
+    /**
+     * `navController.navigate(NavRoutes.manageLabels(payload))`, the one line only the arm can write.
+     * Supplied by the arm that first builds this state and retained with it: everything it closes
+     * over (the host's `NavHostController` and its deps object) is host-lifetime, so the lambda
+     * cannot go stale while this visit lasts.
+     */
+    private val navigateToHideLabels: (payload: String) -> Unit,
 ) {
     var navStack by mutableStateOf(listOf(session.initialScope))
         private set
@@ -314,6 +396,19 @@ private class TextDisplaySettingsNavState(
     val searchMode = SearchModeController(onClearQuery = { searchQuery.value = "" })
 
     private val controllerCache = mutableMapOf<SettingsScope, TextDisplaySettingsController>()
+
+    /**
+     * The scope whose controller is waiting for the label manager's answer, i.e. non-null exactly
+     * while `manageLabels` is the destination this visit pushed. Deliberately NOT snapshot state:
+     * nothing renders from it, and a recomposition must not be able to observe it changing.
+     *
+     * It is the arm's gate as well as its memory. The `manageLabelsResults` channel is shared with
+     * `BookmarkNavGraph`, so an arm that consumed whatever was pending could steal a result the
+     * bookmark list had asked for; the arm consumes only while [awaitingHideLabels].
+     */
+    private var hideLabelsScope: SettingsScope? = null
+
+    val awaitingHideLabels: Boolean get() = hideLabelsScope != null
 
     /** Classic's `controllerFor` (`controllerCache.getOrPut`), cache and all. */
     fun controllerFor(scope: SettingsScope): TextDisplaySettingsController =
@@ -342,9 +437,32 @@ private class TextDisplaySettingsNavState(
                 chooserNight = null
                 colorsScope = scope
             }
-            TextSettingType.BOOKMARKS_HIDELABELS.name ->
-                session.openHideLabels(scope, controllerFor(scope))
+            // Classic's `openHideLabels(scope)`, with its `awaitIntent` round trip replaced by an
+            // in-graph push -- see TextDisplaySettingsSession.hideLabelsPayload for what the old
+            // shape actually did when the host answered its own startActivityForResult.
+            TextSettingType.BOOKMARKS_HIDELABELS.name -> {
+                hideLabelsScope = scope
+                navigateToHideLabels(session.hideLabelsPayload(scope))
+            }
         }
+    }
+
+    /**
+     * Classic's `RESULT_OK` branch of `openHideLabels`, applied to the controller of the scope that
+     * ASKED -- which is why [hideLabelsScope] is remembered rather than re-derived from `navStack`:
+     * the answer may arrive at a moment when a deeper scope has since been pushed.
+     *
+     * Once-only by construction, and doubly so: the arm consumes the channel (which clears it) and
+     * this clears [hideLabelsScope] before applying, so a recomposition that re-ran this with the
+     * same JSON would be a no-op returning `false`. Applying a label set twice is not idempotent --
+     * the second application would write the recent-labels list again over a workspace the user may
+     * have changed meanwhile.
+     */
+    fun applyHideLabelsResult(resultJson: String): Boolean {
+        val scope = hideLabelsScope ?: return false
+        hideLabelsScope = null
+        session.applyHideLabelsResult(resultJson, controllerFor(scope))
+        return true
     }
 
     /**
@@ -380,12 +498,22 @@ private class TextDisplaySettingsNavState(
  * through to normal back navigation. The `commonMain` twin of classic's own
  * `shouldCloseSearchOnBack`, kept as a named function for that one's stated reason: it is the gate a
  * defect once hid in, and `atListDestination` must be false whenever a sub-destination is showing.
+ *
+ * `internal` rather than `private`, which is the whole point classic's copy made and this one had
+ * lost: classic widened its visibility precisely so a test could prove the defect the gate once hid
+ * (`TextDisplaySettingsComposeActivityBackTest`, four cases). The `commonTest` twin of those four is
+ * `TextDisplaySettingsNavStateTest`, and Task 13 may delete the classic pair without losing them.
  */
-private fun shouldCloseSearchOnBack(atListDestination: Boolean, searchActive: Boolean): Boolean =
+internal fun shouldCloseSearchOnBack(atListDestination: Boolean, searchActive: Boolean): Boolean =
     atListDestination && searchActive
 
-/** Classic's `badgeLabel`: the "inherited from" badge for one settings row, or null when it is set here. */
-private fun badgeLabel(
+/**
+ * Classic's `badgeLabel`: the "inherited from" badge for one settings row, or null when it is set
+ * here. `internal` so `TextDisplaySettingsNavStateTest` can pin the three arms plus the
+ * not-a-[TextSettingType] key that `runCatching` exists for -- the drill-up link rows go through the
+ * same `badgeFor` lambda and their keys are not enum names.
+ */
+internal fun badgeLabel(
     state: TextDisplaySettingsScreenState,
     key: String,
     inheritedFromWorkspace: String,
@@ -400,16 +528,28 @@ private fun badgeLabel(
         }
     }
 
+/**
+ * The visit's state for [args], built once per visit and held by the HOST.
+ *
+ * `remember(args)` is still here, and it is doing a different job from the memo: it keeps the
+ * composition from re-reading the memo on every recomposition. The memo is what makes the value
+ * survive the composition being DISPOSED, which is what happens whenever this destination pushes a
+ * child -- see [TextDisplaySettingsDeps.navStateMemo].
+ */
 @Composable
 private fun textDisplaySettingsNavState(
     args: TextDisplaySettingsArgs,
     deps: TextDisplaySettingsDeps,
+    navigateToHideLabels: (payload: String) -> Unit,
 ): TextDisplaySettingsNavState = remember(args) {
-    TextDisplaySettingsNavState(
-        session = deps.sessionFor(args),
-        startedAtColors = args.startAtColors,
-        activeWorkspaceId = deps.activeWorkspaceId,
-    )
+    deps.navStateMemo.getOrPut(args) {
+        TextDisplaySettingsNavState(
+            session = deps.sessionFor(args),
+            startedAtColors = args.startAtColors,
+            activeWorkspaceId = deps.activeWorkspaceId,
+            navigateToHideLabels = navigateToHideLabels,
+        )
+    }
 }
 
 // ——————————————————————————————————————————————————————————————————————————————————————————————
@@ -490,8 +630,8 @@ fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: Wo
         // (a collapsed SearchView consumed back the same way). ONE gated handler with the branch
         // inside it, never two stacked ones -- two would work only by declaration ORDER. Always
         // enabled, because the non-search branch is `controller.cancel()`, not a plain pop: cancel
-        // hard-deletes the workspaces this visit created, so the NavHost's own back must not reach
-        // past it.
+        // hard-deletes the workspaces this visit CLONED (`createNew` stages nothing), so the
+        // NavHost's own back must not reach past it.
         PlatformBackHandler(enabled = true) {
             if (searchModeActive) controller.closeSearch() else controller.cancel()
         }
@@ -567,15 +707,40 @@ fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: Wo
             } ?: TextDisplaySettingsArgs()
         }
 
-        val nav = textDisplaySettingsNavState(args, d)
+        val nav = textDisplaySettingsNavState(args, d) { payload ->
+            navController.navigate(NavRoutes.manageLabels(payload))
+        }
 
         LaunchedEffect(d.windowTitle) { deps.setWindowTitle(d.windowTitle) }
+
+        // ——— the label manager's answer, collected ———
+        // The other half of the Hide-labels round trip (fix round 1). Same shape as the selector
+        // arm's consumption of `textSettingsResults` below and BookmarkNavGraph's two consumers:
+        // `consume()` clears the channel in the same breath as reading it, so a recomposition cannot
+        // apply the same label set twice, and clearing re-triggers this effect with `null`, which is
+        // the early return.
+        //
+        // The `awaitingHideLabels` gate is this consumer's own, and it is not optional: the channel
+        // belongs to BookmarkNavGraph and is shared, so consuming unconditionally would let this arm
+        // clear a result the bookmark list asked for if one were ever pending when it opens.
+        val pendingHideLabels by deps.manageLabelsResults.pending.collectAsState()
+        LaunchedEffect(pendingHideLabels) {
+            if (pendingHideLabels == null || !nav.awaitingHideLabels) return@LaunchedEffect
+            val result = deps.manageLabelsResults.consume() ?: return@LaunchedEffect
+            nav.applyHideLabelsResult(result.data)
+        }
 
         // Classic's `finish()` override, which is the destination's ONLY exit: every path out --
         // pop()'s terminal branch, the up-arrow and the system back -- ends here rather than
         // publishing anything of its own. A null result is classic not calling `setResult` at all.
+        //
+        // The memo is dropped on BOTH branches, and the ORDER matters: `resultOnLeave()` is read
+        // first, because it reads the very session the drop discards. A visit that has ended must not
+        // be resumable -- re-entering the route would otherwise reopen the previous edit's drill-up
+        // stack and its already-delivered detached edit, which would publish a second time.
         fun leave() {
             val result = nav.session.resultOnLeave()
+            d.navStateMemo.drop()
             if (result != null) deps.textSettingsResults.deliver(navController, result)
             else navController.popOrExit(deps.exitHost)
         }
@@ -600,11 +765,14 @@ fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: Wo
             val colorController = remember(activeColorsScope) { nav.session.colorControllerFor(activeColorsScope) }
             val colorState by colorController.state.collectAsState()
             val night = nav.chooserNight
+            // Resolved HERE rather than where the deps object was built -- see
+            // TextDisplaySettingsDeps.screenLabels for the ~90 `getString` calls that bought.
+            val screenLabels = d.screenLabels()
 
             if (night != null) {
                 BackgroundImageChooserScreen(
                     options = colorState.backgroundOptions,
-                    labels = d.backgroundImageChooserLabels,
+                    labels = d.backgroundImageChooserLabels(),
                     loading = colorState.loading,
                     deleteConfirm = colorState.deleteConfirm,
                     thumbnailFor = d.thumbnailFor,
@@ -621,13 +789,13 @@ fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: Wo
             } else {
                 ColorSettingsScreen(
                     state = colorState,
-                    labels = d.colorSettingsLabels,
+                    labels = d.colorSettingsLabels(),
                     onUp = { back() },
                     onReset = colorController::onReset,
                     // The SAME resolved strings TextDisplaySettingsScreen's own reset confirm gets.
-                    resetConfirmMessage = d.screenLabels.resetConfirmMessage,
-                    confirmLabel = d.screenLabels.okLabel,
-                    cancelLabel = d.screenLabels.cancelLabel,
+                    resetConfirmMessage = screenLabels.resetConfirmMessage,
+                    confirmLabel = screenLabels.okLabel,
+                    cancelLabel = screenLabels.cancelLabel,
                     onColorChange = colorController::onColorChange,
                     onNoiseChange = colorController::onNoiseChange,
                     onWorkspaceColorChange = colorController::onWorkspaceColorChange,
@@ -644,7 +812,7 @@ fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: Wo
 
             TextDisplaySettingsScreen(
                 state = state,
-                dialogLabels = d.screenLabels,
+                dialogLabels = d.screenLabels(),
                 badgeFor = { key ->
                     badgeLabel(state, key, d.inheritedFromWorkspace, d.inheritedFromGlobal)
                 },
