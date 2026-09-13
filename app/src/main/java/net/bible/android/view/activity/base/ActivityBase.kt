@@ -18,7 +18,6 @@
 package net.bible.android.view.activity.base
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -281,31 +280,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     /** allow activity to enhance intent to correctly restore state  */
     override val intentForHistoryList: Intent get() = intent
 
-    fun showErrorMsg(msgResId: Int) {
-        Dialogs.showErrorMsg(msgResId)
-    }
-
-    protected fun returnErrorToPreviousScreen() {
-        // just pass control back to the previous screen
-        val resultIntent = Intent(this, this.javaClass)
-        setResult(Activity.RESULT_CANCELED, resultIntent)
-        finish()
-    }
-
-    protected fun returnToPreviousScreen() {
-        // just pass control back to the previous screen
-        val resultIntent = Intent(this, this.javaClass)
-        setResult(Activity.RESULT_OK, resultIntent)
-        finish()
-    }
-
-    protected fun returnToTop() {
-        // just pass control back to the previous screen
-        val resultIntent = Intent(this, this.javaClass)
-        setResult(RESULT_RETURN_TO_TOP, resultIntent)
-        finish()
-    }
-
     override fun onResume() {
         CurrentActivityHolder.activate(this)
         super.onResume()
@@ -451,7 +425,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         return activityResult.await()
     }
 
-    val preferences get() = CommonUtils.settings
+    protected val preferences get() = CommonUtils.settings
 
     private var deferredActivityResult = CompletableDeferred<ActivityResult>()
     private val deferredActivityResultMutex = Mutex()
@@ -488,9 +462,5 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         const val STD_REQUEST_CODE = 1
         const val CALCULATOR_REQUEST = 6000
         const val ASYNC_REQUEST_CODE_START = 1900
-
-        // Special result that requests all activities to exit until the main/top Activity is reached
-        const val RESULT_RETURN_TO_TOP = 900
-
     }
 }

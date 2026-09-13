@@ -400,7 +400,18 @@ object NavRoutes {
     fun gridChoosePassage(isScripture: Boolean = false): String =
         "navigation/gridChoosePassage?$ARG_IS_SCRIPTURE=$isScripture"
 
-    /** Anything but a literal `true` reads as false — including the unsubstituted pattern. */
+    /**
+     * Anything but a literal `true` reads as false — including the unsubstituted pattern.
+     *
+     * **No production caller today**, by design and not by oversight. This parser takes a route
+     * STRING, which only the HOST ever holds — an inbound route handed to `onNewIntent` or to a
+     * deep link. A graph ARM never has one (`destination.route` is the unsubstituted PATTERN), so
+     * the `gridChoosePassage` arm reads `ARG_IS_SCRIPTURE` off the back-stack entry's already
+     * parsed-and-decoded argument bundle instead, and says so at that line. It is kept, tested and
+     * documented as the host-side half of the same contract, exactly like [readTextDisplaySettings]
+     * — which is uncalled for the identical reason. Do not read its lack of callers as dead code;
+     * do not add one from inside a graph arm either.
+     */
     fun readGridChoosePassage(route: String): Boolean =
         routeArguments(route)[ARG_IS_SCRIPTURE] == "true"
 
@@ -411,6 +422,12 @@ object NavRoutes {
      * `null` means "no document type was requested" — and, as in [readDailyReading], an EMPTY
      * value counts as absent, because the navigation library's query-parameter regex does not
      * match `type=` either.
+     *
+     * **No production caller today**, for [readGridChoosePassage]'s reason and not through
+     * oversight: it is the host-side parser for an inbound route STRING (`onNewIntent`, deep
+     * links), while the `chooseDocument` arm reads the argument bundle the navigation library has
+     * already parsed and decoded. [readDailyReading] is the sibling that IS called — from
+     * `NavHostComposeActivity`'s `onNewIntent` — and it is called through exactly this path.
      */
     fun readChooseDocument(route: String): String? =
         routeArguments(route)[ARG_DOCUMENT_TYPE]?.takeIf { it.isNotEmpty() }?.let(::decodeArg)

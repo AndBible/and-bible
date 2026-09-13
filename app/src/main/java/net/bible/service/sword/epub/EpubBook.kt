@@ -26,7 +26,6 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.database.EpubDatabase
 import net.bible.android.database.epubMigrations
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
