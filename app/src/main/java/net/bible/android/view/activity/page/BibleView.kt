@@ -2029,7 +2029,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun updateOffsets(immediate: Boolean = false) {
         if(isTopWindow || isBottomWindow && contentVisible && window.isVisible)
-            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: $immediate, imeOpen: ${mainBibleActivity.imeHeight > 0}});")
+            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: $immediate, imeOpen: ${mainBibleActivity.readingInsets.imeHeight > 0}});")
     }
 
     private val isTopWindow
@@ -2041,14 +2041,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     val topOffset
         get() =
             if(isTopWindow && !SharedActivityState.instance.isFullScreen)
-                (mainBibleActivity.topOffset2
+                (mainBibleActivity.readingInsets.topOffset2
                     / mainBibleActivity.resources.displayMetrics.density)
             else 0F
     
     val bottomOffset
         get() =
             if(isBottomWindow)
-                (mainBibleActivity.bottomOffsetForWebView
+                (mainBibleActivity.readingInsets.bottomOffsetForWebView
                     / mainBibleActivity.resources.displayMetrics.density)
             else 0F
 

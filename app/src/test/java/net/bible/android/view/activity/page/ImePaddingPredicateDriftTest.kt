@@ -33,8 +33,15 @@ import org.junit.Test
  * runtime behaviour — the device pass is (spec §8).
  */
 class ImePaddingPredicateDriftTest {
-    private val source =
-        java.io.File("src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt").readText()
+    private val source = listOf(
+        "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
+        "src/main/java/net/bible/android/view/activity/page/ReadingInsets.kt",
+    ).joinToString("\n") { path ->
+        val f = java.io.File(path)
+        // Anti-vacuity: a path that stops existing must fail the guard, not quietly contribute "".
+        require(f.exists()) { "$path not found — ImePaddingPredicateDriftTest scans it" }
+        f.readText()
+    }
 
     @Test
     fun theThreeConsumersAllReadTheOnePredicate() {
