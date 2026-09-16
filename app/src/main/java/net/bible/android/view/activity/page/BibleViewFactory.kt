@@ -39,16 +39,23 @@ import org.koin.core.component.inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  *
- * R5 (reading-host re-typing): retyped off `MainBibleActivity` onto the narrow
- * [ReadingHostActivity]. This class itself has zero member accesses on the value -- it only
- * passes it on to [PageTiltScrollControl] (now typed [android.content.Context], via
- * [ReadingHostActivity.hostContext]) and to [BibleView] (still typed `MainBibleActivity` until
- * R6 gives it the same treatment -- its constructor reaches `readingInsets`/`isSplitVertically`/
- * `showLlmPromptSelector`, all deliberately off this narrow interface). The downcast to
- * `MainBibleActivity` for the `BibleView(...)` call is safe today: the only construction site is
- * `ReadingCommands.bibleViewFactory`, whose `activity` field is itself still `MainBibleActivity`-typed.
+ * R5 fix round 1 (reading-host re-typing review) -- **BLOCKED for R6, left MainBibleActivity-typed
+ * on purpose.** The first R5 pass retyped this to the narrow reading-host interface and bridged
+ * the gap with `BibleView(this.mainBibleActivity as MainBibleActivity, ...)` -- review Critical 1
+ * correctly called that a re-label, not a re-type: the only reason this class holds the value at
+ * all is to hand the WHOLE thing to [BibleView], whose constructor reaches upwards of a dozen
+ * distinct `MainBibleActivity`-only members (`readingInsets` twice, `isSplitVertically`,
+ * `showLlmPromptSelector`, `composeSearchIfHosted`, `currentNightMode`, `startActivityForResult`,
+ * `awaitIntent`, plus the interface-shaped ones). Decomposing that into individual constructor
+ * parameters on [BibleView] is a real option (per the review's preferred route), but it means
+ * redesigning BibleView's entire ~18-call-site dependency surface -- body-level surgery on a
+ * 2000+ line, heavily-covered file this task cannot verify with only its own scoped `--tests`
+ * filter. That is R6's job (BibleView is at least as big as `ComposeReadingViewHost`), not R5's
+ * mechanical, no-bodies-move scope. So this file reverts to `MainBibleActivity` and is EXCLUDED
+ * from [net.bible.android.view.activity.page.CollaboratorTypeGuardTest]'s scan -- see that test's
+ * KDoc for the same reasoning, kept in one place rather than duplicated.
  */
-class BibleViewFactory(val mainBibleActivity: ReadingHostActivity) : KoinComponent {
+class BibleViewFactory(val mainBibleActivity: MainBibleActivity) : KoinComponent {
     val pageControl: PageControl by inject()
     val windowControl: WindowControl by inject()
     val linkControl: LinkControl by inject()
@@ -61,7 +68,7 @@ class BibleViewFactory(val mainBibleActivity: ReadingHostActivity) : KoinCompone
     private fun getPageTiltScrollControl(window: Window): PageTiltScrollControl {
         return windowPageTiltScrollControlMap[window] ?: synchronized(windowPageTiltScrollControlMap) {
             synchronized(windowPageTiltScrollControlMap) {
-                windowPageTiltScrollControlMap[window] ?: PageTiltScrollControl(mainBibleActivity.hostContext)
+                windowPageTiltScrollControlMap[window] ?: PageTiltScrollControl()
             }.also {
                 windowPageTiltScrollControlMap[window] = it
             }
@@ -83,7 +90,7 @@ class BibleViewFactory(val mainBibleActivity: ReadingHostActivity) : KoinCompone
 
         if (bibleView == null) {
             val pageTiltScrollControl = getPageTiltScrollControl(window)
-            bibleView = BibleView(this.mainBibleActivity as MainBibleActivity, WeakReference(window), windowControl,
+            bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl,
                 pageControl, pageTiltScrollControl, linkControl, bookmarkControl, downloadControl, searchControl)
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
             Log.i(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")//  ${Log.getStackTraceString(Exception())}")

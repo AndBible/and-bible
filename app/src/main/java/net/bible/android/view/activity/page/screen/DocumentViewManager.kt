@@ -18,8 +18,7 @@ package net.bible.android.view.activity.page.screen
 
 import net.bible.android.control.page.window.Window
 import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.page.ReadingHostActivity
+import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.service.common.CommonUtils
 
 /**
@@ -27,15 +26,23 @@ import net.bible.service.common.CommonUtils
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  *
- * R5 (reading-host re-typing): retyped off `MainBibleActivity` onto the narrow
- * [ReadingHostActivity]. `windowControl` is genuine process-wide state (the `WindowControl` Koin
- * singleton) so it now reads through [CommonUtils] instead. `composeReadingViewHost` and
- * `bibleViewFactory` are per-host state that [ReadingHostActivity] deliberately does not expose
- * (spec: no `ReadingCommands`/`binding` on the interface) -- this class is only ever constructed
- * with a real `MainBibleActivity` today (`MainBibleActivity.kt`'s `DocumentViewManager(this)`),
- * so the two reads downcast to it. R6 replaces the downcasts when it wires a real host for these.
+ * R5 fix round 1 (reading-host re-typing review): the first R5 pass retyped this class onto the
+ * narrow `ReadingHostActivity` but bridged the two accesses the interface deliberately excludes
+ * (`composeReadingViewHost`, `bibleViewFactory`) by casting the field back to the concrete Activity
+ * class at each call site -- review Critical 1 correctly called that a re-label, not a re-type,
+ * since this class still needed 100% of the `MainBibleActivity` surface it needed before. Per the review's
+ * preferred route, this class now takes exactly what it uses: the [BibleViewFactory] it forwards
+ * document lookups to, and a `rebuildHost` callback for the one Compose-host rebuild call. Neither
+ * needs any Activity/interface reference at all -- `windowControl` was already routed through the
+ * genuine `WindowControl` Koin singleton via [CommonUtils]. The one call site
+ * (`MainBibleActivity.kt`'s `documentViewManager = DocumentViewManager(this)`) is a pure
+ * constructor-argument change: `DocumentViewManager(bibleViewFactory) { composeReadingViewHost
+ * ?.rebuild() }`, made after `bibleViewFactory`/`readingCommands` are already initialised.
  */
-class DocumentViewManager(val mainBibleActivity: ReadingHostActivity) {
+class DocumentViewManager(
+    private val bibleViewFactory: BibleViewFactory,
+    private val rebuildHost: () -> Unit,
+) {
     private val windowControl get() = CommonUtils.windowControl
 
     /**
@@ -44,7 +51,7 @@ class DocumentViewManager(val mainBibleActivity: ReadingHostActivity) {
      * because six unguarded Compose-path callers read it.
      */
     fun buildView(forceUpdate: Boolean = false) {
-        if (forceUpdate) (mainBibleActivity as MainBibleActivity).composeReadingViewHost?.rebuild()
+        if (forceUpdate) rebuildHost()
     }
 
     val documentView: BibleView get() = getDocumentView(windowControl.activeWindow)
@@ -54,5 +61,5 @@ class DocumentViewManager(val mainBibleActivity: ReadingHostActivity) {
      * specified to prevent content going to the wrong screen if the active screen is changed fast.
      */
     private fun getDocumentView(window: Window): BibleView =
-        (mainBibleActivity as MainBibleActivity).bibleViewFactory.getOrCreateBibleView(window)
+        bibleViewFactory.getOrCreateBibleView(window)
 }

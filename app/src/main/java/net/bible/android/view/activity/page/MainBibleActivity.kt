@@ -490,7 +490,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
 
-        documentViewManager = DocumentViewManager(this)
+        documentViewManager = DocumentViewManager(bibleViewFactory) { composeReadingViewHost?.rebuild() }
 
         if(CommonUtils.isDiscrete) {
             binding.bibleButton.setImageResource(R.drawable.ic_baseline_menu_book_24)

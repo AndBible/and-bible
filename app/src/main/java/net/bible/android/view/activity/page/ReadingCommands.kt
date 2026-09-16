@@ -617,7 +617,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
             R.id.splitMode -> SplitModePreference(activity)
             R.id.autoPinMode -> WindowPinningPreference()
             R.id.tiltToScroll -> TiltToScrollPreference(activity)
-            R.id.nightMode -> NightModePreference(activity)
+            R.id.nightMode -> NightModePreference { activity.refreshIfNightModeChange() }
             R.id.fullscreen -> CommandPreference(launch = { _, _, _ ->
                 activity.fullScreen = true
             })

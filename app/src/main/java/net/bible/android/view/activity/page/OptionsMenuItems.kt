@@ -288,15 +288,18 @@ open class Preference(val settings: SettingsBundle,
 }
 
 /**
- * R5 (reading-host re-typing): the one dot-access, `invalidateOptionsMenu()`, is an
- * `Activity`-only member neither [Context] nor [ReadingHostActivity] exposes. Constructed only
- * from `ReadingCommands.getItemOptions` with a real `MainBibleActivity` (`ReadingCommands`'s own
- * `activity` field itself stays MainBibleActivity-typed until R6), so the downcast is safe today.
+ * R5 fix round 1 (reading-host re-typing review): the one dot-access, `invalidateOptionsMenu()`,
+ * is an `Activity`-only member neither `Context` nor `ReadingHostActivity` exposes. The first R5
+ * pass typed this `Context` and bridged the gap with a downcast -- review Critical 2 pointed out
+ * that `invalidateOptionsMenu()` is plain `android.app.Activity` (already imported in this file),
+ * so declaring the parameter `Activity` needs no cast at all, and works for `NavHostComposeActivity`
+ * too (it extends `ActivityBase`, an `Activity`). `Context` was not merely imprecise here, it was
+ * the wrong direction: it compiled while quietly discarding the one capability this class needs.
  */
-class TiltToScrollPreference(val mainBibleActivity: Context):
+class TiltToScrollPreference(val mainBibleActivity: Activity):
     GeneralPreference() {
     private val wsBehaviorSettings = windowRepository.workspaceSettings
-    override fun handle() { (mainBibleActivity as MainBibleActivity).invalidateOptionsMenu() }
+    override fun handle() { mainBibleActivity.invalidateOptionsMenu() }
     override var value: Any
         get() = wsBehaviorSettings.enableTiltToScroll
         set(value) {
@@ -336,12 +339,15 @@ open class SubMenuPreference(onlyBibles: Boolean = false, enabled: Boolean = tru
 }
 
 /**
- * R5 (reading-host re-typing): `refreshIfNightModeChange()` is `MainBibleActivity`-only, not on
- * [ReadingHostActivity]. Same construction-site reasoning as [TiltToScrollPreference] above makes
- * the downcast safe today.
+ * R5 fix round 1 (reading-host re-typing review): `refreshIfNightModeChange()` is
+ * `MainBibleActivity`-only, not on `Context` or `ReadingHostActivity`. The first R5 pass bridged
+ * this with a downcast at the single construction site (`ReadingCommands.getItemOptions`); review
+ * Important 5 preferred pushing the call in as a callback instead, since that site already has
+ * the real `MainBibleActivity` (`ReadingCommands`'s own `activity` field) and needs no other
+ * capability from it -- a pure constructor-argument change, no Activity/Context field at all.
  */
-class NightModePreference(val mainBibleActivity: Context) : RealSharedPreferencesPreference("night_mode_pref", false) {
-    override fun handle() { (mainBibleActivity as MainBibleActivity).refreshIfNightModeChange() }
+class NightModePreference(private val refreshIfNightModeChange: () -> Unit) : RealSharedPreferencesPreference("night_mode_pref", false) {
+    override fun handle() { refreshIfNightModeChange() }
     override var value: Any
         get() = ScreenSettings.nightMode
         set(value) {

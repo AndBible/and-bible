@@ -325,7 +325,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val maxHorizontalScroll: Int
         get() = computeHorizontalScrollRange() - computeHorizontalScrollExtent()
 
-    private val gestureListener  = BibleGestureListener(mainBibleActivity, this)
+    private val gestureListener  = BibleGestureListener(mainBibleActivity, this,
+        onNext = { mainBibleActivity.next() }, onPrevious = { mainBibleActivity.previous() })
 
     private var toBeDestroyed = false
 

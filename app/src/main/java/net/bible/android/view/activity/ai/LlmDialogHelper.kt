@@ -17,7 +17,6 @@
 
 package net.bible.android.view.activity.ai
 
-import android.content.Context
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
@@ -38,7 +37,7 @@ import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -52,17 +51,20 @@ import net.bible.service.llm.agent.AgentForegroundService
  * Handles LLM-related dialogs: prompt selection, specify-before-run, and regeneration.
  * Extracted from MainBibleActivity and BibleJavascriptInterface to avoid bloating those classes.
  *
- * R5 (reading-host re-typing): retyped off `MainBibleActivity` onto plain [Context] -- the 9
- * accesses measured contain nothing `MainBibleActivity`-specific. `getString` and every View/
- * dialog constructor already only needed a `Context`; `layoutInflater` becomes
- * `LayoutInflater.from(activity)`; `windowControl` reads through the global
- * [CommonUtils.windowControl] singleton. `lifecycleScope` is the one access that is not a
- * `Context` member at all (it needs a `LifecycleOwner`) -- this class is only ever constructed
- * with a real `MainBibleActivity` today (`MainBibleActivity.kt`'s `llmDialogHelper` field), so
- * those four call sites downcast rather than switch to an unscoped `GlobalScope`, preserving the
- * original activity-lifecycle-bound cancellation behaviour.
+ * R5 fix round 1 (reading-host re-typing review): the first R5 pass retyped this onto plain
+ * `Context` and downcast the 4 `lifecycleScope` accesses back to `MainBibleActivity` -- review
+ * Critical 2 pointed out that `lifecycleScope` is an extension on `LifecycleOwner`, and
+ * `ReadingHostActivity` extends `LifecycleOwner`, so typing this field on the interface satisfies
+ * ALL nine measured accesses with zero casts: `getString` is on the interface directly,
+ * `lifecycleScope` comes from `LifecycleOwner`, `windowControl` was already routed through the
+ * genuine [CommonUtils.windowControl] singleton, and every remaining `Context` consumer (View/
+ * dialog constructors, `LayoutInflater.from`, `AgentForegroundService.startAgent`) now takes
+ * `activity.hostContext`. The review also flagged `Context` as actively wrong here, not just
+ * imprecise: `AlertDialog.Builder` needs an Activity context or it risks `BadTokenException`, and
+ * `hostContext` is documented (`ReadingHostActivity.kt`) to always be `this` on both
+ * implementors, never an application context.
  */
-class LlmDialogHelper(private val activity: Context) {
+class LlmDialogHelper(private val activity: ReadingHostActivity) {
 
     /** Current prompt selector dialog, kept as field so it can be dismissed on favorite toggle. */
     private var dialog: AlertDialog? = null
@@ -72,7 +74,7 @@ class LlmDialogHelper(private val activity: Context) {
      * Category expand/collapse state is persisted in local SharedPreferences.
      */
     fun showPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION, documentCategory: DocumentCategory? = null) {
-        (activity as MainBibleActivity).lifecycleScope.launch(Dispatchers.IO) {
+        activity.lifecycleScope.launch(Dispatchers.IO) {
             val grouped = PromptRepository.promptsForContextGrouped(context, documentCategory)
             val favoriteIds = PromptRepository.favoritePromptIds()
 
@@ -100,7 +102,7 @@ class LlmDialogHelper(private val activity: Context) {
             launch(Dispatchers.Main) {
                 val settings = CommonUtils.settings
 
-                val listView = ExpandableListView(activity).apply {
+                val listView = ExpandableListView(activity.hostContext).apply {
                     setPadding(0, 16, 0, 16)
                     setGroupIndicator(null)
                 }
@@ -116,7 +118,7 @@ class LlmDialogHelper(private val activity: Context) {
                     override fun isChildSelectable(groupPosition: Int, childPosition: Int) = true
 
                     override fun getGroupView(groupPosition: Int, isExpanded: Boolean, convertView: View?, parent: ViewGroup): View {
-                        val view = convertView ?: LayoutInflater.from(activity).inflate(
+                        val view = convertView ?: LayoutInflater.from(activity.hostContext).inflate(
                             R.layout.manage_prompts_category_header, parent, false
                         )
                         val group = groups[groupPosition]
@@ -130,7 +132,7 @@ class LlmDialogHelper(private val activity: Context) {
                     }
 
                     override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup): View {
-                        val view = convertView ?: LayoutInflater.from(activity).inflate(
+                        val view = convertView ?: LayoutInflater.from(activity.hostContext).inflate(
                             R.layout.prompt_selector_item, parent, false
                         )
                         val prompt = groups[groupPosition].prompts[childPosition]
@@ -145,7 +147,7 @@ class LlmDialogHelper(private val activity: Context) {
                             else R.drawable.ic_star_outline_24
                         )
                         favoriteIcon.setOnClickListener {
-                            (activity as MainBibleActivity).lifecycleScope.launch(Dispatchers.IO) {
+                            activity.lifecycleScope.launch(Dispatchers.IO) {
                                 PromptRepository.toggleFavorite(prompt.id)
                                 launch(Dispatchers.Main) {
                                     // Rebuild the dialog with updated favorites
@@ -192,7 +194,7 @@ class LlmDialogHelper(private val activity: Context) {
                     }
                 }
 
-                dialog = AlertDialog.Builder(activity)
+                dialog = AlertDialog.Builder(activity.hostContext)
                     .setTitle(R.string.select_llm_prompt)
                     .setView(listView)
                     .setNegativeButton(R.string.cancel, null)
@@ -220,18 +222,18 @@ class LlmDialogHelper(private val activity: Context) {
      * The prompt template is not shown — only an empty text field for the specification.
      */
     internal fun showSpecifyBeforeRunDialog(prompt: AgentPrompt, selection: Selection) {
-        val editText = EditText(activity).apply {
+        val editText = EditText(activity.hostContext).apply {
             setHint(R.string.specify_before_run_hint)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
             minLines = 3
         }
-        val layout = LinearLayout(activity).apply {
+        val layout = LinearLayout(activity.hostContext).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(48, 32, 48, 16)
             addView(editText)
         }
 
-        AlertDialog.Builder(activity)
+        AlertDialog.Builder(activity.hostContext)
             .setTitle(R.string.specify_before_run_title)
             .setView(layout)
             .setPositiveButton(R.string.okay) { _, _ ->
@@ -261,7 +263,7 @@ class LlmDialogHelper(private val activity: Context) {
      * that model override.
      */
     private fun showModelSelectionDialog(prompt: AgentPrompt, selection: Selection, userSpecification: String?) {
-        (activity as MainBibleActivity).lifecycleScope.launch(Dispatchers.IO) {
+        activity.lifecycleScope.launch(Dispatchers.IO) {
             val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
             val providerDao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
             val defaultModelId = CommonUtils.aiSettings.defaultModelId
@@ -277,19 +279,19 @@ class LlmDialogHelper(private val activity: Context) {
             }
 
             launch(Dispatchers.Main) {
-                val layout = LinearLayout(activity).apply {
+                val layout = LinearLayout(activity.hostContext).apply {
                     orientation = LinearLayout.VERTICAL
                 }
-                val listView = ListView(activity)
-                listView.adapter = ArrayAdapter(activity, android.R.layout.simple_list_item_1, displayNames)
-                val checkBox = CheckBox(activity).apply {
+                val listView = ListView(activity.hostContext)
+                listView.adapter = ArrayAdapter(activity.hostContext, android.R.layout.simple_list_item_1, displayNames)
+                val checkBox = CheckBox(activity.hostContext).apply {
                     setText(R.string.set_default_model_for_prompt)
                     setPadding(48, 16, 48, 16)
                 }
                 layout.addView(listView)
                 layout.addView(checkBox)
 
-                val dialog = AlertDialog.Builder(activity)
+                val dialog = AlertDialog.Builder(activity.hostContext)
                     .setTitle(R.string.select_model_before_run_title)
                     .setView(layout)
                     .setNegativeButton(R.string.cancel, null)
@@ -298,7 +300,7 @@ class LlmDialogHelper(private val activity: Context) {
                 listView.setOnItemClickListener { _, _, position, _ ->
                     val selectedModelId = models[position].id
                     if (checkBox.isChecked) {
-                        (activity as MainBibleActivity).lifecycleScope.launch(Dispatchers.IO) {
+                        activity.lifecycleScope.launch(Dispatchers.IO) {
                             if (PromptRepository.isBuiltIn(prompt.id)) {
                                 PromptRepository.setBuiltinPromptModelOverride(prompt.id, selectedModelId)
                             } else {
@@ -320,7 +322,7 @@ class LlmDialogHelper(private val activity: Context) {
     fun executePrompt(prompt: AgentPrompt, selection: Selection, userSpecification: String? = null, modelOverrideId: IdType? = null) {
         val workspaceId = CommonUtils.windowControl.windowRepository.id
         AgentForegroundService.startAgent(
-            context = activity,
+            context = activity.hostContext,
             promptId = prompt.id,
             selection = selection,
             workspaceId = workspaceId,

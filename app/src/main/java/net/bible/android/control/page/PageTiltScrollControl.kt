@@ -36,14 +36,16 @@ import kotlin.math.PI
  */
 
 /**
- * R5 (reading-host re-typing): the constructor used to hold a `MainBibleActivity` purely to reach
- * its `windowRepository`. That is process-wide state behind the `WindowControl` Koin singleton
- * (see [CommonUtils.windowControl]), not anything specific to the hosting Activity, so the
- * parameter is retyped to plain [Context] and the access goes through the singleton instead --
- * same object, no behaviour change (`MainBibleActivity.onCreate` sets
- * `windowControl.windowRepository = windowRepository`).
+ * R5 fix round 1 (reading-host re-typing review): the constructor used to hold a
+ * `MainBibleActivity` purely to reach its `windowRepository`. That is process-wide state behind
+ * the `WindowControl` Koin singleton (see [CommonUtils.windowControl]), not anything specific to
+ * the hosting Activity -- same object, no behaviour change (`MainBibleActivity.onCreate` sets
+ * `windowControl.windowRepository = windowRepository`). The first R5 pass retyped the parameter to
+ * plain `Context` and rerouted the access, but that left the parameter completely unused (Minor
+ * finding in review); this pass drops it outright -- one call site
+ * (`BibleViewFactory.getPageTiltScrollControl`) updated to match.
  */
-class PageTiltScrollControl (private val mainBibleActivity: Context){
+class PageTiltScrollControl {
     var isTiltScrollEnabled = false
         private set
     // the pitch at which a user views the text stationary
