@@ -954,7 +954,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
                 val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
                 try {
-                    return "$bookName:$activity.pageTitleText"
+                    return "$bookName:${activity.pageTitleText}"
                 } finally {
                     BookName.setFullBookName(oldValue)
                 }
