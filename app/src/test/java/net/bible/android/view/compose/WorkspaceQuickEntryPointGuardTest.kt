@@ -47,6 +47,13 @@ class WorkspaceQuickEntryPointGuardTest {
     private val callSiteFiles = listOf(
         "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
         "src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt",
+        // Reading-host re-typing R3 (design spec §3.2): the (i) overflow menu's
+        // `R.id.switchToWorkspace` row — the `host.showWorkspaceSheet()` / `Screen.WorkspaceSelector`
+        // pair — moved out of `MainBibleActivity.getItemOptions` into this collaborator.
+        // `everyNonExcludedLaunchSiteIsGuardedByShowWorkspaceSheet` walks all of `src/main`, so it
+        // follows the site automatically; this list is what keeps the anti-vacuity check honest.
+        // `MainBibleActivity.kt` stays: it still holds the two classic-only excluded launches.
+        "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt",
         "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
     )
 

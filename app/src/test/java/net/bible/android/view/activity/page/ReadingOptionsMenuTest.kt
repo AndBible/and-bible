@@ -365,7 +365,12 @@ class ReadingOptionsMenuTest {
      */
     @Test
     fun theTwoLongPressBranchesUseTheComposeQuickDocMenuWithTheirOwnBookLists() {
-        val src = codeOf(File("src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt"))
+        // Reading-host re-typing R3 (design spec §3.2): both long-press bodies moved off
+        // `MainBibleActivity` into `ReadingCommands`; the Activity keeps one-line delegating stubs,
+        // so scanning it here would extract a stub and assert nothing. Repointed at the
+        // collaborator, which is where the needles below now live. (The behavioural tests above,
+        // which drive the Activity's stubs for real, are untouched.)
+        val src = codeOf(File("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"))
         val bibleBody = bodyOf(src, "internal fun composeBibleLongClick")
         val commentaryBody = bodyOf(src, "internal fun composeCommentaryLongClick")
 
@@ -414,8 +419,17 @@ class ReadingOptionsMenuTest {
      */
     @Test
     fun mainBibleActivityHasNoNativeOptionsPopupLeft() {
-        val src = codeOf(File("src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt"))
+        // Reading-host re-typing R3 (design spec §3.2): scanned across BOTH files. The command
+        // surface moved to `ReadingCommands.kt` and `composeBibleClick`/`composeCommentaryClick`'s
+        // non-swap branches went with it, so a re-introduced native options popup could now land in
+        // either file. `menuForDocs` itself — the one surviving `PopupMenu(` — deliberately stayed
+        // on the Activity (the CLASSIC toolbar listeners still call it), so the count is still 1,
+        // but it is now 1 ACROSS the pair rather than 1 in one file.
+        val activitySrc = codeOf(File("src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt"))
+        val commandsSrc = codeOf(File("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"))
+        val src = activitySrc + "\n" + commandsSrc
 
+        assertTrue(commandsSrc.length > 1000, "ReadingCommands.kt is empty or missing")
         assertFalse("fun showOptionsMenu" in src, "the native options PopupMenu must be gone")
         assertFalse("fun handlePrefItem" in src, "its MenuItem-typed dispatcher must be gone with it")
         assertFalse("getItemOptions(item: MenuItem)" in src, "…and its MenuItem-typed overload")

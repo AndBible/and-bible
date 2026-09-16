@@ -35,14 +35,19 @@ import net.bible.sharedcore.settings.textSettingEditorPageFor
  * against it so the two cannot drift apart unnoticed.
  *
  * [build] and [dispatch] both take the real `getItemOptions(itemId, order)` lookup as a
- * parameter rather than calling it directly: the actual implementation
- * ([net.bible.android.view.activity.page.MainBibleActivity]'s `getItemOptions`) is `private`
- * (it closes over the enclosing activity's `windowRepository`/`llmDialogHelper`/etc. to build
- * each [OptionsMenuItemInterface]) — `MainBibleActivity.buildOptionsMenuItems()`/
- * `handleOptionsMenuItem(id)` are the thin bridges that close over it (from inside the class body,
- * where the private access is legal) and forward here. This keeps the actual build/dispatch logic
- * — and the single id<->(resId, order) mapping ([idFor]/[parseId]) — in ONE place, reused by both
- * bridges, rather than duplicated.
+ * parameter rather than calling it directly: the actual implementation is `private`
+ * (it closes over the host's `windowRepository`/`llmDialogHelper`/etc. to build
+ * each [OptionsMenuItemInterface]) — `buildOptionsMenuItems()`/`handleOptionsMenuItem(id)` are the
+ * thin bridges that close over it (from inside the declaring class body, where the private access is
+ * legal) and forward here. This keeps the actual build/dispatch logic — and the single
+ * id<->(resId, order) mapping ([idFor]/[parseId]) — in ONE place, reused by both bridges, rather
+ * than duplicated.
+ *
+ * Reading-host re-typing R3 (design spec §3.2) moved `getItemOptions` and both bridges off
+ * `MainBibleActivity` into [net.bible.android.view.activity.page.ReadingCommands]; the Activity
+ * keeps delegating stubs of the same names, which is what `OptionsMenuStateBuilderTest` and
+ * `ReadingOptionsMenuTest` drive. [dispatch]'s [activity] parameter is deliberately UNCHANGED at
+ * this task (controller ruling C-5): re-typing it belongs to R6, with the rest of the seam.
  */
 object OptionsMenuStateBuilder {
 

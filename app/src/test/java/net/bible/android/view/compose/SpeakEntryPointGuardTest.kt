@@ -66,6 +66,12 @@ class SpeakEntryPointGuardTest {
     private val callSites = listOf(
         "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
         "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
+        // Reading-host re-typing R3 (design spec §3.2): the Compose toolbar's Speak long-press
+        // (`composeSpeakLong`) moved OFF the Activity into this collaborator, taking its
+        // `showSpeakSettings(` call with it. The whole-tree walk below saw the new holder and went
+        // red — correctly — and the fix is this line, never a weaker walk. `MainBibleActivity.kt`
+        // stays on the list: the CLASSIC `speakButton.setOnLongClickListener` is still there.
+        "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt",
         "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
     )
 
@@ -132,8 +138,8 @@ class SpeakEntryPointGuardTest {
      * menu, applied to `MainBibleActivity.kt`: it must still call `showSpeakSettings(`, and must NOT
      * call `showSpeakTransport(` — that call belongs to `MenuCommandHandler` alone.
      *
-     * The two routes this covers are the classic `speakButton.setOnLongClickListener` and
-     * `composeSpeakLong()`. Fix round 1: the transport bar's COG used to be named here as one of
+     * The route this covers is the classic `speakButton.setOnLongClickListener`; R3 moved
+     * `composeSpeakLong()` to `ReadingCommands.kt`, which [callSites] now names in its own right. Fix round 1: the transport bar's COG used to be named here as one of
      * them, and it is not in this file — it is `ComposeReadingViewHost.kt`'s
      * `onConfig = { showSpeakSettings() }`. No test here polices the cog's direction, and none can
      * in this shape: `ComposeReadingViewHost.kt` DECLARES both `showSpeakSettings` and
