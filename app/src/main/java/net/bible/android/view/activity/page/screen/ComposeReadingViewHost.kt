@@ -2609,7 +2609,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         )
     }
 
-    /** Toggles the Compose drawer — the target of [MainBibleActivity.composeToggleDrawer]. */
+    /** Toggles the Compose drawer — the target of [MainBibleActivity.toggleDrawer]. */
     fun toggleDrawer() { drawerOpen.value = !drawerOpen.value }
 
     /**
@@ -2895,7 +2895,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             generationState = generation.state,
             toolbar = toolbarStateService.toolbar,
             toolbarCallbacks = ReadingToolbarCallbacks(
-                onHome = { activity.composeToggleDrawer() },
+                onHome = { activity.toggleDrawer() },
                 onTitleTap = { activity.composeStartKeyChooser() },
                 onTitleLongPress = { activity.composeChooseDocument() },
                 onTitleFlingVertical = { showWorkspaceSheet() },
@@ -2989,12 +2989,12 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // Batch Z-early A7: classic `DrawerListener` parity — see the three `LaunchedEffect`s
             // in `mountComposeView` and the entry points' kdoc on [MainBibleActivity].
             monochromeState = monochrome,
-            onDrawerInMotion = { activity.drawerShowSystemUiTransient() },
-            onDrawerIdleClosed = { activity.drawerApplyIdleSystemUi() },
+            onDrawerInMotion = { activity.showSystemUiTransient() },
+            onDrawerIdleClosed = { activity.applyIdleSystemUi() },
             // Round 12b §1: the guard against stealing focus from an open search bar lives INSIDE
-            // drawerRestorePaneFocus (see drawerShouldRestorePaneFocus), not here — the drawer's
+            // restorePaneFocus (see drawerShouldRestorePaneFocus), not here — the drawer's
             // own Search row goes through this same callback.
-            onDrawerClosed = { activity.drawerRestorePaneFocus() },
+            onDrawerClosed = { activity.restorePaneFocus() },
             pane = { windowId ->
                 val window = windowControl.windowRepository.getWindow(IdType(windowId))
                 if (window != null) {

@@ -213,7 +213,7 @@ private val syncScope = CoroutineScope(Dispatchers.IO)
 
 class SpeakTransportVisibilityChanged(val value: Boolean)
 
-class MainBibleActivity : CustomTitlebarActivityBase() {
+class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     lateinit var binding: MainBibleViewBinding
     lateinit var empty: EmptyBinding
     /** The placeholder [freeze] swaps in while another Activity is on top of this one. */
@@ -1088,7 +1088,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // this batch's safety net call these members on the Activity and are not re-typed until R6.
     // Each stub is a pure delegation -- no branch, no state, nothing to drift.
 
-    internal fun composeToggleDrawer() = readingCommands.composeToggleDrawer()
+    override fun toggleDrawer() = readingCommands.composeToggleDrawer()
 
     internal val composeDrawerOpen: Boolean get() = readingCommands.composeDrawerOpen
 
@@ -1104,17 +1104,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // classic path changes — and nothing on the classic path calls them.
 
     /** Compose-drawer parity for classic `STATE_SETTLING`/`STATE_DRAGGING` → `showSystemUI(false)`. */
-    internal fun drawerShowSystemUiTransient() { showSystemUI(false) }
+    override fun showSystemUiTransient() { showSystemUI(false) }
 
     /** Compose-drawer parity for classic `STATE_IDLE` at slide offset 0. */
-    internal fun drawerApplyIdleSystemUi() {
+    override fun applyIdleSystemUi() {
         if (isFullScreen) hideSystemUI() else showSystemUI()
     }
 
     /**
      * Compose-drawer parity for classic `onDrawerClosed` — see
      * [net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose] for why it is conditional.
-     * Exposed separately from [drawerRestorePaneFocus] so the decision is assertable as a plain
+     * Exposed separately from [restorePaneFocus] so the decision is assertable as a plain
      * function call, rather than only by rendering the drawer and the search bar together. (Not for
      * want of a Compose UI test harness — the earlier wording here claimed the repo has none and can
      * get none, which is false: `compose-ui-test` is in `:app`'s test source set and
@@ -1124,7 +1124,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         shouldRestorePaneFocusOnDrawerClose(searchBarOpen = composeSearchModeActive)
 
     /** Compose-drawer parity for classic `onDrawerClosed`. */
-    internal fun drawerRestorePaneFocus() {
+    override fun restorePaneFocus() {
         if (!drawerShouldRestorePaneFocus()) return
         windowRepository.activeWindow.bibleView?.requestFocus()
     }
@@ -1578,7 +1578,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     class FullScreenEvent(val isFullScreen: Boolean)
     private var isFullScreen = false
 
-    var fullScreen
+    /**
+     * [ReadingHostActivity.hostContext] — this Activity, as the plain Context the reading view's
+     * bare value-passes want (spec §2.1).
+     */
+    override val hostContext: Context get() = this
+
+    override var fullScreen
         get() = isFullScreen
         set(value) {
             if(value != isFullScreen) {

@@ -34,8 +34,13 @@ import android.provider.Settings
 import android.text.format.Formatter
 import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.util.TypedValue
 import android.view.InputDevice
 import android.view.KeyEvent
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+import android.view.WindowManager
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ArrayAdapter
@@ -72,6 +77,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
@@ -106,6 +113,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.backup.BackupControl
@@ -130,6 +138,7 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
@@ -140,6 +149,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.DocumentConfiguration
 import net.bible.android.view.activity.base.PseudoBook
@@ -160,6 +170,7 @@ import net.bible.android.view.activity.download.isInstalled
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
 import net.bible.android.view.activity.search.epubSearchModeFromClassicName
@@ -176,6 +187,7 @@ import net.bible.android.view.activity.settings.buildTextDisplayControllerLabels
 import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.BuildVariant
+import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.android.view.activity.cloud.CloudSyncProgressBridge
@@ -446,7 +458,7 @@ import org.koin.android.ext.android.inject
  * theming, locale attachment, edge-to-edge setup, `CurrentActivityHolder` registration and — the
  * one that matters for this cluster — `awaitIntent`, which the SAF flows need.
  */
-class NavHostComposeActivity : ActivityBase() {
+class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     private val documentFilterService: DocumentFilterService by inject()
     private val toolPermissionService: ToolPermissionService by inject()
     private val llmModelService: LlmModelService by inject()
@@ -939,16 +951,276 @@ class NavHostComposeActivity : ActivityBase() {
      */
     private fun readingViewScreenTurnedOn() {
         ScreenSettings.refreshNightMode()
-        // Classic's `refreshIfNightModeChange()` (`:2702`), which is exactly these two calls.
+        refreshIfNightModeChange()
+        windowControl.activeWindow.bibleView?.onScreenTurnedOn()
+    }
+
+    /**
+     * Classic `MainBibleActivity.refreshIfNightModeChange`, verbatim including its comments. Lifted
+     * out of [readingViewScreenTurnedOn] (which used to inline these two calls) because R4's
+     * `NightModeChanged` subscription needs exactly the same body — classic's two call sites, both
+     * present again here.
+     */
+    private fun refreshIfNightModeChange(): Boolean {
+        // colour may need to change which affects View colour and html
+        // first refresh the night mode setting using light meter if appropriate
         ScreenSettings.checkMonitoring()
         applyTheme()
-        windowControl.activeWindow.bibleView?.onScreenTurnedOn()
+        return true
     }
 
     /** Classic `MainBibleActivity.onScreenTurnedOff` (`:2688`). */
     private fun readingViewScreenTurnedOff() {
         windowControl.activeWindow.bibleView?.onScreenTurnedOff()
     }
+
+    // ——— The reading view's window chrome (reading-host re-typing R4) ———————————————————————————
+    // This host had NONE of it: no fullscreen bit, no system-bar calls, no NightModeChanged
+    // subscription. [hideSystemUI] and [showSystemUI] below are ported from `MainBibleActivity`
+    // VERBATIM, comments included -- they encode a single-writer rule about status-bar appearance
+    // versus `LocalSystemBarSync` that is easy to "simplify" into a bug. The ONE adaptation is
+    // `windowRepository` -> `windowControl.windowRepository` (twice, in [showSystemUI]): this host
+    // has no `windowRepository` field, and until slice 7 Task 12 makes it the launcher the
+    // repository it reads is the one `MainBibleActivity` created -- which is the object classic read
+    // too.
+
+    /** [ReadingHostActivity.hostContext] -- this Activity, as the plain Context (spec §2.1). */
+    override val hostContext: Context get() = this
+
+    private val sharedActivityState = SharedActivityState.instance
+
+    /**
+     * [ReadingHostActivity.fullScreen]. Reads `SharedActivityState` DIRECTLY instead of mirroring it
+     * into a field of its own the way classic does: `MainBibleActivity.toggleFullScreen` has always
+     * written that process-wide bit, so while both Activities are alive a second copy could only
+     * disagree with the reading view's own `FullScreenEvent` subscribers.
+     */
+    override var fullScreen: Boolean
+        get() = sharedActivityState.isFullScreen
+        set(value) {
+            if(value != sharedActivityState.isFullScreen) {
+                toggleFullScreen()
+            }
+        }
+
+    /**
+     * Classic `MainBibleActivity.toggleFullScreen`. Its `updateToolbar()` call is [applyIdleSystemUi]
+     * here: since the Compose toolbar took over, classic's `updateToolbar` IS the system-bar
+     * hide/show and nothing else (see its comment). `updateBottomBars()` is its one surviving line,
+     * the `UpdateRestoreWindowButtons` broadcast `BibleView` re-reads its offsets on -- which was
+     * never bar-specific, so it is posted here too. The `FullScreenEvent` type stays classic's:
+     * `ComposeReadingViewHost` subscribes to `MainBibleActivity.FullScreenEvent` whichever Activity
+     * posted it.
+     */
+    private fun toggleFullScreen() {
+        sharedActivityState.toggleFullScreen()
+        ABEventBus.post(MainBibleActivity.FullScreenEvent(sharedActivityState.isFullScreen))
+        applyIdleSystemUi()
+        ABEventBus.post(MainBibleActivity.UpdateRestoreWindowButtons())
+        if(sharedActivityState.isFullScreen) {
+            ABEventBus.post(ToastEvent(R.string.exit_fullscreen))
+        }
+    }
+
+    /** [ReadingHostActivity.showSystemUiTransient] -- classic's `STATE_SETTLING`/`STATE_DRAGGING`. */
+    override fun showSystemUiTransient() { showSystemUI(false) }
+
+    /** [ReadingHostActivity.applyIdleSystemUi] -- classic's `STATE_IDLE` at slide offset 0, and the
+     *  same pair classic's `resetSystemUi`/`updateToolbar` apply. */
+    override fun applyIdleSystemUi() {
+        if (fullScreen) hideSystemUI() else showSystemUI()
+    }
+
+    /**
+     * [ReadingHostActivity.restorePaneFocus] -- classic's `onDrawerClosed` focus hand-back.
+     *
+     * Classic GATES it on `shouldRestorePaneFocusOnDrawerClose(searchBarOpen = composeSearchModeActive)`:
+     * whether the reading view's Compose search bar is open. That flag is `ComposeReadingViewHost`
+     * state reachable only through `ReadingCommands`, which is still typed on `MainBibleActivity`,
+     * so this host cannot ask (controller ruling C-1: R6 widens the interface with that route, R4
+     * must not). The gate is UNREACHABLE rather than merely missing -- nothing on this host can call
+     * this until Task 11 builds its drawer -- and the task that builds the drawer must restore it:
+     * the symptom of forgetting is a drawer close stealing focus from an open search field.
+     */
+    override fun restorePaneFocus() {
+        windowControl.windowRepository.activeWindow.bibleView?.requestFocus()
+    }
+
+    /**
+     * [ReadingHostActivity.toggleDrawer] -- a deliberate no-op until nav-graph slice 7 Task 11 builds
+     * this host's navigation drawer. The member exists so `ComposeReadingViewHost` can be re-typed
+     * onto [ReadingHostActivity] (R6); nothing reaches it before Task 11, because the ☰ button that
+     * calls it lives in the reading destination's content slot this host cannot build yet (R8).
+     * An `error(...)` would be worse: a host that CRASHES on a drawer toggle it cannot perform turns
+     * an unreachable gap into a user-visible one the moment anything calls it by accident.
+     */
+    override fun toggleDrawer() {
+        // Task 11: toggle this host's own `ModalNavigationDrawer`, as
+        // `ComposeReadingViewHost.toggleDrawer` does for the reading view's.
+    }
+
+    private fun hideSystemUI() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.decorView.windowInsetsController?.apply {
+                hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            var uiFlags = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            )
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!ScreenSettings.nightMode) {
+                    uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                }
+            }
+
+            window.decorView.systemUiVisibility = uiFlags
+        }
+    }
+
+    private fun showSystemUI(setNavBarColor: Boolean=true) {
+        // Nothing here touches the reading toolbar any more: the Compose `ReadingToolbar` (via
+        // `MaterialTheme.colorScheme`/`AbTheme`) owns its own colors, and `toolbarLayout` is GONE
+        // (see `ComposeReadingViewHost.install`). What survives is the window-level chrome that
+        // was always applied unconditionally -- the system-bar show/hide/appearance flags,
+        // `navigationBarColor`. The classic `speakTransport` bar's background write went with the
+        // bar itself (spec 10.4): the Compose `SpeakTransportBar` paints its own surface.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.decorView.windowInsetsController?.apply {
+                if (CommonUtils.settings.hideStatusBar) {
+                    // Keep the navigation bar (and AndBible's own toolbar) visible, but hide only
+                    // the Android status bar. Swiping from the top edge reveals it transiently.
+                    show(WindowInsets.Type.navigationBars())
+                    hide(WindowInsets.Type.statusBars())
+                    systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                } else {
+                    show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                }
+                if (!ScreenSettings.nightMode) {
+                    var appearance = WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                    if (CommonUtils.settings.monochromeMode) {
+                        appearance = appearance or WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                    }
+                    // A/B batch 3 review fix (Important 1): the status-bar *icon appearance* is
+                    // owned by `LocalSystemBarSync`/`applySystemBarColor` (called from
+                    // `ReadingToolbar`/`AbTopAppBar` via a `SideEffect`), derived from the actual
+                    // container colour rather than the classic toolbar's fixed
+                    // "dark unless monochrome" rule. So `APPEARANCE_LIGHT_STATUS_BARS` is
+                    // deliberately absent from the MASK: this call must neither set nor clear it,
+                    // leaving the seam its single writer. (Classic cleared it in the
+                    // day+non-monochrome case, right for its dark `#444444` toolbar and exactly
+                    // wrong for a light M3 surface.) A consequence worth knowing before editing:
+                    // the `APPEARANCE_LIGHT_STATUS_BARS` bit the monochrome clause above ORs into
+                    // `appearance` is therefore INERT -- outside the mask, it is neither set nor
+                    // cleared. Deleting that clause would be exactly as behaviour-neutral as
+                    // keeping it; it stays to preserve the INTENT (what monochrome asks for) for
+                    // the day the bit re-enters the mask, not because anything today depends on it.
+                    //
+                    // The NAVIGATION-bar appearance bit is not this call's alone either
+                    // (whole-branch review, Minor 4). (1) Since round 12b §3,
+                    // `SystemBarSync.applySystemBarColor` writes `isAppearanceLightNavigationBars`
+                    // whenever `fillWindowBackground = true` (`SystemBarSync.kt:103-107`). It stays
+                    // untouched in THIS window only because the two composables that sync are
+                    // `ReadingToolbar` (which passes `false`, `ReadingToolbar.kt:351`) and
+                    // `AbScaffold`/`AbTopAppBar` (which pass `true` but are never composed inside this
+                    // activity — the reading search sheet deliberately avoids `AbTopAppBar` for
+                    // exactly this reason, `SearchSheetContent.kt:50-56`). Compose an `AbScaffold`
+                    // into the reading view and this mask stops being the only writer.
+                    // (2) The bit written here is OVERWRITTEN a few dozen lines below, from the pane
+                    // background, whenever there is any visible window — so this write is the value
+                    // that survives only in the no-visible-windows path.
+                    setSystemBarsAppearance(
+                        appearance,
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                    )
+                }
+            }
+        } else {
+            var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
+            if (CommonUtils.settings.hideStatusBar) {
+                // Hide only the status bar (not the navigation bar) while keeping the toolbar.
+                uiFlags = (uiFlags
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!ScreenSettings.nightMode) {
+                    // Classic's SYSTEM_UI_FLAG_LIGHT_STATUS_BAR bit is not set here, mirroring the
+                    // API-R+ branch's intent (Important 1). The parallel stops at the intent, and
+                    // this branch IS live -- minSdk is 23. Below API 30 there is no mask: the
+                    // `systemUiVisibility = uiFlags` assignment a few lines down writes every bit
+                    // at once, so it also CLEARS whatever `SystemBarSync.applySystemBarColor` set
+                    // through `WindowInsetsControllerCompat`, which on API < 30 targets this very
+                    // flag on this very field. So the Compose seam is NOT the single writer here,
+                    // whatever the API-R+ comment can say for its own masked call -- the two race,
+                    // and whichever ran last wins. Pre-existing, unchanged by the flag collapse,
+                    // and never audited on real API 23-29 hardware.
+                    uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                }
+            }
+            window.decorView.systemUiVisibility = uiFlags
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if(windowControl.windowRepository.visibleWindows.isNotEmpty()) {
+                val colors = TextDisplaySettings.actual(null, windowControl.windowRepository.textDisplaySettings, CommonUtils.globalTextDisplaySettings).colors!!
+
+                val color = if (setNavBarColor && !CommonUtils.settings.monochromeMode) {
+                    val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
+                    color ?: UiUtils.bibleViewDefaultBackgroundColor
+                } else {
+                    val typedValue = TypedValue()
+                    theme.resolveAttribute(android.R.attr.navigationBarColor, typedValue, true)
+                    typedValue.data
+                }
+
+                // For Android 15, be more careful with status bar and navigation bar colors
+                // as some of these may be deprecated or ignored in edge-to-edge mode
+                window.run {
+                    clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                    addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                        // No `statusBarColor` write: the Compose seam owns the status bar
+                        // (`LocalSystemBarSync`), same single-writer rule as the appearance mask above.
+                        navigationBarColor = color
+                    }
+                }
+
+                // Round 12b §3: the navigation bar's ICON contrast, on ALL API levels — the colour
+                // write above is deprecated and platform-ignored from API 35, so on 35/36 nothing
+                // told the system whether it is drawing 3-button icons on a light or a dark
+                // surface, and the home/back glyphs could come out unreadable. `color` is the right
+                // source for the DOMINANT case: with no bottom bar the WebView extends under the
+                // navigation bar and `color` IS the pane background.
+                //
+                // KNOWN GAP, not a claim of correctness (whole-branch review, Important 3). The
+                // earlier comment here said that when a bottom bar covers the strip it is "a theme
+                // surface following the same day/night state, so the same value still holds". That is
+                // the very premise this round's root cause disproves: a user's Bible background can
+                // be LIGHT in dark mode. Night mode + `setNavBarColor` + a light night background +
+                // a visible bar therefore asks for dark glyphs over the bar's dark-scheme
+                // `surfaceColorAtElevation(3.dp)`, and day mode mirrors it. Not a regression (night
+                // mode previously kept whatever the last day-mode pass set, also wrong) and fine for
+                // default backgrounds. The fix is to sync from the OWNING BAR's container when a bar
+                // owns the inset — `agentLogOwnsNavBarInset` already says which — with this
+                // pane-derived value as the no-bar fallback; that hand-off is a later round.
+                // Device sub-item under checklist item 3.
+                WindowInsetsControllerCompat(window, window.decorView).let { controller ->
+                    val navBarBackgroundIsLight = ColorUtils.calculateLuminance(color) >= 0.45
+                    if (controller.isAppearanceLightNavigationBars != navBarBackgroundIsLight) {
+                        controller.isAppearanceLightNavigationBars = navBarBackgroundIsLight
+                    }
+                }
+            }
+        }
+    }
+
+
 
     override fun onScreenTurnedOn() {
         super.onScreenTurnedOn()
@@ -960,8 +1232,44 @@ class NavHostComposeActivity : ActivityBase() {
         ReadingViewHostCallbacks.current?.onScreenTurnedOff?.invoke()
     }
 
+    /**
+     * Classic `MainBibleActivity.paused`, the first half of the `NightModeChanged` guard below.
+     * This host had no `onPause`/`onResume` of its own; these two exist only to keep that flag, and
+     * set it on classic's side of the `super` call.
+     */
+    private var paused = false
+
+    override fun onPause() {
+        paused = true
+        super.onPause()
+    }
+
+    override fun onResume() {
+        paused = false
+        super.onResume()
+    }
+
+    /**
+     * Classic `MainBibleActivity`'s `NightModeChanged` subscription, guard shape included.
+     *
+     * **The guard is the point.** `paused` plus the `CurrentActivityHolder.currentActivity == this`
+     * identity check is the original author defending exactly the case this batch creates: TWO live
+     * reading-capable Activities on one bus, of which at most one is on screen. Without it both
+     * refresh their theme on every night-mode change -- the background one pointlessly, and (worse)
+     * it re-applies a theme to an Activity whose window is not the one the user is looking at.
+     */
+    private val readingHostSubscriptions: ABEventBus.Subscriptions.() -> Unit = {
+        on<ScreenSettings.NightModeChanged> { event ->
+            if(paused) return@on
+            if(CurrentActivityHolder.currentActivity == this@NavHostComposeActivity) {
+                refreshIfNightModeChange()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ABEventBus.register(this, readingHostSubscriptions)
         val startRoute = requireNotNull(intent.getStringExtra(EXTRA_ROUTE)) {
             "NavHostComposeActivity requires EXTRA_ROUTE — launch it via NavHostComposeActivity.intentFor()"
         }
@@ -6958,6 +7266,9 @@ class NavHostComposeActivity : ActivityBase() {
     override fun onDestroy() {
         workspaceSelectorController?.discardCreated()
         workspaceSelectorController = null
+        // R4: the host's own NightModeChanged subscription, so an Activity recreation (e.g. a
+        // config change) does not leak one registration per rotation.
+        ABEventBus.unregister(this)
         super.onDestroy()
     }
 
