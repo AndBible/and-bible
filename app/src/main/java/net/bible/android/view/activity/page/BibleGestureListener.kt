@@ -36,9 +36,16 @@ import kotlin.math.abs
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
+ *
+ * R5 (reading-host re-typing): retyped off `MainBibleActivity` onto the narrow
+ * [ReadingHostActivity]. Seven of the nine accesses are `fullScreen`, which the interface exposes
+ * directly; `next()`/`previous()` are MainBibleActivity-only navigation methods (they reach
+ * `documentViewManager`, itself not on the interface) so those two downcast. The only
+ * construction site is `BibleView.kt`'s own `mainBibleActivity` field, still typed
+ * `MainBibleActivity` until R6, so the downcast is safe today.
  */
 class BibleGestureListener(
-    private val mainBibleActivity: MainBibleActivity,
+    private val mainBibleActivity: ReadingHostActivity,
     val bibleView: BibleView
 ) : SimpleOnGestureListener() {
     private val scaledMinimumDistance: Int = CommonUtils.convertDipsToPx(DISTANCE_DIP)
@@ -72,7 +79,7 @@ class BibleGestureListener(
     private var gestureAnchorInitialized = false
 
     init {
-        minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
+        minScaledVelocity = ViewConfiguration.get(mainBibleActivity.hostContext).scaledMinimumFlingVelocity
         // make it easier to swipe
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
         ABEventBus.register(this) {
@@ -124,13 +131,13 @@ class BibleGestureListener(
 
             if (goNext) {
                 when(CommonUtils.settings.bibleViewSwipeMode) {
-                    BibleViewSwipeMode.CHAPTER -> mainBibleActivity.next()
+                    BibleViewSwipeMode.CHAPTER -> (mainBibleActivity as MainBibleActivity).next()
                     BibleViewSwipeMode.PAGE -> bibleView.volumeDownPressed()
                     BibleViewSwipeMode.NONE -> {}
                 }
             } else {
                 when(CommonUtils.settings.bibleViewSwipeMode) {
-                    BibleViewSwipeMode.CHAPTER -> mainBibleActivity.previous()
+                    BibleViewSwipeMode.CHAPTER -> (mainBibleActivity as MainBibleActivity).previous()
                     BibleViewSwipeMode.PAGE -> bibleView.volumeUpPressed()
                     BibleViewSwipeMode.NONE -> {}
                 }

@@ -19,14 +19,24 @@ package net.bible.android.view.activity.page.screen
 import net.bible.android.control.page.window.Window
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.ReadingHostActivity
+import net.bible.service.common.CommonUtils
 
 /**
  * Create Views for displaying documents
  *
  * @author Martin Denham [mjdenham at gmail dot com]
+ *
+ * R5 (reading-host re-typing): retyped off `MainBibleActivity` onto the narrow
+ * [ReadingHostActivity]. `windowControl` is genuine process-wide state (the `WindowControl` Koin
+ * singleton) so it now reads through [CommonUtils] instead. `composeReadingViewHost` and
+ * `bibleViewFactory` are per-host state that [ReadingHostActivity] deliberately does not expose
+ * (spec: no `ReadingCommands`/`binding` on the interface) -- this class is only ever constructed
+ * with a real `MainBibleActivity` today (`MainBibleActivity.kt`'s `DocumentViewManager(this)`),
+ * so the two reads downcast to it. R6 replaces the downcasts when it wires a real host for these.
  */
-class DocumentViewManager(val mainBibleActivity: MainBibleActivity) {
-    private val windowControl get() = mainBibleActivity.windowControl
+class DocumentViewManager(val mainBibleActivity: ReadingHostActivity) {
+    private val windowControl get() = CommonUtils.windowControl
 
     /**
      * Batch Z-late epilogue (spec 10.3): with the classic split gone, the only rebuild this class
@@ -34,7 +44,7 @@ class DocumentViewManager(val mainBibleActivity: MainBibleActivity) {
      * because six unguarded Compose-path callers read it.
      */
     fun buildView(forceUpdate: Boolean = false) {
-        if (forceUpdate) mainBibleActivity.composeReadingViewHost?.rebuild()
+        if (forceUpdate) (mainBibleActivity as MainBibleActivity).composeReadingViewHost?.rebuild()
     }
 
     val documentView: BibleView get() = getDocumentView(windowControl.activeWindow)
@@ -44,5 +54,5 @@ class DocumentViewManager(val mainBibleActivity: MainBibleActivity) {
      * specified to prevent content going to the wrong screen if the active screen is changed fast.
      */
     private fun getDocumentView(window: Window): BibleView =
-        mainBibleActivity.bibleViewFactory.getOrCreateBibleView(window)
+        (mainBibleActivity as MainBibleActivity).bibleViewFactory.getOrCreateBibleView(window)
 }

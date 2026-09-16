@@ -38,8 +38,17 @@ import org.koin.core.component.inject
  * Build a new BibleView WebView for a Window
  *
  * @author Martin Denham [mjdenham at gmail dot com]
+ *
+ * R5 (reading-host re-typing): retyped off `MainBibleActivity` onto the narrow
+ * [ReadingHostActivity]. This class itself has zero member accesses on the value -- it only
+ * passes it on to [PageTiltScrollControl] (now typed [android.content.Context], via
+ * [ReadingHostActivity.hostContext]) and to [BibleView] (still typed `MainBibleActivity` until
+ * R6 gives it the same treatment -- its constructor reaches `readingInsets`/`isSplitVertically`/
+ * `showLlmPromptSelector`, all deliberately off this narrow interface). The downcast to
+ * `MainBibleActivity` for the `BibleView(...)` call is safe today: the only construction site is
+ * `ReadingCommands.bibleViewFactory`, whose `activity` field is itself still `MainBibleActivity`-typed.
  */
-class BibleViewFactory(val mainBibleActivity: MainBibleActivity) : KoinComponent {
+class BibleViewFactory(val mainBibleActivity: ReadingHostActivity) : KoinComponent {
     val pageControl: PageControl by inject()
     val windowControl: WindowControl by inject()
     val linkControl: LinkControl by inject()
@@ -52,7 +61,7 @@ class BibleViewFactory(val mainBibleActivity: MainBibleActivity) : KoinComponent
     private fun getPageTiltScrollControl(window: Window): PageTiltScrollControl {
         return windowPageTiltScrollControlMap[window] ?: synchronized(windowPageTiltScrollControlMap) {
             synchronized(windowPageTiltScrollControlMap) {
-                windowPageTiltScrollControlMap[window] ?: PageTiltScrollControl(mainBibleActivity)
+                windowPageTiltScrollControlMap[window] ?: PageTiltScrollControl(mainBibleActivity.hostContext)
             }.also {
                 windowPageTiltScrollControlMap[window] = it
             }
@@ -74,7 +83,7 @@ class BibleViewFactory(val mainBibleActivity: MainBibleActivity) : KoinComponent
 
         if (bibleView == null) {
             val pageTiltScrollControl = getPageTiltScrollControl(window)
-            bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl,
+            bibleView = BibleView(this.mainBibleActivity as MainBibleActivity, WeakReference(window), windowControl,
                 pageControl, pageTiltScrollControl, linkControl, bookmarkControl, downloadControl, searchControl)
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
             Log.i(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")//  ${Log.getStackTraceString(Exception())}")

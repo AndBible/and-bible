@@ -26,7 +26,7 @@ import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
 import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.CommonUtils
 import java.util.*
 import kotlin.math.PI
 
@@ -35,7 +35,15 @@ import kotlin.math.PI
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-class PageTiltScrollControl (private val mainBibleActivity: MainBibleActivity){
+/**
+ * R5 (reading-host re-typing): the constructor used to hold a `MainBibleActivity` purely to reach
+ * its `windowRepository`. That is process-wide state behind the `WindowControl` Koin singleton
+ * (see [CommonUtils.windowControl]), not anything specific to the hosting Activity, so the
+ * parameter is retyped to plain [Context] and the access goes through the singleton instead --
+ * same object, no behaviour change (`MainBibleActivity.onCreate` sets
+ * `windowControl.windowRepository = windowRepository`).
+ */
+class PageTiltScrollControl (private val mainBibleActivity: Context){
     var isTiltScrollEnabled = false
         private set
     // the pitch at which a user views the text stationary
@@ -100,7 +108,7 @@ class PageTiltScrollControl (private val mainBibleActivity: MainBibleActivity){
     /** start or stop tilt to scroll functionality
      */
     fun enableTiltScroll(enable: Boolean): Boolean {
-        val enabled = mainBibleActivity.windowRepository.workspaceSettings.enableTiltToScroll
+        val enabled = CommonUtils.windowControl.windowRepository.workspaceSettings.enableTiltToScroll
         return if (!enabled || !isTiltSensingPossible) {
             false
         } else if (isTiltScrollEnabled != enable) {

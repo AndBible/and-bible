@@ -17,7 +17,9 @@
 
 package net.bible.android.view.activity.ai
 
+import android.content.Context
 import android.text.InputType
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
@@ -49,8 +51,18 @@ import net.bible.service.llm.agent.AgentForegroundService
 /**
  * Handles LLM-related dialogs: prompt selection, specify-before-run, and regeneration.
  * Extracted from MainBibleActivity and BibleJavascriptInterface to avoid bloating those classes.
+ *
+ * R5 (reading-host re-typing): retyped off `MainBibleActivity` onto plain [Context] -- the 9
+ * accesses measured contain nothing `MainBibleActivity`-specific. `getString` and every View/
+ * dialog constructor already only needed a `Context`; `layoutInflater` becomes
+ * `LayoutInflater.from(activity)`; `windowControl` reads through the global
+ * [CommonUtils.windowControl] singleton. `lifecycleScope` is the one access that is not a
+ * `Context` member at all (it needs a `LifecycleOwner`) -- this class is only ever constructed
+ * with a real `MainBibleActivity` today (`MainBibleActivity.kt`'s `llmDialogHelper` field), so
+ * those four call sites downcast rather than switch to an unscoped `GlobalScope`, preserving the
+ * original activity-lifecycle-bound cancellation behaviour.
  */
-class LlmDialogHelper(private val activity: MainBibleActivity) {
+class LlmDialogHelper(private val activity: Context) {
 
     /** Current prompt selector dialog, kept as field so it can be dismissed on favorite toggle. */
     private var dialog: AlertDialog? = null
@@ -60,7 +72,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
      * Category expand/collapse state is persisted in local SharedPreferences.
      */
     fun showPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION, documentCategory: DocumentCategory? = null) {
-        activity.lifecycleScope.launch(Dispatchers.IO) {
+        (activity as MainBibleActivity).lifecycleScope.launch(Dispatchers.IO) {
             val grouped = PromptRepository.promptsForContextGrouped(context, documentCategory)
             val favoriteIds = PromptRepository.favoritePromptIds()
 
@@ -104,7 +116,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
                     override fun isChildSelectable(groupPosition: Int, childPosition: Int) = true
 
                     override fun getGroupView(groupPosition: Int, isExpanded: Boolean, convertView: View?, parent: ViewGroup): View {
-                        val view = convertView ?: activity.layoutInflater.inflate(
+                        val view = convertView ?: LayoutInflater.from(activity).inflate(
                             R.layout.manage_prompts_category_header, parent, false
                         )
                         val group = groups[groupPosition]
@@ -118,7 +130,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
                     }
 
                     override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup): View {
-                        val view = convertView ?: activity.layoutInflater.inflate(
+                        val view = convertView ?: LayoutInflater.from(activity).inflate(
                             R.layout.prompt_selector_item, parent, false
                         )
                         val prompt = groups[groupPosition].prompts[childPosition]
@@ -133,7 +145,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
                             else R.drawable.ic_star_outline_24
                         )
                         favoriteIcon.setOnClickListener {
-                            activity.lifecycleScope.launch(Dispatchers.IO) {
+                            (activity as MainBibleActivity).lifecycleScope.launch(Dispatchers.IO) {
                                 PromptRepository.toggleFavorite(prompt.id)
                                 launch(Dispatchers.Main) {
                                     // Rebuild the dialog with updated favorites
@@ -249,7 +261,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
      * that model override.
      */
     private fun showModelSelectionDialog(prompt: AgentPrompt, selection: Selection, userSpecification: String?) {
-        activity.lifecycleScope.launch(Dispatchers.IO) {
+        (activity as MainBibleActivity).lifecycleScope.launch(Dispatchers.IO) {
             val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
             val providerDao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
             val defaultModelId = CommonUtils.aiSettings.defaultModelId
@@ -286,7 +298,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
                 listView.setOnItemClickListener { _, _, position, _ ->
                     val selectedModelId = models[position].id
                     if (checkBox.isChecked) {
-                        activity.lifecycleScope.launch(Dispatchers.IO) {
+                        (activity as MainBibleActivity).lifecycleScope.launch(Dispatchers.IO) {
                             if (PromptRepository.isBuiltIn(prompt.id)) {
                                 PromptRepository.setBuiltinPromptModelOverride(prompt.id, selectedModelId)
                             } else {
@@ -306,7 +318,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
      * Execute a prompt via the foreground service so it continues in the background.
      */
     fun executePrompt(prompt: AgentPrompt, selection: Selection, userSpecification: String? = null, modelOverrideId: IdType? = null) {
-        val workspaceId = activity.windowControl.windowRepository.id
+        val workspaceId = CommonUtils.windowControl.windowRepository.id
         AgentForegroundService.startAgent(
             context = activity,
             promptId = prompt.id,

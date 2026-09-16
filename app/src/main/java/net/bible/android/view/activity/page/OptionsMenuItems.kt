@@ -19,6 +19,7 @@ package net.bible.android.view.activity.page
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -286,10 +287,16 @@ open class Preference(val settings: SettingsBundle,
         }
 }
 
-class TiltToScrollPreference(val mainBibleActivity: MainBibleActivity):
+/**
+ * R5 (reading-host re-typing): the one dot-access, `invalidateOptionsMenu()`, is an
+ * `Activity`-only member neither [Context] nor [ReadingHostActivity] exposes. Constructed only
+ * from `ReadingCommands.getItemOptions` with a real `MainBibleActivity` (`ReadingCommands`'s own
+ * `activity` field itself stays MainBibleActivity-typed until R6), so the downcast is safe today.
+ */
+class TiltToScrollPreference(val mainBibleActivity: Context):
     GeneralPreference() {
     private val wsBehaviorSettings = windowRepository.workspaceSettings
-    override fun handle() { mainBibleActivity.invalidateOptionsMenu() }
+    override fun handle() { (mainBibleActivity as MainBibleActivity).invalidateOptionsMenu() }
     override var value: Any
         get() = wsBehaviorSettings.enableTiltToScroll
         set(value) {
@@ -328,8 +335,13 @@ open class SubMenuPreference(onlyBibles: Boolean = false, enabled: Boolean = tru
     override val isBoolean: Boolean = false
 }
 
-class NightModePreference(val mainBibleActivity: MainBibleActivity) : RealSharedPreferencesPreference("night_mode_pref", false) {
-    override fun handle() { mainBibleActivity.refreshIfNightModeChange() }
+/**
+ * R5 (reading-host re-typing): `refreshIfNightModeChange()` is `MainBibleActivity`-only, not on
+ * [ReadingHostActivity]. Same construction-site reasoning as [TiltToScrollPreference] above makes
+ * the downcast safe today.
+ */
+class NightModePreference(val mainBibleActivity: Context) : RealSharedPreferencesPreference("night_mode_pref", false) {
+    override fun handle() { (mainBibleActivity as MainBibleActivity).refreshIfNightModeChange() }
     override var value: Any
         get() = ScreenSettings.nightMode
         set(value) {
@@ -651,7 +663,11 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
     }
 }
 
-class SplitModePreference(val mainBibleActivity: MainBibleActivity) :
+/**
+ * R5 (reading-host re-typing): the one dot-access, `resources`, is a plain [Context] member --
+ * no downcast needed here.
+ */
+class SplitModePreference(val mainBibleActivity: Context) :
     GeneralPreference() {
     private val wsBehaviorSettings = windowRepository.workspaceSettings
     override fun handle() {
