@@ -110,7 +110,9 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
+import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
+import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.CurrentBiblePage
@@ -125,6 +127,7 @@ import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.search.SearchControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -477,6 +480,9 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      *  versification + the active window's current key. Neither was injected here before. */
     private val navigationControl: NavigationControl by inject()
     private val windowControl: WindowControl by inject()
+    private val documentControl: DocumentControl by inject()
+    private val speakControl: SpeakControl by inject()
+    private val linkControl: LinkControl by inject()
 
     /**
      * The app-wide runtime agent tool-permission bridge (Z-early B4). A Koin `single` (see
@@ -638,8 +644,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // `initials`, NOT `osisID`: DocRow.docId is the book's initials and so is the MRU's key —
         // only the document SEARCH path keys on osisId. The two collapse to the same value for most
         // real modules, so getting this wrong would show up only for the modules where they differ.
-        val forVerseIds = (activity.documentControl.biblesForVerse +
-            activity.documentControl.commentariesForVerse).map { it.initials }.toSet()
+        val forVerseIds = (documentControl.biblesForVerse +
+            documentControl.commentariesForVerse).map { it.initials }.toSet()
         // The two keys ChooseDocument itself persists (its sticky-language seam and its type-filter
         // spinner), read here so the "Last filter" tab reproduces what the user last looked at.
         // KNOWN: `selected_document_filter_no` is written by the Download destination too
@@ -687,7 +693,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private fun persistQuickDocTab(tabId: String) = CommonUtils.settings.setString(QUICK_DOC_TAB_KEY, tabId)
 
     /** The document shown in the active window — the row the sheet draws bold and inert. */
-    private fun currentDocumentInitials(): String? = activity.documentControl.currentDocument?.initials
+    private fun currentDocumentInitials(): String? = documentControl.currentDocument?.initials
 
     /**
      * The full ChooseDocument screen — `MainBibleActivity.composeChooseDocument`'s classic body,
@@ -1862,8 +1868,8 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      *   [DriveSearchUnavailableSnackbar] to show.
      */
     val searchController = ReadingSearchController(
-        resolveDoc = { searchDocumentInfo(activity.documentControl.currentDocument) },
-        onUnavailable = { _searchUnavailableDocName.value = activity.documentControl.currentDocument?.name.orEmpty() },
+        resolveDoc = { searchDocumentInfo(documentControl.currentDocument) },
+        onUnavailable = { _searchUnavailableDocName.value = documentControl.currentDocument?.name.orEmpty() },
         onLeaveFullScreen = { activity.fullScreen = false },
         onStartIndexing = { docId -> startSearchIndexing(docId) },
         // F43 Task 6: every document type now reaches here (see [openSearch]) — an EPUB runs
@@ -1993,7 +1999,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * fall off the end returning `Unit`, which the caller could not distinguish from success).
      */
     fun openSearchStrongs(ref: String, translationIds: List<String>): Boolean {
-        if (activity.documentControl.currentDocument?.isEpub == true) return false
+        if (documentControl.currentDocument?.isEpub == true) return false
         refreshSearchTranslations()
         // Per-open refresh, exactly as in [openSearch] — see review item 7 there.
         searchQueries.reloadRecentTerms()
@@ -2060,7 +2066,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private fun refreshSearchTranslations() {
         val bibles = SwordDocumentFacade.bibles.filterIsInstance<SwordBook>().sortedBy { it.abbreviation }
         searchAvailableTranslations.value = bibles.map { it.initials to it.abbreviation }
-        val fallback = activity.documentControl.currentDocument?.initials?.let { listOf(it) } ?: emptyList()
+        val fallback = documentControl.currentDocument?.initials?.let { listOf(it) } ?: emptyList()
         searchTranslations.value = loadSelectedSearchTranslations().ifEmpty { fallback }
     }
 
@@ -2245,7 +2251,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         }
         try {
             val key = epubKeyFor(book, docId, keyId, ordinal)
-            activity.windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
             searchController.closeSheet()
         } catch (e: Exception) {
             Log.e(TAG, "onEpubSearchResultSelected: bad key '$keyId' in $docId", e)
@@ -2409,11 +2415,11 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val windowButtonsVisibility = WindowButtonsVisibility()
 
     /**
-     * Builds the per-window (☰) pane popup menu's item list (Task 4) — constructed from the same
-     * `windowControl`/`speakControl` [activity] already exposes, mirroring how classic
-     * `SplitBibleArea.getItemOptions` closes over its own `mainBibleActivity`'s collaborators.
+     * Builds the per-window (☰) pane popup menu's item list (Task 4) — constructed from the host's
+     * own `windowControl`/`speakControl` fields, mirroring how classic `SplitBibleArea.getItemOptions`
+     * closes over its own `mainBibleActivity`'s collaborators.
      */
-    private val paneMenuStateBuilder = WindowPaneMenuStateBuilder(activity.windowControl, activity.speakControl)
+    private val paneMenuStateBuilder = WindowPaneMenuStateBuilder(windowControl, speakControl)
 
     /**
      * The windowId whose ☰ menu is currently open, or `null` when closed — host-owned so the
@@ -2475,7 +2481,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
     private val overlayText = mutableStateOf(readOverlayText())
 
     /** Whether the active window shows a Bible (classic `activeWindow.pageManager.isBibleShown`). */
-    private val activeIsBibleShown = mutableStateOf(activity.windowControl.activeWindow.pageManager.isBibleShown)
+    private val activeIsBibleShown = mutableStateOf(windowControl.activeWindow.pageManager.isBibleShown)
 
     private fun readOverlayText(): String = try { activity.bibleOverlayText } catch (e: MainBibleActivity.KeyIsNull) { "" }
 
@@ -2641,7 +2647,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // (`:sharedCore`) fn at render time — no separate service/controller class, per the plan.
             onMain<CurrentVerseChangedEvent> {
                 overlayText.value = readOverlayText()
-                activeIsBibleShown.value = activity.windowControl.activeWindow.pageManager.isBibleShown
+                activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
                 // F44/B3b: this is the event a document swap WITHIN one window reliably fires
                 // synchronously — `CurrentPageManager.setCurrentDocument` ->
                 // `PassageChangeMediator.onCurrentPageChanged` posts it right after the swap takes
@@ -2657,7 +2663,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             }
             onMain<CurrentWindowChangedEvent> {
                 overlayText.value = readOverlayText()
-                activeIsBibleShown.value = activity.windowControl.activeWindow.pageManager.isBibleShown
+                activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
                 // F44/B3: search mode outlives a window switch, so the panel's target follows it.
                 searchController.activeDocumentChanged()
             }
@@ -2732,7 +2738,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      */
     fun openPaneMenu(windowId: String, anchor: PaneMenuAnchor) {
         windowButtonsVisibility.onTouch()
-        val window = activity.windowRepository.getWindow(IdType(windowId)) ?: return
+        val window = windowControl.windowRepository.getWindow(IdType(windowId)) ?: return
         paneMenuItems.value = paneMenuStateBuilder.build(window)
         paneMenuAnchor.value = anchor
         paneMenuWindowId.value = windowId
@@ -2758,7 +2764,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * it resolves the colour immediately, before the WebView exists.
      */
     internal fun paneBackgroundArgbFor(windowId: String): Int? =
-        activity.windowRepository.getWindow(IdType(windowId))?.let { bibleViewBackgroundColorFor(it) }
+        windowControl.windowRepository.getWindow(IdType(windowId))?.let { bibleViewBackgroundColorFor(it) }
 
     /**
      * Opens the Compose reading-view LLM prompt-selector dialog for [selection] (Batch 12e-A Task
@@ -2776,7 +2782,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 activity,
                 IdType(promptId),
                 selection,
-                activity.windowControl.windowRepository.id,
+                windowControl.windowRepository.id,
                 userSpecification,
                 modelOverrideId?.let { IdType(it) },
             )
@@ -2798,7 +2804,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             AgentForegroundService.startRegenerate(
                 activity,
                 pageId,
-                activity.windowControl.windowRepository.id,
+                windowControl.windowRepository.id,
                 bibleView.window.id,
                 instructions,
                 keepPrevious,
@@ -2844,7 +2850,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         // Ensure the SSOT reflects the freshly-loaded workspace before first render (repo
         // mutations after this point already route through the 12a notifiers, which keep
         // windowState.layout current, but the very first mount needs an explicit kick).
-        windowState.refresh(activity.windowRepository)
+        windowState.refresh(windowControl.windowRepository)
 
         // Layout surgery: hide the classic toolbar row and re-anchor `container` to the parent
         // top. Done programmatically here rather than authored into main_bible_view.xml. The
@@ -2909,18 +2915,18 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 // replaced that native PopupMenu bridge with the real Compose `ReadingOverflowMenu`
                 // below — see `onOverflow`/`openOverflowMenu`).
                 onBible = {
-                    if (activity.toolbarButtonSetting?.startsWith("swap-") == true) {
+                    if (CommonUtils.settings.getString("toolbar_button_actions", "default")?.startsWith("swap-") == true) {
                         activity.composeBibleClick(container)
                     } else {
-                        openBibleQuickDoc(activity.composeQuickDocItems(activity.documentControl.biblesForVerse))
+                        openBibleQuickDoc(activity.composeQuickDocItems(documentControl.biblesForVerse))
                     }
                 },
                 onBibleLong = { activity.composeBibleLongClick() },
                 onCommentary = {
-                    if (activity.toolbarButtonSetting?.startsWith("swap-") == true) {
+                    if (CommonUtils.settings.getString("toolbar_button_actions", "default")?.startsWith("swap-") == true) {
                         activity.composeCommentaryClick(container)
                     } else {
-                        val books = activity.documentControl.commentariesForVerse +
+                        val books = documentControl.commentariesForVerse +
                             SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK) +
                             SwordDocumentFacade.getBooks(BookCategory.DICTIONARY)
                         openCommentaryQuickDoc(activity.composeQuickDocItems(books))
@@ -2990,7 +2996,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             // own Search row goes through this same callback.
             onDrawerClosed = { activity.drawerRestorePaneFocus() },
             pane = { windowId ->
-                val window = activity.windowRepository.getWindow(IdType(windowId))
+                val window = windowControl.windowRepository.getWindow(IdType(windowId))
                 if (window != null) {
                     // A/B batch 4a whole-batch review I1: classic `BibleFrame.build()` also calls
                     // `bibleView.updateBackgroundColor()` (BibleFrame.kt:137), which sets the WebView's
@@ -3058,7 +3064,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
             onPaneMenuItemClick = { windowId, id ->
                 val stayOpen = activity.handleWindowPaneMenuItem(windowId, id)
                 if (stayOpen) {
-                    activity.windowRepository.getWindow(IdType(windowId))?.let {
+                    windowControl.windowRepository.getWindow(IdType(windowId))?.let {
                         paneMenuItems.value = paneMenuStateBuilder.build(it)
                     }
                 } else {
@@ -3373,7 +3379,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
         }
         try {
             val key = book.getKey(referenceName)
-            activity.windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
             searchController.closeSheet()
         } catch (e: Exception) {
             Log.e(TAG, "onSearchResultSelected: bad key '$referenceName' in ${book.initials}", e)
@@ -3400,7 +3406,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
                 list.addAll(BookAndKey(key, book))
             }
         }
-        activity.linkControl.showLink(FakeBookFactory.multiDocument, list)
+        linkControl.showLink(FakeBookFactory.multiDocument, list)
         searchController.closeSheet()
     }
 
@@ -3486,7 +3492,7 @@ class ComposeReadingViewHost(private val activity: MainBibleActivity) : KoinComp
      * pins this decision by calling it directly, the same convention as [buildSearchRequest].
      */
     internal fun searchSettingsForEpub(): Boolean =
-        searchDocumentInfo(activity.documentControl.currentDocument)?.isEpub == true
+        searchDocumentInfo(documentControl.currentDocument)?.isEpub == true
 
     companion object : ComposeReadingViewHostHelpers() {
         /**
