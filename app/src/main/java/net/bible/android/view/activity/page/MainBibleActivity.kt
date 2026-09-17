@@ -306,7 +306,26 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     // BibleView's three reads go through `readingInsets` directly; the thin delegations below exist
     // because ComposeReadingViewHost and the Robolectric net (ReadingSearchEntryPointsTest) still call
     // these members by these names on the Activity and are not re-typed until R6.
-    val readingInsets = ReadingInsets(this)
+    //
+    // R6b took the ledger off this Activity's TYPE (addendum Ruling C): it reaches its host through
+    // a ReadingInsetsHostCallbacks bundle, and the classic toolbar's chrome — transport bar, agent
+    // log, restore buttons, the Compose search field's focus — is supplied here as suppliers read
+    // at call time, because every one of them changes while the reading view is up. The padding
+    // sink is the `setPadding` call this Activity has always made; a Compose host supplies a no-op.
+    val readingInsets = ReadingInsets(
+        ReadingInsetsHostCallbacks(
+            transportBarVisible = { transportBarVisible },
+            transportBarHeight = { transportBarHeight },
+            agentLogVisible = { agentLogVisible },
+            agentLogHeight = { agentLogHeight },
+            restoreButtonsVisible = { restoreButtonsVisible },
+            windowButtonHeight = { windowButtonHeight },
+            composeSearchFieldFocused = { composeSearchFieldFocused },
+            applyImeBottomPadding = { bottomPaddingPx ->
+                binding.mainBibleView.setPadding(0, 0, 0, bottomPaddingPx)
+            },
+        )
+    )
     val topOffset2 get() = readingInsets.topOffset2
     val bottomOffset2 get() = readingInsets.bottomOffset2
     val bottomOffsetForWebView get() = readingInsets.bottomOffsetForWebView

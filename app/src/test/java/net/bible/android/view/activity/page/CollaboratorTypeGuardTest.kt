@@ -43,6 +43,9 @@ class CollaboratorTypeGuardTest {
         // R6a pulled this in too: it reads `bibleView.mainBibleActivity` and was the single
         // largest consumer of the property R6a deletes (58 references / 13 members).
         "src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt",
+        // R6b: the inset ledger. It held the Activity for seven chrome reads and one padding
+        // write; it now takes a [ReadingInsetsHostCallbacks] bundle instead (addendum Ruling C).
+        "src/main/java/net/bible/android/view/activity/page/ReadingInsets.kt",
     )
 
     @Test
@@ -76,11 +79,20 @@ class CollaboratorTypeGuardTest {
     // string literals stripped) must be a member reference that is named in [allowedNestedMembers],
     // which makes the allowance visible rather than implied.
 
-    /** The three files R6a re-types. A subset of [files]; scanned harder. */
+    /**
+     * The three files R6a re-types plus R6b's `ReadingInsets`. A subset of [files]; scanned harder.
+     *
+     * `ReadingInsets.kt` earns the harder scan because after R6b the only `MainBibleActivity`
+     * tokens left in its CODE are the two nested event classes it posts
+     * (`SearchSheetOffsetsUpdated`, `ImePaddingChanged`), both already on [allowedNestedMembers] and
+     * both Task 13's to re-home. Anything else appearing there -- a type position, an import, a bare
+     * pass of the Activity into the ledger -- is the regression this list exists to catch.
+     */
     private val readingViewFiles = listOf(
         "src/main/java/net/bible/android/view/activity/page/BibleView.kt",
         "src/main/java/net/bible/android/view/activity/page/BibleViewFactory.kt",
         "src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt",
+        "src/main/java/net/bible/android/view/activity/page/ReadingInsets.kt",
     )
 
     /**
