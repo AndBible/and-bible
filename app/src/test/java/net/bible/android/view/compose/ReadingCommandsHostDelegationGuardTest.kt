@@ -50,6 +50,11 @@ import org.junit.Test
  * do NOT survive R6c2 unchanged either, per the review — but fixing those is deferred, not this
  * guard's job; see the task report's fix-round section for the full list.)
  *
+ * R6c2 fix round 1 also parks two things here that are not strictly "the free half", because they
+ * are about the same pair of files and the same anti-vacuity discipline: addendum Ruling D's
+ * workspace-switch STEP scan, and the pin that keeps `ReadingCommands`' own construction of
+ * `MenuCommandHandler` agreeing with `MainBibleActivity.kt`'s adapter for the Robolectric net.
+ *
  * **Anti-vacuity.** The positive assertions are load-bearing: without them this file would pass
  * against an empty or renamed source, which is the failure mode spec §5 exists to prevent.
  */
@@ -131,6 +136,24 @@ class ReadingCommandsHostDelegationGuardTest {
             "these are reachable without the Activity — inject the Koin singletons, read " +
                 "toolbarButtonSetting from CommonUtils.settings directly, or route packageName/" +
                 "resources through BibleApplication.application (R6c1)",
+        )
+    }
+
+    /**
+     * Anti-vacuity for `ReadingCommands`' half of the scan above (review fix round 1): it keys on
+     * the receivers `readingHost`/`hostActivity`, so renaming either would silently turn that half
+     * into a check that cannot fail. Same reasoning as the `MenuCommandHandler` pin below.
+     */
+    @Test
+    fun readingCommandsStillHoldsTheTwoReceiversTheScanIsKeyedOn() {
+        assertTrue(
+            readingCommandsSource.contains("private val readingHost: ReadingHostActivity,"),
+            "the narrow-interface receiver the scan above is keyed on is gone or renamed — rekey " +
+                "the scan, do not let it pass against a name that no longer exists",
+        )
+        assertTrue(
+            readingCommandsSource.contains("private val hostActivity: ActivityBase get() = hostCallbacks.hostActivity"),
+            "the plain-Activity receiver the scan above is keyed on is gone or renamed",
         )
     }
 
@@ -219,5 +242,83 @@ class ReadingCommandsHostDelegationGuardTest {
                 "dummyStrongsPrefOption, showLlmPromptSelector, cycleWorkspace and " +
                 "currentWorkspaceId here) to route through the windowRepository() supplier",
         )
+    }
+
+    /**
+     * Review fix round 1, the accept's one condition. Before R6c2 there was ONE construction of
+     * `MenuCommandHandler` and `ReadingSearchEntryPointsTest`'s four call sites exercised it. Now
+     * there are two wirings that merely happen to agree -- `ReadingCommands`' own (production) and
+     * `MainBibleActivity.kt`'s one-line adapter (which is what those four call sites actually
+     * reach) -- so a mistaken `composeSearchIfHosted = { false }` in the production one would leave
+     * all four green. This pins the production wiring directly.
+     */
+    @Test
+    fun readingCommandsWiresItsOwnMenuCommandHandlerTheSameWayTheAdapterDoes() {
+        assertTrue(
+            readingCommandsSource.contains("composeReadingViewHost = hostCallbacks.composeReadingViewHost,"),
+            "ReadingCommands must hand the handler the host bundle's own late-bound supplier — the " +
+                "Robolectric net reaches the MainBibleActivity.kt adapter, not this wiring, so " +
+                "nothing else would catch a wrong binding here",
+        )
+        assertTrue(
+            readingCommandsSource.contains("composeSearchIfHosted = { this@ReadingCommands.composeSearchIfHosted() },"),
+            "…and its OWN composeSearchIfHosted, not the Activity's delegating stub and not a " +
+                "constant — see this test's kdoc for why the four entry-point tests cannot see this",
+        )
+    }
+
+    /**
+     * Addendum Ruling D, made enforceable (review fix round 1, Important 2).
+     *
+     * Moving the workspace switch into `ReadingCommands` is what stops a host answering it with an
+     * empty override, and the bundle's non-defaulted parameters force a host to write SOMETHING for
+     * `documentViewManager` and `updateBottomBars` -- but `updateBottomBars = {}` is a legal
+     * something, and nothing in the type system says the setter must keep doing all of its work.
+     * So the steps themselves are scanned here: a switch that stopped loading the workspace,
+     * rebuilding the view or refreshing the restore rail would be a silent no-op arrived at from
+     * the other direction.
+     *
+     * Scanned inside the SETTER's own braces, not the whole file: `loadFromDb` and `buildView`
+     * appear nowhere else in it today, but a file-wide `contains` would start passing on an
+     * unrelated future call and could never fail again.
+     */
+    @Test
+    fun theWorkspaceSwitchStillPerformsEveryStep() {
+        val setter = currentWorkspaceIdSetterBody()
+        listOf(
+            "windowRepository().loadFromDb(value)" to
+                "without it the switch changes nothing at all",
+            "hostCallbacks.documentViewManager().buildView(forceUpdate = true)" to
+                "without it the panes keep rendering the outgoing workspace's windows",
+            "windowControl.windowSync.reloadAllWindows()" to
+                "without it the windows keep the outgoing workspace's pages",
+            "hostCallbacks.updateBottomBars()" to
+                "without it the restore rail keeps the outgoing workspace's buttons",
+        ).forEach { (step, why) ->
+            assertTrue(
+                setter.contains(step),
+                "the workspace switch lost `$step` — $why (addendum Ruling D). Body scanned:\n$setter",
+            )
+        }
+    }
+
+    /** The body of `ReadingCommands.currentWorkspaceId`'s setter, by brace matching from `set(value) {`. */
+    private fun currentWorkspaceIdSetterBody(): String {
+        val src = readingCommandsFile.readText()
+        val declaration = src.indexOf("internal var currentWorkspaceId: IdType")
+        assertTrue(declaration >= 0, "currentWorkspaceId is gone or renamed — this scan would be vacuous")
+        val open = src.indexOf("set(value) {", declaration)
+        assertTrue(open >= 0, "currentWorkspaceId has no setter body — this scan would be vacuous")
+        var i = src.indexOf('{', open)
+        var depth = 0
+        val start = i
+        while (i < src.length) {
+            when (src[i]) {
+                '{' -> depth++
+                '}' -> { depth--; if (depth == 0) return src.substring(start, i + 1) }
+            }
+            i++
+        }
+        throw AssertionError("unbalanced braces in currentWorkspaceId's setter")
     }
 }

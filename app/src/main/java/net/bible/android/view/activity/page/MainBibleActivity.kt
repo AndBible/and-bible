@@ -275,7 +275,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         setTransportBarVisible = { transportBarVisible = it },
         updateBottomBars = { updateBottomBars() },
         updateTitle = { updateTitle() },
-        updateActions = { updateActions() },
+        // Classic answers the whole thing: `updateActions()`'s tail is already the Compose
+        // toolbar/drawer refresh a second host would have to supply for itself.
+        onToolbarStateMayHaveChanged = { updateActions() },
         updateStrongsButton = { updateStrongsButton() },
         menuForDocs = { anchor, documents -> menuForDocs(anchor, documents) },
         // The `binding.drawerLayout` lines themselves, NOT `{ toggleDrawer() }`: this class's own
@@ -2065,8 +2067,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
  * constructor on the class, or a cast inside it (addendum Ruling F), would not.
  *
  * It lives in THIS file, and disappears with it when slice 7 Task 13 deletes the Activity.
+ * `internal` (review fix round 1): the unit-test source set is a friend of `:app`'s main
+ * compilation so the Robolectric net still sees it, while production code outside this module
+ * cannot -- and `MainBibleActivity.kt` is in neither of `CollaboratorTypeGuardTest`'s scan lists,
+ * so a new production caller of a PUBLIC adapter would re-introduce the coupling with no guard
+ * watching.
  */
-fun MenuCommandHandler(activity: MainBibleActivity): MenuCommandHandler = MenuCommandHandler(
+internal fun MenuCommandHandler(activity: MainBibleActivity): MenuCommandHandler = MenuCommandHandler(
     hostActivity = activity,
     composeReadingViewHost = { activity.composeReadingViewHost },
     composeSearchIfHosted = { activity.composeSearchIfHosted() },

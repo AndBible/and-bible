@@ -546,7 +546,7 @@ class ReadingCommands(
     internal fun applyChosenDocument(bookStr: String?) {
         val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
         documentControl.changeDocument(book)
-        hostCallbacks.updateActions()
+        hostCallbacks.onToolbarStateMayHaveChanged()
     }
 
     /**

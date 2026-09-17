@@ -148,9 +148,31 @@ class ReadingCommandsHostCallbacks(
      *  state and honestly has nothing to do here. */
     val updateTitle: () -> Unit,
 
-    /** Classic toolbar: the Bible/commentary/strongs button row's visibility and content. Honest
-     *  no-op for a host with no classic toolbar. */
-    val updateActions: () -> Unit,
+    /**
+     * "Something changed that the reading toolbar may be showing" -- the signal
+     * [ReadingCommands.applyChosenDocument] raises after the user picks a document, and its only
+     * caller here.
+     *
+     * **Not an honest no-op, and named for what it MEANS rather than for classic's member.** Review
+     * fix round 1, Important 1: this used to be called `updateActions` and its kdoc claimed the
+     * classic-toolbar no-op, which is only half of what `MainBibleActivity.updateActions()` does.
+     * Its last two statements are `composeReadingViewHost?.rebuildDrawer(showSearch, showSpeak)`
+     * and `composeReadingViewHost?.refreshHostedState()`, both COMPOSE-observable, and
+     * `showSearch`/`showSpeak` (`documentControl.currentPage.currentPage.isSearchable`/
+     * `.isSpeakable`) are locals of that function reachable nowhere else. A host that read the old
+     * kdoc and supplied `{}` would silently lose the Compose toolbar refresh and the drawer's
+     * Search/Speak enablement after every document choice -- Ruling D's hazard, in the member the
+     * first pass of this bundle missed. It meets exactly the test that promoted
+     * [transportBarVisible] and [updateBottomBars] out of the no-op group.
+     *
+     * `MainBibleActivity` answers it with its whole `updateActions()` (the classic button row AND
+     * those two calls); a Compose host answers it with its own `rebuildDrawer`/`refreshHostedState`
+     * pair. It is deliberately NOT split into a classic-chrome half plus a real half: the sole
+     * caller needs both, so a split would either fire the Compose refresh twice on the classic host
+     * or force a change to `updateActions()`' own twelve classic call sites, neither of which
+     * belongs in a re-typing commit.
+     */
+    val onToolbarStateMayHaveChanged: () -> Unit,
 
     /** Classic toolbar: `binding.strongsButton`'s icon and alpha. Honest no-op, same reason. */
     val updateStrongsButton: () -> Unit,
