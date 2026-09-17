@@ -22,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.service.backup.BackupServiceImpl
 import net.bible.sharedcore.backup.BackupController
 import net.bible.sharedui.AbAppTheme
@@ -47,11 +48,20 @@ import net.bible.sharedui.backup.BackupRestoreScreen
 class BackupComposeActivity : ActivityBase() {
     override val doNotInitializeApp = true
 
+    /**
+     * This host does not take `ActivityBase.setupUi()`. Its content root must stay unpadded: the
+     * reading destination's toolbar paints under the status bar itself and its WebView pane extends
+     * under the navigation bar, and the other 40 destinations get their insets from `AbScaffold` /
+     * `AbSelectionScaffold`. See the host-inset-ownership spec, section 3.2.
+     */
+    override val disableBaseSetupUi = true
+
     private val service by lazy { BackupServiceImpl(this) }
     private val controller by lazy { BackupController(service, lifecycleScope) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyComposeHostWindowSetup()
         controller.load()
         setContent {
             AbAppTheme {

@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
@@ -133,10 +132,11 @@ fun AbTopAppBar(
     searchActions: @Composable RowScope.() -> Unit = {},
 ) {
     // A/B batch 3 F1: every non-reading Compose screen draws this bar in the M3 small-top-app-bar
-    // container colour but does NOT paint behind the system bars (the Activity content frame is
-    // already inset — see the windowInsets = WindowInsets(0,0,0,0) note below). fillWindowBackground
-    // = true asks the host to fill the strip the bars sit over with the same colour, and to set the
-    // icon appearance from its luminance.
+    // container colour. Since 2026-09-18 the bar itself insets for the system bars (the Activity
+    // content frame no longer does -- see the host-inset-ownership spec, section 3.2, and this
+    // file's TopAppBar windowInsets sites), so fillWindowBackground = true asks the host to fill the
+    // strip the bars sit over with the same colour, and to set the icon appearance from its
+    // luminance.
     val container = TopAppBarDefaults.topAppBarColors().containerColor
     SyncSystemBars(container = container, fillWindowBackground = true)
 
@@ -169,11 +169,11 @@ fun AbTopAppBar(
             navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
             actionIconContentColor = MaterialTheme.colorScheme.onSurface,
         ),
-        // F2: the Compose hosts run inside an AppCompatActivity (ActivityBase) whose content
-        // frame already insets for the status bar (like the classic View screens). The M3
-        // default here would add the status-bar inset a SECOND time → the bar sat one bar-
-        // height too low. Zero the M3 inset so the single AppCompat/system inset positions it.
-        windowInsets = WindowInsets(0, 0, 0, 0),
+        // The Compose hosts do NOT inset their content frame -- they set disableBaseSetupUi = true
+        // and call applyComposeHostWindowSetup(), which omits ActivityBase's content-root padding on
+        // purpose (host-inset-ownership spec, 2026-09-18). So this bar applies Material's real
+        // window insets. Zeroing them here, as this line did until 2026-09-18, would put the bar
+        // under the status bar; adding the host padding back would double it. The two go together.
     )
 }
 
@@ -292,7 +292,12 @@ private fun AbSearchTopAppBar(
                 titleContentColor = onContainer,
                 actionIconContentColor = onContainer,
             ),
-            windowInsets = WindowInsets(0, 0, 0, 0),
+            // The Compose hosts do NOT inset their content frame -- they set disableBaseSetupUi =
+            // true and call applyComposeHostWindowSetup(), which omits ActivityBase's content-root
+            // padding on purpose (host-inset-ownership spec, 2026-09-18). So this bar applies
+            // Material's real window insets. Zeroing them here, as this line did until 2026-09-18,
+            // would put the bar under the status bar; adding the host padding back would double it.
+            // The two go together.
         )
     }
 }
@@ -329,9 +334,11 @@ fun AbScaffold(
         // PaddingValues, which is what makes the screen's scrolling content stop ABOVE the bar --
         // classic's layout_above="@+id/transportWidget" (speak_bible.xml:28, speak_settings.xml:30).
         bottomBar = bottomBar,
-        // F2: see AbTopAppBar — the AppCompat host frame provides the system insets, so the
-        // Scaffold must not add them again (would double the top/bottom gap).
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        // The Compose hosts do NOT inset their content frame -- they set disableBaseSetupUi = true
+        // and call applyComposeHostWindowSetup(), which omits ActivityBase's content-root padding on
+        // purpose (host-inset-ownership spec, 2026-09-18). So this Scaffold applies Material's real
+        // window insets. Zeroing them here, as this line did until 2026-09-18, would put the content
+        // under the status bar; adding the host padding back would double it. The two go together.
         content = content,
     )
 }
@@ -344,8 +351,11 @@ fun AbScaffold(
 ) {
     Scaffold(
         topBar = topBar,
-        // F2: see the string-title overload — avoid double system insets under the AppCompat host.
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        // The Compose hosts do NOT inset their content frame -- they set disableBaseSetupUi = true
+        // and call applyComposeHostWindowSetup(), which omits ActivityBase's content-root padding on
+        // purpose (host-inset-ownership spec, 2026-09-18). So this Scaffold applies Material's real
+        // window insets. Zeroing them here, as this line did until 2026-09-18, would put the content
+        // under the status bar; adding the host padding back would double it. The two go together.
         content = content,
     )
 }

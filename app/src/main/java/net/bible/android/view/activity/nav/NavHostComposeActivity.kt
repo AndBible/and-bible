@@ -153,6 +153,7 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.ai.LlmDialogHelper
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.themePixelSize
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -711,6 +712,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * builds one from the destination's route instead. Safe as a live getter: `HistoryManager`
      * reads this at the moment it creates the history item, not once at `onCreate`.
      */
+    /**
+     * This host does not take `ActivityBase.setupUi()`. Its content root must stay unpadded: the
+     * reading destination's toolbar paints under the status bar itself and its WebView pane extends
+     * under the navigation bar, and the other 40 destinations get their insets from `AbScaffold` /
+     * `AbSelectionScaffold`. See the host-inset-ownership spec, section 3.2.
+     */
+    override val disableBaseSetupUi = true
+
     override val intentForHistoryList: Intent
         get() = historyRoute?.let { intentFor(this, it) } ?: super.intentForHistoryList
 
@@ -2438,6 +2447,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // instant.
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
+        applyComposeHostWindowSetup()
         ABEventBus.register(this, readingHostSubscriptions)
         val startRoute = resolveStartRoute(savedInstanceState)
         this.startRoute = startRoute

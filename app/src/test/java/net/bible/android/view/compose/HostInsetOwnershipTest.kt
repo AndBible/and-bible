@@ -23,8 +23,12 @@ import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import net.bible.android.TestBibleApplication
+import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.applyComposeHostWindowSetup
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -73,5 +77,37 @@ class HostInsetOwnershipTest {
         dispatchSystemBars(root)
         assertEquals("ActivityBase.setupUi() must pad the content root by the status bar", 80, root.paddingTop)
         assertEquals("ActivityBase.setupUi() must pad the content root by the navigation bar", 39, root.paddingBottom)
+    }
+
+    /** A host shaped like the two real Compose hosts after this task. */
+    class ComposeHostProbeActivity : ActivityBase() {
+        override val doNotInitializeApp = true
+        override val disableBaseSetupUi = true
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            applyComposeHostWindowSetup()
+            setContent { }
+        }
+    }
+
+    @Test
+    fun aComposeHostDoesNotPadItsContentRoot() {
+        val activity = Robolectric.buildActivity(ComposeHostProbeActivity::class.java).setup().get()
+        val root = contentRootOf(activity)
+        dispatchSystemBars(root)
+        assertEquals("a Compose host must not pad its content root -- the scaffolds own the inset", 0, root.paddingTop)
+        assertEquals("a Compose host must not pad its content root -- the scaffolds own the inset", 0, root.paddingBottom)
+    }
+
+    @Test
+    fun bothRealComposeHostsDisableTheBaseSetup() {
+        assertTrue(
+            "NavHostComposeActivity must own its window setup",
+            NavHostComposeActivity().disableBaseSetupUi,
+        )
+        assertTrue(
+            "BackupComposeActivity must own its window setup",
+            BackupComposeActivity().disableBaseSetupUi,
+        )
     }
 }

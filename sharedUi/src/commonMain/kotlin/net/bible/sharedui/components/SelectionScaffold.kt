@@ -19,7 +19,6 @@ package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -80,12 +79,12 @@ fun AbSelectionScaffold(
                         navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
                         actionIconContentColor = MaterialTheme.colorScheme.onSurface,
                     ),
-                    // Same fix as AbTopAppBar's normal branch (see its F2 comment): this app's
-                    // Compose hosts run inside an AppCompatActivity whose content frame already
-                    // insets for the status bar, so the M3 default here would add it a SECOND
-                    // time and the bar would visibly jump one bar-height lower on entering
-                    // selection mode.
-                    windowInsets = WindowInsets(0, 0, 0, 0),
+                    // The Compose hosts do NOT inset their content frame -- they set
+                    // disableBaseSetupUi = true and call applyComposeHostWindowSetup(), which omits
+                    // ActivityBase's content-root padding on purpose (host-inset-ownership spec,
+                    // 2026-09-18). So this bar applies Material's real window insets. Zeroing them
+                    // here, as this line did until 2026-09-18, would put the bar under the status
+                    // bar; adding the host padding back would double it. The two go together.
                 )
             } else {
                 AbTopAppBar(
@@ -98,6 +97,8 @@ fun AbSelectionScaffold(
                 )
             }
         },
+        // No contentWindowInsets override -- left at the Material default, which AbScaffold's two
+        // overloads now also use (host-inset-ownership spec, 2026-09-18), so the two scaffolds agree.
         content = content,
     )
 }
