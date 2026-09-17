@@ -46,6 +46,11 @@ class CollaboratorTypeGuardTest {
         // R6b: the inset ledger. It held the Activity for seven chrome reads and one padding
         // write; it now takes a [ReadingInsetsHostCallbacks] bundle instead (addendum Ruling C).
         "src/main/java/net/bible/android/view/activity/page/ReadingInsets.kt",
+        // R6c2: the command surface and the menu/drawer command handler. Both now take R4's
+        // [ReadingHostActivity] plus a [ReadingCommandsHostCallbacks] bundle (the handler takes the
+        // bundle's `hostActivity` and two of its suppliers directly).
+        "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt",
+        "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
     )
 
     @Test
@@ -93,6 +98,14 @@ class CollaboratorTypeGuardTest {
         "src/main/java/net/bible/android/view/activity/page/BibleViewFactory.kt",
         "src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt",
         "src/main/java/net/bible/android/view/activity/page/ReadingInsets.kt",
+        // R6c2. `ReadingCommands.kt`'s only surviving code token is
+        // `MainBibleActivity.WORKSPACE_CHANGED` (the request code of the full workspace selector's
+        // activity result, which `MainBibleActivity.onActivityResult` still owns) -- already on
+        // [allowedNestedMembers] and Task 13's to re-home. `MenuCommandHandler.kt` has none left at
+        // all. Anything else here -- a type position, an import, a bare pass of the Activity into
+        // either collaborator -- is the regression this list exists to catch.
+        "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt",
+        "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
     )
 
     /**

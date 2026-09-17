@@ -243,7 +243,56 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
      * objects rather than Koin singletons, so a second instance would be a silent bug.
      * `ReadingCommandsDelegationTest` pins that with `assertSame`.
      */
-    val readingCommands = ReadingCommands(this)
+    val readingCommands = ReadingCommands(this, readingCommandsHostCallbacks())
+
+    /**
+     * R6c2: what [ReadingCommands] (and the [MenuCommandHandler] it owns) need from this host
+     * beyond R4's [ReadingHostActivity]. Built HERE because this is the host -- see
+     * [ReadingCommandsHostCallbacks]'s kdoc for why each member has the shape it has.
+     *
+     * Every lambda is a one-line forward to the member the command surface used to spell out, with
+     * no logic of its own. The only two-statement bodies are [ReadingCommandsHostCallbacks.toggleNativeDrawer]
+     * and [ReadingCommandsHostCallbacks.openNativeDrawerAndFocusIt], both verbatim from the code
+     * that used to sit inline in `ReadingCommands`, moved here only because `binding` is the host
+     * window's and never part of the reading view's contract. Nothing changes about WHEN or HOW
+     * OFTEN any of them fires.
+     *
+     * A function, not a property, so it can be read from [readingCommands]' own initializer above
+     * without a declaration-order constraint between the two. The suppliers it builds are read at
+     * CALL time, which is what lets them name `readingInsets`, `documentViewManager` and
+     * `llmDialogHelper` -- all of which this class initialises AFTER `readingCommands`.
+     */
+    private fun readingCommandsHostCallbacks() = ReadingCommandsHostCallbacks(
+        hostActivity = this,
+        composeReadingViewHost = { composeReadingViewHost },
+        windowRepository = { windowRepository },
+        readingInsets = { readingInsets },
+        documentViewManager = { documentViewManager },
+        llmDialogHelper = { llmDialogHelper },
+        currentNightMode = { currentNightMode },
+        pageTitleText = { pageTitleText },
+        transportBarVisible = { transportBarVisible },
+        setTransportBarVisible = { transportBarVisible = it },
+        updateBottomBars = { updateBottomBars() },
+        updateTitle = { updateTitle() },
+        updateActions = { updateActions() },
+        updateStrongsButton = { updateStrongsButton() },
+        menuForDocs = { anchor, documents -> menuForDocs(anchor, documents) },
+        // The `binding.drawerLayout` lines themselves, NOT `{ toggleDrawer() }`: this class's own
+        // `toggleDrawer()` override delegates back into `readingCommands.composeToggleDrawer()`,
+        // whose native fallback is what calls this -- that would be unbounded recursion.
+        toggleNativeDrawer = {
+            if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
+                binding.drawerLayout.closeDrawers()
+            } else {
+                binding.drawerLayout.openDrawer(GravityCompat.START)
+            }
+        },
+        openNativeDrawerAndFocusIt = {
+            binding.drawerLayout.open()
+            binding.drawerLayout.requestFocus()
+        },
+    )
 
     /** The per-host `BibleView` cache. R3 moved the instance itself onto [readingCommands]; this is
      *  a view onto that one object, never a second one. */
@@ -938,12 +987,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     internal fun composeSpeakLong() = readingCommands.composeSpeakLong()
 
     /**
-     * Switch to a workspace by id. Extracted from the WORKSPACE_CHANGED result arm so round 15b's
-     * quick sheet and the full selector's activity result cannot drift apart.
+     * Switch to a workspace by id. R6c2 moved the body to [ReadingCommands] (addendum Ruling D: a
+     * workspace switch must not be answerable by a host's empty override); this stub stays because
+     * the WORKSPACE_CHANGED result arm and the quick sheet both call it here.
      */
-    internal fun switchToWorkspace(workspaceId: String) {
-        currentWorkspaceId = IdType(workspaceId)
-    }
+    internal fun switchToWorkspace(workspaceId: String) = readingCommands.switchToWorkspace(workspaceId)
 
     internal fun quickSwitchToWorkspace(workspaceId: String) = readingCommands.quickSwitchToWorkspace(workspaceId)
 
@@ -983,19 +1031,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
 
     internal fun windowIconFor(id: String): Painter? = readingCommands.windowIconFor(id)
 
-    // R3: widened from `private` to `internal` so [ReadingCommands] can reach it. It stays HERE
-    // because the CLASSIC toolbar/`updateActions()` path still calls it too (design spec §3.2).
-    internal val dummyStrongsPrefOption
-        get() = StrongsPreference(
-            SettingsBundle(
-                level = SettingsLevel.WINDOW,
-                pageManagerSettings = windowControl.activeWindow.pageManager.textDisplaySettings,
-                workspaceId = windowRepository.id,
-                workspaceName = windowRepository.name,
-                workspaceSettings = windowRepository.textDisplaySettings,
-                globalSettings = CommonUtils.globalTextDisplaySettings,
-                windowId = windowControl.activeWindow.id
-            ))
+    // R6c2: the body needed nothing from this Activity (Koin singletons, this host's own
+    // windowRepository and CommonUtils), so it moved to [ReadingCommands]. This stub stays because
+    // the CLASSIC toolbar/`updateActions()` path still reads it here (design spec §3.2).
+    internal val dummyStrongsPrefOption get() = readingCommands.dummyStrongsPrefOption
 
 
     val workspaces get() = dao.allWorkspaces()
@@ -1011,37 +1050,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         get() = readingAppBootstrap.windowRepository
         set(value) { readingAppBootstrap.windowRepository = value }
 
-    // R3: widened from `private` to `internal` so [ReadingCommands] can reach it. It stays HERE
-    // because the CLASSIC toolbar/`updateActions()` path still calls it too (design spec §3.2).
-    internal fun cycleWorkspace(forward: Boolean) {
-        val workspaces = workspaces
-        if(workspaces.size < 2) return
-        windowRepository.saveIntoDb()
-        val currentWorkspacePos = workspaces.indexOf(workspaces.find {it.id == currentWorkspaceId})
-        val nextPos = if (forward) {
-            if (currentWorkspacePos < workspaces.size - 1) currentWorkspacePos + 1 else 0
-        } else {
-            if (currentWorkspacePos > 0) currentWorkspacePos - 1 else workspaces.size - 1
-        }
-        currentWorkspaceId = workspaces[nextPos].id
-    }
+    // R6c2 (addendum Ruling D): the body moved to [ReadingCommands], which owns `bibleViewFactory`
+    // and reaches `documentViewManager`/`updateBottomBars`/`updateTitle` through the host bundle.
+    // This stub stays because the CLASSIC toolbar still calls it here (design spec §3.2).
+    internal fun cycleWorkspace(forward: Boolean) = readingCommands.cycleWorkspace(forward)
 
-    private var currentWorkspaceId
-        get() = windowRepository.id
-        set(value) {
-            bibleViewFactory.clear()
-            windowRepository.loadFromDb(value)
-
-            preferences.setString("current_workspace_id", windowRepository.id.toString())
-            documentViewManager.buildView(forceUpdate = true)
-            windowControl.windowSync.reloadAllWindows()
-            windowRepository.updateAllWindowsTextDisplaySettings()
-
-            ABEventBus.post(ToastEvent(windowRepository.name))
-
-            updateBottomBars()
-            updateTitle()
-        }
+    /** R6c2: a view onto [ReadingCommands.currentWorkspaceId], which now holds the real switch. */
+    private var currentWorkspaceId: IdType
+        get() = readingCommands.currentWorkspaceId
+        set(value) { readingCommands.currentWorkspaceId = value }
 
     fun buildOptionsMenuItems(): List<OptionsMenuItem> = readingCommands.buildOptionsMenuItems()
 
@@ -1131,9 +1148,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         }
     }
 
-    // R3: widened from `private` to `internal` so [ReadingCommands] can reach it. It stays HERE
-    // because the CLASSIC toolbar/`updateActions()` path still calls it too (design spec §3.2).
-    internal val currentDocument get() = windowControl.activeWindow.pageManager.currentPage.currentDocument
+    // R6c2: the body needed nothing from this Activity, so it moved to [ReadingCommands]. This
+    // stub stays because the CLASSIC toolbar/`updateActions()` path still reads it here.
+    internal val currentDocument get() = readingCommands.currentDocument
     /** Not `private`: read by [net.bible.android.view.activity.page.screen.ComposeReadingViewHost] to
      *  decide whether the compose-path Bible/Commentary button drives the swap-doc shortcut or the
      *  Compose quick-doc menu (Batch 12g Task 8). */
@@ -1284,13 +1301,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     }
 
     /** @param type can be BIBLE or COMMENTARY */
-    // R3: widened from `private` to `internal` so [ReadingCommands] can reach it. It stays HERE
-    // because the CLASSIC toolbar/`updateActions()` path still calls it too (design spec §3.2).
-    internal fun startDocumentChooser(type: String) {
-        val intent = ScreenLauncher.intentFor(this, Screen.ChooseDocument)
-        intent.putExtra("type", type)
-        startActivityForResult(intent, STD_REQUEST_CODE)
-    }
+    // R6c2: the body moved to [ReadingCommands] (it needs only a Context and an Activity, both of
+    // which the host bundle carries). This stub stays because the CLASSIC toolbar still calls it
+    // here (design spec §3.2).
+    internal fun startDocumentChooser(type: String) = readingCommands.startDocumentChooser(type)
 
     class AgentLogOffsetsUpdated
 
@@ -1324,16 +1338,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         }
     }
 
-    // R3: widened from `private` to `internal` so [ReadingCommands] can reach it. It stays HERE
-    // because the CLASSIC toolbar/`updateActions()` path still calls it too (design spec §3.2).
-    internal fun setCurrentDocument(book: Book?) {
-        windowControl.activeWindow.pageManager.setCurrentDocument(book)
-        if(book != null) {
-            val bookCategory = book.bookCategory
-            // see net.bible.android.control.page.CurrentPageBase.getDefaultBook
-            CommonUtils.settings.setString("default-${bookCategory.name}", book.initials)
-        }
-    }
+    // R6c2: the body needed nothing from this Activity, so it moved to [ReadingCommands]. This
+    // stub stays because the CLASSIC toolbar/`updateActions()` path still calls it here.
+    internal fun setCurrentDocument(book: Book?) = readingCommands.setCurrentDocument(book)
 
     class FullScreenEvent(val isFullScreen: Boolean)
     private var isFullScreen = false
@@ -1615,13 +1622,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
 
     var currentNightMode: Boolean = false
 
-    fun refreshIfNightModeChange(): Boolean {
-        // colour may need to change which affects View colour and html
-        // first refresh the night mode setting using light meter if appropriate
-        ScreenSettings.checkMonitoring()
-        applyTheme()
-        return true
-    }
+    /** R6c2: the body moved to [ReadingCommands] -- `applyTheme()` is `ActivityBase`'s, not this
+     *  class's, so it needed nothing specific to this host. */
+    fun refreshIfNightModeChange(): Boolean = readingCommands.refreshIfNightModeChange()
 
     private fun updateToolbar() {
         // The Compose reading toolbar (`ComposeReadingViewHost`/`ReadingToolbar`) owns its own
@@ -2012,23 +2015,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         frozen = false
     }
 
-    /**
-     * user swiped right
-     */
-    operator fun next() {
-        if (documentViewManager.documentView.isPageNextOkay) {
-            windowControl.activeWindowPageManager.currentPage.next()
-        }
-    }
+    /** user swiped right. R6c2: the body moved to [ReadingCommands] (it reaches
+     *  `documentViewManager` through the host bundle). */
+    operator fun next() = readingCommands.next()
 
-    /**
-     * user swiped left
-     */
-    fun previous() {
-        if (documentViewManager.documentView.isPagePreviousOkay) {
-            windowControl.activeWindowPageManager.currentPage.previous()
-        }
-    }
+    /** user swiped left. R6c2: as [next]. */
+    fun previous() = readingCommands.previous()
 
     val isSplitVertically: Boolean get() {
         val reverse = windowRepository.workspaceSettings.enableReverseSplitMode
@@ -2044,19 +2036,39 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     fun executeLlmPrompt(prompt: AgentPrompt, selection: Selection) =
         llmDialogHelper.maybeAskModel(prompt, selection, userSpecification = null)
 
-    fun showLlmPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION) {
-        val documentCategory = windowRepository.activeWindow.pageManager.currentPage.documentCategory
-        composeReadingViewHost?.showPromptSelector(selection, context, documentCategory)
-    }
+    /** R6c2: the body moved to [ReadingCommands] (this host's repository and mounted reading-view
+     *  host both reach it through the host bundle). */
+    fun showLlmPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION) =
+        readingCommands.showLlmPromptSelector(selection, context)
 
     /** Bridge for `BibleJavascriptInterface.regenerateMyDocumentPage` (Batch 12e-A T6): the Compose
-     *  LLM dialog host's regenerate confirmation, over the reading view. */
-    fun showRegenerate(pageId: IdType, bibleView: BibleView) {
-        composeReadingViewHost?.showRegenerate(pageId, bibleView)
-    }
+     *  LLM dialog host's regenerate confirmation, over the reading view. R6c2: body in
+     *  [ReadingCommands]. */
+    fun showRegenerate(pageId: IdType, bibleView: BibleView) = readingCommands.showRegenerate(pageId, bibleView)
 
     companion object {
         const val WORKSPACE_CHANGED = 94
     }
 }
+
+/**
+ * Builds a [MenuCommandHandler] from this Activity -- reading-host re-typing R6c2's classic-net
+ * adapter.
+ *
+ * R6c2 re-typed [MenuCommandHandler] onto an `ActivityBase` plus two suppliers, so that a second
+ * reading host can own one; [ReadingCommands] constructs the real one that way. But four call sites
+ * in `ReadingSearchEntryPointsTest` -- one of the eight Robolectric classes that are this batch's
+ * safety net, which are NOT edited in R1-R6 -- build a handler straight from a Robolectric
+ * `MainBibleActivity` with `MenuCommandHandler(activity)`. A "fake constructor" here keeps that
+ * shape working, binds exactly the suppliers this Activity binds for its own handler, and leaves
+ * `MenuCommandHandler.kt` itself free of any `MainBibleActivity` type position -- which a secondary
+ * constructor on the class, or a cast inside it (addendum Ruling F), would not.
+ *
+ * It lives in THIS file, and disappears with it when slice 7 Task 13 deletes the Activity.
+ */
+fun MenuCommandHandler(activity: MainBibleActivity): MenuCommandHandler = MenuCommandHandler(
+    hostActivity = activity,
+    composeReadingViewHost = { activity.composeReadingViewHost },
+    composeSearchIfHosted = { activity.composeSearchIfHosted() },
+)
 

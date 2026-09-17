@@ -18,6 +18,9 @@
 package net.bible.android.view.activity.page
 
 import net.bible.android.activity.R
+import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.settings.textSettingEditorPageFor
@@ -211,6 +214,32 @@ object OptionsMenuStateBuilder {
         activity: MainBibleActivity,
         getItemOptions: (resId: Int, order: Int) -> OptionsMenuItemInterface,
         id: String,
+    ): Boolean = dispatch(
+        activity,
+        { activity.windowRepository },
+        { activity.composeReadingViewHost },
+        getItemOptions,
+        id,
+    )
+
+    /**
+     * The host-agnostic form, which [ReadingCommands] calls (reading-host re-typing R6c2, Ruling
+     * C-5). Identical body; the three things it used to reach through `MainBibleActivity` are now
+     * parameters: the plain `ActivityBase` [OptionsMenuItemInterface.openDialog] demands by
+     * signature, and read-at-call-time suppliers for the OWNING host's window repository (NOT
+     * `windowControl.windowRepository`, which is whichever host resumed last) and for the mounted
+     * reading-view host.
+     *
+     * The three-argument overload above is retained as a one-line adapter, with no logic of its
+     * own, because five call sites in the untouched `OptionsMenuStateBuilderTest` build it straight
+     * from a Robolectric `MainBibleActivity`.
+     */
+    fun dispatch(
+        hostActivity: ActivityBase,
+        windowRepository: () -> WindowRepository,
+        composeReadingViewHost: () -> ComposeReadingViewHost?,
+        getItemOptions: (resId: Int, order: Int) -> OptionsMenuItemInterface,
+        id: String,
     ): Boolean {
         val (resId, order) = parseId(id)
         val itemOptions = getItemOptions(resId, order)
@@ -219,30 +248,30 @@ object OptionsMenuStateBuilder {
             itemOptions.value = itemOptions.value != true
             itemOptions.handle()
             if (itemOptions is Preference) {
-                activity.windowRepository.updateWindowTextDisplaySettingsValues(
-                    setOf(itemOptions.type), activity.windowRepository.textDisplaySettings)
+                windowRepository().updateWindowTextDisplaySettingsValues(
+                    setOf(itemOptions.type), windowRepository().textDisplaySettings)
             }
             true
         } else {
             val onReady = {
                 if (itemOptions is Preference) {
-                    activity.windowRepository.updateWindowTextDisplaySettingsValues(
-                        setOf(itemOptions.type), activity.windowRepository.textDisplaySettings)
+                    windowRepository().updateWindowTextDisplaySettingsValues(
+                        setOf(itemOptions.type), windowRepository().textDisplaySettings)
                 }
-                activity.windowRepository.updateAllWindowsTextDisplaySettings()
+                windowRepository().updateAllWindowsTextDisplaySettings()
             }
             // The eight sheet-editable text display settings are edited IN PLACE over the reading
             // view — no activity launch, so back cannot land anywhere but the reading view.
             // Everything else (CommandPreference, AutoAssignPreference, HIDELABELS, and every type
             // textSettingEditorPageFor does not name) falls through to openDialog unchanged: `page`
             // is genuinely null for those, so this fall-through stays live.
-            val host = activity.composeReadingViewHost
+            val host = composeReadingViewHost()
             val page = (itemOptions as? Preference)?.let { textSettingEditorPageFor(it.type.name) }
             if (page != null && host != null) {
                 host.showTextSettingEditor((itemOptions as Preference).settings.toScope(), page, onReady)
                 return false
             }
-            itemOptions.openDialog(activity, { onReady() }, { onReady() })
+            itemOptions.openDialog(hostActivity, { onReady() }, { onReady() })
             false
         }
     }

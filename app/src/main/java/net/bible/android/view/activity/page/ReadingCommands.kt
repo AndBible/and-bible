@@ -49,13 +49,17 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.download.imageResource
+import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.exportStudyPads
+import net.bible.service.device.ScreenSettings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.isStudyPad
 import net.bible.service.llm.PromptContext
@@ -97,9 +101,18 @@ import kotlin.coroutines.resume
  * objects, not Koin singletons: a second instance of any of them is a silent bug, which is what
  * `ReadingCommandsDelegationTest` pins with `assertSame`.
  *
- * [activity] is still `MainBibleActivity` at this task. R4 introduces the narrow `ReadingHostActivity`
- * interface and R6 re-types this collaborator (and `ComposeReadingViewHost`) onto it; nothing here
- * should be read as a claim that the command surface *needs* the whole Activity.
+ * **Reading-host re-typing R6c2: this class no longer names `MainBibleActivity` in any type
+ * position.** It takes R4's narrow [ReadingHostActivity] for the chrome/Context half and a
+ * [ReadingCommandsHostCallbacks] bundle for everything else — the plain Android Activity surface as
+ * [ReadingCommandsHostCallbacks.hostActivity], and a read-at-call-time supplier or callback for
+ * each host value or host action. See that class's kdoc for why each member has the shape it has.
+ *
+ * Several members that used to live on the Activity moved HERE in R6c2 because their bodies need
+ * nothing from a host at all ([setCurrentDocument], [currentDocument], [dummyStrongsPrefOption],
+ * [next], [previous], [refreshIfNightModeChange], [showLlmPromptSelector], [showRegenerate],
+ * [startDocumentChooser]) or because Ruling D says they must not become a host's silent no-op
+ * ([switchToWorkspace], [cycleWorkspace] and the [currentWorkspaceId] setter they share). The
+ * Activity keeps a pure delegating stub for every one of them.
  *
  * `MainBibleActivity` keeps a thin delegating stub for every exported member. The stubs are
  * load-bearing, not politeness: the eight Robolectric classes that are this batch's safety net
@@ -115,12 +128,29 @@ import kotlin.coroutines.resume
  * instead. The four `drawer*` chrome-parity calls stayed too -- they are chrome, which R4's
  * `ReadingHostActivity` interface owns.
  */
-class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
+class ReadingCommands(
+    private val readingHost: ReadingHostActivity,
+    private val hostCallbacks: ReadingCommandsHostCallbacks,
+) : KoinComponent {
+
+    /** The host as a plain Android Activity. See [ReadingCommandsHostCallbacks.hostActivity]. */
+    private val hostActivity: ActivityBase get() = hostCallbacks.hostActivity
+
+    /**
+     * The mounted reading-view host, or `null` before one is installed. A `get()`, so every one of
+     * the 22 reads below goes through the supplier AT CALL TIME — never a captured value, which
+     * would freeze a late-bound, nullable, per-host reference at construction time.
+     */
+    private val composeReadingViewHost: ComposeReadingViewHost?
+        get() = hostCallbacks.composeReadingViewHost()
 
     // ---- Koin singletons, exactly R1's move (ComposeReadingViewHost.kt) ----
-    // Reachable without the Activity: MainBibleActivity resolves every one of these the same way
+    // Reachable without the Activity. Every reading host resolves each of these the same way
     // (`by inject()`), so each is the SAME object the Activity's own accessor used to hand back,
-    // not a second instance (reading-host re-typing R6c1, spec addendum 2026-09-17).
+    // not a second instance (reading-host re-typing R6c1, spec addendum 2026-09-17). NB the
+    // wording avoids a colon before the Activity's name on purpose: R6c1's report records this
+    // exact hazard, and `CollaboratorTypeGuardTest`'s parameter scan reads RAW text, so prose of
+    // the shape "<colon> MainBibleActivity" reads as a type position to it.
     private val windowControl: WindowControl by inject()
     private val documentControl: DocumentControl by inject()
     private val speakControl: SpeakControl by inject()
@@ -137,14 +167,14 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * not-yet-resumed `MainBibleActivity` (`ReadingAppBootstrap`'s own per-Activity
      * `WindowRepository`; see `MainBibleActivity.kt:1010-1012`'s `windowRepository` — a view onto
      * `ReadingAppBootstrap`, not `WindowControl`). A supplier, in the same shape as
-     * [BibleViewHostCallbacks]'s three inset suppliers and `ReadingInsetsHostCallbacks`'s seven,
-     * bound to the owning host today (`{ activity.windowRepository }`); a future nav host binds its
-     * own. Read at call time, never captured, for the same reason those are (fix round 1, review
-     * Important 2: R6c's original brief called routing this through `WindowControl` a free
-     * substitution, which it is not — it is only free in the single-host case every test in this
-     * suite exercises).
+     * [BibleViewHostCallbacks]'s three inset suppliers and `ReadingInsetsHostCallbacks`'s seven;
+     * R6c2 moved the binding itself onto [ReadingCommandsHostCallbacks], so the owning host — any
+     * owning host — supplies its own. Read at call time, never captured, for the same reason those
+     * are (R6c1 fix round 1, review Important 2: R6c's original brief called routing this through
+     * `WindowControl` a free substitution, which it is not — it is only free in the single-host
+     * case every test in this suite exercises).
      */
-    private val windowRepository: () -> WindowRepository = { activity.windowRepository }
+    private val windowRepository: () -> WindowRepository get() = hostCallbacks.windowRepository
 
     /**
      * The global `toolbar_button_actions` setting, exactly R1's replacement for the same member on
@@ -167,12 +197,14 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * circular ("Type checking has run into a recursive problem"). Naming it breaks the cycle and
      * changes nothing at runtime.
      */
-    val bibleViewFactory: BibleViewFactory = BibleViewFactory(activity, bibleViewHostCallbacks())
+    val bibleViewFactory: BibleViewFactory = BibleViewFactory(readingHost, bibleViewHostCallbacks())
 
     /**
      * R6a: what [BibleView] and its [BibleJavascriptInterface] need from the host beyond R4's
-     * narrow [ReadingHostActivity]. Built HERE because this is where a `MainBibleActivity` is still
-     * in hand — that is the whole point of the bundle (see [BibleViewHostCallbacks]'s kdoc).
+     * narrow [ReadingHostActivity]. Built HERE because this is where the host's own
+     * [ReadingCommandsHostCallbacks] is in hand — that is the whole point of the bundle (see
+     * [BibleViewHostCallbacks]'s kdoc). R6c2: the forwards below that used to read
+     * `activity.<member>` now read this collaborator's own member, or the bundle's supplier.
      *
      * Every lambda is a one-line forward to the member the reading view used to spell out, with no
      * logic of its own; the only two-statement body, [BibleViewHostCallbacks.openDrawerAndFocusIt],
@@ -184,45 +216,48 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * initializer above without a declaration-order constraint between the two.
      */
     private fun bibleViewHostCallbacks(): BibleViewHostCallbacks = BibleViewHostCallbacks(
-        hostActivity = activity,
-        onNext = { activity.next() },
-        onPrevious = { activity.previous() },
-        showLlmPromptSelector = { selection, context -> activity.showLlmPromptSelector(selection, context) },
+        hostActivity = hostActivity,
+        onNext = { next() },
+        onPrevious = { previous() },
+        showLlmPromptSelector = { selection, context -> showLlmPromptSelector(selection, context) },
         // This collaborator's own implementation, not the Activity's delegating stub: both run the
         // same body and the stub only exists for the Robolectric tests that call it on the Activity.
         composeSearchIfHosted = { seedQuery, preDecorated ->
             this@ReadingCommands.composeSearchIfHosted(seedQuery, preDecorated)
         },
         composeOpenDrawerIfHosted = { this@ReadingCommands.composeOpenDrawerIfHosted() },
-        openDrawerAndFocusIt = {
-            activity.binding.drawerLayout.open()
-            activity.binding.drawerLayout.requestFocus()
-        },
-        composeReadingViewHost = { activity.composeReadingViewHost },
-        showRegenerate = { pageId, bibleView -> activity.showRegenerate(pageId, bibleView) },
-        // Through the Activity's accessor deliberately: it is a view onto `bibleViewFactory` above,
-        // which this bundle is an argument to, so reaching it directly would be a cycle at
-        // construction time. The lambda runs long after both are built.
-        crashAllBibleViews = { activity.bibleViewFactory.crashAll() },
-        currentNightMode = { activity.currentNightMode },
+        openDrawerAndFocusIt = { hostCallbacks.openNativeDrawerAndFocusIt() },
+        composeReadingViewHost = { composeReadingViewHost },
+        showRegenerate = { pageId, bibleView -> showRegenerate(pageId, bibleView) },
+        // This collaborator's OWN factory, not a second one: the lambda runs long after both are
+        // built, and [bibleViewFactory]'s explicit type declaration (see its kdoc) is what keeps
+        // naming it here from making the two definitions circular for the type checker.
+        crashAllBibleViews = { bibleViewFactory.crashAll() },
+        currentNightMode = { hostCallbacks.currentNightMode() },
         // Read at call time, never captured — `readingInsets` is a mutable ledger, and these three
         // values feed `set_offsets`' JS payload. No arithmetic happens here (R2's constraint): the
         // division by display density stays in `BibleView`, exactly where it was.
-        imeHeight = { activity.readingInsets.imeHeight },
-        topOffset2 = { activity.readingInsets.topOffset2 },
-        bottomOffsetForWebView = { activity.readingInsets.bottomOffsetForWebView },
+        imeHeight = { hostCallbacks.readingInsets().imeHeight },
+        topOffset2 = { hostCallbacks.readingInsets().topOffset2 },
+        bottomOffsetForWebView = { hostCallbacks.readingInsets().bottomOffsetForWebView },
     )
 
     /** The drawer/menu command handler [handleDrawerItemClick] and the Activity's own
      *  `onActivityResult` share. Same once-per-host reasoning as [bibleViewFactory]. */
-    val mainMenuCommandHandler = MenuCommandHandler(activity)
+    val mainMenuCommandHandler = MenuCommandHandler(
+        hostActivity = hostActivity,
+        composeReadingViewHost = hostCallbacks.composeReadingViewHost,
+        // This collaborator's own implementation, not the Activity's delegating stub -- both run
+        // the same body and the stub only exists for the Robolectric tests that call it there.
+        composeSearchIfHosted = { this@ReadingCommands.composeSearchIfHosted() },
+    )
 
     // Registered eagerly (constructor-time property, mirroring TextDisplaySettingsComposeActivity's
     // own photoPicker/pendingPick) so it's ready well before RESUMED, whichever reading-view sheet
     // is showing — Settings editor sheets T10, the reading view's in-place text-settings editor.
     private var pendingBackgroundImagePick: CancellableContinuation<String?>? = null
     private val backgroundImagePicker =
-        activity.registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        hostActivity.registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             pendingBackgroundImagePick?.resume(uri?.toString())
             pendingBackgroundImagePick = null
         }
@@ -255,17 +290,16 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * which `setupUi` locks closed on that path.
      */
     internal fun composeToggleDrawer() {
-        val host = activity.composeReadingViewHost
+        val host = composeReadingViewHost
         if (host != null) {
             host.toggleDrawer()
         } else {
             // Defensive: the Compose toolbar only exists on the compose path, where the host is
             // always installed. Keep the native behaviour as a fallback rather than no-op.
-            if (activity.binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
-                activity.binding.drawerLayout.closeDrawers()
-            } else {
-                activity.binding.drawerLayout.openDrawer(GravityCompat.START)
-            }
+            //
+            // NOT `readingHost.toggleDrawer()`, which would be unbounded recursion:
+            // `MainBibleActivity.toggleDrawer()` is a delegating stub back to this very function.
+            hostCallbacks.toggleNativeDrawer()
         }
     }
 
@@ -274,7 +308,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * native `binding.drawerLayout.isDrawerVisible(GravityCompat.START)` remains the answer used
      * elsewhere. Batch Z-early A7 fix C.
      */
-    internal val composeDrawerOpen: Boolean get() = activity.composeReadingViewHost?.isDrawerOpen == true
+    internal val composeDrawerOpen: Boolean get() = composeReadingViewHost?.isDrawerOpen == true
 
     /**
      * Closes the Compose drawer if it is open; returns whether it did (i.e. whether the caller's
@@ -282,7 +316,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * as a leading guard without changing anything either way. Batch Z-early A7 fix A/C.
      */
     internal fun composeCloseDrawerIfOpen(): Boolean {
-        val host = activity.composeReadingViewHost ?: return false
+        val host = composeReadingViewHost ?: return false
         if (!host.isDrawerOpen) return false
         host.closeDrawer()
         return true
@@ -301,7 +335,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * none: the Compose drawer is a modal sheet that takes over input while open.
      */
     internal fun composeOpenDrawerIfHosted(): Boolean {
-        val host = activity.composeReadingViewHost ?: return false
+        val host = composeReadingViewHost ?: return false
         host.openDrawer()
         return true
     }
@@ -319,13 +353,13 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * defensive fallback rather than removed, the same idiom as the Z-early drawer retargeting.
      */
     internal fun composeSearch() {
-        val host = activity.composeReadingViewHost
+        val host = composeReadingViewHost
         if (host != null) {
             host.openSearch()
             return
         }
-        searchControl.getSearchIntent(documentControl.currentDocument, activity)?.let { intent ->
-            activity.startActivityForResult(intent, STD_REQUEST_CODE)
+        searchControl.getSearchIntent(documentControl.currentDocument, hostActivity)?.let { intent ->
+            hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
         }
     }
 
@@ -343,7 +377,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * than a fresh query.
      */
     internal fun composeSearchIfHosted(seedQuery: String? = null, preDecorated: Boolean = false): Boolean {
-        val host = activity.composeReadingViewHost ?: return false
+        val host = composeReadingViewHost ?: return false
         host.openSearch(seedQuery, preDecorated)
         return true
     }
@@ -365,7 +399,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * a silent no-op instead of falling through to the classic Strong's search.)
      */
     internal fun composeSearchStrongsIfHosted(ref: String, translationIds: List<String>): Boolean {
-        val host = activity.composeReadingViewHost ?: return false
+        val host = composeReadingViewHost ?: return false
         return host.openSearchStrongs(ref, translationIds)
     }
 
@@ -375,7 +409,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * (keeping the query and results), second leaves search mode. Returns whether the press was
      * consumed. Always `false` before the host is installed, same idiom as [composeCloseDrawerIfOpen].
      */
-    internal fun composeCloseSearchIfOpen(): Boolean = activity.composeReadingViewHost?.closeSearchIfOpen() ?: false
+    internal fun composeCloseSearchIfOpen(): Boolean = composeReadingViewHost?.closeSearchIfOpen() ?: false
 
     /**
      * Whether the Compose reading-view search mode is active — `false` only before the host is
@@ -383,17 +417,17 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * field is focused, the same role [composeDrawerOpen] plays for the drawer there.
      */
     internal val composeSearchModeActive: Boolean
-        get() = activity.composeReadingViewHost?.searchController?.searchModeActive?.value == true
+        get() = composeReadingViewHost?.searchController?.searchModeActive?.value == true
 
     internal fun composeToggleSpeak() {
-        if (activity.transportBarVisible) {
+        if (hostCallbacks.transportBarVisible()) {
             if (speakControl.isStopped) {
-                activity.transportBarVisible = false
+                hostCallbacks.setTransportBarVisible(false)
             }
         } else {
-            activity.transportBarVisible = true
+            hostCallbacks.setTransportBarVisible(true)
         }
-        activity.updateBottomBars()
+        hostCallbacks.updateBottomBars()
     }
 
     /**
@@ -409,13 +443,13 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * no event and triggers no recomposition.
      */
     internal fun composeShowSpeakTransport() {
-        activity.transportBarVisible = true
-        activity.updateBottomBars()
+        hostCallbacks.setTransportBarVisible(true)
+        hostCallbacks.updateBottomBars()
     }
 
     /** The Compose toolbar's Speak long-press: opens the Speak settings SHEET over the reading view. */
     internal fun composeSpeakLong() {
-        activity.composeReadingViewHost?.showSpeakSettings()
+        composeReadingViewHost?.showSpeakSettings()
     }
 
     /**
@@ -437,10 +471,10 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      */
     internal fun quickSwitchToWorkspace(workspaceId: String) {
         windowRepository().saveIntoDb()
-        activity.switchToWorkspace(workspaceId)
+        switchToWorkspace(workspaceId)
     }
 
-    internal fun composeCycleWorkspace(forward: Boolean) = activity.cycleWorkspace(forward)
+    internal fun composeCycleWorkspace(forward: Boolean) = cycleWorkspace(forward)
 
     /**
      * The Compose toolbar title's TAP. Round 15b Task 9: with a Compose host mounted, the three key
@@ -464,7 +498,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * a `CompletableDeferred` the sheet's own selection callback completes.)
      */
     internal fun composeStartKeyChooser() {
-        val host = activity.composeReadingViewHost
+        val host = composeReadingViewHost
         val sheet = host?.currentKeyChooserPage()?.let { KeyChooserRoute.sheetFor(it) }
         if (host != null && sheet != null) {
             // Resolved HERE, once, and handed to the sheet — never resolved again inside it. The
@@ -478,7 +512,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
                 return
             }
         }
-        pageControl.currentPageManager.currentPage.startKeyChooser(activity)
+        pageControl.currentPageManager.currentPage.startKeyChooser(hostActivity)
     }
 
     /**
@@ -492,12 +526,13 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * entry point gets the sheet too.
      */
     internal fun composeChooseDocument() {
-        val host = activity.composeReadingViewHost
+        val host = composeReadingViewHost
         if (host != null) {
             host.showDocumentSheet()
             return
         }
-        activity.startActivityForResult(ScreenLauncher.intentFor(activity, Screen.ChooseDocument), STD_REQUEST_CODE)
+        hostActivity.startActivityForResult(
+            ScreenLauncher.intentFor(readingHost.hostContext, Screen.ChooseDocument), STD_REQUEST_CODE)
     }
 
     /**
@@ -511,7 +546,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
     internal fun applyChosenDocument(bookStr: String?) {
         val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
         documentControl.changeDocument(book)
-        activity.updateActions()
+        hostCallbacks.updateActions()
     }
 
     /**
@@ -526,7 +561,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
         val verse = try {
             VerseFactory.fromString(navigationControl.versification, verseStr)
         } catch (e: NoSuchVerseException) {
-            ABEventBus.post(ToastEvent(activity.getString(R.string.verse_not_found)))
+            ABEventBus.post(ToastEvent(readingHost.getString(R.string.verse_not_found)))
             return
         }
         val pageManager = windowControl.activeWindowPageManager
@@ -551,29 +586,29 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
     }
 
     internal fun composeCycleStrongs() {
-        val prefOptions = activity.dummyStrongsPrefOption
+        val prefOptions = dummyStrongsPrefOption
         prefOptions.value = (prefOptions.value as Int + 1) % 3
         prefOptions.handle()
-        activity.updateStrongsButton()
-        activity.composeReadingViewHost?.refreshHostedState()
+        hostCallbacks.updateStrongsButton()
+        composeReadingViewHost?.refreshHostedState()
     }
 
     internal fun composeStrongsLong() {
-        val prefOptions = activity.dummyStrongsPrefOption
+        val prefOptions = dummyStrongsPrefOption
         fun apply() {
             prefOptions.handle()
-            activity.updateStrongsButton()
-            activity.composeReadingViewHost?.refreshHostedState()
+            hostCallbacks.updateStrongsButton()
+            composeReadingViewHost?.refreshHostedState()
         }
-        prefOptions.openDialog(activity, onChanged = { apply() }, onReset = { apply() })
+        prefOptions.openDialog(hostActivity, onChanged = { apply() }, onReset = { apply() })
     }
 
     /** @param anchor the Compose toolbar's ComposeView (classic `bibleButton` is inside the now-GONE `toolbarLayout` on this path). */
     internal fun composeBibleClick(anchor: View) {
         if (toolbarButtonSetting?.startsWith("swap-") == true) {
-            activity.setCurrentDocument(documentControl.suggestedBible)
+            setCurrentDocument(documentControl.suggestedBible)
         } else {
-            activity.menuForDocs(anchor, documentControl.biblesForVerse)
+            hostCallbacks.menuForDocs(anchor, documentControl.biblesForVerse)
         }
     }
 
@@ -584,18 +619,18 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      */
     internal fun composeBibleLongClick() {
         if (toolbarButtonSetting == "swap-menu") {
-            activity.composeReadingViewHost?.openBibleQuickDoc(composeQuickDocItems(documentControl.biblesForVerse))
+            composeReadingViewHost?.openBibleQuickDoc(composeQuickDocItems(documentControl.biblesForVerse))
         } else {
-            activity.startDocumentChooser("BIBLE")
+            startDocumentChooser("BIBLE")
         }
     }
 
     /** @param anchor the Compose toolbar's ComposeView (classic `commentaryButton` is inside the now-GONE `toolbarLayout` on this path). */
     internal fun composeCommentaryClick(anchor: View) {
         if (toolbarButtonSetting?.startsWith("swap-") == true) {
-            activity.setCurrentDocument(documentControl.suggestedCommentary)
+            setCurrentDocument(documentControl.suggestedCommentary)
         } else {
-            activity.menuForDocs(
+            hostCallbacks.menuForDocs(
                 anchor,
                 documentControl.commentariesForVerse
                     + SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK)
@@ -610,9 +645,9 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
             // Mirrors classic `commentaryLongPress` exactly: unlike `commentaryClick`/
             // `composeCommentaryClick`, the long-press menu does NOT append
             // GENERAL_BOOK/DICTIONARY books.
-            activity.composeReadingViewHost?.openCommentaryQuickDoc(composeQuickDocItems(documentControl.commentariesForVerse))
+            composeReadingViewHost?.openCommentaryQuickDoc(composeQuickDocItems(documentControl.commentariesForVerse))
         } else {
-            activity.startDocumentChooser("COMMENTARY")
+            startDocumentChooser("COMMENTARY")
         }
     }
 
@@ -623,15 +658,15 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
         val rows = books.map {
             QuickDocRow(
                 it.initials,
-                activity.getString(R.string.something_with_parenthesis, it.abbreviation, it.language.code),
+                hostActivity.getString(R.string.something_with_parenthesis, it.abbreviation, it.language.code),
                 it.language.code,
                 it.abbreviation,
                 category = docCategoryOf(it.bookCategory),
             )
         }
-        return when (val a = QuickDocPicker.action(rows, activity.currentDocument?.initials ?: "")) {
+        return when (val a = QuickDocPicker.action(rows, currentDocument?.initials ?: "")) {
             is QuickDocAction.None -> emptyList()
-            is QuickDocAction.SwitchDirectly -> { activity.setCurrentDocument(byId[a.id]); emptyList() }
+            is QuickDocAction.SwitchDirectly -> { setCurrentDocument(byId[a.id]); emptyList() }
             is QuickDocAction.ShowPopup -> { composeQuickDocBooksById = byId; a.items }
         }
     }
@@ -640,7 +675,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
     private var composeQuickDocBooksById: Map<String, Book> = emptyMap()
 
     /** Compose quick-doc menu selection -> set the doc (mirrors classic `menuForDocs`' click listener). */
-    internal fun composeQuickDocSelect(id: String) { activity.setCurrentDocument(composeQuickDocBooksById[id]) }
+    internal fun composeQuickDocSelect(id: String) { setCurrentDocument(composeQuickDocBooksById[id]) }
 
     // ---- Compose window-tab rail bridge (Batch 12b follow-on, Plan A Task 7) ----
     // `windowLabelFor`/`windowTopLabelFor`/`windowIconFor` resolve a `ComposeReadingViewHost`-supplied
@@ -689,7 +724,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
         val window = windowRepository().getWindow(IdType(id)) ?: return null
         val resId = window.pageManager.currentPage.currentDocument?.imageResource ?: return null
         return composeWindowIconCache.getOrPut(resId) {
-            val drawable = ContextCompat.getDrawable(activity, resId) ?: return null
+            val drawable = ContextCompat.getDrawable(readingHost.hostContext, resId) ?: return null
             BitmapPainter(drawable.toBitmap().asImageBitmap())
         }
     }
@@ -706,18 +741,18 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
         )
         return when(itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
-                activity.startActivity(TextDisplaySettingsComposeActivity.intentFor(
-                    activity, SettingsScope.Workspace(windowRepository().id.toString())))
+                hostActivity.startActivity(TextDisplaySettingsComposeActivity.intentFor(
+                    readingHost.hostContext, SettingsScope.Workspace(windowRepository().id.toString())))
             }, opensDialog = true)
             R.id.autoAssignLabels -> AutoAssignPreference(windowRepository().workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
-            R.id.splitMode -> SplitModePreference(activity)
+            R.id.splitMode -> SplitModePreference(readingHost.hostContext)
             R.id.autoPinMode -> WindowPinningPreference()
-            R.id.tiltToScroll -> TiltToScrollPreference(activity)
-            R.id.nightMode -> NightModePreference { activity.refreshIfNightModeChange() }
+            R.id.tiltToScroll -> TiltToScrollPreference(hostActivity)
+            R.id.nightMode -> NightModePreference { refreshIfNightModeChange() }
             R.id.fullscreen -> CommandPreference(launch = { _, _, _ ->
-                activity.fullScreen = true
+                readingHost.fullScreen = true
             })
             R.id.switchToWorkspace -> CommandPreference(launch = { _, _, _ ->
                 // M1 (whole-branch review fix wave): guard on the MOUNTED HOST. The host is
@@ -725,12 +760,12 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
                 // reading view is not up; History (MenuCommandHandler.kt / this file's
                 // long-press-back) already guards the same way. The alternative this replaced was a
                 // live settings read, which could disagree with what is actually on screen.
-                val host = activity.composeReadingViewHost
+                val host = composeReadingViewHost
                 if (host != null) {
                     host.showWorkspaceSheet()
                 } else {
-                    val intent = ScreenLauncher.intentFor(activity, Screen.WorkspaceSelector)
-                    activity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
+                    val intent = ScreenLauncher.intentFor(readingHost.hostContext, Screen.WorkspaceSelector)
+                    hostActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
                 }
             }, opensDialog = true)
             R.id.llmActionsSubMenu -> CommandPreference(
@@ -743,7 +778,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
                         endOffset = null,
                         bookmarks = emptyList(),
                     )
-                    activity.composeReadingViewHost?.showPromptSelector(selection, PromptContext.WORKSPACE_MENU, null)
+                    composeReadingViewHost?.showPromptSelector(selection, PromptContext.WORKSPACE_MENU, null)
                 },
                 visible = CommonUtils.settings.llmConfigured,
                 opensDialog = true,
@@ -773,7 +808,10 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * action has been launched (the host closes the menu).
      */
     fun handleOptionsMenuItem(id: String): Boolean =
-        OptionsMenuStateBuilder.dispatch(activity, { resId, order -> getItemOptions(resId, order) }, id)
+        OptionsMenuStateBuilder.dispatch(
+            hostActivity, windowRepository, hostCallbacks.composeReadingViewHost,
+            { resId, order -> getItemOptions(resId, order) }, id,
+        )
 
     /**
      * Dispatches a click on one of the Compose drawer's rows — through the SAME
@@ -816,7 +854,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      */
     fun handleWindowPaneMenuItem(windowId: String, id: String): Boolean {
         val window = windowRepository().getWindow(IdType(windowId)) ?: return false
-        val controller = activity.composeReadingViewHost?.controller
+        val controller = composeReadingViewHost?.controller
         return when (val parsed = WindowPaneMenuStateBuilder.parseId(id)) {
             is WindowPaneMenuStateBuilder.ParsedId.MoveItem -> {
                 // SplitBibleArea.kt:896-898, :987-992
@@ -893,8 +931,8 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
             // distinct from this activity's OWN workspace-level `getItemOptions(R.id.allTextOptions)`
             // used by the overflow menu).
             WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS -> {
-                activity.startActivity(TextDisplaySettingsComposeActivity.intentFor(
-                    activity, SettingsScope.Window(window.id.toString(), windowRepository().id.toString())))
+                hostActivity.startActivity(TextDisplaySettingsComposeActivity.intentFor(
+                    readingHost.hostContext, SettingsScope.Window(window.id.toString(), windowRepository().id.toString())))
                 false
             }
             // SplitBibleArea.kt:1002-1004
@@ -915,16 +953,16 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
             // SplitBibleArea.kt:1020-1026
             WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD -> {
                 (window.bibleView?.firstDocument as? StudyPadDocument)?.label?.let { label ->
-                    activity.lifecycleScope.launch { exportStudyPads(activity, label) }
+                    readingHost.lifecycleScope.launch { exportStudyPads(hostActivity, label) }
                 }
                 false
             }
             // SplitBibleArea.kt:1027-1035
             WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV -> {
                 (window.bibleView?.firstDocument as? StudyPadDocument)?.label?.let { label ->
-                    activity.lifecycleScope.launch {
+                    readingHost.lifecycleScope.launch {
                         val bookmarks = bookmarkControl.getBibleBookmarksWithLabel(label)
-                        bookmarkControl.exportBookmarksToCSV(activity, bookmarks)
+                        bookmarkControl.exportBookmarksToCSV(hostActivity, bookmarks)
                     }
                 }
                 false
@@ -949,8 +987,8 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
                     // This ☰ pane menu only exists on the Compose path (composeReadingViewHost
                     // installed), so route straight through the host; the classic call is kept as
                     // an `?:` fallback for safety rather than assumed unreachable.
-                    activity.composeReadingViewHost?.showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
-                        ?: activity.llmDialogHelper.showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
+                    composeReadingViewHost?.showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
+                        ?: hostCallbacks.llmDialogHelper().showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
                 }
                 false
             }
@@ -1032,7 +1070,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
             true
         } else {
             val onReady: () -> Unit = { window.bibleView?.updateTextDisplaySettings() }
-            val host = activity.composeReadingViewHost
+            val host = composeReadingViewHost
             val page = (itemOptions as? Preference)?.let { textSettingEditorPageFor(it.type.name) }
             if (page != null && host != null) {
                 // WINDOW-scoped: settingsBundle.toScope() carries level=WINDOW, so the sheet edits
@@ -1040,10 +1078,146 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
                 host.showTextSettingEditor(settingsBundle.toScope(), page, onReady)
                 return false
             }
-            itemOptions.openDialog(activity, { onReady() }, onReady)
+            itemOptions.openDialog(hostActivity, { onReady() }, onReady)
             false
         }
     }
+
+    // ---------------------------------------------------------------------------------------
+    // Members that moved OFF the host in reading-host re-typing R6c2.
+    //
+    // Two reasons, and only two. Most of them need nothing from a host at all -- they are
+    // arithmetic over Koin singletons, the owning host's [windowRepository] supplier and
+    // `CommonUtils` -- so leaving them on the Activity would have meant a callback per member and a
+    // second host re-implementing each one. [switchToWorkspace]/[cycleWorkspace] and the
+    // [currentWorkspaceId] setter they share are here for the OTHER reason: addendum Ruling D says
+    // workspace switching may not be satisfied by a host's empty override, and a body that lives
+    // here cannot be. `MainBibleActivity` keeps a pure delegating stub for every one of them (the
+    // classic toolbar and the untouched Robolectric net still call them there).
+    // ---------------------------------------------------------------------------------------
+
+    /** The active window's current document. Classic reads it too, through its own stub. */
+    internal val currentDocument get() = windowControl.activeWindow.pageManager.currentPage.currentDocument
+
+    /** Sets the active window's document and remembers it as that category's default. */
+    internal fun setCurrentDocument(book: Book?) {
+        windowControl.activeWindow.pageManager.setCurrentDocument(book)
+        if (book != null) {
+            val bookCategory = book.bookCategory
+            // see net.bible.android.control.page.CurrentPageBase.getDefaultBook
+            CommonUtils.settings.setString("default-${bookCategory.name}", book.initials)
+        }
+    }
+
+    /**
+     * The Strong's toolbar button's preference, built fresh on every read exactly as it always was.
+     * `windowRepository()` is the owning host's own repository -- the same object the Activity's
+     * copy read, for the reason [windowRepository]'s kdoc gives.
+     */
+    internal val dummyStrongsPrefOption
+        get() = StrongsPreference(
+            SettingsBundle(
+                level = SettingsLevel.WINDOW,
+                pageManagerSettings = windowControl.activeWindow.pageManager.textDisplaySettings,
+                workspaceId = windowRepository().id,
+                workspaceName = windowRepository().name,
+                workspaceSettings = windowRepository().textDisplaySettings,
+                globalSettings = CommonUtils.globalTextDisplaySettings,
+                windowId = windowControl.activeWindow.id
+            ))
+
+    /** @param type can be BIBLE or COMMENTARY */
+    internal fun startDocumentChooser(type: String) {
+        val intent = ScreenLauncher.intentFor(readingHost.hostContext, Screen.ChooseDocument)
+        intent.putExtra("type", type)
+        hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
+    }
+
+    /** user swiped right */
+    internal fun next() {
+        if (hostCallbacks.documentViewManager().documentView.isPageNextOkay) {
+            windowControl.activeWindowPageManager.currentPage.next()
+        }
+    }
+
+    /** user swiped left */
+    internal fun previous() {
+        if (hostCallbacks.documentViewManager().documentView.isPagePreviousOkay) {
+            windowControl.activeWindowPageManager.currentPage.previous()
+        }
+    }
+
+    /** `applyTheme()` is [ActivityBase]'s, not `MainBibleActivity`'s -- both reading hosts have it. */
+    internal fun refreshIfNightModeChange(): Boolean {
+        // colour may need to change which affects View colour and html
+        // first refresh the night mode setting using light meter if appropriate
+        ScreenSettings.checkMonitoring()
+        hostActivity.applyTheme()
+        return true
+    }
+
+    internal fun showLlmPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION) {
+        val documentCategory = windowRepository().activeWindow.pageManager.currentPage.documentCategory
+        composeReadingViewHost?.showPromptSelector(selection, context, documentCategory)
+    }
+
+    /** Bridge for `BibleJavascriptInterface.regenerateMyDocumentPage` (Batch 12e-A T6): the Compose
+     *  LLM dialog host's regenerate confirmation, over the reading view. */
+    internal fun showRegenerate(pageId: IdType, bibleView: BibleView) {
+        composeReadingViewHost?.showRegenerate(pageId, bibleView)
+    }
+
+    // ---- Workspace switching (addendum Ruling D) ----
+
+    private val workspaces get() = DatabaseContainer.instance.workspaceDb.workspaceDao().allWorkspaces()
+
+    /**
+     * Switch to a workspace by id. Extracted from the WORKSPACE_CHANGED result arm so round 15b's
+     * quick sheet and the full selector's activity result cannot drift apart.
+     */
+    internal fun switchToWorkspace(workspaceId: String) {
+        currentWorkspaceId = IdType(workspaceId)
+    }
+
+    internal fun cycleWorkspace(forward: Boolean) {
+        val workspaces = workspaces
+        if (workspaces.size < 2) return
+        windowRepository().saveIntoDb()
+        val currentWorkspacePos = workspaces.indexOf(workspaces.find { it.id == currentWorkspaceId })
+        val nextPos = if (forward) {
+            if (currentWorkspacePos < workspaces.size - 1) currentWorkspacePos + 1 else 0
+        } else {
+            if (currentWorkspacePos > 0) currentWorkspacePos - 1 else workspaces.size - 1
+        }
+        currentWorkspaceId = workspaces[nextPos].id
+    }
+
+    /**
+     * The workspace the owning host is showing. The setter is the real workspace switch, moved here
+     * verbatim from `MainBibleActivity` (Ruling D): every step of it is either this collaborator's
+     * own ([bibleViewFactory]), a Koin singleton ([windowControl]), the owning host's repository
+     * supplier, a global (`CommonUtils.settings`, `ABEventBus`), or one of the two host callbacks
+     * a second host must genuinely answer ([ReadingCommandsHostCallbacks.documentViewManager] and
+     * [ReadingCommandsHostCallbacks.updateBottomBars]). Only [ReadingCommandsHostCallbacks.updateTitle]
+     * is honestly nothing-to-do for a Compose host -- and it is the one step a dropped workspace
+     * switch would not be visible through.
+     */
+    internal var currentWorkspaceId: IdType
+        get() = windowRepository().id
+        set(value) {
+            bibleViewFactory.clear()
+            windowRepository().loadFromDb(value)
+
+            CommonUtils.settings.setString("current_workspace_id", windowRepository().id.toString())
+            hostCallbacks.documentViewManager().buildView(forceUpdate = true)
+            windowControl.windowSync.reloadAllWindows()
+            windowRepository().updateAllWindowsTextDisplaySettings()
+
+            ABEventBus.post(ToastEvent(windowRepository().name))
+
+            hostCallbacks.updateBottomBars()
+            hostCallbacks.updateTitle()
+        }
 
     val bibleOverlayText: String
         get() {
@@ -1052,7 +1226,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
                 val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
                 try {
-                    return "$bookName:${activity.pageTitleText}"
+                    return "$bookName:${hostCallbacks.pageTitleText()}"
                 } finally {
                     BookName.setFullBookName(oldValue)
                 }

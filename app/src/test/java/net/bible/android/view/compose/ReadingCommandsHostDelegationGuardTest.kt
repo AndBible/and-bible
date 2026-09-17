@@ -35,6 +35,12 @@ import org.junit.Test
  * can legitimately hold DIFFERENT objects for a second, not-yet-resumed `MainBibleActivity`
  * (`MainBibleActivity.onResume`/`unFreeze()` only exist to reconcile them).
  *
+ * R6c2 update: both collaborators are now re-typed (R4's `ReadingHostActivity` plus a
+ * `ReadingCommandsHostCallbacks` bundle), so the property names these scans keyed on --
+ * `activity` and `mainBibleActivity` -- are gone from both files. Each scan below was rewritten to
+ * keep watching the SAME defect through the new spelling rather than passing vacuously against a
+ * receiver that no longer exists; [CollaboratorTypeGuardTest] is what pins the re-typing itself.
+ *
  * Deliberately does NOT cover the rest of the "Already on the interface / LifecycleOwner" row
  * (`getString`/`lifecycleScope`/`startActivity`): those stay spelled `activity.foo()` /
  * `mainBibleActivity.foo()` on purpose (R1's own precedent for the same bucket on
@@ -95,8 +101,14 @@ class ReadingCommandsHostDelegationGuardTest {
         "toolbarButtonSetting",
     )
 
-    /** `MenuCommandHandler`'s own free half (fix round 1, review Important 1): plain `ContextWrapper`
-     *  members that need only a Context, not this specific Activity. */
+    /**
+     * `MenuCommandHandler`'s own free half (R6c1 fix round 1, review Important 1): plain
+     * `ContextWrapper` members that need only a Context, not a specific Activity.
+     *
+     * R6c2 re-keyed this on the CURRENT receiver, `hostActivity`. Keying it on the old
+     * `mainBibleActivity` spelling would have made it a check that cannot fail: that receiver does
+     * not exist in the file any more, so every count would be zero forever, whatever the code did.
+     */
     private val menuCommandHandlerDelegated = listOf(
         "packageName",
         "resources",
@@ -105,19 +117,42 @@ class ReadingCommandsHostDelegationGuardTest {
     @Test
     fun neitherCollaboratorAsksTheActivityForTheFreeHalf() {
         val offenders = readingCommandsDelegated.flatMap { member ->
-            Regex("""(?<![.\w])activity\.$member\b""").findAll(readingCommandsSource).map {
-                "ReadingCommands.kt: activity.$member"
-            }
+            // R6c2: `activity` became `readingHost` (the interface) / `hostActivity` (the plain
+            // Activity). Both spellings are offenders for these members, and so is the old one --
+            // which would mean the re-typing had been undone.
+            Regex("""(?<![.\w])(?:activity|readingHost|hostActivity)\.$member\b""")
+                .findAll(readingCommandsSource).map { "ReadingCommands.kt: ${it.value}" }
         } + menuCommandHandlerDelegated.flatMap { member ->
-            Regex("""(?<![.\w])mainBibleActivity\.$member\b""").findAll(menuCommandHandlerSource).map {
-                "MenuCommandHandler.kt: mainBibleActivity.$member"
-            }
+            Regex("""(?<![.\w])(?:mainBibleActivity|hostActivity)\.$member\b""")
+                .findAll(menuCommandHandlerSource).map { "MenuCommandHandler.kt: ${it.value}" }
         }
         assertEquals(
             emptyList(), offenders.distinct().sorted(),
             "these are reachable without the Activity — inject the Koin singletons, read " +
                 "toolbarButtonSetting from CommonUtils.settings directly, or route packageName/" +
                 "resources through BibleApplication.application (R6c1)",
+        )
+    }
+
+    /**
+     * Anti-vacuity for the scan above: it can only catch anything while `MenuCommandHandler`
+     * really does hold an Activity-shaped receiver under the name the regex looks for, and while
+     * the two Context reads it replaced are still made the host-free way.
+     */
+    @Test
+    fun menuCommandHandlerStillHoldsAnActivityReceiverAndReadsItsContextFreeOfIt() {
+        assertTrue(
+            menuCommandHandlerSource.contains("private val hostActivity: ActivityBase"),
+            "the receiver the scan above is keyed on is gone or renamed — rekey the scan, do not " +
+                "let it pass against a name that no longer exists",
+        )
+        assertTrue(
+            menuCommandHandlerSource.contains("BibleApplication.application.packageName"),
+            "packageName must still come from the application Context (R6c1 fix round 1)",
+        )
+        assertTrue(
+            menuCommandHandlerSource.contains("BibleApplication.application.resources"),
+            "resources must still come from the application Context (R6c1 fix round 1)",
         )
     }
 
@@ -157,24 +192,32 @@ class ReadingCommandsHostDelegationGuardTest {
             "windowControl.windowRepository is whichever host most recently resumed, not " +
                 "necessarily THIS host's own repository — R6c1's original (wrong) substitution",
         )
+        // R6c2 moved the BINDING out to the host bundle (so a second host binds its own) and left
+        // the supplier itself here. Both halves are pinned: a `get()` and not a `=`, because a
+        // stored `val windowRepository = hostCallbacks.windowRepository()` would be exactly the
+        // captured-once bug this supplier exists to prevent.
         assertTrue(
             readingCommandsSource.contains(
-                "private val windowRepository: () -> WindowRepository = { activity.windowRepository }"
+                "private val windowRepository: () -> WindowRepository get() = hostCallbacks.windowRepository"
             ),
             "the owning-host windowRepository supplier is gone or renamed",
         )
-        val directActivityReferences = Regex("""(?<![.\w])activity\.windowRepository\b""")
-            .findAll(readingCommandsSource).count()
-        assertEquals(
-            1, directActivityReferences,
-            "activity.windowRepository must appear EXACTLY once — inside the supplier's own " +
-                "binding; every call site must go through the windowRepository() supplier instead",
+        assertTrue(
+            File("src/main/java/net/bible/android/view/activity/page/ReadingCommandsHostCallbacks.kt")
+                .readText().contains("val windowRepository: () -> WindowRepository,"),
+            "the bundle must declare the owning host's repository as a SUPPLIER, not a value",
+        )
+        assertTrue(
+            File("src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt")
+                .readText().contains("windowRepository = { windowRepository },"),
+            "MainBibleActivity must bind its OWN windowRepository into the bundle",
         )
         val supplierCallSites = Regex("""(?<![.\w])windowRepository\(\)""").findAll(readingCommandsSource).count()
         assertEquals(
-            15, supplierCallSites,
-            "expected all 15 call sites (R6c1's HEAD measurement) to route through the " +
-                "windowRepository() supplier",
+            25, supplierCallSites,
+            "expected every call site (R6c1's 15, plus the ten R6c2 added when it moved " +
+                "dummyStrongsPrefOption, showLlmPromptSelector, cycleWorkspace and " +
+                "currentWorkspaceId here) to route through the windowRepository() supplier",
         )
     }
 }
