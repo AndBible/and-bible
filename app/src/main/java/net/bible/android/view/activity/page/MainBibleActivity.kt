@@ -203,14 +203,6 @@ import org.koin.android.ext.android.inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-const val DEFAULT_SYNC_INTERVAL = 5*60L // 5 minutes
-
-// Bump this when introducing additional sync targets to re-trigger the
-// "new sync targets available" notice for users who already dismissed it.
-private const val NEW_SYNC_TARGETS_ANNOUNCE_VERSION = 1
-
-private val syncScope = CoroutineScope(Dispatchers.IO)
-
 class SpeakTransportVisibilityChanged(val value: Boolean)
 
 class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
@@ -223,6 +215,14 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
 
     // We need to have this here in order to initialize BibleContentManager early enough.
     val windowControl: WindowControl by inject()
+
+    /**
+     * The app bootstrap (reading-host re-typing R7, design spec §3.4). The eight app-startup
+     * responsibilities `onCreate` used to perform inline live here now and are called by BOTH hosts;
+     * this Activity holds no copy of them. Built as a field initialiser, so it exists before
+     * `onCreate` runs and before [windowRepository] is first read.
+     */
+    internal val readingAppBootstrap = ReadingAppBootstrap(this)
     val speakControl: SpeakControl by inject()
     val bookmarkControl: BookmarkControl by inject()
 
@@ -294,7 +294,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     internal var agentLogHeight = 0
 
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
-    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     val multiWinMode
         get() =
@@ -377,11 +376,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         on<AppToBackgroundEvent> { event ->
             if (event.isMovedToBackground) {
                 mWholeAppWasInBackground = true
-                stopPeriodicSync()
-                syncScope.launch { synchronize(true) }
+                readingAppBootstrap.stopPeriodicSync()
+                syncScope.launch { readingAppBootstrap.synchronize(true) }
             } else {
                 updateActions()
-                syncScope.launch { startSync() }
+                syncScope.launch { readingAppBootstrap.startSync() }
             }
         }
         onMain<WorkspacesUpdatedViaSyncEvent> { event ->
@@ -433,7 +432,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         }
         onMain<NumberOfWindowsChangedEvent> { event ->
             if(paused) return@onMain
-            setSoftKeyboardMode()
+            readingAppBootstrap.setSoftKeyboardMode()
         }
         onMain<PassageChangedEvent> { event ->
             if(paused) return@onMain
@@ -470,7 +469,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         // condition honest after a "Don't keep activities" recreation; see HistoryManager.goBack.
         ReadingViewVisibility.setActivityVisible(true)
 
-        CommonUtils.prepareData()
+        readingAppBootstrap.prepareData()
 
         binding = MainBibleViewBinding.inflate(layoutInflater)
         empty = EmptyBinding.inflate(layoutInflater)
@@ -486,9 +485,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         }
 
 
-        windowRepository = WindowRepository(lifecycleScope)
-        windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
+        readingAppBootstrap.createWindowRepository()
 
         documentViewManager = DocumentViewManager(bibleViewFactory) { composeReadingViewHost?.rebuild() }
 
@@ -507,7 +504,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
 
         setupToolbarButtons()
         setupToolbarFlingDetection()
-        setSoftKeyboardMode()
+        readingAppBootstrap.setSoftKeyboardMode()
 
         // First launched activity is not having proper night mode if we are using manual mode.
         // This hack fixes it. See also ActivityBase.fixNightMode.
@@ -521,46 +518,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         }
 
         lifecycleScope.launch(Dispatchers.Main) {
-            if(!initialized) {
-                requestSdcardPermission()
-                ErrorReportControl.checkCrash(this@MainBibleActivity)
-                if(!CommonUtils.checkPoorTranslations(this@MainBibleActivity)) exitProcess(2)
-                showBetaNotice()
-                showStableNotice()
-                showNewSyncTargetsNotice()
-                showFirstTimeHelp()
-                if(!CommonUtils.isDiscrete) {
-                    ABEventBus.post(ToastEvent(windowRepository.name))
-                }
-                checkDocBackupDBInSync()
-            }
-            initialized = true
+            readingAppBootstrap.showFirstRunNotices()
         }
         if(intent.hasExtra("openLink")) {
             val uri = Uri.parse(intent.getStringExtra("openLink"))
-            openLink(uri)
+            readingAppBootstrap.openDeepLink(uri)
         }
-        val connManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            connManager.registerDefaultNetworkCallback(networkCallback)
-        }
-    }
-
-    var networkAvailable: Boolean = false
-    val networkCallback = object: ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network) {
-            super.onAvailable(network)
-            networkAvailable = true
-            if (!paused) {
-                syncScope.launch { startSync() }
-            }
-        }
-
-        override fun onLost(network: Network) {
-            super.onLost(network)
-            networkAvailable = false
-            stopPeriodicSync()
-        }
+        readingAppBootstrap.registerNetworkCallback()
     }
 
     override fun fixNightMode() {} // handle this manually here
@@ -683,205 +647,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
 
     }
 
-    /**
-     * Checks if the list of documents installed matches the list of
-     * books in the backup database.
-     *
-     * Backup database is used to allow user to quickly reinstall all
-     * available books if moving to a new device.
-     */
-    private fun checkDocBackupDBInSync() {
-        val docs = SwordDocumentFacade.documents
-        val knownInstalled = docDao.getKnownInstalled()
-        if (knownInstalled.isEmpty()) {
-            Log.i(TAG, "There is at least one Bible, but Bible Backup DB is empty, populate with first time books");
-            val allDocs = docs.map {
-                SwordDocumentInfo(it.initials, it.name, it.abbreviation, it.language.name, it.getProperty(DownloadManager.REPOSITORY_KEY) ?: "")
-            }
-            docDao.insert(allDocs)
-        } else {
-            knownInstalled.forEach {
-                Log.i(TAG, "The ${it.name} is installed")
-            }
-        }
-    }
-
-    private suspend fun showFirstTimeHelp()  {
-        val pinningHelpShown = preferences.getBoolean("pinning-help-shown", false)
-        if(!pinningHelpShown) {
-            val save = CommonUtils.isFirstInstall || CommonUtils.mainVersionFloat >= 3.4 || suspendCoroutine<Boolean> {
-                val pinningTitle = getString(R.string.help_window_pinning_title)
-                var pinningText = getString(R.string.help_window_pinning_text)
-
-                pinningText += "<br><i><a href=\"$windowPinningVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br>"
-                
-                val spanned = htmlToSpan(pinningText)
-
-                val d = AlertDialog.Builder(this)
-                    .setTitle(pinningTitle)
-                    .setMessage(spanned)
-                    .setNeutralButton(getString(R.string.first_time_help_show_next_time), null)
-                    .setPositiveButton(getString(R.string.first_time_help_do_not_show_again)) { _, _ ->
-                        it.resume(true)
-                    }
-                    .show()
-
-                d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
-            }
-            if(save) {
-                preferences.setBoolean("pinning-help-shown", true)
-            }
-        }
-    }
-
-    private fun showNewSyncTargetsNotice() {
-        val displayedVer = preferences.getInt("new-sync-targets-notice-displayed", 0)
-        if (displayedVer >= NEW_SYNC_TARGETS_ANNOUNCE_VERSION) return
-
-        // The notice is only relevant to users who already use device sync. Suppress
-        // it for everyone else so that users who enable sync later don't see a stale
-        // announcement about targets that aren't new to them.
-        if (!CommonUtils.isCloudSyncEnabled) {
-            preferences.setInt("new-sync-targets-notice-displayed", NEW_SYNC_TARGETS_ANNOUNCE_VERSION)
-            return
-        }
-
-        AlertDialog.Builder(this)
-            .setTitle(R.string.new_sync_targets_notice_title)
-            .setMessage(R.string.new_sync_targets_notice_message)
-            .setCancelable(false)
-            .setNegativeButton(R.string.dismiss) { _, _ ->
-                preferences.setInt("new-sync-targets-notice-displayed", NEW_SYNC_TARGETS_ANNOUNCE_VERSION)
-            }
-            .setPositiveButton(R.string.open_settings) { _, _ ->
-                preferences.setInt("new-sync-targets-notice-displayed", NEW_SYNC_TARGETS_ANNOUNCE_VERSION)
-                ScreenLauncher.open(this, Screen.SyncSettings)
-            }
-            .show()
-    }
-
-    private suspend fun showStableNotice() = suspendCoroutine<Boolean> {
-        if(CommonUtils.isBeta) {
-            it.resume(false)
-            return@suspendCoroutine
-        }
-
-        val ver = CommonUtils.mainVersion
-        val displayedVer = preferences.getString("stable-notice-displayed", "")
-        Log.i(TAG, "showStableNotice: $displayedVer $ver")
-
-        if(displayedVer != ver) {
-            val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-            val appName = getString(R.string.app_name_long)
-            val par1 = getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
-            val buy = getString(R.string.buy_development)
-            val support = getString(R.string.buy_development2)
-            val heartIcon = ImageSpan(CommonUtils.getTintedDrawable(R.drawable.baseline_attach_money_24))
-            val biggerLogoDrawable = CommonUtils.getResourceDrawable(R.drawable.ic_logo, this)!!
-            biggerLogoDrawable.setBounds(0, 0, biggerLogoDrawable.intrinsicWidth*2, biggerLogoDrawable.intrinsicHeight*2)
-            val logoSpan = ImageSpan(biggerLogoDrawable)
-            val centerSpan = AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER)
-            val imageStr = SpannableString("*")
-            val iconStr = SpannableString("*")
-            iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            imageStr.setSpan(logoSpan, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            imageStr.setSpan(centerSpan, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-            val spanned = TextUtils.concat(
-                htmlToSpan("$par1<br><br>"),
-                if(BuildVariant.Appearance.isDiscrete) "" else imageStr,
-                htmlToSpan("<br><br><big><a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a></big>"),
-                htmlToSpan("<br><br>"),
-                iconStr,
-                htmlToSpan("&nbsp;<small><a href=\"$buyDevelopmentLink\">$support ($buy)</a></small>")
-            )
-
-            val d = AlertDialog.Builder(this)
-                .setTitle(getString(R.string.stable_notice_title))
-                .setMessage(spanned)
-                .setIcon(R.drawable.ic_logo)
-                .setNeutralButton(getString(R.string.dismiss)) { _, _ -> it.resume(false)}
-                .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
-                    Log.i(TAG, "showStableNotice: saving $ver")
-                    preferences.setString("stable-notice-displayed", ver)
-                    it.resume(true)
-                }
-                .setOnCancelListener {_ -> it.resume(false)}
-                .create()
-            d.show()
-            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
-        } else {
-            it.resume(false)
-        }
-    }
-
-    private suspend fun showBetaNotice() = suspendCoroutine<Boolean> {
-        if(!CommonUtils.isBeta) {
-            it.resume(false)
-            return@suspendCoroutine
-        }
-
-        val announceVersion = 3
-        val displayedVer = preferences.getInt("beta-notice-displayed2", 0)
-
-        if(displayedVer < announceVersion) {
-            val videoMessage = getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-            val videoMessageLink = "<a href=\"${betaIntroVideo}\"><b>$videoMessage</b></a>"
-
-            val par1 = getString(R.string.beta_notice_content_1)
-            val par2 = getString(R.string.beta_notice_content_2,
-                 " <a href=\"https://github.com/AndBible/and-bible/issues\">"
-                    + "${getString(R.string.beta_notice_github_issues)}</a>"
-            )
-            val par3 = getString(R.string.beta_notice_content_3,
-                " <a href=\"https://github.com/AndBible/and-bible\">"
-                    + "${getString(R.string.beta_notice_github)}</a>"
-
-            )
-            val extraMessage = """
-                |<b>DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS (April 2026)</b><br><br>
-                |Welcome to the 5.1 beta! Many new features have landed, including:<br>
-                |<br>
-                |• <b>AI assistant</b> with tool calling and support for multiple
-                | providers (Claude, Grok, OpenRouter, OpenAI-compatible and more).<br>
-                |• <b>Reading &amp; memorization progress tracking</b> with multiple
-                | modes: Word Scramble, Word Order, Word Blur and Type It.<br>
-                |• <b>My Documents</b>: your own editable, syncable pages.<br>
-                |• <b>Multi-translation search</b> across several Bibles at once.<br>
-                |• Many more improvements &mdash; see the "What's new" video above.<br>
-                |<br>
-                |Please test and report any bugs via
-                |<a href="https://github.com/AndBible/and-bible/issues/new/choose">GitHub</a>
-                | or Main Menu &rarr; Report a bug.<br>
-                |<br>
-                |Best regards, Tuomas<br><br>
-                |P.S. You can support AndBible development financially by
-                |<a href="$buyDevelopmentLink">sponsoring development hours</a>.
-                | <br><br>
-                | (Standard beta notice below)
-                | <br><br>
-            """.trimMargin()
-            val htmlMessage = "$extraMessage$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
-
-            val spanned = htmlToSpan(htmlMessage)
-
-            val d = AlertDialog.Builder(this)
-                .setTitle(getString(R.string.beta_notice_title))
-                .setMessage(spanned)
-                .setIcon(R.drawable.ic_logo)
-                .setNeutralButton(getString(R.string.dismiss)) { _, _ -> it.resume(false)}
-                .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
-                    preferences.setInt("beta-notice-displayed2", announceVersion)
-                    it.resume(true)
-                }
-                .setOnCancelListener {_ -> it.resume(false)}
-                .create()
-            d.show()
-            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
-        } else {
-            it.resume(false)
-        }
-    }
 
     private fun setupToolbarFlingDetection() {
         val scaledMinimumDistance = CommonUtils.convertDipsToPx(40)
@@ -1209,7 +974,17 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
 
 
     val workspaces get() = dao.allWorkspaces()
-    lateinit var windowRepository: WindowRepository
+    /**
+     * R7: a view onto [ReadingAppBootstrap.windowRepository], not a second field. It stays a
+     * settable `var` because seven of the batch's untouchable Robolectric classes assign
+     * `activity.windowRepository = ...` after `controller.create()`, and the bootstrap's sync path
+     * must keep reading whatever they assigned -- which it does, because there is only ever one
+     * field. Keeping one field is also what preserves `onCreate`'s ordering: classic assigned this
+     * property BEFORE `initialize()`, and `createWindowRepository` still does.
+     */
+    var windowRepository: WindowRepository
+        get() = readingAppBootstrap.windowRepository
+        set(value) { readingAppBootstrap.windowRepository = value }
 
     // R3: widened from `private` to `internal` so [ReadingCommands] can reach it. It stays HERE
     // because the CLASSIC toolbar/`updateActions()` path still calls it too (design spec §3.2).
@@ -1500,46 +1275,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     /** See [onComposeSearchFieldFocusChanged]. */
     class ImePaddingChanged
 
-    private fun openLink(uri: Uri) {
-        when (uri.host) {
-            "read.andbible.org" -> {
-                val key = CommonUtils.parseAndBibleReference(uri) ?: return
-                windowControl.showLink(key.document, key)
-            }
-            "stepbible.org" -> {
-                val qParam = uri.getQueryParameter("q") ?: return
-
-                val docRegex = Regex("""version=([^&|]+)""")
-                val refRegex = Regex("""reference=([^&|]+)""")
-
-                val versionMatch = docRegex.find(qParam)
-                val version = if (versionMatch != null) versionMatch.groups[1]?.value else null
-                val doc = if (version != null) Books.installed().getBook(version) else null
-
-                val defV11n = if (doc is SwordBook) doc.versification else KJVA
-                val v11nStr = uri.getQueryParameter("v11n")
-                val v11n = if (v11nStr == null) defV11n else Versifications.instance().getVersification(v11nStr) ?: defV11n
-
-                val refMatch = refRegex.find(qParam) ?: return
-                val keyStr = refMatch.groups[1]?.value ?: return
-
-                val key = PassageKeyFactory.instance().getKey(v11n, keyStr)
-                windowControl.showLink(doc, key)
-            }
-            "www.bible.com" -> {
-                val urlRegex = Regex("""/(\w+)/bible/(\w+)/([\w\d]+)\.(\d+)\.(\w+)""")
-                val match = urlRegex.find(uri.path.toString()) ?: return
-                val book = match.groups[3]?.value ?: return
-                val chapter = match.groups[4]?.value?.toInt() ?: return
-                val docStr = match.groups[5]?.value
-                val doc = if (docStr != null) Books.installed().getBook(docStr) else null
-                val defV11n = if (doc is SwordBook) doc.versification else KJVA
-
-                val key = VerseFactory.fromString(defV11n, "$book.$chapter")
-                windowControl.showLink(doc, key)
-            }
-        }
-    }
 
     // R3: widened from `private` to `internal` so [ReadingCommands] can reach it. It stays HERE
     // because the CLASSIC toolbar/`updateActions()` path still calls it too (design spec §3.2).
@@ -1839,56 +1574,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         }
     }
 
-    private var syncJob: Job? = null
-
-    private suspend fun startSync() {
-        if(CommonUtils.isCloudSyncEnabled) {
-            synchronize(true)
-            if(syncJob != null) {
-                Log.e(TAG, "syncJob already exists")
-            } else {
-                syncJob = lifecycleScope.launch { periodicSync() }
-            }
-        }
-    }
-
-    private suspend fun periodicSync() {
-        Log.i(TAG, "Periodic sync starting")
-        while (CommonUtils.isCloudSyncEnabled && syncJob?.isCancelled == false) {
-            delay(60*1000) // 1 minute
-            if(syncJob?.isCancelled == false) synchronize()
-        }
-    }
-
-    private val lastTouched: Long get() {
-        return windowRepository.windowList.mapNotNull { it.bibleView?.lastTouched }.max()
-    }
-
-    private val syncInterval get() =
-        CommonUtils.settings.getLong("cloud_sync_interval", DEFAULT_SYNC_INTERVAL) * 1000
-    private val lastSynchronized get() =
-        CommonUtils.settings.getLong("globalLastSynchronized", 0L)
-
     private val now get() = System.currentTimeMillis()
-
-    private suspend fun synchronize(force: Boolean = false) {
-        if(CommonUtils.isCloudSyncEnabled && networkAvailable) {
-            windowRepository.saveIntoDb(false)
-            if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && CloudSync.hasChanges())) {
-                Log.i(TAG, "Performing periodic sync")
-                if(!CloudSync.signedIn) {
-                    CloudSync.signIn(this@MainBibleActivity)
-                }
-                CloudSync.start()
-                CloudSync.waitUntilFinished()
-            }
-        }
-    }
-
-    private fun stopPeriodicSync() {
-        syncJob?.cancel()
-        syncJob = null
-    }
 
     override fun onScreenTurnedOff() {
         super.onScreenTurnedOff()
@@ -2185,7 +1871,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
 
     private fun preferenceSettingsChanged() {
         resetSystemUi()
-        requestSdcardPermission()
+        readingAppBootstrap.requestSdcardPermission()
         ABEventBus.post(SynchronizeWindowsEvent(true))
         CommonUtils.changeAppIconAndName()
         // Returning from Settings is what re-reads the toolbar snapshot (e.g. the
@@ -2196,31 +1882,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         composeReadingViewHost?.refreshHostedState(rebuildComposition = true)
     }
 
-    private fun requestSdcardPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            val requestSdCardPermission = preferences.getBoolean(REQUEST_SDCARD_PERMISSION_PREF, false)
-            if (requestSdCardPermission && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), SDCARD_READ_REQUEST)
-            }
-        }
-    }
 
-    private fun setSoftKeyboardMode() {
-        // Android 15 edge-to-edge enforcement fix:
-        // When targeting API 35+, traditional adjustPan/adjustResize may not work properly
-        // with edge-to-edge mode. Use adjustNothing and handle keyboard insets manually
-        // through WindowInsetsCompat.Type.ime() for better compatibility.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            // Try adjustNothing first for proper edge-to-edge behavior
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
-        } else if (windowControl.isMultiWindow) {
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        } else {
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-        }
-    }
-
-    private var paused = false
+    /**
+     * R7: a view onto [ReadingAppBootstrap.hostPaused]. One flag, written here by `onPause`/
+     * `onResume` exactly as before, read by this class's event guards AND by the extracted
+     * `networkCallback`'s `onAvailable` -- which is why it is the bootstrap that stores it.
+     */
+    private var paused: Boolean
+        get() = readingAppBootstrap.hostPaused
+        set(value) { readingAppBootstrap.hostPaused = value }
     override fun onPause() {
         // TEMPORARY, see onCreate. HistoryManager asks ReadingViewVisibility instead of
         // `CurrentActivityHolder.currentActivity is MainBibleActivity` (spec §5.1); while the
@@ -2356,12 +2026,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     }
 
     companion object {
-        var initialized = false
-        private const val SDCARD_READ_REQUEST = 2
-
         const val WORKSPACE_CHANGED = 94
-
-        private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"
     }
 }
 

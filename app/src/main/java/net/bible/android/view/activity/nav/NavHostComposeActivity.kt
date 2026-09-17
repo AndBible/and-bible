@@ -170,6 +170,7 @@ import net.bible.android.view.activity.download.isInstalled
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.ReadingAppBootstrap
 import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
@@ -476,6 +477,29 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     private val searchResultsCache: SearchResultsCache by inject()
     private val epubSearchService: EpubSearchService by inject()
     private val linkControl: LinkControl by inject()
+
+    /**
+     * The app bootstrap, extracted out of `MainBibleActivity.onCreate` by reading-host re-typing R7
+     * (design spec §3.4). This host held NONE of the eight app-startup responsibilities §2.3
+     * measured; it now calls the one shared unit, rather than carrying a second copy of them.
+     *
+     * **Gated on the READING start route, deliberately.** This Activity is the nav host for ~45
+     * routes -- Download, ManageLabels, every settings page -- and is launched afresh for those from
+     * `MainBibleActivity` and from `StartupActivity`. Bootstrapping unconditionally would have every
+     * settings screen construct a `WindowRepository` and overwrite `windowControl.windowRepository`
+     * with it, silently replacing the live workspace the reading view is showing. Nothing launches
+     * this host on [NavRoutes.READING] in production yet (nav-graph slice 7 Task 12 is what makes it
+     * the launcher), so the gate means R7 changes nothing observable here today and does the right
+     * thing the moment it does.
+     */
+    internal val readingAppBootstrap = ReadingAppBootstrap(this)
+
+    /**
+     * The workspace this host's bootstrap created. R6 needs it (this host had no `windowRepository`
+     * at all); it is only meaningful after [onCreate] has run the bootstrap, i.e. on the reading
+     * route.
+     */
+    internal val windowRepository get() = readingAppBootstrap.windowRepository
 
     /**
      * Classic `ReadingProgressComposeActivity.kt:74` injects the CONCRETE impl, not the portable
@@ -984,6 +1008,32 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // repository it reads is the one `MainBibleActivity` created -- which is the object classic read
     // too.
 
+    /**
+     * Classic `MainBibleActivity.onCreate`'s app-startup steps, IN ITS ORDER (reading-host re-typing
+     * R7): `prepareData` -> the `WindowRepository` -> `setSoftKeyboardMode` -> the first-run notices
+     * -> the `openLink` deep link -> the network callback. The order is load-bearing and classic
+     * documents why in its own 14-line comment; the only steps missing here are the ones that belong
+     * to the classic view hierarchy (the `binding` inflation, `setupUi`, the toolbar) and
+     * `ReadingViewVisibility`, whose Activity input is still `MainBibleActivity`'s lifecycle until
+     * R7b/T8 hand it to the reading destination's `DisposableEffect`.
+     *
+     * Runs BEFORE `setContent`, exactly as classic runs it before the reading view is built: the
+     * composition reads `windowControl.windowRepository`.
+     */
+    private fun bootstrapReadingApp() {
+        readingAppBootstrap.prepareData()
+        readingAppBootstrap.createWindowRepository()
+        readingAppBootstrap.setSoftKeyboardMode()
+        lifecycleScope.launch(Dispatchers.Main) {
+            readingAppBootstrap.showFirstRunNotices()
+        }
+        if(intent.hasExtra("openLink")) {
+            val uri = Uri.parse(intent.getStringExtra("openLink"))
+            readingAppBootstrap.openDeepLink(uri)
+        }
+        readingAppBootstrap.registerNetworkCallback()
+    }
+
     /** [ReadingHostActivity.hostContext] -- this Activity, as the plain Context (spec §2.1). */
     override val hostContext: Context get() = this
 
@@ -1236,8 +1286,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * Classic `MainBibleActivity.paused`, the first half of the `NightModeChanged` guard below.
      * This host had no `onPause`/`onResume` of its own; these two exist only to keep that flag, and
      * set it on classic's side of the `super` call.
+     *
+     * R7: a view onto [ReadingAppBootstrap.hostPaused], the same one flag `MainBibleActivity.paused`
+     * is. The extracted `networkCallback` reads it to decide whether a network that just came back
+     * should start a sync; a second, host-local copy would leave that gate permanently `false` here.
      */
-    private var paused = false
+    private var paused: Boolean
+        get() = readingAppBootstrap.hostPaused
+        set(value) { readingAppBootstrap.hostPaused = value }
 
     override fun onPause() {
         paused = true
@@ -1273,6 +1329,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         val startRoute = requireNotNull(intent.getStringExtra(EXTRA_ROUTE)) {
             "NavHostComposeActivity requires EXTRA_ROUTE — launch it via NavHostComposeActivity.intentFor()"
         }
+        if (startRoute == NavRoutes.READING) bootstrapReadingApp()
         setContent {
             AbAppTheme {
                 val navController = rememberNavController()
