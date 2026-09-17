@@ -60,6 +60,11 @@ class CollaboratorTypeGuardTest {
         "src/main/java/net/bible/android/view/activity/page/ReadingCommandsHostCallbacks.kt",
         // R6d: the reading host itself -- the file this whole batch exists to re-type.
         "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
+        // T8a item 1: the page whose `startKeyChooser` branched on `context !is MainBibleActivity`
+        // and returned. It was never in this list even though it is exactly the coupling this guard
+        // polices -- and the two assertions above could not have caught it either, which is why
+        // [noEasyCollaboratorBranchesOnTheHostBeingMainBibleActivity] exists.
+        "src/main/java/net/bible/android/control/page/CurrentGeneralBookPage.kt",
     )
 
     @Test
@@ -90,6 +95,36 @@ class CollaboratorTypeGuardTest {
             "a retype that still downcasts to the full Activity every time it is used is a " +
                 "re-label, not a re-type (review Critical 1) -- push the needed value in as a " +
                 "constructor argument instead, or exclude the file here and report it blocked",
+            emptyList<String>(), offenders,
+        )
+    }
+
+    /**
+     * **T8a item 1: the third bridging shape — a TYPE TEST.**
+     *
+     * The two assertions above see a declared `: MainBibleActivity` parameter and an
+     * `as MainBibleActivity` downcast. `CurrentGeneralBookPage.startKeyChooser` did neither: it
+     * took an `ActivityBase` and opened with `if(context !is MainBibleActivity) return`, so both
+     * went green on a file whose whole body ran only for the classic Activity — and the failure was
+     * the worst shape this batch recognises, a silent no-op with no log line and no crash (a dead
+     * key-chooser button on the nav host).
+     *
+     * `is`/`!is` only. `as? MainBibleActivity` is deliberately NOT matched here: the repository's
+     * two other sites (`Dialogs.kt:284`, `LinkControl.kt:389`) use it to choose between a Compose
+     * sheet and a plain fallback that still happens, which is a documented non-silent branch and
+     * not this guard's business. Neither file is scanned here anyway; widening the regex so that
+     * they would fail if they were is how a guard gets weakened later to make them pass.
+     */
+    @Test
+    fun noEasyCollaboratorBranchesOnTheHostBeingMainBibleActivity() {
+        val offenders = files.filter { path ->
+            Regex("""\bis\s+MainBibleActivity\b""").containsMatchIn(codeOf(File(path)))
+        }
+        assertEquals(
+            "a collaborator that TESTS whether its host is MainBibleActivity is coupled to the " +
+                "Activity just as tightly as one that declares or casts it, and the arm it skips " +
+                "is invisible: on a second host the body silently does nothing. Push in the value " +
+                "the body actually needed instead",
             emptyList<String>(), offenders,
         )
     }

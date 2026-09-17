@@ -35,7 +35,6 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
 import net.bible.service.common.firstBibleDoc
@@ -73,8 +72,42 @@ class CurrentGeneralBookPage internal constructor(
 
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
+    /**
+     * The workspace settings this page's key chooser seeds and writes back — **this page's own
+     * window's**, never the Activity's and never `windowControl`'s.
+     *
+     * Reading-host re-typing T8a item 1. The body of [startKeyChooser] used to read
+     * `context.workspaceSettings`, which only `MainBibleActivity` declares (`:400`), and guarded
+     * that read with `if(context !is MainBibleActivity) return` — added by `b718fe85c` (2022) in
+     * the same commit that widened the parameter from `MainBibleActivity` to [ActivityBase], i.e. a
+     * TYPE artefact, not a policy. On `NavHostComposeActivity` it made every general-book /
+     * StudyPad / multi-document key-chooser tap a silent no-op.
+     *
+     * A `WindowRepository` reached through the HOST (`ReadingHostActivity.hostWindowRepository`)
+     * would have worked for three of the four callers; this one is correct for all four and needs
+     * no host at all. `Window.windowRepository` is a constructor property and `Window`'s `init`
+     * sets `pageManager.window = this`, so the page a key chooser is opened FOR always knows the
+     * repository that owns it — which is the repository whose workspace the chooser must edit, even
+     * with two live reading hosts (the identity finding of R6c1/R6d). `CurrentPageManager`'s
+     * auto-open path in particular calls in with `CurrentActivityHolder.currentActivity`, which may
+     * be any Activity at all.
+     *
+     * A `get()`, not a captured value: `WindowRepository.workspaceSettings` is a `var` that
+     * `loadFromDb` replaces, and classic re-read `context.workspaceSettings` on both sides of the
+     * `awaitIntent` below. Same two reads, same instants.
+     */
+    private val workspaceSettings: WorkspaceEntities.WorkspaceSettings
+        get() = pageManager.window.windowRepository.workspaceSettings
+
+    /**
+     * Open the key chooser for this page's document.
+     *
+     * Runs on ANY [ActivityBase], exactly as [CurrentBiblePage], [CurrentDictionaryPage],
+     * [CurrentMapPage] and [CurrentCommentaryPage] always have — see [workspaceSettings] for the
+     * `!is MainBibleActivity` early return that used to stand here and why it is gone. There is no
+     * replacement check and no path that cannot proceed, so nothing here returns silently.
+     */
     override fun startKeyChooser(context: ActivityBase) {
-        if(context !is MainBibleActivity) return
         context.lifecycleScope.launch(Dispatchers.Main) {
             val doc = currentDocument
             when {
@@ -86,14 +119,14 @@ class CurrentGeneralBookPage internal constructor(
                     // RESULT is unchanged -- NavResultIntents.forManageLabels still writes it under
                     // that key.
                     val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.STUDYPAD)
-                        .applyFrom(context.workspaceSettings)
+                        .applyFrom(workspaceSettings)
                         .toJSON()
                     val result = context.awaitIntent(
                         NavHostComposeActivity.intentFor(context, NavRoutes.manageLabels(data))
                     )
                     if(result.resultCode == Activity.RESULT_OK) {
                         val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
-                        context.workspaceSettings.updateFrom(resultData)
+                        workspaceSettings.updateFrom(resultData)
                     }
                 }
                 doc == FakeBookFactory.multiDocument -> {
