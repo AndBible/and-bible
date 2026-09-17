@@ -237,10 +237,12 @@ class ReadingCommandsHostDelegationGuardTest {
         )
         val supplierCallSites = Regex("""(?<![.\w])windowRepository\(\)""").findAll(readingCommandsSource).count()
         assertEquals(
-            25, supplierCallSites,
-            "expected every call site (R6c1's 15, plus the ten R6c2 added when it moved " +
+            26, supplierCallSites,
+            "expected every call site (R6c1's 15, the ten R6c2 added when it moved " +
                 "dummyStrongsPrefOption, showLlmPromptSelector, cycleWorkspace and " +
-                "currentWorkspaceId here) to route through the windowRepository() supplier",
+                "currentWorkspaceId here, and T8c's `hostActiveWindowPageManager` -- the ONE page " +
+                "manager the three activity-result arms it brought over read) to route through the " +
+                "windowRepository() supplier",
         )
     }
 
