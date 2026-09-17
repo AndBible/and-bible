@@ -78,6 +78,7 @@ import net.bible.android.control.progress.MemorizationDataChangedEvent
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.progress.ReadingProgressSettingsChangedEvent
 import net.bible.service.common.ReadingProgressSettings
+import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.NoteEditorEntityType
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
@@ -291,7 +292,16 @@ class Selection(
 
 /** The WebView component that shows the bible and other documents */
 @SuppressLint("ViewConstructor")
-class BibleView(val mainBibleActivity: MainBibleActivity,
+class BibleView(
+                /**
+                 * R6a: R4's narrow reading-host interface, not the Activity. The
+                 * `MainBibleActivity`-only members this class used to reach through it are in
+                 * [hostCallbacks]; everything else here is chrome the interface owns, a plain
+                 * `Context` ([ReadingHostActivity.hostContext]) or `LifecycleOwner`.
+                 */
+                val host: ReadingHostActivity,
+                /** See [BibleViewHostCallbacks]. Also read by this view's [BibleJavascriptInterface]. */
+                val hostCallbacks: BibleViewHostCallbacks,
                 internal var windowRef: WeakReference<Window>,
                 internal val windowControl: WindowControl,
                 private val pageControl: PageControl,
@@ -300,7 +310,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 internal val bookmarkControl: BookmarkControl,
                 internal val downloadControl: DownloadControl,
                 private val searchControl: SearchControl
-) : WebView(mainBibleActivity.applicationContext), DocumentView
+) : WebView(host.hostContext.applicationContext), DocumentView
 {
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
 
@@ -325,8 +335,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val maxHorizontalScroll: Int
         get() = computeHorizontalScrollRange() - computeHorizontalScrollExtent()
 
-    private val gestureListener  = BibleGestureListener(mainBibleActivity, this,
-        onNext = { mainBibleActivity.next() }, onPrevious = { mainBibleActivity.previous() })
+    private val gestureListener  = BibleGestureListener(host, this,
+        onNext = { hostCallbacks.onNext() }, onPrevious = { hostCallbacks.onPrevious() })
 
     private var toBeDestroyed = false
 
@@ -404,7 +414,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
             R.id.share_verses -> {
                 val sel = currentSelection ?: return true
-                ShareWidget.dialog(mainBibleActivity, sel)
+                ShareWidget.dialog(host.hostContext, sel)
                 return true
             }
             R.id.open_ref -> {
@@ -418,7 +428,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             R.id.web_search -> {
-                if (currentSelectionText != null) { openWebSearch(mainBibleActivity, currentSelectionText!!) }
+                if (currentSelectionText != null) { openWebSearch(host.hostContext, currentSelectionText!!) }
                 return true
             }
             R.id.lookup_dictionary -> {
@@ -431,7 +441,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             R.id.llm_action -> {
                 val sel = currentSelection
                 if (sel != null) {
-                    mainBibleActivity.showLlmPromptSelector(sel)
+                    hostCallbacks.showLlmPromptSelector(sel, PromptContext.VERSE_SELECTION)
                 }
                 mode.finish()
                 return true
@@ -456,7 +466,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 // instead of the live settings-sheet word-mode/section, reproducing this exact
                 // string rather than decorating it twice (see
                 // `ComposeReadingViewHost.openSearch`'s kdoc). Classic behaviour unchanged otherwise.
-                if (mainBibleActivity.composeSearchIfHosted(searchText, preDecorated = true)) {
+                if (hostCallbacks.composeSearchIfHosted(searchText, /* preDecorated = */ true)) {
                     return true
                 }
 
@@ -480,7 +490,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         searchDocument = currentBible.initials,
                     )
                 }
-                mainBibleActivity.startActivity(NavHostComposeActivity.intentFor(mainBibleActivity, route))
+                host.hostContext.startActivity(NavHostComposeActivity.intentFor(host.hostContext, route))
 
                 return true
             }
@@ -612,7 +622,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         linkControl.openMemorize(BookAndKey(verseRange, selection.book))
     }
 
-    val scope get() = mainBibleActivity.lifecycleScope
+    val scope get() = host.lifecycleScope
 
     internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.IO) {
         val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
@@ -626,8 +636,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             selectedLabels = labels.toMutableSet(),
             bookmarkPrimaryLabel = bookmark.primaryLabelId
         ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
-        val intent = NavHostComposeActivity.intentFor(mainBibleActivity, NavRoutes.manageLabels(data))
-        val result = mainBibleActivity.awaitIntent(intent)
+        val intent = NavHostComposeActivity.intentFor(host.hostContext, NavRoutes.manageLabels(data))
+        val result = hostCallbacks.hostActivity.awaitIntent(intent)
 
         if(result.resultCode == Activity.RESULT_OK) {
             val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
@@ -1485,8 +1495,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         UriConstants.SCHEME_DOWNLOAD -> {
             val initials = uri.getQueryParameter("initials")
 
-            val intent = NavHostComposeActivity.intentFor(mainBibleActivity, NavRoutes.download(search = initials))
-            mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+            val intent = NavHostComposeActivity.intentFor(host.hostContext, NavRoutes.download(search = initials))
+            hostCallbacks.hostActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
             true
         }
         UriConstants.SCHEME_SWORD -> {
@@ -1704,7 +1714,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             // Our BibleView.js will freeze and eventually OOM-crash with ridiculously large documents.
             if(docStr.length > MAX_DOC_STR_LENGTH) {
                 Log.e(TAG, "Page is too large to be shown, showing error instead, ${docStr.length}")
-                val errorDoc = ErrorDocument(mainBibleActivity.getString(R.string.error_page_too_large), ErrorSeverity.NORMAL)
+                val errorDoc = ErrorDocument(host.getString(R.string.error_page_too_large), ErrorSeverity.NORMAL)
                 docStr = errorDoc.asJson
                 firstDocument = errorDoc
             }
@@ -1830,7 +1840,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         setBackgroundColor(backgroundColor)
     }
 
-    private val nightMode get() = mainBibleActivity.currentNightMode
+    private val nightMode get() = hostCallbacks.currentNightMode()
 
     private var labelsUploaded = false
 
@@ -2030,27 +2040,44 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun updateOffsets(immediate: Boolean = false) {
         if(isTopWindow || isBottomWindow && contentVisible && window.isVisible)
-            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: $immediate, imeOpen: ${mainBibleActivity.readingInsets.imeHeight > 0}});")
+            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: $immediate, imeOpen: ${hostCallbacks.imeHeight() > 0}});")
     }
 
+    /**
+     * R6a: `MainBibleActivity.isSplitVertically` DERIVED rather than bundled as a lambda. Its body
+     * is `if (workspaceSettings.enableReverseSplitMode) !CommonUtils.isPortrait else
+     * CommonUtils.isPortrait`, and both halves are already in reach here: the settings come off the
+     * very `windowControl.windowRepository` the two properties below read on the same line (that IS
+     * the Activity's `windowRepository` — `ReadingAppBootstrap` assigns
+     * `windowControl.windowRepository = windowRepository` when it creates it), and
+     * `CommonUtils.isPortrait` is a global reading the current Activity's configuration. A derived
+     * value beats a lambda: there is no host left that could supply a different answer, and nothing
+     * to keep in sync.
+     */
+    private val isSplitVertically: Boolean
+        get() {
+            val reverse = windowControl.windowRepository.workspaceSettings.enableReverseSplitMode
+            return if (reverse) !CommonUtils.isPortrait else CommonUtils.isPortrait
+        }
+
     private val isTopWindow
-        get() = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
+        get() = !isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
 
     private val isBottomWindow
-        get() = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
+        get() = !isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
 
     val topOffset
         get() =
             if(isTopWindow && !SharedActivityState.instance.isFullScreen)
-                (mainBibleActivity.readingInsets.topOffset2
-                    / mainBibleActivity.resources.displayMetrics.density)
+                (hostCallbacks.topOffset2()
+                    / host.hostContext.resources.displayMetrics.density)
             else 0F
     
     val bottomOffset
         get() =
             if(isBottomWindow)
-                (mainBibleActivity.readingInsets.bottomOffsetForWebView
-                    / mainBibleActivity.resources.displayMetrics.density)
+                (hostCallbacks.bottomOffsetForWebView()
+                    / host.hostContext.resources.displayMetrics.density)
             else 0F
 
     override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {

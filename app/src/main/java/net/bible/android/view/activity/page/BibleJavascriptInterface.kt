@@ -36,6 +36,8 @@ import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.progress.ProgressControl
+import net.bible.android.control.search.SearchControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.progress.ReadingProgressSettingsChangedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -90,6 +92,8 @@ import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.NoteEditorEntityType
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.io.File
 import java.lang.ClassCastException
 
@@ -127,15 +131,31 @@ internal fun refChooserVerseName(verseStr: String?): String {
 
 class BibleJavascriptInterface(
 	private val bibleView: BibleView
-) {
+) : KoinComponent {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
     val linkControl get() = bibleView.linkControl
     val bookmarkControl get() = bibleView.bookmarkControl
     val downloadControl get() = bibleView.downloadControl
 
-    val mainBibleActivity = bibleView.mainBibleActivity
+    /**
+     * R6a: the host as a plain Android Activity. This class used to hold `bibleView
+     * .mainBibleActivity` and reach 13 distinct members through it; nine of those are the ordinary
+     * Activity API (`startActivity`, `startActivityForResult`, `getString`, `lifecycleScope`, an
+     * `AlertDialog.Builder` receiver) or library helpers that demand an `Activity`/`ActivityBase`
+     * BY SIGNATURE — `CommonUtils.showHelpDialog`, `BackupControl.saveOrShare`,
+     * `SearchControl.getSearchIntent`, `CurrentPage.startKeyChooser`,
+     * `ReadHistoryDialog.showForChapter`. Those keep their spelling against [ActivityBase], which
+     * BOTH reading hosts really are, so nothing is cast and nothing can fail at Task 8. The four
+     * that were genuinely `MainBibleActivity`-only went into [BibleViewHostCallbacks]; two more
+     * (`speakControl`, `searchControl`) are Koin singletons and are injected here instead of
+     * borrowed off the Activity, which is R1's move.
+     */
+    private val hostActivity: ActivityBase get() = bibleView.hostCallbacks.hostActivity
+    private val hostCallbacks: BibleViewHostCallbacks get() = bibleView.hostCallbacks
+    private val speakControl: SpeakControl by inject()
+    private val searchControl: SearchControl by inject()
     var notificationsEnabled = false
-    val scope get() = mainBibleActivity.lifecycleScope
+    val scope get() = hostActivity.lifecycleScope
 
     @JavascriptInterface
     fun scrolledToOrdinal(keyStr: String, ordinal: Int) {
@@ -239,7 +259,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun refChooserDialog(callId: Long) {
         scope.launch {
-            val verseStr = mainBibleActivity.composeReadingViewHost
+            val verseStr = hostCallbacks.composeReadingViewHost()
                 ?.openVerseChooserSheetForResult()
                 ?.await()
 
@@ -390,8 +410,8 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openDownloads() {
         if (!downloadControl.checkDownloadOkay()) return
-        val intent = NavHostComposeActivity.intentFor(mainBibleActivity, NavRoutes.download(addons = true))
-        mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+        val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.download(addons = true))
+        hostActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
     }
 
     @JavascriptInterface
@@ -478,7 +498,7 @@ class BibleJavascriptInterface(
     fun shareBookmarkVerse(bookmarkId: String) {
         val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId))!!
         scope.launch(Dispatchers.Main) {
-            ShareWidget.dialog(mainBibleActivity, bookmark)
+            ShareWidget.dialog(hostActivity, bookmark)
         }
     }
 
@@ -490,7 +510,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
-            ShareWidget.dialog(mainBibleActivity, Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+            ShareWidget.dialog(hostActivity, Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
         }
     }
 
@@ -594,8 +614,8 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openReadingProgress(tab: Int) {
         scope.launch(Dispatchers.Main) {
-            val intent = NavHostComposeActivity.intentFor(mainBibleActivity, NavRoutes.readingProgress(tab))
-            mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
+            val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.readingProgress(tab))
+            hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
         }
     }
 
@@ -607,8 +627,8 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun openReadingProgressSettings() {
         scope.launch(Dispatchers.Main) {
-            val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.ReadingProgressSettings)
-            mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
+            val intent = ScreenLauncher.intentFor(hostActivity, Screen.ReadingProgressSettings)
+            hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
         }
     }
 
@@ -627,7 +647,7 @@ class BibleJavascriptInterface(
             }
         }
         scope.launch(Dispatchers.Main) {
-            CommonUtils.showHelpDialog(mainBibleActivity, titleRes, messageRes, helpPath)
+            CommonUtils.showHelpDialog(hostActivity, titleRes, messageRes, helpPath)
         }
     }
 
@@ -651,7 +671,7 @@ class BibleJavascriptInterface(
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
         val kjvBook = Verse(v11n, startOrdinal).toV11n(KJVA).book
         scope.launch(Dispatchers.Main) {
-            ReadHistoryDialog.showForChapter(mainBibleActivity, kjvBook, chapter)
+            ReadHistoryDialog.showForChapter(hostActivity, kjvBook, chapter)
         }
     }
 
@@ -698,7 +718,7 @@ class BibleJavascriptInterface(
                 return@launch
             }
             val titles = markers.map { it.title }.toTypedArray()
-            AlertDialog.Builder(mainBibleActivity)
+            AlertDialog.Builder(hostActivity)
                 .setTitle(R.string.ai_doc_choose_page)
                 .setItems(titles) { _, which ->
                     openAiDocPage(markers[which].documentInitials, markers[which].pageKey)
@@ -713,10 +733,10 @@ class BibleJavascriptInterface(
             val book = Books.installed().getBook(bookInitials) as SwordBook
             val v11n = Versifications.instance().getVersification(v11nName)
             val verse = Verse(v11n, ordinal).toV11n(book.versification)
-            if(mainBibleActivity.speakControl.isSpeaking) {
-                mainBibleActivity.speakControl.pause(willContinueAfterThis = true, toast = false)
+            if(speakControl.isSpeaking) {
+                speakControl.pause(willContinueAfterThis = true, toast = false)
             }
-            mainBibleActivity.speakControl.speakBible(book, verse)
+            speakControl.speakBible(book, verse)
         }
     }
 
@@ -727,10 +747,10 @@ class BibleJavascriptInterface(
             val v11n = Versifications.instance().getVersification(v11nName)
             val startVerse = Verse(v11n, ordinal).toV11n(book.versification)
             val endVerse = Verse(v11n, endOrdinal).toV11n(book.versification)
-            if (mainBibleActivity.speakControl.isSpeaking) {
-                mainBibleActivity.speakControl.pause(willContinueAfterThis = true, toast = false)
+            if (speakControl.isSpeaking) {
+                speakControl.pause(willContinueAfterThis = true, toast = false)
             }
-            mainBibleActivity.speakControl.speakMemorizationLoop(book, startVerse, endVerse)
+            speakControl.speakMemorizationLoop(book, startVerse, endVerse)
         }
     }
 
@@ -747,10 +767,10 @@ class BibleJavascriptInterface(
             val key = (origKey as? RangedPassage)?.toVerseRange ?:  try {KeyUtil.getVerse(origKey)} catch (e: ClassCastException) {origKey}
             val ordinalRange = OrdinalRange(ordinal, positiveOrNull(endOrdinal))
             val bookAndKey = BookAndKey(key, book, ordinalRange)
-            if(mainBibleActivity.speakControl.isSpeaking) {
-                mainBibleActivity.speakControl.pause(willContinueAfterThis = true, toast = false)
+            if(speakControl.isSpeaking) {
+                speakControl.pause(willContinueAfterThis = true, toast = false)
             }
-            mainBibleActivity.speakControl.speakGeneric(bookAndKey)
+            speakControl.speakGeneric(bookAndKey)
         }
     }
 
@@ -845,24 +865,24 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun helpDialog(content: String, title: String?) {
-        AlertDialog.Builder(mainBibleActivity)
+        AlertDialog.Builder(hostActivity)
             .setTitle(title)
             .setMessage(content)
-            .setPositiveButton(mainBibleActivity.getString(R.string.okay), null)
+            .setPositiveButton(hostActivity.getString(R.string.okay), null)
             .show()
     }
 
     @JavascriptInterface
     fun helpBookmarks() {
-        val verseTip = mainBibleActivity.getString(R.string.verse_tip)
-        val bookmarksMyNotesHelp = mainBibleActivity.getString(R.string.help_bookmarks_text)
-        val message = "<i><a href=\"$bookmarksMyNotesPlaylist\">${mainBibleActivity.getString(R.string.watch_tutorial_video)}</a></i>" +
+        val verseTip = hostActivity.getString(R.string.verse_tip)
+        val bookmarksMyNotesHelp = hostActivity.getString(R.string.help_bookmarks_text)
+        val message = "<i><a href=\"$bookmarksMyNotesPlaylist\">${hostActivity.getString(R.string.watch_tutorial_video)}</a></i>" +
             "<br><br><b>$verseTip</b><br><br>$bookmarksMyNotesHelp"
 
-        val d = AlertDialog.Builder(mainBibleActivity)
+        val d = AlertDialog.Builder(hostActivity)
             .setTitle(R.string.bookmarks_and_mynotes_title)
             .setMessage(htmlToSpan(message))
-            .setPositiveButton(mainBibleActivity.getString(R.string.okay), null)
+            .setPositiveButton(hostActivity.getString(R.string.okay), null)
             .create()
 
         d.show()
@@ -879,15 +899,15 @@ class BibleJavascriptInterface(
 
         val docName = when(val firstDoc = bibleView.firstDocument) {
             is StudyPadDocument -> firstDoc.label.displayName
-            is MultiFragmentDocument -> mainBibleActivity.getString(R.string.multi_description)
-            is MyNotesDocument -> mainBibleActivity.getString(R.string.my_notes_abbreviation)
+            is MultiFragmentDocument -> hostActivity.getString(R.string.multi_description)
+            is MyNotesDocument -> hostActivity.getString(R.string.my_notes_abbreviation)
             else -> throw RuntimeException("Illegal doc type")
         }
 
-        val titleStr = mainBibleActivity.getString(R.string.export_fileformat, "HTML")
+        val titleStr = hostActivity.getString(R.string.export_fileformat, "HTML")
         scope.launch {
             BackupControl.saveOrShare(
-                mainBibleActivity,
+                hostActivity,
                 targetFile,
                 fileName = "shared.html",
                 shareMimeType = "text/html",
@@ -917,11 +937,12 @@ class BibleJavascriptInterface(
                     // — but the lock gates ViewDragHelper gestures only, and `open()` bypasses it
                     // entirely, so this shortcut used to raise the native NavigationView on top of
                     // the Compose drawer (two drawers at once). Retarget it; the guard returns
-                    // `false` only before the host is installed, leaving the two lines below to run
-                    // exactly as before in that brief window.
-                    if (mainBibleActivity.composeOpenDrawerIfHosted()) return@launch
-                    mainBibleActivity.binding.drawerLayout.open()
-                    mainBibleActivity.binding.drawerLayout.requestFocus()
+                    // `false` only before the host is installed, leaving the classic fallback
+                    // below to run exactly as before in that brief window (R6a moved its two
+                    // `binding.drawerLayout` lines behind `openDrawerAndFocusIt` unchanged --
+                    // `binding` is the host window's, not the reading view's).
+                    if (hostCallbacks.composeOpenDrawerIfHosted()) return@launch
+                    hostCallbacks.openDrawerAndFocusIt()
                 }
                 // Nav-graph slice 7 Task 2: this used to call the native `showOptionsMenu()`
                 // `PopupMenu`, which anchored on `binding.optionsMenu` inside the now-GONE classic
@@ -929,7 +950,7 @@ class BibleJavascriptInterface(
                 // 3-dot button opens. `composeReadingViewHost` is null only before the host is
                 // installed in `setupUi`, and this interface is reachable only from a `BibleView`
                 // the host has already mounted, so the shortcut is not lost in practice.
-                "AltKeyO" -> mainBibleActivity.composeReadingViewHost?.openOverflowMenu()
+                "AltKeyO" -> hostCallbacks.composeReadingViewHost()?.openOverflowMenu()
                 // Round 15b Task 9: deliberately NOT rerouted to the quick sheet, unlike the
                 // toolbar title's tap. `startKeyChooser` is left untouched precisely so its
                 // non-reading-view callers keep working, and this is one of them: the shortcut acts
@@ -940,30 +961,30 @@ class BibleJavascriptInterface(
                 // -- is gone. That caller now opens the sheet and is resolved by a
                 // `CompletableDeferred`; this shortcut's active-window mismatch is unaffected, so
                 // it stays on the classic path. Spec §6.3 records the two remaining bypasses.)
-                "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(mainBibleActivity)
+                "CtrlKeyB" -> bibleView.window.pageManager.currentPage.startKeyChooser(hostActivity)
                 "CtrlKeyW" -> {
                     // M1 (whole-branch review fix wave): guard on the MOUNTED HOST -- see
                     // MainBibleActivity's R.id.switchToWorkspace for the full rationale.
-                    val host = mainBibleActivity.composeReadingViewHost
+                    val host = hostCallbacks.composeReadingViewHost()
                     if (host != null) {
                         host.showWorkspaceSheet()
                     } else {
-                        val intent = ScreenLauncher.intentFor(mainBibleActivity, Screen.WorkspaceSelector)
-                        mainBibleActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
+                        val intent = ScreenLauncher.intentFor(hostActivity, Screen.WorkspaceSelector)
+                        hostActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
                     }
                 }
                 "CtrlKeyC" -> bibleView.copySelectionToClipboard()
                 "CtrlKeyF" -> {
                     // F6 Task 8b entry point 5: retarget into the reading view's search when a
                     // Compose host is mounted; classic behaviour unchanged otherwise.
-                    if (!mainBibleActivity.composeSearchIfHosted()) {
-                        val intent = mainBibleActivity.searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, mainBibleActivity)
-                        intent?.let {mainBibleActivity.startActivityForResult(it, ActivityBase.STD_REQUEST_CODE)}
+                    if (!hostCallbacks.composeSearchIfHosted(/* seedQuery = */ null, /* preDecorated = */ false)) {
+                        val intent = searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, hostActivity)
+                        intent?.let {hostActivity.startActivityForResult(it, ActivityBase.STD_REQUEST_CODE)}
                     }
                 }
                 "Space" -> {
-                    if(!mainBibleActivity.speakControl.isStopped) {
-                        mainBibleActivity.speakControl.toggleSpeak(true)
+                    if(!speakControl.isStopped) {
+                        speakControl.toggleSpeak(true)
                     }
                 }
             }
@@ -973,21 +994,27 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun crash() {
         scope.launch {
-            mainBibleActivity.bibleViewFactory.crashAll()
+            hostCallbacks.crashAllBibleViews()
         }
     }
 
     @JavascriptInterface
     fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int, text: String) {
         scope.launch(Dispatchers.Main) {
-            mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal), text = text))
+            hostCallbacks.showLlmPromptSelector(
+                Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal), text = text),
+                PromptContext.VERSE_SELECTION,
+            )
         }
     }
 
     @JavascriptInterface
     fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, text: String) {
         scope.launch(Dispatchers.Main) {
-            mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal), text = text))
+            hostCallbacks.showLlmPromptSelector(
+                Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal), text = text),
+                PromptContext.VERSE_SELECTION,
+            )
         }
     }
 
@@ -1033,7 +1060,7 @@ class BibleJavascriptInterface(
                 noteEditorContent = ctx.currentText,
                 noteEditorContentType = ctx.contentType,
             )
-            mainBibleActivity.showLlmPromptSelector(selection, PromptContext.NOTE_EDITOR)
+            hostCallbacks.showLlmPromptSelector(selection, PromptContext.NOTE_EDITOR)
         }
     }
 
@@ -1062,7 +1089,7 @@ class BibleJavascriptInterface(
                     putExtra(Intent.EXTRA_SUBJECT, result.title)
                     type = "text/plain"
                 }
-                mainBibleActivity.startActivity(Intent.createChooser(sendIntent, mainBibleActivity.getString(R.string.share)))
+                hostActivity.startActivity(Intent.createChooser(sendIntent, hostActivity.getString(R.string.share)))
             }
         }
     }
@@ -1095,7 +1122,7 @@ class BibleJavascriptInterface(
     fun regenerateMyDocumentPage(pageId: String) {
         val id = IdType(pageId)
         scope.launch(Dispatchers.Main) {
-            mainBibleActivity.showRegenerate(id, bibleView)
+            hostCallbacks.showRegenerate(id, bibleView)
         }
     }
 
@@ -1103,7 +1130,7 @@ class BibleJavascriptInterface(
     fun deleteMyDocumentPage(pageId: String) {
         val id = IdType(pageId)
         scope.launch(Dispatchers.Main) {
-            AlertDialog.Builder(mainBibleActivity)
+            AlertDialog.Builder(hostActivity)
                 .setMessage(R.string.ai_document_delete_confirmation)
                 .setPositiveButton(R.string.yes) { _, _ ->
                     MyDocumentBookManager.deleteAIDocumentPage(id)
@@ -1127,8 +1154,8 @@ class BibleJavascriptInterface(
             // itself and go straight to NavHostComposeActivity (a putExtra on top of
             // ScreenLauncher.intentFor's result would be silently dropped; see
             // NavHostRoutingGuardTest's migratedScreenArgumentIsNeverDroppedByAPutExtra).
-            val intent = NavHostComposeActivity.intentFor(mainBibleActivity, NavRoutes.promptEdit(promptId = promptId))
-            mainBibleActivity.startActivity(intent)
+            val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.promptEdit(promptId = promptId))
+            hostActivity.startActivity(intent)
         }
     }
 

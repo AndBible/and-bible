@@ -39,23 +39,17 @@ import org.koin.core.component.inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  *
- * R5 fix round 1 (reading-host re-typing review) -- **BLOCKED for R6, left MainBibleActivity-typed
- * on purpose.** The first R5 pass retyped this to the narrow reading-host interface and bridged
- * the gap with `BibleView(this.mainBibleActivity as MainBibleActivity, ...)` -- review Critical 1
- * correctly called that a re-label, not a re-type: the only reason this class holds the value at
- * all is to hand the WHOLE thing to [BibleView], whose constructor reaches upwards of a dozen
- * distinct `MainBibleActivity`-only members (`readingInsets` twice, `isSplitVertically`,
- * `showLlmPromptSelector`, `composeSearchIfHosted`, `currentNightMode`, `startActivityForResult`,
- * `awaitIntent`, plus the interface-shaped ones). Decomposing that into individual constructor
- * parameters on [BibleView] is a real option (per the review's preferred route), but it means
- * redesigning BibleView's entire ~18-call-site dependency surface -- body-level surgery on a
- * 2000+ line, heavily-covered file this task cannot verify with only its own scoped `--tests`
- * filter. That is R6's job (BibleView is at least as big as `ComposeReadingViewHost`), not R5's
- * mechanical, no-bodies-move scope. So this file reverts to `MainBibleActivity` and is EXCLUDED
- * from [net.bible.android.view.activity.page.CollaboratorTypeGuardTest]'s scan -- see that test's
- * KDoc for the same reasoning, kept in one place rather than duplicated.
+ * Reading-host re-typing R6a. R5 had to leave this class `MainBibleActivity`-typed and EXCLUDED
+ * from [CollaboratorTypeGuardTest]'s scan: the only reason it holds the value at all is to hand the
+ * whole thing to [BibleView], and decomposing BibleView's dependency surface was out of R5's
+ * mechanical scope. R6a did that decomposition, so this class follows it mechanically — it still
+ * only passes the two values on, it just passes R4's narrow [ReadingHostActivity] and a
+ * [BibleViewHostCallbacks] bundle instead of the Activity.
  */
-class BibleViewFactory(val mainBibleActivity: MainBibleActivity) : KoinComponent {
+class BibleViewFactory(
+    val host: ReadingHostActivity,
+    val hostCallbacks: BibleViewHostCallbacks,
+) : KoinComponent {
     val pageControl: PageControl by inject()
     val windowControl: WindowControl by inject()
     val linkControl: LinkControl by inject()
@@ -90,7 +84,7 @@ class BibleViewFactory(val mainBibleActivity: MainBibleActivity) : KoinComponent
 
         if (bibleView == null) {
             val pageTiltScrollControl = getPageTiltScrollControl(window)
-            bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl,
+            bibleView = BibleView(this.host, this.hostCallbacks, WeakReference(window), windowControl,
                 pageControl, pageTiltScrollControl, linkControl, bookmarkControl, downloadControl, searchControl)
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
             Log.i(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")//  ${Log.getStackTraceString(Exception())}")

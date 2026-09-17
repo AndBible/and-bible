@@ -112,8 +112,58 @@ class ReadingCommands(private val activity: MainBibleActivity) {
      * there is exactly ONE instance per host and the Activity's accessor is a view onto it; the
      * constructor only logs, so constructing it with the collaborator (i.e. at Activity
      * construction) is equivalent to the `onCreate` assignment it replaced.
+     *
+     * The type is spelled out rather than inferred: [BibleViewHostCallbacks.crashAllBibleViews]
+     * below reaches this same factory through `MainBibleActivity.bibleViewFactory`, whose own type
+     * is inferred FROM this property, so leaving both to inference makes the two definitions
+     * circular ("Type checking has run into a recursive problem"). Naming it breaks the cycle and
+     * changes nothing at runtime.
      */
-    val bibleViewFactory = BibleViewFactory(activity)
+    val bibleViewFactory: BibleViewFactory = BibleViewFactory(activity, bibleViewHostCallbacks())
+
+    /**
+     * R6a: what [BibleView] and its [BibleJavascriptInterface] need from the host beyond R4's
+     * narrow [ReadingHostActivity]. Built HERE because this is where a `MainBibleActivity` is still
+     * in hand — that is the whole point of the bundle (see [BibleViewHostCallbacks]'s kdoc).
+     *
+     * Every lambda is a one-line forward to the member the reading view used to spell out, with no
+     * logic of its own; the only two-statement body, [BibleViewHostCallbacks.openDrawerAndFocusIt],
+     * is the verbatim pair of lines `BibleJavascriptInterface`'s Alt+M fallback ran, moved here
+     * only because `binding` is the host window's and never part of the reading view's contract.
+     * Nothing changes about WHEN or HOW OFTEN any of them fires.
+     *
+     * A function rather than a property so it can be read from [bibleViewFactory]'s own
+     * initializer above without a declaration-order constraint between the two.
+     */
+    private fun bibleViewHostCallbacks(): BibleViewHostCallbacks = BibleViewHostCallbacks(
+        hostActivity = activity,
+        onNext = { activity.next() },
+        onPrevious = { activity.previous() },
+        showLlmPromptSelector = { selection, context -> activity.showLlmPromptSelector(selection, context) },
+        // This collaborator's own implementation, not the Activity's delegating stub: both run the
+        // same body and the stub only exists for the Robolectric tests that call it on the Activity.
+        composeSearchIfHosted = { seedQuery, preDecorated ->
+            this@ReadingCommands.composeSearchIfHosted(seedQuery, preDecorated)
+        },
+        composeOpenDrawerIfHosted = { this@ReadingCommands.composeOpenDrawerIfHosted() },
+        openDrawerAndFocusIt = {
+            activity.binding.drawerLayout.open()
+            activity.binding.drawerLayout.requestFocus()
+        },
+        composeReadingViewHost = { activity.composeReadingViewHost },
+        showRegenerate = { pageId, bibleView -> activity.showRegenerate(pageId, bibleView) },
+        // Through the Activity's accessor deliberately: it is a view onto `bibleViewFactory` above,
+        // which this bundle is an argument to, so reaching it directly would be a cycle at
+        // construction time. The lambda runs long after both are built.
+        crashAllBibleViews = { activity.bibleViewFactory.crashAll() },
+        currentNightMode = { activity.currentNightMode },
+        // Read at call time, never captured — `readingInsets` is a mutable ledger, and these three
+        // values feed `set_offsets`' JS payload. No arithmetic happens here (R2's constraint): the
+        // division by display density stays in `BibleView`, exactly where it was.
+        imeHeight = { activity.readingInsets.imeHeight },
+        topOffset2 = { activity.readingInsets.topOffset2 },
+        bottomOffsetForWebView = { activity.readingInsets.bottomOffsetForWebView },
+    )
 
     /** The drawer/menu command handler [handleDrawerItemClick] and the Activity's own
      *  `onActivityResult` share. Same once-per-host reasoning as [bibleViewFactory]. */
