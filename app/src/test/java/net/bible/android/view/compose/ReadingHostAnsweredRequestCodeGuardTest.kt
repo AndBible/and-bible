@@ -244,6 +244,40 @@ class ReadingHostAnsweredRequestCodeGuardTest {
         )
     }
 
+    /**
+     * **The privacy step, which no behaviour test in this repo can watch run.**
+     *
+     * `CommonUtils.changeAppIconAndName()` ends in `forceStopApp()` — `exitProcess(2)` — as soon as
+     * it actually moves a component's enabled state, so a unit test that let it do its job would
+     * take the test JVM with it. What can be checked is that it is still IN the shared body and
+     * still has exactly one production caller: `discrete_mode` is in
+     * `NavHostComposeActivity.RECREATE_ON_CHANGE_KEYS`, and `recreate()` does NOT swap the launcher
+     * alias — so if this call ever leaves `preferenceSettingsChanged`, turning on discrete mode
+     * stops hiding the app's icon and name and nothing else in the tree notices.
+     */
+    @Test fun thePrivacyStepIsInTheSharedBody() {
+        val body = functionBody(readingCommandsSrc, "internal fun preferenceSettingsChanged()")
+        assertTrue(
+            body.contains("CommonUtils.changeAppIconAndName()"),
+            "the launcher-alias swap is gone from the settings-return body. Body was:\n$body",
+        )
+        val callers = File("src/main/java").walkTopDown()
+            .filter { it.isFile && it.extension == "kt" }
+            .flatMap { file ->
+                file.readLines()
+                    .filterNot { it.trimStart().let { t -> t.startsWith("//") || t.startsWith("*") || t.startsWith("/*") } }
+                    .filter { it.contains("changeAppIconAndName()") && !it.contains("fun changeAppIconAndName") }
+                    .map { file.name }
+            }
+            .toList()
+        assertEquals(
+            listOf("ReadingCommands.kt"),
+            callers,
+            "changeAppIconAndName must have exactly one production caller, the settings-return " +
+                "body -- a second one would mean the swap was retyped rather than shared",
+        )
+    }
+
     // ——— the derivation ——————————————————————————————————————————————————————————————————————————
 
     /**

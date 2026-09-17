@@ -17,12 +17,15 @@
 package net.bible.android.view.compose
 
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.Screen
@@ -35,7 +38,11 @@ import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter
+import net.bible.android.BibleApplication
+import net.bible.android.activity.BuildConfig
+import net.bible.service.common.CommonUtils
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -75,6 +82,52 @@ class ReadingHostNonStdResultTest {
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private var synchronizeWindows = 0
+
+    /**
+     * Classic's `REFRESH_DISPLAY_ON_FINISH` tail runs `MenuCommandHandler.restartIfRequiredOnReturn`
+     * before the refresh, and that RESTARTS THE APP (`CommonUtils.restartApp` ends in
+     * `exitProcess(2)`) when the UI locale in force differs from the one the process started with.
+     * In the real app the two agree unless the user has just changed the locale; in this fixture
+     * `BibleApplication.localeOverrideAtStartUp` is not the preference's value, so every one of
+     * these tests would take the app down with it. Restoring the invariant is what makes the tests
+     * exercise the refresh rather than the restart -- the restart branch is classic's, unchanged,
+     * and is not what T8d is about.
+     */
+    @Before
+    fun theLocaleInForceIsTheOneThisProcessStartedWith() {
+        BibleApplication::class.java.getDeclaredField("localeOverrideAtStartUp")
+            .apply { isAccessible = true }
+            .set(BibleApplication.application, CommonUtils.localePref ?: "")
+    }
+
+    /**
+     * …and the launcher alias already says what `discrete_mode` says.
+     *
+     * `CommonUtils.changeAppIconAndName()` — the privacy step of `preferenceSettingsChanged`, and
+     * the one whose absence on the flipped host is the sharpest half of item 2 — ends in
+     * `forceStopApp()` whenever it actually MOVES a component's enabled state, and `forceStopApp`
+     * is `exitProcess(2)`. In a fresh Robolectric process both aliases read
+     * `COMPONENT_ENABLED_STATE_DEFAULT`, so the first call would take the test JVM down with it
+     * (it does: without this the whole class dies with "finished with non-zero exit value 2" and
+     * no test failure at all). Pre-setting them to what `discrete_mode = false` means leaves
+     * `changeAppIconAndName` with nothing to change, so it runs, reaches its `settingsChanged`
+     * check, and returns — which is the state every real app has on all but the one settings return
+     * that actually flips discrete mode. That the call is REACHED is pinned by
+     * `ReadingHostAnsweredRequestCodeGuardTest.thePrivacyStepIsInTheSharedBody`; what it DOES is
+     * classic's, unchanged, and is not T8d's to re-verify.
+     */
+    @Before
+    fun theLauncherAliasAlreadyMatchesTheDiscreteModeSetting() {
+        val pm = ApplicationProvider.getApplicationContext<android.content.Context>().packageManager
+        pm.setComponentEnabledSetting(
+            ComponentName(BuildConfig.APPLICATION_ID, "net.bible.android.activity.StartupActivity"),
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP,
+        )
+        pm.setComponentEnabledSetting(
+            ComponentName(BuildConfig.APPLICATION_ID, "net.bible.android.view.activity.Calculator"),
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP,
+        )
+    }
 
     @After
     fun tearDown() {
