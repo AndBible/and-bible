@@ -94,9 +94,10 @@ class ReadingNavDeps(
      * the destination arm, with no wrapper of any kind, so that what the destination renders is
      * byte-for-byte what `ComposeReadingViewHost.install` renders into the classic Activity.
      *
-     * **Work this slot owed, recorded here because this is where the tasks that pay it look.** The
-     * three items this list was opened with are paid; a fourth was found by R8's own review and is
-     * still open, on a LATER task -- so do not read this section as closed.
+     * **Work this slot owed, recorded here because this is where the tasks that pay it look.** All
+     * four items are paid as of reading-host re-typing T8a -- the three this list was opened with
+     * and the fourth R8's own review found. Kept rather than deleted: each entry names the task that
+     * paid it and what it did, which is what a later reader needs when the same seam misbehaves.
      *
      *  1. ~~`ExternalKeyboardBack` does not close the drawers.~~ **PAID by reading-host re-typing
      *     R8**, the task that made this slot real. `NavHostComposeActivity.readingViewKeyPressed`
@@ -110,22 +111,25 @@ class ReadingNavDeps(
      *  3. ~~`ReadingViewHostCallbacks.current` is "last published", not "the foreground host".~~
      *     **PAID by R7b**, the same change: it was the same divergence and it wanted the same answer.
      *
-     *  4. **STILL OWED, by slice 7 Task 8/Task 12 -- classic's `onResume` document refresh.**
-     *     `MainBibleActivity.updateDocuments()` (`:1702-1705`) re-runs `reloadAllWindows(true)` and
-     *     `updateActions()` when an `UpdateMainBibleActivityDocuments` event arrived while the
-     *     reading Activity was away. `NavHostComposeActivity` has no subscription to that event
-     *     (though it POSTS it from six of its own destinations), and no part of the `onResume`
-     *     reconciliation block that consumes it. R8 deliberately did NOT port a fragment of it --
-     *     the argument, and the rest of the missing block, are in a comment above
-     *     `NavHostComposeActivity.onResume`. Dead until something routes here; the day it is not,
-     *     a document installed from the Download screen does not appear until the workspace is
-     *     reloaded. **R8 DID port the ENTRY-time half** (`setupUi`'s own `reloadAllWindows(true)`,
-     *     the initial content load) -- see `NavHostComposeActivity.readingViewHost`.
+     *  4. ~~classic's `onResume` document refresh, and the reconciliation block around it.~~
+     *     **PAID by reading-host re-typing T8a**, the task this item named. `NavHostComposeActivity`
+     *     now subscribes to `UpdateMainBibleActivityDocuments` (it POSTS it from six of its own
+     *     destinations and listened to none), and its `onResume` runs the WHOLE of classic's block
+     *     (`MainBibleActivity.kt:1960-1985`), not the one line R8 refused to port on its own: the
+     *     `windowControl.windowRepository` reclaim and its `currentWorkspaceId = currentWorkspaceId`
+     *     reload, which still takes precedence over the document refresh; the pending-flag arm
+     *     (`reloadAllWindows(true)` + the host's own half of `updateActions()`); the tilt-scroll
+     *     focus hand-back, gated on the destination having composed because this host's reading view
+     *     is composed rather than built in `onCreate`; and `handlePendingAgentResult()`. See
+     *     `NavHostComposeActivity.reconcileReadingStateOnResume`. The ENTRY-time half was R8's and is
+     *     unchanged -- `NavHostComposeActivity.readingViewHost` still carries `setupUi`'s own
+     *     `reloadAllWindows(true)`, and T8a did not port it a second time.
      *
      *  Items 2 and 3 were PRECONDITIONS, not follow-ups -- both would have become user-visible the
      *  moment this slot rendered the real reading view, which is why R7b paid them BEFORE R8 made
-     *  it render. Item 4 is the opposite: it only becomes visible once something ROUTES here, which
-     *  is Task 8/12's own change, so it lands with that task and not before.
+     *  it render. Item 4 was the opposite: it only becomes visible once something ROUTES here, so it
+     *  was paid by T8a, the task that lands everything that must be true before the launcher flips,
+     *  and not by R8.
      */
     val content: @Composable () -> Unit,
     /**

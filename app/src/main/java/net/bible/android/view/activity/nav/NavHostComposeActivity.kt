@@ -230,6 +230,7 @@ import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.AgentSessionManager
+import net.bible.service.llm.agent.PendingAgentResult
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.readingplan.OneDaysReadingsDto
@@ -1273,13 +1274,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // NOT a no-op: classic's `updateActions()` tail is the Compose toolbar/drawer refresh, and
         // `showSearch`/`showSpeak` are locals of that function. This host supplies that half
         // directly -- its own chrome needs no rebuilding, because it has none.
-        onToolbarStateMayHaveChanged = {
-            composeReadingViewHost?.rebuildDrawer(
-                showSearch = documentControl.currentPage.currentPage.isSearchable,
-                showSpeak = documentControl.currentPage.currentPage.isSpeakable,
-            )
-            composeReadingViewHost?.refreshHostedState()
-        },
+        onToolbarStateMayHaveChanged = { onToolbarStateMayHaveChanged() },
         // Classic toolbar chrome this host does not draw.
         updateStrongsButton = { },
         menuForDocs = { _, _ -> },
@@ -1288,6 +1283,24 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         toggleNativeDrawer = { },
         openNativeDrawerAndFocusIt = { },
     )
+
+    /**
+     * This host's half of classic's `updateActions()` (R6c2 renamed it on the collaborator side
+     * because it is NOT a no-op: the tail of classic's function is exactly this Compose refresh,
+     * and `showSearch`/`showSpeak` are locals of it).
+     *
+     * A NAMED member rather than the lambda it used to be inline, because T8a item 2's
+     * [updateDocuments] is classic's `reloadAllWindows(true) + updateActions()` pair and must reach
+     * the same path the collaborator does. A second copy of these four lines is the divergence
+     * `ReadingChromePortDriftTest` exists to catch one file over.
+     */
+    private fun onToolbarStateMayHaveChanged() {
+        composeReadingViewHost?.rebuildDrawer(
+            showSearch = documentControl.currentPage.currentPage.isSearchable,
+            showSpeak = documentControl.currentPage.currentPage.isSpeakable,
+        )
+        composeReadingViewHost?.refreshHostedState()
+    }
 
     /**
      * [ReadingHostActivity.readingInsets] -- this host's own inset ledger. The arithmetic is
@@ -1684,29 +1697,111 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     override fun onResume() {
         ReadingHostPresence.setForeground(this)
         paused = false
+        // Classic computes its `needRefresh` BEFORE `super.onResume()` and acts on it after, and
+        // the split is kept: `super.onResume()` activates this Activity and dispatches
+        // `onScreenTurnedOn`, and anything either reaches may read `windowControl.windowRepository`.
+        val needRefresh = readingAppBootstrapped && reclaimWindowRepository()
         super.onResume()
+        if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
     }
 
-    // R8 fix round 1, review Important 2 -- the VERDICT on classic's `updateDocuments()`
-    // (`MainBibleActivity.kt:1702-1705`, `reloadAllWindows(true)` + `updateActions()`), which this
-    // host does NOT have and which R8 does NOT port.
-    //
-    // It is not a stray line: it is the TAIL of classic's whole `onResume` reconciliation block
-    // (`MainBibleActivity.kt:1960-1980`), and this host has none of that block --
-    //   - no `windowControl.windowRepository != windowRepository` check and no `currentWorkspaceId =
-    //     currentWorkspaceId` reload (classic's `needRefresh` arm, which takes PRECEDENCE over the
-    //     document refresh);
-    //   - no `UpdateMainBibleActivityDocuments` subscription, so no `updateDocumentsPending` flag to
-    //     consume -- note this host POSTS that event from six of its own destinations (Download,
-    //     ChooseDocument, MyDocuments, backup restore) and nothing here listens;
-    //   - no `documentViewManager.documentView.asView().requestFocus()` tilt-scroll resume;
-    //   - no `handlePendingAgentResult()`.
-    // Porting one line of a five-part block would produce a host that refreshes documents but never
-    // reconciles the workspace -- worse than a host that honestly does neither, because the gap
-    // stops being visible. The whole block is an obligation of slice 7 Task 8/Task 12, i.e. of
-    // whichever task makes this host the launcher and lets it be RESUMED with a reading destination
-    // behind another Activity; R8's own ENTRY-time load is [readingViewHost]'s and is covered there.
-    // Recorded here rather than only in a report because this override is where the next reader looks.
+    /**
+     * Classic `MainBibleActivity.onResume`'s first arm (`:1966-1969`): `windowControl`'s repository
+     * is whichever reading host RESUMED last, so a host coming back to the front reclaims it.
+     *
+     * @return whether it had to be reclaimed -- classic's `needRefresh`, which decides which of the
+     * two arms in [reconcileReadingStateOnResume] runs.
+     */
+    private fun reclaimWindowRepository(): Boolean {
+        if (windowControl.windowRepository === hostWindowRepository) return false
+        windowControl.windowRepository = hostWindowRepository
+        return true
+    }
+
+    /**
+     * **T8a item 2: the rest of classic's `onResume` reconciliation block (`:1975-1984`), ported as
+     * a block rather than as a line.**
+     *
+     * R8 recorded a VERDICT here refusing to port `updateDocuments()` alone, and the argument was
+     * right: this host POSTS `UpdateMainBibleActivityDocuments` from six of its own destinations
+     * (Download, ChooseDocument, MyDocuments, backup restore) and subscribed to none of them, so a
+     * document installed from the Download screen did not appear until the workspace was reloaded --
+     * but a host that refreshed documents while never reconciling the workspace would have been
+     * worse, because the remaining gap would have stopped being visible. All four remaining parts
+     * are here, and what each does on THIS host is stated rather than assumed:
+     *
+     *  1. the `needRefresh` arm -- [reclaimWindowRepository] above, whose answer this takes -- and
+     *     its `currentWorkspaceId = currentWorkspaceId` reload, which reaches the real workspace
+     *     switch through [ReadingCommands.currentWorkspaceId] (R6c2 moved the setter there). It
+     *     TAKES PRECEDENCE over the document refresh, `else if` included, and classic does not clear
+     *     the pending flag on this path either -- so an update that arrived is consumed by the next
+     *     resume instead of being dropped.
+     *  2. [updateDocumentsPending], set by the subscription in [readingHostSubscriptions].
+     *  3. the tilt-scroll resume. Classic calls `documentViewManager.documentView.asView()
+     *     .requestFocus()` unconditionally because its reading view is built in `onCreate`; this
+     *     host's is composed by the destination, so the call is gated on the composed view existing.
+     *     Ungated it would BUILD a `BibleView` from `onResume` on a host whose destination has not
+     *     composed yet -- work classic never does, for a view nothing is about to show.
+     *  4. [handlePendingAgentResult], verbatim.
+     *
+     * **Gated on [readingAppBootstrapped] as a whole**, which is this host's "I own a reading
+     * workspace": [hostWindowRepository] deliberately throws `UninitializedPropertyAccessException`
+     * off the reading route rather than falling back to another host's repository, and ~45 of this
+     * host's routes are not reading routes.
+     */
+    private fun reconcileReadingStateOnResume(needRefresh: Boolean) {
+        if (needRefresh) {
+            readingCommands.currentWorkspaceId = readingCommands.currentWorkspaceId // reload from db
+        } else if (updateDocumentsPending) {
+            updateDocuments()
+        }
+        // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
+        if (composeReadingViewHost != null) documentViewManager.documentView.asView().requestFocus()
+
+        // Check for pending AI agent results that completed while app was backgrounded
+        handlePendingAgentResult()
+    }
+
+    /**
+     * Classic's `updateDocumentsPending` (`MainBibleActivity.kt:1700`), fed by the subscription in
+     * [readingHostSubscriptions] and consumed by [reconcileReadingStateOnResume].
+     *
+     * Set on EVERY route, like classic's, and read only when this host owns a reading workspace: an
+     * event that arrives while this host is showing its Download destination is exactly the event
+     * the reading view must honour when it comes back.
+     */
+    private var updateDocumentsPending = false
+
+    /** Classic `MainBibleActivity.updateDocuments()` (`:1703-1707`). */
+    private fun updateDocuments() {
+        hostWindowRepository.windowSync.reloadAllWindows(true)
+        onToolbarStateMayHaveChanged()
+        updateDocumentsPending = false
+    }
+
+    /** Classic `MainBibleActivity.handlePendingAgentResult()` (`:1987-2000`), verbatim. */
+    private fun handlePendingAgentResult() {
+        val session = AgentSessionManager.getCurrentSession() ?: return
+        val result = session.pendingResult ?: return
+        session.pendingResult = null
+        when (result) {
+            is PendingAgentResult.OpenDocument -> {
+                linkControl.openAIDocument(result.documentInitials, result.pageKey)
+            }
+            is PendingAgentResult.OpenStudyPad -> {
+                linkControl.openStudyPad(result.labelId, result.scrollToEntryId)
+            }
+        }
+    }
+
+    // T8a item 2 PAID R8's verdict on classic's `updateDocuments()`. R8 declined to port one line of
+    // a five-part block (`MainBibleActivity.kt:1960-1985`) and recorded the whole debt here; all
+    // five parts now exist -- [reclaimWindowRepository] and [reconcileReadingStateOnResume] above,
+    // whose kdocs carry what each does on THIS host and why. The RESUME-time half is what was owed:
+    // R8's own ENTRY-time load is [readingViewHost]'s and is covered there, and must not be ported
+    // a second time. Nothing of the block is still missing; the one deliberate difference from
+    // classic -- the tilt-scroll focus is gated on the destination having composed -- is stated at
+    // its own line rather than left for the next reader to discover.
 
     /**
      * Classic `MainBibleActivity`'s `NightModeChanged` subscription, guard shape included.
@@ -1718,6 +1813,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * it re-applies a theme to an Activity whose window is not the one the user is looking at.
      */
     private val readingHostSubscriptions: ABEventBus.Subscriptions.() -> Unit = {
+        // T8a item 2: classic `MainBibleActivity.kt:498-500`. This host posts
+        // `UpdateMainBibleActivityDocuments` from six of its own destinations and, until T8a,
+        // listened to none of them. UNGUARDED, exactly like classic's: the flag records that an
+        // update arrived, and [reconcileReadingStateOnResume] decides whether this host has a
+        // reading workspace to apply it to.
+        on<MainBibleActivity.UpdateMainBibleActivityDocuments> {
+            updateDocumentsPending = true
+        }
         on<ScreenSettings.NightModeChanged> { event ->
             if(paused) return@on
             if(CurrentActivityHolder.currentActivity == this@NavHostComposeActivity) {
