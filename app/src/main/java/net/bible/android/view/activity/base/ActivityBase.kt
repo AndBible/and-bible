@@ -466,8 +466,8 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
      * `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_MULTIPLE_TASK` whenever the launching intent is
      * `ACTION_VIEW`, so opening an AndBible deep link while the app is already running really does
      * produce a SECOND live `MainBibleActivity` — the very scenario that makes
-     * `ReadingViewVisibility` a depth counter and `ReadingViewHostCallbacks` a list rather than a
-     * boolean and a nullable field.
+     * `ReadingViewVisibility` and `ReadingViewHostCallbacks` keep their registrations per HOST
+     * (`ReadingHostPresence`, R7b) rather than as a boolean and a nullable field.
      *
      * What is actually lost without them is [freeze]'s `ABEventBus.unregister(this)` (and the
      * content-view detach). With two instances both registered, every bus event is handled twice:

@@ -201,8 +201,9 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
                     // user is looking at" (was `currentActivity !is MainBibleActivity`).
                     //
                     // These are NOT equivalent by construction — they agree because the flag has
-                    // an owner on BOTH of the paths a reading view can be on today, and
-                    // `ReadingViewVisibility.isVisible` is their OR:
+                    // an owner on BOTH of the paths a reading view can be on today, each keyed by
+                    // its HOST, and `ReadingViewVisibility.isVisible` asks whether any of them was
+                    // registered by the host `ReadingHostPresence` says is FOREGROUND (R7b):
                     //
                     //  - the `reading` DESTINATION's `DisposableEffect` (`ReadingNavGraph.kt`),
                     //    entered as its composition begins and exited as it is disposed;
@@ -212,6 +213,13 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
                     //    `MainBibleActivity` is still the launcher and the destination's content
                     //    slot cannot render the reading view yet. That input (and these four call
                     //    sites) goes away with the task that makes the slot real.
+                    //
+                    // The foreground gate is what keeps THIS condition honest once a destination is
+                    // composed: without it, a destination that stays entered under a backgrounded
+                    // host (navigation-compose does not dispose the current entry's content when
+                    // the Activity stops) kept `isVisible` true, nothing was finished here, and
+                    // `ActivityBase.onBackPressed` returned without `super` — a dead back key on
+                    // the secondary screen. See `ReadingHostPresence`.
                     //
                     // The Activity input is what keeps this condition honest in the state it was
                     // written for: if the reading Activity was destroyed while a chooser was on top

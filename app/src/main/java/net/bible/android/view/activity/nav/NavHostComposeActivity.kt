@@ -285,6 +285,7 @@ import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.MyDocumentsResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.progress.ReadHistoryEntry
@@ -1018,8 +1019,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * callback. The only steps missing are the ones belonging to the classic view hierarchy (the
      * `binding` inflation, `setupUi`, the toolbar), which this host does not have.
      *
-     * **`ReadingViewVisibility.setActivityVisible(true)` FIRST, and that is the whole point of the
-     * ordering (R7 fix round 1, review Important 1).** It cannot be deferred to the reading
+     * **`ReadingHostPresence.setForeground(this)` + `ReadingViewVisibility.setActivityVisible(this,
+     * true)` FIRST, and that is the whole point of the ordering (R7 fix round 1, review Important 1;
+     * the presence half is R7b).** Neither can be deferred to the reading
      * destination's `DisposableEffect`: an effect inside the graph necessarily runs AFTER
      * `setContent`, i.e. after [ReadingAppBootstrap.openDeepLink] below has already run
      * `windowControl.showLink` -> `setKey(addHistoryItem = true)` -> a SYNCHRONOUS
@@ -1028,6 +1030,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * this class is one -- and records a WRONG `IntentHistoryItem` carrying the deep-link intent,
      * whose `revertTo()` re-starts it. Classic's 14-line comment in `MainBibleActivity.onCreate`
      * states the same thing; this is that comment's prefix, not a copy of its lifecycle bookkeeping.
+     *
+     * That `setActivityVisible(this, true)` is the BOOTSTRAP BRIDGE, and it is retired again -- by
+     * the destination's own `enter(host)` when the graph composes, or by [onPause], whichever comes
+     * first. See [ReadingViewVisibility]'s kdoc: an un-retired bridge would report a reading view on
+     * screen for every other destination this host shows.
      *
      * **Reached from BOTH reading-route entry points, and idempotent (review Important 3).**
      * [onCreate] calls it when the START route is reading; [onNewIntent] calls it when a later
@@ -1052,7 +1059,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     private fun bootstrapIfNeeded() {
         if (readingAppBootstrapped) return
         readingAppBootstrapped = true
-        ReadingViewVisibility.setActivityVisible(true)
+        ReadingHostPresence.setForeground(this)
+        ReadingViewVisibility.setActivityVisible(this, true)
         readingAppBootstrap.prepareData()
         readingAppBootstrap.createWindowRepository()
         readingAppBootstrap.setSoftKeyboardMode()
@@ -1327,12 +1335,37 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         get() = readingAppBootstrap.hostPaused
         set(value) { readingAppBootstrap.hostPaused = value }
 
+    /**
+     * **R7b: the bootstrap bridge is retired here, and this host stops being the foreground one.**
+     *
+     * [bootstrapIfNeeded] declares `ReadingViewVisibility.setActivityVisible(this, true)` before the
+     * deep link it dispatches, because the reading destination's `DisposableEffect` cannot cover
+     * that window (an effect inside the graph runs after `setContent`). That bridge has to be
+     * retired again or this host reports a reading view on screen for the rest of its life,
+     * including on every OTHER destination it shows -- `HistoryManager` would then record a
+     * `KeyHistoryItem` on a Download screen and `goBack()` would never finish anything. The
+     * destination's own `enter(host)` retires it as soon as the graph composes; this call is the
+     * other end, for a host backgrounded before that ever happened. Both are idempotent.
+     *
+     * [ReadingHostPresence.clearForeground] and not `setForeground(null)`: a stale pause must not
+     * clear a host that resumed after it (see that object's kdoc).
+     */
     override fun onPause() {
+        ReadingViewVisibility.setActivityVisible(this, false)
+        ReadingHostPresence.clearForeground(this)
         paused = true
         super.onPause()
     }
 
+    /**
+     * R7b: this host is the one the user is looking at, which is what makes its reading destination
+     * -- if one is composed -- count as visible and its published handlers count as current. NOT
+     * paired with a `setActivityVisible(this, true)`: that input is the bootstrap bridge only, and
+     * re-arming it on every resume would make every non-reading destination of this host report a
+     * reading view on screen.
+     */
     override fun onResume() {
+        ReadingHostPresence.setForeground(this)
         paused = false
         super.onResume()
     }
@@ -2035,6 +2068,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                  */
                 val readingNavDeps = remember {
                     ReadingNavDeps(
+                        // R7b: the identity the destination registers its visibility and its host
+                        // handlers under, so neither counts while this Activity is backgrounded.
+                        host = this@NavHostComposeActivity,
                         // Classic MainBibleActivity's manifest android:label (AndroidManifest.xml:103).
                         // This host's own block carries no label at all, so without this the reading
                         // view's window title would become the application label instead.

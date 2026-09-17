@@ -23,144 +23,144 @@ package net.bible.sharedcore.reading
  * path in `HistoryManager` that produced a `KeyHistoryItem` and therefore the only source of the
  * verse back-stack and of history persistence. See the slice-7 design spec 5.1.
  *
- * **The swap is not behaviour-neutral by itself — it is made so by WHERE the flag is set.** During
- * the migration a reading view can be either of two things, so the state has TWO INDEPENDENT
- * INPUTS and [isVisible] is their OR:
+ * **The rule, in one sentence (reading-host re-typing R7b, spec §3.5):** a reading view is visible
+ * when it is registered by a host that [ReadingHostPresence] says is FOREGROUND. Everything below
+ * is a consequence of that sentence.
  *
- *  - [enter]/[exit], a DEPTH COUNTER owned by the `reading` destination's `DisposableEffect`
+ * Two kinds of registration, both keyed by their host's token:
+ *
+ *  - [enter]/[exit], the DESTINATION input, owned by the `reading` destination's `DisposableEffect`
  *    (`ReadingNavGraph.kt`) — the permanent one, entered when the destination composes and exited
- *    when it is disposed;
- *  - [setActivityVisible], a plain boolean driven by classic `MainBibleActivity`'s lifecycle
- *    (`onCreate`, `onResume`, `onPause`, `onActivityResult`) — **temporary**, and removed by
- *    whatever task makes the reading destination's `content` slot render the real reading view.
- *    Until then `MainBibleActivity` is still the launcher and still the only reading view the user
- *    can reach, so without this input nothing would set the flag on the live path at all:
- *    `KeyHistoryItem` would never be created (no verse back-stack, no history persistence) and
- *    `HistoryManager.goBack`'s `if (!isVisible) finish()` would fire on every back-with-history.
+ *    when it is disposed. Its host is `ReadingNavDeps.host`, i.e. the Activity that hosts the graph.
+ *  - [setActivityVisible], the ACTIVITY input — classic `MainBibleActivity`'s whole lifecycle
+ *    (`onCreate`, `onResume`, `onPause`, `onActivityResult`), because its reading view is an
+ *    Activity and never a destination; and, on `NavHostComposeActivity`, ONLY the bootstrap window
+ *    before its first composition (see "the bootstrap bridge" below).
  *
- * They are orthogonal on purpose: neither can clear the other. A destination that is disposed while
- * classic's Activity is resumed leaves the flag true, and an Activity that pauses while a reading
- * destination is composed leaves it true — which is the correct answer in both cases, because a
- * reading view really is on screen. Mixing them into one counter would let a `MULTIPLE_TASK`
- * second instance, or a lifecycle callback arriving out of order, turn the flag off under a reading
- * view that is still there.
+ * **Why the foreground gate, and what it fixed.** Both inputs are written by the reading view about
+ * ITSELF, and a composition-scoped effect stays entered while its host Activity is in the
+ * background — navigation-compose does not dispose the current entry's content when the Activity
+ * stops. So "registered" used to mean "visible", and with a classic secondary Activity over a
+ * backgrounded host the flag stayed true: `HistoryManager.goBack()`'s
+ * `if (!isVisible) currentActivity?.finish()` never fired and the user got a DEAD BACK KEY
+ * (`ActivityBase.onBackPressed` returns without `super` when `goBack()` returned true). The same
+ * state also recorded a `KeyHistoryItem` for an `AddHistoryItem` posted while the app was in the
+ * background. [ReadingHostPresence]'s kdoc has the full argument, including why the Activity input
+ * and the destination input could not simply be ANDed with a lifecycle observer each: they would be
+ * two facts that can disagree, and this seam had that bug once already.
  *
- * What is genuinely equivalent to the old predicate is the part that matters: a **sheet** over the
- * reading view (search, key chooser, text settings, Speak) changes neither the Activity (before)
- * nor the destination (after), so the predicate stays true; a **screen** over it changes both, so
- * it goes false. A sheet is NOT a destination — do not set this false when opening one.
+ * **Why [isVisible] is COMPUTED and no longer cached.** The foreground can change without any
+ * method of this object being called — another host resumes, this one pauses — so a value published
+ * by [enter]/[exit]/[setActivityVisible] would go stale between calls, silently and in the
+ * dangerous direction. Every reader of this seam (`HistoryManager.createHistoryItem`,
+ * `HistoryManager.goBack`) asks the question at the instant it needs the answer, so a getter is all
+ * that was ever needed. (Task 6 published a `StateFlow` here too; nothing collected it and fix
+ * round 2 dropped it. Add one back the day something actually reacts to a change — and give it
+ * `ReadingHostPresence` as an input if you do.)
  *
- * **What the old predicate covered and the DESTINATION input does not, measured rather than
- * assumed.** The old check was true from `ActivityBase.onCreate`'s first line
- * (`CurrentActivityHolder.activate(this)`) until `onStop`'s `deactivate` — so it spanned a
- * backgrounded-but-not-stopped reading view, and went false once the app was stopped. A
- * composition-scoped effect is neither of those things: it is "while the reading destination is the
- * current destination", and it stays entered while the host is in the background, because
- * navigation-compose does not dispose the current entry's content when the Activity stops. Two
- * consequences, both deliberate:
+ * **The bootstrap bridge, and how `NavHostComposeActivity` stays balanced.** That host calls
+ * `setActivityVisible(this, true)` as the first statement of `bootstrapIfNeeded()`, before the
+ * `openLink` deep link posts a synchronous `AddHistoryItem` (see that method's kdoc and
+ * `ReadingAppBootstrap`); the destination's effect cannot cover that window, because an effect
+ * inside the graph necessarily runs after `setContent`. The bridge is RETIRED — not shadowed — at
+ * whichever comes first of:
  *
- *  - The `onCreate` window Task 3's kdoc was worried about is closed for good ON THE DESTINATION
- *    PATH: the destination's effect runs with its first composition, before anything it hosts can
- *    post `AddHistoryItem`, so the "wrong `IntentHistoryItem` recorded for a deep link" failure mode
- *    cannot come back there. (On the Activity path it is still the `onCreate` setter that closes
- *    it — which is why that setter exists and is not folded into `onResume`.)
- *  - The divergence moves to the other end: the flag stays TRUE while the host is backgrounded
- *    with the reading destination current, where the old predicate went false at `onStop`. That
- *    one state has TWO consequences, and Task 6's kdoc recorded only the harmless one:
+ *  - [enter] for the same host: the destination and the bridge are not two reading views, they are
+ *    the same one before and after its first composition. Retiring rather than shadowing is what
+ *    makes navigating from `reading` to another destination of the same host turn the flag OFF; a
+ *    bridge that merely stopped counting while a destination was entered would come back the moment
+ *    that destination was disposed, leaving the flag true on a Download screen.
+ *  - the host's `onPause`, which calls `setActivityVisible(this, false)` — so the bridge is also
+ *    retired on a host that is backgrounded before it ever composes.
  *
- *      1. An `AddHistoryItem` posted while the app is in the background records a `KeyHistoryItem`
- *         where the old predicate recorded none — one history item too many, never a wrong one.
- *      2. **`HistoryManager.goBack()` stops finishing the screen on top.** Its condition is
- *         `if (!isVisible) currentActivity?.finish()`, and with a classic secondary Activity over a
- *         backgrounded host whose reading destination is still composed, `depth > 0` keeps
- *         [isVisible] true — so nothing is finished. `ActivityBase.onBackPressed` returns WITHOUT
- *         calling `super` whenever `historyTraversal.goBack()` returns true, so the user gets a back
- *         press that reverts history and leaves them on the same secondary screen: a dead back key.
- *         That is the opposite direction from the one (1) errs in.
+ * `MainBibleActivity` is unaffected by that rule: it hosts no `reading` destination, so nothing ever
+ * calls [enter] with its token.
  *
- *    Latent at this commit — nothing routes to `NavRoutes.READING`, so no destination is ever
- *    composed in production — but it is real state, not a hypothetical, and it is the state
- *    enumeration the next batch builds on.
+ * **What is genuinely equivalent to the old predicate.** A **sheet** over the reading view (search,
+ * key chooser, text settings, Speak) changes neither the Activity, the destination, nor the
+ * foreground host, so the predicate stays true; a **screen** over it changes the destination (a
+ * sibling route) or the foreground (a secondary Activity), so it goes false. A sheet is NOT a
+ * destination — do not set this false when opening one.
  *
- *    **Resolving this is a precondition for the task that makes `ReadingNavDeps.content` real.**
- *    The moment the reading destination renders the reading view, the depth counter is live and (2)
- *    is a user-visible dead back key. Whoever owns that task decides how — a lifecycle-aware
- *    effect, a separate "is the host resumed" input ANDed with the depth, or making `goBack`'s
- *    finish condition ask something else entirely — and must NOT simply swap in
- *    `LifecycleStartEffect` without re-checking the `onCreate` window above, which is the defect
- *    that trade would bring back. Deliberately NOT fixed here: a half-made lifecycle change is
- *    worse than an accurate comment.
+ * **The one remaining divergence from the old predicate**, unchanged by R7b and harmless: the old
+ * check went false at `onStop` (`CurrentActivityHolder.deactivate`), this one at `onPause`. See
+ * `HistoryManager.goBack`, which argues why no caller can run in that window.
  *
- * **Why the destination input is a depth counter, not a boolean** (Task 3's carried finding, done
- * in Task 6): `StartupActivity`'s `FLAG_ACTIVITY_MULTIPLE_TASK` can make a second reading instance
- * real, and with a process-wide boolean the instance that left would clear the flag for the one
- * still on screen. [enter] and [exit] are balanced by the destination's own `DisposableEffect`.
- * All calls are on the main thread (a composition effect, a lifecycle callback, or a test), so the
- * counter is plain.
+ * **Why the registrations are MULTISETS rather than booleans** (Task 3's carried finding):
+ * `StartupActivity`'s `FLAG_ACTIVITY_MULTIPLE_TASK` can make a second reading instance real. The
+ * host token now keeps those two instances apart by itself, but the counting still matters within
+ * one host: [enter] and [exit] are balanced by the destination's own `DisposableEffect`, and an
+ * unbalanced [exit] must not be able to un-register a registration that is still live. All calls
+ * are on the main thread (a composition effect, a lifecycle callback, or a test), so the lists are
+ * plain.
  */
 object ReadingViewVisibility {
-    private var depth = 0
-    private var activityVisible = false
-    private var visible = false
+    /** One entry per live `enter(host)`, by host token — a multiset, hence a list. */
+    private val destinations = mutableListOf<Any>()
+
+    /** The hosts whose ACTIVITY input is currently on. At most one entry per host. */
+    private val activityHosts = mutableListOf<Any>()
+
+    /** [setVisible]'s forcing state — tests only; see that function. */
+    private var forced = false
 
     /**
-     * `depth > 0 || activityVisible` — see the class kdoc for why those are two inputs, not one.
+     * Computed, never cached: is any registered reading view's host the FOREGROUND one? See the
+     * class kdoc for why a cached value would go stale in the dangerous direction.
+     */
+    val isVisible: Boolean
+        get() = forced ||
+            destinations.any { ReadingHostPresence.isForeground(it) } ||
+            activityHosts.any { ReadingHostPresence.isForeground(it) }
+
+    /**
+     * A reading DESTINATION hosted by [host] became visible. Paired with exactly one [exit] for the
+     * same host. Also retires [host]'s bootstrap bridge — see the class kdoc.
+     */
+    fun enter(host: Any) {
+        destinations.add(host)
+        activityHosts.removeAll { it === host }
+    }
+
+    /**
+     * A reading destination hosted by [host] went away. Removes ONE registration, never less than
+     * none: an unbalanced [exit] is a bug in the caller, and letting it remove a registration that
+     * does not exist would hide that bug behind a flag that can no longer be turned on. Does NOT
+     * touch [setActivityVisible]'s input, nor any other host's registrations.
+     */
+    fun exit(host: Any) {
+        val i = destinations.indexOfLast { it === host }
+        if (i >= 0) destinations.removeAt(i)
+    }
+
+    /**
+     * The ACTIVITY input for [host]: its reading view is on screen without a composed destination.
      *
-     * A plain `Boolean`. Task 6 published a `StateFlow` alongside it; nothing in either module ever
-     * collected it, and an unobserved flow is a second representation of the same state that can
-     * only ever drift, so fix round 2 dropped it. Every reader of this seam
-     * (`HistoryManager.createHistoryItem`, `HistoryManager.goBack`) asks the question at the
-     * instant it needs the answer; add the flow back the day something actually wants to react to a
-     * change.
+     * `MainBibleActivity`'s four lifecycle call sites drive it for as long as that Activity IS the
+     * reading view; `NavHostComposeActivity` uses it only as the bootstrap bridge described in the
+     * class kdoc. **Temporary in the first sense, not the second:** the four classic call sites go
+     * away with `MainBibleActivity` itself, the bridge stays as long as `bootstrapIfNeeded()` has to
+     * run before the graph composes.
      */
-    val isVisible: Boolean get() = visible
-
-    /** A reading DESTINATION became visible. Paired with exactly one [exit]. */
-    fun enter() {
-        depth += 1
-        publish()
+    fun setActivityVisible(host: Any, visible: Boolean) {
+        activityHosts.removeAll { it === host }
+        if (visible) activityHosts.add(host)
     }
 
     /**
-     * A reading destination went away. Never drives the depth below zero: an unbalanced [exit] is a
-     * bug in the caller, and turning it into a negative depth would hide it behind a flag that can
-     * no longer be turned on. Does NOT touch [setActivityVisible]'s input.
-     */
-    fun exit() {
-        if (depth > 0) depth -= 1
-        publish()
-    }
-
-    /**
-     * The classic-Activity input: `MainBibleActivity`'s lifecycle says whether ITS reading view is
-     * on screen. Independent of [enter]/[exit] — a `false` here cannot clear a composed
-     * destination's depth, and a destination's `exit()` cannot clear a resumed Activity.
+     * Force the answer, ignoring every registration. The only callers are TESTS that need a known
+     * starting state (or that drive the predicate directly instead of composing a destination and
+     * declaring a foreground host); production code goes through [enter]/[exit] and
+     * [setActivityVisible].
      *
-     * **TEMPORARY**, together with its four call sites in `MainBibleActivity`: it exists only while
-     * the reading destination's `content` slot cannot render the real reading view
-     * (`ComposeReadingViewHost` is constructed with a `MainBibleActivity`), so the Activity is
-     * still the only live reading view. It goes away with the task that makes that slot real.
-     */
-    fun setActivityVisible(visible: Boolean) {
-        activityVisible = visible
-        publish()
-    }
-
-    /**
-     * Force the whole state, ignoring both inputs. The only callers are TESTS that need a known
-     * starting state (or that drive the predicate directly instead of composing the destination);
-     * production code goes through [enter]/[exit] and [setActivityVisible]. `true` sets the depth to
-     * exactly 1, so a following [exit] still lands on false; either value clears the Activity input,
-     * so `setVisible(false)` really is a full reset rather than "false unless some earlier test left
-     * the Activity input on".
+     * Either value first CLEARS both inputs, so `setVisible(false)` really is a full reset rather
+     * than "false unless some earlier test left a registration behind". It does not touch
+     * [ReadingHostPresence] — a stale foreground token with no registrations cannot make anything
+     * visible — so a test that declares a foreground host resets that itself.
      */
     fun setVisible(visible: Boolean) {
-        depth = if (visible) 1 else 0
-        activityVisible = false
-        publish()
-    }
-
-    private fun publish() {
-        visible = depth > 0 || activityVisible
+        destinations.clear()
+        activityHosts.clear()
+        forced = visible
     }
 }

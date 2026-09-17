@@ -32,6 +32,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
@@ -82,6 +83,17 @@ class ReadingHistoryAnchorTest {
     /** Psalm 139:2 in KJV — a real installed module, so `getEntities`/`restoreFrom` can round-trip. */
     private val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.PS, 139, 2)
 
+    /**
+     * R7b: `setVisible(false)` no longer resets everything on its own — the visibility rule is now
+     * "registered by a FOREGROUND host", and the foreground token lives in [ReadingHostPresence].
+     * A `MainBibleActivity` driven through its lifecycle here declares itself foreground, so a test
+     * that did not retract it would hand the next one a stale host.
+     */
+    private fun resetReadingSeams() {
+        ReadingViewVisibility.setVisible(false)
+        ReadingHostPresence.setForeground(null)
+    }
+
     private fun historyManagerWithOneWindow(): HistoryManager {
         val kjv = requireNotNull(Books.installed().getBook("KJV")) { "KJV test module must be installed" }
         window.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
@@ -91,7 +103,7 @@ class ReadingHistoryAnchorTest {
 
     @Before
     fun setUp() {
-        ReadingViewVisibility.setVisible(false)
+        resetReadingSeams()
         windowControl = CommonUtils.windowControl
         windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl.windowRepository = windowRepository
@@ -101,7 +113,7 @@ class ReadingHistoryAnchorTest {
 
     @After
     fun tearDown() {
-        ReadingViewVisibility.setVisible(false)
+        resetReadingSeams()
         ABEventBus.unregister(historyManager)
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
@@ -199,6 +211,14 @@ class ReadingHistoryAnchorTest {
      * `ReadingDestinationInGraphTest.theReadingDestinationOwnsTheVisibilityFlag`, and the
      * composition of the two inputs is `ReadingViewVisibilityTest` in `:sharedCore`.
      *
+     * **Reading-host re-typing R7b added a SECOND thing each of these call sites does.** The rule
+     * is now "registered by a host [ReadingHostPresence] says is FOREGROUND", so every place that
+     * declares this Activity's reading view present also declares the Activity itself foreground,
+     * and `onPause` retracts both. The assertions below are unchanged in direction because the
+     * classic Activity declares and retracts the two together — which is exactly why
+     * [theReadingActivityDeclaresAndRetractsItsForegroundPresence] exists beside them: with both
+     * halves moving as one, an assertion on `isVisible` alone cannot tell which half is wired.
+     *
      * `ActivityBase.onCreate`'s FIRST line is `CurrentActivityHolder.activate(this)`
      * (`ActivityBase.kt:88`), so the OLD predicate (`currentActivity is MainBibleActivity`) was true
      * for the whole of `onCreate` — and `MainBibleActivity.onCreate` really does post
@@ -287,29 +307,103 @@ class ReadingHistoryAnchorTest {
     }
 
     /**
-     * The Activity path must not be able to switch OFF a reading destination that is composed —
-     * the two inputs are an OR, and this is the half of that composition which can only be seen
-     * with a real Activity in play (`ReadingViewVisibilityTest` in `:sharedCore` pins the pure
-     * state machine). Mutation: make `setActivityVisible` write the depth counter (e.g. `depth =
-     * if (visible) 1 else 0`) and `onPause` clears a destination that is still on screen.
+     * **INVERTED by reading-host re-typing R7b, deliberately — this was
+     * `anActivityPauseDoesNotClearAComposedDestination`, and it asserted the defect.**
+     *
+     * The old rule was "either input, whoever registered it", so this test asserted that a paused
+     * Activity with ANOTHER host's reading destination still composed counts as visible. That is
+     * precisely the divergence R7b fixes: a composition-scoped effect stays entered while its host
+     * Activity is in the background (navigation-compose does not dispose the current entry's
+     * content when the Activity stops), so the state this test described is "the user is looking at
+     * a classic secondary screen while a backgrounded host's reading destination keeps the flag
+     * on" — which made `HistoryManager.goBack()`'s `if (!isVisible) finish()` never fire, i.e. a
+     * DEAD BACK KEY, and recorded a `KeyHistoryItem` for an `AddHistoryItem` posted in the
+     * background.
+     *
+     * Under the new rule a registration only counts while [ReadingHostPresence] says its host is
+     * foreground, so the assertion flips. The property the old test was really protecting — that
+     * one reading view's exit cannot un-register another's — did not go away and is pinned where it
+     * can be stated without a lifecycle: `ReadingViewVisibilityTest.oneHostsRegistrationsAreNotAnothersToRemove`
+     * and `.theTwoInputsCompose` in `:sharedCore`.
+     *
+     * Mutation: drop the [ReadingHostPresence] gate from `ReadingViewVisibility.isVisible` and the
+     * second assertion fails — which is the RED this task started from.
      */
     @Test
-    fun anActivityPauseDoesNotClearAComposedDestination() {
-        ReadingViewVisibility.setVisible(false)
+    fun anActivityPauseClearsTheFlagEvenWhenAnotherHostsDestinationIsComposed() {
+        resetReadingSeams()
+        val navHost = Any()  // another host's token — the nav host, as far as this seam can tell
         val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
         try {
             controller.create().start().resume()
-            // A reading DESTINATION, as the nav host composes it — the other input.
-            ReadingViewVisibility.enter()
+            // A reading DESTINATION, as the nav host composes it — registered under ITS host.
+            ReadingViewVisibility.enter(navHost)
+            assertTrue(ReadingViewVisibility.isVisible, "sanity: the classic reading view is in front")
 
             controller.pause()
-            assertTrue(
+            assertFalse(
                 ReadingViewVisibility.isVisible,
-                "the classic Activity paused, but a reading destination is still composed",
+                "the classic Activity paused and the other host is not in front either — a " +
+                    "destination composed under a backgrounded host is not what the user sees",
             )
 
-            ReadingViewVisibility.exit()
-            assertFalse(ReadingViewVisibility.isVisible, "…and with both inputs off it is false")
+            // …and it is that host's presence, not its registration, that was missing: give the
+            // nav host the front and the same, untouched registration counts again.
+            ReadingHostPresence.setForeground(navHost)
+            assertTrue(
+                ReadingViewVisibility.isVisible,
+                "the destination was never un-registered — only its host was in the background",
+            )
+
+            ReadingViewVisibility.exit(navHost)
+            assertFalse(ReadingViewVisibility.isVisible, "…and with nothing registered it is false")
+        } finally {
+            controller.close()
+        }
+    }
+
+    /**
+     * **R7b: the classic Activity's OTHER production wiring.** Every call site that declares its
+     * reading view present also declares the Activity foreground ([ReadingHostPresence]), and
+     * `onPause` retracts it — `clearForeground(this)`, not `setForeground(null)`, so a stale pause
+     * cannot clear a host that came to the front after it. Neither half is visible in an `isVisible`
+     * assertion, because the classic Activity moves both together: delete
+     * `ReadingHostPresence.setForeground(this)` from `onResume` and every assertion in
+     * [theReadingActivityLifecycleTurnsTheFlagOnAtResumeAndOffAtPause] still passes for the wrong
+     * reason (the Activity input alone), until the day `MainBibleActivity` is no longer the only
+     * reading view.
+     *
+     * The second half drives the interleaving the token exists for: another host takes the front
+     * while this Activity is still resumed, and only then does this Activity's pause arrive.
+     */
+    @Test
+    fun theReadingActivityDeclaresAndRetractsItsForegroundPresence() {
+        resetReadingSeams()
+        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
+        try {
+            val activity = controller.create().get()
+            assertTrue(
+                ReadingHostPresence.isForeground(activity),
+                "onCreate declares the presence, for the same reason it declares the flag: the " +
+                    "deep-link AddHistoryItem is posted inside onCreate",
+            )
+
+            controller.start().resume().pause()
+            assertFalse(
+                ReadingHostPresence.isForeground(activity),
+                "onPause retracts this Activity's own presence",
+            )
+
+            // A stale pause: another host is already in front when this one's onPause arrives.
+            controller.resume()
+            val otherHost = Any()
+            ReadingHostPresence.setForeground(otherHost)
+            controller.pause()
+            assertTrue(
+                ReadingHostPresence.isForeground(otherHost),
+                "a stale onPause must retract only its OWN presence — clearForeground(this), not " +
+                    "setForeground(null)",
+            )
         } finally {
             controller.close()
         }

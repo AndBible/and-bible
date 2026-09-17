@@ -81,33 +81,47 @@ class ReadingViewHostHandlers(
  * can make a second reading instance real, and the one that leaves must not unpublish the one still
  * on screen. All access is on the main thread (a composition effect, or an Activity callback).
  *
- * **[current] is LAST PUBLISHED, which is not the same thing as "the foreground host".** It is the
- * same divergence [ReadingViewVisibility] has, in the same direction and for the same reason: a
- * composition-scoped effect stays entered while its host Activity is in the background, so with two
- * reading views alive the one on top of the *publish stack* can be the one the user cannot see.
- * The host then dispatches volume keys and screen-on broadcasts — which arrive at the FOREGROUND
- * Activity — into the backgrounded destination's handlers, and reports
- * `enableGenericVolumeScroll` for it too. Latent at this commit, since nothing routes to
- * `NavRoutes.READING` and only `MainBibleActivity` can be a second instance; **resolving it is a
- * precondition for the task that makes `ReadingNavDeps.content` real**, alongside the
- * [ReadingViewVisibility] item, and it wants the same answer as that one (whatever tells a
- * published destination that its host is actually resumed). Not fixed here on purpose: the shape
- * of that answer is the next batch's design decision, and half of it would be worse than an
- * accurate comment.
+ * **[current] is the FOREGROUND host's reading view, not the last published one (reading-host
+ * re-typing R7b).** Every publication carries the token of the host it belongs to and [current]
+ * resolves it through [ReadingHostPresence], because "last published" and "the one the user is
+ * looking at" are not the same thing: a composition-scoped effect stays entered while its host
+ * Activity is in the background, so with two reading views alive the top of the publish stack could
+ * be the one the user cannot see — and the host would then dispatch volume keys and screen-on
+ * broadcasts, which arrive at the FOREGROUND Activity, into a backgrounded destination's handlers,
+ * and report `enableGenericVolumeScroll` for it too. [ReadingViewVisibility] resolves the same
+ * question through the same object, so the two seams cannot disagree about which reading view is on
+ * screen; see [ReadingHostPresence]'s kdoc for the whole argument.
  */
 object ReadingViewHostCallbacks {
-    private val published = mutableListOf<ReadingViewHostHandlers>()
+    private class Publication(val handlers: ReadingViewHostHandlers, val host: Any)
+
+    private val published = mutableListOf<Publication>()
 
     /**
-     * The handlers of the LAST PUBLISHED reading view, or `null` when no reading view is composed.
-     * Read the class kdoc before treating "last published" as "the one the user is looking at" —
-     * with two instances alive they are not the same thing.
+     * The handlers of the reading view published by the FOREGROUND host, or `null` when no reading
+     * view the user can see is composed — which is also the answer while every published reading
+     * view's host is in the background. `lastOrNull` among the foreground host's own publications,
+     * for the same reason the collection is a list at all.
      */
-    val current: ReadingViewHostHandlers? get() = published.lastOrNull()
+    val current: ReadingViewHostHandlers?
+        get() = published.lastOrNull { ReadingHostPresence.isForeground(it.host) }?.handlers
 
-    /** Publishes [handlers] until the returned function is called. Call it exactly once. */
-    fun publish(handlers: ReadingViewHostHandlers): () -> Unit {
-        published.add(handlers)
-        return { published.remove(handlers) }
+    /**
+     * How many reading views are published, foreground or not. **Tests only**, and specifically so
+     * that a test's "nothing leaked from the previous test" check can still see a publication whose
+     * host is not foreground: [current] alone would answer `null` for a real leak and the check
+     * would be one that cannot fail.
+     */
+    val publishedCount: Int get() = published.size
+
+    /**
+     * Publishes [handlers] on behalf of [host] until the returned function is called. Call it
+     * exactly once. [host] is the reading view's HOST (the Activity), the token [ReadingHostPresence]
+     * compares by identity — not the destination and not the handlers.
+     */
+    fun publish(handlers: ReadingViewHostHandlers, host: Any): () -> Unit {
+        val publication = Publication(handlers, host)
+        published.add(publication)
+        return { published.remove(publication) }
     }
 }

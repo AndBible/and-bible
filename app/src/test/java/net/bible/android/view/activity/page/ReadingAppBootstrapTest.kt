@@ -227,31 +227,85 @@ class ReadingAppBootstrapTest {
     }
 
     /**
-     * Fix round 1, review Important 1. `ReadingViewVisibility.setActivityVisible(true)` must run
-     * BEFORE the deep-link dispatch, on this host as on classic. `openDeepLink` ->
+     * Fix round 1, review Important 1. `ReadingViewVisibility.setActivityVisible(this, true)` must
+     * run BEFORE the deep-link dispatch, on this host as on classic. `openDeepLink` ->
      * `windowControl.showLink` -> `setKey(addHistoryItem = true)` posts `AddHistoryItem`
      * SYNCHRONOUSLY, and with the flag false `createHistoryItem` records a wrong `IntentHistoryItem`
      * carrying the deep-link intent instead of the verse. Deferring the flag to the reading
      * destination's `DisposableEffect` cannot work: an effect inside the graph runs after
      * `setContent`, i.e. after this has already fired.
+     *
+     * **R7b re-pointed this guard and added the presence half.** The setter took a host parameter
+     * (`setActivityVisible(this, true)`) when the flag became "registered by the FOREGROUND host",
+     * so the old literal this scanned no longer occurs anywhere and the guard would have passed
+     * vacuously — the failure mode a scan-based guard has and a compiler does not. The same
+     * ordering argument applies verbatim to `ReadingHostPresence.setForeground(this)`: a
+     * registration by a host that is not in front is not visible, so a presence declared after the
+     * deep link is the same wrong `IntentHistoryItem`.
      */
     @Test
     fun theReadingBootstrapSetsTheVisibilityFlagBeforeDispatchingADeepLink() {
         val body = codeLinesOf(navHostActivity)
             .dropWhile { !it.contains("private fun bootstrapIfNeeded()") }
             .takeWhile { !it.trim().startsWith("/** [ReadingHostActivity.hostContext]") }
-        val visible = body.indexOfFirst { it.contains("ReadingViewVisibility.setActivityVisible(true)") }
+        val visible = body.indexOfFirst { it.contains("ReadingViewVisibility.setActivityVisible(this, true)") }
+        val presence = body.indexOfFirst { it.contains("ReadingHostPresence.setForeground(this)") }
         val deepLink = body.indexOfFirst { it.contains("readingAppBootstrap.openDeepLink(") }
         assertTrue(
-            "bootstrapIfNeeded() must call ReadingViewVisibility.setActivityVisible(true) — without " +
-                "it the deep link below records a wrong IntentHistoryItem, silently",
+            "bootstrapIfNeeded() must call ReadingViewVisibility.setActivityVisible(this, true) — " +
+                "without it the deep link below records a wrong IntentHistoryItem, silently",
             visible >= 0,
+        )
+        assertTrue(
+            "…and ReadingHostPresence.setForeground(this), without which that registration is not " +
+                "visible at all (R7b)",
+            presence >= 0,
         )
         assertTrue("bootstrapIfNeeded() must dispatch the openLink deep link", deepLink >= 0)
         assertTrue(
             "the visibility flag must be set BEFORE the deep-link dispatch, not after: the " +
                 "AddHistoryItem the dispatch posts is handled synchronously",
             visible < deepLink,
+        )
+        assertTrue("…and so must the host's presence, for the same reason", presence < deepLink)
+    }
+
+    /**
+     * **R7b: the bootstrap bridge is RETIRED again, so this host stays balanced.**
+     *
+     * `bootstrapIfNeeded()` is one-shot and declares `setActivityVisible(this, true)` above; that
+     * input is the bridge over the window before the graph composes, and nothing in the host would
+     * ever clear it on its own. Left set, this host reports a reading view on screen for the rest of
+     * its life — on every OTHER destination it shows — so `HistoryManager` would record a
+     * `KeyHistoryItem` on a Download screen and `goBack()` would never finish anything. The
+     * destination's `enter(host)` retires it when the graph composes; `onPause` is the other end,
+     * for a host backgrounded before that ever happens.
+     *
+     * A scan because neither end is reachable from a unit test: `bootstrapIfNeeded()` runs only for
+     * the READING route, whose content slot still `error(...)`s, so no test can build this host with
+     * the bridge set. Mutation: delete the `setActivityVisible(this, false)` line from the host's
+     * `onPause` and this fails; the `:sharedCore` half (a composed destination retiring the bridge)
+     * is `ReadingViewVisibilityTest.aComposedDestinationRetiresItsOwnHostsBootstrapBridge`.
+     */
+    @Test
+    fun theBootstrapBridgeIsRetiredWhenTheHostPauses() {
+        val onPause = codeLinesOf(navHostActivity)
+            .dropWhile { !it.contains("override fun onPause()") }
+            .takeWhile { !it.contains("override fun onResume()") }
+        assertTrue(
+            "NavHostComposeActivity.onPause() must retire the bootstrap bridge with " +
+                "ReadingViewVisibility.setActivityVisible(this, false) — bootstrapIfNeeded() sets " +
+                "it and nothing else ever clears it",
+            onPause.any { it.contains("ReadingViewVisibility.setActivityVisible(this, false)") },
+        )
+        assertTrue(
+            "…and retract its presence with clearForeground(this), never setForeground(null): a " +
+                "stale pause must not clear the host that came to the front after it",
+            onPause.any { it.contains("ReadingHostPresence.clearForeground(this)") },
+        )
+        assertTrue(
+            "onPause must not clear the foreground unconditionally",
+            onPause.none { it.contains("ReadingHostPresence.setForeground(null)") },
         )
     }
 

@@ -57,6 +57,23 @@ import net.bible.sharedcore.reading.ReadingViewVisibility
  */
 class ReadingNavDeps(
     /**
+     * The Activity that hosts this graph, as an opaque identity token (reading-host re-typing R7b).
+     *
+     * The destination registers itself with [ReadingViewVisibility] and [ReadingViewHostCallbacks]
+     * under this token, and both resolve it through
+     * [net.bible.sharedcore.reading.ReadingHostPresence] — so a destination that is still composed
+     * under a BACKGROUNDED host counts as neither visible nor current. Without it, "registered"
+     * meant "on screen", which is a dead back key on a classic secondary Activity and volume keys
+     * dispatched into a reading view the user cannot see; that object's kdoc has the argument.
+     *
+     * **A deps field rather than a `CompositionLocal`**, because `rememberUpdatedState(deps)` below
+     * already exists for exactly this class of staleness: a local would be a second way for the
+     * destination to learn the same fact, readable from places the deps are not, and the two could
+     * then disagree about which host is registering. `Any` rather than an Activity type because
+     * `:sharedCore`/`:sharedUi` `commonMain` is Android-free; it is only ever compared by identity.
+     */
+    val host: Any,
+    /**
      * The HOST WINDOW's title (Recents, TalkBack), classic `MainBibleActivity`'s
      * `android:label="@string/app_name_short"` (`AndroidManifest.xml:103`). Applied from a
      * `LaunchedEffect` keyed on the VALUE, the shape every other destination uses; the host
@@ -80,14 +97,16 @@ class ReadingNavDeps(
      *     host, because both live on the `ComposeReadingViewHost` this slot cannot build yet — so
      *     the close half lands with the slot. Dead today (nothing routes here); the day it is not
      *     dead, an external-keyboard BACK silently does nothing instead of closing the drawer.
-     *  2. **`ReadingViewVisibility` keeps `HistoryManager.goBack()` from finishing the screen on
-     *     top** once a composed destination's depth is live under a backgrounded host — a dead back
-     *     key. See that object's kdoc; it names this task as the one that must resolve it.
-     *  3. **`ReadingViewHostCallbacks.current` is "last published", not "the foreground host"**, the
-     *     same divergence on the callback seam, and it wants the same answer.
+     *  2. ~~`ReadingViewVisibility` keeps `HistoryManager.goBack()` from finishing the screen on
+     *     top once a composed destination's depth is live under a backgrounded host — a dead back
+     *     key.~~ **PAID by reading-host re-typing R7b**, which made both seams resolve through
+     *     [net.bible.sharedcore.reading.ReadingHostPresence] and this class carry [host].
+     *  3. ~~`ReadingViewHostCallbacks.current` is "last published", not "the foreground host".~~
+     *     **PAID by R7b**, the same change: it was the same divergence and it wanted the same answer.
      *
-     *  Items 2 and 3 are PRECONDITIONS, not follow-ups: both become user-visible the moment this
-     *  slot renders the real reading view.
+     *  Items 2 and 3 were PRECONDITIONS, not follow-ups — both would have become user-visible the
+     *  moment this slot rendered the real reading view, which is why they were paid first. Item 1 is
+     *  still owed and still lands with this slot.
      */
     val content: @Composable () -> Unit,
     /**
@@ -118,7 +137,9 @@ class ReadingNavDeps(
  *     `CurrentActivityHolder.currentActivity is MainBibleActivity` (design §5.1). It is the only
  *     producer of `KeyHistoryItem`, i.e. of the verse back-stack and of history persistence, so it
  *     has to be entered before anything the content hosts can post `AddHistoryItem` — which a
- *     `DisposableEffect` in the arm is, since effects run with the first composition.
+ *     `DisposableEffect` in the arm is, since effects run with the first composition. Both
+ *     registrations below are made under [ReadingNavDeps.host], so neither of them says "on screen"
+ *     while this destination's host is in the background (R7b).
  *  2. The two per-destination `ActivityBase` callback families ([ReadingViewHostCallbacks]): volume
  *     keys (and, by inversion, `enableGenericVolumeScroll`) and screen on/off.
  *  3. The host window's title.
@@ -147,17 +168,26 @@ fun NavGraphBuilder.readingNavGraph(navController: NavHostController, deps: Read
         // argument-free, so there is nothing that could legitimately re-key it, and a re-key would
         // mean an exit/enter pair that History would see as the reading view briefly leaving.
         DisposableEffect(Unit) {
-            ReadingViewVisibility.enter()
+            // The HOST is read ONCE and the same token is used to register, to publish and to undo
+            // both -- unlike the handler lambdas above, which delegate through `currentDeps` on
+            // every call. It is an identity, and an enter/publish that was undone with a different
+            // token than it was made with would leave this destination registered forever (and
+            // un-register some other host's): exactly the unbalanced state `exit`'s kdoc refuses to
+            // paper over. A host cannot change identity under a live composition anyway; if one
+            // ever could, re-keying this effect on it -- not reading it twice -- is the fix.
+            val host = currentDeps.value.host
+            ReadingViewVisibility.enter(host)
             val unpublish = ReadingViewHostCallbacks.publish(
                 ReadingViewHostHandlers(
                     onKey = { key -> currentDeps.value.onKey(key) },
                     onScreenTurnedOn = { currentDeps.value.onScreenTurnedOn() },
                     onScreenTurnedOff = { currentDeps.value.onScreenTurnedOff() },
                 ),
+                host = host,
             )
             onDispose {
                 unpublish()
-                ReadingViewVisibility.exit()
+                ReadingViewVisibility.exit(host)
             }
         }
 

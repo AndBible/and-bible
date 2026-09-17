@@ -123,7 +123,8 @@ private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pr
  *
  * **Order is load-bearing and is preserved by the CALLERS, not by this class.** Nothing here calls
  * anything else here; each member is a step the host's `onCreate` invokes in classic's original
- * sequence. In particular `ReadingViewVisibility.setActivityVisible(true)` must still run before
+ * sequence. In particular `ReadingHostPresence.setForeground(this)` +
+ * `ReadingViewVisibility.setActivityVisible(this, true)` must still run before
  * [prepareData] and long before [openDeepLink] -- see the 14-line comment that survives at the top
  * of `MainBibleActivity.onCreate` for why (`openDeepLink` -> `windowControl.showLink` ->
  * `setKey(addHistoryItem = true)` posts `AddHistoryItem` synchronously, and with the flag false that

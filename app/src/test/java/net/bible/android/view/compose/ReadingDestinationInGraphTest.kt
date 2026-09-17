@@ -36,6 +36,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewHostCallbacks
 import net.bible.sharedcore.reading.ReadingViewHostHandlers
 import net.bible.sharedcore.reading.ReadingViewKey
@@ -102,19 +103,36 @@ class ReadingDestinationInGraphTest {
     /** What [deps]' `onKey` answers — flipped by the fall-through test. */
     private var keyConsumed = true
 
+    /**
+     * The host the composed destination belongs to (reading-host re-typing R7b): an opaque token,
+     * exactly as `ReadingNavDeps.host` is declared, standing in for the Activity the production
+     * host passes as `this`. [setGraph] declares it FOREGROUND, which is what a resumed host does
+     * in `onResume` — without that, a composed destination is correctly invisible and half the
+     * assertions below would be testing the wrong state.
+     */
+    private val graphHost = Any()
+
     @Before
     fun resetSeams() {
         ReadingViewVisibility.setVisible(false)
-        assertNull(
-            ReadingViewHostCallbacks.current,
+        ReadingHostPresence.setForeground(null)
+        // R7b: `current` is the FOREGROUND host's reading view, so with no host in front it is null
+        // whether or not something leaked — `publishedCount` is the leak detector that can still
+        // see one. (A check that cannot fail is worse than no check.)
+        assertEquals(
+            0, ReadingViewHostCallbacks.publishedCount,
             "a previous test leaked a published reading view — every publish here is unpublished",
         )
     }
 
     @After
-    fun tearDown() = DatabaseResetter.resetDatabase()
+    fun tearDown() {
+        ReadingHostPresence.setForeground(null)
+        DatabaseResetter.resetDatabase()
+    }
 
     private fun deps() = ReadingNavDeps(
+        host = graphHost,
         windowTitle = "AndBible",
         content = { Box(Modifier.testTag("readingView")) { Text("reading view") } },
         onKey = { key ->
@@ -127,6 +145,9 @@ class ReadingDestinationInGraphTest {
     )
 
     private fun setGraph(d: ReadingNavDeps = deps()) {
+        // The host is in front — see [graphHost]. Declared before the graph composes, as a resumed
+        // Activity's onResume runs before its composition.
+        ReadingHostPresence.setForeground(d.host)
         compose.setContent {
             navController = rememberNavController()
             NavHost(navController = navController, startDestination = NavRoutes.READING) {
@@ -182,26 +203,42 @@ class ReadingDestinationInGraphTest {
     }
 
     /**
-     * The predicate is a DEPTH counter, not a boolean (Task 3's carried finding):
+     * **REWRITTEN by reading-host re-typing R7b — this was `theVisibilityFlagIsADepthCounterNotABoolean`,
+     * and its assertion was the divergence.**
+     *
      * `FLAG_ACTIVITY_MULTIPLE_TASK` (`StartupActivity`) can make a second reading instance real, and
-     * a process-wide boolean would let the instance that leaves clear the flag for the one still on
-     * screen. Mutation: make `exit()` do `_isVisible.value = false` (a boolean) and the second
+     * the old test asserted that the second one's registration keeps the flag ON after the composed,
+     * on-screen one leaves. It cannot: that second instance is in ANOTHER TASK and its host is in
+     * the background, so what the user is looking at once this destination pops is the sibling
+     * screen. Keeping the flag on there is the dead back key (`HistoryManager.goBack`'s
+     * `if (!isVisible) finish()`) this task exists to fix.
+     *
+     * The registrations are still per-host multisets and one instance still cannot un-register
+     * another's — that property just cannot be SEEN through `isVisible` from a backgrounded host any
+     * more, so it is pinned in `ReadingViewVisibilityTest.oneHostsRegistrationsAreNotAnothersToRemove`
+     * (`:sharedCore`) instead. What this test pins now is the gate itself, through a real
+     * composition. Mutation: drop the [ReadingHostPresence] gate from `isVisible` and the second
      * assertion fails.
      */
     @Test
-    fun theVisibilityFlagIsADepthCounterNotABoolean() {
+    fun aSecondTasksReadingViewIsNotTheOneOnScreen() {
         setGraph()
-        // A second reading view, as a second task would produce it.
-        ReadingViewVisibility.enter()
+        // A second reading view, as a second task would produce it: another host, in the background.
+        val otherHost = Any()
+        ReadingViewVisibility.enter(otherHost)
+        assertTrue(ReadingViewVisibility.isVisible, "sanity: this host's destination is on screen")
 
         navigateTo(SIBLING)
-        assertTrue(
+        assertFalse(
             ReadingViewVisibility.isVisible,
-            "one instance leaving must not clear the flag for the other, still-composed one",
+            "a sibling SCREEN is what the user is looking at — a second task's reading view, whose " +
+                "host is in the background, must not keep the flag on",
         )
 
-        ReadingViewVisibility.exit()
-        assertFalse(ReadingViewVisibility.isVisible, "…and the last one out does clear it")
+        popBack()
+        assertTrue(ReadingViewVisibility.isVisible, "…and popping back to this one turns it on again")
+
+        ReadingViewVisibility.exit(otherHost)
     }
 
     /**
@@ -311,7 +348,7 @@ class ReadingDestinationInGraphTest {
     @Test
     fun theHostSendsVolumeKeysToThePublishedHandler() {
         val activity = buildHost()
-        val unpublish = publishProbe()
+        val unpublish = publishProbe(activity)
         try {
             assertTrue(
                 activity.onKeyDown(KeyEvent.KEYCODE_VOLUME_DOWN, keyEvent(KeyEvent.KEYCODE_VOLUME_DOWN)),
@@ -336,7 +373,7 @@ class ReadingDestinationInGraphTest {
     fun theHostFallsThroughWhenTheReadingViewDeclinesTheKey() {
         val activity = buildHost()
         probeConsumes = false
-        val unpublish = publishProbe()
+        val unpublish = publishProbe(activity)
         try {
             assertFalse(
                 activity.onKeyDown(KeyEvent.KEYCODE_VOLUME_DOWN, keyEvent(KeyEvent.KEYCODE_VOLUME_DOWN)),
@@ -358,7 +395,7 @@ class ReadingDestinationInGraphTest {
     @Test
     fun theHostDoesNotClaimAnOrdinaryBackPressForTheReadingView() {
         val activity = buildHost()
-        val unpublish = publishProbe()
+        val unpublish = publishProbe(activity)
         try {
             activity.onKeyDown(KeyEvent.KEYCODE_BACK, keyEvent(KeyEvent.KEYCODE_BACK))
             assertEquals(emptyList<ReadingViewKey>(), probeKeys, "a non-keyboard BACK must not be offered as ExternalKeyboardBack")
@@ -382,7 +419,7 @@ class ReadingDestinationInGraphTest {
                 "for every non-reading Activity",
         )
 
-        val unpublish = publishProbe()
+        val unpublish = publishProbe(activity)
         try {
             assertFalse(
                 genericVolumeScroll(activity),
@@ -401,7 +438,7 @@ class ReadingDestinationInGraphTest {
     @Test
     fun theHostForwardsScreenOnAndOffToThePublishedHandler() {
         val activity = buildHost()
-        val unpublish = publishProbe()
+        val unpublish = publishProbe(activity)
         try {
             invokeProtected(activity, "onScreenTurnedOn")
             invokeProtected(activity, "onScreenTurnedOff")
@@ -619,17 +656,31 @@ class ReadingDestinationInGraphTest {
      * A reading view published WITHOUT composing the graph: the host-side tests are about the host's
      * overrides, and composing a real `NavHost` inside a second Activity would only add moving parts
      * the assertions do not read.
+     *
+     * R7b: published on behalf of [host] AND with [host] declared foreground, because
+     * `ReadingViewHostCallbacks.current` now answers only for the host in front. [buildHost] stops
+     * at `create()`, so the Activity has not run the `onResume` that would declare it itself; doing
+     * it here is that call, not a workaround for the gate — the gate's own behaviour is pinned in
+     * `ReadingViewVisibilityTest.theHandlersOfABackgroundedHostAreNotCurrent` (`:sharedCore`).
      */
-    private fun publishProbe(): () -> Unit = ReadingViewHostCallbacks.publish(
-        ReadingViewHostHandlers(
-            onKey = { key ->
-                probeKeys += key
-                probeConsumes
-            },
-            onScreenTurnedOn = { probeScreenOns++ },
-            onScreenTurnedOff = { probeScreenOffs++ },
-        ),
-    )
+    private fun publishProbe(host: Any): () -> Unit {
+        ReadingHostPresence.setForeground(host)
+        val unpublish = ReadingViewHostCallbacks.publish(
+            ReadingViewHostHandlers(
+                onKey = { key ->
+                    probeKeys += key
+                    probeConsumes
+                },
+                onScreenTurnedOn = { probeScreenOns++ },
+                onScreenTurnedOff = { probeScreenOffs++ },
+            ),
+            host = host,
+        )
+        return {
+            unpublish()
+            ReadingHostPresence.clearForeground(host)
+        }
+    }
 
     private fun buildHost(): NavHostComposeActivity = Robolectric.buildActivity(
         NavHostComposeActivity::class.java,

@@ -171,6 +171,7 @@ import net.bible.sharedcore.reading.QuickDocAction
 import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.QuickDocPicker
 import net.bible.sharedcore.reading.QuickDocRow
+import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
 import net.bible.sharedcore.settings.SettingsScope
@@ -467,7 +468,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         // integrateWithHistoryManager = true — and record a WRONG IntentHistoryItem carrying the
         // deep-link intent, whose revertTo() re-starts it. The same window is what keeps goBack()'s
         // condition honest after a "Don't keep activities" recreation; see HistoryManager.goBack.
-        ReadingViewVisibility.setActivityVisible(true)
+        // R7b: presence FIRST -- the flag is now "registered by the FOREGROUND host", so this
+        // Activity has to declare itself foreground at the same moment it declares its reading view
+        // present. onCreate and not only onResume for the reason the paragraph above gives: the
+        // deep-link AddHistoryItem is posted inside onCreate, before onResume ever runs.
+        ReadingHostPresence.setForeground(this)
+        ReadingViewVisibility.setActivityVisible(this, true)
 
         readingAppBootstrap.prepareData()
 
@@ -1721,7 +1727,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
                     // so the OLD predicate is true for exactly those posts; this line keeps the NEW
                     // predicate true at the same moment, so the swap really is behaviour-neutral
                     // while the reading view is still an Activity.
-                    ReadingViewVisibility.setActivityVisible(true)
+                    ReadingHostPresence.setForeground(this)
+                    ReadingViewVisibility.setActivityVisible(this, true)
                     when (val kind = ActivityResultKind.fromExtra(extras.getString(ActivityResultKind.EXTRA))) {
                         null -> {}
                         ActivityResultKind.ChooseDocument -> {
@@ -1897,7 +1904,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         // reading view is still an Activity, this Activity's lifecycle is what drives the flag's
         // Activity input. The `reading` destination's DisposableEffect owns the OTHER input and is
         // untouched by this call.
-        ReadingViewVisibility.setActivityVisible(false)
+        ReadingViewVisibility.setActivityVisible(this, false)
+        // R7b: and this Activity is no longer the host the user is looking at -- but only if it
+        // still is, so a stale pause arriving after another host resumed cannot clear that host.
+        ReadingHostPresence.clearForeground(this)
         windowControl.windowRepository.saveIntoDb(false)
         paused = true
         fullScreen = false
@@ -1910,7 +1920,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
 
     override fun onResume() {
         // TEMPORARY, see onCreate.
-        ReadingViewVisibility.setActivityVisible(true)
+        ReadingHostPresence.setForeground(this)
+        ReadingViewVisibility.setActivityVisible(this, true)
         paused = false
         var needRefresh = false
         if(windowControl.windowRepository != windowRepository) {
