@@ -78,6 +78,19 @@ class HostInsetOwnershipTest {
         ViewCompat.dispatchApplyWindowInsets(root, insets)
     }
 
+    /**
+     * A real keyboard-open dispatch: the system bars stay up (0/80/0/39, same as [dispatchSystemBars])
+     * AND the IME reports a bottom inset taller than the nav bar's -- exactly the shape
+     * `ReadingInsets.onWindowInsetsApplied`'s `imeInsets.bottom > 0` branch exists for.
+     */
+    private fun dispatchSystemBarsAndIme(root: ViewGroup, imeBottom: Int) {
+        val insets = WindowInsetsCompat.Builder()
+            .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.of(0, 80, 0, 39))
+            .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, imeBottom))
+            .build()
+        ViewCompat.dispatchApplyWindowInsets(root, insets)
+    }
+
     private fun contentRootOf(activity: ActivityBase): ViewGroup =
         activity.findViewById(android.R.id.content)
 
@@ -204,5 +217,32 @@ class HostInsetOwnershipTest {
             ABEventBus.unregister(subscriber)
         }
         assertEquals("the nav host must post SystemInsetsChangedEvent", 39, seen?.insets?.bottom)
+    }
+
+    /**
+     * Fix round 1: `theNavHostFeedsItsReadingInsetsLedger` and `theNavHostPostsSystemInsetsChanged`
+     * only ever dispatched `systemBars()`, so `imeInsets` stayed `Insets.NONE` and
+     * `ReadingInsets.onWindowInsetsApplied`'s `imeInsets.bottom > 0` branch -- the one that produces
+     * `imeHeight` / `imeOpen` -- was never exercised, even though a dead IME term is one of the four
+     * named consequences of this defect (spec 1.3) and spec 4's guard 3 requires it in terms.
+     *
+     * `imeHeight` (`bottomOffset1 - bottomOffset1WithoutIme`) is the honest observable: it is 0
+     * whenever the listener does not forward `imeInsets` at all (the pre-fix state -- confirmed
+     * below), and it is wrong in exactly the way a dropped IME argument would make it wrong,
+     * independent of the chrome terms `theNavHostFeedsItsReadingInsetsLedger` already isolates
+     * `bottomOffsetForWebView` from -- `imeHeight` carries none of those terms.
+     */
+    @Test
+    fun theNavHostForwardsImeInsetsToTheLedger() {
+        val activity = Robolectric.buildActivity(NavHostComposeActivity::class.java).setup().get()
+        val root = contentRootOf(activity)
+        dispatchSystemBarsAndIme(root, imeBottom = 300)
+        assertEquals(
+            "the nav host must forward IME insets into the ReadingInsets ledger -- imeHeight must " +
+                "reflect the keyboard (maxOf(systemBarBottom, imeBottom) - systemBarBottom = " +
+                "maxOf(39, 300) - 39)",
+            300 - 39,
+            activity.readingInsets.imeHeight,
+        )
     }
 }
