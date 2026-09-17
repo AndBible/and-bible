@@ -59,11 +59,59 @@ class ApplyChosenVerseDriftTest {
         assertFalse("…and must not re-implement; got:\n$body", body.contains("VerseFactory.fromString"))
     }
 
+    /**
+     * **Repointed by reading-host re-typing T8c, and it had to be.** The arm this test watched —
+     * `MainBibleActivity.onActivityResult`'s `PassageGrid`/`Bookmarks`/`ReadingProgress` case —
+     * moved wholesale into [ReadingCommands.applyChosenPassageResult], because all four of those
+     * screens are destinations of `NavHostComposeActivity`'s own graph now and their results reach
+     * the reading host IN-GRAPH, never through an `onActivityResult`. Two dispatchers reading the
+     * same extras would have been two things to keep true.
+     *
+     * The old assertion (`activitySrc.contains("applyChosenVerse(verseStr,")`) still PASSES against
+     * the moved tree — but only because the R3 stub's own delegating body reads
+     * `readingCommands.applyChosenVerse(verseStr, isFromBookmark)`. Its comment claimed that could
+     * not happen; with the arm gone it does. A guard that has quietly stopped seeing its subject is
+     * worse than a deleted one, so what is pinned now is the whole chain: the Activity's arm
+     * delegates, and the SHARED applier is the one place that calls `applyChosenVerse`.
+     */
     @Test fun theActivityResultArmDelegatesRatherThanDuplicating() {
-        // `applyChosenVerse(verseStr,` — with the comma — is the CALL in the result arm; the R3
-        // stub's own signature reads `applyChosenVerse(verseStr: String`, so this cannot be
-        // satisfied by the stub alone.
-        assertTrue(activitySrc.contains("applyChosenVerse(verseStr,"))
+        assertTrue(
+            "MainBibleActivity's PassageGrid/Bookmarks/ReadingProgress arm must delegate to the " +
+                "shared applier rather than re-implementing it",
+            activitySrc.contains("readingCommands.applyChosenPassageResult(kind, extras)"),
+        )
+        val shared = bodyOf(commandsSrc, "fun applyChosenPassageResult(")
+        assertTrue(
+            "ReadingCommands.applyChosenPassageResult must be what calls applyChosenVerse; got:\n$shared",
+            shared.contains("applyChosenVerse(verseStr,"),
+        )
+    }
+
+    /**
+     * The other two arms that moved with it, for the same reason and with the same hazard: a second
+     * copy of either would only be noticed by a user whose pick silently did nothing. The
+     * `getBook(bookInitials)` count is the copy detector — that identifier appears only inside these
+     * two arms, so a re-implementation left behind on the Activity would raise it above zero.
+     */
+    @Test fun theMyDocumentArmsDelegateToo() {
+        assertTrue(
+            "MainBibleActivity's MyDocumentPages arm must delegate",
+            activitySrc.contains("readingCommands.applyChosenMyDocumentPage(extras)"),
+        )
+        assertTrue(
+            "MainBibleActivity's MyDocuments arm must delegate",
+            activitySrc.contains("readingCommands.applyChosenMyDocument(extras)"),
+        )
+        assertEquals(
+            "the my-document arms must not be re-implemented on the Activity beside the shared ones",
+            0,
+            Regex("""getBook\(bookInitials\)""").findAll(activitySrc).count(),
+        )
+        assertEquals(
+            "…and must exist exactly once in ReadingCommands (the two arms, one read each)",
+            2,
+            Regex("""getBook\(bookInitials\)""").findAll(commandsSrc).count(),
+        )
     }
 
     /** The text from [signature] to the next member declaration at class-body indentation. */

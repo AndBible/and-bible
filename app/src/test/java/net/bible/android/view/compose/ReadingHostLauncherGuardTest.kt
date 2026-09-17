@@ -242,13 +242,23 @@ class ReadingHostLauncherGuardTest {
                 "KeyChooserResults, or the two readings of the same result can drift apart",
             mainBible.contains("KeyChooserResults.genBookKeyFrom(extras)"),
         )
-        assertTrue(
-            "MainBibleActivity.openMyDocumentPage must delegate — its key-map rebuild-and-retry only " +
-                "fires on a stale key map, so a second copy could lose it and nothing would notice",
-            mainBible.contains("KeyChooserResults.openMyDocumentPage("),
-        )
         val readingCommands = ClassicRemovalScan.codeLinesOf(
             "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"
+        )
+        // T8c moved the two callers of `openMyDocumentPage` — the `MyDocumentPages` and
+        // `MyDocuments` activity-result arms — out of the Activity and into `ReadingCommands`,
+        // because on the reading host those results now arrive in-graph and never reach an
+        // `onActivityResult` at all. The Activity's private wrapper went with them, so this
+        // assertion FOLLOWS the delegation to its new file rather than being deleted: what it
+        // protects is unchanged, that the key-map rebuild-and-retry has exactly one implementation.
+        assertTrue(
+            "ReadingCommands' my-document arms must delegate — the key-map rebuild-and-retry only " +
+                "fires on a stale key map, so a second copy could lose it and nothing would notice",
+            readingCommands.contains("KeyChooserResults.openMyDocumentPage("),
+        )
+        assertFalse(
+            "MainBibleActivity must not grow a second openMyDocumentPage implementation beside it",
+            mainBible.contains("MyDocumentBookManager.refreshDocument("),
         )
         assertTrue(
             "ReadingCommands.applyChosenDocument must delegate — the FakeBookFactory fallback only " +

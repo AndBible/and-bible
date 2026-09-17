@@ -1709,17 +1709,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         updateDocumentsPending = false
     }
 
-    /**
-     * Open a MyDocument page selected in the document or page chooser.
-     *
-     * A book's key map is a snapshot built when JSword activated it, so it can
-     * be out of date with the database — and if it happened to be built while
-     * the page table was unreadable, it stays empty for the rest of the
-     * session. Rebuild it and retry once before falling back to opening the
-     * document without a key.
-     */
-    private fun openMyDocumentPage(book: Book, pageKey: String) =
-        KeyChooserResults.openMyDocumentPage(windowControl.activeWindowPageManager, book, pageKey)
+    // `openMyDocumentPage` was here until reading-host re-typing T8c. Its two callers -- the
+    // MyDocumentPages and MyDocuments activity-result arms below -- moved into `ReadingCommands`
+    // (`applyChosenMyDocumentPage` / `applyChosenMyDocument`) when the reading host stopped
+    // receiving those results as Activity results at all, and the `KeyChooserResults
+    // .openMyDocumentPage` delegation moved with them. `ReadingHostLauncherGuardTest
+    // .theClassicDispatcherAndTheAwaitedArmsShareOneImplementation` follows it there.
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "Activity result:$resultCode")
@@ -1764,61 +1759,25 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
                             applyChosenDocument(extras.getString("book"))
                             return
                         }
+                        // reading-host re-typing T8c: these three arms are `ReadingCommands`'
+                        // now, and this Activity delegates to them. They stopped being this
+                        // dispatcher's alone the moment `NavHostComposeActivity` became the
+                        // launcher: all four screens are destinations of ITS graph, so on that host
+                        // the same results arrive in-graph through a `NavResultChannel` and never
+                        // reach an `onActivityResult` at all. One implementation, two callers --
+                        // the reason T8b's step 0 lifted the key-chooser appliers the same way.
                         ActivityResultKind.MyDocumentPages -> {
-                            val bookInitials = extras.getString("documentInitials")
-                            val pageKey = extras.getString("pageKey")
-                            if (bookInitials != null && pageKey != null) {
-                                val book = Books.installed().getBook(bookInitials)
-                                if (book != null) {
-                                    openMyDocumentPage(book, pageKey)
-                                    updateActions()
-                                }
-                            }
+                            readingCommands.applyChosenMyDocumentPage(extras)
                             return
                         }
                         ActivityResultKind.MyDocuments -> {
-                            val bookInitials = extras.getString("documentInitials")
-                            val pageKey = extras.getString("pageKey")
-                            if (bookInitials != null) {
-                                val book = Books.installed().getBook(bookInitials)
-                                if (book != null) {
-                                    if (pageKey != null) {
-                                        openMyDocumentPage(book, pageKey)
-                                    } else {
-                                        documentControl.changeDocument(book)
-                                    }
-                                    updateActions()
-                                }
-                            }
+                            readingCommands.applyChosenMyDocument(extras)
                             return
                         }
                         ActivityResultKind.PassageGrid,
                         ActivityResultKind.Bookmarks,
                         ActivityResultKind.ReadingProgress -> {
-                            if (kind == ActivityResultKind.ReadingProgress
-                                && extras.getString("action") == "memorize") {
-                                val startOrd = extras.getInt("startOrdinal")
-                                val endOrd = extras.getInt("endOrdinal")
-                                val defaultBible = windowControl.defaultBibleDoc(false)
-                                val v11n = (defaultBible as SwordBook).versification
-                                val verseRange = VerseRange(KJVA, Verse(KJVA, startOrd), Verse(KJVA, endOrd)).toV11n(v11n)
-                                linkControl.openMemorize(BookAndKey(verseRange, defaultBible))
-                                return
-                            }
-                            val isFromBookmark = kind == ActivityResultKind.Bookmarks
-                            val verseStr = extras.getString("verse")
-                            val keyStr = extras.getString("key")
-                            val bookStr = extras.getString("book")
-                            if(verseStr != null) {
-                                applyChosenVerse(verseStr, isFromBookmark)
-                            } else if (keyStr != null && bookStr != null) {
-                                val book =
-                                    Books.installed().getBook(bookStr) ?: FakeBookFactory.giveDoesNotExist(bookStr)
-                                val key = book.getKey(keyStr)
-                                val pageManager = windowControl.activeWindowPageManager
-                                val ordinal = extras.getInt("ordinal")
-                                pageManager.setCurrentDocumentAndKey(book, BookAndKey(key, book, OrdinalRange(ordinal)))
-                            }
+                            readingCommands.applyChosenPassageResult(kind, extras)
                             return
                         }
                         ActivityResultKind.GenBookKey -> {

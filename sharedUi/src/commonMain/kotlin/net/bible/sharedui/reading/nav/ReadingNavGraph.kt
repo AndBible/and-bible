@@ -20,11 +20,15 @@ package net.bible.sharedui.reading.nav
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedcore.reading.ReadingViewHostCallbacks
 import net.bible.sharedcore.reading.ReadingViewHostHandlers
 import net.bible.sharedcore.reading.ReadingViewKey
@@ -147,7 +151,85 @@ class ReadingNavDeps(
     val onScreenTurnedOff: () -> Unit,
     /** Sets the host window's title — graph-wide, exactly as in the other clusters' deps. */
     val setWindowTitle: (String) -> Unit,
+    /**
+     * **reading-host re-typing T8c: the answers this destination's OWN launches produce.**
+     *
+     * The reading view opens seven screens that hand something back — the label manager (five entry
+     * points), the my-document page chooser, the reading-progress screen, the bookmark list and the
+     * my-documents list. Every one of them is a destination of the SAME graph this destination is
+     * registered into, and the host is `android:launchMode="singleTop"`, so a
+     * `startActivityForResult`/`awaitIntent` aimed at it is answered by `onNewIntent` on the live
+     * instance: no Activity result is ever produced, the child publishes into its
+     * [NavResultChannel]'s pending slot and pops back HERE, and before T8c nothing here collected
+     * it. The user's answer went into a void — the batch's Ruling D failure, and worse than a dead
+     * button because it looks like it worked.
+     *
+     * One collector per channel, built by the host (which owns both the channels and the record of
+     * what the reading view asked for); the arm's only job is to compose them, which is what puts
+     * the collection INSIDE this destination's composition. That matters twice over: a collector can
+     * only fire while the reading view is the destination on screen — so it cannot take an answer
+     * the bookmark list or the text-settings editor asked for, since those arms are composed only
+     * while THEY are on top — and by the time one fires this destination's `DisposableEffect` has
+     * already run, so `ReadingViewVisibility` reports the reading view visible for the
+     * `AddHistoryItem` an applied result posts. The consumer can never run before the destination
+     * has composed, which is the invariant `ReadingViewVisibility`'s kdoc names.
+     *
+     * Empty is legal and means "this host answers nothing in-graph" — the classic Activity, whose
+     * launches really do reach a second Activity and come back through `onActivityResult`.
+     */
+    val results: List<ReadingResultCollector<*>> = emptyList(),
 )
+
+/**
+ * One [NavResultChannel] the reading destination collects on the reading view's behalf, its gate,
+ * and what to do with the answer.
+ *
+ * Modelled on the "Hide-labels round trip" nav-graph slice 7 Task 5 established (see
+ * `WorkspaceNavGraph.textDisplaySettingsNavState` and its `awaitingHideLabels` gate): an in-graph
+ * push plus a consumer that is gated on having asked. The gate and the apply are the HOST's
+ * lambdas, not this class's state, for the reason that precedent's `navStateMemo` exists —
+ * navigation-compose disposes this arm's composition while a child sits on top of it, so anything
+ * remembered here would be gone by the time the answer came back. The host's record survives
+ * because the host does.
+ *
+ * **Why it cannot consume twice.** [NavResultChannel.consume] clears the channel in the same breath
+ * as it reads it, so the `LaunchedEffect` re-running (which it does, immediately, keyed on the now
+ * `null` pending value) hits the early return; and [apply] is handed a result only after the host
+ * has removed its record, so a second delivery of the same value would find no request and be
+ * dropped rather than applied.
+ *
+ * **Why it cannot never consume.** Every launch that can produce one of these results records a
+ * request first — the host's `startActivityForResult` override is the single funnel every one of
+ * them passes through, `awaitIntent` included — and a child that publishes to `pending` pops to
+ * THIS destination, whose composition then runs this effect.
+ *
+ * **Why an unclaimed result is consumed rather than left.** A result nobody asked for is a bug, and
+ * Ruling D says it must be loud, not silent — [dropUnclaimed] logs it. It is also CLEARED: a
+ * pending value left lying in the channel would be applied by the next request that did arrive,
+ * which turns a logged anomaly into a wrong answer.
+ */
+class ReadingResultCollector<T>(
+    private val resultChannel: NavResultChannel<T>,
+    /** Whether the reading view is waiting for this channel's answer. */
+    private val awaiting: () -> Boolean,
+    /** Applies a claimed answer; the host clears its record before applying. */
+    private val apply: (T) -> Unit,
+    /** Ruling D: an answer nobody asked for is logged, not swallowed. */
+    private val dropUnclaimed: (T) -> Unit,
+) {
+    @Composable
+    fun Collect() {
+        val pending by resultChannel.pending.collectAsState()
+        LaunchedEffect(pending) {
+            if (pending == null) return@LaunchedEffect
+            // Read BEFORE consuming: `apply` clears the host's record, so asking afterwards would
+            // always answer "no".
+            val claimed = awaiting()
+            val result = resultChannel.consume() ?: return@LaunchedEffect
+            if (claimed) apply(result) else dropUnclaimed(result)
+        }
+    }
+}
 
 /**
  * The `reading` destination: what used to be `MainBibleActivity`'s composition, registered into the
@@ -171,9 +253,12 @@ class ReadingNavDeps(
  * question, and two effects could in principle be disposed in either order and leave the host
  * consulting a handler for a reading view History has already forgotten.
  *
- * [navController] is unused today and kept because every `*NavGraph` in this module takes it: this
- * destination's outbound navigation (the seven screens it opens, and the results it consumes) is
- * Task 9's, and adding the parameter then would change a signature the host already calls.
+ * [navController] is unused today and kept because every `*NavGraph` in this module takes it: the
+ * reading view's outbound navigation is still built as Intents aimed at the host (which, being
+ * `singleTop`, answers them with `onNewIntent` and navigates this same graph), and the RESULTS those
+ * launches produce are collected by [ReadingNavDeps.results] rather than by anything this arm
+ * navigates itself. Retyping those launches into in-graph `navigate` calls is a later task, and
+ * adding the parameter then would change a signature the host already calls.
  */
 @Suppress("UNUSED_PARAMETER")
 fun NavGraphBuilder.readingNavGraph(navController: NavHostController, deps: ReadingNavDeps) {
@@ -215,6 +300,14 @@ fun NavGraphBuilder.readingNavGraph(navController: NavHostController, deps: Read
         }
 
         LaunchedEffect(deps.windowTitle) { deps.setWindowTitle(deps.windowTitle) }
+
+        // --- the answers this destination's own launches produce, collected (T8c) ---
+        // See ReadingNavDeps.results. Keyed by collector identity rather than by list position so
+        // that a host which ever rebuilt the list in a different order could not hand one channel's
+        // LaunchedEffect the state of another's.
+        for (collector in deps.results) {
+            key(collector) { collector.Collect() }
+        }
 
         deps.content()
     }

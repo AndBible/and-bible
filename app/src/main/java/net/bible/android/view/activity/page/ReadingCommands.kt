@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.page
 
 import android.content.ClipData
+import android.os.Bundle
 import android.view.View
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,11 +33,14 @@ import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.bible.android.activity.R
+import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
@@ -46,6 +50,7 @@ import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.SettingsLevel
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -83,6 +88,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -171,6 +177,7 @@ class ReadingCommands(
     private val bookmarkControl: BookmarkControl by inject()
     private val searchControl: SearchControl by inject()
     private val navigationControl: NavigationControl by inject()
+    private val linkControl: LinkControl by inject()
 
     /**
      * The OWNING HOST's own window repository — NOT `WindowControl`'s (i.e. NOT
@@ -599,6 +606,108 @@ class ReadingCommands(
      */
     internal fun applyChosenGenBookKey(book: Book?, key: Key) {
         windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+    }
+
+    // --- reading-host re-typing T8c: the three activity-result arms both hosts now share ---------
+    //
+    // Classic `MainBibleActivity.onActivityResult`'s `MyDocumentPages`, `MyDocuments` and
+    // `PassageGrid`/`Bookmarks`/`ReadingProgress` arms, lifted here VERBATIM and delegated to from
+    // the Activity, for the reason T8b's step 0 lifted the key-chooser appliers into
+    // [KeyChooserResults]: these four screens are destinations of `NavHostComposeActivity`'s OWN
+    // graph now, so on the reading host their results arrive in-graph through a `NavResultChannel`
+    // and never through `onActivityResult` at all. Two dispatchers reading the same extras is two
+    // things to keep true where only one would ever be edited -- and this batch has twice found a
+    // copied region that then drifted.
+    //
+    // **The page manager comes from THIS host's repository**, `windowRepository().activeWindow
+    // .pageManager`, never `windowControl.activeWindowPageManager`: `windowControl.windowRepository`
+    // holds whichever reading host RESUMED last, which is not necessarily the one whose window the
+    // screen was opened for (the identity finding of R6c1/R6d). On the classic Activity the two are
+    // the same object, so this is not a behaviour change there.
+
+    /** The page manager of the active window of THIS host's repository -- see the block comment above. */
+    private val hostActiveWindowPageManager get() = windowRepository().activeWindow.pageManager
+
+    /**
+     * Classic `MainBibleActivity.onActivityResult`'s [ActivityResultKind.MyDocumentPages] arm.
+     *
+     * The `updateActions()` it ends with is [ReadingCommandsHostCallbacks.onToolbarStateMayHaveChanged]
+     * here, the same substitution [applyChosenDocument] above already makes.
+     */
+    internal fun applyChosenMyDocumentPage(extras: Bundle) {
+        val bookInitials = extras.getString("documentInitials")
+        val pageKey = extras.getString("pageKey")
+        if (bookInitials != null && pageKey != null) {
+            val book = Books.installed().getBook(bookInitials)
+            if (book != null) {
+                KeyChooserResults.openMyDocumentPage(hostActiveWindowPageManager, book, pageKey)
+                hostCallbacks.onToolbarStateMayHaveChanged()
+            }
+        }
+    }
+
+    /**
+     * Classic `MainBibleActivity.onActivityResult`'s [ActivityResultKind.MyDocuments] arm.
+     *
+     * `documentControl.changeDocument(book)` IS `pageManager.setCurrentDocument(book)`
+     * (`DocumentControl.kt:161-163`), spelled here as the page manager call so that the whole arm
+     * reads against the ONE page manager named in the block comment above rather than against
+     * `documentControl`'s own `windowControl.activeWindowPageManager`.
+     */
+    internal fun applyChosenMyDocument(extras: Bundle) {
+        val bookInitials = extras.getString("documentInitials")
+        val pageKey = extras.getString("pageKey")
+        if (bookInitials != null) {
+            val book = Books.installed().getBook(bookInitials)
+            if (book != null) {
+                val pageManager = hostActiveWindowPageManager
+                if (pageKey != null) {
+                    KeyChooserResults.openMyDocumentPage(pageManager, book, pageKey)
+                } else {
+                    pageManager.setCurrentDocument(book)
+                }
+                hostCallbacks.onToolbarStateMayHaveChanged()
+            }
+        }
+    }
+
+    /**
+     * Classic `MainBibleActivity.onActivityResult`'s shared
+     * [ActivityResultKind.PassageGrid]/[ActivityResultKind.Bookmarks]/[ActivityResultKind.ReadingProgress]
+     * arm, line for line -- the memorize special case first, then the verse / key+book pair.
+     *
+     * @return true when [extras] was applied, so a caller can tell "applied" from "not mine" rather
+     *   than assuming. Classic has no such caller and simply `return`s.
+     */
+    internal fun applyChosenPassageResult(kind: ActivityResultKind, extras: Bundle): Boolean {
+        if (kind == ActivityResultKind.ReadingProgress && extras.getString("action") == "memorize") {
+            val startOrd = extras.getInt("startOrdinal")
+            val endOrd = extras.getInt("endOrdinal")
+            val defaultBible = windowControl.defaultBibleDoc(false)
+            // Classic spells this `(defaultBible as SwordBook).versification`; the cast is
+            // redundant here because `WindowControl.defaultBibleDoc` is already typed `SwordBook`,
+            // and the compiler says so ("No cast needed").
+            val v11n = defaultBible.versification
+            val verseRange = VerseRange(KJVA, Verse(KJVA, startOrd), Verse(KJVA, endOrd)).toV11n(v11n)
+            linkControl.openMemorize(BookAndKey(verseRange, defaultBible))
+            return true
+        }
+        val isFromBookmark = kind == ActivityResultKind.Bookmarks
+        val verseStr = extras.getString("verse")
+        val keyStr = extras.getString("key")
+        val bookStr = extras.getString("book")
+        if (verseStr != null) {
+            applyChosenVerse(verseStr, isFromBookmark)
+            return true
+        }
+        if (keyStr != null && bookStr != null) {
+            val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.giveDoesNotExist(bookStr)
+            val key = book.getKey(keyStr)
+            val ordinal = extras.getInt("ordinal")
+            hostActiveWindowPageManager.setCurrentDocumentAndKey(book, BookAndKey(key, book, OrdinalRange(ordinal)))
+            return true
+        }
+        return false
     }
 
     internal fun composeCycleStrongs() {
