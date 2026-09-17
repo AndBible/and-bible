@@ -122,7 +122,18 @@ class ReadingHostActivityResultTest {
         )
     }
 
-    /** A request code this host did not issue must fall straight through, untouched. */
+    /**
+     * A request code this host did not issue must fall straight through, untouched.
+     *
+     * **The code is `UNISSUED_REQUEST_CODE` and no longer `STD_REQUEST_CODE + 1`** (reading-host
+     * re-typing T8d). That arithmetic happened to spell `IntentHelper.REFRESH_DISPLAY_ON_FINISH`,
+     * which this host had no arm for when T8b wrote the line and now does — so the test stopped
+     * describing an unissued code and started driving the Settings-return refresh, whose
+     * `CommonUtils.changeAppIconAndName()` ends in `forceStopApp()` and took the whole test JVM
+     * down with `exit value 2`. What the test MEANS is unchanged; only the code it picks is, and it
+     * now picks one that is in neither `ANSWERED_REQUEST_CODES` nor `ActivityBase`'s
+     * `CALCULATOR_REQUEST`/async range.
+     */
     @Test
     fun aResultForSomeOtherRequestCodeIsNotClaimed() {
         val controller = readingHost().apply { create().start().resume() }
@@ -130,7 +141,7 @@ class ReadingHostActivityResultTest {
         val before = activity.activeKey
 
         controller.pause()
-        activity.onActivityResult(ActivityBase.STD_REQUEST_CODE + 1, Activity.RESULT_OK, passageGridResult(CHOSEN))
+        activity.onActivityResult(UNISSUED_REQUEST_CODE, Activity.RESULT_OK, passageGridResult(CHOSEN))
         controller.resume()
 
         assertEquals(before, activity.activeKey)
@@ -328,5 +339,13 @@ class ReadingHostActivityResultTest {
 
         /** What the Bible page's key becomes once that verse is applied — its CHAPTER. */
         private const val CHOSEN_CHAPTER = "Ps.23"
+
+        /**
+         * A request code no host in this app ever issues: not one of
+         * `NavHostComposeActivity.ANSWERED_REQUEST_CODES` (1, 2, 3, 94), not
+         * `ActivityBase.CALCULATOR_REQUEST` (6000), and below `ASYNC_REQUEST_CODE_START` (1900),
+         * so `ActivityBase`'s `resultByCode` cannot claim it either.
+         */
+        private const val UNISSUED_REQUEST_CODE = 42
     }
 }
