@@ -1827,104 +1827,32 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // both entries into every one of these screens are read back by ONE piece of code.
 
     /**
-     * A destination of THIS host's own graph that the reading view launches FOR A RESULT, keyed by
-     * the route base that addresses it.
-     *
-     * Route BASE, not the whole route: `NavRoutes.manageLabels(data)` carries its payload in the
-     * query string, so the launch route and the pattern only agree up to the `?`. The bases are
-     * derived from the patterns rather than spelled again, so a renamed route cannot leave this map
-     * quietly matching nothing.
+     * What the reading view has asked one of this host's own destinations for — see
+     * [ReadingResultRequests], which holds both the record and the argument for why it cannot be
+     * spent twice, never, or on somebody else's answer.
      */
-    private enum class ReadingResultKind(val routeBase: String) {
-        ManageLabels(NavRoutes.MANAGE_LABELS_PATTERN.substringBefore('?')),
-        MyDocumentPages(NavRoutes.MY_DOCUMENT_PAGES_PATTERN.substringBefore('?')),
-        ReadingProgress(NavRoutes.READING_PROGRESS_PATTERN.substringBefore('?')),
-        Bookmarks(NavRoutes.BOOKMARKS_PATTERN.substringBefore('?')),
-        MyDocuments(NavRoutes.MY_DOCUMENTS_PATTERN.substringBefore('?')),
-        ;
-
-        companion object {
-            fun forRoute(route: String): ReadingResultKind? {
-                val base = route.substringBefore('?')
-                return entries.firstOrNull { it.routeBase == base }
-            }
-        }
-    }
-
-    /**
-     * What the reading view has asked one of this host's own destinations for, and at which request
-     * code it is waiting — the gate half of every [ReadingResultCollector] below.
-     *
-     * **It cannot let a collector consume twice.** The entry is REMOVED in the same breath as it is
-     * read ([readingResultCollector]'s `apply`), and `NavResultChannel.consume()` clears the channel
-     * in the same breath as reading it, so the `LaunchedEffect` re-running with the now-null pending
-     * value hits its early return and a second delivery of the same value finds no request.
-     *
-     * **It cannot let one consume never.** Every launch that can produce one of these results passes
-     * through [startActivityForResult] — `ActivityBase.awaitIntent` calls it too — which is where
-     * entries are made; and a child that publishes to `pending` pops to the reading destination,
-     * whose composition runs the collectors.
-     *
-     * **A LEFT-OVER entry cannot be mis-spent either**, which is the third failure mode and the one
-     * worth stating: a request the user abandoned (backing out of the bookmark list without picking
-     * a row) stays here until the next launch overwrites it, but a result can only reach the reading
-     * destination if that destination is the one the producing route was pushed onto — i.e. if a
-     * launch was made, which rewrites the entry first. So a stale entry can be overwritten, never
-     * spent.
-     */
-    private val readingResultRequests = mutableMapOf<ReadingResultKind, Int>()
+    private val readingResultRequests = ReadingResultRequests()
 
     /**
      * Note that a launch aimed at THIS host, on a route that produces a result, is one the reading
-     * view is waiting for.
-     *
-     * Silent about everything else on purpose: a launch at another component is an ordinary Activity
-     * round trip, and a self-launch on a route that produces nothing (`download`, `settings`) has no
-     * channel to arm.
-     *
-     * The component is read through a null CHECK rather than `intent.component?.className`, matching
-     * [isSynthesisedUpIntent]: `ActivityResultDispatchGuardTest` text-scans all of `src/main/java`
-     * for that exact spelling. This reads an OUTGOING intent, which is not the channel that guard
-     * exists to keep out — but the scan is textual, and the honest response to a textual guard's
-     * false positive is to write the code the way its siblings do, not to weaken the guard.
+     * view is waiting for. [readingResultKindForLaunch] is the whole decision, and it is a plain
+     * function so a test can reach it.
      */
     private fun recordReadingResultRequest(intent: Intent, requestCode: Int) {
-        val component = intent.component ?: return
-        if (component.className != javaClass.name) return
-        val route = intent.getStringExtra(EXTRA_ROUTE) ?: return
-        val kind = ReadingResultKind.forRoute(route) ?: return
-        readingResultRequests[kind] = requestCode
+        val kind = readingResultKindForLaunch(intent, javaClass.name) ?: return
+        readingResultRequests.record(kind, requestCode)
     }
 
-    /**
-     * Build one collector: the channel, the gate that reads [readingResultRequests], the apply that
-     * clears the entry before spending it, and Ruling D's loud drop for an answer nobody asked for.
-     */
-    private fun <T> readingResultCollector(
+    private fun <T> collectorFor(
         resultChannel: NavResultChannel<T>,
         kind: ReadingResultKind,
         deliver: (result: T, requestCode: Int) -> Unit,
-    ) = ReadingResultCollector(
+    ) = readingResultCollector(
         resultChannel = resultChannel,
-        awaiting = { readingResultRequests.containsKey(kind) },
-        apply = { result ->
-            val requestCode = readingResultRequests.remove(kind)
-            if (requestCode == null) {
-                // Unreachable: `awaiting` is read in the same effect, before `consume()`. Logged
-                // rather than ignored because the alternative is losing the user's answer silently,
-                // which is the whole defect this block exists to end.
-                Log.w(TAG_READING_RESULTS, "A $kind answer was claimed but its request was gone; not applied.")
-            } else {
-                deliver(result, requestCode)
-            }
-        },
-        dropUnclaimed = {
-            Log.w(
-                TAG_READING_RESULTS,
-                "A $kind answer reached the reading destination that nothing asked for. Dropped -- " +
-                    "leaving it pending would let the next request spend somebody else's answer."
-            )
-        },
+        kind = kind,
+        requests = readingResultRequests,
+        log = { message -> Log.w(TAG_READING_RESULTS, message) },
+        deliver = deliver,
     )
 
     /**
@@ -1936,17 +1864,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      */
     private val readingResultCollectors: List<ReadingResultCollector<*>> by lazy {
         listOf(
-            readingResultCollector(manageLabelsResults, ReadingResultKind.ManageLabels) { result, code ->
+            collectorFor(manageLabelsResults, ReadingResultKind.ManageLabels) { result, code ->
                 deliverReadingResult(code, RESULT_OK, NavResultIntents.forManageLabels(result))
             },
-            readingResultCollector(myDocumentPagesResults, ReadingResultKind.MyDocumentPages) { result, code ->
+            collectorFor(myDocumentPagesResults, ReadingResultKind.MyDocumentPages) { result, code ->
                 val activityResult = NavResultIntents.forMyDocumentPages(result)
                 deliverReadingResult(code, activityResult.resultCode, activityResult.data)
             },
-            readingResultCollector(readingProgressResults, ReadingResultKind.ReadingProgress) { result, code ->
+            collectorFor(readingProgressResults, ReadingResultKind.ReadingProgress) { result, code ->
                 deliverReadingResult(code, RESULT_OK, NavResultIntents.forReadingProgress(result))
             },
-            readingResultCollector(bookmarkResults, ReadingResultKind.Bookmarks) { result, code ->
+            collectorFor(bookmarkResults, ReadingResultKind.Bookmarks) { result, code ->
                 // The history half of classic `BookmarksComposeActivity.onSelectBookmark`
                 // (`:187-194`), which this channel's own `exitWithResult` lambda also carries and
                 // which `NavResultChannelGuardTest`'s four bookmark-exit tests pin there. It is
@@ -1963,7 +1891,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     Toast.makeText(this, R.string.error_occurred, Toast.LENGTH_SHORT).show()
                 }
             },
-            readingResultCollector(myDocumentsResults, ReadingResultKind.MyDocuments) { result, code ->
+            collectorFor(myDocumentsResults, ReadingResultKind.MyDocuments) { result, code ->
                 val activityResult = NavResultIntents.forMyDocuments(result)
                 deliverReadingResult(code, activityResult.resultCode, activityResult.data)
             },

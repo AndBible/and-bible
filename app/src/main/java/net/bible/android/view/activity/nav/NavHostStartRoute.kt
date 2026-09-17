@@ -19,6 +19,8 @@ package net.bible.android.view.activity.nav
 
 import android.content.Intent
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.nav.NavResultChannel
+import net.bible.sharedui.reading.nav.ReadingResultCollector
 
 /** Saved-instance-state key carrying [navHostStartRoute]'s answer across a recreate. */
 const val STATE_START_ROUTE: String = "nav_start_route"
@@ -170,3 +172,134 @@ internal fun aCancelFromThisIntentWouldBeTheUsers(intent: Intent, hostClassName:
     if (component.className == hostClassName) return false
     return intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK == 0
 }
+
+/**
+ * A destination of `NavHostComposeActivity`'s OWN graph that the reading view launches FOR A
+ * RESULT, keyed by the route base that addresses it (reading-host re-typing T8c).
+ *
+ * Route BASE, not the whole route: `NavRoutes.manageLabels(data)` carries its payload in the query
+ * string, so a launch route and its pattern only agree up to the `?`. The bases are DERIVED from
+ * the patterns rather than spelled a second time, so a renamed route cannot leave this enum quietly
+ * matching nothing.
+ *
+ * Five entries, one per channel the reading view can fill, and between them they carry nine call
+ * sites: `ManageLabels` alone is reached from `BibleView.assignLabels`, `HideLabelsPreference`,
+ * `AutoAssignPreference`, `MenuCommandHandler`'s StudyPads row and `CurrentGeneralBookPage`'s
+ * StudyPad arm; `ReadingProgress` from the menu row and from `BibleJavascriptInterface
+ * .openReadingProgress`.
+ *
+ * A route with no entry here is a self-launch that produces NO result (`download`, `settings`,
+ * `search`) and so has nothing to wait for. That is the common case and it is silent on purpose.
+ */
+internal enum class ReadingResultKind(val routeBase: String) {
+    ManageLabels(NavRoutes.MANAGE_LABELS_PATTERN.substringBefore('?')),
+    MyDocumentPages(NavRoutes.MY_DOCUMENT_PAGES_PATTERN.substringBefore('?')),
+    ReadingProgress(NavRoutes.READING_PROGRESS_PATTERN.substringBefore('?')),
+    Bookmarks(NavRoutes.BOOKMARKS_PATTERN.substringBefore('?')),
+    MyDocuments(NavRoutes.MY_DOCUMENTS_PATTERN.substringBefore('?')),
+    ;
+
+    companion object {
+        fun forRoute(route: String): ReadingResultKind? {
+            val base = route.substringBefore('?')
+            return entries.firstOrNull { it.routeBase == base }
+        }
+    }
+}
+
+/**
+ * Which of this host's own result-producing destinations [intent] opens — or null when [intent] is
+ * not a self-launch, or is one that produces nothing.
+ *
+ * A plain function of an Intent and a class name, for [aCancelFromThisIntentWouldBeTheUsers]' reason:
+ * this is the decision that says whether the reading view's answer will be collected at all, and it
+ * cannot be tested while it is a private method of a launched Activity.
+ *
+ * The component is read through a null CHECK rather than `intent.component?.className`, matching
+ * [isSynthesisedUpIntent] above: `ActivityResultDispatchGuardTest` text-scans all of
+ * `src/main/java` for that exact spelling. This reads an OUTGOING intent to classify it, which is
+ * not the result-dispatch channel that guard exists to keep out — but the scan is textual, and the
+ * honest response to a textual guard's false positive is to write the code the way its siblings do,
+ * not to weaken the guard.
+ */
+internal fun readingResultKindForLaunch(intent: Intent, hostClassName: String): ReadingResultKind? {
+    val component = intent.component ?: return null
+    if (component.className != hostClassName) return null
+    val route = intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE) ?: return null
+    return ReadingResultKind.forRoute(route)
+}
+
+/**
+ * What the reading view has asked this host's own destinations for, and at which request code it is
+ * waiting — the GATE half of every [ReadingResultCollector] the reading destination composes
+ * (reading-host re-typing T8c).
+ *
+ * A class of its own, not a `mutableMapOf` inside the Activity, for [readingResultKindForLaunch]'s
+ * reason: the three properties below are the whole correctness argument for the fix and none of
+ * them is reachable from a test while they are an Activity's private field.
+ *
+ * **It cannot let a collector consume twice.** [claim] REMOVES the entry as it reads it, and
+ * `NavResultChannel.consume()` clears the channel as it reads it, so the `LaunchedEffect` re-running
+ * with the now-null pending value hits its early return and a second delivery of the same value
+ * finds no request.
+ *
+ * **It cannot let one consume never.** Every launch that can produce one of these results passes
+ * through `NavHostComposeActivity.startActivityForResult` — `ActivityBase.awaitIntent` calls it too
+ * — which is where [record] is called; and a child that publishes to `pending` pops to the reading
+ * destination, whose composition runs the collectors.
+ *
+ * **A LEFT-OVER entry cannot be mis-spent.** A request the user abandoned (backing out of the
+ * bookmark list without picking a row) stays recorded until the next launch overwrites it — but a
+ * result can only reach the reading destination if that destination is the one the producing route
+ * was pushed onto, i.e. if a launch was made, which rewrites the entry first. So a stale entry can
+ * be overwritten, never spent.
+ */
+internal class ReadingResultRequests {
+    private val byKind = mutableMapOf<ReadingResultKind, Int>()
+
+    fun record(kind: ReadingResultKind, requestCode: Int) {
+        byKind[kind] = requestCode
+    }
+
+    fun isAwaiting(kind: ReadingResultKind): Boolean = byKind.containsKey(kind)
+
+    /** The request code that asked, FORGOTTEN in the same breath — see this class's kdoc. */
+    fun claim(kind: ReadingResultKind): Int? = byKind.remove(kind)
+}
+
+/**
+ * One gated collector: the channel, the gate that reads [requests], the apply that clears the
+ * request before spending it, and Ruling D's loud drop for an answer nobody asked for.
+ *
+ * A top-level function rather than a method, again so that the gate discipline is reachable by a
+ * test without launching a host — [deliver] is the only part that needs one.
+ *
+ * @param log where the two Ruling-D lines go; `Log.w` in production.
+ */
+internal fun <T> readingResultCollector(
+    resultChannel: NavResultChannel<T>,
+    kind: ReadingResultKind,
+    requests: ReadingResultRequests,
+    log: (String) -> Unit,
+    deliver: (result: T, requestCode: Int) -> Unit,
+): ReadingResultCollector<T> = ReadingResultCollector(
+    resultChannel = resultChannel,
+    awaiting = { requests.isAwaiting(kind) },
+    apply = { result ->
+        val requestCode = requests.claim(kind)
+        if (requestCode == null) {
+            // Unreachable: `awaiting` is read in the same effect, before `consume()`. Logged rather
+            // than ignored because the alternative is losing the user's answer in silence, which is
+            // the whole defect this block exists to end.
+            log("A $kind answer was claimed but its request was gone; not applied.")
+        } else {
+            deliver(result, requestCode)
+        }
+    },
+    dropUnclaimed = {
+        log(
+            "A $kind answer reached the reading destination that nothing asked for. Dropped -- " +
+                "leaving it pending would let the next request spend somebody else's answer."
+        )
+    },
+)
