@@ -33,6 +33,7 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
@@ -51,6 +52,7 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
@@ -97,6 +99,7 @@ class ReadingHostNonStdResultTest {
     fun theLocaleInForceIsTheOneThisProcessStartedWith() {
         BibleApplication::class.java.getDeclaredField("localeOverrideAtStartUp")
             .apply { isAccessible = true }
+            .also { localeOverrideBefore = it.get(BibleApplication.application) as String? }
             .set(BibleApplication.application, CommonUtils.localePref ?: "")
     }
 
@@ -128,6 +131,19 @@ class ReadingHostNonStdResultTest {
             PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP,
         )
     }
+
+    @After
+    fun theLocaleFieldIsPutBack() {
+        // Minor 5: the @Before below writes a private production field reflectively. Only
+        // `MenuCommandHandler.restartIfRequiredOnReturn` reads it, so the pollution risk is
+        // negligible -- but a reflective write with no undo is a thing the next reader has to
+        // reason about, and one line removes the need.
+        BibleApplication::class.java.getDeclaredField("localeOverrideAtStartUp")
+            .apply { isAccessible = true }
+            .set(BibleApplication.application, localeOverrideBefore)
+    }
+
+    private var localeOverrideBefore: String? = null
 
     @After
     fun tearDown() {
@@ -374,16 +390,32 @@ class ReadingHostNonStdResultTest {
     // ——— item 3: the Download return ——————————————————————————————————————————————————————————————
 
     /**
-     * Classic's `UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH` arm is `updateActions()` and nothing else —
-     * on this host, `onToolbarStateMayHaveChanged()`, which rebuilds the drawer and refreshes the
-     * toolbar state but does NOT rebuild the composition. So the discriminating observation is that
-     * this debt is spent (the generation is the one thing `preferenceSettingsChanged` bumps and this
-     * arm must not).
+     * **Classic's `UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH` arm is `updateActions()` and nothing else**
+     * — on this host, `onToolbarStateMayHaveChanged()`: `rebuildDrawer(showSearch, showSpeak)` plus
+     * `refreshHostedState()`, with the two flags recomputed from the current page.
+     *
+     * **The assertion is POSITIVE and is driven by code 3 alone** (T8d fix round, review finding 1).
+     * What stood here asserted only that the composition was NOT rebuilt and that no
+     * `SynchronizeWindowsEvent` was posted, and drove its one positive assertion with code 2 — so
+     * deleting the code-3 arm, or dropping the code from `RETURN_TO_READING_REQUEST_CODES`, left the
+     * whole suite green while the Download return silently stopped refreshing the drawer again.
+     *
+     * The drawer's Search row is disabled by hand first, so "enabled again afterwards" can only be
+     * the rebuild this arm performs; the negatives are kept, because they are what tells this arm
+     * apart from the Settings one.
      */
     @Test
-    fun theDownloadReturnRefreshesTheToolbarWithoutRebuildingTheComposition() {
+    fun theDownloadReturnRebuildsTheDrawerWithoutRebuildingTheComposition() {
         val activity = composedHost().get()
         val host = requireNotNull(activity.readingCommands.composeReadingViewHost)
+        assertTrue(
+            activity.hostWindowRepository.activeWindow.pageManager.currentPage.isSearchable,
+            "the fixture's page must be searchable, or `showSearch` would be recomputed to the " +
+                "same `false` this test sets and the assertion would prove nothing",
+        )
+        // Only the arm under test can put this back.
+        host.rebuildDrawer(showSearch = false, showSpeak = false)
+        assertFalse(searchRowEnabled(host), "the fixture must actually start from a disabled row")
         val generationBefore = host.generationForTest.state.value
         countSynchronizeWindows()
 
@@ -393,21 +425,27 @@ class ReadingHostNonStdResultTest {
         )
         activity.applyReadingReturnDebts(NavRoutes.READING)
 
+        assertTrue(
+            searchRowEnabled(host),
+            "returning from the Download screen must rebuild the drawer from the current page — " +
+                "that IS classic's updateActions() arm for this request code, and without it a " +
+                "document installed from Download leaves the drawer and toolbar stale",
+        )
         assertEquals(
             generationBefore, host.generationForTest.state.value,
-            "classic's arm for this code is updateActions(), not preferenceSettingsChanged()",
+            "…and must NOT rebuild the composition: classic's arm for this code is updateActions(), " +
+                "not preferenceSettingsChanged()",
         )
         assertEquals(
             0, synchronizeWindows,
-            "…and it posts no SynchronizeWindowsEvent either — that belongs to the Settings arm",
+            "…and posts no SynchronizeWindowsEvent either — that belongs to the Settings arm",
         )
-        // The debt really was recorded and really was spent: a second return finds nothing owed,
-        // and the Settings arm's own observable proves the ledger is not simply inert.
-        activity.startActivityForResult(
-            ScreenLauncher.intentFor(activity, Screen.Settings),
-            IntentHelper.REFRESH_DISPLAY_ON_FINISH,
-        )
-        activity.applyReadingReturnDebts(NavRoutes.READING)
-        assertEquals(1, synchronizeWindows)
     }
+
+    /** The drawer's Search row, which `rebuildDrawer(showSearch = …)` enables or disables. */
+    private fun searchRowEnabled(host: ComposeReadingViewHost): Boolean =
+        host.drawerMenuForTest.value.groups
+            .flatMap { it.items }
+            .first { it.id == "searchButton" }
+            .enabled
 }

@@ -2176,21 +2176,35 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * [onToolbarStateMayHaveChanged]) and the `REFRESH_DISPLAY_ON_FINISH` tail
      * (`restartIfRequiredOnReturn` then `preferenceSettingsChanged()`).
      *
-     * The `when` shape is classic's verbatim, `restartIfRequiredOnReturn`'s unconditional `false`
+     * The inner `when` is classic's verbatim, `restartIfRequiredOnReturn`'s unconditional `false`
      * included: it exists for its SIDE EFFECT (restarting the app when the UI locale changed), and
      * reproducing the call is what keeps a locale change applying on this host too.
+     *
+     * **One arm per code, spelled out** (T8d fix round, review finding 1). The
+     * `UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH` half used to be an early `if` and the other half the
+     * bare inner `when`, which left `REFRESH_DISPLAY_ON_FINISH` un-named in this body -- so
+     * `ReadingHostAnsweredRequestCodeGuardTest.everyReturnToReadingCodeHasItsOwnArm` had nothing to
+     * match on for it. Deleting either arm now fails that guard, and the `else` makes a code added
+     * to [RETURN_TO_READING_REQUEST_CODES] without an arm loud rather than silent (Ruling D).
      */
     private fun applyReadingReturnWork(requestCode: Int) {
-        if (requestCode == IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH) {
-            onToolbarStateMayHaveChanged()
-            return
-        }
-        val menu = readingCommands.mainMenuCommandHandler
-        when {
-            menu.restartIfRequiredOnReturn(requestCode) -> {
-                // restart done in above
+        when (requestCode) {
+            IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> onToolbarStateMayHaveChanged()
+            IntentHelper.REFRESH_DISPLAY_ON_FINISH -> {
+                val menu = readingCommands.mainMenuCommandHandler
+                when {
+                    menu.restartIfRequiredOnReturn(requestCode) -> {
+                        // restart done in above
+                    }
+                    menu.isDisplayRefreshRequired(requestCode) ->
+                        readingCommands.preferenceSettingsChanged()
+                }
             }
-            menu.isDisplayRefreshRequired(requestCode) -> readingCommands.preferenceSettingsChanged()
+            else -> Log.w(
+                TAG_START_ROUTE,
+                "Request code $requestCode was owed work on return to the reading view and has no " +
+                    "arm here; nothing applied.",
+            )
         }
     }
 

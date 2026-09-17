@@ -278,6 +278,138 @@ class ReadingHostAnsweredRequestCodeGuardTest {
         )
     }
 
+    // ——— the self-launch half, DERIVED from the launch sites ——————————————————————————————————————
+    //
+    // T8d fix round, review finding 1. `everyAnsweredCodeReachesAnArm` above finds a code's token
+    // anywhere in the three dispatchers, so it stayed green when the code was in
+    // `ANSWERED_REQUEST_CODES` but had quietly dropped out of `RETURN_TO_READING_REQUEST_CODES` --
+    // and for a code whose screen is a SELF-LAUNCH that set is the only thing that makes the arm
+    // reachable, because no Activity result ever arrives. Deleting
+    // `UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH` from that set left 2964 tests green while the Download
+    // return silently stopped refreshing the toolbar again: the batch's signature defect, inside the
+    // task whose purpose was to end it. These two tests close it, and they derive rather than list.
+
+    /**
+     * **Which codes are self-launch codes is DERIVED from their launch sites, not declared here.**
+     *
+     * A code belongs in `RETURN_TO_READING_REQUEST_CODES` exactly when some live launch at that code
+     * aims an Intent at THIS host — either `NavHostComposeActivity.intentFor(...)` directly, or
+     * `ScreenLauncher.intentFor(..., Screen.X)` for an `X` that `ScreenLauncher.MIGRATED` resolves
+     * into this graph. `singleTop` then answers with `onNewIntent` and no Activity result is ever
+     * produced, so the return to `reading` is the only answer there is.
+     *
+     * So: move `Screen.Settings` out of `MIGRATED`, or repoint a Download launch at a real Activity,
+     * and this guard tells you the set is now wrong — in the direction it is wrong.
+     *
+     * `STD_REQUEST_CODE` is the one stated exclusion: it carries BOTH self-launches that answer
+     * nothing (the menu rows for migrated screens) and real cross-Activity choosers, so "some launch
+     * is a self-launch" is true of it and means nothing. `stdRequestCancelIsTheUsers` is the member
+     * that reasons about that code, and `ReadingHostActivityResultTest` pins it.
+     */
+    @Test fun everyReturnToReadingCodeIsDerivedFromItsLaunchSites() {
+        val derived = selfLaunchRequestCodes()
+        val declared = namedCodesIn("private val RETURN_TO_READING_REQUEST_CODES = setOf(")
+
+        assertTrue(
+            derived.isNotEmpty(),
+            "no self-launch request code could be derived from any launch site -- the scan has " +
+                "stopped seeing its subject, which is worse than no guard",
+        )
+        assertEquals(
+            derived,
+            declared,
+            "RETURN_TO_READING_REQUEST_CODES must be exactly the codes whose screens this host " +
+                "launches AT ITSELF. A code missing from it records no debt, so its arm is never " +
+                "reached and the refresh silently stops happening -- with no Activity result to " +
+                "fall back on, because a singleTop self-launch never produces one.",
+        )
+    }
+
+    /** …and each of them has its own arm, so deleting one arm cannot pass unnoticed either. */
+    @Test fun everyReturnToReadingCodeHasItsOwnArm() {
+        val body = functionBody(hostSrc, "private fun applyReadingReturnWork(requestCode: Int)")
+        val unarmed = namedCodesIn("private val RETURN_TO_READING_REQUEST_CODES = setOf(")
+            .filterNot { code -> Regex("""IntentHelper\.$code\s*->""").containsMatchIn(body) }
+        assertEquals(
+            emptyList<String>(),
+            unarmed,
+            "these self-launch codes record a debt that `applyReadingReturnWork` then does nothing " +
+                "with: $unarmed. Body was:\n$body",
+        )
+    }
+
+    /**
+     * Every request code classic answers for which SOME live launch aims at this host.
+     *
+     * A "launch occurrence" is the token on a line that either calls `startActivityForResult(` or
+     * assigns `requestCode =` (single `=`, so classic's own `requestCode ==` comparisons and this
+     * host's `when` arms are not mistaken for launches). Its window is that line plus the six
+     * before it, which is where the Intent it launches is built at every live site.
+     */
+    private fun selfLaunchRequestCodes(): Set<String> {
+        val migrated = migratedScreens()
+        assertTrue(migrated.size >= 10, "ScreenLauncher.MIGRATED scan found only $migrated")
+        val codes = classicRequestCodes() - "STD_REQUEST_CODE"
+        val launchLine = Regex("""startActivityForResult\(|requestCode\s*=[^=]""")
+        var occurrences = 0
+        val selfLaunched = mutableSetOf<String>()
+        for (file in File("src/main/java").walkTopDown().filter { it.isFile && it.extension == "kt" }) {
+            val lines = file.readLines()
+            lines.forEachIndexed { i, line ->
+                if (!launchLine.containsMatchIn(line)) return@forEachIndexed
+                val code = codes.firstOrNull { line.contains(it) } ?: return@forEachIndexed
+                occurrences++
+                val window = lines.subList(maxOf(0, i - 6), i + 1).joinToString("\n")
+                val aimedAtThisHost = window.contains("NavHostComposeActivity.intentFor(") ||
+                    window.contains("intentFor(this, NavRoutes.") ||
+                    migrated.any { window.contains("Screen.$it") }
+                if (aimedAtThisHost) selfLaunched += code
+            }
+        }
+        assertTrue(
+            occurrences >= 4,
+            "only $occurrences launch occurrences found for $codes -- the launch-site scan has " +
+                "stopped seeing its subject",
+        )
+        return selfLaunched
+    }
+
+    /** The `Screen.X` keys `ScreenLauncher.MIGRATED` resolves into this host's graph. */
+    private fun migratedScreens(): Set<String> {
+        val src = File("src/main/java/net/bible/android/view/ScreenLauncher.kt").readText()
+        val marker = "val MIGRATED: Map<Screen, String> = mapOf("
+        val at = src.indexOf(marker)
+        assertTrue(at >= 0, "ScreenLauncher.MIGRATED was renamed; this guard must follow it")
+        val body = withoutComments(balancedParenBlock(src, at + marker.length - 1))
+        return Regex("""Screen\.(\w+)\s+to\s""").findAll(body).map { it.groupValues[1] }.toSet()
+    }
+
+    /** The request-code names inside a `setOf(` declaration in the host, by simple name. */
+    private fun namedCodesIn(marker: String): Set<String> {
+        val at = hostSrc.indexOf(marker)
+        assertTrue(at >= 0, "'$marker' not found in NavHostComposeActivity.kt")
+        val body = balancedParenBlock(hostSrc, at + marker.length - 1)
+        return Regex("""([A-Za-z_][A-Za-z0-9_.]*)""").findAll(body)
+            .map { it.groupValues[1] }
+            .filter { isRequestCodeName(it) }
+            .map { it.substringAfterLast('.') }
+            .toSet()
+    }
+
+    private fun balancedParenBlock(text: String, openIndex: Int): String {
+        assertTrue(text[openIndex] == '(', "expected '(' at $openIndex")
+        var depth = 0
+        var i = openIndex
+        while (i < text.length) {
+            when (text[i]) {
+                '(' -> depth++
+                ')' -> { depth--; if (depth == 0) return text.substring(openIndex, i + 1) }
+            }
+            i++
+        }
+        error("unbalanced parentheses from $openIndex")
+    }
+
     // ——— the derivation ——————————————————————————————————————————————————————————————————————————
 
     /**

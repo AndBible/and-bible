@@ -2425,6 +2425,18 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      */
     internal val generationForTest: ComposeReadingViewGeneration get() = generation
 
+    /**
+     * Test-only read of THIS host's drawer item list — same convention as [generationForTest].
+     *
+     * Exposed by reading-host re-typing T8d's fix round: `onToolbarStateMayHaveChanged()` is
+     * `rebuildDrawer(showSearch, showSpeak)` + `refreshHostedState()`, and it is the WHOLE of what
+     * classic's `UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH` arm does. Without a read of what that rebuild
+     * produced, the only assertions available for that arm were negative ones ("the composition was
+     * not rebuilt", "no SynchronizeWindowsEvent"), which a deleted arm passes just as happily as a
+     * live one -- the review's finding 1.
+     */
+    internal val drawerMenuForTest: State<DrawerMenuState> get() = drawerMenu
+
     /** See [HostedStateRefresher]. */
     private val hostedStateRefresher = HostedStateRefresher(toolbarStateService, generation)
 
