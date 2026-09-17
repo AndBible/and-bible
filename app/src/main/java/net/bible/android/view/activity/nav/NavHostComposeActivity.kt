@@ -75,6 +75,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
@@ -303,6 +304,7 @@ import net.bible.sharedcore.progress.ReadingProgressController
 import net.bible.sharedcore.progress.ReadingTab
 import net.bible.sharedcore.reading.ReadingViewHostCallbacks
 import net.bible.sharedcore.reading.ReadingViewKey
+import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
 import net.bible.sharedcore.readingplan.DailyReadingController
 import net.bible.sharedcore.readingplan.DailyReadingListController
 import net.bible.sharedcore.readingplan.DailyReadingUi
@@ -937,14 +939,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             } else {
                 false
             }
-        // Classic closed the drawer and returned true unconditionally. The close half is NOT
-        // portable yet: classic wrote `binding.drawerLayout` (the XML Task 11 removes) and then
-        // `composeCloseDrawerIfOpen()`, which is `ComposeReadingViewHost`'s drawer state — the same
-        // object [ReadingNavDeps.content] cannot reach from here. It belongs with the content slot
-        // and lands with it; until then this reproduces classic's return value only. Recorded as
-        // owed work in [ReadingNavDeps.content]'s kdoc, where the task that pays it will see it —
-        // not only in this comment.
-        ReadingViewKey.ExternalKeyboardBack -> true
+        // R8 pays the close half, the debt [ReadingNavDeps.content]'s kdoc recorded as item 1.
+        // Classic closed BOTH drawers and returned true unconditionally: `binding.drawerLayout`
+        // (the XML slice 7 Task 11 removes, and which this host has never had) and then
+        // `composeCloseDrawerIfOpen()`, the reading view's own Compose drawer. The second is
+        // reachable now that this host composes a reading view, so it is called; the return value
+        // stays classic's unconditional `true`, including when no drawer was open.
+        ReadingViewKey.ExternalKeyboardBack -> {
+            readingCommands.composeCloseDrawerIfOpen()
+            true
+        }
     }
 
     /**
@@ -1022,9 +1026,21 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // stopped being true at R6d -- [hostWindowRepository] below is its own, from
     // [readingAppBootstrap]. It is deliberately NOT substituted into the ported chrome: the port's
     // whole value is that `ReadingChromePortDriftTest` can compare the two regions, and that guard
-    // pins this substitution at exactly two occurrences. The same is true of this host's other
-    // `windowControl.windowRepository` reads, [restorePaneFocus] included -- see the R6d report's
-    // note; re-pointing them at [hostWindowRepository] is R8's, with its own red/green.
+    // pins this substitution at exactly two occurrences.
+    //
+    // R8 settled the rest of this host's `windowControl.windowRepository` reads, and the verdict is
+    // NOT "substitute them all". Only [restorePaneFocus] was re-pointed, because only it is a
+    // READING-VIEW contract member -- `ComposeReadingViewHost` calls it at runtime, on THIS host,
+    // about THIS host's active window. The remaining eight (the two in [showSystemUI] aside) all sit
+    // in NON-reading destinations of this same nav host -- the ManageLabels payload/result pairs,
+    // `buildLabelEditPayload`'s workspace id, and TextDisplaySettings' `activeWorkspaceId` and
+    // hide-labels pair -- and those screens are launched from EITHER reading host, most often from
+    // `MainBibleActivity`, to edit the workspace the app as a whole is showing. That is what
+    // `windowControl.windowRepository` MEANS, and it is what classic's own settings Activities
+    // read. Re-pointing them at [hostWindowRepository] would make every one of them throw when the
+    // host was started on their own route, which is the only way they are reached today (it
+    // bootstraps no repository off the reading route) -- a regression, not a fix.
+    // See R8's report for the per-site verdicts.
 
     /** Whether [bootstrapIfNeeded] has already run for this Activity instance. */
     private var readingAppBootstrapped = false
@@ -1139,32 +1155,49 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
-     * [ReadingHostActivity.restorePaneFocus] -- classic's `onDrawerClosed` focus hand-back.
+     * [ReadingHostActivity.restorePaneFocus] -- classic's `onDrawerClosed` focus hand-back, gate
+     * included (reading-host re-typing R8).
      *
-     * Classic GATES it on `shouldRestorePaneFocusOnDrawerClose(searchBarOpen = composeSearchModeActive)`:
-     * whether the reading view's Compose search bar is open. That flag is `ComposeReadingViewHost`
-     * state reachable only through `ReadingCommands`, which is still typed on `MainBibleActivity`,
-     * so this host cannot ask (controller ruling C-1: R6 widens the interface with that route, R4
-     * must not). The gate is UNREACHABLE rather than merely missing -- nothing on this host can call
-     * this until Task 11 builds its drawer -- and the task that builds the drawer must restore it:
-     * the symptom of forgetting is a drawer close stealing focus from an open search field.
+     * **Both halves were debts R4 recorded and R8 discharges, because R8 is what makes this member
+     * REACHABLE**: the reading view's Compose drawer -- whose `onDrawerClosed` is this function's
+     * only caller -- is composed by this host's own `content` slot now.
+     *
+     *  - The GATE is classic's, through the same `:sharedCore` predicate and the same flag:
+     *    `readingCommands.composeSearchModeActive` is `ComposeReadingViewHost`'s search-mode state,
+     *    which R6c2 re-typed onto [ReadingCommands] and this host has owned since R6d. Without it a
+     *    drawer close steals focus from an open search field.
+     *  - The REPOSITORY is [hostWindowRepository], this host's own, never
+     *    `windowControl.windowRepository` -- which is whichever reading host most recently RESUMED
+     *    and would hand the focus to the OTHER host's active window's `BibleView` (R6c1's identity
+     *    finding; classic reads its own field at `MainBibleActivity.kt:966`). Off the reading route
+     *    this host has no repository and this throws, which is the honest answer
+     *    [hostWindowRepository]'s kdoc argues for -- nothing can reach here on another route,
+     *    because nothing composes a reading view there.
      */
     override fun restorePaneFocus() {
-        windowControl.windowRepository.activeWindow.bibleView?.requestFocus()
+        if (!shouldRestorePaneFocusOnDrawerClose(searchBarOpen = readingCommands.composeSearchModeActive)) return
+        hostWindowRepository.activeWindow.bibleView?.requestFocus()
     }
 
     /**
-     * [ReadingHostActivity.toggleDrawer] -- a deliberate no-op until nav-graph slice 7 Task 11 builds
-     * this host's navigation drawer. The member exists so `ComposeReadingViewHost` can be re-typed
-     * onto [ReadingHostActivity] (R6); nothing reaches it before Task 11, because the ☰ button that
-     * calls it lives in the reading destination's content slot this host cannot build yet (R8).
-     * An `error(...)` would be worse: a host that CRASHES on a drawer toggle it cannot perform turns
-     * an unreachable gap into a user-visible one the moment anything calls it by accident.
+     * [ReadingHostActivity.toggleDrawer] -- classic's `MainBibleActivity.toggleDrawer` (`:928`),
+     * verbatim: the SAME one-line delegation to the SAME collaborator.
+     *
+     * **It was a documented no-op until R8, and R8 is why it must stop being one.** The ☰ button
+     * that calls it lives in the reading destination's content slot, which this host can now build
+     * -- so the drawer it toggles is the READING VIEW's own `ModalNavigationDrawer`, which exists
+     * here exactly as it does under `MainBibleActivity` and is reached through the same
+     * `ReadingCommands.composeToggleDrawer` seam. Leaving the no-op in place would have been a
+     * ☰ button that silently does nothing on the host this batch is building (addendum Ruling D:
+     * a silent no-op where the host DOES have the thing is worse than a crash).
+     *
+     * `composeToggleDrawer`'s native-`DrawerLayout` fallback is never taken here: it fires only
+     * when no reading view is installed, and this host's [ReadingCommandsHostCallbacks
+     * .toggleNativeDrawer] is the documented no-op for a host with no `DrawerLayout` at all.
+     *
+     * Slice 7 Task 11's business is the HOST's own chrome drawer, if it grows one -- not this.
      */
-    override fun toggleDrawer() {
-        // Task 11: toggle this host's own `ModalNavigationDrawer`, as
-        // `ComposeReadingViewHost.toggleDrawer` does for the reading view's.
-    }
+    override fun toggleDrawer() = readingCommands.composeToggleDrawer()
 
     // ————————————————————————————————————————————————————————————————————————————————————————————
     // Reading-host re-typing R6d: the five members the interface gained so `ComposeReadingViewHost`
@@ -1293,12 +1326,38 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
-     * The reading view this host has installed, or `null` before it installs one. Assigned by
-     * nav-graph slice 7 Task 8/R8, which composes the reading destination; null until then, exactly
-     * as classic's is null before `setupUi()`. Every reader above goes through a supplier read at
-     * call time, so nothing captures the null.
+     * The reading view this host has built, or `null` before the reading destination first
+     * composes. Built by [readingViewHost]; null on every other route, exactly as classic's is null
+     * before `setupUi()`. Every reader above goes through a supplier read at call time, so nothing
+     * captures the null.
      */
     var composeReadingViewHost: ComposeReadingViewHost? = null
+
+    /**
+     * THIS host's `ComposeReadingViewHost`, built on first use and kept for the Activity's life --
+     * the counterpart of classic's `setupUi()` pair (`MainBibleActivity.kt:613-615`,
+     * `host.rebuildDrawer()` included).
+     *
+     * **Activity-scoped, not composition-scoped, and that is the whole reason this is a function
+     * rather than a `remember { ComposeReadingViewHost(this) }` in the `content` slot.** The
+     * constructor registers on `ABEventBus` and opens a `hostScope`, both of which are undone only
+     * by [ComposeReadingViewHost.dispose] in [onDestroy]; an instance created per composition would
+     * leak one registration every time the reading destination left and re-entered the back stack
+     * (a settings visit and back), and each leaked instance would keep answering
+     * `NightModeChanged`/`FullScreenEvent` for a reading view that no longer exists.
+     *
+     * `rebuildDrawer()` with no arguments on creation is classic's entry-time rebuild: the
+     * `showSearch`/`showSpeak` flags default to the last pushed pair (both `true` initially,
+     * mirroring the drawer menu XML), and this host pushes the real ones through
+     * [ReadingCommandsHostCallbacks.onToolbarStateMayHaveChanged] as soon as anything changes them.
+     * Without it the drawer composes from `DrawerMenuState.EMPTY` -- an empty sheet, not a crash,
+     * i.e. exactly the silent failure this batch keeps refusing.
+     */
+    private fun readingViewHost(): ComposeReadingViewHost =
+        composeReadingViewHost ?: ComposeReadingViewHost(this).also {
+            composeReadingViewHost = it
+            it.rebuildDrawer()
+        }
 
     /** This host's view manager, built over [readingCommands]' own `BibleViewFactory` -- the same
      *  one-line construction classic makes in `onCreate`. */
@@ -1613,6 +1672,24 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             "NavHostComposeActivity requires EXTRA_ROUTE — launch it via NavHostComposeActivity.intentFor()"
         }
         if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
+        // R8: build [readingCommands] NOW, while this Activity is still CREATED.
+        //
+        // Its constructor calls `registerForActivityResult` (the reading view's background-image
+        // picker, `ReadingCommands.kt:263`) and `ActivityResultRegistry.register` THROWS once the
+        // owner is STARTED. A `by lazy` first touched from inside the composition is touched at
+        // attach time, i.e. RESUMED -- so before this line the reading destination died with
+        // "LifecycleOwner ... is attempting to register while current state is RESUMED" the first
+        // time it composed. Classic never had the problem: its own `readingCommands` is an eager
+        // field, registered while the Activity is being constructed.
+        //
+        // UNCONDITIONAL, unlike `bootstrapIfNeeded` above, because [onNewIntent] can navigate a
+        // live host onto `reading` long after RESUMED and there is no later instant at which the
+        // registration is legal. The cost the lazy was protecting against does not really exist
+        // here: the seven collaborators are `by inject()` delegates, `BibleViewFactory`'s
+        // constructor only logs and `MenuCommandHandler`'s only stores its arguments. The `by lazy`
+        // stays for its OTHER guarantee -- one command surface per host, which
+        // `ReadingHostChromeTest` pins.
+        readingCommands.let { /* forced while CREATED; see above */ }
         setContent {
             AbAppTheme {
                 val navController = rememberNavController()
@@ -2280,9 +2357,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     )
                 }
                 /**
-                 * The reading destination's deps (nav-graph slice 7 Task 6). Three of the four slots
-                 * are real ports of `MainBibleActivity` behaviour; [ReadingNavDeps.content] is the
-                 * one that cannot be, and says so loudly rather than rendering a blank screen.
+                 * The reading destination's deps (nav-graph slice 7 Task 6; the [ReadingNavDeps.content]
+                 * slot made real by reading-host re-typing R8). All four slots are now real ports of
+                 * `MainBibleActivity` behaviour.
                  */
                 val readingNavDeps = remember {
                     ReadingNavDeps(
@@ -2294,28 +2371,21 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                         // view's window title would become the application label instead.
                         windowTitle = getString(R.string.app_name_short),
                         content = {
-                            // NOT YET BUILDABLE, and deliberately loud (the `error(...)` shape design
-                            // §1.1 uses for an unreachable branch that must never be reached quietly).
+                            // R8: the real reading view, composed by THIS host's own
+                            // `ComposeReadingViewHost` -- see [readingViewHost] for why the instance
+                            // is the Activity's and not this composition's.
                             //
-                            // The reading view's composition is `ComposeReadingViewHost
-                            // .ReadingViewContent`, which this task extracted so a destination CAN
-                            // render it with no ViewGroup. What it cannot do is build the ~70
-                            // arguments: they come from `ComposeReadingViewHost`, whose constructor
-                            // takes a `MainBibleActivity` and which reaches into it 130 times --
-                            // ~25 `compose*` toolbar entry points, `binding`, `bibleViewFactory`,
-                            // `documentViewManager` (itself `DocumentViewManager(MainBibleActivity)`),
-                            // `handleOptionsMenuItem`, `applyChosen*` and more. Re-typing that off the
-                            // Activity IS the reading view's own migration, and no task in the slice-7
-                            // plan owns it (Task 13 deletes `MainBibleActivity.kt` outright).
+                            // The ~340-line argument block lives in `ComposeReadingViewHost
+                            // .ReadingView`, NOT here: `install()` (the classic ViewGroup mount) and
+                            // this destination bind the identical arguments, and two copies of a
+                            // 71-parameter list is two things to keep true where only one would ever
+                            // be edited. R8 extracted it from `install` for exactly that reason.
                             //
-                            // Nothing routes here yet, so this is unreachable today:
-                            // `ScreenLauncher.MIGRATED` is Task 8's and `MainBibleActivity` is still
-                            // the launcher. Task 8 makes `reading` the START destination and must not
-                            // land before this slot is real -- see this task's report.
-                            error(
-                                "the reading destination has no content yet: ComposeReadingViewHost " +
-                                    "still takes a MainBibleActivity. See ReadingNavDeps' kdoc.",
-                            )
+                            // `LocalView.current` is the anchor the two `menuForDocs` `PopupMenu`
+                            // call sites need -- classic anchored them on `binding.mainBibleView`,
+                            // which is the same full-bleed rectangle the reading view fills here.
+                            val host = remember { readingViewHost() }
+                            host.ReadingView(anchor = LocalView.current)
                         },
                         onKey = { key -> readingViewKeyPressed(key) },
                         onScreenTurnedOn = { readingViewScreenTurnedOn() },
@@ -7612,6 +7682,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // R4: the host's own NightModeChanged subscription, so an Activity recreation (e.g. a
         // config change) does not leak one registration per rotation.
         ABEventBus.unregister(this)
+        // R8, and classic's `MainBibleActivity.onDestroy` (`:1594`) line for line: the reading view
+        // has its OWN ABEventBus registration and its own coroutine scope, so without this an
+        // Activity recreation leaks one of each per rotation. Null on every non-reading route,
+        // where [readingViewHost] was never called; `dispose()` does not null the field, so a
+        // second call would still find it and is harmless.
+        composeReadingViewHost?.dispose()
         super.onDestroy()
     }
 

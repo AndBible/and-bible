@@ -85,9 +85,49 @@ class ReadingHostChromeTest {
         val host = buildNavHost()
         host.showSystemUiTransient()
         host.applyIdleSystemUi()
-        host.restorePaneFocus()
-        // No drawer on this host until slice 7 Task 11; it must do nothing rather than crash.
+        // `restorePaneFocus` is deliberately NOT called here any more: R8 pointed it at this host's
+        // OWN repository, which off the reading route does not exist. Its own test is
+        // [restorePaneFocusReachesThisHostsOwnRepositoryAndIsNotSwallowedByItsGate].
+        //
+        // `toggleDrawer` IS still called, and is no longer the no-op this line used to assert: R8
+        // made it classic's one-line delegation, which with no reading view installed takes
+        // `composeToggleDrawer`'s native fallback -- this host's documented no-op, since it has no
+        // `DrawerLayout` at all.
         host.toggleDrawer()
+    }
+
+    /**
+     * Reading-host re-typing R8, both halves of [NavHostComposeActivity.restorePaneFocus] at once,
+     * and neither half is assertable any other way on a Robolectric host.
+     *
+     *  - **The repository identity.** R8 re-pointed the body from `windowControl.windowRepository`
+     *    -- whichever reading host most recently RESUMED -- to `hostWindowRepository`, this host's
+     *    own (R6c1's identity finding). Off the reading route this host bootstrapped none, so the
+     *    honest answer is the same loud failure
+     *    [theNavHostsRepositoryIsItsOwnOrNothing] pins for the property itself. **Mutation: put
+     *    `windowControl.windowRepository` back and nothing throws** -- `WindowControl`'s lazy
+     *    fallback always answers -- which is precisely the defect: focus handed to the OTHER host's
+     *    active window.
+     *  - **The gate's POLARITY.** R8 also added classic's
+     *    `shouldRestorePaneFocusOnDrawerClose(searchBarOpen = readingCommands.composeSearchModeActive)`
+     *    guard, which R4 had to leave out. With no reading view installed the flag is false, so the
+     *    call must fall THROUGH the gate and reach the repository. Mutation: invert the gate (drop
+     *    the `!`) and this stops throwing.
+     *
+     * The gate's other branch -- a drawer close while the reading view's search bar is open must
+     * NOT steal focus -- is the shared predicate's own property and is pinned in `:sharedCore`'s
+     * `DrawerPaneFocusTest`; it needs a composed reading view in search mode to reach from here,
+     * and the act it suppresses (a `requestFocus` on a `BibleView`) has no observable effect in a
+     * Robolectric window either way.
+     */
+    @Test
+    fun restorePaneFocusReachesThisHostsOwnRepositoryAndIsNotSwallowedByItsGate() {
+        val host = buildNavHost()
+        assertThrows(
+            "restorePaneFocus must hand focus to THIS host's active window, and must not be " +
+                "gated off while no search bar is open",
+            UninitializedPropertyAccessException::class.java,
+        ) { host.restorePaneFocus() }
     }
 
     /** `getString` is part of the contract so `activity.getString(...)` keeps its spelling at R6. */
@@ -140,8 +180,10 @@ class ReadingHostChromeTest {
 
     private fun buildNavHost(): NavHostComposeActivity = Robolectric.buildActivity(
         NavHostComposeActivity::class.java,
-        // Any route but READING: the reading destination's production content slot is the one thing
-        // the host cannot build yet (R8 pays that), and none of these assertions need it.
+        // Any route but READING, and after R8 that is a POSITIVE choice rather than the "the host
+        // cannot build the reading view yet" it used to be: these assertions are about what this
+        // host answers when it is NOT a reading host -- `hostWindowRepository` absent,
+        // `composeReadingViewHost` null -- which is the half a reading-route fixture cannot show.
         NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.AI_TOOL_INFO),
     ).create().get()
 }

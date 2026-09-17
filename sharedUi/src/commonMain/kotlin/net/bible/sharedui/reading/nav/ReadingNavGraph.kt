@@ -47,13 +47,21 @@ import net.bible.sharedcore.reading.ReadingViewVisibility
  * `agentLogSlot`/`speakBarSlot`/`quickSheetSlot`, and `ChooseDocumentDeps.topBarActions` — so this
  * destination is one slot rather than seventy.
  *
- * **What this destination is NOT yet, at the commit that introduces it.** Nothing routes here:
- * `ScreenLauncher.MIGRATED` is Task 8's and `MainBibleActivity` is still the launcher. The host's
- * production [content] does not render the reading view either, and cannot until
- * `ComposeReadingViewHost` (130 `activity.` references to `MainBibleActivity`, including ~25
- * `compose*` toolbar entry points) and `DocumentViewManager` are re-typed off that Activity — work
- * no task in the slice-7 plan owns. See `NavHostComposeActivity.readingNavDeps`, where that gap is
- * an `error(...)` rather than a blank screen, and this task's report.
+ * **What this destination is, at HEAD.** Its [content] renders the real reading view on BOTH
+ * hosts: `MainBibleActivity` mounts it into a `ViewGroup` through `ComposeReadingViewHost.install`,
+ * and `NavHostComposeActivity.readingNavDeps` composes the very same `ComposeReadingViewHost
+ * .ReadingView` -- the one argument block, bound once -- since reading-host re-typing R8. That
+ * slot was an `error(...)` from the commit that introduced this file until R8, because
+ * `ComposeReadingViewHost` was TYPED ON `MainBibleActivity` and no second host could construct one.
+ * R6a--R6d re-typed it: it is `ComposeReadingViewHost(activity: ReadingHostActivity)` now, holds no
+ * `MainBibleActivity` type position at all, and every host reference it makes resolves through the
+ * twelve members of `ReadingHostActivity` that both Activities answer honestly. (Any count of
+ * "`activity.` references to `MainBibleActivity`" quoted here before R8 was a grep artefact --
+ * the pattern also matched the package path `net.bible.android.view.activity.page` -- and is
+ * deliberately not replaced with another number: the fact that matters is the TYPE, not a tally.)
+ *
+ * What is still NOT true: nothing ROUTES here in the shipped app. `ScreenLauncher.MIGRATED` is
+ * slice 7 Task 8's and `MainBibleActivity` is still the launcher.
  */
 class ReadingNavDeps(
     /**
@@ -86,27 +94,24 @@ class ReadingNavDeps(
      * the destination arm, with no wrapper of any kind, so that what the destination renders is
      * byte-for-byte what `ComposeReadingViewHost.install` renders into the classic Activity.
      *
-     * **Work this destination OWES, payable by the task that makes this slot real.** Three items,
-     * collected here because this is the parameter that task has to touch and a code comment
-     * somewhere else is not findable:
+     * **Work this slot owed -- all of it now PAID, recorded here because this is where the tasks
+     * that paid it looked.**
      *
-     *  1. **`ExternalKeyboardBack` does not close the drawers.**
-     *     `NavHostComposeActivity.readingViewKeyPressed` returns `true` for it and does nothing
-     *     else; classic `MainBibleActivity.onKeyDown` closed BOTH the classic `binding.drawerLayout`
-     *     and, via `composeCloseDrawerIfOpen()`, the Compose drawer. Neither is reachable from the
-     *     host, because both live on the `ComposeReadingViewHost` this slot cannot build yet — so
-     *     the close half lands with the slot. Dead today (nothing routes here); the day it is not
-     *     dead, an external-keyboard BACK silently does nothing instead of closing the drawer.
+     *  1. ~~`ExternalKeyboardBack` does not close the drawers.~~ **PAID by reading-host re-typing
+     *     R8**, the task that made this slot real. `NavHostComposeActivity.readingViewKeyPressed`
+     *     now calls `readingCommands.composeCloseDrawerIfOpen()` before returning classic's
+     *     unconditional `true`. Only the Compose half exists on that host: classic also closed
+     *     `binding.drawerLayout`, and that XML `DrawerLayout` is `MainBibleActivity`'s alone.
      *  2. ~~`ReadingViewVisibility` keeps `HistoryManager.goBack()` from finishing the screen on
-     *     top once a composed destination's depth is live under a backgrounded host — a dead back
-     *     key.~~ **PAID by reading-host re-typing R7b**, which made both seams resolve through
+     *     top once a composed destination's depth is live under a backgrounded host -- a dead back
+     *     key.~~ **PAID by R7b**, which made both seams resolve through
      *     [net.bible.sharedcore.reading.ReadingHostPresence] and this class carry [host].
      *  3. ~~`ReadingViewHostCallbacks.current` is "last published", not "the foreground host".~~
      *     **PAID by R7b**, the same change: it was the same divergence and it wanted the same answer.
      *
-     *  Items 2 and 3 were PRECONDITIONS, not follow-ups — both would have become user-visible the
-     *  moment this slot rendered the real reading view, which is why they were paid first. Item 1 is
-     *  still owed and still lands with this slot.
+     *  Items 2 and 3 were PRECONDITIONS, not follow-ups -- both would have become user-visible the
+     *  moment this slot rendered the real reading view, which is why R7b paid them BEFORE R8 made
+     *  it render. Nothing is owed here any more; do not go looking for an unpaid debt.
      */
     val content: @Composable () -> Unit,
     /**

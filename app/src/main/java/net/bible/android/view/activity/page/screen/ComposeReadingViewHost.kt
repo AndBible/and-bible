@@ -2875,11 +2875,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
 
     /** Mounts the Compose reading view into [container] (expected: `binding.mainBibleView`, already emptied by the caller). */
     fun install(container: ViewGroup) {
-        // Ensure the SSOT reflects the freshly-loaded workspace before first render (repo
-        // mutations after this point already route through the 12a notifiers, which keep
-        // windowState.layout current, but the very first mount needs an explicit kick).
-        windowState.refresh(activity.hostWindowRepository)
-
         // Layout surgery: hide the classic toolbar row and re-anchor `container` to the parent
         // top. Done programmatically here rather than authored into main_bible_view.xml. The
         // original reason -- keeping the classic path, which never called install(), byte-for-byte
@@ -2918,8 +2913,53 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             container.layoutParams = params
         }
 
-        mountComposeView(
-            container = container,
+        val composeView = ComposeView(container.context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            // R8: the argument block that used to sit here is [ReadingView], so that the `reading`
+            // nav destination composes the SAME arguments instead of a second copy of them. The
+            // anchor stays `container` on this path, byte-for-byte what the two `menuForDocs`
+            // call sites were given before the move.
+            setContent { ReadingView(anchor = container) }
+        }
+        container.addView(composeView)
+    }
+
+    /**
+     * The reading view, with THIS host's collaborators bound into every one of
+     * [ReadingViewContent]'s parameters -- what used to be [install]'s `mountComposeView(...)`
+     * argument block, and nothing else.
+     *
+     * **Extracted by reading-host re-typing R8, which is the task that gave it a second caller.**
+     * `NavHostComposeActivity`'s `reading` destination composes this directly (its `content` slot
+     * was an `error(...)` until R8), and a destination has a composition rather than a
+     * [ViewGroup] -- so the ~340 lines of argument building had to stop being reachable only
+     * through a function that takes a container. Copying them into the nav host instead would have
+     * made two argument lists to keep true, of which only one would ever be edited; this is one.
+     *
+     * [mountComposeView] is NOT this function's caller and is not meant to be: it keeps the inert
+     * per-parameter defaults its five host tests pass around explicit collaborators, and its 71
+     * explicit forwards to [ReadingViewContent] stay the compile-time check that the test seam and
+     * the content cannot drift apart. This function is the PRODUCTION binding of the same
+     * parameters, and both are checked by the same compiler for the same reason.
+     *
+     * @param anchor the [View] the two `menuForDocs` `PopupMenu` call sites hang off (classic's
+     *   `bibleButton`/`commentaryButton` live inside the now-GONE `toolbarLayout`). [install]
+     *   passes its `container`; the nav destination passes `LocalView.current`, which is the
+     *   window's own content view -- the same full-bleed rectangle, since the reading view fills it.
+     */
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun ReadingView(anchor: View) {
+        // Ensure the SSOT reflects the freshly-loaded workspace before first render (repo
+        // mutations after this point already route through the 12a notifiers, which keep
+        // windowState.layout current, but the very first mount needs an explicit kick).
+        //
+        // R8 moved it out of [install] and into the composition, so that BOTH mounts get it: a
+        // `remember` rather than a `LaunchedEffect`, because an effect runs after the first frame
+        // and the first frame is precisely what this exists to populate.
+        remember { windowState.refresh(activity.hostWindowRepository) }
+        ReadingViewContent(
             windowState = windowState,
             commands = commands,
             nightModeState = nightMode,
@@ -2936,7 +2976,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 // the classic native `menuForDocs` `PopupMenu`. Nav-graph slice 7 Task 2 finished
                 // the job: the `swap-menu` LONG press now goes through the same
                 // `openBibleQuickDoc`/`openCommentaryQuickDoc` seam, so no native popup is anchored
-                // on `container` (the ComposeView) any more — the classic anchors (bibleButton/
+                // on [anchor] any more — the classic anchors (bibleButton/
                 // commentaryButton) live inside the now-GONE toolbarLayout and would have positioned
                 // a native popup at a stale/zero location. The long press's OTHER branch still opens
                 // `ChooseDocument` (a full-screen chooser, no anchoring problem; slice 7 Task 9's
@@ -2947,7 +2987,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 // below — see `onOverflow`/`openOverflowMenu`).
                 onBible = {
                     if (CommonUtils.settings.getString("toolbar_button_actions", "default")?.startsWith("swap-") == true) {
-                        activity.readingCommands.composeBibleClick(container)
+                        activity.readingCommands.composeBibleClick(anchor)
                     } else {
                         openBibleQuickDoc(activity.readingCommands.composeQuickDocItems(documentControl.biblesForVerse))
                     }
@@ -2955,7 +2995,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 onBibleLong = { activity.readingCommands.composeBibleLongClick() },
                 onCommentary = {
                     if (CommonUtils.settings.getString("toolbar_button_actions", "default")?.startsWith("swap-") == true) {
-                        activity.readingCommands.composeCommentaryClick(container)
+                        activity.readingCommands.composeCommentaryClick(anchor)
                     } else {
                         val books = documentControl.commentariesForVerse +
                             SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK) +

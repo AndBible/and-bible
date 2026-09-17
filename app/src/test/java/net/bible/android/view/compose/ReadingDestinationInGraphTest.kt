@@ -53,6 +53,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -134,8 +135,23 @@ class ReadingDestinationInGraphTest {
         )
     }
 
+    /**
+     * Every host [buildHost] builds, so [tearDown] can destroy it.
+     *
+     * **R8 made this necessary, and the mechanism is worth naming.** These hosts start on the
+     * READING route now, so each one's `setContent` is a reading destination waiting to compose --
+     * and Robolectric composes it as soon as anything drains the main looper and lets the pending
+     * Choreographer traversal attach the decor view. `createComposeRule`'s own teardown does
+     * exactly that, AFTER this class's `@After` has run, so an undestroyed host published its
+     * handlers in the gap between two tests and [resetSeams]' leak assertion blamed the next one.
+     * Destroying them here is what keeps that assertion able to see a REAL leak.
+     */
+    private val hostControllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
+
     @After
     fun tearDown() {
+        hostControllers.forEach { it.close() }
+        hostControllers.clear()
         ReadingHostPresence.setForeground(null)
         DatabaseResetter.resetDatabase()
     }
@@ -270,18 +286,120 @@ class ReadingDestinationInGraphTest {
     }
 
     /**
-     * The tenth registration. A scan, for the reason [mainBibleActivityNoLongerDrivesTheVisibilityFlag]
-     * is one: nothing navigates to `reading` until Task 8, so a missing registration is invisible at
-     * runtime today. Mutation: delete the `readingNavGraph(navController, readingNavDeps)` line from
-     * the host's `NavHost` block.
+     * The tenth registration -- and, since reading-host re-typing R8, a RUNTIME assertion instead of
+     * the source scan this used to be.
+     *
+     * The scan existed because "nothing navigates to `reading` until Task 8, so a missing
+     * registration is invisible at runtime today". R8 is what removed that reason: the production
+     * [net.bible.sharedui.reading.nav.ReadingNavDeps.content] slot builds the real reading view now,
+     * so a real host started on the reading route composes the real destination. **The scan was
+     * DELETED rather than kept alongside**, because the runtime test strictly subsumes it: with the
+     * `readingNavGraph(navController, readingNavDeps)` line gone, this host's `NavHost` has no
+     * `reading` arm and `startDestination = reading` throws `IllegalArgumentException` before any
+     * assertion here is reached.
+     *
+     * What the scan could never have seen, and this does:
+     *
+     *  - the content slot actually COMPOSES. Its predecessor was a deliberate `error(...)`; a scan
+     *    cannot tell a real slot from a loud one.
+     *  - the whole reading view composes, panes included, against a host that is not
+     *    `MainBibleActivity` -- the claim R6a--R6d's re-typing exists to make.
+     *  - the ORDER constraints of the composition. This test found a real one: `ReadingCommands`'
+     *    constructor calls `registerForActivityResult`, which throws once its owner is STARTED, so
+     *    the host's `by lazy` command surface has to be forced in `onCreate`. Nothing in the source
+     *    text says that, and no scan could.
+     *
+     * `.visible()` is what makes it a composition at all: Robolectric attaches the decor view there,
+     * and Compose composes on attach. Mutations: restore the `error(...)`, drop the
+     * `readingNavGraph(...)` registration, or move the `readingCommands` force in `onCreate` below
+     * `setContent` -- each of the three fails this.
      */
     @Test
-    fun theHostRegistersTheReadingDestinationInItsNavHost() {
-        val src = ClassicRemovalScan.codeLinesOf(NAV_HOST_ACTIVITY)
-        assertTrue(
-            src.contains("readingNavGraph(navController, readingNavDeps)"),
-            "NavHostComposeActivity must register the reading destination in its NavHost",
+    fun theHostComposesTheRealReadingViewOnTheReadingRoute() {
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
         )
+        try {
+            val activity = controller.create().start().resume().visible().get()
+
+            assertNotNull(
+                activity.composeReadingViewHost,
+                "the reading destination's content slot must have composed this host's own " +
+                    "ComposeReadingViewHost -- it was an error(...) until R8",
+            )
+            assertTrue(
+                ReadingViewVisibility.isVisible,
+                "a composed reading destination under a resumed host IS the reading view on screen",
+            )
+            assertNotNull(
+                ReadingViewHostCallbacks.current,
+                "…and its key/screen handlers are the current ones",
+            )
+            assertEquals(
+                activity.getString(net.bible.android.activity.R.string.app_name_short),
+                activity.title.toString(),
+                "the destination applies classic MainBibleActivity's manifest android:label",
+            )
+        } finally {
+            // Destroys the Activity, which disposes the composition: the arm's onDispose is what
+            // unpublishes the handlers this class's @Before refuses to inherit.
+            controller.close()
+        }
+    }
+
+    /**
+     * The two DRAWER debts reading-host re-typing R8 paid, both of which needed the content slot to
+     * be real before they could be paid at all, and both of which were SILENT NO-OPS until it was.
+     *
+     *  - `NavHostComposeActivity.toggleDrawer()` was a documented no-op with a comment deferring it
+     *    to slice 7 Task 11. It is the ☰ button's only target
+     *    (`ReadingToolbarCallbacks.onHome`), so on this host the ☰ button did nothing at all the
+     *    moment the reading view rendered. R8 made it classic's one-line
+     *    `readingCommands.composeToggleDrawer()`.
+     *  - `ExternalKeyboardBack` returned `true` and closed nothing --
+     *    [net.bible.sharedui.reading.nav.ReadingNavDeps.content]'s owed-work item 1. Classic closed
+     *    both drawers; only the Compose one exists here, and R8 closes it.
+     *
+     * Driven through `ReadingViewHostCallbacks.current`, not through the private method, so what is
+     * exercised is the same path a real key event takes: `onKeyDown` -> decode -> the published
+     * handler the destination's own `DisposableEffect` installed.
+     *
+     * Mutations: restore either no-op and one of the two `assertFalse`/`assertTrue` pairs fails.
+     */
+    @Test
+    fun theHostsDrawerCommandsReachTheComposedReadingViewsDrawer() {
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            val activity = controller.create().start().resume().visible().get()
+            val readingView = assertNotNull(
+                activity.composeReadingViewHost,
+                "the content slot must have composed a reading view for this test to mean anything",
+            )
+            assertFalse(readingView.isDrawerOpen, "sanity: the drawer starts closed")
+
+            activity.toggleDrawer()
+            assertTrue(
+                readingView.isDrawerOpen,
+                "the host's toggleDrawer — the ☰ button's only target — must open the reading " +
+                    "view's own Compose drawer",
+            )
+
+            val handlers = assertNotNull(ReadingViewHostCallbacks.current)
+            assertTrue(
+                handlers.onKey(ReadingViewKey.ExternalKeyboardBack),
+                "classic consumed external-keyboard BACK unconditionally",
+            )
+            assertFalse(
+                readingView.isDrawerOpen,
+                "…and closed the drawer on the way, which is the half R8 owed",
+            )
+        } finally {
+            controller.close()
+        }
     }
 
     // ------------------------------------------------------------------ the two callback families
@@ -737,13 +855,23 @@ class ReadingDestinationInGraphTest {
         }
     }
 
+    /**
+     * The host these tests drive its Activity-level overrides on, **started on the READING route
+     * since R8**. It used to be started on `AI_TOOL_INFO` because "the reading destination's
+     * production content slot is the one thing the host cannot build yet" -- R8 built it, so a host
+     * test that still avoided the reading route would be avoiding the thing under test: every
+     * override below (the key decode, the volume gates, the screen-on/off ports) exists FOR the
+     * reading destination, and on any other route the handlers they feed are never published.
+     *
+     * `.create()` and no further: `onCreate` is where `bootstrapIfNeeded()` and the command
+     * surface's activity-result registration run, and Robolectric composes nothing until the decor
+     * view is attached (`.visible()`), which only
+     * [theHostComposesTheRealReadingViewOnTheReadingRoute] wants.
+     */
     private fun buildHost(): NavHostComposeActivity = Robolectric.buildActivity(
         NavHostComposeActivity::class.java,
-        // Any route but READING: this test drives the host's Activity-level overrides, and the
-        // reading destination's production content slot is the one thing the host cannot build yet
-        // (see ReadingNavDeps' kdoc).
-        NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.AI_TOOL_INFO),
-    ).create().get()
+        NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+    ).also { hostControllers += it }.create().get()
 
     private fun keyEvent(keyCode: Int) = KeyEvent(KeyEvent.ACTION_DOWN, keyCode)
 
@@ -800,8 +928,6 @@ class ReadingDestinationInGraphTest {
         private const val SIBLING = "sibling"
         private const val MAIN_BIBLE_ACTIVITY =
             "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt"
-        private const val NAV_HOST_ACTIVITY =
-            "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"
         private const val STARTUP_ACTIVITY =
             "src/main/java/net/bible/android/view/activity/StartupActivity.kt"
     }
