@@ -3592,9 +3592,21 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         private const val SEARCH_INDEX_POLL_INTERVAL_MS = 2_000L
 
         /**
-         * Testable mount: adds a [ComposeView] rendering [ReadingViewScreen] to [container].
-         * Collaborators are passed explicitly so this can be exercised without booting a full
-         * [MainBibleActivity] (see `ComposeReadingViewHostTest`).
+         * **TEST-ONLY since reading-host re-typing R8 -- this function has no production caller.**
+         * R8 moved [install]'s argument block into [ReadingView] so the `reading` nav destination
+         * could compose the same arguments with no [ViewGroup], and [install] now builds its
+         * [ComposeView] over [ReadingView] directly (byte-identical construction, same layout
+         * params, same container). Nothing else called this.
+         *
+         * It is KEPT, deliberately, as the explicit-collaborator seam its five callers use
+         * (`ComposeReadingViewHostTest`, `ReadingSearchHostTest`, `AgentLogHostTest`,
+         * `ReadingLlmHostTest`, `SearchSheetStructureGuardTest`): they mount [ReadingViewContent] --
+         * the SAME composition production renders -- with inert defaults for the slots they do not
+         * exercise, which is the only way to drive it without booting a full reading host. Its 71
+         * forwards are all identity forwards and stay explicit, so this list and [ReadingViewContent]
+         * still cannot drift apart without a compile error here.
+         *
+         * Adds a [ComposeView] rendering [ReadingViewScreen] to [container].
          */
         @OptIn(ExperimentalMaterial3Api::class)
         fun mountComposeView(

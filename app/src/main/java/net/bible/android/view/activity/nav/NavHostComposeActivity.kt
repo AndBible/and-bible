@@ -1223,13 +1223,23 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     /**
      * [ReadingHostActivity.readingCommands] -- this host's own command surface.
      *
-     * **`by lazy`, unlike classic's eager field, and that is not a shortcut.** This Activity is the
-     * nav host for ~45 routes, most of which have nothing to do with reading; constructing a
-     * command surface (and the `BibleViewFactory` it owns) for every settings screen would be new
-     * per-launch work this host does not do today. Lazy means it is built the first time the
-     * reading destination asks for it and never otherwise -- and, because every collaborator below
-     * is reached through a supplier read at CALL time, the construction order between them does not
-     * matter.
+     * **BUILT ON EVERY ROUTE, from [onCreate], and the `by lazy` no longer defers anything.** R6d
+     * made it lazy to keep the ~45 non-reading routes of this nav host from constructing a command
+     * surface they never use. R8 had to give that up: the constructor calls
+     * `registerForActivityResult` (`ReadingCommands.kt:263`), and `ActivityResultRegistry.register`
+     * THROWS once its owner is STARTED -- so a surface first touched from inside the composition
+     * (attach time, i.e. RESUMED) is a hard crash, and `onCreate` is the last legal instant.
+     * [onCreate] therefore forces this property, unconditionally; the argument for unconditional,
+     * and the measurement of what it actually costs, are at that call site. **Do not delete that
+     * line on the strength of this kdoc: nothing here and no source scan can see the crash it
+     * prevents** -- only a test that composes the reading destination can, which is
+     * `ReadingDestinationInGraphTest.theHostComposesTheRealReadingViewOnTheReadingRoute`.
+     *
+     * What the `by lazy` still buys is the OTHER guarantee: ONE surface per host. A
+     * `get() = ReadingCommands(...)` would satisfy the interface and hand out a second
+     * `BibleViewFactory` on every read -- the defect `ReadingHostChromeTest` pins with `assertSame`.
+     * And, because every collaborator below is reached through a supplier read at CALL time, the
+     * construction order between them still does not matter.
      */
     override val readingCommands: ReadingCommands by lazy {
         ReadingCommands(this, readingCommandsHostCallbacks())
@@ -1352,11 +1362,45 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * [ReadingCommandsHostCallbacks.onToolbarStateMayHaveChanged] as soon as anything changes them.
      * Without it the drawer composes from `DrawerMenuState.EMPTY` -- an empty sheet, not a crash,
      * i.e. exactly the silent failure this batch keeps refusing.
+     *
+     * **`reloadAllWindows(true)` is classic `setupUi`'s NEXT line (`MainBibleActivity.kt:624`), and
+     * it is the INITIAL CONTENT LOAD, not chrome** -- R8 fix round 1, review Important 2. It drives
+     * `Window.updateOrScroll()` on every visible window (`WindowSync.kt:42-50`), and with `force`
+     * that means `loadText()`: without it a freshly composed reading view has `BibleView`s that were
+     * created and `initialise()`d but never handed a document, i.e. a blank screen with no error
+     * anywhere. Nothing else on this host does it -- `DocumentViewManager.buildView` does not, and
+     * `BibleViewFactory.getOrCreateBibleView` only creates and initialises the view. Measured, not
+     * assumed: with the line absent the active window's `displayedKey` is still null after a real
+     * composition (see the test named below).
+     *
+     * Read off THIS host's repository rather than `windowControl`'s. The two are the same instance
+     * on a reading-route host ([ReadingAppBootstrap.createWindowRepository] assigns
+     * `windowControl.windowRepository = windowRepository`), so this is not a behaviour change -- it
+     * is the spelling that stays correct if they ever are not, which is R6c1's whole finding.
+     *
+     * **Safe at this point in the composition**, and the reason is classic's own timing: classic
+     * runs this from `onCreate`, one line after `install()` has merely `addView`n a `ComposeView`
+     * that has not composed yet -- so classic, too, calls it while no `BibleView` exists. The body
+     * is plain-model work either way: `updateOrScroll` compares fields, `loadText` assigns two
+     * fields and hands the rest to `updateScope.launch(Dispatchers.IO)`, and its only other
+     * pre-launch branch (`scrollToText`) is a `bibleView?.` call that is null at this instant. No
+     * Compose state is written, so this cannot be a "state modified after it was read" composition
+     * failure. What it must not be is unverified:
+     * `ReadingDestinationInGraphTest.theComposedReadingViewsWindowsGetTheirInitialContentLoad`
+     * drives the real composition and asserts the active window actually reached `loadText`.
+     *
+     * Classic's `updateActions()` (`setupUi:625`) is NOT ported here -- its Compose half is
+     * `rebuildDrawer(showSearch, showSpeak)` + `refreshHostedState()`, which this host supplies
+     * through [ReadingCommandsHostCallbacks.onToolbarStateMayHaveChanged] and which the entry-time
+     * `rebuildDrawer()` above already covers with the menu XML's own initial flags. Neither is the
+     * `reloadAllWindows(true) + updateActions()` pair in `updateDocuments()`
+     * (`MainBibleActivity.kt:1702-1705`) -- see the verdict recorded above [onResume].
      */
     private fun readingViewHost(): ComposeReadingViewHost =
         composeReadingViewHost ?: ComposeReadingViewHost(this).also {
             composeReadingViewHost = it
             it.rebuildDrawer()
+            hostWindowRepository.windowSync.reloadAllWindows(true)
         }
 
     /** This host's view manager, built over [readingCommands]' own `BibleViewFactory` -- the same
@@ -1643,6 +1687,27 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         super.onResume()
     }
 
+    // R8 fix round 1, review Important 2 -- the VERDICT on classic's `updateDocuments()`
+    // (`MainBibleActivity.kt:1702-1705`, `reloadAllWindows(true)` + `updateActions()`), which this
+    // host does NOT have and which R8 does NOT port.
+    //
+    // It is not a stray line: it is the TAIL of classic's whole `onResume` reconciliation block
+    // (`MainBibleActivity.kt:1960-1980`), and this host has none of that block --
+    //   - no `windowControl.windowRepository != windowRepository` check and no `currentWorkspaceId =
+    //     currentWorkspaceId` reload (classic's `needRefresh` arm, which takes PRECEDENCE over the
+    //     document refresh);
+    //   - no `UpdateMainBibleActivityDocuments` subscription, so no `updateDocumentsPending` flag to
+    //     consume -- note this host POSTS that event from six of its own destinations (Download,
+    //     ChooseDocument, MyDocuments, backup restore) and nothing here listens;
+    //   - no `documentViewManager.documentView.asView().requestFocus()` tilt-scroll resume;
+    //   - no `handlePendingAgentResult()`.
+    // Porting one line of a five-part block would produce a host that refreshes documents but never
+    // reconciles the workspace -- worse than a host that honestly does neither, because the gap
+    // stops being visible. The whole block is an obligation of slice 7 Task 8/Task 12, i.e. of
+    // whichever task makes this host the launcher and lets it be RESUMED with a reading destination
+    // behind another Activity; R8's own ENTRY-time load is [readingViewHost]'s and is covered there.
+    // Recorded here rather than only in a report because this override is where the next reader looks.
+
     /**
      * Classic `MainBibleActivity`'s `NightModeChanged` subscription, guard shape included.
      *
@@ -1689,7 +1754,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // constructor only logs and `MenuCommandHandler`'s only stores its arguments. The `by lazy`
         // stays for its OTHER guarantee -- one command surface per host, which
         // `ReadingHostChromeTest` pins.
-        readingCommands.let { /* forced while CREATED; see above */ }
+        @Suppress("UNUSED_EXPRESSION")
+        readingCommands
         setContent {
             AbAppTheme {
                 val navController = rememberNavController()

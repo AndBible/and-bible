@@ -35,6 +35,7 @@ import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.control.page.window.Window
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
@@ -344,6 +345,56 @@ class ReadingDestinationInGraphTest {
         } finally {
             // Destroys the Activity, which disposes the composition: the arm's onDispose is what
             // unpublishes the handlers this class's @Before refuses to inherit.
+            controller.close()
+        }
+    }
+
+    /**
+     * **R8 fix round 1, review Important 2: the INITIAL CONTENT LOAD.**
+     *
+     * Classic `MainBibleActivity.setupUi` mounts the reading view and then, one line later
+     * (`:624`), calls `windowControl.windowSync.reloadAllWindows(true)` -- which drives
+     * `Window.updateOrScroll()` on every visible window and, with `force`, `Window.loadText()`.
+     * Nothing else in the app does it: `DocumentViewManager.buildView` does not, and
+     * `BibleViewFactory.getOrCreateBibleView` only creates and `initialise()`s the view. R8's first
+     * cut ported `setupUi`'s `ComposeReadingViewHost` + `rebuildDrawer()` pair and stopped there, so
+     * this host composed `BibleView`s that were never handed a document -- a blank reading view with
+     * no error anywhere. [readingViewHost] makes the call now.
+     *
+     * Asserted through `Window.displayedKey`, which `loadText` assigns (`Window.kt:258-259`) BEFORE
+     * handing the rest to `updateScope.launch(Dispatchers.IO)` -- so it is the one effect of the
+     * load that is observable synchronously, and observing it means `updateOrScroll` really reached
+     * `loadText` rather than the `scrollToText` branch or the `!isVisible` early return. Reflection
+     * because the field is private to a model class; this class already reaches the host's private
+     * members the same way.
+     *
+     * A weaker assertion was available and rejected: `WindowSync.lastForceSyncAll` advancing proves
+     * only that `setResyncRequired()` ran, which is true of `reloadAllWindows(false)` too and says
+     * nothing about any window loading anything.
+     *
+     * Mutation: delete `hostWindowRepository.windowSync.reloadAllWindows(true)` from
+     * `readingViewHost()` and `displayedKey` stays null.
+     */
+    @Test
+    fun theComposedReadingViewsWindowsGetTheirInitialContentLoad() {
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
+        try {
+            val activity = controller.create().start().resume().visible().get()
+            val window = activity.hostWindowRepository.activeWindow
+            assertTrue(
+                window.isVisible,
+                "sanity: the workspace's active window is visible, so loadText cannot have " +
+                    "returned early — without this the assertion below could not fail",
+            )
+            assertNotNull(
+                displayedKeyOf(window),
+                "the reading destination must run classic setupUi's reloadAllWindows(true): a " +
+                    "window whose BibleView was never handed a document renders blank",
+            )
+        } finally {
             controller.close()
         }
     }
@@ -916,6 +967,17 @@ class ReadingDestinationInGraphTest {
             .getDeclaredMethod("getEnableGenericVolumeScroll")
             .apply { isAccessible = true }
             .invoke(activity) as Boolean
+
+    /**
+     * `Window.displayedKey`, assigned by `Window.loadText` (`Window.kt:259`) and private to that
+     * model class. A missing field THROWS rather than returning null, so a rename cannot turn
+     * [theComposedReadingViewsWindowsGetTheirInitialContentLoad] into a check that always passes —
+     * or always fails — for the wrong reason.
+     */
+    private fun displayedKeyOf(window: Window): Any? =
+        requireNotNull(runCatching { Window::class.java.getDeclaredField("displayedKey") }.getOrNull()) {
+            "Window.displayedKey is gone — re-anchor this test on whatever loadText() now assigns"
+        }.apply { isAccessible = true }.get(window)
 
     private fun invokeProtected(activity: NavHostComposeActivity, name: String) {
         NavHostComposeActivity::class.java

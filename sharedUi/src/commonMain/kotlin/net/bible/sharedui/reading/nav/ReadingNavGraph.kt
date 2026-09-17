@@ -94,8 +94,9 @@ class ReadingNavDeps(
      * the destination arm, with no wrapper of any kind, so that what the destination renders is
      * byte-for-byte what `ComposeReadingViewHost.install` renders into the classic Activity.
      *
-     * **Work this slot owed -- all of it now PAID, recorded here because this is where the tasks
-     * that paid it looked.**
+     * **Work this slot owed, recorded here because this is where the tasks that pay it look.** The
+     * three items this list was opened with are paid; a fourth was found by R8's own review and is
+     * still open, on a LATER task -- so do not read this section as closed.
      *
      *  1. ~~`ExternalKeyboardBack` does not close the drawers.~~ **PAID by reading-host re-typing
      *     R8**, the task that made this slot real. `NavHostComposeActivity.readingViewKeyPressed`
@@ -109,9 +110,22 @@ class ReadingNavDeps(
      *  3. ~~`ReadingViewHostCallbacks.current` is "last published", not "the foreground host".~~
      *     **PAID by R7b**, the same change: it was the same divergence and it wanted the same answer.
      *
+     *  4. **STILL OWED, by slice 7 Task 8/Task 12 -- classic's `onResume` document refresh.**
+     *     `MainBibleActivity.updateDocuments()` (`:1702-1705`) re-runs `reloadAllWindows(true)` and
+     *     `updateActions()` when an `UpdateMainBibleActivityDocuments` event arrived while the
+     *     reading Activity was away. `NavHostComposeActivity` has no subscription to that event
+     *     (though it POSTS it from six of its own destinations), and no part of the `onResume`
+     *     reconciliation block that consumes it. R8 deliberately did NOT port a fragment of it --
+     *     the argument, and the rest of the missing block, are in a comment above
+     *     `NavHostComposeActivity.onResume`. Dead until something routes here; the day it is not,
+     *     a document installed from the Download screen does not appear until the workspace is
+     *     reloaded. **R8 DID port the ENTRY-time half** (`setupUi`'s own `reloadAllWindows(true)`,
+     *     the initial content load) -- see `NavHostComposeActivity.readingViewHost`.
+     *
      *  Items 2 and 3 were PRECONDITIONS, not follow-ups -- both would have become user-visible the
      *  moment this slot rendered the real reading view, which is why R7b paid them BEFORE R8 made
-     *  it render. Nothing is owed here any more; do not go looking for an unpaid debt.
+     *  it render. Item 4 is the opposite: it only becomes visible once something ROUTES here, which
+     *  is Task 8/12's own change, so it lands with that task and not before.
      */
     val content: @Composable () -> Unit,
     /**
