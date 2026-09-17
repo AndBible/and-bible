@@ -144,7 +144,17 @@ class ReadingCommands(
      * the 22 reads below goes through the supplier AT CALL TIME — never a captured value, which
      * would freeze a late-bound, nullable, per-host reference at construction time.
      */
-    private val composeReadingViewHost: ComposeReadingViewHost?
+    /**
+     * The reading view this command surface's host has mounted, or null.
+     *
+     * `internal` rather than private since T8b fix round 1 (I1): `Dialogs.agentPermissionDialog`
+     * used to ask `(context as? MainBibleActivity)?.composeReadingViewHost` the same question, which
+     * is always null once the reading view is hosted by `NavHostComposeActivity`. It asks
+     * `(context as? ReadingHostActivity)?.readingCommands?.composeReadingViewHost` instead, which is
+     * host-independent and does not widen the 12-member [ReadingHostActivity] interface. A supplier
+     * read at call time, so nothing captures the null.
+     */
+    internal val composeReadingViewHost: ComposeReadingViewHost?
         get() = hostCallbacks.composeReadingViewHost()
 
     // ---- Koin singletons, exactly R1's move (ComposeReadingViewHost.kt) ----

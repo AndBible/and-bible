@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.nav
 
+import android.content.Intent
 import net.bible.sharedcore.nav.NavRoutes
 
 /** Saved-instance-state key carrying [navHostStartRoute]'s answer across a recreate. */
@@ -66,4 +67,54 @@ internal fun navHostStartRoute(
     intentRoute?.let { return it }
     onMissing()
     return NavRoutes.READING
+}
+
+/**
+ * Could a `RESULT_CANCELED` coming back at `ActivityBase.STD_REQUEST_CODE` from [intent] be a cancel
+ * the USER performed?
+ *
+ * **reading-host re-typing T8b fix round 1, C2.** `NavHostComposeActivity` ported classic
+ * `MainBibleActivity.onActivityResult`'s first statement: a cancelled `STD_REQUEST_CODE` chooser
+ * that left the page with no key at all steps back in history, because the user has been dropped on
+ * a general book that cannot render. That is right for a chooser. It is wrong for a cancel the
+ * PLATFORM synthesises, which pops a history entry behind the user's back, and
+ * `MenuCommandHandler` dispatches several such intents with the default `requestCode =
+ * STD_REQUEST_CODE`.
+ *
+ * Three shapes are excluded, and each is excluded for a reason that can be pointed at:
+ *
+ *  - **An intent with no component** — `Intent.createChooser` for the "tell a friend" share row
+ *    (`MenuCommandHandler.kt:339`) and the `ACTION_VIEW` market link behind "Rate AndBible"
+ *    (`:170`). Dismissing a system chooser is a real user action, but it is not one of THIS app's
+ *    key choosers and cannot have left a page keyless.
+ *  - **`FLAG_ACTIVITY_NEW_TASK`** — the "Rate AndBible" intent again (`:160-166`, which ORs
+ *    `NEW_TASK | MULTIPLE_TASK | NEW_DOCUMENT`). `Activity.startActivityForResult`'s own javadoc
+ *    (platform sources, `android/app/Activity.java:5964-5969`): *"if the activity you are launching
+ *    uses FLAG_ACTIVITY_NEW_TASK, it will not run in your task and thus you will immediately receive
+ *    a cancel result."* A documented, guaranteed synthetic cancel, delivered before the user has
+ *    done anything.
+ *  - **[hostClassName] itself** — the nav host starting itself, which every `MenuCommandHandler`
+ *    row for a MIGRATED screen now does (`dailyReadingPlanButton`, `readingProgressButton`,
+ *    `managePrompts`, `bookmarksButton`, `myDocumentsButton`, …). With `android:launchMode="singleTop"`
+ *    and this activity on top, the platform documents the outcome directly, in
+ *    `Activity.startActivityIfNeeded`'s javadoc (`android/app/Activity.java:6586-6592`): *"if you are
+ *    using the FLAG_ACTIVITY_SINGLE_TOP flag, or singleTask or singleTop launchMode, and the
+ *    activity that handles intent is the same as your currently running activity, then a new
+ *    instance is not needed. In this case, instead of the normal behavior of calling onNewIntent
+ *    this function will return"* — i.e. the NORMAL behaviour of `startActivityForResult` there is
+ *    `onNewIntent` on the same instance. No second `ActivityRecord` is created, so nothing can ever
+ *    finish and deliver a result for that request code: measured against the platform sources, such
+ *    a launch yields NEITHER a result nor a cancel. Excluding it is therefore belt-and-braces rather
+ *    than the load-bearing arm — but it costs one line and it makes the guard correct under the
+ *    other reading too, which matters because the result-dropping half of that same self-launch is a
+ *    live, separately-tracked defect.
+ *
+ * Deliberately NOT expressed as "was the intent a chooser": this host cannot enumerate its callers'
+ * intents, and a list of chooser components would go stale silently. What it CAN answer is whether
+ * the platform, or this host's own `singleTop` reuse, might hand back a cancel nobody asked for.
+ */
+internal fun aCancelFromThisIntentWouldBeTheUsers(intent: Intent, hostClassName: String): Boolean {
+    val component = intent.component ?: return false
+    if (component.className == hostClassName) return false
+    return intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK == 0
 }

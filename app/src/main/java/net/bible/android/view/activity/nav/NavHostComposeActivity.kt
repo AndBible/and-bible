@@ -768,8 +768,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         // The route check comes FIRST: a route-less new intent must not become this Activity's
-        // intent, or a later recreate() (the ReadingPlansUpdatedViaSyncEvent handler calls one)
-        // would re-run onCreate's requireNotNull(EXTRA_ROUTE) against it and throw.
+        // intent. It no longer THROWS on the next onCreate -- T8b turned that requireNotNull into a
+        // loud default (see navHostStartRoute) -- but letting one through would still replace a
+        // meaningful intent with a meaningless one, and `savedStartRoute` only pins the START route,
+        // not `getIntent()` itself, which `bootstrapIfNeeded` reads `openLink` off.
         val route = intent.getStringExtra(EXTRA_ROUTE) ?: return
         setIntent(intent)
 
@@ -1084,11 +1086,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * `showFirstRunNotices` would re-enter its own process-wide gate.
      *
      * NOTE, for slice 7 Task 12: because the whole function is one-shot, an `openLink` extra that
-     * arrives on a LATER reading entry is not dispatched. Unreachable today --
-     * `StartupActivity.gotoMainBibleActivity` is the only producer of that extra and it targets
-     * `MainBibleActivity` with `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_MULTIPLE_TASK`, i.e. always
-     * a fresh Activity and a fresh `onCreate` -- and splitting the deep link out of the one-shot is
-     * a decision for the task that makes this host the deep link's target.
+     * arrives on a LATER reading entry is not dispatched. Still unreachable after T8b repointed the
+     * boot handoff at THIS host, but for a different reason than before: the sole producer,
+     * `StartupActivity.gotoMainBibleActivity`, writes that extra only on its `ACTION_VIEW` arm, and
+     * that arm carries `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_MULTIPLE_TASK` -- i.e. always a
+     * fresh instance and a fresh `onCreate`, never `onNewIntent` on a live host. (Before T8b it was
+     * unreachable simply because the intent named `MainBibleActivity`.) Splitting the deep link out
+     * of the one-shot is still a decision for the task that gives this host an `<intent-filter>` of
+     * its own.
      *
      * From [onCreate] it runs BEFORE `setContent`, exactly as classic runs it before the reading
      * view is built: the composition reads `windowControl.windowRepository`.
@@ -1707,7 +1712,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         val needRefresh = readingAppBootstrapped && reclaimWindowRepository()
         super.onResume()
         if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
-        if (readingAppBootstrapped) applyPendingActivityResult()
+        applyPendingActivityResult()
     }
 
     /**
@@ -1749,14 +1754,62 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode != ActivityBase.STD_REQUEST_CODE) return
-        pendingActivityResult =
-            if (resultCode == Activity.RESULT_CANCELED) CANCELLED_STD_RESULT else data
+        if (resultCode != Activity.RESULT_CANCELED) {
+            pendingActivityResult = data
+            return
+        }
+        if (!stdRequestCancelIsTheUsers) {
+            // T8b fix round 1, C2. NOT a cancel the user performed, so it must not reach the history
+            // guard -- and it must not clobber a real result that is already waiting either, which
+            // is what `ReadingHostActivityResultTest.aSyntheticCancel…` pins.
+            Log.i(
+                TAG_START_ROUTE,
+                "Ignoring a synthetic RESULT_CANCELED for STD_REQUEST_CODE -- the last such launch " +
+                    "was not one the user could cancel (see stdRequestCancelIsTheUsers)."
+            )
+            return
+        }
+        pendingActivityResult = CANCELLED_STD_RESULT
+    }
+
+    /**
+     * Whether a `RESULT_CANCELED` at `STD_REQUEST_CODE` would be one the USER performed — set by
+     * [startActivityForResult] from the intent that asked for it, because that is the only place the
+     * answer exists.
+     *
+     * False by default, which is the safe direction: the guard it protects pops a history entry, and
+     * failing to pop one is invisible while popping one the user did not ask for is the defect. A
+     * configuration change therefore disarms it rather than persisting it.
+     */
+    private var stdRequestCancelIsTheUsers = false
+
+    /**
+     * Record, at launch time, whether a `STD_REQUEST_CODE` cancel coming back from [intent] could be
+     * the user's — see [stdRequestCancelIsTheUsers] and [aCancelFromThisIntentWouldBeTheUsers].
+     *
+     * The 3-argument overload is the one to hook: `Activity.startActivityForResult(Intent, Int)`
+     * calls it virtually, so both spellings and `ActivityBase`'s two overrides all funnel here.
+     */
+    override fun startActivityForResult(intent: Intent, requestCode: Int, options: Bundle?) {
+        if (requestCode == ActivityBase.STD_REQUEST_CODE) {
+            stdRequestCancelIsTheUsers = aCancelFromThisIntentWouldBeTheUsers(intent, javaClass.name)
+        }
+        super.startActivityForResult(intent, requestCode, options)
     }
 
     /**
      * Apply what [onActivityResult] held, now that [onResume] has reconciled this host's reading
-     * state. Called only on a host that owes a reading view; on any other route the reading state
-     * belongs to a different host and classic would not have applied it either.
+     * state.
+     *
+     * **A host that owes no reading view drops it, LOUDLY, and clears the slot** (T8b fix round 1,
+     * I3). This is reachable: `CurrentPageManager.setCurrentDocument`'s auto-open calls
+     * `startKeyChooser(CurrentActivityHolder.currentActivity!!)`, which can be this host on the
+     * `download` route. Applying there would write into a reading workspace this host does not own
+     * -- classic would not have applied it either, since the result would have gone to whatever
+     * `MainBibleActivity` existed. Two things follow from clearing rather than merely skipping: the
+     * drop is visible in the log instead of silent (Ruling D), and a host that is LATER navigated
+     * onto `reading` by [onNewIntent] -- which flips [readingAppBootstrapped] -- cannot apply, on
+     * its next resume, a selection the user made minutes earlier on an unrelated screen.
      *
      * The kinds a SEPARATE Activity can still produce are the only ones handled: `ChooseDocument`,
      * `GenBookKey` (general book, dictionary and map all share that shape) and `PassageGrid`.
@@ -1771,7 +1824,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     private fun applyPendingActivityResult() {
         val result = pendingActivityResult ?: return
         pendingActivityResult = null
+        if (!readingAppBootstrapped) {
+            Log.w(
+                TAG_START_ROUTE,
+                "Dropping a STD_REQUEST_CODE result: this host owes no reading view, so there is no " +
+                    "workspace of its own to apply it to. Chooser opened on a non-reading route?"
+            )
+            return
+        }
         if (result === CANCELLED_STD_RESULT) {
+            // Only a cancel [onActivityResult] believed to be the user's ever gets this far.
             if (windowControl.activeWindowPageManager.currentPage.key == null) goBackInHistory()
             return
         }
@@ -1987,10 +2049,19 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             savedStartRoute = savedInstanceState?.getString(STATE_START_ROUTE),
             intentRoute = intent.getStringExtra(EXTRA_ROUTE),
         ) {
-            Log.e(
+            // WARN, not ERROR (T8b fix round 1, M1). One of the two ways to get here is entirely
+            // legitimate: the platform synthesises a bare, extra-less Intent for this host whenever
+            // an Up affordance or `TaskStackBuilder.addParentStack` resolves the
+            // `android:parentActivityName` of the seven Activities that now name it. Logging that at
+            // ERROR would teach every reader to ignore the line, which is the opposite of loud. The
+            // other way -- an in-app caller that built the Intent by hand -- is a real routing bug,
+            // and the two are indistinguishable here: a synthesised parent Intent has no extras,
+            // no action and no categories, and so does a hand-built one.
+            Log.w(
                 TAG_START_ROUTE,
                 "Started with no ${EXTRA_ROUTE} extra and no saved start route — defaulting to " +
-                    "'${NavRoutes.READING}'. Launch this host via NavHostComposeActivity.intentFor()."
+                    "'${NavRoutes.READING}'. Expected for a synthesised parentActivityName/Up intent; " +
+                    "an in-app caller should use NavHostComposeActivity.intentFor()."
             )
         }
         this.startRoute = startRoute

@@ -39,6 +39,14 @@ class ReadingHostLauncherGuardTest {
     private val mainManifest = File("src/main/AndroidManifest.xml").readText()
     private val standardManifest = File("src/standard/AndroidManifest.xml").readText()
 
+    /** EVERY flavour manifest, found by walking rather than listed — a new flavour is covered
+     *  automatically, and `debug` is no longer skipped (T8b fix round 1, M5). */
+    private val allManifests: List<File> = File("src").listFiles()
+        .orEmpty()
+        .map { File(it, "AndroidManifest.xml") }
+        .filter { it.isFile }
+        .sortedBy { it.path }
+
     private val sources = File("src/main/java").walkTopDown()
         .filter { it.isFile && it.extension == "kt" }
         .toList()
@@ -48,6 +56,12 @@ class ReadingHostLauncherGuardTest {
         assertTrue("the src/main/java walk found no Kotlin sources", sources.size > 100)
         assertTrue("src/main/AndroidManifest.xml was not read", mainManifest.length > 1000)
         assertTrue("src/standard/AndroidManifest.xml was not read", standardManifest.length > 500)
+        assertEquals(
+            "the manifest walk must see main, standard, discrete and debug: " +
+                allManifests.map { it.path },
+            4,
+            allManifests.size,
+        )
     }
 
     // --- step 1: nothing starts the classic Activity by Intent any more ---------------------------
@@ -102,11 +116,72 @@ class ReadingHostLauncherGuardTest {
         )
     }
 
+    /**
+     * The `discrete` flavour's launcher, the other half of M5. Its overlay only flips
+     * `android:enabled` on the `Calculator` alias (`tools:replace`), so the alias that actually
+     * carries LAUNCHER and names a target lives in the MAIN manifest — and its target must still be
+     * `.StartupActivity` too.
+     */
+    @Test fun theDiscreteLauncherAliasAlsoStillTargetsStartupActivity() {
+        val alias = blockContaining(
+            mainManifest,
+            """android:name="net.bible.android.view.activity.Calculator"""",
+            "<activity-alias",
+            "</activity-alias>",
+        )
+        assertTrue(
+            "the Calculator alias must carry the LAUNCHER filter it is the discrete entry point " +
+                "through. Block was:\n$alias",
+            alias.contains("android.intent.category.LAUNCHER"),
+        )
+        assertTrue(
+            "…and still target .StartupActivity. Block was:\n$alias",
+            alias.contains("""android:targetActivity=".StartupActivity""""),
+        )
+        val discrete = File("src/discrete/AndroidManifest.xml").readText()
+        assertTrue(
+            "the discrete overlay is expected to only enable that alias; if it ever names a target " +
+                "of its own, this guard is watching the wrong block",
+            !discrete.contains("android:targetActivity"),
+        )
+    }
+
+    // --- I1: no file reaches a reading-view member through the classic type -----------------------
+
+    /**
+     * T8b fix round 1, I1. `Dialogs.agentPermissionDialog` and `LinkControl.showAllOccurrences` both
+     * asked `(x as? MainBibleActivity)?.<reading member>`, which is **always null** once
+     * `NavHostComposeActivity` hosts the reading view — so the AI-agent permission prompt had
+     * silently become a plain `AlertDialog` and Strong's "find all occurrences" had stopped
+     * searching in place. Neither failed anything: a null cast is a legal fall-through.
+     *
+     * `CollaboratorTypeGuardTest` polices the same pattern but over a FIXED file list that contains
+     * neither file. This scan asks the whole tree instead.
+     */
+    @Test fun noFileReachesTheReadingViewThroughAClassicTypeTest() {
+        val offenders = sources
+            .filter { file ->
+                val code = ClassicRemovalScan.codeLinesOf(file.path)
+                Regex("""\bas\??\s+MainBibleActivity\b|\bis\s+MainBibleActivity\b""").containsMatchIn(code)
+            }
+            .map { it.name }
+            .sorted()
+        assertEquals(
+            "a cast to the classic Activity is always null now that NavHostComposeActivity is the " +
+                "reading host, and it fails silently. Use ReadingHostActivity (and readingCommands " +
+                "for anything not on that 12-member interface). CurrentActivityHolder's " +
+                "filterIsInstance<MainBibleActivity>() is deliberately NOT this pattern: it counts " +
+                "classic instances for classic's own freeze().",
+            emptyList<String>(),
+            offenders,
+        )
+    }
+
     // --- step 3: the parentActivityName attributes ------------------------------------------------
 
     @Test fun noActivityDeclaresTheClassicActivityAsItsUpParent() {
-        val offenders = listOf(mainManifest, standardManifest, File("src/discrete/AndroidManifest.xml").readText())
-            .flatMap { it.lines() }
+        val offenders = allManifests
+            .flatMap { f -> f.readLines().map { "${f.path}: ${it.trim()}" } }
             .filter { it.contains("parentActivityName") && it.contains("MainBibleActivity") }
         assertEquals(
             "after the flip MainBibleActivity is unreachable as a launcher; an Up affordance or a " +

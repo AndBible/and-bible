@@ -31,6 +31,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DialogAgentPermissionBinding
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
 import net.bible.sharedcore.ai.AgentPermissionChoice
@@ -275,13 +276,18 @@ object Dialogs {
         actionDescription: String? = null
     ): AgentPermissionResult {
         // Compose path: route to the Compose reading view's dialog slot when — and only when — the
-        // foreground activity is a MainBibleActivity with the Compose reading view mounted.
-        // `composeReadingViewHost` is set in `setupUi` and is null until then, so it IS the
-        // "Compose reading view is live" signal. Any other foreground activity, which
-        // AgentExecutor's `awaitActivity()` may well hand us, falls through to the plain-AlertDialog
-        // path below — a permission prompt must never be dropped, because AgentExecutor suspends
-        // on this call and would hang forever.
-        val host = (context as? MainBibleActivity)?.composeReadingViewHost
+        // foreground activity is a READING HOST with the Compose reading view mounted.
+        // `composeReadingViewHost` is null until that host mounts one, so it IS the "Compose reading
+        // view is live" signal. Any other foreground activity, which AgentExecutor's
+        // `awaitActivity()` may well hand us, falls through to the plain-AlertDialog path below — a
+        // permission prompt must never be dropped, because AgentExecutor suspends on this call and
+        // would hang forever.
+        //
+        // T8b fix round 1 (I1): this used to read `(context as? MainBibleActivity)`, which is always
+        // null once `NavHostComposeActivity` is the launcher — so every AI-agent permission prompt
+        // had silently become the plain AlertDialog. `ReadingHostActivity` is the type both hosts
+        // implement; `readingCommands` is on it and owns the same supplier.
+        val host = (context as? ReadingHostActivity)?.readingCommands?.composeReadingViewHost
         if (host != null) {
             val choice = host.awaitPermission(
                 AgentPermissionRequest(toolDisplayName, toolDescription, actionDescription)

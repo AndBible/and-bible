@@ -29,8 +29,8 @@ import org.junit.Test
  * `startActivityForResult(…, STD_REQUEST_CODE)`, whose dispatcher lives only on
  * `MainBibleActivity.onActivityResult`, so on every other `ActivityBase` these extras were never
  * looked at at all. This pins that each of the three result shapes is now recognised and named, on
- * any host. `KeyChooserResultDeliveryGuardTest` pins the other half — that the arms actually route
- * their awaited result in here.
+ * any host. `ReadingHostLauncherGuardTest.everyGeneralBookKeyChooserArmAwaitsItsOwnResult` pins the
+ * other half — that the arms actually route their awaited result in here.
  */
 class KeyChooserResultsTest {
 

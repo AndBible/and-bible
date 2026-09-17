@@ -185,6 +185,17 @@ object KeyChooserResults {
     /**
      * Apply a `RESULT_OK` key-chooser result carried by [extras] to [pageManager].
      *
+     * **No toolbar push, deliberately** (T8b fix round 1, M6). Classic's `MyDocumentPages` and
+     * `MyDocuments` arms call `updateActions()` after their apply
+     * (`MainBibleActivity.kt:1776`, `:1790`), and those calls are untouched -- classic still makes
+     * them. Nothing here mirrors them because nothing here needs to: the only caller is
+     * `CurrentGeneralBookPage`'s awaited chooser, whose host is a Compose reading view that
+     * OBSERVES page state rather than being pushed at, and [CurrentPageManager.setCurrentDocument] /
+     * [CurrentPageManager.setCurrentDocumentAndKey] already drive `PassageChangeMediator`.
+     * `ReadingCommands.applyChosenDocument` keeps its explicit `onToolbarStateMayHaveChanged()`
+     * because that one is also the document QUICK SHEET's apply path, which returns no Intent and
+     * therefore posts nothing.
+     *
      * @return true when [extras] named one of the three kinds the general-book key choosers
      *   produce and it has been applied; false for anything else, so a caller can tell "not mine"
      *   from "applied" rather than assuming.

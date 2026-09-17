@@ -848,6 +848,28 @@ class NavHostRoutingGuardTest {
      * unrelated function reading as a false offender.
      */
     /**
+     * T8b fix round 1, M4: [EXTRAS_THE_NAV_HOST_READS] is fail-closed and cannot silently grow past
+     * review, but nothing checked that an entry on it is REAL. This does: every name on the list
+     * must have an `intent.<get>Extra("name")`/`hasExtra("name")` read in the host itself, so an
+     * entry added to quieten a scan without the host actually reading it goes red here.
+     */
+    @Test
+    fun everyAllowlistedExtraIsReallyReadByTheNavHost() {
+        val host = File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+        assertTrue(host.exists(), "the nav host source moved; this scan is watching nothing")
+        val code = ClassicRemovalScan.codeLinesOf(host.path)
+        val unread = EXTRAS_THE_NAV_HOST_READS.filterNot { name ->
+            Regex("""(?:get\w*Extra|hasExtra)\s*\(\s*"${Regex.escape(name)}"""").containsMatchIn(code)
+        }
+        assertEquals(
+            emptyList<String>(),
+            unread.sorted(),
+            "an extra is allowlisted out of the dropped-argument scan although NavHostComposeActivity " +
+                "never reads it -- either add the read or drop the entry",
+        )
+    }
+
+    /**
      * Does [window] put an extra on [receiver] that the nav host would DROP?
      *
      * Fail-closed on purpose: a `putExtras(bundle)` or a non-literal key has no readable name, so it

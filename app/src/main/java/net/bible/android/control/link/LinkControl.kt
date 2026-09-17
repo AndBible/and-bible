@@ -30,6 +30,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils.settings
 import net.bible.sharedcore.nav.NavRoutes
@@ -386,7 +387,11 @@ class LinkControl constructor(
         // gap Task 11 exists for.
         val activity = CurrentActivityHolder.currentActivity!!
         if (!needToIndex &&
-            (activity as? MainBibleActivity)?.composeSearchStrongsIfHosted(ref, selection.map { it.initials }) == true
+            // T8b fix round 1 (I1): was `(activity as? MainBibleActivity)`, which is always null once
+            // NavHostComposeActivity hosts the reading view — so "find all occurrences" had silently
+            // stopped searching in place and left the reading view for the search cluster instead.
+            (activity as? ReadingHostActivity)?.readingCommands
+                ?.composeSearchStrongsIfHosted(ref, selection.map { it.initials }) == true
         ) {
             return
         }
