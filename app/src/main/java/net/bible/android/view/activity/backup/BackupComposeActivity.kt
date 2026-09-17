@@ -49,10 +49,9 @@ class BackupComposeActivity : ActivityBase() {
     override val doNotInitializeApp = true
 
     /**
-     * This host does not take `ActivityBase.setupUi()`. Its content root must stay unpadded: the
-     * reading destination's toolbar paints under the status bar itself and its WebView pane extends
-     * under the navigation bar, and the other 40 destinations get their insets from `AbScaffold` /
-     * `AbSelectionScaffold`. See the host-inset-ownership spec, section 3.2.
+     * This host's [BackupRestoreScreen] renders through `AbScaffold`, which owns the system-bar
+     * insets -- so this host must not pad its content root too. See the host-inset-ownership spec,
+     * section 3.2.
      */
     override val disableBaseSetupUi = true
 

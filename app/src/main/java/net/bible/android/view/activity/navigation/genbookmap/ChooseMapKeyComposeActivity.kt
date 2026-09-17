@@ -26,6 +26,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.page.CurrentMapPage
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.sword.nameWithoutDocument
 import net.bible.sharedcore.navigation.ChooseMapKeyController
@@ -37,6 +38,13 @@ import org.koin.android.ext.android.inject
 
 /** Compose host for the map key chooser — the new-path twin of classic [ChooseMapKey]. */
 class ChooseMapKeyComposeActivity : ActivityBase() {
+    /**
+     * This host's [ChooseMapKeyScreen] renders through `AbScaffold`, which owns the system-bar
+     * insets -- so this host must not pad its content root too. See the host-inset-ownership
+     * spec, section 3.2.
+     */
+    override val disableBaseSetupUi = true
+
     private val windowControl: WindowControl by inject()
 
     private val page: CurrentMapPage
@@ -66,6 +74,7 @@ class ChooseMapKeyComposeActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyComposeHostWindowSetup()
         keys = page.keyChooserKeys()
         if (keys.isEmpty()) {
             setResult(Activity.RESULT_OK, buildResult(null))

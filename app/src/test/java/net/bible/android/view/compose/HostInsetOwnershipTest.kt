@@ -17,6 +17,7 @@
 package net.bible.android.view.compose
 
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import androidx.activity.compose.setContent
 import androidx.core.graphics.Insets
@@ -27,6 +28,13 @@ import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
+import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
+import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
+import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
+import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
+import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
+import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -36,8 +44,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * The content-root inset padding that `ActivityBase.setupUi()` applies on API 35+, and the two
- * hosts' ownership of it.
+ * The content-root inset padding that `ActivityBase.setupUi()` applies on API 35+, and the nine
+ * Compose hosts' (host-inset-ownership fix round 1, Critical 1) ownership of it.
  *
  * `@Config(sdk = [35])` is load-bearing and must not be relaxed to `TEST_SDK` (33): the padding
  * listener at `ActivityBase.kt:144` is inside an `SDK_INT >= VANILLA_ICE_CREAM` branch, so at 33
@@ -99,15 +107,57 @@ class HostInsetOwnershipTest {
         assertEquals("a Compose host must not pad its content root -- the scaffolds own the inset", 0, root.paddingBottom)
     }
 
+    /**
+     * `applyComposeHostWindowSetup()`'s effects are mostly not independently observable under
+     * Robolectric. Two were tried and rejected before this one:
+     * - `window.attributes.layoutInDisplayCutoutMode` -- the app theme
+     *   (`values-v27/barstyles.xml`'s `android:windowLayoutInDisplayCutoutMode = shortEdges`)
+     *   already sets this to `SHORT_EDGES` on every window, helper or not, so the assertion
+     *   cannot fail; confirmed by running it with the helper call physically removed, which still
+     *   passed.
+     * - `enableEdgeToEdge()` / `WindowCompat.setDecorFitsSystemWindows()` reach into framework
+     *   internals Robolectric does not shadow in an inspectable way.
+     *
+     * The one that IS genuinely observable: the O+ branch ORs `SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR`
+     * into `window.decorView.systemUiVisibility` directly (day mode only) -- nothing else in this
+     * probe's path sets that legacy flag, so its absence/presence tracks the helper having run.
+     * Confirmed failing with the helper call removed (see the fix report's RED evidence).
+     */
     @Test
-    fun bothRealComposeHostsDisableTheBaseSetup() {
-        assertTrue(
-            "NavHostComposeActivity must own its window setup",
-            NavHostComposeActivity().disableBaseSetupUi,
+    fun aComposeHostAppliesTheSharedWindowSetup() {
+        val activity = Robolectric.buildActivity(ComposeHostProbeActivity::class.java).setup().get()
+        assertEquals(
+            "applyComposeHostWindowSetup() must request a light (dark-icon) navigation bar in day mode",
+            View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR,
+            activity.window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR,
         )
-        assertTrue(
-            "BackupComposeActivity must own its window setup",
-            BackupComposeActivity().disableBaseSetupUi,
-        )
+    }
+
+    /**
+     * The registry of every `ActivityBase` subclass whose Compose content reaches `AbScaffold` /
+     * `AbSelectionScaffold` (directly, or through a wrapper like `AbDocumentListScaffold` or
+     * `AbSettingsScreen`) -- fix round 1, Critical 1's full include list. `StartupComposeActivity`,
+     * `CalculatorComposeActivity` and `InstallZipComposeActivity` are the excluded Compose hosts:
+     * their content uses no `Ab*` scaffold (the first two render a bare screen, the third only
+     * `AbConfirmDialog`/`AbErrorDialog`), so they still want `ActivityBase`'s content-root padding
+     * and must NOT appear here.
+     */
+    private val composeHostsOwningTheirInsets: List<Pair<String, ActivityBase>> = listOf(
+        "NavHostComposeActivity" to NavHostComposeActivity(),
+        "BackupComposeActivity" to BackupComposeActivity(),
+        "ChooseDocumentComposeActivity" to ChooseDocumentComposeActivity(),
+        "ChooseDictionaryWordComposeActivity" to ChooseDictionaryWordComposeActivity(),
+        "GridChoosePassageComposeActivity" to GridChoosePassageComposeActivity(),
+        "ChooseGeneralBookKeyComposeActivity" to ChooseGeneralBookKeyComposeActivity(),
+        "ChooseMapKeyComposeActivity" to ChooseMapKeyComposeActivity(),
+        "TextDisplaySettingsComposeActivity" to TextDisplaySettingsComposeActivity(),
+        "WorkspaceSelectorComposeActivity" to WorkspaceSelectorComposeActivity(),
+    )
+
+    @Test
+    fun everyComposeHostOnTheIncludeListDisablesTheBaseSetup() {
+        for ((name, host) in composeHostsOwningTheirInsets) {
+            assertTrue("$name must own its window setup", host.disableBaseSetupUi)
+        }
     }
 }

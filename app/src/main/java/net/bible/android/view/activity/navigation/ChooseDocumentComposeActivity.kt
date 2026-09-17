@@ -36,6 +36,7 @@ import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.Screen
@@ -83,6 +84,13 @@ private const val ARRANGEMENT_REMEMBER_KEY = "chooseDoc.arrangement.remember"
  * `MainBibleActivity.onActivityResult` dispatches on.
  */
 class ChooseDocumentComposeActivity : ActivityBase() {
+    /**
+     * This host's [net.bible.sharedui.navigation.DocumentSelectionScreen] renders through
+     * `AbDocumentListScaffold` / `AbSelectionScaffold`, which own the system-bar insets -- so this
+     * host must not pad its content root too. See the host-inset-ownership spec, section 3.2.
+     */
+    override val disableBaseSetupUi = true
+
     private val downloadControl: DownloadControl by inject()
     private val documentControl: DocumentControl by inject()
 
@@ -125,6 +133,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyComposeHostWindowSetup()
 
         // Initial document-type filter (classic ChooseDocument.setInitialDocumentType + base "addons").
         controller.setTypeFilter(initialTypeFilter())

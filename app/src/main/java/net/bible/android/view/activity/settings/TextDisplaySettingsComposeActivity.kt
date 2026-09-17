@@ -41,6 +41,7 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.service.common.CommonUtils
@@ -91,6 +92,14 @@ import org.koin.android.ext.android.inject
  *   `windowRepository.workspaceSettings.updateFrom(data)` recent-labels side-effect.
  */
 class TextDisplaySettingsComposeActivity : ActivityBase() {
+    /**
+     * This host's [TextDisplaySettingsScreen] / [ColorSettingsScreen] / [BackgroundImageChooserScreen]
+     * destinations all render through `AbSettingsScreen` / `AbScaffold`, which own the system-bar
+     * insets -- so this host must not pad its content root too. See the host-inset-ownership spec,
+     * section 3.2.
+     */
+    override val disableBaseSetupUi = true
+
     /** Non-null only for a selector-originated launch: the in-memory workspace edit this screen
      *  returns to the workspace selector. See spec 11.4 and [DetachedWorkspaceEdit]. */
     private val detachedEdit: DetachedWorkspaceEdit? by lazy {
@@ -166,6 +175,7 @@ class TextDisplaySettingsComposeActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyComposeHostWindowSetup()
         val initialScope = scopeFromIntent(intent)
         navStack = listOf(initialScope)
         // A colours-originated launch (intentForColors) opens straight at the internal `colors`

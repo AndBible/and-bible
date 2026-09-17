@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.common.CommonUtils
@@ -40,6 +41,13 @@ import org.koin.android.ext.android.inject
 /** Single Compose host for the Book→Chapter→Verse passage grid — the new-path twin of the three
  *  classic [GridChoosePassageBook]/Chapter/Verse activities, collapsed into an internal step flow. */
 class GridChoosePassageComposeActivity : ActivityBase() {
+    /**
+     * This host's [GridChoosePassageScreen] renders through `AbScaffold`, which owns the
+     * system-bar insets -- so this host must not pad its content root too. See the
+     * host-inset-ownership spec, section 3.2.
+     */
+    override val disableBaseSetupUi = true
+
     private val navigationControl: NavigationControl by inject()
     private val windowControl: WindowControl by inject()
 
@@ -51,6 +59,7 @@ class GridChoosePassageComposeActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyComposeHostWindowSetup()
 
         val customTitle = intent?.extras?.getCharSequence("title")
         navigateToVerse = intent.getBooleanExtra("navigateToVerse", CommonUtils.settings.getBoolean("navigate_to_verse_pref", false))

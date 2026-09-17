@@ -30,6 +30,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade.readOsisFragment
@@ -44,6 +45,13 @@ import org.koin.android.ext.android.inject
 
 /** Compose host for the dictionary word chooser — the new-path twin of classic [ChooseDictionaryWord]. */
 class ChooseDictionaryWordComposeActivity : ActivityBase() {
+    /**
+     * This host's [ChooseDictionaryWordScreen] renders through `AbScaffold`, which owns the
+     * system-bar insets -- so this host must not pad its content root too. See the
+     * host-inset-ownership spec, section 3.2.
+     */
+    override val disableBaseSetupUi = true
+
     private val windowControl: WindowControl by inject()
 
     private val page get() = windowControl.activeWindowPageManager.currentDictionary
@@ -68,6 +76,7 @@ class ChooseDictionaryWordComposeActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyComposeHostWindowSetup()
         // Parity: no dictionary → finish immediately.
         if (page.currentDocument == null) { finish(); return }
 

@@ -706,20 +706,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     private var historyRouteOwner: Any? = null
 
     /**
+     * This host's reading destination's toolbar paints under the status bar itself and its WebView
+     * pane extends under the navigation bar; the other 40 destinations get their insets from
+     * `AbScaffold` / `AbSelectionScaffold`. Either way, this host must not pad its content root
+     * too. See the host-inset-ownership spec, section 3.2.
+     */
+    override val disableBaseSetupUi = true
+
+    /**
      * Classic `DailyReadingComposeActivity` mutated ITS OWN intent with `ReadingPlanKeys.PLAN`/`DAY`
      * so `HistoryManager` could re-launch it on the right day (`HistoryManager.kt:173-175` ->
      * `IntentHistoryItem.revertTo()`). A nav destination has no intent of its own, so the host
      * builds one from the destination's route instead. Safe as a live getter: `HistoryManager`
      * reads this at the moment it creates the history item, not once at `onCreate`.
      */
-    /**
-     * This host does not take `ActivityBase.setupUi()`. Its content root must stay unpadded: the
-     * reading destination's toolbar paints under the status bar itself and its WebView pane extends
-     * under the navigation bar, and the other 40 destinations get their insets from `AbScaffold` /
-     * `AbSelectionScaffold`. See the host-inset-ownership spec, section 3.2.
-     */
-    override val disableBaseSetupUi = true
-
     override val intentForHistoryList: Intent
         get() = historyRoute?.let { intentFor(this, it) } ?: super.intentForHistoryList
 

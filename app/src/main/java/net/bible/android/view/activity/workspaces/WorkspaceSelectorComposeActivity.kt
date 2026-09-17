@@ -26,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import net.bible.android.activity.R
 import net.bible.android.database.SettingsBundle
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.workspaces.WorkspaceSelectorController
@@ -53,6 +54,13 @@ import org.koin.android.ext.android.inject
  * [TextDisplaySettingsComposeActivity] is foregrounded (process death drops the edit silently).
  */
 class WorkspaceSelectorComposeActivity : ActivityBase() {
+    /**
+     * This host's [WorkspaceSelectorScreen] renders through `AbScaffold`, which owns the
+     * system-bar insets -- so this host must not pad its content root too. See the
+     * host-inset-ownership spec, section 3.2.
+     */
+    override val disableBaseSetupUi = true
+
     private val service: WorkspaceService by inject()
     private var finished = false
 
@@ -86,6 +94,7 @@ class WorkspaceSelectorComposeActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyComposeHostWindowSetup()
         service.saveCurrentIntoDb()
         controller.load()
         setContent {
