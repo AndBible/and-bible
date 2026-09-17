@@ -26,6 +26,8 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.sharedcore.nav.NavRoutes
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -94,6 +96,46 @@ class ReadingHostChromeTest {
         val host: ReadingHostActivity = buildNavHost()
         assertTrue(host.getString(net.bible.android.activity.R.string.app_name_andbible).isNotEmpty())
         assertEquals(host, host.hostContext)
+    }
+
+    /**
+     * R6d widened the contract from seven members to twelve, and the whole argument for widening it
+     * rather than taking a deps record was that `NavHostComposeActivity` can answer every addition
+     * HONESTLY. This is that claim, executed: a member answered with `TODO()`, an `error(...)`, or
+     * a construction this host cannot perform fails here, on a host built off the reading route.
+     *
+     * `assertSame` on the two collaborators is not a tautology: both are `by lazy` on this host
+     * precisely so the reading destination gets ONE command surface and ONE inset ledger. A
+     * `get() = ReadingCommands(...)` would satisfy the interface and hand out a second
+     * `BibleViewFactory` on every read -- the silent per-host-object bug
+     * `ReadingCommandsDelegationTest` pins on the classic side.
+     */
+    @Test
+    fun theNavHostAnswersTheFiveMembersR6dAddedToTheContract() {
+        val host: ReadingHostActivity = buildNavHost()
+        assertSame("hostActivity is the host itself, never a cast", host, host.hostActivity)
+        assertSame("the command surface must be ONE per host", host.readingCommands, host.readingCommands)
+        assertSame("the inset ledger must be ONE per host", host.readingInsets, host.readingInsets)
+        // No classic toolbar row on this host: the interface's default no-op, not a crash.
+        host.hideClassicToolbarRow()
+    }
+
+    /**
+     * The other half of [theNavHostAnswersTheFiveMembersR6dAddedToTheContract], and the one that
+     * would be easiest to get wrong quietly: `hostWindowRepository` must be THIS host's own
+     * repository or nothing at all. Off the reading route this host never bootstrapped one, so the
+     * honest answer is to fail loudly -- NOT to fall back to `windowControl.windowRepository`,
+     * which is whichever reading host most recently resumed and is exactly the identity defect
+     * R6c1 found and R6d discharges.
+     */
+    @Test
+    fun theNavHostsRepositoryIsItsOwnOrNothing() {
+        val host: ReadingHostActivity = buildNavHost()
+        assertThrows(
+            "off the reading route this host has no repository of its own, and must not answer " +
+                "with another host's",
+            UninitializedPropertyAccessException::class.java,
+        ) { host.hostWindowRepository }
     }
 
     private fun buildNavHost(): NavHostComposeActivity = Robolectric.buildActivity(

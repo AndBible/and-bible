@@ -131,6 +131,7 @@ import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.report.AiBugReport
 import net.bible.android.control.report.ErrorReportControl
@@ -148,6 +149,7 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
+import net.bible.android.view.activity.ai.LlmDialogHelper
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
@@ -172,6 +174,13 @@ import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.ReadingAppBootstrap
 import net.bible.android.view.activity.page.ReadingHostActivity
+import net.bible.android.view.activity.page.ReadingCommands
+import net.bible.android.view.activity.page.ReadingCommandsHostCallbacks
+import net.bible.android.view.activity.page.ReadingInsets
+import net.bible.android.view.activity.page.ReadingInsetsHostCallbacks
+import net.bible.android.view.activity.page.SpeakTransportVisibilityChanged
+import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
+import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
 import net.bible.android.view.activity.search.epubKeyFor
 import net.bible.android.view.activity.search.epubSearchModeFromClassicName
@@ -1149,6 +1158,196 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // `ComposeReadingViewHost.toggleDrawer` does for the reading view's.
     }
 
+    // ————————————————————————————————————————————————————————————————————————————————————————————
+    // Reading-host re-typing R6d: the five members the interface gained so `ComposeReadingViewHost`
+    // could be re-typed off `MainBibleActivity`. See `ReadingHostActivity`'s kdoc for the table of
+    // what each covers; each answer below says why it is honest for THIS host rather than a
+    // placeholder, because a member a host can only answer with a lie is a member that should have
+    // been reported blocked instead (addendum Ruling D's principle, applied to the interface).
+
+    /** [ReadingHostActivity.hostActivity] -- `this`. This host really IS an `ActivityBase`, so
+     *  nothing is cast and nothing can fail. */
+    override val hostActivity: ActivityBase get() = this
+
+    /**
+     * [ReadingHostActivity.hostWindowRepository] -- THIS host's own repository, the one
+     * [readingAppBootstrap] created for it, never `windowControl.windowRepository` (whichever host
+     * resumed last). `lateinit` inside the bootstrap and only initialised on the READING start
+     * route, which is exactly right: nothing composes the reading destination on any other route,
+     * so nothing reads this on any other route. Same shape as classic's, which is also a view onto
+     * its own bootstrap's field.
+     */
+    override val hostWindowRepository: WindowRepository get() = readingAppBootstrap.windowRepository
+
+    /**
+     * [ReadingHostActivity.readingCommands] -- this host's own command surface.
+     *
+     * **`by lazy`, unlike classic's eager field, and that is not a shortcut.** This Activity is the
+     * nav host for ~45 routes, most of which have nothing to do with reading; constructing a
+     * command surface (and the `BibleViewFactory` it owns) for every settings screen would be new
+     * per-launch work this host does not do today. Lazy means it is built the first time the
+     * reading destination asks for it and never otherwise -- and, because every collaborator below
+     * is reached through a supplier read at CALL time, the construction order between them does not
+     * matter.
+     */
+    override val readingCommands: ReadingCommands by lazy {
+        ReadingCommands(this, readingCommandsHostCallbacks())
+    }
+
+    /**
+     * What [readingCommands] needs from this host beyond the interface. Every entry is this host's
+     * own honest answer; the ones that are `{}` are documented on
+     * [ReadingCommandsHostCallbacks] as honest no-ops for a Compose host (classic toolbar chrome
+     * this host does not draw), and the ones Ruling D forbids answering with silence --
+     * [ReadingCommandsHostCallbacks.transportBarVisible], `.updateBottomBars` and
+     * `.onToolbarStateMayHaveChanged` -- are answered with the event post or the Compose refresh
+     * that is their real content, not with nothing.
+     */
+    private fun readingCommandsHostCallbacks() = ReadingCommandsHostCallbacks(
+        hostActivity = this,
+        composeReadingViewHost = { composeReadingViewHost },
+        windowRepository = { hostWindowRepository },
+        readingInsets = { readingInsets },
+        documentViewManager = { documentViewManager },
+        llmDialogHelper = { llmDialogHelper },
+        currentNightMode = { currentNightMode },
+        pageTitleText = { pageTitleText },
+        transportBarVisible = { transportBarVisible },
+        setTransportBarVisible = { transportBarVisible = it },
+        // Classic's `updateBottomBars()` is nothing but this post, which the Compose restore rail
+        // listens to -- so this host supplies the post, not silence (Ruling D).
+        updateBottomBars = { ABEventBus.post(MainBibleActivity.UpdateRestoreWindowButtons()) },
+        // Classic's `updateTitle()` writes the toolbar row's two `TextView`s. This host draws its
+        // title from Compose state; there is genuinely nothing to push.
+        updateTitle = { },
+        // NOT a no-op: classic's `updateActions()` tail is the Compose toolbar/drawer refresh, and
+        // `showSearch`/`showSpeak` are locals of that function. This host supplies that half
+        // directly -- its own chrome needs no rebuilding, because it has none.
+        onToolbarStateMayHaveChanged = {
+            composeReadingViewHost?.rebuildDrawer(
+                showSearch = documentControl.currentPage.currentPage.isSearchable,
+                showSpeak = documentControl.currentPage.currentPage.isSpeakable,
+            )
+            composeReadingViewHost?.refreshHostedState()
+        },
+        // Classic toolbar chrome this host does not draw.
+        updateStrongsButton = { },
+        menuForDocs = { _, _ -> },
+        // No `DrawerLayout` on this host: the Compose drawer is a modal sheet that takes input
+        // while open, so the pre-Compose native fallbacks have nothing to fall back to.
+        toggleNativeDrawer = { },
+        openNativeDrawerAndFocusIt = { },
+    )
+
+    /**
+     * [ReadingHostActivity.readingInsets] -- this host's own inset ledger. The arithmetic is
+     * host-agnostic (R6b); what each supplier answers for THIS host is the table in
+     * [ReadingInsetsHostCallbacks]' kdoc, which R6b wrote in advance:
+     *
+     * - the two HEIGHTS are theme dimensions, host-independent, and are resolved exactly the way
+     *   classic resolves them in `setupUi` (`theme.resolveAttribute` -> `complexToDimensionPixelSize`);
+     * - the two VISIBILITY flags are this host's own state: the speak transport bar is a real flag
+     *   here (see [transportBarVisible]), and the agent-log strip is one this host does not draw
+     *   yet -- see the comment on that pair for why `false` is today's truth and what R8 owes;
+     * - `restoreButtonsVisible` is a host-independent workspace setting, read the way classic
+     *   reads it;
+     * - `composeSearchFieldFocused` is the READING VIEW's field, so it is asked of the reading-view
+     *   host, exactly as classic asks it;
+     * - `applyImeBottomPadding` is Ruling C's documented no-op: a Compose host applies IME insets
+     *   at the content (`WindowInsets.ime`), not by padding a `ViewGroup`.
+     *
+     * `by lazy` for [readingCommands]' reason.
+     */
+    override val readingInsets: ReadingInsets by lazy {
+        ReadingInsets(
+            ReadingInsetsHostCallbacks(
+                transportBarVisible = { transportBarVisible },
+                transportBarHeight = { themePixelSize(R.attr.transportBarHeight) },
+                // This host draws no agent-log strip and has no `AgentLogVisibilityChanged`
+                // subscription of its own, so `false` is the truth about it TODAY rather than a
+                // placeholder -- and it is unreachable today too, because nothing composes the
+                // reading destination until R8. **R8 supplies the real pair** when it does; the
+                // symptom of forgetting is a WebView whose bottom offset ignores the log strip.
+                agentLogVisible = { false },
+                agentLogHeight = { 0 },
+                restoreButtonsVisible = { hostWindowRepository.workspaceSettings.restoreButtonsVisible },
+                windowButtonHeight = { themePixelSize(R.attr.windowButtonHeight) },
+                composeSearchFieldFocused = { composeReadingViewHost?.searchFieldFocused?.value == true },
+                applyImeBottomPadding = { /* Ruling C: WindowInsets.ime at the content does this */ },
+            )
+        )
+    }
+
+    /**
+     * The reading view this host has installed, or `null` before it installs one. Assigned by
+     * nav-graph slice 7 Task 8/R8, which composes the reading destination; null until then, exactly
+     * as classic's is null before `setupUi()`. Every reader above goes through a supplier read at
+     * call time, so nothing captures the null.
+     */
+    var composeReadingViewHost: ComposeReadingViewHost? = null
+
+    /** This host's view manager, built over [readingCommands]' own `BibleViewFactory` -- the same
+     *  one-line construction classic makes in `onCreate`. */
+    private val documentViewManager: DocumentViewManager by lazy {
+        DocumentViewManager(readingCommands.bibleViewFactory) { composeReadingViewHost?.rebuild() }
+    }
+
+    /** This host's LLM dialog helper -- per-host, like classic's, and already typed on the
+     *  interface (R5), so it needs nothing this host cannot give. */
+    private val llmDialogHelper by lazy { LlmDialogHelper(this) }
+
+    /**
+     * Classic's `setupUi` theme-attribute resolution, as a function rather than two fields assigned
+     * once: the two heights the inset ledger asks for are theme dimensions, and this host has no
+     * `setupUi` in which to cache them. `0` when the attribute is absent, which is what classic's
+     * `if (theme.resolveAttribute(...))` leaves the field at.
+     */
+    private fun themePixelSize(attr: Int): Int {
+        val tv = TypedValue()
+        return if (theme.resolveAttribute(attr, tv, true)) {
+            TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+        } else 0
+    }
+
+    /** Classic's `currentNightMode` field: the theme in force when this host was created, against
+     *  which `refreshIfNightModeChange()` compares. Captured in `onCreate` for the same reason. */
+    private var currentNightMode: Boolean = false
+
+    /**
+     * Classic's `transportBarVisible`. The classic setter's first act is `binding.speakButton.alpha`
+     * -- chrome this host does not have -- but its second is the `SpeakTransportVisibilityChanged`
+     * post that the COMPOSE side treats as the single source of truth, which is why
+     * [ReadingCommandsHostCallbacks.transportBarVisible] is not one of the honest no-ops. This host
+     * keeps the flag and makes the post.
+     */
+    private var transportBarVisible = false
+        get() = if (fullScreen) false else field
+        set(value) {
+            if (field == value) return
+            field = value
+            ABEventBus.post(SpeakTransportVisibilityChanged(value))
+        }
+
+    /**
+     * Classic's `pageTitleText` -- the reference overlay's text. Pure `pageControl` arithmetic with
+     * no host state in it at all, so this is the same computation and not a second policy; it
+     * throws the same `MainBibleActivity.KeyIsNull` classic throws, because
+     * `ComposeReadingViewHost.readOverlayText()` catches exactly that type and re-homing the nested
+     * class is slice 7 Task 13's.
+     */
+    private val pageTitleText: String
+        get() {
+            val doc = pageControl.currentPageManager.currentPage.currentDocument
+            var key = pageControl.currentPageManager.currentPage.displayKey
+            val isBible = doc?.bookCategory == BookCategory.BIBLE
+            if (isBible) {
+                key = pageControl.currentBibleVerse
+            }
+            return if (key is Verse && key.verse == 0) {
+                CommonUtils.getWholeChapter(key, false).name
+            } else key?.name ?: throw MainBibleActivity.KeyIsNull()
+        }
+
     private fun hideSystemUI() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.decorView.windowInsetsController?.apply {
@@ -1413,6 +1612,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // R6d: classic's `MainBibleActivity.onCreate` captures the theme in force here, before
+        // `super.onCreate`, and `BibleView` reads it through the host bundle. Same capture, same
+        // instant.
+        currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
         ABEventBus.register(this, readingHostSubscriptions)
         val startRoute = requireNotNull(intent.getStringExtra(EXTRA_ROUTE)) {

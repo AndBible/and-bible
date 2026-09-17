@@ -19,6 +19,8 @@ package net.bible.android.view.activity.page
 
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
+import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.view.activity.base.ActivityBase
 
 /**
  * What the reading view needs from whichever Activity is hosting it — `MainBibleActivity` today,
@@ -36,6 +38,27 @@ import androidx.lifecycle.LifecycleOwner
  * through. Everything here is chrome the HOST WINDOW owns and no collaborator can: system bars,
  * fullscreen, the drawer, and the Context/`getString` pair that the reading view's ~20 bare
  * value-passes need (spec §2.1).
+ *
+ * **R6d widened it, once, from seven members to twelve, and that is the whole widening the batch
+ * allows.** Ruling A held it at seven through R6a--R6c2 because nothing but `MainBibleActivity`
+ * could honestly satisfy a wider one; R6a--R6c2 are precisely what made a second host able to. The
+ * five additions are [readingCommands], [readingInsets], [hostActivity], [hostWindowRepository]
+ * and [hideClassicToolbarRow], and each is here because `ComposeReadingViewHost` reaches it and no
+ * collaborator can supply it:
+ *
+ * | Added | Covers | What `NavHostComposeActivity` supplies |
+ * |---|---|---|
+ * | [readingCommands] | 33 of the host's 72 references, across 29 members | its own [ReadingCommands], built lazily over its own callback bundle |
+ * | [readingInsets] | 2 references | its own [ReadingInsets], per Ruling C (the padding sink is the documented no-op) |
+ * | [hostActivity] | 4 references (`startActivity`, `startActivityForResult`) | `this` — both hosts really ARE an `ActivityBase` |
+ * | [hostWindowRepository] | the 7 `windowControl.windowRepository` sites R6c1's identity finding condemns | `readingAppBootstrap.windowRepository`, its own |
+ * | [hideClassicToolbarRow] | 2 references (`binding.toolbarLayout`/`.toolbarDivider`) | nothing — a default no-op it does not override, because it has no classic toolbar row |
+ *
+ * Note what is NOT here. `binding` itself never enters this contract (spec §3.1) — the two
+ * references to it became [hideClassicToolbarRow], an INTENTION the host may answer however its own
+ * window is built. `drawerRateVisible` is not here either: its body is a pure `BuildVariant`
+ * expression, host-independent, so R6d moved it to `DrawerMenuStateBuilder` rather than asking an
+ * Activity for a value reachable without one (R1's rule, pinned by `ReadingHostDelegationGuardTest`).
  */
 interface ReadingHostActivity : LifecycleOwner {
     /** For the 11 bare value-passes that only ever needed a Context (spec §2.1). */
@@ -66,4 +89,77 @@ interface ReadingHostActivity : LifecycleOwner {
      * `ContextWrapper.getString`, so neither writes a body for it.
      */
     fun getString(resId: Int): String
+
+    /**
+     * The host as a plain Android Activity.
+     *
+     * **Not a cast in disguise, and not a widening of what the reading view may reach.** Both
+     * reading hosts really ARE an `ActivityBase` (`MainBibleActivity : CustomTitlebarActivityBase`,
+     * which is an `ActivityBase`; `NavHostComposeActivity` extends `ActivityBase` directly), so
+     * both answer it with `this` and nothing can fail. What it exposes is the plain ANDROID
+     * Activity API that four of `ComposeReadingViewHost`'s call sites demand BY SIGNATURE and that
+     * no host-shaped interface should pretend to hide: `startActivity` twice (the raw-log route and
+     * the system TTS settings) and `startActivityForResult` twice (ChooseDocument and the workspace
+     * selector, whose results come back to the host's own `onActivityResult`). Wrapping four
+     * `Intent`-shaped lambdas around them would decouple nothing — the callee still needs an
+     * Activity. R6c2's [ReadingCommandsHostCallbacks.hostActivity] carries the same member for the
+     * same reason, and R7 set the precedent when it gave `ReadingAppBootstrap` a `ComponentActivity`
+     * rather than this interface.
+     *
+     * Pure `Context` passes do NOT come through here — they use [hostContext], which R4 declared
+     * for exactly that.
+     */
+    val hostActivity: ActivityBase
+
+    /**
+     * THIS host's own [WindowRepository] — **not** `WindowControl`'s.
+     *
+     * `windowControl.windowRepository` is whichever reading host most recently RESUMED
+     * (`MainBibleActivity.onResume`/`unFreeze()` exist only to reconcile the two, which is why they
+     * exist at all), so for a frozen or not-yet-resumed second host it is the OTHER host's
+     * repository. R1 substituted seven `activity.windowRepository` reads in
+     * `ComposeReadingViewHost` for it and its reviewer verified that safe at the time; R7 then
+     * turned `MainBibleActivity.windowRepository` from a `lateinit var` kept in sync at every
+     * assignment into a view onto `ReadingAppBootstrap`, which made the verification stale. R6c1's
+     * fix round found the same defect one rung down and fixed it with a supplier bound to the
+     * owning host; R6d discharges it here, at the top of the chain.
+     *
+     * Declared as a property and read at CALL time by every one of those seven sites — never
+     * captured into a field of the reading view, which would freeze one host's repository into the
+     * other's view.
+     */
+    val hostWindowRepository: WindowRepository
+
+    /**
+     * The reading view's COMMAND SURFACE (design spec §3.2), owned by this host.
+     *
+     * One member rather than the ~29 the surface exposes: R6's measurement is why it was BLOCKED —
+     * routing those references through this interface one-by-one needed ~19 new members on it, and
+     * three had no honest `NavHostComposeActivity` body. R6c1/R6c2 re-typed the collaborator itself
+     * off `MainBibleActivity`, so a second host can now OWN one, and the contract shrinks to
+     * "every reading host has a command surface".
+     */
+    val readingCommands: ReadingCommands
+
+    /**
+     * The window-inset ledger (design spec §3.3), owned by this host. R6b re-typed it off
+     * `MainBibleActivity` per Ruling C — the arithmetic is host-agnostic and the one host-specific
+     * act, applying the IME padding, is an injected sink a Compose host answers with a documented
+     * no-op. Same one-member-instead-of-many argument as [readingCommands].
+     */
+    val readingInsets: ReadingInsets
+
+    /**
+     * Hide whatever classic toolbar row this host draws above the reading view, if it draws one.
+     *
+     * The ONE place `ComposeReadingViewHost.install()` touched `activity.binding`
+     * (`toolbarLayout`/`toolbarDivider` → `View.GONE`), expressed as the intention rather than as
+     * the two view writes, because spec §3.1 says `binding` never enters this contract.
+     *
+     * **A default no-op, deliberately, and this is not Ruling D's hazard.** Ruling D forbids a host
+     * answering a real command with silence; hiding a row a host does not have IS silence, and
+     * `NavHostComposeActivity` has no classic toolbar row — it composes its own chrome. A host that
+     * grows one overrides this. `MainBibleActivity` does.
+     */
+    fun hideClassicToolbarRow() {}
 }

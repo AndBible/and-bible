@@ -123,6 +123,7 @@ import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.IntentHelper
@@ -243,7 +244,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
      * objects rather than Koin singletons, so a second instance would be a silent bug.
      * `ReadingCommandsDelegationTest` pins that with `assertSame`.
      */
-    val readingCommands = ReadingCommands(this, readingCommandsHostCallbacks())
+    override val readingCommands = ReadingCommands(this, readingCommandsHostCallbacks())
 
     /**
      * R6c2: what [ReadingCommands] (and the [MenuCommandHandler] it owns) need from this host
@@ -363,7 +364,7 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     // log, restore buttons, the Compose search field's focus — is supplied here as suppliers read
     // at call time, because every one of them changes while the reading view is up. The padding
     // sink is the `setPadding` call this Activity has always made; a Compose host supplies a no-op.
-    val readingInsets = ReadingInsets(
+    override val readingInsets = ReadingInsets(
         ReadingInsetsHostCallbacks(
             transportBarVisible = { transportBarVisible },
             transportBarHeight = { transportBarHeight },
@@ -1070,17 +1071,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
 
     /**
      * Mirrors the classic `rateButton.isVisible = false` guard (this file, ~452-458) — negated,
-     * because that guard states when the item is HIDDEN. Duplicating the condition rather than
-     * hoisting it: the classic guard is a build-variant check inside `onCreate`'s body, and the
-     * drawer needs it as a value. Read by
-     * [net.bible.android.view.activity.page.screen.ComposeReadingViewHost.rebuildDrawer].
+     * because that guard states when the item is HIDDEN.
+     *
+     * R6d moved the expression itself to [DrawerMenuStateBuilder.drawerRateVisible]: it is a pure
+     * `BuildVariant` read, host-independent, and `ComposeReadingViewHost` was asking THIS ACTIVITY
+     * for it. What is left here is a view onto that one value, not a second copy of the condition.
      */
-    internal val drawerRateVisible: Boolean get() = !(
-        BuildVariant.Appearance.isDiscrete ||
-            BuildVariant.DistributionChannel.isHuawei ||
-            BuildVariant.DistributionChannel.isFdroid ||
-            BuildVariant.DistributionChannel.isAmazon
-        )
+    internal val drawerRateVisible: Boolean get() = DrawerMenuStateBuilder.drawerRateVisible
 
     internal fun handleDrawerItemClick(itemId: Int) = readingCommands.handleDrawerItemClick(itemId)
 
@@ -1352,6 +1349,37 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
      * bare value-passes want (spec §2.1).
      */
     override val hostContext: Context get() = this
+
+    /**
+     * [ReadingHostActivity.hostActivity] — this Activity, as the plain Android Activity the four
+     * `startActivity`/`startActivityForResult` sites in the reading view need. `this`, so nothing
+     * is cast and nothing can fail (R6d).
+     */
+    override val hostActivity: ActivityBase get() = this
+
+    /**
+     * [ReadingHostActivity.hostWindowRepository] — THIS host's own repository, which for this
+     * Activity is [windowRepository], i.e. a view onto [ReadingAppBootstrap.windowRepository].
+     * Deliberately NOT `windowControl.windowRepository`, which is whichever reading host most
+     * recently resumed; see the interface member's kdoc for R6c1's finding and why R1's
+     * substitution went stale when R7 landed.
+     */
+    override val hostWindowRepository: WindowRepository get() = windowRepository
+
+    /**
+     * [ReadingHostActivity.hideClassicToolbarRow] — the two `binding` writes that used to sit
+     * inline in `ComposeReadingViewHost.install()`, moved here verbatim because `binding` is this
+     * host window's and never part of the reading view's contract (spec §3.1).
+     *
+     * The row is hidden, NOT removed: `toolbarLayout`'s children are still written to by code on
+     * this path (`syncIcon`'s visibility, `speakButton`'s alpha, `strongsButton`'s image/alpha/tint,
+     * `bibleButton`'s image, `pageTitleContainer`'s touch listener), so the views have to exist
+     * until slice 7 Tasks 11/13 delete the writes, the XML and this Activity together.
+     */
+    override fun hideClassicToolbarRow() {
+        binding.toolbarLayout.visibility = View.GONE
+        binding.toolbarDivider.visibility = View.GONE
+    }
 
     override var fullScreen
         get() = isFullScreen

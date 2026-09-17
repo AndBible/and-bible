@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.page
 
 import net.bible.android.activity.R
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.DrawerGroupSpec
 import net.bible.sharedcore.reading.DrawerItemSpec
@@ -105,6 +106,24 @@ object DrawerMenuStateBuilder {
      */
     val groupsForDriftTest: List<Pair<Int?, List<Pair<String, Int>>>> =
         groups.map { g -> g.titleRes to g.entries.map { it.idName to it.titleRes } }
+
+    /**
+     * Whether the drawer's "Rate this app" row is shown at all — the value [build]'s `isRateVisible`
+     * parameter wants, and classic `MainBibleActivity.drawerRateVisible` before R6d.
+     *
+     * Moved here because it is HOST-INDEPENDENT: a pure `BuildVariant` expression that asks nothing
+     * of any Activity, so asking one for it is exactly what `ReadingHostDelegationGuardTest` (R1)
+     * forbids and what kept the reading view's coupling looking larger than it was. It lives beside
+     * the builder whose one parameter it feeds rather than on [ReadingHostActivity], because a
+     * per-host answer to "does this build channel allow app-store ratings" would be a lie in either
+     * host's mouth. `MainBibleActivity.drawerRateVisible` survives as a view onto this one value.
+     */
+    val drawerRateVisible: Boolean get() = !(
+        BuildVariant.Appearance.isDiscrete ||
+            BuildVariant.DistributionChannel.isHuawei ||
+            BuildVariant.DistributionChannel.isFdroid ||
+            BuildVariant.DistributionChannel.isAmazon
+        )
 
     /** The `R.id.*` a clicked [DrawerItem.id] maps to. Throws on an unknown id (stale click). */
     fun resIdFor(idName: String): Int =
