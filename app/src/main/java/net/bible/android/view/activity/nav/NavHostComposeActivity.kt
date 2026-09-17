@@ -1745,7 +1745,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
-     * Classic `MainBibleActivity.onResume`'s first arm (`:1966-1969`): `windowControl`'s repository
+     * Classic `MainBibleActivity.onResume`'s first arm (`:1970-1973`): `windowControl`'s repository
      * is whichever reading host RESUMED last, so a host coming back to the front reclaims it.
      *
      * @return whether it had to be reclaimed -- classic's `needRefresh`, which decides which of the
@@ -1758,7 +1758,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
-     * **T8a item 2: the rest of classic's `onResume` reconciliation block (`:1975-1984`), ported as
+     * **T8a item 2: the rest of classic's `onResume` reconciliation block (`:1979-1988`), ported as
      * a block rather than as a line.**
      *
      * R8 recorded a VERDICT here refusing to port `updateDocuments()` alone, and the argument was
@@ -1802,7 +1802,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
-     * Classic's `updateDocumentsPending` (`MainBibleActivity.kt:1700`), fed by the subscription in
+     * Classic's `updateDocumentsPending` (`MainBibleActivity.kt:1704`), fed by the subscription in
      * [readingHostSubscriptions] and consumed by [reconcileReadingStateOnResume].
      *
      * Set on EVERY route, like classic's, and read only when this host owns a reading workspace: an
@@ -1811,14 +1811,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      */
     private var updateDocumentsPending = false
 
-    /** Classic `MainBibleActivity.updateDocuments()` (`:1703-1707`). */
+    /** Classic `MainBibleActivity.updateDocuments()` (`:1706-1710`). */
     private fun updateDocuments() {
         hostWindowRepository.windowSync.reloadAllWindows(true)
         onToolbarStateMayHaveChanged()
         updateDocumentsPending = false
     }
 
-    /** Classic `MainBibleActivity.handlePendingAgentResult()` (`:1987-2000`), verbatim. */
+    /** Classic `MainBibleActivity.handlePendingAgentResult()` (`:1991-2003`), verbatim. */
     private fun handlePendingAgentResult() {
         val session = AgentSessionManager.getCurrentSession() ?: return
         val result = session.pendingResult ?: return
@@ -1834,7 +1834,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     // T8a item 2 PAID R8's verdict on classic's `updateDocuments()`. R8 declined to port one line of
-    // a five-part block (`MainBibleActivity.kt:1960-1985`) and recorded the whole debt here; all
+    // a five-part block (`MainBibleActivity.kt:1964-1989`) and recorded the whole debt here; all
     // five parts now exist -- [reclaimWindowRepository] and [reconcileReadingStateOnResume] above,
     // whose kdocs carry what each does on THIS host and why. The RESUME-time half is what was owed:
     // R8's own ENTRY-time load is [readingViewHost]'s and is covered there, and must not be ported

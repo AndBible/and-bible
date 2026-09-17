@@ -290,11 +290,19 @@ class ReadingAppBootstrapTest {
      * destination's `enter(host)` retires it when the graph composes; `onPause` is the other end,
      * for a host backgrounded before that ever happens.
      *
-     * A scan because neither end is reachable from a unit test: `bootstrapIfNeeded()` runs only for
-     * the READING route, whose content slot still `error(...)`s, so no test can build this host with
-     * the bridge set. Mutation: delete the `setActivityVisible(this, false)` line from the host's
-     * `onPause` and this fails; the `:sharedCore` half (a composed destination retiring the bridge)
-     * is `ReadingViewVisibilityTest.aComposedDestinationRetiresItsOwnHostsBootstrapBridge`.
+     * A scan when it was written, because neither end was then reachable from a unit test: the
+     * READING route's content slot still `error(...)`ed, so no test could build this host with the
+     * bridge set. **R8 made that slot real and the rationale stale** (T8a fix round 1, review Minor
+     * 3): `ReadingHostBridgeRearmTest` builds exactly that host and drives the bridge through real
+     * lifecycle callbacks — `aHostThatWasNeverMadeVisibleHasNotComposedItsReadingView` asserts it is
+     * armed on a created, resumed, uncomposed host, and
+     * `aHostThatResumesBeforeItsDestinationComposesStillReportsTheReadingView` asserts the `onPause`
+     * retirement this scan names. The scan is kept because it pins the retirement to that specific
+     * LINE in `onPause`, which a behavioural test cannot distinguish from any other way of clearing
+     * the flag, but it is no longer the only thing that can see this. Mutation: delete the
+     * `setActivityVisible(this, false)` line from the host's `onPause` and this fails; the
+     * `:sharedCore` half (a composed destination retiring the bridge) is
+     * `ReadingViewVisibilityTest.aComposedDestinationRetiresItsOwnHostsBootstrapBridge`.
      */
     @Test
     fun theBootstrapBridgeIsRetiredWhenTheHostPauses() {

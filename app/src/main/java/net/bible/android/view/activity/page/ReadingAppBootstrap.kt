@@ -515,7 +515,9 @@ class ReadingAppBootstrap(private val host: ActivityBase) : KoinComponent {
      */
     private var networkCallbackRegistered = false
 
-    /** Classic `MainBibleActivity.onCreate:586-589`; balanced by [unregisterNetworkCallback]. */
+    /** Classic `MainBibleActivity.onCreate`'s network-callback block, which R7 extracted here (so
+     *  the range that citation used to name no longer exists in that file); its surviving CALL site
+     *  is `MainBibleActivity.kt:604`. Balanced by [unregisterNetworkCallback]. */
     fun registerNetworkCallback() {
         val connManager = host.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

@@ -17,11 +17,14 @@
 package net.bible.android.control.page
 
 import android.os.Looper
+import androidx.lifecycle.lifecycleScope
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
@@ -35,6 +38,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -128,16 +132,29 @@ class CurrentGeneralBookPageKeyChooserTest {
      * The StudyPad arm — the ONLY arm that reads workspace settings, and therefore the only one the
      * `!is MainBibleActivity` check ever had a type reason to exist for.
      *
-     * Asserts the identity too, not merely that something started: `autoAssignPrimaryLabel` is set
-     * on THIS host's own repository and must appear in the `ManageLabels` route the branch builds.
-     * A body that resolved its settings from some other repository (`windowControl`'s, say) would
-     * start the same screen carrying different data, and only this assertion can see that.
+     * Asserts the IDENTITY of the repository the settings come from, not merely that something
+     * started: `autoAssignPrimaryLabel` is set on the repository that owns this page's window, and
+     * must appear in the `ManageLabels` route the branch builds.
+     *
+     * **`windowControl` is pointed at a different repository first, and that is what gives the
+     * assertion teeth** (fix round 1, review Minor 2b). Without it the assertion could not tell the
+     * window's repository from `windowControl`'s: `createWindowRepository()` ends with
+     * `windowControl.windowRepository = windowRepository`, so in a one-host fixture all three are
+     * the same object and a `windowControl.windowRepository.workspaceSettings` implementation would
+     * pass. With a foreign repository published there — the two-live-hosts state R6c1/R6d's identity
+     * finding is about — only a body that reads through the page's OWN window sees the marker.
      */
     @Test
     fun theStudyPadArmSeedsManageLabelsFromTheOwningWindowsWorkspaceSettings() {
         val activity = host()
         val marker = IdType()
         activity.hostWindowRepository.workspaceSettings.autoAssignPrimaryLabel = marker
+        val foreign = WindowRepository(activity.lifecycleScope)
+        assertNotEquals(
+            marker, foreign.workspaceSettings.autoAssignPrimaryLabel,
+            "sanity: the decoy repository must not already carry the marker, or this proves nothing",
+        )
+        CommonUtils.windowControl.windowRepository = foreign
 
         val page = generalBookPageOf(activity)
         page.onlySetCurrentDocument(FakeBookFactory.journalDocument)
@@ -159,8 +176,9 @@ class CurrentGeneralBookPageKeyChooserTest {
         assertTrue(
             route.contains(marker.toString()),
             "the route's ManageLabelsData must carry the autoAssignPrimaryLabel of the repository " +
-                "that owns this page's window — otherwise the chooser is seeded from, and writes " +
-                "back to, some other host's workspace. route: $route",
+                "that owns this page's window, NOT of whichever repository windowControl currently " +
+                "publishes — otherwise the chooser is seeded from, and writes back to, some other " +
+                "host's workspace. route: $route",
         )
     }
 

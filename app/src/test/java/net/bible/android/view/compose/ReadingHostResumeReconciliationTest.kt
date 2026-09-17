@@ -49,7 +49,7 @@ import kotlin.test.assertTrue
  * Reading-host re-typing T8a item 2: **the `onResume` reconciliation `NavHostComposeActivity` did
  * not have.**
  *
- * `MainBibleActivity.onResume` (`:1960-1985`) runs a five-part block: reclaim
+ * `MainBibleActivity.onResume` (`:1964-1989`) runs a five-part block: reclaim
  * `windowControl.windowRepository` for this host, then EITHER reload the workspace (the
  * `needRefresh` arm) OR consume a pending `UpdateMainBibleActivityDocuments`, then the tilt-scroll
  * focus hand-back and `handlePendingAgentResult()`. The nav host had none of it while POSTING that
@@ -68,7 +68,8 @@ import kotlin.test.assertTrue
  *
  * Mutations, each of which fails exactly one test below: drop the
  * `UpdateMainBibleActivityDocuments` subscription; drop the `updateDocumentsPending` gate; drop the
- * repository reclaim; swap the `else if` for a second `if` (precedence).
+ * repository reclaim; swap the `else if` for a second `if` (precedence — caught by the SECOND half
+ * of [theWorkspaceReloadTakesPrecedenceOverTheDocumentRefresh], not by its `ToastEvent`).
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -205,6 +206,18 @@ class ReadingHostResumeReconciliationTest {
      * the block: a host that refreshes documents but never reconciles the workspace is worse than
      * one that honestly does neither. When the repository has to be reclaimed, the whole workspace
      * is reloaded and the document refresh is not ALSO run.
+     *
+     * **The second half is what makes this see the mutation** (fix round 1, review Minor 2a). The
+     * `ToastEvent` assertion alone cannot: with a second `if` instead of `else if` BOTH arms run and
+     * a toast is still posted. What only `else if` produces is a pending flag that SURVIVES the
+     * workspace arm — `updateDocuments()` is the only thing that clears it, and classic does not
+     * clear it on the needRefresh path — so the next ordinary resume is the one that performs the
+     * document refresh. With the mutation the first resume consumes the flag and the second reloads
+     * nothing.
+     *
+     * The window is re-read AFTER the workspace reload on purpose: `loadFromDb` rebuilds the
+     * repository's `Window` objects, so the one captured before it is no longer the active window
+     * and asserting on it would prove nothing either way.
      */
     @Test
     fun theWorkspaceReloadTakesPrecedenceOverTheDocumentRefresh() {
@@ -222,6 +235,21 @@ class ReadingHostResumeReconciliationTest {
             toasts > 0,
             "the needRefresh arm must run the full workspace reload (whose setter posts a " +
                 "ToastEvent naming the workspace), not the document refresh",
+        )
+
+        val window = activity.hostWindowRepository.activeWindow
+        assertTrue(window.isVisible, "sanity: the reloaded workspace's active window is visible")
+        clearDisplayedKey(window)
+
+        controller.pause()
+        controller.resume()
+
+        assertNotNull(
+            displayedKeyOf(window),
+            "the pending document update must SURVIVE the workspace arm and be consumed by the " +
+                "next resume — only `else if` does that, because updateDocuments() is the one " +
+                "thing that clears the flag. A second `if` runs both arms, consumes it on the " +
+                "first resume, and leaves this one with nothing to do",
         )
     }
 

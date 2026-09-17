@@ -115,7 +115,7 @@ class ReadingNavDeps(
      *     **PAID by reading-host re-typing T8a**, the task this item named. `NavHostComposeActivity`
      *     now subscribes to `UpdateMainBibleActivityDocuments` (it POSTS it from six of its own
      *     destinations and listened to none), and its `onResume` runs the WHOLE of classic's block
-     *     (`MainBibleActivity.kt:1960-1985`), not the one line R8 refused to port on its own: the
+     *     (`MainBibleActivity.kt:1964-1989`), not the one line R8 refused to port on its own: the
      *     `windowControl.windowRepository` reclaim and its `currentWorkspaceId = currentWorkspaceId`
      *     reload, which still takes precedence over the document refresh; the pending-flag arm
      *     (`reloadAllWindows(true)` + the host's own half of `updateActions()`); the tilt-scroll
