@@ -1868,6 +1868,27 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         }
     }
 
+    /**
+     * The route [onCreate] started this host's graph on — what [onSaveInstanceState] carries
+     * across a recreate so [onNewIntent]'s `setIntent` cannot change it. See [navHostStartRoute].
+     */
+    private var startRoute: String? = null
+
+    /**
+     * reading-host re-typing T8b step 4: pin the START route against [onNewIntent]'s `setIntent`.
+     *
+     * [NavRoutes.READING] for a host that has bootstrapped, whatever it was created with: owing a
+     * reading view is irreversible for a host's life ([readingAppBootstrapped] is memoised), the
+     * `NavHost`'s own saveable back stack restores the `reading` entry regardless, and that entry
+     * reads [hostWindowRepository], which throws unless [bootstrapIfNeeded] has run — which
+     * [onCreate] only does for that route.
+     */
+    override fun onSaveInstanceState(outState: Bundle) {
+        val route = if (readingAppBootstrapped) NavRoutes.READING else startRoute
+        if (route != null) outState.putString(STATE_START_ROUTE, route)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // R6d: classic's `MainBibleActivity.onCreate` captures the theme in force here, before
         // `super.onCreate`, and `BibleView` reads it through the host bundle. Same capture, same
@@ -1875,9 +1896,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
         ABEventBus.register(this, readingHostSubscriptions)
-        val startRoute = requireNotNull(intent.getStringExtra(EXTRA_ROUTE)) {
-            "NavHostComposeActivity requires EXTRA_ROUTE — launch it via NavHostComposeActivity.intentFor()"
+        val startRoute = navHostStartRoute(
+            savedStartRoute = savedInstanceState?.getString(STATE_START_ROUTE),
+            intentRoute = intent.getStringExtra(EXTRA_ROUTE),
+        ) {
+            Log.e(
+                TAG_START_ROUTE,
+                "Started with no ${EXTRA_ROUTE} extra and no saved start route — defaulting to " +
+                    "'${NavRoutes.READING}'. Launch this host via NavHostComposeActivity.intentFor()."
+            )
         }
+        this.startRoute = startRoute
         if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         // R8: build [readingCommands] NOW, while this Activity is still CREATED.
         //
@@ -5279,9 +5308,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     /**
      * Classic `onSelect` (`:171-183`), unchanged apart from the dropped `intent.putExtra(
      * LIST_POSITION, ...)`: the list position now lives in the destination's own `rememberSaveable`,
-     * so there is no intent left to write it onto. The `MainBibleActivity` start with
-     * `FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP` stays exactly as it was — the reading
-     * view is not part of this nav graph.
+     * so there is no intent left to write it onto.
+     *
+     * **reading-host re-typing T8b**: the target is now this host on [NavRoutes.READING], with
+     * `FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_SINGLE_TOP` unchanged. This is the host starting
+     * ITSELF by Intent, and here that is the right shape rather than the defect T8b's step 4 is
+     * about: the manifest's `singleTop` plus `CLEAR_TOP` delivers it to [onNewIntent] on this same
+     * instance, which navigates the live graph to `reading` — which is exactly what "go to the
+     * verse I just picked" means. Nothing here awaits a RESULT, so the one thing an Intent to self
+     * cannot do (bring an answer back to the caller) is not asked of it, and [onCreate]'s start
+     * route is pinned by `savedStartRoute` so the `setIntent` inside [onNewIntent] cannot change
+     * what a later `recreate()` starts on.
      */
     private fun openSearchResult(
         referenceName: String,
@@ -5293,7 +5330,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             val key = book.getKey(referenceName)
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
             startActivity(
-                Intent(this, MainBibleActivity::class.java).apply {
+                intentFor(this, NavRoutes.READING).apply {
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 }
             )
@@ -5423,7 +5460,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             val key = epubKeyFor(book, documentId, keyId, ordinal)
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
             startActivity(
-                Intent(this, MainBibleActivity::class.java).apply {
+                intentFor(this, NavRoutes.READING).apply {
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 }
             )
@@ -8101,6 +8138,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         private const val TAG_NAV_HOST = "NavHostCompose"
 
         const val EXTRA_ROUTE: String = "nav_route"
+
+        /** Log tag for the start-route resolution in `onCreate`; see [navHostStartRoute]. */
+        private const val TAG_START_ROUTE = "NavHostStartRoute"
 
         /** Sentinel identifying the "Custom…" entry in the AI-language picker (mirrors classic). */
         private const val CUSTOM_LANGUAGE_TAG = "\u0000custom"

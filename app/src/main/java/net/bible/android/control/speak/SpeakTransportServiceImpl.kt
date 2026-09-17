@@ -28,6 +28,8 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.page.SpeakTransportVisibilityChanged
 import net.bible.android.view.util.widget.HideTransportEvent
 import net.bible.service.common.AdvancedSpeakSettings
@@ -145,7 +147,9 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
     private fun maybeSyncToFront() {
         if (AdvancedSpeakSettings.synchronize) {
             val ctx = BibleApplication.application
-            ctx.startActivity(Intent(ctx, MainBibleActivity::class.java).apply {
+            // reading-host re-typing T8b: same three flags, the reading host instead of the
+            // classic Activity.
+            ctx.startActivity(NavHostComposeActivity.intentFor(ctx, NavRoutes.READING).apply {
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
             })
         }

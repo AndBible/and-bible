@@ -44,6 +44,8 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
 import net.bible.service.common.AndBibleBackupManifest
@@ -284,7 +286,9 @@ class DocumentInstallService : Service() {
         if (CommonUtils.isDiscrete) R.drawable.ic_calc_24 else R.drawable.ic_ichtys
 
     private fun buildMainActivityIntent(): PendingIntent {
-        val intent = Intent(this, MainBibleActivity::class.java).apply {
+        // reading-host re-typing T8b: same flags, same PendingIntent, the reading host instead of
+        // the classic Activity.
+        val intent = NavHostComposeActivity.intentFor(this, NavRoutes.READING).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         return PendingIntent.getActivity(

@@ -817,9 +817,9 @@ class NavHostRoutingGuardTest {
      * `BibleView.kt` now has two of its own), `CurrentGeneralBookPage.kt:92` and
      * `TextDisplaySettingsComposeActivity.kt:393`. The tree has **twelve** such production call
      * sites today. A `.putExtra(...)` chained onto any of them is dropped exactly as silently as the
-     * three defects this scan was written for -- [NavHostComposeActivity] reads only
-     * [NavHostComposeActivity.EXTRA_ROUTE] and nothing else (verified: that is its only
-     * `intent.get*Extra` read, in `onCreate` and in `onNewIntent`) -- yet the scan looked only for the
+     * three defects this scan was written for -- [NavHostComposeActivity] reads
+     * [NavHostComposeActivity.EXTRA_ROUTE] plus the handful of extras named in
+     * [EXTRAS_THE_NAV_HOST_READS] and nothing else -- yet the scan looked only for the
      * `ScreenLauncher` spelling. Fixed by scanning BOTH markers in the same loop. The direct marker
      * needs no screen-name gate: its route argument IS the whole payload, so any extra on it is wrong
      * regardless of which route it carries. No live call site is an offender today (verified by
@@ -847,6 +847,20 @@ class NavHostRoutingGuardTest {
      * few lines of the assignment; an unbounded look would risk a same-named variable in a LATER,
      * unrelated function reading as a false offender.
      */
+    /**
+     * Does [window] put an extra on [receiver] that the nav host would DROP?
+     *
+     * Fail-closed on purpose: a `putExtras(bundle)` or a non-literal key has no readable name, so it
+     * is treated as dropped. The same is true of a `.putExtra` chained straight onto the
+     * `intentFor(...)` call rather than onto a named variable -- that shape is not filtered at all,
+     * so an allowlisted extra written that way would be a FALSE POSITIVE, which is the safe
+     * direction and is what a reader should fix by naming the intent.
+     */
+    private fun hasDroppedPutExtra(window: String, receiver: String): Boolean =
+        Regex("""\b${Regex.escape(receiver)}\.$PUT_EXTRA_METHODS\s*\(\s*(?:"([^"]*)")?""")
+            .findAll(window)
+            .any { it.groupValues[1] !in EXTRAS_THE_NAV_HOST_READS }
+
     @Test
     fun migratedScreenArgumentIsNeverDroppedByAPutExtra() {
         val migratedScreenNames = ScreenLauncher.MIGRATED.keys.map { it.name }
@@ -936,7 +950,7 @@ class NavHostRoutingGuardTest {
                     if (assignedTo != null) {
                         val name = assignedTo.groupValues[1]
                         val window = afterCall.take(ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS)
-                        if (Regex("""\b${Regex.escape(name)}\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(window)) {
+                        if (hasDroppedPutExtra(window, name)) {
                             assignedPutExtraName = name
                         }
                     }
@@ -974,7 +988,7 @@ class NavHostRoutingGuardTest {
                                     (braceDepth >= 1 || (braceDepth == 0 && between.trimEnd().endsWith(')')))
                             if (stillInsideTheConditional) {
                                 val window = afterCall.take(ASSIGN_PUT_EXTRA_LOOKAHEAD_CHARS)
-                                if (Regex("""\b${Regex.escape(name)}\.$PUT_EXTRA_METHODS\s*\(""").containsMatchIn(window)) {
+                                if (hasDroppedPutExtra(window, name)) {
                                     conditionalAssignedPutExtraName = name
                                 }
                             }
@@ -1212,6 +1226,20 @@ class NavHostRoutingGuardTest {
          * actual method call, not a bare word.
          */
         const val PUT_EXTRA_METHODS = "putExtras?"
+
+        /**
+         * The extras `NavHostComposeActivity` genuinely READS, besides
+         * [NavHostComposeActivity.EXTRA_ROUTE] -- so a `putExtra` naming one of them is not a
+         * silently dropped argument and must not be reported.
+         *
+         * `"openLink"` is `bootstrapIfNeeded`'s deep link (`NavHostComposeActivity.kt:1105-1106`,
+         * `intent.hasExtra("openLink")` / `getStringExtra("openLink")`), the twin of classic
+         * `MainBibleActivity.kt:600-601`. It became live for this scan in reading-host re-typing
+         * T8b, which repointed `StartupActivity.gotoMainBibleActivity`'s handoff at the nav host;
+         * the extra was always read there, the CALLER just used to build a `MainBibleActivity`
+         * intent. Keep this list to extras a reader can point at an `intent.get*Extra` for.
+         */
+        val EXTRAS_THE_NAV_HOST_READS = setOf("openLink")
     }
 
     /**

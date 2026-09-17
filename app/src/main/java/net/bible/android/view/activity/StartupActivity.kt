@@ -414,9 +414,19 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         return true
     }
 
+    /**
+     * The boot handoff, repointed at the Compose reading host (reading-host re-typing T8b).
+     *
+     * `NavHostComposeActivity.intentFor(this, NavRoutes.READING)` is the ONLY difference: the
+     * `openLink` extra, both flag sets and the whole coroutine below are classic's, unchanged. In
+     * particular `FLAG_ACTIVITY_MULTIPLE_TASK` stays on the `ACTION_VIEW` arm — a second live
+     * reading host is what `freeze()`/`unFreeze()` and R7b's per-host tokens exist for, and T8a item
+     * 4 fixed the `networkCallback` leak that made a second host costly. Changing it here would be a
+     * behaviour change smuggled into a repoint.
+     */
     private fun gotoMainBibleActivity() {
-        Log.i(TAG, "Going to MainBibleActivity")
-        val handlerIntent = Intent(this, MainBibleActivity::class.java)
+        Log.i(TAG, "Going to the reading host")
+        val handlerIntent = NavHostComposeActivity.intentFor(this, NavRoutes.READING)
         if(intent?.action == Intent.ACTION_VIEW) {
             handlerIntent.putExtra("openLink", intent.dataString)
             handlerIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK

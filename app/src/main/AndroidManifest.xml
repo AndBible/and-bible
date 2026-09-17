@@ -106,7 +106,7 @@
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/backup_and_restore"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity"
@@ -114,7 +114,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/chooseBook"
             android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity"
             android:configChanges="keyboardHidden|locale"
@@ -136,28 +136,33 @@
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
             android:launchMode="singleTop"
             />
+        <!-- reading-host re-typing T8b: this host has NO android:parentActivityName, deliberately.
+             It used to name MainBibleActivity, which was harmless while the classic Activity was
+             the app's main screen; now that this host IS the main screen (StartupActivity's boot
+             handoff opens it on NavRoutes.READING) a parent would have to be itself, and an
+             Activity cannot be its own Up target. The other seven parentActivityName attributes
+             below were repointed here in the same commit. -->
         <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"
             android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/general_book"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity" />
         <activity
             android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/doc_type_map"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity" />
         <activity
             android:name=".view.activity.StartupComposeActivity"
             android:theme="@style/Theme.AbCompose"
@@ -167,14 +172,14 @@
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/workspace_selector_title"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/text_display_settings_activity_title"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
+            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity" />
         <!--
           ~ The two activities below (InstallZipComposeActivity and CalculatorComposeActivity) are
           ~ the only ones that lock screenOrientation. From API 36

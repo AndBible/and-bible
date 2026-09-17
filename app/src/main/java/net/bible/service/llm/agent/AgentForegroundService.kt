@@ -41,6 +41,8 @@ import net.bible.android.control.event.on
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
@@ -294,7 +296,9 @@ class AgentForegroundService : Service() {
         if (CommonUtils.isDiscrete) R.drawable.ic_calc_24 else R.drawable.ic_ichtys
 
     private fun buildMainActivityIntent(): PendingIntent {
-        val intent = Intent(this, MainBibleActivity::class.java).apply {
+        // reading-host re-typing T8b: same flags, same PendingIntent, the reading host instead of
+        // the classic Activity.
+        val intent = NavHostComposeActivity.intentFor(this, NavRoutes.READING).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         return PendingIntent.getActivity(
