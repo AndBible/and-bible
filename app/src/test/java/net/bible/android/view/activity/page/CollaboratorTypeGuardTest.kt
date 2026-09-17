@@ -51,15 +51,34 @@ class CollaboratorTypeGuardTest {
         // bundle's `hostActivity` and two of its suppliers directly).
         "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt",
         "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
+        // R6d, debt 2 of 3: none of the three callback BUNDLES was under a type scan, and every
+        // one of them would have passed every guard in this repo with a `val hostActivity` of the
+        // Activity's own type added to it. They are the seam the whole batch routes through, so
+        // they are scanned like the collaborators they serve. (`ReadingInsetsHostCallbacks` needs
+        // no entry of its own: it is declared in `ReadingInsets.kt`, already listed above.)
+        "src/main/java/net/bible/android/view/activity/page/BibleViewHostCallbacks.kt",
+        "src/main/java/net/bible/android/view/activity/page/ReadingCommandsHostCallbacks.kt",
+        // R6d: the reading host itself -- the file this whole batch exists to re-type.
+        "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
     )
 
     @Test
     fun theScannedFilesExist() = files.forEach { assertTrue("$it not found", File(it).exists()) }
 
+    /**
+     * **R6d narrowed the regex by one lookahead, and only that.** `MainBibleActivity` followed by
+     * a `.` is a NESTED type, not the Activity: `ComposeReadingViewHost` catches
+     * `MainBibleActivity.KeyIsNull` around the reference overlay's text, and that is a nested
+     * exception class Ruling E allow-lists and slice 7 Task 13 re-homes. Ruling E's own scan below
+     * is what decides which nested members are tolerated, member by member; leaving them to fail
+     * HERE would have meant either editing the catch (a behaviour change in a re-typing commit) or
+     * excluding the whole file. The Activity's own type still fails, which is the whole point of
+     * this assertion -- see the red/green record in the R6d task report.
+     */
     @Test
     fun noEasyCollaboratorDeclaresAMainBibleActivityParameter() {
         val offenders = files.filter { path ->
-            Regex(""":\s*MainBibleActivity\b""").containsMatchIn(File(path).readText())
+            Regex(""":\s*MainBibleActivity\b(?!\s*\.)""").containsMatchIn(File(path).readText())
         }
         assertEquals("R5 re-types these off the Activity", emptyList<String>(), offenders)
     }
@@ -106,6 +125,30 @@ class CollaboratorTypeGuardTest {
         // either collaborator -- is the regression this list exists to catch.
         "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt",
         "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
+        // R6d: the two callback-bundle files and the reading host itself. The host's surviving
+        // code tokens are `MainBibleActivity.WORKSPACE_CHANGED` (the workspace selector's request
+        // code), `.KeyIsNull` (caught around the reference overlay's text) and `.FullScreenEvent`
+        // (the event it subscribes to) -- all three on [allowedNestedMembers], all three Task 13's
+        // to re-home. The bundles have none at all.
+        "src/main/java/net/bible/android/view/activity/page/BibleViewHostCallbacks.kt",
+        "src/main/java/net/bible/android/view/activity/page/ReadingCommandsHostCallbacks.kt",
+        "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
+    )
+
+    /**
+     * The files that may carry `import net.bible.android.view.activity.page.MainBibleActivity`.
+     *
+     * Ruling E tolerates the nested members in [allowedNestedMembers], and a file in a DIFFERENT
+     * package cannot name one without importing the outer class -- the import is the allowance's
+     * cost, not a second coupling. Every other scanned file sits in
+     * `net.bible.android.view.activity.page` itself and needs no import, so for them an import
+     * stays an offender.
+     *
+     * Pinned by [everyFileAllowedToImportStillNeedsTheImport]: an entry whose file stops naming an
+     * allow-listed member must be deleted, or the allowance silently outlives its reason.
+     */
+    private val filesAllowedToImportMainBibleActivity = setOf(
+        "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
     )
 
     /**
@@ -123,6 +166,10 @@ class CollaboratorTypeGuardTest {
         "SearchSheetOffsetsUpdated",
         "ImePaddingChanged",
         "WORKSPACE_CHANGED",
+        // R6d: `ComposeReadingViewHost.readOverlayText()` catches it around the reference
+        // overlay's text. A nested exception class, not the Activity's surface; Task 13's to
+        // re-home with the rest.
+        "KeyIsNull",
     )
 
     /**
@@ -146,8 +193,15 @@ class CollaboratorTypeGuardTest {
     @Test
     fun noReadingViewFileNamesMainBibleActivityOutsideTheAllowList() {
         val offenders = readingViewFiles.flatMap { path ->
-            MAIN_BIBLE_ACTIVITY_REFERENCE.findAll(codeOf(File(path)))
+            val code = codeOf(File(path))
+            MAIN_BIBLE_ACTIVITY_REFERENCE.findAll(code)
                 .filterNot { it.groupValues[1] in allowedNestedMembers }
+                // R6d: a file outside `…activity.page` must import the outer class to reach an
+                // allow-listed nested member at all. Allowed only for the named files, and only
+                // on the import line itself.
+                .filterNot {
+                    path in filesAllowedToImportMainBibleActivity && isTheImportLine(code, it.range.first)
+                }
                 .map { "$path: ${it.value.replace(Regex("\\s+"), "")}" }
                 .toList()
         }
@@ -171,6 +225,29 @@ class CollaboratorTypeGuardTest {
             emptyList<String>(), allowedNestedMembers.filterNot { it in referenced },
         )
     }
+
+    /**
+     * Anti-staleness for [filesAllowedToImportMainBibleActivity] -- the shape Ruling E asks for: an
+     * allow-list entry that stops being needed must FAIL, not linger. A file whose only reason to
+     * import the Activity was an allow-listed nested member, and which no longer names one, is
+     * carrying a dead import and a live allowance.
+     */
+    @Test
+    fun everyFileAllowedToImportStillNeedsTheImport() {
+        val stale = filesAllowedToImportMainBibleActivity.filterNot { path ->
+            MAIN_BIBLE_ACTIVITY_REFERENCE.findAll(codeOf(File(path)))
+                .any { it.groupValues[1] in allowedNestedMembers }
+        }
+        assertEquals(
+            "these files may import MainBibleActivity only so they can reach an allow-listed " +
+                "nested member, and they no longer reach one -- drop the import and the entry",
+            emptyList<String>(), stale.sorted(),
+        )
+    }
+
+    /** Whether the match at [offset] sits on an `import ` line of [code]. */
+    private fun isTheImportLine(code: String, offset: Int): Boolean =
+        code.substring(code.lastIndexOf('\n', offset) + 1, offset).trimStart().startsWith("import ")
 
     /**
      * [file]'s source with comments, string literals and character literals blanked out, so a scan
