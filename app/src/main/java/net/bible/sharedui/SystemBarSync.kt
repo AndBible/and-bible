@@ -75,12 +75,17 @@ fun applySystemBarColor(activity: Activity, container: Color, fillWindowBackgrou
         if (activity.window.statusBarColor != argb) activity.window.statusBarColor = argb
     }
 
+    val root = activity.findViewById<ViewGroup>(android.R.id.content)
     if (fillWindowBackground) {
-        val root = activity.findViewById<ViewGroup>(android.R.id.content)
         val current = root?.background
         if (root != null && !(current is ColorDrawable && current.color == argb)) {
             root.background = ColorDrawable(argb)
         }
+    } else {
+        // Symmetry: `true` paints the root, so `false` must un-paint it. Without this a screen that
+        // does not want the fill (the reading toolbar, which paints its own strip) inherits whatever
+        // the previous screen left behind. Host-inset-ownership spec, section 3.5.
+        if (root?.background != null) root.background = null
     }
 
     if (!floating) {
