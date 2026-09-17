@@ -172,7 +172,9 @@ import net.bible.android.view.activity.download.RowDownloadStatus
 import net.bible.android.view.activity.download.isBadDocument
 import net.bible.android.view.activity.download.isInstalled
 import net.bible.android.view.activity.download.isRecommended
+import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.BibleView
+import net.bible.android.view.activity.page.KeyChooserResults
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.ReadingAppBootstrap
 import net.bible.android.view.activity.page.ReadingHostActivity
@@ -1705,6 +1707,91 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         val needRefresh = readingAppBootstrapped && reclaimWindowRepository()
         super.onResume()
         if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
+        if (readingAppBootstrapped) applyPendingActivityResult()
+    }
+
+    /**
+     * A `STD_REQUEST_CODE` result from a separate Activity, held until [onResume] has run.
+     *
+     * Null when there is nothing waiting; [CANCELLED_STD_RESULT] for a cancel, which carries no
+     * Intent of its own but still means something (see [applyPendingActivityResult]).
+     */
+    private var pendingActivityResult: Intent? = null
+
+    /**
+     * **reading-host re-typing T8b: the STD_REQUEST_CODE dispatch this host did not have.**
+     *
+     * Classic `MainBibleActivity.onActivityResult` is the ONLY reader of `STD_REQUEST_CODE` in the
+     * tree, and the reading view's own entry points still use it for every chooser that is a
+     * separate Activity rather than a nav-graph destination: `ChooseDocument` (the document sheet's
+     * full-screen footer row, `ComposeReadingViewHost.openChooseDocument`,
+     * `ReadingCommands.startDocumentChooser`, `MenuCommandHandler`'s `chooseDocumentButton`),
+     * `ChooseDictionaryWord` and `ChooseMapKey` (`KeyChooserRoute.sheetFor` deliberately returns
+     * null for the dictionary, so that chooser is ALWAYS the full screen), `ChooseGeneralBookKey`
+     * and `GridChoosePassage`. With this host as the launcher and nothing overriding
+     * `onActivityResult`, every one of those results fell through `ActivityBase`'s
+     * `resultByCode[requestCode - ASYNC_REQUEST_CODE_START]` miss to `super` and was discarded in
+     * silence -- the batch's Ruling D failure, and the same defect step 0 fixed one level up.
+     *
+     * **Held until after [onResume], not applied here.** `onActivityResult` runs BEFORE `onResume`,
+     * i.e. before [reclaimWindowRepository] has taken `windowControl.windowRepository` back (the
+     * applies below read `windowControl.activeWindowPageManager`), before
+     * `ReadingHostPresence.setForeground(this)` has made `ReadingViewVisibility.isVisible` true for
+     * the `AddHistoryItem` a `setKey`/`setCurrentDocumentAndKey` posts, and before
+     * [rearmBootstrapBridgeIfStillOwed]. Classic needed `CurrentActivityHolder.activate(this)` +
+     * `ReadingHostPresence.setForeground(this)` + `ReadingViewVisibility.setActivityVisible(this,
+     * true)` inside its dispatcher for exactly that reason; on this host the last of those three
+     * would RE-ARM the bootstrap bridge and leave the flag true on the next non-reading destination
+     * (see `ReadingViewVisibility`'s kdoc). Deferring needs none of them and adds no
+     * pre-composition producer of history items, so that class's bootstrap-bridge invariant is
+     * untouched -- the same choice step 0 made by moving its three arms onto `awaitIntent`.
+     */
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != ActivityBase.STD_REQUEST_CODE) return
+        pendingActivityResult =
+            if (resultCode == Activity.RESULT_CANCELED) CANCELLED_STD_RESULT else data
+    }
+
+    /**
+     * Apply what [onActivityResult] held, now that [onResume] has reconciled this host's reading
+     * state. Called only on a host that owes a reading view; on any other route the reading state
+     * belongs to a different host and classic would not have applied it either.
+     *
+     * The kinds a SEPARATE Activity can still produce are the only ones handled: `ChooseDocument`,
+     * `GenBookKey` (general book, dictionary and map all share that shape) and `PassageGrid`.
+     * `MyDocumentPages`, `MyDocuments`, `Bookmarks` and `ReadingProgress` are destinations of THIS
+     * host's own graph, so their results are delivered in-graph by `NavResultChannel` and cannot
+     * arrive here; one that does means a second host instance was created, and it is logged rather
+     * than half-applied.
+     *
+     * The cancel arm is classic's first statement (`MainBibleActivity.kt:1741-1747`): a cancelled
+     * chooser that left the page with no key at all goes back in history.
+     */
+    private fun applyPendingActivityResult() {
+        val result = pendingActivityResult ?: return
+        pendingActivityResult = null
+        if (result === CANCELLED_STD_RESULT) {
+            if (windowControl.activeWindowPageManager.currentPage.key == null) goBackInHistory()
+            return
+        }
+        val extras = result.extras ?: return
+        when (val kind = ActivityResultKind.fromExtra(extras.getString(ActivityResultKind.EXTRA))) {
+            null -> {}
+            ActivityResultKind.ChooseDocument -> readingCommands.applyChosenDocument(extras.getString("book"))
+            ActivityResultKind.GenBookKey -> {
+                val (book, key) = KeyChooserResults.genBookKeyFrom(extras)
+                readingCommands.applyChosenGenBookKey(book, key)
+            }
+            ActivityResultKind.PassageGrid -> {
+                extras.getString("verse")?.let { readingCommands.applyChosenVerse(it) }
+            }
+            else -> Log.w(
+                TAG_START_ROUTE,
+                "$kind arrived through onActivityResult on a host that delivers it in-graph -- " +
+                    "a second host instance? Not applied."
+            )
+        }
     }
 
     /**
@@ -8141,6 +8228,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
 
         /** Log tag for the start-route resolution in `onCreate`; see [navHostStartRoute]. */
         private const val TAG_START_ROUTE = "NavHostStartRoute"
+
+        /** [pendingActivityResult]'s "a chooser was cancelled" marker; a cancel carries no Intent. */
+        private val CANCELLED_STD_RESULT = Intent()
 
         /** Sentinel identifying the "Custom…" entry in the AI-language picker (mirrors classic). */
         private const val CUSTOM_LANGUAGE_TAG = "\u0000custom"
