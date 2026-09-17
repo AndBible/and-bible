@@ -285,6 +285,7 @@ import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.MyDocumentsResult
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.sharedcore.nav.ReadingProgressResult
 import net.bible.sharedcore.progress.ReadHistoryEntry
 import net.bible.sharedcore.progress.ReadingProgressController
@@ -493,13 +494,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * thing the moment it does.
      */
     internal val readingAppBootstrap = ReadingAppBootstrap(this)
-
-    /**
-     * The workspace this host's bootstrap created. R6 needs it (this host had no `windowRepository`
-     * at all); it is only meaningful after [onCreate] has run the bootstrap, i.e. on the reading
-     * route.
-     */
-    internal val windowRepository get() = readingAppBootstrap.windowRepository
 
     /**
      * Classic `ReadingProgressComposeActivity.kt:74` injects the CONCRETE impl, not the portable
@@ -763,6 +757,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         val route = intent.getStringExtra(EXTRA_ROUTE) ?: return
         setIntent(intent)
 
+        // R7 fix round 1 (review Important 3): reading is reachable HERE too, on a host that
+        // started on any other route and so never bootstrapped. This must precede the navigate --
+        // the reading destination composes against `windowControl.windowRepository`. `setIntent`
+        // above has already run, so the bootstrap reads the NEW intent's extras, as onCreate's does.
+        if (route == NavRoutes.READING) bootstrapIfNeeded()
+
         // A daily-reading route is applied HOST-SIDE, here, BEFORE the navigate — never by leaving
         // it to the destination to notice. The destination prefers its last loaded day over its
         // route arguments (that preference is what stops a child-pop re-entry from reverting the
@@ -1008,19 +1008,51 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // repository it reads is the one `MainBibleActivity` created -- which is the object classic read
     // too.
 
+    /** Whether [bootstrapIfNeeded] has already run for this Activity instance. */
+    private var readingAppBootstrapped = false
+
     /**
      * Classic `MainBibleActivity.onCreate`'s app-startup steps, IN ITS ORDER (reading-host re-typing
-     * R7): `prepareData` -> the `WindowRepository` -> `setSoftKeyboardMode` -> the first-run notices
-     * -> the `openLink` deep link -> the network callback. The order is load-bearing and classic
-     * documents why in its own 14-line comment; the only steps missing here are the ones that belong
-     * to the classic view hierarchy (the `binding` inflation, `setupUi`, the toolbar) and
-     * `ReadingViewVisibility`, whose Activity input is still `MainBibleActivity`'s lifecycle until
-     * R7b/T8 hand it to the reading destination's `DisposableEffect`.
+     * R7): `setActivityVisible(true)` -> `prepareData` -> the `WindowRepository` ->
+     * `setSoftKeyboardMode` -> the first-run notices -> the `openLink` deep link -> the network
+     * callback. The only steps missing are the ones belonging to the classic view hierarchy (the
+     * `binding` inflation, `setupUi`, the toolbar), which this host does not have.
      *
-     * Runs BEFORE `setContent`, exactly as classic runs it before the reading view is built: the
-     * composition reads `windowControl.windowRepository`.
+     * **`ReadingViewVisibility.setActivityVisible(true)` FIRST, and that is the whole point of the
+     * ordering (R7 fix round 1, review Important 1).** It cannot be deferred to the reading
+     * destination's `DisposableEffect`: an effect inside the graph necessarily runs AFTER
+     * `setContent`, i.e. after [ReadingAppBootstrap.openDeepLink] below has already run
+     * `windowControl.showLink` -> `setKey(addHistoryItem = true)` -> a SYNCHRONOUS
+     * `ABEventBus.post(AddHistoryItem)`. With the flag false at that moment `createHistoryItem` does
+     * not merely drop the item: it falls through to the `currentActivity is AndBibleActivity` arm --
+     * this class is one -- and records a WRONG `IntentHistoryItem` carrying the deep-link intent,
+     * whose `revertTo()` re-starts it. Classic's 14-line comment in `MainBibleActivity.onCreate`
+     * states the same thing; this is that comment's prefix, not a copy of its lifecycle bookkeeping.
+     *
+     * **Reached from BOTH reading-route entry points, and idempotent (review Important 3).**
+     * [onCreate] calls it when the START route is reading; [onNewIntent] calls it when a later
+     * `EXTRA_ROUTE` navigates the live graph onto reading, which can happen on a host that started
+     * on `download` or a settings route and therefore has no repository at all -- the composition
+     * would then read `WindowControl`'s uninitialised lazy fallback, which is this task's
+     * silent-empty-workspace symptom. The boolean is what makes the second call free:
+     * `registerNetworkCallback` in particular has no unregister (see [ReadingAppBootstrap]), so
+     * running it twice would double a leak, and `showFirstRunNotices` would re-enter its own
+     * process-wide gate.
+     *
+     * NOTE, for slice 7 Task 12: because the whole function is one-shot, an `openLink` extra that
+     * arrives on a LATER reading entry is not dispatched. Unreachable today --
+     * `StartupActivity.gotoMainBibleActivity` is the only producer of that extra and it targets
+     * `MainBibleActivity` with `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_MULTIPLE_TASK`, i.e. always
+     * a fresh Activity and a fresh `onCreate` -- and splitting the deep link out of the one-shot is
+     * a decision for the task that makes this host the deep link's target.
+     *
+     * From [onCreate] it runs BEFORE `setContent`, exactly as classic runs it before the reading
+     * view is built: the composition reads `windowControl.windowRepository`.
      */
-    private fun bootstrapReadingApp() {
+    private fun bootstrapIfNeeded() {
+        if (readingAppBootstrapped) return
+        readingAppBootstrapped = true
+        ReadingViewVisibility.setActivityVisible(true)
         readingAppBootstrap.prepareData()
         readingAppBootstrap.createWindowRepository()
         readingAppBootstrap.setSoftKeyboardMode()
@@ -1329,7 +1361,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         val startRoute = requireNotNull(intent.getStringExtra(EXTRA_ROUTE)) {
             "NavHostComposeActivity requires EXTRA_ROUTE — launch it via NavHostComposeActivity.intentFor()"
         }
-        if (startRoute == NavRoutes.READING) bootstrapReadingApp()
+        if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         setContent {
             AbAppTheme {
                 val navController = rememberNavController()

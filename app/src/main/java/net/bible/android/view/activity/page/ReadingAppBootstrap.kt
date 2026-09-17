@@ -187,8 +187,16 @@ class ReadingAppBootstrap(private val host: ActivityBase) : KoinComponent {
      * is no cross-instance guard at all, and the repository binds to the creating host's
      * `lifecycleScope`. So this creates ONE repository per host -- exactly today's behaviour, where
      * two live `MainBibleActivity` instances already create two. This batch does not change that.
+     *
+     * **Idempotent per host (R7 fix round 1, review Important 3).** A second call returns the
+     * repository this host already has instead of replacing it. Nothing calls it twice today -- each
+     * host calls it exactly once, which `ReadingAppBootstrapTest` pins by counting call sites -- but
+     * a site count cannot see one site EXECUTED twice, and that is the one shape of this task's
+     * silent defect it would miss: the replacement would not crash, it would strand every
+     * collaborator holding the first repository on a workspace `WindowControl` no longer publishes.
      */
     fun createWindowRepository(): WindowRepository {
+        if (this::windowRepository.isInitialized) return windowRepository
         windowRepository = WindowRepository(host.lifecycleScope)
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
