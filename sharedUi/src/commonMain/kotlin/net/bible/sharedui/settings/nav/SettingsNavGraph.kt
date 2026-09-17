@@ -286,13 +286,21 @@ class SettingsNavDeps(
      * handed down, never `remember`ed by an arm, because an arm's composition is disposed before a
      * parent could read what it published.
      *
-     * Today NOTHING collects [NavResultChannel.pending] on this channel, which is correct: reading
-     * progress is only ever a START destination (see `NavHostComposeActivity
-     * .readingProgressControllerFor`'s kdoc), so every result always takes the `exitWithResult`
-     * branch. If a later change ever navigates to `NavRoutes.READING_PROGRESS_PATTERN` from INSIDE
-     * this graph, the new parent arm must collect [NavResultChannel.pending] and act on it FIRST --
-     * otherwise the child pops silently, the parent never applies the chapter/memorize result, and
-     * the user's tap does nothing.
+     * **This channel is collected by the READING destination** (reading-host re-typing T8c). It was
+     * not, and this kdoc used to say so and say why: reading progress was only ever a START
+     * destination, so every result took the `exitWithResult` branch. T8b's launcher flip ended that.
+     * `MenuCommandHandler`'s reading-progress row and `BibleJavascriptInterface.openReadingProgress`
+     * both launch `NavRoutes.readingProgress(...)` at the reading view's own host, which is
+     * `android:launchMode="singleTop"` and is the activity on top -- so the system answers with
+     * `onNewIntent`, the route is PUSHED onto `reading`, and this channel takes its in-graph branch
+     * instead. The warning this paragraph used to end with ("the child pops silently, the parent
+     * never applies the chapter/memorize result, and the user's tap does nothing") described exactly
+     * what then happened for one release of this branch, which is what T8c fixed.
+     *
+     * The collector is `ReadingNavDeps.results` -- see `NavHostComposeActivity
+     * .readingResultCollectors`. Any FURTHER parent for this destination must collect
+     * [NavResultChannel.pending] the same way, gated on having asked, or its caller's tap is lost
+     * again.
      */
     val readingProgressResults: NavResultChannel<ReadingProgressResult>,
     // — READING PROGRESS SETTINGS —

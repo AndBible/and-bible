@@ -82,7 +82,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import net.bible.android.common.toV11n
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
 import net.bible.android.activity.databinding.FrozenBinding
@@ -104,7 +103,6 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
@@ -120,7 +118,6 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
-import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
@@ -160,7 +157,6 @@ import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.agent.PendingAgentResult
-import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.isStudyPad
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
@@ -182,15 +178,11 @@ import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedui.docCategoryOf
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
-import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
-import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
-import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
 import kotlin.coroutines.resume

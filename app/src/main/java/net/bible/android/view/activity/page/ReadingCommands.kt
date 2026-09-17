@@ -624,6 +624,10 @@ class ReadingCommands(
     // holds whichever reading host RESUMED last, which is not necessarily the one whose window the
     // screen was opened for (the identity finding of R6c1/R6d). On the classic Activity the two are
     // the same object, so this is not a behaviour change there.
+    //
+    // That is a claim about the PAGE MANAGER and about nothing else. `applyChosenPassageResult`'s
+    // memorize branch still reads `windowControl.defaultBibleDoc(false)`, which resolves against
+    // windowControl's own repository; the comment at that line says why it was left that way.
 
     /** The page manager of the active window of THIS host's repository -- see the block comment above. */
     private val hostActiveWindowPageManager get() = windowRepository().activeWindow.pageManager
@@ -683,6 +687,15 @@ class ReadingCommands(
         if (kind == ActivityResultKind.ReadingProgress && extras.getString("action") == "memorize") {
             val startOrd = extras.getInt("startOrdinal")
             val endOrd = extras.getInt("endOrdinal")
+            // **The ONE read of `windowControl` in these three arms, and it is deliberate.**
+            // `WindowControl.defaultBibleDoc` (`WindowControl.kt:99-102`) resolves against
+            // WINDOWCONTROL's repository, not this host's, so the block comment above -- which says
+            // the arms read the host's -- holds for the page manager and NOT for this versification
+            // source. It is classic's line verbatim and it is safe in practice: an in-graph answer
+            // reaches this host only while it is resumed, i.e. after `reclaimWindowRepository()` has
+            // made the two the same object. Left as classic wrote it rather than re-homed, because
+            // "which Bible's versification" is a global default rather than a per-window fact, and
+            // changing it would be a behaviour change smuggled into a verbatim lift.
             val defaultBible = windowControl.defaultBibleDoc(false)
             // Classic spells this `(defaultBible as SwordBook).versification`; the cast is
             // redundant here because `WindowControl.defaultBibleDoc` is already typed `SwordBook`,

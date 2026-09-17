@@ -137,6 +137,69 @@ class ReadingInGraphResultGuardTest {
         )
     }
 
+    /**
+     * **The ratchet one level UP, and the one this task was missing.**
+     * [everyKindHasACollector] derives from [ReadingResultKind] — so a kind added without a
+     * collector fails. But nothing derived [ReadingResultKind] itself from the host's channel SET,
+     * and `NavResultChannelGuardTest` has no such test either. A SIXTH result-producing route
+     * reachable from the reading view would therefore be recorded nowhere, collected nowhere, and
+     * the suite would be green again: the exact shape of the defect T8c exists to fix, and the exact
+     * way the first five went unnoticed through 2903 green tests.
+     *
+     * So: every `NavResultChannel` field the host declares is either handed to a `collectorFor(...)`
+     * or listed in [NOT_COLLECTED] **with a stated reason**. The allowlist is not a mute: an entry
+     * with no reason fails, an entry naming a field that no longer exists fails, and an entry for a
+     * channel that IS now collected fails — so when a later task gives one of these a consumer, the
+     * guard makes it remove the entry rather than leaving a stale claim behind.
+     *
+     * A source scan is the weak tool here, as everywhere in this class. What makes it a ratchet
+     * anyway is that it is a scan for something a new channel CANNOT avoid declaring: the field.
+     */
+    @Test fun everyHostChannelIsEitherCollectedOrAllowlistedWithAReason() {
+        val declared = Regex("""private val (\w+) = NavResultChannel<""")
+            .findAll(hostSrc).map { it.groupValues[1] }.toSet()
+        assertTrue(
+            declared.size >= 12,
+            "only ${declared.size} NavResultChannel fields found in NavHostComposeActivity.kt -- " +
+                "the field declaration was respelled and this guard has stopped seeing its subject",
+        )
+
+        val collected = declared.filter { field ->
+            Regex("""collectorFor\($field, ReadingResultKind\.\w+\)""").containsMatchIn(hostSrc)
+        }.toSet()
+        assertEquals(
+            ReadingResultKind.entries.size, collected.size,
+            "one collectorFor line per ReadingResultKind; collected = $collected",
+        )
+
+        assertEquals(
+            emptySet<String>(),
+            declared - collected - NOT_COLLECTED.keys,
+            "these NavResultChannel fields are neither collected by the reading destination nor " +
+                "allowlisted with a reason. If the reading view can reach the destination that " +
+                "fills one, the user's answer is being dropped in silence -- add a " +
+                "ReadingResultKind and a collectorFor. If it cannot, add it to NOT_COLLECTED and " +
+                "say why.",
+        )
+        assertEquals(
+            emptySet<String>(),
+            NOT_COLLECTED.keys - declared,
+            "these allowlist entries name channels that no longer exist -- a stale claim is how a " +
+                "guard stops seeing its subject",
+        )
+        assertEquals(
+            emptySet<String>(),
+            NOT_COLLECTED.keys intersect collected,
+            "these channels ARE collected now, so their allowlist reason is false; remove the entry",
+        )
+        val unreasoned = NOT_COLLECTED.filterValues { it.length < 40 }.keys
+        assertEquals(
+            emptySet<String>(),
+            unreasoned,
+            "an allowlist entry must carry a real reason, not a placeholder: $unreasoned",
+        )
+    }
+
     /** …and the collectors are actually handed to the destination. */
     @Test fun theCollectorsAreHandedToTheReadingDestination() {
         assertTrue(
@@ -278,4 +341,55 @@ class ReadingInGraphResultGuardTest {
                 t.startsWith("//") || t.startsWith("*") || t.startsWith("/*")
             }
             .joinToString("\n")
+
+    private companion object {
+        /**
+         * The host's `NavResultChannel` fields that the reading destination deliberately does NOT
+         * collect, each with the reason -- read and enforced by
+         * [everyHostChannelIsEitherCollectedOrAllowlistedWithAReason].
+         *
+         * Two shapes only, and both are checkable claims rather than opinions: either the channel's
+         * destination is reached from INSIDE the graph by a parent that collects it (the file and
+         * line are named, so the claim can be followed), or nothing routes to its destination from
+         * the reading view at all and its `exitWithResult` is a hard `error(...)` that would fail
+         * loudly if that changed.
+         *
+         * If a later task gives the reading view an edge into one of these, delete the entry and add
+         * a `ReadingResultKind` -- the guard will not let the entry stay.
+         */
+        val NOT_COLLECTED: Map<String, String> = mapOf(
+            "labelEditResults" to
+                "the label EDITOR is only ever a child of ManageLabels, whose arm collects it " +
+                    "(BookmarkNavGraph.kt:641). The reading view never opens it directly -- " +
+                    "Screen.LabelEdit is deliberately absent from ScreenLauncher.MIGRATED and its " +
+                    "route cannot be built without a payload only that arm has.",
+            "repositoryEditorResults" to
+                "the custom-repository editor is registered only as a child of CustomRepositories, " +
+                    "whose arm collects it (DownloadNavGraph.kt:529). Its exitWithResult is a hard " +
+                    "error(...) precisely because it has no external entry.",
+            "keyChooserResults" to
+                "slice 7's in-graph key choosers. Nothing routes to those destinations: the " +
+                    "reading view still launches the CLASSIC ChooseDictionaryWord/ChooseMapKey/" +
+                    "ChooseGeneralBookKey Activities, whose results come back through " +
+                    "applyPendingActivityResult. exitWithResult is a hard error(...).",
+            "passageResults" to
+                "slice 7's in-graph passage grid, same state as keyChooserResults: the reading " +
+                    "view launches the classic GridChoosePassage Activity and the result arrives " +
+                    "through applyPendingActivityResult. exitWithResult is a hard error(...).",
+            "documentResults" to
+                "slice 7's in-graph document chooser, same state again: ChooseDocument is still a " +
+                    "separate Activity for every reading-view entry point. exitWithResult is a " +
+                    "hard error(...).",
+            "workspaceResults" to
+                "slice 7's in-graph workspace selector. Screen.WorkspaceSelector is NOT in " +
+                    "ScreenLauncher.MIGRATED, so the reading view launches the classic " +
+                    "WorkspaceSelectorComposeActivity at WORKSPACE_CHANGED -- a separate Activity, " +
+                    "a real Activity result, and nothing this channel can ever see. " +
+                    "exitWithResult is a hard error(...).",
+            "textSettingsResults" to
+                "the text-display settings editor publishes to the workspace SELECTOR arm, which " +
+                    "collects it in-graph (WorkspaceNavGraph.kt:609). The reading view opens " +
+                    "TextDisplaySettingsComposeActivity, a separate Activity, not this route.",
+        )
+    }
 }

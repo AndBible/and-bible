@@ -168,6 +168,10 @@ class ReadingDestinationInGraphTest {
         onScreenTurnedOn = { screenOns++ },
         onScreenTurnedOff = { screenOffs++ },
         setWindowTitle = { windowTitles += it },
+        // T8c: this test is about the destination's visibility/handler/title seams, not about the
+        // answers its launches produce -- those are ReadingInGraphResultTest's. Explicit rather than
+        // defaulted, because the slot has no default: see ReadingNavDeps.results.
+        results = emptyList(),
     )
 
     private fun setGraph(d: ReadingNavDeps = deps()) {

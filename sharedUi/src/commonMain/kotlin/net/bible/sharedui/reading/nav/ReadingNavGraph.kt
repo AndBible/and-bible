@@ -176,8 +176,15 @@ class ReadingNavDeps(
      *
      * Empty is legal and means "this host answers nothing in-graph" — the classic Activity, whose
      * launches really do reach a second Activity and come back through `onActivityResult`.
+     *
+     * **No default value, deliberately** (T8c fix round, M3). An `= emptyList()` default was the
+     * first shape, and it is the one that quietly rebuilds the very defect this slot exists to fix:
+     * a future host that simply forgot the parameter would compile, run, and drop every answer in
+     * silence again — today's host guarded by `ReadingInGraphResultGuardTest`, tomorrow's not.
+     * Making it required costs a caller one explicit `results = emptyList()` and turns "you have to
+     * remember" into "the compiler remembers".
      */
-    val results: List<ReadingResultCollector<*>> = emptyList(),
+    val results: List<ReadingResultCollector<*>>,
 )
 
 /**
