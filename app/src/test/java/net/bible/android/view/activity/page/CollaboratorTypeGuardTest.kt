@@ -117,12 +117,16 @@ class CollaboratorTypeGuardTest {
         "src/main/java/net/bible/android/view/activity/page/BibleViewFactory.kt",
         "src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt",
         "src/main/java/net/bible/android/view/activity/page/ReadingInsets.kt",
-        // R6c2. `ReadingCommands.kt`'s only surviving code token is
-        // `MainBibleActivity.WORKSPACE_CHANGED` (the request code of the full workspace selector's
-        // activity result, which `MainBibleActivity.onActivityResult` still owns) -- already on
-        // [allowedNestedMembers] and Task 13's to re-home. `MenuCommandHandler.kt` has none left at
-        // all. Anything else here -- a type position, an import, a bare pass of the Activity into
-        // either collaborator -- is the regression this list exists to catch.
+        // R6c2, count corrected by R6d fix round 2. `ReadingCommands.kt` has TWO surviving code
+        // tokens: `MainBibleActivity.WORKSPACE_CHANGED` (the request code of the full workspace
+        // selector's activity result, which `MainBibleActivity.onActivityResult` still owns) and
+        // -- since R6d fix round 1 hoisted `pageTitleText` into this file -- the
+        // `MainBibleActivity.KeyIsNull()` that body throws for a null key. Both are on
+        // [allowedNestedMembers] and both are Task 13's to re-home, so nothing failed when the
+        // second arrived; the count is corrected because an understated comment is how an
+        // allow-list quietly stops describing what it allows. `MenuCommandHandler.kt` has none
+        // left at all. Anything else here -- a type position, an import, a bare pass of the
+        // Activity into either collaborator -- is the regression this list exists to catch.
         "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt",
         "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
         // R6d: the two callback-bundle files and the reading host itself. The host's surviving

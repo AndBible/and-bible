@@ -33,6 +33,23 @@ import org.junit.Test
 class ClassicReadingViewRemovalGuardTest {
     private val mainBibleActivity =
         "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt"
+    private val readingHostActivity =
+        "src/main/java/net/bible/android/view/activity/page/ReadingHostActivity.kt"
+
+    private companion object {
+        /**
+         * Reading-host re-typing R6d: the one function in `MainBibleActivity` allowed to name the
+         * classic toolbar row, because hiding that row is what the COMPOSE path needs and only the
+         * owner of the `binding` can do it. See [theReadingViewNamesNoClassicToolbarInCode]'s KDoc.
+         */
+        const val TOOLBAR_HIDE_FUNCTION = "hideClassicToolbarRow"
+
+        /** Everything [TOOLBAR_HIDE_FUNCTION]'s body is permitted to contain. Order matters. */
+        val ALLOWED_TOOLBAR_HIDE_WRITES = listOf(
+            "binding.toolbarLayout.visibility = View.GONE",
+            "binding.toolbarDivider.visibility = View.GONE",
+        )
+    }
 
     @Test
     fun theReadingViewReadsTheFlagNowhere() {
@@ -60,10 +77,30 @@ class ClassicReadingViewRemovalGuardTest {
      * this epilogue collapsed. `toolbarColor` was the classic toolbar's colour source (deleted with
      * its last reader); `toolbarLayout` is the view every classic branch mutated -- background,
      * height, padding, visibility, slide animation; `toolbarDivider` is the monochrome-only rule
-     * from inside the deleted tint block. All three are exactly zero in the file's CODE lines as of
-     * this commit and each would be non-zero under a wrong-direction collapse.
+     * from inside the deleted tint block.
      *
-     * Deliberately scoped to code lines: `toolbarLayout` still appears seven times in this file's
+     * **Reading-host re-typing R6d fix round 2 narrowed the rule from "never named" to "named only
+     * in order to be HIDDEN", and the old premise is what changed.** The premise above was that
+     * these names "can only reappear on the classic side". R6d made that false in exactly one
+     * narrow, legitimate way: `ComposeReadingViewHost.install()` used to reach through the Activity
+     * and write `activity.binding.toolbarLayout.visibility = View.GONE` itself, and R6d turned that
+     * into [ReadingHostActivity.hideClassicToolbarRow] because `binding` may not be part of the
+     * reading view's contract (design spec 3.1). The row still has to be hidden -- its children are
+     * written to by live code on the Compose path, so it must stay inflated and merely `GONE` until
+     * slice 7 Tasks 11/13 delete the writes, the XML and this Activity together -- and the only
+     * object that can hide it is the one that owns the `binding`. So the writes moved INTO this
+     * file, and hiding the classic row is Compose-side behaviour, not a classic-branch
+     * resurrection.
+     *
+     * The guard therefore excises exactly [TOOLBAR_HIDE_FUNCTION]'s body before scanning, rather
+     * than exempting the three names file-wide, and pins that body to exactly
+     * [ALLOWED_TOOLBAR_HIDE_WRITES] -- two `visibility = View.GONE` writes and nothing else. Any
+     * `toolbarColor`, any tint, height, padding, slide-animation or `statusBarColor` write is still
+     * caught, inside that function as well as outside it. The allowance is self-invalidating:
+     * [theClassicToolbarHidingExemptionIsStillLive] goes red the day Tasks 11/13 delete or rename
+     * the function, so the exemption must be deleted with it rather than outliving its reason.
+     *
+     * Deliberately scoped to code lines: `toolbarLayout` still appears several times in this file's
      * PROSE ("the now-GONE `toolbarLayout`"), which [ClassicRemovalScan.codeLinesOf] strips. Those
      * comments are accurate and must stay.
      */
@@ -75,11 +112,80 @@ class ClassicReadingViewRemovalGuardTest {
             code.contains("class MainBibleActivity"),
         )
         assertEquals(
-            "MainBibleActivity must not name the classic toolbar in code. A use_compose_ui read " +
-                "count of 0 on its own cannot tell a collapse to the Compose branch from a " +
-                "collapse to the CLASSIC one -- these names can only reappear on the classic side.",
+            "MainBibleActivity must not name the classic toolbar in code, except to HIDE the row " +
+                "(see this test's KDoc and `hideClassicToolbarRow`). A use_compose_ui read count " +
+                "of 0 on its own cannot tell a collapse to the Compose branch from a collapse to " +
+                "the CLASSIC one -- outside that one function these names can only reappear on " +
+                "the classic side.",
             emptyList<String>(),
-            listOf("toolbarLayout", "toolbarColor", "toolbarDivider").filter { code.contains(it) },
+            listOf("toolbarLayout", "toolbarColor", "toolbarDivider")
+                .filter { withoutToolbarHideBody(code).contains(it) },
+        )
+    }
+
+    /** The ONE function allowed to name the classic toolbar row, and only to hide it (R6d). */
+    private val toolbarHideAnchor = "override fun $TOOLBAR_HIDE_FUNCTION() {"
+
+    /**
+     * [TOOLBAR_HIDE_FUNCTION]'s signature-through-closing-brace span in [code], or `null` when the
+     * function is absent -- which is the right answer, not a silent hole: with the function gone
+     * there is nothing to exempt, the scan below covers the whole file again, and
+     * [theClassicToolbarHidingExemptionIsStillLive] is what turns the now-pointless exemption red.
+     */
+    private fun toolbarHideSpan(code: String): IntRange? {
+        val start = code.indexOf(toolbarHideAnchor)
+        if (start < 0) return null
+        var depth = 0
+        var i = code.indexOf('{', start)
+        while (i < code.length) {
+            when (code[i]) {
+                '{' -> depth++
+                '}' -> { depth--; if (depth == 0) return start..i }
+            }
+            i++
+        }
+        throw AssertionError("$mainBibleActivity: $TOOLBAR_HIDE_FUNCTION has unbalanced braces")
+    }
+
+    /** [code] with [toolbarHideSpan] cut out, so the scan sees every OTHER line of the file. */
+    private fun withoutToolbarHideBody(code: String): String =
+        toolbarHideSpan(code)?.let { code.removeRange(it.first, it.last + 1) } ?: code
+
+    /**
+     * The exemption above, made visible and self-invalidating -- the shape
+     * `CollaboratorTypeGuardTest`'s nested-member allow-list uses, for the same reason: an
+     * allowance that outlives its subject silently widens what the guard tolerates.
+     *
+     * Two things are pinned. That the exempted function still EXISTS here and is still the
+     * interface member it implements (so a Task 11/13 deletion or rename fails here and forces the
+     * exemption out with it), and that its body is EXACTLY the two `View.GONE` writes -- so the
+     * excision above can never grow into a hiding place for a tint, a height or a background write.
+     */
+    @Test
+    fun theClassicToolbarHidingExemptionIsStillLive() {
+        val code = ClassicRemovalScan.codeLinesOf(mainBibleActivity)
+        assertTrue(
+            "$mainBibleActivity no longer declares `$toolbarHideAnchor` -- Tasks 11/13 have " +
+                "presumably deleted the classic toolbar row. Delete this exemption and the " +
+                "excision in theReadingViewNamesNoClassicToolbarInCode with it; do not leave an " +
+                "allowance for code that is gone.",
+            code.contains(toolbarHideAnchor),
+        )
+        assertTrue(
+            "ReadingHostActivity no longer declares `fun $TOOLBAR_HIDE_FUNCTION()` -- the " +
+                "exemption is keyed on an interface member that has moved or gone",
+            ClassicRemovalScan.codeLinesOf(readingHostActivity)
+                .contains("fun $TOOLBAR_HIDE_FUNCTION()"),
+        )
+        val span = toolbarHideSpan(code)!!
+        val body = code.substring(span.first, span.last + 1)
+        assertEquals(
+            "$TOOLBAR_HIDE_FUNCTION may hide the classic row and do nothing else. Anything more " +
+                "-- a tint, a height, a padding, a background, a slide animation -- is the " +
+                "classic-side resurrection this guard exists to catch, and excising this body is " +
+                "what would otherwise hide it.",
+            ALLOWED_TOOLBAR_HIDE_WRITES,
+            body.lines().drop(1).map { it.trim() }.filter { it.isNotEmpty() && it != "}" },
         )
     }
 
