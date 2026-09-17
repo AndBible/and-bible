@@ -38,6 +38,18 @@ import org.junit.Test
  * normalises exactly that, and pins the count, so the normalisation cannot grow into a blanket
  * rewrite that hides real drift.
  *
+ * **R6d fix round 1 added a SECOND region: `transportBarVisible`.** R6d gave the nav host a copy of
+ * classic's flag so `ReadingCommands` could reach it through the host bundle without a silent
+ * no-op (addendum Ruling D). Two of R6d's three new duplications were HOISTED away instead of
+ * guarded -- `pageTitleText` onto `ReadingCommands` and the theme-attribute idiom onto
+ * `Activity.themePixelSize` -- but this one cannot be: classic's setter's first act is
+ * `binding.speakButton.alpha`, chrome the nav host has no `binding` for, so the two bodies are
+ * legitimately NOT identical and the property is per-host state that `ReadingInsetsHostCallbacks`
+ * and `ReadingCommandsHostCallbacks` both bind on each host separately. What CAN be pinned is that
+ * the three differences are exactly the three sanctioned ones, and that everything else -- the
+ * fullscreen suppression, the idempotence guard, the assignment order and the
+ * `SpeakTransportVisibilityChanged` post the whole Compose side observes -- stays identical.
+ *
  * This is a SOURCE-level guard. It is not evidence about runtime behaviour; the device pass is.
  */
 class ReadingChromePortDriftTest {
@@ -97,6 +109,156 @@ class ReadingChromePortDriftTest {
 
     private val classicChrome get() = chromeRegionOf(classicPath)
     private val navHostChrome get() = chromeRegionOf(navHostPath)
+
+    // ————————————————————————— R6d fix round 1: the transportBarVisible region —————————————————
+
+    /** The declaration line of each host's `transportBarVisible`, which differs only in modifier. */
+    private val transportBarAnchors = mapOf(
+        classicPath to "    internal var transportBarVisible = false",
+        navHostPath to "    private var transportBarVisible = false",
+    )
+
+    /**
+     * From the `transportBarVisible` declaration through the closing brace of its `set(value) {`,
+     * by the same line-wise brace match [chromeRegionOf] uses (and for the same reason: line
+     * numbers in both files move under every task in this batch).
+     */
+    private fun transportBarRegionOf(path: String): String {
+        val source = sourceOf(path)
+        val anchor = transportBarAnchors.getValue(path)
+        val start = source.indexOf(anchor)
+        require(start >= 0) { "$path: transportBarVisible's declaration is gone — re-anchor this guard: $anchor" }
+        val setter = source.indexOf("set(value) {", start)
+        require(setter in start..(start + 200)) {
+            "$path: transportBarVisible has no setter within 200 chars of its declaration — re-anchor this guard"
+        }
+        var depth = 0
+        var i = setter
+        var end = -1
+        while (i < source.length) {
+            val lineEnd = source.indexOf('\n', i).let { if (it < 0) source.length else it }
+            val code = source.substring(i, lineEnd).substringBefore("//")
+            for ((offset, c) in code.withIndex()) {
+                if (c == '{') depth++
+                if (c == '}') {
+                    depth--
+                    if (depth == 0) { end = i + offset + 1; break }
+                }
+            }
+            if (end >= 0) break
+            i = lineEnd + 1
+        }
+        require(end > start) { "$path: could not find the end of transportBarVisible's setter — re-anchor this guard" }
+        return source.substring(start, end)
+    }
+
+    private val classicTransportBar get() = transportBarRegionOf(classicPath)
+    private val navHostTransportBar get() = transportBarRegionOf(navHostPath)
+
+    /**
+     * The other two duplications R6d created were HOISTED rather than guarded, and a hoist is only
+     * a fix while it stays the single copy. This is the standing assertion that neither host has
+     * re-grown one, keyed on each hoisted body's most distinctive line -- plus the positive half,
+     * so a rename of the hoist target turns this red instead of vacuous.
+     */
+    @Test
+    fun neitherHostReImplementsABodyR6dHoisted() {
+        val readingCommands = sourceOf("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt")
+        val activityBase = sourceOf("src/main/java/net/bible/android/view/activity/base/ActivityBase.kt")
+        assertTrue(
+            "ReadingCommands.pageTitleText is the ONE page-title body; if it is gone, the two " +
+                "assertions below are watching nothing",
+            readingCommands.contains("CommonUtils.getWholeChapter(key, false).name"),
+        )
+        assertTrue(
+            "Activity.themePixelSize is the ONE theme-dimension body; same reason",
+            activityBase.contains("TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)"),
+        )
+        for (path in listOf(classicPath, navHostPath)) {
+            val source = sourceOf(path)
+            assertEquals(
+                "$path re-implements the page-title body — it is ReadingCommands.pageTitleText, " +
+                    "read by both hosts (R6d fix round 1)",
+                0, Regex("CommonUtils\\.getWholeChapter\\(").findAll(source).count(),
+            )
+            assertEquals(
+                "$path re-implements the theme-dimension body — it is Activity.themePixelSize, " +
+                    "called by both hosts (R6d fix round 1)",
+                0, Regex("complexToDimensionPixelSize").findAll(source).count(),
+            )
+        }
+    }
+
+    @Test
+    fun bothTransportBarRegionsAreActuallyThereAndAreRealCode() {
+        // Positive anti-vacuity, exactly as for the chrome region: a normalisation bug that reduced
+        // both regions to "" would otherwise satisfy the equality test below against nothing.
+        for ((path, region) in listOf(classicPath to classicTransportBar, navHostPath to navHostTransportBar)) {
+            assertTrue(
+                "$path: the transportBarVisible region is too small to be the property " +
+                    "(${region.lines().size} lines)",
+                region.lines().size >= 6,
+            )
+            assertTrue(
+                "$path: the region does not look like the transport-bar flag",
+                region.contains("get() = if (") &&
+                    region.contains("if (field == value) return") &&
+                    region.contains("ABEventBus.post(SpeakTransportVisibilityChanged(value))"),
+            )
+        }
+    }
+
+    @Test
+    fun theOnlyDifferencesInTheTransportBarFlagAreTheThreeSanctionedOnes() {
+        val classic = classicTransportBar
+        val navHost = navHostTransportBar
+
+        // Pin each sanctioned substitution's SHAPE and COUNT first, so the normalisation below
+        // cannot quietly widen into a rewrite that swallows real drift.
+        assertEquals(
+            "classic's setter must write the classic toolbar's speak button exactly once; that " +
+                "single line is the only thing the nav host is allowed to be missing",
+            1, Regex("binding\\.speakButton\\.alpha = if\\(value\\) 0\\.7F else 1\\.0F")
+                .findAll(classic).count(),
+        )
+        assertEquals(
+            "the nav host has no binding at all — a binding read here would be new coupling, not a port",
+            0, Regex("binding\\.").findAll(navHost).count(),
+        )
+        assertEquals(
+            "classic suppresses the bar through its own isFullScreen field, exactly once",
+            1, Regex("(?<![.\\w])isFullScreen\\b").findAll(classic).count(),
+        )
+        assertEquals(
+            "the nav host suppresses it through ReadingHostActivity.fullScreen, exactly once",
+            1, Regex("(?<![.\\w])fullScreen\\b").findAll(navHost).count(),
+        )
+
+        val normalisedClassic = classic
+            .replace("    internal var transportBarVisible", "    var transportBarVisible")
+            .lines().filterNot { it.contains("binding.speakButton.alpha") }.joinToString("\n")
+            .replace("if (isFullScreen)", "if (fullScreen)")
+        val normalisedNavHost = navHost
+            .replace("    private var transportBarVisible", "    var transportBarVisible")
+
+        if (normalisedClassic != normalisedNavHost) {
+            val a = normalisedClassic.lines()
+            val b = normalisedNavHost.lines()
+            val i = a.zip(b).indexOfFirst { (x, y) -> x != y }
+            val detail = if (i >= 0) {
+                "first difference at region line ${i + 1}:\n  MainBibleActivity: ${a[i]}\n" +
+                    "  NavHostComposeActivity: ${b[i]}"
+            } else {
+                "the regions have different lengths: ${a.size} vs ${b.size} lines"
+            }
+            throw AssertionError(
+                "the speak transport bar's visibility flag has drifted between its two hosts. Both " +
+                    "are live until slice 7 Task 13 deletes MainBibleActivity, and the Compose side " +
+                    "treats the SpeakTransportVisibilityChanged post as its single source of truth — " +
+                    "port the change across rather than weakening this guard.\n" + detail,
+            )
+        }
+    }
 
     @Test
     fun bothChromeRegionsAreActuallyThereAndAreRealCode() {

@@ -151,6 +151,7 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.ai.LlmDialogHelper
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.themePixelSize
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.DocumentConfiguration
@@ -1013,10 +1014,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // subscription. [hideSystemUI] and [showSystemUI] below are ported from `MainBibleActivity`
     // VERBATIM, comments included -- they encode a single-writer rule about status-bar appearance
     // versus `LocalSystemBarSync` that is easy to "simplify" into a bug. The ONE adaptation is
-    // `windowRepository` -> `windowControl.windowRepository` (twice, in [showSystemUI]): this host
-    // has no `windowRepository` field, and until slice 7 Task 12 makes it the launcher the
-    // repository it reads is the one `MainBibleActivity` created -- which is the object classic read
-    // too.
+    // `windowRepository` -> `windowControl.windowRepository` (twice, in [showSystemUI]): until
+    // slice 7 Task 12 makes this host the launcher, the repository it reads is the one
+    // `MainBibleActivity` created -- which is the object classic read too.
+    //
+    // R6d fix round 1: the old wording here said this host "has no `windowRepository` field", which
+    // stopped being true at R6d -- [hostWindowRepository] below is its own, from
+    // [readingAppBootstrap]. It is deliberately NOT substituted into the ported chrome: the port's
+    // whole value is that `ReadingChromePortDriftTest` can compare the two regions, and that guard
+    // pins this substitution at exactly two occurrences. The same is true of this host's other
+    // `windowControl.windowRepository` reads, [restorePaneFocus] included -- see the R6d report's
+    // note; re-pointing them at [hostWindowRepository] is R8's, with its own red/green.
 
     /** Whether [bootstrapIfNeeded] has already run for this Activity instance. */
     private var readingAppBootstrapped = false
@@ -1211,7 +1219,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         documentViewManager = { documentViewManager },
         llmDialogHelper = { llmDialogHelper },
         currentNightMode = { currentNightMode },
-        pageTitleText = { pageTitleText },
         transportBarVisible = { transportBarVisible },
         setTransportBarVisible = { transportBarVisible = it },
         // Classic's `updateBottomBars()` is nothing but this post, which the Compose restore rail
@@ -1244,8 +1251,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * host-agnostic (R6b); what each supplier answers for THIS host is the table in
      * [ReadingInsetsHostCallbacks]' kdoc, which R6b wrote in advance:
      *
-     * - the two HEIGHTS are theme dimensions, host-independent, and are resolved exactly the way
-     *   classic resolves them in `setupUi` (`theme.resolveAttribute` -> `complexToDimensionPixelSize`);
+     * - the two HEIGHTS are theme dimensions, host-independent, and are resolved through the ONE
+     *   shared `Activity.themePixelSize` that `MainBibleActivity.resolveVariables` also calls
+     *   (R6d fix round 1 hoisted the idiom rather than leaving a copy in each host);
      * - the two VISIBILITY flags are this host's own state: the speak transport bar is a real flag
      *   here (see [transportBarVisible]), and the agent-log strip is one this host does not draw
      *   yet -- see the comment on that pair for why `false` is today's truth and what R8 owes;
@@ -1263,11 +1271,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             ReadingInsetsHostCallbacks(
                 transportBarVisible = { transportBarVisible },
                 transportBarHeight = { themePixelSize(R.attr.transportBarHeight) },
-                // This host draws no agent-log strip and has no `AgentLogVisibilityChanged`
-                // subscription of its own, so `false` is the truth about it TODAY rather than a
-                // placeholder -- and it is unreachable today too, because nothing composes the
-                // reading destination until R8. **R8 supplies the real pair** when it does; the
-                // symptom of forgetting is a WebView whose bottom offset ignores the log strip.
+                // `false`/`0` is what classic answers too, and will keep answering after R8 --
+                // NOT a placeholder, and not "this host has no strip" (the strip is the READING
+                // VIEW's, via `ComposeReadingViewHost.agentLog`, so R8 would inherit it).
+                // `AgentLogVisibilityChanged` has NO SENDER anywhere in the repository: its only
+                // poster was `AgentLogWidget.notifyVisibilityChanged`, deleted by Batch Z-late's
+                // epilogue, and `AgentLogEvents.kt`'s own kdoc records that the pair has been
+                // permanently `false`/`0` on the Compose path since the `classicBottomChromeAllowed`
+                // gate landed. Classic's fields are therefore never written either -- the
+                // subscription at `MainBibleActivity.kt:429` is the handler with no sender that kdoc
+                // names. The debt is whoever re-introduces the Compose agent-log panel's (the KNOWN
+                // GAP tracked in `MainBibleActivity.updateBottomBars`), not R8's.
                 agentLogVisible = { false },
                 agentLogHeight = { 0 },
                 restoreButtonsVisible = { hostWindowRepository.workspaceSettings.restoreButtonsVisible },
@@ -1296,18 +1310,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      *  interface (R5), so it needs nothing this host cannot give. */
     private val llmDialogHelper by lazy { LlmDialogHelper(this) }
 
-    /**
-     * Classic's `setupUi` theme-attribute resolution, as a function rather than two fields assigned
-     * once: the two heights the inset ledger asks for are theme dimensions, and this host has no
-     * `setupUi` in which to cache them. `0` when the attribute is absent, which is what classic's
-     * `if (theme.resolveAttribute(...))` leaves the field at.
-     */
-    private fun themePixelSize(attr: Int): Int {
-        val tv = TypedValue()
-        return if (theme.resolveAttribute(attr, tv, true)) {
-            TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-        } else 0
-    }
+    // R6d fix round 1 (review Important): this host's own copy of classic's theme-attribute
+    // resolution is DELETED. It is `Activity.themePixelSize` in `ActivityBase.kt` now, and
+    // `MainBibleActivity.resolveVariables` calls the same one.
 
     /** Classic's `currentNightMode` field: the theme in force when this host was created, against
      *  which `refreshIfNightModeChange()` compares. Captured in `onCreate` for the same reason. */
@@ -1328,25 +1333,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             ABEventBus.post(SpeakTransportVisibilityChanged(value))
         }
 
-    /**
-     * Classic's `pageTitleText` -- the reference overlay's text. Pure `pageControl` arithmetic with
-     * no host state in it at all, so this is the same computation and not a second policy; it
-     * throws the same `MainBibleActivity.KeyIsNull` classic throws, because
-     * `ComposeReadingViewHost.readOverlayText()` catches exactly that type and re-homing the nested
-     * class is slice 7 Task 13's.
-     */
-    private val pageTitleText: String
-        get() {
-            val doc = pageControl.currentPageManager.currentPage.currentDocument
-            var key = pageControl.currentPageManager.currentPage.displayKey
-            val isBible = doc?.bookCategory == BookCategory.BIBLE
-            if (isBible) {
-                key = pageControl.currentBibleVerse
-            }
-            return if (key is Verse && key.verse == 0) {
-                CommonUtils.getWholeChapter(key, false).name
-            } else key?.name ?: throw MainBibleActivity.KeyIsNull()
-        }
+    // R6d fix round 1 (review Important): this host's own 11-line copy of classic's `pageTitleText`
+    // is DELETED. The body was pure `pageControl` arithmetic -- host-independent by R6d's own
+    // admission -- so it belonged where `drawerRateVisible` went: hoisted. It is
+    // `ReadingCommands.pageTitleText` now, read by both hosts through their own command surface,
+    // and `ReadingCommandsHostCallbacks.pageTitleText` went with it.
 
     private fun hideSystemUI() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

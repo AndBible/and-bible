@@ -81,6 +81,7 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
@@ -123,7 +124,9 @@ import kotlin.coroutines.resume
  * What deliberately did NOT move: the privates the command surface shares with the CLASSIC toolbar
  * and `updateActions()` (`menuForDocs`, `setCurrentDocument`, `startDocumentChooser`,
  * `cycleWorkspace`, `dummyStrongsPrefOption`, `updateStrongsButton`, `updateBottomBars`,
- * `pageTitleText`, `currentDocument`). Moving those would have dragged the classic reading view's
+ * `currentDocument`). `pageTitleText` was on that list until R6d fix round 1 and is NOT any more:
+ * it is host-independent arithmetic, and leaving it on the Activity is what let R6d copy it into
+ * the second host. It lives here now; the Activity keeps a view onto it for the classic toolbar. Moving those would have dragged the classic reading view's
  * own listeners across with them; they were widened from `private` to `internal` on the Activity
  * instead. The four `drawer*` chrome-parity calls stayed too -- they are chrome, which R4's
  * `ReadingHostActivity` interface owns.
@@ -1219,6 +1222,41 @@ class ReadingCommands(
             hostCallbacks.updateTitle()
         }
 
+    /**
+     * The current page's display title -- the second half of [bibleOverlayText] and, on the classic
+     * host, the text of `binding.pageTitle`.
+     *
+     * **Hoisted here by R6d fix round 1 (review Important).** It is pure [pageControl] arithmetic
+     * with no host state in it at all, so R6d's own copy of it on `NavHostComposeActivity` was an
+     * 11-line verbatim duplicate of `MainBibleActivity`'s -- exactly the hazard
+     * `ReadingChromePortDriftTest` exists for (both hosts are live at once until slice 7 Task 13,
+     * so a fix applied to one and not the other is a divergence nothing else can see), and exactly
+     * the test R6d applied to `drawerRateVisible` and failed to apply here. One copy, read by both
+     * hosts through their own [ReadingCommands]; `ReadingCommandsHostCallbacks.pageTitleText` is
+     * gone with the duplicate, and `MainBibleActivity.pageTitleText` is a view onto this.
+     *
+     * It still throws `MainBibleActivity.KeyIsNull` for a null key, which is classic's behaviour
+     * and what `ComposeReadingViewHost.readOverlayText()` and classic's `updateTitle()` both catch.
+     * Re-homing that nested class is slice 7 Task 13's, and Ruling E allow-lists it.
+     *
+     * NB a third, DELIBERATELY different transcription lives at
+     * `ToolbarStateServiceImpl.pageTitleText()`: it returns `""` where this throws, because the
+     * Compose toolbar renders a title rather than catching an exception. That one predates this
+     * batch and is not unified here -- unifying it would change what the toolbar shows.
+     */
+    internal val pageTitleText: String
+        get() {
+            val doc = pageControl.currentPageManager.currentPage.currentDocument
+            var key = pageControl.currentPageManager.currentPage.displayKey
+            val isBible = doc?.bookCategory == BookCategory.BIBLE
+            if(isBible) {
+                key = pageControl.currentBibleVerse
+            }
+            return if(key is Verse && key.verse == 0) {
+                CommonUtils.getWholeChapter(key, false).name
+            } else key?.name ?: throw MainBibleActivity.KeyIsNull()
+        }
+
     val bibleOverlayText: String
         get() {
             val bookName = pageControl.currentPageManager.currentPage.currentDocument?.abbreviation
@@ -1226,7 +1264,7 @@ class ReadingCommands(
                 val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
                 try {
-                    return "$bookName:${hostCallbacks.pageTitleText()}"
+                    return "$bookName:${pageTitleText}"
                 } finally {
                     BookName.setFullBookName(oldValue)
                 }

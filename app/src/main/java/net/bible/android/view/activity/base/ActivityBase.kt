@@ -25,12 +25,14 @@ import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.AttrRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -497,4 +499,26 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         const val CALCULATOR_REQUEST = 6000
         const val ASYNC_REQUEST_CODE_START = 1900
     }
+}
+
+/**
+ * The pixel size of a dimension attribute on this Activity's theme, or `0` when the theme does not
+ * define it.
+ *
+ * Reading-host re-typing R6d fix round 1 (review Important). `MainBibleActivity.resolveVariables`
+ * spelled this out three times inline, and R6d then spelled a fourth copy into
+ * `NavHostComposeActivity` so its inset ledger could answer `transportBarHeight`/
+ * `windowButtonHeight`. Both hosts are live at once until slice 7 Task 13, so a copy in each is
+ * the divergence `ReadingChromePortDriftTest` was built for -- and this one is pure Android with
+ * no host state in it, so the honest fix is one implementation rather than a guard over four.
+ *
+ * `0` on an unresolved attribute is exactly what classic's `if (theme.resolveAttribute(...))`
+ * left behind: its three fields are initialised to `0` and `resolveVariables()` runs once, from
+ * `onCreate`.
+ */
+fun android.app.Activity.themePixelSize(@AttrRes attr: Int): Int {
+    val tv = TypedValue()
+    return if (theme.resolveAttribute(attr, tv, true)) {
+        TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+    } else 0
 }

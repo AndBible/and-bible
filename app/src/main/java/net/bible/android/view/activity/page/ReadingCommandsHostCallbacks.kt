@@ -66,9 +66,8 @@ import org.crosswire.jsword.book.Book
  * is whichever host most RESUMED last, which is a different object from the owning host's own
  * repository for a second, not-yet-resumed reading host (`MainBibleActivity.onResume` and
  * `unFreeze()` exist only to reconcile the two). [composeReadingViewHost], [readingInsets],
- * [documentViewManager], [llmDialogHelper], [currentNightMode], [pageTitleText] and
- * [transportBarVisible] are all either late-bound or mutable on the host for the same class of
- * reason. A supplier invoked once and stored is that bug in new clothes.
+ * [documentViewManager], [llmDialogHelper], [currentNightMode] and [transportBarVisible] are all
+ * either late-bound or mutable on the host for the same class of reason. A supplier invoked once and stored is that bug in new clothes.
  *
  * **A missing body shows up here as an unfilled constructor parameter, not as a silent no-op
  * override** — addendum Ruling D. Five members are nonetheless honest no-ops for a Compose host and
@@ -118,12 +117,12 @@ class ReadingCommandsHostCallbacks(
     /** `MainBibleActivity.currentNightMode`, re-read on every access (it flips at runtime). */
     val currentNightMode: () -> Boolean,
 
-    /**
-     * The reference overlay's page title. Host-independent arithmetic, but it throws the host's own
-     * nested `MainBibleActivity.KeyIsNull` for a null key, and re-homing that is Task 13's — so it
-     * stays a supplier rather than dragging a nested type across.
-     */
-    val pageTitleText: () -> String,
+    // R6d fix round 1 (review Important): `pageTitleText` used to be a supplier here, on the
+    // grounds that it throws `MainBibleActivity.KeyIsNull`. That was the wrong trade — the body is
+    // host-independent `pageControl` arithmetic, Ruling E allow-lists the nested class anyway, and
+    // keeping it on the host is what let R6d copy all eleven of its lines into
+    // `NavHostComposeActivity`. It lives on `ReadingCommands.pageTitleText` now, ONE copy for both
+    // hosts, so this bundle member is gone rather than merely unused.
 
     /**
      * Speak transport bar visibility. **Deliberately NOT one of the honest no-ops below**, even

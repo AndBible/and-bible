@@ -124,6 +124,7 @@ import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.themePixelSize
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.IntentHelper
@@ -271,7 +272,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         documentViewManager = { documentViewManager },
         llmDialogHelper = { llmDialogHelper },
         currentNightMode = { currentNightMode },
-        pageTitleText = { pageTitleText },
         transportBarVisible = { transportBarVisible },
         setTransportBarVisible = { transportBarVisible = it },
         updateBottomBars = { updateBottomBars() },
@@ -707,18 +707,13 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
             navigationBarHeight = resources.getDimensionPixelSize(navBarId)
         }
 
-        val tv = TypedValue()
-        if (theme.resolveAttribute(R.attr.actionBarSize, tv, true)) {
-            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-        }
-
-        if (theme.resolveAttribute(R.attr.transportBarHeight, tv, true)) {
-            transportBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-        }
-
-        if (theme.resolveAttribute(R.attr.windowButtonHeight, tv, true)) {
-            windowButtonHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-        }
+        // R6d fix round 1: the three `theme.resolveAttribute` blocks are one shared
+        // `Activity.themePixelSize` now, because R6d had copied the idiom into the nav host's
+        // inset ledger. Same values: these fields start at 0 and this runs once, so "leave the
+        // field alone when the attribute is missing" and "return 0" are the same thing here.
+        actionBarHeight = themePixelSize(R.attr.actionBarSize)
+        transportBarHeight = themePixelSize(R.attr.transportBarHeight)
+        windowButtonHeight = themePixelSize(R.attr.windowButtonHeight)
 
         transportBarVisible = !speakControl.isStopped
 
@@ -1089,20 +1084,12 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
 
     class KeyIsNull: Exception()
 
-    // R3: widened from `private` to `internal` so [ReadingCommands] can reach it. It stays HERE
-    // because the CLASSIC toolbar/`updateActions()` path still calls it too (design spec §3.2).
-    internal val pageTitleText: String
-        get() {
-            val doc = pageControl.currentPageManager.currentPage.currentDocument
-            var key = pageControl.currentPageManager.currentPage.displayKey
-            val isBible = doc?.bookCategory == BookCategory.BIBLE
-            if(isBible) {
-                key = pageControl.currentBibleVerse
-            }
-            return if(key is Verse && key.verse == 0) {
-                CommonUtils.getWholeChapter(key, false).name
-            } else key?.name ?: throw KeyIsNull()
-        }
+    // R6d fix round 1 (review Important): the BODY moved to `ReadingCommands.pageTitleText`. It is
+    // host-independent `pageControl` arithmetic, so leaving it here is what let R6d copy it
+    // verbatim into `NavHostComposeActivity` — the same test that moved `drawerRateVisible` out.
+    // This stays as a view onto that one copy because the CLASSIC toolbar/`updateActions()` path
+    // and `ReadingOverlayTextTest` both call it on this Activity (design spec §3.2).
+    internal val pageTitleText: String get() = readingCommands.pageTitleText
 
     val bibleOverlayText: String get() = readingCommands.bibleOverlayText
 
