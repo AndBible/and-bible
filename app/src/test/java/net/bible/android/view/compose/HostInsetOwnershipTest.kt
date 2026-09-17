@@ -24,6 +24,8 @@ import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.applyComposeHostWindowSetup
@@ -33,6 +35,7 @@ import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import org.junit.Assert.assertEquals
@@ -159,5 +162,47 @@ class HostInsetOwnershipTest {
         for ((name, host) in composeHostsOwningTheirInsets) {
             assertTrue("$name must own its window setup", host.disableBaseSetupUi)
         }
+    }
+
+    /**
+     * `bottomOffsetForWebView` is `bottomOffset1WithoutIme` (fed only by a live insets listener)
+     * plus chrome terms (`transportBarVisible`/height, `restoreButtonsVisible`/`windowButtonHeight`,
+     * `agentLogVisible`/height, the search-sheet pair) that are host state independent of the
+     * dispatch below -- `restoreButtonsVisible` in particular comes from the workspace settings and
+     * may be on by default in this test environment. So this asserts the DELTA the dispatch causes,
+     * not the raw total: whatever the chrome terms contribute, feeding the ledger must add exactly
+     * the navigation-bar inset (39) on top of it.
+     */
+    @Test
+    fun theNavHostFeedsItsReadingInsetsLedger() {
+        val activity = Robolectric.buildActivity(NavHostComposeActivity::class.java).setup().get()
+        val root = contentRootOf(activity)
+        val before = activity.readingInsets.bottomOffsetForWebView
+        dispatchSystemBars(root)
+        val after = activity.readingInsets.bottomOffsetForWebView
+        assertEquals(
+            "the nav host must forward system-bar insets into its ReadingInsets ledger -- " +
+                "bottomOffsetForWebView must increase by exactly the navigation-bar inset (39), " +
+                "on top of whatever chrome terms (transportBarVisible, restoreButtonsVisible/" +
+                "windowButtonHeight, agentLogVisible, the search sheet) it already carried",
+            39,
+            after - before,
+        )
+    }
+
+    @Test
+    fun theNavHostPostsSystemInsetsChanged() {
+        val activity = Robolectric.buildActivity(NavHostComposeActivity::class.java).setup().get()
+        var seen: MainBibleActivity.SystemInsetsChangedEvent? = null
+        val subscriber = Any()
+        ABEventBus.register(subscriber) {
+            on<MainBibleActivity.SystemInsetsChangedEvent> { seen = it }
+        }
+        try {
+            dispatchSystemBars(contentRootOf(activity))
+        } finally {
+            ABEventBus.unregister(subscriber)
+        }
+        assertEquals("the nav host must post SystemInsetsChangedEvent", 39, seen?.insets?.bottom)
     }
 }
