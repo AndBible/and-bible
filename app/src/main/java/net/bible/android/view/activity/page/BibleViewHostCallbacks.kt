@@ -34,7 +34,8 @@ import net.bible.service.llm.PromptContext
  * — instead of forcing every host to answer it before the ladder's next rung is even reached.
  *
  * **Why [hostActivity] is `ActivityBase` and is not a re-label.** R5's first pass was rejected for
- * writing `activity as MainBibleActivity` behind an interface-shaped parameter: a cast that keeps
+ * recovering the old surface with an `as`-downcast back to the Activity
+ * behind an interface-shaped parameter: a cast that keeps
  * the whole coupling and is a `ClassCastException` waiting for Task 8. This is the opposite. Both
  * reading hosts really ARE an `ActivityBase` (`MainBibleActivity : CustomTitlebarActivityBase :
  * ActivityBase`, `NavHostComposeActivity : ActivityBase`), so no cast happens and no cast can fail,
