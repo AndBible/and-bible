@@ -70,29 +70,81 @@ internal fun navHostStartRoute(
 }
 
 /**
+ * Is [intent] the bare Intent the PLATFORM synthesises for an Up affordance, rather than one an
+ * in-app caller built and forgot to put [NavHostComposeActivity.EXTRA_ROUTE] on?
+ *
+ * **T8b fix round 2.** Fix round 1 claimed the two were indistinguishable. They are not, and the
+ * platform sources in this container say exactly how. `Activity.getParentActivityIntent()`
+ * (`android/app/Activity.java:8912-8932`) resolves the child's `android:parentActivityName`, then
+ * looks up **that parent's own** `parentActivityName` and branches:
+ *
+ * ```java
+ *     final Intent parentIntent = parentActivity == null
+ *             ? Intent.makeMainActivity(target)
+ *             : new Intent().setComponent(target);
+ * ```
+ *
+ * T8b step 3 removed this host's own `parentActivityName` (`src/main/AndroidManifest.xml:134-140`),
+ * so for all seven Activities that now name it the first branch is taken, and
+ * `Intent.makeMainActivity` (`android/content/Intent.java:8113-8118`) is three lines:
+ * `ACTION_MAIN`, the component, `CATEGORY_LAUNCHER`. `NavUtils` and `TaskStackBuilder` both delegate
+ * to that same method, so every synthesised route into this host carries that signature and nothing
+ * an in-app caller builds by hand does.
+ *
+ * **No false positive from the real launcher**: this host declares no `<intent-filter>` in any of the
+ * four manifests, so a `MAIN`/`LAUNCHER` intent from the home screen cannot reach it -- the launcher
+ * alias targets `.StartupActivity`.
+ *
+ * **Coupled to step 3, in the safe direction.** If this host is ever given a `parentActivityName` of
+ * its own, `getParentActivityIntent` switches to the `new Intent().setComponent(target)` branch and a
+ * synthesised intent would read here as an in-app caller -- i.e. it would be logged louder, never
+ * quieter. `ReadingHostLauncherGuardTest.theNavHostIsNotItsOwnUpParent` pins the premise.
+ */
+internal fun isSynthesisedUpIntent(intent: Intent, hostClassName: String): Boolean {
+    // The component is read through a null CHECK rather than `intent.component?.className`, matching
+    // [aCancelFromThisIntentWouldBeTheUsers] below: `ActivityResultDispatchGuardTest` text-scans all
+    // of `src/main/java` for that exact spelling, because dispatching a RESULT on the result
+    // Intent's component class name is the channel it exists to keep out. This reads an OUTGOING
+    // intent to classify it, which is not that -- but the scan is textual, and the honest response
+    // to a textual guard's false positive is to write the code the way its siblings do, not to
+    // weaken the guard.
+    val component = intent.component ?: return false
+    return intent.action == Intent.ACTION_MAIN &&
+        intent.categories?.contains(Intent.CATEGORY_LAUNCHER) == true &&
+        component.className == hostClassName
+}
+
+/**
  * Could a `RESULT_CANCELED` coming back at `ActivityBase.STD_REQUEST_CODE` from [intent] be a cancel
- * the USER performed?
+ * the USER performed, on one of THIS app's choosers?
  *
  * **reading-host re-typing T8b fix round 1, C2.** `NavHostComposeActivity` ported classic
- * `MainBibleActivity.onActivityResult`'s first statement: a cancelled `STD_REQUEST_CODE` chooser
- * that left the page with no key at all steps back in history, because the user has been dropped on
- * a general book that cannot render. That is right for a chooser. It is wrong for a cancel the
- * PLATFORM synthesises, which pops a history entry behind the user's back, and
- * `MenuCommandHandler` dispatches several such intents with the default `requestCode =
- * STD_REQUEST_CODE`.
+ * `MainBibleActivity.onActivityResult`'s first statement (`:1727-1733`): a cancelled
+ * `STD_REQUEST_CODE` chooser that left the page with no key at all steps back in history, because
+ * the user has been dropped on a general book that cannot render. That is right for a chooser. It is
+ * wrong for every other thing dispatched at that same default request code — and
+ * `MenuCommandHandler`, `CommonUtils.openLink` and `IntentHistoryItem.revertTo` all dispatch at it.
  *
- * Three shapes are excluded, and each is excluded for a reason that can be pointed at:
+ * Three shapes are excluded. **The first is the one that carries every live call site today**; the
+ * other two are narrower and are documented here so a future caller cannot reintroduce the defect.
  *
- *  - **An intent with no component** — `Intent.createChooser` for the "tell a friend" share row
- *    (`MenuCommandHandler.kt:339`) and the `ACTION_VIEW` market link behind "Rate AndBible"
- *    (`:170`). Dismissing a system chooser is a real user action, but it is not one of THIS app's
- *    key choosers and cannot have left a page keyless.
- *  - **`FLAG_ACTIVITY_NEW_TASK`** — the "Rate AndBible" intent again (`:160-166`, which ORs
- *    `NEW_TASK | MULTIPLE_TASK | NEW_DOCUMENT`). `Activity.startActivityForResult`'s own javadoc
- *    (platform sources, `android/app/Activity.java:5964-5969`): *"if the activity you are launching
- *    uses FLAG_ACTIVITY_NEW_TASK, it will not run in your task and thus you will immediately receive
- *    a cancel result."* A documented, guaranteed synthetic cancel, delivered before the user has
- *    done anything.
+ *  - **An intent with no component** — every implicit dispatch at this request code:
+ *    `Intent.createChooser` for the "tell a friend" share row (`MenuCommandHandler.kt:339`), the
+ *    `ACTION_VIEW` market/Play links behind "Rate AndBible" (`:160-170`), and
+ *    `CommonUtils.openLink`'s external browser link (`:1130`, `:1141`). Dismissing a system chooser
+ *    or coming back from the Play Store is a real user action, but it is not one of THIS app's key
+ *    choosers and cannot have left a page keyless.
+ *  - **`FLAG_ACTIVITY_NEW_TASK`** — `Activity.startActivityForResult`'s own javadoc (platform
+ *    sources, `android/app/Activity.java:5964-5969`): *"if the activity you are launching uses
+ *    FLAG_ACTIVITY_NEW_TASK, it will not run in your task and thus you will immediately receive a
+ *    cancel result."* **No live `STD_REQUEST_CODE` site in `app/src/main` sets that flag**, so this
+ *    arm is defensive rather than load-bearing. In particular the "Rate AndBible" intent does NOT:
+ *    it sets `FLAG_ACTIVITY_NO_HISTORY or FLAG_ACTIVITY_MULTIPLE_TASK` then
+ *    `FLAG_ACTIVITY_NEW_DOCUMENT` (`MenuCommandHandler.kt:160-164`), and it is excluded by the
+ *    no-component arm above. (`NEW_DOCUMENT | MULTIPLE_TASK` is `documentLaunchMode="always"`,
+ *    `Intent.java:7442-7449`, so that intent does leave this task — which is the javadoc's stated
+ *    REASON for the cancel — but the guarantee is written against `NEW_TASK` and is not claimed
+ *    here for any other flag.)
  *  - **[hostClassName] itself** — the nav host starting itself, which every `MenuCommandHandler`
  *    row for a MIGRATED screen now does (`dailyReadingPlanButton`, `readingProgressButton`,
  *    `managePrompts`, `bookmarksButton`, `myDocumentsButton`, …). With `android:launchMode="singleTop"`

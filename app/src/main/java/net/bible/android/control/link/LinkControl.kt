@@ -29,7 +29,6 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils.settings

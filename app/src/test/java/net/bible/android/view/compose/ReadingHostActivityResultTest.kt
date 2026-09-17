@@ -19,6 +19,7 @@ package net.bible.android.view.compose
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
+import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -38,6 +39,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowLog
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
@@ -262,6 +264,7 @@ class ReadingHostActivityResultTest {
      */
     @Test
     fun aHostStartedFromABareIntentOpensTheReadingViewInsteadOfThrowing() {
+        ShadowLog.clear()
         val bare = Intent(
             ApplicationProvider.getApplicationContext(),
             NavHostComposeActivity::class.java,
@@ -275,7 +278,49 @@ class ReadingHostActivityResultTest {
             "a bare parent Intent must land on the reading route and bootstrap it — that field " +
                 "throws UninitializedPropertyAccessException on any other route",
         )
+        assertEquals(
+            listOf(Log.ERROR),
+            startRouteLogLevels(),
+            "a hand-built, route-less in-app Intent is a routing bug and must SHOUT (T8b fix round 2)",
+        )
     }
+
+    /**
+     * T8b fix round 2, M1 reconsidered. The other half of the same fallback: an Up affordance or
+     * `TaskStackBuilder` resolving the `android:parentActivityName` of one of the seven Activities
+     * that now name this host. `Activity.getParentActivityIntent` builds that through
+     * `Intent.makeMainActivity` (because this host has no parent of its OWN), i.e. `ACTION_MAIN` +
+     * `CATEGORY_LAUNCHER` — a real discriminator, which fix round 1 wrongly said did not exist.
+     * Routine, so it WARNs rather than shouting; and it still opens the reading view.
+     */
+    @Test
+    fun aSynthesisedUpIntentWarnsInsteadOfShoutingAndStillOpensTheReadingView() {
+        ShadowLog.clear()
+        val upIntent = Intent.makeMainActivity(
+            ComponentName(
+                ApplicationProvider.getApplicationContext(),
+                NavHostComposeActivity::class.java,
+            )
+        )
+        val activity = Robolectric.buildActivity(NavHostComposeActivity::class.java, upIntent)
+            .also { controllers += it }
+            .create().start().resume().get()
+
+        assertNotNull(
+            activity.hostWindowRepository,
+            "an Up target of this host means the reading view",
+        )
+        assertEquals(
+            listOf(Log.WARN),
+            startRouteLogLevels(),
+            "a synthesised parentActivityName/Up intent is routine; logging it at ERROR would train " +
+                "readers to ignore the line",
+        )
+    }
+
+    /** The levels of everything the start-route resolution logged, in order. */
+    private fun startRouteLogLevels(): List<Int> =
+        ShadowLog.getLogs().filter { it.tag == "NavHostStartRoute" }.map { it.type }
 
     companion object {
         /** What the passage grid hands back: a single verse. */

@@ -306,8 +306,12 @@ object Dialogs {
 
     /**
      * The native `AlertDialog` implementation, used whenever the foreground activity is not a
-     * [MainBibleActivity] with the reading view mounted. Moved here verbatim from
+     * [ReadingHostActivity] with the reading view mounted. Moved here verbatim from
      * [agentPermissionDialog] so this fallback stays behaviourally byte-for-byte identical.
+     *
+     * It said `[MainBibleActivity]` until reading-host re-typing T8b fix round 1, which is what
+     * [agentPermissionDialog] used to test for -- and that test had silently become always-null once
+     * `NavHostComposeActivity` became the reading host, so this fallback was taking EVERY prompt.
      *
      * It was called `classicAgentPermissionDialog` while a classic reading view still existed; the
      * Z-late epilogue renamed it, because it is not the classic arm of anything any more -- it is

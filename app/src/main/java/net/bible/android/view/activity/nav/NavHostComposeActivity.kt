@@ -2038,6 +2038,42 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         super.onSaveInstanceState(outState)
     }
 
+    /**
+     * Which route [onCreate] starts the graph on — see [navHostStartRoute] for the rules and
+     * [isSynthesisedUpIntent] for why the two ways of arriving with no route log at different levels.
+     *
+     * Its own function rather than inline in [onCreate] so that method stays short: the reading
+     * bootstrap has to be visibly close to the top of `onCreate` and before `setContent`, which
+     * `ReadingAppBootstrapTest.theReadingBootstrapIsReachedFromBothRouteEntryPoints` checks by
+     * proximity.
+     */
+    private fun resolveStartRoute(savedInstanceState: Bundle?): String = navHostStartRoute(
+        savedStartRoute = savedInstanceState?.getString(STATE_START_ROUTE),
+        intentRoute = intent.getStringExtra(EXTRA_ROUTE),
+    ) {
+        // T8b fix round 2, M1 reconsidered. Fix round 1 logged both causes at WARN because it
+        // believed they could not be told apart. They can -- see [isSynthesisedUpIntent], which
+        // reads the ACTION_MAIN + CATEGORY_LAUNCHER signature `Activity.getParentActivityIntent`
+        // gives every Up/TaskStackBuilder intent aimed at a parent that has no parent of its own.
+        // So the two get the levels they deserve: an Up affordance resolving the
+        // `parentActivityName` of one of the seven Activities that name this host is routine and
+        // WARNs; an in-app caller that built the Intent by hand and forgot `intentFor()` is a real
+        // routing bug and shouts.
+        if (isSynthesisedUpIntent(intent, javaClass.name)) {
+            Log.w(
+                TAG_START_ROUTE,
+                "Up/TaskStackBuilder intent carries no $EXTRA_ROUTE — opening " +
+                    "'${NavRoutes.READING}', which is what an Up target of this host means."
+            )
+        } else {
+            Log.e(
+                TAG_START_ROUTE,
+                "Started with no $EXTRA_ROUTE extra and no saved start route — defaulting to " +
+                    "'${NavRoutes.READING}'. Launch this host via NavHostComposeActivity.intentFor()."
+            )
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // R6d: classic's `MainBibleActivity.onCreate` captures the theme in force here, before
         // `super.onCreate`, and `BibleView` reads it through the host bundle. Same capture, same
@@ -2045,25 +2081,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
         ABEventBus.register(this, readingHostSubscriptions)
-        val startRoute = navHostStartRoute(
-            savedStartRoute = savedInstanceState?.getString(STATE_START_ROUTE),
-            intentRoute = intent.getStringExtra(EXTRA_ROUTE),
-        ) {
-            // WARN, not ERROR (T8b fix round 1, M1). One of the two ways to get here is entirely
-            // legitimate: the platform synthesises a bare, extra-less Intent for this host whenever
-            // an Up affordance or `TaskStackBuilder.addParentStack` resolves the
-            // `android:parentActivityName` of the seven Activities that now name it. Logging that at
-            // ERROR would teach every reader to ignore the line, which is the opposite of loud. The
-            // other way -- an in-app caller that built the Intent by hand -- is a real routing bug,
-            // and the two are indistinguishable here: a synthesised parent Intent has no extras,
-            // no action and no categories, and so does a hand-built one.
-            Log.w(
-                TAG_START_ROUTE,
-                "Started with no ${EXTRA_ROUTE} extra and no saved start route — defaulting to " +
-                    "'${NavRoutes.READING}'. Expected for a synthesised parentActivityName/Up intent; " +
-                    "an in-app caller should use NavHostComposeActivity.intentFor()."
-            )
-        }
+        val startRoute = resolveStartRoute(savedInstanceState)
         this.startRoute = startRoute
         if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         // R8: build [readingCommands] NOW, while this Activity is still CREATED.
