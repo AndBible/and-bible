@@ -222,11 +222,24 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     /**	This will be called automatically for you on 2.0 or later
      */
     override fun onBackPressed() {
-        if (::historyTraversal.isInitialized && historyTraversal.goBack()) {
+        if (goBackInHistory()) {
             return
         }
         super.onBackPressed()
     }
+
+    /**
+     * Step one entry back in the reading history, if there is one.
+     *
+     * Public because [onBackPressed] is no longer the only caller: reading-host re-typing T8b moved
+     * `CurrentGeneralBookPage`'s three key-chooser arms onto [awaitIntent], which took them out of
+     * classic `MainBibleActivity.onActivityResult`'s reach — including its
+     * `STD_REQUEST_CODE` + `RESULT_CANCELED` guard, which goes back when a cancelled chooser has
+     * left the page with no key at all. That guard is now expressed at the awaiting call site, on
+     * whatever host it was opened from, and needs this.
+     */
+    fun goBackInHistory(): Boolean =
+        ::historyTraversal.isInitialized && historyTraversal.goBack()
 
     /**
      * Whether this activity should let the base class handle volume-key page scrolling.

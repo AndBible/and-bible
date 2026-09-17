@@ -1718,22 +1718,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
      * session. Rebuild it and retry once before falling back to opening the
      * document without a key.
      */
-    private fun openMyDocumentPage(book: Book, pageKey: String) {
-        val key = try {
-            book.getKey(pageKey)
-        } catch (e: NoSuchKeyException) {
-            Log.w(TAG, "Page key '$pageKey' missing from ${book.initials} key map, rebuilding it", e)
-            MyDocumentBookManager.refreshDocument(book.initials)
-            try {
-                book.getKey(pageKey)
-            } catch (e2: NoSuchKeyException) {
-                Log.e(TAG, "Page key '$pageKey' not found in ${book.initials}, opening book without key", e2)
-                documentControl.changeDocument(book)
-                return
-            }
-        }
-        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
-    }
+    private fun openMyDocumentPage(book: Book, pageKey: String) =
+        KeyChooserResults.openMyDocumentPage(windowControl.activeWindowPageManager, book, pageKey)
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "Activity result:$resultCode")
@@ -1836,18 +1822,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
                             return
                         }
                         ActivityResultKind.GenBookKey -> {
-                            val keyStr = extras.getString("key")
-                            val bookStr = extras.getString("book")
-                            val bookAndKeyStr = extras.getString("bookAndKey")
-                            if(bookAndKeyStr != null) {
-                                val bookAndKey = BookAndKeySerialized.fromJSON(bookAndKeyStr).bookAndKey
-                                applyChosenGenBookKey(bookAndKey.document, bookAndKey)
-                            } else {
-                                val book =
-                                    Books.installed().getBook(bookStr) ?: FakeBookFactory.giveDoesNotExist(bookStr!!)
-
-                                applyChosenGenBookKey(book, book.getKey(keyStr))
-                            }
+                            // T8b step 0: the same reading of the same three extras that
+                            // `CurrentGeneralBookPage`'s awaited chooser result uses, so the two
+                            // cannot diverge.
+                            val (book, key) = KeyChooserResults.genBookKeyFrom(extras)
+                            applyChosenGenBookKey(book, key)
                             return
                         }
                     }

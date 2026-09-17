@@ -34,6 +34,7 @@ import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.view.activity.page.KeyChooserResults
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
@@ -106,6 +107,21 @@ class CurrentGeneralBookPage internal constructor(
      * [CurrentMapPage] and [CurrentCommentaryPage] always have — see [workspaceSettings] for the
      * `!is MainBibleActivity` early return that used to stand here and why it is gone. There is no
      * replacement check and no path that cannot proceed, so nothing here returns silently.
+     *
+     * **All four arms await their own answer** (reading-host re-typing T8b step 0). Three of them
+     * used to hand the result back through `startActivityForResult(…, STD_REQUEST_CODE)`, whose
+     * dispatcher lives only on `MainBibleActivity.onActivityResult`. Every caller of this function
+     * passes an [ActivityBase] — `BibleJavascriptInterface`'s `CtrlKeyB`, `ReadingCommands`'
+     * `composeStartKeyChooser` fallback, `CurrentPageManager.setCurrentDocument`'s
+     * auto-open-after-switch (which uses `CurrentActivityHolder.currentActivity`, i.e. whatever is
+     * resumed) and `MainBibleActivity` itself — so on every other host
+     * `ActivityBase.onActivityResult` found no `resultByCode[1 - ASYNC_REQUEST_CODE_START]`, fell
+     * through to `super` and DISCARDED the selection in silence. [ActivityBase.awaitIntent] is
+     * resolved by `ActivityBase` itself and therefore works on all of them; it is what the StudyPad
+     * arm below has always used, and the other three now match it.
+     *
+     * The answer is applied through [KeyChooserResults], the single implementation
+     * `MainBibleActivity`'s surviving `STD_REQUEST_CODE` arms delegate to as well.
      */
     override fun startKeyChooser(context: ActivityBase) {
         context.lifecycleScope.launch(Dispatchers.Main) {
@@ -129,12 +145,8 @@ class CurrentGeneralBookPage internal constructor(
                         workspaceSettings.updateFrom(resultData)
                     }
                 }
-                doc == FakeBookFactory.multiDocument -> {
-                    context.startActivityForResult(
-                        ScreenLauncher.intentFor(context, Screen.ChooseDocument),
-                        STD_REQUEST_CODE
-                    )
-                }
+                doc == FakeBookFactory.multiDocument ->
+                    awaitChosenKey(context, ScreenLauncher.intentFor(context, Screen.ChooseDocument))
                 doc?.isMyDocument == true -> {
                     val docId = doc.myDocumentId
                     if (docId != null) {
@@ -144,7 +156,8 @@ class CurrentGeneralBookPage internal constructor(
                         // -- so this builds the nav-host Intent directly rather than through
                         // ScreenLauncher, the same shape the StudyPad branch above already uses for
                         // ManageLabels.
-                        context.startActivityForResult(
+                        awaitChosenKey(
+                            context,
                             NavHostComposeActivity.intentFor(
                                 context,
                                 NavRoutes.myDocumentPages(
@@ -153,13 +166,53 @@ class CurrentGeneralBookPage internal constructor(
                                     documentName = doc.name,
                                 ),
                             ),
-                            STD_REQUEST_CODE
                         )
                     }
                 }
-                else -> context.startActivityForResult(ScreenLauncher.intentFor(context, Screen.ChooseGeneralBookKey), STD_REQUEST_CODE)
+                else -> awaitChosenKey(context, ScreenLauncher.intentFor(context, Screen.ChooseGeneralBookKey))
             }
         }
+    }
+
+    /**
+     * Launch one key chooser and apply what it hands back, on whatever [ActivityBase] opened it.
+     *
+     * **Why the result is applied to [pageManager] and not to `windowControl.activeWindowPageManager`
+     * as classic's dispatcher did**: the same reason [workspaceSettings] is read off
+     * `pageManager.window.windowRepository`. `windowControl`'s repository is whichever reading host
+     * RESUMED last, not necessarily the one this page's window belongs to (the identity finding of
+     * R6c1/R6d), while the page a chooser was opened FOR always knows its own manager. In the single
+     * -host case the two are the same object, so this is classic's behaviour everywhere classic ran.
+     *
+     * **The cancel guard is classic's**, ported rather than dropped: `MainBibleActivity
+     * .onActivityResult`'s first statement goes back in history when a cancelled `STD_REQUEST_CODE`
+     * chooser has left the page with no key at all (a general book switched to but never opened).
+     * [ActivityBase.awaitIntent] uses its own request codes, so that statement can no longer see
+     * these four arms; it still covers every chooser that has not moved. `key` here is this page's
+     * own, for the reason above; classic read `currentPage.key` off the active window.
+     *
+     * **When it resumes matters, and it is later than the dispatcher's was.** `awaitIntent`
+     * completes its `CompletableDeferred` from `onActivityResult`, but this coroutine runs on
+     * `Dispatchers.Main` (not `.immediate`), so the continuation is POSTED and runs after
+     * `ActivityThread` has finished the same looper message — i.e. after the host's `onResume`.
+     * On `NavHostComposeActivity` that is the difference between applying a key into a host that
+     * has not yet reclaimed `windowControl.windowRepository`, re-declared itself foreground or
+     * re-armed its bootstrap bridge, and one that has: the `AddHistoryItem` that
+     * `setCurrentDocumentAndKey` posts is read by `HistoryManager.createHistoryItem` through
+     * `ReadingViewVisibility.isVisible`, which is false until `ReadingHostPresence` says this host
+     * is foreground. Classic needed `CurrentActivityHolder.activate` +
+     * `ReadingHostPresence.setForeground` + `ReadingViewVisibility.setActivityVisible` in its
+     * dispatcher precisely because `onActivityResult` runs BEFORE `onResume`; awaiting needs none of
+     * them, and adds no pre-composition producer of history items — so
+     * [net.bible.sharedcore.reading.ReadingViewVisibility]'s bootstrap-bridge invariant is untouched.
+     */
+    private suspend fun awaitChosenKey(context: ActivityBase, intent: Intent) {
+        val result = context.awaitIntent(intent)
+        if (result.resultCode == Activity.RESULT_CANCELED) {
+            if (key == null) context.goBackInHistory()
+            return
+        }
+        KeyChooserResults.apply(pageManager, result.data?.extras)
     }
 
 

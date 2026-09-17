@@ -547,8 +547,11 @@ class ReadingCommands(
      * pseudo-documents, so a second copy could lose it and nothing would notice.
      */
     internal fun applyChosenDocument(bookStr: String?) {
-        val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
-        documentControl.changeDocument(book)
+        // T8b step 0: the resolution + `changeDocument` pair now lives in [KeyChooserResults], the
+        // one implementation `CurrentGeneralBookPage`'s own awaited chooser result also applies.
+        // `documentControl.changeDocument(book)` IS `windowControl.activeWindowPageManager
+        // .setCurrentDocument(book)` (`DocumentControl.kt:161-163`), so this is the same two calls.
+        KeyChooserResults.applyChosenDocument(windowControl.activeWindowPageManager, bookStr)
         hostCallbacks.onToolbarStateMayHaveChanged()
     }
 
