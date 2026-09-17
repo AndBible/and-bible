@@ -71,20 +71,41 @@ package net.bible.sharedcore.reading
  *    bridge that merely stopped counting while a destination was entered would come back the moment
  *    that destination was disposed, leaving the flag true on a Download screen.
  *  - the host's `onPause`, which calls `setActivityVisible(this, false)` — so the bridge is also
- *    retired on a host that is backgrounded before it ever composes.
+ *    retired on a host that is backgrounded before it ever composes. **That host RE-ARMS the bridge
+ *    in its own `onResume`** (reading-host re-typing T8a item 3) for as long as it still owes an
+ *    uncomposed reading view; see below.
  *
  * `MainBibleActivity` is unaffected by that rule: it hosts no `reading` destination, so nothing ever
  * calls [enter] with its token.
  *
- * **One window the bridge does NOT cover, stated rather than claimed away** (fix round 1, review):
- * bootstrapped -> paused before the graph's first composition -> resumed, still not composed. The
- * bridge was retired by that `onPause` and nothing re-arms it (`bootstrapIfNeeded` is one-shot, and
- * re-arming from `onResume` would report a reading view on screen for every other destination this
- * host shows), so [isVisible] is false for that window where the pre-R7b flag was true. Nothing
- * reads it there: the only reason the bridge exists is the synchronous `AddHistoryItem` that
- * `bootstrapIfNeeded`'s deep link posts, which happened before the pause. A task that gives the host
- * another pre-composition producer of history items has to close this, and the honest place to do
- * it is that producer, not a re-armed bridge.
+ * **The window the bridge did not cover, and how it was closed** (R7b fix round 1 stated it;
+ * reading-host re-typing T8a item 3 paid it): bootstrapped -> paused before the graph's first
+ * composition -> resumed, still not composed. The bridge was retired by that `onPause`, nothing
+ * re-armed it (`bootstrapIfNeeded` is one-shot), and [isVisible] was false for that window where the
+ * pre-R7b flag was true. R7b accepted it because nothing read the flag there — the only reason the
+ * bridge exists is the synchronous `AddHistoryItem` that `bootstrapIfNeeded`'s deep link posts,
+ * which happened before the pause — and named its own expiry: a task that gives the host another
+ * PRE-COMPOSITION producer of history items has to close it.
+ *
+ * T8a item 2 is that task. The `onResume` reconciliation it ported ends with
+ * `handlePendingAgentResult()`, which reaches `LinkControl.openAIDocument`/`openStudyPad` ->
+ * `showLink` -> `setKey(addHistoryItem = true)` -> a synchronous `AddHistoryItem`, from inside
+ * `onResume` and therefore inside the window; `HistoryManager.createHistoryItem` reads [isVisible]
+ * while handling it, and false there records a wrong `IntentHistoryItem` instead of a
+ * `KeyHistoryItem`.
+ *
+ * So `NavHostComposeActivity.onResume` now re-arms the bridge — CONDITIONALLY, on the host still
+ * owing an uncomposed reading view (`readingAppBootstrapped && composeReadingViewHost == null`),
+ * which is the bridge's own meaning. The objection above was to an UNCONDITIONAL re-arm, and it
+ * still stands: that would report a reading view on screen for every other destination this host
+ * shows. The condition cannot be true again once the destination has composed, because that field is
+ * memoised for the host's life.
+ *
+ * **The invariant, for whoever adds the next producer**: any code that can post an `AddHistoryItem`
+ * from a reading host BEFORE its destination composes must run while the bridge is armed. Today that
+ * is `bootstrapIfNeeded`'s deep link (armed by the bootstrap) and the `onResume` reconciliation
+ * (armed by the re-arm above, which runs first). A third producer somewhere else needs the same
+ * check made again.
  *
  * **What is genuinely equivalent to the old predicate.** A **sheet** over the reading view (search,
  * key chooser, text settings, Speak) changes neither the Activity, the destination, nor the

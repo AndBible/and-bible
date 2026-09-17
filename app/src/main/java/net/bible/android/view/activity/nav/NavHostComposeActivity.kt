@@ -1696,6 +1696,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      */
     override fun onResume() {
         ReadingHostPresence.setForeground(this)
+        rearmBootstrapBridgeIfStillOwed()
         paused = false
         // Classic computes its `needRefresh` BEFORE `super.onResume()` and acts on it after, and
         // the split is kept: `super.onResume()` activates this Activity and dispatches
@@ -1703,6 +1704,43 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         val needRefresh = readingAppBootstrapped && reclaimWindowRepository()
         super.onResume()
         if (readingAppBootstrapped) reconcileReadingStateOnResume(needRefresh)
+    }
+
+    /**
+     * **T8a item 3: the bootstrap bridge, re-armed for the one window it did not cover.**
+     *
+     * [bootstrapIfNeeded] adds this host to [ReadingViewVisibility]'s `activityHosts` — the bridge
+     * over the gap between bootstrap and the `reading` destination's first composition, which no
+     * effect inside the graph can cover. [onPause] retires it. Nothing re-armed it, so a host
+     * bootstrapped -> paused before composing -> resumed reported `isVisible == false`.
+     *
+     * R7b accepted that window as harmless and named its own expiry in [ReadingViewVisibility]'s
+     * kdoc: "A task that gives the host another pre-composition producer of history items has to
+     * close this." **T8a item 2 is that task.** [handlePendingAgentResult], which its
+     * reconciliation runs from inside `onResume`, reaches `LinkControl.openAIDocument`/`openStudyPad`
+     * -> `showLink` -> `setKey(addHistoryItem = true)` -> a SYNCHRONOUS `AddHistoryItem`, and
+     * `HistoryManager.createHistoryItem` reads `isVisible` while handling it. False there records a
+     * wrong `IntentHistoryItem` carrying this host's launch Intent instead of a `KeyHistoryItem` for
+     * the verse — the identical defect [bootstrapIfNeeded]'s ordering exists to prevent, one
+     * lifecycle callback later.
+     *
+     * **Conditional, which is why it does not resurrect what made `setActivityVisible` one-shot.**
+     * The kdoc's objection is to an UNCONDITIONAL re-arm, which "would report a reading view on
+     * screen for every other destination this host shows". The condition is the bridge's own
+     * meaning: this host owes a reading view ([readingAppBootstrapped]) that has not composed yet
+     * ([composeReadingViewHost] null). That field is memoised for the host's whole life, so once the
+     * destination has composed this can never fire again and the destination's own `enter`/`exit`
+     * owns the flag from then on — pinned by
+     * `ReadingHostBridgeRearmTest.aDisposedDestinationStillTurnsTheFlagOffAfterAResume`, which an
+     * unconditional re-arm fails.
+     *
+     * Before `super.onResume()` and before the reconciliation, for [bootstrapIfNeeded]'s reason: the
+     * `AddHistoryItem` its producers post is handled synchronously.
+     */
+    private fun rearmBootstrapBridgeIfStillOwed() {
+        if (readingAppBootstrapped && composeReadingViewHost == null) {
+            ReadingViewVisibility.setActivityVisible(this, true)
+        }
     }
 
     /**
