@@ -19,6 +19,7 @@ package net.bible.android.view.compose
 
 import java.io.File
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.Test
 
@@ -27,14 +28,21 @@ import org.junit.Test
  * for values that are reachable without one — the same move [ReadingHostDelegationGuardTest] pins
  * for `ComposeReadingViewHost` (R1), applied to the two collaborators R6c splits off from R6.
  *
- * Eight members (design spec addendum 2026-09-17, R6c "Koin singletons" + "Derivable from the
- * above" + "A global object" rows) are Koin singletons, a value derivable from one of them, or a
- * global settings read — every one of them survives the Activity's eventual deletion untouched.
- * Deliberately does NOT cover the "Already on the interface / LifecycleOwner" row
- * (`getString`/`lifecycleScope`/`startActivity`/`packageName`/`resources`): those stay spelled
- * `activity.foo()` / `mainBibleActivity.foo()` on purpose (R1's own precedent for the same bucket
- * on `ComposeReadingViewHost`) because `ReadingHostActivity` already carries them, so R6c2's
- * re-typing needs no further change there.
+ * Fix round 1 (review Important 1 + Important 2) widened this from the original cut, which wrongly
+ * treated `MenuCommandHandler`'s `packageName`/`resources` as untouchable ("already on the
+ * interface") when they are plain `ContextWrapper` members needing only *a* Context, and wrongly
+ * treated `windowRepository` as a free `windowControl.windowRepository` substitution when the two
+ * can legitimately hold DIFFERENT objects for a second, not-yet-resumed `MainBibleActivity`
+ * (`MainBibleActivity.onResume`/`unFreeze()` only exist to reconcile them).
+ *
+ * Deliberately does NOT cover the rest of the "Already on the interface / LifecycleOwner" row
+ * (`getString`/`lifecycleScope`/`startActivity`): those stay spelled `activity.foo()` /
+ * `mainBibleActivity.foo()` on purpose (R1's own precedent for the same bucket on
+ * `ComposeReadingViewHost`) because `ReadingHostActivity` already carries `getString` and
+ * `lifecycleScope`, so R6c2's re-typing needs no further change there for the SINGLE-arg `getString`
+ * calls and `lifecycleScope`. (`startActivity` and the four vararg `getString(resId, args…)` calls
+ * do NOT survive R6c2 unchanged either, per the review — but fixing those is deferred, not this
+ * guard's job; see the task report's fix-round section for the full list.)
  *
  * **Anti-vacuity.** The positive assertions are load-bearing: without them this file would pass
  * against an empty or renamed source, which is the failure mode spec §5 exists to prevent.
@@ -45,8 +53,19 @@ class ReadingCommandsHostDelegationGuardTest {
     private val menuCommandHandlerFile =
         File("src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt")
 
-    private val readingCommandsSource: String get() = readingCommandsFile.readText()
-    private val menuCommandHandlerSource: String get() = menuCommandHandlerFile.readText()
+    /** Non-prose lines only, same idiom as [SpeakEntryPointGuardTest.codeLinesOf]: this file's own
+     *  kdoc quotes the very strings these scans look for (e.g. this test's production counterpart
+     *  documents itself in prose using `windowControl.windowRepository` as the name of what it is
+     *  NOT), so a raw whole-file `contains`/regex scan would flag its own documentation. */
+    private fun codeLinesOf(file: File): String =
+        file.readLines().filterNot { line ->
+            val trimmed = line.trimStart()
+            trimmed.startsWith("import ") || trimmed.startsWith("//") ||
+                trimmed.startsWith("*") || trimmed.startsWith("/*")
+        }.joinToString("\n")
+
+    private val readingCommandsSource: String get() = codeLinesOf(readingCommandsFile)
+    private val menuCommandHandlerSource: String get() = codeLinesOf(menuCommandHandlerFile)
 
     @Test
     fun theScannedSourcesAreActuallyThere() {
@@ -62,9 +81,10 @@ class ReadingCommandsHostDelegationGuardTest {
         )
     }
 
-    /** The Koin singletons, plus the value derivable from one of them ([windowRepository]) and the
-     *  global settings read ([toolbarButtonSetting]) — R6c's "free half" (addendum 2026-09-17). */
-    private val delegated = listOf(
+    /** The Koin singletons and the global settings read ([toolbarButtonSetting]) —
+     *  `windowRepository` is checked separately below: ONE reference to `activity.windowRepository`
+     *  is legitimate (the owning-host supplier's own binding), so it cannot be a flat zero-count. */
+    private val readingCommandsDelegated = listOf(
         "windowControl",
         "documentControl",
         "speakControl",
@@ -72,26 +92,32 @@ class ReadingCommandsHostDelegationGuardTest {
         "bookmarkControl",
         "searchControl",
         "navigationControl",
-        "windowRepository",
         "toolbarButtonSetting",
+    )
+
+    /** `MenuCommandHandler`'s own free half (fix round 1, review Important 1): plain `ContextWrapper`
+     *  members that need only a Context, not this specific Activity. */
+    private val menuCommandHandlerDelegated = listOf(
+        "packageName",
+        "resources",
     )
 
     @Test
     fun neitherCollaboratorAsksTheActivityForTheFreeHalf() {
-        val offenders = delegated.flatMap { member ->
+        val offenders = readingCommandsDelegated.flatMap { member ->
             Regex("""(?<![.\w])activity\.$member\b""").findAll(readingCommandsSource).map {
                 "ReadingCommands.kt: activity.$member"
             }
-        } + delegated.flatMap { member ->
+        } + menuCommandHandlerDelegated.flatMap { member ->
             Regex("""(?<![.\w])mainBibleActivity\.$member\b""").findAll(menuCommandHandlerSource).map {
                 "MenuCommandHandler.kt: mainBibleActivity.$member"
             }
         }
         assertEquals(
             emptyList(), offenders.distinct().sorted(),
-            "these are reachable without the Activity — inject the Koin singletons, derive " +
-                "windowRepository from windowControl, or read toolbarButtonSetting from " +
-                "CommonUtils.settings directly (R6c1)",
+            "these are reachable without the Activity — inject the Koin singletons, read " +
+                "toolbarButtonSetting from CommonUtils.settings directly, or route packageName/" +
+                "resources through BibleApplication.application (R6c1)",
         )
     }
 
@@ -114,5 +140,41 @@ class ReadingCommandsHostDelegationGuardTest {
                     "re-introducing a different coupling",
             )
         }
+    }
+
+    /**
+     * Fix round 1, review Important 2. `windowRepository` is NOT a free `windowControl` substitution:
+     * `windowControl.windowRepository` is whichever host most recently resumed, which can differ from
+     * THIS host's own repository for a second, not-yet-resumed `MainBibleActivity`. The correct shape
+     * is a supplier bound to the owning host, read at call time — this test pins that shape directly
+     * rather than re-deriving it from a reference count, so a future refactor that keeps the supplier
+     * but renames it cannot silently pass.
+     */
+    @Test
+    fun windowRepositoryIsAnOwningHostSupplierNotWindowControls() {
+        assertFalse(
+            readingCommandsSource.contains("windowControl.windowRepository"),
+            "windowControl.windowRepository is whichever host most recently resumed, not " +
+                "necessarily THIS host's own repository — R6c1's original (wrong) substitution",
+        )
+        assertTrue(
+            readingCommandsSource.contains(
+                "private val windowRepository: () -> WindowRepository = { activity.windowRepository }"
+            ),
+            "the owning-host windowRepository supplier is gone or renamed",
+        )
+        val directActivityReferences = Regex("""(?<![.\w])activity\.windowRepository\b""")
+            .findAll(readingCommandsSource).count()
+        assertEquals(
+            1, directActivityReferences,
+            "activity.windowRepository must appear EXACTLY once — inside the supplier's own " +
+                "binding; every call site must go through the windowRepository() supplier instead",
+        )
+        val supplierCallSites = Regex("""(?<![.\w])windowRepository\(\)""").findAll(readingCommandsSource).count()
+        assertEquals(
+            15, supplierCallSites,
+            "expected all 15 call sites (R6c1's HEAD measurement) to route through the " +
+                "windowRepository() supplier",
+        )
     }
 }

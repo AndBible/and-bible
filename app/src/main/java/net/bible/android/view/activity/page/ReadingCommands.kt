@@ -41,6 +41,7 @@ import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
@@ -127,6 +128,32 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
     private val bookmarkControl: BookmarkControl by inject()
     private val searchControl: SearchControl by inject()
     private val navigationControl: NavigationControl by inject()
+
+    /**
+     * The OWNING HOST's own window repository — NOT `WindowControl`'s (i.e. NOT
+     * `windowControl.windowRepository`), which is whichever host most recently RESUMED
+     * (`MainBibleActivity.onResume`/`unFreeze()` reconcile the two, which only exist because they
+     * can differ) and briefly points at a DIFFERENT Activity's repository for a second,
+     * not-yet-resumed `MainBibleActivity` (`ReadingAppBootstrap`'s own per-Activity
+     * `WindowRepository`; see `MainBibleActivity.kt:1010-1012`'s `windowRepository` — a view onto
+     * `ReadingAppBootstrap`, not `WindowControl`). A supplier, in the same shape as
+     * [BibleViewHostCallbacks]'s three inset suppliers and `ReadingInsetsHostCallbacks`'s seven,
+     * bound to the owning host today (`{ activity.windowRepository }`); a future nav host binds its
+     * own. Read at call time, never captured, for the same reason those are (fix round 1, review
+     * Important 2: R6c's original brief called routing this through `WindowControl` a free
+     * substitution, which it is not — it is only free in the single-host case every test in this
+     * suite exercises).
+     */
+    private val windowRepository: () -> WindowRepository = { activity.windowRepository }
+
+    /**
+     * The global `toolbar_button_actions` setting, exactly R1's replacement for the same member on
+     * `ComposeReadingViewHost`. One accessor rather than four inline `CommonUtils.settings.getString`
+     * calls (fix round 1, Minor): the key and default still live in exactly one other place too --
+     * `MainBibleActivity.kt:1140`'s own `toolbarButtonSetting` -- which this does not touch or share,
+     * so a future key rename still has two call sites to update, not five.
+     */
+    private val toolbarButtonSetting get() = CommonUtils.settings.getString("toolbar_button_actions", "default")
 
     /**
      * The per-host `BibleView` cache. Built here rather than in `MainBibleActivity.onCreate` so
@@ -409,7 +436,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * in-memory `name` and push it back over a rename the user just made in the selector.
      */
     internal fun quickSwitchToWorkspace(workspaceId: String) {
-        windowControl.windowRepository.saveIntoDb()
+        windowRepository().saveIntoDb()
         activity.switchToWorkspace(workspaceId)
     }
 
@@ -543,7 +570,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
 
     /** @param anchor the Compose toolbar's ComposeView (classic `bibleButton` is inside the now-GONE `toolbarLayout` on this path). */
     internal fun composeBibleClick(anchor: View) {
-        if (CommonUtils.settings.getString("toolbar_button_actions", "default")?.startsWith("swap-") == true) {
+        if (toolbarButtonSetting?.startsWith("swap-") == true) {
             activity.setCurrentDocument(documentControl.suggestedBible)
         } else {
             activity.menuForDocs(anchor, documentControl.biblesForVerse)
@@ -556,7 +583,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * `PopupMenu` — so this no longer needs a `View` to anchor on.
      */
     internal fun composeBibleLongClick() {
-        if (CommonUtils.settings.getString("toolbar_button_actions", "default") == "swap-menu") {
+        if (toolbarButtonSetting == "swap-menu") {
             activity.composeReadingViewHost?.openBibleQuickDoc(composeQuickDocItems(documentControl.biblesForVerse))
         } else {
             activity.startDocumentChooser("BIBLE")
@@ -565,7 +592,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
 
     /** @param anchor the Compose toolbar's ComposeView (classic `commentaryButton` is inside the now-GONE `toolbarLayout` on this path). */
     internal fun composeCommentaryClick(anchor: View) {
-        if (CommonUtils.settings.getString("toolbar_button_actions", "default")?.startsWith("swap-") == true) {
+        if (toolbarButtonSetting?.startsWith("swap-") == true) {
             activity.setCurrentDocument(documentControl.suggestedCommentary)
         } else {
             activity.menuForDocs(
@@ -579,7 +606,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
 
     /** [composeBibleLongClick]'s counterpart; same slice 7 Task 2 change. */
     internal fun composeCommentaryLongClick() {
-        if (CommonUtils.settings.getString("toolbar_button_actions", "default") == "swap-menu") {
+        if (toolbarButtonSetting == "swap-menu") {
             // Mirrors classic `commentaryLongPress` exactly: unlike `commentaryClick`/
             // `composeCommentaryClick`, the long-press menu does NOT append
             // GENERAL_BOOK/DICTIONARY books.
@@ -630,7 +657,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
 
     /** Short per-window label for the Compose restore rail — mirrors classic `getWindowButtonTitleText`. */
     internal fun windowLabelFor(id: String): String {
-        val window = windowControl.windowRepository.getWindow(IdType(id)) ?: return ""
+        val window = windowRepository().getWindow(IdType(id)) ?: return ""
         return try {
             val curdoc = window.pageManager.currentPage.currentDocument ?: return " "
             if (curdoc.isStudyPad) {
@@ -651,7 +678,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * the snapshot is the iOS-facing model.
      */
     internal fun windowTopLabelFor(id: String): String? {
-        val window = windowControl.windowRepository.getWindow(IdType(id)) ?: return null
+        val window = windowRepository().getWindow(IdType(id)) ?: return null
         return try {
             window.pageManager.titleText.takeIf { it.isNotBlank() }
         } catch (e: Exception) { null }
@@ -659,7 +686,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
 
     /** Doc-type icon for the Compose restore rail — mirrors classic `docType.setImageResource(document.imageResource)`. */
     internal fun windowIconFor(id: String): Painter? {
-        val window = windowControl.windowRepository.getWindow(IdType(id)) ?: return null
+        val window = windowRepository().getWindow(IdType(id)) ?: return null
         val resId = window.pageManager.currentPage.currentDocument?.imageResource ?: return null
         return composeWindowIconCache.getOrPut(resId) {
             val drawable = ContextCompat.getDrawable(activity, resId) ?: return null
@@ -670,19 +697,19 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
     private fun getItemOptions(itemId: Int, order: Int = 0): OptionsMenuItemInterface {
         val settingsBundle = SettingsBundle(
             level = SettingsLevel.WORKSPACE,
-            workspaceId = windowControl.windowRepository.id,
-            workspaceName = windowControl.windowRepository.name,
-            workspaceSettings = windowControl.windowRepository.textDisplaySettings.apply {
-                colors?.workspaceColor = windowControl.windowRepository.workspaceSettings.workspaceColor
+            workspaceId = windowRepository().id,
+            workspaceName = windowRepository().name,
+            workspaceSettings = windowRepository().textDisplaySettings.apply {
+                colors?.workspaceColor = windowRepository().workspaceSettings.workspaceColor
             },
             globalSettings = CommonUtils.globalTextDisplaySettings,
         )
         return when(itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
                 activity.startActivity(TextDisplaySettingsComposeActivity.intentFor(
-                    activity, SettingsScope.Workspace(windowControl.windowRepository.id.toString())))
+                    activity, SettingsScope.Workspace(windowRepository().id.toString())))
             }, opensDialog = true)
-            R.id.autoAssignLabels -> AutoAssignPreference(windowControl.windowRepository.workspaceSettings)
+            R.id.autoAssignLabels -> AutoAssignPreference(windowRepository().workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
             R.id.splitMode -> SplitModePreference(activity)
@@ -788,7 +815,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
      * for every other item.
      */
     fun handleWindowPaneMenuItem(windowId: String, id: String): Boolean {
-        val window = windowControl.windowRepository.getWindow(IdType(windowId)) ?: return false
+        val window = windowRepository().getWindow(IdType(windowId)) ?: return false
         val controller = activity.composeReadingViewHost?.controller
         return when (val parsed = WindowPaneMenuStateBuilder.parseId(id)) {
             is WindowPaneMenuStateBuilder.ParsedId.MoveItem -> {
@@ -867,7 +894,7 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
             // used by the overflow menu).
             WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS -> {
                 activity.startActivity(TextDisplaySettingsComposeActivity.intentFor(
-                    activity, SettingsScope.Window(window.id.toString(), windowControl.windowRepository.id.toString())))
+                    activity, SettingsScope.Window(window.id.toString(), windowRepository().id.toString())))
                 false
             }
             // SplitBibleArea.kt:1002-1004
@@ -993,9 +1020,9 @@ class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
             level = SettingsLevel.WINDOW,
             windowId = window.id,
             pageManagerSettings = window.pageManager.textDisplaySettings,
-            workspaceId = windowControl.windowRepository.id,
-            workspaceName = windowControl.windowRepository.name,
-            workspaceSettings = windowControl.windowRepository.textDisplaySettings,
+            workspaceId = windowRepository().id,
+            workspaceName = windowRepository().name,
+            workspaceSettings = windowRepository().textDisplaySettings,
             globalSettings = CommonUtils.globalTextDisplaySettings,
         )
         val itemOptions = getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])

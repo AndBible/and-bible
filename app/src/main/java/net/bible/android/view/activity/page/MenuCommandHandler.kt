@@ -134,8 +134,8 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                         .setTitle(R.string.rate_title)
                         .setMessage(spanned)
                         .setPositiveButton(if(isSamsung) R.string.okay else R.string.proceed_google_play) {_, _ ->
-                            val samsungUri = Uri.parse("samsungapps://AppRating/"+mainBibleActivity.packageName)
-                            val uri = Uri.parse("market://details?id=" + mainBibleActivity.packageName)
+                            val samsungUri = Uri.parse("samsungapps://AppRating/"+BibleApplication.application.packageName)
+                            val uri = Uri.parse("market://details?id=" + BibleApplication.application.packageName)
                             val intent = Intent(Intent.ACTION_VIEW, if(isSamsung) samsungUri else uri).apply{
                                 // To count with Play market backstack, After pressing back button,
                                 // to taken back to our application, we need to add following flags to intent.
@@ -145,8 +145,8 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                             try {
                                 mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
                             } catch (e: ActivityNotFoundException) {
-                                val httpSamsungUri = Uri.parse("https://apps.samsung.com/appquery/AppRating.as?appId=" +mainBibleActivity.packageName)
-                                val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + mainBibleActivity.packageName)
+                                val httpSamsungUri = Uri.parse("https://apps.samsung.com/appquery/AppRating.as?appId=" +BibleApplication.application.packageName)
+                                val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + BibleApplication.application.packageName)
                                 mainBibleActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, if(isSamsung) httpSamsungUri else httpUri), STD_REQUEST_CODE)
                             }
                         }
@@ -266,7 +266,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                     isHandled = true
                 }
                 R.id.appLicence -> {
-                    val messageHtml = mainBibleActivity.resources.openRawResource(R.raw.license).readBytes().decodeToString()
+                    val messageHtml = BibleApplication.application.resources.openRawResource(R.raw.license).readBytes().decodeToString()
 
                     val spanned = htmlToSpan(messageHtml)
 
@@ -288,7 +288,7 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) : KoinCompone
                 }
                 R.id.tellFriend -> {
                     val homepage = Uri.parse(homepageLink)
-                    val playstore = Uri.parse("https://play.google.com/store/apps/details?id=" + mainBibleActivity.packageName)
+                    val playstore = Uri.parse("https://play.google.com/store/apps/details?id=" + BibleApplication.application.packageName)
 
                     val appName = mainBibleActivity.getString(R.string.app_name_long)
                     val message1 = mainBibleActivity.getString(R.string.tell_friend_message1, appName)
