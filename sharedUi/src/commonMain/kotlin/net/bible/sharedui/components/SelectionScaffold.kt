@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import net.bible.sharedui.theme.SyncSystemBars
 
 /**
  * Scaffold whose top bar has three modes, in this precedence: selection > search > normal.
@@ -64,6 +65,14 @@ fun AbSelectionScaffold(
     Scaffold(
         topBar = {
             if (selectionMode) {
+                // The normal branch syncs the bars through AbTopAppBar; this branch drew a raw
+                // TopAppBar and synced nothing, so the status bar kept the NORMAL bar's colour and
+                // icon appearance for as long as selection was active (host-inset-ownership spec,
+                // section 3.4). Same container colour the bar below actually uses.
+                SyncSystemBars(
+                    container = TopAppBarDefaults.topAppBarColors().containerColor,
+                    fillWindowBackground = true,
+                )
                 TopAppBar(
                     title = { Text("$selectedCount") },
                     navigationIcon = {
