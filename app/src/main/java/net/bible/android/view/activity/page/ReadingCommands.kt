@@ -32,10 +32,17 @@ import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.bible.android.activity.R
+import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.navigation.NavigationControl
+import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.search.SearchControl
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
@@ -71,6 +78,8 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.BookName
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.coroutines.resume
 
 /**
@@ -105,7 +114,19 @@ import kotlin.coroutines.resume
  * instead. The four `drawer*` chrome-parity calls stayed too -- they are chrome, which R4's
  * `ReadingHostActivity` interface owns.
  */
-class ReadingCommands(private val activity: MainBibleActivity) {
+class ReadingCommands(private val activity: MainBibleActivity) : KoinComponent {
+
+    // ---- Koin singletons, exactly R1's move (ComposeReadingViewHost.kt) ----
+    // Reachable without the Activity: MainBibleActivity resolves every one of these the same way
+    // (`by inject()`), so each is the SAME object the Activity's own accessor used to hand back,
+    // not a second instance (reading-host re-typing R6c1, spec addendum 2026-09-17).
+    private val windowControl: WindowControl by inject()
+    private val documentControl: DocumentControl by inject()
+    private val speakControl: SpeakControl by inject()
+    private val pageControl: PageControl by inject()
+    private val bookmarkControl: BookmarkControl by inject()
+    private val searchControl: SearchControl by inject()
+    private val navigationControl: NavigationControl by inject()
 
     /**
      * The per-host `BibleView` cache. Built here rather than in `MainBibleActivity.onCreate` so
@@ -276,7 +297,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
             host.openSearch()
             return
         }
-        activity.searchControl.getSearchIntent(activity.documentControl.currentDocument, activity)?.let { intent ->
+        searchControl.getSearchIntent(documentControl.currentDocument, activity)?.let { intent ->
             activity.startActivityForResult(intent, STD_REQUEST_CODE)
         }
     }
@@ -339,7 +360,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
 
     internal fun composeToggleSpeak() {
         if (activity.transportBarVisible) {
-            if (activity.speakControl.isStopped) {
+            if (speakControl.isStopped) {
                 activity.transportBarVisible = false
             }
         } else {
@@ -388,7 +409,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
      * in-memory `name` and push it back over a rename the user just made in the selector.
      */
     internal fun quickSwitchToWorkspace(workspaceId: String) {
-        activity.windowRepository.saveIntoDb()
+        windowControl.windowRepository.saveIntoDb()
         activity.switchToWorkspace(workspaceId)
     }
 
@@ -430,7 +451,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
                 return
             }
         }
-        activity.pageControl.currentPageManager.currentPage.startKeyChooser(activity)
+        pageControl.currentPageManager.currentPage.startKeyChooser(activity)
     }
 
     /**
@@ -462,7 +483,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
      */
     internal fun applyChosenDocument(bookStr: String?) {
         val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
-        activity.documentControl.changeDocument(book)
+        documentControl.changeDocument(book)
         activity.updateActions()
     }
 
@@ -476,14 +497,14 @@ class ReadingCommands(private val activity: MainBibleActivity) {
      */
     internal fun applyChosenVerse(verseStr: String, isFromBookmark: Boolean = false) {
         val verse = try {
-            VerseFactory.fromString(activity.navigationControl.versification, verseStr)
+            VerseFactory.fromString(navigationControl.versification, verseStr)
         } catch (e: NoSuchVerseException) {
             ABEventBus.post(ToastEvent(activity.getString(R.string.verse_not_found)))
             return
         }
-        val pageManager = activity.windowControl.activeWindowPageManager
+        val pageManager = windowControl.activeWindowPageManager
         if (isFromBookmark && !pageManager.isBibleShown) {
-            pageManager.setCurrentDocumentAndKey(activity.windowControl.defaultBibleDoc(false), verse)
+            pageManager.setCurrentDocumentAndKey(windowControl.defaultBibleDoc(false), verse)
         } else {
             pageManager.currentPage.setKey(verse, !isFromBookmark)
         }
@@ -499,7 +520,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
      * OWN document, which is not the page's current document, while every other key carries none.
      */
     internal fun applyChosenGenBookKey(book: Book?, key: Key) {
-        activity.windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
     }
 
     internal fun composeCycleStrongs() {
@@ -522,10 +543,10 @@ class ReadingCommands(private val activity: MainBibleActivity) {
 
     /** @param anchor the Compose toolbar's ComposeView (classic `bibleButton` is inside the now-GONE `toolbarLayout` on this path). */
     internal fun composeBibleClick(anchor: View) {
-        if (activity.toolbarButtonSetting?.startsWith("swap-") == true) {
-            activity.setCurrentDocument(activity.documentControl.suggestedBible)
+        if (CommonUtils.settings.getString("toolbar_button_actions", "default")?.startsWith("swap-") == true) {
+            activity.setCurrentDocument(documentControl.suggestedBible)
         } else {
-            activity.menuForDocs(anchor, activity.documentControl.biblesForVerse)
+            activity.menuForDocs(anchor, documentControl.biblesForVerse)
         }
     }
 
@@ -535,8 +556,8 @@ class ReadingCommands(private val activity: MainBibleActivity) {
      * `PopupMenu` — so this no longer needs a `View` to anchor on.
      */
     internal fun composeBibleLongClick() {
-        if (activity.toolbarButtonSetting == "swap-menu") {
-            activity.composeReadingViewHost?.openBibleQuickDoc(composeQuickDocItems(activity.documentControl.biblesForVerse))
+        if (CommonUtils.settings.getString("toolbar_button_actions", "default") == "swap-menu") {
+            activity.composeReadingViewHost?.openBibleQuickDoc(composeQuickDocItems(documentControl.biblesForVerse))
         } else {
             activity.startDocumentChooser("BIBLE")
         }
@@ -544,12 +565,12 @@ class ReadingCommands(private val activity: MainBibleActivity) {
 
     /** @param anchor the Compose toolbar's ComposeView (classic `commentaryButton` is inside the now-GONE `toolbarLayout` on this path). */
     internal fun composeCommentaryClick(anchor: View) {
-        if (activity.toolbarButtonSetting?.startsWith("swap-") == true) {
-            activity.setCurrentDocument(activity.documentControl.suggestedCommentary)
+        if (CommonUtils.settings.getString("toolbar_button_actions", "default")?.startsWith("swap-") == true) {
+            activity.setCurrentDocument(documentControl.suggestedCommentary)
         } else {
             activity.menuForDocs(
                 anchor,
-                activity.documentControl.commentariesForVerse
+                documentControl.commentariesForVerse
                     + SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK)
                     + SwordDocumentFacade.getBooks(BookCategory.DICTIONARY)
             )
@@ -558,11 +579,11 @@ class ReadingCommands(private val activity: MainBibleActivity) {
 
     /** [composeBibleLongClick]'s counterpart; same slice 7 Task 2 change. */
     internal fun composeCommentaryLongClick() {
-        if (activity.toolbarButtonSetting == "swap-menu") {
+        if (CommonUtils.settings.getString("toolbar_button_actions", "default") == "swap-menu") {
             // Mirrors classic `commentaryLongPress` exactly: unlike `commentaryClick`/
             // `composeCommentaryClick`, the long-press menu does NOT append
             // GENERAL_BOOK/DICTIONARY books.
-            activity.composeReadingViewHost?.openCommentaryQuickDoc(composeQuickDocItems(activity.documentControl.commentariesForVerse))
+            activity.composeReadingViewHost?.openCommentaryQuickDoc(composeQuickDocItems(documentControl.commentariesForVerse))
         } else {
             activity.startDocumentChooser("COMMENTARY")
         }
@@ -609,7 +630,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
 
     /** Short per-window label for the Compose restore rail — mirrors classic `getWindowButtonTitleText`. */
     internal fun windowLabelFor(id: String): String {
-        val window = activity.windowRepository.getWindow(IdType(id)) ?: return ""
+        val window = windowControl.windowRepository.getWindow(IdType(id)) ?: return ""
         return try {
             val curdoc = window.pageManager.currentPage.currentDocument ?: return " "
             if (curdoc.isStudyPad) {
@@ -630,7 +651,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
      * the snapshot is the iOS-facing model.
      */
     internal fun windowTopLabelFor(id: String): String? {
-        val window = activity.windowRepository.getWindow(IdType(id)) ?: return null
+        val window = windowControl.windowRepository.getWindow(IdType(id)) ?: return null
         return try {
             window.pageManager.titleText.takeIf { it.isNotBlank() }
         } catch (e: Exception) { null }
@@ -638,7 +659,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
 
     /** Doc-type icon for the Compose restore rail — mirrors classic `docType.setImageResource(document.imageResource)`. */
     internal fun windowIconFor(id: String): Painter? {
-        val window = activity.windowRepository.getWindow(IdType(id)) ?: return null
+        val window = windowControl.windowRepository.getWindow(IdType(id)) ?: return null
         val resId = window.pageManager.currentPage.currentDocument?.imageResource ?: return null
         return composeWindowIconCache.getOrPut(resId) {
             val drawable = ContextCompat.getDrawable(activity, resId) ?: return null
@@ -649,19 +670,19 @@ class ReadingCommands(private val activity: MainBibleActivity) {
     private fun getItemOptions(itemId: Int, order: Int = 0): OptionsMenuItemInterface {
         val settingsBundle = SettingsBundle(
             level = SettingsLevel.WORKSPACE,
-            workspaceId = activity.windowRepository.id,
-            workspaceName = activity.windowRepository.name,
-            workspaceSettings = activity.windowRepository.textDisplaySettings.apply {
-                colors?.workspaceColor = activity.windowRepository.workspaceSettings.workspaceColor
+            workspaceId = windowControl.windowRepository.id,
+            workspaceName = windowControl.windowRepository.name,
+            workspaceSettings = windowControl.windowRepository.textDisplaySettings.apply {
+                colors?.workspaceColor = windowControl.windowRepository.workspaceSettings.workspaceColor
             },
             globalSettings = CommonUtils.globalTextDisplaySettings,
         )
         return when(itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
                 activity.startActivity(TextDisplaySettingsComposeActivity.intentFor(
-                    activity, SettingsScope.Workspace(activity.windowRepository.id.toString())))
+                    activity, SettingsScope.Workspace(windowControl.windowRepository.id.toString())))
             }, opensDialog = true)
-            R.id.autoAssignLabels -> AutoAssignPreference(activity.windowRepository.workspaceSettings)
+            R.id.autoAssignLabels -> AutoAssignPreference(windowControl.windowRepository.workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
             R.id.splitMode -> SplitModePreference(activity)
@@ -767,24 +788,24 @@ class ReadingCommands(private val activity: MainBibleActivity) {
      * for every other item.
      */
     fun handleWindowPaneMenuItem(windowId: String, id: String): Boolean {
-        val window = activity.windowRepository.getWindow(IdType(windowId)) ?: return false
+        val window = windowControl.windowRepository.getWindow(IdType(windowId)) ?: return false
         val controller = activity.composeReadingViewHost?.controller
         return when (val parsed = WindowPaneMenuStateBuilder.parseId(id)) {
             is WindowPaneMenuStateBuilder.ParsedId.MoveItem -> {
                 // SplitBibleArea.kt:896-898, :987-992
-                controller?.onMove(windowId, parsed.order) ?: activity.windowControl.moveWindow(window, parsed.order)
+                controller?.onMove(windowId, parsed.order) ?: windowControl.moveWindow(window, parsed.order)
                 false
             }
             is WindowPaneMenuStateBuilder.ParsedId.SyncGroupItem -> {
                 // SplitBibleArea.kt:899-901, :993-996
-                controller?.onChangeSyncGroup(windowId, parsed.order) ?: activity.windowControl.changeSyncGroup(window, parsed.order)
+                controller?.onChangeSyncGroup(windowId, parsed.order) ?: windowControl.changeSyncGroup(window, parsed.order)
                 false
             }
             is WindowPaneMenuStateBuilder.ParsedId.TextOptionItem -> handleWindowTextOptionItem(window, parsed.order)
             // SplitBibleArea.kt:1005-1007. A/B batch 4a F4: the target window comes from the menu
             // row's own order now (classic's shape), not from a picker dialog.
             is WindowPaneMenuStateBuilder.ParsedId.CopySettingsToWindow -> {
-                activity.windowControl.copySettingsToWindow(window, parsed.order)
+                windowControl.copySettingsToWindow(window, parsed.order)
                 false
             }
             is WindowPaneMenuStateBuilder.ParsedId.StaticItem -> handleWindowPaneStaticItem(window, parsed.id, controller)
@@ -799,25 +820,25 @@ class ReadingCommands(private val activity: MainBibleActivity) {
         return when (id) {
             // SplitBibleArea.kt:880-883
             WindowPaneMenuStateBuilder.ID_WINDOW_NEW -> {
-                controller?.onAddWindow(windowId) ?: activity.windowControl.addNewWindow(window)
+                controller?.onAddWindow(windowId) ?: windowControl.addNewWindow(window)
                 false
             }
             // SplitBibleArea.kt:974-977
             WindowPaneMenuStateBuilder.ID_WINDOW_MAXIMISE -> {
-                controller?.onMaximise(windowId) ?: activity.windowControl.maximiseWindow(window)
+                controller?.onMaximise(windowId) ?: windowControl.maximiseWindow(window)
                 false
             }
             // SplitBibleArea.kt:970-973
             WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE -> {
-                controller?.onMinimise(windowId) ?: activity.windowControl.minimiseWindow(window)
+                controller?.onMinimise(windowId) ?: windowControl.minimiseWindow(window)
                 false
             }
             // SplitBibleArea.kt:884-890 -- compound (add a new non-links window, close this one);
             // no single seam command for this, so it always goes directly through windowControl,
             // same as classic (the "or directly windowControl" case named in the Task-5 brief).
             WindowPaneMenuStateBuilder.ID_CHANGE_TO_NORMAL -> {
-                activity.windowControl.addNewWindow(window).also { it.isLinksWindow = false }
-                activity.windowControl.closeWindow(window)
+                windowControl.addNewWindow(window).also { it.isLinksWindow = false }
+                windowControl.closeWindow(window)
                 false
             }
             // SplitBibleArea.kt:891-895 -- checkable toggle; stays open so the host can rebuild
@@ -825,17 +846,17 @@ class ReadingCommands(private val activity: MainBibleActivity) {
             // boolean branch.
             WindowPaneMenuStateBuilder.ID_PIN_MODE -> {
                 val newValue = !window.isPinMode
-                controller?.onSetPin(windowId, newValue) ?: activity.windowControl.setPinMode(window, newValue)
+                controller?.onSetPin(windowId, newValue) ?: windowControl.setPinMode(window, newValue)
                 true
             }
             // SplitBibleArea.kt:997-999
             WindowPaneMenuStateBuilder.ID_DISABLE_SYNC -> {
-                controller?.onSetSynchronised(windowId, false) ?: activity.windowControl.setSynchronised(window, false)
+                controller?.onSetSynchronised(windowId, false) ?: windowControl.setSynchronised(window, false)
                 false
             }
             // SplitBibleArea.kt:906-909
             WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE -> {
-                controller?.onClose(windowId) ?: activity.windowControl.closeWindow(window)
+                controller?.onClose(windowId) ?: windowControl.closeWindow(window)
                 false
             }
 
@@ -846,17 +867,17 @@ class ReadingCommands(private val activity: MainBibleActivity) {
             // used by the overflow menu).
             WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS -> {
                 activity.startActivity(TextDisplaySettingsComposeActivity.intentFor(
-                    activity, SettingsScope.Window(window.id.toString(), activity.windowRepository.id.toString())))
+                    activity, SettingsScope.Window(window.id.toString(), windowControl.windowRepository.id.toString())))
                 false
             }
             // SplitBibleArea.kt:1002-1004
             WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_WORKSPACE -> {
-                activity.windowControl.copySettingsToWorkspace(window)
+                windowControl.copySettingsToWorkspace(window)
                 false
             }
             // SplitBibleArea.kt:1008-1010
             WindowPaneMenuStateBuilder.ID_COPY_SETTINGS_TO_GLOBAL -> {
-                activity.windowControl.copySettingsToGlobal(window)
+                windowControl.copySettingsToGlobal(window)
                 false
             }
             // SplitBibleArea.kt:1011-1019
@@ -875,8 +896,8 @@ class ReadingCommands(private val activity: MainBibleActivity) {
             WindowPaneMenuStateBuilder.ID_EXPORT_STUDYPAD_CSV -> {
                 (window.bibleView?.firstDocument as? StudyPadDocument)?.label?.let { label ->
                     activity.lifecycleScope.launch {
-                        val bookmarks = activity.bookmarkControl.getBibleBookmarksWithLabel(label)
-                        activity.bookmarkControl.exportBookmarksToCSV(activity, bookmarks)
+                        val bookmarks = bookmarkControl.getBibleBookmarksWithLabel(label)
+                        bookmarkControl.exportBookmarksToCSV(activity, bookmarks)
                     }
                 }
                 false
@@ -934,7 +955,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
             }
             // SplitBibleArea.kt:910-928
             WindowPaneMenuStateBuilder.ID_GO_TO_SPEAK -> {
-                activity.speakControl.speakBookAndKey?.let {
+                speakControl.speakBookAndKey?.let {
                     if (it.document?.bookCategory == BookCategory.BIBLE && window.pageManager.isVersePageShown) {
                         window.pageManager.setCurrentDocumentAndKey(null, it.key)
                     } else {
@@ -972,9 +993,9 @@ class ReadingCommands(private val activity: MainBibleActivity) {
             level = SettingsLevel.WINDOW,
             windowId = window.id,
             pageManagerSettings = window.pageManager.textDisplaySettings,
-            workspaceId = activity.windowRepository.id,
-            workspaceName = activity.windowRepository.name,
-            workspaceSettings = activity.windowRepository.textDisplaySettings,
+            workspaceId = windowControl.windowRepository.id,
+            workspaceName = windowControl.windowRepository.name,
+            workspaceSettings = windowControl.windowRepository.textDisplaySettings,
             globalSettings = CommonUtils.globalTextDisplaySettings,
         )
         val itemOptions = getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
@@ -999,7 +1020,7 @@ class ReadingCommands(private val activity: MainBibleActivity) {
 
     val bibleOverlayText: String
         get() {
-            val bookName = activity.pageControl.currentPageManager.currentPage.currentDocument?.abbreviation
+            val bookName = pageControl.currentPageManager.currentPage.currentDocument?.abbreviation
             synchronized(BookName::class.java) {
                 val oldValue = BookName.isFullBookName()
                 BookName.setFullBookName(false)
