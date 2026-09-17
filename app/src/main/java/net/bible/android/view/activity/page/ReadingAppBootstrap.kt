@@ -130,13 +130,20 @@ private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pr
  * `setKey(addHistoryItem = true)` posts `AddHistoryItem` synchronously, and with the flag false that
  * records a WRONG `IntentHistoryItem` carrying the deep-link intent).
  *
- * **Known leak, preserved deliberately (R7 finding).** [networkCallback] is registered in
- * [registerNetworkCallback] and never unregistered -- there is no
- * `unregisterNetworkCallback` call anywhere in the repository, and there was none before this
- * extraction either. Preserving it exactly is the point: a lifecycle fix is a behaviour change with
- * its own test needs and does not belong in an extraction commit. With two live hosts it is now
- * reachable twice, which is the same "two live `MainBibleActivity` instances" multiplicity
- * `ActivityBase.freeze`'s KDoc already describes.
+ * **The network callback is balanced (T8a item 4; R7 recorded it as a known leak and deferred the
+ * fix).** [networkCallback] is registered by [registerNetworkCallback] and removed by
+ * [unregisterNetworkCallback], which BOTH hosts call from their own `onDestroy`. Before T8a there
+ * was no `unregisterNetworkCallback` call anywhere in the repository and had never been one; R7 was
+ * right to preserve that inside an extraction commit and wrong to leave it after T8b, whose boot
+ * handoff keeps `FLAG_ACTIVITY_MULTIPLE_TASK` for `ACTION_VIEW` deep links -- so every deep link
+ * would spawn another host, another bootstrap and another registration nothing removed.
+ *
+ * Unregistering is safe with two live hosts BECAUSE the callback is per-bootstrap and the bootstrap
+ * is per-host: [networkCallback] is an instance property of this class, each host constructs its own
+ * `ReadingAppBootstrap(this)`, and `ConnectivityManager.unregisterNetworkCallback(cb)` removes the
+ * one object it is handed. The `ConnectivityManager` itself is the process-wide system service --
+ * which is exactly why it is the callback's IDENTITY, not the manager's, that keeps two hosts apart.
+ * `ReadingAppBootstrapTest.destroyingOneHostLeavesTheOtherLiveHostsCallbackRegistered` measures it.
  */
 class ReadingAppBootstrap(private val host: ActivityBase) : KoinComponent {
     private val windowControl: WindowControl by inject()
@@ -498,15 +505,38 @@ class ReadingAppBootstrap(private val host: ActivityBase) : KoinComponent {
     }
 
     /**
-     * Classic `MainBibleActivity.onCreate:586-589`. NOTE the leak recorded in the class KDoc: there
-     * is no matching `unregisterNetworkCallback` anywhere, and R7 preserves that rather than fixing
-     * it.
+     * Whether [registerNetworkCallback] actually registered, so [unregisterNetworkCallback] can be
+     * called unconditionally from a host's `onDestroy`.
+     *
+     * Not cosmetic: `registerDefaultNetworkCallback` is gated on API >= N, a host may be destroyed
+     * without ever having bootstrapped a reading route at all (`NavHostComposeActivity` has ~45
+     * routes that never call [registerNetworkCallback]), and `unregisterNetworkCallback` throws
+     * `IllegalArgumentException` for a callback that was never registered.
      */
+    private var networkCallbackRegistered = false
+
+    /** Classic `MainBibleActivity.onCreate:586-589`; balanced by [unregisterNetworkCallback]. */
     fun registerNetworkCallback() {
         val connManager = host.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             connManager.registerDefaultNetworkCallback(networkCallback)
+            networkCallbackRegistered = true
         }
+    }
+
+    /**
+     * The other end of [registerNetworkCallback] (T8a item 4), called from each host's `onDestroy`.
+     *
+     * Removes THIS bootstrap's own [networkCallback] object and nothing else, which is what makes it
+     * safe while a second host is still alive -- see the class KDoc for the per-host/shared analysis
+     * and the test that measures it. Idempotent, so a second `onDestroy` (or a host that never
+     * registered) is a no-op rather than an `IllegalArgumentException`.
+     */
+    fun unregisterNetworkCallback() {
+        if (!networkCallbackRegistered) return
+        networkCallbackRegistered = false
+        val connManager = host.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connManager.unregisterNetworkCallback(networkCallback)
     }
 
     // ——— §2.3 rows 6 and 7: keyboard mode and the sdcard permission ——————————————————————————————

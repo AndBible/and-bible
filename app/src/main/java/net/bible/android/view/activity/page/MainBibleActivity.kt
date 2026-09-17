@@ -1586,6 +1586,10 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         bibleViewFactory.clear()
         super.onDestroy()
         ABEventBus.unregister(this)
+        // T8a item 4: the other end of onCreate's registerNetworkCallback(). This host's bootstrap
+        // owns the callback object, so this cannot reach another live host's -- see
+        // ReadingAppBootstrap's class KDoc.
+        readingAppBootstrap.unregisterNetworkCallback()
         // No-op only if the host was never installed (dispose() does not null this var, so a
         // second onDestroy call would still find it non-null); ordinarily this unregisters the
         // host's own ABEventBus subscriptions (NightModeChanged/FullScreenEvent) so an activity

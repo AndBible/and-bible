@@ -1076,9 +1076,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * on `download` or a settings route and therefore has no repository at all -- the composition
      * would then read `WindowControl`'s uninitialised lazy fallback, which is this task's
      * silent-empty-workspace symptom. The boolean is what makes the second call free:
-     * `registerNetworkCallback` in particular has no unregister (see [ReadingAppBootstrap]), so
-     * running it twice would double a leak, and `showFirstRunNotices` would re-enter its own
-     * process-wide gate.
+     * `registerNetworkCallback` in particular registers ONE callback object per bootstrap and
+     * [onDestroy] removes exactly that one (T8a item 4 gave it an unregister; it had none before),
+     * so a second run would register the same object twice against a single removal, and
+     * `showFirstRunNotices` would re-enter its own process-wide gate.
      *
      * NOTE, for slice 7 Task 12: because the whole function is one-shot, an `openLink` extra that
      * arrives on a LATER reading entry is not dispatched. Unreachable today --
@@ -7895,6 +7896,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // where [readingViewHost] was never called; `dispose()` does not null the field, so a
         // second call would still find it and is harmless.
         composeReadingViewHost?.dispose()
+        // T8a item 4: the other end of bootstrapIfNeeded()'s registerNetworkCallback(). A no-op on
+        // the ~45 routes that never bootstrap; on a reading route it removes THIS bootstrap's own
+        // callback object, so a second live host keeps its own -- see ReadingAppBootstrap's KDoc.
+        readingAppBootstrap.unregisterNetworkCallback()
         super.onDestroy()
     }
 

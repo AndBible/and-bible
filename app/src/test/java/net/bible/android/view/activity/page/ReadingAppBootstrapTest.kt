@@ -16,16 +16,24 @@
  */
 package net.bible.android.view.activity.page
 
+import android.content.Context
+import android.net.ConnectivityManager
+import androidx.test.core.app.ApplicationProvider
 import java.io.File
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.view.activity.base.firstTime
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 /**
@@ -217,7 +225,8 @@ class ReadingAppBootstrapTest {
             .filter { it.isNotEmpty() }
         assertEquals(
             "bootstrapIfNeeded()'s FIRST statement must be the early return — registerNetworkCallback " +
-                "has no unregister, so a second run doubles a leak",
+                "registers one callback object per bootstrap against the ONE unregister onDestroy " +
+                "makes (T8a item 4), so a second run leaves a registration behind",
             "if (readingAppBootstrapped) return", body[0],
         )
         assertEquals(
@@ -362,6 +371,140 @@ class ReadingAppBootstrapTest {
             )
         } finally {
             controller.close()
+        }
+    }
+
+    // ——— T8a item 4: the network callback's other end ———————————————————————————————————————————
+
+    private val connectivityShadow get() = shadowOf(
+        ApplicationProvider.getApplicationContext<Context>()
+            .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    )
+
+    private fun navHostOnReading() = Robolectric.buildActivity(
+        NavHostComposeActivity::class.java,
+        NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+    )
+
+    /**
+     * **T8a item 4.** R7 extracted `registerNetworkCallback` and recorded, correctly, that nothing
+     * in the repository ever unregistered it — a leak it preserved rather than fixed inside an
+     * extraction commit. T8b makes that unacceptable: the boot handoff keeps
+     * `FLAG_ACTIVITY_MULTIPLE_TASK` for `ACTION_VIEW` deep links, so every deep link spawns another
+     * reading host, another bootstrap and another registration nothing removes.
+     *
+     * Counted, not asserted-to-exist, for this class's own reason: "an unregister method exists" is
+     * true of a method nothing calls, and a leak has no symptom a functional test can see. The count
+     * is a DELTA because `TestBibleApplication` is free to register callbacks of its own.
+     *
+     * Mutation: delete `readingAppBootstrap.unregisterNetworkCallback()` from
+     * `NavHostComposeActivity.onDestroy` and the third assertion fails.
+     */
+    @Test
+    fun theNetworkCallbackIsUnregisteredWhenItsHostIsDestroyed() {
+        val shadow = connectivityShadow
+        val before = shadow.networkCallbacks.size
+        val controller = navHostOnReading()
+        val activity = controller.create().get()
+        assertEquals(
+            "bootstrapIfNeeded must have registered exactly one default-network callback",
+            before + 1, shadow.networkCallbacks.size,
+        )
+        assertTrue(
+            "…and it must be THIS bootstrap's own callback object",
+            activity.readingAppBootstrap.networkCallback in shadow.networkCallbacks,
+        )
+
+        controller.close()
+
+        assertFalse(
+            "destroying the host must unregister the callback it registered — with " +
+                "FLAG_ACTIVITY_MULTIPLE_TASK every deep link makes another host, another bootstrap " +
+                "and another registration, and nothing else ever removes one",
+            activity.readingAppBootstrap.networkCallback in shadow.networkCallbacks,
+        )
+        assertEquals(
+            "…and the registration count must be back where it started",
+            before, shadow.networkCallbacks.size,
+        )
+    }
+
+    /**
+     * The same obligation on the classic host, whose `onDestroy` is the other call site.
+     *
+     * `firstTime` is set false first, and that is not incidental: it is a file-level `var` in
+     * `ActivityBase.kt`, and `MainBibleActivity.onCreate` RETURNS EARLY while it is true (the
+     * night-mode `recreate()` hack), before ever reaching `registerNetworkCallback()`. A test that
+     * did not pin it would pass or fail on whether some earlier test in the same JVM had already
+     * consumed the flag — measured, not guessed: a probe in a fresh JVM registered zero callbacks
+     * for the first `MainBibleActivity` and one for the next host built after it.
+     */
+    @Test
+    fun theClassicHostUnregistersItsOwnCallbackToo() {
+        firstTime = false
+        val shadow = connectivityShadow
+        val before = shadow.networkCallbacks.size
+        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
+        val activity = controller.create().get()
+        assertTrue(
+            "MainBibleActivity.onCreate must have registered its bootstrap's callback — if this " +
+                "fails, the early `firstTime` return above ran and the assertion below is vacuous",
+            activity.readingAppBootstrap.networkCallback in shadow.networkCallbacks,
+        )
+
+        controller.close()
+
+        assertFalse(
+            "classic's onDestroy must unregister it too — MainBibleActivity survives this batch " +
+                "and is still a live second host",
+            activity.readingAppBootstrap.networkCallback in shadow.networkCallbacks,
+        )
+        assertEquals("…and the count is back where it started", before, shadow.networkCallbacks.size)
+    }
+
+    /**
+     * The hazard an unregister has to disprove: that it could tear down a callback another live host
+     * still needs.
+     *
+     * It cannot, and this measures why. `ReadingAppBootstrap` is constructed once per host (each
+     * Activity holds its own `readingAppBootstrap`), `networkCallback` is an instance property of
+     * it, and `unregisterNetworkCallback(cb)` removes the one object it is given — so two live hosts
+     * hold two distinct callbacks and destroying either leaves the other's registration untouched.
+     * The `ConnectivityManager` is the process-wide system service in both cases (measured: the same
+     * instance for the application context and for both Activities), which is exactly why the
+     * callback IDENTITY is what matters.
+     *
+     * Two NAV hosts, because that is T8b's own scenario — `FLAG_ACTIVITY_MULTIPLE_TASK` on an
+     * `ACTION_VIEW` deep link — and because it needs no `firstTime` pinning.
+     */
+    @Test
+    fun destroyingOneHostLeavesTheOtherLiveHostsCallbackRegistered() {
+        val shadow = connectivityShadow
+        val before = shadow.networkCallbacks.size
+        val first = navHostOnReading()
+        val second = navHostOnReading()
+        try {
+            val firstActivity = first.create().get()
+            val secondActivity = second.create().get()
+            assertEquals(
+                "two live reading hosts register two callbacks — one per bootstrap",
+                before + 2, shadow.networkCallbacks.size,
+            )
+
+            first.close()
+
+            assertFalse(
+                "the destroyed host's callback is gone",
+                firstActivity.readingAppBootstrap.networkCallback in shadow.networkCallbacks,
+            )
+            assertTrue(
+                "…and the surviving host's is still registered: the unregister names ONE callback " +
+                    "object, so it cannot reach another bootstrap's",
+                secondActivity.readingAppBootstrap.networkCallback in shadow.networkCallbacks,
+            )
+            assertEquals("…leaving exactly one", before + 1, shadow.networkCallbacks.size)
+        } finally {
+            second.close()
         }
     }
 }
