@@ -239,26 +239,42 @@ class ReadingViewVisibilityTest {
     }
 
     /**
-     * Two hosts' registrations are independent: the one that leaves must not un-register the one
-     * still on screen (`FLAG_ACTIVITY_MULTIPLE_TASK` can make a second reading instance real). R7b
-     * makes this stronger than the old depth counter did — the host token is now what tells the two
-     * apart, so an `exit` from the wrong instance cannot touch the right one. Mutation: ignore the
-     * host in `exit` (`destinations.removeLast()`) and the second assertion fails.
+     * Two hosts' registrations are independent: an `exit` removes the registration of the host that
+     * made it and no other (`FLAG_ACTIVITY_MULTIPLE_TASK` can make a second reading instance real).
+     * R7b makes this stronger than the old depth counter did — the host token is now what tells the
+     * two apart.
+     *
+     * **The FOREGROUND host is the one that exits here, and that is deliberate (fix round 1).** The
+     * first version of this test exited the backgrounded instance first and named
+     * `destinations.removeLast()` as its mutation — which does not fail it, because the last
+     * registration made happened to be the one being removed. Running the named mutation is what
+     * found that (it passed); exiting the FOREGROUND host while a LATER, backgrounded registration
+     * is still held distinguishes the two, in both directions: a host-blind `exit` removes the
+     * wrong one, so the flag stays on for a reading view that is gone (first assertion) and the
+     * still-composed one has been silently un-registered (second).
      */
     @Test
     fun oneHostsRegistrationsAreNotAnothersToRemove() {
         val other = Any()
         ReadingHostPresence.setForeground(host)
         ReadingViewVisibility.enter(host)
-        ReadingViewVisibility.enter(other)
-
-        ReadingViewVisibility.exit(other)
-        assertTrue(
-            ReadingViewVisibility.isVisible,
-            "the other instance left; the foreground host's reading view is still composed",
-        )
+        ReadingViewVisibility.enter(other)   // a second instance, registered LATER
 
         ReadingViewVisibility.exit(host)
+        assertFalse(
+            ReadingViewVisibility.isVisible,
+            "the foreground host's own destination is gone — another host's registration must not " +
+                "stand in for it",
+        )
+
+        // …and that other registration is untouched: it counts the moment its host is in front.
+        ReadingHostPresence.setForeground(other)
+        assertTrue(
+            ReadingViewVisibility.isVisible,
+            "the other instance was never un-registered — only the foreground host's was removed",
+        )
+
+        ReadingViewVisibility.exit(other)
         assertFalse(ReadingViewVisibility.isVisible, "…and the last one out does clear it")
     }
 

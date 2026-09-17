@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.compose
 
+import android.content.Context
+import android.os.PowerManager
 import android.view.InputDevice
 import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatDelegate
@@ -51,6 +53,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
@@ -77,10 +80,16 @@ import kotlin.test.assertTrue
  *    If the arm stops publishing, or the host stops consulting, volume-key scrolling and the
  *    screen-on night-mode refresh quietly do nothing.
  *  - `MainBibleActivity` must not FORCE the flag (`ReadingViewVisibility.setVisible`, the test-only
- *    reset that ignores both inputs): its four temporary lifecycle call sites drive the separate,
- *    orthogonal `setActivityVisible` input instead — see Task 6 fix round 1 and
- *    [ReadingViewVisibility]'s kdoc — so the destination's depth counter, the input that survives
- *    `MainBibleActivity`'s deletion (Task 13), can never be clobbered by the Activity path.
+ *    reset that ignores every registration): its four temporary lifecycle call sites drive the
+ *    separate `setActivityVisible(this, …)` input instead — see Task 6 fix round 1 and
+ *    [ReadingViewVisibility]'s kdoc — so the destination's own registration, the input that
+ *    survives `MainBibleActivity`'s deletion (Task 13), can never be clobbered by the Activity path.
+ *
+ * **R7b re-keyed both seams by HOST.** Every registration and every publication carries the token
+ * of the host it belongs to ([ReadingNavDeps.host]) and counts only while [ReadingHostPresence]
+ * says that host is foreground, so the fixture below declares [graphHost] in front before composing
+ * — and the mutation notes on each test name the CURRENT signatures (`enter(host)`/`exit(host)`,
+ * `publish(handlers, host)`), not the zero-argument ones R7b removed.
  *
  * The host-side half is driven against the REAL [NavHostComposeActivity] (the
  * `Robolectric.buildActivity(...).create()` idiom `CloudDocumentsControllerRebuildIsolationTest`
@@ -187,8 +196,8 @@ class ReadingDestinationInGraphTest {
     /**
      * The flag's whole point, in the shape design §5.1 argues is behaviour-neutral: TRUE while the
      * reading destination is current, FALSE while a screen is over it, TRUE again when that screen
-     * pops. Mutation: delete `ReadingViewVisibility.enter()` from the arm's `DisposableEffect` (the
-     * first assertion fails), or its `exit()` from `onDispose` (the second fails).
+     * pops. Mutation: delete `ReadingViewVisibility.enter(host)` from the arm's `DisposableEffect`
+     * (the first assertion fails), or its `exit(host)` from `onDispose` (the second fails).
      */
     @Test
     fun theReadingDestinationOwnsTheVisibilityFlag() {
@@ -244,19 +253,19 @@ class ReadingDestinationInGraphTest {
     /**
      * `MainBibleActivity` drives the ACTIVITY input (`setActivityVisible`, restored in Task 6 fix
      * round 1 because the destination's content slot cannot render the reading view yet) and must
-     * never touch the forcing setter, which zeroes the depth counter this destination owns. A
-     * source scan because the thing asserted is an ABSENCE in production code that no runtime path
-     * can prove: `MainBibleActivity` is still the launcher at this commit, so a `setVisible(false)`
-     * smuggled into its `onPause` would clear a composed destination's depth and keep every other
-     * test green.
+     * never touch the forcing setter, which clears every registration — this destination's
+     * included. A source scan because the thing asserted is an ABSENCE in production code that no
+     * runtime path can prove: `MainBibleActivity` is still the launcher at this commit, so a
+     * `setVisible(false)` smuggled into its `onPause` would clear a composed destination's
+     * registration and keep every other test green.
      */
     @Test
     fun mainBibleActivityNoLongerDrivesTheVisibilityFlag() {
         val src = ClassicRemovalScan.codeLinesOf(MAIN_BIBLE_ACTIVITY)
         assertFalse(
             src.contains("ReadingViewVisibility.setVisible"),
-            "the destination owns the depth counter — MainBibleActivity must use the separate " +
-                "setActivityVisible input, never the forcing setter",
+            "the destination owns its own registration — MainBibleActivity must use the separate " +
+                "setActivityVisible(this, …) input, never the forcing setter",
         )
     }
 
@@ -452,6 +461,52 @@ class ReadingDestinationInGraphTest {
         assertEquals(1, probeScreenOns, "…and nothing is delivered to a destination that is gone")
     }
 
+    /**
+     * **R7b fix round 1, review Important: the screen-off that `super.onPause()` itself dispatches
+     * must still reach the reading view the host is leaving.**
+     *
+     * `ActivityBase.onPause` ends with `if (isScreenOn && !ScreenSettings.isScreenOn)
+     * onScreenTurnedOff()` — the screen going off under a resumed Activity is delivered from INSIDE
+     * `onPause`, and the foreground host is the right recipient, because that gate only trips when
+     * this Activity's own screen went off. R7b's first cut retracted the host's presence BEFORE
+     * `super.onPause()`, so `ReadingViewHostCallbacks.current` was already null by the time the
+     * override ran and `BibleView.onScreenTurnedOff()` silently stopped being called on every
+     * screen-off — a NEW divergence, not the one R7b set out to fix (before R7b, `current` was
+     * `lastOrNull()` and fired).
+     *
+     * [theHostForwardsScreenOnAndOffToThePublishedHandler] cannot see this: it invokes the overrides
+     * reflectively, outside the lifecycle, with the probe's host declared foreground — a check that
+     * cannot fail on an ORDERING defect. This one drives the real `pause()` with the screen off.
+     * Mutation: move `ReadingHostPresence.clearForeground(this)` above `super.onPause()` in
+     * `NavHostComposeActivity.onPause` and it fails; that ordering is the RED this fix started from.
+     */
+    @Test
+    fun theHostDeliversTheScreenOffThatItsOwnPauseDispatches() {
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.AI_TOOL_INFO),
+        )
+        val powerManager = ApplicationProvider.getApplicationContext<Context>()
+            .getSystemService(Context.POWER_SERVICE) as PowerManager
+        val activity = controller.create().start().resume().get()
+        val unpublish = publishProbe(activity)
+        try {
+            // The screen goes off under the resumed host; the pause that follows is where
+            // ActivityBase notices it.
+            shadowOf(powerManager).setIsScreenOn(false)
+            controller.pause()
+            assertEquals(
+                1, probeScreenOffs,
+                "the reading view the host is leaving must still be told the screen went off — " +
+                    "ActivityBase dispatches it from inside super.onPause()",
+            )
+        } finally {
+            shadowOf(powerManager).setIsScreenOn(true)
+            unpublish()
+            controller.close()
+        }
+    }
+
     // ------------------------------------------------------------------ the deletion that was NOT allowed
 
     /**
@@ -462,8 +517,8 @@ class ReadingDestinationInGraphTest {
      * this branch and this test pins the reason: `StartupActivity.gotoMainBibleActivity()` launches
      * `MainBibleActivity` with `FLAG_ACTIVITY_MULTIPLE_TASK` for an `ACTION_VIEW` intent, so a deep
      * link opened while the app is running produces a SECOND live `MainBibleActivity` — the same
-     * scenario [ReadingViewVisibility]'s depth counter and [ReadingViewHostCallbacks]'s list exist
-     * for. Two instances registered on `ABEventBus` at once handle every bus event twice
+     * scenario [ReadingViewVisibility]'s and [ReadingViewHostCallbacks]'s per-host registrations
+     * exist for (R7b; before it, a depth counter and a publish stack). Two instances registered on `ABEventBus` at once handle every bus event twice
      * (`AppToBackgroundEvent` syncing twice, `MainBibleAfterRestore` resetting twice,
      * `WorkspacesUpdatedViaSyncEvent` judging workspace deletion against the wrong repository), and
      * `freeze()`'s `ABEventBus.unregister(this)` is the only thing that prevents it.

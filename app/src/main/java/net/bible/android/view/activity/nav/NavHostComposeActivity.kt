@@ -1349,12 +1349,32 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      *
      * [ReadingHostPresence.clearForeground] and not `setForeground(null)`: a stale pause must not
      * clear a host that resumed after it (see that object's kdoc).
+     *
+     * **The presence is retracted AFTER `super.onPause()`, and that ordering is load-bearing (fix
+     * round 1, review Important).** `ActivityBase.onPause` ends with
+     * `if (isScreenOn && !ScreenSettings.isScreenOn) onScreenTurnedOff()` — a screen that went off
+     * under a resumed Activity is dispatched from INSIDE this `super` call, and [onScreenTurnedOff]
+     * forwards it to `ReadingViewHostCallbacks.current`. Retracting first made `current` null one
+     * line too early and `BibleView.onScreenTurnedOff()` silently stopped being called on every
+     * screen-off. The gate only trips when THIS Activity's own screen went off, so the host that is
+     * still, at that instant, the one the user was looking at is the right recipient. Retracting
+     * after `super` also mirrors [onResume], which declares the presence BEFORE its `super` so that
+     * the same base class's `onScreenTurnedOn` dispatch lands — one symmetric pair rather than a
+     * re-implementation of the base class's gate here (whose `isScreenOn` half is private to it and
+     * would be a second copy free to drift).
+     *
+     * The BRIDGE is still retired before `super`, matching classic `MainBibleActivity.onPause`,
+     * whose first statement it has always been: nothing `super.onPause()` reaches reads
+     * `ReadingViewVisibility`. Classic needs no reordering of its own — its `onScreenTurnedOff`
+     * override goes straight to `documentViewManager`, not through this seam.
      */
     override fun onPause() {
         ReadingViewVisibility.setActivityVisible(this, false)
-        ReadingHostPresence.clearForeground(this)
         paused = true
         super.onPause()
+        // AFTER super: see this method's kdoc -- super.onPause() dispatches onScreenTurnedOff, and
+        // that reaches the reading view only while this host is still the foreground one.
+        ReadingHostPresence.clearForeground(this)
     }
 
     /**
@@ -1363,6 +1383,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * paired with a `setActivityVisible(this, true)`: that input is the bootstrap bridge only, and
      * re-arming it on every resume would make every non-reading destination of this host report a
      * reading view on screen.
+     *
+     * BEFORE `super.onResume()` on purpose, and [onPause]'s retraction is after its own `super` for
+     * the mirror-image reason: `ActivityBase.onResume` dispatches `onScreenTurnedOn` when the screen
+     * came back on, and that forwards to `ReadingViewHostCallbacks.current`.
      */
     override fun onResume() {
         ReadingHostPresence.setForeground(this)

@@ -76,6 +76,16 @@ package net.bible.sharedcore.reading
  * `MainBibleActivity` is unaffected by that rule: it hosts no `reading` destination, so nothing ever
  * calls [enter] with its token.
  *
+ * **One window the bridge does NOT cover, stated rather than claimed away** (fix round 1, review):
+ * bootstrapped -> paused before the graph's first composition -> resumed, still not composed. The
+ * bridge was retired by that `onPause` and nothing re-arms it (`bootstrapIfNeeded` is one-shot, and
+ * re-arming from `onResume` would report a reading view on screen for every other destination this
+ * host shows), so [isVisible] is false for that window where the pre-R7b flag was true. Nothing
+ * reads it there: the only reason the bridge exists is the synchronous `AddHistoryItem` that
+ * `bootstrapIfNeeded`'s deep link posts, which happened before the pause. A task that gives the host
+ * another pre-composition producer of history items has to close this, and the honest place to do
+ * it is that producer, not a re-armed bridge.
+ *
  * **What is genuinely equivalent to the old predicate.** A **sheet** over the reading view (search,
  * key chooser, text settings, Speak) changes neither the Activity, the destination, nor the
  * foreground host, so the predicate stays true; a **screen** over it changes the destination (a

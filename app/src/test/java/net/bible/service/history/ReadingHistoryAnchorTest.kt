@@ -366,15 +366,23 @@ class ReadingHistoryAnchorTest {
      * **R7b: the classic Activity's OTHER production wiring.** Every call site that declares its
      * reading view present also declares the Activity foreground ([ReadingHostPresence]), and
      * `onPause` retracts it — `clearForeground(this)`, not `setForeground(null)`, so a stale pause
-     * cannot clear a host that came to the front after it. Neither half is visible in an `isVisible`
-     * assertion, because the classic Activity moves both together: delete
-     * `ReadingHostPresence.setForeground(this)` from `onResume` and every assertion in
-     * [theReadingActivityLifecycleTurnsTheFlagOnAtResumeAndOffAtPause] still passes for the wrong
-     * reason (the Activity input alone), until the day `MainBibleActivity` is no longer the only
-     * reading view.
+     * cannot clear a host that came to the front after it.
      *
-     * The second half drives the interleaving the token exists for: another host takes the front
-     * while this Activity is still resumed, and only then does this Activity's pause arrive.
+     * **What this test adds that the three `isVisible` tests above cannot (corrected in fix round 1
+     * — the first version of this kdoc claimed they would all still pass without the `onResume`
+     * declaration, and that is simply false: `onPause` retracts the presence, so the second
+     * `controller.resume()` in [theReadingActivityLifecycleTurnsTheFlagOnAtResumeAndOffAtPause]
+     * would leave the Activity registration alone and `isVisible` false, and its third assertion
+     * goes red).** Two things:
+     *
+     *  - **The stale-pause interleaving**, which nothing else at the Activity level covers: another
+     *    host takes the front while this Activity is still resumed, and only then does this
+     *    Activity's pause arrive. Swap `clearForeground(this)` for `setForeground(null)` and every
+     *    other test in this file stays green, because with one host in play the two are identical.
+     *  - **A direct assertion on the presence**, not on `isVisible`. The three tests above read the
+     *    conjunction of the presence and the Activity input; when the task that makes the reading
+     *    destination's content slot real deletes that Activity input (and those three tests with
+     *    it), this one still pins the half that stays.
      */
     @Test
     fun theReadingActivityDeclaresAndRetractsItsForegroundPresence() {
