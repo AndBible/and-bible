@@ -173,6 +173,19 @@ class ReadingCommandsHostCallbacks(
      */
     val onToolbarStateMayHaveChanged: () -> Unit,
 
+    /**
+     * The owning host's `ReadingAppBootstrap.requestSdcardPermission()` — reading-host re-typing
+     * T8d, one of the five steps of [ReadingCommands.preferenceSettingsChanged].
+     *
+     * **Not an honest no-op**, and a supplier rather than a value for the same reason the rest are:
+     * each reading host builds its OWN `ReadingAppBootstrap` (that object holds the host's window
+     * repository and its paused flag), so this is the one step of that body which cannot be reached
+     * from the collaborator without asking the host which bootstrap is its own. A host that answered
+     * it with `{}` would leave the "manual install folder" preference unable to ever ask for the
+     * permission it needs, since the way back from Settings is the only place it is requested.
+     */
+    val requestSdcardPermission: () -> Unit,
+
     /** Classic toolbar: `binding.strongsButton`'s icon and alpha. Honest no-op, same reason. */
     val updateStrongsButton: () -> Unit,
 

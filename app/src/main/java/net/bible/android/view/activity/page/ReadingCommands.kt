@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.page
 
+import android.app.Activity
 import android.content.ClipData
 import android.os.Bundle
 import android.view.View
@@ -38,6 +39,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.OrdinalRange
@@ -1315,6 +1317,75 @@ class ReadingCommands(
      */
     internal fun switchToWorkspace(workspaceId: String) {
         currentWorkspaceId = IdType(workspaceId)
+    }
+
+    /**
+     * **Classic `MainBibleActivity.onActivityResult`'s `WORKSPACE_CHANGED` arm, lifted here
+     * verbatim (reading-host re-typing T8d).**
+     *
+     * `Screen.WorkspaceSelector` is deliberately absent from `ScreenLauncher.MIGRATED`, so the
+     * workspace selector is a REAL second Activity for both reading hosts and its answer really does
+     * come back through an `onActivityResult` -- at `MainBibleActivity.WORKSPACE_CHANGED`, a request
+     * code the flipped host had no arm for at all. `WorkspaceSelectorComposeActivity` only
+     * `setResult`s (`:62-71`); it posts no event and nothing else calls [switchToWorkspace] on that
+     * path, so the arm IS the switch. Without it the user picks a workspace, confirms, and is
+     * returned to the one they left -- while the renames and deletes the selector made do persist,
+     * which makes the discarded switch read as the app's own choice.
+     *
+     * One body, two callers, exactly as T8c did with the three `STD_REQUEST_CODE` arms: the classic
+     * Activity delegates here and so does `NavHostComposeActivity`.
+     *
+     * @return whether anything was applied -- Ruling D's hook for the flipped host, which logs a
+     * result that arrived and meant nothing. Classic ignored it and still does.
+     */
+    internal fun applyWorkspaceChangedResult(resultCode: Int, extras: Bundle): Boolean {
+        val workspaceId = extras.getString("workspaceId")
+        val changed = extras.getBoolean("changed")
+
+        if (resultCode != Activity.RESULT_OK) return false
+        return if (workspaceId != null && IdType(workspaceId) != currentWorkspaceId) {
+            switchToWorkspace(workspaceId)
+            true
+        } else if (changed) {
+            currentWorkspaceId = currentWorkspaceId
+            true
+        } else {
+            false
+        }
+    }
+
+    /**
+     * **Classic `MainBibleActivity.preferenceSettingsChanged()`, lifted here verbatim (reading-host
+     * re-typing T8d).**
+     *
+     * What the reading view owes itself after the user has been in Settings. Classic ran it from the
+     * `IntentHelper.REFRESH_DISPLAY_ON_FINISH` tail of its `onActivityResult`; the flipped host
+     * reaches Settings as a destination of its OWN graph, so there is no Activity result to run it
+     * from and `NavHostComposeActivity` calls this when the graph comes back to `reading`.
+     *
+     * Five steps, and each one is genuinely lost without it -- `maybeRecreateForSettingsKey` covers
+     * locale/theme/colour/discrete VISUALLY and covers none of these:
+     *
+     *  - the system bars, re-applied for the fullscreen state in force (classic's `resetSystemUi()`,
+     *    which is the same `hideSystemUI`/`showSystemUI` pair [ReadingHostActivity.applyIdleSystemUi]
+     *    is);
+     *  - the SD-card permission the "manual install folder" preference asks for, which is only ever
+     *    requested on the way back from Settings;
+     *  - `SynchronizeWindowsEvent(true)`, which NOTHING else in the tree posts;
+     *  - `CommonUtils.changeAppIconAndName()`, whose ONLY production caller this is. `discrete_mode`
+     *    forces a `recreate()`, and `recreate()` does not swap the launcher alias -- so without this
+     *    call turning discrete mode on no longer hides the app's icon and name, a privacy feature
+     *    for users in persecution-sensitive areas silently doing nothing;
+     *  - the reading view's own re-read of the toolbar snapshot and of the settings it reads inside
+     *    its composition (`toolbar_button_actions`, `hide_bible_reference_overlay`,
+     *    `hide_window_buttons`, `full_screen_hide_buttons_pref`).
+     */
+    internal fun preferenceSettingsChanged() {
+        readingHost.applyIdleSystemUi()
+        hostCallbacks.requestSdcardPermission()
+        ABEventBus.post(SynchronizeWindowsEvent(true))
+        CommonUtils.changeAppIconAndName()
+        composeReadingViewHost?.refreshHostedState(rebuildComposition = true)
     }
 
     internal fun cycleWorkspace(forward: Boolean) {

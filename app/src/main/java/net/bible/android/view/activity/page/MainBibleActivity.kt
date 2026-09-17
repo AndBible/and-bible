@@ -271,6 +271,8 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         // Classic answers the whole thing: `updateActions()`'s tail is already the Compose
         // toolbar/drawer refresh a second host would have to supply for itself.
         onToolbarStateMayHaveChanged = { updateActions() },
+        // T8d: this Activity's OWN bootstrap, the one that holds its window repository.
+        requestSdcardPermission = { readingAppBootstrap.requestSdcardPermission() },
         updateStrongsButton = { updateStrongsButton() },
         menuForDocs = { anchor, documents -> menuForDocs(anchor, documents) },
         // The `binding.drawerLayout` lines themselves, NOT `{ toggleDrawer() }`: this class's own
@@ -1722,17 +1724,15 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         val extras = data?.extras
         if (extras != null) {
             when (requestCode) {
+                // reading-host re-typing T8d: this arm is `ReadingCommands`' now, and this
+                // Activity delegates to it. `Screen.WorkspaceSelector` is NOT in
+                // `ScreenLauncher.MIGRATED`, so the selector is a real second Activity for BOTH
+                // reading hosts and its result really does arrive at `WORKSPACE_CHANGED` on
+                // whichever one launched it -- which, since the launcher flipped, is
+                // `NavHostComposeActivity`, and that host had no arm for this code at all. One
+                // implementation, two callers, the same shape T8c gave the three chooser arms below.
                 WORKSPACE_CHANGED -> {
-                    val workspaceId = extras.getString("workspaceId")
-                    val changed = extras.getBoolean("changed")
-
-                    if (resultCode == Activity.RESULT_OK) {
-                        if (workspaceId != null && IdType(workspaceId) != currentWorkspaceId) {
-                            switchToWorkspace(workspaceId)
-                        } else if (changed) {
-                            currentWorkspaceId = currentWorkspaceId
-                        }
-                    }
+                    readingCommands.applyWorkspaceChangedResult(resultCode, extras)
                     return
                 }
                 STD_REQUEST_CODE -> {
@@ -1849,18 +1849,20 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    private fun preferenceSettingsChanged() {
-        resetSystemUi()
-        readingAppBootstrap.requestSdcardPermission()
-        ABEventBus.post(SynchronizeWindowsEvent(true))
-        CommonUtils.changeAppIconAndName()
-        // Returning from Settings is what re-reads the toolbar snapshot (e.g. the
-        // `toolbar_button_actions` swap mode) and the settings the host reads inside its
-        // composition (`hide_bible_reference_overlay`, `hide_window_buttons`,
-        // `full_screen_hide_buttons_pref`); the two DocumentViewManager calls this replaced had
-        // been no-ops on the Compose path since Pre-A/B P3, and are gone with the classic split.
-        composeReadingViewHost?.refreshHostedState(rebuildComposition = true)
-    }
+    /**
+     * reading-host re-typing T8d: the body moved to [ReadingCommands.preferenceSettingsChanged]
+     * and this is a pure delegating stub.
+     *
+     * It moved for the same reason the `WORKSPACE_CHANGED` arm above did: `Screen.Settings` IS in
+     * `ScreenLauncher.MIGRATED`, so on the flipped host the Settings launch is a `singleTop`
+     * SELF-launch that produces no Activity result at all and this body has to be reachable from a
+     * second host's return-to-`reading`. Returning from Settings is what re-reads the toolbar
+     * snapshot (e.g. the `toolbar_button_actions` swap mode) and the settings the reading view reads
+     * inside its composition (`hide_bible_reference_overlay`, `hide_window_buttons`,
+     * `full_screen_hide_buttons_pref`); the two DocumentViewManager calls it replaced had been
+     * no-ops on the Compose path since Pre-A/B P3, and are gone with the classic split.
+     */
+    private fun preferenceSettingsChanged() = readingCommands.preferenceSettingsChanged()
 
 
     /**

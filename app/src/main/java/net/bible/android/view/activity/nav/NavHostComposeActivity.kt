@@ -82,6 +82,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -152,6 +153,7 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.ai.LlmDialogHelper
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.themePixelSize
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
@@ -1284,6 +1286,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // `showSearch`/`showSpeak` are locals of that function. This host supplies that half
         // directly -- its own chrome needs no rebuilding, because it has none.
         onToolbarStateMayHaveChanged = { onToolbarStateMayHaveChanged() },
+        // T8d: this host's OWN bootstrap, the one that holds its window repository.
+        requestSdcardPermission = { readingAppBootstrap.requestSdcardPermission() },
         // Classic toolbar chrome this host does not draw.
         updateStrongsButton = { },
         menuForDocs = { _, _ -> },
@@ -1717,12 +1721,26 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
-     * A `STD_REQUEST_CODE` result from a separate Activity, held until [onResume] has run.
+     * A result from a separate Activity, held until [onResume] has run.
      *
-     * Null when there is nothing waiting; [CANCELLED_STD_RESULT] for a cancel, which carries no
-     * Intent of its own but still means something (see [applyPendingActivityResult]).
+     * Null when there is nothing waiting. The [data] of a `STD_REQUEST_CODE` cancel is
+     * [CANCELLED_STD_RESULT], which carries no Intent of its own but still means something (see
+     * [applyPendingActivityResult]).
+     *
+     * **Keyed by request code since reading-host re-typing T8d**, which is what turned this from
+     * "the chooser answer" into "the Activity result this host is holding": classic's dispatcher
+     * answers three request codes and not one, and the two it answered that this host did not --
+     * `MainBibleActivity.WORKSPACE_CHANGED` and `IntentHelper.REFRESH_DISPLAY_ON_FINISH` -- were
+     * both silently discarded by the `requestCode != STD_REQUEST_CODE` early return that used to
+     * stand in [onActivityResult].
      */
-    private var pendingActivityResult: Intent? = null
+    private class PendingActivityResult(
+        val requestCode: Int,
+        val resultCode: Int,
+        val data: Intent?,
+    )
+
+    private var pendingActivityResult: PendingActivityResult? = null
 
     /**
      * **reading-host re-typing T8b: the STD_REQUEST_CODE dispatch this host did not have.**
@@ -1754,9 +1772,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      */
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode != ActivityBase.STD_REQUEST_CODE) return
+        if (requestCode !in ANSWERED_REQUEST_CODES) return
+        if (requestCode != ActivityBase.STD_REQUEST_CODE) {
+            // T8d: the codes classic answers OUTSIDE its `STD_REQUEST_CODE` arm. They are held for
+            // the same reason that one is (see this method's kdoc) -- `applyWorkspaceChangedResult`
+            // reloads the workspace into THIS host's repository, which `onResume` has not reclaimed
+            // yet, and `preferenceSettingsChanged` refreshes the reading view's composition.
+            pendingActivityResult = PendingActivityResult(requestCode, resultCode, data)
+            return
+        }
         if (resultCode != Activity.RESULT_CANCELED) {
-            pendingActivityResult = data
+            pendingActivityResult = PendingActivityResult(requestCode, resultCode, data)
             return
         }
         if (!stdRequestCancelIsTheUsers) {
@@ -1770,7 +1796,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             )
             return
         }
-        pendingActivityResult = CANCELLED_STD_RESULT
+        pendingActivityResult = PendingActivityResult(requestCode, resultCode, CANCELLED_STD_RESULT)
     }
 
     /**
@@ -1796,6 +1822,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             stdRequestCancelIsTheUsers = aCancelFromThisIntentWouldBeTheUsers(intent, javaClass.name)
         }
         recordReadingResultRequest(intent, requestCode)
+        recordReadingReturnDebt(intent, requestCode)
         super.startActivityForResult(intent, requestCode, options)
     }
 
@@ -1980,22 +2007,28 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * chooser that left the page with no key at all goes back in history.
      */
     private fun applyPendingActivityResult() {
-        val result = pendingActivityResult ?: return
+        val pending = pendingActivityResult ?: return
         pendingActivityResult = null
         if (!readingAppBootstrapped) {
             Log.w(
                 TAG_START_ROUTE,
-                "Dropping a STD_REQUEST_CODE result: this host owes no reading view, so there is no " +
-                    "workspace of its own to apply it to. Chooser opened on a non-reading route?"
+                "Dropping an Activity result at request code ${pending.requestCode}: this host owes " +
+                    "no reading view, so there is no workspace of its own to apply it to. Opened on " +
+                    "a non-reading route?"
             )
             return
         }
+        if (pending.requestCode != ActivityBase.STD_REQUEST_CODE) {
+            applyNonStdActivityResult(pending)
+            return
+        }
+        val result = pending.data
         if (result === CANCELLED_STD_RESULT) {
             // Only a cancel [onActivityResult] believed to be the user's ever gets this far.
             if (windowControl.activeWindowPageManager.currentPage.key == null) goBackInHistory()
             return
         }
-        val extras = result.extras ?: return
+        val extras = result?.extras ?: return
         when (val kind = ActivityResultKind.fromExtra(extras.getString(ActivityResultKind.EXTRA))) {
             null -> {}
             ActivityResultKind.ChooseDocument -> readingCommands.applyChosenDocument(extras.getString("book"))
@@ -2011,6 +2044,153 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 "$kind arrived through onActivityResult on a host that delivers it in-graph -- " +
                     "a second host instance? Not applied."
             )
+        }
+    }
+
+    // ——— reading-host re-typing T8d: the request codes classic answers OUTSIDE STD_REQUEST_CODE ——
+    //
+    // **The defect this pays, and why T8c could not see it.** T8c enumerated outward from the
+    // reading view's call sites and stopped at `NavResultChannel`. Enumerated from the ANSWERING
+    // side instead -- classic `MainBibleActivity.onActivityResult`'s own `when (requestCode)` --
+    // classic answers FOUR request codes and this host answered one. Three were falling through the
+    // `requestCode != STD_REQUEST_CODE` early return that used to be this override's second line:
+    //
+    //  - `MainBibleActivity.WORKSPACE_CHANGED` (94). `Screen.WorkspaceSelector` is NOT in
+    //    `ScreenLauncher.MIGRATED`, so this one really is a cross-Activity round trip and really
+    //    does arrive here. The user picked a workspace, confirmed, and was returned to the one they
+    //    left -- while the renames and deletes they had made in the selector persisted, so the
+    //    discarded switch read as the app's own choice. `applyPendingActivityResult` answers it.
+    //  - `IntentHelper.REFRESH_DISPLAY_ON_FINISH` (2) and
+    //    `IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH` (3). `Screen.Settings` IS in
+    //    `ScreenLauncher.MIGRATED` and the Download screen is a route of this graph, so on THIS host
+    //    both launches are `singleTop` SELF-launches: the platform answers with `onNewIntent`, the
+    //    route is pushed onto the live graph above `reading`, and NO Activity result is ever
+    //    produced (`aCancelFromThisIntentWouldBeTheUsers`' third bullet quotes the platform
+    //    javadoc). So there is nothing for an `onActivityResult` arm to catch, and the answer these
+    //    two codes were asking for -- "the user has come back" -- is the graph returning to
+    //    `reading`. That is what [readingReturnDebts] records and [applyReadingReturnDebts] spends.
+    //    Both arms are answered in `onActivityResult` TOO, for the case the platform does create a
+    //    second instance (this host not being top of its task at the moment of the launch); the two
+    //    cannot both fire, because a debt is only recorded for a launch aimed at this host and a
+    //    result only arrives for one that is not.
+
+    /**
+     * Classic's two request-code arms that are not a chooser answer, applied on THIS host through
+     * the one implementation `ReadingCommands` holds (T8d).
+     *
+     * `WORKSPACE_CHANGED` is the real Activity result; the other two arrive here only in the
+     * second-instance case described in the block comment above -- their normal path is
+     * [applyReadingReturnDebts].
+     */
+    private fun applyNonStdActivityResult(pending: PendingActivityResult) {
+        when (pending.requestCode) {
+            MainBibleActivity.WORKSPACE_CHANGED -> {
+                val extras = pending.data?.extras
+                if (extras == null) {
+                    Log.w(TAG_START_ROUTE, "A WORKSPACE_CHANGED result carried no extras; not applied.")
+                    return
+                }
+                if (!readingCommands.applyWorkspaceChangedResult(pending.resultCode, extras)) {
+                    Log.i(TAG_START_ROUTE, "A WORKSPACE_CHANGED result named no change; nothing applied.")
+                }
+            }
+            IntentHelper.REFRESH_DISPLAY_ON_FINISH,
+            IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH ->
+                applyReadingReturnWork(pending.requestCode)
+            else -> Log.w(
+                TAG_START_ROUTE,
+                "Request code ${pending.requestCode} reached the non-STD dispatcher with no arm; " +
+                    "not applied.",
+            )
+        }
+    }
+
+    /**
+     * What this host owes the reading view once the graph comes back to it — one entry per request
+     * code whose launch was a SELF-launch and can therefore never produce an Activity result.
+     *
+     * **Why a record at launch time rather than a hook on the destination that was opened.** It is
+     * the same answer [stdRequestCancelIsTheUsers] and [readingResultRequests] gave: the single
+     * `startActivityForResult(Intent, Int, Bundle?)` funnel is the ONE place where the request code
+     * and the target are both in hand, `awaitIntent` passes through it too, and no call site has to
+     * change. The destination itself knows neither which code opened it nor whether the reading view
+     * is what it will return to.
+     *
+     * **It cannot be spent twice**: [applyReadingReturnDebts] empties the set before applying, so a
+     * second arrival at `reading` finds nothing owed. **It cannot be spent never**: every launch at
+     * one of [RETURN_TO_READING_REQUEST_CODES] either records a debt (self-launch, answered here) or
+     * produces a real Activity result (answered by [applyPendingActivityResult]) -- and a self-launch
+     * pushes its route above `reading` on THIS graph, whose only way out is back to `reading` or out
+     * of the host entirely. **It cannot be spent on somebody else's answer**: the codes are recorded,
+     * not the screens, and both of them mean exactly "the user has been somewhere and is back".
+     *
+     * **Carried across a `recreate()`** ([onSaveInstanceState]), which is not a detail: writing
+     * `discrete_mode` in Settings calls [maybeRecreateForSettingsKey], and the alias swap that
+     * recreate does NOT perform is the very thing the debt is owed for.
+     */
+    private val readingReturnDebts = linkedSetOf<Int>()
+
+    /**
+     * Note that a self-launch at a request code whose only possible answer is "the user came back"
+     * has been made — see [readingReturnDebts]. Called from the [startActivityForResult] funnel.
+     */
+    private fun recordReadingReturnDebt(intent: Intent, requestCode: Int) {
+        if (requestCode !in RETURN_TO_READING_REQUEST_CODES) return
+        // A null CHECK rather than `intent.component?.className`, for the reason
+        // [readingResultKindForLaunch] states: `ActivityResultDispatchGuardTest` text-scans all of
+        // `src/main/java` for that spelling, and a textual guard's false positive is answered by
+        // writing the code the way its siblings do, never by weakening the guard.
+        val component = intent.component ?: return
+        if (component.className != javaClass.name) return
+        readingReturnDebts += requestCode
+    }
+
+    /**
+     * The graph has navigated; if it landed on `reading` and anything was owed, pay it.
+     *
+     * `internal` so `ReadingHostReturnDebtTest` can drive the decision without a composed graph;
+     * the WIRING (this host's `OnDestinationChangedListener`) is what
+     * `ReadingHostAnsweredRequestCodeGuardTest` pins.
+     */
+    internal fun applyReadingReturnDebts(route: String?) {
+        if (route?.substringBefore('?') != NavRoutes.READING) return
+        if (readingReturnDebts.isEmpty()) return
+        val owed = readingReturnDebts.toList()
+        readingReturnDebts.clear()
+        if (!readingAppBootstrapped) {
+            // Ruling D: loud, and cleared rather than left -- [applyPendingActivityResult]'s own
+            // non-bootstrapped arm makes the same choice for the same reason.
+            Log.w(
+                TAG_START_ROUTE,
+                "Dropping what was owed on return to the reading view ($owed): this host owes no " +
+                    "reading view at all.",
+            )
+            return
+        }
+        owed.forEach { applyReadingReturnWork(it) }
+    }
+
+    /**
+     * Classic `MainBibleActivity.onActivityResult`'s last two arms, in classic's own order: the
+     * `UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH` refresh (`updateActions()`, which on this host is
+     * [onToolbarStateMayHaveChanged]) and the `REFRESH_DISPLAY_ON_FINISH` tail
+     * (`restartIfRequiredOnReturn` then `preferenceSettingsChanged()`).
+     *
+     * The `when` shape is classic's verbatim, `restartIfRequiredOnReturn`'s unconditional `false`
+     * included: it exists for its SIDE EFFECT (restarting the app when the UI locale changed), and
+     * reproducing the call is what keeps a locale change applying on this host too.
+     */
+    private fun applyReadingReturnWork(requestCode: Int) {
+        if (requestCode == IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH) {
+            onToolbarStateMayHaveChanged()
+            return
+        }
+        val menu = readingCommands.mainMenuCommandHandler
+        when {
+            menu.restartIfRequiredOnReturn(requestCode) -> {
+                // restart done in above
+            }
+            menu.isDisplayRefreshRequired(requestCode) -> readingCommands.preferenceSettingsChanged()
         }
     }
 
@@ -2193,6 +2373,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     override fun onSaveInstanceState(outState: Bundle) {
         val route = if (readingAppBootstrapped) NavRoutes.READING else startRoute
         if (route != null) outState.putString(STATE_START_ROUTE, route)
+        // T8d: what the reading view is owed on its way back has to survive a recreate(), because
+        // `maybeRecreateForSettingsKey` IS the recreate -- and `discrete_mode`, the key whose
+        // launcher-alias swap only `preferenceSettingsChanged` performs, is one of its four.
+        if (readingReturnDebts.isNotEmpty()) {
+            outState.putIntArray(STATE_RETURN_DEBTS, readingReturnDebts.toIntArray())
+        }
         super.onSaveInstanceState(outState)
     }
 
@@ -2261,6 +2447,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // `ReadingHostChromeTest` pins.
         @Suppress("UNUSED_EXPRESSION")
         readingCommands
+        // T8d: see [readingReturnDebts] and [onSaveInstanceState].
+        savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
         setContent {
             AbAppTheme {
                 val navController = rememberNavController()
@@ -2268,7 +2456,19 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 // composition, so the field is never a handle onto a dead graph.
                 DisposableEffect(navController) {
                     this@NavHostComposeActivity.navController = navController
-                    onDispose { this@NavHostComposeActivity.navController = null }
+                    // T8d: the graph coming back to `reading` IS the answer a self-launched
+                    // Settings/Download screen gives -- see [readingReturnDebts]. Registered here
+                    // rather than in a destination effect so that nothing in `:sharedUi` has to
+                    // learn about request codes; the listener fires immediately with the current
+                    // destination, which is what pays a debt restored across a recreate().
+                    val onDestinationChanged = NavController.OnDestinationChangedListener { _, destination, _ ->
+                        applyReadingReturnDebts(destination.route)
+                    }
+                    navController.addOnDestinationChangedListener(onDestinationChanged)
+                    onDispose {
+                        navController.removeOnDestinationChangedListener(onDestinationChanged)
+                        this@NavHostComposeActivity.navController = null
+                    }
                 }
                 // An onNewIntent route that arrived before this composition existed — see
                 // onNewIntent's null-controller branch.
@@ -8484,6 +8684,39 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
 
         /** [pendingActivityResult]'s "a chooser was cancelled" marker; a cancel carries no Intent. */
         private val CANCELLED_STD_RESULT = Intent()
+
+        /**
+         * **Every request code classic `MainBibleActivity.onActivityResult` answers** (reading-host
+         * re-typing T8d). This host's [onActivityResult] takes exactly these and lets everything
+         * else fall through to `super` -- which is where `ActivityBase`'s async `resultByCode`
+         * bookkeeping (`awaitIntent`) and its `CALCULATOR_REQUEST` arm live, and neither of those is
+         * classic's to answer.
+         *
+         * Read by `ReadingHostAnsweredRequestCodeGuardTest`, which derives the list it checks from
+         * classic's own dispatcher rather than from here, so a code added to classic and not to this
+         * set fails rather than being silently dropped again.
+         */
+        private val ANSWERED_REQUEST_CODES = setOf(
+            ActivityBase.STD_REQUEST_CODE,
+            MainBibleActivity.WORKSPACE_CHANGED,
+            IntentHelper.REFRESH_DISPLAY_ON_FINISH,
+            IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH,
+        )
+
+        /**
+         * The subset of [ANSWERED_REQUEST_CODES] whose launch, on THIS host, is normally a
+         * `singleTop` self-launch that produces no result at all — see [readingReturnDebts].
+         * `STD_REQUEST_CODE` is not one of them (its self-launches are menu rows that answer
+         * nothing, which is what `stdRequestCancelIsTheUsers` is about), and `WORKSPACE_CHANGED`
+         * is not either: its screen is a separate Activity for every host.
+         */
+        private val RETURN_TO_READING_REQUEST_CODES = setOf(
+            IntentHelper.REFRESH_DISPLAY_ON_FINISH,
+            IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH,
+        )
+
+        /** [onSaveInstanceState]'s key for [readingReturnDebts]. */
+        private const val STATE_RETURN_DEBTS = "nav_reading_return_debts"
 
         /** Sentinel identifying the "Custom…" entry in the AI-language picker (mirrors classic). */
         private const val CUSTOM_LANGUAGE_TAG = "\u0000custom"
