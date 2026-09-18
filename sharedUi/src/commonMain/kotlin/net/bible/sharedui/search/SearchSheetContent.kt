@@ -51,9 +51,11 @@ import net.bible.sharedui.strings.LocalStrings
  * - the sheet's own chrome (the handle, the peek height, the drag) belongs to the host's
  *   `BottomSheetScaffold`;
  * - `AbTopAppBar` would be wrong for the header, because it calls
- *   `SyncSystemBars(container, fillWindowBackground = true)` and zeroes its window insets — both
- *   assumptions hold only for its usual `ActivityBase` host, and neither holds inside the reading
- *   view.
+ *   `SyncSystemBars(container, fillWindowBackground = true)` and applies Material's real
+ *   system-bar insets — both assumptions hold only for its usual `ActivityBase` host, and neither
+ *   holds inside the reading view: `SyncSystemBars` would repaint the reading view's own system
+ *   bars in the header's colour, and the real inset padding would double-inset a header that
+ *   already sits inside the host scaffold's own inset-aware layout.
  *
  * @param countLabel the already-formatted result count (the caller owns the wording).
  * @param empty passed in rather than derived from the list, because "no rows" and "nothing searched

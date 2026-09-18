@@ -45,10 +45,12 @@ fun Context.findActivity(): Activity? {
  *   system windows, so Compose never sees a status-bar inset) and silently ignored from API 35 on,
  *   where the window is edge-to-edge. This is the same line classic runs at
  *   `MainBibleActivity.kt:2280`, which is explicitly skipped on the Compose path.
- * - [fillWindowBackground] paints the **content root** — the view `ActivityBase.setupUi` pads by
- *   the system-bar insets on API 35+ — so the strip the bars sit over shows [container] instead of
- *   `?android:windowBackground`. Callers that already paint behind the bars themselves (the reading
- *   toolbar) pass `false`. Below API 35 the content root is not the strip, so this is harmless.
+ * - [fillWindowBackground] governs the **content root**'s background. `true` paints it
+ *   [container], so the strip the bars sit over shows that colour instead of
+ *   `?android:windowBackground`. `false` **clears** it — sets the background to `null` — so a
+ *   screen that paints behind the bars itself (the reading toolbar) does not inherit whatever the
+ *   previous screen's `true` call left painted there (host-inset-ownership spec, section 3.5).
+ *   `false` is no longer inert: before that fix it left the previous fill in place.
  * - The status-bar icon appearance follows [container]'s luminance, same 0.45 threshold as
  *   `ReadingProgressPalette.textColorForBackground`. Classic only ever set light-icon mode for
  *   monochrome+day, which would leave white icons unreadable on a light workspace colour.
@@ -60,8 +62,8 @@ fun Context.findActivity(): Activity? {
  *   `WindowInsetsController` property that DOES still apply while the floating window has focus —
  *   and nothing restores the underlying (reading-view) Activity's own appearance when the dialog is
  *   dismissed, so opening History over a dark reading view could leave the wrong icon contrast
- *   behind. [fillWindowBackground]'s content-root paint is unaffected: it only paints the floating
- *   window's own content, not a system surface shared with another Activity.
+ *   behind. [fillWindowBackground] is NOT skipped for a floating window: a floating host that
+ *   passes `false` still has its own content-root background cleared, same as a non-floating one.
  *
  * Idempotent: re-applying the same colour writes the same values. Safe to call from a `SideEffect`
  * on every recomposition.

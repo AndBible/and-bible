@@ -2450,20 +2450,29 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
         applyComposeHostWindowSetup()
-        // The reading-view inset ledger's feed. Classic does this at MainBibleActivity.kt:678; this
-        // host had a ledger (`readingInsets`, :1338) and nothing to fill it, so `bottomOffsetForWebView`
-        // lost its navigation-bar term, `imeHeight` was permanently 0 and `SystemInsetsChangedEvent`
-        // was never posted -- see the host-inset-ownership spec, section 1.3.
+        // The reading-view inset ledger's feed. Classic does this at MainBibleActivity.kt:678,
+        // bracketed by the same `SDK_INT >= VANILLA_ICE_CREAM` guard classic's registration sits
+        // behind (`MainBibleActivity.kt:674-675`); this host had a ledger (`readingInsets`, :1338)
+        // and nothing to fill it, so `bottomOffsetForWebView` lost its navigation-bar term,
+        // `imeHeight` was permanently 0 and `SystemInsetsChangedEvent` was never posted -- see the
+        // host-inset-ownership spec, section 1.3.
         //
         // Unlike ActivityBase's listener this one pads NOTHING: the scaffolds own the insets.
         // Classic additionally calls updateBottomBars()/updateToolbar() here; both are classic-toolbar
         // view updates with no counterpart on this host, so they are deliberately not faked.
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { _, windowInsets ->
-            val systemBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
-            readingInsets.onWindowInsetsApplied(systemBarInsets, imeInsets)
-            ABEventBus.post(MainBibleActivity.SystemInsetsChangedEvent(systemBarInsets))
-            windowInsets
+        //
+        // The guard mirrors classic's deliberately: below API 35, `setDecorFitsSystemWindows(window,
+        // true)` means the framework insets the window itself rather than dispatching to a listener
+        // here, and that below-API-35 path has no automated guard in this batch -- see the plan's
+        // Execution status and `docs/compose-open-findings.md`'s "Guard 6" entry.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { _, windowInsets ->
+                val systemBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
+                readingInsets.onWindowInsetsApplied(systemBarInsets, imeInsets)
+                ABEventBus.post(MainBibleActivity.SystemInsetsChangedEvent(systemBarInsets))
+                windowInsets
+            }
         }
         ABEventBus.register(this, readingHostSubscriptions)
         val startRoute = resolveStartRoute(savedInstanceState)

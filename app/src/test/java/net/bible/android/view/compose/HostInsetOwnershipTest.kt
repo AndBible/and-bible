@@ -103,7 +103,7 @@ class HostInsetOwnershipTest {
         assertEquals("ActivityBase.setupUi() must pad the content root by the navigation bar", 39, root.paddingBottom)
     }
 
-    /** A host shaped like the two real Compose hosts after this task. */
+    /** A host shaped like the nine real Compose hosts after this task. */
     class ComposeHostProbeActivity : ActivityBase() {
         override val doNotInitializeApp = true
         override val disableBaseSetupUi = true
@@ -157,6 +157,12 @@ class HostInsetOwnershipTest {
      * their content uses no `Ab*` scaffold (the first two render a bare screen, the third only
      * `AbConfirmDialog`/`AbErrorDialog`), so they still want `ActivityBase`'s content-root padding
      * and must NOT appear here.
+     *
+     * What this guard cannot see: it is a hand-maintained list, not a reflective scan of every
+     * `ActivityBase` subclass, so it cannot catch (a) a NEW `Ab*`-scaffold host that is added later
+     * and never joins this list, or (b) one of the nine that keeps `disableBaseSetupUi = true` but
+     * loses its `applyComposeHostWindowSetup()` call in `onCreate()` -- only the synthetic
+     * `ComposeHostProbeActivity` above proves that helper actually runs.
      */
     private val composeHostsOwningTheirInsets: List<Pair<String, ActivityBase>> = listOf(
         "NavHostComposeActivity" to NavHostComposeActivity(),
