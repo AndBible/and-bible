@@ -17,8 +17,10 @@
   -->
 
 <resources>
-    <string name="app_name_short">Bible Study *Debug*</string>
-    <string name="app_name_medium">Bible Study (AndBible) *Debug*</string>
-    <string name="app_name_long">AndBible: Bible Study *Debug*</string>
+    <!-- app_name_short / app_name_medium / app_name_long are NOT here any more: they are generated
+         by app/build.gradle.kts's debug buildType, which derives the marker from
+         applicationIdSuffix so that two debug builds installed side by side (e.g. ".debug" and
+         ".compose") do not both read "*Debug*". A static string here cannot see the suffix, and a
+         second definition of the same name would collide with the generated one. -->
     <string name="install_zip_module">Install Bible Module *Debug*</string>
 </resources>

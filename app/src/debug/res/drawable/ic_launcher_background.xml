@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<!--
+  Debug-only override of the release icon's plain white background. A debug build installs
+  side by side with the real app (applicationIdSuffix), so the two are otherwise
+  indistinguishable in the launcher and, more importantly, in the system "open with" chooser —
+  which is how a module/StudyPad file reaches the app. The violet says "not the real app" at a
+  glance; the foreground's browns and ambers stay legible on it. The build type's own label
+  (app_build.gradle.kts's resValue, derived from applicationIdSuffix) says WHICH debug build.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#5E35B1"
+        android:pathData="M0,0h108v108h-108z" />
+</vector>

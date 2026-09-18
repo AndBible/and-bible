@@ -242,6 +242,20 @@ android {
             }
             println("App suffix: $appSuffix")
             applicationIdSuffix = appSuffix
+
+            // The debug source set used to hard-code "*Debug*" into these three names. That made
+            // every debug build installed side by side look identical — same label, same icon —
+            // in the launcher and, worse, in the system "open with" chooser, which is how a
+            // module/StudyPad file reaches the app. Derive the marker from applicationIdSuffix
+            // instead: a ".compose" build reads *Compose*, a plain ".debug" one reads *Debug*, so
+            // the label always names the applicationId that actually got installed. The matching
+            // icon override is src/debug/res/drawable/ic_launcher_background.xml.
+            val appLabelMarker = appSuffix.removePrefix(".")
+                .ifEmpty { "debug" }
+                .replaceFirstChar { it.uppercase() }
+            resValue("string", "app_name_short", "Bible Study *$appLabelMarker*")
+            resValue("string", "app_name_medium", "Bible Study (AndBible) *$appLabelMarker*")
+            resValue("string", "app_name_long", "AndBible: Bible Study *$appLabelMarker*")
 //			minifyEnabled true
 //			useProguard true
 //			proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -358,6 +372,9 @@ android {
         viewBinding = true
         buildConfig = true
         compose = true
+        // Needed by the debug buildType's resValue() calls, which derive the app's display name
+        // from applicationIdSuffix so two debug builds installed side by side are tellable apart.
+        resValues = true
     }
 
     namespace = "net.bible.android.activity"
