@@ -21,9 +21,11 @@ import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
@@ -40,6 +42,7 @@ import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
 /**
@@ -57,6 +60,15 @@ import org.robolectric.annotation.Config
 class ReadingHostBackChainTest {
 
     /**
+     * Fix round 1, MINOR: every controller `host()` builds is kept here so [tearDown] can
+     * `.close()` it -- the same `hostControllers` pattern `ReadingDestinationInGraphTest.buildHost`
+     * uses, and for the identical reason its kdoc gives: an undestroyed host can leak state
+     * (`ReadingHostPresence`'s foreground token, a published `ReadingViewHostCallbacks`) into the
+     * NEXT test, in this file or another one sharing the JVM.
+     */
+    private val hostControllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
+
+    /**
      * `firstTime` is pinned false first, for the same reason `SelfLaunchAwaitIntentTest.host()`
      * does: it is a file-level `var` in `ActivityBase.kt` that Robolectric does not reset between
      * test METHODS in this JVM, and `ActivityBase.fixNightMode()` arms a delayed `recreate()` while
@@ -70,7 +82,7 @@ class ReadingHostBackChainTest {
                 ApplicationProvider.getApplicationContext(),
                 NavRoutes.READING,
             ),
-        ).setup().get()
+        ).also { hostControllers += it }.setup().get()
     }
 
     @Before fun readingViewIsWhatTheUserSees() = ReadingViewVisibility.setVisible(true)
@@ -88,6 +100,8 @@ class ReadingHostBackChainTest {
      */
     @After
     fun resetReadingSeams() {
+        hostControllers.forEach { it.close() }
+        hostControllers.clear()
         ReadingViewVisibility.setVisible(false)
         DatabaseResetter.resetDatabase()
     }
@@ -178,13 +192,36 @@ class ReadingHostBackChainTest {
         assertTrue("the second press within the window exits", activity.isFinishing)
     }
 
+    /**
+     * Fix round 1, CRITICAL: `assertTrue(handled)` alone is vacuous -- `ActivityBase.onKeyLongPress`
+     * (`:282-284`) already returns `true` for `KEYCODE_BACK` unconditionally, pre-fix and post-fix
+     * alike, so that assertion cannot distinguish "the host opened History" from "ActivityBase
+     * swallowed it and did nothing". The real, only-post-fix effect is
+     * `ComposeReadingViewHost.quickSheet` becoming [ReadingQuickSheet.History] -- what
+     * `showHistorySheet()` actually sets -- so that is the primary assertion now; `handled` stays
+     * as the secondary one the brief also wanted.
+     *
+     * `composeReadingViewHost` is installed directly (`ComposeReadingViewHost(activity)`) rather
+     * than relying on the reading destination's real Compose content to compose it: this class's
+     * `host()` never drains a `ComposeTestRule` the way `ReadingDestinationInGraphTest` does, so
+     * without this the field stays null and `onKeyLongPress` would silently take its
+     * `composeReadingViewHost == null` fallback to `super` -- the SAME vacuous path this fix round
+     * is about. Same direct-install idiom `ReadingSearchBackTest.setUp` uses for
+     * `MainBibleActivity`.
+     */
     @Test
     fun aLongBackOpensTheHistorySheetInsteadOfBeingSwallowed() {
         val activity = host()
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
         val event = KeyEvent(0L, 0L, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK, 1)
 
         val handled = activity.onKeyLongPress(KeyEvent.KEYCODE_BACK, event)
 
+        assertEquals(
+            "long-press BACK must open the History quick sheet, not merely report itself handled",
+            ReadingQuickSheet.History,
+            activity.composeReadingViewHost?.quickSheet?.value,
+        )
         assertTrue(
             "long-press BACK must be claimed by the host (ActivityBase swallows it and does nothing)",
             handled,
