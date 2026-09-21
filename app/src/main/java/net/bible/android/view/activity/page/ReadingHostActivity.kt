@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.page
 
 import android.content.Context
+import androidx.compose.runtime.State
 import androidx.lifecycle.LifecycleOwner
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.view.activity.base.ActivityBase
@@ -70,6 +71,17 @@ interface ReadingHostActivity : LifecycleOwner {
      * `FullScreenEvent` subscribers assume every host agrees about it.
      */
     var fullScreen: Boolean
+
+    /**
+     * The keyboard shrink this host wants applied to the reading content, in px, as observable state
+     * (F59).
+     *
+     * `MainBibleActivity` answers with a permanent `0` — honestly, not as a stub: it applies the same
+     * value to `binding.mainBibleView` itself (`ReadingInsetsHostCallbacks.applyImeBottomPadding`), so
+     * the Compose tree inside that padded ViewGroup must add nothing on top. The nav host has no such
+     * ViewGroup and answers with the live value.
+     */
+    val imeBottomPaddingPx: State<Int>
 
     /** Classic `DrawerListener`'s `STATE_SETTLING`/`STATE_DRAGGING` → `showSystemUI(false)`. */
     fun showSystemUiTransient()

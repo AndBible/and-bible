@@ -3314,6 +3314,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // Task 10: the "<document> cannot be searched" snackbar.
             searchUnavailableDocNameState = searchUnavailableDocName,
             onSearchUnavailableMessageShown = { searchUnavailableMessageShown() },
+            // F59: the live value, straight from the host -- see ReadingHostActivity
+            // .imeBottomPaddingPx's kdoc for why MainBibleActivity answers a permanent 0 and the
+            // nav host does not.
+            imeBottomPaddingPxState = activity.imeBottomPaddingPx,
         )
     }
 
@@ -3845,6 +3849,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
              */
             agentLogVisibleState: @Composable () -> Boolean = { false },
             speakBarVisibleState: @Composable () -> Boolean = { false },
+            // F59: same reactivity reason as `fullScreenState` above -- [ComposeReadingViewHost
+            // .ReadingView] passes the live `activity.imeBottomPaddingPx`. Defaulted to a fixed 0 so
+            // `ComposeReadingViewHostTest` and friends (which never dispatch IME insets) are unaffected.
+            imeBottomPaddingPxState: State<Int> = mutableIntStateOf(0),
         ) {
             val composeView = ComposeView(container.context).apply {
                 layoutParams = ViewGroup.LayoutParams(
@@ -3926,6 +3934,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         onSearchUnavailableMessageShown = onSearchUnavailableMessageShown,
                         agentLogVisibleState = agentLogVisibleState,
                         speakBarVisibleState = speakBarVisibleState,
+                        imeBottomPaddingPxState = imeBottomPaddingPxState,
                     )
                 }
             }
@@ -4027,6 +4036,11 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             onSearchUnavailableMessageShown: () -> Unit,
             agentLogVisibleState: @Composable () -> Boolean,
             speakBarVisibleState: @Composable () -> Boolean,
+            // F59: the keyboard shrink the host's inset ledger computes
+            // (`ReadingHostActivity.imeBottomPaddingPx`), a `State<Int>` for the same reactivity
+            // reason as `fullScreenState` above. No default -- see this function's kdoc on why no
+            // parameter here has one; [mountComposeView] carries the inert default.
+            imeBottomPaddingPxState: State<Int>,
         ) {
             // AbAppTheme's darkTheme override (A/B batch 4b Task 3 fix round 1): this host
             // is long-lived inside MainBibleActivity and is never recreate()d on
@@ -4040,6 +4054,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     val toolbarState by toolbar.collectAsState()
                     val gen by generationState
                     val fullScreen by fullScreenState
+                    val imeBottomPaddingPx by imeBottomPaddingPxState
                     val overflowItems by overflowItemsState
                     val overflowExpanded by overflowExpandedState
                     val bibleQuickDoc by bibleQuickDocState
@@ -4286,6 +4301,15 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                                     toolbarIcons = readingToolbarIcons(),
                                     toolbarCallbacks = toolbarCallbacks,
                                     fullScreen = fullScreen,
+                                    // F59: the keyboard shrink the host's inset ledger computed,
+                                    // applied as a plain bottom padding on the reading column (spec
+                                    // §3.3) -- see ReadingHostActivity.imeBottomPaddingPx's kdoc.
+                                    // Threaded in as a State parameter (imeBottomPaddingPxState),
+                                    // same shape as fullScreenState above: this composable is the
+                                    // companion object's, with no `activity` of its own to read.
+                                    imeBottomPadding = with(LocalDensity.current) {
+                                        imeBottomPaddingPx.toDp()
+                                    },
                                     onWindowActivated = controller::onWindowActivated,
                                     onSeparatorCommitted = controller::onSeparatorCommitted,
                                     pane = pane,

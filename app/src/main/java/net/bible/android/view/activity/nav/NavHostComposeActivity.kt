@@ -67,7 +67,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -1263,6 +1265,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         }
 
     /**
+     * [ReadingHostActivity.imeBottomPaddingPx] backing state (F59). Written from the inset listener
+     * below (SDK >= R only -- see [onCreate]) via [readingInsets]' `applyImeBottomPadding` callback.
+     */
+    private val imeBottomPaddingPxState = mutableIntStateOf(0)
+    override val imeBottomPaddingPx: State<Int> get() = imeBottomPaddingPxState
+
+    /**
      * Classic `MainBibleActivity.toggleFullScreen`. Its `updateToolbar()` call is [applyIdleSystemUi]
      * here: since the Compose toolbar took over, classic's `updateToolbar` IS the system-bar
      * hide/show and nothing else (see its comment). `updateBottomBars()` is its one surviving line,
@@ -1454,8 +1463,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      *   reads it;
      * - `composeSearchFieldFocused` is the READING VIEW's field, so it is asked of the reading-view
      *   host, exactly as classic asks it;
-     * - `applyImeBottomPadding` is Ruling C's documented no-op: a Compose host applies IME insets
-     *   at the content (`WindowInsets.ime`), not by padding a `ViewGroup`.
+     * - `applyImeBottomPadding` (F59) publishes the ledger's shrink to [imeBottomPaddingPxState];
+     *   [ComposeReadingViewHost] reads [imeBottomPaddingPx] and applies it as a plain bottom padding
+     *   on the reading content (spec §3.3) -- NOT `Modifier.imePadding()`, which would consume
+     *   `WindowInsets.ime` and blind `SplitContent`'s anti-flip latch (F64).
      *
      * `by lazy` for [readingCommands]' reason.
      */
@@ -1480,7 +1491,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 restoreButtonsVisible = { hostWindowRepository.workspaceSettings.restoreButtonsVisible },
                 windowButtonHeight = { themePixelSize(R.attr.windowButtonHeight) },
                 composeSearchFieldFocused = { composeReadingViewHost?.searchFieldFocused?.value == true },
-                applyImeBottomPadding = { /* Ruling C: WindowInsets.ime at the content does this */ },
+                // F59: Ruling C promised "WindowInsets.ime at the content does this" and nothing ever
+                // did it -- `imePadding()` has never existed in this repository. The value the ledger
+                // computes is published here and applied as a plain bottom padding on the reading
+                // content, the Compose counterpart of classic's binding.mainBibleView.setPadding.
+                //
+                // NOT `Modifier.imePadding()` at the consumer: that CONSUMES WindowInsets.ime, which
+                // would blind SplitContent's anti-flip latch and re-open F64 -- on API 35 too.
+                applyImeBottomPadding = { px -> imeBottomPaddingPxState.intValue = px },
             )
         )
     }
@@ -2611,22 +2629,50 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         currentNightMode = ScreenSettings.nightMode
         super.onCreate(savedInstanceState)
         applyComposeHostWindowSetup()
+        // F59 (T9 walk, spec §3.1.1): the manifest keeps `adjustResize` on this Activity's block
+        // (a manifest attribute cannot be per-API), so the window is `adjustResize` until this line
+        // sets it. `ADJUST_NOTHING` here, before `setContent`, closes spec §1.3's startup gap -- no
+        // frame is laid out between `super.onCreate` and this call for the framework to resize.
+        //
+        // SDK >= R (30) only. The API 28 measurement (spec §3.1.1) is `adjustNothing` => the insets
+        // listener below is never even DISPATCHED for the IME (`AndroidX` synthesises `Type.ime()`
+        // from the system-window inset, which only carries the keyboard while the framework is
+        // actually resizing the window for it) -- `ReadingInsets.imeHeight` and Compose's own
+        // `WindowInsets.ime` both stay 0 forever. Below 30 the per-API branches in
+        // `ReadingAppBootstrap.setSoftKeyboardMode()` stay unchanged instead.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+        }
         // The reading-view inset ledger's feed. Classic does this at MainBibleActivity.kt:678,
-        // bracketed by the same `SDK_INT >= VANILLA_ICE_CREAM` guard classic's registration sits
-        // behind (`MainBibleActivity.kt:674-675`); this host had a ledger (`readingInsets`, :1338)
-        // and nothing to fill it, so `bottomOffsetForWebView` lost its navigation-bar term,
-        // `imeHeight` was permanently 0 and `SystemInsetsChangedEvent` was never posted -- see the
+        // bracketed by the same guard classic's registration sits behind
+        // (`MainBibleActivity.kt:674-675`); this host had a ledger (`readingInsets`, :1338) and
+        // nothing to fill it, so `bottomOffsetForWebView` lost its navigation-bar term, `imeHeight`
+        // was permanently 0 and `SystemInsetsChangedEvent` was never posted -- see the
         // host-inset-ownership spec, section 1.3.
         //
-        // Unlike ActivityBase's listener this one pads NOTHING: the scaffolds own the insets.
-        // Classic additionally calls updateBottomBars()/updateToolbar() here; both are classic-toolbar
-        // view updates with no counterpart on this host, so they are deliberately not faked.
+        // Unlike ActivityBase's listener this one pads NOTHING at the window level: the scaffolds
+        // own the system-bar insets. Classic additionally calls updateBottomBars()/updateToolbar()
+        // here; both are classic-toolbar view updates with no counterpart on this host, so they are
+        // deliberately not faked.
         //
-        // The guard mirrors classic's deliberately: below API 35, `setDecorFitsSystemWindows(window,
-        // true)` means the framework insets the window itself rather than dispatching to a listener
-        // here, and that below-API-35 path has no automated guard in this batch -- see the plan's
-        // Execution status and `docs/compose-open-findings.md`'s "Guard 6" entry.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        // F59: this registration used to be gated on API 35+, "because below API 35
+        // setDecorFitsSystemWindows(window, true) means the framework insets the window itself". The
+        // T9 walk measured that premise false for the IME: the app window is full-bleed on API 30
+        // too, so `adjustResize` never shrank it, and with the gate on, the ledger was never fed
+        // below 35 and the padding this host now applies would always have been zero there.
+        //
+        // The gate now matches `ADJUST_NOTHING`'s own gate above: SDK >= R (30), not below. Below 30
+        // the framework STILL resizes the window under `adjustResize` (kept above), AND the API 28
+        // measurement shows the listener WOULD receive the IME there (ime.bottom=685 under
+        // adjustResize, spec §3.1.1) -- turning it on would feed the sink a second shrink on top of
+        // the framework's own, the double-shrink spec §3 warns about. So below 30 the listener stays
+        // off and the ledger (and the sink it feeds, Step 4) stays permanently 0, same as today.
+        //
+        // `ComposeHostWindowSetup`'s decorFitsSystemWindows = true below API 35 STAYS -- it is doing
+        // its job for the system bars (measured: ComposeView inset 48..1824 on the API 30 tablet).
+        // Only the IME reached nothing, and ADJUST_NOTHING is what fixes that. Changing both at once
+        // would make a failure impossible to attribute.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { _, windowInsets ->
                 val systemBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
                 val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())

@@ -575,12 +575,33 @@ class ReadingAppBootstrap(private val host: ActivityBase) : KoinComponent {
     }
 
     fun setSoftKeyboardMode() {
-        // Android 15 edge-to-edge enforcement fix:
-        // When targeting API 35+, traditional adjustPan/adjustResize may not work properly
-        // with edge-to-edge mode. Use adjustNothing and handle keyboard insets manually
-        // through WindowInsetsCompat.Type.ime() for better compatibility.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            // Try adjustNothing first for proper edge-to-edge behavior
+        // F59 (T9 walk, spec §3.1.1): the design's "one mode on every API level" was gated on
+        // whether `WindowInsetsCompat.Type.ime()` is visible to Compose under `ADJUST_NOTHING` below
+        // API 30 (Task B0's gate). It was measured NEGATIVE on a container API 28 emulator: under
+        // `adjustResize` (today) the insets listener reports `ime.bottom=685` and
+        // `ReadingInsets.imeHeight` becomes 685; under `adjustNothing` the listener is never even
+        // DISPATCHED for the IME and both `ReadingInsets.imeHeight` and Compose's own
+        // `WindowInsets.ime` stay 0 forever -- `WindowInsetsCompat` below API 30 synthesises
+        // `Type.ime()` from the system-window inset, which only carries the keyboard while the
+        // framework is actually resizing the window for it, and `ADJUST_NOTHING` stops it resizing.
+        //
+        // So the scope narrows to API 30+ (`Build.VERSION_CODES.R`), not 35 (`VANILLA_ICE_CREAM`):
+        // `ADJUST_NOTHING` stops the framework folding the IME into the system-window insets so
+        // `WindowInsets.ime` becomes non-zero, the app supplies the shrink itself through
+        // `ReadingInsets` -> `applyImeBottomPadding`, and NavHostComposeActivity's insets listener
+        // gate moved from >= 35 to >= 30 to match (`NavHostComposeActivity.kt`'s `onCreate`). Below
+        // 30 the framework's own resize is kept exactly as it was, along with the branch that picks
+        // between it and `ADJUST_PAN` for multi-window -- both channels a below-30 device still needs
+        // since neither the app nor Compose can see the keyboard there.
+        //
+        // `AndroidManifest.xml`'s windowSoftInputMode on the nav host cannot be per-API and stays
+        // `adjustResize`; `NavHostComposeActivity.onCreate` additionally sets `ADJUST_NOTHING`
+        // programmatically on SDK >= R, before `setContent`, closing spec §1.3's startup gap (no
+        // frame is laid out between `super.onCreate` and that call) -- this bootstrap method's own
+        // call (from `bootstrapIfNeeded`, which can run later, e.g. from `onNewIntent`) then repeats
+        // the same value on SDK >= R and is the ONLY place that sets it on `MainBibleActivity`, which
+        // has no such early onCreate call of its own.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             host.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         } else if (windowControl.isMultiWindow) {
             host.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)

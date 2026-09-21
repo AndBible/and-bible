@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.reading.agentPanelDragCeiling
 import net.bible.sharedcore.reading.agentLogOwnsNavBarInset
@@ -111,6 +112,12 @@ fun ReadingViewScreen(
     toolbarIcons: ReadingToolbarIcons,
     toolbarCallbacks: ReadingToolbarCallbacks,
     fullScreen: Boolean,
+    /**
+     * The keyboard shrink, supplied by the host (F59). Applied as a plain bottom padding on the
+     * reading column -- never `Modifier.imePadding()`, which consumes `WindowInsets.ime` and would
+     * blind `SplitContent`'s anti-flip latch (F64). `0.dp` on hosts that pad their own container.
+     */
+    imeBottomPadding: Dp = 0.dp,
     onWindowActivated: (String) -> Unit,
     onSeparatorCommitted: (id1: String, w1: Float, id2: String, w2: Float) -> Unit,
     pane: @Composable (windowId: String) -> Unit,
@@ -195,7 +202,7 @@ fun ReadingViewScreen(
     var collapsedAgentHeightDp by remember { mutableStateOf(0f) }
 
     Box(modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize().padding(bottom = imeBottomPadding)) {
             if (!fullScreen) {
                 ReadingToolbar(
                     state = toolbar,

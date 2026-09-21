@@ -61,6 +61,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
@@ -1361,6 +1363,9 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         binding.toolbarLayout.visibility = View.GONE
         binding.toolbarDivider.visibility = View.GONE
     }
+
+    // Classic pads binding.mainBibleView instead -- see ReadingHostActivity.imeBottomPaddingPx.
+    override val imeBottomPaddingPx: State<Int> = mutableIntStateOf(0)
 
     override var fullScreen
         get() = isFullScreen
