@@ -58,8 +58,10 @@ import org.robolectric.annotation.GraphicsMode
  * **What was broken, and why 2903 green tests could not see it.** T8b flipped the launcher onto
  * `NavHostComposeActivity`, so the reading view's host and the seven screens it opens for a result
  * became the SAME `android:launchMode="singleTop"` component. A `startActivityForResult`/
- * `awaitIntent` aimed at it is therefore answered by `onNewIntent` on the live instance: no Activity
- * result is ever produced, the requested route is PUSHED onto the live graph above `reading`, the
+ * `awaitIntent` aimed at it is therefore answered by `onNewIntent` on the live instance AND, on a
+ * device, by an immediate synthetic `RESULT_CANCELED` (measured 2026-09-18, T9 walk, finding F53 --
+ * the earlier claim that "no Activity result is ever produced" was wrong, and that cancel is what
+ * destroyed the awaiting deferred): the requested route is PUSHED onto the live graph above `reading`, the
  * child publishes its answer into its channel's `pending` slot and pops back to the reading
  * destination — which collected nothing. Assign labels, Hide labels, workspace auto-assign,
  * StudyPads, the StudyPad and my-document key choosers, Reading progress, the bookmark list and the

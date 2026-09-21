@@ -1834,7 +1834,52 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         }
         recordReadingResultRequest(intent, requestCode)
         recordReadingReturnDebt(intent, requestCode)
+        if (navigateInsteadOfSelfLaunch(intent, requestCode)) return
         super.startActivityForResult(intent, requestCode, options)
+    }
+
+    /**
+     * F53: an `awaitIntent` aimed at THIS host navigates the live graph instead of asking the
+     * platform for a result.
+     *
+     * `android:launchMode="singleTop"` plus "already on top" means the platform answers such a
+     * `startActivityForResult` with an IMMEDIATE synthetic `RESULT_CANCELED`, and
+     * `ActivityBase.onActivityResult` completes AND REMOVES the awaiting `CompletableDeferred` with
+     * it -- so the real answer [deliverReadingResult] posts seconds later has nothing to complete.
+     * Not launching at all removes the synthetic cancel entirely; the collector then completes the
+     * same deferred through the same `onActivityResult` path it already uses.
+     *
+     * Three conditions, each load-bearing:
+     *
+     *  1. **An async code only.** Below [ActivityBase.ASYNC_REQUEST_CODE_START] there is no parked
+     *     deferred to destroy, and the `RETURN_TO_READING_REQUEST_CODES` launches
+     *     (`BibleView.kt:1498`, `MenuCommandHandler.kt:280`) rely on today's
+     *     `onNewIntent` + [readingReturnDebts] + [pendingActivityResult] path, which works. This is
+     *     F53's scope and nothing wider.
+     *  2. **A route a collector answers.** [readingResultKindForLaunch] returns non-null only for a
+     *     self-launch (it compares `component.className` to `javaClass.name`) whose route is one of
+     *     the five [ReadingResultKind]s. Intercepting a route NO collector answers would leave the
+     *     deferred uncompleted forever -- a hung coroutine, which is worse than the dropped result
+     *     this fixes. `SelfLaunchRouteKindGuardTest` makes the next such call site fail the build.
+     *  3. **A live controller.** Null only in the sliver before the graph's first composition; falling
+     *     through to the platform there is today's behaviour, not a new failure mode.
+     *
+     * Deliberately does NOT call `setIntent(intent)`. [onNewIntent] does, because the platform handed
+     * it a new intent; here the host's own intent must keep naming its start route, which
+     * `resolveStartRoute` reads on the next recreate.
+     */
+    private fun navigateInsteadOfSelfLaunch(intent: Intent, requestCode: Int): Boolean {
+        if (requestCode < ActivityBase.ASYNC_REQUEST_CODE_START) return false
+        if (readingResultKindForLaunch(intent, javaClass.name) == null) return false
+        val route = intent.getStringExtra(EXTRA_ROUTE) ?: return false
+        val controller = navController ?: return false
+        Log.i(
+            TAG_START_ROUTE,
+            "Self-launch at async code $requestCode: navigating the live graph to $route instead of " +
+                "asking the platform for a result it would answer with a synthetic cancel.",
+        )
+        navigateToRoute(controller, route)
+        return true
     }
 
     // ——— reading-host re-typing T8c: the results the reading view's own launches produce ————————
@@ -1845,8 +1890,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // caller got its answer. With THIS host as the reading view's host the caller and the target are
     // the same `android:launchMode="singleTop"` component sitting on top of the task, so the system
     // answers with [onNewIntent] on the live instance ([aCancelFromThisIntentWouldBeTheUsers]'s
-    // third bullet quotes the platform javadoc), the requested route is PUSHED onto the live graph
-    // above `reading`, and the awaited `startActivityForResult` never sees a result at all. The
+    // third bullet quotes the platform javadoc) AND, on a device, with an immediate synthetic
+    // `RESULT_CANCELED` (measured 2026-09-18, T9 walk, finding F53 -- the earlier claim that "the
+    // awaited `startActivityForResult` never sees a result at all" was wrong, and that cancel is
+    // what destroyed the awaiting deferred; F53's fix, below, stops the self-launch from reaching
+    // the platform at all). The requested route is PUSHED onto the live graph above `reading`. The
     // child then publishes into its `NavResultChannel`'s pending slot and pops back to the reading
     // destination — which collected nothing. Assign labels, Hide labels, workspace auto-assign,
     // StudyPads, the StudyPad and my-document key choosers, Reading progress, the bookmark list and
