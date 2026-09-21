@@ -183,113 +183,86 @@ fun SplitContent(
             }
         }
 
-        if (isHorizontal) {
-            Row(Modifier.fillMaxSize()) {
-                windows.forEachIndexed { index, w ->
-                    key(w.id) {
-                        Box(
-                            Modifier
-                                .weight(paneWeight(index))
-                                .fillMaxSize()
-                                // A pane must never paint outside itself. Compose does NOT clip
-                                // children to their bounds by default, and the hosted WebView is an
-                                // Android View that can be laid out larger than the pane for a frame
-                                // while the split settles — which drew the reader background over the
-                                // panes above it AND over the toolbar/system bar when a window was
-                                // created (A/B batch 4a F5, the symptom the pane background alone did
-                                // not fix).
-                                .clipToBounds()
-                                // Before the tap handler so the fill covers the whole pane.
-                                .then(paneBackground(w.id)?.let { Modifier.background(it) } ?: Modifier)
-                                .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
-                        ) {
-                            pane(w.id)
-                            paneOverlay?.invoke(this, w.id)
-                            if (index > 0) DragStrip(
-                                windows = windows, weights = weights, index = index - 1,
-                                isHorizontalSplit = true, atStartEdge = true,
-                                averageExtentPx = { maxWidthPx / windows.size },
-                                onDragChange = { drag = it }, onSeparatorCommitted = onSeparatorCommitted,
-                            )
-                            if (index < windows.lastIndex) DragStrip(
-                                windows = windows, weights = weights, index = index,
-                                isHorizontalSplit = true, atStartEdge = false,
-                                averageExtentPx = { maxWidthPx / windows.size },
-                                onDragChange = { drag = it }, onSeparatorCommitted = onSeparatorCommitted,
-                            )
-                        }
-                    }
-                    if (index < windows.lastIndex) {
-                        Separator(
-                            windows = windows,
-                            weights = weights,
-                            index = index,
-                            isVertical = false,
-                            isActive = separatorIsActive(layout.activeWindowId, windows[index].id, windows[index + 1].id),
-                            isDragging = drag?.index == index,
-                            averageExtentPx = { maxWidthPx / windows.size },
-                            onDragChange = { drag = it },
-                            onSeparatorCommitted = onSeparatorCommitted,
-                            modifier = Modifier.fillMaxHeight().width(SEPARATOR_THICKNESS),
+        val axisExtentPx = if (isHorizontal) maxWidthPx else maxHeightPx
+        SplitAxisContainer(isHorizontal) { paneModifier, separatorModifier ->
+            windows.forEachIndexed { index, w ->
+                key(w.id) {
+                    Box(
+                        paneModifier(paneWeight(index))
+                            // A pane must never paint outside itself. Compose does NOT clip
+                            // children to their bounds by default, and the hosted WebView is an
+                            // Android View that can be laid out larger than the pane for a frame
+                            // while the split settles — which drew the reader background over the
+                            // panes above it AND over the toolbar/system bar when a window was
+                            // created (A/B batch 4a F5, the symptom the pane background alone did
+                            // not fix).
+                            .clipToBounds()
+                            // Before the tap handler so the fill covers the whole pane.
+                            .then(paneBackground(w.id)?.let { Modifier.background(it) } ?: Modifier)
+                            .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
+                    ) {
+                        pane(w.id)
+                        paneOverlay?.invoke(this, w.id)
+                        if (index > 0) DragStrip(
+                            windows = windows, weights = weights, index = index - 1,
+                            isHorizontalSplit = isHorizontal, atStartEdge = true,
+                            averageExtentPx = { axisExtentPx / windows.size },
+                            onDragChange = { drag = it }, onSeparatorCommitted = onSeparatorCommitted,
+                        )
+                        if (index < windows.lastIndex) DragStrip(
+                            windows = windows, weights = weights, index = index,
+                            isHorizontalSplit = isHorizontal, atStartEdge = false,
+                            averageExtentPx = { axisExtentPx / windows.size },
+                            onDragChange = { drag = it }, onSeparatorCommitted = onSeparatorCommitted,
                         )
                     }
                 }
-            }
-        } else {
-            Column(Modifier.fillMaxSize()) {
-                windows.forEachIndexed { index, w ->
-                    key(w.id) {
-                        Box(
-                            Modifier
-                                .weight(paneWeight(index))
-                                .fillMaxSize()
-                                // A pane must never paint outside itself. Compose does NOT clip
-                                // children to their bounds by default, and the hosted WebView is an
-                                // Android View that can be laid out larger than the pane for a frame
-                                // while the split settles — which drew the reader background over the
-                                // panes above it AND over the toolbar/system bar when a window was
-                                // created (A/B batch 4a F5, the symptom the pane background alone did
-                                // not fix).
-                                .clipToBounds()
-                                // Before the tap handler so the fill covers the whole pane.
-                                .then(paneBackground(w.id)?.let { Modifier.background(it) } ?: Modifier)
-                                .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
-                        ) {
-                            pane(w.id)
-                            paneOverlay?.invoke(this, w.id)
-                            if (index > 0) DragStrip(
-                                windows = windows, weights = weights, index = index - 1,
-                                isHorizontalSplit = false, atStartEdge = true,
-                                averageExtentPx = { maxHeightPx / windows.size },
-                                onDragChange = { drag = it }, onSeparatorCommitted = onSeparatorCommitted,
-                            )
-                            if (index < windows.lastIndex) DragStrip(
-                                windows = windows, weights = weights, index = index,
-                                isHorizontalSplit = false, atStartEdge = false,
-                                averageExtentPx = { maxHeightPx / windows.size },
-                                onDragChange = { drag = it }, onSeparatorCommitted = onSeparatorCommitted,
-                            )
-                        }
-                    }
-                    if (index < windows.lastIndex) {
-                        Separator(
-                            windows = windows,
-                            weights = weights,
-                            index = index,
-                            isVertical = true,
-                            isActive = separatorIsActive(layout.activeWindowId, windows[index].id, windows[index + 1].id),
-                            isDragging = drag?.index == index,
-                            averageExtentPx = { maxHeightPx / windows.size },
-                            onDragChange = { drag = it },
-                            onSeparatorCommitted = onSeparatorCommitted,
-                            modifier = Modifier.fillMaxWidth().height(SEPARATOR_THICKNESS),
-                        )
-                    }
+                if (index < windows.lastIndex) {
+                    Separator(
+                        windows = windows,
+                        weights = weights,
+                        index = index,
+                        isVertical = !isHorizontal,
+                        isActive = separatorIsActive(layout.activeWindowId, windows[index].id, windows[index + 1].id),
+                        isDragging = drag?.index == index,
+                        averageExtentPx = { axisExtentPx / windows.size },
+                        onDragChange = { drag = it },
+                        onSeparatorCommitted = onSeparatorCommitted,
+                        modifier = separatorModifier,
+                    )
                 }
             }
         }
         bottomOverlay?.invoke(this)
         railOverlay?.invoke(this)
+    }
+}
+
+/**
+ * The split's axis, and nothing else. Exists so `SplitContent` has ONE pane call site: `Modifier.weight`
+ * is `RowScope`/`ColumnScope`-specific, so the scope-bound call is handed to the caller as a lambda while
+ * the pane subtree itself stays outside the `if`. Without this, an orientation change moves the panes
+ * between two `key(w.id)` scopes, which re-keys the subtree and detaches the cached `BibleView`s (F64).
+ */
+@Composable
+private fun SplitAxisContainer(
+    isHorizontal: Boolean,
+    content: @Composable (paneModifier: (Float) -> Modifier, separatorModifier: Modifier) -> Unit,
+) {
+    if (isHorizontal) {
+        Row(Modifier.fillMaxSize()) {
+            content(
+                { w -> Modifier.weight(w).fillMaxSize() },
+                Modifier.fillMaxHeight().width(SEPARATOR_THICKNESS),
+            )
+        }
+    } else {
+        Column(Modifier.fillMaxSize()) {
+            content(
+                { w -> Modifier.weight(w).fillMaxSize() },
+                Modifier.fillMaxWidth().height(SEPARATOR_THICKNESS),
+            )
+        }
     }
 }
 
