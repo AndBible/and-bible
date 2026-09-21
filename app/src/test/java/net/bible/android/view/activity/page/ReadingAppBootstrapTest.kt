@@ -18,6 +18,8 @@ package net.bible.android.view.activity.page
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.os.Build
+import android.view.WindowManager
 import androidx.test.core.app.ApplicationProvider
 import java.io.File
 import net.bible.android.TEST_SDK
@@ -513,6 +515,103 @@ class ReadingAppBootstrapTest {
             assertEquals("…leaving exactly one", before + 1, shadow.networkCallbacks.size)
         } finally {
             second.close()
+        }
+    }
+
+    // ——— F59 fix round 1: setSoftKeyboardMode()'s per-host threshold —————————————————————————————
+
+    /**
+     * The regression the coordinator's fix-round-1 dispatch named: `setSoftKeyboardMode()` is the
+     * ONE method shared by both hosts (`MainBibleActivity.onCreate` calls it, same as
+     * `NavHostComposeActivity.onCreate`'s `bootstrapIfNeeded()`), and Task 7's first attempt gated it
+     * on a single `Build.VERSION_CODES.R` constant. That would have put `MainBibleActivity`'s window
+     * into `ADJUST_NOTHING` on API 30-34, where classic's OWN compensating listener
+     * (`MainBibleActivity.kt` ~:677) and `ActivityBase`'s inset setup (~:130/:141) both stay gated at
+     * `>= VANILLA_ICE_CREAM` (35) -- so classic would get neither the framework's resize (suppressed
+     * by `ADJUST_NOTHING`) nor any app-side padding (`imeBottomPaddingPx` is a permanent 0 on this
+     * host), silently hiding the reading content behind the keyboard. Classic is not launched in
+     * production today, but the regression must not be introduced.
+     *
+     * **This is the direct, end-to-end regression check, not a stand-in for one:** it builds a real
+     * `MainBibleActivity` (as `theClassicHostUnregistersItsOwnCallbackToo` above already does) at sdk
+     * 30 and reads the ACTUAL `Window.attributes.softInputMode` `setSoftKeyboardMode()` left behind,
+     * the same observable Task 7's own `ReadingImePaddingTest` reads for the nav host. `firstTime` is
+     * pinned false first for the same reason as that other classic-host test: `onCreate` returns
+     * early while it is true, before ever reaching `setSoftKeyboardMode()`, which would make this
+     * test pass or fail on JVM test order rather than on the fix.
+     *
+     * FAILS on the round-1-dispatch tree (single `>= R` gate): `mode` there is `ADJUST_NOTHING`, not
+     * `ADJUST_RESIZE`.
+     */
+    @Config(sdk = [30])
+    @Test
+    fun theClassicHostKeepsAdjustResizeOnApi30() {
+        firstTime = false
+        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
+        try {
+            val activity = controller.create().get()
+            val mode = activity.window.attributes.softInputMode and
+                WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST
+
+            assertEquals(
+                "classic's compensating listener and ActivityBase's inset setup both stay gated at " +
+                    ">= VANILLA_ICE_CREAM (35) -- a shared setSoftKeyboardMode() threshold that moved " +
+                    "to >= R (30) would put this host into ADJUST_NOTHING on API 30-34 with nothing " +
+                    "on either side compensating, hiding the reading content behind the keyboard",
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE,
+                mode,
+            )
+        } finally {
+            controller.close()
+        }
+    }
+
+    /**
+     * The threshold values themselves, pinned directly -- cheap, and the reason
+     * [theClassicHostKeepsAdjustResizeOnApi30] above fails or passes for the right cause rather than
+     * by accident (e.g. `windowControl.isMultiWindow` happening to be true in some other test order,
+     * which would also produce `ADJUST_PAN` instead of `ADJUST_RESIZE` and could be mistaken for this guard
+     * firing). Also documents that `setSoftKeyboardMode()` reads `host.appOwnsImeInsetFromSdk` (the
+     * generic bound `ReadingAppBootstrap<T> where T : ActivityBase, T : ReadingHostActivity` exists
+     * for), not a constant of its own -- there is no `ReadingAppBootstrap` field to read directly (it
+     * has none of its own; the value comes from whichever host is plugged in as `T`), so this is
+     * expressed as the two hosts' own property values plus the source-level check that
+     * `setSoftKeyboardMode()`'s body actually reads `host.appOwnsImeInsetFromSdk` and not a literal
+     * `Build.VERSION_CODES` constant.
+     */
+    @Test
+    fun theTwoHostsAnswerDifferentThresholdsAndTheBootstrapReadsTheHostsOwn() {
+        firstTime = false
+        val classicController = Robolectric.buildActivity(MainBibleActivity::class.java)
+        val navController = navHostOnReading()
+        try {
+            val classic = classicController.create().get()
+            val nav = navController.create().get()
+
+            assertEquals(
+                "classic's threshold must stay today's VANILLA_ICE_CREAM (35) -- unchanged by this batch",
+                Build.VERSION_CODES.VANILLA_ICE_CREAM,
+                classic.appOwnsImeInsetFromSdk,
+            )
+            assertEquals(
+                "the nav host is the one Task 6/7 measured (spec §3.1.1) -- R (30)",
+                Build.VERSION_CODES.R,
+                nav.appOwnsImeInsetFromSdk,
+            )
+
+            val source = File(
+                "src/main/java/net/bible/android/view/activity/page/ReadingAppBootstrap.kt"
+            ).readText()
+            assertTrue(
+                "setSoftKeyboardMode() must gate on the per-host member, not a constant of its own " +
+                    "(a literal Build.VERSION_CODES.R here would silently re-introduce the shared-" +
+                    "threshold regression this file's other test guards)",
+                Regex("""setSoftKeyboardMode\(\)\s*\{[\s\S]*?host\.appOwnsImeInsetFromSdk""")
+                    .containsMatchIn(source),
+            )
+        } finally {
+            classicController.close()
+            navController.close()
         }
     }
 }

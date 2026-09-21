@@ -1272,6 +1272,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     override val imeBottomPaddingPx: State<Int> get() = imeBottomPaddingPxState
 
     /**
+     * [ReadingHostActivity.appOwnsImeInsetFromSdk] (F59 fix round 1) -- this host is the one this
+     * batch measured (spec §3.1.1), so it answers `R` (30). [onCreate]'s own `ADJUST_NOTHING` call
+     * and its insets-listener gate both read this SAME member, so the three sites (this, that call,
+     * that gate) cannot drift apart. See the interface member's kdoc for the full argument and why
+     * `MainBibleActivity` answers a different constant.
+     */
+    override val appOwnsImeInsetFromSdk: Int = Build.VERSION_CODES.R
+
+    /**
      * Classic `MainBibleActivity.toggleFullScreen`. Its `updateToolbar()` call is [applyIdleSystemUi]
      * here: since the Compose toolbar took over, classic's `updateToolbar` IS the system-bar
      * hide/show and nothing else (see its comment). `updateBottomBars()` is its one surviving line,
@@ -2634,13 +2643,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // sets it. `ADJUST_NOTHING` here, before `setContent`, closes spec §1.3's startup gap -- no
         // frame is laid out between `super.onCreate` and this call for the framework to resize.
         //
-        // SDK >= R (30) only. The API 28 measurement (spec §3.1.1) is `adjustNothing` => the insets
-        // listener below is never even DISPATCHED for the IME (`AndroidX` synthesises `Type.ime()`
-        // from the system-window inset, which only carries the keyboard while the framework is
-        // actually resizing the window for it) -- `ReadingInsets.imeHeight` and Compose's own
-        // `WindowInsets.ime` both stay 0 forever. Below 30 the per-API branches in
-        // `ReadingAppBootstrap.setSoftKeyboardMode()` stay unchanged instead.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        // SDK >= appOwnsImeInsetFromSdk (R/30 for THIS host) only. The API 28 measurement (spec
+        // §3.1.1) is `adjustNothing` => the insets listener below is never even DISPATCHED for the
+        // IME (`AndroidX` synthesises `Type.ime()` from the system-window inset, which only carries
+        // the keyboard while the framework is actually resizing the window for it) --
+        // `ReadingInsets.imeHeight` and Compose's own `WindowInsets.ime` both stay 0 forever. Below
+        // that the per-API branches in `ReadingAppBootstrap.setSoftKeyboardMode()` stay unchanged
+        // instead -- reading the SAME member (F59 fix round 1), so this call and that method's gate
+        // cannot drift apart. `MainBibleActivity` answers a different constant there; see
+        // `ReadingHostActivity.appOwnsImeInsetFromSdk`'s kdoc for why a shared constant here would
+        // have been wrong for it.
+        if (Build.VERSION.SDK_INT >= appOwnsImeInsetFromSdk) {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         }
         // The reading-view inset ledger's feed. Classic does this at MainBibleActivity.kt:678,
@@ -2661,18 +2674,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // too, so `adjustResize` never shrank it, and with the gate on, the ledger was never fed
         // below 35 and the padding this host now applies would always have been zero there.
         //
-        // The gate now matches `ADJUST_NOTHING`'s own gate above: SDK >= R (30), not below. Below 30
-        // the framework STILL resizes the window under `adjustResize` (kept above), AND the API 28
-        // measurement shows the listener WOULD receive the IME there (ime.bottom=685 under
-        // adjustResize, spec §3.1.1) -- turning it on would feed the sink a second shrink on top of
-        // the framework's own, the double-shrink spec §3 warns about. So below 30 the listener stays
-        // off and the ledger (and the sink it feeds, Step 4) stays permanently 0, same as today.
+        // The gate now matches `ADJUST_NOTHING`'s own gate above: SDK >= appOwnsImeInsetFromSdk (R/30
+        // for this host), not below, and the SAME member -- not a separately-spelled constant that
+        // could drift from it. Below that the framework STILL resizes the window under `adjustResize`
+        // (kept above), AND the API 28 measurement shows the listener WOULD receive the IME there
+        // (ime.bottom=685 under adjustResize, spec §3.1.1) -- turning it on would feed the sink a
+        // second shrink on top of the framework's own, the double-shrink spec §3 warns about. So below
+        // 30 the listener stays off and the ledger (and the sink it feeds, Step 4) stays permanently
+        // 0, same as today.
         //
         // `ComposeHostWindowSetup`'s decorFitsSystemWindows = true below API 35 STAYS -- it is doing
         // its job for the system bars (measured: ComposeView inset 48..1824 on the API 30 tablet).
         // Only the IME reached nothing, and ADJUST_NOTHING is what fixes that. Changing both at once
         // would make a failure impossible to attribute.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= appOwnsImeInsetFromSdk) {
             ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { _, windowInsets ->
                 val systemBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
                 val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())

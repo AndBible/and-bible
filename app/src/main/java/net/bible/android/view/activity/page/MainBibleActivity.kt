@@ -1367,6 +1367,11 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     // Classic pads binding.mainBibleView instead -- see ReadingHostActivity.imeBottomPaddingPx.
     override val imeBottomPaddingPx: State<Int> = mutableIntStateOf(0)
 
+    // F59 fix round 1: today's threshold, UNCHANGED -- classic's own compensating listener and
+    // ActivityBase's inset setup stay gated at >= VANILLA_ICE_CREAM too. See
+    // ReadingHostActivity.appOwnsImeInsetFromSdk's kdoc for why this must not become >= R.
+    override val appOwnsImeInsetFromSdk: Int = Build.VERSION_CODES.VANILLA_ICE_CREAM
+
     override var fullScreen
         get() = isFullScreen
         set(value) {

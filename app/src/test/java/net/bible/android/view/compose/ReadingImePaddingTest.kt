@@ -232,9 +232,14 @@ class ReadingImePaddingTest {
      * **This does not fail on the pre-fix tree.** Pre-fix the listener is gated off below API 35 (so
      * also at 28), for the same "framework already resizes it" reason this narrowing keeps below 30 --
      * the sink is 0 there both before and after this task's fix. It was proved live during development
-     * by temporarily lowering the gate in `NavHostComposeActivity.onCreate` to `Build.VERSION_CODES.M`
-     * (23) and confirming this test then fails with `imeBottomPaddingPx.value == 300`; the gate was
-     * restored to `Build.VERSION_CODES.R` afterwards.
+     * (fix round 1) by temporarily lowering `NavHostComposeActivity.appOwnsImeInsetFromSdk` to
+     * `Build.VERSION_CODES.M` (23) and confirming this test then fails -- `imeBottomPaddingPx.value`
+     * came back **39, not 300**: at sdk 28 `WindowInsetsCompat.Type.ime()` is ITSELF synthesised from
+     * the system-window inset (spec §3.1.1's own finding), so the listener reads back the system-bars
+     * bottom (39, this test's own `dispatchImeInsets` helper) rather than the 300 explicitly set on
+     * `Type.ime()` -- a live demonstration of the exact mechanism the measurement names, not a test
+     * bug. Either way the assertion below (`== 0`) goes red on a non-zero value; the gate was restored
+     * to `Build.VERSION_CODES.R` afterwards.
      */
     @Config(sdk = [28])
     @Test

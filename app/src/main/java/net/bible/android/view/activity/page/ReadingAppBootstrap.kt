@@ -111,15 +111,28 @@ private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pr
  * uninitialised repository instead of crashing. One shared unit cannot duplicate, and when
  * `MainBibleActivity` is deleted its caller simply disappears.
  *
- * **The host type is [ActivityBase], deliberately NOT `ReadingHostActivity`.** An app entry point is
- * not the same thing as a reading host, and nothing here is reading chrome. [ActivityBase] is the
- * nearest common supertype of the two hosts and is what the measured code actually needs: `window`
- * ([setSoftKeyboardMode]), `checkSelfPermission`/`requestPermissions` ([requestSdcardPermission]),
- * a `Context` for `AlertDialog.Builder` (all four notices), `lifecycleScope` (the repository's
- * scope), and -- the binding constraint -- `ErrorReportControl.checkCrash`,
- * `CommonUtils.checkPoorTranslations` and `CloudSync.signIn` all take an `ActivityBase` parameter,
- * so a `ComponentActivity` would not compile without exactly the downcast to the concrete Activity
- * that this batch forbids. No cast is needed anywhere: both hosts ARE `ActivityBase`s.
+ * **The host type is [ActivityBase], not `ReadingHostActivity`'s reading-view surface** -- an app
+ * entry point is not the same thing as a reading host, and nothing here is reading chrome.
+ * [ActivityBase] is the nearest common supertype of the two hosts and is what most of the measured
+ * code needs: `window` ([setSoftKeyboardMode]'s `SOFT_INPUT_ADJUST_*` calls),
+ * `checkSelfPermission`/`requestPermissions` ([requestSdcardPermission]), a `Context` for
+ * `AlertDialog.Builder` (all four notices), `lifecycleScope` (the repository's scope), and -- the
+ * binding constraint -- `ErrorReportControl.checkCrash`, `CommonUtils.checkPoorTranslations` and
+ * `CloudSync.signIn` all take an `ActivityBase` parameter, so a `ComponentActivity` would not
+ * compile without exactly the downcast to the concrete Activity that this batch forbids.
+ *
+ * **F59 fix round 1 widened `host`'s type to `T where T : ActivityBase, T : ReadingHostActivity`**
+ * (still no concrete-Activity downcast anywhere -- both hosts genuinely ARE both).
+ * [setSoftKeyboardMode] needs a PER-HOST threshold (`host.appOwnsImeInsetFromSdk`,
+ * `ReadingHostActivity`'s member) rather than the single SDK constant it used before: see that
+ * member's kdoc for why a shared constant would have regressed `MainBibleActivity` on API 30-34. A
+ * second constructor parameter carrying just that `Int` was considered and rejected -- it would read
+ * `host.appOwnsImeInsetFromSdk` at CONSTRUCTION time (`ReadingAppBootstrap(this)` runs from each
+ * host's property initializer, before that host's own `override val appOwnsImeInsetFromSdk`
+ * necessarily has a value in every possible initialization order) instead of at each call to
+ * [setSoftKeyboardMode], and would let the bootstrap's copy silently disagree with a future host
+ * that computed the threshold dynamically. The generic bound reads it fresh, off the live host,
+ * exactly like every other `host.*` access in this class.
  *
  * **Order is load-bearing and is preserved by the CALLERS, not by this class.** Nothing here calls
  * anything else here; each member is a step the host's `onCreate` invokes in classic's original
@@ -145,7 +158,7 @@ private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pr
  * which is exactly why it is the callback's IDENTITY, not the manager's, that keeps two hosts apart.
  * `ReadingAppBootstrapTest.destroyingOneHostLeavesTheOtherLiveHostsCallbackRegistered` measures it.
  */
-class ReadingAppBootstrap(private val host: ActivityBase) : KoinComponent {
+class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : ActivityBase, T : ReadingHostActivity {
     private val windowControl: WindowControl by inject()
     private val preferences get() = CommonUtils.settings
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
@@ -585,23 +598,22 @@ class ReadingAppBootstrap(private val host: ActivityBase) : KoinComponent {
         // `Type.ime()` from the system-window inset, which only carries the keyboard while the
         // framework is actually resizing the window for it, and `ADJUST_NOTHING` stops it resizing.
         //
-        // So the scope narrows to API 30+ (`Build.VERSION_CODES.R`), not 35 (`VANILLA_ICE_CREAM`):
-        // `ADJUST_NOTHING` stops the framework folding the IME into the system-window insets so
-        // `WindowInsets.ime` becomes non-zero, the app supplies the shrink itself through
-        // `ReadingInsets` -> `applyImeBottomPadding`, and NavHostComposeActivity's insets listener
-        // gate moved from >= 35 to >= 30 to match (`NavHostComposeActivity.kt`'s `onCreate`). Below
-        // 30 the framework's own resize is kept exactly as it was, along with the branch that picks
-        // between it and `ADJUST_PAN` for multi-window -- both channels a below-30 device still needs
-        // since neither the app nor Compose can see the keyboard there.
+        // F59 fix round 1: the threshold below is PER HOST -- `host.appOwnsImeInsetFromSdk` -- not a
+        // single `>= R` constant. This method is the ONE `setSoftKeyboardMode` shared by both hosts
+        // (`MainBibleActivity` and `NavHostComposeActivity` each call it, see their own call sites),
+        // and the API 30+ narrowing is a NAV-HOST finding: only `NavHostComposeActivity` has the
+        // insets listener + sink (`ReadingInsets` -> `applyImeBottomPadding`) that let its Compose
+        // tree see `WindowInsets.ime` once `ADJUST_NOTHING` is set. `MainBibleActivity` was never
+        // measured and has neither -- its own compensating listener and `ActivityBase`'s inset setup
+        // both stay gated at `>= VANILLA_ICE_CREAM` (35), untouched by this batch. A single `>= R`
+        // constant here would have put `MainBibleActivity`'s window into `ADJUST_NOTHING` on API
+        // 30-34 with NEITHER the framework's resize (suppressed) NOR this host's own padding (its
+        // `imeBottomPaddingPx` is a permanent 0) compensating -- see
+        // `ReadingHostActivity.appOwnsImeInsetFromSdk`'s kdoc for the full argument.
         //
-        // `AndroidManifest.xml`'s windowSoftInputMode on the nav host cannot be per-API and stays
-        // `adjustResize`; `NavHostComposeActivity.onCreate` additionally sets `ADJUST_NOTHING`
-        // programmatically on SDK >= R, before `setContent`, closing spec §1.3's startup gap (no
-        // frame is laid out between `super.onCreate` and that call) -- this bootstrap method's own
-        // call (from `bootstrapIfNeeded`, which can run later, e.g. from `onNewIntent`) then repeats
-        // the same value on SDK >= R and is the ONLY place that sets it on `MainBibleActivity`, which
-        // has no such early onCreate call of its own.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        // `NavHostComposeActivity` reads the SAME member for its own `onCreate`'s `ADJUST_NOTHING`
+        // call and its insets-listener gate, so the three sites cannot drift apart.
+        if (Build.VERSION.SDK_INT >= host.appOwnsImeInsetFromSdk) {
             host.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         } else if (windowControl.isMultiWindow) {
             host.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
