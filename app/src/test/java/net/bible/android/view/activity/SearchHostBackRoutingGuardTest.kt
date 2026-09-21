@@ -150,6 +150,32 @@ class SearchHostBackRoutingGuardTest {
 
         private const val SEARCH_STATE_ACTIVE = "searchModeActive"
         private const val SEARCH_STATE_MODE_ACTIVE = "searchMode.active"
+
+        // F55: the reading host was absent from both lists, so nothing asserted that the app's MAIN
+        // screen routes back at all -- which is how a six-branch chain went missing with the suite green.
+        // It gets its own test rather than a SEARCH_HOST_FILES entry: its search step closes search
+        // through `ReadingCommands.composeCloseSearchIfOpen()`, so it never spells the
+        // `searchModeActive` / `searchMode.active` tokens that list's second assertion requires.
+        // ReadingNavGraph.kt stays OUT of SEARCH_HOST_GRAPH_FILES deliberately: the reading destination
+        // has no PlatformBackHandler by design (its back is NavHostComposeActivity.onBackPressed's
+        // chain), so requiring one there would assert the opposite of the design.
+        private const val READING_HOST_FILE =
+            "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"
+        private const val READING_HOST_SEARCH_STEP = "composeCloseSearchIfOpen()"
+    }
+
+    @Test
+    fun theReadingHostRoutesHardwareBackThroughItsChain() {
+        val source = strippedSourceOf(READING_HOST_FILE)
+        assertThat(
+            "$READING_HOST_FILE must override `onBackPressed` -- the reading view's back chain " +
+                "(drawer, search, fullscreen, WebView modal, history, double-back exit) lives there (F55)",
+            BACK_ENTRY_ON_BACK_PRESSED.containsMatchIn(source), equalTo(true),
+        )
+        assertThat(
+            "$READING_HOST_FILE's back chain must close an open search (`$READING_HOST_SEARCH_STEP`)",
+            source.contains(READING_HOST_SEARCH_STEP), equalTo(true),
+        )
     }
 
     private fun strippedSourceOf(path: String): String = stripComments(java.io.File(path).readText())
