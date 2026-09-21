@@ -18,6 +18,8 @@
 package net.bible.android.view.compose
 
 import java.io.File
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.sharedcore.nav.NavRoutes
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -50,6 +52,18 @@ import org.junit.Test
  * arm both build a `NavRoutes.download(...)` self-launch in a file/function that also has an
  * unrelated `awaitIntent` call for a *different* route, but dispatch their own intent through plain
  * `startActivityForResult` -- never through `awaitIntent` -- so they cannot hit F53 either.
+ *
+ * **The indirection through `ScreenLauncher` too.** `ScreenLauncher.intentFor(context, Screen.X)`
+ * builds exactly `NavHostComposeActivity.intentFor(context, route)` internally when `Screen.X` is
+ * in [ScreenLauncher.MIGRATED] -- so an awaited `ScreenLauncher.intentFor(host, Screen.X)` is just
+ * as self-launch-shaped as the direct spelling, and the direct-spelling-only scan (this guard's
+ * fix-round-1 predecessor) could not see it. Resolved at RUNTIME off the live [ScreenLauncher
+ * .MIGRATED] map, not a hand-duplicated source-text mapping, so a screen migrating in or out cannot
+ * make this guard quietly wrong. A `Screen.X` this scan cannot even parse out of an awaited call, or
+ * a name that is not a real [Screen] constant, fails LOUD as an offender rather than being skipped
+ * (no current call site hits this -- verified below -- but a future refactor that awaits a
+ * `ScreenLauncher.intentFor` built from a variable rather than a literal `Screen.X` must not go
+ * unseen).
  */
 class SelfLaunchRouteKindGuardTest {
 
@@ -81,14 +95,26 @@ class SelfLaunchRouteKindGuardTest {
         "TextDisplaySettingsComposeActivity.kt",
     )
 
+    /**
+     * Route base [ScreenLauncher.MIGRATED] resolves each migrated [Screen] to -- built off the
+     * LIVE map, not a hand-copied one, so a screen migrating in or out cannot make this guard
+     * quietly wrong (see the class kdoc's "indirection through ScreenLauncher").
+     */
+    private val migratedScreenBase: Map<String, String> =
+        ScreenLauncher.MIGRATED.entries.associate { (screen, route) -> screen.name to route.substringBefore('?') }
+
     private val funStart = Regex("""(?m)^[ \t]*(?:\w+\s+)*fun\s+(\w+)""")
     private val navRoutesCall = Regex("""NavRoutes\.(\w+)\(""")
+    private val screenConst = Regex("""Screen\.(\w+)""")
     private val assignment = Regex("""(?:val\s+|var\s+)?(\w+)\s*=\s*$""")
     private val helperArg = Regex("""(\w+)\(\s*(?:[\w.]+\s*,\s*)*$""")
 
     @Test
     fun everySelfLaunchedAwaitIntentNamesARouteACollectorAnswers() {
         require(mainSrc.isDirectory) { "src/main/java not found -- SelfLaunchRouteKindGuardTest scans it" }
+        require(migratedScreenBase.isNotEmpty()) {
+            "ScreenLauncher.MIGRATED resolved empty -- the runtime lookup this guard relies on is broken"
+        }
 
         val offenders = mutableListOf<String>()
         var selfLaunchSitesSeen = 0
@@ -119,36 +145,43 @@ class SelfLaunchRouteKindGuardTest {
                 name.takeIf { code.substring(start, end).contains("awaitIntent(") }
             }.toSet()
 
-            var searchFrom = 0
-            while (true) {
-                val callStart = code.indexOf("NavHostComposeActivity.intentFor(", searchFrom)
-                if (callStart == -1) break
-                var depth = 0
-                var i = callStart + "NavHostComposeActivity.intentFor".length
-                var callEnd = -1
-                while (i < code.length) {
-                    when (code[i]) {
-                        '(' -> depth++
-                        ')' -> { depth--; if (depth == 0) { callEnd = i; break } }
+            /** Every call opening with [calleePrefix] that is genuinely reached by an `awaitIntent`. */
+            fun awaitedCalls(calleePrefix: String): List<String> {
+                val calls = mutableListOf<String>()
+                var searchFrom = 0
+                while (true) {
+                    val callStart = code.indexOf("$calleePrefix(", searchFrom)
+                    if (callStart == -1) break
+                    var depth = 0
+                    var i = callStart + calleePrefix.length
+                    var callEnd = -1
+                    while (i < code.length) {
+                        when (code[i]) {
+                            '(' -> depth++
+                            ')' -> { depth--; if (depth == 0) { callEnd = i; break } }
+                        }
+                        i++
                     }
-                    i++
+                    if (callEnd == -1) break // malformed source; stop scanning this file defensively
+                    searchFrom = callEnd + 1
+
+                    val before = code.substring(maxOf(0, callStart - 150), callStart).trimEnd()
+                    val inlineAwaited = before.endsWith("awaitIntent(")
+                    val assignedVar = assignment.find(before)?.groupValues?.get(1)
+                    val varAwaited = assignedVar != null &&
+                        chunkFor(callStart).contains("awaitIntent(" + assignedVar)
+                    val helperName = helperArg.find(before)?.groupValues?.get(1)
+                    val helperAwaited = helperName != null && helperName in awaitingHelperNames
+
+                    if (inlineAwaited || varAwaited || helperAwaited) {
+                        calls += code.substring(callStart, callEnd + 1)
+                    }
                 }
-                if (callEnd == -1) break // malformed source; stop scanning this file defensively
-                searchFrom = callEnd + 1
+                return calls
+            }
 
-                val builder = navRoutesCall.find(code.substring(callStart, callEnd + 1))
-                    ?.groupValues?.get(1) ?: continue
-
-                val before = code.substring(maxOf(0, callStart - 150), callStart).trimEnd()
-                val inlineAwaited = before.endsWith("awaitIntent(")
-                val assignedVar = assignment.find(before)?.groupValues?.get(1)
-                val varAwaited = assignedVar != null &&
-                    chunkFor(callStart).contains("awaitIntent(" + assignedVar)
-                val helperName = helperArg.find(before)?.groupValues?.get(1)
-                val helperAwaited = helperName != null && helperName in awaitingHelperNames
-
-                if (!(inlineAwaited || varAwaited || helperAwaited)) continue
-
+            awaitedCalls("NavHostComposeActivity.intentFor").forEach { callText ->
+                val builder = navRoutesCall.find(callText)?.groupValues?.get(1) ?: return@forEach
                 selfLaunchSitesSeen++
                 val base = builderToBase[builder]
                 if (base == null || base !in answeredBases) {
@@ -157,6 +190,43 @@ class SelfLaunchRouteKindGuardTest {
                         "navigateInsteadOfSelfLaunch will fall through and the awaited deferred " +
                         "will be spent by a synthetic RESULT_CANCELED (finding F53). Add a " +
                         "ReadingResultKind + collector for it, or do not await this launch."
+                }
+            }
+
+            awaitedCalls("ScreenLauncher.intentFor").forEach { callText ->
+                val screenName = screenConst.find(callText)?.groupValues?.get(1)
+                if (screenName == null) {
+                    // An awaited ScreenLauncher.intentFor(...) whose Screen argument is not a literal
+                    // `Screen.X` -- e.g. built from a variable -- is exactly the shape this scan
+                    // cannot classify. Fail loud rather than silently letting it through unseen.
+                    offenders += "${file.path}: an awaited ScreenLauncher.intentFor(...) call's Screen " +
+                        "argument is not a literal `Screen.X` this guard can read -- it cannot tell " +
+                        "whether this is an unanswered self-launch (F53). Make the argument a literal " +
+                        "Screen constant, or extend this guard to resolve it."
+                    return@forEach
+                }
+                val screen = try {
+                    Screen.valueOf(screenName)
+                } catch (e: IllegalArgumentException) {
+                    offenders += "${file.path}: awaited ScreenLauncher.intentFor(..., Screen.$screenName) " +
+                        "-- \"$screenName\" is not a real Screen constant (renamed?); this guard cannot " +
+                        "resolve it against ScreenLauncher.MIGRATED. Fix the guard's Screen parsing."
+                    return@forEach
+                }
+                val base = migratedScreenBase[screen.name]
+                    // Not in ScreenLauncher.MIGRATED: ScreenLauncher.intentFor resolves this to a
+                    // DIFFERENT Activity via targetFor, so it is not a self-launch of
+                    // NavHostComposeActivity at all -- structurally safe, not this guard's domain.
+                    ?: return@forEach
+                selfLaunchSitesSeen++
+                if (base !in answeredBases) {
+                    offenders += "${file.path}: ScreenLauncher.intentFor(..., Screen.$screenName) is " +
+                        "self-launched (Screen.$screenName is in ScreenLauncher.MIGRATED, so it resolves " +
+                        "to NavHostComposeActivity.intentFor(context, \"$base...\")) in a file that uses " +
+                        "awaitIntent, but no ReadingResultKind answers that route -- " +
+                        "navigateInsteadOfSelfLaunch will fall through and the awaited deferred will be " +
+                        "spent by a synthetic RESULT_CANCELED (finding F53). Add a ReadingResultKind + " +
+                        "collector for it, or do not await this launch."
                 }
             }
         }
