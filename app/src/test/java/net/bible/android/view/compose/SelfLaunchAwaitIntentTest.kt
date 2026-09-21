@@ -19,6 +19,7 @@ package net.bible.android.view.compose
 
 import android.app.Activity
 import android.content.Intent
+import androidx.lifecycle.lifecycleScope
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import org.junit.Assert.assertEquals
@@ -63,14 +65,29 @@ import org.robolectric.shadows.ShadowActivity
 @Config(application = TestBibleApplication::class)
 class SelfLaunchAwaitIntentTest {
 
-    private fun host(): NavHostComposeActivity =
-        Robolectric.buildActivity(
+    /**
+     * `firstTime` is pinned false first, and that is not incidental: it is a file-level `var` in
+     * `ActivityBase.kt`, and `ActivityBase.fixNightMode()` — called from `onCreate` — arms
+     * `lifecycleScope.launch { delay(250); recreate() }` while it is true (the night-mode hack; see
+     * `ActivityBase.kt:64,167-178`). Robolectric does not reset it between test METHODS in this JVM,
+     * only between fresh processes, so every `host()` here would otherwise arm that delayed recreate
+     * — and once `idleMainLooper()` advances the fake clock past the 250 ms delay, it fires and
+     * cancels `lifecycleScope`, which is what corrupted an earlier version of
+     * [aSyntheticCancelDoesNotSpendTheAwaitedResult] (see its kdoc). It has nothing to do with
+     * `navigateInsteadOfSelfLaunch`/`navigateToRoute` — confirmed by pinning `firstTime` here and
+     * re-running with the coroutine back on `activity.lifecycleScope`, which then behaves exactly
+     * like every production caller (`BibleView.assignLabels`, …) does.
+     */
+    private fun host(): NavHostComposeActivity {
+        firstTime = false
+        return Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(
                 ApplicationProvider.getApplicationContext(),
                 NavRoutes.READING,
             ),
         ).setup().get()
+    }
 
     private fun labelsIntent(activity: NavHostComposeActivity): Intent =
         NavHostComposeActivity.intentFor(activity, NavRoutes.manageLabels(LABEL_PAYLOAD))
@@ -90,6 +107,23 @@ class SelfLaunchAwaitIntentTest {
         )
     }
 
+    /**
+     * Runs the awaiting coroutine on `activity.lifecycleScope`, exactly like every production caller
+     * (`BibleView.assignLabels`, …). Earlier this used a scope of its own, on the mistaken belief
+     * that `navigateInsteadOfSelfLaunch`'s `navigateToRoute` call was cascading into an Activity
+     * recreate that cancelled `lifecycleScope` mid-await; the real cause was `ActivityBase`'s
+     * `firstTime`-gated night-mode `recreate()` hack going off because a previous test in this JVM
+     * had already armed it (see [host]'s kdoc) — unrelated to F53 or to this call. Pinning
+     * `firstTime` false there is what let this go back to `lifecycleScope`.
+     *
+     * **The synthetic-cancel injection below does not fire post-fix.** `shadow.nextStartedActivityForResult`
+     * is null once F53 is fixed (test 1 proves it), so the `if` guarding it is false and this test's
+     * only onActivityResult call is the real OK. Its value post-fix is as a REGRESSION GUARD: if a
+     * future change makes this self-launch reach the platform again (the `if` turns true), the
+     * injected cancel destroys the deferred before the OK is delivered and this test goes red with
+     * the CANCELED value, catching the very regression F53 fixes. Pre-fix, this is what makes the
+     * test fail for the documented reason (see the class kdoc).
+     */
     @OptIn(ExperimentalCoroutinesApi::class) // `getCompleted()` — the assertion is the only reader.
     @Test
     fun aSyntheticCancelDoesNotSpendTheAwaitedResult() = runTest {
@@ -97,16 +131,7 @@ class SelfLaunchAwaitIntentTest {
         val shadow: ShadowActivity = org.robolectric.Shadows.shadowOf(activity)
         val awaited = CompletableDeferred<Int>()
 
-        // A scope of its own, deliberately NOT `activity.lifecycleScope`: the fix under test
-        // navigates the live graph, which disposes the `reading` destination's composition and, in
-        // this Robolectric harness, cascades into an Activity recreate — cancelling
-        // `lifecycleScope` mid-await for a reason that has nothing to do with what this test
-        // proves (whether the REAL RESULT_OK reaches the awaited deferred, not the synthetic
-        // CANCELED that precedes it). `resultByCode`/`onActivityResult` bookkeeping this exercises
-        // lives on the Activity itself, not on the caller's scope, so this substitution does not
-        // change what is under test.
-        val observerScope = kotlinx.coroutines.CoroutineScope(Dispatchers.Main)
-        observerScope.launch {
+        activity.lifecycleScope.launch(Dispatchers.Main) {
             val result = activity.awaitIntent(labelsIntent(activity))
             awaited.complete(result.resultCode)
         }
