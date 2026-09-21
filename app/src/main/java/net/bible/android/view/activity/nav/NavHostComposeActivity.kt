@@ -898,6 +898,119 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     override val enableGenericVolumeScroll: Boolean
         get() = ReadingViewHostCallbacks.current == null
 
+    /**
+     * F55: classic `MainBibleActivity.onBackPressed`'s six branches, as an enumerable list.
+     *
+     * The double-back exit warning is NOT a step -- it is what happens when no step consumed the
+     * press, and it needs `super.onBackPressed()` on its second invocation, which a step returning
+     * `Boolean` cannot express.
+     *
+     * `by lazy` for [readingCommands]' reason: these read collaborators that are themselves lazy.
+     */
+    internal val readingBackChain: List<BackStep> by lazy {
+        listOf(
+            // Classic :778. The Compose drawer is modal -- it must win.
+            BackStep("drawer") { readingCommands.composeCloseDrawerIfOpen() },
+            // Classic :797. Two stages: the results sheet first, then search mode.
+            BackStep("search") { readingCommands.composeCloseSearchIfOpen() },
+            // Classic :798-801.
+            BackStep("fullscreen") {
+                if (!fullScreen) false else { toggleFullScreen(); true }
+            },
+            // Classic :806, `documentViewManager.documentView.backButtonPressed()` -- closes an open
+            // BibleView modal. Guarded on the reading view existing, because `documentView` CREATES a
+            // BibleView when absent (see the note at :1004-1013) and a back press must never do that.
+            BackStep("webViewModal", clearsExitWarning = true) {
+                composeReadingViewHost != null && documentViewManager.documentView.backButtonPressed()
+            },
+            // Classic :806, `historyTraversal.goBack()` -- see goBackInReadingHistory.
+            BackStep("history", clearsExitWarning = true) { goBackInReadingHistory() },
+        )
+    }
+
+    /**
+     * The reading history's replay gate, driven by the SAME predicate as its record gate.
+     *
+     * `HistoryTraversal.goBack()` cannot be used: it short-circuits on `isIntegrateWithHistoryManager`
+     * (`HistoryTraversal.kt:40`), which this host sets only while a Search or ReadingPlan destination
+     * is composed ([setHistoryRoute]) -- i.e. never on the reading destination, which is the one screen
+     * where back must consult history. Overriding `integrateWithHistoryManager` instead is wrong for
+     * the reason [setHistoryRoute]'s kdoc gives: it is host-global and would make every destination
+     * record `IntentHistoryItem`s.
+     *
+     * `ReadingViewVisibility.isVisible` is what `HistoryManager.createHistoryItem` (`:157`) uses to
+     * decide whether to RECORD, so using it here makes the two gates one predicate. That agreement is
+     * the invariant F55 broke: the device recorded 13 items and replayed none.
+     */
+    private fun goBackInReadingHistory(): Boolean {
+        if (!ReadingViewVisibility.isVisible) return false
+        val manager = historyTraversal.historyManager
+        if (!manager.canGoBack()) return false
+        manager.goBack()
+        return true
+    }
+
+    /** Whether the graph is currently showing the reading destination. */
+    private fun readingDestinationIsCurrent(): Boolean =
+        navController?.currentDestination?.route?.substringBefore('?') == NavRoutes.READING
+
+    private var lastBackPressed: Long? = null
+
+    /**
+     * F55. Reached for every BACK press because `AndroidManifest.xml:71` declares
+     * `android:enableOnBackInvokedCallback="false"` application-wide, so predictive-back dispatch is
+     * off and this is the live route (the device trace shows a legacy `KEYCODE_BACK`). When that
+     * opt-out goes at targetSdk 37 this body moves onto an `OnBackPressedCallback` -- which is exactly
+     * why the chain is a list: the move is then mechanical.
+     *
+     * Only the reading destination gets the chain. Every other destination keeps its own
+     * `PlatformBackHandler` and the `NavHost` back stack, and must reach `super` unchanged.
+     */
+    override fun onBackPressed() {
+        if (!readingDestinationIsCurrent()) {
+            super.onBackPressed()
+            return
+        }
+        for (step in readingBackChain) {
+            if (step.run()) {
+                Log.i(TAG_BACK, "BACK consumed by ${step.name}")
+                if (step.clearsExitWarning) lastBackPressed = null
+                return
+            }
+        }
+        val last = lastBackPressed
+        val now = System.currentTimeMillis()
+        if (last == null || last < now - BACK_EXIT_WINDOW_MS) {
+            lastBackPressed = now
+            Toast.makeText(this, getString(R.string.one_more_back_press), Toast.LENGTH_SHORT).show()
+            return
+        }
+        lastBackPressed = null
+        super.onBackPressed()
+    }
+
+    /**
+     * F55: long-press BACK opens the History sheet, classic `MainBibleActivity.onKeyLongPress`.
+     *
+     * `ActivityBase.onKeyLongPress` (`:282-285`) returns `true` for `KEYCODE_BACK` and does nothing,
+     * so without this override the shortcut is dead on this host. With the drawer open classic
+     * swallows the long press WITHOUT opening History; that is reproduced here.
+     *
+     * The platform only dispatches `onKeyLongPress` after `onKeyDown` called `event.startTracking()`.
+     * `Activity.onKeyDown`'s default does that for `KEYCODE_BACK`, and this host's `onKeyDown`
+     * override (`:901-910`) falls through to `super` for a touchscreen BACK (`readingViewKeyFor`
+     * claims BACK only from an external keyboard), so tracking is armed.
+     */
+    override fun onKeyLongPress(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode != KeyEvent.KEYCODE_BACK || !readingDestinationIsCurrent()) {
+            return super.onKeyLongPress(keyCode, event)
+        }
+        if (readingCommands.composeDrawerOpen) return true
+        val host = composeReadingViewHost ?: return super.onKeyLongPress(keyCode, event)
+        host.showHistorySheet()
+        return true
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         val handlers = ReadingViewHostCallbacks.current
         if (handlers != null) {
@@ -8771,6 +8884,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
 
         /** Host-wide concerns (onNewIntent routing), as opposed to one cluster's baggage. */
         private const val TAG_NAV_HOST = "NavHostCompose"
+
+        /** Classic's 1000 ms double-back window (`MainBibleActivity.kt:807`). */
+        private const val BACK_EXIT_WINDOW_MS = 1000L
+        private const val TAG_BACK = "NavHostBack"
 
         const val EXTRA_ROUTE: String = "nav_route"
 
