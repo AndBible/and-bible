@@ -431,6 +431,50 @@ class MyDocumentsInGraphResultTest {
         )
     }
 
+    /**
+     * F60 fix round 2: round 1's guard only drove entry path (a) -- `MyDocuments` already below
+     * `Pages`, reachable because [setGraph]'s `TEST_PARENT_ROUTE` doubles as a stand-in host so
+     * `MyDocuments` can be the graph's start destination. Entry path (b) -- `Pages` as the sole/start
+     * destination, what `CurrentGeneralBookPage.kt` (`:159-169`) produces -- was reasoned about in
+     * the round-1 commit/report but never actually driven through a real `NavHostController`, which
+     * both round-1 and round-2's reviews flagged as an overclaim. This test drives path (b), mirroring
+     * [aMyDocumentPagesResultProducedAsTheStartDestinationExitsTheHost]'s `setGraph` shape.
+     */
+    @Test
+    fun switchingDocumentsWhenPagesIsTheStartDestinationDoesNotOrphanOrGrow() {
+        setGraph(startDestination = myDocumentPagesRoute())
+        assertEquals(NavRoutes.MY_DOCUMENT_PAGES_PATTERN, currentRoute)
+        // `currentBackStack` also counts the enclosing `NavGraph`'s own entry, so "exactly one
+        // destination on the stack" is whatever this baseline is -- captured here, with `Pages` as
+        // the graph's ONLY destination entry -- rather than a guessed literal.
+        val sizeWithOneDestinationOnTheStack = navController.currentBackStack.value.size
+
+        compose.onNodeWithContentDescription(switchDocumentText).performClick()
+        compose.waitForIdle()
+        assertEquals(NavRoutes.MY_DOCUMENTS_PATTERN, currentRoute, "switch did not land on MyDocuments")
+        // No entry below `Pages` to fall back to (it WAS the start destination), so the first switch
+        // must leave exactly ONE destination entry on the stack -- the freshly-pushed `MyDocuments`,
+        // same count as the `Pages`-only baseline above, no orphaned `Pages` entry left behind under it.
+        val sizeAfterFirstSwitch = navController.currentBackStack.value.size
+        assertEquals(
+            sizeWithOneDestinationOnTheStack, sizeAfterFirstSwitch,
+            "expected exactly one destination entry (MyDocuments, replacing Pages) after the first switch " +
+                "-- a bigger count means Pages was left behind as an orphan",
+        )
+
+        compose.runOnIdle { navController.navigate(myDocumentPagesRoute()) }
+        compose.waitForIdle()
+        compose.onNodeWithContentDescription(switchDocumentText).performClick()
+        compose.waitForIdle()
+        assertEquals(NavRoutes.MY_DOCUMENTS_PATTERN, currentRoute, "second switch did not land on MyDocuments")
+        val sizeAfterSecondSwitch = navController.currentBackStack.value.size
+
+        assertEquals(
+            sizeAfterFirstSwitch, sizeAfterSecondSwitch,
+            "back stack grew between the first and second switch when Pages was the start destination",
+        )
+    }
+
     private companion object {
         const val TEST_PARENT_ROUTE = "test-parent"
     }
