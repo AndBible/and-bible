@@ -2370,6 +2370,65 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
+     * F59 fix round 2 (extra adversarial review + controller ruling R10). `ADJUST_NOTHING` must NOT
+     * apply to the whole window regardless of which destination is current: the only IME sink this
+     * batch built is the `reading` destination's `ReadingViewScreen.imeBottomPadding` (spec §3.3,
+     * `ComposeReadingViewHost`'s `imeBottomPaddingPxState`). Every OTHER destination this NavHost
+     * hosts has no such padding and no `imePadding()`/`WindowInsets.ime` consumer anywhere in
+     * `:sharedUi`/`:app` -- e.g. `CustomRepositoryEditorScreen`'s `OutlinedTextField`s,
+     * `AiConnectionSettingsScreen`'s multi-line field, `PromptEditScreen`'s editor. Before this round,
+     * Task 7's `onCreate` set `ADJUST_NOTHING` unconditionally for the window's whole life once
+     * `SDK_INT >= appOwnsImeInsetFromSdk`, which un-lifted every one of those screens on API 30-34 --
+     * the manifest's `adjustResize` used to lift them there, and nothing replaced it once the window
+     * stopped resizing.
+     *
+     * So the mode is now PER DESTINATION: `ADJUST_NOTHING` only while the CURRENT destination is
+     * `reading` (spec §3.1.1's API 30+ narrowing still applies via [appOwnsImeInsetFromSdk] -- below
+     * that threshold this never touches the window at all, leaving today's manifest value /
+     * [ReadingAppBootstrap.setSoftKeyboardMode]'s per-API branches exactly as they were, per fix
+     * round 1). Every other destination gets `ADJUST_RESIZE` -- the manifest's own value, set
+     * explicitly because the window does NOT revert to the manifest's value on its own once
+     * `ADJUST_NOTHING` has been applied; only an explicit call changes it back.
+     *
+     * **Two call sites, one authority.** [onCreate] calls this with the resolved start route, before
+     * `setContent` (preserving spec §1.3's "no frame laid out under the wrong mode" property for a
+     * `reading` start). The `OnDestinationChangedListener` registered in `setContent`'s
+     * `DisposableEffect(navController)` -- the SAME listener [applyReadingReturnDebts] already uses --
+     * calls it on every subsequent navigation, forward and back, which is what keeps a `reading` ->
+     * settings -> `reading` round trip correct: `reading`'s own one-shot [bootstrapIfNeeded] does not
+     * run again on the second arrival (it is memoised), so without this listener the window would
+     * stay `ADJUST_RESIZE` after leaving `reading` and returning.
+     *
+     * **[ReadingAppBootstrap.setSoftKeyboardMode] never contradicts this.** It only ever runs from
+     * [bootstrapIfNeeded], and BOTH of that function's call sites (this file's `onCreate` and its
+     * `onNewIntent`-reached counterpart, `:798`) are themselves gated on `route == NavRoutes.READING`
+     * -- verified, not assumed: there is no path that reaches `setSoftKeyboardMode()` while a
+     * non-reading destination is current, so its own `ADJUST_NOTHING` write on this host can never
+     * race this function's `ADJUST_RESIZE` for a different destination.
+     *
+     * **Known debt this round does not specifically re-verify (controller ruling R10).** On API
+     * 35+, a non-reading destination reached AFTER the reading bootstrap had already run was ALSO
+     * un-lifted -- pre-existing since before this whole T9 batch (`setSoftKeyboardMode`'s original
+     * "Android 15 edge-to-edge enforcement fix" already set a permanent, whole-window
+     * `ADJUST_NOTHING` the first time `reading` bootstrapped, never reverted on navigating away).
+     * This function's own per-destination reversion runs above [appOwnsImeInsetFromSdk] too, which
+     * incidentally corrects it for any navigation that goes through this host's own `NavController`
+     * -- but that was never this round's target and is not itself guarded by a new test; it is
+     * recorded as known debt rather than claimed as fixed.
+     */
+    private fun applySoftInputModeFor(route: String?) {
+        if (Build.VERSION.SDK_INT < appOwnsImeInsetFromSdk) return
+        val onReading = route?.substringBefore('?') == NavRoutes.READING
+        window.setSoftInputMode(
+            if (onReading) {
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+            } else {
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+            }
+        )
+    }
+
+    /**
      * Classic `MainBibleActivity.onActivityResult`'s last two arms, in classic's own order: the
      * `UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH` refresh (`updateActions()`, which on this host is
      * [onToolbarStateMayHaveChanged]) and the `REFRESH_DISPLAY_ON_FINISH` tail
@@ -2639,23 +2698,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         super.onCreate(savedInstanceState)
         applyComposeHostWindowSetup()
         // F59 (T9 walk, spec §3.1.1): the manifest keeps `adjustResize` on this Activity's block
-        // (a manifest attribute cannot be per-API), so the window is `adjustResize` until this line
-        // sets it. `ADJUST_NOTHING` here, before `setContent`, closes spec §1.3's startup gap -- no
-        // frame is laid out between `super.onCreate` and this call for the framework to resize.
-        //
-        // SDK >= appOwnsImeInsetFromSdk (R/30 for THIS host) only. The API 28 measurement (spec
-        // §3.1.1) is `adjustNothing` => the insets listener below is never even DISPATCHED for the
-        // IME (`AndroidX` synthesises `Type.ime()` from the system-window inset, which only carries
-        // the keyboard while the framework is actually resizing the window for it) --
-        // `ReadingInsets.imeHeight` and Compose's own `WindowInsets.ime` both stay 0 forever. Below
-        // that the per-API branches in `ReadingAppBootstrap.setSoftKeyboardMode()` stay unchanged
-        // instead -- reading the SAME member (F59 fix round 1), so this call and that method's gate
-        // cannot drift apart. `MainBibleActivity` answers a different constant there; see
-        // `ReadingHostActivity.appOwnsImeInsetFromSdk`'s kdoc for why a shared constant here would
-        // have been wrong for it.
-        if (Build.VERSION.SDK_INT >= appOwnsImeInsetFromSdk) {
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
-        }
+        // (a manifest attribute cannot be per-API). F59 fix round 2 (extra adversarial review +
+        // controller ruling R10): the soft-input mode is no longer set unconditionally here for the
+        // WHOLE window's life -- see [applySoftInputModeFor]'s kdoc for why (only `reading` has an
+        // IME sink; every other destination this host hosts needs the manifest's `adjustResize`, not
+        // `ADJUST_NOTHING`). The call below runs once [resolveStartRoute] is known, still before
+        // `setContent`, which keeps spec §1.3's startup gap closed for a `reading` start (no frame is
+        // laid out between `super.onCreate` and that call for the framework to resize).
         // The reading-view inset ledger's feed. Classic does this at MainBibleActivity.kt:678,
         // bracketed by the same guard classic's registration sits behind
         // (`MainBibleActivity.kt:674-675`); this host had a ledger (`readingInsets`, :1338) and
@@ -2674,10 +2723,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // too, so `adjustResize` never shrank it, and with the gate on, the ledger was never fed
         // below 35 and the padding this host now applies would always have been zero there.
         //
-        // The gate now matches `ADJUST_NOTHING`'s own gate above: SDK >= appOwnsImeInsetFromSdk (R/30
-        // for this host), not below, and the SAME member -- not a separately-spelled constant that
-        // could drift from it. Below that the framework STILL resizes the window under `adjustResize`
-        // (kept above), AND the API 28 measurement shows the listener WOULD receive the IME there
+        // The gate matches [applySoftInputModeFor]'s own gate below: SDK >= appOwnsImeInsetFromSdk
+        // (R/30 for this host), not below, and the SAME member -- not a separately-spelled constant
+        // that could drift from it. This registration itself is NOT route-aware (it only forwards
+        // insets into the ledger; [applySoftInputModeFor] is what decides whether the window is even
+        // in a mode where the IME reaches it). Below that threshold the framework STILL resizes the
+        // window under `adjustResize` (kept above), AND the API 28 measurement shows the listener WOULD receive the IME there
         // (ime.bottom=685 under adjustResize, spec §3.1.1) -- turning it on would feed the sink a
         // second shrink on top of the framework's own, the double-shrink spec §3 warns about. So below
         // 30 the listener stays off and the ledger (and the sink it feeds, Step 4) stays permanently
@@ -2699,6 +2750,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         ABEventBus.register(this, readingHostSubscriptions)
         val startRoute = resolveStartRoute(savedInstanceState)
         this.startRoute = startRoute
+        // F59 fix round 2: the actual mode-setting call, now route-aware -- see
+        // [applySoftInputModeFor]'s kdoc. Before `setContent` (below), so a `reading` start still
+        // closes spec §1.3's startup gap; a non-reading start sets `ADJUST_RESIZE` explicitly, which
+        // is a no-op against the manifest's own value but keeps this the ONE place that decides the
+        // mode rather than leaving a non-reading start to the manifest by omission.
+        applySoftInputModeFor(startRoute)
         if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         // R8: build [readingCommands] NOW, while this Activity is still CREATED.
         //
@@ -2733,8 +2790,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     // rather than in a destination effect so that nothing in `:sharedUi` has to
                     // learn about request codes; the listener fires immediately with the current
                     // destination, which is what pays a debt restored across a recreate().
+                    //
+                    // F59 fix round 2: the SAME listener also keeps the soft-input mode current --
+                    // see [applySoftInputModeFor]'s kdoc for why this is the one wiring that makes a
+                    // `reading` -> elsewhere -> `reading` round trip restore `ADJUST_NOTHING` (that
+                    // destination's own one-shot bootstrap does not run a second time).
                     val onDestinationChanged = NavController.OnDestinationChangedListener { _, destination, _ ->
                         applyReadingReturnDebts(destination.route)
+                        applySoftInputModeFor(destination.route)
                     }
                     navController.addOnDestinationChangedListener(onDestinationChanged)
                     onDispose {

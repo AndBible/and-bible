@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose
 
+import android.os.Looper
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.compose.foundation.layout.Box
@@ -54,6 +55,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
@@ -104,7 +106,7 @@ class ReadingImePaddingTest {
      * test METHODS in this JVM, and `ActivityBase.fixNightMode()` arms a delayed `recreate()` while
      * it is true.
      */
-    private fun host(): NavHostComposeActivity {
+    private fun hostController(): ActivityController<NavHostComposeActivity> {
         firstTime = false
         return Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -112,8 +114,10 @@ class ReadingImePaddingTest {
                 ApplicationProvider.getApplicationContext(),
                 NavRoutes.READING,
             ),
-        ).also { hostControllers += it }.setup().get()
+        ).also { hostControllers += it }.setup()
     }
+
+    private fun host(): NavHostComposeActivity = hostController().get()
 
     @After
     fun tearDown() {
@@ -294,6 +298,58 @@ class ReadingImePaddingTest {
                 "(spec §3.1.1's negative API 28 measurement)",
             WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE,
             mode,
+        )
+    }
+
+    /**
+     * F59 fix round 2 (extra adversarial review + controller ruling R10). Task 7's original fix
+     * set `ADJUST_NOTHING` for the window's WHOLE life on `SDK_INT >= appOwnsImeInsetFromSdk`, which
+     * un-lifted every non-reading destination this host hosts on API 30-34 -- e.g.
+     * `CustomRepositoryEditorScreen`'s `OutlinedTextField`s, `AiConnectionSettingsScreen`'s
+     * multi-line field, `PromptEditScreen`'s editor -- none of which has an IME sink of its own
+     * (only `reading`'s `ReadingViewScreen.imeBottomPadding` exists, spec §3.3). This test drives the
+     * real, composed graph -- `reading` -> a non-reading destination -> back to `reading` -- through
+     * `onNewIntent`, the same `navigateToRoute` path `NavHostComposeActivity` itself uses for a
+     * self-launch or an external route Intent, and reads the ACTUAL `Window.attributes
+     * .softInputMode` at each step.
+     *
+     * FAILS on the pre-round-2 tree (HEAD `5f97794c9`): the mode STAYS `ADJUST_NOTHING` after
+     * navigating away from `reading`, because `onCreate` set it once, unconditionally, for the
+     * window's whole life and nothing reverted it when the graph moved to another destination.
+     */
+    @Config(sdk = [30])
+    @Test
+    fun theModeFollowsTheCurrentDestinationNotJustTheStartRoute() {
+        val controller = hostController()
+        val activity = controller.get()
+        fun mode() = activity.window.attributes.softInputMode and WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST
+
+        assertEquals(
+            "starting on reading must set ADJUST_NOTHING, as before",
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING,
+            mode(),
+        )
+
+        controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.download()))
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(
+            "navigating to a non-reading destination (download) must give the window back " +
+                "ADJUST_RESIZE -- the manifest's own value -- because that destination has no IME " +
+                "sink and ADJUST_NOTHING would hide its text fields behind the keyboard",
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE,
+            mode(),
+        )
+
+        controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.READING))
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(
+            "navigating back to reading must restore ADJUST_NOTHING -- reading's own one-shot " +
+                "bootstrap (bootstrapIfNeeded) does not run a second time on this host, so only the " +
+                "destination-changed listener can be what restores it",
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING,
+            mode(),
         )
     }
 }
