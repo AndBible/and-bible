@@ -22,39 +22,30 @@ import org.junit.Test
 
 private const val ORANGE = 0xFFFF8000.toInt()
 
+/**
+ * The workspace-colour theme is always on (2026-09-18 decision, `docs/compose-port-status.md`
+ * "Queued -- retire the workspace_color_theme experimental flag"): there is no more master switch,
+ * so these cases are no longer on/off pairs. [TOOLBAR_LITERAL_COLOR_FEATURE] is the one flag left --
+ * a separate opt-out back to the literal toolbar colour, not decided by this removal.
+ */
 class WorkspaceThemeSeedTest {
     @Test
-    fun `master switch off means no seed, whatever the workspace colour is`() {
-        assertNull(workspaceThemeSeedArgb(emptySet(), ORANGE))
-        assertNull(workspaceThemeSeedArgb(setOf(TOOLBAR_LITERAL_COLOR_FEATURE), ORANGE))
+    fun `the workspace colour is always the seed, no flag required`() {
+        assertEquals(ORANGE, workspaceThemeSeedArgb(ORANGE))
     }
 
     @Test
-    fun `master switch on passes the workspace colour through`() {
-        assertEquals(ORANGE, workspaceThemeSeedArgb(setOf(WORKSPACE_COLOR_THEME_FEATURE), ORANGE))
+    fun `a workspace with no colour has no seed`() {
+        assertNull(workspaceThemeSeedArgb(null))
     }
 
     @Test
-    fun `a workspace with no colour has no seed even when the switch is on`() {
-        assertNull(workspaceThemeSeedArgb(setOf(WORKSPACE_COLOR_THEME_FEATURE), null))
+    fun `the toolbar derives from the theme by default, no flag required`() {
+        assertEquals(true, deriveToolbarFromTheme(emptySet()))
     }
 
     @Test
-    fun `master switch off means literal toolbar colour, even with the literal opt-out on`() {
-        assertEquals(false, deriveToolbarFromTheme(emptySet()))
+    fun `the literal opt-out keeps the literal toolbar colour`() {
         assertEquals(false, deriveToolbarFromTheme(setOf(TOOLBAR_LITERAL_COLOR_FEATURE)))
-    }
-
-    @Test
-    fun `master switch on with the literal opt-out off derives the toolbar colour`() {
-        assertEquals(true, deriveToolbarFromTheme(setOf(WORKSPACE_COLOR_THEME_FEATURE)))
-    }
-
-    @Test
-    fun `master switch on with the literal opt-out on keeps the literal toolbar colour`() {
-        assertEquals(
-            false,
-            deriveToolbarFromTheme(setOf(WORKSPACE_COLOR_THEME_FEATURE, TOOLBAR_LITERAL_COLOR_FEATURE)),
-        )
     }
 }

@@ -21,16 +21,14 @@ data class ToolbarState(
     /**
      * Take the toolbar's container colour from the theme (`primaryContainer`) instead of the
      * literal workspace colour (A/B batch 4b, §6). Maintainer decision on the rendered
-     * comparison (batch 4b feedback, 2026-08-01): once the workspace theme is on, derived is now
-     * the DEFAULT; the literal colour survives only as an opt-out
-     * (`net.bible.sharedui.TOOLBAR_LITERAL_COLOR_FEATURE`). So `false` here covers two distinct
-     * cases — the theme master switch is off (no workspace seed exists at all; this is today's
-     * shipped appearance and stays bit-for-bit unchanged) OR the switch is on but the user opted
-     * back into the literal colour — and `true` means the theme is on and that opt-out is not set.
+     * comparison (batch 4b feedback, 2026-08-01): derived is the DEFAULT; the literal colour
+     * survives only as an opt-out (`net.bible.sharedui.TOOLBAR_LITERAL_COLOR_FEATURE`). So
+     * `false` here means only that opt-out is set, and `true` (the default) means it is not.
+     * (Until 2026-09-18 this also covered a theme master switch being off; that switch,
+     * `workspace_color_theme`, is now retired -- workspace-colour theming is always on.)
      *
-     * Computed in `ToolbarStateServiceImpl` as "theme switch on AND NOT literal opt-out", so the
-     * derived variant cannot be active while the theme itself is off — one field, so there is no
-     * second condition on the `:sharedUi` side to drift out of step.
+     * Computed in `ToolbarStateServiceImpl` as "NOT literal opt-out", so `:sharedUi` reads one
+     * field rather than a second condition of its own to drift out of step.
      */
     val deriveToolbarFromTheme: Boolean = false,
 ) {

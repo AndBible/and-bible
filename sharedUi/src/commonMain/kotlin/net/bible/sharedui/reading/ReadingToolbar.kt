@@ -311,7 +311,9 @@ fun ReadingToolbar(
     val density = LocalDensity.current
     // A/B batch 4b §6: the derived variant takes the scheme's own container role (and with it the
     // matching onPrimaryContainer, so contrast is guaranteed by M3 rather than by our luminance
-    // call). The literal path below is batch 3 F3's and stays the default.
+    // call). Derived is the default (unconditionally since the 2026-09-18 master-switch
+    // retirement -- see net.bible.sharedui.deriveToolbarFromTheme); the literal path below,
+    // batch 3 F3's original, survives only behind the TOOLBAR_LITERAL_COLOR_FEATURE opt-out.
     //
     // A/B batch 3 F3: the container is the workspace colour when the user set one (see
     // readingToolbarContainerArgb's sentinel), otherwise today's plain surface.
