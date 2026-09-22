@@ -78,13 +78,17 @@ class StartupComposeActivity : ActivityBase() {
     private var redownloadBooks by mutableStateOf<List<SwordDocumentInfo>?>(null)
 
     private fun loadInfo(): StartupWelcomeInfo {
-        val zip = getString(R.string.format_zip, getString(R.string.app_name_andbible))
+        // Fix round 1 (F62 review): both app-name substitutions here must be discrete-aware too --
+        // the header above this text already is, but this card's own body text (and the "Supported
+        // formats" line) independently spelled the real app name, so discrete mode still leaked the
+        // real identity on this very screen.
+        val zip = getString(R.string.format_zip, getString(startupWelcomeShortAppNameRes()))
         val formats = getString(
             R.string.supported_formats,
             "$zip, ${getString(R.string.format_mybible)}, ${getString(R.string.format_mysword)}, ${getString(R.string.format_epub)}",
         )
         return StartupWelcomeInfo(
-            welcomeText = getString(R.string.welcome_message, getString(R.string.app_name_long)),
+            welcomeText = getString(R.string.welcome_message, getString(startupWelcomeAppNameRes())),
             versionText = getString(R.string.version_text, CommonUtils.applicationVersionName),
             supportedFormatsText = formats,
             redownloadMessage = getString(R.string.redownload_message),
@@ -242,3 +246,21 @@ internal fun startupWelcomeAppNameRes(): Int =
 @DrawableRes
 internal fun startupWelcomeLogoRes(): Int =
     if (CommonUtils.isDiscrete) R.drawable.ic_calculator_color else R.drawable.ic_logo
+
+/**
+ * F62 fix round 1: the welcome CARD's two other app-name substitutions (`loadInfo()`'s
+ * `welcomeText` and the "Supported formats" zip line) must be discrete-aware too, not just the
+ * header -- review caught that `loadInfo()` still spelled the real name unconditionally, so
+ * discrete mode's card read "Thank you for downloading AndBible..." even though the header above
+ * it correctly showed the calculator identity.
+ *
+ * A SEPARATE helper from [startupWelcomeAppNameRes], not a reuse of it: the non-discrete branch
+ * intentionally differs. `format_zip`'s `%s` is documented (`strings.xml`'s comment above it) to
+ * take [R.string.app_name_andbible] ("AndBible"), the short form -- not [R.string.app_name_long]
+ * ("AndBible: Bible Study"), which would read oddly inline in "Zip file containing ... created by
+ * AndBible: Bible Study". Discrete mode has only one calculator-identity string
+ * ([R.string.app_name_calculator]), so both helpers converge on it there.
+ */
+@StringRes
+internal fun startupWelcomeShortAppNameRes(): Int =
+    if (CommonUtils.isDiscrete) R.string.app_name_calculator else R.string.app_name_andbible
