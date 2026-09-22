@@ -32,6 +32,19 @@ class DocumentSelectionControllerTest {
         status: DocInstallStatus = DocInstallStatus.NOT_INSTALLED, recommended: Boolean = false, abbr: String = id,
     ) = DocRow(id, "osis-$id", abbr, "name $id", lang, "repo", cat, status, 0, recommended, false, false, false, false, null)
 
+    // Mirrors DocumentSelectionGoldenTest.kt:46-50's StrongsGreek fixture: docId/osisId
+    // "StrongsGreek", abbreviation "Strong" -- a row where the two genuinely differ, which is
+    // what makes it able to fail the osisId-search regression below (a fixture whose abbreviation
+    // equals its osisId cannot). Built literally rather than through row(), whose default
+    // name = "name $id" would itself contain "StrongsGreek" and mask the defect.
+    private fun strongsGreekRow() = DocRow(
+        docId = "StrongsGreek", osisId = "StrongsGreek", abbreviation = "Strong",
+        name = "Strong's Greek Dictionary", language = LangOption("grc", "Greek", "grc"),
+        repository = "CrossWire", category = DocCategory.DICTIONARY,
+        installStatus = DocInstallStatus.UPGRADE_AVAILABLE, percentDone = 0, recommended = false,
+        badWarn = false, locked = false, enciphered = false, canDelete = true, installSizeMb = 1.1,
+    )
+
     private fun controller() = DocumentSelectionController(
         langComparator = compareBy { it.displayName },
         onSelect = {}, onDelete = {}, onDeleteIndex = {}, onAbout = {}, onUnlock = {}, onStickyLanguage = {},
@@ -103,6 +116,38 @@ class DocumentSelectionControllerTest {
         assertEquals(listOf("FinPR"), c.displayed.value.map { it.docId })
         c.setQuery("")
         assertEquals(2, c.displayed.value.size)
+    }
+
+    // F56(a): download://?initials=StrongsGreek (SwordContentFacade.kt) supplies only the osisId,
+    // which `computeDisplayedDocuments` dropped when it replaced the @Fts4 DocumentSearch table --
+    // that table indexed FIVE fields, osisId first, and the port only carried over four.
+    @Test
+    fun `a document is findable by its osisId which is what a download deep link supplies`() {
+        val rows = listOf(strongsGreekRow())
+        val shown = computeDisplayedDocuments(
+            all = rows, lang = null, type = DocTypeFilter.ALL, query = "StrongsGreek",
+        )
+        assertEquals(
+            1, shown.size,
+            "download://?initials=StrongsGreek supplies the osisId and nothing else; the FTS table " +
+                "this replaced indexed it first of five fields",
+        )
+    }
+
+    // F56(b): decided with the maintainer, not a regression -- a present search overrides the
+    // persisted category filter, because a targeted deep-link search has no way to know or change
+    // a filter set in another session.
+    @Test
+    fun `a search overrides the persisted category filter`() {
+        val rows = listOf(strongsGreekRow()) // a DICTIONARY row
+        val shown = computeDisplayedDocuments(
+            all = rows, lang = null, type = DocTypeFilter.BIBLE, query = "StrongsGreek",
+        )
+        assertEquals(
+            1, shown.size,
+            "a targeted search must not be narrowed by a category filter the user set in another " +
+                "session -- the deep link has no way to know or change it",
+        )
     }
 
     @Test fun sort_puts_being_installed_first_then_not_installed_then_category_then_abbr() {

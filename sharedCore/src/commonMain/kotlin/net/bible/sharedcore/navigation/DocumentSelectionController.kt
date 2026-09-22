@@ -46,9 +46,20 @@ fun computeDisplayedDocuments(
 ): List<DocRow> =
     sortDocuments(
         all.filter { row ->
-            type.test(row) &&
+            // F56(b): a present search overrides the category filter. `NavRoutes.download` carries
+            // no category, so the arm seeds from the PERSISTED `selected_document_filter_no` --
+            // whatever the user last picked, in some other session. A targeted search (a
+            // `download://` deep link naming one module) has no way to know or change that, so it
+            // must not be narrowed by it. Classic behaved the same way; this is a deliberate
+            // improvement, not parity.
+            (query.isNotBlank() || type.test(row)) &&
                 (lang == null || row.language.groupingKey == lang.groupingKey || row.category == DocCategory.AND_BIBLE) &&
-                matchesDocumentQuery(query, listOf(row.abbreviation, row.name, row.language.displayName, row.repository)) &&
+                // F56(a): `osisId` first, as the @Fts4 DocumentSearch entity had it. Dropping it in
+                // 5e0a78051 is what made `download://?initials=X` unable to match anything.
+                matchesDocumentQuery(
+                    query,
+                    listOf(row.osisId, row.abbreviation, row.name, row.language.displayName, row.repository),
+                ) &&
                 (arrangement.repository == null || row.repository == arrangement.repository)
         },
         arrangement,
@@ -243,10 +254,12 @@ class DocumentSelectionController(
 
     /**
      * Round 17e-2: the query filters HERE, over the loaded rows, instead of the host running a
-     * Room FTS query and pushing osisIds back. The FTS table indexed only these same four short
-     * fields, so nothing is lost — and the three-character minimum and the per-keystroke IO hop
-     * go with it. `matchesDocumentQuery` is shared with the cloud list, which is what makes the
-     * two screens' search behave the same.
+     * Room FTS query and pushing osisIds back. The FTS table indexed FIVE fields -- `osisId`
+     * first -- and this matches the same five. The original claim of "these same four short
+     * fields, so nothing is lost" was off by exactly one, and that one field is the only thing a
+     * `download://?initials=X` deep link supplies (finding F56). The three-character minimum and
+     * the per-keystroke IO hop still go with it. `matchesDocumentQuery` is shared with the cloud
+     * list, which is what makes the two screens' search behave the same.
      */
     fun setQuery(q: String) { _query.value = q; refilter() }
     fun openSearch() = searchMode.open()
