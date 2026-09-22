@@ -20,11 +20,13 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.painterResource
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -103,6 +105,12 @@ class StartupComposeActivity : ActivityBase() {
                     val state by controller.state.collectAsState()
                     StartupWelcomeScreen(
                         state = state,
+                        // F62 + F58: honour discrete mode, which classic's showFirstLayout() does NOT
+                        // -- StartupActivity.onCreate (:199-205) swaps the SPINNER's image and title
+                        // and the welcome layout was never given the same treatment. Reproducing that
+                        // leak faithfully would be parity with a bug.
+                        appName = getString(startupWelcomeAppNameRes()),
+                        logo = painterResource(startupWelcomeLogoRes()),
                         onDownload = ::onDownload,
                         onImport = ::onImport,
                         onRestore = ::onRestore,
@@ -218,3 +226,19 @@ class StartupComposeActivity : ActivityBase() {
         } catch (e: Exception) { /* no browser — ignore, parity with a dead link */ }
     }
 }
+
+/**
+ * F62: the welcome header's app name under discrete mode, mirroring `bibleToolbarIconRes()`
+ * (F58, `ComposeReadingViewHost.kt`) and `StartupActivity.onCreate`'s own spinner swap (:199-205).
+ * A plain function rather than an inline `getString` argument so `StartupWelcomeDiscreteChromeTest`
+ * can assert the CHOICE -- the rendered string is not usefully comparable in a unit test, and the
+ * choice is the behaviour.
+ */
+@StringRes
+internal fun startupWelcomeAppNameRes(): Int =
+    if (CommonUtils.isDiscrete) R.string.app_name_calculator else R.string.app_name_long
+
+/** F62: the welcome header's logo under discrete mode -- same rationale as [startupWelcomeAppNameRes]. */
+@DrawableRes
+internal fun startupWelcomeLogoRes(): Int =
+    if (CommonUtils.isDiscrete) R.drawable.ic_calculator_color else R.drawable.ic_logo

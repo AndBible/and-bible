@@ -2,6 +2,8 @@ package net.bible.android.view.compose.golden
 
 import net.bible.android.TEST_SDK
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
+import net.bible.android.activity.R
 import net.bible.sharedcore.startup.StartupWelcomeState
 import net.bible.sharedui.startup.StartupWelcomeScreen
 import org.junit.Test
@@ -33,7 +35,13 @@ class StartupWelcomeGoldenTest {
 
     @Composable
     private fun screen(s: StartupWelcomeState) {
-        StartupWelcomeScreen(s, {}, {}, {}, {}, {}, {}, {})
+        StartupWelcomeScreen(
+            state = s,
+            appName = "AndBible",
+            logo = painterResource(R.drawable.ic_logo),
+            onDownload = {}, onImport = {}, onRestore = {}, onRedownload = {},
+            onEasyStart = {}, onOpenHomepage = {}, onOpenGithub = {},
+        )
     }
 
     // Primary = fresh install: Download + Import + Restore, no previous install, no easy start.

@@ -16,11 +16,16 @@
  */
 package net.bible.sharedui.startup
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -32,8 +37,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.startup.StartupWelcomeState
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.strings.LocalStrings
@@ -47,6 +55,14 @@ import net.bible.sharedui.strings.LocalStrings
 @Composable
 fun StartupWelcomeScreen(
     state: StartupWelcomeState,
+    /**
+     * F62: the header row classic opens with (`startup_view.xml:44-67`). Parameters rather than
+     * resource lookups, like [net.bible.sharedui.reading.ReadingDrawerHeader]'s, so this file stays
+     * iOS-clean. The host decides what they are -- including the discrete-mode swap, which classic's
+     * own `showFirstLayout()` never applied, so classic LEAKS the real logo and name here.
+     */
+    appName: String,
+    logo: Painter?,
     onDownload: () -> Unit,
     onImport: () -> Unit,
     onRestore: () -> Unit,
@@ -64,6 +80,27 @@ fun StartupWelcomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        // Rendered with Image, not Icon: ic_logo is a five-colour vector that Icon would flatten to a
+        // single tint. Proportions from ReadingDrawerHeader, which A/B round 6 tuned against classic
+        // (100dp min height, 24dp top padding, 48dp logo, 18sp bold) -- not classic's 75sp/weight-4
+        // row, which that round already judged the worse of the two.
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(top = 24.dp).heightIn(min = 100.dp),
+        ) {
+            if (logo != null) {
+                Image(painter = logo, contentDescription = null, modifier = Modifier.size(48.dp))
+                Spacer(Modifier.size(12.dp))
+            }
+            Text(
+                text = appName,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 18.sp, lineHeight = 24.sp, fontWeight = FontWeight.Bold,
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
         Card(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = state.welcomeText,
