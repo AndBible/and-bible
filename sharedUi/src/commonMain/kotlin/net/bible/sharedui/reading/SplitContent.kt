@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -184,38 +185,33 @@ fun SplitContent(
         }
 
         val axisExtentPx = if (isHorizontal) maxWidthPx else maxHeightPx
+        // F64 fix round 1: one `movableContentOf` instance per visible window id, so the pane
+        // subtree MOVES rather than disposes-and-recreates when SplitAxisContainer's `if` selects
+        // the other branch. See rememberPaneContents' kdoc for why the textual hoist alone (round
+        // 0) did not fix this: two `content(...)` call POSITIONS -- one inside Row, one inside
+        // Column -- are still two places in the composition tree even though they run identical
+        // source text.
+        val paneContents = rememberPaneContents(windows.mapTo(mutableSetOf()) { it.id })
         SplitAxisContainer(isHorizontal) { paneModifier, separatorModifier ->
             windows.forEachIndexed { index, w ->
                 key(w.id) {
-                    Box(
-                        paneModifier(paneWeight(index))
-                            // A pane must never paint outside itself. Compose does NOT clip
-                            // children to their bounds by default, and the hosted WebView is an
-                            // Android View that can be laid out larger than the pane for a frame
-                            // while the split settles — which drew the reader background over the
-                            // panes above it AND over the toolbar/system bar when a window was
-                            // created (A/B batch 4a F5, the symptom the pane background alone did
-                            // not fix).
-                            .clipToBounds()
-                            // Before the tap handler so the fill covers the whole pane.
-                            .then(paneBackground(w.id)?.let { Modifier.background(it) } ?: Modifier)
-                            .pointerInput(w.id) { detectTapGestures { onWindowActivated(w.id) } },
-                    ) {
-                        pane(w.id)
-                        paneOverlay?.invoke(this, w.id)
-                        if (index > 0) DragStrip(
-                            windows = windows, weights = weights, index = index - 1,
-                            isHorizontalSplit = isHorizontal, atStartEdge = true,
+                    paneContents.getValue(w.id)(
+                        PaneRenderArgs(
+                            w = w,
+                            index = index,
+                            windows = windows,
+                            weights = weights,
+                            isHorizontal = isHorizontal,
+                            paneModifier = paneModifier(paneWeight(index)),
                             averageExtentPx = { axisExtentPx / windows.size },
-                            onDragChange = { drag = it }, onSeparatorCommitted = onSeparatorCommitted,
-                        )
-                        if (index < windows.lastIndex) DragStrip(
-                            windows = windows, weights = weights, index = index,
-                            isHorizontalSplit = isHorizontal, atStartEdge = false,
-                            averageExtentPx = { axisExtentPx / windows.size },
-                            onDragChange = { drag = it }, onSeparatorCommitted = onSeparatorCommitted,
-                        )
-                    }
+                            onWindowActivated = onWindowActivated,
+                            onDragChange = { drag = it },
+                            onSeparatorCommitted = onSeparatorCommitted,
+                            pane = pane,
+                            paneOverlay = paneOverlay,
+                            paneBackground = paneBackground,
+                        ),
+                    )
                 }
                 if (index < windows.lastIndex) {
                     Separator(
@@ -239,10 +235,16 @@ fun SplitContent(
 }
 
 /**
- * The split's axis, and nothing else. Exists so `SplitContent` has ONE pane call site: `Modifier.weight`
- * is `RowScope`/`ColumnScope`-specific, so the scope-bound call is handed to the caller as a lambda while
- * the pane subtree itself stays outside the `if`. Without this, an orientation change moves the panes
- * between two `key(w.id)` scopes, which re-keys the subtree and detaches the cached `BibleView`s (F64).
+ * The split's axis, and nothing else. `Modifier.weight` is `RowScope`/`ColumnScope`-specific, so the
+ * scope-bound call is handed to the caller as a lambda while the pane subtree itself stays outside
+ * the `if`, keeping this the only place `Row` vs `Column`/orientation-dependent modifiers differ.
+ *
+ * This `if`/`else` is STILL two call positions for whatever `content` composes (round 0's mistake was
+ * believing a single textual call site here was enough to stop an orientation flip disposing the pane
+ * subtree — it is not: `Row`'s branch and `Column`'s branch are different parents in the composition
+ * tree regardless of how many times the shared source text is written). The actual fix for that is
+ * [rememberPaneContents] (`movableContentOf`), which SplitContent's pane loop uses precisely because
+ * this container cannot, by itself, keep the panes' identity across the two branches (F64).
  */
 @Composable
 private fun SplitAxisContainer(
@@ -264,6 +266,101 @@ private fun SplitAxisContainer(
             )
         }
     }
+}
+
+/**
+ * Everything one pane's subtree needs to render THIS frame, bundled into a single value so it can
+ * be threaded through [movableContentOf] as its one parameter.
+ *
+ * F64 fix round 1: `movableContentOf` freezes the LAMBDA it wraps at the moment it is created (see
+ * [rememberPaneContents]) -- any value that lambda's body reads by closing over an outer `val`/`var`
+ * stays fixed to whatever it was back then, even though the pane keeps rendering every frame after.
+ * So every value [PaneBody] needs (live drag weights, the current axis, the latest callbacks, ...)
+ * MUST arrive through this parameter, freshly built by [SplitContent] on every call, never through a
+ * closure captured once.
+ */
+private data class PaneRenderArgs(
+    val w: WindowSnapshot,
+    val index: Int,
+    val windows: List<WindowSnapshot>,
+    val weights: List<Float>,
+    val isHorizontal: Boolean,
+    val paneModifier: Modifier,
+    val averageExtentPx: () -> Float,
+    val onWindowActivated: (String) -> Unit,
+    val onDragChange: (ActiveDrag?) -> Unit,
+    val onSeparatorCommitted: (id1: String, w1: Float, id2: String, w2: Float) -> Unit,
+    val pane: @Composable (windowId: String) -> Unit,
+    val paneOverlay: (@Composable BoxScope.(windowId: String) -> Unit)?,
+    val paneBackground: (windowId: String) -> Color?,
+)
+
+/**
+ * One pane's whole subtree (the weighted `Box`, [pane] itself, [paneOverlay], and both [DragStrip]s)
+ * as a single composable, so it can be wrapped whole by [movableContentOf] in [rememberPaneContents].
+ * `pane` and `key(w.id)` are bound to local `val`s (not read via `args.pane`/`args.w.id`) so the
+ * unqualified calls stay literally `pane(w.id)`/`key(w.id)` for `SplitContentOneCallSiteGuardTest`'s
+ * regex, which is kept as a cheap textual sanity check but is no longer the proof of F64 --
+ * `SplitContentOrientationFlipMountGuardTest` is: it drives a real orientation flip and asserts
+ * neither pane is disposed, which the regex cannot see (a source-text count of one is unchanged
+ * whether that one call site sits in one place or behind an `if`/`else`).
+ */
+@Composable
+private fun PaneBody(args: PaneRenderArgs) {
+    val w = args.w
+    val pane = args.pane
+    Box(
+        args.paneModifier
+            // A pane must never paint outside itself. Compose does NOT clip children to their
+            // bounds by default, and the hosted WebView is an Android View that can be laid out
+            // larger than the pane for a frame while the split settles — which drew the reader
+            // background over the panes above it AND over the toolbar/system bar when a window was
+            // created (A/B batch 4a F5, the symptom the pane background alone did not fix).
+            .clipToBounds()
+            // Before the tap handler so the fill covers the whole pane.
+            .then(args.paneBackground(w.id)?.let { Modifier.background(it) } ?: Modifier)
+            .pointerInput(w.id) { detectTapGestures { args.onWindowActivated(w.id) } },
+    ) {
+        pane(w.id)
+        args.paneOverlay?.invoke(this, w.id)
+        if (args.index > 0) DragStrip(
+            windows = args.windows, weights = args.weights, index = args.index - 1,
+            isHorizontalSplit = args.isHorizontal, atStartEdge = true,
+            averageExtentPx = args.averageExtentPx,
+            onDragChange = args.onDragChange, onSeparatorCommitted = args.onSeparatorCommitted,
+        )
+        if (args.index < args.windows.lastIndex) DragStrip(
+            windows = args.windows, weights = args.weights, index = args.index,
+            isHorizontalSplit = args.isHorizontal, atStartEdge = false,
+            averageExtentPx = args.averageExtentPx,
+            onDragChange = args.onDragChange, onSeparatorCommitted = args.onSeparatorCommitted,
+        )
+    }
+}
+
+/**
+ * One [movableContentOf] instance per visible window id, cached across recompositions -- and
+ * crucially across an orientation flip -- so [PaneBody] (and the [PaneRenderArgs.pane] it hosts,
+ * an `AndroidView`-wrapped `BibleView` in the real app) is MOVED rather than disposed and recreated
+ * when `SplitAxisContainer`'s `if (isHorizontal)` starts selecting the other branch.
+ *
+ * `key(w.id)` alone cannot do this: it only preserves identity within the SAME parent slot, and
+ * `Row`'s branch and `Column`'s branch are different parents in the composition tree, even when both
+ * call identical source text (round 0's mistake). `movableContentOf` is the mechanism Compose itself
+ * provides for exactly this "same logical child, different structural parent this frame" case (the
+ * same pattern used to move a list between differently-oriented adaptive layouts).
+ *
+ * Window ids no longer present are dropped from the map so that pane's composition disposes
+ * normally (closing a window) rather than leaking a `movableContentOf` instance forever.
+ */
+@Composable
+private fun rememberPaneContents(windowIds: Set<String>): Map<String, @Composable (PaneRenderArgs) -> Unit> {
+    val contents = remember { mutableMapOf<String, @Composable (PaneRenderArgs) -> Unit>() }
+    contents.keys.retainAll(windowIds)
+    windowIds.forEach { id ->
+        contents.getOrPut(id) { movableContentOf { args: PaneRenderArgs -> PaneBody(args) } }
+    }
+    return contents
 }
 
 /** The two gesture callbacks a separator drag needs, produced by [rememberSeparatorDragHandlers]. */
