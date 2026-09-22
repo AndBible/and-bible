@@ -28,9 +28,11 @@ package net.bible.sharedcore.window
  * because it read the CONFIGURATION orientation (`CommonUtils.isPortrait`), which no keyboard can
  * change.
  *
- * A `null` [previous] means "first composition, nothing to hold" and computes normally — which is also
- * what a real rotation gets, since `MainBibleActivity`'s `configChanges` omits `orientation` and the
- * activity is therefore recreated.
+ * A `null` [previous] means "first composition, nothing to hold" and computes normally. On classic that
+ * is also what a real rotation got, since `MainBibleActivity`'s `configChanges` omits `orientation` and
+ * the activity is recreated -- but `NavHostComposeActivity` DECLARES `orientation` (`AndroidManifest.xml`),
+ * so it is not recreated and the caller must reset the latch on a rotation itself. `SplitContent` does,
+ * through `rememberSplitIsHorizontal`'s `resetKey` (finding F65).
  *
  * Pure and parameterised rather than reading insets itself so it is unit-testable: `:app` has no
  * `ComposeTestRule` and there is no golden over the reading-view host, so a decision left inside the

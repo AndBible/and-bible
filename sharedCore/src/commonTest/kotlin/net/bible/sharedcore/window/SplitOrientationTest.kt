@@ -80,4 +80,21 @@ class SplitOrientationTest {
     fun anExactlySquareBoxStacks() {
         assertFalse(splitIsHorizontal(800f, 800f, reverseSplitMode = false, imeVisible = false, previous = null))
     }
+
+    @Test
+    fun aFreshLatchAfterARotationRecomputesRatherThanHoldingTheOldAnswer() {
+        // Keyboard up, previously stacked: the latch holds.
+        val heldWhileTyping = splitIsHorizontal(
+            widthPx = 1200f, heightPx = 370f, reverseSplitMode = false,
+            imeVisible = true, previous = false,
+        )
+        assertFalse(heldWhileTyping, "the latch holds while the keyboard is up")
+
+        // The caller reset the latch because the window rotated: same geometry, null previous.
+        val afterRotation = splitIsHorizontal(
+            widthPx = 1200f, heightPx = 370f, reverseSplitMode = false,
+            imeVisible = true, previous = null,
+        )
+        assertTrue(afterRotation, "with the latch reset by a rotation, the new geometry decides (F65)")
+    }
 }
