@@ -454,6 +454,14 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
             // `super.onBackPressed()` after neither branch fired, which never called `setResult` at
             // all. Same shape as the bookmark LIST's own `onUp` (`BookmarkNavGraph.kt`).
             onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            // F60: navigate rather than push -- `popUpTo(MY_DOCUMENT_PAGES_PATTERN) { inclusive = true }`
+            // so repeatedly switching documents cannot grow the stack, and so back from the list goes
+            // wherever the page list was entered from.
+            onSwitchDocument = {
+                navController.navigate(NavRoutes.myDocuments()) {
+                    popUpTo(NavRoutes.MY_DOCUMENT_PAGES_PATTERN) { inclusive = true }
+                }
+            },
             selection = selection,
             onToggleSelected = controller::toggleSelect,
             onClearSelection = controller::clearSelection,

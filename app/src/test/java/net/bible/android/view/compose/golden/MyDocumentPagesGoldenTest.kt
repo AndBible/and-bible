@@ -38,6 +38,7 @@ class MyDocumentPagesGoldenTest {
         onOpenSearch = {}, onCloseSearch = {}, onQueryChange = {},
         onMove = { _, _ -> }, onOpen = {}, onRename = { _, _ -> }, onDelete = {}, onExport = {},
         onCreate = { _, _ -> }, onImport = {}, onSave = {}, onCancel = {}, onNavigateUp = {},
+        onSwitchDocument = {},
         selection = selection, onToggleSelected = {}, onClearSelection = {},
         onDeleteSelected = {}, onExportSelected = {},
     )

@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.FileUpload
+import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
@@ -94,6 +95,12 @@ fun MyDocumentPagesScreen(
     onSave: () -> Unit,
     onCancel: () -> Unit,
     onNavigateUp: () -> Unit,
+    /**
+     * F60: go to the My-documents list to pick a different document. NOT the up arrow's job -- the
+     * arrow means "previous view", and entered from the reading view there is no My-documents entry
+     * above this screen to go up to. This is a distinct action with a distinct affordance.
+     */
+    onSwitchDocument: () -> Unit,
     // Selection mode (long-press to enter), driven by hoisted host state.
     selection: Set<Long>,
     onToggleSelected: (Long) -> Unit,
@@ -122,6 +129,7 @@ fun MyDocumentPagesScreen(
                     createType = ContentType.MARKDOWN
                     createOpen = true
                 }
+                AbActionIcon(Icons.Filled.LibraryBooks, s.switchDocument, onSwitchDocument)
             }
         },
         selectionActions = {

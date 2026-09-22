@@ -213,6 +213,7 @@ interface Strings {
     fun deletePageConfirmation(name: String): String      // R.string.my_document_page_delete_confirmation
     val deleteDocumentsConfirmation: String   // R.string.delete_docs_confirm (batch delete)
     val deletePagesConfirmation: String       // R.string.my_document_pages_delete_confirmation
+    val switchDocument: String                // R.string.my_documents_switch_document
 
     // Batch 4 remainder — cloud documents management
     val cloudStatusSynced: String
