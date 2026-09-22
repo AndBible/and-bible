@@ -175,13 +175,23 @@ class MyDocumentsNavDeps(
      */
     val myDocumentPagesResults: NavResultChannel<MyDocumentPagesResult>,
     /**
-     * How `MyDocuments` hands its own result back. Unlike [myDocumentPagesResults] this destination
-     * has only ONE entry mode -- it is the batch's root, reached solely as the host's start
-     * destination -- so [NavResultChannel.deliver] always takes the exit branch here; the
-     * pending/consume half of its contract stays dead code for this particular field until some
-     * future caller navigates to [NavRoutes.MY_DOCUMENTS_PATTERN] from inside a graph. Declared as a
-     * channel anyway, not a bare host lambda, for the same reason every other result-producing
-     * destination in this tree is: one mechanism, not two.
+     * How `MyDocuments` hands its own result back. Originally documented here as having only ONE
+     * entry mode (the batch's root, reached solely as the host's start destination, so
+     * [NavResultChannel.deliver] always took the exit branch and the pending/consume half of its
+     * contract was dead code for this field) -- **F60 made that false.** `onSwitchDocument`'s
+     * `navigate(NavRoutes.myDocuments()) { popUpTo(MY_DOCUMENT_PAGES_PATTERN) { inclusive = true };
+     * launchSingleTop = true }` pops the leaving `Pages` entry and, when there is no existing
+     * `MyDocuments` entry to reuse (the reading-view entry path, `CurrentGeneralBookPage.kt:159-169`,
+     * where `Pages` sits directly on `reading` with nothing of this cluster's below it), pushes a
+     * FRESH `MyDocuments` entry on top of `reading` -- a second, inside-graph entry mode, with
+     * `reading` as its parent. [NavResultChannel.deliver] branches on
+     * `navController.previousBackStackEntry`, so in that shape it now takes the publish-to-[pending]
+     * branch instead of the exit branch; `NavHostComposeActivity`'s `readingResultCollectors` already
+     * wires a `ReadingResultKind.MyDocuments` collector against this exact field (added when
+     * [myDocumentPagesResults] first needed it, for symmetry), so consumption was always live -- only
+     * the STACK SHAPE that reaches it is new. Declared as a channel anyway, not a bare host lambda,
+     * for the same reason every other result-producing destination in this tree is: one mechanism,
+     * not two.
      */
     val myDocumentsResults: NavResultChannel<MyDocumentsResult>,
     // — MY DOCUMENT PAGES —
@@ -454,12 +464,23 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
             // `super.onBackPressed()` after neither branch fired, which never called `setResult` at
             // all. Same shape as the bookmark LIST's own `onUp` (`BookmarkNavGraph.kt`).
             onNavigateUp = { navController.popOrExit(deps.exitHost) },
-            // F60: navigate rather than push -- `popUpTo(MY_DOCUMENT_PAGES_PATTERN) { inclusive = true }`
-            // so repeatedly switching documents cannot grow the stack, and so back from the list goes
-            // wherever the page list was entered from.
+            // F60 fix round 1: `popUpTo(MY_DOCUMENT_PAGES_PATTERN) { inclusive = true }` ALONE
+            // removes only the LEAVING Pages entry -- if a `MyDocuments` entry is already sitting
+            // below it (the normal `MyDocuments -> open doc -> Pages` path), a bare `navigate`
+            // pushes a SECOND, redundant `MyDocuments` entry on top of it instead of reusing the
+            // one that's there, so the stack grows by one on every switch. `launchSingleTop = true`
+            // fixes that: after the pop, if the (now-top) entry left behind already IS `MyDocuments`
+            // (the normal path), `navigate` reuses it in place rather than stacking a duplicate; if
+            // it is not (the reading-view path, `CurrentGeneralBookPage.kt:159-169`, where Pages sits
+            // directly on `reading` with no `MyDocuments` below it), a fresh `MyDocuments` entry is
+            // pushed exactly once, and every switch after that reuses IT the same way. Either way
+            // the Pages entry being left is always popped, so back from the list goes wherever the
+            // page list was entered from -- and the stack is the same size after one switch as after
+            // five.
             onSwitchDocument = {
                 navController.navigate(NavRoutes.myDocuments()) {
                     popUpTo(NavRoutes.MY_DOCUMENT_PAGES_PATTERN) { inclusive = true }
+                    launchSingleTop = true
                 }
             },
             selection = selection,

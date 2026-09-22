@@ -5690,10 +5690,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
-     * `MyDocuments`' channel. Unlike [myDocumentPagesResults] this destination has only ONE entry
-     * mode -- see [MyDocumentsNavDeps.myDocumentsResults]' kdoc -- so [deliver] always takes this
-     * exit branch: pack the result exactly as [NavResultIntents.forMyDocuments] did before this
-     * channel existed, `setResult` and `finish`.
+     * `MyDocuments`' channel. F60's `onSwitchDocument` gave this destination a SECOND, inside-graph
+     * entry mode (pushed on top of `reading` when there is no existing `MyDocuments` entry to reuse)
+     * -- see [MyDocumentsNavDeps.myDocumentsResults]' kdoc, now corrected -- so [deliver] no longer
+     * always takes this branch; `previousBackStackEntry` decides, same as every other dual-entry
+     * destination. This lambda is only the EXIT half, taken when there is no parent entry (the plain
+     * host-start-destination case): pack the result exactly as [NavResultIntents.forMyDocuments] did
+     * before this channel existed, `setResult` and `finish`. The other half -- publish to `pending`
+     * and pop -- is consumed by the `ReadingResultKind.MyDocuments` entry in
+     * [readingResultCollectors] below.
      */
     private val myDocumentsResults = NavResultChannel<MyDocumentsResult> { result ->
         val activityResult = NavResultIntents.forMyDocuments(result)

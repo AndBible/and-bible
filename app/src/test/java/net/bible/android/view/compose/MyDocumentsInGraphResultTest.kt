@@ -16,9 +16,11 @@
  */
 package net.bible.android.view.compose
 
+import android.content.Context
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -26,7 +28,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
+import net.bible.android.activity.R
 import net.bible.android.view.activity.nav.NavResultIntents
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.common.DisplayColorMode
@@ -194,6 +198,10 @@ class MyDocumentsInGraphResultTest {
 
     private fun myDocumentPagesRoute(): String =
         NavRoutes.myDocumentPages(documentId = "1", documentInitials = "MyDoc_1", documentName = "My Doc")
+
+    // F60 fix round 1 -- the switch-document guard below.
+    private val context: Context get() = ApplicationProvider.getApplicationContext()
+    private val switchDocumentText: String get() = context.getString(R.string.my_documents_switch_document)
 
     /**
      * The whole point of the task: a result produced by `MyDocumentPages` while a parent is on the
@@ -374,6 +382,52 @@ class MyDocumentsInGraphResultTest {
             listOf(setOf(1L)),
             myDocumentsSaves,
             "the dispose ran a SECOND applyChanges on top of onOpen's own save (plan D6's latch is missing)",
+        )
+    }
+
+    /**
+     * F60 fix round 1: repeated document switches must not grow the back stack. The original
+     * `onSwitchDocument` wiring popped only the LEAVING `MyDocumentPages` entry
+     * (`popUpTo(MY_DOCUMENT_PAGES_PATTERN) { inclusive = true }`) with no `launchSingleTop`, so each
+     * switch pushed a BRAND NEW `MyDocuments` entry on top of the one already sitting below `Pages`
+     * (reached via the normal `MyDocuments -> open doc -> Pages` path) instead of reusing it --
+     * the stack grew by one entry per switch, and the comment/commit message claiming otherwise
+     * were wrong. `launchSingleTop = true` makes `navigate` reuse the (now-top-of-stack, after the
+     * pop) existing `MyDocuments` entry instead of stacking a duplicate.
+     */
+    @Test
+    fun switchingDocumentsRepeatedlyDoesNotGrowTheBackStack() {
+        setGraph(startDestination = NavRoutes.MY_DOCUMENTS_PATTERN)
+
+        fun openThenSwitch() {
+            compose.runOnIdle { navController.navigate(myDocumentPagesRoute()) }
+            compose.waitForIdle()
+            assertEquals(NavRoutes.MY_DOCUMENT_PAGES_PATTERN, currentRoute)
+            compose.onNodeWithContentDescription(switchDocumentText).performClick()
+            compose.waitForIdle()
+            assertEquals(NavRoutes.MY_DOCUMENTS_PATTERN, currentRoute, "switch did not land back on MyDocuments")
+        }
+
+        openThenSwitch()
+        val sizeAfterFirstSwitch = navController.currentBackStack.value.size
+
+        openThenSwitch()
+        val sizeAfterSecondSwitch = navController.currentBackStack.value.size
+
+        assertEquals(
+            sizeAfterFirstSwitch, sizeAfterSecondSwitch,
+            "back stack grew between the first and second switch -- each switch is leaking a MyDocuments entry",
+        )
+
+        // One back press from the page list must land directly on MyDocuments -- not on a stray
+        // extra MyDocuments entry stacked below a first, which a growing stack would produce.
+        compose.runOnIdle { navController.navigate(myDocumentPagesRoute()) }
+        compose.waitForIdle()
+        compose.runOnIdle { navController.popBackStack() }
+        compose.waitForIdle()
+        assertEquals(
+            NavRoutes.MY_DOCUMENTS_PATTERN, currentRoute,
+            "one back press from the page list did not land on MyDocuments",
         )
     }
 
