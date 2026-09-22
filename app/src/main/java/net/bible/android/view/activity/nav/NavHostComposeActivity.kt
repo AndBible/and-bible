@@ -2371,6 +2371,29 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
+     * F57: spend [updateDocumentsPending] when the graph comes back to the reading destination.
+     *
+     * Deliberately keyed on the FLAG, not on a request code. `UpdateMainBibleActivityDocuments` is
+     * posted from six destinations and from `doDownload`; what matters is that documents changed, not
+     * who launched. [readingReturnDebts]' request-code arms stay as they are -- they answer "what did
+     * this particular launch owe", which is a different question.
+     *
+     * Before this, the flag's only consumer was [reconcileReadingStateOnResume], reachable only from
+     * `onResume` -- which a pop inside the same Activity never produces. Measured on the device: a
+     * window stayed on its "not installed" rendering for 75 s, until an unrelated trip to another
+     * Activity finally produced an onResume.
+     *
+     * `internal` for the same reason [applyReadingReturnDebts] is: `ReadingDocumentRefreshOnReturnTest`
+     * drives it without a composed graph.
+     */
+    internal fun applyPendingDocumentUpdateOnReturnToReading(route: String?) {
+        if (route?.substringBefore('?') != NavRoutes.READING) return
+        if (!updateDocumentsPending) return
+        if (!readingAppBootstrapped) return
+        updateDocuments()
+    }
+
+    /**
      * F59 fix round 2 (extra adversarial review + controller ruling R10). `ADJUST_NOTHING` must NOT
      * apply to the whole window regardless of which destination is current: the only IME sink this
      * batch built is the `reading` destination's `ReadingViewScreen.imeBottomPadding` (spec §3.3,
@@ -2792,12 +2815,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     // learn about request codes; the listener fires immediately with the current
                     // destination, which is what pays a debt restored across a recreate().
                     //
+                    // F57: the SAME listener also spends a pending document update on return to
+                    // `reading` -- see [applyPendingDocumentUpdateOnReturnToReading]'s kdoc.
+                    //
                     // F59 fix round 2: the SAME listener also keeps the soft-input mode current --
                     // see [applySoftInputModeFor]'s kdoc for why this is the one wiring that makes a
                     // `reading` -> elsewhere -> `reading` round trip restore `ADJUST_NOTHING` (that
                     // destination's own one-shot bootstrap does not run a second time).
                     val onDestinationChanged = NavController.OnDestinationChangedListener { _, destination, _ ->
                         applyReadingReturnDebts(destination.route)
+                        applyPendingDocumentUpdateOnReturnToReading(destination.route)
                         applySoftInputModeFor(destination.route)
                     }
                     navController.addOnDestinationChangedListener(onDestinationChanged)
