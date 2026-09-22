@@ -42,6 +42,7 @@ import net.bible.service.common.firstBibleDoc
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordContentFacade
@@ -231,10 +232,22 @@ class CurrentGeneralBookPage internal constructor(
                     StudyPadDocument(key.label, entryId, bookmarks, genericBookmarks, bookmarkToLabels, genericBookmarkToLabels, journalTextEntries)
                 }
                 is BookAndKeyList -> {
-                    val frags = key.filterIsInstance<BookAndKey>().map {
-                        val doc = it.document ?: defaultBibleDoc
-                        var k = it.key
-                        try {
+                    // A multi-document key is ASSEMBLED, not asked for: a Strong's tap builds one
+                    // Robinson entry per installed morphology document (LinkControl.kt:329). A
+                    // document that is not installed therefore contributes an error card with its
+                    // own download link that the user never requested -- drop it instead.
+                    //
+                    // A key genuinely missing from an INSTALLED document is different: that is
+                    // information, not noise, and must still produce its card.
+                    //
+                    // Both cases throw the SAME exception class, DocumentNotFound
+                    // (SwordContentFacade.kt:170 for "not installed", :174 and :359 for "key not in
+                    // document") -- so the two cannot be told apart by catch-type alone. dropUninstalled
+                    // re-checks Books.installed() for the specific document inside the catch instead.
+                    fun fragmentFor(bookAndKey: BookAndKey, dropUninstalled: Boolean): OsisFragment? {
+                        val doc = bookAndKey.document ?: defaultBibleDoc
+                        var k = bookAndKey.key
+                        return try {
                             if(doc is SwordBook) {
                                 k = when(k) {
                                     is Passage -> k.toV11n(doc.versification)
@@ -245,11 +258,21 @@ class CurrentGeneralBookPage internal constructor(
                             }
                             OsisFragment(SwordContentFacade.readOsisFragment(doc, k), k, doc)
                         } catch (e: OsisError) {
-                            Log.e(TAG, "Fragment could not be read")
-                            OsisFragment(e.xml, k, doc)
+                            if(dropUninstalled && e is DocumentNotFound && Books.installed().getBook(doc.initials) == null) {
+                                Log.i(TAG, "Dropping an uninstalled document from an assembled key: ${doc.initials}")
+                                null
+                            } else {
+                                Log.e(TAG, "Fragment could not be read")
+                                OsisFragment(e.xml, k, doc)
+                            }
                         }
                     }
-                    MultiFragmentDocument(frags, state = pageManager.jsState)
+                    val bookAndKeys = key.filterIsInstance<BookAndKey>()
+                    val frags = bookAndKeys.mapNotNull { fragmentFor(it, dropUninstalled = true) }
+                    // If everything dropped (every document in the assembled key is uninstalled),
+                    // fall back to today's behaviour -- showing every card -- rather than an empty page.
+                    val shown = frags.ifEmpty { bookAndKeys.mapNotNull { fragmentFor(it, dropUninstalled = false) } }
+                    MultiFragmentDocument(shown, state = pageManager.jsState)
                 }
                 else -> super.currentPageContent
             }
