@@ -125,6 +125,7 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.document.canDelete
@@ -3832,6 +3833,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 for (bookmark in bookmarks) {
                     bookmarkControl.changeLabelsForBookmark(bookmark, resultData.selectedLabels.toList())
                 }
+                // F54: `changeLabelsForBookmark` is a bare DAO write. `addOrUpdateBookmark` -- the
+                // path the reading view's own quick-assign sheet takes -- also posts
+                // `BookmarksAddedOrUpdatedEvent` and updates the recent labels, which is what
+                // `BibleView` (`:1015`) listens to. Posted ONCE for the whole batch rather than
+                // inside the loop, and fixed here rather than inside `changeLabelsForBookmark`,
+                // whose other caller is `BookmarkCsvUtils`' bulk import.
+                windowControl.windowRepository.updateRecentLabels(resultData.selectedLabels.toList())
+                ABEventBus.post(BookmarksAddedOrUpdatedEvent(bookmarks))
                 windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                 withContext(Dispatchers.Main) { session.controller.refresh() }
             }
