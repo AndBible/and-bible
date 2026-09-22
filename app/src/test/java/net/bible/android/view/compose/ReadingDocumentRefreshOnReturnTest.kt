@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.compose
 
+import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -33,6 +34,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
@@ -143,6 +145,80 @@ class ReadingDocumentRefreshOnReturnTest {
             updateDocumentsPendingOf(activity),
             "the flag must be spent by the return, exactly as reconcileReadingStateOnResume spends it " +
                 "on a real onResume -- otherwise the next real onResume would reload a second time",
+        )
+    }
+
+    /**
+     * **The wiring guard (fix round 1).** [returningToTheReadingViewSpendsAPendingDocumentUpdate]
+     * proves [NavHostComposeActivity.applyPendingDocumentUpdateOnReturnToReading] does the right
+     * thing when called -- it says nothing about whether anything actually calls it. Deleting the
+     * wiring line inside the `OnDestinationChangedListener`
+     * (`applyPendingDocumentUpdateOnReturnToReading(destination.route)`) left that test green while
+     * the real defect came straight back; this test is what a deletion of that one line must fail.
+     *
+     * Drives the REAL, composed graph through `onNewIntent` -> `navigateToRoute` -> the real
+     * `NavController.navigate`, the exact singleTop self-launch path production uses to return from
+     * Download/Settings (see `readingReturnDebts`'s kdoc) — the same live pattern
+     * `ReadingImePaddingTest.theModeFollowsTheCurrentDestinationNotJustTheStartRoute` already uses to
+     * exercise this SAME listener's `applySoftInputModeFor` arm. `controller.newIntent(...)` alone,
+     * with no `pause()`/`resume()`, is deliberate: that absence of a real `onResume` is the whole of
+     * F57's defect.
+     *
+     * **RED without the wiring** (fix round 1 -- the
+     * `applyPendingDocumentUpdateOnReturnToReading(destination.route)` line deleted from the listener,
+     * re-run, and restored afterwards):
+     * ```
+     * ReadingDocumentRefreshOnReturnTest > theRealGraphSpendsAPendingDocumentUpdateOnReturnToReading FAILED
+     *     java.lang.AssertionError: a document update that arrived while the graph was elsewhere must
+     *     be applied by the REAL listener's return to the reading destination (F57) -- this is what
+     *     must fail if applyPendingDocumentUpdateOnReturnToReading(...) is removed from the listener
+     * ```
+     *
+     * **MINOR (fix round 1): "spent exactly once."** The second round trip below arms nothing new and
+     * must reload nothing — proving the FLAG, not mere arrival at `reading`, is what gates the reload.
+     */
+    @Test
+    fun theRealGraphSpendsAPendingDocumentUpdateOnReturnToReading() {
+        val controller = composedHost()
+        val activity = controller.get()
+        val window = activity.hostWindowRepository.activeWindow
+        assertTrue(window.isVisible, "sanity: the active window is visible, so loadText cannot return early")
+
+        // Away from reading -- the same singleTop self-launch onNewIntent path production uses.
+        controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.download()))
+        shadowOf(Looper.getMainLooper()).idle()
+
+        clearDisplayedKey(window)
+        ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+        assertTrue(
+            updateDocumentsPendingOf(activity),
+            "sanity: the subscription in readingHostSubscriptions must have armed the flag",
+        )
+
+        // Back to reading -- through the REAL listener, with no onResume anywhere in this path.
+        controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.READING))
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertNotNull(
+            displayedKeyOf(window),
+            "a document update that arrived while the graph was elsewhere must be applied by the REAL " +
+                "listener's return to the reading destination (F57) -- this is what must fail if " +
+                "applyPendingDocumentUpdateOnReturnToReading(...) is removed from the listener",
+        )
+        assertFalse(updateDocumentsPendingOf(activity), "the flag must be spent by the real return")
+
+        // MINOR, fix round 1: spent exactly once. Nothing newly pending, so a second round trip must
+        // reload nothing.
+        clearDisplayedKey(window)
+        controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.download()))
+        shadowOf(Looper.getMainLooper()).idle()
+        controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.READING))
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertNull(
+            displayedKeyOf(window),
+            "a return to reading with nothing newly pending must not reload again -- the FLAG, not " +
+                "mere arrival at reading, is what gates the reload",
         )
     }
 }
