@@ -4563,6 +4563,15 @@ private fun DriveSearchUnavailableSnackbar(
 }
 
 /**
+ * F58: the toolbar's Bible icon under discrete mode, mirroring classic `MainBibleActivity.kt:563`
+ * and `DocumentBadges.kt`'s `BookCategory.imageResource` (`:63`). A plain function rather than an
+ * inline `painterResource` argument so `DiscreteChromeTest` can assert the CHOICE — the rendered
+ * painter is not observable in a unit test, and the choice is the behaviour.
+ */
+internal fun bibleToolbarIconRes(): Int =
+    if (CommonUtils.isDiscrete) R.drawable.ic_baseline_menu_book_24 else R.drawable.ic_bible_24dp
+
+/**
  * [ReadingToolbarIcons] for [ComposeReadingViewHost.mountComposeView] — the same
  * `main_bible_view.xml` toolbar drawables `ReadingToolbarGoldenTest` uses (a single static icon
  * per action; the classic Strongs button's OT/NT + link-variant icon swap in
@@ -4575,7 +4584,7 @@ private fun readingToolbarIcons() = ReadingToolbarIcons(
     search = painterResource(R.drawable.ic_search_24dp),
     speak = painterResource(R.drawable.ic_baseline_headphones_24),
     strongs = painterResource(R.drawable.ic_strongs_hebrew),
-    bible = painterResource(R.drawable.ic_bible_24dp),
+    bible = painterResource(bibleToolbarIconRes()),
     commentary = painterResource(R.drawable.ic_commentary),
     workspace = painterResource(R.drawable.ic_workspace_solid_24dp),
     overflow = painterResource(R.drawable.ic_more_vert_black_24dp),

@@ -17,6 +17,7 @@
 package net.bible.android.view.activity.page.screen
 
 import net.bible.android.activity.R
+import net.bible.service.common.CommonUtils
 import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.sharedcore.search.IndexPollDecision
@@ -209,7 +210,9 @@ abstract class ComposeReadingViewHostHelpers {
      * `ComposeReadingViewHostTest.drawerIconResIdsCoverEveryBuilderIconKey`.
      */
     internal val drawerIconResIds: Map<String, Int> = mapOf(
-        "ic_logo" to R.drawable.ic_logo,
+        // F58: the drawer header logo must not leak the real app identity in discrete mode,
+        // mirroring bibleToolbarIconRes() and DrawerMenuStateBuilder.build's appName swap.
+        "ic_logo" to (if (CommonUtils.isDiscrete) R.drawable.ic_calculator_color else R.drawable.ic_logo),
         "ic_library_books_white_24dp" to R.drawable.ic_library_books_white_24dp,
         "ic_search_24dp" to R.drawable.ic_search_24dp,
         "ic_baseline_headphones_24" to R.drawable.ic_baseline_headphones_24,

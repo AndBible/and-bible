@@ -141,7 +141,11 @@ object DrawerMenuStateBuilder {
         isCloudSyncAvailable: Boolean,
         isRateVisible: Boolean,
     ): DrawerMenuState = DrawerMenu.build(
-        appName = application.getString(R.string.app_name_medium),
+        // F58: the drawer header must not leak the real name in discrete mode, the same swap
+        // StartupActivity.onCreate makes for the launcher spinner.
+        appName = application.getString(
+            if (CommonUtils.isDiscrete) R.string.app_name_calculator else R.string.app_name_medium
+        ),
         versionText = application.getString(R.string.version_text, CommonUtils.applicationVersionName),
         groups = groups.map { group ->
             DrawerGroupSpec(
