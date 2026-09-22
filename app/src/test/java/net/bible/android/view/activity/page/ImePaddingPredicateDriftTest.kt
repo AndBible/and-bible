@@ -27,15 +27,20 @@ import org.junit.Test
  * `imeHeight > 0` checks: suppressing the padding without touching the getters silently drops the
  * navigation-bar offset from the WebView.
  *
- * There is no Compose UI-test harness in this repo (nothing uses createComposeRule, and
- * compose-ui-test cannot be added under strict egress) and no instrumented coverage of this activity,
- * so this source-level guard is what stops the three drifting apart again. It is NOT evidence of
- * runtime behaviour — the device pass is (spec §8).
+ * This is a SOURCE-level guard: it proves the three consumers still read one predicate, not that the
+ * padding reaches a pixel. (An earlier version of this kdoc claimed "nothing uses createComposeRule" --
+ * false since well before 2026-09-18; 30 test files under `view/compose` use it, and
+ * `ReadingImePaddingTest` is the measured-layout guard this one cannot be.)
  */
 class ImePaddingPredicateDriftTest {
     private val source = listOf(
         "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
         "src/main/java/net/bible/android/view/activity/page/ReadingInsets.kt",
+        // F59: the second implementation of the sink lives here, and this guard was green on a tree
+        // where that implementation was empty. The exact counts below are unaffected because this host
+        // stores the px value and never spells `imePaddingApplied` -- if that changes, re-derive the
+        // counts deliberately rather than bumping them.
+        "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt",
     ).joinToString("\n") { path ->
         val f = java.io.File(path)
         // Anti-vacuity: a path that stops existing must fail the guard, not quietly contribute "".
