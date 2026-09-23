@@ -861,6 +861,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * throws, i.e. degrade a wiring bug into a logged no-op; that one must still crash.
      */
     private fun navigateToRoute(controller: NavHostController, route: String) {
+        recordHistoryOnLeavingReading(route)
         try {
             controller.navigate(route) { launchSingleTop = true }
         } catch (e: IllegalArgumentException) {
@@ -958,6 +959,26 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     /** Whether the graph is currently showing the reading destination. */
     private fun readingDestinationIsCurrent(): Boolean =
         navController?.currentDestination?.route?.substringBefore('?') == NavRoutes.READING
+
+    /**
+     * Slice 8 finding M3 (spec §5.1 item 1): record "where the user left the reading view from".
+     *
+     * Classic `MainBibleActivity` had `integrateWithHistoryManager = true`, so `ActivityBase`'s launch
+     * overrides posted `AddHistoryItem` before every launch. This host's flag is false and must stay so
+     * (it is host-global; see [setHistoryRoute]'s kdoc), so the record is made at this host's own two
+     * chokepoints -- [startActivityForResult] (every `startActivity*` funnels into it) and
+     * [navigateToRoute] -- and ONLY while the reading destination is current. Never a destination
+     * listener: `openScriptureReference` (its kdoc) relies on an in-graph `navigate` not recording.
+     *
+     * A direct call rather than a bus post, so the item is built while `ReadingViewVisibility.isVisible`
+     * is still true. A duplicate (the self-launch path passes both chokepoints) is dropped by
+     * `HistoryManager.add`'s `item != stack.peek()` check.
+     */
+    private fun recordHistoryOnLeavingReading(targetRoute: String?) {
+        if (!readingDestinationIsCurrent()) return
+        if (targetRoute?.substringBefore('?') == NavRoutes.READING) return
+        historyTraversal.historyManager.addHistoryItem(null)
+    }
 
     private var lastBackPressed: Long? = null
 
@@ -1995,6 +2016,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * calls it virtually, so both spellings and `ActivityBase`'s two overrides all funnel here.
      */
     override fun startActivityForResult(intent: Intent, requestCode: Int, options: Bundle?) {
+        // M3. A null CHECK, not `intent.component?.className` -- ActivityResultDispatchGuardTest
+        // text-scans src/main for that spelling (see readingResultKindForLaunch's kdoc).
+        val component = intent.component
+        val selfRoute =
+            if (component != null && component.className == javaClass.name) intent.getStringExtra(EXTRA_ROUTE) else null
+        recordHistoryOnLeavingReading(selfRoute)
         if (requestCode == ActivityBase.STD_REQUEST_CODE) {
             stdRequestCancelIsTheUsers = aCancelFromThisIntentWouldBeTheUsers(intent, javaClass.name)
         }
