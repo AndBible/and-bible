@@ -1016,6 +1016,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
+     * Slice 8 finding M4: a history step taken from a non-reading destination pops that destination
+     * rather than finishing this host. At the start destination there is nothing below to return to,
+     * so leaving the screen IS leaving the host.
+     */
+    override fun leaveCurrentScreen() {
+        val controller = navController
+        if (controller != null && controller.previousBackStackEntry != null) {
+            controller.popBackStack()
+        } else {
+            finish()
+        }
+    }
+
+    /**
      * F55: long-press BACK opens the History sheet, classic `MainBibleActivity.onKeyLongPress`.
      *
      * `ActivityBase.onKeyLongPress` (`:282-285`) returns `true` for `KEYCODE_BACK` and does nothing,

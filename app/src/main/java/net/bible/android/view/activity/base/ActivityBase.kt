@@ -242,6 +242,16 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         ::historyTraversal.isInitialized && historyTraversal.goBack()
 
     /**
+     * Leave the screen the user is looking at (slice 8 spec §5.1 item 2). For a classic one-screen
+     * Activity that is finishing it; `NavHostComposeActivity` overrides it to pop its back stack, because
+     * there the "screen" is a destination and finishing would take every other destination -- the
+     * reading view included -- with it. `HistoryManager.goBack()` is the caller.
+     */
+    open fun leaveCurrentScreen() {
+        finish()
+    }
+
+    /**
      * Whether this activity should let the base class handle volume-key page scrolling.
      * Screens that own the volume keys themselves (e.g. MainBibleActivity) override to false.
      */

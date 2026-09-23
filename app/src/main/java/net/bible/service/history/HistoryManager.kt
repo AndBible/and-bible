@@ -196,51 +196,16 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
                     Log.i(TAG, "Going back to:$previousItem")
                     previousItem.revertTo()
 
-                    // finish current activity if not the Main screen
-                    // Slice 7 / spec §5.3: the condition is now "the reading view is not what the
-                    // user is looking at" (was `currentActivity !is MainBibleActivity`).
-                    //
-                    // These are NOT equivalent by construction — they agree because the flag has
-                    // an owner on BOTH of the paths a reading view can be on today, each keyed by
-                    // its HOST, and `ReadingViewVisibility.isVisible` asks whether any of them was
-                    // registered by the host `ReadingHostPresence` says is FOREGROUND (R7b):
-                    //
-                    //  - the `reading` DESTINATION's `DisposableEffect` (`ReadingNavGraph.kt`),
-                    //    entered as its composition begins and exited as it is disposed;
-                    //  - classic `MainBibleActivity`'s lifecycle, through the TEMPORARY
-                    //    `setActivityVisible` calls in `onCreate`, `onResume`, `onPause` and
-                    //    `onActivityResult` — which is the path that is actually live, since
-                    //    `MainBibleActivity` is still the launcher and the destination's content
-                    //    slot cannot render the reading view yet. That input (and these four call
-                    //    sites) goes away with the task that makes the slot real.
-                    //
-                    // The foreground gate is what keeps THIS condition honest once a destination is
-                    // composed: without it, a destination that stays entered under a backgrounded
-                    // host (navigation-compose does not dispose the current entry's content when
-                    // the Activity stops) kept `isVisible` true, nothing was finished here, and
-                    // `ActivityBase.onBackPressed` returned without `super` — a dead back key on
-                    // the secondary screen. See `ReadingHostPresence`.
-                    //
-                    // The Activity input is what keeps this condition honest in the state it was
-                    // written for: if the reading Activity was destroyed while a chooser was on top
-                    // ("Don't keep activities" / low memory) and is then recreated,
-                    // `onActivityResult`'s STD_REQUEST_CODE + RESULT_CANCELED path (guarded by
-                    // `currentPage.key == null`) calls goBack() BEFORE onResume — and a flag that
-                    // only went true at onResume would finish() the freshly recreated reading
-                    // Activity, which the old class check never did. The `onCreate` setter closes
-                    // that window.
-                    //
-                    // The remaining gap is the reverse one and is harmless: between onPause and the
-                    // next Activity's onCreate the old check was still true while the flag is
-                    // already false. goBack() is only reached from an Activity's back-press
-                    // (`ActivityBase`/`MainBibleActivity.onBackPressed`) or from
-                    // `onActivityResult`, and neither callback can run in that window.
-                    //
-                    // The finish() itself becomes popBackStack() in Task 7, once the secondary
-                    // screens are destinations of one host and there is a host to pop.
+                    // Leave the screen on top when it is not the reading view. Since slice 8 this is
+                    // a HOST operation (ActivityBase.leaveCurrentScreen): a classic Activity finishes,
+                    // NavHostComposeActivity pops its back stack -- finishing it would close the app,
+                    // because the reading view is a destination of the same host (finding M4).
+                    // `ReadingViewVisibility.isVisible` is the predicate createHistoryItem also records
+                    // on, keyed by host and gated on ReadingHostPresence (R7b), so a destination
+                    // composed under a backgrounded host does not count.
                     val currentActivity = CurrentActivityHolder.currentActivity
                     if (!ReadingViewVisibility.isVisible) {
-                        currentActivity?.finish()
+                        currentActivity?.leaveCurrentScreen()
                     }
                 }
             } finally {
