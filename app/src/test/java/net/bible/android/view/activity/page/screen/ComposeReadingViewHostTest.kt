@@ -20,12 +20,13 @@ import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.page.toolbar.ToolbarStateServiceImpl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
-import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.window.RailEntry
@@ -618,7 +619,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
      * counterpart — rather than acting through the command seam, and reports `false` (closes the
      * menu).
      *
-     * Slice S12: the target is `TextDisplaySettingsComposeActivity`, scoped to the window the row
+     * Slice 8 B6: the target is the nav graph's text-settings route, scoped to the window the row
      * belongs to, launched with a plain `startActivity`. The classic `TextDisplaySettingsActivity` /
      * `TEXT_DISPLAY_SETTINGS_CHANGED` round-trip this used to assert is gone: the Compose screen
      * writes each edit through as it is made and returns no result. The scope extras are asserted
@@ -639,16 +640,11 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
             "the classic TEXT_DISPLAY_SETTINGS_CHANGED round-trip is gone -- this is a plain startActivity",
         )
         val started = shadowOf(activity).nextStartedActivity
-        assertEquals(
-            "net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity",
-            started?.component?.className,
-        )
-        assertEquals("window", started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL))
-        assertEquals(w1.id.toString(), started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_WINDOW_ID))
-        assertEquals(
-            windowRepository.id.toString(),
-            started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_WORKSPACE_ID),
-        )
+        assertEquals(NavHostComposeActivity::class.java.name, started?.component?.className)
+        val args = NavRoutes.readTextDisplaySettings(started!!.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE)!!)
+        assertEquals("window", args.scopeLevel)
+        assertEquals(w1.id.toString(), args.windowId)
+        assertEquals(windowRepository.id.toString(), args.workspaceId)
     }
 
     /**

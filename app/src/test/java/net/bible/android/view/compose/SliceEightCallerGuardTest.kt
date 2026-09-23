@@ -76,9 +76,6 @@ class SliceEightCallerGuardTest {
 
     private companion object {
         /** `File.name:` prefix -> the task that repoints it. Keyed by FILE, because lines shift. */
-        val ALLOWLIST: Map<String, String> = mapOf(
-            "ReadingCommands.kt:" to "Task B6 (text settings)",
-            "OptionsMenuItems.kt:" to "Task B6 (text settings colours)",
-        )
+        val ALLOWLIST: Map<String, String> = emptyMap()
     }
 }

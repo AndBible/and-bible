@@ -23,7 +23,8 @@ import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -41,12 +42,11 @@ import org.robolectric.annotation.Config
  * before `openDialog` is ever called; those tests own that contract.
  *
  * Slice S12 repointed the target: what `openDialog` launches is now
- * [TextDisplaySettingsComposeActivity] at its colours destination
- * ([TextDisplaySettingsComposeActivity.intentForColors]), not the deleted classic
- * `ColorSettingsActivity`, and it is a plain `startActivity` -- there is no `COLORS_CHANGED`
- * round-trip left, because the Compose destination writes each edit through as it is made. The
- * `EXTRA_START_AT_COLORS` assertion is what separates this from an ordinary text-settings launch:
- * without it the user would land on the settings LIST rather than on colours.
+ * [net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity] at its colours
+ * destination, not the deleted classic `ColorSettingsActivity`, and it is a plain `startActivity` --
+ * there is no `COLORS_CHANGED` round-trip left, because the Compose destination writes each edit
+ * through as it is made. Slice 8 B6 repointed it again: the colours destination is a route of the
+ * nav graph, `textDisplaySettingsRoute(scope, startAtColors = true)`.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -80,19 +80,13 @@ class ColorPreferenceBridgeTest {
         pref.openDialog(activity, null, null)
 
         val started = shadowOf(activity).nextStartedActivity
-        assertEquals(TextDisplaySettingsComposeActivity::class.java.name, started?.component?.className)
+        assertEquals(NavHostComposeActivity::class.java.name, started?.component?.className)
+        val args = NavRoutes.readTextDisplaySettings(started!!.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE)!!)
         assertTrue(
-            "the launch must carry EXTRA_START_AT_COLORS, or it opens the text-settings list " +
-                "instead of the colours destination",
-            started?.getBooleanExtra(TextDisplaySettingsComposeActivity.EXTRA_START_AT_COLORS, false) == true,
+            "the route must carry startAtColors, or it opens the text-settings list instead of colours",
+            args.startAtColors,
         )
-        assertEquals(
-            "a WORKSPACE-level bundle must launch at workspace scope",
-            "workspace",
-            started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL),
-        )
-        // Robolectric records a plain startActivity as a for-result launch with requestCode -1,
-        // so "no round-trip" is that sentinel rather than a missing record.
+        assertEquals("a WORKSPACE-level bundle must open at workspace scope", "workspace", args.scopeLevel)
         assertEquals(
             "the COLORS_CHANGED round-trip is gone -- this must be a plain startActivity",
             -1,
@@ -112,21 +106,10 @@ class ColorPreferenceBridgeTest {
         pref.openDialog(activity, null, null)
 
         val started = shadowOf(activity).nextStartedActivity
-        assertEquals(TextDisplaySettingsComposeActivity::class.java.name, started?.component?.className)
-        assertTrue(
-            "the launch must carry EXTRA_START_AT_COLORS, or it opens the text-settings list " +
-                "instead of the colours destination",
-            started?.getBooleanExtra(TextDisplaySettingsComposeActivity.EXTRA_START_AT_COLORS, false) == true,
-        )
-        assertEquals(
-            "a WINDOW-level bundle must launch at window scope",
-            "window",
-            started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_SCOPE_LEVEL),
-        )
-        assertEquals(
-            "the window id must be carried through to the destination",
-            bundle.windowId.toString(),
-            started?.getStringExtra(TextDisplaySettingsComposeActivity.EXTRA_WINDOW_ID),
-        )
+        assertEquals(NavHostComposeActivity::class.java.name, started?.component?.className)
+        val args = NavRoutes.readTextDisplaySettings(started!!.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE)!!)
+        assertTrue(args.startAtColors)
+        assertEquals("a WINDOW-level bundle must open at window scope", "window", args.scopeLevel)
+        assertEquals("the window id must be carried through", bundle.windowId.toString(), args.windowId)
     }
 }

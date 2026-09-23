@@ -58,7 +58,7 @@ import org.crosswire.jsword.book.Book
  *
  * Pure `Context` passes do NOT come through here: they use [ReadingHostActivity.hostContext], which
  * R4 declared for exactly that (`ScreenLauncher.intentFor(context: Context, …)`,
- * `TextDisplaySettingsComposeActivity.intentFor(context: Context, …)`, `ContextCompat.getDrawable`,
+ * `textDisplaySettingsRoute(…)`, `ContextCompat.getDrawable`,
  * `SplitModePreference(mainBibleActivity: Context)`, `AlertDialog.Builder(context)`).
  *
  * **Every other member is a lambda, and every one is read at CALL TIME, never captured.** Not

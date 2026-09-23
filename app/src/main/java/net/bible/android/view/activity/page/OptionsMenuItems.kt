@@ -40,7 +40,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
+import net.bible.android.view.activity.settings.textDisplaySettingsRoute
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.android.view.util.widget.FontFamilyWidget
 import net.bible.android.view.util.widget.MarginSizeWidget
@@ -574,13 +574,15 @@ class ColorPreference(settings: SettingsBundle): Preference(settings, TextDispla
      * before openDialog is called (Settings editor sheets T11).
      *
      * Since slice S12 that classic path lands on the Compose screen too — the colours destination
-     * of [TextDisplaySettingsComposeActivity] ([TextDisplaySettingsComposeActivity.intentForColors]),
-     * for the scope this preference was built for — rather than on the deleted classic
+     * of the nav graph's text-settings route (`textDisplaySettingsRoute(scope, startAtColors = true)`,
+     * slice 8 B6), for the scope this preference was built for — rather than on the deleted classic
      * `ColorSettingsActivity`. It is a plain `startActivity`: the Compose destination writes each
      * edit through as it is made, so there is no `COLORS_CHANGED` result to wait for.
      */
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        activity.startActivity(TextDisplaySettingsComposeActivity.intentForColors(activity, settings.toScope()))
+        activity.startActivity(
+            NavHostComposeActivity.intentFor(activity, textDisplaySettingsRoute(settings.toScope(), startAtColors = true))
+        )
         return true
     }
 }

@@ -54,16 +54,14 @@ import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.SettingsLevel
-import net.bible.android.view.Screen
-import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.download.imageResource
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.clipboardKey
-import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.settings.getPrefItem
+import net.bible.android.view.activity.settings.textDisplaySettingsRoute
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -883,8 +881,10 @@ class ReadingCommands(
         )
         return when(itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
-                hostActivity.startActivity(TextDisplaySettingsComposeActivity.intentFor(
-                    readingHost.hostContext, SettingsScope.Workspace(windowRepository().id.toString())))
+                hostActivity.startActivity(NavHostComposeActivity.intentFor(
+                    readingHost.hostContext,
+                    textDisplaySettingsRoute(SettingsScope.Workspace(windowRepository().id.toString())),
+                ))
             }, opensDialog = true)
             R.id.autoAssignLabels -> AutoAssignPreference(windowRepository().workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
@@ -1073,8 +1073,10 @@ class ReadingCommands(
             // distinct from this activity's OWN workspace-level `getItemOptions(R.id.allTextOptions)`
             // used by the overflow menu).
             WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS -> {
-                hostActivity.startActivity(TextDisplaySettingsComposeActivity.intentFor(
-                    readingHost.hostContext, SettingsScope.Window(window.id.toString(), windowRepository().id.toString())))
+                hostActivity.startActivity(NavHostComposeActivity.intentFor(
+                    readingHost.hostContext,
+                    textDisplaySettingsRoute(SettingsScope.Window(window.id.toString(), windowRepository().id.toString())),
+                ))
                 false
             }
             // SplitBibleArea.kt:1002-1004
