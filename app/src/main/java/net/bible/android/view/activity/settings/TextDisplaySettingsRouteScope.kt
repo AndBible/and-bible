@@ -17,6 +17,7 @@
 package net.bible.android.view.activity.settings
 
 import net.bible.android.database.SettingsBundle
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.nav.TextDisplaySettingsArgs
 import net.bible.sharedcore.settings.SettingsScope
 
@@ -74,4 +75,20 @@ fun scopeFromRoute(args: TextDisplaySettingsArgs): SettingsScope {
         "workspace" -> SettingsScope.Workspace(workspaceId = args.workspaceId!!)
         else -> SettingsScope.Global
     }
+}
+
+/**
+ * The inverse of [scopeFromRoute]: the route that opens the text-settings destination at [scope]
+ * (slice 8 B2). Replaces `TextDisplaySettingsComposeActivity.intentFor`/`intentForColors`, whose three
+ * callers now navigate the graph. Never carries a detached bundle -- [scopeFromRoute] rejects a route
+ * that names both, and a scoped caller has none.
+ */
+fun textDisplaySettingsRoute(scope: SettingsScope, startAtColors: Boolean = false): String = when (scope) {
+    is SettingsScope.Window -> NavRoutes.textDisplaySettings(
+        scopeLevel = "window", windowId = scope.windowId, workspaceId = scope.workspaceId, startAtColors = startAtColors,
+    )
+    is SettingsScope.Workspace -> NavRoutes.textDisplaySettings(
+        scopeLevel = "workspace", workspaceId = scope.workspaceId, startAtColors = startAtColors,
+    )
+    is SettingsScope.Global -> NavRoutes.textDisplaySettings(scopeLevel = "global", startAtColors = startAtColors)
 }
