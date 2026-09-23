@@ -23,6 +23,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
@@ -190,6 +191,7 @@ import net.bible.android.view.activity.page.ReadingCommands
 import net.bible.android.view.activity.page.ReadingCommandsHostCallbacks
 import net.bible.android.view.activity.page.ReadingInsets
 import net.bible.android.view.activity.page.ReadingInsetsHostCallbacks
+import net.bible.android.view.activity.page.SDCARD_READ_REQUEST
 import net.bible.android.view.activity.page.SpeakTransportVisibilityChanged
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
@@ -1949,6 +1951,29 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             return
         }
         pendingActivityResult = PendingActivityResult(requestCode, resultCode, CANCELLED_STD_RESULT)
+    }
+
+    /**
+     * Slice 8, finding M2: the RESULT half of [ReadingAppBootstrap.requestSdcardPermission], moved
+     * verbatim from classic `MainBibleActivity.onRequestPermissionsResult`
+     * (`MainBibleActivity.kt:1848-1860` at spec HEAD). The request is issued from two places in
+     * `ReadingAppBootstrap` (`showFirstRunNotices` and, through `ReadingCommands.preferenceSettingsChanged`,
+     * every return from Settings); without this answer a DENY never turned the preference off, so the
+     * dialog came back every time. The ActivityResult API would be tidier; spec §5.2 chose the minimal
+     * fix. Code 999 (`CommonUtils.requestNotificationPermission`) is deliberately unanswered.
+     */
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        Log.i(TAG_NAV_HOST, "onRequestPermissionResult $requestCode")
+        when (requestCode) {
+            SDCARD_READ_REQUEST -> if (grantResults.isNotEmpty()) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    documentControl.enableManualInstallFolder()
+                } else {
+                    documentControl.turnOffManualInstallFolderSetting()
+                }
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     /**

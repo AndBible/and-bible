@@ -89,9 +89,10 @@ private const val NEW_SYNC_TARGETS_ANNOUNCE_VERSION = 1
 internal val syncScope = CoroutineScope(Dispatchers.IO)
 
 /**
- * The request code `requestSdcardPermission` sends and `MainBibleActivity.onRequestPermissionsResult`
- * reads. It lives at package level rather than in either class because the request half moved here
- * and the result half did not -- see [ReadingAppBootstrap.requestSdcardPermission].
+ * The request code `requestSdcardPermission` sends and `NavHostComposeActivity.onRequestPermissionsResult`
+ * reads (slice 8 M2; classic `MainBibleActivity` read it before that). It lives at package level
+ * rather than in either class because the request half moved here and the result half did not -- see
+ * [ReadingAppBootstrap.requestSdcardPermission].
  */
 internal const val SDCARD_READ_REQUEST = 2
 
@@ -559,24 +560,9 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
     /**
      * Classic `MainBibleActivity.requestSdcardPermission`.
      *
-     * **R7 finding, still not fixed here, and REACHABLE since reading-host re-typing T8d:** only
-     * `MainBibleActivity` implements the RESULT half (`onRequestPermissionsResult`, matching on
-     * [SDCARD_READ_REQUEST]). A host that calls this and does not handle the result asks and then
-     * ignores the answer, and `NavHostComposeActivity` is such a host.
-     *
-     * R7 recorded this as unreachable. It was already half-wrong once the launcher flipped --
-     * [showFirstRunNotices] calls this on whichever host bootstraps, ONCE per process -- and T8d
-     * made it worse rather than better: the shared settings-return body
-     * (`ReadingCommands.preferenceSettingsChanged`) calls this on EVERY return from Settings, on
-     * whichever host is running. On API 23..28 with `request_sdcard_permission_pref` on, that means
-     * a permission dialog every time the user leaves Settings, and on DENY
-     * `turnOffManualInstallFolderSetting()` never runs, so the preference stays on and the dialog
-     * comes back next time -- a nag loop classic does not have. On GRANT the manual install folder
-     * is not enabled until the next start, but that self-heals
-     * (`SwordEnvironmentInitialisation.kt:76` re-checks).
-     *
-     * Wiring the result half is a behaviour addition, not an extraction, and is deliberately left
-     * to the task that owns the `onRequestPermissionsResult` family as a whole.
+     * **Answered by `NavHostComposeActivity.onRequestPermissionsResult` since slice 8 (finding M2).**
+     * Before that only `MainBibleActivity` implemented the result half, so on the flipped host a DENY
+     * never ran `turnOffManualInstallFolderSetting()` and the dialog returned on every Settings exit.
      */
     fun requestSdcardPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
