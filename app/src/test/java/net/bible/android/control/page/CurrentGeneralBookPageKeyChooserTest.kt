@@ -38,6 +38,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -119,12 +120,13 @@ class CurrentGeneralBookPageKeyChooserTest {
             "a general-book key-chooser tap on the nav host must start the chooser — it was a " +
                 "silent no-op, which is the failure shape this batch rules against",
         )
-        // `Screen.ChooseGeneralBookKey` is NOT in `ScreenLauncher.MIGRATED`, so this arm still
-        // starts the standalone chooser Activity — exactly as it does from classic. What T8a fixes
-        // is that the arm RUNS at all; which screen it opens is unchanged.
-        assertTrue(
-            started.intent.component?.className.orEmpty().contains("ChooseGeneralBookKey"),
-            "expected the general-book key chooser; started: ${started.intent}",
+        // Slice 8 B4: the chooser is a destination of this host. This fixture's host is created but not
+        // composed (no navController), so navigateInsteadOfSelfLaunch falls through to the platform and the
+        // launch is visible here; on a composed host it navigates in-graph instead.
+        assertEquals(
+            NavRoutes.CHOOSE_GENERAL_BOOK_KEY,
+            started.intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE),
+            "expected the general-book key chooser route; started: ${started.intent}",
         )
     }
 

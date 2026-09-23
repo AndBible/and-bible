@@ -31,8 +31,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.Screen
-import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.KeyChooserResults
 import net.bible.sharedcore.nav.NavRoutes
@@ -119,7 +117,10 @@ class CurrentGeneralBookPage internal constructor(
      * `ActivityBase.onActivityResult` found no `resultByCode[1 - ASYNC_REQUEST_CODE_START]`, fell
      * through to `super` and DISCARDED the selection in silence. [ActivityBase.awaitIntent] is
      * resolved by `ActivityBase` itself and therefore works on all of them; it is what the StudyPad
-     * arm below has always used, and the other three now match it.
+     * arm below has always used, and the other three now match it. Since slice 8 B4 all four arms
+     * self-launch nav-graph routes; each is intercepted by `navigateInsteadOfSelfLaunch` (F53) and
+     * answered by the reading destination's collector, and backing out of a chooser is answered as
+     * a cancel (B1).
      *
      * The answer is applied through [KeyChooserResults], the single implementation
      * `MainBibleActivity`'s surviving `STD_REQUEST_CODE` arms delegate to as well.
@@ -147,7 +148,7 @@ class CurrentGeneralBookPage internal constructor(
                     }
                 }
                 doc == FakeBookFactory.multiDocument ->
-                    awaitChosenKey(context, ScreenLauncher.intentFor(context, Screen.ChooseDocument))
+                    awaitChosenKey(context, NavHostComposeActivity.intentFor(context, NavRoutes.chooseDocument()))
                 doc?.isMyDocument == true -> {
                     val docId = doc.myDocumentId
                     if (docId != null) {
@@ -170,7 +171,7 @@ class CurrentGeneralBookPage internal constructor(
                         )
                     }
                 }
-                else -> awaitChosenKey(context, ScreenLauncher.intentFor(context, Screen.ChooseGeneralBookKey))
+                else -> awaitChosenKey(context, NavHostComposeActivity.intentFor(context, NavRoutes.CHOOSE_GENERAL_BOOK_KEY))
             }
         }
     }

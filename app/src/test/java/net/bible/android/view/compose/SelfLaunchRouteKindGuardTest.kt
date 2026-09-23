@@ -76,6 +76,12 @@ class SelfLaunchRouteKindGuardTest {
         NavRoutes.READING_PROGRESS_PATTERN.substringBefore('?'),
         NavRoutes.BOOKMARKS_PATTERN.substringBefore('?'),
         NavRoutes.MY_DOCUMENTS_PATTERN.substringBefore('?'),
+        NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN.substringBefore('?'),
+        NavRoutes.CHOOSE_DOCUMENT_PATTERN.substringBefore('?'),
+        NavRoutes.CHOOSE_GENERAL_BOOK_KEY,
+        NavRoutes.CHOOSE_MAP_KEY,
+        NavRoutes.CHOOSE_DICTIONARY_WORD,
+        NavRoutes.WORKSPACE_SELECTOR,
     )
 
     /** `NavRoutes.manageLabels(` -> the builder name; mapped to its pattern's base below. */
@@ -85,7 +91,18 @@ class SelfLaunchRouteKindGuardTest {
         "readingProgress" to NavRoutes.READING_PROGRESS_PATTERN.substringBefore('?'),
         "bookmarks" to NavRoutes.BOOKMARKS_PATTERN.substringBefore('?'),
         "myDocuments" to NavRoutes.MY_DOCUMENTS_PATTERN.substringBefore('?'),
+        "gridChoosePassage" to NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN.substringBefore('?'),
+        "chooseDocument" to NavRoutes.CHOOSE_DOCUMENT_PATTERN.substringBefore('?'),
     )
+
+    /** Slice 8 B4: argument-free routes spelled as constants -- `NavRoutes.CHOOSE_GENERAL_BOOK_KEY` has no `(`. */
+    private val constToBase = mapOf(
+        "CHOOSE_GENERAL_BOOK_KEY" to NavRoutes.CHOOSE_GENERAL_BOOK_KEY,
+        "CHOOSE_MAP_KEY" to NavRoutes.CHOOSE_MAP_KEY,
+        "CHOOSE_DICTIONARY_WORD" to NavRoutes.CHOOSE_DICTIONARY_WORD,
+        "WORKSPACE_SELECTOR" to NavRoutes.WORKSPACE_SELECTOR,
+    )
+    private val navRoutesConst = Regex("""NavRoutes\.([A-Z][A-Z0-9_]+)\b""")
 
     /** See the class kdoc's "What counts as self-launched" -- these can never BE the host. */
     private val externalLauncherFiles = setOf(
@@ -181,11 +198,13 @@ class SelfLaunchRouteKindGuardTest {
             }
 
             awaitedCalls("NavHostComposeActivity.intentFor").forEach { callText ->
-                val builder = navRoutesCall.find(callText)?.groupValues?.get(1) ?: return@forEach
+                val builder = navRoutesCall.find(callText)?.groupValues?.get(1)
+                val constant = if (builder == null) navRoutesConst.find(callText)?.groupValues?.get(1) else null
+                if (builder == null && constant == null) return@forEach
                 selfLaunchSitesSeen++
-                val base = builderToBase[builder]
+                val base = if (builder != null) builderToBase[builder] else constToBase[constant]
                 if (base == null || base !in answeredBases) {
-                    offenders += "${file.path}: NavRoutes.$builder(...) is self-launched in a file " +
+                    offenders += "${file.path}: NavRoutes.${builder ?: constant} is self-launched in a file " +
                         "that uses awaitIntent, but no ReadingResultKind answers that route -- " +
                         "navigateInsteadOfSelfLaunch will fall through and the awaited deferred " +
                         "will be spent by a synthetic RESULT_CANCELED (finding F53). Add a " +
