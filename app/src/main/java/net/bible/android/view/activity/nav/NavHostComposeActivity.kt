@@ -1064,7 +1064,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // (`ReadingViewVisibility.isVisible` still false) -- the abandoned-chooser cancel arm of
         // [answerAbandonedReadingRequests] and `CurrentGeneralBookPage.awaitChosenKey`. Popping there
         // would drop the reading view, and at the start destination finish() would close the app.
-        if (controller?.currentDestination?.route == NavRoutes.READING) return
+        if (readingDestinationIsCurrent()) return
         if (controller != null && controller.previousBackStackEntry != null) {
             controller.popBackStack()
         } else {

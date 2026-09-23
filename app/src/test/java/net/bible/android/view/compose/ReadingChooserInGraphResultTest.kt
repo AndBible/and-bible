@@ -41,6 +41,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.nav.DocumentResult
+import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.nav.WorkspaceResult
@@ -205,8 +206,9 @@ class ReadingChooserInGraphResultTest {
         // through startActivityForResult, before it returns. Asserted BEFORE any idle: composing the
         // real general-book chooser needs a general book in the active window (classic's `doc!!`
         // fallback in `generalBookKeyResult`), which the test modules do not provide.
-        activity.lifecycleScope.launch {
-            activity.awaitIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.CHOOSE_GENERAL_BOOK_KEY))
+        var result: ActivityResult? = null
+        val job = activity.lifecycleScope.launch {
+            result = activity.awaitIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.CHOOSE_GENERAL_BOOK_KEY))
         }
         assertEquals(
             "F53's interception must now cover the key chooser -- it has a collector",
@@ -218,6 +220,33 @@ class ReadingChooserInGraphResultTest {
         // no coroutine is left parked for tearDown.
         nav(activity).popBackStack()
         idle()
+        assertTrue("the awaiting coroutine must have been resumed, not left parked", job.isCompleted)
+        assertEquals(Activity.RESULT_CANCELED, result?.resultCode)
+    }
+
+    @Test
+    fun anAnsweredAsyncKeyChooserResumesItsCallerWithTheChosenKeyNotACancel() {
+        val activity = composedReadingHost()
+        var result: ActivityResult? = null
+        // The ErrorActivity shape of anAsyncChooserLeftWithoutAnAnswerResumesItsCallerWithACancel:
+        // a parked deferred at an async code, recorded under the key-chooser kind.
+        activity.lifecycleScope.launch { result = activity.awaitIntent(Intent(activity, ErrorActivity::class.java)) }
+        idle()
+        val code = shadowOf(activity).nextStartedActivityForResult.requestCode
+        requests(activity).record(ReadingResultKind.KeyChooser, code)
+        val nav = standInAbove(activity)
+
+        channel<KeyChooserResult>(activity, "keyChooserResults")
+            .deliver(nav, KeyChooserResult(key = "Gen.1.1", book = "KJV"))
+        idle()
+
+        assertEquals(
+            "an ANSWERED chooser must never be classified as abandoned on the way back to reading",
+            Activity.RESULT_OK,
+            result?.resultCode,
+        )
+        assertEquals("Gen.1.1", result?.data?.getStringExtra("key"))
+        assertTrue("…and the request is spent", !requests(activity).isAwaiting(ReadingResultKind.KeyChooser))
     }
 
     @Test
