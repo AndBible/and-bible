@@ -216,6 +216,22 @@ object ScreenLauncher {
         // until nav-graph slice 4 Task 9 deleted it and pointed the arm at targetForMigratedScreen,
         // the same shape Screen.CustomRepositories/Screen.ProgressStatus now share.
         Screen.CloudDocuments to NavRoutes.cloudDocuments(),
+        // — nav-graph slice 8, Task B7: slice 7's seven destinations —
+        // Every live caller builds its route directly (B3-B6); these rows are the routing default for
+        // a bare Screen.X. Each argument-free form is a real state, not a missing argument:
+        //  - GridChoosePassageBook: isScripture=false is the grid's non-scripture mode; the scripture
+        //    callers (CurrentBiblePage/CurrentCommentaryPage) pass gridChoosePassage(isScripture = true).
+        //  - ChooseDocument: no type means "the saved filter" (chooseDocumentInitialTypeFilter).
+        //  - TextDisplaySettings: no scope means GLOBAL, exactly what a bare classic launch opened
+        //    (TextDisplaySettingsComposeActivityBareIntentTest).
+        // Their targetFor arms keep the Activity bodies until Task F6 deletes the Activities.
+        Screen.ChooseGeneralBookKey to NavRoutes.CHOOSE_GENERAL_BOOK_KEY,
+        Screen.ChooseMapKey to NavRoutes.CHOOSE_MAP_KEY,
+        Screen.ChooseDictionaryWord to NavRoutes.CHOOSE_DICTIONARY_WORD,
+        Screen.GridChoosePassageBook to NavRoutes.gridChoosePassage(),
+        Screen.ChooseDocument to NavRoutes.chooseDocument(),
+        Screen.WorkspaceSelector to NavRoutes.WORKSPACE_SELECTOR,
+        Screen.TextDisplaySettings to NavRoutes.textDisplaySettings(),
     )
 
     /** The Activity class implementing [screen]. */

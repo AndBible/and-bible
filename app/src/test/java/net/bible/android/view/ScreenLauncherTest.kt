@@ -333,4 +333,18 @@ class ScreenLauncherTest {
     fun progressStatus_routes_to_the_nav_graph() {
         assertEquals(NavRoutes.progressStatus(), ScreenLauncher.MIGRATED[Screen.ProgressStatus])
     }
+
+    // ——— slice 8 B7: the seven slice-7 screens route to the nav graph ———————————————————————————
+    // targetFor still names their Activities until Task F6 deletes them; MIGRATED is what intentFor reads.
+
+    @Test
+    fun theSevenSliceSevenScreensRouteToTheNavGraph() {
+        assertEquals(NavRoutes.CHOOSE_GENERAL_BOOK_KEY, ScreenLauncher.MIGRATED[Screen.ChooseGeneralBookKey])
+        assertEquals(NavRoutes.CHOOSE_MAP_KEY, ScreenLauncher.MIGRATED[Screen.ChooseMapKey])
+        assertEquals(NavRoutes.CHOOSE_DICTIONARY_WORD, ScreenLauncher.MIGRATED[Screen.ChooseDictionaryWord])
+        assertEquals(NavRoutes.gridChoosePassage(), ScreenLauncher.MIGRATED[Screen.GridChoosePassageBook])
+        assertEquals(NavRoutes.chooseDocument(), ScreenLauncher.MIGRATED[Screen.ChooseDocument])
+        assertEquals(NavRoutes.WORKSPACE_SELECTOR, ScreenLauncher.MIGRATED[Screen.WorkspaceSelector])
+        assertEquals(NavRoutes.textDisplaySettings(), ScreenLauncher.MIGRATED[Screen.TextDisplaySettings])
+    }
 }
