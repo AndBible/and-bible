@@ -728,7 +728,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      */
     private fun openChooseDocument() {
         activity.hostActivity.startActivityForResult(
-            ScreenLauncher.intentFor(activity.hostContext, Screen.ChooseDocument),
+            NavHostComposeActivity.intentFor(activity.hostContext, NavRoutes.chooseDocument()),
             ActivityBase.STD_REQUEST_CODE,
         )
     }

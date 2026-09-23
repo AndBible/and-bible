@@ -117,7 +117,7 @@ class MenuCommandHandler(
             val currentPage = windowControl.activeWindowPageManager.currentPage
             when (itemId) {
                 R.id.chooseDocumentButton -> {
-                    val intent = ScreenLauncher.intentFor(hostActivity, Screen.ChooseDocument)
+                    val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.chooseDocument())
                     hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
                 }
                 R.id.rateButton -> {

@@ -59,10 +59,12 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.download.imageResource
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.settings.getPrefItem
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.exportStudyPads
@@ -554,7 +556,7 @@ class ReadingCommands(
             return
         }
         hostActivity.startActivityForResult(
-            ScreenLauncher.intentFor(readingHost.hostContext, Screen.ChooseDocument), STD_REQUEST_CODE)
+            NavHostComposeActivity.intentFor(readingHost.hostContext, NavRoutes.chooseDocument()), STD_REQUEST_CODE)
     }
 
     /**
@@ -1268,8 +1270,7 @@ class ReadingCommands(
 
     /** @param type can be BIBLE or COMMENTARY */
     internal fun startDocumentChooser(type: String) {
-        val intent = ScreenLauncher.intentFor(readingHost.hostContext, Screen.ChooseDocument)
-        intent.putExtra("type", type)
+        val intent = NavHostComposeActivity.intentFor(readingHost.hostContext, NavRoutes.chooseDocument(type))
         hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
     }
 

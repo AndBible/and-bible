@@ -23,10 +23,10 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.db.DatabaseContainer
-import net.bible.android.view.Screen
-import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
@@ -52,7 +52,7 @@ class CurrentBiblePage(
     override val documentCategory = DocumentCategory.BIBLE
 
     override fun startKeyChooser(context: ActivityBase) = context.startActivityForResult(
-        ScreenLauncher.intentFor(context, Screen.GridChoosePassageBook).apply { putExtra("isScripture", true) }, STD_REQUEST_CODE)
+        NavHostComposeActivity.intentFor(context, NavRoutes.gridChoosePassage(isScripture = true)), STD_REQUEST_CODE)
 
     override fun next() {
         Log.i(TAG, "Next")

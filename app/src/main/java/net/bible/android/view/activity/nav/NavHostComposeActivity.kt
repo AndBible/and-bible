@@ -1988,6 +1988,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * `onActivityResult`, every one of those results fell through `ActivityBase`'s
      * `resultByCode[requestCode - ASYNC_REQUEST_CODE_START]` miss to `super` and was discarded in
      * silence -- the batch's Ruling D failure, and the same defect step 0 fixed one level up.
+     * Since slice 8 B3 those launches are self-launches answered in-graph by the reading destination's
+     * collectors (B1); this arm now answers only a real second Activity.
      *
      * **Held until after [onResume], not applied here.** `onActivityResult` runs BEFORE `onResume`,
      * i.e. before [reclaimWindowRepository] has taken `windowControl.windowRepository` back (the
