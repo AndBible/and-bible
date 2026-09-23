@@ -19,6 +19,7 @@ package net.bible.android.view.compose
 import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -185,7 +186,7 @@ class WorkspaceInGraphResultTest {
     private val textService = FakeTextService()
     private val workspaceService = FakeWorkspaceService()
 
-    private fun deps(): WorkspaceNavDeps {
+    private fun deps(workspaceIdOf: (String) -> String = { "ws-1" }): WorkspaceNavDeps {
         val context: Context = ApplicationProvider.getApplicationContext()
         workspaceResults = NavResultChannel { channelExits++ }
         textSettingsResults = NavResultChannel { channelExits++ }
@@ -210,7 +211,7 @@ class WorkspaceInGraphResultTest {
                 },
                 title = "Workspaces",
                 settingsBundleJson = { workspaceService.settingsBundleJson(it) },
-                workspaceIdOf = { "ws-1" },
+                workspaceIdOf = workspaceIdOf,
                 onHelp = {},
             ),
             textDisplaySettings = TextDisplaySettingsDeps(
@@ -502,6 +503,68 @@ class WorkspaceInGraphResultTest {
         assertEquals(0, exitHostCalls)
     }
 
+    /**
+     * Slice 8 B8 (spec §3.5, parent spec §11.4): the graph pair's answer to the Activity pair's
+     * process-death reasoning. The workspace id must be read back out of the RETURNED JSON
+     * (`WorkspaceNavDeps.workspaceSelector.workspaceIdOf`), never from host-side state, because after
+     * process death there IS no host-side state: the selector's memoised controller, the editor's
+     * session memo and both channels are gone; only the saved back stack comes back.
+     *
+     * Green by construction on this tree (the arm already reads the JSON). Proven able to fail by
+     * mutating `WorkspaceNavGraph.kt`'s `id = d.workspaceIdOf(result.settingsBundleJson)` to
+     * `id = "ws-1"` -- see this task's commit message.
+     */
+    @Test
+    fun aDetachedEditSurvivesTheHostProcessDyingWhileTheEditorIsOnScreen() {
+        val jsonId: (String) -> String = { json -> Regex("\"workspaceId\":\"([^\"]+)\"").find(json)!!.groupValues[1] }
+        var current = deps(workspaceIdOf = jsonId)
+        val restorer = StateRestorationTester(compose)
+        restorer.setContent {
+            navController = rememberNavController()
+            ProvideAppLocals {
+                AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
+                    NavHost(navController = navController, startDestination = NavRoutes.READING) {
+                        composable(NavRoutes.READING) { Text("reading") }
+                        composable(
+                            route = NavRoutes.MANAGE_LABELS_PATTERN,
+                            arguments = listOf(
+                                navArgument(NavRoutes.ARG_MANAGE_LABELS_DATA) {
+                                    type = NavType.StringType; nullable = true; defaultValue = null
+                                },
+                            ),
+                        ) { Text("labels") }
+                        workspaceNavGraph(navController, current)
+                    }
+                }
+            }
+        }
+        compose.waitForIdle()
+        navigateTo(NavRoutes.WORKSPACE_SELECTOR)
+        navigateTo(NavRoutes.textDisplaySettings(settingsBundle = OTHER_BUNDLE_JSON))
+        assertEquals(NavRoutes.TEXT_DISPLAY_SETTINGS_PATTERN, currentRoute)
+
+        // Process death: every host-held object goes; only the saved back stack survives.
+        selectorController = null
+        builtSessions.clear()
+        current = deps(workspaceIdOf = jsonId)
+        restorer.emulateSavedInstanceStateRestore()
+        compose.waitForIdle()
+
+        assertEquals(NavRoutes.TEXT_DISPLAY_SETTINGS_PATTERN, currentRoute, "the back stack must come back on the editor")
+        val edit = builtSessions.single()
+        assertEquals(OTHER_BUNDLE_JSON, edit.bundleJson, "the editor rebuilds its detached edit from the ROUTE's bundle")
+        edit.changed = true
+        pressBack()
+
+        assertEquals(NavRoutes.WORKSPACE_SELECTOR, currentRoute)
+        assertEquals(
+            listOf(Triple("ws-9", OTHER_BUNDLE_JSON, false)),
+            workspaceService.applied,
+            "the id comes out of the returned JSON (ws-9), not out of anything the dead host held",
+        )
+        assertEquals(0, channelExits)
+    }
+
     /** The selector's own channel, for completeness: a Save delivers in-graph and never exits. */
     @Test
     fun theSelectorDeliversItsResultInGraph() {
@@ -519,6 +582,7 @@ class WorkspaceInGraphResultTest {
 
     private companion object {
         const val BUNDLE_JSON = """{"workspaceId":"ws-1","fixture":true}"""
+        const val OTHER_BUNDLE_JSON = """{"workspaceId":"ws-9","fixture":"other"}"""
         const val LABEL_PAYLOAD = """{"mode":"HIDELABELS","fixture":"payload"}"""
         const val LABEL_ANSWER = """{"mode":"HIDELABELS","fixture":"answer"}"""
 
