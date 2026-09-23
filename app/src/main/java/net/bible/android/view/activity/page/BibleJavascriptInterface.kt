@@ -969,7 +969,7 @@ class BibleJavascriptInterface(
                     if (host != null) {
                         host.showWorkspaceSheet()
                     } else {
-                        val intent = ScreenLauncher.intentFor(hostActivity, Screen.WorkspaceSelector)
+                        val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.WORKSPACE_SELECTOR)
                         hostActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
                     }
                 }

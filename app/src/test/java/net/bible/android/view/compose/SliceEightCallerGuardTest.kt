@@ -77,9 +77,7 @@ class SliceEightCallerGuardTest {
     private companion object {
         /** `File.name:` prefix -> the task that repoints it. Keyed by FILE, because lines shift. */
         val ALLOWLIST: Map<String, String> = mapOf(
-            "BibleJavascriptInterface.kt:" to "Task B5 (workspace selector)",
-            "ComposeReadingViewHost.kt:" to "Task B5 (workspace selector footer row)",
-            "ReadingCommands.kt:" to "Task B5 (workspace selector) + Task B6 (text settings)",
+            "ReadingCommands.kt:" to "Task B6 (text settings)",
             "OptionsMenuItems.kt:" to "Task B6 (text settings colours)",
         )
     }

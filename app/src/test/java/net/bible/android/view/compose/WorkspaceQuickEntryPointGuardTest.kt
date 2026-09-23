@@ -62,11 +62,13 @@ class WorkspaceQuickEntryPointGuardTest {
         assertEquals("scanned paths that no longer exist (guard would pass vacuously)", emptyList<String>(), missing)
     }
 
-    /** A `ScreenLauncher.intentFor(..., Screen.WorkspaceSelector)` call — every such call in this
-     *  tree today is fully on one line, verified indirectly by [theScanFoundAtLeastTheKnownSites]
-     *  matching the expected count. */
+    /** A workspace-selector launch — `ScreenLauncher.intentFor(..., Screen.WorkspaceSelector)` or,
+     *  since slice 8 B5, `NavHostComposeActivity.intentFor(..., NavRoutes.WORKSPACE_SELECTOR)` —
+     *  every such call in this tree today is fully on one line, verified indirectly by
+     *  [theScanFoundAtLeastTheKnownSites] matching the expected count. */
     private fun isWorkspaceSelectorLaunch(line: String): Boolean =
-        line.contains("ScreenLauncher.intentFor(") && line.contains("Screen.WorkspaceSelector")
+        (line.contains("ScreenLauncher.intentFor(") && line.contains("Screen.WorkspaceSelector")) ||
+            (line.contains("NavHostComposeActivity.intentFor(") && line.contains("NavRoutes.WORKSPACE_SELECTOR"))
 
     /**
      * Deliberately excluded launch sites, identified by a marker string that must appear within

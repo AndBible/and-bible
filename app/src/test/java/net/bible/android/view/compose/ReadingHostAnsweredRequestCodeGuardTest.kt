@@ -20,6 +20,9 @@ package net.bible.android.view.compose
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.nav.ReadingResultKind
+import net.bible.sharedcore.nav.NavRoutes
 import org.junit.Test
 
 /**
@@ -363,7 +366,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
                 val aimedAtThisHost = window.contains("NavHostComposeActivity.intentFor(") ||
                     window.contains("intentFor(this, NavRoutes.") ||
                     migrated.any { window.contains("Screen.$it") }
-                if (aimedAtThisHost) selfLaunched += code
+                if (aimedAtThisHost && !answeredByACollector(window)) selfLaunched += code
             }
         }
         assertTrue(
@@ -372,6 +375,24 @@ class ReadingHostAnsweredRequestCodeGuardTest {
                 "stopped seeing its subject",
         )
         return selfLaunched
+    }
+
+    /**
+     * Slice 8 B5: a self-launch whose route has a `ReadingResultKind` is answered by the reading
+     * destination's COLLECTOR (T8c/B1), not by the return-to-reading ledger -- the workspace selector at
+     * `WORKSPACE_CHANGED` is the one such code. Resolved against the live enum and `NavRoutes` constants
+     * by reflection, so a renamed route cannot make this quietly wrong.
+     */
+    private fun answeredByACollector(window: String): Boolean {
+        val viaScreen = ScreenLauncher.MIGRATED.any { (screen, route) ->
+            window.contains("Screen.${screen.name}") && ReadingResultKind.forRoute(route) != null
+        }
+        val viaConstant = Regex("""NavRoutes\.([A-Z][A-Z0-9_]+)\b""").findAll(window).any { m ->
+            val route = NavRoutes::class.java.declaredFields.firstOrNull { it.name == m.groupValues[1] }
+                ?.apply { isAccessible = true }?.get(null) as? String
+            route != null && ReadingResultKind.forRoute(route) != null
+        }
+        return viaScreen || viaConstant
     }
 
     /** The `Screen.X` keys `ScreenLauncher.MIGRATED` resolves into this host's graph. */

@@ -2421,11 +2421,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // classic answers FOUR request codes and this host answered one. Three were falling through the
     // `requestCode != STD_REQUEST_CODE` early return that used to be this override's second line:
     //
-    //  - `MainBibleActivity.WORKSPACE_CHANGED` (94). `Screen.WorkspaceSelector` is NOT in
-    //    `ScreenLauncher.MIGRATED`, so this one really is a cross-Activity round trip and really
-    //    does arrive here. The user picked a workspace, confirmed, and was returned to the one they
-    //    left -- while the renames and deletes they had made in the selector persisted, so the
-    //    discarded switch read as the app's own choice. `applyPendingActivityResult` answers it.
+    //  - `MainBibleActivity.WORKSPACE_CHANGED` (94). Since slice 8 B5 the selector is a destination
+    //    of this graph: the launch at `WORKSPACE_CHANGED` is a self-launch and its answer arrives
+    //    through the reading destination's Workspace collector (`deliverReadingResult` ->
+    //    `applyInGraphWorkspaceResult`), not through `onActivityResult`.
     //  - `IntentHelper.REFRESH_DISPLAY_ON_FINISH` (2) and
     //    `IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH` (3). `Screen.Settings` IS in
     //    `ScreenLauncher.MIGRATED` and the Download screen is a route of this graph, so on THIS host

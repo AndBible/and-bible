@@ -129,8 +129,6 @@ import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
-import net.bible.android.view.Screen
-import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.SharedActivityState
@@ -1492,7 +1490,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         AbQuickSheetFooterRow(text = LocalStrings.current.manageWorkspaces) {
                             closeQuickSheet()
                             activity.hostActivity.startActivityForResult(
-                                ScreenLauncher.intentFor(activity.hostContext, Screen.WorkspaceSelector),
+                                NavHostComposeActivity.intentFor(activity.hostContext, NavRoutes.WORKSPACE_SELECTOR),
                                 MainBibleActivity.WORKSPACE_CHANGED,
                             )
                         }

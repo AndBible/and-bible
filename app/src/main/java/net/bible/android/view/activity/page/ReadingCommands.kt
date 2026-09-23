@@ -906,7 +906,7 @@ class ReadingCommands(
                 if (host != null) {
                     host.showWorkspaceSheet()
                 } else {
-                    val intent = ScreenLauncher.intentFor(readingHost.hostContext, Screen.WorkspaceSelector)
+                    val intent = NavHostComposeActivity.intentFor(readingHost.hostContext, NavRoutes.WORKSPACE_SELECTOR)
                     hostActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
                 }
             }, opensDialog = true)
@@ -1324,14 +1324,10 @@ class ReadingCommands(
      * **Classic `MainBibleActivity.onActivityResult`'s `WORKSPACE_CHANGED` arm, lifted here
      * verbatim (reading-host re-typing T8d).**
      *
-     * `Screen.WorkspaceSelector` is deliberately absent from `ScreenLauncher.MIGRATED`, so the
-     * workspace selector is a REAL second Activity for both reading hosts and its answer really does
-     * come back through an `onActivityResult` -- at `MainBibleActivity.WORKSPACE_CHANGED`, a request
-     * code the flipped host had no arm for at all. `WorkspaceSelectorComposeActivity` only
-     * `setResult`s (`:62-71`); it posts no event and nothing else calls [switchToWorkspace] on that
-     * path, so the arm IS the switch. Without it the user picks a workspace, confirms, and is
-     * returned to the one they left -- while the renames and deletes the selector made do persist,
-     * which makes the discarded switch read as the app's own choice.
+     * Since slice 8 B5 the selector is a destination of this graph: the launch at
+     * `WORKSPACE_CHANGED` is a self-launch and its answer arrives through the reading destination's
+     * Workspace collector (`deliverReadingResult` -> `applyInGraphWorkspaceResult`), not through
+     * `onActivityResult`.
      *
      * One body, two callers, exactly as T8c did with the three `STD_REQUEST_CODE` arms: the classic
      * Activity delegates here and so does `NavHostComposeActivity`.
