@@ -254,51 +254,119 @@ class ReadingChooserInGraphResultTest {
     // one host: backing out of a chooser would close the app. The async caller's cancel arm
     // (`CurrentGeneralBookPage.awaitChosenKey`) and the STD arm share that `goBackInHistory()`.
     //
-    // `goBackInHistory()` only reaches HistoryManager while `isIntegrateWithHistoryManager` is on,
-    // which this host sets while a Search/ReadingPlan destination is composed (`setHistoryRoute`) and
-    // clears when it is DISPOSED -- after the listener has already run for the pop that left it. The
-    // test sets it directly, as `HistoryGoBackLeavesScreenTest` does.
+    // And the step must actually HAPPEN (Review Focus #3): `HistoryTraversal.goBack()` refuses on this
+    // host's `reading` (`isIntegrateWithHistoryManager` is off there), so the host overrides
+    // `goBackInHistory()` to replay the reading history directly.
 
     private fun historyManager(): HistoryManager = GlobalContext.get().get()
 
     private fun historyDepth(): Int =
         historyManager().getEntities(CommonUtils.windowControl.activeWindow.id).size
 
-    /** `ReadingHostBackChainTest.pushTwoReadingPositions`'s fixture: two KJV positions in the host's window. */
-    private fun pushTwoReadingPositions() {
-        val kjv = requireNotNull(Books.installed().getBook("KJV")) { "KJV test module must be installed" }
-        val versification = Versifications.instance().getVersification("KJV")
+    private val kjvVersification get() = Versifications.instance().getVersification("KJV")
+
+    private fun kjv() = requireNotNull(Books.installed().getBook("KJV")) { "KJV test module must be installed" }
+
+    /** Ps 139:2 current and recorded as a `KeyHistoryItem` -- the item a history step must bring back. */
+    private fun recordPs139() {
         val window = CommonUtils.windowControl.activeWindow
-        window.pageManager.currentBible.setCurrentDocumentAndKey(kjv, Verse(versification, BibleBook.PS, 139, 2))
-        historyManager().addHistoryItem(window)
-        window.pageManager.currentBible.setCurrentDocumentAndKey(kjv, Verse(versification, BibleBook.PS, 23, 1))
+        window.pageManager.currentBible.setCurrentDocumentAndKey(kjv(), Verse(kjvVersification, BibleBook.PS, 139, 2))
         historyManager().addHistoryItem(window)
     }
 
+    /** Move the window on to Ps 23:1, so a restored Ps 139:2 is observable. */
+    private fun moveToPs23() {
+        CommonUtils.windowControl.activeWindow.pageManager.currentBible
+            .setCurrentDocumentAndKey(kjv(), Verse(kjvVersification, BibleBook.PS, 23, 1))
+    }
+
+    private fun activeOsisRef(): String? =
+        (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as? Verse)?.osisID
+
     @Test
-    fun anAbandonedChooserWhoseCallerGoesBackInHistoryStaysOnTheReadingView() {
+    fun anAbandonedAwaitedChooserGoesBackToThePriorHistoryItemAndStaysOnReading() {
         val activity = composedReadingHost()
         idle()
-        pushTwoReadingPositions()
-        val depthBefore = historyDepth()
-        assertTrue("fixture: history must be non-empty for goBack to do anything", depthBefore > 0)
-        // awaitChosenKey's shape, minus its `key == null` precondition (a Bible page always has one).
+        recordPs139()
+        // awaitChosenKey's shape (`CurrentGeneralBookPage.kt:210-217`), minus its `key == null`
+        // precondition, which a Bible page cannot meet. The launch records the position being left
+        // (slice 8 A2) -- Ps 139:2 again, a duplicate -- so the window moves on only AFTER it.
         activity.lifecycleScope.launch {
             val result = activity.awaitIntent(Intent(activity, ErrorActivity::class.java))
             if (result.resultCode == Activity.RESULT_CANCELED) activity.goBackInHistory()
         }
         idle()
+        moveToPs23()
+        idle()
+        val depthBefore = historyDepth()
+        assertTrue("fixture: history must be non-empty for goBack to do anything", depthBefore > 0)
         val code = shadowOf(activity).nextStartedActivityForResult.requestCode
         requests(activity).record(ReadingResultKind.KeyChooser, code)
         val nav = standInAbove(activity)
-        activity.isIntegrateWithHistoryManager = true
 
         nav.popBackStack()   // the user backs out without choosing
         idle()
 
         assertFalse("backing out of an abandoned chooser must not close the app", activity.isFinishing)
         assertEquals(NavRoutes.READING, nav.currentDestination?.route)
-        assertTrue("…and the history step itself still ran", historyDepth() < depthBefore)
+        assertEquals("classic went back in history; the prior item must be restored", "Ps.139.2", activeOsisRef())
+        assertTrue("…and it was spent from the stack", historyDepth() < depthBefore)
+    }
+
+    @Test
+    fun anAbandonedStdChooserOnAPageWithNoKeyGoesBackToThePriorHistoryItem() {
+        val activity = composedReadingHost()
+        idle()
+        recordPs139()
+        moveToPs23()
+        // A dictionary switched to with no key -- classic's "page left with no key" case. The switch
+        // itself asks for the key chooser at STD_REQUEST_CODE (`CurrentDictionaryPage.startKeyChooser`);
+        // the request is (re)recorded under the kind a self-launch of that chooser records.
+        val strongs = requireNotNull(Books.installed().getBook("StrongsGreek")) { "StrongsGreek test module must be installed" }
+        CommonUtils.windowControl.activeWindowPageManager.setCurrentDocument(strongs)
+        idle()
+        assertEquals(
+            "fixture: the page must have no key", null,
+            CommonUtils.windowControl.activeWindowPageManager.currentPage.key,
+        )
+        assertTrue("fixture: history must be non-empty for goBack to do anything", historyDepth() > 0)
+        requests(activity).record(ReadingResultKind.KeyChooser, ActivityBase.STD_REQUEST_CODE)
+        val nav = standInAbove(activity)
+
+        nav.popBackStack()   // the user backs out without choosing
+        idle()
+
+        assertFalse("backing out of an abandoned chooser must not close the app", activity.isFinishing)
+        assertEquals(NavRoutes.READING, nav.currentDestination?.route)
+        assertEquals(
+            "classic's STD cancel arm went back in history; the Bible page must be restored",
+            "KJV",
+            CommonUtils.windowControl.activeWindowPageManager.currentPage.currentDocument?.initials,
+        )
+    }
+
+    /**
+     * The override must not change BACK. The reading branch of `onBackPressed` asks its own
+     * "history" step (gated on `ReadingViewVisibility.isVisible`) and, on the confirmed second
+     * press, exits through `ActivityBase.onBackPressed` -- which calls `goBackInHistory()` first.
+     * Before B1 that always declined on `reading`; with a declined history step and a non-empty
+     * stack, the exit must still be an exit, not a history step.
+     */
+    @Test
+    fun theConfirmedBackExitOnReadingIsNotTurnedIntoAHistoryStep() {
+        val activity = composedReadingHost()
+        idle()
+        recordPs139()
+        moveToPs23()
+        ReadingViewVisibility.setVisible(false)   // the chain's history step declines
+        val depthBefore = historyDepth()
+        assertTrue("fixture: history must be non-empty", depthBefore > 0)
+
+        activity.onBackPressed()   // warns
+        activity.onBackPressed()   // confirmed: exits
+
+        assertTrue("the second BACK on reading exits, as before slice 8 B1", activity.isFinishing)
+        assertEquals("…without spending history", depthBefore, historyDepth())
     }
 
     @Test

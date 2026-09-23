@@ -237,8 +237,12 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
      * `STD_REQUEST_CODE` + `RESULT_CANCELED` guard, which goes back when a cancelled chooser has
      * left the page with no key at all. That guard is now expressed at the awaiting call site, on
      * whatever host it was opened from, and needs this.
+     *
+     * `open` since slice 8 B1: `NavHostComposeActivity` replays the reading history directly while
+     * its graph is on `reading`, because its host-global `isIntegrateWithHistoryManager` is off there
+     * and [HistoryTraversal.goBack] would refuse (classic `MainBibleActivity` had it on).
      */
-    fun goBackInHistory(): Boolean =
+    open fun goBackInHistory(): Boolean =
         ::historyTraversal.isInitialized && historyTraversal.goBack()
 
     /**

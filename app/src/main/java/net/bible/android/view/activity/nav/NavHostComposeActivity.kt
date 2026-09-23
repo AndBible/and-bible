@@ -1012,7 +1012,44 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             return
         }
         lastBackPressed = null
-        super.onBackPressed()
+        // ActivityBase.onBackPressed consults goBackInHistory() first. The chain's own "history" step
+        // has already been asked and declined, so the exit must not be turned into a history step by
+        // this host's goBackInHistory override (slice 8 B1) -- see [exitingFromReadingBack].
+        exitingFromReadingBack = true
+        try {
+            super.onBackPressed()
+        } finally {
+            exitingFromReadingBack = false
+        }
+    }
+
+    /**
+     * True only while the reading branch of [onBackPressed] hands its final "exit" to
+     * `ActivityBase.onBackPressed`, which asks [goBackInHistory] before exiting. Before slice 8 B1
+     * that call always declined on `reading` (`isIntegrateWithHistoryManager` is off there); this
+     * keeps it declining, so the override changes no BACK behaviour.
+     */
+    private var exitingFromReadingBack = false
+
+    /**
+     * Slice 8 B1 (Review Focus #3): a history step asked for while the graph is on `reading` replays
+     * the reading history directly, as classic `MainBibleActivity` (`integrateWithHistoryManager =
+     * true`) did through [HistoryTraversal.goBack]. This host's flag is host-global and off on
+     * `reading` (see [setHistoryRoute]), so `super` would always decline there. The three callers are
+     * the chooser cancel arms: [applyPendingActivityResult]'s, [answerAbandonedReadingRequests]'s and
+     * `CurrentGeneralBookPage.awaitChosenKey`'s.
+     *
+     * Deliberately NOT gated on `ReadingViewVisibility.isVisible`, unlike [goBackInReadingHistory]:
+     * the abandonment answer runs before `reading` has recomposed, while the flag is still false.
+     * `HistoryManager.goBack()` then also calls [leaveCurrentScreen], which leaves nothing on
+     * `reading`. Off `reading`, `super` keeps its behaviour (Search/ReadingPlan history routes).
+     */
+    override fun goBackInHistory(): Boolean {
+        if (exitingFromReadingBack || !readingDestinationIsCurrent()) return super.goBackInHistory()
+        val manager = historyTraversal.historyManager
+        if (!manager.canGoBack()) return false
+        manager.goBack()
+        return true
     }
 
     /**
@@ -2538,12 +2575,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * [leaveCurrentScreen]. That override leaves nothing while the graph is on `reading` -- without
      * it, backing out of a chooser would pop `reading` or, as the start destination, finish the host.
      *
-     * Known limit, shared with [applyPendingActivityResult]'s cancel arm: `goBackInHistory()` goes
-     * through `HistoryTraversal.goBack()`, which does nothing unless `isIntegrateWithHistoryManager`
-     * is on -- and this host turns that on only while a Search/ReadingPlan destination is composed
-     * ([setHistoryRoute]). So on the plain reading view the step is a no-op, as it already was for a
-     * cancelled separate chooser Activity; [goBackInReadingHistory] is the replay the reading view's
-     * BACK uses instead.
+     * The history step is this host's [goBackInHistory] override, which replays the reading history
+     * directly on `reading` -- `HistoryTraversal.goBack()` would refuse there, since this host's
+     * `isIntegrateWithHistoryManager` is off outside Search/ReadingPlan ([setHistoryRoute]).
      */
     internal fun answerAbandonedReadingRequests(route: String?) {
         if (route?.substringBefore('?') != NavRoutes.READING) return
