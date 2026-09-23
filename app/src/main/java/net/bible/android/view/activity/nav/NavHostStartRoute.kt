@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.nav
 
 import android.content.Intent
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.reading.nav.ReadingResultCollector
@@ -303,3 +304,45 @@ internal fun <T> readingResultCollector(
         )
     },
 )
+
+/**
+ * F60 fix round 2 (final-review C2): the host-owned bookkeeping [MyDocumentPagesDeps.beforeSwitchDocument]
+ * runs immediately before `MyDocumentsNavGraph`'s `onSwitchDocument` pops the leaving `MyDocumentPages`
+ * entry and navigates to `MyDocuments` — a plain in-graph `navigate`/`popUpTo` that never passes
+ * through [ActivityBase.startActivityForResult]'s funnel, so nothing here records or completes
+ * anything by itself the way an ordinary launch would.
+ *
+ * A plain function of [requests] and two callbacks, again so the gate discipline is reachable by a
+ * test without an Activity — [readingResultCollector]'s own reason.
+ *
+ * Two independent bookkeeping steps, both needed because the switch bypasses the funnel entirely:
+ *
+ *  1. **The reading-view scenario — F60's own motivating case.** When [enteredFromReading] is true
+ *     (`Pages` sat directly on `reading`, F53's `CurrentGeneralBookPage` entry, with no `MyDocuments`
+ *     below it yet), the `MyDocuments` answer this switch is about to produce has nobody recorded
+ *     as awaiting it: [recordReadingResultRequest] only fires from the `startActivityForResult`
+ *     funnel, and this hop never goes through it. Recording the request at
+ *     [ActivityBase.STD_REQUEST_CODE] — the in-graph code every other `applyChosenX` arm uses — is
+ *     what makes the reading destination's `MyDocuments` collector apply the eventual answer
+ *     instead of dropping it (`dropUnclaimed`).
+ *  2. **The orphaned `MyDocumentPages` await (final review M1).** The `Pages` entry being left
+ *     behind may have a live, parked `awaitChosenKey`/`awaitIntent` deferred from the ORIGINAL
+ *     launch that pushed it — popping it via `popUpTo` rather than `NavResultChannel.deliver` never
+ *     completes that deferred, which then hangs for the life of the Activity. [claim]ing it here and
+ *     handing the request code to [resolveOrphanedMyDocumentPagesAwait] lets the caller complete it
+ *     (with `RESULT_CANCELED`, mirroring backing out of `Pages` with nothing chosen), so its "no key
+ *     -> go back in history" arm stays reachable rather than dangling. Safe to attempt
+ *     unconditionally: a switch reached through `MyDocuments` (the ordinary `MyDocuments -> open doc
+ *     -> Pages` path) never recorded this kind async in the first place, so [claim] returns null and
+ *     nothing is called.
+ */
+internal fun beforeSwitchMyDocument(
+    requests: ReadingResultRequests,
+    enteredFromReading: Boolean,
+    resolveOrphanedMyDocumentPagesAwait: (requestCode: Int) -> Unit,
+) {
+    if (enteredFromReading) {
+        requests.record(ReadingResultKind.MyDocuments, ActivityBase.STD_REQUEST_CODE)
+    }
+    requests.claim(ReadingResultKind.MyDocumentPages)?.let(resolveOrphanedMyDocumentPagesAwait)
+}

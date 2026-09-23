@@ -87,6 +87,17 @@ class MyDocumentPagesDeps(
     val onImport: () -> Unit,
     val onExportSelected: (ids: List<Long>) -> Unit,
     val onExportPage: (id: Long) -> Unit,
+    /**
+     * F60 fix round 2 (final-review C2): host-owned bookkeeping the arm's `onSwitchDocument` runs
+     * BEFORE it navigates to `MyDocuments` -- see
+     * `net.bible.android.view.activity.nav.beforeSwitchMyDocument` (`:app`) for what it does and why
+     * `commonMain` cannot do it itself: it needs the host's `ReadingResultRequests` record and
+     * `ActivityBase.STD_REQUEST_CODE`/`onActivityResult`, none of which cross into `commonMain`. The
+     * switch is a plain in-graph `navigate`/`popUpTo`, never `startActivityForResult`, so without
+     * this hook nothing tells the host a `MyDocuments` answer is coming or that the `Pages` entry
+     * being left behind may have a parked await to resolve.
+     */
+    val beforeSwitchDocument: () -> Unit,
 )
 
 /**
@@ -188,10 +199,16 @@ class MyDocumentsNavDeps(
      * `navController.previousBackStackEntry`, so in that shape it now takes the publish-to-[pending]
      * branch instead of the exit branch; `NavHostComposeActivity`'s `readingResultCollectors` already
      * wires a `ReadingResultKind.MyDocuments` collector against this exact field (added when
-     * [myDocumentPagesResults] first needed it, for symmetry), so consumption was always live -- only
-     * the STACK SHAPE that reaches it is new. Declared as a channel anyway, not a bare host lambda,
-     * for the same reason every other result-producing destination in this tree is: one mechanism,
-     * not two.
+     * [myDocumentPagesResults] first needed it, for symmetry) -- **but consumption was NOT always
+     * live, final review C1 -- 2026-09-23 -- found.** The collector's own gate,
+     * `ReadingResultRequests.isAwaiting(MyDocuments)`, is only ever set true by the host's
+     * `startActivityForResult` funnel, and this hop is a plain in-graph `navigate`/`popUpTo` that
+     * never goes through it -- so the reading destination's collector silently `dropUnclaimed`s the
+     * very answer this stack shape exists to deliver. [MyDocumentPagesDeps.beforeSwitchDocument]
+     * (F60 fix round 2) is what actually arms that gate for this stack shape, by recording the
+     * request explicitly when the entry below `Pages` is `reading`. Declared as a channel anyway,
+     * not a bare host lambda, for the same reason every other result-producing destination in this
+     * tree is: one mechanism, not two.
      */
     val myDocumentsResults: NavResultChannel<MyDocumentsResult>,
     // — MY DOCUMENT PAGES —
@@ -460,10 +477,22 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
                 deps.myDocumentPagesResults.deliver(navController, MyDocumentPagesResult.Cancelled)
             },
             // Reachable only in plain mode (see the PlatformBackHandler note above), so it needs no
-            // selection/search branch of its own -- a bare leave with NO result, classic's
-            // `super.onBackPressed()` after neither branch fired, which never called `setResult` at
-            // all. Same shape as the bookmark LIST's own `onUp` (`BookmarkNavGraph.kt`).
-            onNavigateUp = { navController.popOrExit(deps.exitHost) },
+            // selection/search branch of its own -- classic's `super.onBackPressed()` after neither
+            // branch fired, which never called `setResult` at all. Same shape as the bookmark LIST's
+            // own `onUp` (`BookmarkNavGraph.kt`) EXCEPT for one thing `MyDocumentPages` alone has:
+            // final review M1. `Pages` is reached from `reading` through `awaitChosenKey`/
+            // `awaitIntent`, which parks a deferred the host's `MyDocumentPages` collector completes
+            // -- but ONLY when something `deliver`s an answer. A bare `navController.popOrExit(...)`
+            // (this arm's original shape) pops without delivering anything at all, so that deferred
+            // hangs for the life of the Activity whenever the user backs out of `Pages` with nothing
+            // chosen (up arrow or hardware back). `deliver(Cancelled)` fixes it: `Pages` always has a
+            // parent entry in production (it is deliberately absent from `ScreenLauncher.MIGRATED`,
+            // so it can never be a start destination -- see this file's own kdoc), so `deliver`
+            // always takes the publish-and-pop branch here, which is exactly what `popOrExit` did,
+            // plus the completion the bare pop was missing. Entered from `MyDocuments` (the ordinary
+            // path), a `Cancelled` relay is a harmless no-op there (`MyDocumentsNavDeps
+            // .myDocumentPagesResults`' `LaunchedEffect` only acts on `Selected`).
+            onNavigateUp = { deps.myDocumentPagesResults.deliver(navController, MyDocumentPagesResult.Cancelled) },
             // F60 fix round 1: `popUpTo(MY_DOCUMENT_PAGES_PATTERN) { inclusive = true }` ALONE
             // removes only the LEAVING Pages entry -- if a `MyDocuments` entry is already sitting
             // below it (the normal `MyDocuments -> open doc -> Pages` path), a bare `navigate`
@@ -477,7 +506,15 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
             // the Pages entry being left is always popped, so back from the list goes wherever the
             // page list was entered from -- and the stack is the same size after one switch as after
             // five.
+            //
+            // F60 fix round 2 (final-review C2): `d.beforeSwitchDocument()` runs FIRST, while
+            // `navController`'s back stack still has `Pages` on top -- see
+            // `MyDocumentPagesDeps.beforeSwitchDocument`'s own kdoc for what the host does with that
+            // moment (recording the coming `MyDocuments` answer as awaited when the entry below
+            // `Pages` is `reading`, and resolving any orphaned `MyDocumentPages` await the switch is
+            // about to abandon).
             onSwitchDocument = {
+                d.beforeSwitchDocument()
                 navController.navigate(NavRoutes.myDocuments()) {
                     popUpTo(NavRoutes.MY_DOCUMENT_PAGES_PATTERN) { inclusive = true }
                     launchSingleTop = true

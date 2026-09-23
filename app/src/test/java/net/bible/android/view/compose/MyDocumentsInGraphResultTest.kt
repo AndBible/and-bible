@@ -32,6 +32,10 @@ import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.activity.R
 import net.bible.android.view.activity.nav.NavResultIntents
+import net.bible.android.view.activity.nav.ReadingResultKind
+import net.bible.android.view.activity.nav.ReadingResultRequests
+import net.bible.android.view.activity.nav.beforeSwitchMyDocument
+import net.bible.android.view.activity.nav.readingResultCollector
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.mydocuments.MyDocItem
@@ -46,6 +50,7 @@ import net.bible.sharedui.mydocuments.nav.MyDocumentsDeps
 import net.bible.sharedui.mydocuments.nav.MyDocumentsNavDeps
 import net.bible.sharedui.mydocuments.nav.myDocumentsNavGraph
 import net.bible.sharedui.nav.NavResultChannel
+import net.bible.sharedui.reading.nav.ReadingResultCollector
 import net.bible.sharedui.theme.AbTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
@@ -113,7 +118,7 @@ class MyDocumentsInGraphResultTest {
 
     private lateinit var navController: NavHostController
 
-    private fun deps(): MyDocumentsNavDeps = MyDocumentsNavDeps(
+    private fun deps(beforeSwitchDocument: () -> Unit = {}): MyDocumentsNavDeps = MyDocumentsNavDeps(
         exitHost = { exitHostCalls++ },
         setWindowTitle = {},
         myDocumentPagesResults = NavResultChannel<MyDocumentPagesResult> { result ->
@@ -139,6 +144,7 @@ class MyDocumentsInGraphResultTest {
             onImport = {},
             onExportSelected = {},
             onExportPage = {},
+            beforeSwitchDocument = beforeSwitchDocument,
         ),
         // See MyDocumentsDeps.controllerFor's own kdoc: nothing in MyDocumentsController itself
         // calls onResult, so it is unused here too -- the test drives the two-level relay by
@@ -473,6 +479,101 @@ class MyDocumentsInGraphResultTest {
             sizeAfterFirstSwitch, sizeAfterSecondSwitch,
             "back stack grew between the first and second switch when Pages was the start destination",
         )
+    }
+
+    /**
+     * Final-review C2: the real production stack, which none of the guards above reproduce.
+     * [switchingDocumentsWhenPagesIsTheStartDestinationDoesNotOrphanOrGrow] makes `Pages` the
+     * graph's START destination -- a shape F53 made impossible in production (`Pages` is reached by
+     * `CurrentGeneralBookPage`'s `awaitChosenKey` navigating the LIVE graph, so it always has a
+     * parent). [aMyDocumentPagesResultProducedInsideTheGraphReachesTheParentAndPops] and friends use
+     * [TEST_PARENT_ROUTE], a stand-in shaped like `MyDocuments`, not `reading`. Neither reproduces
+     * the actual defect, which lives in the GATE `NavHostComposeActivity` builds around this graph --
+     * `ReadingResultRequests`/`readingResultCollector` in `NavHostStartRoute.kt` -- and which nothing
+     * in `commonMain` can see. Both are `internal` in `:app`, precisely so a test can reach them
+     * without an Activity (same reason as [ReadingResultRequestTest]), so this test builds the real
+     * gate around a `reading` stand-in and drives the real [myDocumentsNavGraph] arm against it --
+     * the `[reading, Pages]` stack F60 was filed for.
+     */
+    @Test
+    fun switchingDocumentFromPagesOnReadingDeliversTheChoiceBackToReading() {
+        val requests = ReadingResultRequests()
+        var resolvedOrphanRequestCode: Int? = null
+        val appliedMyDocumentsResults = mutableListOf<MyDocumentsResult>()
+        var droppedMyDocumentsResults = 0
+
+        // Mirrors `awaitChosenKey`'s `awaitIntent`: the ORIGINAL launch that pushed `Pages` records
+        // it as awaited, at some async request code -- `readingResultRequests.record` would do this
+        // for real, from `NavHostComposeActivity.startActivityForResult`'s override.
+        requests.record(ReadingResultKind.MyDocumentPages, 1900)
+
+        val d = deps(
+            beforeSwitchDocument = {
+                // The exact logic `NavHostComposeActivity.onSwitchMyDocumentFromPages` runs, against
+                // the SAME `navController` the graph below uses -- this IS what that private host
+                // method does, just not gone through the Activity to reach it.
+                val enteredFromReading =
+                    navController.previousBackStackEntry?.destination?.route == NavRoutes.READING
+                beforeSwitchMyDocument(requests, enteredFromReading) { requestCode ->
+                    resolvedOrphanRequestCode = requestCode
+                }
+            },
+        )
+        val myDocumentsCollector: ReadingResultCollector<MyDocumentsResult> = readingResultCollector(
+            resultChannel = d.myDocumentsResults,
+            kind = ReadingResultKind.MyDocuments,
+            requests = requests,
+            log = { droppedMyDocumentsResults++ },
+            deliver = { result, _ -> appliedMyDocumentsResults += result },
+        )
+
+        compose.setContent {
+            navController = rememberNavController()
+            ProvideAppLocals {
+                AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
+                    NavHost(navController = navController, startDestination = NavRoutes.READING) {
+                        // The stand-in for the real `reading` destination: composes the SAME gated
+                        // collector `NavHostComposeActivity.readingResultCollectors` builds for
+                        // `ReadingResultKind.MyDocuments`.
+                        composable(NavRoutes.READING) {
+                            myDocumentsCollector.Collect()
+                        }
+                        myDocumentsNavGraph(navController, d)
+                    }
+                }
+            }
+        }
+        compose.waitForIdle()
+
+        // F53's shape: `Pages` pushed directly on top of `reading`, no `MyDocuments` below it.
+        compose.runOnIdle { navController.navigate(myDocumentPagesRoute()) }
+        compose.waitForIdle()
+        assertEquals(NavRoutes.MY_DOCUMENT_PAGES_PATTERN, currentRoute)
+
+        compose.onNodeWithContentDescription(switchDocumentText).performClick()
+        compose.waitForIdle()
+        assertEquals(NavRoutes.MY_DOCUMENTS_PATTERN, currentRoute, "switch did not land on MyDocuments")
+
+        assertEquals(
+            1900, resolvedOrphanRequestCode,
+            "the orphaned MyDocumentPages await (final review M1) was not resolved by the switch",
+        )
+
+        // Open a different document's page list and pick a page -- the two-level relay
+        // MyDocumentPages -> MyDocuments -> reading this task's whole design rests on.
+        compose.runOnIdle { navController.navigate(myDocumentPagesRoute()) }
+        compose.waitForIdle()
+        compose.runOnIdle { assertNotNull(pagesController).openPage(1L) }
+        compose.waitForIdle()
+
+        assertEquals(
+            listOf<MyDocumentsResult>(MyDocumentsResult.Selected("MyDoc_1", "page-1")),
+            appliedMyDocumentsResults,
+            "the chosen document never reached reading's MyDocuments collector -- dropped as " +
+                "unclaimed (final review C2)",
+        )
+        assertEquals(0, droppedMyDocumentsResults, "the answer was logged as dropped/unclaimed")
+        assertEquals(NavRoutes.READING, currentRoute, "reading did not regain the stack top")
     }
 
     private companion object {

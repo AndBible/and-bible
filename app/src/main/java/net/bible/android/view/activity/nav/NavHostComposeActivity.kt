@@ -2070,6 +2070,23 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         readingResultRequests.record(kind, requestCode)
     }
 
+    /**
+     * [MyDocumentPagesDeps.beforeSwitchDocument] -- see [beforeSwitchMyDocument]'s own kdoc for the
+     * two bookkeeping steps this runs and why the switch (a plain in-graph `navigate`/`popUpTo`,
+     * never `startActivityForResult`) needs them at all: [recordReadingResultRequest] never sees
+     * this hop.
+     *
+     * Called by the arm BEFORE its own `navigate`, so `previousBackStackEntry` still names whatever
+     * `Pages` (the current top) sits on -- `reading` in F60's own motivating case, `MyDocuments` in
+     * the ordinary `MyDocuments -> open doc -> Pages` path.
+     */
+    private fun onSwitchMyDocumentFromPages() {
+        val enteredFromReading = navController?.previousBackStackEntry?.destination?.route == NavRoutes.READING
+        beforeSwitchMyDocument(readingResultRequests, enteredFromReading) { requestCode ->
+            onActivityResult(requestCode, Activity.RESULT_CANCELED, null)
+        }
+    }
+
     private fun <T> collectorFor(
         resultChannel: NavResultChannel<T>,
         kind: ReadingResultKind,
@@ -3380,6 +3397,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             onImport = onImportMyDocumentPage,
                             onExportSelected = onExportSelectedMyDocumentPages,
                             onExportPage = onExportMyDocumentPage,
+                            beforeSwitchDocument = ::onSwitchMyDocumentFromPages,
                         ),
                         myDocuments = MyDocumentsDeps(
                             controllerFor = { onResult -> myDocumentsControllerFor(onResult) },
