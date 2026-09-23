@@ -183,7 +183,8 @@ internal fun aCancelFromThisIntentWouldBeTheUsers(intent: Intent, hostClassName:
  * the patterns rather than spelled a second time, so a renamed route cannot leave this enum quietly
  * matching nothing.
  *
- * Five entries, one per channel the reading view can fill, and between them they carry nine call
+ * Nine entries, one per channel the reading view can fill (slice 8 added the key choosers, the passage grid,
+ * the document chooser and the workspace selector). The five T8c ones between them carry nine call
  * sites: `ManageLabels` alone is reached from `BibleView.assignLabels`, `HideLabelsPreference`,
  * `AutoAssignPreference`, `MenuCommandHandler`'s StudyPads row and `CurrentGeneralBookPage`'s
  * StudyPad arm; `ReadingProgress` from the menu row and from `BibleJavascriptInterface
@@ -192,18 +193,34 @@ internal fun aCancelFromThisIntentWouldBeTheUsers(intent: Intent, hostClassName:
  * A route with no entry here is a self-launch that produces NO result (`download`, `settings`,
  * `search`) and so has nothing to wait for. That is the common case and it is silent on purpose.
  */
-internal enum class ReadingResultKind(val routeBase: String) {
-    ManageLabels(NavRoutes.MANAGE_LABELS_PATTERN.substringBefore('?')),
-    MyDocumentPages(NavRoutes.MY_DOCUMENT_PAGES_PATTERN.substringBefore('?')),
-    ReadingProgress(NavRoutes.READING_PROGRESS_PATTERN.substringBefore('?')),
-    Bookmarks(NavRoutes.BOOKMARKS_PATTERN.substringBefore('?')),
-    MyDocuments(NavRoutes.MY_DOCUMENTS_PATTERN.substringBefore('?')),
+internal enum class ReadingResultKind(
+    /**
+     * Slice 8 (plan Correction 3): whether a request of this kind still open when the graph returns to
+     * `reading` with nothing pending is answered as a CANCEL. True for the three chooser kinds, whose
+     * callers relied on a real chooser Activity's `RESULT_CANCELED` before slice 8 moved them in-graph
+     * (classic's "no key -> go back in history" arm). The five T8c kinds keep their pre-slice-8
+     * behaviour.
+     */
+    val answersAbandonment: Boolean,
+    /** Every route BASE that addresses this kind's destination(s) -- the three key choosers share one channel. */
+    vararg val routeBases: String,
+) {
+    ManageLabels(false, NavRoutes.MANAGE_LABELS_PATTERN.substringBefore('?')),
+    MyDocumentPages(false, NavRoutes.MY_DOCUMENT_PAGES_PATTERN.substringBefore('?')),
+    ReadingProgress(false, NavRoutes.READING_PROGRESS_PATTERN.substringBefore('?')),
+    Bookmarks(false, NavRoutes.BOOKMARKS_PATTERN.substringBefore('?')),
+    MyDocuments(false, NavRoutes.MY_DOCUMENTS_PATTERN.substringBefore('?')),
+    // ——— slice 8 B1: slice 7's destinations, now reached from the reading view ———
+    KeyChooser(true, NavRoutes.CHOOSE_GENERAL_BOOK_KEY, NavRoutes.CHOOSE_MAP_KEY, NavRoutes.CHOOSE_DICTIONARY_WORD),
+    PassageGrid(true, NavRoutes.GRID_CHOOSE_PASSAGE_PATTERN.substringBefore('?')),
+    ChooseDocument(true, NavRoutes.CHOOSE_DOCUMENT_PATTERN.substringBefore('?')),
+    Workspace(false, NavRoutes.WORKSPACE_SELECTOR),
     ;
 
     companion object {
         fun forRoute(route: String): ReadingResultKind? {
             val base = route.substringBefore('?')
-            return entries.firstOrNull { it.routeBase == base }
+            return entries.firstOrNull { base in it.routeBases }
         }
     }
 }
@@ -253,7 +270,9 @@ internal fun readingResultKindForLaunch(intent: Intent, hostClassName: String): 
  * bookmark list without picking a row) stays recorded until the next launch overwrites it — but a
  * result can only reach the reading destination if that destination is the one the producing route
  * was pushed onto, i.e. if a launch was made, which rewrites the entry first. So a stale entry can
- * be overwritten, never spent.
+ * be overwritten, never spent. (Slice 8: an abandoned request of an
+ * [ReadingResultKind.answersAbandonment] kind does not linger at all -- [claimAbandoned] forgets it
+ * when the graph returns to `reading` and the host answers it as a cancel.)
  */
 internal class ReadingResultRequests {
     private val byKind = mutableMapOf<ReadingResultKind, Int>()
@@ -266,6 +285,19 @@ internal class ReadingResultRequests {
 
     /** The request code that asked, FORGOTTEN in the same breath — see this class's kdoc. */
     fun claim(kind: ReadingResultKind): Int? = byKind.remove(kind)
+
+    /**
+     * Slice 8: the requests of an [ReadingResultKind.answersAbandonment] kind still open when the graph
+     * is back on `reading` and [isPending] says no answer is waiting -- the user left the chooser without
+     * choosing. Forgotten in the same breath, like [claim], so they cannot be answered twice.
+     */
+    fun claimAbandoned(isPending: (ReadingResultKind) -> Boolean): List<Pair<ReadingResultKind, Int>> {
+        val abandoned = byKind.entries
+            .filter { (kind, _) -> kind.answersAbandonment && !isPending(kind) }
+            .map { it.key to it.value }
+        abandoned.forEach { (kind, _) -> byKind.remove(kind) }
+        return abandoned
+    }
 }
 
 /**

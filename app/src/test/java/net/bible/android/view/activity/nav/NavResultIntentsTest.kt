@@ -27,13 +27,18 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.ManageLabelsMapper
 import net.bible.android.view.activity.page.ActivityResultKind
+import net.bible.android.view.activity.page.KeyChooserResults
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.sharedcore.nav.BookmarkResult
+import net.bible.sharedcore.nav.DocumentResult
+import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.MyDocumentsResult
+import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.nav.ReadingProgressResult
+import net.bible.sharedcore.nav.WorkspaceResult
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -326,5 +331,61 @@ class NavResultIntentsTest {
             ActivityResultKind.MyDocuments.name,
             result.data?.extras?.getString(ActivityResultKind.EXTRA),
         )
+    }
+
+    // ——— slice 8 B1: the four channels the reading view now collects ———————————————————————————
+    // Each packs the Intent the CLASSIC chooser Activity set, so the one reader of that shape --
+    // KeyChooserResults / ReadingCommands.applyChosen* -- serves the in-graph answer unchanged.
+
+    @Test
+    fun aKeyChooserAnswerPacksClassicsGenBookKeyShape() {
+        val intent = NavResultIntents.forKeyChooser(KeyChooserResult(key = "Gen.1.1", book = "KJV"))
+        assertEquals(ActivityResultKind.GenBookKey.name, intent.getStringExtra(ActivityResultKind.EXTRA))
+        assertEquals("Gen.1.1", intent.getStringExtra("key"))
+        assertEquals("KJV", intent.getStringExtra("book"))
+        assertNull(intent.getStringExtra("bookAndKey"))
+        assertEquals(
+            KeyChooserResults.ChosenKey.GenBookKey(bookAndKeyJson = null, bookInitials = "KJV", osisRef = "Gen.1.1"),
+            KeyChooserResults.chosenKeyFrom(intent.getStringExtra(ActivityResultKind.EXTRA)) { intent.getStringExtra(it) },
+        )
+    }
+
+    @Test
+    fun anEpubTocAnswerCarriesOnlyTheSerialisedBookAndKey() {
+        // ChooseGeneralBookKeyComposeActivity.buildResult: a BookAndKey key carries its OWN document,
+        // so classic wrote bookAndKey and NEITHER key nor book.
+        val intent = NavResultIntents.forKeyChooser(KeyChooserResult(bookAndKeyJson = """{"k":"v"}"""))
+        assertEquals("""{"k":"v"}""", intent.getStringExtra("bookAndKey"))
+        assertNull(intent.getStringExtra("key"))
+        assertNull(intent.getStringExtra("book"))
+        assertEquals(ActivityResultKind.GenBookKey.name, intent.getStringExtra(ActivityResultKind.EXTRA))
+    }
+
+    @Test
+    fun aPassageAnswerPacksTheVerseExtra() {
+        val intent = NavResultIntents.forPassage(PassageResult("Ps.23.1"))
+        assertEquals("Ps.23.1", intent.getStringExtra("verse"))
+        assertEquals(ActivityResultKind.PassageGrid.name, intent.getStringExtra(ActivityResultKind.EXTRA))
+    }
+
+    @Test
+    fun aDocumentAnswerPacksTheBookExtra() {
+        val intent = NavResultIntents.forDocument(DocumentResult("ESV2011"))
+        assertEquals(ActivityResultKind.ChooseDocument.name, intent.getStringExtra(ActivityResultKind.EXTRA))
+        assertEquals(
+            KeyChooserResults.ChosenKey.Document("ESV2011"),
+            KeyChooserResults.chosenKeyFrom(intent.getStringExtra(ActivityResultKind.EXTRA)) { intent.getStringExtra(it) },
+        )
+    }
+
+    @Test
+    fun aWorkspaceAnswerPacksClassicsTwoExtras() {
+        val picked = NavResultIntents.forWorkspace(WorkspaceResult(workspaceId = "ws-9", changed = true))
+        assertEquals("ws-9", picked.getStringExtra("workspaceId"))
+        assertTrue(picked.getBooleanExtra("changed", false))
+
+        val saved = NavResultIntents.forWorkspace(WorkspaceResult(workspaceId = null, changed = false))
+        assertFalse(saved.hasExtra("workspaceId"), "a plain Save selects no workspace, as classic's onResult")
+        assertFalse(saved.getBooleanExtra("changed", true))
     }
 }

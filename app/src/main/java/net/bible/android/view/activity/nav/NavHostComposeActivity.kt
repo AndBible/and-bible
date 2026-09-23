@@ -1022,6 +1022,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      */
     override fun leaveCurrentScreen() {
         val controller = navController
+        // Slice 8 B1: on `reading` there is no other screen to leave. `HistoryManager.goBack()` gets
+        // here with the reading view current whenever it runs before that destination has recomposed
+        // (`ReadingViewVisibility.isVisible` still false) -- the abandoned-chooser cancel arm of
+        // [answerAbandonedReadingRequests] and `CurrentGeneralBookPage.awaitChosenKey`. Popping there
+        // would drop the reading view, and at the start destination finish() would close the app.
+        if (controller?.currentDestination?.route == NavRoutes.READING) return
         if (controller != null && controller.previousBackStackEntry != null) {
             controller.popBackStack()
         } else {
@@ -2065,9 +2071,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      *     F53's scope and nothing wider.
      *  2. **A route a collector answers.** [readingResultKindForLaunch] returns non-null only for a
      *     self-launch (it compares `component.className` to `javaClass.name`) whose route is one of
-     *     the five [ReadingResultKind]s. Intercepting a route NO collector answers would leave the
-     *     deferred uncompleted forever -- a hung coroutine, which is worse than the dropped result
-     *     this fixes. `SelfLaunchRouteKindGuardTest` makes the next such call site fail the build.
+     *     the [ReadingResultKind]s (nine since slice 8 B1). Intercepting a route NO collector
+     *     answers would leave the deferred uncompleted forever -- a hung coroutine, which is worse
+     *     than the dropped result this fixes. `SelfLaunchRouteKindGuardTest` makes the next such
+     *     call site fail the build.
      *  3. **A live controller.** Null only in the sliver before the graph's first composition; falling
      *     through to the platform there is today's behaviour, not a new failure mode.
      *
@@ -2166,10 +2173,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     )
 
     /**
-     * The five channels the reading view's own launches can fill, each with the packing that turns
-     * its result back into the `Intent` the caller already knows how to read.
+     * The nine channels the reading view's own launches can fill (slice 8 B1 added the key choosers,
+     * the passage grid, the document chooser and the workspace selector), each with the packing that
+     * turns its result back into the `Intent` the caller already knows how to read.
      *
-     * `by lazy` rather than an initialised field: this list names five channel fields declared far
+     * `by lazy` rather than an initialised field: this list names nine channel fields declared far
      * below it, and a field initialiser would read them before they exist.
      */
     private val readingResultCollectors: List<ReadingResultCollector<*>> by lazy {
@@ -2205,6 +2213,19 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 val activityResult = NavResultIntents.forMyDocuments(result)
                 deliverReadingResult(code, activityResult.resultCode, activityResult.data)
             },
+            // slice 8 B1: slice 7's destinations, reached from the reading view since Phase B.
+            collectorFor(keyChooserResults, ReadingResultKind.KeyChooser) { result, code ->
+                deliverReadingResult(code, RESULT_OK, NavResultIntents.forKeyChooser(result))
+            },
+            collectorFor(passageResults, ReadingResultKind.PassageGrid) { result, code ->
+                deliverReadingResult(code, RESULT_OK, NavResultIntents.forPassage(result))
+            },
+            collectorFor(documentResults, ReadingResultKind.ChooseDocument) { result, code ->
+                deliverReadingResult(code, RESULT_OK, NavResultIntents.forDocument(result))
+            },
+            collectorFor(workspaceResults, ReadingResultKind.Workspace) { result, code ->
+                deliverReadingResult(code, RESULT_OK, NavResultIntents.forWorkspace(result))
+            },
         )
     }
 
@@ -2222,8 +2243,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      *    runs them NOW rather than parking them in [pendingActivityResult] — that deferral exists
      *    because `onActivityResult` precedes `onResume`, and an in-graph answer arrives during a
      *    composition of an already-resumed host with its repository already reclaimed.
+     *  - **`MainBibleActivity.WORKSPACE_CHANGED`** (slice 8 B1) is neither: [applyInGraphWorkspaceResult]
+     *    runs classic's arm at once, for the same reason.
      */
     private fun deliverReadingResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == MainBibleActivity.WORKSPACE_CHANGED) {
+            // Slice 8 (plan Correction 2): neither STD nor async. Through onActivityResult it would be
+            // parked in pendingActivityResult until an onResume an in-graph pop never produces.
+            applyInGraphWorkspaceResult(resultCode, data)
+            return
+        }
         if (requestCode != ActivityBase.STD_REQUEST_CODE) {
             onActivityResult(requestCode, resultCode, data)
             return
@@ -2231,19 +2260,29 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         applyInGraphStdResult(resultCode, data)
     }
 
+    /** Classic's `WORKSPACE_CHANGED` arm, applied NOW -- see [deliverReadingResult]. */
+    private fun applyInGraphWorkspaceResult(resultCode: Int, data: Intent?) {
+        val extras = data?.extras ?: return
+        if (!readingCommands.applyWorkspaceChangedResult(resultCode, extras)) {
+            Log.i(TAG_READING_RESULTS, "An in-graph workspace answer named no change; nothing applied.")
+        }
+    }
+
     /**
-     * Classic `MainBibleActivity.onActivityResult`'s `STD_REQUEST_CODE` arms for the four kinds a
-     * destination of THIS host's graph produces, applied through the one implementation
-     * `ReadingCommands` now holds.
+     * Classic `MainBibleActivity.onActivityResult`'s `STD_REQUEST_CODE` arms for the kinds a
+     * destination of THIS host's graph produces (slice 8 added `ChooseDocument` and `GenBookKey`),
+     * applied through the one implementation `ReadingCommands` now holds.
      *
      * Deliberately NOT merged with [applyPendingActivityResult]: that dispatcher handles the kinds a
      * SEPARATE Activity can still produce, and its `else` arm's "a second host instance?" warning is
-     * still true of them. These four are the opposite case — they can only arrive here, in-graph,
-     * and never through a real Activity result.
+     * still true of them. `MyDocumentPages`, `MyDocuments`, `Bookmarks` and `ReadingProgress` are the
+     * opposite case — they can only arrive here, in-graph. The three chooser kinds arrive either way
+     * while any caller still reaches a separate chooser Activity; their arms here and there are the
+     * same one-line delegations.
      *
-     * A `RESULT_CANCELED` answer is a user who left without choosing; classic's cancel arm
-     * (stepping back in history when the page has no key) belongs to a chooser that FINISHED, which
-     * an in-graph pop is not, so nothing is applied and nothing is logged as an error.
+     * A `RESULT_CANCELED` answer is a user who left without choosing, and nothing is applied here.
+     * Backing out of an in-graph CHOOSER never reaches this function at all (a pop publishes
+     * nothing); classic's cancel arm for that case is [answerAbandonedReadingRequests].
      */
     private fun applyInGraphStdResult(resultCode: Int, data: Intent?) {
         if (resultCode != RESULT_OK) return
@@ -2251,6 +2290,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         when (val kind = ActivityResultKind.fromExtra(extras.getString(ActivityResultKind.EXTRA))) {
             ActivityResultKind.MyDocumentPages -> readingCommands.applyChosenMyDocumentPage(extras)
             ActivityResultKind.MyDocuments -> readingCommands.applyChosenMyDocument(extras)
+            ActivityResultKind.ChooseDocument -> readingCommands.applyChosenDocument(extras.getString("book"))
+            ActivityResultKind.GenBookKey -> {
+                val (book, key) = KeyChooserResults.genBookKeyFrom(extras)
+                readingCommands.applyChosenGenBookKey(book, key)
+            }
             ActivityResultKind.Bookmarks,
             ActivityResultKind.ReadingProgress,
             ActivityResultKind.PassageGrid -> {
@@ -2474,6 +2518,61 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         if (!updateDocumentsPending) return
         if (!readingAppBootstrapped) return
         updateDocuments()
+    }
+
+    /**
+     * Slice 8 (plan Correction 3): the graph is back on `reading` and a chooser request is still open
+     * with no answer pending -- the user backed out without choosing. A real chooser Activity answered
+     * that with `RESULT_CANCELED`; this answers it the same way:
+     *  - an async code resumes its `awaitIntent` with a cancel (`CurrentGeneralBookPage.awaitChosenKey`'s
+     *    own cancel arm then runs);
+     *  - `STD_REQUEST_CODE` runs classic's cancel arm, exactly as [applyPendingActivityResult] does for a
+     *    finished chooser: a page left with no key goes back in history.
+     *
+     * The destination listener runs this synchronously on the pop; a chooser that DID answer published
+     * into its channel before popping (`deliverNavResult`), so a pending value means "answered", never
+     * "abandoned". `internal` so a test can drive it without a composed graph.
+     *
+     * Both arms' history step runs BEFORE the reading destination has recomposed, i.e. while
+     * `ReadingViewVisibility.isVisible` is still false, so `HistoryManager.goBack()` also calls
+     * [leaveCurrentScreen]. That override leaves nothing while the graph is on `reading` -- without
+     * it, backing out of a chooser would pop `reading` or, as the start destination, finish the host.
+     *
+     * Known limit, shared with [applyPendingActivityResult]'s cancel arm: `goBackInHistory()` goes
+     * through `HistoryTraversal.goBack()`, which does nothing unless `isIntegrateWithHistoryManager`
+     * is on -- and this host turns that on only while a Search/ReadingPlan destination is composed
+     * ([setHistoryRoute]). So on the plain reading view the step is a no-op, as it already was for a
+     * cancelled separate chooser Activity; [goBackInReadingHistory] is the replay the reading view's
+     * BACK uses instead.
+     */
+    internal fun answerAbandonedReadingRequests(route: String?) {
+        if (route?.substringBefore('?') != NavRoutes.READING) return
+        val abandoned = readingResultRequests.claimAbandoned { kind ->
+            readingResultChannelFor(kind).pending.value != null
+        }
+        for ((kind, code) in abandoned) {
+            Log.i(TAG_READING_RESULTS, "A $kind request at code $code was left without an answer; answering it as a cancel.")
+            when {
+                code == ActivityBase.STD_REQUEST_CODE ->
+                    if (readingAppBootstrapped && windowControl.activeWindowPageManager.currentPage.key == null) {
+                        goBackInHistory()
+                    }
+                code >= ActivityBase.ASYNC_REQUEST_CODE_START -> onActivityResult(code, RESULT_CANCELED, null)
+            }
+        }
+    }
+
+    /** The channel each [ReadingResultKind]'s collector reads. Exhaustive, so a new kind cannot be forgotten. */
+    private fun readingResultChannelFor(kind: ReadingResultKind): NavResultChannel<*> = when (kind) {
+        ReadingResultKind.ManageLabels -> manageLabelsResults
+        ReadingResultKind.MyDocumentPages -> myDocumentPagesResults
+        ReadingResultKind.ReadingProgress -> readingProgressResults
+        ReadingResultKind.Bookmarks -> bookmarkResults
+        ReadingResultKind.MyDocuments -> myDocumentsResults
+        ReadingResultKind.KeyChooser -> keyChooserResults
+        ReadingResultKind.PassageGrid -> passageResults
+        ReadingResultKind.ChooseDocument -> documentResults
+        ReadingResultKind.Workspace -> workspaceResults
     }
 
     /**
@@ -2907,6 +3006,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     // destination's own one-shot bootstrap does not run a second time).
                     val onDestinationChanged = NavController.OnDestinationChangedListener { _, destination, _ ->
                         applyReadingReturnDebts(destination.route)
+                        answerAbandonedReadingRequests(destination.route)
                         applyPendingDocumentUpdateOnReturnToReading(destination.route)
                         applySoftInputModeFor(destination.route)
                     }
@@ -8272,13 +8372,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // THREE channels for FIVE destinations (design §6.2) -- see `ChooserNavDeps`' own kdoc: the three
     // key choosers already produce an identical payload consumed by a single arm.
     //
-    // All three `exitWithResult` lambdas are a hard `error(...)`, which in this file only
-    // [repositoryEditorResults] does otherwise. Design §1.1 is the reason and it is stronger here
-    // than it was there: slice 7 migrates the producing destinations TOGETHER WITH their consumer
-    // (the reading view, Task 9), so every one of these results is delivered in-graph by
-    // construction and slice 2's host-side `exitWithResult` shim is deliberately not used for any of
-    // them. If one of these ever runs, a destination has been given an external entry without being
-    // given a result contract; fail loudly rather than pack an Intent nobody defined.
+    // Every result on these three channels is delivered IN-GRAPH and, since slice 8 B1, COLLECTED by
+    // the reading destination (`readingResultCollectors`), which packs it back into the classic
+    // chooser's Intent and applies it through `deliverReadingResult`. An abandoned chooser is answered
+    // as a cancel by `answerAbandonedReadingRequests`.
+    //
+    // All three `exitWithResult` lambdas stay a hard `error(...)`, as [repositoryEditorResults]'s
+    // does: it is the watchdog for an entry with no parent. These routes are never a start
+    // destination (spec §3.1 rule 1), so slice 2's host-side `exitWithResult` shim is deliberately
+    // not used for any of them. If one of these ever runs, a destination has been given an external
+    // entry without being given a result contract; fail loudly rather than pack an Intent nobody
+    // defined.
 
     private val keyChooserResults = NavResultChannel<KeyChooserResult> {
         error("slice 7 destinations are only entered in-graph")
@@ -8835,12 +8939,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // `R.string`, an `ActivityResultLauncher` or `awaitIntent`.
 
     // ——— The cluster's two result channels ———————————————————————————————————————————————————————
-    // Both `exitWithResult` lambdas are a hard `error(...)`, the shape the chooser cluster already
-    // uses. Design §1.1: slice 7 migrates these destinations together with their consumers -- the
-    // selector's result is the reading view's (Task 9), and the settings editor's is consumed by the
-    // selector arm INSIDE this very graph -- so every result here is delivered in-graph by
-    // construction. If one of these ever runs, a destination has been given an external entry
-    // without being given a result contract; fail loudly rather than pack an Intent nobody defined.
+    // Every result here is delivered IN-GRAPH. The selector's is COLLECTED by the reading
+    // destination since slice 8 B1 (`readingResultCollectors`) and applied at once through
+    // `applyInGraphWorkspaceResult` -- `WORKSPACE_CHANGED` is neither STD nor async, and parking it
+    // for an `onResume` would wait for one an in-graph pop never produces. The settings editor's is
+    // consumed by the selector arm INSIDE this very graph.
+    //
+    // Both `exitWithResult` lambdas stay a hard `error(...)`, the shape the chooser cluster uses: the
+    // watchdog for an entry with no parent. These routes are never a start destination (spec §3.1
+    // rule 1); if one of these ever runs, a destination has been given an external entry without
+    // being given a result contract; fail loudly rather than pack an Intent nobody defined.
 
     private val workspaceResults = NavResultChannel<WorkspaceResult> {
         error("slice 7 destinations are only entered in-graph")

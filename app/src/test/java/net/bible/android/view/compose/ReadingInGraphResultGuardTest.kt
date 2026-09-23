@@ -367,25 +367,6 @@ class ReadingInGraphResultGuardTest {
                 "the custom-repository editor is registered only as a child of CustomRepositories, " +
                     "whose arm collects it (DownloadNavGraph.kt:529). Its exitWithResult is a hard " +
                     "error(...) precisely because it has no external entry.",
-            "keyChooserResults" to
-                "slice 7's in-graph key choosers. Nothing routes to those destinations: the " +
-                    "reading view still launches the CLASSIC ChooseDictionaryWord/ChooseMapKey/" +
-                    "ChooseGeneralBookKey Activities, whose results come back through " +
-                    "applyPendingActivityResult. exitWithResult is a hard error(...).",
-            "passageResults" to
-                "slice 7's in-graph passage grid, same state as keyChooserResults: the reading " +
-                    "view launches the classic GridChoosePassage Activity and the result arrives " +
-                    "through applyPendingActivityResult. exitWithResult is a hard error(...).",
-            "documentResults" to
-                "slice 7's in-graph document chooser, same state again: ChooseDocument is still a " +
-                    "separate Activity for every reading-view entry point. exitWithResult is a " +
-                    "hard error(...).",
-            "workspaceResults" to
-                "slice 7's in-graph workspace selector. Screen.WorkspaceSelector is NOT in " +
-                    "ScreenLauncher.MIGRATED, so the reading view launches the classic " +
-                    "WorkspaceSelectorComposeActivity at WORKSPACE_CHANGED -- a separate Activity, " +
-                    "a real Activity result, and nothing this channel can ever see. " +
-                    "exitWithResult is a hard error(...).",
             "textSettingsResults" to
                 "the text-display settings editor publishes to the workspace SELECTOR arm, which " +
                     "collects it in-graph (WorkspaceNavGraph.kt:609). The reading view opens " +

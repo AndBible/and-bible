@@ -24,11 +24,15 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.sharedcore.nav.BookmarkResult
+import net.bible.sharedcore.nav.DocumentResult
+import net.bible.sharedcore.nav.KeyChooserResult
 import net.bible.sharedcore.nav.LabelEditResult
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.MyDocumentPagesResult
 import net.bible.sharedcore.nav.MyDocumentsResult
+import net.bible.sharedcore.nav.PassageResult
 import net.bible.sharedcore.nav.ReadingProgressResult
+import net.bible.sharedcore.nav.WorkspaceResult
 
 /**
  * The one place a `commonMain` nav RESULT is packed into the `Intent` (and result code) the
@@ -234,5 +238,40 @@ object NavResultIntents {
             MyDocumentsResult.Saved -> ActivityResult(Activity.RESULT_OK, intent)
             MyDocumentsResult.Cancelled -> ActivityResult(Activity.RESULT_CANCELED, intent)
         }
+    }
+
+    // ——— slice 8 B1: the four channels the reading view collects since the callers moved in-graph ———
+    // Each packs exactly the Intent the classic chooser Activity set, so the one reader of that shape
+    // (KeyChooserResults, ReadingCommands.applyChosen*) serves both entries.
+
+    /**
+     * `ChooseGeneralBookKeyComposeActivity.buildResult` (`bookAndKey` alone, or `key`+`book`),
+     * `ChooseMapKeyComposeActivity.buildResult` and `ChooseDictionaryWordComposeActivity`'s
+     * `onSelect` (`key`+`book`), all tagged [ActivityResultKind.GenBookKey].
+     */
+    fun forKeyChooser(result: KeyChooserResult): Intent = Intent().apply {
+        if (result.bookAndKeyJson != null) {
+            putExtra("bookAndKey", result.bookAndKeyJson)
+        } else {
+            putExtra("key", result.key)
+            putExtra("book", result.book)
+        }
+        putExtra(ActivityResultKind.EXTRA, ActivityResultKind.GenBookKey.name)
+    }
+
+    /** `GridChoosePassageComposeActivity.finishWithVerse`. */
+    fun forPassage(result: PassageResult): Intent = Intent()
+        .putExtra("verse", result.verse)
+        .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.PassageGrid.name)
+
+    /** `ChooseDocumentComposeActivity.handleDocumentSelection`. */
+    fun forDocument(result: DocumentResult): Intent = Intent()
+        .putExtra("book", result.book)
+        .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ChooseDocument.name)
+
+    /** `WorkspaceSelectorComposeActivity`'s `onResult`: `workspaceId` only when one was picked, always `changed`. */
+    fun forWorkspace(result: WorkspaceResult): Intent = Intent().apply {
+        if (result.workspaceId != null) putExtra("workspaceId", result.workspaceId)
+        putExtra("changed", result.changed)
     }
 }
