@@ -30,6 +30,7 @@ import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.base.ErrorActivity
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -352,7 +353,10 @@ class ReadingHostNonStdResultTest {
 
     /**
      * A launch that is NOT a self-launch records nothing: that one produces a real Activity result,
-     * and recording a debt as well would apply the refresh twice.
+     * and recording a debt as well would apply the refresh twice. (`TextDisplaySettings` used to be
+     * this example, but slice 8 B7 moved it into `ScreenLauncher.MIGRATED`: it is now a self-launch
+     * of this same host, answered in-graph by B1's collectors, not a foreign-component round trip —
+     * so an actual foreign Activity, `ErrorActivity`, stands in for "aimed elsewhere" instead.)
      */
     @Test
     fun aLaunchAtTheSameCodeAimedElsewhereRecordsNoDebt() {
@@ -360,7 +364,7 @@ class ReadingHostNonStdResultTest {
         countSynchronizeWindows()
 
         activity.startActivityForResult(
-            ScreenLauncher.intentFor(activity, Screen.TextDisplaySettings),
+            Intent(activity, ErrorActivity::class.java),
             IntentHelper.REFRESH_DISPLAY_ON_FINISH,
         )
         activity.applyReadingReturnDebts(NavRoutes.READING)

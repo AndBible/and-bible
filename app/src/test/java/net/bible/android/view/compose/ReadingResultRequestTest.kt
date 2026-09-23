@@ -27,6 +27,7 @@ import kotlin.test.assertTrue
 import net.bible.android.TEST_SDK
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.base.ErrorActivity
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.nav.ReadingResultKind
 import net.bible.android.view.activity.nav.ReadingResultRequests
@@ -162,14 +163,16 @@ class ReadingResultRequestTest {
 
     /**
      * A launch at ANOTHER component is an ordinary Activity round trip and is answered the ordinary
-     * way — `ChooseDocument`, `ChooseGeneralBookKey`, `GridChoosePassageBook` and the rest still
-     * reach `NavHostComposeActivity.onActivityResult` for real. Claiming one here would take an
-     * answer away from `applyPendingActivityResult`.
+     * way — an actual foreign Activity (here `ErrorActivity`, which nav-graph slice 8 does not touch)
+     * still reaches `NavHostComposeActivity.onActivityResult` for real. Claiming one here would take
+     * an answer away from `applyPendingActivityResult`. (`ChooseDocument` and `ChooseGeneralBookKey`
+     * used to be this example, but slice 8 B7 moved them into `ScreenLauncher.MIGRATED`: they are
+     * now self-launches of this same host, answered in-graph by B1's collectors, not a foreign
+     * component round trip.)
      */
     @Test
     fun aLaunchAtAnotherComponentIsNotOurs() {
-        assertNull(kindOf(ScreenLauncher.intentFor(context, Screen.ChooseDocument)))
-        assertNull(kindOf(ScreenLauncher.intentFor(context, Screen.ChooseGeneralBookKey)))
+        assertNull(kindOf(Intent(context, ErrorActivity::class.java)))
     }
 
     /** An implicit intent — the share chooser, a browser link — has no component and is not ours. */
