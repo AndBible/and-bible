@@ -74,7 +74,34 @@ class DiscreteChromeTest {
         assertEquals(
             "nor the real logo",
             R.drawable.ic_calculator_color,
-            ComposeReadingViewHost.drawerIconResIds.getValue("ic_logo"),
+            ComposeReadingViewHost.drawerIconResIdFor("ic_logo"),
+        )
+    }
+
+    /**
+     * Fix round 2 (R13, Task 22's full-unit-suite finding): [ComposeReadingViewHost.drawerIconResIds]
+     * is a companion-object `val` whose old (pre-fix) `"ic_logo"` entry inlined the discrete check --
+     * its initializer ran ONCE, at first touch, whichever way `CommonUtils.isDiscrete` read at that
+     * moment. In the full suite an earlier test touched the companion with discrete OFF, so
+     * `"ic_logo"` baked in the real logo forever after -- turning discrete mode on later never
+     * changed an already-computed map entry. [ComposeReadingViewHost.drawerIconResIdFor] fixes this
+     * by resolving `"ic_logo"` at CALL time instead of table-init time; this test reproduces the
+     * ordering that broke the old table (touch it OFF first, forcing companion-object init, THEN
+     * flip discrete ON) and asserts the call-time function is immune to it.
+     */
+    @Test
+    fun drawerLogoResolvesToTheCurrentDiscreteStateEvenAfterAnEarlierOffTouch() {
+        CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", false).apply()
+        ComposeReadingViewHost.drawerIconResIds["ic_logo"] // force companion-object init while OFF
+
+        CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).apply()
+
+        assertEquals(
+            "the drawer logo must reflect discrete mode NOW, not whatever isDiscrete answered the " +
+                "first time anything touched the table (fix round 2 / R13) -- an init-once val " +
+                "bakes in the value read at first touch and never re-evaluates it",
+            R.drawable.ic_calculator_color,
+            ComposeReadingViewHost.drawerIconResIdFor("ic_logo"),
         )
     }
 }

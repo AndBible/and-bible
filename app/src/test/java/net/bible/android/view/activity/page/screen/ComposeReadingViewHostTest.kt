@@ -293,10 +293,22 @@ class ComposeReadingViewHostTest {
      * table to keep up with [DrawerMenuStateBuilder]'s own icon column, so assert it here — a new
      * or renamed drawer icon fails this test instead of silently rendering an icon-less row.
      * `ic_logo` is not in the builder's table: `ReadingDrawerContent`'s header asks for it by name.
+     *
+     * Fix round 2 (R13): goes through [ComposeReadingViewHost.drawerIconResIdFor], not the raw
+     * `drawerIconResIds` map directly, since `"ic_logo"` is resolved at call time (F58 discrete
+     * mode) — asserting the map alone would miss a regression in that call-time branch while still
+     * exercising every other key's coverage exactly as before.
+     *
+     * Per-method `@Config` override (class default is a plain `android.app.Application`, which
+     * never runs `BibleApplication.onCreate()`): [drawerIconResIdFor]'s `"ic_logo"` branch reads
+     * `CommonUtils.isDiscrete`, which needs `BibleApplication.application` to be set, so this one
+     * test needs [TestBibleApplication] — the rest of this class stays on the lighter plain
+     * `Application` it already used.
      */
+    @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
     @Test fun drawerIconResIdsCoverEveryBuilderIconKey() {
         for (iconName in DrawerMenuStateBuilder.entryIconNames + "ic_logo") {
-            val resId = ComposeReadingViewHost.drawerIconResIds[iconName]
+            val resId = ComposeReadingViewHost.drawerIconResIdFor(iconName)
             assertTrue(resId != null && resId != 0, "no drawable mapped for drawer iconKey '$iconName'")
         }
     }

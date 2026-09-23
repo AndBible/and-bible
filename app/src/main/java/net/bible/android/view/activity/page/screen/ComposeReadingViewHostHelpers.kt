@@ -208,11 +208,19 @@ abstract class ComposeReadingViewHostHelpers {
      * release drawer only. Direct `R.drawable` references mark them used and resolve at compile
      * time. Kept in step with the builder's table by
      * `ComposeReadingViewHostTest.drawerIconResIdsCoverEveryBuilderIconKey`.
+     *
+     * `"ic_logo"` here is the plain, NON-discrete fallback only — do not read it directly for that
+     * key. This is a companion-object `val`, so its initializer runs exactly ONCE, at first touch;
+     * `"ic_logo"` used to inline `CommonUtils.isDiscrete` right here (F58), which meant whichever
+     * state discrete mode was in the first time ANYTHING touched this table got baked in for the
+     * rest of the process — toggling discrete mode later never changed an already-computed map
+     * entry (fix round 2 / R13, found by Task 22's full unit suite: an earlier test initialised the
+     * companion with discrete OFF, so `DiscreteChromeTest` failed in the full suite while passing
+     * alone). [drawerIconResIdFor] is the call-time-safe accessor; every caller (including drift
+     * tests) must go through it rather than reading this map for `"ic_logo"`.
      */
     internal val drawerIconResIds: Map<String, Int> = mapOf(
-        // F58: the drawer header logo must not leak the real app identity in discrete mode,
-        // mirroring bibleToolbarIconRes() and DrawerMenuStateBuilder.build's appName swap.
-        "ic_logo" to (if (CommonUtils.isDiscrete) R.drawable.ic_calculator_color else R.drawable.ic_logo),
+        "ic_logo" to R.drawable.ic_logo,
         "ic_library_books_white_24dp" to R.drawable.ic_library_books_white_24dp,
         "ic_search_24dp" to R.drawable.ic_search_24dp,
         "ic_baseline_headphones_24" to R.drawable.ic_baseline_headphones_24,
@@ -236,6 +244,21 @@ abstract class ComposeReadingViewHostHelpers {
         "ic_rate_review_white_24dp" to R.drawable.ic_rate_review_white_24dp,
         "ic_bug_report_white_24dp" to R.drawable.ic_bug_report_white_24dp,
     )
+
+    /**
+     * The drawer icon lookup every caller (production and tests) must use instead of indexing
+     * [drawerIconResIds] directly. Every key except `"ic_logo"` is state-independent, so those
+     * fall straight through to the static table; `"ic_logo"` alone is resolved HERE, at call time,
+     * against the CURRENT [CommonUtils.isDiscrete] — fix round 2 / R13's fix for the init-once bug
+     * [drawerIconResIds]'s kdoc describes. Returns `null` for an unknown key, exactly as a direct
+     * map lookup would.
+     */
+    internal fun drawerIconResIdFor(key: String): Int? =
+        if (key == "ic_logo") {
+            if (CommonUtils.isDiscrete) R.drawable.ic_calculator_color else R.drawable.ic_logo
+        } else {
+            drawerIconResIds[key]
+        }
 
     /**
      * Drawable-name -> `R.drawable.*` for every icon the per-window (☰) pane popup menu

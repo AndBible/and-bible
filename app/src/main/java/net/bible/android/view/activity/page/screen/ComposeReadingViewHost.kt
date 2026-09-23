@@ -3055,14 +3055,15 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 commentaryQuickDoc.value = QuickDocMenuState()
             },
             // Batch Z-early A6: the navigation drawer. Icons are resolved from the `iconKey` the
-            // `:sharedCore` model carries (mirroring the menu XML's `android:icon`) through the
-            // explicit [drawerIconResIds] table — the same "host resolves, `:sharedUi` stays
-            // Android-free" shape as `windowIcon` above, except this one must be `@Composable`
-            // because `painterResource` is only callable inside composition.
+            // `:sharedCore` model carries (mirroring the menu XML's `android:icon`) through
+            // [drawerIconResIdFor] — the same "host resolves, `:sharedUi` stays Android-free" shape
+            // as `windowIcon` above, except this one must be `@Composable` because
+            // `painterResource` is only callable inside composition. NOT the raw [drawerIconResIds]
+            // table: `"ic_logo"` needs the call-time discrete-mode branch (F58 fix round 2 / R13).
             drawerState = drawerMenu,
             drawerOpenState = drawerOpen,
             drawerIcon = { key ->
-                val resId = drawerIconResIds[key]
+                val resId = drawerIconResIdFor(key)
                 if (resId == null) null else painterResource(resId)
             },
             // Dispatches through the SAME `MenuCommandHandler.handleMenuRequest(itemId)` the classic
