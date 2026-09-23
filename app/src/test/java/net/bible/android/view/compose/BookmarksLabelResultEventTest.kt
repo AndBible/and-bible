@@ -19,16 +19,20 @@ package net.bible.android.view.compose
 import androidx.test.core.app.ApplicationProvider
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
+import net.bible.android.control.page.ClientBibleBookmark
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.firstTime
+import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.bookmark.BookmarkSortMode
 import net.bible.sharedcore.nav.ManageLabelsResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.test.DatabaseResetter
@@ -91,6 +95,7 @@ class BookmarksLabelResultEventTest {
     }
 
     private fun bookmarkControl(): BookmarkControl = GlobalContext.get().get()
+    private fun bookmarksService(): BookmarksServiceImpl = GlobalContext.get().get()
 
     private val kjv = Versifications.instance().getVersification("KJV")
 
@@ -111,6 +116,24 @@ class BookmarksLabelResultEventTest {
             null,
         )
         return listOf(one, two)
+    }
+
+    /**
+     * The same two bookmarks, but reloaded through [BookmarksServiceImpl.loadRows] /
+     * [BookmarksServiceImpl.bookmarksByIds] -- the REAL path `requestAssignLabels` uses
+     * (`bookmarksService.bookmarksByIds(ids)`), which loads with `addData = false` and therefore
+     * `labelIds == null` (F54's actual fixture shape; [twoBookmarks] alone already has
+     * `labelIds = []` from `addOrUpdateBibleBookmark`'s own `addLabels` call, which would hide the
+     * NPE this test is about).
+     */
+    private fun twoBookmarksAsTheBookmarksListWouldLoadThem(): List<BookmarkEntities.BaseBookmarkWithNotes> {
+        val created = twoBookmarks()
+        val service = bookmarksService()
+        runBlocking { service.loadRows(filterIndex = 0, sort = BookmarkSortMode.BIBLE_ORDER, search = null, showNotes = false) }
+        val reloaded = service.bookmarksByIds(created.map { it.id.toString() })
+        assertEquals("fixture setup: both bookmarks must reload", 2, reloaded.size)
+        reloaded.forEach { assertEquals("fixture setup: loadRows must not populate labelIds", null, it.labelIds) }
+        return reloaded
     }
 
     /** `private fun bookmarksControllerFor(initialFilterIndex: Int, onSelectBookmark: ..., navigateToManageLabels: ...): BookmarksController`. */
@@ -155,7 +178,9 @@ class BookmarksLabelResultEventTest {
      * `applyBookmarksManageLabelsResult` make between them, minus the navigation itself (which is the
      * arm's job, not the host's, and not what F54 is about).
      */
-    private fun applyLabelsFromTheBookmarksListTo(bookmarks: List<BookmarkEntities.BaseBookmarkWithNotes>) {
+    private fun applyLabelsFromTheBookmarksListTo(
+        bookmarks: List<BookmarkEntities.BaseBookmarkWithNotes>,
+    ): BookmarkEntities.Label {
         val activity = host()
         seedBookmarksSession(activity)
         val session = currentBookmarksSession(activity)
@@ -168,6 +193,7 @@ class BookmarksLabelResultEventTest {
         ).toJSON()
 
         applyManageLabelsResult(activity, ManageLabelsResult(payload))
+        return label
     }
 
     @Test
@@ -203,6 +229,54 @@ class BookmarksLabelResultEventTest {
                 2,
                 seen.single().bookmarks.size,
             )
+        } finally {
+            ABEventBus.unregister(this)
+        }
+    }
+
+    /**
+     * F54 fix round 2. `assigningLabelsFromTheBookmarksListAnnouncesTheChangeOnce` above only ever
+     * checked the event COUNT -- it never looked at what the posted bookmarks actually contain, so it
+     * stayed green while the posted objects carried stale/null `labelIds` (the guard-6 pattern the
+     * final review's C1 called out). This test drives the fixture through the REAL load path
+     * (`BookmarksServiceImpl.loadRows`/`bookmarksByIds`, `addData = false`) so the pending-assign
+     * bookmarks start with `labelIds == null`, exactly as `requestAssignLabels` hands them over in
+     * production, then asserts the POSTED bookmarks carry the newly-chosen label and that serialising
+     * them for the WebView (`ClientBibleBookmark(...).asJson`) does not throw.
+     */
+    @Test
+    fun assigningLabelsFromTheBookmarksListPostsBookmarksWithTheNewLabels() {
+        val bookmarks = twoBookmarksAsTheBookmarksListWouldLoadThem()
+
+        val seen = mutableListOf<BookmarksAddedOrUpdatedEvent>()
+        val latch = CountDownLatch(1)
+        ABEventBus.register(this) {
+            on<BookmarksAddedOrUpdatedEvent> {
+                seen += it
+                latch.countDown()
+            }
+        }
+        try {
+            val label = applyLabelsFromTheBookmarksListTo(bookmarks)
+
+            assertTrue(
+                "the background write never announced the change within 5s (F54)",
+                latch.await(5, TimeUnit.SECONDS),
+            )
+            val posted = seen.single().bookmarks
+            assertEquals(2, posted.size)
+            posted.forEach {
+                val bibleBookmark = it as BookmarkEntities.BibleBookmarkWithNotes
+                assertEquals(
+                    "the posted bookmark must carry the label just assigned to it, not a stale/null " +
+                        "list (F54 -- ClientBibleBookmark.asJson would otherwise NPE on labelIds!!)",
+                    listOf(label.id),
+                    bibleBookmark.labelIds,
+                )
+                // The WebView subscriber's actual serialisation call (BibleView.kt:1015 ->
+                // ClientPageObjects.kt:340, `bookmark.labelIds!!`). Must not throw.
+                ClientBibleBookmark(bibleBookmark, kjv).asJson
+            }
         } finally {
             ABEventBus.unregister(this)
         }

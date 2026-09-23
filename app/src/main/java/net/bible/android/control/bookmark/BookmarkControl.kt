@@ -577,6 +577,20 @@ open class BookmarkControl constructor(
         }
     }
 
+    /**
+     * F54: [changeLabelsForBookmark] is a bare DAO write and never touches the in-memory
+     * [BaseBookmarkWithNotes] it was given -- `labelIds`/`bookmarkToLabels`/`text` stay whatever they
+     * were when the object was loaded (often unset, `addData = false`). A caller that posts
+     * [BookmarksAddedOrUpdatedEvent] with that same object afterwards (so an open reading view's
+     * `ClientBibleBookmark`/`ClientGenericBookmark` serialisation can pick up the new labels) must
+     * refresh it first. Mirrors the `addText`/`addLabels` pair [addOrUpdateBookmark] runs on its own
+     * bookmark right before its own post.
+     */
+    fun refreshTextAndLabels(bookmark: BaseBookmarkWithNotes) {
+        addText(bookmark)
+        addLabels(bookmark)
+    }
+
     fun saveBibleBookmarkNote(bookmarkId: IdType, note: String?) {
         if(note == null) {
             dao.deleteBookmarkNotes(bookmarkId)

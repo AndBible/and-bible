@@ -3859,13 +3859,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             lifecycleScope.launch(Dispatchers.IO) {
                 for (bookmark in bookmarks) {
                     bookmarkControl.changeLabelsForBookmark(bookmark, resultData.selectedLabels.toList())
+                    // F54 fix round 2: `changeLabelsForBookmark` is a bare DAO write that never
+                    // touches `bookmark` itself. `pendingAssign`'s objects were loaded through
+                    // `BookmarksServiceImpl.loadRows` (`addData = false`), so `labelIds` is `null` --
+                    // posting them as-is makes `BibleView`'s `ClientBibleBookmark(...).asJson`
+                    // (`ClientPageObjects.kt`) throw on `labelIds!!`, an NPE `ABEventBus` swallows, so
+                    // the WebView never updates. Refresh each bookmark's cached labels/text in place
+                    // before the post, mirroring what `addOrUpdateBookmark` -- the reading view's own
+                    // quick-assign path, which posts correctly -- does to its own bookmark.
+                    bookmarkControl.refreshTextAndLabels(bookmark)
                 }
-                // F54: `changeLabelsForBookmark` is a bare DAO write. `addOrUpdateBookmark` -- the
-                // path the reading view's own quick-assign sheet takes -- also posts
-                // `BookmarksAddedOrUpdatedEvent` and updates the recent labels, which is what
-                // `BibleView` (`:1015`) listens to. Posted ONCE for the whole batch rather than
-                // inside the loop, and fixed here rather than inside `changeLabelsForBookmark`,
-                // whose other caller is `BookmarkCsvUtils`' bulk import.
+                // `BookmarksAddedOrUpdatedEvent` is what `BibleView` (`:1015`) listens to. Posted
+                // ONCE for the whole batch rather than inside the loop, and fixed here rather than
+                // inside `changeLabelsForBookmark`, whose other caller is `BookmarkCsvUtils`' bulk
+                // import.
                 windowControl.windowRepository.updateRecentLabels(resultData.selectedLabels.toList())
                 ABEventBus.post(BookmarksAddedOrUpdatedEvent(bookmarks))
                 windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
