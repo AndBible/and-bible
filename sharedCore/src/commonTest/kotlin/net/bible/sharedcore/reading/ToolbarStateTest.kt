@@ -22,8 +22,17 @@ import kotlin.test.assertFalse
 
 class ToolbarStateTest {
 
+    /**
+     * T20 (final review, minor): this comment used to read "...so today's literal colour is the
+     * default", true only while `workspace_color_theme`'s master switch existed and literal colour
+     * really was the app's default. That switch is retired (Task 20, 2026-09-23) -- derived-from-theme
+     * is now unconditionally the default; see [ToolbarState.deriveToolbarFromTheme]'s own kdoc. `EMPTY`
+     * is a placeholder sentinel no real `ToolbarStateServiceImpl` ever emits, not a claim about what
+     * the app's default rendering is -- `false` here is simply an inert starting value before the
+     * real service populates it.
+     */
     @Test
-    fun `deriveToolbarFromTheme defaults to false so today's literal colour is the default`() {
+    fun `EMPTY's placeholder deriveToolbarFromTheme is false, not a claim about the app's real default`() {
         assertFalse(ToolbarState.EMPTY.deriveToolbarFromTheme)
     }
 }
