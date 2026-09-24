@@ -51,6 +51,8 @@ import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
+import net.bible.android.database.LogEntry
+import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.SettingsLevel
@@ -1385,6 +1387,56 @@ class ReadingCommands(
         ABEventBus.post(SynchronizeWindowsEvent(true))
         CommonUtils.changeAppIconAndName()
         composeReadingViewHost?.refreshHostedState(rebuildComposition = true)
+    }
+
+    /**
+     * Classic `MainBibleActivity`'s `MainBibleAfterRestore` subscription, verbatim (slice 8 final
+     * review, Important 1). A database restore replaced the workspace database under the live
+     * repository: drop every cached `BibleView`, force a full resync, and reload the workspace from the
+     * RESTORED database -- `IdType.empty()` makes `loadFromDb` pick the restored current workspace.
+     * Without it the live repository's next `saveIntoDb` overwrites what was just restored.
+     */
+    internal fun applyRestoredDatabase() {
+        bookmarkControl.reset()
+        bibleViewFactory.clear()
+        windowControl.windowSync.setResyncRequired()
+        currentWorkspaceId = IdType.empty()
+    }
+
+    /**
+     * Classic `MainBibleActivity`'s `WorkspacesUpdatedViaSyncEvent` subscription, verbatim (slice 8
+     * final review, Important 1): after a cloud sync wrote workspace/window rows, reload the current
+     * workspace when it (or one of its windows) changed, and fall back to the first workspace when the
+     * current one was deleted on another device.
+     */
+    internal fun applyWorkspacesUpdatedViaSync(entries: List<LogEntry>) {
+        val workspaceDeleted = entries.any {
+            it.tableName == "Workspace" &&
+            it.type == LogEntryTypes.DELETE &&
+            it.entityId1 == currentWorkspaceId
+        }
+        if(workspaceDeleted) {
+            currentWorkspaceId = workspaces.first().id
+        }
+
+        val windowsChanged = entries.any { entry ->
+            entry.tableName in listOf("Window", "PageManager") &&
+            windowRepository().windowList.firstOrNull { it.id == entry.entityId1 } != null
+        }
+
+        val workspaceChanged = entries.any {
+            it.tableName == "Workspace" &&
+            it.type == LogEntryTypes.UPSERT &&
+            it.entityId1 == currentWorkspaceId
+        }
+        if(windowsChanged || workspaceChanged) {
+            currentWorkspaceId = currentWorkspaceId
+        }
+    }
+
+    /** Classic `MainBibleActivity`'s `WorkspaceRefreshRequired` subscription, verbatim. */
+    internal fun applyWorkspaceRefreshRequired() {
+        currentWorkspaceId = workspaces.first().id
     }
 
     internal fun cycleWorkspace(forward: Boolean) {

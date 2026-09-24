@@ -195,6 +195,12 @@ import net.bible.android.view.activity.page.SDCARD_READ_REQUEST
 import net.bible.android.view.activity.page.SpeakTransportVisibilityChanged
 import net.bible.android.view.activity.page.SystemInsetsChangedEvent
 import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
+import net.bible.android.view.activity.page.MainBibleAfterRestore
+import net.bible.android.view.activity.page.syncScope
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
+import net.bible.service.cloudsync.CloudSyncEvent
+import net.bible.service.cloudsync.WorkspaceRefreshRequired
+import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
 import net.bible.android.view.activity.page.UpdateRestoreWindowButtons
 import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
@@ -2975,6 +2981,63 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         }
         // Slice 8 E2: StartupComposeActivity's progress line on its welcome card.
         onMain<InstallZipEvent> { e -> welcomeFlowOrNull?.controllerIfCreated?.setProgress(e.message) }
+
+        // Slice 8 final review, Important 1: the rest of classic `MainBibleActivity.eventSubscriptions`
+        // (at 7ac0b64fa), lost when F4 deleted the class. Every one of them is about THIS host's reading
+        // workspace or its cloud-sync loop, so each is gated on [readingAppBootstrapped]: a host on Welcome,
+        // Backup, InstallZip or any other non-reading start owns no window repository
+        // ([hostWindowRepository] throws), and a bootstrapped host is the one that owns the sync loop
+        // ([ReadingAppBootstrap.startSync]) -- so the gate is exactly "the handler has something to act on".
+        // The workspace bodies live on [ReadingCommands], next to the workspace switch they drive.
+        on<CloudSyncEvent> { event ->
+            if (!readingAppBootstrapped) return@on
+            if (!event.running) {
+                CommonUtils.settings.setLong("globalLastSynchronized", System.currentTimeMillis())
+            }
+        }
+        on<AppToBackgroundEvent> { event ->
+            if (!readingAppBootstrapped) return@on
+            if (event.isMovedToBackground) {
+                wholeAppWasInBackground = true
+                readingAppBootstrap.stopPeriodicSync()
+                syncScope.launch { readingAppBootstrap.synchronize(true) }
+            } else {
+                onToolbarStateMayHaveChanged() // classic's updateActions()
+                syncScope.launch { readingAppBootstrap.startSync() }
+            }
+        }
+        onMain<WorkspacesUpdatedViaSyncEvent> { event ->
+            if (!readingAppBootstrapped) return@onMain
+            readingCommands.applyWorkspacesUpdatedViaSync(event.updated)
+        }
+        onMain<WorkspaceRefreshRequired> {
+            if (!readingAppBootstrapped) return@onMain
+            readingCommands.applyWorkspaceRefreshRequired()
+        }
+        onMain<MainBibleAfterRestore> {
+            if (!readingAppBootstrapped) return@onMain
+            readingCommands.applyRestoredDatabase()
+        }
+    }
+
+    /**
+     * Classic `MainBibleActivity.mWholeAppWasInBackground`: set by the [AppToBackgroundEvent]
+     * subscription in [readingHostSubscriptions], consumed by [onRestart].
+     */
+    private var wholeAppWasInBackground = false
+
+    /**
+     * Classic `MainBibleActivity.onRestart`: coming back after the WHOLE app was in background, the
+     * light/dark state may have changed meanwhile (system dark mode, the light sensor), so re-apply it.
+     */
+    override fun onRestart() {
+        super.onRestart()
+        lifecycleScope.launch {
+            if (wholeAppWasInBackground) {
+                wholeAppWasInBackground = false
+                refreshIfNightModeChange()
+            }
+        }
     }
 
     /**
