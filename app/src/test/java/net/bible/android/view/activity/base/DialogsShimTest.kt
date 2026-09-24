@@ -22,7 +22,9 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.activity.R
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
+import net.bible.android.view.util.Hourglass
 import net.bible.sharedcore.ai.AgentPermissionChoice
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -32,6 +34,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.java.KoinJavaComponent
@@ -179,5 +182,29 @@ class DialogsShimTest {
         assertNotNull(permissions.pending.value)
         permissions.respond(AgentPermissionChoice.ALLOW)
         assertEquals(Dialogs.AgentPermissionResult.ALLOW, result.await())
+    }
+
+    // -- Task 8: Hourglass --
+
+    @Test
+    fun hourglassShowsAndDismissesAProgress() = runTest {
+        val activity = activity()
+        val h = Hourglass(activity)
+        h.show()
+        val head = dialogs.pending.value!!.request
+        assertTrue(head is AppDialogRequest.Progress)
+        assertEquals(activity.getString(R.string.please_wait), (head as AppDialogRequest.Progress).message)
+        h.dismiss()
+        assertNull(dialogs.pending.value)
+    }
+
+    @Test
+    fun hourglassDismissTwiceIsHarmless() = runTest {
+        val activity = activity()
+        val h = Hourglass(activity)
+        h.show()
+        h.dismiss()
+        h.dismiss()
+        assertNull(dialogs.pending.value)
     }
 }

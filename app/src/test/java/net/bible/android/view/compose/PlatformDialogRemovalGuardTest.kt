@@ -64,7 +64,6 @@ class PlatformDialogRemovalGuardTest {
             "src/main/java/net/bible/android/view/activity/page/ReadingAppBootstrap.kt",
             "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
             "src/main/java/net/bible/android/view/activity/progress/ReadHistoryDialog.kt",
-            "src/main/java/net/bible/android/view/util/Hourglass.kt",
             "src/main/java/net/bible/android/view/util/widget/FontSizeWidget.kt",
             "src/main/java/net/bible/android/view/util/widget/LineSpacing.kt",
             "src/main/java/net/bible/android/view/util/widget/MarginSizeWidget.kt",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -16,46 +16,41 @@
  */
 package net.bible.android.view.util
 
-import android.app.ProgressDialog
 import android.content.Context
 import android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import org.koin.java.KoinJavaComponent
 
-/** Helper class to show HourGlass
+/**
+ * Helper class to show a modal wait indicator.
+ *
+ * Spec D7: raises an [AppDialogRequest.Progress] in the app-wide [AppDialogController] queue rather
+ * than building a `ProgressDialog` — the platform type is removed (spec §5, §8).
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class Hourglass(val context: Context) {
-    private var hourglass: ProgressDialog? = null
+    private var id: Long? = null
+    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
     suspend fun show(messageId: Int = R.string.please_wait) {
-        withContext(Dispatchers.Main) {
-            val hourglass = ProgressDialog(context)
-            this@Hourglass.hourglass = hourglass
-
-            hourglass.setMessage(application.getText(messageId))
-            hourglass.isIndeterminate = true
-            hourglass.setCancelable(false)
-            Log.e(TAG, "Show")
-            hourglass.show()
-        }
+        id = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(messageId)))
     }
 
     suspend fun dismiss() {
-        withContext(Dispatchers.Main) {
-            if (hourglass == null) {
-                Log.e(TAG, "Hourglass already dismissed!")
-            } else {
-                Log.e(TAG, "Dismiss")
-            }
-            hourglass?.dismiss()
-            hourglass = null
+        val current = id
+        if (current == null) {
+            Log.e(TAG, "Hourglass already dismissed!")
+        } else {
+            dialogs.dismiss(current)
         }
+        id = null
     }
+
     companion object {
-        private val TAG = "Hourglass"
+        private const val TAG = "Hourglass"
     }
 }
