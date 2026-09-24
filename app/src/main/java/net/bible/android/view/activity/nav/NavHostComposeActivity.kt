@@ -8828,7 +8828,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         uris: List<String>,
         onFinished: (InstallZipResult) -> Unit,
     ): InstallZipSession {
-        // R4, the arm-entry half: a destination restored onto an uninitialised host (process death on
+        // Spec §3.1 rule 2, the arm-entry half: a destination restored onto an uninitialised host (process death on
         // Backup -> InstallZip) never passed through [openInstallZip]. Before the session touches anything.
         initialiseIfStartedUninitialised()
         // Fix rounds 2-3 (review minor 2, re-review minor B): the opener's callback belongs to THIS session.
