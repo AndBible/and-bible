@@ -446,6 +446,28 @@ class OptionsMenuStateBuilderTest {
         assertFalse(stayOpen, "no host must still reach the classic dialog tail, which returns false")
     }
 
+    // ------------------------------------------------------------------------------------------
+    // Task 10 (platform-dialog removal): the Strongs toolbar button's long-press used to call
+    // `StrongsPreference.openDialog` unconditionally -- a native `AlertDialog.Builder` picker with
+    // no host check at all. It now routes through the SAME `textSettingEditorPageFor` +
+    // `showTextSettingEditor` seam the two menus above use. STRONGS always resolves to a page
+    // (`TextSettingEditorPageForTest.theFourListChoiceTypesOpenTheirOwnRowPage`), so the only
+    // variable left is whether a host is mounted -- and `StrongsPreference.openDialog` is deleted
+    // outright by this task, so there is no classic fallback to test for the no-host case (unlike
+    // the two `dispatch`/`handleWindowTextOptionItem` fall-throughs above, which keep `openDialog`
+    // alive for OTHER, still-dialog types).
+    // ------------------------------------------------------------------------------------------
+
+    @Test
+    fun strongsLongPressOpensTheTextSettingsSheetNotAPlatformDialog() {
+        val host = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = host
+
+        activity.readingCommands.composeStrongsLong()
+
+        assertEquals(SettingsEditorPage.Row("STRONGS"), host.textSettingsEditor.current)
+    }
+
     /**
      * Settles spec §6.7's open item: does the sheet's edit path (`TextDisplaySettingsController`'s
      * mutators -> `TextDisplaySettingsServiceImpl.setValue`) keep

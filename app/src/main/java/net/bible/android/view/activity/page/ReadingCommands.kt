@@ -20,6 +20,7 @@ package net.bible.android.view.activity.page
 import android.app.Activity
 import android.content.ClipData
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -145,6 +146,10 @@ class ReadingCommands(
     private val readingHost: ReadingHostActivity,
     private val hostCallbacks: ReadingCommandsHostCallbacks,
 ) : KoinComponent {
+
+    private companion object {
+        private const val TAG = "ReadingCommands"
+    }
 
     /** The host as a plain Android Activity. See [ReadingCommandsHostCallbacks.hostActivity]. */
     private val hostActivity: ActivityBase get() = hostCallbacks.hostActivity
@@ -735,6 +740,19 @@ class ReadingCommands(
         composeReadingViewHost?.refreshHostedState()
     }
 
+    /**
+     * Platform-dialog removal Task 10: this used to call `StrongsPreference.openDialog`
+     * unconditionally -- a native `AlertDialog.Builder` single-choice picker, with no host check at
+     * all. STRONGS is one of the eight sheet-editable text display settings
+     * ([net.bible.sharedcore.settings.textSettingEditorPageFor] always resolves it to
+     * `SettingsEditorPage.Row("STRONGS")`, per `TextSettingEditorPageForTest`), so it now opens IN
+     * PLACE over the reading view instead, the same seam [handleWindowTextOptionItem] and
+     * [OptionsMenuStateBuilder.dispatch] use. `StrongsPreference.openDialog` is deleted outright by
+     * this task -- there is no classic fallback left to call if [composeReadingViewHost] is null.
+     * The Strongs button that triggers this is itself part of the Compose reading toolbar the host
+     * renders, so a null host here is unreachable in production (slice 8: NavHost is the only
+     * reading host); logged rather than silently dropped in case that invariant ever breaks.
+     */
     internal fun composeStrongsLong() {
         val prefOptions = dummyStrongsPrefOption
         fun apply() {
@@ -742,7 +760,13 @@ class ReadingCommands(
             hostCallbacks.updateStrongsButton()
             composeReadingViewHost?.refreshHostedState()
         }
-        prefOptions.openDialog(hostActivity, onChanged = { apply() }, onReset = { apply() })
+        val host = composeReadingViewHost
+        val page = textSettingEditorPageFor(prefOptions.type.name)
+        if (page == null || host == null) {
+            Log.e(TAG, "composeStrongsLong: no sheet page/host available (page=$page, host=$host)")
+            return
+        }
+        host.showTextSettingEditor(prefOptions.settings.toScope(), page) { apply() }
     }
 
     /** @param anchor the Compose toolbar's ComposeView (classic `bibleButton` is inside the now-GONE `toolbarLayout` on this path). */
