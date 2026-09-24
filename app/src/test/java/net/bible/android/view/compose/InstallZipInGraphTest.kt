@@ -78,6 +78,8 @@ class InstallZipInGraphTest {
         override fun dismiss() = onFinished(InstallZipResult.CANCELED)
         override fun back() = onFinished(InstallZipResult.CANCELED)
         override fun close() = Unit
+        var deliverings = 0
+        override fun onDelivering() { deliverings++ }
     }
 
     private fun fakeSessionFor(action: String?, uris: List<String>, onFinished: (InstallZipResult) -> Unit): InstallZipSession =
@@ -87,10 +89,11 @@ class InstallZipInGraphTest {
     private val jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
     private val enqueued = mutableListOf<List<Uri>>()
     private var realSessions = 0
+    private var realCloses = 0
 
     private fun realSessionFor(action: String?, uris: List<String>, onFinished: (InstallZipResult) -> Unit): InstallZipSession {
         realSessions++
-        return InstallZipFlow(
+        val flow = InstallZipFlow(
             scope = compose.activity.lifecycleScope,
             action = action,
             uris = uris.map(Uri::parse),
@@ -108,6 +111,12 @@ class InstallZipInGraphTest {
             ),
             onFinished = onFinished,
         )
+        return object : InstallZipSession by flow {
+            override fun close() {
+                realCloses++
+                flow.close()
+            }
+        }
     }
 
     private fun setGraph(
@@ -245,11 +254,37 @@ class InstallZipInGraphTest {
 
         assertEquals(listOf(listOf(Uri.parse("content://x/a.zip")), listOf(Uri.parse("content://x/b.zip"))), enqueued)
         assertEquals(2, realSessions)
+        assertEquals(1, realCloses, "the replaced object's session is closed on the re-share")
 
         compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
         compose.waitForIdle()
         assertEquals(NavRoutes.READING, navController.currentBackStackEntry?.destination?.route, "back still pops")
         assertEquals(InstallZipResult.CANCELED, results.consume())
+    }
+
+    /**
+     * Fix round 3 (re-review minor B): an answer held while InstallZip is covered is NOT a delivery. If the
+     * entry leaves before it is on top again, the answer is dropped, and so is the host's hand-back of the
+     * opener's callback, which runs in [InstallZipSession.onDelivering].
+     */
+    @Test
+    fun aHeldAnswerWhoseEntryLeavesIsNeverDelivered() {
+        setGraph()
+        compose.runOnIdle { navController.navigate(NavRoutes.installZip()) }
+        compose.waitForIdle()
+        compose.runOnIdle { navController.navigate(OTHER) }
+        compose.waitForIdle()
+        val session = sessions.single().third
+        compose.runOnIdle { session.dismiss() } // answered while covered: held
+        compose.waitForIdle()
+        assertEquals(0, session.deliverings, "held, not delivered")
+
+        compose.runOnIdle { navController.popBackStack(NavRoutes.INSTALL_ZIP_PATTERN, inclusive = true) }
+        compose.waitForIdle()
+        assertEquals(NavRoutes.READING, navController.currentBackStackEntry?.destination?.route)
+        assertEquals(0, session.deliverings, "its entry left first: never delivered")
+        assertEquals(null, results.pending.value)
+        assertEquals(0, channelExits)
     }
 
     /** An answer given while something covers InstallZip waits for its entry, then pops that entry only. */
@@ -270,6 +305,7 @@ class InstallZipInGraphTest {
         compose.waitForIdle()
         assertEquals(NavRoutes.READING, navController.currentBackStackEntry?.destination?.route)
         assertEquals(InstallZipResult.CANCELED, results.consume())
+        assertEquals(1, sessions.single().third.deliverings, "delivered once, when its entry was on top again")
         assertEquals(1, sessions.size)
     }
 

@@ -56,6 +56,14 @@ interface InstallZipSession {
      * never answer. A running install keeps running in the service, as after [back].
      */
     fun close()
+
+    /**
+     * Called by the destination immediately before this session's answer is DELIVERED through
+     * [InstallZipNavDeps.installZipResults]. That is at once while the entry is current, or later when a
+     * covered entry is on top again, and never if the entry leaves first. The host hands the opener's
+     * callback back here, so a held answer that is never delivered leaves nothing behind.
+     */
+    fun onDelivering() {}
 }
 
 /**
@@ -134,6 +142,7 @@ internal class InstallZipEntrySessions {
         val session = deps.sessionFor(action, uris) onFinished@{ result ->
             if (heldFor(entry) !== held) return@onFinished // entry gone: closed, answer nothing
             if (navController.currentBackStackEntry === entry) {
+                held.session.onDelivering()
                 deps.installZipResults.deliver(navController, result)
             } else {
                 held.pending = result // covered: answer when this entry is on top again
@@ -150,6 +159,7 @@ internal class InstallZipEntrySessions {
                 Lifecycle.Event.ON_RESUME -> held.pending?.let { result ->
                     held.pending = null
                     if (navController.currentBackStackEntry === entry) {
+                        held.session.onDelivering()
                         deps.installZipResults.deliver(navController, result)
                     }
                 }

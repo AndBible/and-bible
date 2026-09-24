@@ -30,6 +30,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
+import net.bible.test.resetComposeUiDispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -62,6 +63,9 @@ class InstallZipReturnHostTest {
     }
 
     private fun host(): Pair<NavHostComposeActivity, NavHostController> {
+        // This test needs the destination COMPOSED (its BackHandler), not only its route: see
+        // resetComposeUiDispatcher for what an earlier host test leaves behind in the same JVM.
+        resetComposeUiDispatcher()
         firstTime = false
         val activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -74,10 +78,6 @@ class InstallZipReturnHostTest {
 
     private fun idle() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
-    /**
-     * One host for both halves: a second Robolectric NavHost Activity in the same class leaves its entries at
-     * STARTED (the NavHost's transitions never complete there), so back presses are never handled.
-     */
     @Test
     fun anOpenersCallbackAnswersForItsOwnEntryOnly() {
         val (activity, nav) = host()
