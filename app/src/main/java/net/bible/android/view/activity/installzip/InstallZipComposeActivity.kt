@@ -228,7 +228,9 @@ internal fun resolveErrorMessage(context: Context, error: InstallPhase.Error): S
  * The app's EXPORTED entry for module files (slice 8 §3.2): a file manager's "open with", the Share sheet or any
  * ACTION_VIEW on a .zip/.epub/.ttf lands here (filters in `src/standard/AndroidManifest.xml`; discrete overrides
  * the label) and is redirected to the nav host's INSTALL_ZIP destination in the SAME task, then this finishes.
- * The destination's exit finishes the host with the result, so the user returns to the calling app.
+ * The destination's exit finishes the host, so the user returns to the calling app's task. No result reaches the
+ * caller: the redirect is a plain `startActivity` without `FLAG_ACTIVITY_FORWARD_RESULT`, and this Activity has
+ * already finished, so delivering an external result is not a supported contract of this entry.
  *
  * A plain [ComponentActivity], not an `ActivityBase`: it draws nothing, initialises nothing and never resumes
  * from a pause -- which also means it never triggers the calculator, exactly like the Activity it replaces
