@@ -70,8 +70,8 @@ class ClassicRemovalScanAssertionsTest {
     @Test fun assertNoSourceNamesFailsOnAClassThatIsStillReferenced() {
         assertThrows(AssertionError::class.java) {
             ClassicRemovalScan.assertNoSourceNames(
-                listOf("net.bible.android.view.activity.page.MainBibleActivity"),
-                "MainBibleActivity is referenced all over the tree, so the helper must fail",
+                listOf("net.bible.android.view.activity.nav.NavHostComposeActivity"),
+                "NavHostComposeActivity is referenced all over the tree, so the helper must fail",
             )
         }
         ClassicRemovalScan.assertNoSourceNames(
@@ -130,8 +130,8 @@ class ClassicRemovalScanAssertionsTest {
     @Test fun assertNoManifestNamesFailsOnAClassTheManifestDeclares() {
         assertThrows(AssertionError::class.java) {
             ClassicRemovalScan.assertNoManifestNames(
-                listOf("net.bible.android.view.activity.page.MainBibleActivity"),
-                "the manifest declares MainBibleActivity, so the helper must fail",
+                listOf("net.bible.android.view.activity.nav.NavHostComposeActivity"),
+                "the manifest declares NavHostComposeActivity, so the helper must fail",
             )
         }
         ClassicRemovalScan.assertNoManifestNames(
