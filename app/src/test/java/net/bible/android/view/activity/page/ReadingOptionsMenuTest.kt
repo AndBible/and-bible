@@ -415,34 +415,28 @@ class ReadingOptionsMenuTest {
     // ---------------------------------------------------------------- no native popup left
 
     /**
-     * Guard. Exactly ONE `PopupMenu(` may remain in `MainBibleActivity`: `menuForDocs`, which is
-     * still reachable from the CLASSIC toolbar's `binding.bibleButton`/`commentaryButton`
-     * listeners in `setupToolbarButtons` (and from `composeBibleClick`/`composeCommentaryClick`'s
-     * non-swap `else` branches, which the Compose host never takes). Removing those belongs to the
-     * XML/drawer removal task, not here.
+     * Guard: no native options `PopupMenu` is left on the reading host. Scanned across the host
+     * (`NavHostComposeActivity.kt`) and the command surface it shares (`ReadingCommands.kt`) — a
+     * re-introduced native popup could land in either.
      *
-     * Expect this to go RED at Task 11, which deletes `menuForDocs` along with the classic toolbar
-     * XML and its listeners: the correct count becomes 0 then, and that red is the reminder, not a
-     * mystery.
+     * Slice 8 F3 repointed this from `MainBibleActivity.kt` + `ReadingCommands.kt` and lowered the
+     * `PopupMenu(` count from 1 to **0**: the one that remained, `menuForDocs`, was
+     * `MainBibleActivity`'s own (reachable only from the classic toolbar's listeners) and goes with
+     * that class in F4. The nav host never had one.
      */
     @Test
-    fun mainBibleActivityHasNoNativeOptionsPopupLeft() {
-        // Reading-host re-typing R3 (design spec §3.2): scanned across BOTH files. The command
-        // surface moved to `ReadingCommands.kt` and `composeBibleClick`/`composeCommentaryClick`'s
-        // non-swap branches went with it, so a re-introduced native options popup could now land in
-        // either file. `menuForDocs` itself — the one surviving `PopupMenu(` — deliberately stayed
-        // on the Activity (the CLASSIC toolbar listeners still call it), so the count is still 1,
-        // but it is now 1 ACROSS the pair rather than 1 in one file.
-        val activitySrc = codeOf(File("src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt"))
+    fun theReadingHostHasNoNativeOptionsPopupLeft() {
+        val hostSrc = codeOf(File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"))
         val commandsSrc = codeOf(File("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"))
-        val src = activitySrc + "\n" + commandsSrc
+        val src = hostSrc + "\n" + commandsSrc
 
+        assertTrue(hostSrc.length > 1000, "NavHostComposeActivity.kt is empty or missing")
         assertTrue(commandsSrc.length > 1000, "ReadingCommands.kt is empty or missing")
         assertFalse("fun showOptionsMenu" in src, "the native options PopupMenu must be gone")
         assertFalse("fun handlePrefItem" in src, "its MenuItem-typed dispatcher must be gone with it")
         assertFalse("getItemOptions(item: MenuItem)" in src, "…and its MenuItem-typed overload")
 
         val popups = Regex("""PopupMenu\(""").findAll(src).count()
-        assertEquals(1, popups, "only menuForDocs' PopupMenu may remain (see this test's kdoc)")
+        assertEquals(0, popups, "no native PopupMenu may remain on the reading host (see this test's kdoc)")
     }
 }

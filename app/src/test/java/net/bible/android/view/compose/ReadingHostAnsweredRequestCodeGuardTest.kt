@@ -36,12 +36,14 @@ import org.junit.Test
  * the four request codes classic `MainBibleActivity.onActivityResult` answers went nowhere on the
  * host that actually runs — the workspace switch, the Settings refresh and the document refresh.
  *
- * **The derivation is the whole point.** The list of codes is read out of CLASSIC's dispatcher, not
- * out of a hand-kept list here and not out of the host's own set: a fifth code added to classic
- * therefore fails this guard rather than being quietly dropped by the host a fourth time. The two
- * `mainMenuCommandHandler` predicates classic's tail calls are followed into `MenuCommandHandler`,
- * because the code they test (`REFRESH_DISPLAY_ON_FINISH`) is not a literal in classic's body at all
- * — which is exactly the shape of arm a naive scan of the `when` would miss.
+ * **The list was DERIVED, and is now frozen.** Until slice 8 the codes were read out of CLASSIC's
+ * dispatcher on every run, so a fifth code added to classic failed this guard rather than being
+ * quietly dropped by the host a fourth time. Slice 8 deletes `MainBibleActivity`, so there is no
+ * classic dispatcher left to read, and nothing can add a code to it: [CLASSIC_REQUEST_CODES] is that
+ * derivation's last answer, recorded when the class went (slice 8 F3 ran it once more and it
+ * returned exactly these four). It is still NOT the host's own set — the host's
+ * `ANSWERED_REQUEST_CODES` is checked AGAINST it — so a code quietly dropped from the host is still
+ * caught.
  *
  * **What this guard cannot see**, stated because the previous round's blind spot was the mirror
  * image of this one: an ASYNC request code. `ActivityBase.awaitIntent` allocates a code at or above
@@ -52,16 +54,8 @@ import org.junit.Test
  */
 class ReadingHostAnsweredRequestCodeGuardTest {
 
-    private val classicSrc = File(
-        "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt"
-    ).readText()
-
     private val hostSrc = File(
         "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"
-    ).readText()
-
-    private val menuSrc = File(
-        "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt"
     ).readText()
 
     private val readingCommandsSrc = File(
@@ -69,15 +63,9 @@ class ReadingHostAnsweredRequestCodeGuardTest {
     ).readText()
 
     @Test fun theScansCanSeeTheirSubjects() {
-        // Anti-vacuity: every assertion below is a search over these three strings.
-        assertTrue(classicSrc.length > 50_000, "MainBibleActivity.kt is missing or truncated")
+        // Anti-vacuity: every assertion below is a search over these strings.
         assertTrue(hostSrc.length > 100_000, "NavHostComposeActivity.kt is missing or truncated")
-        assertTrue(menuSrc.length > 5_000, "MenuCommandHandler.kt is missing or truncated")
-        assertTrue(
-            classicRequestCodes().size >= 4,
-            "only ${classicRequestCodes()} were derived from classic's dispatcher — the derivation " +
-                "has stopped seeing its subject, which is worse than no guard at all",
-        )
+        assertTrue(readingCommandsSrc.length > 5_000, "ReadingCommands.kt is missing or truncated")
     }
 
     /**
@@ -88,7 +76,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
      * leave it standing.
      */
     @Test fun everyCodeClassicAnswersIsAnsweredHereOrAllowlistedWithAReason() {
-        val classic = classicRequestCodes()
+        val classic = CLASSIC_REQUEST_CODES
         val answered = answeredRequestCodes()
         assertTrue(
             answered.isNotEmpty(),
@@ -217,9 +205,9 @@ class ReadingHostAnsweredRequestCodeGuardTest {
     // ——— one implementation, not two ——————————————————————————————————————————————————————————————
 
     /**
-     * Both arms classic owns are `ReadingCommands`' now and classic delegates, the shape T8c used
-     * for its three. A second copy on either host is the drift `ApplyChosenVerseDriftTest` exists
-     * for, one file over.
+     * Both arms classic owned are `ReadingCommands`' now and the host calls them, the shape T8c used
+     * for its three. (Classic delegated to the same bodies until slice 8 deleted it.) A second copy
+     * in the host is the drift `ApplyChosenVerseDriftTest` exists for, one file over.
      */
     @Test fun theArmsAreSharedRatherThanRetyped() {
         for (applier in listOf("applyWorkspaceChangedResult", "preferenceSettingsChanged")) {
@@ -229,11 +217,6 @@ class ReadingHostAnsweredRequestCodeGuardTest {
                 "$applier is no longer implemented in ReadingCommands",
             )
             assertTrue(
-                classicSrc.contains("readingCommands.$applier"),
-                "MainBibleActivity no longer delegates $applier to the shared implementation — two " +
-                    "copies of one body is the drift this batch has already been bitten by twice",
-            )
-            assertTrue(
                 hostSrc.contains("readingCommands.$applier"),
                 "NavHostComposeActivity no longer calls the shared $applier",
             )
@@ -241,7 +224,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
         assertEquals(
             1,
             Regex("""ABEventBus\.post\(SynchronizeWindowsEvent\(true\)\)""")
-                .findAll(readingCommandsSrc + classicSrc + hostSrc).count(),
+                .findAll(readingCommandsSrc + hostSrc).count(),
             "SynchronizeWindowsEvent(true) must be posted from exactly ONE place — a second copy " +
                 "means preferenceSettingsChanged was retyped rather than shared",
         )
@@ -352,7 +335,7 @@ class ReadingHostAnsweredRequestCodeGuardTest {
     private fun selfLaunchRequestCodes(): Set<String> {
         val migrated = migratedScreens()
         assertTrue(migrated.size >= 10, "ScreenLauncher.MIGRATED scan found only $migrated")
-        val codes = classicRequestCodes() - "STD_REQUEST_CODE"
+        val codes = CLASSIC_REQUEST_CODES - "STD_REQUEST_CODE"
         val launchLine = Regex("""startActivityForResult\(|requestCode\s*=[^=]""")
         var occurrences = 0
         val selfLaunched = mutableSetOf<String>()
@@ -431,43 +414,6 @@ class ReadingHostAnsweredRequestCodeGuardTest {
         error("unbalanced parentheses from $openIndex")
     }
 
-    // ——— the derivation ——————————————————————————————————————————————————————————————————————————
-
-    /**
-     * Every request code classic's dispatcher answers, by SIMPLE name: the arms of its
-     * `when (requestCode)`, the codes it compares `requestCode` against directly, and the codes
-     * tested by the `mainMenuCommandHandler` predicates its tail calls.
-     */
-    private fun classicRequestCodes(): Set<String> {
-        val body = functionBody(
-            classicSrc,
-            "public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)",
-        )
-        val codes = mutableSetOf<String>()
-
-        val whenAt = body.indexOf("when (requestCode)")
-        assertTrue(whenAt >= 0, "classic no longer dispatches on `when (requestCode)`")
-        val armBlock = balancedBraceBlock(body, body.indexOf('{', whenAt))
-            ?: error("classic's `when (requestCode)` block is unreadable")
-        Regex("""(?m)^\s*([A-Za-z_][A-Za-z0-9_.]*)\s*->""").findAll(armBlock).forEach {
-            val token = it.groupValues[1]
-            if (isRequestCodeName(token)) codes += token.substringAfterLast('.')
-        }
-
-        Regex("""requestCode\s*==\s*([A-Za-z_][A-Za-z0-9_.]*)""").findAll(body).forEach {
-            val token = it.groupValues[1]
-            if (isRequestCodeName(token)) codes += token.substringAfterLast('.')
-        }
-
-        // The arms that are NOT literals in classic's body: its tail asks MenuCommandHandler which
-        // codes mean "refresh"/"restart", and the answer lives in that class.
-        Regex("""mainMenuCommandHandler\.(\w+)\(requestCode\)""").findAll(body).forEach { call ->
-            val predicate = functionBody(menuSrc, "fun ${call.groupValues[1]}(requestCode: Int)")
-            Regex("""IntentHelper\.([A-Z][A-Z0-9_]+)""").findAll(predicate).forEach { codes += it.groupValues[1] }
-        }
-        return codes
-    }
-
     /** An all-caps trailing segment is a request-code constant; `ActivityResultKind.X` is not. */
     private fun isRequestCodeName(token: String): Boolean =
         token.substringAfterLast('.').let { it.length > 3 && it == it.uppercase() }
@@ -528,6 +474,19 @@ class ReadingHostAnsweredRequestCodeGuardTest {
             .joinToString("\n")
 
     private companion object {
+        /**
+         * Every request code classic `MainBibleActivity.onActivityResult` answered, by SIMPLE name —
+         * derived from `MainBibleActivity.onActivityResult` (its `when (requestCode)` arms, its
+         * `requestCode ==` comparisons and `MenuCommandHandler`'s predicates) at the class's
+         * deletion in slice 8 F4; frozen because the class is gone. `REFRESH_DISPLAY_ON_FINISH` is
+         * the one that was never a literal in classic's body: it came from following the tail's
+         * `mainMenuCommandHandler` predicates into `MenuCommandHandler`.
+         */
+        val CLASSIC_REQUEST_CODES = setOf(
+            "STD_REQUEST_CODE", "WORKSPACE_CHANGED", "REFRESH_DISPLAY_ON_FINISH",
+            "UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH",
+        )
+
         /**
          * Request codes classic answers that `NavHostComposeActivity` deliberately does NOT — each
          * with the reason, read and enforced by

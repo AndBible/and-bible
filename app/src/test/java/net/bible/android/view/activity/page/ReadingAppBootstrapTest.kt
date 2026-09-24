@@ -96,8 +96,6 @@ class ReadingAppBootstrapTest {
         "net/bible/android/view/activity/page/ReadingAppBootstrap.kt",
     )
 
-    private val mainBibleActivity =
-        File("src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt")
     private val navHostActivity =
         File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
 
@@ -130,7 +128,6 @@ class ReadingAppBootstrapTest {
                 "too; if it has genuinely gone away, say so here rather than silently narrowing",
             productionSrcRoots.any { it.path.replace(File.separatorChar, '/') == "src/debug/java" },
         )
-        assertTrue("MainBibleActivity.kt not found", mainBibleActivity.isFile)
         assertTrue("NavHostComposeActivity.kt not found", navHostActivity.isFile)
         assertTrue(
             "no WindowRepository construction found anywhere in production sources — the regex has " +
@@ -143,7 +140,7 @@ class ReadingAppBootstrapTest {
     fun windowRepositoryIsConstructedInExactlyTwoPlacesInProductionCode() {
         assertEquals(
             "production code may construct a WindowRepository only in ReadingAppBootstrap (the one " +
-                "app bootstrap both Activities call) and in WindowControl's documented lazy " +
+                "app bootstrap the reading host calls) and in WindowControl's documented lazy " +
                 "fallback. A third site would not crash — WindowControl hands out an uninitialised " +
                 "repository rather than throwing — it would give a silently empty workspace on a " +
                 "screen that looks loaded",
@@ -152,28 +149,19 @@ class ReadingAppBootstrapTest {
         )
     }
 
-    @Test
-    fun theActivityItselfNoLongerConstructsOne() {
-        assertTrue(
-            "MainBibleActivity must get its repository from ReadingAppBootstrap, not build a " +
-                "second one of its own",
-            "net/bible/android/view/activity/page/MainBibleActivity.kt" !in constructionSites(),
-        )
-    }
-
     /**
      * Fix round 1, review item (b). One construction SITE called from two places constructs two
      * repositories, and [windowRepositoryIsConstructedInExactlyTwoPlacesInProductionCode] cannot
      * see it: the site count is still two.
+     *
+     * Slice 8 F3 dropped the `MainBibleActivity.onCreate` half with its subject (the class is deleted
+     * in F4), and deleted `theActivityItselfNoLongerConstructsOne` for the same reason --
+     * [windowRepositoryIsConstructedInExactlyTwoPlacesInProductionCode] pins the exact sites.
      */
     @Test
     fun createWindowRepositoryIsCalledFromExactlyOneSitePerHost() {
         fun calls(file: File) =
             codeLinesOf(file).count { it.contains("readingAppBootstrap.createWindowRepository(") }
-        assertEquals(
-            "MainBibleActivity.onCreate must ask the bootstrap for its repository exactly once",
-            1, calls(mainBibleActivity),
-        )
         assertEquals(
             "NavHostComposeActivity must ask exactly once — from bootstrapIfNeeded(), which is the " +
                 "one-shot both of its reading-route entry points share",

@@ -34,7 +34,8 @@ import org.junit.Test
  */
 class ImePaddingPredicateDriftTest {
     private val source = listOf(
-        "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
+        // Slice 8 F3: `MainBibleActivity.kt` (deleted in F4) left this list. It contributed 0 to
+        // every count below -- the three consumers had already moved to ReadingInsets.
         "src/main/java/net/bible/android/view/activity/page/ReadingInsets.kt",
         // F59: the second implementation of the sink lives here, and this guard was green on a tree
         // where that implementation was empty. The exact counts below are unaffected because this host

@@ -50,14 +50,11 @@ class SpeakEntryPointGuardTest {
      * no-op no golden and no unit test would notice — and a FOURTH file growing an entry point
      * would be unpoliced by every per-file test below.
      *
-     * Scope, precisely: every test here scans per FILE, not per call site. `MainBibleActivity.kt`
-     * holds TWO `showSpeakSettings(` sites -- the classic `speakButton.setOnLongClickListener` and
-     * `composeSpeakLong()`, the Compose toolbar's long-press -- so losing exactly one of them
-     * leaves the file still matching and passes every guard below. (The transport bar's cog is a
-     * THIRD settings route, but it lives in `ComposeReadingViewHost.kt` as
-     * `onConfig = { showSpeakSettings() }`, not here.) What these tests do catch is a file losing
-     * its LAST entry point, a file gaining one, and either of the first two files swapping settings
-     * for transport or the reverse.
+     * Scope, precisely: every test here scans per FILE, not per call site, so a file that loses one
+     * of two entry points still matches. What these tests do catch is a file losing its LAST entry
+     * point, a file gaining one, and the menu row or the toolbar long-press swapping settings for
+     * transport or the reverse. (The transport bar's cog is a further settings route, in
+     * `ComposeReadingViewHost.kt` as `onConfig = { showSpeakSettings() }`.)
      *
      * Same source-scan shape (and the same two traps avoided) as [MenuSeamGuardTest]: prose lines
      * are filtered so an `import` or a comment cannot satisfy the guard, and the path list is
@@ -70,7 +67,9 @@ class SpeakEntryPointGuardTest {
         // (`composeSpeakLong`) moved OFF the Activity into this collaborator, taking its
         // `showSpeakSettings(` call with it. The whole-tree walk below saw the new holder and went
         // red — correctly — and the fix is this line, never a weaker walk. `MainBibleActivity.kt`
-        // stays on the list: the CLASSIC `speakButton.setOnLongClickListener` is still there.
+        // stays on the list only while the file exists (its classic `speakButton` long-press still
+        // reaches `showSpeakSettings(`, so the whole-tree walk below sees it); slice 8 F4 deletes
+        // the file and this entry together.
         "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt",
         "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
     )
@@ -131,30 +130,33 @@ class SpeakEntryPointGuardTest {
     /**
      * Round 14b whole-branch review, minor: [composeSpeakEntryPoints] widened to accept EITHER name
      * at any call site, so on its own [everyScannedCallSiteReachesASpeakSheetEntryPoint] would let a
-     * retarget of this file's two long-press routes from `showSpeakSettings(` to
-     * `showSpeakTransport(` pass every gate here — even though spec §8's entry-point table says
-     * both are SETTINGS routes and must stay so (only the main-menu row is the transport). This is
-     * the symmetric assertion [theMainMenuSpeakItemShowsTheTransportBar] already makes for the
-     * menu, applied to `MainBibleActivity.kt`: it must still call `showSpeakSettings(`, and must NOT
-     * call `showSpeakTransport(` — that call belongs to `MenuCommandHandler` alone.
+     * retarget of the toolbar's Speak long-press from `showSpeakSettings(` to `showSpeakTransport(`
+     * pass every gate here — even though spec §8's entry-point table says it is a SETTINGS route and
+     * must stay so (only the main-menu row is the transport). This is the symmetric assertion
+     * [theMainMenuSpeakItemShowsTheTransportBar] makes for the menu, applied to the file that holds
+     * the long-press, `ReadingCommands.composeSpeakLong()`.
      *
-     * The route this covers is the classic `speakButton.setOnLongClickListener`; R3 moved
-     * `composeSpeakLong()` to `ReadingCommands.kt`, which [callSites] now names in its own right. Fix round 1: the transport bar's COG used to be named here as one of
-     * them, and it is not in this file — it is `ComposeReadingViewHost.kt`'s
-     * `onConfig = { showSpeakSettings() }`. No test here polices the cog's direction, and none can
-     * in this shape: `ComposeReadingViewHost.kt` DECLARES both `showSpeakSettings` and
-     * `showSpeakTransport`, so a per-file name scan of it can never distinguish a call from a
-     * declaration.
+     * **Slice 8 F3 moved it here from `MainBibleActivity.kt`, and had to.** It used to police the
+     * classic `speakButton.setOnLongClickListener`, which goes with that class (F4). The plan
+     * expected [everyScannedCallSiteReachesASpeakSheetEntryPoint] to keep policing
+     * `composeSpeakLong` — it cannot: retargeting `composeSpeakLong` to `showSpeakTransport(` left
+     * that test green, because the file still reaches AN entry point. Without this test the
+     * long-press's direction would have been unguarded the moment the classic one was deleted.
+     *
+     * The transport bar's COG is not policed here and cannot be in this shape: it is
+     * `ComposeReadingViewHost.kt`'s `onConfig = { showSpeakSettings() }`, and that file DECLARES both
+     * `showSpeakSettings` and `showSpeakTransport`, so a per-file name scan of it can never
+     * distinguish a call from a declaration.
      */
-    @Test fun mainBibleActivityStillShowsSettingsNotTheTransportBar() {
-        val code = codeLinesOf("src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt")
+    @Test fun theToolbarSpeakLongPressShowsSettingsNotTheTransportBar() {
+        val code = codeLinesOf("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt")
         assertTrue(
-            "MainBibleActivity.kt must call showSpeakSettings() — the toolbar long-press and the " +
-                "transport bar's cog are settings routes (spec §8) and must stay so",
+            "ReadingCommands.kt must call showSpeakSettings() — the toolbar's Speak long-press " +
+                "(composeSpeakLong) is a settings route (spec §8) and must stay so",
             code.contains("showSpeakSettings("),
         )
         assertFalse(
-            "MainBibleActivity.kt must NOT call showSpeakTransport() — that entry point belongs to " +
+            "ReadingCommands.kt must NOT call showSpeakTransport() — that entry point belongs to " +
                 "the main-menu row only (spec §8 / MenuCommandHandler)",
             code.contains("showSpeakTransport("),
         )

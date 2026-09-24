@@ -1300,9 +1300,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     //
     // R6d fix round 1: the old wording here said this host "has no `windowRepository` field", which
     // stopped being true at R6d -- [hostWindowRepository] below is its own, from
-    // [readingAppBootstrap]. It is deliberately NOT substituted into the ported chrome: the port's
-    // whole value is that `ReadingChromePortDriftTest` can compare the two regions, and that guard
-    // pins this substitution at exactly two occurrences.
+    // [readingAppBootstrap]. It was deliberately NOT substituted into the ported chrome while
+    // `ReadingChromePortDriftTest` compared this region with classic's (that guard pinned the
+    // substitution at exactly two occurrences); slice 8 F3 deleted the guard with classic, so this
+    // is now the one copy, pinned by `ReadingHostChromeTest`.
     //
     // R8 settled the rest of this host's `windowControl.windowRepository` reads, and the verdict is
     // NOT "substitute them all". Only [restorePaneFocus] was re-pointed, because only it is a
@@ -1588,7 +1589,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * A NAMED member rather than the lambda it used to be inline, because T8a item 2's
      * [updateDocuments] is classic's `reloadAllWindows(true) + updateActions()` pair and must reach
      * the same path the collaborator does. A second copy of these four lines is the divergence
-     * `ReadingChromePortDriftTest` exists to catch one file over.
+     * `ReadingChromePortDriftTest` existed to catch while classic was alive (deleted in slice 8).
      */
     private fun onToolbarStateMayHaveChanged() {
         composeReadingViewHost?.rebuildDrawer(

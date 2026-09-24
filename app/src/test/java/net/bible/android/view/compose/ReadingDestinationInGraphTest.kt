@@ -81,11 +81,9 @@ import kotlin.test.assertTrue
  *    reach a destination at all: a key event and a screen-on broadcast arrive at the HOST Activity.
  *    If the arm stops publishing, or the host stops consulting, volume-key scrolling and the
  *    screen-on night-mode refresh quietly do nothing.
- *  - `MainBibleActivity` must not FORCE the flag (`ReadingViewVisibility.setVisible`, the test-only
- *    reset that ignores every registration): its four temporary lifecycle call sites drive the
- *    separate `setActivityVisible(this, …)` input instead — see Task 6 fix round 1 and
- *    [ReadingViewVisibility]'s kdoc — so the destination's own registration, the input that
- *    survives `MainBibleActivity`'s deletion (Task 13), can never be clobbered by the Activity path.
+ *  - (Until slice 8, a source scan also pinned that `MainBibleActivity` never FORCED the flag through
+ *    the test-only `ReadingViewVisibility.setVisible`. Slice 8 F3 deleted it with its subject: the
+ *    class it policed is deleted in F4.)
  *
  * **R7b re-keyed both seams by HOST.** Every registration and every publication carries the token
  * of the host it belongs to ([ReadingNavDeps.host]) and counts only while [ReadingHostPresence]
@@ -269,25 +267,6 @@ class ReadingDestinationInGraphTest {
         assertTrue(ReadingViewVisibility.isVisible, "…and popping back to this one turns it on again")
 
         ReadingViewVisibility.exit(otherHost)
-    }
-
-    /**
-     * `MainBibleActivity` drives the ACTIVITY input (`setActivityVisible`, restored in Task 6 fix
-     * round 1 because the destination's content slot cannot render the reading view yet) and must
-     * never touch the forcing setter, which clears every registration — this destination's
-     * included. A source scan because the thing asserted is an ABSENCE in production code that no
-     * runtime path can prove: `MainBibleActivity` is still the launcher at this commit, so a
-     * `setVisible(false)` smuggled into its `onPause` would clear a composed destination's
-     * registration and keep every other test green.
-     */
-    @Test
-    fun mainBibleActivityNoLongerDrivesTheVisibilityFlag() {
-        val src = ClassicRemovalScan.codeLinesOf(MAIN_BIBLE_ACTIVITY)
-        assertFalse(
-            src.contains("ReadingViewVisibility.setVisible"),
-            "the destination owns its own registration — MainBibleActivity must use the separate " +
-                "setActivityVisible(this, …) input, never the forcing setter",
-        )
     }
 
     /**
@@ -683,28 +662,27 @@ class ReadingDestinationInGraphTest {
     // ------------------------------------------------------------------ the deletion that was NOT allowed
 
     /**
-     * **`freeze()`/`unFreeze()` STAY until Task 13 deletes `MainBibleActivity` itself.**
+     * **`freeze()`/`unFreeze()` STAY although nothing overrides them any more** (plan Correction 11).
      *
-     * Task 6 deleted them (plan Step 5, design §9) on the premise that "the migration leaves one
-     * host, so there is nothing to swap". Fix round 2 restored them, because the premise is false on
-     * this branch and this test pins the reason: `StartupActivity.gotoMainBibleActivity()` launches
-     * `MainBibleActivity` with `FLAG_ACTIVITY_MULTIPLE_TASK` for an `ACTION_VIEW` intent, so a deep
-     * link opened while the app is running produces a SECOND live `MainBibleActivity` — the same
-     * scenario [ReadingViewVisibility]'s and [ReadingViewHostCallbacks]'s per-host registrations
-     * exist for (R7b; before it, a depth counter and a publish stack). Two instances registered on `ABEventBus` at once handle every bus event twice
-     * (`AppToBackgroundEvent` syncing twice, `MainBibleAfterRestore` resetting twice,
-     * `WorkspacesUpdatedViaSyncEvent` judging workspace deletion against the wrong repository), and
-     * `freeze()`'s `ABEventBus.unregister(this)` is the only thing that prevents it.
+     * Slice 7 Task 6 deleted them on the premise that "the migration leaves one host, so there is
+     * nothing to swap"; its fix round 2 restored them because `StartupActivity`'s `ACTION_VIEW`
+     * handoff launches with `FLAG_ACTIVITY_MULTIPLE_TASK`, so a deep link opened while the app is
+     * running produces a SECOND live host. `MainBibleActivity` — the only override, whose `freeze()`
+     * unregistered it from `ABEventBus` — went in slice 8, but the MULTIPLE_TASK launch did not: it
+     * now makes a second live NAV HOST, the scenario [ReadingViewVisibility]'s and
+     * [ReadingViewHostCallbacks]'s per-host registrations exist for (R7b). Whether that second host
+     * needs a real `freeze()` (two instances on `ABEventBus` handle every bus event twice) is an open
+     * question Correction 11 records for a later batch — it is not decided by deleting the hook.
      *
-     * So this test is deliberately an argument, not just an assertion: a future deletion has to
-     * make the MULTIPLE_TASK launch go away first, and will trip over this scan when it does not.
+     * So this test is deliberately an argument, not just an assertion: a future deletion has to make
+     * the MULTIPLE_TASK launch go away first, and will trip over this scan when it does not.
      */
     @Test
-    fun freezeAndUnFreezeStayWhileASecondMainBibleActivityIsReachable() {
+    fun freezeAndUnFreezeStayWhileASecondHostIsReachable() {
         assertTrue(
             ClassicRemovalScan.codeLinesOf(STARTUP_ACTIVITY).contains("FLAG_ACTIVITY_MULTIPLE_TASK"),
             "the reason freeze()/unFreeze() still exist: StartupActivity can launch a SECOND " +
-                "MainBibleActivity. If this line is gone, re-argue the deletion — do not just " +
+                "live nav host. If this line is gone, re-argue the deletion — do not just " +
                 "delete this test",
         )
 
@@ -992,8 +970,6 @@ class ReadingDestinationInGraphTest {
 
     companion object {
         private const val SIBLING = "sibling"
-        private const val MAIN_BIBLE_ACTIVITY =
-            "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt"
         private const val STARTUP_ACTIVITY =
             "src/main/java/net/bible/android/view/activity/StartupActivity.kt"
     }

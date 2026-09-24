@@ -235,15 +235,35 @@ class ReadingHostLauncherGuardTest {
         )
     }
 
-    @Test fun theClassicDispatcherAndTheAwaitedArmsShareOneImplementation() {
-        val mainBible = ClassicRemovalScan.codeLinesOf(
-            "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt"
+    /**
+     * One reading of a key-chooser result, not one per dispatcher. Slice 8 F3 repointed the host half
+     * from `MainBibleActivity.kt` (deleted in F4) to the nav host, and scoped it PER DISPATCHER: the
+     * host answers a `GenBookKey` result in two places -- `applyPendingActivityResult` (a separate
+     * chooser Activity's `onActivityResult`) and `applyInGraphStdResult` (an in-graph chooser) -- and
+     * a whole-file `contains` would stay green with one of the two re-implemented, because the other
+     * still spells the call.
+     *
+     * The my-document absence is scoped to the same two bodies: the host legitimately calls
+     * `MyDocumentBookManager.refreshDocument(` in its my-document page-list payload (a save refresh, not
+     * a key-chooser answer), so a whole-file absence would be false today.
+     */
+    @Test fun theHostsDispatchersAndTheAwaitedArmsShareOneImplementation() {
+        val host = ClassicRemovalScan.codeLinesOf(
+            "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"
         )
-        assertTrue(
-            "MainBibleActivity's surviving GenBookKey arm must read the extras through " +
-                "KeyChooserResults, or the two readings of the same result can drift apart",
-            mainBible.contains("KeyChooserResults.genBookKeyFrom(extras)"),
-        )
+        for (dispatcher in listOf("private fun applyPendingActivityResult()", "private fun applyInGraphStdResult(")) {
+            val body = functionBody(host, dispatcher)
+            assertTrue(
+                "the nav host's $dispatcher GenBookKey arm must read the extras through " +
+                    "KeyChooserResults, or the two readings of the same result can drift apart. Body was:\n$body",
+                body.contains("KeyChooserResults.genBookKeyFrom(extras)"),
+            )
+            assertFalse(
+                "$dispatcher must not grow a second openMyDocumentPage implementation beside " +
+                    "KeyChooserResults'. Body was:\n$body",
+                body.contains("MyDocumentBookManager.refreshDocument("),
+            )
+        }
         val readingCommands = ClassicRemovalScan.codeLinesOf(
             "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"
         )
@@ -257,10 +277,6 @@ class ReadingHostLauncherGuardTest {
             "ReadingCommands' my-document arms must delegate — the key-map rebuild-and-retry only " +
                 "fires on a stale key map, so a second copy could lose it and nothing would notice",
             readingCommands.contains("KeyChooserResults.openMyDocumentPage("),
-        )
-        assertFalse(
-            "MainBibleActivity must not grow a second openMyDocumentPage implementation beside it",
-            mainBible.contains("MyDocumentBookManager.refreshDocument("),
         )
         assertTrue(
             "ReadingCommands.applyChosenDocument must delegate — the FakeBookFactory fallback only " +

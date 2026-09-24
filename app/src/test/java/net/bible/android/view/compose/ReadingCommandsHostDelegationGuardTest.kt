@@ -52,8 +52,9 @@ import org.junit.Test
  *
  * R6c2 fix round 1 also parks two things here that are not strictly "the free half", because they
  * are about the same pair of files and the same anti-vacuity discipline: addendum Ruling D's
- * workspace-switch STEP scan, and the pin that keeps `ReadingCommands`' own construction of
- * `MenuCommandHandler` agreeing with `MainBibleActivity.kt`'s adapter for the Robolectric net.
+ * workspace-switch STEP scan, and the pin on `ReadingCommands`' own construction of
+ * `MenuCommandHandler` (which, until slice 8 deleted `MainBibleActivity`, had to agree with that
+ * Activity's adapter for the Robolectric net).
  *
  * **Anti-vacuity.** The positive assertions are load-bearing: without them this file would pass
  * against an empty or renamed source, which is the failure mode spec §5 exists to prevent.
@@ -203,7 +204,7 @@ class ReadingCommandsHostDelegationGuardTest {
     /**
      * Fix round 1, review Important 2. `windowRepository` is NOT a free `windowControl` substitution:
      * `windowControl.windowRepository` is whichever host most recently resumed, which can differ from
-     * THIS host's own repository for a second, not-yet-resumed `MainBibleActivity`. The correct shape
+     * THIS host's own repository for a second, not-yet-resumed host. The correct shape
      * is a supplier bound to the owning host, read at call time — this test pins that shape directly
      * rather than re-deriving it from a reference count, so a future refactor that keeps the supplier
      * but renames it cannot silently pass.
@@ -230,10 +231,13 @@ class ReadingCommandsHostDelegationGuardTest {
                 .readText().contains("val windowRepository: () -> WindowRepository,"),
             "the bundle must declare the owning host's repository as a SUPPLIER, not a value",
         )
+        // Slice 8 F3: the binding half now reads the nav host, the one host left
+        // (`MainBibleActivity.kt`, which bound `{ windowRepository }`, is deleted in F4).
         assertTrue(
-            File("src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt")
-                .readText().contains("windowRepository = { windowRepository },"),
-            "MainBibleActivity must bind its OWN windowRepository into the bundle",
+            File("src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt")
+                .readText().contains("windowRepository = { hostWindowRepository },"),
+            "the nav host binds its OWN repository into the bundle -- not windowControl's, which is " +
+                "whichever host most recently resumed",
         )
         val supplierCallSites = Regex("""(?<![.\w])windowRepository\(\)""").findAll(readingCommandsSource).count()
         assertEquals(
@@ -247,25 +251,20 @@ class ReadingCommandsHostDelegationGuardTest {
     }
 
     /**
-     * Review fix round 1, the accept's one condition. Before R6c2 there was ONE construction of
-     * `MenuCommandHandler` and `ReadingSearchEntryPointsTest`'s four call sites exercised it. Now
-     * there are two wirings that merely happen to agree -- `ReadingCommands`' own (production) and
-     * `MainBibleActivity.kt`'s one-line adapter (which is what those four call sites actually
-     * reach) -- so a mistaken `composeSearchIfHosted = { false }` in the production one would leave
-     * all four green. This pins the production wiring directly.
+     * Review fix round 1, the accept's one condition: `ReadingCommands`' own construction of
+     * `MenuCommandHandler` is pinned directly, so a mistaken `composeSearchIfHosted = { false }`
+     * (or a handler handed some other supplier) is caught at the wiring rather than left to
+     * whichever behaviour test happens to reach it.
      */
     @Test
-    fun readingCommandsWiresItsOwnMenuCommandHandlerTheSameWayTheAdapterDoes() {
+    fun readingCommandsWiresItsOwnMenuCommandHandler() {
         assertTrue(
             readingCommandsSource.contains("composeReadingViewHost = hostCallbacks.composeReadingViewHost,"),
-            "ReadingCommands must hand the handler the host bundle's own late-bound supplier — the " +
-                "Robolectric net reaches the MainBibleActivity.kt adapter, not this wiring, so " +
-                "nothing else would catch a wrong binding here",
+            "ReadingCommands must hand the handler the host bundle's own late-bound supplier",
         )
         assertTrue(
             readingCommandsSource.contains("composeSearchIfHosted = { this@ReadingCommands.composeSearchIfHosted() },"),
-            "…and its OWN composeSearchIfHosted, not the Activity's delegating stub and not a " +
-                "constant — see this test's kdoc for why the four entry-point tests cannot see this",
+            "…and its OWN composeSearchIfHosted, not a constant",
         )
     }
 
