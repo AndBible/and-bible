@@ -2931,7 +2931,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         }
     }
 
+    /**
+     * The route this instance was (re)started on, captured before `super.onCreate` so that
+     * [doNotInitializeApp] -- which `ActivityBase.onCreate` reads before this class's own `onCreate`
+     * body runs -- answers for the route the graph will actually start on (saved state first, as
+     * [navHostStartRoute] resolves it).
+     */
+    private var initRoute: String? = null
+
+    /** Slice 8 §3.1 rule 2 -- see [routeStartsUninitialised]. A getter, so it is right before `onCreate` too. */
+    override val doNotInitializeApp: Boolean
+        get() = routeStartsUninitialised(initRoute ?: intent?.getStringExtra(EXTRA_ROUTE))
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        initRoute = savedInstanceState?.getString(STATE_START_ROUTE) ?: intent.getStringExtra(EXTRA_ROUTE)
         // R6d: classic's `MainBibleActivity.onCreate` captures the theme in force here, before
         // `super.onCreate`, and `BibleView` reads it through the host bundle. Same capture, same
         // instant.

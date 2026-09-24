@@ -73,6 +73,18 @@ internal fun navHostStartRoute(
 }
 
 /**
+ * Slice 8 spec §3.1 rule 2: whether a host started on [route] must skip `CommonUtils.initializeApp()`.
+ * `WELCOME` and `BACKUP` do, as `StartupComposeActivity` and `BackupComposeActivity` did -- Backup is
+ * opened by `ErrorReportControl.checkCrash` BEFORE the database is initialised, so that a possibly broken
+ * database can be backed up or restored. Everything else, `INSTALL_ZIP` included, initialises as before.
+ */
+internal fun routeStartsUninitialised(route: String?): Boolean =
+    when (route?.substringBefore('?')) {
+        NavRoutes.WELCOME, NavRoutes.BACKUP -> true
+        else -> false
+    }
+
+/**
  * Is [intent] the bare Intent the PLATFORM synthesises for an Up affordance, rather than one an
  * in-app caller built and forgot to put [NavHostComposeActivity.EXTRA_ROUTE] on?
  *
