@@ -70,6 +70,20 @@ class DialogsShimTest {
 
     private fun idle() = shadowOf(Looper.getMainLooper()).idle()
 
+    /**
+     * `CurrentActivityHolder` (`app/src/main/java/net/bible/android/view/activity/base/CurrentActivityHolder.kt`)
+     * is process-global with no public reset, and `tearDown()`'s pause/stop/destroy only unregisters
+     * ACTIVITIES THIS TEST BUILT. In the full `:app` unit suite (one JVM) an earlier test class can
+     * leave an Activity registered, so `withNoActivityAMessageBecomesAToast`'s assumption that the
+     * holder starts empty does not hold — it did in isolation only by luck. Same reflection-based
+     * save/clear/restore idiom as `CurrentPageManagerNoActivityTest.holderActivities()`, so this test
+     * establishes and restores its own precondition instead of relying on suite ordering.
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun holderActivities(): ArrayList<ActivityBase> =
+        CurrentActivityHolder::class.java.getDeclaredField("activities").apply { isAccessible = true }
+            .get(CurrentActivityHolder) as ArrayList<ActivityBase>
+
     @Test
     fun showErrorMsgPostsANonCancellableMessageWithReport() {
         activity()
@@ -96,12 +110,21 @@ class DialogsShimTest {
 
     @Test
     fun withNoActivityAMessageBecomesAToast() {
-        // No Activity built in this test, and the previous test's Activity was stopped in
-        // tearDown() -- CurrentActivityHolder.currentActivity is null.
-        Dialogs.showErrorMsg("x")
-        idle()
-        assertEquals("x", ShadowToast.getTextOfLatestToast())
-        assertNull(dialogs.pending.value)
+        // Own precondition, not suite-order luck: clear CurrentActivityHolder (an earlier test class
+        // in the full suite can leave an Activity registered) and prove it's empty before calling
+        // showErrorMsg, so a future pollution fails here with a clear message, not a mystery `null`
+        // deep inside the Toast assertion.
+        val savedActivities = ArrayList(holderActivities())
+        holderActivities().clear()
+        try {
+            assertNull(CurrentActivityHolder.currentActivity)
+            Dialogs.showErrorMsg("x")
+            idle()
+            assertEquals("x", ShadowToast.getTextOfLatestToast())
+            assertNull(dialogs.pending.value)
+        } finally {
+            holderActivities().addAll(savedActivities)
+        }
     }
 
     @Test
