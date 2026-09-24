@@ -187,16 +187,16 @@ object OptionsMenuStateBuilder {
     }
 
     /**
-     * Reproduces `MainBibleActivity.handlePrefItem`, minus the `MenuItem.isChecked` UI write (no
+     * Reproduces classic `handlePrefItem`, minus the `MenuItem.isChecked` UI write (no
      * `MenuItem` exists on this path — the host rebuilds the whole item list instead, see
-     * `MainBibleActivity.handleOptionsMenuItem`). [activity] is needed for `windowRepository`
+     * `MainBibleActivity.handleOptionsMenuItem`). [hostActivity] is needed for `windowRepository`
      * (public) and as the [net.bible.android.view.activity.base.ActivityBase] receiver
      * `openDialog` requires — NOT for anything private, so this stays free of any access-widening
      * beyond the [getItemOptions] closure itself.
      *
      * Settings editor sheets T11: for a [Preference] whose type
      * [net.bible.sharedcore.settings.textSettingEditorPageFor] maps to a page — one of the eight
-     * sheet-editable text display settings, plus colours — and only when [activity]'s
+     * sheet-editable text display settings, plus colours — and only when [hostActivity]'s
      * `composeReadingViewHost` is installed, this opens that page IN PLACE over the reading view
      * (`ComposeReadingViewHost.showTextSettingEditor`) instead of calling `openDialog`, reusing the
      * exact same `onReady` closure `openDialog` would otherwise have received. Everything else —
@@ -205,34 +205,12 @@ object OptionsMenuStateBuilder {
      * [net.bible.sharedcore.settings.textSettingEditorPageFor] does not name — still calls
      * `openDialog` unchanged.
      *
-     * Returns whether the menu should stay open: `true` for a boolean toggle (so the host can
-     * rebuild the list and show the flipped check), `false` once a sheet/dialog/activity/action
-     * has been launched, or for the (practically unreachable via [build]'s item set)
-     * [SubMenuPreference] no-op case.
-     */
-    fun dispatch(
-        activity: MainBibleActivity,
-        getItemOptions: (resId: Int, order: Int) -> OptionsMenuItemInterface,
-        id: String,
-    ): Boolean = dispatch(
-        activity,
-        { activity.windowRepository },
-        { activity.composeReadingViewHost },
-        getItemOptions,
-        id,
-    )
-
-    /**
      * The host-agnostic form, which [ReadingCommands] calls (reading-host re-typing R6c2, Ruling
      * C-5). Identical body; the three things it used to reach through `MainBibleActivity` are now
      * parameters: the plain `ActivityBase` [OptionsMenuItemInterface.openDialog] demands by
      * signature, and read-at-call-time suppliers for the OWNING host's window repository (NOT
      * `windowControl.windowRepository`, which is whichever host resumed last) and for the mounted
      * reading-view host.
-     *
-     * The three-argument overload above is retained as a one-line adapter, with no logic of its
-     * own, because five call sites in the untouched `OptionsMenuStateBuilderTest` build it straight
-     * from a Robolectric `MainBibleActivity`.
      */
     fun dispatch(
         hostActivity: ActivityBase,

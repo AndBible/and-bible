@@ -40,7 +40,6 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.page.Selection

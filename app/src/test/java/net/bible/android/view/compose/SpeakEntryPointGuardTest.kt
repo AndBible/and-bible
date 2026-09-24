@@ -61,15 +61,12 @@ class SpeakEntryPointGuardTest {
      * asserted to exist so the scan can never pass vacuously.
      */
     private val callSites = listOf(
-        "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
         "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
         // Reading-host re-typing R3 (design spec §3.2): the Compose toolbar's Speak long-press
         // (`composeSpeakLong`) moved OFF the Activity into this collaborator, taking its
         // `showSpeakSettings(` call with it. The whole-tree walk below saw the new holder and went
-        // red — correctly — and the fix is this line, never a weaker walk. `MainBibleActivity.kt`
-        // stays on the list only while the file exists (its classic `speakButton` long-press still
-        // reaches `showSpeakSettings(`, so the whole-tree walk below sees it); slice 8 F4 deletes
-        // the file and this entry together.
+        // red — correctly — and the fix is this line, never a weaker walk. (`MainBibleActivity.kt`
+        // left this list in slice 8 F4, with the classic `speakButton` long-press it held.)
         "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt",
         "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
     )

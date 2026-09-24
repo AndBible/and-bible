@@ -267,7 +267,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
 
     /**
      * Whether this activity should let the base class handle volume-key page scrolling.
-     * Screens that own the volume keys themselves (e.g. MainBibleActivity) override to false.
+     * Screens that own the volume keys themselves (e.g. the reading destination) override to false.
      */
     protected open val enableGenericVolumeScroll: Boolean get() = true
 
@@ -493,33 +493,11 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     /**
-     * Swap this Activity's content view out — and its `ABEventBus` subscriptions with it — while
-     * ANOTHER Activity is on top of it, and swap it back when it returns. Only `MainBibleActivity`
-     * overrides these; [CurrentActivityHolder.activate]/[CurrentActivityHolder.deactivate] are the
-     * only callers.
-     *
-     * **These stay until Task 13 deletes `MainBibleActivity`, and they cannot die sooner.**
-     * Nav-graph slice 7 Task 6 deleted them on the premise that "the migration leaves one host, so
-     * there is nothing to swap". That premise is false on this branch:
-     * `StartupActivity.gotoMainBibleActivity()` launches `MainBibleActivity` with
-     * `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_MULTIPLE_TASK` whenever the launching intent is
-     * `ACTION_VIEW`, so opening an AndBible deep link while the app is already running really does
-     * produce a SECOND live `MainBibleActivity` — the very scenario that makes
-     * `ReadingViewVisibility` and `ReadingViewHostCallbacks` keep their registrations per HOST
-     * (`ReadingHostPresence`, R7b) rather than as a boolean and a nullable field.
-     *
-     * What is actually lost without them is [freeze]'s `ABEventBus.unregister(this)` (and the
-     * content-view detach). With two instances both registered, every bus event is handled twice:
-     * `AppToBackgroundEvent` runs `synchronize`/`startSync` twice, `MainBibleAfterRestore` doubles
-     * `bookmarkControl.reset()`/`bibleViewFactory.clear()`, and `WorkspacesUpdatedViaSyncEvent` has
-     * the backgrounded instance re-evaluate workspace deletion against its own repository while the
-     * global `windowControl` points at the other one. The `ScreenSettings.NightModeChanged` handler's
-     * hand-written `currentActivity == this@MainBibleActivity` guard is the original author
-     * defending against exactly this, one event at a time. ([unFreeze]'s repository restore is
-     * separately covered by `onResume`; [freeze]'s unregister is covered by nothing.)
-     *
-     * So they go when the second instance goes — with `MainBibleActivity` itself, in Task 13.
-     * Pinned by `ReadingDestinationInGraphTest.freezeAndUnFreezeStayWhileASecondMainBibleActivityIsReachable`.
+     * Swap this Activity's content view (and its `ABEventBus` subscriptions) out while ANOTHER Activity is on top,
+     * and back when it returns; [CurrentActivityHolder.activate]/[CurrentActivityHolder.deactivate] are the only
+     * callers. `MainBibleActivity` was the only override and was deleted in slice 8; the hooks are kept because a
+     * second live `NavHostComposeActivity` is still reachable through `StartupActivity`'s `ACTION_VIEW` handoff --
+     * see `CurrentActivityHolder.activate`. Pinned by `ReadingDestinationInGraphTest.freezeAndUnFreezeStayWhileASecondHostIsReachable`.
      */
     open fun freeze() {}
 

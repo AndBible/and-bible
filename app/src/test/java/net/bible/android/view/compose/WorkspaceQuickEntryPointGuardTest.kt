@@ -45,14 +45,13 @@ import org.junit.Test
  */
 class WorkspaceQuickEntryPointGuardTest {
     private val callSiteFiles = listOf(
-        "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
         "src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt",
         // Reading-host re-typing R3 (design spec §3.2): the (i) overflow menu's
         // `R.id.switchToWorkspace` row — the `host.showWorkspaceSheet()` / `Screen.WorkspaceSelector`
         // pair — moved out of `MainBibleActivity.getItemOptions` into this collaborator.
         // `everyNonExcludedLaunchSiteIsGuardedByShowWorkspaceSheet` walks all of `src/main`, so it
         // follows the site automatically; this list is what keeps the anti-vacuity check honest.
-        // `MainBibleActivity.kt` stays: it still holds the two classic-only excluded launches.
+        // (`MainBibleActivity.kt` left this list in slice 8 F4, with its two classic-only launches.)
         "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt",
         "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
     )
@@ -72,12 +71,10 @@ class WorkspaceQuickEntryPointGuardTest {
 
     /**
      * Deliberately excluded launch sites, identified by a marker string that must appear within
-     * [EXCLUSION_WINDOW] lines above the launch line — NOT by file, since `MainBibleActivity.kt`
-     * carries both excluded and non-excluded sites. Each entry records WHY no `showWorkspaceSheet`
-     * branch is required there:
-     *  - the classic reading view's title-fling gesture and the classic toolbar's `workspaceButton`
-     *    — both run ONLY on the classic (non-Compose) reading view, pre-dating round 15b and
-     *    untouched by it (the task brief explicitly says to leave them alone);
+     * [EXCLUSION_WINDOW] lines above the launch line — NOT by file, so a second, non-excluded
+     * launch in the same file is still policed. Each entry records WHY no `showWorkspaceSheet`
+     * branch is required there. (The classic title-fling and `workspaceButton` exclusions went with
+     * `MainBibleActivity` in slice 8 F4.)
      *  - the quick sheet's own footer row (`AbQuickSheetFooterRow`, "manage workspaces") — this IS
      *    the reroute target the other two sites reach, opened FROM INSIDE the sheet; requiring it to
      *    also open the sheet it is already showing would be circular.
@@ -85,10 +82,6 @@ class WorkspaceQuickEntryPointGuardTest {
      * as a failure, not a silent narrowing of what the exclusion covers.
      */
     private val excludedMarkers = listOf(
-        "SimpleOnGestureListener" to
-            "the classic reading view's title-fling gesture (pre-round-15b, classic-only)",
-        "workspaceButton.setOnClickListener" to
-            "the classic toolbar's workspace button (pre-round-15b, classic-only)",
         "AbQuickSheetFooterRow" to
             "the quick sheet's own footer row reaching the full selector — it IS the reroute target",
     )
@@ -150,15 +143,15 @@ class WorkspaceQuickEntryPointGuardTest {
 
     @Test fun theScanFoundAtLeastTheKnownSites() {
         val sites = findLaunchSites()
-        // Anti-vacuity: 5 known sites as of round 15b T7 fix round 1 — 3 excluded (classic fling,
-        // classic toolbar button, the sheet's own footer row) + 2 guarded (the (i) overflow menu
-        // item, Ctrl+W). A count below this means the search pattern stopped matching real source,
-        // not that sites were legitimately removed — if sites are ever legitimately removed, lower
-        // this number deliberately and explain why in this comment.
+        // Anti-vacuity: 3 known sites — 1 excluded (the sheet's own footer row) + 2 guarded (the
+        // (i) overflow menu item, Ctrl+W). Lowered from 5 in slice 8 F3: the two classic-only sites
+        // went with MainBibleActivity. A count below this means the search pattern stopped matching
+        // real source, not that sites were legitimately removed — if sites are ever legitimately
+        // removed, lower this number deliberately and explain why in this comment.
         assertTrue(
-            "the src/main walk found only ${sites.size} Screen.WorkspaceSelector launch site(s), " +
-                "expected at least 5 — the search pattern may have stopped matching real source",
-            sites.size >= 5,
+            "the src/main walk found only ${sites.size} workspace-selector launch site(s), " +
+                "expected at least 3 — the search pattern may have stopped matching real source",
+            sites.size >= 3,
         )
     }
 

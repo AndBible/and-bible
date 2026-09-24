@@ -210,9 +210,9 @@ class ClassicReadingViewRemovalGuardTest {
      * and the two halves together forbid the other failure mode too: a split-out file that merely
      * shadows a still-present host.
      *
-     * The layout half is the anti-vacuity precondition for the count: `mainBibleView` is the Compose
-     * mount point and must still be there, or "zero classic chrome tags" is what an empty or
-     * moved-away file says too.
+     * The layout half used to read `main_bible_view.xml` and count the classic chrome tags in it.
+     * Slice 8 F4 deleted that layout with `MainBibleActivity`, so the half is now "the layout is
+     * gone": a layout that no longer exists cannot embed the classic chrome again.
      */
     @Test
     fun theClassicBottomChromeIsGone() {
@@ -234,13 +234,9 @@ class ClassicReadingViewRemovalGuardTest {
             ),
             "their live Compose-path events had to be split out first",
         )
-        val layout = ClassicRemovalScan.codeLinesOf("src/main/res/layout/main_bible_view.xml")
-        assertTrue(
-            "main_bible_view.xml no longer holds the Compose mount point -- the count below " +
-                "would pass vacuously against an empty or moved file",
-            layout.contains("android:id=\"@+id/mainBibleView\""),
+        ClassicRemovalScan.assertPathsGone(
+            listOf("src/main/res/layout/main_bible_view.xml"),
+            "the classic reading layout went with MainBibleActivity",
         )
-        assertEquals("main_bible_view.xml must not embed the classic chrome", 0,
-            Regex("""SpeakTransportWidget|AgentLogWidget""").findAll(layout).count())
     }
 }

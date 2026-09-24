@@ -27,7 +27,6 @@ import net.bible.android.control.event.onMain
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.page.SpeakTransportVisibilityChanged

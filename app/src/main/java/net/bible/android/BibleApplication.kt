@@ -391,7 +391,7 @@ open class BibleApplication : Application() {
     }
 
     companion object {
-        // this was moved from the MainBibleActivity and has always been called this
+        // The SharedPreferences FILE name this has always used (it was MainBibleActivity's). Renaming it would orphan every user's saved state.
         private const val saveStateTag = "MainBibleActivity"
 
         lateinit var application: BibleApplication

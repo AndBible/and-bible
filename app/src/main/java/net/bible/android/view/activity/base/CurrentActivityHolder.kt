@@ -18,7 +18,6 @@ package net.bible.android.view.activity.base
 
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
-import net.bible.android.view.activity.page.MainBibleActivity
 
 /** Allow operations form middle tier that require a reference to the current Activity
  *
@@ -34,12 +33,10 @@ object CurrentActivityHolder {
      * The incoming Activity is unfrozen and every Activity underneath it is frozen — see
      * [ActivityBase.freeze] for what that is and for why it is still here.
      *
-     * Nav-graph slice 7 Task 6 deleted these three calls (and [mainBibleActivities]) on the premise
-     * that the migration leaves one host with nothing to swap. It does not, yet:
-     * `StartupActivity.gotoMainBibleActivity()`'s `FLAG_ACTIVITY_MULTIPLE_TASK` branch makes a
-     * SECOND live `MainBibleActivity` reachable from any `ACTION_VIEW` deep link, and two
-     * instances registered on `ABEventBus` at once handle every event twice. Task 6 fix round 2
-     * restored them; they die with `MainBibleActivity` in Task 13.
+     * The freeze/unfreeze hooks stay although no Activity overrides them since slice 8 deleted
+     * `MainBibleActivity`: `StartupActivity`'s `ACTION_VIEW` handoff (`FLAG_ACTIVITY_MULTIPLE_TASK`) can still make a
+     * SECOND live `NavHostComposeActivity`, and whether that host needs a real `freeze()` (two instances on
+     * `ABEventBus`) is an open question recorded in the slice 8 plan (Correction 11) -- not decided by deleting the hook.
      *
      * The FOREGROUND/BACKGROUND event pair is unrelated to any of this — it is about the app as a
      * whole.
@@ -58,14 +55,6 @@ object CurrentActivityHolder {
             }
         }
     }
-
-    /**
-     * How many live `MainBibleActivity` instances there are. Read only by
-     * `MainBibleActivity.freeze()`, which must NOT swap its content view out when it is the only
-     * reading Activity there is — the ordinary case, where the thing on top is a secondary screen
-     * and the reading view underneath it should simply stay as it is.
-     */
-    val mainBibleActivities get() = activities.filterIsInstance<MainBibleActivity>().size
 
     fun deactivate(activity: ActivityBase) {
         activities.remove(activity)

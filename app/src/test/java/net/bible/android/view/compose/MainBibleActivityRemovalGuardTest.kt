@@ -53,6 +53,37 @@ class MainBibleActivityRemovalGuardTest {
     }
 
     @Test
+    fun theClassItsLayoutAndItsManifestEntryAreGone() {
+        ClassicRemovalScan.assertPathsGone(
+            listOf(
+                "src/main/java/net/bible/android/view/activity/page/MainBibleActivity.kt",
+                "src/main/res/layout/main_bible_view.xml",
+            ),
+            "MainBibleActivity was unreachable since T8b and is deleted in slice 8 F4",
+        )
+        ClassicRemovalScan.assertNoManifestNames(
+            listOf("net.bible.android.view.activity.page.MainBibleActivity"),
+            "a manifest still declares the deleted reading Activity",
+        )
+    }
+
+    /**
+     * `BibleApplication.saveStateTag = "MainBibleActivity"` is a SharedPreferences FILE NAME on users' devices
+     * (plan Correction 8); it is the one production literal allowed to spell the name.
+     */
+    @Test
+    fun noProductionCodeNamesTheClass() {
+        val offenders = File("src/main/java").walkTopDown().filter { it.isFile && it.extension == "kt" }
+            .flatMap { f ->
+                f.readLines().filterNot { l -> l.trimStart().let { it.startsWith("*") || it.startsWith("//") || it.startsWith("/*") } }
+                    .filter { l -> Regex("""\bMainBibleActivity\b""").containsMatchIn(l) }
+                    .filterNot { l -> l.contains("saveStateTag = \"MainBibleActivity\"") }
+                    .map { "${f.name}: ${it.trim()}" }
+            }.toList()
+        assertEquals("only BibleApplication's prefs-file literal may name it", emptyList<String>(), offenders)
+    }
+
+    @Test
     fun theCodeOnlyScanStripsCommentsAndStringsButKeepsCode() {
         val src = "val a = \"MainBibleActivity::class.java\" // MainBibleActivity::class\n" +
             "/* buildActivity(MainBibleActivity */ val t = \"\"\"MainBibleActivity::class\"\"\"\n" +

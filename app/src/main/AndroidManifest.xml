@@ -95,13 +95,6 @@
         </activity-alias>
 
         <activity
-            android:name="net.bible.android.view.activity.page.MainBibleActivity"
-            android:configChanges="keyboard|navigation|keyboardHidden|screenSize|locale"
-            android:theme="@style/MainBibleViewTheme"
-            android:windowSoftInputMode="stateHidden|adjustPan"
-            android:launchMode="singleTop"
-            android:label="@string/app_name_short" />
-        <activity
             android:name="net.bible.android.view.activity.backup.BackupComposeActivity"
             android:theme="@style/Theme.AbCompose"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"

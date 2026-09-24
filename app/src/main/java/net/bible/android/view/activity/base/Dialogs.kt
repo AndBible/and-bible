@@ -30,7 +30,6 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DialogAgentPermissionBinding
 import net.bible.android.control.report.ErrorReportControl
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan

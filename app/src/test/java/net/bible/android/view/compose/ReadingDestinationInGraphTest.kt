@@ -689,10 +689,10 @@ class ReadingDestinationInGraphTest {
         val members = ActivityBase::class.java.methods.map { it.name }
         assertTrue(members.contains("freeze"), "ActivityBase.freeze() must still exist")
         assertTrue(members.contains("unFreeze"), "ActivityBase.unFreeze() must still exist")
-        assertTrue(
+        assertFalse(
             CurrentActivityHolder::class.java.methods.map { it.name }.contains("getMainBibleActivities"),
-            "MainBibleActivity.freeze() asks CurrentActivityHolder.mainBibleActivities whether it is " +
-                "the only reading Activity there is",
+            "CurrentActivityHolder.mainBibleActivities was deleted with its only reader, " +
+                "MainBibleActivity.freeze() -- nothing may count reading Activities by class again",
         )
     }
 

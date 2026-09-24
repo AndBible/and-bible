@@ -11,9 +11,10 @@ import org.junit.Test
  * `intentFor`/`intentForColors`/`intentForDetachedWorkspace`. They navigate the graph with a route built
  * from arguments.
  *
- * Excluded by FILE, with the reason: `ScreenLauncher.kt` (the arm table itself), `MainBibleActivity.kt`
- * (dead since T8b, deleted in Task F5) and the seven Activities' own files (deleted in Task F6; the
- * selector's launch of the editor is the Activity PAIR's, whose graph twin already exists).
+ * Excluded by FILE, with the reason: `ScreenLauncher.kt` (the arm table itself) and the seven
+ * Activities' own files (deleted in Task F6; the selector's launch of the editor is the Activity
+ * PAIR's, whose graph twin already exists). (`MainBibleActivity.kt`, dead since T8b, was deleted in
+ * slice 8 F4 and dropped from this list.)
  *
  * [ALLOWLIST] is a RATCHET: each entry is a not-yet-repointed call site with the task that repoints it.
  * An entry that no longer matches a real offender fails ([everyAllowlistEntryIsStillAnOffender]), so the
@@ -27,7 +28,7 @@ class SliceEightCallerGuardTest {
     )
 
     private val excludedFiles = setOf(
-        "ScreenLauncher.kt", "MainBibleActivity.kt",
+        "ScreenLauncher.kt",
         "ChooseDocumentComposeActivity.kt", "GridChoosePassageComposeActivity.kt",
         "ChooseDictionaryWordComposeActivity.kt", "ChooseGeneralBookKeyComposeActivity.kt",
         "ChooseMapKeyComposeActivity.kt", "WorkspaceSelectorComposeActivity.kt",

@@ -57,12 +57,9 @@ class ActivityResultDispatchGuardTest {
         // without producing it, so counting them would make every kind look produced. Slice 8 F3
         // added the three that replaced `MainBibleActivity.kt`'s dispatcher -- without them this
         // guard stayed green with Bookmarks' only producer (`NavResultIntents.forBookmarks`) broken.
-        // "MainBibleActivity.kt" is still listed only while the file exists (its arms would
-        // otherwise count as production too); slice 8 F4 deletes the file and this entry.
         val declaringOrConsuming = setOf(
             "ActivityResultKind.kt",
             "NavHostComposeActivity.kt", "ReadingCommands.kt", "KeyChooserResults.kt",
-            "MainBibleActivity.kt",
         )
         val producerText = sources
             .filterNot { it.name in declaringOrConsuming }
