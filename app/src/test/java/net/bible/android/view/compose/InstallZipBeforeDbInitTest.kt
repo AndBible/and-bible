@@ -18,6 +18,7 @@
 package net.bible.android.view.compose
 
 import android.os.Looper
+import android.view.WindowManager
 import androidx.navigation.NavHostController
 import androidx.test.core.app.ApplicationProvider
 import java.time.Duration
@@ -63,6 +64,9 @@ class InstallZipBeforeDbInitTest {
         val wasInitialized = CommonUtils.initialized
         DatabaseContainer.ready = false
         CommonUtils.initialized = false
+        val prefs = CommonUtils.realSharedPreferences
+        val hadCalculator = prefs.getBoolean("show_calculator", false)
+        prefs.edit().putBoolean("show_calculator", true).commit()
         runningTests = false
         val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -74,6 +78,10 @@ class InstallZipBeforeDbInitTest {
             val activity = controller.get()
             assertTrue("precondition: a BACKUP start does not initialise the app", activity.doNotInitializeApp)
             assertFalse("precondition: nothing initialised the app yet", CommonUtils.initialized)
+            assertTrue(
+                "precondition: an uninitialised start sets no FLAG_SECURE",
+                (activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) == 0,
+            )
 
             activity.openInstallZip()
             shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
@@ -84,11 +92,20 @@ class InstallZipBeforeDbInitTest {
             assertTrue("InstallZip initialises the app, as the classic Activity's onCreate did", CommonUtils.initialized)
             assertTrue("…so the database is ready for the install", DatabaseContainer.ready)
             assertFalse("the host now answers as an initialised one", activity.doNotInitializeApp)
+            assertTrue(
+                "the calculator disguise's FLAG_SECURE is applied, as ActivityBase.onCreate does for an initialised start",
+                (activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0,
+            )
         } finally {
             controller.close()
+            // The initialisation under test built the TTS managers against THIS test's Application; left in
+            // CommonUtils, a later test's TestBibleApplication would reuse them and fail to unregister their
+            // receivers in onTerminate ("Receiver not registered"). Tear them down with the app they belong to.
+            if (CommonUtils.initialized) CommonUtils.destroy()
             runningTests = true
             DatabaseContainer.ready = wasReady
             CommonUtils.initialized = wasInitialized
+            prefs.edit().putBoolean("show_calculator", hadCalculator).commit()
         }
     }
 

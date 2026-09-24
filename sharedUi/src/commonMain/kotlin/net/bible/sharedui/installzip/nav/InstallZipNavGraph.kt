@@ -82,7 +82,7 @@ class InstallZipNavDeps(
 }
 
 /**
- * One [InstallZipSession] per InstallZip NavBackStackEntry, keyed by the entry's id (D1 controller ruling).
+ * One [InstallZipSession] per InstallZip NavBackStackEntry OBJECT (D1 controller rulings).
  *
  * Navigation disposes a destination's composition when another destination covers it and recomposes it on
  * return; a session tied to that composition would be recreated and `start()` again -- re-enqueueing a
@@ -90,17 +90,33 @@ class InstallZipNavDeps(
  * reaches DESTROYED: popped by anything (its own answer, an outside `popBackStack`/`popUpTo`) or the host
  * finishing. Never on composition dispose.
  *
+ * Keyed by object identity, NOT by `entry.id`: a `launchSingleTop` navigate onto a current InstallZip (a
+ * second share while one is on screen) replaces the top entry with a NEW object carrying the SAME id and the
+ * new arguments. The old object is NOT moved to DESTROYED (measured on navigation 2.9.2: it stays at its
+ * last state), so its observer would never fire. Fix round 2 ruling: the re-share replaces the session, as
+ * classic started a fresh Activity per share -- so the first time a new object with a held object's id
+ * asks for a session, the held one is closed and forgotten (an install it started keeps running in the
+ * service) and the new object gets its own session, which enqueues its URIs.
+ *
  * Its answer leaves through ITS OWN entry only: delivered at once while that entry is the current one; held
  * while something covers it and delivered when the entry is resumed again; dropped if the entry is gone. It
  * never pops "whatever is current".
  */
 internal class InstallZipEntrySessions {
 
-    private class Held(val session: InstallZipSession) {
+    private class Held(val entry: NavBackStackEntry, val session: InstallZipSession) {
         var pending: InstallZipResult? = null
+        lateinit var observer: LifecycleEventObserver
+
+        fun release() {
+            entry.lifecycle.removeObserver(observer)
+            session.close()
+        }
     }
 
-    private val byEntry = mutableMapOf<String, Held>()
+    private val live = mutableListOf<Held>()
+
+    private fun heldFor(entry: NavBackStackEntry): Held? = live.firstOrNull { it.entry === entry }
 
     fun sessionFor(
         entry: NavBackStackEntry,
@@ -109,37 +125,42 @@ internal class InstallZipEntrySessions {
         action: String?,
         uris: List<String>,
     ): InstallZipSession {
-        byEntry[entry.id]?.let { return it.session }
+        heldFor(entry)?.let { return it.session }
+        live.filter { it.entry.id == entry.id }.forEach { replaced ->
+            live.remove(replaced)
+            replaced.release()
+        }
         lateinit var held: Held
         val session = deps.sessionFor(action, uris) onFinished@{ result ->
-            if (byEntry[entry.id] !== held) return@onFinished // entry gone: closed, answer nothing
-            if (navController.currentBackStackEntry?.id == entry.id) {
+            if (heldFor(entry) !== held) return@onFinished // entry gone: closed, answer nothing
+            if (navController.currentBackStackEntry === entry) {
                 deps.installZipResults.deliver(navController, result)
             } else {
                 held.pending = result // covered: answer when this entry is on top again
             }
         }
-        held = Held(session)
+        held = Held(entry, session)
         if (entry.lifecycle.currentState == Lifecycle.State.DESTROYED) {
             session.close()
             return session
         }
-        byEntry[entry.id] = held
-        entry.lifecycle.addObserver(LifecycleEventObserver { _, event ->
+        live += held
+        held.observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> held.pending?.let { result ->
                     held.pending = null
-                    if (navController.currentBackStackEntry?.id == entry.id) {
+                    if (navController.currentBackStackEntry === entry) {
                         deps.installZipResults.deliver(navController, result)
                     }
                 }
                 Lifecycle.Event.ON_DESTROY -> {
-                    byEntry.remove(entry.id)
-                    held.session.close()
+                    live.remove(held)
+                    held.release()
                 }
                 else -> Unit
             }
-        })
+        }
+        entry.lifecycle.addObserver(held.observer)
         return session
     }
 }

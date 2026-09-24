@@ -101,7 +101,7 @@ internal class InstallZipFlow(
     private val work = mutableListOf<Job>()
 
     override fun start() {
-        if (started) return
+        if (started || finished) return // finished: answered or closed -- a closed session never restarts
         started = true
         seams.requestNotificationPermission()
         work += scope.launch {

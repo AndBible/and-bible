@@ -8569,7 +8569,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         finish()
     }
 
-    /** What the in-graph caller that opened InstallZip wants done with its answer -- see [openInstallZip]. */
+    /**
+     * What the in-graph caller that opened InstallZip wants done with its answer -- see [openInstallZip].
+     * Handed from [openInstallZip] to the session [installZipSessionFor] builds next, and back here only
+     * when that session answers, for [InstallZipReturnCollector].
+     */
     private var installZipReturn: ((InstallZipResult) -> Unit)? = null
 
     /** Registered at construction, i.e. before STARTED (the rule `ReadingCommands`' own launcher taught R8). */
@@ -8607,6 +8611,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // R4, the arm-entry half: a destination restored onto an uninitialised host (process death on
         // Backup -> InstallZip) never passed through [openInstallZip]. Before the session touches anything.
         initialiseIfStartedUninitialised()
+        // Fix round 2 (review minor 2): the opener's callback belongs to THIS session. Taken off the host
+        // field now, and put back only when this session answers -- so a session that closes unanswered
+        // (its entry popped from outside) drops it, and a later entry nobody opened (a restored one, the
+        // redirect's start) cannot answer into it.
+        val onReturn = installZipReturn
+        installZipReturn = null
         return InstallZipFlow(
             scope = lifecycleScope,
             action = action,
@@ -8637,7 +8647,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 },
                 noFileManager = { ABEventBus.post(ToastEvent(getString(R.string.no_file_manager))) },
             ),
-            onFinished = onFinished,
+            onFinished = { result ->
+                installZipReturn = onReturn
+                onFinished(result)
+            },
         )
     }
 

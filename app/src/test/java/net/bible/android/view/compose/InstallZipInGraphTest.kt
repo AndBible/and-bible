@@ -27,6 +27,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import net.bible.android.TEST_SDK
@@ -215,6 +216,40 @@ class InstallZipInGraphTest {
         assertEquals(OTHER, navController.currentBackStackEntry?.destination?.route, "nothing else was popped")
         assertEquals(null, results.consume(), "a closed session answers nothing")
         assertEquals(0, channelExits)
+    }
+
+    /**
+     * Fix round 2. A second share while InstallZip is on top: `navigateToRoute`'s `launchSingleTop` REPLACES
+     * the top entry with a new object carrying the SAME id and the new arguments (pinned here first, since
+     * the fix depends on it). Controller ruling: the re-share replaces the session, as classic started a
+     * fresh Activity per share -- the new URIs are enqueued, and back still pops.
+     */
+    @Test
+    fun aReShareWhileInstallZipIsOnTopReplacesTheSession() {
+        setGraph(::realSessionFor)
+        compose.runOnIdle { navController.navigate(NavRoutes.installZip("android.intent.action.SEND", listOf("content://x/a.zip"))) }
+        compose.waitForIdle()
+        val first = navController.currentBackStackEntry!!
+        compose.runOnIdle {
+            navController.navigate(NavRoutes.installZip("android.intent.action.SEND", listOf("content://x/b.zip"))) {
+                launchSingleTop = true
+            }
+        }
+        compose.waitForIdle()
+        val second = navController.currentBackStackEntry!!
+        assertEquals(first.id, second.id, "library behaviour: a singleTop re-navigate keeps the entry id")
+        assertTrue(first !== second, "library behaviour: …but the entry object is replaced")
+        // Measured (navigation 2.9.2): the replaced object is NOT moved to DESTROYED (it stays RESUMED), so
+        // InstallZipEntrySessions closes its session on replacement rather than waiting for its ON_DESTROY.
+        assertEquals(1, navController.currentBackStack.value.count { it.destination.route == NavRoutes.INSTALL_ZIP_PATTERN })
+
+        assertEquals(listOf(listOf(Uri.parse("content://x/a.zip")), listOf(Uri.parse("content://x/b.zip"))), enqueued)
+        assertEquals(2, realSessions)
+
+        compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
+        compose.waitForIdle()
+        assertEquals(NavRoutes.READING, navController.currentBackStackEntry?.destination?.route, "back still pops")
+        assertEquals(InstallZipResult.CANCELED, results.consume())
     }
 
     /** An answer given while something covers InstallZip waits for its entry, then pops that entry only. */

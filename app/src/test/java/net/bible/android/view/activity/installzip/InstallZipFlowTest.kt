@@ -143,6 +143,52 @@ class InstallZipFlowTest {
     }
 
     @Test
+    fun startAfterCloseDispatchesNothing() = runTest(UnconfinedTestDispatcher()) {
+        val f = flow(backgroundScope, Intent.ACTION_SEND, listOf(uri))
+        f.close()
+        f.start()
+        assertEquals(emptyList<Pair<List<Uri>, String?>>(), enqueued)
+        assertEquals(null, f.state.value)
+    }
+
+    /**
+     * Fix round 2 drift guard: the route classification (the destination) and the Intent one (the redirect
+     * Activity, and today's InstallZipComposeActivity) agree for every action and shape the redirect forwards.
+     * The Intent is turned into route arguments the way the redirect does: VIEW -> its data, SEND -> its
+     * EXTRA_STREAM, SEND_MULTIPLE -> its EXTRA_STREAM list, no action -> nothing.
+     */
+    @Test
+    fun theRouteAndIntentClassificationsAgreeForEveryShape() = runTest {
+        fun view(data: Uri?) = Intent(Intent.ACTION_VIEW).apply { if (data != null) this.data = data }
+        fun send(stream: Uri?) = Intent(Intent.ACTION_SEND).apply { if (stream != null) putExtra(Intent.EXTRA_STREAM, stream) }
+        fun sendMultiple(streams: ArrayList<Uri>?) = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+            if (streams != null) putParcelableArrayListExtra(Intent.EXTRA_STREAM, streams)
+        }
+        @Suppress("DEPRECATION")
+        fun routeArgs(i: Intent): Pair<String?, List<Uri>> = when (i.action) {
+            Intent.ACTION_VIEW -> i.action to listOfNotNull(i.data)
+            Intent.ACTION_SEND -> i.action to listOfNotNull(i.getParcelableExtra<Uri>(Intent.EXTRA_STREAM))
+            Intent.ACTION_SEND_MULTIPLE -> i.action to (i.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM) ?: emptyList())
+            else -> null to emptyList()
+        }
+        val shapes = listOf(
+            view(uri), view(null), send(uri), send(null),
+            sendMultiple(arrayListOf(uri, uri2)), sendMultiple(arrayListOf(uri)), sendMultiple(arrayListOf()), sendMultiple(null),
+            Intent(),
+        )
+        for (studyPadExport in listOf(false, true)) {
+            for (intent in shapes) {
+                val (action, uris) = routeArgs(intent)
+                assertEquals(
+                    "action=${intent.action} uris=$uris studyPad=$studyPadExport",
+                    classifyEntry(intent) { studyPadExport },
+                    classifyInstallZipRoute(action, uris) { studyPadExport },
+                )
+            }
+        }
+    }
+
+    @Test
     fun aClosedSessionNeverAnswersEvenWhenItsJobDrains() = runTest(UnconfinedTestDispatcher()) {
         val f = flow(backgroundScope, Intent.ACTION_SEND, listOf(uri))
         f.start()
