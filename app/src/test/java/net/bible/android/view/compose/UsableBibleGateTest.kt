@@ -283,4 +283,38 @@ class UsableBibleGateTest {
         assertFalse("onNewIntent is the second READING entry point", bootstrapped(activity))
         assertEquals(NavRoutes.WELCOME, nav(activity).currentDestination?.route)
     }
+
+    /**
+     * Slice 8 final review, finding 4: gate (c) through [NavHostComposeActivity.onNewIntent] on a LIVE reading
+     * host pushes WELCOME over READING; gate (b) must then return to that READING entry, not stack a second one
+     * (`navigate(READING) { popUpTo(WELCOME) { inclusive } }` leaves READING, READING).
+     */
+    @Test
+    fun gateBOverALiveReadingEntryReturnsToItInsteadOfStackingASecond() {
+        resetComposeUiDispatcher()
+        firstTime = false
+        var usable = true
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).also { controllers += it }
+        controller.get().usableBibleGate = { usable }
+        val activity = controller.create().start().resume().visible().get()
+        idle()
+        assertEquals(NavRoutes.READING, route(activity))
+
+        usable = false
+        controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.READING))
+        idle()
+        assertEquals("sanity: gate (c) pushed WELCOME over the live reading entry", NavRoutes.WELCOME, route(activity))
+
+        usable = true
+        activity.welcomeAfterFlow()
+        idle()
+
+        assertEquals(NavRoutes.READING, route(activity))
+        val readingEntries = nav(activity).currentBackStack.value.count { it.destination.route == NavRoutes.READING }
+        assertEquals("exactly one READING entry on the back stack", 1, readingEntries)
+        assertNull("nothing beneath it: back from reading exits", nav(activity).previousBackStackEntry)
+    }
 }

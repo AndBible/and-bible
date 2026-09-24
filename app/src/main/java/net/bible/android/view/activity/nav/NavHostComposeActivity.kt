@@ -3215,7 +3215,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             // After initializeAppCoroutine, its initializeApp() is a no-op: what it adds is the window state.
             initialiseIfStartedUninitialised()
             bootstrapIfNeeded()
-            controller.navigate(NavRoutes.READING) { popUpTo(NavRoutes.WELCOME) { inclusive = true } }
+            if (hasBackStackEntry(controller, NavRoutes.READING)) {
+                // Slice 8 final review, finding 4: gate (c) via [onNewIntent] on a live reading host pushed
+                // WELCOME over an existing READING entry. Return to it; navigating a new one would stack two.
+                controller.popBackStack(NavRoutes.READING, inclusive = false)
+            } else {
+                controller.navigate(NavRoutes.READING) { popUpTo(NavRoutes.WELCOME) { inclusive = true } }
+            }
         }
     }
 
