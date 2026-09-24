@@ -189,11 +189,10 @@ class ReadingAppBootstrapTest {
      * lazy fallback).
      *
      * Slice 8 E2 adds the third, in-graph entry point: gate (b), `welcomeAfterFlow()`, which turns a
-     * WELCOME-started host into a reading host by navigating onto reading (spec §4). The name keeps
-     * "both" for the two ROUTE entry points it was written for.
+     * WELCOME-started host into a reading host by navigating onto reading (spec §4).
      */
     @Test
-    fun theReadingBootstrapIsReachedFromBothRouteEntryPoints() {
+    fun theReadingBootstrapIsReachedFromAllThreeReadingEntryPoints() {
         val lines = codeLinesOf(navHostActivity)
         val callLines = lines.withIndex().filter { (_, l) -> l.contains("bootstrapIfNeeded()") && !l.contains("fun ") }
         assertEquals(

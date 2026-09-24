@@ -1316,8 +1316,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * first. See [ReadingViewVisibility]'s kdoc: an un-retired bridge would report a reading view on
      * screen for every other destination this host shows.
      *
-     * **Reached from BOTH reading-route entry points, and idempotent (review Important 3).**
-     * [onCreate] calls it when the START route is reading; [onNewIntent] calls it when a later
+     * **Reached from all THREE reading entry points, and idempotent (review Important 3; slice 8 E2).**
+     * [onCreate] calls it when the START route is reading; [welcomeAfterFlow] (slice 8 gate (b)) calls it
+     * when a WELCOME-started host becomes a reading host in-graph; [onNewIntent] calls it when a later
      * `EXTRA_ROUTE` navigates the live graph onto reading, which can happen on a host that started
      * on `download` or a settings route and therefore has no repository at all -- the composition
      * would then read `WindowControl`'s uninitialised lazy fallback, which is this task's
@@ -1327,15 +1328,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * so a second run would register the same object twice against a single removal, and
      * `showFirstRunNotices` would re-enter its own process-wide gate.
      *
-     * NOTE, for slice 7 Task 12: because the whole function is one-shot, an `openLink` extra that
-     * arrives on a LATER reading entry is not dispatched. Still unreachable after T8b repointed the
-     * boot handoff at THIS host, but for a different reason than before: the sole producer,
-     * `StartupActivity.gotoMainBibleActivity`, writes that extra only on its `ACTION_VIEW` arm, and
-     * that arm carries `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_MULTIPLE_TASK` -- i.e. always a
-     * fresh instance and a fresh `onCreate`, never `onNewIntent` on a live host. (Before T8b it was
-     * unreachable simply because the intent named `MainBibleActivity`.) Splitting the deep link out
-     * of the one-shot is still a decision for the task that gives this host an `<intent-filter>` of
-     * its own.
+     * NOTE on `openLink`: because the whole function is one-shot, an `openLink` extra that arrives on a
+     * LATER reading entry is not dispatched. The only producer, `StartupActivity`'s `ACTION_VIEW` handoff,
+     * writes it with `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_MULTIPLE_TASK` -- always a fresh instance and a
+     * fresh `onCreate`, never `onNewIntent` on a live host. Since slice 8 that fresh instance may start on
+     * WELCOME (a fresh install opened by a link, Review Focus #2): the extra then waits in [getIntent] until
+     * gate (b)'s call here dispatches it, which `UsableBibleGateTest` pins. Splitting the deep link out of the
+     * one-shot is still a decision for the task that gives this host an `<intent-filter>` of its own.
      *
      * From [onCreate] it runs BEFORE `setContent`, exactly as classic runs it before the reading
      * view is built: the composition reads `windowControl.windowRepository`.
@@ -2971,6 +2970,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         if (readingReturnDebts.isNotEmpty()) {
             outState.putIntArray(STATE_RETURN_DEBTS, readingReturnDebts.toIntArray())
         }
+        // Slice 8 E2 fix round 1: a WELCOME/BACKUP-started host that initialised later (a flow left Welcome,
+        // InstallZip from Backup) still has its uninitialised START route saved above, so without this a
+        // recreate -- or a process-death restore -- would bring it back uninitialised: no FLAG_SECURE in
+        // discrete mode (Correction 6) and, after process death, Download on an uninitialised app.
+        if (initialisedAfterStart) outState.putBoolean(STATE_INITIALISED_AFTER_START, true)
         super.onSaveInstanceState(outState)
     }
 
@@ -2980,7 +2984,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      *
      * Its own function rather than inline in [onCreate] so that method stays short: the reading
      * bootstrap has to be visibly close to the top of `onCreate` and before `setContent`, which
-     * `ReadingAppBootstrapTest.theReadingBootstrapIsReachedFromBothRouteEntryPoints` checks by
+     * `ReadingAppBootstrapTest.theReadingBootstrapIsReachedFromAllThreeReadingEntryPoints` checks by
      * proximity.
      */
     private fun resolveStartRoute(savedInstanceState: Bundle?): String = navHostStartRoute(
@@ -3022,7 +3026,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     override val doNotInitializeApp: Boolean
         get() = !initialisedAfterStart && routeStartsUninitialised(initRoute ?: intent?.getStringExtra(EXTRA_ROUTE))
 
-    /** Set by [initialiseIfStartedUninitialised]; from then on this host answers as an initialised one. */
+    /**
+     * Set by [initialiseIfStartedUninitialised]; from then on this host answers as an initialised one. Saved
+     * across a recreate and restored in [onCreate] BEFORE `super.onCreate` (next to [initRoute]), so that
+     * `ActivityBase.onCreate` itself initialises the app and applies the window state for the restored host.
+     */
     private var initialisedAfterStart = false
 
     /**
@@ -3088,25 +3096,48 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 flow.controller.refresh()
                 return@launch
             }
+            // Fix round 1: not re-entrant by construction -- the unlock prompt suspends, so two overlapping
+            // calls (a Restore finishing while a flow returns) would each push a READING entry. Only the one
+            // that still finds WELCOME current transitions.
+            val controller = navController ?: return@launch
+            if (controller.currentDestination?.route != NavRoutes.WELCOME) return@launch
             // After initializeAppCoroutine, its initializeApp() is a no-op: what it adds is the window state.
             initialiseIfStartedUninitialised()
             bootstrapIfNeeded()
-            val controller = navController ?: return@launch
             controller.navigate(NavRoutes.READING) { popUpTo(NavRoutes.WELCOME) { inclusive = true } }
         }
     }
 
-    /** The destination listener's half of spec §4's re-check -- only after a flow LEFT Welcome. */
-    internal fun recheckOnReturnToWelcome(route: String?) {
-        if (route?.substringBefore('?') != NavRoutes.WELCOME) return
+    /**
+     * The destination listener's half of spec §4's re-check -- only after a flow LEFT Welcome.
+     *
+     * Fix round 1: [WelcomeFlow.awaitingReturn] is DERIVED here from the back stack, not set by the flows and
+     * not saved: a current destination other than WELCOME with a WELCOME entry beneath it means a flow is out.
+     * The listener fires with the current destination whenever it is (re-)registered, so a back stack restored
+     * by a recreate or after process death re-arms the re-check on its own. The first arrival at WELCOME (the
+     * start destination, nothing on top) arms nothing: StartupActivity already failed the check there.
+     */
+    internal fun recheckOnReturnToWelcome(controller: NavController, route: String?) {
+        if (route?.substringBefore('?') != NavRoutes.WELCOME) {
+            if (hasBackStackEntry(controller, NavRoutes.WELCOME)) welcomeFlow.awaitingReturn = true
+            return
+        }
         val flow = welcomeFlowOrNull ?: return
         if (!flow.awaitingReturn) return
         flow.awaitingReturn = false
         welcomeAfterFlow()
     }
 
+    private fun hasBackStackEntry(controller: NavController, route: String): Boolean = try {
+        controller.getBackStackEntry(route)
+        true
+    } catch (e: IllegalArgumentException) {
+        false
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         initRoute = savedInstanceState?.getString(STATE_START_ROUTE) ?: intent.getStringExtra(EXTRA_ROUTE)
+        initialisedAfterStart = savedInstanceState?.getBoolean(STATE_INITIALISED_AFTER_START, false) ?: false
         // R6d: classic's `MainBibleActivity.onCreate` captures the theme in force here, before
         // `super.onCreate`, and `BibleView` reads it through the host bundle. Same capture, same
         // instant.
@@ -3220,7 +3251,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                         applyPendingDocumentUpdateOnReturnToReading(destination.route)
                         applySoftInputModeFor(destination.route)
                         completeBackupReturnIfLeft(controller)
-                        recheckOnReturnToWelcome(destination.route)
+                        recheckOnReturnToWelcome(controller, destination.route)
                     }
                     navController.addOnDestinationChangedListener(onDestinationChanged)
                     onDispose {
@@ -9652,6 +9683,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
 
         /** [onSaveInstanceState]'s key for [readingReturnDebts]. */
         private const val STATE_RETURN_DEBTS = "nav_reading_return_debts"
+
+        /** [onSaveInstanceState]'s key for [initialisedAfterStart] (slice 8 E2 fix round 1). */
+        private const val STATE_INITIALISED_AFTER_START = "nav_initialised_after_start"
 
         /** Sentinel identifying the "Custom…" entry in the AI-language picker (mirrors classic). */
         private const val CUSTOM_LANGUAGE_TAG = "\u0000custom"

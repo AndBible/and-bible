@@ -17,6 +17,8 @@
 
 package net.bible.android.view.compose
 
+import android.content.Intent
+import android.os.Bundle
 import android.os.Looper
 import android.view.WindowManager
 import androidx.navigation.NavHostController
@@ -64,18 +66,23 @@ class UsableBibleGateTest {
         DatabaseResetter.resetDatabase()
     }
 
-    private fun welcomeHost(usable: Boolean = true): NavHostComposeActivity {
+    private fun welcomeIntent() =
+        NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.WELCOME)
+
+    private fun welcomeHost(usable: Boolean = true, intent: Intent = welcomeIntent()): NavHostComposeActivity {
         // These tests assert after the first frame (a destination change, the listener): see
         // resetComposeUiDispatcher for what an earlier host test leaves behind in the same JVM.
         resetComposeUiDispatcher()
         firstTime = false
-        val controller = Robolectric.buildActivity(
-            NavHostComposeActivity::class.java,
-            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.WELCOME),
-        ).also { controllers += it }
+        val controller = Robolectric.buildActivity(NavHostComposeActivity::class.java, intent).also { controllers += it }
         controller.get().usableBibleGate = { usable }
         return controller.create().start().resume().visible().get()
     }
+
+    private fun flagSecure(a: NavHostComposeActivity): Boolean =
+        a.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE != 0
+
+    private fun route(a: NavHostComposeActivity): String? = nav(a).currentDestination?.route
 
     private fun idle() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
@@ -107,15 +114,108 @@ class UsableBibleGateTest {
         assertFalse(bootstrapped(activity))
     }
 
+    /** Fix round 1 minor 3: through the real flow (Import), which initialises + secures the window on the way out. */
     @Test
     fun returningToWelcomeFromAFlowReChecks() {
+        CommonUtils.realSharedPreferences.edit().putBoolean("show_calculator", true).commit()
         val activity = welcomeHost()
-        activity.welcomeFlow.awaitingReturn = true
-        nav(activity).navigate(NavRoutes.AI_TOOL_INFO)   // stand-in for Download / InstallZip
+        assertFalse("sanity: an uninitialised WELCOME start applies no FLAG_SECURE", flagSecure(activity))
+
+        activity.welcomeFlow.navDeps().onImport()
         idle()
+        assertEquals(NavRoutes.INSTALL_ZIP_PATTERN, route(activity))
+        assertTrue("leaving Welcome initialises the app and its window (Correction 6)", flagSecure(activity))
+
         nav(activity).popBackStack()
         idle()
-        assertEquals("the listener's re-check ran gate (b)", NavRoutes.READING, nav(activity).currentDestination?.route)
+        assertEquals("the listener's re-check ran gate (b)", NavRoutes.READING, route(activity))
+    }
+
+    /**
+     * The real `WelcomeFlow.leaveFor` (initialise, then navigate in-graph) onto a light stand-in destination:
+     * the real Download destination starts a repository refresh that has no network to finish in a unit test.
+     */
+    private fun leaveWelcomeLikeAFlow(activity: NavHostComposeActivity) {
+        activity.welcomeFlow.leaveFor(NavRoutes.AI_TOOL_INFO)
+        idle()
+        assertEquals(NavRoutes.AI_TOOL_INFO, route(activity))
+        assertTrue("sanity: the listener armed the re-check", activity.welcomeFlow.awaitingReturn)
+    }
+
+    /**
+     * Fix round 1 (review Important): a recreate while a flow is over Welcome (a uiMode / font-scale change --
+     * this host does not handle them) keeps the initialised window state and the pending re-check.
+     */
+    @Test
+    fun aRecreateDuringAFlowOverWelcomeKeepsTheWindowStateAndTheReCheck() {
+        CommonUtils.realSharedPreferences.edit().putBoolean("show_calculator", true).commit()
+        val activity = welcomeHost()
+        leaveWelcomeLikeAFlow(activity)
+        assertTrue(flagSecure(activity))
+
+        resetComposeUiDispatcher()
+        val recreated = controllers.last().recreate().get()
+        idle()
+        assertTrue("sanity: the flow is still on top", NavRoutes.AI_TOOL_INFO == route(recreated))
+        assertTrue("the recreated host is still an initialised one: FLAG_SECURE (Correction 6)", flagSecure(recreated))
+
+        nav(recreated).popBackStack()
+        idle()
+        assertEquals("the restored back stack still re-checks on the way back", NavRoutes.READING, route(recreated))
+    }
+
+    /** Fix round 1: the same, shaped like a process-death restore -- the saved Bundle into a fresh instance. */
+    @Test
+    fun aProcessDeathRestoreDuringAFlowOverWelcomeKeepsTheWindowStateAndTheReCheck() {
+        CommonUtils.realSharedPreferences.edit().putBoolean("show_calculator", true).commit()
+        val activity = welcomeHost()
+        leaveWelcomeLikeAFlow(activity)
+
+        val saved = Bundle()
+        val first = controllers.removeAt(controllers.lastIndex)
+        first.pause().saveInstanceState(saved).stop().destroy()
+        idle()
+
+        resetComposeUiDispatcher()
+        val restored = Robolectric.buildActivity(NavHostComposeActivity::class.java, welcomeIntent())
+            .also { controllers += it }
+            .create(saved).start().restoreInstanceState(saved).resume().visible().get()
+        idle()
+        assertTrue("sanity: the flow is restored on top", NavRoutes.AI_TOOL_INFO == route(restored))
+        assertTrue("the restored host initialised itself: FLAG_SECURE (Correction 6)", flagSecure(restored))
+
+        nav(restored).popBackStack()
+        idle()
+        assertEquals("the restored back stack still re-checks on the way back", NavRoutes.READING, route(restored))
+    }
+
+    /** Fix round 1 minor 4: the unlock prompt suspends, so two re-checks can overlap; only one transitions. */
+    @Test
+    fun overlappingReChecksTransitionOnce() {
+        val activity = welcomeHost()
+        activity.welcomeAfterFlow()
+        activity.welcomeAfterFlow()
+        idle()
+        assertEquals(NavRoutes.READING, route(activity))
+        assertNull("exactly one READING entry, nothing beneath it", nav(activity).previousBackStackEntry)
+    }
+
+    /**
+     * Fix round 1 minor 2 / Review Focus #2: a deep link opened on a fresh install reaches the WELCOME-started
+     * host as `openLink`, and gate (b)'s bootstrap dispatches it once a Bible is usable.
+     */
+    @Test
+    fun aDeepLinkCarriedToWelcomeIsOpenedByGateB() {
+        val activity = welcomeHost(
+            intent = welcomeIntent().putExtra("openLink", "https://read.andbible.org/Rev.22.21"),
+        )
+        activity.welcomeAfterFlow()
+        idle()
+        assertEquals(NavRoutes.READING, route(activity))
+        // showLink opens it in the links window (WindowControl.showLink); that window's page is the chapter.
+        val linksKeys = CommonUtils.windowControl.windowRepository.windowList
+            .filter { it.isLinksWindow }.map { it.pageManager.currentPage.key?.osisRef }
+        assertTrue("the deep link's passage is open in the links window: $linksKeys", linksKeys.any { it == "Rev.22" })
     }
 
     @Test

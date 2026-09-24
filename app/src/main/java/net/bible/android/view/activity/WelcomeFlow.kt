@@ -50,9 +50,9 @@ import net.bible.sharedui.strings.LocalStrings
 /**
  * The first-run welcome's Android orchestration (slice 8 §4), moved from `StartupComposeActivity`
  * (`StartupComposeActivity.kt:70-232` at spec HEAD) into the one host. Download / EasyStart / Redownload are
- * in-graph navigates and Import is [NavHostComposeActivity.openInstallZip]; each sets [awaitingReturn] so the
- * host's destination listener re-checks when the graph comes back to WELCOME
- * ([NavHostComposeActivity.recheckOnReturnToWelcome]). Restore returns through an external picker, so it
+ * in-graph navigates and Import is [NavHostComposeActivity.openInstallZip]; the host's destination listener
+ * sees each leave WELCOME beneath it and re-checks when the graph comes back to WELCOME
+ * ([NavHostComposeActivity.recheckOnReturnToWelcome], which owns [awaitingReturn]). Restore returns through an external picker, so it
  * re-checks directly. The re-check itself is the host's gate (b), [NavHostComposeActivity.welcomeAfterFlow].
  */
 internal class WelcomeFlow(private val host: NavHostComposeActivity) {
@@ -70,7 +70,10 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
      */
     val controllerIfCreated: StartupWelcomeController? get() = if (controllerLazy.isInitialized()) controllerLazy.value else null
 
-    /** True from the moment a flow leaves WELCOME for another destination until the graph returns. */
+    /**
+     * True from the moment a flow leaves WELCOME for another destination until the graph returns. Set only by
+     * the host's destination listener, from the back stack (so it survives a recreate without being saved).
+     */
     var awaitingReturn: Boolean = false
 
     private var redownloadBooks by mutableStateOf<List<SwordDocumentInfo>?>(null)
@@ -114,10 +117,10 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
     /**
      * Leave WELCOME for [route]. The app is initialised first: these screens used to be separate Activities
      * that initialised it in `ActivityBase.onCreate`, and this host started uninitialised (spec §3.1 rule 2).
+     * Internal for `UsableBibleGateTest`, which leaves onto a light stand-in route (Download needs a network).
      */
-    private fun leaveFor(route: String) {
+    internal fun leaveFor(route: String) {
         host.initialiseLeavingWelcome()
-        awaitingReturn = true
         host.navigateInGraph(route)
     }
 
@@ -133,7 +136,6 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
 
     private fun onImport() {
         host.initialiseLeavingWelcome()
-        awaitingReturn = true
         host.openInstallZip()
     }
 
