@@ -233,6 +233,7 @@ import net.bible.service.download.DownloadManager
 import net.bible.service.download.GenericFileDownloader
 import net.bible.service.download.RepoFactory
 import net.bible.service.download.isPseudoBook
+import net.bible.service.sword.hasUsableBible
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.backup.BackupServiceImpl
 import net.bible.service.db.exportStudyPads
@@ -1159,6 +1160,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             false
         }
     }
+
+    /**
+     * Slice 8 §4's predicate as this host's gates read it. A seam for the reason [isExternalDevice] is one:
+     * a Robolectric test environment always has an unlocked Bible installed, so "none usable" cannot be
+     * staged any other way.
+     */
+    @VisibleForTesting
+    internal var usableBibleGate: () -> Boolean = { hasUsableBible() }
 
     /**
      * Classic `MainBibleActivity.onKeyDown`'s body (`:2934-2958`), as the reading destination's
