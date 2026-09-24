@@ -1,9 +1,9 @@
 ---
 name: osticket
 description: >
-  Fetch and act on AndBible osTicket staff tickets via ostickethelper
+  Fetch and act on open AndBible osTicket staff tickets via ostickethelper
   (list, read, resolve). Use when the user runs /osticket, asks to list
-  open/closed tickets, read ticket id=N, fetch an osTicket, or post/close
+  open tickets, read ticket id=N, fetch an osTicket, or post/close
   a ticket in osTicket. Not for Play Store, email, or pasted reports —
   those use the support skill. Pasted tickets still use /support.
 ---
@@ -32,12 +32,13 @@ Always go through the wrapper. Prefer `--no-pdf` on read (agent uses `ticket.jso
 
 ```bash
 .agents/skills/osticket/scripts/osticket.sh list
-.agents/skills/osticket/scripts/osticket.sh list --status closed
 .agents/skills/osticket/scripts/osticket.sh read 3321 --no-pdf
 .agents/skills/osticket/scripts/osticket.sh resolve 3321 --message "…"
 ```
 
-- `/osticket` with no id → `list` (open).
+**Open queue only.** `list` with no `--status` is the only listing this skill uses (the helper default is the open queue). Read ids from that list, or an id the operator names. If the open set does not answer the question, ask the operator.
+
+- `/osticket` with no id → `list`.
 - `/osticket 3321` or “read id=3321” → `read <id> --no-pdf`.
 - List output uses `[id=NNNN]` — that NNNN is the CLI id. List is grouped by sender.
 
@@ -48,7 +49,7 @@ After `read`, open `ticket.json` and downloaded files from the CLI output (inbox
 Do **not** draft, recommend send/close, or treat a ticket as standalone while that sender still has other **open** tickets on the list.
 
 1. From the list group (or `list --user "Name"`), collect **every open id** for that person.
-2. `read` them **all** (`--no-pdf`) before any recommendation. Closed tickets from the same user only if the open set is still ambiguous.
+2. `read` them **all** (`--no-pdf`) before any recommendation. If the open set is still ambiguous, ask the operator.
 3. Then decide **one plan for the person**, not per id in isolation:
    - Same issue → **one reply**. Post on the newest id that has the best user text; close the rest as the same (same message or a one-liner pointing at that reply).
    - Different issues → separate replies, **or** one combined reply if that is kinder (one inbox, one person).
