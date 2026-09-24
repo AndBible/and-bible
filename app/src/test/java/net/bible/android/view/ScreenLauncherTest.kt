@@ -298,6 +298,11 @@ class ScreenLauncherTest {
     }
 
     @Test
+    fun startup_routes_to_the_welcome_destination() {
+        assertEquals(NavRoutes.WELCOME, ScreenLauncher.MIGRATED[Screen.Startup])
+    }
+
+    @Test
     fun installZip_routes_to_compose() {
         assertEquals(InstallZipComposeActivity::class.java, ScreenLauncher.targetFor(Screen.InstallZip))
     }

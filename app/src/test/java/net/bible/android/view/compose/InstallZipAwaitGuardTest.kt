@@ -92,7 +92,6 @@ class InstallZipAwaitGuardTest {
 
     private companion object {
         val EXTERNAL_ACTIVITY_ALLOWLIST: Map<String, String> = mapOf(
-            "StartupActivity.kt" to "showFirstLayout's onLoadFromZip (:393), a separate Activity; removed by Task E4",
             "StartupComposeActivity.kt" to "onImport (:191), a separate Activity; the file is deleted by Task F6",
             "ChooseDocumentComposeActivity.kt" to "onInstallZip (:424), a separate Activity; deleted by Task F6",
         )

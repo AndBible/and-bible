@@ -239,6 +239,8 @@ object ScreenLauncher {
         // — nav-graph slice 8, Task D3 — InstallZipComposeActivity is now only the exported redirect; in-app
         // callers use NavHostComposeActivity.openInstallZip (never awaitIntent -- InstallZipAwaitGuardTest).
         Screen.InstallZip to NavRoutes.installZip(),
+        // — nav-graph slice 8, Task E4 — the first-run welcome is a destination; StartupActivity hands off to it.
+        Screen.Startup to NavRoutes.WELCOME,
     )
 
     /** The Activity class implementing [screen]. */

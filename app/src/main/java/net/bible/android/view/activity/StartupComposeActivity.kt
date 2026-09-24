@@ -62,9 +62,7 @@ import java.util.Locale
  * `RESULT_OK` when bibles exist, and never launches MainBibleActivity itself ([StartupActivity]
  * does that).
  *
- * [StartupActivity.showFirstLayout] — the classic welcome layout this replaced — is still reachable
- * by its OTHER caller, `gotoMainBibleActivity()`'s every-Bible-locked path, so it and
- * `startup_view.xml` survive.
+ * The classic welcome layout this replaced was deleted in slice 8 E4.
  */
 class StartupComposeActivity : ActivityBase() {
     override val doNotInitializeApp = true

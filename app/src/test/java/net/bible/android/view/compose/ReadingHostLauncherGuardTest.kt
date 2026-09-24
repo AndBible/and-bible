@@ -100,19 +100,21 @@ class ReadingHostLauncherGuardTest {
      * for the wrong reason — the class is already imported and used elsewhere in that file — so this
      * reads the boot handoff's own function body.
      */
-    @Test fun theBootHandoffBuildsANavHostIntentOnTheReadingRoute() {
-        val body = functionBody(
-            ClassicRemovalScan.codeLinesOf("src/main/java/net/bible/android/view/activity/StartupActivity.kt"),
-            "private fun gotoMainBibleActivity()",
+    @Test fun theBootHandoffBuildsANavHostIntentOnTheChosenRoute() {
+        val code = ClassicRemovalScan.codeLinesOf("src/main/java/net/bible/android/view/activity/StartupActivity.kt")
+        val body = functionBody(code, "internal fun bootHandoffIntent(")
+        assertTrue(
+            "the boot handoff must construct the nav host's intent on the route gate (a) chose. Body was:\n$body",
+            body.contains("NavHostComposeActivity.intentFor(context, route)"),
         )
         assertTrue(
-            "StartupActivity's boot handoff must construct the reading host's intent. Body was:\n$body",
-            body.contains("NavHostComposeActivity.intentFor(this, NavRoutes.READING)"),
-        )
-        assertTrue(
-            "FLAG_ACTIVITY_MULTIPLE_TASK stays on the ACTION_VIEW arm — a second live reading host " +
-                "is what freeze()/unFreeze() and R7b's host tokens exist for",
+            "FLAG_ACTIVITY_MULTIPLE_TASK stays on the ACTION_VIEW arm -- a second live host is what R7b's host " +
+                "tokens exist for",
             body.contains("Intent.FLAG_ACTIVITY_MULTIPLE_TASK"),
+        )
+        assertTrue(
+            "gate (a) must choose the route with the one predicate",
+            code.contains("startRouteForBoot(hasUsableBible())"),
         )
     }
 
