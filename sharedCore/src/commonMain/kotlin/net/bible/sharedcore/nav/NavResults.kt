@@ -202,6 +202,12 @@ data class TextSettingsResult(val settingsBundleJson: String, val reset: Boolean
  */
 data class DocumentResult(val book: String)
 
+/**
+ * What the InstallZip destination hands back (slice 8 §3.2): classic InstallZip set `RESULT_OK` or
+ * `RESULT_CANCELED` and attached no data, so this carries nothing else.
+ */
+enum class InstallZipResult { OK, CANCELED }
+
 // No `@Serializable` anywhere in this file, deliberately. A result is packed into an Intent's
 // EXTRAS by `NavResultIntents`, never encoded as JSON, and the two `:app` contract types slice 2
 // carries (`ManageLabelsData`, `LabelData`) embed Room entities (`BookmarkEntities.Label`,

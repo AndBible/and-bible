@@ -484,6 +484,41 @@ object NavRoutes {
         )
     }
 
+    // ——— slice 8: the entry-point ring ———
+    // The three routes that can be the nav host's START destination (spec §3.1): each is entered from
+    // OUTSIDE the host as well as in-graph, so each has a real exit, and WELCOME/BACKUP start the app
+    // uninitialised (NavHostComposeActivity.doNotInitializeApp).
+
+    /** The first-run welcome (formerly `StartupComposeActivity`). */
+    const val WELCOME: String = "startup/welcome"
+
+    /** Backup & restore (formerly `BackupComposeActivity`). */
+    const val BACKUP: String = "backup/restore"
+
+    const val ARG_INSTALL_ACTION: String = "installAction"
+    const val ARG_INSTALL_URIS: String = "installUris"
+
+    /** InstallZip (formerly the `InstallZipComposeActivity` screen; that class is now an exported redirect). */
+    const val INSTALL_ZIP_PATTERN: String =
+        "documents/installZip?$ARG_INSTALL_ACTION={$ARG_INSTALL_ACTION}&$ARG_INSTALL_URIS={$ARG_INSTALL_URIS}"
+
+    /**
+     * [action] is the external Intent's action (`ACTION_VIEW`/`SEND`/`SEND_MULTIPLE`), or null for an
+     * in-app entry, which shows the file picker. [uris] travel as ONE argument: each is [encodeArg]ed
+     * BEFORE the join, so a `,` inside a URI is `%2C` and cannot split the list, and the joined string is
+     * encoded again by [buildRoute]. The arm reads the library-decoded value and hands it to
+     * [decodeInstallZipUris].
+     */
+    fun installZip(action: String? = null, uris: List<String> = emptyList()): String =
+        buildRoute("documents/installZip") {
+            optional(ARG_INSTALL_ACTION, action)
+            optional(ARG_INSTALL_URIS, if (uris.isEmpty()) null else uris.joinToString(",") { encodeArg(it) })
+        }
+
+    /** The inverse of [installZip]'s list encoding, applied to the ALREADY library-decoded argument. */
+    fun decodeInstallZipUris(argument: String?): List<String> =
+        argument?.split(',')?.filter { it.isNotEmpty() }?.map(::decodeArg) ?: emptyList()
+
     /**
      * Joins a list into ONE route argument (plan D4). The join happens before [encodeArg] runs over
      * the whole string, so a member containing a comma would still round-trip as two members — that
