@@ -18,6 +18,7 @@ package net.bible.android.control.page
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowRepository
@@ -57,19 +58,21 @@ class CurrentPageManagerNoActivityTest {
      * `docs`/memory on `.local/testmods.zip`), so -- mirroring
      * `ModuleBackupRoundTripTest.registerMinimalRawLdDictionary` / `AndroidInstallCommitterTest` --
      * this fabricates the smallest real SWORD module (a RawLD dictionary) directly on disk and
-     * registers it, rather than depending on any externally-provisioned fixture.
+     * registers it, rather than depending on any externally-provisioned fixture. The download-dir
+     * pin matches `AndroidInstallCommitterTest` / `DocumentInstallServiceTest`: without it, the
+     * on-disk location depends on a JVM-wide static left behind by whichever test ran previously.
      */
     @Before
     fun setUp() {
+        SwordBookPath.setDownloadDir(SharedConstants.modulesDir)
         registerMinimalRawLdDictionary()
     }
 
     @After
     fun tearDown() {
         Books.installed().getBook("TestDict")?.let { Books.installed().removeBook(it) }
-        val downloadDir = SwordBookPath.getSwordDownloadDir()
-        File(downloadDir, "mods.d/testdict.conf").delete()
-        File(downloadDir, "modules/lexdict/rawld/testdict").deleteRecursively()
+        File(SharedConstants.modulesDir, "mods.d/testdict.conf").delete()
+        File(SharedConstants.modulesDir, "modules/lexdict/rawld/testdict").deleteRecursively()
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
