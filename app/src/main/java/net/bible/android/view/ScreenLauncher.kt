@@ -232,6 +232,10 @@ object ScreenLauncher {
         Screen.ChooseDocument to NavRoutes.chooseDocument(),
         Screen.WorkspaceSelector to NavRoutes.WORKSPACE_SELECTOR,
         Screen.TextDisplaySettings to NavRoutes.textDisplaySettings(),
+        // — nav-graph slice 8, Task C3 —
+        // Backup's only callers are BackupControl.backupPopup (in-graph on the host, cross-Activity from
+        // StartupActivity); the row is the routing default for a bare Screen.Backup.
+        Screen.Backup to NavRoutes.BACKUP,
     )
 
     /** The Activity class implementing [screen]. */

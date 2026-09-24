@@ -330,6 +330,11 @@ class ScreenLauncherTest {
     }
 
     @Test
+    fun backup_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.BACKUP, ScreenLauncher.MIGRATED[Screen.Backup])
+    }
+
+    @Test
     fun progressStatus_routes_to_the_nav_graph() {
         assertEquals(NavRoutes.progressStatus(), ScreenLauncher.MIGRATED[Screen.ProgressStatus])
     }

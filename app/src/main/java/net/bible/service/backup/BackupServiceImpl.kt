@@ -77,8 +77,8 @@ internal fun restoreActionsFor(restoreDatabase: Boolean, restoreDocuments: Boole
     }
 
 /**
- * Android impl of [BackupService] -- the `:app`-layer host seam for the Compose Backup & Restore
- * screen ([net.bible.android.view.activity.backup.BackupComposeActivity]). Wraps the classic
+ * Android impl of [BackupService] -- the `:app`-layer host seam for the Backup destination of
+ * [net.bible.android.view.activity.nav.NavHostComposeActivity] (slice 8 C3). Wraps the classic
  * [BackupControl] engine + [CommonUtils.settings] persistence key-for-key with classic
  * `BackupActivity` (`app/.../control/backup/BackupControl.kt`, ~line 1030).
  *

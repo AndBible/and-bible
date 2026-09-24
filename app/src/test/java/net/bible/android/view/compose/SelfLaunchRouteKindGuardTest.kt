@@ -190,6 +190,11 @@ class SelfLaunchRouteKindGuardTest {
                     val helperName = helperArg.find(before)?.groupValues?.get(1)
                     val helperAwaited = helperName != null && helperName in awaitingHelperNames
 
+                    // Slice 8 C3: a function that FAILS FAST on the nav host before awaiting cannot be an
+                    // F53 self-launch -- `BackupControl.awaitBackupFromAnotherActivity` is the one today.
+                    val crossActivityOnly =
+                        Regex("""check\(\s*\w+\s*!is\s+NavHostComposeActivity\s*\)""").containsMatchIn(chunkFor(callStart))
+                    if (crossActivityOnly) continue
                     if (inlineAwaited || varAwaited || helperAwaited) {
                         calls += code.substring(callStart, callEnd + 1)
                     }

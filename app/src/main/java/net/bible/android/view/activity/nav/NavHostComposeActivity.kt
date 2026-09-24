@@ -234,6 +234,7 @@ import net.bible.service.download.GenericFileDownloader
 import net.bible.service.download.RepoFactory
 import net.bible.service.download.isPseudoBook
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.backup.BackupServiceImpl
 import net.bible.service.db.exportStudyPads
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
@@ -255,6 +256,9 @@ import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.ai.AgentPermissionModeIds
+import net.bible.sharedcore.backup.BackupController
+import net.bible.sharedui.backup.nav.BackupNavDeps
+import net.bible.sharedui.backup.nav.backupNavGraph
 import net.bible.sharedcore.ai.AiConnectionLabels
 import net.bible.sharedcore.ai.AiConnectionSettingsController
 import net.bible.sharedcore.ai.AiDocumentFilterController
@@ -2597,6 +2601,45 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         }
     }
 
+    /**
+     * Slice 8 C3 (plan Correction 4): the one in-flight [awaitBackupDestination], completed when the
+     * Backup entry is no longer on the back stack -- not when it stops being the CURRENT destination,
+     * because Backup's own "restore modules" pushes InstallZip on top of it.
+     */
+    private var backupReturn: CompletableDeferred<Unit>? = null
+
+    /**
+     * Open Backup & restore in-graph and suspend until the user has left it. `BackupControl.backupPopup`
+     * calls this on the nav host; its other callers' `showErrorDialog` loop re-shows its dialog only once
+     * this returns. A second request supersedes the first (the first returns).
+     */
+    internal suspend fun awaitBackupDestination() {
+        val controller = navController ?: run {
+            Log.w(TAG_NAV_HOST, "Backup requested before the graph composed; ignored.")
+            return
+        }
+        val done = CompletableDeferred<Unit>()
+        backupReturn?.complete(Unit)
+        backupReturn = done
+        navigateToRoute(controller, NavRoutes.BACKUP)
+        done.await()
+    }
+
+    /** Called by the destination listener -- see [backupReturn]. */
+    private fun completeBackupReturnIfLeft(controller: NavController) {
+        val pending = backupReturn ?: return
+        val stillThere = try {
+            controller.getBackStackEntry(NavRoutes.BACKUP)
+            true
+        } catch (e: IllegalArgumentException) {
+            false
+        }
+        if (!stillThere) {
+            backupReturn = null
+            pending.complete(Unit)
+        }
+    }
+
     /** The channel each [ReadingResultKind]'s collector reads. Exhaustive, so a new kind cannot be forgotten. */
     private fun readingResultChannelFor(kind: ReadingResultKind): NavResultChannel<*> = when (kind) {
         ReadingResultKind.ManageLabels -> manageLabelsResults
@@ -3052,11 +3095,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     // see [applySoftInputModeFor]'s kdoc for why this is the one wiring that makes a
                     // `reading` -> elsewhere -> `reading` round trip restore `ADJUST_NOTHING` (that
                     // destination's own one-shot bootstrap does not run a second time).
-                    val onDestinationChanged = NavController.OnDestinationChangedListener { _, destination, _ ->
+                    val onDestinationChanged = NavController.OnDestinationChangedListener { controller, destination, _ ->
                         applyReadingReturnDebts(destination.route)
                         answerAbandonedReadingRequests(destination.route)
                         applyPendingDocumentUpdateOnReturnToReading(destination.route)
                         applySoftInputModeFor(destination.route)
+                        completeBackupReturnIfLeft(controller)
                     }
                     navController.addOnDestinationChangedListener(onDestinationChanged)
                     onDispose {
@@ -3683,6 +3727,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                         ),
                     )
                 }
+                // Slice 8 C3: Backup & restore, formerly BackupComposeActivity. The service is built per
+                // controller with THIS host, because BackupControl's dialog/SAF calls need the calling
+                // Activity (BackupServiceImpl's kdoc).
+                val backupDeps = remember {
+                    BackupNavDeps(
+                        exitHost = { finish() },
+                        setWindowTitle = { title -> setTitle(title) },
+                        windowTitle = getString(R.string.backup_and_restore),
+                        controllerFor = { BackupController(BackupServiceImpl(this@NavHostComposeActivity), lifecycleScope) },
+                    )
+                }
                 val workspaceDeps = remember {
                     WorkspaceNavDeps(
                         exitHost = { finish() },
@@ -3782,6 +3837,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     myDocumentsNavGraph(navController, myDocumentsDeps)
                     chooserNavGraph(navController, chooserDeps)
                     workspaceNavGraph(navController, workspaceDeps)
+                    backupNavGraph(navController, backupDeps)
                     readingNavGraph(navController, readingNavDeps)
                 }
 

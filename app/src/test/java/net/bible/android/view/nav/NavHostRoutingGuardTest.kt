@@ -645,20 +645,16 @@ class NavHostRoutingGuardTest {
     }
 
     /**
-     * The coexistence seam's other half. `Screen.Backup` stands in for "not migrated yet" here; it
-     * used to be `Screen.MyDocuments`, which nav-graph slice 4 Task 6 moved into
-     * [ScreenLauncher.MIGRATED] -- so this assertion had to move with it rather than be deleted,
-     * since "an unmigrated screen still reaches its own Activity" is the property, not the
-     * particular screen. `Screen.Backup` is verified still an Activity (`ScreenLauncher.kt`'s enum
-     * and its own `targetFor` arm -> `BackupComposeActivity`), is absent from [ScreenLauncher.MIGRATED],
-     * and is not a slice-4 target -- so it is not at risk of moving again mid-batch the way
-     * `Screen.Bookmarks` and `Screen.MyDocuments` each did in turn.
+     * The coexistence seam's other half: a screen NOT in [ScreenLauncher.MIGRATED] still resolves to its
+     * own Activity. Since slice 8 C3 `Screen.Calculator` is the one screen that stays an Activity BY
+     * DECISION (slice 8 spec §3.4 -- an in-graph overlay was rejected), so it is the subject; it used to
+     * be `Screen.Backup`, which moved into the graph. The property is the subject, not the screen.
      */
     @Test
     fun anUnmigratedScreenStillResolvesToItsOwnActivity() {
-        val intent = ScreenLauncher.intentFor(context, Screen.Backup)
+        val intent = ScreenLauncher.intentFor(context, Screen.Calculator)
         assertEquals(
-            "net.bible.android.view.activity.backup.BackupComposeActivity",
+            "net.bible.android.view.activity.discrete.CalculatorComposeActivity",
             intent.component?.className,
         )
         assertTrue(intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE) == null)

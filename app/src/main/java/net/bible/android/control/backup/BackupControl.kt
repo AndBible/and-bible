@@ -52,6 +52,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.application
 import net.bible.android.view.util.Hourglass
@@ -67,6 +68,7 @@ import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.common.CommonUtils.determineFileType
@@ -957,8 +959,28 @@ object BackupControl {
             ok
         }
 
+    /**
+     * Open Backup & restore and suspend until the user leaves it (slice 8 C3, plan Correction 4).
+     *
+     * On the nav host it is an in-graph destination: `awaitBackupDestination` navigates and waits for the
+     * entry to leave the back stack. An `awaitIntent` there would be an F53-shaped self-launch that the
+     * platform answers with an immediate synthetic cancel, returning at once -- and
+     * `ErrorReportControl.showErrorDialog`'s loop would put its dialog straight back over Backup.
+     * From any other Activity (`StartupActivity`'s crash check, before DB init) it is a real
+     * cross-Activity launch of the host on `BACKUP`, which starts uninitialised (spec §3.1 rule 2).
+     */
     suspend fun backupPopup(activity: ActivityBase) {
-        activity.awaitIntent(ScreenLauncher.intentFor(activity, Screen.Backup))
+        if (activity is NavHostComposeActivity) {
+            activity.awaitBackupDestination()
+        } else {
+            awaitBackupFromAnotherActivity(activity)
+        }
+    }
+
+    /** See [backupPopup]. The `check` is what `SelfLaunchRouteKindGuardTest` reads to exempt this await. */
+    private suspend fun awaitBackupFromAnotherActivity(activity: ActivityBase) {
+        check(activity !is NavHostComposeActivity) { "the nav host opens Backup in-graph (awaitBackupDestination)" }
+        activity.awaitIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.BACKUP))
     }
 
     // Tracks SharedConstants.modulesDir live rather than capturing it once at object load, so
