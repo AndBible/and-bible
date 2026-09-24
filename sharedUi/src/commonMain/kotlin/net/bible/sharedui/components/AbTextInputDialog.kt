@@ -17,6 +17,7 @@
 package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.window.DialogProperties
 
 /** Owns the working text; [onValueChange] reports every keystroke so a sheet host can enable its
  *  own confirm affordance. The initial value arrives pre-selected, as classic's EditText.selectAll().
@@ -97,10 +99,14 @@ fun AbTextInputDialog(
     extraContent: @Composable (() -> Unit)? = null,
     numeric: Boolean = false,
     masked: Boolean = false,
+    neutralText: String? = null,
+    onNeutral: () -> Unit = {},
+    cancellable: Boolean = true,
 ) {
     var current by remember { mutableStateOf(initial) }
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (cancellable) onDismiss() },
+        properties = DialogProperties(dismissOnBackPress = cancellable, dismissOnClickOutside = cancellable),
         title = { Text(title) },
         text = {
             AbTextInputContent(
@@ -112,6 +118,11 @@ fun AbTextInputDialog(
             )
         },
         confirmButton = { TextButton(onClick = { onConfirm(current) }) { Text(confirmText) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(dismissText) } },
+        dismissButton = {
+            Row {
+                if (neutralText != null) TextButton(onClick = onNeutral) { Text(neutralText) }
+                TextButton(onClick = onDismiss) { Text(dismissText) }
+            }
+        },
     )
 }
