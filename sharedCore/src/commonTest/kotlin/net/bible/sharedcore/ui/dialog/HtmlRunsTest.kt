@@ -47,9 +47,14 @@ class HtmlRunsTest {
         assertEquals(HtmlRun(" none"), runs[2])
     }
 
+    @Test fun doubleBrMakesABlankLine() =
+        // Html.fromHtml(FROM_HTML_MODE_LEGACY) turns every <br> into its own newline.
+        assertEquals("a\n\nb", plain("a<br><br>b"))
+
     @Test fun linkCarriesItsHref() {
         // CommonUtils.showHelpDialog's shape.
         val runs = parseHtmlRuns("Blurb<br><br><i><a href=\"https://docs.andbible.org/en/latest/ai.html\">Read more</a></i>")
+        assertEquals("Blurb\n\nRead more", runs.joinToString("") { it.text })
         val link = runs.single { it.href != null }
         assertEquals("Read more", link.text)
         assertEquals("https://docs.andbible.org/en/latest/ai.html", link.href)

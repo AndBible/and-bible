@@ -80,6 +80,12 @@ fun parseHtmlRuns(html: String): List<HtmlRun> {
         while (i >= 0 && sb[i] == '\n') { existing++; i-- }
         repeat((n - existing).coerceAtLeast(0)) { sb.append('\n') }
     }
+    fun brBreak() {
+        // Html.fromHtml(FROM_HTML_MODE_LEGACY): every <br> is its own newline, unlike <p>/<div>'s
+        // dedup -- two consecutive <br> make a blank line. Still drop a trailing collapsed space.
+        if (sb.isNotEmpty() && sb.last() == ' ') sb.setLength(sb.length - 1)
+        sb.append('\n')
+    }
 
     var pos = 0
     for (m in TAG.findAll(html)) {
@@ -88,7 +94,7 @@ fun parseHtmlRuns(html: String): List<HtmlRun> {
         val closing = m.groupValues[1] == "/"
         val selfClosing = m.groupValues[4] == "/"
         when (m.groupValues[2].lowercase()) {
-            "br" -> lineBreak(1)
+            "br" -> brBreak()
             "p", "div" -> if (lastChar() != null) lineBreak(2)
             "b", "strong" -> { bold += if (closing) -1 else if (selfClosing) 0 else 1; bold = bold.coerceAtLeast(0); restyle() }
             "i", "em" -> { italic += if (closing) -1 else if (selfClosing) 0 else 1; italic = italic.coerceAtLeast(0); restyle() }
