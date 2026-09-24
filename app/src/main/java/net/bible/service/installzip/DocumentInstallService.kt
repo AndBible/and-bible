@@ -43,7 +43,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.view.activity.installzip.InstallZipEvent
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
@@ -82,7 +82,7 @@ private const val GENERIC_NOTIFICATION_CHANNEL = "generic-notifications"
  * platform-agnostic install state machine built in A1-A4): owns the app-scoped [controller]
  * instance, wires its [InstallServiceController.JobDeps] to real `contentResolver`/`BackupControl`/
  * `SwordBookPath` collaborators, surfaces progress/action-required notifications, and posts the
- * terminal events (`ToastEvent` / [MainBibleActivity.UpdateMainBibleActivityDocuments] /
+ * terminal events (`ToastEvent` / [UpdateMainBibleActivityDocuments] /
  * [InstallZipEvent]) classic `InstallZip` posted directly from its Activity.
  *
  * Every job the [controller] runs is driven by data forwarded from THIS Service's own
@@ -158,7 +158,7 @@ class DocumentInstallService : Service() {
          * Mirrors classic `InstallZip`/`ZipHandler`/`installFromFile`'s post-install side effects.
          */
         private fun postTerminalEvents(phase: InstallPhase) {
-            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+            ABEventBus.post(UpdateMainBibleActivityDocuments())
             when (phase) {
                 is InstallPhase.Done -> ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
                 is InstallPhase.Cancelled -> ABEventBus.post(ToastEvent(R.string.install_zip_canceled))

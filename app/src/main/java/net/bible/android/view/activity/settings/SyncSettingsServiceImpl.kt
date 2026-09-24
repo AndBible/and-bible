@@ -29,7 +29,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.MainBibleAfterRestore
 import net.bible.service.cloudsync.CloudAdapters
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
@@ -166,7 +166,7 @@ class SyncSettingsServiceImpl(
                 CloudSync.waitUntilFinished()
                 CloudSync.start()
                 CloudSync.waitUntilFinished()
-                ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+                ABEventBus.post(MainBibleAfterRestore())
                 refresh()
             }
         }

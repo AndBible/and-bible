@@ -31,6 +31,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.MenuCommandHandler
+import net.bible.android.view.activity.page.SearchSheetOffsetsUpdated
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
@@ -807,14 +808,14 @@ class ReadingSearchEntryPointsTest {
     /**
      * Review item B: only the arithmetic was covered above — nothing asserted that
      * [MainBibleActivity.updateSearchSheetOffsets] actually posts
-     * [MainBibleActivity.SearchSheetOffsetsUpdated], which is the ONLY thing that makes
+     * [SearchSheetOffsetsUpdated], which is the ONLY thing that makes
      * [BibleView.updateOffsets] re-read [MainBibleActivity.bottomOffsetForWebView] and push it to
      * the Vue side at runtime (see that event's kdoc). `on<T>`, not `onMain<T>`, dispatches
      * synchronously (`ABEventBus.post`) — no coroutine/dispatcher wait needed.
      */
     @Test fun updateSearchSheetOffsetsPostsTheEventOnlyWhenSomethingActuallyChanged() {
         var updates = 0
-        ABEventBus.register(this) { on<MainBibleActivity.SearchSheetOffsetsUpdated> { updates++ } }
+        ABEventBus.register(this) { on<SearchSheetOffsetsUpdated> { updates++ } }
         try {
             activity.updateSearchSheetOffsets(visible = true, heightPx = 100)
             assertEquals(1, updates, "a real change must post")

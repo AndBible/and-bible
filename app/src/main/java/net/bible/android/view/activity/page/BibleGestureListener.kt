@@ -92,7 +92,7 @@ class BibleGestureListener(
         // make it easier to swipe
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
         ABEventBus.register(this) {
-            on<MainBibleActivity.FullScreenEvent> { event ->
+            on<FullScreenEvent> { event ->
                 if(!event.isFullScreen) {
                     lastFullScreenByDoubleTap = false
                 }

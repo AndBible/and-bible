@@ -183,8 +183,8 @@ import net.bible.android.view.activity.download.isInstalled
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.BibleView
+import net.bible.android.view.activity.page.FullScreenEvent
 import net.bible.android.view.activity.page.KeyChooserResults
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.ReadingAppBootstrap
 import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.android.view.activity.page.ReadingCommands
@@ -193,6 +193,10 @@ import net.bible.android.view.activity.page.ReadingInsets
 import net.bible.android.view.activity.page.ReadingInsetsHostCallbacks
 import net.bible.android.view.activity.page.SDCARD_READ_REQUEST
 import net.bible.android.view.activity.page.SpeakTransportVisibilityChanged
+import net.bible.android.view.activity.page.SystemInsetsChangedEvent
+import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
+import net.bible.android.view.activity.page.UpdateRestoreWindowButtons
+import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
@@ -1398,14 +1402,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * hide/show and nothing else (see its comment). `updateBottomBars()` is its one surviving line,
      * the `UpdateRestoreWindowButtons` broadcast `BibleView` re-reads its offsets on -- which was
      * never bar-specific, so it is posted here too. The `FullScreenEvent` type stays classic's:
-     * `ComposeReadingViewHost` subscribes to `MainBibleActivity.FullScreenEvent` whichever Activity
+     * `ComposeReadingViewHost` subscribes to `FullScreenEvent` whichever Activity
      * posted it.
      */
     private fun toggleFullScreen() {
         sharedActivityState.toggleFullScreen()
-        ABEventBus.post(MainBibleActivity.FullScreenEvent(sharedActivityState.isFullScreen))
+        ABEventBus.post(FullScreenEvent(sharedActivityState.isFullScreen))
         applyIdleSystemUi()
-        ABEventBus.post(MainBibleActivity.UpdateRestoreWindowButtons())
+        ABEventBus.post(UpdateRestoreWindowButtons())
         if(sharedActivityState.isFullScreen) {
             ABEventBus.post(ToastEvent(R.string.exit_fullscreen))
         }
@@ -1532,7 +1536,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         setTransportBarVisible = { transportBarVisible = it },
         // Classic's `updateBottomBars()` is nothing but this post, which the Compose restore rail
         // listens to -- so this host supplies the post, not silence (Ruling D).
-        updateBottomBars = { ABEventBus.post(MainBibleActivity.UpdateRestoreWindowButtons()) },
+        updateBottomBars = { ABEventBus.post(UpdateRestoreWindowButtons()) },
         // Classic's `updateTitle()` writes the toolbar row's two `TextView`s. This host draws its
         // title from Compose state; there is genuinely nothing to push.
         updateTitle = { },
@@ -1993,7 +1997,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * **Keyed by request code since reading-host re-typing T8d**, which is what turned this from
      * "the chooser answer" into "the Activity result this host is holding": classic's dispatcher
      * answers three request codes and not one, and the two it answered that this host did not --
-     * `MainBibleActivity.WORKSPACE_CHANGED` and `IntentHelper.REFRESH_DISPLAY_ON_FINISH` -- were
+     * `WORKSPACE_CHANGED` and `IntentHelper.REFRESH_DISPLAY_ON_FINISH` -- were
      * both silently discarded by the `requestCode != STD_REQUEST_CODE` early return that used to
      * stand in [onActivityResult].
      */
@@ -2313,11 +2317,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      *    runs them NOW rather than parking them in [pendingActivityResult] — that deferral exists
      *    because `onActivityResult` precedes `onResume`, and an in-graph answer arrives during a
      *    composition of an already-resumed host with its repository already reclaimed.
-     *  - **`MainBibleActivity.WORKSPACE_CHANGED`** (slice 8 B1) is neither: [applyInGraphWorkspaceResult]
+     *  - **`WORKSPACE_CHANGED`** (slice 8 B1) is neither: [applyInGraphWorkspaceResult]
      *    runs classic's arm at once, for the same reason.
      */
     private fun deliverReadingResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == MainBibleActivity.WORKSPACE_CHANGED) {
+        if (requestCode == WORKSPACE_CHANGED) {
             // Slice 8 (plan Correction 2): neither STD nor async. Through onActivityResult it would be
             // parked in pendingActivityResult until an onResume an in-graph pop never produces.
             applyInGraphWorkspaceResult(resultCode, data)
@@ -2452,7 +2456,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // classic answers FOUR request codes and this host answered one. Three were falling through the
     // `requestCode != STD_REQUEST_CODE` early return that used to be this override's second line:
     //
-    //  - `MainBibleActivity.WORKSPACE_CHANGED` (94). Since slice 8 B5 the selector is a destination
+    //  - `WORKSPACE_CHANGED` (94). Since slice 8 B5 the selector is a destination
     //    of this graph: the launch at `WORKSPACE_CHANGED` is a self-launch and its answer arrives
     //    through the reading destination's Workspace collector (`deliverReadingResult` ->
     //    `applyInGraphWorkspaceResult`), not through `onActivityResult`.
@@ -2480,7 +2484,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      */
     private fun applyNonStdActivityResult(pending: PendingActivityResult) {
         when (pending.requestCode) {
-            MainBibleActivity.WORKSPACE_CHANGED -> {
+            WORKSPACE_CHANGED -> {
                 val extras = pending.data?.extras
                 if (extras == null) {
                     Log.w(TAG_START_ROUTE, "A WORKSPACE_CHANGED result carried no extras; not applied.")
@@ -2933,7 +2937,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // listened to none of them. UNGUARDED, exactly like classic's: the flag records that an
         // update arrived, and [reconcileReadingStateOnResume] decides whether this host has a
         // reading workspace to apply it to.
-        on<MainBibleActivity.UpdateMainBibleActivityDocuments> {
+        on<UpdateMainBibleActivityDocuments> {
             updateDocumentsPending = true
         }
         on<ScreenSettings.NightModeChanged> { event ->
@@ -3207,7 +3211,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 val systemBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
                 val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
                 readingInsets.onWindowInsetsApplied(systemBarInsets, imeInsets)
-                ABEventBus.post(MainBibleActivity.SystemInsetsChangedEvent(systemBarInsets))
+                ABEventBus.post(SystemInsetsChangedEvent(systemBarInsets))
                 windowInsets
             }
         }
@@ -7866,7 +7870,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         try {
             downloadControl.downloadDocument(session.repoFactory, document)
             refreshDownloadRowStatus(session, document)
-            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+            ABEventBus.post(UpdateMainBibleActivityDocuments())
         } catch (e: Exception) {
             Log.e(TAG_DOWNLOAD, "Error on attempt to download", e)
             Toast.makeText(this@NavHostComposeActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()
@@ -7913,7 +7917,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 }
                 if (skipped) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
                 lifecycleScope.launch { loadDownloadDocuments(session, false) }
-                ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                ABEventBus.post(UpdateMainBibleActivityDocuments())
             }
             .setNegativeButton(R.string.no, null)
             .create().show()
@@ -8133,7 +8137,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
 
     /** Classic `onInstallZip` (`:891-897`). Slice 8 D2: in-graph, answered through [openInstallZip] (M5). */
     private fun onInstallZip() {
-        openInstallZip { ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments()) }
+        openInstallZip { ABEventBus.post(UpdateMainBibleActivityDocuments()) }
     }
 
     private fun DocumentInstallStatus.toDocInstallStatus(): DocInstallStatus = when (this) {
@@ -9212,7 +9216,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 }
                 if (skipped) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
                 lifecycleScope.launch { loadChooseDocuments() }
-                ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                ABEventBus.post(UpdateMainBibleActivityDocuments())
             }
             .setNegativeButton(R.string.no, null)
             .create().show()
@@ -9310,7 +9314,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 val handlerIntent = intentFor(this, NavRoutes.download())
                 lifecycleScope.launch {
                     awaitIntent(handlerIntent)
-                    ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                    ABEventBus.post(UpdateMainBibleActivityDocuments())
                     loadChooseDocuments()
                 }
             }
@@ -9328,7 +9332,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     /** Classic `onInstallZip()` (`:414-421`). Slice 8 D2: in-graph, answered through [openInstallZip] (M5). */
     private fun onChooseDocumentInstallZip() {
         openInstallZip {
-            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+            ABEventBus.post(UpdateMainBibleActivityDocuments())
             lifecycleScope.launch { loadChooseDocuments() }
         }
     }
@@ -9681,7 +9685,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
          */
         private val ANSWERED_REQUEST_CODES = setOf(
             ActivityBase.STD_REQUEST_CODE,
-            MainBibleActivity.WORKSPACE_CHANGED,
+            WORKSPACE_CHANGED,
             IntentHelper.REFRESH_DISPLAY_ON_FINISH,
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH,
         )

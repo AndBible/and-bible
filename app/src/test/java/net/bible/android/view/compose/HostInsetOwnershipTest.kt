@@ -35,7 +35,7 @@ import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.SystemInsetsChangedEvent
 import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import org.junit.Assert.assertEquals
@@ -212,10 +212,10 @@ class HostInsetOwnershipTest {
     @Test
     fun theNavHostPostsSystemInsetsChanged() {
         val activity = Robolectric.buildActivity(NavHostComposeActivity::class.java).setup().get()
-        var seen: MainBibleActivity.SystemInsetsChangedEvent? = null
+        var seen: SystemInsetsChangedEvent? = null
         val subscriber = Any()
         ABEventBus.register(subscriber) {
-            on<MainBibleActivity.SystemInsetsChangedEvent> { seen = it }
+            on<SystemInsetsChangedEvent> { seen = it }
         }
         try {
             dispatchSystemBars(contentRootOf(activity))

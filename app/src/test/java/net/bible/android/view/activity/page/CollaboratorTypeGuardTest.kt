@@ -73,7 +73,7 @@ class CollaboratorTypeGuardTest {
     /**
      * **R6d narrowed the regex by one lookahead, and only that.** `MainBibleActivity` followed by
      * a `.` is a NESTED type, not the Activity: `ComposeReadingViewHost` catches
-     * `MainBibleActivity.KeyIsNull` around the reference overlay's text, and that is a nested
+     * `KeyIsNull` around the reference overlay's text, and that is a nested
      * exception class Ruling E allow-lists and slice 7 Task 13 re-homes. Ruling E's own scan below
      * is what decides which nested members are tolerated, member by member; leaving them to fail
      * HERE would have meant either editing the catch (a behaviour change in a re-typing commit) or
@@ -153,10 +153,10 @@ class CollaboratorTypeGuardTest {
         "src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt",
         "src/main/java/net/bible/android/view/activity/page/ReadingInsets.kt",
         // R6c2, count corrected by R6d fix round 2. `ReadingCommands.kt` has TWO surviving code
-        // tokens: `MainBibleActivity.WORKSPACE_CHANGED` (the request code of the full workspace
+        // tokens: `WORKSPACE_CHANGED` (the request code of the full workspace
         // selector's activity result, which `MainBibleActivity.onActivityResult` still owns) and
         // -- since R6d fix round 1 hoisted `pageTitleText` into this file -- the
-        // `MainBibleActivity.KeyIsNull()` that body throws for a null key. Both are on
+        // `KeyIsNull()` that body throws for a null key. Both are on
         // [allowedNestedMembers] and both are Task 13's to re-home, so nothing failed when the
         // second arrived; the count is corrected because an understated comment is how an
         // allow-list quietly stops describing what it allows. `MenuCommandHandler.kt` has none
@@ -165,7 +165,7 @@ class CollaboratorTypeGuardTest {
         "src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt",
         "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
         // R6d: the two callback-bundle files and the reading host itself. The host's surviving
-        // code tokens are `MainBibleActivity.WORKSPACE_CHANGED` (the workspace selector's request
+        // code tokens are `WORKSPACE_CHANGED` (the workspace selector's request
         // code), `.KeyIsNull` (caught around the reference overlay's text) and `.FullScreenEvent`
         // (the event it subscribes to) -- all three on [allowedNestedMembers], all three Task 13's
         // to re-home. The bundles have none at all.
@@ -177,39 +177,26 @@ class CollaboratorTypeGuardTest {
     /**
      * The files that may carry `import net.bible.android.view.activity.page.MainBibleActivity`.
      *
-     * Ruling E tolerates the nested members in [allowedNestedMembers], and a file in a DIFFERENT
-     * package cannot name one without importing the outer class -- the import is the allowance's
-     * cost, not a second coupling. Every other scanned file sits in
-     * `net.bible.android.view.activity.page` itself and needs no import, so for them an import
-     * stays an offender.
-     *
-     * Pinned by [everyFileAllowedToImportStillNeedsTheImport]: an entry whose file stops naming an
-     * allow-listed member must be deleted, or the allowance silently outlives its reason.
+     * Ruling E used to tolerate [allowedNestedMembers] here, and a file in a DIFFERENT package
+     * could not name one without importing the outer class. Slice 8 F1 moved every nested event
+     * class and the companion constant out to top-level declarations under the same names, so
+     * reaching them no longer needs this import at all -- the allowance is empty and so is this
+     * set. Pinned by [everyFileAllowedToImportStillNeedsTheImport]: an entry whose file stops
+     * naming an allow-listed member must be deleted, or the allowance silently outlives its
+     * reason.
      */
-    private val filesAllowedToImportMainBibleActivity = setOf(
-        "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
-    )
+    private val filesAllowedToImportMainBibleActivity = emptySet<String>()
 
     /**
-     * Ruling E's allow-list: nested EVENT classes and one companion constant, reached as
-     * `MainBibleActivity.<member>`. These are not the Activity TYPE -- nothing here couples the
-     * reading view to the Activity's surface -- and slice 7 Task 13 re-homes them. Each entry is
-     * pinned by [everyAllowedNestedMemberIsStillReferenced], so an entry that stops being used must
-     * be deleted from this list rather than quietly widening what the guard tolerates.
+     * Ruling E's allow-list: nested EVENT classes and one companion constant, formerly reached as
+     * `MainBibleActivity.<member>`. Slice 8 F1 moved them all to top-level declarations (same
+     * names, package `net.bible.android.view.activity.page`), so nothing reaches them through the
+     * Activity any more and the allow-list is empty; `MainBibleActivityRemovalGuardTest` is the
+     * guard that keeps it that way. Each entry is pinned by [everyAllowedNestedMemberIsStillReferenced],
+     * so an entry that stops being used must be deleted from this list rather than quietly
+     * widening what the guard tolerates.
      */
-    private val allowedNestedMembers = listOf(
-        "ConfigurationChanged",
-        "FullScreenEvent",
-        "SystemInsetsChangedEvent",
-        "AgentLogOffsetsUpdated",
-        "SearchSheetOffsetsUpdated",
-        "ImePaddingChanged",
-        "WORKSPACE_CHANGED",
-        // R6d: `ComposeReadingViewHost.readOverlayText()` catches it around the reference
-        // overlay's text. A nested exception class, not the Activity's surface; Task 13's to
-        // re-home with the rest.
-        "KeyIsNull",
-    )
+    private val allowedNestedMembers = emptyList<String>()
 
     /**
      * Anti-vacuity. A scan of a file that is missing, empty, or no longer the class it is named for

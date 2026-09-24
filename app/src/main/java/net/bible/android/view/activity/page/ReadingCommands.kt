@@ -907,7 +907,7 @@ class ReadingCommands(
                     host.showWorkspaceSheet()
                 } else {
                     val intent = NavHostComposeActivity.intentFor(readingHost.hostContext, NavRoutes.WORKSPACE_SELECTOR)
-                    hostActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
+                    hostActivity.startActivityForResult(intent, WORKSPACE_CHANGED)
                 }
             }, opensDialog = true)
             R.id.llmActionsSubMenu -> CommandPreference(
@@ -1440,7 +1440,7 @@ class ReadingCommands(
      * hosts through their own [ReadingCommands]; `ReadingCommandsHostCallbacks.pageTitleText` is
      * gone with the duplicate, and `MainBibleActivity.pageTitleText` is a view onto this.
      *
-     * It still throws `MainBibleActivity.KeyIsNull` for a null key, which is classic's behaviour
+     * It still throws `KeyIsNull` for a null key, which is classic's behaviour
      * and what `ComposeReadingViewHost.readOverlayText()` and classic's `updateTitle()` both catch.
      * Re-homing that nested class is slice 7 Task 13's, and Ruling E allow-lists it.
      *
@@ -1459,7 +1459,7 @@ class ReadingCommands(
             }
             return if(key is Verse && key.verse == 0) {
                 CommonUtils.getWholeChapter(key, false).name
-            } else key?.name ?: throw MainBibleActivity.KeyIsNull()
+            } else key?.name ?: throw KeyIsNull()
         }
 
     val bibleOverlayText: String

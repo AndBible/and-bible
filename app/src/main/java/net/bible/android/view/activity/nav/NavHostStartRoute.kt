@@ -231,7 +231,7 @@ internal enum class ReadingResultKind(
      * ignored. Latent gap (review Minor): F53's condition 2 now also intercepts an ASYNC self-launch
      * of `WORKSPACE_SELECTOR`, and one backed out of would leave its `awaitIntent` parked -- the same
      * open question as the five T8c kinds. No caller does that today: every launch uses
-     * `MainBibleActivity.WORKSPACE_CHANGED`, which is not async.
+     * `WORKSPACE_CHANGED`, which is not async.
      */
     Workspace(false, NavRoutes.WORKSPACE_SELECTOR),
     ;

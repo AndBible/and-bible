@@ -680,7 +680,7 @@ class SplitModePreference(val mainBibleActivity: Context) :
     private val wsBehaviorSettings = windowRepository.workspaceSettings
     override fun handle() {
         windowControl.windowSizesChanged()
-        ABEventBus.post(MainBibleActivity.ConfigurationChanged(mainBibleActivity.resources.configuration))
+        ABEventBus.post(ConfigurationChanged(mainBibleActivity.resources.configuration))
     }
 
     override var value: Any

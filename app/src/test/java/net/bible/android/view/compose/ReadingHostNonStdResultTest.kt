@@ -33,7 +33,7 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.base.ErrorActivity
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
@@ -66,7 +66,7 @@ import kotlin.test.assertTrue
  * `if (requestCode != ActivityBase.STD_REQUEST_CODE) return` — so three of the four request codes
  * classic answers went nowhere on the host that actually runs:
  *
- *  - `MainBibleActivity.WORKSPACE_CHANGED`, a REAL Activity result (`Screen.WorkspaceSelector` is
+ *  - `WORKSPACE_CHANGED`, a REAL Activity result (`Screen.WorkspaceSelector` is
  *    not in `ScreenLauncher.MIGRATED`), silently discarded: the user picked a workspace, confirmed,
  *    and was put back in the one they left.
  *  - `IntentHelper.REFRESH_DISPLAY_ON_FINISH` and `.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH`, whose
@@ -196,7 +196,7 @@ class ReadingHostNonStdResultTest {
 
         controller.pause()
         activity.onActivityResult(
-            MainBibleActivity.WORKSPACE_CHANGED,
+            WORKSPACE_CHANGED,
             Activity.RESULT_OK,
             workspaceResult(target.id.toString(), changed = false),
         )
@@ -225,7 +225,7 @@ class ReadingHostNonStdResultTest {
 
         controller.pause()
         activity.onActivityResult(
-            MainBibleActivity.WORKSPACE_CHANGED,
+            WORKSPACE_CHANGED,
             Activity.RESULT_CANCELED,
             workspaceResult(target.id.toString(), changed = true),
         )

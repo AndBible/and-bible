@@ -970,7 +970,7 @@ class BibleJavascriptInterface(
                         host.showWorkspaceSheet()
                     } else {
                         val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.WORKSPACE_SELECTOR)
-                        hostActivity.startActivityForResult(intent, MainBibleActivity.WORKSPACE_CHANGED)
+                        hostActivity.startActivityForResult(intent, WORKSPACE_CHANGED)
                     }
                 }
                 "CtrlKeyC" -> bibleView.copySelectionToClipboard()

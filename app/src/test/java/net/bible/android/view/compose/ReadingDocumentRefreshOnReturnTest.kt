@@ -24,7 +24,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.Window
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
@@ -125,7 +125,7 @@ class ReadingDocumentRefreshOnReturnTest {
         clearDisplayedKey(window)
         assertNull(displayedKeyOf(window), "sanity: the fixture's entry-time load must actually be clearable")
 
-        ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+        ABEventBus.post(UpdateMainBibleActivityDocuments())
         assertTrue(
             updateDocumentsPendingOf(activity),
             "sanity: the subscription in readingHostSubscriptions must have armed the flag",
@@ -189,7 +189,7 @@ class ReadingDocumentRefreshOnReturnTest {
         shadowOf(Looper.getMainLooper()).idle()
 
         clearDisplayedKey(window)
-        ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+        ABEventBus.post(UpdateMainBibleActivityDocuments())
         assertTrue(
             updateDocumentsPendingOf(activity),
             "sanity: the subscription in readingHostSubscriptions must have armed the flag",

@@ -43,7 +43,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.ActivityResultKind
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.FakeBookFactory
@@ -323,7 +323,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                 }
                 if (skipped) ABEventBus.post(net.bible.android.control.event.ToastEvent(R.string.cant_delete_document))
                 lifecycleScope.launch { loadDocuments() }
-                ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                ABEventBus.post(UpdateMainBibleActivityDocuments())
             }
             .setNegativeButton(R.string.no, null)
             .create().show()
@@ -406,7 +406,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
                 val handlerIntent = NavHostComposeActivity.intentFor(this, NavRoutes.download())
                 lifecycleScope.launch {
                     awaitIntent(handlerIntent)
-                    ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                    ABEventBus.post(UpdateMainBibleActivityDocuments())
                     loadDocuments()
                 }
             }
@@ -424,7 +424,7 @@ class ChooseDocumentComposeActivity : ActivityBase() {
         val intent = ScreenLauncher.intentFor(this, Screen.InstallZip)
         lifecycleScope.launch {
             awaitIntent(intent)
-            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+            ABEventBus.post(UpdateMainBibleActivityDocuments())
             loadDocuments()
         }
     }

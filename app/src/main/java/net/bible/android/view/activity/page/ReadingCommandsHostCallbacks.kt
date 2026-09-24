@@ -118,7 +118,7 @@ class ReadingCommandsHostCallbacks(
     val currentNightMode: () -> Boolean,
 
     // R6d fix round 1 (review Important): `pageTitleText` used to be a supplier here, on the
-    // grounds that it throws `MainBibleActivity.KeyIsNull`. That was the wrong trade — the body is
+    // grounds that it throws `KeyIsNull`. That was the wrong trade — the body is
     // host-independent `pageControl` arithmetic, Ruling E allow-lists the nested class anyway, and
     // keeping it on the host is what let R6d copy all eleven of its lines into
     // `NavHostComposeActivity`. It lives on `ReadingCommands.pageTitleText` now, ONE copy for both

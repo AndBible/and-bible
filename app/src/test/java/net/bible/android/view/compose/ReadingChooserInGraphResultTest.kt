@@ -36,7 +36,7 @@ import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.nav.ReadingResultKind
 import net.bible.android.view.activity.nav.ReadingResultRequests
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.history.HistoryManager
@@ -184,7 +184,7 @@ class ReadingChooserInGraphResultTest {
         }
         activity.startActivityForResult(
             NavHostComposeActivity.intentFor(activity, NavRoutes.WORKSPACE_SELECTOR),
-            MainBibleActivity.WORKSPACE_CHANGED,
+            WORKSPACE_CHANGED,
         )
         val nav = standInAbove(activity)
 

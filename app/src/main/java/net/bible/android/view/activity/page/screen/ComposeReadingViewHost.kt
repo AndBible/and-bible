@@ -141,10 +141,12 @@ import net.bible.android.view.activity.navigation.pickGridBook
 import net.bible.android.view.activity.navigation.pickGridChapter
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.FullScreenEvent
+import net.bible.android.view.activity.page.KeyIsNull
 import net.bible.android.view.activity.page.ReadingCommands
 import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.android.view.activity.page.Selection
+import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
@@ -1491,7 +1493,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                             closeQuickSheet()
                             activity.hostActivity.startActivityForResult(
                                 NavHostComposeActivity.intentFor(activity.hostContext, NavRoutes.WORKSPACE_SELECTOR),
-                                MainBibleActivity.WORKSPACE_CHANGED,
+                                WORKSPACE_CHANGED,
                             )
                         }
                     },
@@ -2498,7 +2500,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val monochrome = mutableStateOf(CommonUtils.settings.monochromeMode)
 
     /**
-     * Mirrors [MainBibleActivity.fullScreen]. Kept current via [MainBibleActivity.FullScreenEvent]
+     * Mirrors [MainBibleActivity.fullScreen]. Kept current via [FullScreenEvent]
      * (see [init]) so entering/leaving fullscreen from ANY path — the Compose overflow menu's
      * "Full screen" row (Batch 12b-C Task 3, dispatched via [MainBibleActivity.handleOptionsMenuItem]),
      * the same menu reached by the `"AltKeyO"` shortcut (slice 7 Task 2 repointed it at
@@ -2519,7 +2521,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     /** Whether the active window shows a Bible (classic `activeWindow.pageManager.isBibleShown`). */
     private val activeIsBibleShown = mutableStateOf(windowControl.activeWindow.pageManager.isBibleShown)
 
-    private fun readOverlayText(): String = try { activity.readingCommands.bibleOverlayText } catch (e: MainBibleActivity.KeyIsNull) { "" }
+    private fun readOverlayText(): String = try { activity.readingCommands.bibleOverlayText } catch (e: KeyIsNull) { "" }
 
     /**
      * The Compose overflow ("3-dot") options menu's item list + expanded flag (Batch 12b-C Task 3)
@@ -2673,7 +2675,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 nightMode.value = ScreenSettings.nightMode
                 monochrome.value = CommonUtils.settings.monochromeMode
             }
-            onMain<MainBibleActivity.FullScreenEvent> { event -> fullScreen.value = event.isFullScreen }
+            onMain<FullScreenEvent> { event -> fullScreen.value = event.isFullScreen }
             // Classic BibleView.BibleViewTouched re-show (SplitBibleArea.kt:203-205) — see
             // WindowButtonsVisibility's kdoc.
             onMain<BibleView.BibleViewTouched> { windowButtonsVisibility.onTouch() }
@@ -3638,7 +3640,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             toolbar: StateFlow<ToolbarState> = MutableStateFlow(ToolbarState.EMPTY).asStateFlow(),
             toolbarCallbacks: ReadingToolbarCallbacks = noopToolbarCallbacks,
             // A `State` for the same reactivity reason as [nightModeState]: [install] mirrors
-            // [MainBibleActivity.fullScreen] here via [MainBibleActivity.FullScreenEvent] instead
+            // [MainBibleActivity.fullScreen] here via [FullScreenEvent] instead
             // of passing a one-shot snapshot.
             fullScreenState: State<Boolean> = mutableStateOf(false),
             // Batch 12g Task 3 additions: the fullscreen bible-reference overlay's text + the

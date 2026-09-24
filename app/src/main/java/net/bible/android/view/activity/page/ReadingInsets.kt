@@ -181,8 +181,8 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
      * F6 Task 8b Step 3: [net.bible.android.view.activity.page.screen.ComposeReadingViewHost.install]'s
      * report of the search sheet's live (visible, measured-height-in-px) state — the fourth term in
      * [bottomOffsetForWebView], mirroring `MainBibleActivity`'s agentLogVisible/agentLogHeight. Posts
-     * [MainBibleActivity.SearchSheetOffsetsUpdated] (the same "recompute and push to the WebView" idiom
-     * as `MainBibleActivity.AgentLogOffsetsUpdated`) so [net.bible.android.view.activity.page.BibleView.updateOffsets]
+     * [SearchSheetOffsetsUpdated] (the same "recompute and push to the WebView" idiom
+     * as `AgentLogOffsetsUpdated`) so [net.bible.android.view.activity.page.BibleView.updateOffsets]
      * picks up the new value; a no-op when nothing actually changed, so a benign recomposition doesn't
      * spam `set_offsets` calls.
      */
@@ -190,7 +190,7 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
         if (searchSheetVisible == visible && searchSheetHeight == heightPx) return
         searchSheetVisible = visible
         searchSheetHeight = heightPx
-        ABEventBus.post(MainBibleActivity.SearchSheetOffsetsUpdated())
+        ABEventBus.post(SearchSheetOffsetsUpdated())
     }
 
     /**
@@ -219,7 +219,7 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
      */
     fun onComposeSearchFieldFocusChanged() {
         applyImePadding()
-        ABEventBus.post(MainBibleActivity.ImePaddingChanged())
+        ABEventBus.post(ImePaddingChanged())
     }
 
     /**

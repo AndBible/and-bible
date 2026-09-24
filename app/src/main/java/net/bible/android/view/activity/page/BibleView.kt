@@ -1178,7 +1178,7 @@ class BibleView(
                             scrollOrJumpToVerse(event.verse)
                         }
                     }
-                    on<MainBibleActivity.ConfigurationChanged> { event ->
+                    on<ConfigurationChanged> { event ->
                         checkWindows = true
                     }
                     on<NumberOfWindowsChangedEvent> { event ->
@@ -1187,20 +1187,20 @@ class BibleView(
                             updateConfig()
                         }
                     }
-                    on<MainBibleActivity.FullScreenEvent> { event -> updateOffsets() }
-                    on<MainBibleActivity.SystemInsetsChangedEvent> { event -> updateOffsets() }
+                    on<FullScreenEvent> { event -> updateOffsets() }
+                    on<SystemInsetsChangedEvent> { event -> updateOffsets() }
                     on<RestoreButtonsVisibilityChanged> { event -> updateOffsets() }
                     on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
-                    on<MainBibleActivity.AgentLogOffsetsUpdated> { event ->
+                    on<AgentLogOffsetsUpdated> { event ->
                         Log.i(TAG, "BibleView received AgentLogOffsetsUpdated")
                         updateOffsets(true)
                     }
                     // F6 Task 8b Step 3: the search sheet's own visible/height pair changed — see
                     // MainBibleActivity.updateSearchSheetOffsets.
-                    on<MainBibleActivity.SearchSheetOffsetsUpdated> { event ->
+                    on<SearchSheetOffsetsUpdated> { event ->
                         updateOffsets(true)
                     }
-                    on<MainBibleActivity.ImePaddingChanged> { event ->
+                    on<ImePaddingChanged> { event ->
                         updateOffsets(true)
                     }
                     // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here

@@ -200,8 +200,6 @@ import org.koin.android.ext.android.inject
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-class SpeakTransportVisibilityChanged(val value: Boolean)
-
 class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     lateinit var binding: MainBibleViewBinding
     lateinit var empty: EmptyBinding
@@ -692,8 +690,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         }
     }
 
-    class SystemInsetsChangedEvent(val insets: Insets)
-
     private fun resolveVariables() {
         // Mainly for old devices (older than API 21)
         hasHwKeys = ViewConfiguration.get(this).hasPermanentMenuKey()
@@ -1078,8 +1074,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     private val documentTitleText: String
         get() = pageControl.currentPageManager.currentPage.currentDocumentName
 
-    class KeyIsNull: Exception()
-
     // R6d fix round 1 (review Important): the BODY moved to `ReadingCommands.pageTitleText`. It is
     // host-independent `pageControl` arithmetic, so leaving it here is what let R6d copy it
     // verbatim into `NavHostComposeActivity` — the same test that moved `drawerRateVisible` out.
@@ -1288,15 +1282,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     // here (design spec §3.2).
     internal fun startDocumentChooser(type: String) = readingCommands.startDocumentChooser(type)
 
-    class AgentLogOffsetsUpdated
-
-    /** See [updateSearchSheetOffsets]. */
-    class SearchSheetOffsetsUpdated
-
-    /** See [onComposeSearchFieldFocusChanged]. */
-    class ImePaddingChanged
-
-
     // R3: widened from `private` to `internal` so [ReadingCommands] can reach it. It stays HERE
     // because the CLASSIC toolbar/`updateActions()` path still calls it too (design spec §3.2).
     internal fun menuForDocs(v: View, documents: List<Book>) {
@@ -1324,7 +1309,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
     // stub stays because the CLASSIC toolbar/`updateActions()` path still calls it here.
     internal fun setCurrentDocument(book: Book?) = readingCommands.setCurrentDocument(book)
 
-    class FullScreenEvent(val isFullScreen: Boolean)
     private var isFullScreen = false
 
     /**
@@ -1584,8 +1568,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         ABEventBus.post(UpdateRestoreWindowButtons())
     }
 
-    class UpdateRestoreWindowButtons
-
     override fun onDestroy() {
         bibleViewFactory.clear()
         super.onDestroy()
@@ -1673,8 +1655,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
         }
     }
 
-    class ConfigurationChanged(val configuration: Configuration)
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         Log.i(TAG, "Configuration changed")
@@ -1700,10 +1680,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
 
         return super.onKeyUp(keyCode, event)
     }
-
-    class MainBibleAfterRestore
-
-    class UpdateMainBibleActivityDocuments
 
     private var updateDocumentsPending = false
 
@@ -2008,10 +1984,6 @@ class MainBibleActivity : CustomTitlebarActivityBase(), ReadingHostActivity {
      *  LLM dialog host's regenerate confirmation, over the reading view. R6c2: body in
      *  [ReadingCommands]. */
     fun showRegenerate(pageId: IdType, bibleView: BibleView) = readingCommands.showRegenerate(pageId, bibleView)
-
-    companion object {
-        const val WORKSPACE_CHANGED = 94
-    }
 }
 
 /**

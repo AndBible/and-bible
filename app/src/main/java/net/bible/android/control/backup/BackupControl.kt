@@ -51,7 +51,8 @@ import net.bible.android.database.progress.ProgressDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.MainBibleAfterRestore
+import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.page.application
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
@@ -775,7 +776,7 @@ object BackupControl {
         }
         hourglass.dismiss()
         Log.i(TAG, "Restored database successfully")
-        ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+        ABEventBus.post(MainBibleAfterRestore())
         true
     }
 
@@ -810,7 +811,7 @@ object BackupControl {
         withContext(Dispatchers.IO) {
             result = if (restoreOldMonolithicDatabaseFromInputStream(uri)) {
                 Log.i(TAG, "Restored database successfully")
-                ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+                ABEventBus.post(MainBibleAfterRestore())
                 Dialogs.showMsg(R.string.restore_success)
                 true
             } else {
@@ -958,7 +959,7 @@ object BackupControl {
                 installed.books.size > countBefore
             }
             if (ok) {
-                ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                ABEventBus.post(UpdateMainBibleActivityDocuments())
             }
             ok
         }
@@ -1043,7 +1044,7 @@ object BackupControl {
             }
         }
 
-        ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+        ABEventBus.post(MainBibleAfterRestore())
         Dialogs.showMsg(R.string.reset_database_success)
     }
 

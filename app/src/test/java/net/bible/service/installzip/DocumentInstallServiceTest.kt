@@ -25,7 +25,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.junit.After
@@ -122,7 +122,7 @@ class DocumentInstallServiceTest {
 
         val latch = CountDownLatch(1)
         ABEventBus.register(this) {
-            on<MainBibleActivity.UpdateMainBibleActivityDocuments> { latch.countDown() }
+            on<UpdateMainBibleActivityDocuments> { latch.countDown() }
         }
 
         val intent = DocumentInstallService.enqueueIntent(context, listOf(uri))

@@ -53,7 +53,7 @@ import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActiv
 import net.bible.android.view.activity.download.BadDocumentAction
 import net.bible.android.view.activity.download.isBadDocument
 import net.bible.android.view.activity.download.isRecommended
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Ref
 import net.bible.service.db.DatabaseContainer
@@ -595,7 +595,7 @@ abstract class DocumentSelectionBase(
 
                             // the doc list should now change
                             reloadDocuments()
-                            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                            ABEventBus.post(UpdateMainBibleActivityDocuments())
                         } catch (e: Exception) {
                             Log.e(TAG, "Deleting document crashed", e)
                             Dialogs.showErrorMsg(R.string.error_occurred, e)
