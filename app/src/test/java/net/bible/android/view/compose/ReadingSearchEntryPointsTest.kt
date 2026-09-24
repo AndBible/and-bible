@@ -18,6 +18,7 @@ package net.bible.android.view.compose
 
 import android.view.KeyEvent
 import androidx.test.core.app.ApplicationProvider
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
@@ -43,7 +44,6 @@ import net.bible.service.sword.epub.isEpub
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
-import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
 import net.bible.sharedcore.search.MultiSearchResults
 import net.bible.sharedcore.search.ReadingSearchPhase
 import net.bible.sharedcore.search.SearchBibleSection
@@ -623,29 +623,55 @@ class ReadingSearchEntryPointsTest {
     }
 
     /**
+     * An OFF-reading-route nav host with a directly installed [ComposeReadingViewHost]: the
+     * `ReadingHostChromeTest.restorePaneFocusReachesThisHostsOwnRepositoryAndIsNotSwallowedByItsGate`
+     * trick. Off the reading route the host bootstrapped no repository, so
+     * [NavHostComposeActivity.restorePaneFocus] THROWS exactly when it gets past its gate and reaches
+     * `hostWindowRepository` -- which makes the gate's decision observable at the real call site
+     * (`ComposeReadingViewHost`'s `onDrawerClosed` calls `activity.restorePaneFocus()`), where a
+     * Robolectric `BibleView.requestFocus()` would have no observable effect.
+     */
+    private fun onAnOffRouteHostWithAReadingView(block: (NavHostComposeActivity) -> Unit) {
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.AI_TOOL_INFO),
+        ).create()
+        try {
+            val offRoute = controller.get()
+            offRoute.composeReadingViewHost = ComposeReadingViewHost(offRoute)
+            block(offRoute)
+        } finally {
+            controller.close()
+        }
+    }
+
+    /**
      * Round 12b §1: the drawer's Search row closes the drawer and opens search in one click, so the
      * drawer-close focus restore lands AFTER the search field has taken focus. Restoring pane focus
      * then dismisses the keyboard — the "flashes and vanishes" report. Guarded here rather than
-     * only in `DrawerPaneFocusTest` because the defect was the unconditional CALL SITE, not the rule.
+     * only in `DrawerPaneFocusTest` because the defect was the unconditional CALL SITE, not the rule:
+     * so this drives the nav host's own call site, [NavHostComposeActivity.restorePaneFocus], and
+     * asserts it returns at the gate (it would otherwise reach the off-route host's absent
+     * repository and throw -- see [onAnOffRouteHostWithAReadingView]). Slice 8 F2 fix round 1: it
+     * had been reduced to calling the shared predicate directly, which pinned nothing about the call
+     * site.
      */
-    @Test fun drawerCloseDoesNotStealFocusFromAnOpenSearchBar() {
-        activity.composeReadingViewHost = host()
-        menuCommandHandler().handleMenuRequest(R.id.searchButton)
-        assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value, "sanity")
+    @Test fun drawerCloseDoesNotStealFocusFromAnOpenSearchBar() = onAnOffRouteHostWithAReadingView { offRoute ->
+        offRoute.composeReadingViewHost!!.openSearch("light")
+        assertTrue(offRoute.readingCommands.composeSearchModeActive, "sanity: search is open")
 
-        assertFalse(
-            shouldRestorePaneFocusOnDrawerClose(searchBarOpen = activity.readingCommands.composeSearchModeActive),
-            "with search open the drawer close must not restore pane focus",
-        )
+        // Returns at the gate: no repository read, so no UninitializedPropertyAccessException.
+        offRoute.restorePaneFocus()
     }
 
-    @Test fun drawerCloseStillRestoresPaneFocusWithNoSearchOpen() {
-        activity.composeReadingViewHost = host()
+    /** The other branch at the same call site: with no search open the restore must get PAST the gate. */
+    @Test fun drawerCloseStillRestoresPaneFocusWithNoSearchOpen() = onAnOffRouteHostWithAReadingView { offRoute ->
+        assertFalse(offRoute.readingCommands.composeSearchModeActive, "sanity: search is closed")
 
-        assertTrue(
-            shouldRestorePaneFocusOnDrawerClose(searchBarOpen = activity.readingCommands.composeSearchModeActive),
-            "the classic onDrawerClosed parity must survive for every non-search row",
-        )
+        assertFailsWith<UninitializedPropertyAccessException>(
+            "the classic onDrawerClosed parity must survive for every non-search row: the restore " +
+                "reaches this host's repository (absent off the reading route, hence the throw)",
+        ) { offRoute.restorePaneFocus() }
     }
 
     /**
@@ -689,7 +715,7 @@ class ReadingSearchEntryPointsTest {
      * the reasons `ReadingHostBackChainTest.host()` and slice 8 D1 give. The host's own repository
      * (the bootstrap's) is the one the key reads, so KJV is put on it.
      */
-    private fun <T> onASetUpReadingHost(block: (NavHostComposeActivity) -> T): T {
+    private fun onASetUpReadingHost(block: (NavHostComposeActivity) -> Unit) {
         firstTime = false
         resetComposeUiDispatcher()
         val controller = Robolectric.buildActivity(
@@ -701,7 +727,7 @@ class ReadingSearchEntryPointsTest {
             val kjv = Books.installed().getBook("KJV") as SwordBook
             val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
             readingHost.hostWindowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
-            return block(readingHost)
+            block(readingHost)
         } finally {
             controller.close()
             ReadingViewVisibility.setVisible(false)

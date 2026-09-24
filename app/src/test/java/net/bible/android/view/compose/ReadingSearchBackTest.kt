@@ -18,6 +18,7 @@ package net.bible.android.view.compose
 
 import android.view.KeyEvent
 import androidx.test.core.app.ApplicationProvider
+import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -144,15 +145,22 @@ class ReadingSearchBackTest {
 
     /**
      * Step 3: with a focused search field now reachable, long-press back must not fall through to
-     * opening History out from under it — the same swallow [composeDrawerOpen] already gets. Only
-     * the swallowed case is driven through the real [NavHostComposeActivity.onKeyLongPress]: the
-     * fallthrough (History) branch reads `binding.drawerLayout` right after the compose guards
-     * regardless of Task 9 (pre-existing, not this task's code), which this never-`.create()`'d
-     * activity has no `binding` for — same reason [aBackWithSearchClosedIsNotConsumed] drives its
-     * guard directly instead of the full method.
+     * opening History out from under it — the same swallow the open drawer already gets. Both
+     * branches are driven through the real [NavHostComposeActivity.onKeyLongPress] on the set-up
+     * host: first a positive control (search closed -> the History quick sheet opens, so the
+     * observable below really can see "opened History"), then the swallowed case.
      */
     @Test
     fun longPressBackIsSwallowedWhileSearchIsActive() {
+        // Positive control: with search closed a long BACK opens History on this host.
+        assertTrue(activity.onKeyLongPress(KeyEvent.KEYCODE_BACK, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK)))
+        assertEquals(
+            ReadingQuickSheet.History,
+            host().quickSheet.value,
+            "positive control: with search closed a long BACK must open the History sheet",
+        )
+        host().quickSheet.value = null
+
         host().openSearch("light")
 
         val consumed = activity.onKeyLongPress(KeyEvent.KEYCODE_BACK, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK))

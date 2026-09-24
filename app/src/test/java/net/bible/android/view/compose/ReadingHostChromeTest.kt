@@ -38,10 +38,10 @@ import org.robolectric.annotation.Config
  * R4: the nav host implements the reading-host contract, and its chrome is real. (Slice 8 F2: the
  * classic `MainBibleActivity` half of the contract assertion went with that class.)
  *
- * `ComposeReadingViewHost` is re-typed onto [ReadingHostActivity] at R6, which is the point at which
- * a missing member on EITHER Activity becomes a compile error. Until then these two assertions are
- * the only thing that notices, so they are deliberately about the contract itself rather than about
- * any one screen's behaviour.
+ * `ComposeReadingViewHost` is typed on [ReadingHostActivity] (since R6), so a missing contract
+ * member on the nav host is a compile error; [theNavHostIsAReadingHost] states the contract itself
+ * rather than any one screen's behaviour, and the tests below pin that the nav host answers each
+ * member honestly.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
