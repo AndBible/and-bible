@@ -50,7 +50,6 @@ import android.os.StatFs
 import android.provider.Settings
 import android.text.Html
 import android.text.SpannableString
-import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
@@ -61,7 +60,6 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -113,6 +111,11 @@ import net.bible.android.database.json
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
+import org.koin.java.KoinJavaComponent
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.cloudsync.CloudSync
@@ -181,9 +184,6 @@ import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 import org.koin.core.component.KoinComponent
@@ -292,6 +292,7 @@ object AdvancedSpeakSettings {
 }
 
 object CommonUtils : CommonUtilsBase() {
+    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
     private const val COLON = ":"
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
     private const val ELLIPSIS = "..."
@@ -879,30 +880,26 @@ object CommonUtils : CommonUtilsBase() {
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     suspend fun unlockDocument(context: AppCompatActivity, book: Book): Boolean {
-        class ShowAgain: Exception()
         var repeat = true
-        while(repeat) {
-            val passphrase: String? = try {suspendCoroutine {
-                val name = EditText(context)
-                name.text = SpannableStringBuilder(book.unlockKey ?: "")
-                name.selectAll()
-                name.requestFocus()
-                AlertDialog.Builder(context)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.okay) { d, _ ->
-                        it.resume(name.text.toString())
-                    }
-                    .setView(name)
-                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
-                    .setNeutralButton(R.string.show_unlock_info) { _, _ -> context.lifecycleScope.launch(Dispatchers.Main) {
-                        showAbout(context, book)
-                        it.resumeWithException(ShowAgain())
-                    } }
-                    .setTitle(application.getString(R.string.give_passphrase_for_module, book.initials))
-                    .create()
-                    .show()
-            } } catch (e: ShowAgain) {
-                continue
+        while (repeat) {
+            val answer = dialogs.await(
+                AppDialogRequest.TextInput(
+                    title = application.getString(R.string.give_passphrase_for_module, book.initials),
+                    message = null,
+                    initial = book.unlockKey ?: "",
+                    confirmText = application.getString(R.string.okay),
+                    dismissText = application.getString(R.string.cancel),
+                    neutralText = application.getString(R.string.show_unlock_info),
+                    cancellable = false,
+                ),
+            )
+            val passphrase: String? = when (answer) {
+                is AppDialogResult.Text -> answer.value
+                AppDialogResult.Neutral -> {
+                    showAbout(context, book)
+                    continue
+                }
+                else -> null
             }
             if (passphrase != null) {
                 val success = book.unlock(passphrase)
@@ -914,17 +911,15 @@ object CommonUtils : CommonUtilsBase() {
                     return true
                 }
             }
-            repeat = suspendCoroutine {
-                AlertDialog.Builder(context)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.yes) { d, _ ->
-                        it.resume(true)
-                    }
-                    .setNegativeButton(R.string.no) { _, _ -> it.resume(false) }
-                    .setTitle(application.getString(R.string.try_again_passphrase))
-                    .create()
-                    .show()
-            }
+            repeat = dialogs.await(
+                AppDialogRequest.Confirm(
+                    title = application.getString(R.string.try_again_passphrase),
+                    message = null,
+                    confirmText = application.getString(R.string.yes),
+                    dismissText = application.getString(R.string.no),
+                    cancellable = false,
+                ),
+            ) == AppDialogResult.Ok
         }
         return false
     }
@@ -1028,18 +1023,14 @@ object CommonUtils : CommonUtilsBase() {
                 """.trimIndent()
         }
         about = about.replace("\n", "<br>")
-        val spanned = htmlToSpan(about)
-        suspendCoroutine<Any?> {
-            val d = AlertDialog.Builder(context)
-                .setMessage(spanned)
-                .setCancelable(false)
-                .setPositiveButton(R.string.okay) { dialog, buttonId ->
-                    it.resume(null)
-                }.create()
-            d.show()
-            val textView = d.findViewById<TextView>(android.R.id.message)!!
-            textView.movementMethod = LinkMovementMethod.getInstance()
-        }
+        dialogs.await(
+            AppDialogRequest.Message(
+                title = null,
+                message = about,
+                confirmText = application.getString(R.string.okay),
+                cancellable = false,
+            ),
+        )
     }
 
     fun showHelp(callingActivity: ActivityBase, filterItems: List<Int>? = null, showVersion: Boolean = false) {
@@ -1123,14 +1114,14 @@ object CommonUtils : CommonUtilsBase() {
         val readMore = activity.getString(R.string.help_read_more_link)
         val messageHtml = activity.getString(messageResId) +
             "<br><br><i><a href=\"$DOCS_URL_PREFIX$helpPath\">$readMore</a></i>"
-        val spanned = htmlToSpan(messageHtml)
-        val dialog = AlertDialog.Builder(activity)
-            .setTitle(titleResId)
-            .setMessage(spanned)
-            .setPositiveButton(R.string.okay, null)
-            .show()
-        dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
-            LinkMovementMethod.getInstance()
+        dialogs.post(
+            AppDialogRequest.Message(
+                title = activity.getString(titleResId),
+                message = messageHtml,
+                confirmText = activity.getString(R.string.okay),
+                cancellable = true,
+            ),
+        )
     }
 
     /** Base URL for AndBible's user documentation. Help dialog links resolve their paths against this. */
@@ -1584,48 +1575,60 @@ object CommonUtils : CommonUtilsBase() {
             return true
         }
 
-        return suspendCoroutine {
-            val lang = Locale.getDefault().displayLanguage
-            val instr = application.getString(R.string.instructions_for_translators)
-            val instructionsUrl = "https://github.com/AndBible/and-bible/wiki/Translating-User-Interface"
-            val instructionsLink = "<a href=\"$instructionsUrl\">$instr</a>"
-            val msg = htmlToSpan(application.getString(R.string.incomplete_translation, lang, application.getString(R.string.app_name_long), instructionsLink))
-            val dlgBuilder = AlertDialog.Builder(activity)
-                .setMessage(msg)
-                .setCancelable(false)
-                .setPositiveButton(R.string.proceed_anyway) { _, _ -> it.resume(true) }
-                .setNegativeButton(R.string.beta_notice_dismiss_until_update) { _, _ ->
-                    settings.setString("poor-translations-dismissed-version", mainVersion)
-                    settings.setString("poor-translations-dismissed", languageTag)
-                    it.resume(true)
-                }
-                .setNeutralButton(R.string.close) { _, _ ->
-                    it.resume(false)
-                    activity.finish()
-                }
+        val lang = Locale.getDefault().displayLanguage
+        val instr = application.getString(R.string.instructions_for_translators)
+        val instructionsUrl = "https://github.com/AndBible/and-bible/wiki/Translating-User-Interface"
+        val instructionsLink = "<a href=\"$instructionsUrl\">$instr</a>"
+        val msg = application.getString(R.string.incomplete_translation, lang, application.getString(R.string.app_name_long), instructionsLink)
 
-            val d = dlgBuilder.show()
-            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        val proceedValue = "proceed"
+        val dismissValue = "dismiss"
+        val closeValue = "close"
+        val result = dialogs.await(
+            AppDialogRequest.Options(
+                title = null,
+                message = msg,
+                options = listOf(
+                    SettingsItem.Choice(proceedValue, application.getString(R.string.proceed_anyway)),
+                    SettingsItem.Choice(dismissValue, application.getString(R.string.beta_notice_dismiss_until_update)),
+                    SettingsItem.Choice(closeValue, application.getString(R.string.close)),
+                ),
+                dismissText = null,
+                asActionSheet = false,
+                cancellable = false,
+            ),
+        )
+        val selected = (result as? AppDialogResult.Selected)?.value
+        return when (selected) {
+            proceedValue -> true
+            dismissValue -> {
+                settings.setString("poor-translations-dismissed-version", mainVersion)
+                settings.setString("poor-translations-dismissed", languageTag)
+                true
+            }
+            closeValue -> {
+                activity.finish()
+                false
+            }
+            else -> false
         }
     }
 
-    suspend fun requestNotificationPermission(activity_: ActivityBase? = null) = withContext(Dispatchers.Main) {
-        val activity = activity_?:CurrentActivityHolder.currentActivity?: return@withContext
+    suspend fun requestNotificationPermission(activity_: ActivityBase? = null) {
+        val activity = activity_ ?: CurrentActivityHolder.currentActivity ?: return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
                 var request = true
                 if (activity.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                    val answer = suspendCoroutine {
-                        AlertDialog.Builder(activity)
-                            .setTitle(R.string.permission_required)
-                            .setIcon(R.drawable.ic_logo)
-                            .setMessage(R.string.progress_status_permission)
-                            .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
-                            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
-                            .setOnCancelListener { _ -> it.resume(null) }
-                            .show()
-                    }
-                    request = answer == true
+                    val answer = dialogs.await(
+                        AppDialogRequest.Confirm(
+                            title = activity.getString(R.string.permission_required),
+                            message = activity.getString(R.string.progress_status_permission),
+                            confirmText = activity.getString(R.string.okay),
+                            dismissText = activity.getString(R.string.cancel),
+                        ),
+                    )
+                    request = answer == AppDialogResult.Ok
                 }
                 if(request) {
                     activity.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 999)
@@ -1902,17 +1905,16 @@ object CommonUtils : CommonUtilsBase() {
         val warningMessage = getString(R.string.bookmark_warning2)
         val warningRecommendation = getString(R.string.bookmark_warning4)
         val warningQuestion = getString(R.string.bookmark_warning3)
-        val warningMsg = "$warningMessage\n\n$warningRecommendation\n\n$warningQuestion"
-        withContext(Dispatchers.Main) {
-            suspendCoroutine {
-                AlertDialog.Builder(this@run)
-                    .setTitle(warningTitle)
-                    .setMessage(warningMsg)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
-                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }.create().show()
-            }
-        }
+        val warningMsg = "$warningMessage<br><br>$warningRecommendation<br><br>$warningQuestion"
+        dialogs.await(
+            AppDialogRequest.Confirm(
+                title = warningTitle,
+                message = warningMsg,
+                confirmText = getString(R.string.yes),
+                dismissText = getString(R.string.cancel),
+                cancellable = false,
+            ),
+        ) == AppDialogResult.Ok
     }
     fun prependDictionaryKeyWithZeros(keyStr: String): String {
         val lengthDiff = 5 - keyStr.length

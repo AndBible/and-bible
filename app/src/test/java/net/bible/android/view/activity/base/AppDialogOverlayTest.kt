@@ -29,10 +29,12 @@ import kotlinx.coroutines.async
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
+import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.test.resetComposeUiDispatcher
+import java.util.Locale
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
@@ -150,4 +152,33 @@ class AppDialogOverlayTest {
     /** True when a compose root (including dialog windows) currently shows [text]. */
     private fun dialogTextVisible(text: String): Boolean =
         runCatching { compose.onNodeWithText(text).assertExists() }.isSuccess
+
+    /**
+     * Task 9 step 4: `checkPoorTranslations` runs in `StartupActivity` in production (`UsableBible.kt`),
+     * which Task 5 mounted the overlay on -- but `StartupActivity` cannot be built under Robolectric
+     * (its boot path needs DB/Sword fixtures no test sets up). This exercises the same
+     * `AppDialogController`-through-overlay path on the calculator host already used above; the
+     * `StartupActivity`-hosted case is covered by Task 11's emulator smoke instead.
+     */
+    @Test
+    fun checkPoorTranslationsRequestIsRenderedOnAnOverlayHost() {
+        val originalLocale = Locale.getDefault()
+        Locale.setDefault(Locale("xx"))
+        try {
+            val activity = calculator().get()
+            GlobalScope.async(Dispatchers.Main, start = CoroutineStart.UNDISPATCHED) {
+                CommonUtils.checkPoorTranslations(activity)
+            }
+            shadowOf(Looper.getMainLooper()).idle()
+            compose.waitForIdle()
+            // A literal fragment of R.string.incomplete_translation that survives its %1$s/%2$s/%3$s
+            // substitutions verbatim.
+            val found = runCatching {
+                compose.onNodeWithText("is entirely developed by volunteers", substring = true).assertExists()
+            }.isSuccess
+            assertTrue(found)
+        } finally {
+            Locale.setDefault(originalLocale)
+        }
+    }
 }
