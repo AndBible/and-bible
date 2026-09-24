@@ -24,7 +24,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -249,27 +248,6 @@ internal fun mapPhaseToUiState(context: Context, phase: InstallPhase, displayNam
 internal fun resolveErrorMessage(context: Context, error: InstallPhase.Error): String =
     if (error.arg != null) context.getString(error.messageKey, error.arg) else context.getString(error.messageKey)
 
-/** Same SAF MIME allow-list classic `InstallZip.getFileFromUserAndInstall` passes to
- *  `ACTION_OPEN_DOCUMENT` (`EXTRA_MIME_TYPES`), verbatim. */
-private val SAF_MIME_TYPES = arrayOf(
-    "application/zip",
-    "application/x-zip-compressed",
-    "application/epub+zip",
-    "application/x-font-ttf",
-    "font/ttf",
-    "font/otf",
-    "application/x-font-ttf",
-    "application/x-font-otf",
-    "application/vnd.sqlite3",
-    "application/x-sqlite3",
-    "application/octet-stream",
-    "text/csv",
-    "text/comma-separated-values",
-    "image/png",
-    "image/jpeg",
-    "image/webp",
-)
-
 /**
  * Compose host for InstallZip (Plan B), routed via `Screen.InstallZip` (Task B4). Handles entry
  * dispatch (ACTION_VIEW/SEND/SEND_MULTIPLE/picker), the guaranteed-present
@@ -403,10 +381,10 @@ class InstallZipComposeActivity : ActivityBase() {
 
                 is InstallZipEntryDecision.ConfirmThenEnqueue -> {
                     pendingConfirm = PendingConfirm(decision.uri, decision.action)
-                    preludeState = InstallUiState.ConfirmInstall(getDisplayName(decision.uri))
+                    preludeState = InstallUiState.ConfirmInstall(installZipDisplayName(this@InstallZipComposeActivity, decision.uri))
                 }
 
-                InstallZipEntryDecision.PickFile -> preludeState = InstallUiState.FormatInfo(buildFormatsText())
+                InstallZipEntryDecision.PickFile -> preludeState = InstallUiState.FormatInfo(installZipFormatsText(this@InstallZipComposeActivity))
 
                 InstallZipEntryDecision.Invalid -> finishWithResult(RESULT_CANCELED)
             }
@@ -420,7 +398,7 @@ class InstallZipComposeActivity : ActivityBase() {
         lifecycleScope.launch {
             val pickerIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 type = "*/*"
-                putExtra(Intent.EXTRA_MIME_TYPES, SAF_MIME_TYPES)
+                putExtra(Intent.EXTRA_MIME_TYPES, INSTALL_ZIP_SAF_MIME_TYPES)
             }
             val result = try {
                 awaitIntent(pickerIntent)
@@ -456,30 +434,5 @@ class InstallZipComposeActivity : ActivityBase() {
     private fun finishWithResult(resultCode: Int) {
         setResult(resultCode)
         finish()
-    }
-
-    /** Mirrors classic `InstallZip.getDisplayName` exactly (also duplicated, with the same
-     *  justification, by `DocumentInstallService.getDisplayName`). */
-    private fun getDisplayName(uri: Uri): String? =
-        contentResolver.query(uri, null, null, null, null)?.use {
-            if (it.isLast) return null
-            it.moveToFirst()
-            val idx = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (idx < 0) null else it.getString(idx)
-        }
-
-    /** Builds the supported-formats blurb for the no-action/in-app-launched prelude, exactly as
-     *  classic `InstallZip.getFileFromUserAndInstall` does. */
-    private fun buildFormatsText(): String {
-        val zip = getString(R.string.format_zip, getString(R.string.app_name_andbible))
-        val myBible = getString(R.string.format_mybible)
-        val mySword = getString(R.string.format_mysword)
-        val eSword = getString(R.string.format_esword)
-        val epub = getString(R.string.format_epub)
-        val studyPads = getString(R.string.format_studypads)
-        val ttf = getString(R.string.format_ttf)
-        val csvPrompts = getString(R.string.format_csv_prompts)
-        return getString(R.string.choose_file, getString(R.string.app_name_andbible)) + " \n\n" +
-            getString(R.string.supported_formats, "$zip, $myBible, $mySword, $eSword, $epub, $ttf, $csvPrompts, $studyPads")
     }
 }

@@ -103,10 +103,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
 
         if(!doNotInitializeApp) {
-            if(CommonUtils.showCalculator) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            }
-            refreshScreenKeepOn()
+            applyInitialisedWindowState()
         }
 
         Log.i(TAG, "onCreate")
@@ -123,6 +120,19 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
             returningFromCalculator = savedInstanceState.getBoolean("returningFromCalculator", false)
         }
         fixNightMode()
+    }
+
+    /**
+     * The window state an initialised app applies: FLAG_SECURE while the calculator disguise is on (Recents
+     * must not show content) and the keep-screen-on preference. Extracted in slice 8 (plan Correction 6) so a
+     * host that STARTED uninitialised -- `NavHostComposeActivity` on WELCOME or BACKUP -- can apply it when
+     * it initialises later (D1: entering InstallZip; E2: Welcome's gate (b)).
+     */
+    protected fun applyInitialisedWindowState() {
+        if(CommonUtils.showCalculator) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+        refreshScreenKeepOn()
     }
 
     private fun setupUi() {

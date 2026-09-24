@@ -371,6 +371,11 @@ class ReadingInGraphResultGuardTest {
                 "the text-display settings editor publishes to the workspace SELECTOR arm, which " +
                     "collects it in-graph (WorkspaceNavGraph.kt:609). The reading view opens " +
                     "TextDisplaySettingsComposeActivity, a separate Activity, not this route.",
+            "installZipResults" to
+                "InstallZip's answer goes back to whichever HOST function opened it (openInstallZip's " +
+                    "onResult, run by InstallZipReturnCollector outside the NavHost). The reading view " +
+                    "never opens InstallZip for a result; as the start destination its exitWithResult is " +
+                    "a real setResult + finish (slice 8 spec §3.1 rule 1).",
         )
     }
 }
