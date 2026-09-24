@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.page
 
+import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,8 +24,10 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.test.DatabaseResetter
@@ -55,8 +58,9 @@ private const val NAVIGATE_TO_VERSE_PREF = "navigate_to_verse_pref"
  * who never turned that preference on, which is the behaviour trap §6.1.1 records.
  *
  * The host is built the same way `MainBibleActivityHandleWindowPaneMenuItemTest` builds it: a
- * Robolectric [MainBibleActivity] that is never `.create()`d and a [ComposeReadingViewHost] that is
- * never `install()`ed, because none of the entry points exercised here touch `activity.binding`.
+ * Robolectric reading-route [NavHostComposeActivity] that is never `.create()`d and a
+ * [ComposeReadingViewHost] that is never `install()`ed (slice 8 F2: it was a `MainBibleActivity`),
+ * because none of the entry points exercised here need the host's `onCreate`.
  */
 @OptIn(ExperimentalCoroutinesApi::class) // `getCompleted()` — every assertion first checks `isCompleted`.
 @RunWith(RobolectricTestRunner::class)
@@ -64,7 +68,7 @@ private const val NAVIGATE_TO_VERSE_PREF = "navigate_to_verse_pref"
 class RefChooserSheetTest {
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
-    private lateinit var activity: MainBibleActivity
+    private lateinit var activity: NavHostComposeActivity
     private lateinit var host: ComposeReadingViewHost
 
     @Before
@@ -74,8 +78,11 @@ class RefChooserSheetTest {
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
 
-        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
-        activity.windowRepository = windowRepository
+        activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).get()
+        activity.readingAppBootstrap.windowRepository = windowRepository
         activity.setNewHistoryTraversal(GlobalContext.get().get())
         host = ComposeReadingViewHost(activity)
     }

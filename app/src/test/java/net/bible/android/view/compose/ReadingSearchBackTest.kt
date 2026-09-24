@@ -17,16 +17,19 @@
 package net.bible.android.view.compose
 
 import android.view.KeyEvent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import androidx.test.core.app.ApplicationProvider
+import kotlin.test.assertNotEquals
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.page.window.WindowRepository
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.base.firstTime
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
-import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.reading.ReadingHostPresence
+import net.bible.sharedcore.reading.ReadingQuickSheet
+import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
+import net.bible.test.resetComposeUiDispatcher
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.versification.BibleBook
@@ -38,58 +41,64 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
  * F6 Task 9 — the back chain that closes the reading-view search sheet/mode, and the long-press-back
- * swallow while search is active. `MainBibleActivity.onBackPressed`/`onKeyLongPress` are the only
- * live back route today (predictive back is opted out via `AndroidManifest.xml`'s
+ * swallow while search is active. The reading host's `onBackPressed`/`onKeyLongPress` (the nav
+ * host's since slice 8 F2; classic `MainBibleActivity`'s before) are the only live back route today (predictive back is opted out via `AndroidManifest.xml`'s
  * `android:enableOnBackInvokedCallback="false"`, documented there as temporary until targetSdk 37 —
  * see `app/build.gradle.kts`'s `targetSdk = 36`), so a Compose `BackHandler` inside the reading view
  * would never fire; the branch has to live in this method instead.
  *
- * Built the same "real (never-`.create()`'d) `MainBibleActivity` + real (never-`.install()`ed)
- * `ComposeReadingViewHost`" way as [ReadingSearchEntryPointsTest]: the host's own
- * `searchController`/`isDrawerOpen` state IS the recording, no fake/mock needed. Two of the three
- * cases return early out of `onBackPressed` before touching `binding`/`documentViewManager`
- * (both lateinit, only set in the real `onCreate()`), so they can drive the real method directly.
- * The third (`aBackWithSearchClosedIsNotConsumed`) asserts the new guard's own return value instead
- * of the full method: with both compose branches inert, `onBackPressed` falls through into
- * `binding.drawerLayout`/`documentViewManager`, neither of which this never-`.create()`'d activity
- * has — driving the guard directly is what the brief's "recording host seam rather than a real
- * activity" calls for here, and is the same scoping precedent
- * [ReadingSearchEntryPointsTest.composeSearchIfHostedReturnsFalseWhenNoHostIsInstalled] already sets
- * for a guard whose OTHER outcome is cheap to drive through the real call site.
+ * The host's own `searchController`/`isDrawerOpen` state IS the recording, no fake/mock needed.
+ * `aBackWithSearchClosedIsNotConsumed` asserts the search guard's own return value rather than the
+ * full method (with nothing open the chain falls through to history / the exit warning, which
+ * `ReadingHostBackChainTest` pins). Slice 8 F2 moved the fixture from a never-`.create()`d
+ * `MainBibleActivity` onto a set-up reading-route nav host -- see [setUp] for why it must be set up.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingSearchBackTest {
-    private lateinit var windowControl: WindowControl
-    private lateinit var windowRepository: WindowRepository
-    private lateinit var activity: MainBibleActivity
+    private lateinit var controller: ActivityController<NavHostComposeActivity>
+    private lateinit var activity: NavHostComposeActivity
 
+    /**
+     * Slice 8 F2: a fully set-up reading-route [NavHostComposeActivity] rather than classic's
+     * never-`.create()`d `MainBibleActivity`. The nav host's `onBackPressed` / `onKeyLongPress` run the
+     * reading chain only while `readingDestinationIsCurrent()`, which reads the graph's `navController`
+     * -- null on a never-created host, where every press would fall to `super` and the long-press
+     * assertion below would pass on `ActivityBase`'s unconditional `true` for BACK. `firstTime` and
+     * [resetComposeUiDispatcher] for the reasons `ReadingHostBackChainTest.host()` and slice 8 D1 give.
+     * The `ComposeReadingViewHost` is still installed directly when the destination has not composed
+     * one, exactly as classic's fixture did.
+     */
     @Before
     fun setUp() {
-        windowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
-        windowControl.windowRepository = windowRepository
-        windowRepository.initialize()
-
-        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
-        activity.windowRepository = windowRepository
+        firstTime = false
+        resetComposeUiDispatcher()
+        controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).setup()
+        activity = controller.get()
 
         val kjv = Books.installed().getBook("KJV") as SwordBook
         val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
-        windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
+        activity.hostWindowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
 
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        if (activity.composeReadingViewHost == null) activity.composeReadingViewHost = ComposeReadingViewHost(activity)
     }
 
     @After
     fun tearDown() {
-        DatabaseResetter.resetDatabase(windowRepository.scope)
+        controller.close()
+        ReadingViewVisibility.setVisible(false)
+        ReadingHostPresence.setForeground(null)
+        DatabaseResetter.resetDatabase()
     }
 
     private fun host() = activity.composeReadingViewHost!!
@@ -114,7 +123,7 @@ class ReadingSearchBackTest {
         assertFalse(host().isDrawerOpen, "sanity: drawer is closed")
 
         assertFalse(
-            activity.composeCloseSearchIfOpen(),
+            activity.readingCommands.composeCloseSearchIfOpen(),
             "with nothing open, the guard must not consume the press, so onBackPressed falls through",
         )
     }
@@ -136,7 +145,7 @@ class ReadingSearchBackTest {
     /**
      * Step 3: with a focused search field now reachable, long-press back must not fall through to
      * opening History out from under it — the same swallow [composeDrawerOpen] already gets. Only
-     * the swallowed case is driven through the real [MainBibleActivity.onKeyLongPress]: the
+     * the swallowed case is driven through the real [NavHostComposeActivity.onKeyLongPress]: the
      * fallthrough (History) branch reads `binding.drawerLayout` right after the compose guards
      * regardless of Task 9 (pre-existing, not this task's code), which this never-`.create()`'d
      * activity has no `binding` for — same reason [aBackWithSearchClosedIsNotConsumed] drives its
@@ -149,6 +158,13 @@ class ReadingSearchBackTest {
         val consumed = activity.onKeyLongPress(KeyEvent.KEYCODE_BACK, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK))
 
         assertTrue(consumed, "must not fall through to opening History")
+        // Slice 8 F2: `consumed` alone cannot tell a swallow from "opened History" -- the nav host's
+        // onKeyLongPress returns true for both -- so the History sheet itself is asserted closed.
+        assertNotEquals(
+            ReadingQuickSheet.History,
+            host().quickSheet.value,
+            "a long BACK while search is active must be swallowed, not open the History sheet",
+        )
         assertTrue(host().searchController.searchModeActive.value, "swallowing must not itself close search")
     }
 }

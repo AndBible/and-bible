@@ -30,7 +30,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewGeneration
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.search.AndroidEpubSearchService
@@ -38,6 +38,7 @@ import net.bible.android.view.activity.search.epubKeyFor
 import net.bible.android.view.activity.search.epubSearchRunFor
 import net.bible.android.view.activity.search.stripSearchDecoration
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.search.EpubResultRow
 import net.bible.sharedcore.search.EpubSearchMode
@@ -121,7 +122,7 @@ private val noopCommands = object : WindowCommands {
  * window) — the same limit `AgentLogHostTest` documents.
  *
  * 4. **F6 Task 11's index prompt for a translation other than the one being read** — a real
- *    [ComposeReadingViewHost] against a real (never `.install()`ed) [MainBibleActivity], same
+ *    [ComposeReadingViewHost] against a real (never `.install()`ed) reading-route [NavHostComposeActivity], same
  *    precedent as `ReadingSearchEntryPointsTest.host()`, plus real unindexed fake Bibles added to
  *    [Books.installed] (no fake `BibleSearchService`, no Koin swap — `unindexedAmong` reads real
  *    `indexStatus` through `SwordDocumentFacade`). The chaining DECISION itself
@@ -140,10 +141,10 @@ class ReadingSearchHostTest {
 
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
-    private lateinit var activity: MainBibleActivity
+    private lateinit var activity: NavHostComposeActivity
 
-    /** Mirrors `ReadingSearchEntryPointsTest.setUp`/`tearDown` — a real [MainBibleActivity]/
-     *  [WindowControl]/[WindowRepository] graph, activity built WITHOUT `.create()`, host
+    /** Mirrors `ReadingSearchEntryPointsTest.setUp`/`tearDown` — a real reading-route
+     *  [NavHostComposeActivity]/[WindowControl]/[WindowRepository] graph, activity built WITHOUT `.create()`, host
      *  constructed directly and never `.install()`ed. */
     @Before
     fun setUpRealHost() {
@@ -152,8 +153,11 @@ class ReadingSearchHostTest {
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
 
-        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
-        activity.windowRepository = windowRepository
+        activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).get()
+        activity.readingAppBootstrap.windowRepository = windowRepository
         activity.setNewHistoryTraversal(GlobalContext.get().get())
         CurrentActivityHolder.activate(activity)
 

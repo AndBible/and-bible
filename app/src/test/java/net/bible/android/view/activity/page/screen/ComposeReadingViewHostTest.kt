@@ -22,7 +22,6 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.service.common.CommonUtils
@@ -421,7 +420,7 @@ class WindowButtonsVisibilityTest {
 }
 
 /**
- * Batch 12b follow-on Plan B Task 5: exercises [MainBibleActivity.handleWindowPaneMenuItem]
+ * Batch 12b follow-on Plan B Task 5: exercises [ReadingCommands.handleWindowPaneMenuItem]
  * against a REAL [WindowControl]/[WindowRepository]/[net.bible.android.control.page.window.Window]
  * graph (Robolectric + [TestBibleApplication], same style as
  * [net.bible.android.view.activity.page.OptionsMenuStateBuilderTest] /
@@ -439,7 +438,7 @@ class WindowButtonsVisibilityTest {
 class MainBibleActivityHandleWindowPaneMenuItemTest {
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
-    private lateinit var activity: MainBibleActivity
+    private lateinit var activity: NavHostComposeActivity
 
     @Before
     fun setUp() {
@@ -448,8 +447,11 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
 
-        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
-        activity.windowRepository = windowRepository
+        activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).get()
+        activity.readingAppBootstrap.windowRepository = windowRepository
         activity.setNewHistoryTraversal(GlobalContext.get().get())
     }
 
@@ -562,7 +564,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
         assertTrue(windowControl.isWindowMinimizable(w1), "sanity")
         assertNull(activity.composeReadingViewHost, "sanity: fallback path")
 
-        val stayOpen = activity.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE)
+        val stayOpen = activity.readingCommands.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE)
 
         assertFalse(stayOpen, "an action closes the menu")
         assertFalse(w1.isVisible, "windowMinimise must actually minimise the window")
@@ -584,7 +586,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
 
         activity.composeReadingViewHost = ComposeReadingViewHost(activity)
 
-        val stayOpen = activity.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE)
+        val stayOpen = activity.readingCommands.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_WINDOW_MINIMISE)
 
         assertFalse(stayOpen)
         assertFalse(w1.isVisible, "windowMinimise via the controller seam must minimise the window")
@@ -596,7 +598,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
         val w1 = windowRepository.activeWindow
         w1.isPinMode = false
 
-        val stayOpen = activity.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_PIN_MODE)
+        val stayOpen = activity.readingCommands.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_PIN_MODE)
 
         assertTrue(stayOpen, "a checkable toggle must tell the host to stay open (and rebuild)")
         assertTrue(w1.isPinMode)
@@ -608,7 +610,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
         val w2 = windowRepository.addNewWindow(w1)
         assertTrue(windowControl.isWindowRemovable(w2))
 
-        val stayOpen = activity.handleWindowPaneMenuItem(w2.id.toString(), WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE)
+        val stayOpen = activity.readingCommands.handleWindowPaneMenuItem(w2.id.toString(), WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE)
 
         assertFalse(stayOpen)
         assertNull(windowRepository.getWindow(w2.id), "windowClose must actually remove the window")
@@ -629,7 +631,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
     @Test fun allTextOptionsLaunchesComposeTextDisplaySettingsForTheWindow() {
         val w1 = windowRepository.activeWindow
 
-        val stayOpen = activity.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS)
+        val stayOpen = activity.readingCommands.handleWindowPaneMenuItem(w1.id.toString(), WindowPaneMenuStateBuilder.ID_ALL_TEXT_OPTIONS)
 
         assertFalse(stayOpen)
         // Robolectric records a plain startActivity as a for-result launch with requestCode -1, so
@@ -670,7 +672,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
 
         CurrentActivityHolder.activate(activity)
         try {
-            val stayOpen = activity.handleWindowPaneMenuItem(
+            val stayOpen = activity.readingCommands.handleWindowPaneMenuItem(
                 w1.id.toString(),
                 WindowPaneMenuStateBuilder.idForCopySettingsToWindow(1),
             )
@@ -686,7 +688,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
             // IndexOutOfBoundsException -- it would NOT throw if the dispatcher silently substituted
             // some in-range order instead of the one actually parsed from the menu item id.
             assertFailsWith<IndexOutOfBoundsException> {
-                activity.handleWindowPaneMenuItem(
+                activity.readingCommands.handleWindowPaneMenuItem(
                     w1.id.toString(),
                     WindowPaneMenuStateBuilder.idForCopySettingsToWindow(5),
                 )
@@ -705,7 +707,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
 
     @Test fun handleWindowPaneMenuItemReturnsFalseForAnUnknownWindowId() {
         // A stale click after the window closed underneath it (`getWindow` returns null) must not throw.
-        assertFalse(activity.handleWindowPaneMenuItem(IdType().toString(), WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE))
+        assertFalse(activity.readingCommands.handleWindowPaneMenuItem(IdType().toString(), WindowPaneMenuStateBuilder.ID_WINDOW_CLOSE))
     }
 
     /**

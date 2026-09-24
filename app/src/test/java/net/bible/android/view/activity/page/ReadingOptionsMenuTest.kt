@@ -16,15 +16,19 @@
  */
 package net.bible.android.view.activity.page
 
+import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.BookCategory
 import org.junit.After
@@ -70,7 +74,9 @@ class ReadingOptionsMenuTest {
 
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
-    private lateinit var activity: MainBibleActivity
+    private lateinit var activity: NavHostComposeActivity
+    /** The Koin singleton `MainBibleActivity` injected as `documentControl` (the nav host has no such member). */
+    private val documentControl: DocumentControl get() = GlobalContext.get().get()
 
     @Before
     fun setUp() {
@@ -80,8 +86,11 @@ class ReadingOptionsMenuTest {
         windowRepository.initialize()
 
         // Built WITHOUT `.create()`, for the reasons OptionsMenuStateBuilderTest's kdoc gives.
-        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
-        activity.windowRepository = windowRepository
+        activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).get()
+        activity.readingAppBootstrap.windowRepository = windowRepository
         activity.setNewHistoryTraversal(GlobalContext.get().get())
     }
 
@@ -162,7 +171,7 @@ class ReadingOptionsMenuTest {
     /** Documented difference 1: rendered order moves `allTextOptions` to the end. */
     @Test
     fun allTextOptionsIsTheLastRowTheBuilderEmits() {
-        val ids = activity.buildOptionsMenuItems().map { it.id }
+        val ids = activity.readingCommands.buildOptionsMenuItems().map { it.id }
         assertTrue(ids.isNotEmpty(), "sanity: the builder must emit something")
         assertEquals("allTextOptions", ids.last(), "orderInCategory=1000 puts it last; got $ids")
         assertEquals(
@@ -200,7 +209,7 @@ class ReadingOptionsMenuTest {
         // Without this the comparison below is vacuous: an empty list equals an empty list.
         assertTrue(host.overflowItemsForTest.isNotEmpty(), "sanity: the menu must have rows")
         assertEquals(
-            activity.buildOptionsMenuItems().map { it.id },
+            activity.readingCommands.buildOptionsMenuItems().map { it.id },
             host.overflowItemsForTest.map { it.id },
             "it must show exactly what the bridge builds",
         )
@@ -280,7 +289,7 @@ class ReadingOptionsMenuTest {
     @Test
     fun bibleLongPressInSwapMenuModeOpensTheComposeQuickDocMenu() {
         CommonUtils.settings.setString("toolbar_button_actions", "swap-menu")
-        val bibles = activity.documentControl.biblesForVerse
+        val bibles = documentControl.biblesForVerse
         assertTrue(
             bibles.size > 2,
             "sanity: the test Sword modules must offer more than the 2 that QuickDocPicker would " +
@@ -289,7 +298,7 @@ class ReadingOptionsMenuTest {
         val host = ComposeReadingViewHost(activity)
         activity.composeReadingViewHost = host
 
-        activity.composeBibleLongClick()
+        activity.readingCommands.composeBibleLongClick()
 
         assertTrue(host.bibleQuickDocForTest.expanded, "the Compose quick-doc menu must open")
         assertEquals(bibles.size, host.bibleQuickDocForTest.items.size, "one row per offered Bible")
@@ -321,7 +330,7 @@ class ReadingOptionsMenuTest {
     @Test
     fun commentaryLongPressSwitchesToACommentaryAndNeverOffersDictionaries() {
         CommonUtils.settings.setString("toolbar_button_actions", "swap-menu")
-        val commentaries = activity.documentControl.commentariesForVerse
+        val commentaries = documentControl.commentariesForVerse
         assertEquals(
             2,
             commentaries.size,
@@ -338,16 +347,16 @@ class ReadingOptionsMenuTest {
         )
         val host = ComposeReadingViewHost(activity)
         activity.composeReadingViewHost = host
-        val before = activity.documentControl.currentDocument?.initials
+        val before = documentControl.currentDocument?.initials
 
-        activity.composeCommentaryLongClick()
+        activity.readingCommands.composeCommentaryLongClick()
 
         assertFalse(
             host.commentaryQuickDocForTest.expanded,
             "with exactly 2 documents the picker switches directly and shows no menu — a menu here " +
                 "means the GENERAL_BOOK/DICTIONARY extras were appended (4 rows)",
         )
-        val after = activity.documentControl.currentDocument?.initials
+        val after = documentControl.currentDocument?.initials
         assertTrue(after != before, "…and the direct switch really happened; still on $before")
         assertTrue(
             after in commentaries.map { it.initials },
@@ -366,10 +375,9 @@ class ReadingOptionsMenuTest {
     @Test
     fun theTwoLongPressBranchesUseTheComposeQuickDocMenuWithTheirOwnBookLists() {
         // Reading-host re-typing R3 (design spec §3.2): both long-press bodies moved off
-        // `MainBibleActivity` into `ReadingCommands`; the Activity keeps one-line delegating stubs,
-        // so scanning it here would extract a stub and assert nothing. Repointed at the
-        // collaborator, which is where the needles below now live. (The behavioural tests above,
-        // which drive the Activity's stubs for real, are untouched.)
+        // `MainBibleActivity` into `ReadingCommands`, so the collaborator is where the needles below
+        // live. (The behavioural tests above drive `ReadingCommands` on the reading-route nav host
+        // since slice 8 F2.)
         val src = codeOf(File("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt"))
         val bibleBody = bodyOf(src, "internal fun composeBibleLongClick")
         val commentaryBody = bodyOf(src, "internal fun composeCommentaryLongClick")

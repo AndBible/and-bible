@@ -16,8 +16,8 @@
  */
 package net.bible.service.history
 
-import android.app.Activity
 import android.content.Intent
+import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
@@ -28,13 +28,14 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.page.ActivityResultKind
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.base.firstTime
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
+import net.bible.test.resetComposeUiDispatcher
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
@@ -45,6 +46,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import java.util.Date
 import kotlin.test.assertEquals
@@ -86,12 +88,29 @@ class ReadingHistoryAnchorTest {
     /**
      * R7b: `setVisible(false)` no longer resets everything on its own — the visibility rule is now
      * "registered by a FOREGROUND host", and the foreground token lives in [ReadingHostPresence].
-     * A `MainBibleActivity` driven through its lifecycle here declares itself foreground, so a test
+     * A reading host driven through its lifecycle here declares itself foreground, so a test
      * that did not retract it would hand the next one a stale host.
      */
     private fun resetReadingSeams() {
         ReadingViewVisibility.setVisible(false)
         ReadingHostPresence.setForeground(null)
+    }
+
+    /**
+     * Slice 8 F2: the reading host these production-wiring tests drive is the reading-route
+     * [NavHostComposeActivity] (`MainBibleActivity` is deleted). `firstTime` is pinned false for the
+     * reason `ReadingHostBackChainTest.host()` gives (a pending night-mode `recreate()`), and Compose's
+     * JVM-wide main dispatcher is re-armed first ([resetComposeUiDispatcher], slice 8 D1): without it,
+     * after the first NavHost host in this JVM the reading destination never composes, and a test
+     * reading the destination's `enter`/`exit` would be asserting on the bootstrap bridge alone.
+     */
+    private fun readingHost(): ActivityController<NavHostComposeActivity> {
+        firstTime = false
+        resetComposeUiDispatcher()
+        return Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
     }
 
     private fun historyManagerWithOneWindow(): HistoryManager {
@@ -229,11 +248,20 @@ class ReadingHistoryAnchorTest {
      * `currentActivity is AndBibleActivity` arm — `MainBibleActivity` IS an `AndBibleActivity` with
      * `integrateWithHistoryManager = true` — recording a WRONG `IntentHistoryItem` whose
      * `revertTo()` re-runs the deep-link intent. Hence the first of the three.
+     *
+     * **Slice 8 F2: rehosted on the reading-route [NavHostComposeActivity]** (`MainBibleActivity` is
+     * deleted). Its `bootstrapIfNeeded` declares the presence and the bootstrap bridge
+     * (`setActivityVisible(this, true)`) inside `onCreate`, `onResume` re-declares the presence, and
+     * `onPause` retracts both. The classic fourth call site's test,
+     * `aChooserResultMakesTheReadingViewVisibleAgainBeforeOnResume`, was DELETED with that class: it
+     * measured `MainBibleActivity.onActivityResult` flipping visibility before `onResume`, which the nav
+     * host deliberately does not do (`NavHostComposeActivity.onActivityResult`'s kdoc: results are held
+     * until `onResume`).
      */
     @Test
     fun theReadingActivityIsAlreadyVisibleAtTheEndOfOnCreate() {
         ReadingViewVisibility.setVisible(false)
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
+        val controller = readingHost()
         try {
             controller.create()
             assertTrue(
@@ -250,9 +278,9 @@ class ReadingHistoryAnchorTest {
     @Test
     fun theReadingActivityLifecycleTurnsTheFlagOnAtResumeAndOffAtPause() {
         ReadingViewVisibility.setVisible(false)
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
+        val controller = readingHost()
         try {
-            controller.create().start().resume()
+            controller.create().start().resume().visible()
             assertTrue(ReadingViewVisibility.isVisible, "a resumed reading view is visible")
 
             controller.pause()
@@ -266,40 +294,6 @@ class ReadingHistoryAnchorTest {
                 ReadingViewVisibility.isVisible,
                 "returning from paused must turn it back on — this is the assertion that fails if " +
                     "the onResume setter is deleted",
-            )
-        } finally {
-            controller.close()
-        }
-    }
-
-    /**
-     * The fourth call site. Chooser results are delivered BEFORE `onResume`, and the arms below
-     * the setter call `setKey(…, addHistoryItem = true)` / `setCurrentDocument(…)`, which post
-     * `AddHistoryItem` synchronously — so the flag has to be back on by then. The
-     * `CurrentActivityHolder.activate(this)` on the line above it is the old predicate's version of
-     * exactly this, which is what makes it the right place.
-     *
-     * An unknown `ActivityResultKind` extra is used deliberately: `fromExtra` returns null, the
-     * `when` does nothing, and the assertion is about the setter alone rather than about any
-     * chooser's payload handling.
-     */
-    @Test
-    fun aChooserResultMakesTheReadingViewVisibleAgainBeforeOnResume() {
-        ReadingViewVisibility.setVisible(false)
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
-        try {
-            val activity = controller.create().start().resume().pause().get()
-            assertFalse(ReadingViewVisibility.isVisible, "sanity: the chooser is on top")
-
-            activity.onActivityResult(
-                ActivityBase.STD_REQUEST_CODE,
-                Activity.RESULT_OK,
-                Intent().apply { putExtra(ActivityResultKind.EXTRA, "NoSuchKind") },
-            )
-
-            assertTrue(
-                ReadingViewVisibility.isVisible,
-                "the chooser result is handled before onResume, and its arms post AddHistoryItem",
             )
         } finally {
             controller.close()
@@ -333,17 +327,17 @@ class ReadingHistoryAnchorTest {
     fun anActivityPauseClearsTheFlagEvenWhenAnotherHostsDestinationIsComposed() {
         resetReadingSeams()
         val navHost = Any()  // another host's token — the nav host, as far as this seam can tell
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
+        val controller = readingHost()
         try {
             controller.create().start().resume()
             // A reading DESTINATION, as the nav host composes it — registered under ITS host.
             ReadingViewVisibility.enter(navHost)
-            assertTrue(ReadingViewVisibility.isVisible, "sanity: the classic reading view is in front")
+            assertTrue(ReadingViewVisibility.isVisible, "sanity: the reading host's view is in front")
 
             controller.pause()
             assertFalse(
                 ReadingViewVisibility.isVisible,
-                "the classic Activity paused and the other host is not in front either — a " +
+                "the reading host paused and the other host is not in front either — a " +
                     "destination composed under a backgrounded host is not what the user sees",
             )
 
@@ -387,7 +381,7 @@ class ReadingHistoryAnchorTest {
     @Test
     fun theReadingActivityDeclaresAndRetractsItsForegroundPresence() {
         resetReadingSeams()
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
+        val controller = readingHost()
         try {
             val activity = controller.create().get()
             assertTrue(

@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.compose
 
+import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
@@ -23,9 +24,10 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.settings.ColorField
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsScope
@@ -58,7 +60,7 @@ import kotlin.test.assertEquals
  * the two menu dispatch sites).
  *
  * Host construction/Koin setup is copied verbatim from `ReadingSearchHostTest.setUpRealHost`/
- * `tearDownRealHost` — a real [MainBibleActivity]/[WindowControl]/[WindowRepository] graph, the
+ * `tearDownRealHost` — a real reading-route [NavHostComposeActivity]/[WindowControl]/[WindowRepository] graph, the
  * activity built WITHOUT `.create()`, the host constructed directly and never `.install()`ed.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -70,7 +72,7 @@ class ReadingTextSettingEditorTest {
 
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
-    private lateinit var activity: MainBibleActivity
+    private lateinit var activity: NavHostComposeActivity
 
     /** Mirrors `ReadingSearchHostTest.setUpRealHost`/`tearDownRealHost` verbatim. */
     @Before
@@ -80,8 +82,11 @@ class ReadingTextSettingEditorTest {
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
 
-        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
-        activity.windowRepository = windowRepository
+        activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).get()
+        activity.readingAppBootstrap.windowRepository = windowRepository
         activity.setNewHistoryTraversal(GlobalContext.get().get())
         CurrentActivityHolder.activate(activity)
     }

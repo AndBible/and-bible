@@ -16,9 +16,11 @@
  */
 package net.bible.android.view.activity.page
 
+import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import org.junit.Assert.assertNotNull
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import org.junit.Assert.assertSame
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,53 +29,37 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Reading-host re-typing R3 (design spec §3.2): the Activity's stubs reach the collaborator, and the
- * collaborator is what holds the state.
+ * Reading-host re-typing R3 (design spec §3.2): the collaborator is what holds the state.
  *
  * The three PER-HOST objects the command surface owns — [ReadingCommands.bibleViewFactory], the
  * `textSettingsImagePicker` continuation and `mainMenuCommandHandler` — are instance objects, not
  * Koin singletons. Two instances of any of them is a SILENT bug: a second `BibleViewFactory` would
  * hand out `BibleView`s no window ever registers and leave `clear()` clearing the wrong cache; a
  * second image picker would hold a continuation the launched picker never resumes. Nothing else in
- * the suite would notice, which is why every assertion here is `assertSame` rather than
+ * the suite would notice, which is why the assertion here is `assertSame` rather than
  * `assertNotNull`.
+ *
+ * Slice 8 F2: hosted on the reading-route [NavHostComposeActivity]. `theActivityBuildsItsCommandCollaborator`
+ * was deleted with `MainBibleActivity` (spec §5.3): it pinned that class's own delegating accessors
+ * (`bibleViewFactory`/`textSettingsImagePicker` as views onto `readingCommands`), which the nav host
+ * does not have — it reaches `readingCommands.<member>` directly.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingCommandsDelegationTest {
 
-    @Test
-    fun theActivityBuildsItsCommandCollaborator() {
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
-        try {
-            val activity = controller.create().get()
-            assertNotNull("MainBibleActivity must own a ReadingCommands", activity.readingCommands)
-            assertSame(
-                "the factory is the collaborator's; the Activity's accessor must be a view onto it, " +
-                    "not a second instance",
-                activity.readingCommands.bibleViewFactory,
-                activity.bibleViewFactory,
-            )
-            assertSame(
-                "the text-settings image picker is the collaborator's too — a second continuation " +
-                    "holder would never be resumed by the launched picker",
-                activity.readingCommands.textSettingsImagePicker,
-                activity.textSettingsImagePicker,
-            )
-        } finally {
-            controller.close()
-        }
-    }
-
     /**
      * The collaborator is built ONCE per Activity, not per read: `readingCommands` must be a stored
      * property, not a `get() = ReadingCommands(this)` that mints a new one — which would satisfy
-     * every `assertSame` above (each call would still return one consistent object graph) while
-     * quietly re-registering an activity-result launcher on every access.
+     * every per-object `assertSame` on the collaborator's members (each call would still return one
+     * consistent object graph) while quietly re-registering an activity-result launcher on every access.
      */
     @Test
     fun theCollaboratorIsTheSameObjectOnEveryRead() {
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
         try {
             val activity = controller.create().get()
             assertSame(

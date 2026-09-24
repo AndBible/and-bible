@@ -17,25 +17,33 @@
 package net.bible.android.view.compose
 
 import android.view.KeyEvent
+import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
+import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.base.firstTime
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.MenuCommandHandler
 import net.bible.android.view.activity.page.SearchSheetOffsetsUpdated
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.epub.isEpub
+import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.reading.ReadingHostPresence
+import net.bible.sharedcore.reading.ReadingViewVisibility
+import net.bible.sharedcore.reading.shouldRestorePaneFocusOnDrawerClose
 import net.bible.sharedcore.search.MultiSearchResults
 import net.bible.sharedcore.search.ReadingSearchPhase
 import net.bible.sharedcore.search.SearchBibleSection
@@ -43,6 +51,7 @@ import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchResultsCache
 import net.bible.sharedcore.search.SearchType
 import net.bible.test.DatabaseResetter
+import net.bible.test.resetComposeUiDispatcher
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.NullBackend
@@ -78,14 +87,14 @@ import kotlin.test.assertTrue
  *
  * Built the same way as [net.bible.android.view.activity.page.OptionsMenuStateBuilderTest] /
  * [net.bible.android.view.activity.page.screen.MainBibleActivityHandleWindowPaneMenuItemTest]: a
- * REAL [MainBibleActivity]/[WindowControl]/[WindowRepository] graph (Robolectric +
+ * REAL reading-route [NavHostComposeActivity]/[WindowControl]/[WindowRepository] graph (Robolectric +
  * [TestBibleApplication]), activity built WITHOUT `.create()`, host constructed directly and never
  * `.install()`ed. No "recording fake host" substitute is used for entry points 2/4/6/8's real call
  * sites — a REAL [ComposeReadingViewHost] is cheap here (same pattern those two test files already
  * establish) and its own `searchController` state IS the recording. Entry points 5
  * ([net.bible.android.view.activity.page.BibleJavascriptInterface]'s Ctrl+F) and 7
  * ([net.bible.android.view.activity.page.BibleView]'s selection "Search…") are NOT exercised through
- * their own files: both are one-line calls to [MainBibleActivity.composeSearchIfHosted] (7 passes
+ * their own files: both are one-line calls to [ReadingCommands.composeSearchIfHosted] (7 passes
  * `preDecorated = true`), and neither `BibleJavascriptInterface` nor `BibleView` (a `WebView`
  * subclass) is constructible in this test suite today (no existing test does so) — their logic is
  * exactly what [composeSearchIfHostedSeedsAPreDecoratedQueryUnchanged] /
@@ -106,7 +115,14 @@ import kotlin.test.assertTrue
 class ReadingSearchEntryPointsTest {
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
-    private lateinit var activity: MainBibleActivity
+    private lateinit var activity: NavHostComposeActivity
+
+    /** The one handler per host [ReadingCommands] builds, constructed the same way (named arguments). */
+    private fun menuCommandHandler() = MenuCommandHandler(
+        hostActivity = activity,
+        composeReadingViewHost = { activity.composeReadingViewHost },
+        composeSearchIfHosted = { activity.readingCommands.composeSearchIfHosted() },
+    )
 
     @Before
     fun setUp() {
@@ -115,8 +131,11 @@ class ReadingSearchEntryPointsTest {
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
 
-        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
-        activity.windowRepository = windowRepository
+        activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).get()
+        activity.readingAppBootstrap.windowRepository = windowRepository
         // The classic fallback branches call startActivity/startActivityForResult, which need
         // ActivityBase.historyTraversal primed (normally done in onCreate()) — same minimal-boot
         // step MainBibleActivityHandleWindowPaneMenuItemTest.setUp takes for the same reason.
@@ -212,7 +231,7 @@ class ReadingSearchEntryPointsTest {
     @Test fun composeSearchIfHostedOpensSearchModeOnTheHost() {
         activity.composeReadingViewHost = host()
 
-        val handled = activity.composeSearchIfHosted()
+        val handled = activity.readingCommands.composeSearchIfHosted()
 
         assertTrue(handled)
         assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
@@ -221,7 +240,7 @@ class ReadingSearchEntryPointsTest {
     @Test fun composeSearchIfHostedReturnsFalseWhenNoHostIsInstalled() {
         assertNull(activity.composeReadingViewHost, "sanity: fallback path")
 
-        assertFalse(activity.composeSearchIfHosted())
+        assertFalse(activity.readingCommands.composeSearchIfHosted())
     }
 
     /**
@@ -234,14 +253,14 @@ class ReadingSearchEntryPointsTest {
         activity.composeReadingViewHost = host()
         val decorated = " \"grace\""
 
-        val handled = activity.composeSearchIfHosted(decorated, preDecorated = true)
+        val handled = activity.readingCommands.composeSearchIfHosted(decorated, preDecorated = true)
 
         assertTrue(handled)
         assertEquals(decorated, activity.composeReadingViewHost!!.searchController.queries.query.value)
     }
 
     @Test fun composeSearchStrongsIfHostedReturnsFalseWhenNoHostIsInstalled() {
-        assertFalse(activity.composeSearchStrongsIfHosted("H430", listOf("KJV")))
+        assertFalse(activity.readingCommands.composeSearchStrongsIfHosted("H430", listOf("KJV")))
     }
 
     /**
@@ -253,7 +272,7 @@ class ReadingSearchEntryPointsTest {
         activity.composeReadingViewHost = host()
         val epub = givenCurrentDocumentIsAnEpub()
         try {
-            val handled = activity.composeSearchIfHosted()
+            val handled = activity.readingCommands.composeSearchIfHosted()
 
             assertTrue(handled, "an EPUB must be handled by the reading-view search, not dropped")
             assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
@@ -288,7 +307,7 @@ class ReadingSearchEntryPointsTest {
         activity.composeReadingViewHost = host()
         val epub = givenCurrentDocumentIsAnEpub()
         try {
-            val handled = activity.composeSearchStrongsIfHosted("H430", listOf("KJV"))
+            val handled = activity.readingCommands.composeSearchStrongsIfHosted("H430", listOf("KJV"))
 
             assertFalse(handled, "an EPUB decline must be reported to the caller so it can fall back")
             assertFalse(activity.composeReadingViewHost!!.searchController.searchModeActive.value,
@@ -306,9 +325,9 @@ class ReadingSearchEntryPointsTest {
     @Test fun composeSearchStrongsIfHostedOpensForANonEpubDocument() {
         activity.composeReadingViewHost = host()
         // sanity: KJV (set in setUp) is not an EPUB.
-        assertFalse(activity.documentControl.currentDocument?.isEpub == true, "sanity")
+        assertFalse(GlobalContext.get().get<DocumentControl>().currentDocument?.isEpub == true, "sanity")
 
-        val handled = activity.composeSearchStrongsIfHosted("H430", listOf("KJV"))
+        val handled = activity.readingCommands.composeSearchStrongsIfHosted("H430", listOf("KJV"))
 
         assertTrue(handled, "a non-EPUB document must open the Strong's search")
         assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
@@ -389,7 +408,7 @@ class ReadingSearchEntryPointsTest {
                 searchType = SearchType.ANY_WORDS,
                 bibleSection = SearchBibleSection.ALL,
                 translationIds = listOf("PreDec"),
-                currentBookName = activity.searchControl.currentBookName,
+                currentBookName = GlobalContext.get().get<SearchControl>().currentBookName,
                 isStrongsSearch = false,
             )
             GlobalContext.get().get<SearchResultsCache>().put(expectedRequest, marker)
@@ -435,7 +454,7 @@ class ReadingSearchEntryPointsTest {
                     searchType = SearchType.ANY_WORDS,
                     bibleSection = SearchBibleSection.ALL,
                     translationIds = listOf("ScrollDoc"),
-                    currentBookName = activity.searchControl.currentBookName,
+                    currentBookName = GlobalContext.get().get<SearchControl>().currentBookName,
                     isStrongsSearch = false,
                 ),
                 MultiSearchResults(main = emptyList(), other = emptyList(), total = 7),
@@ -566,7 +585,7 @@ class ReadingSearchEntryPointsTest {
     @Test fun composeSearchOpensHostSearchWhenHosted() {
         activity.composeReadingViewHost = host()
 
-        activity.composeSearch()
+        activity.readingCommands.composeSearch()
 
         assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
         assertNull(shadowOf(activity).nextStartedActivityForResult, "must not ALSO start the classic intent")
@@ -575,7 +594,7 @@ class ReadingSearchEntryPointsTest {
     @Test fun composeSearchFallsBackToClassicIntentWhenNotHosted() {
         assertNull(activity.composeReadingViewHost, "sanity: fallback path")
 
-        activity.composeSearch()
+        activity.readingCommands.composeSearch()
 
         val started = shadowOf(activity).nextStartedActivityForResult
         assertEquals(ActivityBase.STD_REQUEST_CODE, started?.requestCode)
@@ -586,7 +605,7 @@ class ReadingSearchEntryPointsTest {
     @Test fun menuSearchButtonOpensHostSearchWhenHosted() {
         activity.composeReadingViewHost = host()
 
-        val handled = MenuCommandHandler(activity).handleMenuRequest(R.id.searchButton)
+        val handled = menuCommandHandler().handleMenuRequest(R.id.searchButton)
 
         assertTrue(handled)
         assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
@@ -596,7 +615,7 @@ class ReadingSearchEntryPointsTest {
     @Test fun menuSearchButtonFallsBackToClassicIntentWhenNotHosted() {
         assertNull(activity.composeReadingViewHost, "sanity: fallback path")
 
-        val handled = MenuCommandHandler(activity).handleMenuRequest(R.id.searchButton)
+        val handled = menuCommandHandler().handleMenuRequest(R.id.searchButton)
 
         assertTrue(handled, "a built classic intent still reports handled")
         val started = shadowOf(activity).nextStartedActivityForResult
@@ -611,11 +630,11 @@ class ReadingSearchEntryPointsTest {
      */
     @Test fun drawerCloseDoesNotStealFocusFromAnOpenSearchBar() {
         activity.composeReadingViewHost = host()
-        MenuCommandHandler(activity).handleMenuRequest(R.id.searchButton)
+        menuCommandHandler().handleMenuRequest(R.id.searchButton)
         assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value, "sanity")
 
         assertFalse(
-            activity.drawerShouldRestorePaneFocus(),
+            shouldRestorePaneFocusOnDrawerClose(searchBarOpen = activity.readingCommands.composeSearchModeActive),
             "with search open the drawer close must not restore pane focus",
         )
     }
@@ -624,7 +643,7 @@ class ReadingSearchEntryPointsTest {
         activity.composeReadingViewHost = host()
 
         assertTrue(
-            activity.drawerShouldRestorePaneFocus(),
+            shouldRestorePaneFocusOnDrawerClose(searchBarOpen = activity.readingCommands.composeSearchModeActive),
             "the classic onDrawerClosed parity must survive for every non-search row",
         )
     }
@@ -648,7 +667,7 @@ class ReadingSearchEntryPointsTest {
         pageManager.setCurrentDocumentAndKey(FakeBookFactory.myNotesDocument, verse)
         assertFalse(pageManager.currentPage.isSearchable, "sanity")
 
-        val handled = MenuCommandHandler(activity).handleMenuRequest(R.id.searchButton)
+        val handled = menuCommandHandler().handleMenuRequest(R.id.searchButton)
 
         assertFalse(handled, "a non-searchable page must not be handled even when hosted")
         assertFalse(
@@ -662,23 +681,51 @@ class ReadingSearchEntryPointsTest {
 
     private fun searchKeyEvent() = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_SEARCH)
 
-    @Test fun searchKeyOpensHostSearchWhenHosted() {
-        activity.composeReadingViewHost = host()
-
-        val handled = activity.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
-
-        assertTrue(handled)
-        assertTrue(activity.composeReadingViewHost!!.searchController.searchModeActive.value)
-        assertNull(shadowOf(activity).nextStartedActivityForResult)
+    /**
+     * Slice 8 F2: the SEARCH key is the one entry point here that needs a SET-UP host. The nav host
+     * answers it only while the graph shows the reading destination (classic `MainBibleActivity`
+     * answered it by being the reading Activity), and that check reads the graph's `navController`,
+     * which a never-`.create()`d fixture does not have. `firstTime` and [resetComposeUiDispatcher] for
+     * the reasons `ReadingHostBackChainTest.host()` and slice 8 D1 give. The host's own repository
+     * (the bootstrap's) is the one the key reads, so KJV is put on it.
+     */
+    private fun <T> onASetUpReadingHost(block: (NavHostComposeActivity) -> T): T {
+        firstTime = false
+        resetComposeUiDispatcher()
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).setup()
+        try {
+            val readingHost = controller.get()
+            val kjv = Books.installed().getBook("KJV") as SwordBook
+            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+            readingHost.hostWindowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
+            return block(readingHost)
+        } finally {
+            controller.close()
+            ReadingViewVisibility.setVisible(false)
+            ReadingHostPresence.setForeground(null)
+        }
     }
 
-    @Test fun searchKeyFallsBackToClassicIntentWhenNotHosted() {
-        assertNull(activity.composeReadingViewHost, "sanity: fallback path")
+    @Test fun searchKeyOpensHostSearchWhenHosted() = onASetUpReadingHost { readingHost ->
+        if (readingHost.composeReadingViewHost == null) readingHost.composeReadingViewHost = ComposeReadingViewHost(readingHost)
 
-        val handled = activity.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
+        val handled = readingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
 
         assertTrue(handled)
-        val started = shadowOf(activity).nextStartedActivityForResult
+        assertTrue(readingHost.composeReadingViewHost!!.searchController.searchModeActive.value)
+        assertNull(shadowOf(readingHost).nextStartedActivityForResult)
+    }
+
+    @Test fun searchKeyFallsBackToClassicIntentWhenNotHosted() = onASetUpReadingHost { readingHost ->
+        readingHost.composeReadingViewHost = null
+
+        val handled = readingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
+
+        assertTrue(handled)
+        val started = shadowOf(readingHost).nextStartedActivityForResult
         assertEquals(ActivityBase.STD_REQUEST_CODE, started?.requestCode)
     }
 
@@ -694,7 +741,7 @@ class ReadingSearchEntryPointsTest {
     @Test fun showAllOccurrencesKeepsTheClassicIndexRouteEvenWhenHosted() {
         activity.composeReadingViewHost = host()
 
-        activity.linkControl.showAllOccurrences("H430", SearchControl.SearchBibleSection.ALL)
+        GlobalContext.get().get<LinkControl>().showAllOccurrences("H430", SearchControl.SearchBibleSection.ALL)
 
         assertNotNull(shadowOf(activity).nextStartedActivity, "classic SearchIndex intent must still launch")
         assertFalse(
@@ -706,7 +753,7 @@ class ReadingSearchEntryPointsTest {
     @Test fun showAllOccurrencesFallsBackToClassicIndexRouteWhenNotHosted() {
         assertNull(activity.composeReadingViewHost, "sanity: fallback path")
 
-        activity.linkControl.showAllOccurrences("H430", SearchControl.SearchBibleSection.ALL)
+        GlobalContext.get().get<LinkControl>().showAllOccurrences("H430", SearchControl.SearchBibleSection.ALL)
 
         assertNotNull(shadowOf(activity).nextStartedActivity)
     }
@@ -796,20 +843,20 @@ class ReadingSearchEntryPointsTest {
     // ---- Step 3: the search sheet's WebView bottom-offset term ----------------------------------
 
     @Test fun bottomOffsetForWebViewIncludesTheSearchSheetHeightOnlyWhileVisible() {
-        val before = activity.bottomOffsetForWebView
+        val before = activity.readingInsets.bottomOffsetForWebView
 
-        activity.updateSearchSheetOffsets(visible = true, heightPx = 250)
-        assertEquals(before + 250, activity.bottomOffsetForWebView)
+        activity.readingInsets.updateSearchSheetOffsets(visible = true, heightPx = 250)
+        assertEquals(before + 250, activity.readingInsets.bottomOffsetForWebView)
 
-        activity.updateSearchSheetOffsets(visible = false, heightPx = 250)
-        assertEquals(before, activity.bottomOffsetForWebView, "hidden: the height must not be reserved")
+        activity.readingInsets.updateSearchSheetOffsets(visible = false, heightPx = 250)
+        assertEquals(before, activity.readingInsets.bottomOffsetForWebView, "hidden: the height must not be reserved")
     }
 
     /**
      * Review item B: only the arithmetic was covered above — nothing asserted that
-     * [MainBibleActivity.updateSearchSheetOffsets] actually posts
+     * [ReadingInsets.updateSearchSheetOffsets] actually posts
      * [SearchSheetOffsetsUpdated], which is the ONLY thing that makes
-     * [BibleView.updateOffsets] re-read [MainBibleActivity.bottomOffsetForWebView] and push it to
+     * [BibleView.updateOffsets] re-read [ReadingInsets.bottomOffsetForWebView] and push it to
      * the Vue side at runtime (see that event's kdoc). `on<T>`, not `onMain<T>`, dispatches
      * synchronously (`ABEventBus.post`) — no coroutine/dispatcher wait needed.
      */
@@ -817,16 +864,16 @@ class ReadingSearchEntryPointsTest {
         var updates = 0
         ABEventBus.register(this) { on<SearchSheetOffsetsUpdated> { updates++ } }
         try {
-            activity.updateSearchSheetOffsets(visible = true, heightPx = 100)
+            activity.readingInsets.updateSearchSheetOffsets(visible = true, heightPx = 100)
             assertEquals(1, updates, "a real change must post")
 
-            activity.updateSearchSheetOffsets(visible = true, heightPx = 100)
+            activity.readingInsets.updateSearchSheetOffsets(visible = true, heightPx = 100)
             assertEquals(1, updates, "an unchanged (visible, height) pair must not repost")
 
-            activity.updateSearchSheetOffsets(visible = true, heightPx = 150)
+            activity.readingInsets.updateSearchSheetOffsets(visible = true, heightPx = 150)
             assertEquals(2, updates, "a height-only change must still post")
 
-            activity.updateSearchSheetOffsets(visible = false, heightPx = 150)
+            activity.readingInsets.updateSearchSheetOffsets(visible = false, heightPx = 150)
             assertEquals(3, updates, "a visibility-only change must still post")
         } finally {
             ABEventBus.unregister(this)

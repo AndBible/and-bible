@@ -26,12 +26,15 @@ import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
+import androidx.test.core.app.ApplicationProvider
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.settings.TextDisplaySettingsServiceImpl
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmProviderConfig
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.TextSettingType
@@ -52,7 +55,7 @@ import kotlin.test.assertTrue
 
 /**
  * Exercises [OptionsMenuStateBuilder] (build + dispatch + the `id`<->`(resId, order)` mapping)
- * against a REAL [MainBibleActivity]/[WindowControl]/[WindowRepository] graph (Robolectric +
+ * against a REAL reading-route [NavHostComposeActivity]/[WindowControl]/[WindowRepository] graph (Robolectric +
  * [TestBibleApplication], same style as [net.bible.android.control.page.window.WindowCommandsImplTest] /
  * [net.bible.android.control.page.toolbar.ToolbarStateServiceImplTest]) rather than mocking the
  * collaborators — `getItemOptions`'s [net.bible.android.view.activity.page.GeneralPreference]/
@@ -60,8 +63,8 @@ import kotlin.test.assertTrue
  * classes closing over real `windowRepository`/`windowControl` state, which Mockito's default
  * mock maker cannot stub anyway.
  *
- * The activity is deliberately built WITHOUT `.create()`: [MainBibleActivity.buildOptionsMenuItems]/
- * [MainBibleActivity.handleOptionsMenuItem] (for the static, non-`Preference`-backed rows exercised
+ * The activity is deliberately built WITHOUT `.create()`: [ReadingCommands.buildOptionsMenuItems]/
+ * [ReadingCommands.handleOptionsMenuItem] (for the static, non-`Preference`-backed rows exercised
  * here) only need `windowRepository` — set directly, mirroring how `WindowCommandsImplTest` wires a
  * fresh [WindowRepository] into the shared [WindowControl] singleton — not any of `onCreate()`'s
  * UI/WebView setup (`binding`, `documentViewManager`, ...), which a toggle's `.handle()` for OTHER
@@ -75,7 +78,7 @@ class OptionsMenuStateBuilderTest {
 
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
-    private lateinit var activity: MainBibleActivity
+    private lateinit var activity: NavHostComposeActivity
 
     @Before
     fun setUp() {
@@ -84,8 +87,11 @@ class OptionsMenuStateBuilderTest {
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
 
-        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
-        activity.windowRepository = windowRepository
+        activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).get()
+        activity.readingAppBootstrap.windowRepository = windowRepository
     }
 
     @After
@@ -94,7 +100,7 @@ class OptionsMenuStateBuilderTest {
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
-    private fun items() = activity.buildOptionsMenuItems()
+    private fun items() = activity.readingCommands.buildOptionsMenuItems()
     private fun itemById(id: String) = items().first { it.id == id }
     private fun itemByIdOrNull(id: String) = items().firstOrNull { it.id == id }
 
@@ -165,7 +171,7 @@ class OptionsMenuStateBuilderTest {
         val id = OptionsMenuStateBuilder.idFor(R.id.autoPinMode, 0)
         val before = itemById(id)
 
-        val stayOpen = activity.handleOptionsMenuItem(id)
+        val stayOpen = activity.readingCommands.handleOptionsMenuItem(id)
 
         assertTrue(stayOpen, "a boolean toggle must tell the host to stay open (and rebuild)")
         val after = itemById(id)
@@ -174,15 +180,15 @@ class OptionsMenuStateBuilderTest {
 
     @Test
     fun windowTopLabelForReturnsNullForAnUnknownWindow() {
-        assertNull(activity.windowTopLabelFor("not-a-window-id"))
+        assertNull(activity.readingCommands.windowTopLabelFor("not-a-window-id"))
     }
 
     @Test
     fun windowTopLabelForReturnsThePageTitleOfAKnownWindow() {
-        val id = activity.windowRepository.activeWindow.id.toString()
-        val titleText = activity.windowRepository.activeWindow.pageManager.titleText
+        val id = activity.hostWindowRepository.activeWindow.id.toString()
+        val titleText = activity.hostWindowRepository.activeWindow.pageManager.titleText
         assertTrue(titleText.isNotBlank(), "sanity: a fresh workspace's default verse gives a non-blank titleText")
-        assertEquals(titleText, activity.windowTopLabelFor(id))
+        assertEquals(titleText, activity.readingCommands.windowTopLabelFor(id))
     }
 
     // --- F5b: every static row's iconKey mirrors classic's main_bible_options_menu.xml android:icon ---
@@ -294,7 +300,7 @@ class OptionsMenuStateBuilderTest {
         activity.composeReadingViewHost = host
         val pref = FontSizePreference(workspaceSettingsBundle())
 
-        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { _, _ -> pref }, "textOptionItem:0")
+        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { activity.hostWindowRepository }, { activity.composeReadingViewHost }, { _, _ -> pref }, "textOptionItem:0")
 
         assertFalse(stayOpen, "a sheet takeover returns false, exactly like a classic dialog launch")
         assertEquals(SettingsEditorPage.Row("FONTSIZE"), host.textSettingsEditor.current)
@@ -316,7 +322,7 @@ class OptionsMenuStateBuilderTest {
         activity.composeReadingViewHost = null
         val pref = RecordingPreference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
 
-        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { _, _ -> pref }, "textOptionItem:0")
+        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { activity.hostWindowRepository }, { activity.composeReadingViewHost }, { _, _ -> pref }, "textOptionItem:0")
 
         assertFalse(stayOpen)
         assertTrue(pref.openDialogCalled, "with no host mounted a sheet-editable type must still reach openDialog")
@@ -332,7 +338,7 @@ class OptionsMenuStateBuilderTest {
         val pref = Preference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.SECTIONTITLES)
         val before = pref.value as Boolean
 
-        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { _, _ -> pref }, "textOptionItem:0")
+        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { activity.hostWindowRepository }, { activity.composeReadingViewHost }, { _, _ -> pref }, "textOptionItem:0")
 
         assertTrue(stayOpen, "a boolean toggle must stay open, never divert to the sheet")
         assertEquals(!before, pref.value, "the toggle itself must still have flipped")
@@ -345,7 +351,7 @@ class OptionsMenuStateBuilderTest {
     fun hideLabelsStillLaunchesManageLabelsRatherThanASheet() {
         val pref = RecordingPreference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.BOOKMARKS_HIDELABELS)
 
-        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { _, _ -> pref }, "textOptionItem:0")
+        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { activity.hostWindowRepository }, { activity.composeReadingViewHost }, { _, _ -> pref }, "textOptionItem:0")
 
         assertFalse(stayOpen)
         assertTrue(pref.openDialogCalled, "HIDELABELS is not sheet-editable, so it must still reach openDialog")
@@ -367,7 +373,7 @@ class OptionsMenuStateBuilderTest {
         activity.composeReadingViewHost = ComposeReadingViewHost(activity)
         val pref = RecordingPreference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.BOOKMARKS_HIDELABELS)
 
-        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { _, _ -> pref }, "textOptionItem:0")
+        val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { activity.hostWindowRepository }, { activity.composeReadingViewHost }, { _, _ -> pref }, "textOptionItem:0")
 
         assertFalse(stayOpen)
         assertTrue(
@@ -377,10 +383,10 @@ class OptionsMenuStateBuilderTest {
     }
 
     /**
-     * The second menu -- the pane (☰) menu's `MainBibleActivity.handleWindowTextOptionItem`, which
+     * The second menu -- the pane (☰) menu's `ReadingCommands.handleWindowTextOptionItem`, which
      * has no injectable `getItemOptions` (it builds the real [Preference] itself from
      * [CommonUtils.lastDisplaySettingsSorted]), so this drives it end to end through the public
-     * [MainBibleActivity.handleWindowPaneMenuItem] bridge rather than constructing a fixture
+     * [ReadingCommands.handleWindowPaneMenuItem] bridge rather than constructing a fixture
      * directly. Confirms the WINDOW-level branch added in the same task step: the scope handed to
      * the host is `settingsBundle.toScope()` at WINDOW level, not the workspace-level one the
      * overflow-menu tests above exercise.
@@ -392,7 +398,7 @@ class OptionsMenuStateBuilderTest {
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
         val window = windowRepository.activeWindow
 
-        val stayOpen = activity.handleWindowPaneMenuItem(
+        val stayOpen = activity.readingCommands.handleWindowPaneMenuItem(
             window.id.toString(), WindowPaneMenuStateBuilder.idForTextOptionItem(0))
 
         assertFalse(stayOpen)
@@ -401,7 +407,7 @@ class OptionsMenuStateBuilderTest {
 
     /**
      * Final fix wave, Fix 6: [windowPaneSheetEditableTextOptionGoesToTheHost]'s no-host twin,
-     * missing before this fix round. `MainBibleActivity.handleWindowTextOptionItem`
+     * missing before this fix round. `ReadingCommands.handleWindowTextOptionItem`
      * and `OptionsMenuStateBuilder.dispatch`'s `else` branch are HAND-DUPLICATED code, not a shared
      * helper, so the overflow menu's own pair (
      * [aSheetEditableTextOptionGoesToTheHost] /
@@ -418,7 +424,7 @@ class OptionsMenuStateBuilderTest {
      * no host installed -- and the classic `itemOptions.openDialog(...); false` tail. So `false`
      * here can only mean the classic dialog path ran, exactly as before T11 (proven not to crash
      * under Robolectric with a non-`.create()`d activity, matching the ON twin's own house style of
-     * driving the real [MainBibleActivity.handleWindowPaneMenuItem] bridge rather than a fixture).
+     * driving the real [ReadingCommands.handleWindowPaneMenuItem] bridge rather than a fixture).
      *
      * Batch Z-late epilogue, Task 1: this used to clear the old `use_compose_ui` setting and leave
      * the host installed. The flag clause is gone from the interception (spec 10.2 -- it is now
@@ -434,7 +440,7 @@ class OptionsMenuStateBuilderTest {
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
         val window = windowRepository.activeWindow
 
-        val stayOpen = activity.handleWindowPaneMenuItem(
+        val stayOpen = activity.readingCommands.handleWindowPaneMenuItem(
             window.id.toString(), WindowPaneMenuStateBuilder.idForTextOptionItem(0))
 
         assertFalse(stayOpen, "no host must still reach the classic dialog tail, which returns false")

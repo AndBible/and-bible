@@ -19,13 +19,13 @@ package net.bible.android.view.activity.page
 import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
-import android.view.WindowManager
 import androidx.test.core.app.ApplicationProvider
 import java.io.File
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.nav.NavRoutes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -339,14 +339,14 @@ class ReadingAppBootstrapTest {
 
     @Test
     fun theRepositoryTheBootstrapCreatedIsTheOneWindowControlPublishes() {
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
+        val controller = navHostOnReading()
         try {
             val activity = controller.create().get()
             assertSame(
                 "WindowControl must publish the object the bootstrap created, or every collaborator " +
                     "that reads windowControl.windowRepository is looking at a different workspace",
                 activity.readingAppBootstrap.windowRepository,
-                activity.windowControl.windowRepository,
+                CommonUtils.windowControl.windowRepository,
             )
         } finally {
             controller.close()
@@ -355,14 +355,14 @@ class ReadingAppBootstrapTest {
 
     @Test
     fun theBootstrapPublishesAnInitialisedRepository() {
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
+        val controller = navHostOnReading()
         try {
             val activity = controller.create().get()
             assertTrue(
                 "the published repository must have been through initialize() — WindowControl's " +
                     "lazy fallback hands out one that has NOT, and it looks identical until the " +
                     "workspace turns out to be empty",
-                activity.windowControl.windowRepository.initialized,
+                CommonUtils.windowControl.windowRepository.initialized,
             )
         } finally {
             controller.close()
@@ -377,7 +377,7 @@ class ReadingAppBootstrapTest {
      */
     @Test
     fun callingItTwiceReturnsTheSameRepositoryRatherThanReplacingIt() {
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
+        val controller = navHostOnReading()
         try {
             val activity = controller.create().get()
             val first = activity.readingAppBootstrap.windowRepository
@@ -386,7 +386,7 @@ class ReadingAppBootstrapTest {
             assertSame(
                 "…and it must not have re-pointed WindowControl at a new object either",
                 first,
-                activity.windowControl.windowRepository,
+                CommonUtils.windowControl.windowRepository,
             )
         } finally {
             controller.close()
@@ -449,39 +449,6 @@ class ReadingAppBootstrapTest {
     }
 
     /**
-     * The same obligation on the classic host, whose `onDestroy` is the other call site.
-     *
-     * `firstTime` is set false first, and that is not incidental: it is a file-level `var` in
-     * `ActivityBase.kt`, and `MainBibleActivity.onCreate` RETURNS EARLY while it is true (the
-     * night-mode `recreate()` hack), before ever reaching `registerNetworkCallback()`. A test that
-     * did not pin it would pass or fail on whether some earlier test in the same JVM had already
-     * consumed the flag — measured, not guessed: a probe in a fresh JVM registered zero callbacks
-     * for the first `MainBibleActivity` and one for the next host built after it.
-     */
-    @Test
-    fun theClassicHostUnregistersItsOwnCallbackToo() {
-        firstTime = false
-        val shadow = connectivityShadow
-        val before = shadow.networkCallbacks.size
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
-        val activity = controller.create().get()
-        assertTrue(
-            "MainBibleActivity.onCreate must have registered its bootstrap's callback — if this " +
-                "fails, the early `firstTime` return above ran and the assertion below is vacuous",
-            activity.readingAppBootstrap.networkCallback in shadow.networkCallbacks,
-        )
-
-        controller.close()
-
-        assertFalse(
-            "classic's onDestroy must unregister it too — MainBibleActivity survives this batch " +
-                "and is still a live second host",
-            activity.readingAppBootstrap.networkCallback in shadow.networkCallbacks,
-        )
-        assertEquals("…and the count is back where it started", before, shadow.networkCallbacks.size)
-    }
-
-    /**
      * The hazard an unregister has to disprove: that it could tear down a callback another live host
      * still needs.
      *
@@ -530,78 +497,24 @@ class ReadingAppBootstrapTest {
     // ——— F59 fix round 1: setSoftKeyboardMode()'s per-host threshold —————————————————————————————
 
     /**
-     * The regression the coordinator's fix-round-1 dispatch named: `setSoftKeyboardMode()` is the
-     * ONE method shared by both hosts (`MainBibleActivity.onCreate` calls it, same as
-     * `NavHostComposeActivity.onCreate`'s `bootstrapIfNeeded()`), and Task 7's first attempt gated it
-     * on a single `Build.VERSION_CODES.R` constant. That would have put `MainBibleActivity`'s window
-     * into `ADJUST_NOTHING` on API 30-34, where classic's OWN compensating listener
-     * (`MainBibleActivity.kt` ~:677) and `ActivityBase`'s inset setup (~:130/:141) both stay gated at
-     * `>= VANILLA_ICE_CREAM` (35) -- so classic would get neither the framework's resize (suppressed
-     * by `ADJUST_NOTHING`) nor any app-side padding (`imeBottomPaddingPx` is a permanent 0 on this
-     * host), silently hiding the reading content behind the keyboard. Classic is not launched in
-     * production today, but the regression must not be introduced.
+     * The nav host's threshold, pinned directly, plus the source-level check that
+     * `setSoftKeyboardMode()` reads `host.appOwnsImeInsetFromSdk` (the generic bound
+     * `ReadingAppBootstrap<T> where T : ActivityBase, T : ReadingHostActivity` exists for), not a literal
+     * `Build.VERSION_CODES` constant of its own -- there is no `ReadingAppBootstrap` field to read
+     * directly (the value comes from whichever host is plugged in as `T`).
      *
-     * **This is the direct, end-to-end regression check, not a stand-in for one:** it builds a real
-     * `MainBibleActivity` (as `theClassicHostUnregistersItsOwnCallbackToo` above already does) at sdk
-     * 30 and reads the ACTUAL `Window.attributes.softInputMode` `setSoftKeyboardMode()` left behind,
-     * the same observable Task 7's own `ReadingImePaddingTest` reads for the nav host. `firstTime` is
-     * pinned false first for the same reason as that other classic-host test: `onCreate` returns
-     * early while it is true, before ever reaching `setSoftKeyboardMode()`, which would make this
-     * test pass or fail on JVM test order rather than on the fix.
-     *
-     * FAILS on the round-1-dispatch tree (single `>= R` gate): `mode` there is `ADJUST_NOTHING`, not
-     * `ADJUST_RESIZE`.
-     */
-    @Config(sdk = [30])
-    @Test
-    fun theClassicHostKeepsAdjustResizeOnApi30() {
-        firstTime = false
-        val controller = Robolectric.buildActivity(MainBibleActivity::class.java)
-        try {
-            val activity = controller.create().get()
-            val mode = activity.window.attributes.softInputMode and
-                WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST
-
-            assertEquals(
-                "classic's compensating listener and ActivityBase's inset setup both stay gated at " +
-                    ">= VANILLA_ICE_CREAM (35) -- a shared setSoftKeyboardMode() threshold that moved " +
-                    "to >= R (30) would put this host into ADJUST_NOTHING on API 30-34 with nothing " +
-                    "on either side compensating, hiding the reading content behind the keyboard",
-                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE,
-                mode,
-            )
-        } finally {
-            controller.close()
-        }
-    }
-
-    /**
-     * The threshold values themselves, pinned directly -- cheap, and the reason
-     * [theClassicHostKeepsAdjustResizeOnApi30] above fails or passes for the right cause rather than
-     * by accident (e.g. `windowControl.isMultiWindow` happening to be true in some other test order,
-     * which would also produce `ADJUST_PAN` instead of `ADJUST_RESIZE` and could be mistaken for this guard
-     * firing). Also documents that `setSoftKeyboardMode()` reads `host.appOwnsImeInsetFromSdk` (the
-     * generic bound `ReadingAppBootstrap<T> where T : ActivityBase, T : ReadingHostActivity` exists
-     * for), not a constant of its own -- there is no `ReadingAppBootstrap` field to read directly (it
-     * has none of its own; the value comes from whichever host is plugged in as `T`), so this is
-     * expressed as the two hosts' own property values plus the source-level check that
-     * `setSoftKeyboardMode()`'s body actually reads `host.appOwnsImeInsetFromSdk` and not a literal
-     * `Build.VERSION_CODES` constant.
+     * Slice 8 F2: was `theTwoHostsAnswerDifferentThresholdsAndTheBootstrapReadsTheHostsOwn`. Its classic
+     * half (`MainBibleActivity` answered `VANILLA_ICE_CREAM`) and the classic end-to-end sdk-30 test it
+     * backed (`theClassicHostKeepsAdjustResizeOnApi30`) measured the deleted class's own constant and
+     * went with it (spec §5.3); the nav host's `R` and the per-host read stay live.
      */
     @Test
-    fun theTwoHostsAnswerDifferentThresholdsAndTheBootstrapReadsTheHostsOwn() {
+    fun theNavHostAnswersRAndTheBootstrapReadsTheHostsOwn() {
         firstTime = false
-        val classicController = Robolectric.buildActivity(MainBibleActivity::class.java)
         val navController = navHostOnReading()
         try {
-            val classic = classicController.create().get()
             val nav = navController.create().get()
 
-            assertEquals(
-                "classic's threshold must stay today's VANILLA_ICE_CREAM (35) -- unchanged by this batch",
-                Build.VERSION_CODES.VANILLA_ICE_CREAM,
-                classic.appOwnsImeInsetFromSdk,
-            )
             assertEquals(
                 "the nav host is the one Task 6/7 measured (spec §3.1.1) -- R (30)",
                 Build.VERSION_CODES.R,
@@ -613,13 +526,12 @@ class ReadingAppBootstrapTest {
             ).readText()
             assertTrue(
                 "setSoftKeyboardMode() must gate on the per-host member, not a constant of its own " +
-                    "(a literal Build.VERSION_CODES.R here would silently re-introduce the shared-" +
-                    "threshold regression this file's other test guards)",
+                    "(a literal Build.VERSION_CODES constant here would silently tie every host to one " +
+                    "threshold again)",
                 Regex("""setSoftKeyboardMode\(\)\s*\{[\s\S]*?host\.appOwnsImeInsetFromSdk""")
                     .containsMatchIn(source),
             )
         } finally {
-            classicController.close()
             navController.close()
         }
     }

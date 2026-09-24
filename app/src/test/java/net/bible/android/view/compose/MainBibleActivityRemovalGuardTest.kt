@@ -31,4 +31,54 @@ class MainBibleActivityRemovalGuardTest {
             offenders,
         )
     }
+
+    /**
+     * F2: every Robolectric test that built `MainBibleActivity` is rehosted on `NavHostComposeActivity` or deleted
+     * with its subject (spec §5.3), so Task F4 can delete the class. Scans CODE only -- comments and string literals
+     * are stripped first (controller ruling R2: `ReadingHostLauncherGuardTest` legitimately names the class inside a
+     * string it scans for, and this file's own regex would otherwise match itself), and this file is skipped.
+     */
+    @Test
+    fun noTestBuildsMainBibleActivity() {
+        val builds = Regex("""buildActivity\(\s*MainBibleActivity|MainBibleActivity::class""")
+        val offenders = File("src/test/java").walkTopDown()
+            .filter { it.isFile && it.extension == "kt" && it.name != "MainBibleActivityRemovalGuardTest.kt" }
+            .filter { f -> builds.containsMatchIn(kotlinCodeOnly(f.readText())) }
+            .map { it.name }.toList().sorted()
+        assertEquals(
+            "these tests still build the class Task F4 deletes -- rehost or delete per Task F2's table",
+            emptyList<String>(),
+            offenders,
+        )
+    }
+
+    @Test
+    fun theCodeOnlyScanStripsCommentsAndStringsButKeepsCode() {
+        val src = "val a = \"MainBibleActivity::class.java\" // MainBibleActivity::class\n" +
+            "/* buildActivity(MainBibleActivity */ val t = \"\"\"MainBibleActivity::class\"\"\"\n" +
+            "val c = 'x'; val real = MainBibleActivity::class.java"
+        val code = kotlinCodeOnly(src)
+        assertEquals(1, Regex("MainBibleActivity").findAll(code).count())
+        assertEquals(true, code.contains("val real = MainBibleActivity::class.java"))
+    }
+
+    /** [src] with `//` and block comments and all string/char literals removed (literal bodies dropped). */
+    private fun kotlinCodeOnly(src: String): String {
+        val out = StringBuilder()
+        var i = 0
+        while (i < src.length) {
+            when {
+                src.startsWith("//", i) -> { while (i < src.length && src[i] != '\n') i++ }
+                src.startsWith("/*", i) -> { val e = src.indexOf("*/", i + 2); i = if (e < 0) src.length else e + 2 }
+                src.startsWith("\"\"\"", i) -> { val e = src.indexOf("\"\"\"", i + 3); i = if (e < 0) src.length else e + 3; out.append("\"\"") }
+                src[i] == '"' || src[i] == '\'' -> {
+                    val q = src[i]; i++
+                    while (i < src.length && src[i] != q && src[i] != '\n') { if (src[i] == '\\') i++; i++ }
+                    i++; out.append("\"\"")
+                }
+                else -> { out.append(src[i]); i++ }
+            }
+        }
+        return out.toString()
+    }
 }

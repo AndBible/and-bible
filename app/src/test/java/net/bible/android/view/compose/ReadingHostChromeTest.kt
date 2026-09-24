@@ -22,7 +22,6 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.ReadingHostActivity
 import net.bible.sharedcore.nav.NavRoutes
 import org.junit.Assert.assertEquals
@@ -36,7 +35,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * R4: both hosts implement the reading-host contract, and the nav host's chrome is real.
+ * R4: the nav host implements the reading-host contract, and its chrome is real. (Slice 8 F2: the
+ * classic `MainBibleActivity` half of the contract assertion went with that class.)
  *
  * `ComposeReadingViewHost` is re-typed onto [ReadingHostActivity] at R6, which is the point at which
  * a missing member on EITHER Activity becomes a compile error. Until then these two assertions are
@@ -47,11 +47,9 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingHostChromeTest {
     @Test
-    fun bothActivitiesAreReadingHosts() {
-        assertTrue(
-            "MainBibleActivity must implement ReadingHostActivity",
-            ReadingHostActivity::class.java.isAssignableFrom(MainBibleActivity::class.java),
-        )
+    fun theNavHostIsAReadingHost() {
+        // Slice 8 F2: was `bothActivitiesAreReadingHosts`; its MainBibleActivity half went with the
+        // class (spec §5.3). The nav host is the one reading host left.
         assertTrue(
             "NavHostComposeActivity must implement ReadingHostActivity",
             ReadingHostActivity::class.java.isAssignableFrom(NavHostComposeActivity::class.java),

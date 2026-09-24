@@ -16,13 +16,17 @@
  */
 package net.bible.android.view.activity.page
 
+import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.versification.BookName
 import org.junit.After
@@ -32,12 +36,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * The current-reference overlay's text — `MainBibleActivity.bibleOverlayText`, read by
+ * The current-reference overlay's text — [ReadingCommands.bibleOverlayText], read by
  * `ComposeReadingViewHost.readOverlayText()`.
  *
  * Written in R3's review round, because the move of this member to [ReadingCommands] broke it and
@@ -51,7 +56,8 @@ import org.robolectric.annotation.Config
  * are not edited in R1--R6.
  *
  * Built WITHOUT `.create()` for the reasons `OptionsMenuStateBuilderTest`'s kdoc gives — this
- * property reads `pageControl` (a Koin singleton) and `windowRepository`, never a view.
+ * property reads `pageControl` (a Koin singleton) and `windowRepository`, never a view. Hosted on the
+ * reading-route [NavHostComposeActivity] since slice 8 F2 (`MainBibleActivity` is deleted).
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -59,7 +65,7 @@ class ReadingOverlayTextTest {
 
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
-    private lateinit var activity: MainBibleActivity
+    private lateinit var activity: NavHostComposeActivity
 
     @Before
     fun setUp() {
@@ -68,8 +74,11 @@ class ReadingOverlayTextTest {
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
 
-        activity = Robolectric.buildActivity(MainBibleActivity::class.java).get()
-        activity.windowRepository = windowRepository
+        activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).get()
+        activity.readingAppBootstrap.windowRepository = windowRepository
     }
 
     @After
@@ -77,22 +86,22 @@ class ReadingOverlayTextTest {
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
-    /** The page title as [MainBibleActivity.bibleOverlayText] must render it: short book names, the
+    /** The page title as [ReadingCommands.bibleOverlayText] must render it: short book names, the
      *  same `BookName` bracketing the property itself applies. */
     private fun shortPageTitle(): String = synchronized(BookName::class.java) {
         val oldValue = BookName.isFullBookName()
         BookName.setFullBookName(false)
-        try { activity.pageTitleText } finally { BookName.setFullBookName(oldValue) }
+        try { activity.readingCommands.pageTitleText } finally { BookName.setFullBookName(oldValue) }
     }
 
     @Test
     fun theOverlayInterpolatesThePageTitlesVALUE() {
-        activity.applyChosenVerse("Gen.1.1")
-        val abbreviation = activity.pageControl.currentPageManager.currentPage.currentDocument?.abbreviation
+        activity.readingCommands.applyChosenVerse("Gen.1.1")
+        val abbreviation = GlobalContext.get().get<PageControl>().currentPageManager.currentPage.currentDocument?.abbreviation
         assertEquals(
             "the overlay is \"<document abbreviation>:<page title>\"",
             "$abbreviation:${shortPageTitle()}",
-            activity.bibleOverlayText,
+            activity.readingCommands.bibleOverlayText,
         )
     }
 
@@ -103,15 +112,15 @@ class ReadingOverlayTextTest {
      */
     @Test
     fun theOverlayNeverLeaksTheTemplateItself() {
-        activity.applyChosenVerse("Gen.1.1")
-        val overlay = activity.bibleOverlayText
+        activity.readingCommands.applyChosenVerse("Gen.1.1")
+        val overlay = activity.readingCommands.bibleOverlayText
         assertFalse(
             "the page title must be INTERPOLATED, not spelled: got \"$overlay\"",
             overlay.contains(".pageTitleText"),
         )
         assertFalse(
             "…and the host's toString() must never reach the overlay: got \"$overlay\"",
-            overlay.contains("MainBibleActivity@"),
+            overlay.contains("NavHostComposeActivity@"),
         )
     }
 
@@ -119,10 +128,10 @@ class ReadingOverlayTextTest {
      *  substrings above. */
     @Test
     fun theOverlayTracksTheCurrentKey() {
-        activity.applyChosenVerse("Gen.1.1")
-        val atGenesis = activity.bibleOverlayText
-        activity.applyChosenVerse("Ps.23.1")
-        val atPsalms = activity.bibleOverlayText
+        activity.readingCommands.applyChosenVerse("Gen.1.1")
+        val atGenesis = activity.readingCommands.bibleOverlayText
+        activity.readingCommands.applyChosenVerse("Ps.23.1")
+        val atPsalms = activity.readingCommands.bibleOverlayText
 
         assertTrue("the overlay must carry a page title, got \"$atGenesis\"", atGenesis.substringAfter(":").isNotBlank())
         assertTrue(

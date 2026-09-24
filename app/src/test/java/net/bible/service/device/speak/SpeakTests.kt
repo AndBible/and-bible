@@ -17,6 +17,7 @@
 
 package net.bible.service.device.speak
 
+import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.BibleApplication
@@ -33,8 +34,9 @@ import net.bible.android.control.speak.save
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -140,12 +142,15 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
 
 @RunWith(RobolectricTestRunner::class)
 class SpeakIntegrationTests : SpeakIntegrationTestBase() {
-    lateinit var mainActivityController: ActivityController<MainBibleActivity>
+    lateinit var mainActivityController: ActivityController<NavHostComposeActivity>
 
 
     @Before
     fun setup() {
-        mainActivityController = Robolectric.buildActivity(MainBibleActivity::class.java)
+        mainActivityController = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
         bookmarkControl.speakLabel
         AdvancedSpeakSettings.reset()
         AdvancedSpeakSettings.autoBookmark = true
