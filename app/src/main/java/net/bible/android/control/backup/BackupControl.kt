@@ -50,8 +50,6 @@ import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.progress.ProgressDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.Screen
-import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.application
@@ -824,12 +822,18 @@ object BackupControl {
         return result
     }
 
-    suspend fun restoreModulesViaIntent(activity: ActivityBase) {
-        val intent = ScreenLauncher.intentFor(activity, Screen.InstallZip)
-        val result = activity.awaitIntent(intent)
-        if(result.data?.data == null) return
-
-        ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+    /**
+     * "Restore documents" from the Backup destination: open InstallZip (slice 8 D2). In-graph on the nav
+     * host. The old `awaitIntent` + `if (result.data?.data == null) return` + post was dead (finding M6):
+     * InstallZip attaches no result data, and `DocumentInstallService.postTerminalEvents` already posts
+     * `UpdateMainBibleActivityDocuments` when an install finishes.
+     */
+    fun restoreModulesViaIntent(activity: ActivityBase) {
+        if (activity is NavHostComposeActivity) {
+            activity.openInstallZip()
+        } else {
+            activity.startActivity(NavHostComposeActivity.intentFor(activity, NavRoutes.installZip()))
+        }
     }
 
     /**

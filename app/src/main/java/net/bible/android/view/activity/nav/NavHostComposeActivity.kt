@@ -4634,12 +4634,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         onResult(ManageLabelsResult(session.data.toJSON()))
     }
 
-    /** Classic `importStudyPads` (`:308-313`): the InstallZip round trip, then a controller refresh. */
+    /**
+     * Classic `importStudyPads` (`:308-313`): InstallZip, then a controller refresh. Slice 8 D2: InstallZip is a
+     * destination of this host, answered through [openInstallZip] -- never `awaitIntent` (M5).
+     */
     private fun importStudyPads(controller: ManageLabelsController) {
-        lifecycleScope.launch(Dispatchers.Main) {
-            awaitIntent(ScreenLauncher.intentFor(this@NavHostComposeActivity, Screen.InstallZip))
-            controller.refresh()
-        }
+        openInstallZip { lifecycleScope.launch(Dispatchers.Main) { controller.refresh() } }
     }
 
     private suspend fun askConfirmation(message: String): Boolean = suspendCoroutine { cont ->
@@ -6749,19 +6749,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         return getString(R.string.search_with_results2, resultAmount, documentAbbreviation)
     }
 
-    /** The SAF seam for plan import, ported verbatim from classic `:268-271`. */
+    /**
+     * The SAF seam for plan import, ported from classic `:268-271`. The picked file goes straight to the
+     * InstallZip destination as an ACTION_VIEW entry (confirm first), exactly the Intent classic built. Its
+     * result was ignored (the imported plan is not auto-loaded), so no onResult.
+     */
     private val importPlanLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri ?: return@registerForActivityResult
-        installZipLauncher.launch(
-            ScreenLauncher.intentFor(this, Screen.InstallZip).apply {
-                action = Intent.ACTION_VIEW
-                data = uri
-            }
-        )
-    }
-
-    private val installZipLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        // parity with classic: imported plan is not auto-loaded (InstallZip does not yet return the code)
+        openInstallZip(action = Intent.ACTION_VIEW, uris = listOf(uri))
     }
 
     // --- Settings cluster host baggage (slice 6) ------------------------------------------------
@@ -8007,13 +8002,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             .create().show()
     }
 
-    /** Classic `onInstallZip` (`:891-897`): InstallZip stays an Activity (design section 6). */
+    /** Classic `onInstallZip` (`:891-897`). Slice 8 D2: in-graph, answered through [openInstallZip] (M5). */
     private fun onInstallZip() {
-        val intent = ScreenLauncher.intentFor(this, Screen.InstallZip)
-        lifecycleScope.launch {
-            awaitIntent(intent)
-            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
-        }
+        openInstallZip { ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments()) }
     }
 
     private fun DocumentInstallStatus.toDocInstallStatus(): DocInstallStatus = when (this) {
@@ -9205,13 +9196,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@NavHostComposeActivity) }
     }
 
-    /** Classic `onInstallZip()` (`:414-421`) -- still an Activity hop, slice 8's to migrate. */
+    /** Classic `onInstallZip()` (`:414-421`). Slice 8 D2: in-graph, answered through [openInstallZip] (M5). */
     private fun onChooseDocumentInstallZip() {
-        val intent = ScreenLauncher.intentFor(this, Screen.InstallZip)
-        lifecycleScope.launch {
-            awaitIntent(intent)
+        openInstallZip {
             ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
-            loadChooseDocuments()
+            lifecycleScope.launch { loadChooseDocuments() }
         }
     }
 
