@@ -16,63 +16,70 @@
  */
 package net.bible.android.view.activity.base
 
-import android.app.AlertDialog
 import android.content.Context
-import android.text.method.LinkMovementMethod
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
-import android.view.LayoutInflater
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.activity.databinding.DialogAgentPermissionBinding
 import net.bible.android.control.report.ErrorReportControl
-import net.bible.android.view.activity.page.ReadingHostActivity
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
 import net.bible.sharedcore.ai.AgentPermissionChoice
+import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ai.AgentPermissionRequest
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
+import org.koin.java.KoinJavaComponent
 
 /**
- * Class to manage the display of various dialogs
+ * Class to manage the display of various dialogs.
+ *
+ * Spec 2026-09-11 §5.3: `Dialogs` is a thin shim over the app-wide [AppDialogController] /
+ * [AgentPermissionController] — it no longer builds any `android.app.AlertDialog` itself. Every
+ * overload below keeps its old public signature and old-caller-visible behaviour (spec's "no content
+ * changes"); only the underlying dialog mechanism changed. New callers should use
+ * `AppDialogController`/`AgentPermissionController` directly, or the feature's own dialog state —
+ * hence the `@Deprecated` markers, kept without `ReplaceWith` since there is no single drop-in
+ * replacement expression.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 private const val TAG = "Dialogs"
 
 object Dialogs {
-    fun showMsg(msgId: Int, param: String?) {
-        showErrorMsg(application.getString(msgId, param))
-    }
+    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    private val mainHandler = Handler(Looper.getMainLooper())
 
+    private fun onMain(block: () -> Unit) =
+        if (Looper.myLooper() == Looper.getMainLooper()) block() else mainHandler.post(block)
+
+    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showMsg(msgId: Int, isCancelable: Boolean, okayCallback: (() -> Unit)) {
         showMsg(application.getString(msgId), isCancelable, okayCallback, null)
     }
 
+    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showMsg(msgId: Int) {
         showErrorMsg(application.getString(msgId))
     }
 
+    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showErrorMsg(msgId: Int) {
         showErrorMsg(application.getString(msgId))
     }
 
+    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showErrorMsg(msgId: Int, param: String?) {
         showErrorMsg(application.getString(msgId, param))
-    }
-
-    fun showErrorMsg(msgId: Int, okayCallback: () -> Unit) {
-        showErrorMsg(application.getString(msgId), okayCallback)
     }
 
     /**
      * Show error message and allow reporting of exception via e-mail to and-bible
      */
+    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showErrorMsg(msgId: Int, e: Exception?) {
         showErrorMsg(application.getString(msgId), e)
     }
@@ -80,11 +87,13 @@ object Dialogs {
     /**
      * Show error message and allow reporting of exception via e-mail to and-bible
      */
+    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showErrorMsg(message: String?, e: Exception?) {
         val reportCallback = { ErrorReportControl.sendErrorReportEmail(e, source = "error message") }
         showMsg(message, false, null, reportCallback)
     }
 
+    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showErrorMsg(msg: String?, okayCallback: (() -> Unit)? = null) {
         showMsg(msg, false, okayCallback, null)
     }
@@ -92,158 +101,98 @@ object Dialogs {
     // TODO: use instead ErrorReportControl.showErrorDialog coroutine for error messages.
     private fun showMsg(msg: String?, isCancelable: Boolean, okayCallback: (() -> Unit)?, reportCallback: (() -> Unit)?) {
         Log.i(TAG, "showErrorMessage message:$msg")
-        try {
-            val activity = CurrentActivityHolder.currentActivity
-            if (activity != null) {
-                activity.runOnUiThread {
-                    val spanned = htmlToSpan(msg)
-
-                    val dlgBuilder = AlertDialog.Builder(activity)
-                        .setMessage(spanned)
-                        .setCancelable(isCancelable)
-                        .setPositiveButton(R.string.okay) { _, _ -> okayCallback?.invoke() }
-
-                    // if cancelable then show a Cancel button
-                    if (isCancelable) {
-                        dlgBuilder.setNegativeButton(R.string.cancel, null)
-                    }
-
-                    // enable report to andbible errors email list
-                    if (reportCallback != null) {
-                        dlgBuilder.setNeutralButton(R.string.report_error) { dialog, buttonId -> reportCallback.invoke() }
-                    }
-                    val d = dlgBuilder.show()
-                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        if (CurrentActivityHolder.currentActivity == null) {
+            // No host will ever draw it (app in background with no Activity): today's Toast fallback.
+            mainHandler.post { Toast.makeText(application.applicationContext, htmlToSpan(msg), Toast.LENGTH_LONG).show() }
+            return
+        }
+        dialogs.post(
+            AppDialogRequest.Message(
+                title = null,
+                message = msg.orEmpty(),
+                confirmText = application.getString(R.string.okay),
+                dismissText = if (isCancelable) application.getString(R.string.cancel) else null,
+                neutralText = if (reportCallback != null) application.getString(R.string.report_error) else null,
+                cancellable = isCancelable,
+            ),
+        ) { result ->
+            onMain {
+                when (result) {
+                    AppDialogResult.Ok -> okayCallback?.invoke()
+                    AppDialogResult.Neutral -> reportCallback?.invoke()
+                    else -> Unit
                 }
-            } else {
-                Toast.makeText(application.applicationContext, msg, Toast.LENGTH_LONG).show()
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error showing error message.  Original error msg:$msg", e)
         }
     }
 
+    enum class Result { OK, CANCEL, REPORT, ERROR }
+
+    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     suspend fun showMsg2(activity: ActivityBase, msgId: Int, isCancelable: Boolean = false, showReport: Boolean = false): Result {
         return showMsg2(activity, application.getString(msgId), isCancelable, showReport)
     }
 
-    enum class Result {OK, CANCEL, REPORT, ERROR}
-
+    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     suspend fun showMsg2(activity: ActivityBase, msg: String, isCancelable: Boolean = false, showReport: Boolean = false): Result {
         Log.i(TAG, "showErrorMesage message:$msg")
-        var result = Result.ERROR
-        try {
-            withContext(Dispatchers.Main) {
-                val spanned = htmlToSpan(msg)
-
-                result = suspendCoroutine {
-                    val dlgBuilder = AlertDialog.Builder(activity)
-                        .setMessage(spanned)
-                        .setCancelable(isCancelable)
-                        .setPositiveButton(R.string.okay) { _, _ -> it.resume(Result.OK) }
-
-                    if (isCancelable) {
-                        dlgBuilder.setNegativeButton(R.string.cancel) { _, _ ->
-                            it.resume(Result.CANCEL)
-                        }
-                    }
-
-                    if (showReport) {
-                        dlgBuilder.setNeutralButton(R.string.report_error) { _, _ -> it.resume(Result.REPORT) }
-                    }
-                    val d = dlgBuilder.show()
-                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error showing error message.  Original error msg:$msg", e)
-        }
-        return result
-    }
-
-    suspend fun simpleQuestion(context: Context, message: String? = null, title: String? = context.getString(R.string.are_you_sure)) = withContext(Dispatchers.Main) {
-        suspendCoroutine {
-            AlertDialog.Builder(context)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
-                .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
-                .setOnCancelListener { _ -> it.resume(false) }
-                .show()
+        val result = dialogs.await(
+            AppDialogRequest.Message(
+                title = null,
+                message = msg,
+                confirmText = activity.getString(R.string.okay),
+                dismissText = if (isCancelable) activity.getString(R.string.cancel) else null,
+                neutralText = if (showReport) activity.getString(R.string.report_error) else null,
+                cancellable = isCancelable,
+            ),
+        )
+        return when (result) {
+            AppDialogResult.Ok -> Result.OK
+            AppDialogResult.Cancel -> Result.CANCEL
+            AppDialogResult.Neutral -> Result.REPORT
+            else -> Result.ERROR
         }
     }
 
-    suspend fun simpleQuestion(context: Context, message: Int? = null, title: Int? = R.string.are_you_sure): Boolean {
-        val titleStr = if(title == null) null else context.getString(title)
-        val messageStr = if(message == null) null else context.getString(message)
-        return simpleQuestion(context, message = messageStr, title = titleStr)
-    }
-    suspend fun simpleInfoMessage(context: Context, key: String, message: String? = context.getString(R.string.are_you_sure)) = withContext(Dispatchers.Main) {
-        suspendCoroutine {
-            if (CommonUtils.settings.getBoolean("skip_$key", false)) {
-                it.resume(true)
-                return@suspendCoroutine
-            }
-            AlertDialog.Builder(context)
-                .setTitle(R.string.information)
-                .setMessage(message)
-                .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
-                .setNeutralButton(R.string.dont_show) { _, _ ->
-                    CommonUtils.settings.setBoolean("skip_$key", true)
-                    it.resume(true)
-                }
-                .show()
-        }
-    }
+    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
+    suspend fun simpleQuestion(context: Context, message: String? = null, title: String? = context.getString(R.string.are_you_sure)): Boolean =
+        dialogs.await(
+            AppDialogRequest.Confirm(
+                title = title,
+                message = message,
+                confirmText = context.getString(R.string.okay),
+                dismissText = context.getString(R.string.cancel),
+            ),
+        ) == AppDialogResult.Ok
 
-    suspend fun simpleInfoMessage(context: Context, key: String, message: Int? = R.string.are_you_sure): Boolean {
-        val messageStr = if(message == null) null else context.getString(message)
-        return simpleInfoMessage(context, key, messageStr)
-    }
-
+    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     suspend fun <T> multiselect(
         context: Context,
         title: String,
         items: List<T>,
         itemToString: ((arg: T) -> String)? = null,
-        preSelected: ((arg: T) -> Boolean)? = null
-    ): List<T> = suspendCoroutine {
-        val itemNames = items.map { itemToString?.let { it1 -> it1(it) }?: it.toString() }.toTypedArray()
-        val checkedItems = items.map { item -> preSelected?.invoke(item) ?: false }.toBooleanArray()
-        val dialog = AlertDialog.Builder(context)
-            .setPositiveButton(R.string.okay) { d, _ ->
-                val selectedItems = items.filterIndexed { index, book -> checkedItems[index] }
-                if (selectedItems.isEmpty()) {
-                    it.resume(emptyList())
-                } else {
-                    it.resume(selectedItems)
-                }
-            }
-            .setMultiChoiceItems(itemNames, checkedItems) { _, pos, value ->
-                checkedItems[pos] = value
-            }
-            .setNeutralButton(R.string.select_all) { _, _ -> it.resume(emptyList()) }
-            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(emptyList()) }
-            .setOnCancelListener { _ -> it.resume(emptyList()) }
-            .setTitle(title)
-            .create()
-
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                val allSelected = checkedItems.find { !it } == null
-                val newValue = !allSelected
-                val v = dialog.listView
-                for (i in 0 until v.count) {
-                    v.setItemChecked(i, newValue)
-                    checkedItems[i] = newValue
-                }
-                (it as Button).text =
-                    context.getString(if (allSelected) R.string.select_all else R.string.select_none)
-            }
+        preSelected: ((arg: T) -> Boolean)? = null,
+    ): List<T> {
+        val choices = items.mapIndexed { index, item ->
+            SettingsItem.Choice(index.toString(), itemToString?.invoke(item) ?: item.toString())
         }
-        dialog.show()
-        CommonUtils.fixAlertDialogButtons(dialog)
+        val selectedIds = items.mapIndexedNotNull { index, item -> if (preSelected?.invoke(item) == true) index.toString() else null }
+        val result = dialogs.await(
+            AppDialogRequest.MultiChoice(
+                title = title,
+                options = choices,
+                selectedIds = selectedIds,
+                confirmText = context.getString(R.string.okay),
+                dismissText = context.getString(R.string.cancel),
+                selectAllText = context.getString(R.string.select_all),
+                selectNoneText = context.getString(R.string.select_none),
+            ),
+        )
+        val ids = (result as? AppDialogResult.SelectedMany)?.ids ?: return emptyList()
+        return items.filterIndexed { index, _ -> index.toString() in ids }
     }
+
+    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     suspend fun <T> multiselect(context: Context, title: Int, items: List<T>, itemToString: ((arg: T) -> String)? = null): List<T> =
         multiselect(context, context.getString(title), items, itemToString)
 
@@ -261,116 +210,33 @@ object Dialogs {
     /**
      * Show a dialog asking user permission for an agent tool operation.
      *
-     * Uses a list dialog with 4 options instead of 3 buttons (AlertDialog only supports 3 buttons).
+     * Always routed through the app-wide [AgentPermissionController] (Task 7): [AppDialogOverlay]
+     * renders its `pending` request on every host, so there is no longer a host-specific
+     * Compose-vs-native split here — [context] is unused and kept only because its one caller
+     * ([net.bible.service.llm.agent.AgentExecutor]) still passes it.
      *
-     * @param context The context to show the dialog in
+     * @param context unused; kept for source compatibility with the one caller
      * @param toolDisplayName User-facing translated name of the tool
      * @param toolDescription Description of what the tool does
      * @return AgentPermissionResult indicating user's choice
      */
+    @Suppress("UNUSED_PARAMETER")
     suspend fun agentPermissionDialog(
         context: Context,
         toolDisplayName: String,
         toolDescription: String,
-        actionDescription: String? = null
-    ): AgentPermissionResult {
-        // Compose path: route to the Compose reading view's dialog slot when — and only when — the
-        // foreground activity is a READING HOST with the Compose reading view mounted.
-        // `composeReadingViewHost` is null until that host mounts one, so it IS the "Compose reading
-        // view is live" signal. Any other foreground activity, which AgentExecutor's
-        // `awaitActivity()` may well hand us, falls through to the plain-AlertDialog path below — a
-        // permission prompt must never be dropped, because AgentExecutor suspends on this call and
-        // would hang forever.
-        //
-        // T8b fix round 1 (I1): this used to read `(context as? MainBibleActivity)`, which is always
-        // null once `NavHostComposeActivity` is the launcher — so every AI-agent permission prompt
-        // had silently become the plain AlertDialog. `ReadingHostActivity` is the type both hosts
-        // implement; `readingCommands` is on it and owns the same supplier.
-        val host = (context as? ReadingHostActivity)?.readingCommands?.composeReadingViewHost
-        if (host != null) {
-            val choice = host.awaitPermission(
-                AgentPermissionRequest(toolDisplayName, toolDescription, actionDescription)
-            )
-            // ALLOW_ALWAYS maps straight through: the "are you sure" confirmation + the
-            // `permanentlyAllowedTools` write stay in `AgentExecutor.showPermissionDialog` (its
-            // existing `Dialogs.simpleQuestion` call), identical on both paths — which is why the
-            // Compose dialog has no confirmation step of its own. The mapping itself is
-            // [AgentPermissionChoice.toResult], extracted so it can be asserted pair-by-pair by
-            // AgentPermissionHostTest (the sorted-name-set guard tests alone would let a swapped
-            // right-hand side compile and pass while granting the wrong permission).
-            return choice.toResult()
-        }
-        return nativeAgentPermissionDialog(context, toolDisplayName, toolDescription, actionDescription)
-    }
-
-    /**
-     * The native `AlertDialog` implementation, used whenever the foreground activity is not a
-     * [ReadingHostActivity] with the reading view mounted. Moved here verbatim from
-     * [agentPermissionDialog] so this fallback stays behaviourally byte-for-byte identical.
-     *
-     * It said `[MainBibleActivity]` until reading-host re-typing T8b fix round 1, which is what
-     * [agentPermissionDialog] used to test for -- and that test had silently become always-null once
-     * `NavHostComposeActivity` became the reading host, so this fallback was taking EVERY prompt.
-     *
-     * It was called `classicAgentPermissionDialog` while a classic reading view still existed; the
-     * Z-late epilogue renamed it, because it is not the classic arm of anything any more -- it is
-     * the general fallback for every host that is not the reading view.
-     */
-    private suspend fun nativeAgentPermissionDialog(
-        context: Context,
-        toolDisplayName: String,
-        toolDescription: String,
-        actionDescription: String?
-    ): AgentPermissionResult = withContext(Dispatchers.Main) {
-        suspendCoroutine { continuation ->
-            val dialogBinding = DialogAgentPermissionBinding.inflate(LayoutInflater.from(context))
-
-            dialogBinding.permissionMessage.text = if (actionDescription != null) {
-                context.getString(R.string.agent_permission_message_with_action, actionDescription)
-            } else {
-                context.getString(R.string.agent_permission_message, toolDisplayName, toolDescription)
-            }
-
-            val dialog = AlertDialog.Builder(context)
-                .setTitle(R.string.agent_permission_title)
-                .setView(dialogBinding.root)
-                .setCancelable(true)
-                .setOnCancelListener { continuation.resume(AgentPermissionResult.DENY) }
-                .create()
-
-            dialogBinding.apply {
-                btnAllowOnce.apply {
-                    text = context.getString(R.string.permission_allow_once)
-                    setOnClickListener { dialog.dismiss(); continuation.resume(AgentPermissionResult.ALLOW) }
-                }
-                btnAllowSession.apply {
-                    text = context.getString(R.string.permission_allow_for_session)
-                    setOnClickListener { dialog.dismiss(); continuation.resume(AgentPermissionResult.ALLOW_FOR_SESSION) }
-                }
-                btnAllowAllSession.apply {
-                    text = context.getString(R.string.permission_allow_all_session)
-                    setOnClickListener { dialog.dismiss(); continuation.resume(AgentPermissionResult.ALLOW_ALL_SESSION) }
-                }
-                btnAllowAlways.apply {
-                    text = context.getString(R.string.permission_allow_always, toolDisplayName)
-                    setOnClickListener { dialog.dismiss(); continuation.resume(AgentPermissionResult.ALLOW_ALWAYS) }
-                }
-                btnDeny.apply {
-                    text = context.getString(R.string.permission_deny)
-                    setOnClickListener { dialog.dismiss(); continuation.resume(AgentPermissionResult.DENY) }
-                }
-            }
-
-            dialog.show()
-        }
-    }
+        actionDescription: String? = null,
+    ): AgentPermissionResult =
+        KoinJavaComponent.get<AgentPermissionController>(AgentPermissionController::class.java)
+            .await(AgentPermissionRequest(toolDisplayName, toolDescription, actionDescription))
+            .toResult()
 }
 
 /**
  * The one true [AgentPermissionChoice] → [Dialogs.AgentPermissionResult] mapping, extracted out of
- * [Dialogs.agentPermissionDialog]'s Compose branch so it is a plain function `AgentPermissionHostTest`
- * can call directly and assert pair-by-pair. Kept `internal` (not private) purely so the test can
- * see it — no other caller is intended.
+ * [Dialogs.agentPermissionDialog] so it is a plain function `AgentPermissionHostTest` can call
+ * directly and assert pair-by-pair. Kept `internal` (not private) purely so the test can see it — no
+ * other caller is intended.
  */
 internal fun AgentPermissionChoice.toResult(): Dialogs.AgentPermissionResult = when (this) {
     AgentPermissionChoice.ALLOW -> Dialogs.AgentPermissionResult.ALLOW

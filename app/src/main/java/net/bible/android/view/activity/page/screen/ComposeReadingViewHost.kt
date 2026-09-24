@@ -177,9 +177,6 @@ import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.nameWithoutDocument
-import net.bible.sharedcore.ai.AgentPermissionChoice
-import net.bible.sharedcore.ai.AgentPermissionController
-import net.bible.sharedcore.ai.AgentPermissionRequest
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.agentPanelHeight
@@ -262,7 +259,6 @@ import net.bible.sharedcore.window.shouldShowPinIndicator
 import net.bible.sharedcore.workspaces.WorkspaceQuickController
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedui.AbAppTheme
-import net.bible.sharedui.ai.AgentPermissionDialog
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
 import net.bible.sharedui.components.AbErrorDialog
@@ -509,14 +505,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val documentControl: DocumentControl by inject()
     private val speakControl: SpeakControl by inject()
     private val linkControl: LinkControl by inject()
-
-    /**
-     * The app-wide runtime agent tool-permission bridge (Z-early B4). A Koin `single` (see
-     * `CoreModule`), NOT host-owned state: `AgentExecutor` asks from a foreground service's
-     * coroutine and must outlive any single activity, so an in-flight request survives an activity
-     * recreation and is picked up by whichever host is installed at the time.
-     */
-    private val permissions: AgentPermissionController by inject()
 
     /** Owns [readingLlmDialogs]' coroutine work (dialog open/execute/dismiss). Cancelled in
      *  [dispose] — one host per activity (re-)creation, mirroring the [ABEventBus] registration
@@ -2848,20 +2836,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             )
         }
     }
-
-    /**
-     * Suspends until the user answers [request], showing the Compose [AgentPermissionDialog] as a
-     * sibling overlay of the reading view (Z-early B4) — the compose-path counterpart of classic
-     * `Dialogs.agentPermissionDialog`'s native `AlertDialog`. Called from
-     * `Dialogs.agentPermissionDialog` when the foreground activity is a [MainBibleActivity] with
-     * this host installed; every other case still runs the classic dialog.
-     *
-     * Deliberately delegates straight to [permissions] rather than owning the suspension itself: the
-     * request must survive this host being disposed (an activity recreation mid-prompt), and
-     * [hostScope] — which [dispose] cancels — must not be in the chain resolving the agent's await.
-     */
-    suspend fun awaitPermission(request: AgentPermissionRequest): AgentPermissionChoice =
-        permissions.await(request)
 
     /**
      * Unregisters this host's [ABEventBus] subscriptions (see [init]) and cancels [hostScope] (so

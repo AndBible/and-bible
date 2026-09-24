@@ -56,7 +56,6 @@ class PlatformDialogRemovalGuardTest {
             "src/main/java/net/bible/android/control/report/ErrorReportControl.kt",
             "src/main/java/net/bible/android/view/activity/StartupActivity.kt",
             "src/main/java/net/bible/android/view/activity/ai/LlmDialogHelper.kt",
-            "src/main/java/net/bible/android/view/activity/base/Dialogs.kt",
             "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt",
             "src/main/java/net/bible/android/view/activity/page/BibleView.kt",
