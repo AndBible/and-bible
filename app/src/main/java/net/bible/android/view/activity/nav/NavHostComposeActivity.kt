@@ -2612,12 +2612,18 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * Open Backup & restore in-graph and suspend until the user has left it. `BackupControl.backupPopup`
      * calls this on the nav host; its other callers' `showErrorDialog` loop re-shows its dialog only once
      * this returns. A second request supersedes the first (the first returns).
+     *
+     * Already ON Backup (an error dialog raised inside it offered "Backup & restore"): return at once, so
+     * the dialog re-shows over Backup. Classic pushed a second Backup screen and re-showed over that;
+     * here a `launchSingleTop` navigate is a no-op, and waiting for Backup to leave would hold the dialog
+     * back until the user was on another screen. Any outer await stays armed.
      */
     internal suspend fun awaitBackupDestination() {
         val controller = navController ?: run {
             Log.w(TAG_NAV_HOST, "Backup requested before the graph composed; ignored.")
             return
         }
+        if (controller.currentDestination?.route == NavRoutes.BACKUP) return
         val done = CompletableDeferred<Unit>()
         backupReturn?.complete(Unit)
         backupReturn = done

@@ -19,7 +19,10 @@ package net.bible.android.view.compose
 
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.performClick
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -112,5 +115,30 @@ class BackupInGraphTest {
         compose.waitForIdle()
         assertEquals(NavRoutes.READING, navController.currentBackStackEntry?.destination?.route)
         assertEquals(0, exitHostCalls, "an in-graph Backup must not leave the host")
+    }
+
+    /**
+     * Review minor 2: Backup as the host's START destination (the cross-Activity launch from
+     * `StartupActivity`'s crash check). Up has nothing to pop, so it must leave the host exactly once.
+     */
+    @Test
+    fun upOnBackupAsTheStartDestinationExitsTheHostOnce() {
+        setGraph(NavRoutes.BACKUP)
+        clickUp()
+        assertEquals(1, exitHostCalls, "Up on the start destination has nothing to pop, so it leaves the host")
+    }
+
+    /**
+     * `AbScaffold`'s Up icon has no content description, so this clicks the top-left-most clickable node:
+     * the top app bar's navigation icon. Zero-size nodes are skipped because clipped, off-screen list rows
+     * report `Rect(0, 0, 0, 0)`. Picking any other button would not call `exitHost`, so a wrong pick fails
+     * the test instead of passing it.
+     */
+    private fun clickUp() {
+        val up = compose.onAllNodes(hasClickAction()).fetchSemanticsNodes()
+            .filter { it.boundsInRoot.width > 0f && it.boundsInRoot.height > 0f }
+            .minWith(compareBy({ it.boundsInRoot.top }, { it.boundsInRoot.left }))
+        compose.onNode(SemanticsMatcher("the Up button") { it.id == up.id }).performClick()
+        compose.waitForIdle()
     }
 }

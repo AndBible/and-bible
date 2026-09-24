@@ -62,19 +62,22 @@ class BackupBeforeDbInitTest {
         DatabaseContainer.ready = false
         CommonUtils.initialized = false
         runningTests = false
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.BACKUP),
+        )
         try {
-            val controller = Robolectric.buildActivity(
-                NavHostComposeActivity::class.java,
-                NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.BACKUP),
-            ).create().start().resume().visible()
+            controller.create().start().resume().visible()
             shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
             val activity = controller.get()
             val nav = NavHostComposeActivity::class.java.getDeclaredField("navController")
                 .apply { isAccessible = true }.get(activity) as NavHostController
             assertTrue("a BACKUP start must not initialise the app", activity.doNotInitializeApp)
             assertEquals(NavRoutes.BACKUP, nav.currentDestination?.route)
-            controller.pause().stop().destroy()
         } finally {
+            // Tear down whatever state the launch reached (a failed assertion must not leak a live host),
+            // still with the DB "not ready", which is what an on-device teardown would see.
+            controller.close()
             runningTests = true
             DatabaseContainer.ready = wasReady
             CommonUtils.initialized = wasInitialized

@@ -88,4 +88,35 @@ class BackupPopupInGraphTest {
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
         assertTrue("…and return once the user has left it", returned)
     }
+
+    /**
+     * Review minor 1: "Backup & restore" chosen from an error dialog raised INSIDE Backup. Classic pushed a
+     * second Backup screen and re-showed the dialog over it; in-graph, a `launchSingleTop` navigate is a
+     * no-op, so waiting for Backup to leave would put the dialog back only once the user reached reading.
+     * `backupPopup` must return at once, leaving Backup where it is.
+     */
+    @Test
+    fun backupPopupWhileBackupIsAlreadyCurrentReturnsAtOnce() {
+        firstTime = false
+        val activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).also { controllers += it }.create().start().resume().visible().get()
+        val nav = NavHostComposeActivity::class.java.getDeclaredField("navController")
+            .apply { isAccessible = true }.get(activity) as NavHostController
+        nav.navigate(NavRoutes.BACKUP)
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
+        assertEquals(NavRoutes.BACKUP, nav.currentDestination?.route)
+        var returned = false
+
+        activity.lifecycleScope.launch { BackupControl.backupPopup(activity); returned = true }
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
+
+        assertTrue("backupPopup must return at once when Backup is already on screen", returned)
+        assertEquals(NavRoutes.BACKUP, nav.currentDestination?.route)
+        assertEquals(
+            "exactly one Backup entry",
+            1, nav.currentBackStack.value.count { it.destination.route == NavRoutes.BACKUP },
+        )
+    }
 }
