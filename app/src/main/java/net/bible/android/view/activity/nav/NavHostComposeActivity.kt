@@ -123,6 +123,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.control.bookmark.BookmarkControl
@@ -187,6 +188,7 @@ import net.bible.android.view.activity.page.FullScreenEvent
 import net.bible.android.view.activity.page.KeyChooserResults
 import net.bible.android.view.activity.page.ReadingAppBootstrap
 import net.bible.android.view.activity.page.ReadingHostActivity
+import net.bible.android.view.activity.page.MainBibleAfterRestore
 import net.bible.android.view.activity.page.ReadingCommands
 import net.bible.android.view.activity.page.ReadingCommandsHostCallbacks
 import net.bible.android.view.activity.page.ReadingInsets
@@ -195,14 +197,9 @@ import net.bible.android.view.activity.page.SDCARD_READ_REQUEST
 import net.bible.android.view.activity.page.SpeakTransportVisibilityChanged
 import net.bible.android.view.activity.page.SystemInsetsChangedEvent
 import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
-import net.bible.android.view.activity.page.MainBibleAfterRestore
-import net.bible.android.view.activity.page.syncScope
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
-import net.bible.service.cloudsync.CloudSyncEvent
-import net.bible.service.cloudsync.WorkspaceRefreshRequired
-import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
 import net.bible.android.view.activity.page.UpdateRestoreWindowButtons
 import net.bible.android.view.activity.page.WORKSPACE_CHANGED
+import net.bible.android.view.activity.page.syncScope
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
 import net.bible.android.view.activity.search.EPUB_SEARCH_TYPE_KEY
@@ -226,6 +223,8 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.android.view.activity.cloud.CloudSyncProgressBridge
 import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.CloudSyncEvent
+import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
@@ -250,6 +249,7 @@ import net.bible.service.backup.BackupServiceImpl
 import net.bible.service.db.exportStudyPads
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
+import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
@@ -2956,9 +2956,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // its own line rather than left for the next reader to discover.
 
     /**
-     * Classic `MainBibleActivity`'s `NightModeChanged` subscription, guard shape included.
+     * This host's ABEventBus subscriptions -- eight, all classic `MainBibleActivity.eventSubscriptions`
+     * ports except the Welcome progress line: `UpdateMainBibleActivityDocuments` (sets
+     * [updateDocumentsPending], ungated -- [reconcileReadingStateOnResume] decides whether there is a
+     * workspace to apply it to), `NightModeChanged` (guarded, below), `InstallZipEvent` (slice 8 E2: the
+     * Welcome card's progress line), and the five slice 8's final review restored -- `CloudSyncEvent`,
+     * `AppToBackgroundEvent`, `WorkspacesUpdatedViaSyncEvent`, `WorkspaceRefreshRequired` and
+     * `MainBibleAfterRestore` -- each gated on [readingAppBootstrapped], because a host that has not run
+     * the reading bootstrap owns neither a window repository nor the cloud-sync loop they act on.
      *
-     * **The guard is the point.** `paused` plus the `CurrentActivityHolder.currentActivity == this`
+     * `NightModeChanged` keeps classic's guard shape. **The guard is the point.** `paused` plus the `CurrentActivityHolder.currentActivity == this`
      * identity check is the original author defending exactly the case this batch creates: TWO live
      * reading-capable Activities on one bus, of which at most one is on screen. Without it both
      * refresh their theme on every night-mode change -- the background one pointlessly, and (worse)
