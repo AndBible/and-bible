@@ -36,17 +36,11 @@ class ClassicProgressStatusRemovalGuardTest {
     )
 
     /**
-     * The resources this slice deliberately KEEPS. `progress_status.xml`'s only `R.layout`
-     * referrer is the deleted class, so spec 8.1's last-referrer rule would call it doomed too —
-     * but three of its ids (`progressControlContainer`, `noTasksRunning`, `progressStatusMessage`)
-     * are read by the surviving, spec-2.4-protected `ProgressActivityBase`, and this layout is
-     * their sole definition anywhere under any source set's `res` tree. Deleting it would be an
-     * unresolved-reference compile error in a file this batch forbids touching. (The layout's
-     * other two ids die with the class that alone reads them: `okButton` is read only by the
-     * deleted `ProgressStatus.kt`, and `button_panel` is read nowhere at all — it merely happens
-     * to share a name with an unrelated id in `speak_transport_widget.xml`.)
+     * nav-graph slice 8 F7: `ProgressActivityBase` itself lost its last subclass (S19 already left
+     * it referenceless) and is deleted along with `progress_status.xml`, the sole definer of the
+     * three ids it read. Both move from "surviving collaborator" to "gone with the family" here.
      */
-    private val survivingCollaborators = listOf(
+    private val goneWithTheFamily = listOf(
         "src/main/res/layout/progress_status.xml",
         "src/main/java/net/bible/android/view/activity/base/ProgressActivityBase.kt",
     )
@@ -58,12 +52,10 @@ class ClassicProgressStatusRemovalGuardTest {
                 "ProgressStatusComposeActivity is the only implementation",
         )
 
-    @Test fun theSurvivingProgressStatusCollaboratorsStillExist() =
-        ClassicRemovalScan.assertPathsPresent(
-            survivingCollaborators,
-            "a collaborator slice S19 deliberately kept has been deleted: progress_status.xml is " +
-                "the sole definer of three ids ProgressActivityBase still reads, and " +
-                "ProgressActivityBase itself is spec 2.4 residue (zero subclasses after this slice)",
+    @Test fun theSpec24ResidueWentWithItsLastSubclass() =
+        ClassicRemovalScan.assertPathsGone(
+            goneWithTheFamily,
+            "slice 8 F7: zero subclasses; spec §2 deletes the family's dead members",
         )
 
     @Test fun noSourceFileNamesAClassicProgressStatusClass() =

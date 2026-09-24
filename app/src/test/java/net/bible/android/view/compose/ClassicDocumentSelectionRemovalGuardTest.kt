@@ -59,28 +59,34 @@ class ClassicDocumentSelectionRemovalGuardTest {
     )
 
     /**
-     * The resources this slice deliberately KEEPS. Two are shared with a surviving Compose
-     * host (both books_not_downloaded layouts, which Appendix A attributes to the classic screen
+     * The resources this slice deliberately KEEPS. Both are shared with a surviving Compose
+     * host (the books_not_downloaded layouts, which Appendix A attributes to the classic screen
      * alone — deleting them is a runtime Resources$NotFoundException, not a compile error). Their
      * inflater is now `NavHostComposeActivity.warnUserBooksNotDownloaded`, which nav-graph slice 4
      * Task 7a ported out of `DownloadComposeActivity` along with the rest of the Download host's
      * baggage; the classic Activity inflated them too until nav-graph slice 4 Task 9 deleted it, so
-     * the two layouts outlive both of those facts changing. The rest are spec 2.4 residue: the base,
-     * its layout and its action-mode menu stay even though the base now has zero subclasses.
-     *
-     * `document_context_menu.xml` was on this slice's DELETE list until the compile gate rejected
-     * it: it is the sole definer of `R.id.about` and `R.id.delete_index`, which the surviving
-     * `DocumentSelectionBase.onActionItemClicked` still names. Same failure mode as the two
-     * books_not_downloaded layouts — a resource attributed to the classic screen alone but reached
-     * from a survivor — caught here by the compiler rather than only at runtime.
+     * the two layouts outlive both of those facts changing. `DocumentBadges.kt` holds top-level
+     * declarations that outlived the deleted classes.
      */
     private val survivingCollaborators = listOf(
-        "src/main/java/net/bible/android/view/activity/base/DocumentSelectionBase.kt",
-        "src/main/res/layout/document_selection.xml",
         "src/main/res/layout/books_not_downloaded_dialog.xml",
         "src/main/res/layout/books_not_downloaded_list_item.xml",
-        "src/main/res/menu/document_context_menu.xml",
         "src/main/java/net/bible/android/view/activity/download/DocumentBadges.kt",
+    )
+
+    /**
+     * nav-graph slice 8 F7: `DocumentSelectionBase` lost its only two subclasses (the abstract,
+     * subclass-less `ChooseKeyBase` and `DocumentSelectionBase` itself, per plan-context.md
+     * correction 10) and is deleted. `document_selection.xml` (its binding) and
+     * `document_context_menu.xml` go with it: the menu was kept past S6 only because
+     * `DocumentSelectionBase.onActionItemClicked` still named `R.id.about` and `R.id.delete_index`
+     * from it (see the superseded note this replaces) — with that reader gone, it has no referrer
+     * left anywhere under any source set's `res` tree.
+     */
+    private val goneWithItsLastSubclass = listOf(
+        "src/main/java/net/bible/android/view/activity/base/DocumentSelectionBase.kt",
+        "src/main/res/layout/document_selection.xml",
+        "src/main/res/menu/document_context_menu.xml",
     )
 
     @Test fun theClassicDocumentSelectionFilesAreGone() =
@@ -93,13 +99,16 @@ class ClassicDocumentSelectionRemovalGuardTest {
     @Test fun theSurvivingDocumentSelectionCollaboratorsStillExist() =
         ClassicRemovalScan.assertPathsPresent(
             survivingCollaborators,
-            "a collaborator slice S6 deliberately kept has been deleted: DocumentSelectionBase and " +
-                "document_selection.xml are spec 2.4 residue, DocumentBadges.kt holds the top-level " +
-                "declarations that outlived the deleted classes, both books_not_downloaded " +
-                "layouts are inflated by the SURVIVING NavHostComposeActivity (DownloadComposeActivity " +
-                "inflated them too until nav-graph slice 4 Task 9 deleted it), and " +
-                "document_context_menu.xml is the sole definer of the R.id.about and " +
-                "R.id.delete_index that DocumentSelectionBase still names",
+            "a collaborator slice S6 deliberately kept has been deleted: DocumentBadges.kt holds " +
+                "the top-level declarations that outlived the deleted classes, and both " +
+                "books_not_downloaded layouts are inflated by the SURVIVING NavHostComposeActivity " +
+                "(DownloadComposeActivity inflated them too until nav-graph slice 4 Task 9 deleted it)",
+        )
+
+    @Test fun theSpec24ResidueWentWithItsLastSubclass() =
+        ClassicRemovalScan.assertPathsGone(
+            goneWithItsLastSubclass,
+            "slice 8 F7: zero subclasses; spec §2 deletes the family's dead members",
         )
 
     @Test fun noSourceFileNamesAClassicDocumentSelectionClass() =

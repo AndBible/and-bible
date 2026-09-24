@@ -20,7 +20,7 @@ import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.download.LanguageGrouping
 import net.bible.android.control.document.canDelete
-import net.bible.android.view.activity.base.installedDocument
+import net.bible.android.view.activity.download.installedDocument
 import net.bible.service.download.DownloadManager
 import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow

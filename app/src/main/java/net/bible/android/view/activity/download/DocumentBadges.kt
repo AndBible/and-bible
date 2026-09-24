@@ -16,9 +16,9 @@
  */
 package net.bible.android.view.activity.download
 
+import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.control.download.repo
-import net.bible.android.view.activity.base.DocumentConfiguration
 import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -57,7 +57,43 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
  * in this package, before nav-graph slice 4 Task 9 deleted it in favour of
  * `nav/NavHostComposeActivity.kt`'s explicit imports. Moving the file to a "tidier" package is
  * still a needless churn, not a cleanup.
+ *
+ * [DocumentConfiguration], [PseudoBook] and [Book.installedDocument] were promoted here from
+ * `base/DocumentSelectionBase.kt` by nav-graph slice 8 F7, which deleted that abstract class (zero
+ * subclasses): these three top-level declarations outlive it, consumed by
+ * `nav/NavHostComposeActivity.kt`, `navigation/DocRowMapper.kt` and
+ * `service/download/FakeBookFactory.kt`.
  */
+@Serializable
+data class DocumentConfiguration(
+    val bibles: Map<String, List<String>>,
+    val commentaries: Map<String, List<String>>,
+    val dictionaries: Map<String, List<String>>,
+    val books: Map<String, List<String>>,
+    val maps: Map<String, List<String>>,
+    val addons: Map<String, List<String>> = emptyMap(),
+) {
+    fun getForBookCategory(c: BookCategory): Map<String, List<String>> {
+        return when(c) {
+            BookCategory.BIBLE -> bibles
+            BookCategory.COMMENTARY -> commentaries
+            BookCategory.GENERAL_BOOK -> books
+            BookCategory.MAPS -> maps
+            BookCategory.DICTIONARY -> dictionaries
+            BookCategory.AND_BIBLE -> addons
+            else -> emptyMap()
+        }
+    }
+}
+
+@Serializable
+data class PseudoBook(
+    val id: String,
+    val suggested: String,
+)
+
+val Book.installedDocument get() = Books.installed().getBook(initials)
+
 val BookCategory.imageResource: Int
     get() = when(this) {
         BookCategory.BIBLE -> if(CommonUtils.isDiscrete) R.drawable.ic_baseline_menu_book_24 else  R.drawable.ic_bible_24dp

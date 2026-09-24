@@ -72,21 +72,6 @@
 	<style name="OptionsButtonsStyle" parent="@style/Widget.AppCompat.ActionButton.Overflow" >
 		<item name="android:tint">?attr/toolbarTextColor</item>
 	</style>
-	<style name="MainBibleActionBar">
-		<item name="actionOverflowButtonStyle">@style/OptionsButtonsStyle</item>
-		<item name="android:background">@color/actionbar_background</item>
-	</style>
-	<style name="MainBibleActionBarButtons" parent="MainBibleActionBar">
-		<item name="android:textColorSecondary">@color/white</item>
-		<item name="android:textColorPrimary">@color/white</item>
-	</style>
-
-	<style name="MainBibleViewTheme" parent="BaseAppTheme">
-		<item name="windowActionBar">false</item>
-		<item name="windowNoTitle">true</item>
-		<item name="windowActionModeOverlay">true</item>
-		<item name="actionBarSize">@dimen/toolbar_height</item>
-	</style>
 
 	<style name="NavigationViewTextStyle" parent="BaseAppTheme">
 		<item name="android:ellipsize">end</item>

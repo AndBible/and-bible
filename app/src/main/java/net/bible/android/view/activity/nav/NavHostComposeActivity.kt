@@ -164,9 +164,9 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.themePixelSize
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.base.DocumentConfiguration
-import net.bible.android.view.activity.base.PseudoBook
-import net.bible.android.view.activity.base.installedDocument
+import net.bible.android.view.activity.download.DocumentConfiguration
+import net.bible.android.view.activity.download.PseudoBook
+import net.bible.android.view.activity.download.installedDocument
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.android.view.activity.bookmark.LabelEditContract
 import net.bible.android.view.activity.bookmark.LabelEditMapper

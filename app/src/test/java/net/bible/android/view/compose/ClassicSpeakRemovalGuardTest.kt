@@ -39,10 +39,10 @@ import org.junit.Test
  * attached, so hiding rather than deleting would have left three live bus subscriptions and a
  * per-tick `getStatusText` running beside the Compose controller.
  *
- * `AbstractSpeakActivity` is deliberately kept and deliberately referenceless: §2.4 names this base
- * and this exact situation. It is the phase's third such residue after ChooseKeyBase (S3) and
- * ProgressActivityBase (S19), and nothing but the assertion below stops a later tidy deleting it
- * with every gate green.
+ * `AbstractSpeakActivity` was deliberately kept referenceless by §2.4 as residue after S13 deleted
+ * both its subclasses — the phase's third such residue after ChooseKeyBase (S3) and
+ * ProgressActivityBase (S19). nav-graph slice 8 F7 deletes the whole `CustomTitlebarActivityBase`
+ * family of zero-subclass residue at once, this base included.
  */
 class ClassicSpeakRemovalGuardTest {
     private val doomedClassNames = listOf(
@@ -107,11 +107,10 @@ class ClassicSpeakRemovalGuardTest {
         )
     }
 
-    @Test fun theReferencelessAbstractSpeakActivityStillExists() {
-        ClassicRemovalScan.assertPathsPresent(
+    @Test fun theReferencelessAbstractSpeakActivityIsGone() {
+        ClassicRemovalScan.assertPathsGone(
             listOf("src/main/java/net/bible/android/view/activity/speak/AbstractSpeakActivity.kt"),
-            "AbstractSpeakActivity lost both its subclasses in S13 and is now referenceless — §2.4 " +
-                "names it and keeps it.",
+            "slice 8 F7: referenceless since S13",
         )
     }
 
