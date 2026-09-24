@@ -161,6 +161,12 @@ internal class InstallZipFlow(
     /** Back leaves the destination; a running install keeps running in the service, as before. */
     override fun back() = finish(InstallZipResult.CANCELED)
 
+    /** The entry is gone: cancel everything, answer nothing (a running install keeps running in the service). */
+    override fun close() {
+        finished = true
+        work.toList().forEach { it.cancel() }
+    }
+
     private fun launchFilePicker() {
         work += scope.launch {
             val picked = try {

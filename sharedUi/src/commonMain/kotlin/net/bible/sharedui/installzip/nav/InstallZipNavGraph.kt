@@ -22,7 +22,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LifecycleStartEffect
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -37,13 +40,22 @@ import net.bible.sharedui.installzip.InstallUiState
 import net.bible.sharedui.installzip.InstallZipContent
 import net.bible.sharedui.nav.NavResultChannel
 
-/** One InstallZip entry's state machine, as the destination drives it; `:app`'s `InstallZipFlow` implements it. */
+/**
+ * One InstallZip entry's state machine, as the destination drives it; `:app`'s `InstallZipFlow` implements it.
+ * It lives as long as its NavBackStackEntry ([InstallZipEntrySessions]), not as long as a composition.
+ */
 interface InstallZipSession {
     val state: StateFlow<InstallUiState?>
     fun start()
     fun confirm()
     fun dismiss()
     fun back()
+
+    /**
+     * The entry is gone (popped by anyone, or the host destroyed): stop everything this session runs and
+     * never answer. A running install keeps running in the service, as after [back].
+     */
+    fun close()
 }
 
 /**
@@ -64,7 +76,73 @@ class InstallZipNavDeps(
     val lockOrientation: () -> (() -> Unit),
     val hostBound: () -> Unit,
     val hostUnbound: () -> Unit,
-)
+) {
+    /** Host-lifetime (these deps are `remember`ed by the host): outlives any one composition of an entry. */
+    internal val entrySessions = InstallZipEntrySessions()
+}
+
+/**
+ * One [InstallZipSession] per InstallZip NavBackStackEntry, keyed by the entry's id (D1 controller ruling).
+ *
+ * Navigation disposes a destination's composition when another destination covers it and recomposes it on
+ * return; a session tied to that composition would be recreated and `start()` again -- re-enqueueing a
+ * SEND's files. So the session is created once per entry and closed only when the entry's own Lifecycle
+ * reaches DESTROYED: popped by anything (its own answer, an outside `popBackStack`/`popUpTo`) or the host
+ * finishing. Never on composition dispose.
+ *
+ * Its answer leaves through ITS OWN entry only: delivered at once while that entry is the current one; held
+ * while something covers it and delivered when the entry is resumed again; dropped if the entry is gone. It
+ * never pops "whatever is current".
+ */
+internal class InstallZipEntrySessions {
+
+    private class Held(val session: InstallZipSession) {
+        var pending: InstallZipResult? = null
+    }
+
+    private val byEntry = mutableMapOf<String, Held>()
+
+    fun sessionFor(
+        entry: NavBackStackEntry,
+        navController: NavHostController,
+        deps: InstallZipNavDeps,
+        action: String?,
+        uris: List<String>,
+    ): InstallZipSession {
+        byEntry[entry.id]?.let { return it.session }
+        lateinit var held: Held
+        val session = deps.sessionFor(action, uris) onFinished@{ result ->
+            if (byEntry[entry.id] !== held) return@onFinished // entry gone: closed, answer nothing
+            if (navController.currentBackStackEntry?.id == entry.id) {
+                deps.installZipResults.deliver(navController, result)
+            } else {
+                held.pending = result // covered: answer when this entry is on top again
+            }
+        }
+        held = Held(session)
+        if (entry.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+            session.close()
+            return session
+        }
+        byEntry[entry.id] = held
+        entry.lifecycle.addObserver(LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> held.pending?.let { result ->
+                    held.pending = null
+                    if (navController.currentBackStackEntry?.id == entry.id) {
+                        deps.installZipResults.deliver(navController, result)
+                    }
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    byEntry.remove(entry.id)
+                    held.session.close()
+                }
+                else -> Unit
+            }
+        })
+        return session
+    }
+}
 
 fun NavGraphBuilder.installZipNavGraph(navController: NavHostController, deps: InstallZipNavDeps) {
     composable(
@@ -80,10 +158,11 @@ fun NavGraphBuilder.installZipNavGraph(navController: NavHostController, deps: I
         val uris = NavRoutes.decodeInstallZipUris(backStackEntry.arguments?.read { getStringOrNull(NavRoutes.ARG_INSTALL_URIS) })
 
         val session = remember(backStackEntry) {
-            deps.sessionFor(action, uris) { result -> deps.installZipResults.deliver(navController, result) }
+            deps.entrySessions.sessionFor(backStackEntry, navController, deps, action, uris)
         }
 
         LaunchedEffect(deps.windowTitle) { deps.setWindowTitle(deps.windowTitle) }
+        // start() is idempotent: a recomposition after the entry was covered finds the same, started session.
         LaunchedEffect(session) { session.start() }
         DisposableEffect(Unit) {
             val restore = deps.lockOrientation()

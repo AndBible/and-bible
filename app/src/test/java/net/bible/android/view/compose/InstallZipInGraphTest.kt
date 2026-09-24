@@ -19,7 +19,9 @@ package net.bible.android.view.compose
 
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
+import android.net.Uri
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -28,7 +30,10 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import net.bible.android.TEST_SDK
+import net.bible.android.view.activity.installzip.InstallZipFlow
 import net.bible.service.common.DisplayColorMode
+import net.bible.service.installzip.InstallJobState
+import net.bible.service.installzip.InstallPhase
 import net.bible.sharedcore.nav.InstallZipResult
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.ProvideAppLocals
@@ -62,6 +67,8 @@ class InstallZipInGraphTest {
     private val sessions = mutableListOf<Triple<String?, List<String>, FakeSession>>()
     private val results = NavResultChannel<InstallZipResult> { channelExits++ }
 
+    private val running = InstallJobState("job-1", "module.zip", InstallPhase.Acquiring(10))
+
     private class FakeSession(private val onFinished: (InstallZipResult) -> Unit) : InstallZipSession {
         override val state: StateFlow<InstallUiState?> = MutableStateFlow(InstallUiState.FormatInfo("formats"))
         var starts = 0
@@ -69,14 +76,47 @@ class InstallZipInGraphTest {
         override fun confirm() = Unit
         override fun dismiss() = onFinished(InstallZipResult.CANCELED)
         override fun back() = onFinished(InstallZipResult.CANCELED)
+        override fun close() = Unit
     }
 
-    private fun setGraph() {
+    private fun fakeSessionFor(action: String?, uris: List<String>, onFinished: (InstallZipResult) -> Unit): InstallZipSession =
+        FakeSession(onFinished).also { sessions += Triple(action, uris, it) }
+
+    // ——— the real InstallZipFlow, for the entry-lifetime tests (controller ruling on D1 concern 1) ———
+    private val jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
+    private val enqueued = mutableListOf<List<Uri>>()
+    private var realSessions = 0
+
+    private fun realSessionFor(action: String?, uris: List<String>, onFinished: (InstallZipResult) -> Unit): InstallZipSession {
+        realSessions++
+        return InstallZipFlow(
+            scope = compose.activity.lifecycleScope,
+            action = action,
+            uris = uris.map(Uri::parse),
+            seams = InstallZipFlow.Seams(
+                jobs = jobs,
+                isStudyPadExport = { false },
+                displayName = { "module.zip" },
+                formatsText = { "formats" },
+                pickFile = { null },
+                enqueue = { list, _ -> enqueued += list },
+                resolveDecision = { _, _ -> },
+                mapPhase = { InstallUiState.Progress(it.displayName, "status", percent = null, indeterminate = true) },
+                requestNotificationPermission = {},
+                noFileManager = {},
+            ),
+            onFinished = onFinished,
+        )
+    }
+
+    private fun setGraph(
+        sessionFor: (String?, List<String>, (InstallZipResult) -> Unit) -> InstallZipSession = ::fakeSessionFor,
+    ) {
         val deps = InstallZipNavDeps(
             setWindowTitle = {},
             windowTitle = "Install",
             installZipResults = results,
-            sessionFor = { action, uris, onFinished -> FakeSession(onFinished).also { sessions += Triple(action, uris, it) } },
+            sessionFor = sessionFor,
             lockOrientation = { locks++; { restores++ } },
             hostBound = { bound++ },
             hostUnbound = { unbound++ },
@@ -87,6 +127,7 @@ class InstallZipInGraphTest {
                 AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                     NavHost(navController = navController, startDestination = NavRoutes.READING) {
                         composable(NavRoutes.READING) { Text("reading") }
+                        composable(OTHER) { Text("other") }
                         installZipNavGraph(navController, deps)
                     }
                 }
@@ -129,6 +170,74 @@ class InstallZipInGraphTest {
         assertEquals(tricky, uris)
     }
 
+    /**
+     * The session belongs to the NavBackStackEntry, not to its composition. Covering InstallZip disposes
+     * the destination's composition; coming back recomposes it, and that must NOT start a second session
+     * (which would enqueue the shared files a second time).
+     */
+    @Test
+    fun coveringInstallZipAndComingBackDoesNotEnqueueTheSharedFilesTwice() {
+        setGraph(::realSessionFor)
+        compose.runOnIdle { navController.navigate(NavRoutes.installZip("android.intent.action.SEND", listOf("content://x/module.zip"))) }
+        compose.waitForIdle()
+        jobs.value = listOf(running)
+        compose.runOnIdle { navController.navigate(OTHER) }
+        compose.waitForIdle()
+        compose.runOnIdle { navController.popBackStack() }
+        compose.waitForIdle()
+
+        assertEquals(NavRoutes.INSTALL_ZIP_PATTERN, navController.currentBackStackEntry?.destination?.route)
+        assertEquals(listOf(listOf(Uri.parse("content://x/module.zip"))), enqueued, "enqueued exactly once")
+        assertEquals(1, realSessions, "one session per back-stack entry")
+    }
+
+    /**
+     * Popped by someone else (not its own back/finish) while its job runs: the session is closed with its
+     * entry, so the job draining later neither answers nor pops whatever destination is current then.
+     */
+    @Test
+    fun anInstallZipEntryPoppedFromOutsideIsClosedAndPopsNothingLater() {
+        setGraph(::realSessionFor)
+        compose.runOnIdle { navController.navigate(OTHER) }
+        compose.waitForIdle()
+        compose.runOnIdle { navController.navigate(NavRoutes.installZip("android.intent.action.SEND", listOf("content://x/module.zip"))) }
+        compose.waitForIdle()
+        jobs.value = listOf(running)
+        compose.waitForIdle()
+
+        compose.runOnIdle { navController.popBackStack() }
+        compose.waitForIdle()
+        assertEquals(OTHER, navController.currentBackStackEntry?.destination?.route)
+
+        compose.runOnIdle { jobs.value = emptyList() }
+        compose.waitForIdle()
+
+        assertEquals(OTHER, navController.currentBackStackEntry?.destination?.route, "nothing else was popped")
+        assertEquals(null, results.consume(), "a closed session answers nothing")
+        assertEquals(0, channelExits)
+    }
+
+    /** An answer given while something covers InstallZip waits for its entry, then pops that entry only. */
+    @Test
+    fun anAnswerWhileCoveredWaitsForItsOwnEntryToBeOnTop() {
+        setGraph()
+        compose.runOnIdle { navController.navigate(NavRoutes.installZip()) }
+        compose.waitForIdle()
+        compose.runOnIdle { navController.navigate(OTHER) }
+        compose.waitForIdle()
+
+        compose.runOnIdle { sessions.single().third.dismiss() }
+        compose.waitForIdle()
+        assertEquals(OTHER, navController.currentBackStackEntry?.destination?.route, "the covering destination is not popped")
+        assertEquals(null, results.pending.value)
+
+        compose.runOnIdle { navController.popBackStack() }
+        compose.waitForIdle()
+        assertEquals(NavRoutes.READING, navController.currentBackStackEntry?.destination?.route)
+        assertEquals(InstallZipResult.CANCELED, results.consume())
+        assertEquals(1, sessions.size)
+    }
+
     @Test
     fun thePortraitLockAndTheServiceBindingFollowTheDestination() {
         setGraph()
@@ -145,5 +254,9 @@ class InstallZipInGraphTest {
         assertEquals(1, unbound)
         assertEquals(InstallZipResult.CANCELED, results.consume(), "back is a CANCELED answer, as the Activity's back was")
         assertEquals(0, channelExits, "an in-graph InstallZip publishes and pops; it does not exit the host")
+    }
+
+    private companion object {
+        const val OTHER = "test/other"
     }
 }

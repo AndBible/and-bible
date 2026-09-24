@@ -143,6 +143,17 @@ class InstallZipFlowTest {
     }
 
     @Test
+    fun aClosedSessionNeverAnswersEvenWhenItsJobDrains() = runTest(UnconfinedTestDispatcher()) {
+        val f = flow(backgroundScope, Intent.ACTION_SEND, listOf(uri))
+        f.start()
+        jobs.value = listOf(running)
+        f.close()
+        jobs.value = emptyList()
+        f.back()
+        assertEquals("closed with its entry: no answer, not even to a later back", emptyList<InstallZipResult>(), results)
+    }
+
+    @Test
     fun aForeignJobDrainingDoesNotFinishAnEntryThatEnqueuedNothing() = runTest(UnconfinedTestDispatcher()) {
         flow(backgroundScope, null, emptyList()).start()
         jobs.value = listOf(running)
