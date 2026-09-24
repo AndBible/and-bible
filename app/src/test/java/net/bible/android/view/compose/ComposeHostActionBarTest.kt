@@ -182,22 +182,12 @@ class ComposeHostActionBarTest {
         )
     }
 
-    /**
-     * InstallZip Plan B (Task B5): [net.bible.android.view.activity.installzip.InstallZipComposeActivity]
-     * declares `android:theme="@style/Theme.AbCompose"` in the manifest, same as every other Compose
-     * host above. Built with Robolectric's default (no-action) launch Intent, its own `dispatchEntry()`
-     * classifies that as [net.bible.android.view.activity.installzip.InstallZipEntryDecision.PickFile]
-     * (the in-app "choose a file" prelude) -- a real, harmless entry path (no SAF/service side effects
-     * happen synchronously in `create()`), so this exercises the real Activity, not a stand-in
-     * probe.
-     */
-    @Test fun `InstallZipComposeActivity has no native ActionBar (Theme_AbCompose)`() {
-        assertNull(
-            "InstallZipComposeActivity must use Theme.AbCompose (NoActionBar); a non-null " +
-                "supportActionBar means the manifest entry lost the theme, producing a double app bar.",
-            Robolectric.buildActivity(
-                net.bible.android.view.activity.installzip.InstallZipComposeActivity::class.java
-            ).create().get().supportActionBar
-        )
-    }
+    // Slice 8 D3: the `InstallZipComposeActivity has no native ActionBar (Theme_AbCompose)` probe above
+    // this comment was deleted here (not rehosted). Deletion reason: it measured the InstallZip HOST's
+    // own window theme, but `InstallZipComposeActivity` is now a plain `ComponentActivity` redirect that
+    // draws nothing at all (no `setContent`, no theme-bearing content) -- there is no window left to have
+    // an ActionBar in. The InstallZip UI is now a destination of `NavHostComposeActivity`, whose
+    // action-bar-free `Theme.AbCompose` window is already pinned by
+    // `NavHostComposeActivity has no native ActionBar (Theme_AbCompose)` above, which covers this
+    // destination the same way it covers the ten former AI-cluster screens and CloudDocuments.
 }

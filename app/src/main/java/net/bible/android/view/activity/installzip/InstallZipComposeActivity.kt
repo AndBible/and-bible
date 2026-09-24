@@ -16,39 +16,21 @@
  */
 package net.bible.android.view.activity.installzip
 
-import android.Manifest
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
-import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.AndBibleBackupManifest
-import net.bible.service.common.BackupType
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.installzip.DecisionRequest
-import net.bible.service.installzip.DocumentInstallService
 import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.InstallPhase
-import net.bible.sharedui.AbAppTheme
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.installzip.InstallUiState
-import net.bible.sharedui.installzip.InstallZipContent
 
 /**
  * Pure entry-dispatch decision, computed from the launching [Intent] alone (mirrors classic
@@ -124,15 +106,6 @@ internal suspend fun classifyEntry(
 }
 
 /**
- * The log tag for this package. Kept as the literal `"InstallZip"` it has always been rather than
- * renamed to match the host class: slice S16 deleted classic `InstallZip.kt`, which declared this
- * as a package-visible `const val TAG` that this file read with no import at all (same package),
- * and log-tag continuity across the release matters more here than symmetry with the class name --
- * a user's logcat capture from before and after the port should filter identically.
- */
-private const val TAG = "InstallZip"
-
-/**
  * The URI-grant flags an Intent needs to keep the sender's `content://` grant readable
  * (see [composeForwardIntent]) -- and ONLY these; deliberately excludes any `FLAG_ACTIVITY_*`.
  */
@@ -143,22 +116,9 @@ private const val URI_GRANT_FLAGS =
         Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
 
 /**
- * Normalises an inbound Intent into one addressed at this host, keeping the sender's URI grant.
- *
- * **This is no longer a forwarding hop.** It was written for spec
- * `2026-07-25-compose-pre-ab-state-freshness-design.md` §1 P2, when the external
- * `<intent-filter>`s for `ACTION_VIEW`/`ACTION_SEND`/`ACTION_SEND_MULTIPLE` lived on the classic
- * `InstallZip` Activity — an `<intent-filter>` cannot be toggled at runtime, so while the port was
- * still switchable at runtime classic had to receive the file-manager/Share-sheet Intent and
- * forward a copy here. Slice S16's prep moved those filters onto this host in
- * `app/src/standard/AndroidManifest.xml` and then deleted classic `InstallZip`, so **an external
- * module-file Intent now lands here directly** and nothing in production calls this any more.
- *
- * It is kept, rather than deleted with the forwarder, as this file's URI-grant normaliser: it is
- * small, side-effect-free, and its four `InstallZipComposeActivityTest` cases are the only
- * coverage anywhere of which flags may and may not travel with a `content://` uri — the rule
- * below, which any future re-dispatch of an inbound Intent has to obey. Deleting a tested,
- * documented invariant inside a deletion slice would have cost that coverage for nothing.
+ * Readdresses an inbound Intent to the nav host, keeping the sender's URI grant (slice 8 §3.2: it
+ * IS the forwarding hop again -- [InstallZipComposeActivity] redirects every external module-file
+ * Intent to the host's INSTALL_ZIP destination through it).
  *
  * Building it from a **copy** of the whole Intent keeps every part of the contract the
  * receiving host reads: `action`, `data` + `type`, `clipData`, and all extras.
@@ -175,10 +135,26 @@ private const val URI_GRANT_FLAGS =
  * either Activity's lifecycle — see `InstallZipComposeActivityTest`.
  */
 internal fun composeForwardIntent(original: Intent?, context: Context): Intent =
-    if (original == null) Intent(context, InstallZipComposeActivity::class.java)
+    if (original == null) Intent(context, NavHostComposeActivity::class.java)
     else Intent(original)
-        .setClass(context, InstallZipComposeActivity::class.java)
+        .setClass(context, NavHostComposeActivity::class.java)
         .also { it.flags = it.flags and URI_GRANT_FLAGS }
+
+/**
+ * The redirect's Intent (slice 8 §3.2): [composeForwardIntent]'s copy of [original] -- data, clipData and
+ * extras, so the URI grant travels; only [URI_GRANT_FLAGS] -- carrying the INSTALL_ZIP start route built from
+ * [decision]. Null for [InstallZipEntryDecision.Invalid]: nothing to install, nothing to start.
+ */
+internal fun installZipRedirectIntent(original: Intent?, context: Context, decision: InstallZipEntryDecision): Intent? {
+    val routeArgs: Pair<String?, List<Uri>> = when (decision) {
+        is InstallZipEntryDecision.ConfirmThenEnqueue -> Pair(decision.action, listOf(decision.uri))
+        is InstallZipEntryDecision.EnqueueNow -> Pair(decision.action, decision.uris)
+        InstallZipEntryDecision.PickFile -> Pair(null, emptyList())
+        InstallZipEntryDecision.Invalid -> return null
+    }
+    return composeForwardIntent(original, context)
+        .putExtra(NavHostComposeActivity.EXTRA_ROUTE, NavRoutes.installZip(routeArgs.first, routeArgs.second.map(Uri::toString)))
+}
 
 /**
  * Picks the job the host should currently render out of [jobs]: a job paused on
@@ -249,190 +225,27 @@ internal fun resolveErrorMessage(context: Context, error: InstallPhase.Error): S
     if (error.arg != null) context.getString(error.messageKey, error.arg) else context.getString(error.messageKey)
 
 /**
- * Compose host for InstallZip (Plan B), routed via `Screen.InstallZip` (Task B4). Handles entry
- * dispatch (ACTION_VIEW/SEND/SEND_MULTIPLE/picker), the guaranteed-present
- * prelude (confirm-install / format-info + SAF pick) with [InstallZipContent] itself, then starts
- * the shared foreground [DocumentInstallService] and renders its [DocumentInstallService.controller]
- * jobs -- including answering its ask-back [DecisionRequest]s -- via the same composable.
+ * The app's EXPORTED entry for module files (slice 8 §3.2): a file manager's "open with", the Share sheet or any
+ * ACTION_VIEW on a .zip/.epub/.ttf lands here (filters in `src/standard/AndroidManifest.xml`; discrete overrides
+ * the label) and is redirected to the nav host's INSTALL_ZIP destination in the SAME task, then this finishes.
+ * The destination's exit finishes the host with the result, so the user returns to the calling app.
  *
- * Unlike [StartupComposeActivity]/[CalculatorComposeActivity] this does NOT override
- * [doNotInitializeApp]: classic `InstallZip` never overrides it either (defaults `false`), and the
- * `doNotInitializeApp` Intent extra some callers (Startup/StartupCompose's "Import" action) set on
- * their `InstallZip`-bound Intent is not read by classic `InstallZip` at all -- `ActivityBase` only
- * consults the *class-level* `doNotInitializeApp` override, never an Intent extra of that name.
- * "Behave as classic" for this host therefore means: leave the default (app init runs normally),
- * matching classic's actual (if perhaps accidental) behaviour rather than the extra's apparent intent.
+ * A plain [ComponentActivity], not an `ActivityBase`: it draws nothing, initialises nothing and never resumes
+ * from a pause -- which also means it never triggers the calculator, exactly like the Activity it replaces
+ * (the external-install calculator bypass is recorded, not fixed; spec §2.1).
+ *
+ * [classifyEntry] runs with `isStudyPadExport = { false }`: the redirect needs only the URIs and validity; the
+ * destination re-classifies with the real manifest peek ([classifyInstallZipRoute]). `Main.immediate` so the
+ * whole redirect completes inside `onCreate`.
  */
-class InstallZipComposeActivity : ActivityBase() {
-
-    /** Must be registered before STARTED (a field initializer runs during construction, well
-     *  before `onCreate`) -- see [androidx.activity.result.ActivityResultCaller]. Proceeds
-     *  regardless of the grant result; only the FGS's own notification is affected by a denial. */
-    private val notificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* no-op */ }
-
-    private var preludeState by mutableStateOf<InstallUiState?>(null)
-    private var pendingConfirm: PendingConfirm? = null
-
-    /** Set true the moment THIS host actually calls [enqueue] (starts the service for a source it
-     *  dispatched/picked itself). Gates the jobs-drained-to-empty finish in [Content] -- see
-     *  [shouldFinishOnDrain]'s doc for why this must NOT be inferred from merely observing the
-     *  shared jobs queue become non-empty. Not Compose state: it is only ever read from inside
-     *  the [LaunchedEffect] body in [Content], which re-reads it fresh on every `jobs` change --
-     *  it does not itself need to trigger recomposition. */
-    private var enqueuedHere = false
-
-    private data class PendingConfirm(val uri: Uri, val action: String)
-
+class InstallZipComposeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        maybeRequestNotificationPermission()
-
-        setContent {
-            AbAppTheme {
-                    Content()
-            }
+        lifecycleScope.launch(Dispatchers.Main.immediate) {
+            val decision = classifyEntry(intent) { false }
+            val target = installZipRedirectIntent(intent, this@InstallZipComposeActivity, decision)
+            if (target != null) startActivity(target)
+            finish()
         }
-
-        dispatchEntry()
-    }
-
-    /** Suppresses the service's action-required notification while this host is visible (it
-     *  surfaces [InstallPhase.AwaitingDecision] in-app instead). Paired with [onStop] -- NOT
-     *  [onPause] -- so a transient system dialog on top (e.g. the SAF picker itself) doesn't
-     *  flip the notification on and off. */
-    override fun onStart() {
-        super.onStart()
-        DocumentInstallService.hostBound()
-    }
-
-    override fun onStop() {
-        DocumentInstallService.hostUnbound()
-        super.onStop()
-    }
-
-    @Composable
-    private fun Content() {
-        val jobs by DocumentInstallService.controller.jobs.collectAsState()
-
-        LaunchedEffect(jobs) {
-            if (shouldFinishOnDrain(enqueuedHere, jobs.isEmpty())) {
-                // The queue drained back to empty after a job THIS host itself enqueued ran --
-                // the durable `UpdateMainBibleActivityDocuments` refresh event was already posted
-                // by the service itself (`DocumentInstallService.postTerminalEvents`).
-                finishWithResult(RESULT_OK)
-            }
-        }
-
-        val prelude = preludeState
-        val activeJob = pickActiveJob(jobs)
-        val state = prelude ?: activeJob?.let { mapPhaseToUiState(this@InstallZipComposeActivity, it.phase, it.displayName) }
-
-        if (state != null) {
-            InstallZipContent(
-                state = state,
-                onConfirm = { onStateConfirm(prelude, activeJob) },
-                onDismiss = { onStateDismiss(prelude, activeJob) },
-            )
-        }
-    }
-
-    private fun onStateConfirm(prelude: InstallUiState?, activeJob: InstallJobState?) {
-        when (prelude) {
-            is InstallUiState.ConfirmInstall -> {
-                val pending = pendingConfirm
-                preludeState = null
-                pendingConfirm = null
-                if (pending != null) enqueue(listOf(pending.uri), pending.action)
-                else finishWithResult(RESULT_CANCELED)
-            }
-
-            is InstallUiState.FormatInfo -> {
-                preludeState = null
-                launchFilePicker()
-            }
-
-            // No host-local prelude showing -- this confirm belongs to the active job's
-            // mid-flight decision dialog (Overwrite/StudyPadImport/EpubUpgrade).
-            null -> activeJob?.let { DocumentInstallService.resolveDecision(it.jobId, true) }
-
-            else -> Unit // Progress/Overwrite/StudyPadImport/EpubUpgrade/Error never set as preludeState.
-        }
-    }
-
-    private fun onStateDismiss(prelude: InstallUiState?, activeJob: InstallJobState?) {
-        if (prelude != null) {
-            preludeState = null
-            pendingConfirm = null
-            finishWithResult(RESULT_CANCELED)
-        } else {
-            // Job-driven decision dialog declined, or the Error dialog's OK button -- either way
-            // a no-op if the job already reached a terminal phase (its decision was consumed/
-            // removed already), harmless otherwise.
-            activeJob?.let { DocumentInstallService.resolveDecision(it.jobId, false) }
-        }
-    }
-
-    private fun dispatchEntry() {
-        val originalIntent = intent
-        lifecycleScope.launch {
-            when (val decision = classifyEntry(originalIntent) { uri -> isStudyPadExportUri(uri) }) {
-                is InstallZipEntryDecision.EnqueueNow -> enqueue(decision.uris, decision.action)
-
-                is InstallZipEntryDecision.ConfirmThenEnqueue -> {
-                    pendingConfirm = PendingConfirm(decision.uri, decision.action)
-                    preludeState = InstallUiState.ConfirmInstall(installZipDisplayName(this@InstallZipComposeActivity, decision.uri))
-                }
-
-                InstallZipEntryDecision.PickFile -> preludeState = InstallUiState.FormatInfo(installZipFormatsText(this@InstallZipComposeActivity))
-
-                InstallZipEntryDecision.Invalid -> finishWithResult(RESULT_CANCELED)
-            }
-        }
-    }
-
-    private suspend fun isStudyPadExportUri(uri: Uri): Boolean =
-        AndBibleBackupManifest.fromUri(uri)?.backupType == BackupType.STUDYPAD_EXPORT
-
-    private fun launchFilePicker() {
-        lifecycleScope.launch {
-            val pickerIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                type = "*/*"
-                putExtra(Intent.EXTRA_MIME_TYPES, INSTALL_ZIP_SAF_MIME_TYPES)
-            }
-            val result = try {
-                awaitIntent(pickerIntent)
-            } catch (e: ActivityNotFoundException) {
-                // Some devices lack a documents UI / file manager to handle ACTION_OPEN_DOCUMENT.
-                Log.e(TAG, "No activity found to handle ACTION_OPEN_DOCUMENT", e)
-                ABEventBus.post(ToastEvent(getString(R.string.no_file_manager)))
-                finishWithResult(RESULT_CANCELED)
-                return@launch
-            }
-            val uri = result.data?.data
-            if (result.resultCode == RESULT_OK && uri != null) {
-                enqueue(listOf(uri), null)
-            } else {
-                finishWithResult(RESULT_CANCELED)
-            }
-        }
-    }
-
-    private fun enqueue(uris: List<Uri>, action: String?) {
-        enqueuedHere = true
-        ContextCompat.startForegroundService(this, DocumentInstallService.enqueueIntent(this, uris, action))
-    }
-
-    private fun maybeRequestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) {
-            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }
-
-    private fun finishWithResult(resultCode: Int) {
-        setResult(resultCode)
-        finish()
     }
 }

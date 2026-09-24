@@ -188,7 +188,7 @@ class StartupComposeActivity : ActivityBase() {
     }
 
     private fun onImport() {
-        val intent = ScreenLauncher.intentFor(this, Screen.InstallZip).apply { putExtra("doNotInitializeApp", true) }
+        val intent = ScreenLauncher.intentFor(this, Screen.InstallZip)
         lifecycleScope.launch {
             awaitIntent(intent)
             afterFlow()

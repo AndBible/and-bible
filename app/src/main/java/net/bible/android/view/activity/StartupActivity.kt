@@ -390,7 +390,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
      */
     private fun onLoadFromZip() {
         Log.i(TAG, "Load from Zip clicked")
-        val handlerIntent = ScreenLauncher.intentFor(this, Screen.InstallZip).apply { putExtra("doNotInitializeApp", true) }
+        val handlerIntent = ScreenLauncher.intentFor(this, Screen.InstallZip)
         lifecycleScope.launch {
             awaitIntent(handlerIntent)
             afterDownload()

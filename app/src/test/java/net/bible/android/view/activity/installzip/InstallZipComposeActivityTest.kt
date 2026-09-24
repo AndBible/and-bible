@@ -25,6 +25,7 @@ import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.installzip.DecisionRequest
 import net.bible.service.installzip.InstallJobState
 import net.bible.service.installzip.InstallPhase
@@ -274,7 +275,7 @@ class InstallZipComposeActivityTest {
             InstallUiStateProgress(it.displayName, it.statusText, it.percent, it.indeterminate)
         }
 
-    // --- composeForwardIntent (external-entry forwarding, spec §1 P2) ---
+    // --- composeForwardIntent (the redirect's re-addressing, slice 8 §3.2) ---
 
     @Test
     fun composeForwardIntent_preservesActionDataTypeClipDataAndExtras() {
@@ -288,7 +289,7 @@ class InstallZipComposeActivityTest {
         val forwarded = composeForwardIntent(original, context)
 
         assertEquals(
-            InstallZipComposeActivity::class.java.name,
+            NavHostComposeActivity::class.java.name,
             forwarded.component?.className
         )
         assertEquals(Intent.ACTION_VIEW, forwarded.action)
@@ -342,7 +343,7 @@ class InstallZipComposeActivityTest {
             forwarded.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)?.toList()
         )
         assertEquals(
-            InstallZipComposeActivity::class.java.name,
+            NavHostComposeActivity::class.java.name,
             forwarded.component?.className
         )
     }
@@ -352,7 +353,7 @@ class InstallZipComposeActivityTest {
         val forwarded = composeForwardIntent(null, context)
 
         assertEquals(
-            InstallZipComposeActivity::class.java.name,
+            NavHostComposeActivity::class.java.name,
             forwarded.component?.className
         )
         assertNull(forwarded.action)

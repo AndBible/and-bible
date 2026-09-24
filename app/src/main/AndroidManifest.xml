@@ -181,8 +181,7 @@
             android:label="@string/text_display_settings_activity_title"
             android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity" />
         <!--
-          ~ The two activities below (InstallZipComposeActivity and CalculatorComposeActivity) are
-          ~ the only ones that lock screenOrientation. From API 36
+          ~ CalculatorComposeActivity below locks screenOrientation. From API 36
           ~ onwards the platform ignores screenOrientation/resizableActivity/min-maxAspectRatio on
           ~ displays with smallestWidth >= 600dp, so the portrait lock would stop applying on
           ~ tablets and unfolded foldables. PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY keeps
@@ -192,18 +191,16 @@
           ~ The real fix is layouts that work in landscape on a large screen; CalculatorComposeActivity in
           ~ particular is the discrete build's disguise, so its landscape appearance has to be
           ~ credible before the lock can be dropped.
+          ~
+          ~ InstallZip's portrait lock moved into its nav-graph destination in slice 8 (a `DisposableEffect`);
+          ~ the Activity left here is an exported redirect with no UI.
           -->
         <activity
             android:name="net.bible.android.view.activity.installzip.InstallZipComposeActivity"
             android:label="@string/install_zip_module"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.AbCompose"
             android:exported="true"
-            >
-            <property
-                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
-                android:value="true" />
-        </activity>
+            />
         <activity
             android:name="net.bible.android.view.activity.discrete.CalculatorComposeActivity"
             android:label="@string/app_name_calculator"

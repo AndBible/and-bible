@@ -236,6 +236,9 @@ object ScreenLauncher {
         // Backup's only callers are BackupControl.backupPopup (in-graph on the host, cross-Activity from
         // StartupActivity); the row is the routing default for a bare Screen.Backup.
         Screen.Backup to NavRoutes.BACKUP,
+        // — nav-graph slice 8, Task D3 — InstallZipComposeActivity is now only the exported redirect; in-app
+        // callers use NavHostComposeActivity.openInstallZip (never awaitIntent -- InstallZipAwaitGuardTest).
+        Screen.InstallZip to NavRoutes.installZip(),
     )
 
     /** The Activity class implementing [screen]. */

@@ -335,6 +335,11 @@ class ScreenLauncherTest {
     }
 
     @Test
+    fun installZip_routes_to_the_nav_graph() {
+        assertEquals(NavRoutes.installZip(), ScreenLauncher.MIGRATED[Screen.InstallZip])
+    }
+
+    @Test
     fun progressStatus_routes_to_the_nav_graph() {
         assertEquals(NavRoutes.progressStatus(), ScreenLauncher.MIGRATED[Screen.ProgressStatus])
     }
