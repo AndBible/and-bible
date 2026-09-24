@@ -18,6 +18,10 @@ package net.bible.android.view.util
 
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.sharedcore.ui.dialog.AppDialogController
@@ -30,14 +34,35 @@ import org.koin.java.KoinJavaComponent
  * Spec D7: raises an [AppDialogRequest.Progress] in the app-wide [AppDialogController] queue rather
  * than building a `ProgressDialog` — the platform type is removed (spec §5, §8).
  *
+ * C2: a never-dismissed Progress locks the whole app (a Progress no longer blocks answerable
+ * requests per C1, but an orphaned one still sits there forever). Three orphan paths this guards
+ * against:
+ *  - `show()` twice on one instance before `dismiss()` (e.g. a `dismiss()` launched on Main racing a
+ *    later `show()` from an IO thread) -- [show] dismisses any id this instance still holds first.
+ *  - an exception after `show()` with no caller `finally` -- the spinner is tied to the calling
+ *    coroutine's own [Job] via [currentCoroutineContext], so completion (success, exception, or
+ *    cancellation) always dismisses it.
+ *  - the caller's coroutine being cancelled mid-work -- same [Job] completion hook covers this too.
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class Hourglass(val context: Context) {
-    private var id: Long? = null
+    @Volatile private var id: Long? = null
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
     suspend fun show(messageId: Int = R.string.please_wait) {
-        id = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(messageId)))
+        val previous = id
+        if (previous != null) {
+            withContext(Dispatchers.Main) { dialogs.dismiss(previous) }
+        }
+        val newId = withContext(Dispatchers.Main) {
+            dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(messageId)))
+        }
+        id = newId
+        // Ties this Progress to the caller's own coroutine: however it ends (normally, an exception,
+        // or cancellation), the Progress it raised is dismissed. Dismissing an id no longer in the
+        // queue (e.g. because dismiss() already removed it) is a no-op.
+        currentCoroutineContext()[Job]?.invokeOnCompletion { dialogs.dismiss(newId) }
     }
 
     suspend fun dismiss() {
@@ -45,7 +70,7 @@ class Hourglass(val context: Context) {
         if (current == null) {
             Log.e(TAG, "Hourglass already dismissed!")
         } else {
-            dialogs.dismiss(current)
+            withContext(Dispatchers.Main) { dialogs.dismiss(current) }
         }
         id = null
     }
