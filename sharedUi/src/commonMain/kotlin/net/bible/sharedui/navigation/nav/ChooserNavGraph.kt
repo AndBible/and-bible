@@ -182,13 +182,11 @@ class GridChoosePassageDeps(
  * - [topBarActions] is classic's `OverflowMenu()` (`:373-392`) -- Download / Backup modules /
  *   Install zip. Host-composed in full, like
  *   [net.bible.sharedui.download.nav.CloudDocumentsDeps.topBarActions]: every row needs an
- *   `R.drawable` painter and a `getString`, and the two `awaitIntent` round trips behind Download
- *   (`:394-408`) and Install zip (`:414-421`) need an `ActivityBase`. **Both keep their `awaitIntent`
- *   shape unchanged this slice, by instruction** -- `InstallZip` is still an Activity and is slice 8's
- *   problem, and `Download` is left alone with it. See this task's report for why the Download row in
- *   particular wants revisiting once anything actually routes to this destination: the host is
- *   `singleTop`, so an `awaitIntent` aimed at the host's own `Download` route is the shape
- *   [net.bible.sharedui.download.nav.DownloadDeps.reloadCatalogueIfRequested] had to stop using.
+ *   `R.drawable` painter and a `getString`. Download (`:394-408`) and Install zip (`:414-421`) are
+ *   destinations of the same graph and are reached in-graph, never by an `awaitIntent` aimed at the
+ *   `singleTop` host itself (the shape
+ *   [net.bible.sharedui.download.nav.DownloadDeps.reloadCatalogueIfRequested] had to stop using); the
+ *   Download row's follow-up runs from [loadDocuments] when this entry composes again.
  * - `confirmDelete`/`confirmDeleteIndex`/`onAbout`/`onUnlock` are absent for
  *   [net.bible.sharedui.download.nav.DownloadDeps]'s own reason: they are the
  *   [DocumentSelectionController]'s constructor seams, wired host-side inside [controllerFor], so the

@@ -48,9 +48,8 @@ import org.junit.Test
  * **What this guard cannot see**, stated because the previous round's blind spot was the mirror
  * image of this one: an ASYNC request code. `ActivityBase.awaitIntent` allocates a code at or above
  * `ASYNC_REQUEST_CODE_START` and resolves it through `resultByCode`, never through a `when` arm, so
- * no walk of classic's dispatcher can enumerate those. `NavHostComposeActivity.onChooseDocumentDownload`
- * is one such site and is deliberately unpaid (its route is unreachable today); whoever wires
- * `Screen.ChooseDocument` into the graph owes it.
+ * no walk of classic's dispatcher can enumerate those. `SelfLaunchRouteKindGuardTest` is the guard for
+ * the self-launched ones (it also sees the host's own unqualified `intentFor(this, ...)`).
  */
 class ReadingHostAnsweredRequestCodeGuardTest {
 

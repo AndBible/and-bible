@@ -3984,7 +3984,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             persistTypeFilter = { filter ->
                                 CommonUtils.settings.setInt("selected_document_filter_no", filter.ordinal)
                             },
-                            loadDocuments = { loadChooseDocuments() },
+                            loadDocuments = { loadChooseDocumentsOnEntry() },
                             topBarActions = { ChooseDocumentOverflowMenu() },
                         ),
                     )
@@ -9363,18 +9363,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
 
     /**
      * Classic `OverflowMenu()` (`:373-392`) -- Download / Backup modules / Install zip. Host-composed
-     * in full: `R.drawable` painters, `getString`s, and two `awaitIntent` round trips that need an
-     * `ActivityBase`.
-     *
-     * **Both `awaitIntent` consumers are kept exactly as classic wrote them, by this task's
-     * instruction.** `InstallZip` is still an Activity and belongs to slice 8; `Download` is already
-     * a destination of this very graph, and THAT is worth a second look before anything routes to
-     * this destination (Task 8): the host is `launchMode="singleTop"`, so
-     * `awaitIntent(NavHostComposeActivity.intentFor(this, NavRoutes.download()))` issued FROM the
-     * host aims an Intent at the host itself. Slice 4 already met this shape and converted its
-     * equivalent hop to an in-graph `navigate` for exactly that reason -- see
-     * [DownloadDeps.reloadCatalogueIfRequested]'s kdoc, which says so in as many words. Left as-is
-     * here deliberately, and reported rather than silently fixed.
+     * in full: `R.drawable` painters and `getString`s. Download and Install zip are both destinations
+     * of this graph and are reached in-graph ([onChooseDocumentDownload], [onChooseDocumentInstallZip]).
      */
     @Composable
     private fun ChooseDocumentOverflowMenu() {
@@ -9397,21 +9387,41 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         }
     }
 
-    /** Classic `onDownload()` (`:394-408`), unchanged -- see [ChooseDocumentOverflowMenu]'s kdoc. */
+    /**
+     * Classic `onDownload()` (`:394-408`), as an IN-GRAPH hop (slice 8 final review, finding 2). Classic's
+     * `awaitIntent(intentFor(this, NavRoutes.download()))` aimed an Intent at this `singleTop` host itself:
+     * the system answers with [onNewIntent] plus a synthetic cancel (finding F53), so the follow-up ran
+     * BEFORE anything was downloaded. Slice 4's pattern for the same shape
+     * ([DownloadDeps.reloadCatalogueIfRequested]): an in-graph hop has no result to await, so the
+     * follow-up is ARMED here and performed by [loadChooseDocumentsOnEntry] when the chooser composes
+     * again on the way back.
+     */
     private fun onChooseDocumentDownload() {
         try {
             if (downloadControl.checkDownloadOkay()) {
-                val handlerIntent = intentFor(this, NavRoutes.download())
-                lifecycleScope.launch {
-                    awaitIntent(handlerIntent)
-                    ABEventBus.post(UpdateMainBibleActivityDocuments())
-                    loadChooseDocuments()
-                }
+                pendingChooseDocumentDownloadReturn = true
+                navigateInGraph(NavRoutes.download())
             }
         } catch (e: Exception) {
             Log.e(TAG_CHOOSE_DOCUMENT, "Error opening download", e)
             Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
+    }
+
+    /** Armed by [onChooseDocumentDownload], consumed by [loadChooseDocumentsOnEntry]. */
+    private var pendingChooseDocumentDownloadReturn = false
+
+    /**
+     * The chooser's per-entry load ([ChooseDocumentDeps.loadDocuments]). Every (re)composition of the
+     * chooser entry runs it -- its controller is per composition -- so a return from the Download hop
+     * lands here: classic's `UpdateMainBibleActivityDocuments` broadcast runs first, then the reload.
+     */
+    private suspend fun loadChooseDocumentsOnEntry() {
+        if (pendingChooseDocumentDownloadReturn) {
+            pendingChooseDocumentDownloadReturn = false
+            ABEventBus.post(UpdateMainBibleActivityDocuments())
+        }
+        loadChooseDocuments()
     }
 
     /** Classic `onBackup()` (`:410-412`). */
@@ -9650,7 +9660,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * were dropped, and the label manager -- now sitting ABOVE `settings/textDisplay` in the same
      * graph -- published its answer into [manageLabelsResults]'s pending slot, which no text-settings
      * code was collecting. This is the shape `DownloadDeps.reloadCatalogueIfRequested` had to stop
-     * using, and unlike `ChooseDocument`'s Download row (dormant until Task 8) this one was reachable
+     * using (`ChooseDocument`'s Download row, [onChooseDocumentDownload], was the last), and this one was reachable
      * the day Task 5 landed, through the live `settings` destination's global-text-settings row.
      */
     private fun textDisplayHideLabelsPayload(

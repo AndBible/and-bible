@@ -180,6 +180,11 @@ class SelfLaunchRouteKindGuardTest {
                     }
                     if (callEnd == -1) break // malformed source; stop scanning this file defensively
                     searchFrom = callEnd + 1
+                    // An UNQUALIFIED prefix (the host's own `intentFor(this, ...)`) must not also match the
+                    // qualified spellings the other two scans already classify.
+                    if ('.' !in calleePrefix && callStart > 0 &&
+                        (code[callStart - 1] == '.' || code[callStart - 1].isLetterOrDigit() || code[callStart - 1] == '_')
+                    ) continue
 
                     val before = code.substring(maxOf(0, callStart - 150), callStart).trimEnd()
                     val inlineAwaited = before.endsWith("awaitIntent(")
@@ -201,7 +206,11 @@ class SelfLaunchRouteKindGuardTest {
                 return calls
             }
 
-            awaitedCalls("NavHostComposeActivity.intentFor").forEach { callText ->
+            // Final review finding 2: inside NavHostComposeActivity.kt the host's own companion is called
+            // UNQUALIFIED -- `intentFor(this, NavRoutes.download())` -- which the qualified prefix never saw.
+            val hostIntentForCalls = awaitedCalls("NavHostComposeActivity.intentFor") +
+                (if (file.name == "NavHostComposeActivity.kt") awaitedCalls("intentFor") else emptyList())
+            hostIntentForCalls.forEach { callText ->
                 val builder = navRoutesCall.find(callText)?.groupValues?.get(1)
                 val constant = if (builder == null) navRoutesConst.find(callText)?.groupValues?.get(1) else null
                 if (builder == null && constant == null) return@forEach

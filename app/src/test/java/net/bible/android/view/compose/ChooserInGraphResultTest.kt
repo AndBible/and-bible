@@ -309,6 +309,8 @@ class ChooserInGraphResultTest {
                         // Task 9's destination, as a stand-in: this task's five are registered but
                         // nothing routes to them yet, so the graph has no real parent of its own.
                         composable(NavRoutes.READING) { Text("reading") }
+                        // A stand-in for a destination the chooser hops to in-graph (its Download row).
+                        composable(STAND_IN_ROUTE) { Text("stand-in") }
                         chooserNavGraph(navController, d)
                     }
                 }
@@ -597,6 +599,27 @@ class ChooserInGraphResultTest {
      * screen that is not the one wired to the channel -- the selection is now made THROUGH the
      * controller rather than by calling the arm's `onResult` by hand.
      */
+    /**
+     * Slice 8 final review, finding 2: the premise of the host's in-graph Download hop. The host arms
+     * its follow-up (`UpdateMainBibleActivityDocuments` + reload) when the Download row navigates, and
+     * performs it from `loadDocuments` -- so `loadDocuments` must run again when the chooser entry is
+     * RETURNED to, not only on its first entry. A one-shot load (e.g. guarded by saved state) would
+     * silently drop the follow-up.
+     */
+    @Test
+    fun chooseDocumentReloadsItsDocumentsOnReturnFromAnInGraphHop() {
+        setGraph(deps())
+        navigateTo(NavRoutes.chooseDocument())
+        assertEquals(1, documentsLoaded)
+
+        navigateTo(STAND_IN_ROUTE)
+        compose.runOnIdle { navController.popBackStack() }
+        compose.waitForIdle()
+
+        assertEquals(NavRoutes.CHOOSE_DOCUMENT_PATTERN, currentRoute)
+        assertEquals(2, documentsLoaded, "a return to the chooser entry must run loadDocuments again")
+    }
+
     @Test
     fun chooseDocumentReadsTypeFromTheRouteAndDeliversTheBook() {
         setGraph(deps())
@@ -665,5 +688,9 @@ class ChooserInGraphResultTest {
         pressBack()
         assertEquals(NavRoutes.READING, currentRoute, "with both bars gone the handler is off and back pops")
         assertEquals(0, exitHostCalls, "there was a parent to pop to")
+    }
+
+    private companion object {
+        const val STAND_IN_ROUTE = "test/standIn"
     }
 }
