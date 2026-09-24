@@ -2990,6 +2990,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     /**
      * Slice 8 §4 gate (c): a requested READING with no usable Bible resolves to WELCOME. Applied to the
      * start route AND to [onNewIntent]'s route (plan Correction 7) -- the two ways READING enters this host.
+     *
+     * A start diverted here still runs INITIALISED: [doNotInitializeApp] reads the RAW launch route
+     * (`initRoute`), not this gated one, and is deliberately not routed through this gate -- the
+     * usable-Bible check itself needs the Books loaded. Accepted (Controller ruling R6): initialising
+     * tolerates zero Bibles, and `FLAG_SECURE` ends up applied, the safer side.
      */
     private fun gatedReadingRoute(route: String): String =
         if (route.substringBefore('?') == NavRoutes.READING && !usableBibleGate()) {
