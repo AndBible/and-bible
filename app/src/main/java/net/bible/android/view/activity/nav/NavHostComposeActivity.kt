@@ -1117,9 +1117,34 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             return super.onKeyLongPress(keyCode, event)
         }
         if (readingCommands.composeDrawerOpen) return true
+        // Classic `MainBibleActivity.onKeyLongPress`'s F6 Task 9 swallow, missed by the port and
+        // found when slice 8 F2 rehosted `ReadingSearchBackTest`: a focused search field is reachable
+        // here, and a long BACK must not open History out from under it.
+        if (readingCommands.composeSearchModeActive) return true
         val host = composeReadingViewHost ?: return super.onKeyLongPress(keyCode, event)
         host.showHistorySheet()
         return true
+    }
+
+    /**
+     * The device SEARCH key -- classic `MainBibleActivity.onKeyUp`, F6 Task 8b entry point 6, missed by
+     * the port and found when slice 8 F2 rehosted `ReadingSearchEntryPointsTest`: retarget into the
+     * reading view's own search when a Compose reading view is mounted, else the classic search
+     * Intent. Only on the reading destination, as classic answered it only by being the reading
+     * Activity; every other destination reaches `super` unchanged.
+     */
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_SEARCH && readingDestinationIsCurrent() &&
+            windowControl.activeWindowPageManager.currentPage.isSearchable
+        ) {
+            if (!readingCommands.composeSearchIfHosted()) {
+                searchControl.getSearchIntent(windowControl.activeWindowPageManager.currentPage.currentDocument, this)?.let { intent ->
+                    startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE)
+                }
+            }
+            return true
+        }
+        return super.onKeyUp(keyCode, event)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
