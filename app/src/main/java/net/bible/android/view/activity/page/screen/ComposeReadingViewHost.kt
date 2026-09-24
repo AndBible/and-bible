@@ -546,17 +546,33 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     val readingLlmDialogs = ReadingLlmDialogController(
         readingLlmService,
         hostScope,
-        onSheetOpening = {
-            ReadingOverlayExclusion.closedBy(ReadingOverlay.Llm).forEach { overlay ->
-                when (overlay) {
-                    ReadingOverlay.SpeakSheet -> speakSheet.close()
-                    ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
-                    ReadingOverlay.Llm -> Unit
-                    ReadingOverlay.QuickSheet -> closeQuickSheet()
-                }
-            }
-        },
+        onSheetOpening = { ReadingOverlayExclusion.closedBy(ReadingOverlay.Llm).forEach(::closeOverlay) },
     )
+
+    /**
+     * The single close action for one [ReadingOverlay] member — shared by every
+     * `ReadingOverlayExclusion.closedBy(...)` application site (below, and in [showQuickSheet],
+     * [showTextSettingEditor] and [showSpeakSettings]) and by [closeModalOverlays] (spec Task 5,
+     * `AppDialogOverlay`'s `onSheetOpening`), instead of repeating the same four-way `when` at each
+     * call site.
+     */
+    private fun closeOverlay(overlay: ReadingOverlay) {
+        when (overlay) {
+            ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
+            ReadingOverlay.SpeakSheet -> speakSheet.close()
+            ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
+            ReadingOverlay.QuickSheet -> closeQuickSheet()
+        }
+    }
+
+    /**
+     * Close every modal reading-view overlay (spec Task 5): called from `AppDialogOverlay`'s
+     * `onSheetOpening` when an app-wide dialog/sheet is about to be shown, so it never stacks under
+     * (or is stacked under by) one of these.
+     */
+    internal fun closeModalOverlays() {
+        ReadingOverlay.entries.forEach(::closeOverlay)
+    }
 
     /**
      * Round 15b: which quick sheet is open over the reading view, if any. ONE state for all four
@@ -621,14 +637,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     /** Open a quick sheet, closing every other modal overlay first (spec §4.1). */
     internal fun showQuickSheet(sheet: ReadingQuickSheet) {
         abandonPendingChosenVerse()
-        ReadingOverlayExclusion.closedBy(ReadingOverlay.QuickSheet).forEach { overlay ->
-            when (overlay) {
-                ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
-                ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
-                ReadingOverlay.SpeakSheet -> speakSheet.close()
-                ReadingOverlay.QuickSheet -> Unit
-            }
-        }
+        ReadingOverlayExclusion.closedBy(ReadingOverlay.QuickSheet).forEach(::closeOverlay)
         quickSheet.value = sheet
     }
 
@@ -1044,14 +1053,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // why it is stated once, purely, in `:sharedCore`): this editor is a modal overlay of the
         // reading view, so opening it closes whatever other one is up. Applied at the 14a/14a-2
         // merge, per round 14a's status entry.
-        ReadingOverlayExclusion.closedBy(ReadingOverlay.TextSettingsEditor).forEach { overlay ->
-            when (overlay) {
-                ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
-                ReadingOverlay.SpeakSheet -> speakSheet.close()
-                ReadingOverlay.TextSettingsEditor -> Unit
-                ReadingOverlay.QuickSheet -> closeQuickSheet()
-            }
-        }
+        ReadingOverlayExclusion.closedBy(ReadingOverlay.TextSettingsEditor).forEach(::closeOverlay)
         // Close first: [SettingsEditorStack.open] assigns a `MutableStateFlow`, which conflates an
         // equal value, so opening the SAME page for a DIFFERENT scope right after a previous open
         // would emit nothing and [TextSettingsEditorSlot] would keep rendering the OLD scope's
@@ -1235,14 +1237,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // Total mutual exclusion, the third and last application site of the rule -- see
         // [readingLlmDialogs]'s `onSheetOpening` kdoc. Applied at the 14a/14a-2 merge, per round
         // 14a's status entry.
-        ReadingOverlayExclusion.closedBy(ReadingOverlay.SpeakSheet).forEach { overlay ->
-            when (overlay) {
-                ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
-                ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
-                ReadingOverlay.SpeakSheet -> Unit
-                ReadingOverlay.QuickSheet -> closeQuickSheet()
-            }
-        }
+        ReadingOverlayExclusion.closedBy(ReadingOverlay.SpeakSheet).forEach(::closeOverlay)
         // `open` assigns `listOf(page)`, so this always lands on the Settings page whatever depth
         // the sheet was left at — reopening never resumes a half-finished range edit. The `close()`
         // is kept for symmetry with [showTextSettingEditor] (and because an explicit empty state
@@ -3272,12 +3267,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             onLlmModelChosen = readingLlmDialogs::onModelChosen,
             onLlmRegenerateConfirmed = readingLlmDialogs::onRegenerateConfirmed,
             onLlmDismiss = readingLlmDialogs::dismiss,
-            // Z-early B4: the runtime agent tool-permission prompt. Fed straight from the app-wide
-            // controller (see [permissions]) — `dismiss()` resolves the awaiting agent coroutine
-            // with DENY, matching the classic dialog's `setOnCancelListener`.
-            permissionState = permissions.pending,
-            onPermissionChoice = { permissions.respond(it) },
-            onPermissionDismiss = { permissions.dismiss() },
             // F6 Task 8a: the toolbar's search mode. Every callback goes to [searchController] or to
             // the host's own menu/settings flags — none of them touches the pane subtree, which is
             // what `ReadingSearchHostTest.openingAndClosingSearchMustNotRebuildThePaneSubtree`
@@ -3783,16 +3772,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             speakDialogState: StateFlow<SpeakTransportDialog> = MutableStateFlow<SpeakTransportDialog>(SpeakTransportDialog.None).asStateFlow(),
             onSpeakBookmarkChosen: (id: String) -> Unit = {},
             onSpeakDialogDismiss: () -> Unit = {},
-            // Z-early B4 additions: the runtime agent tool-permission prompt, rendered as a sibling
-            // of `ReadingViewScreen` below (same shape as the LLM dialogs / speak-bookmark chooser:
-            // a raw `StateFlow` + callbacks, assembled into the concrete dialog inside this
-            // function's body). The flow is `AgentPermissionController.pending`, owned by the
-            // app-wide Koin single, NOT by the host — see [ComposeReadingViewHost.awaitPermission].
-            // Defaulted to an always-null flow + no-op callbacks so existing call sites and every
-            // golden/host test (which never raise a permission request) are unaffected.
-            permissionState: StateFlow<AgentPermissionRequest?> = MutableStateFlow<AgentPermissionRequest?>(null).asStateFlow(),
-            onPermissionChoice: (AgentPermissionChoice) -> Unit = {},
-            onPermissionDismiss: () -> Unit = {},
             // F6 Task 8a additions — the reading-view search. Appended at the END with inert
             // defaults, the convention every earlier slot followed, so `ComposeReadingViewHostTest`
             // and `AgentLogHostTest` keep compiling unchanged.
@@ -3918,9 +3897,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         speakDialogState = speakDialogState,
                         onSpeakBookmarkChosen = onSpeakBookmarkChosen,
                         onSpeakDialogDismiss = onSpeakDialogDismiss,
-                        permissionState = permissionState,
-                        onPermissionChoice = onPermissionChoice,
-                        onPermissionDismiss = onPermissionDismiss,
                         searchBarState = searchBarState,
                         searchBarCallbacks = searchBarCallbacks,
                         searchSheetVisibleState = searchSheetVisibleState,
@@ -4020,9 +3996,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             speakDialogState: StateFlow<SpeakTransportDialog>,
             onSpeakBookmarkChosen: (id: String) -> Unit,
             onSpeakDialogDismiss: () -> Unit,
-            permissionState: StateFlow<AgentPermissionRequest?>,
-            onPermissionChoice: (AgentPermissionChoice) -> Unit,
-            onPermissionDismiss: () -> Unit,
             searchBarState: StateFlow<ReadingSearchBarState?>,
             searchBarCallbacks: ReadingSearchBarCallbacks?,
             searchSheetVisibleState: StateFlow<Boolean>,
@@ -4441,21 +4414,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                             rows = d.rows,
                             onChoose = onSpeakBookmarkChosen,
                             onDismiss = onSpeakDialogDismiss,
-                        )
-                    }
-                    // Z-early B4: the runtime agent tool-permission prompt — a third sibling
-                    // overlay alongside `ReadingLlmDialogs`/`ChooseSpeakBookmarkDialog`
-                    // above, for the same reason: an `AlertDialog` overlays regardless of
-                    // where in the tree it is composed, and composing it OUTSIDE `key(gen)`
-                    // (and outside every pane's `AndroidView`) means showing/dismissing it
-                    // can never re-key the pane subtree and destroy/recreate the panes'
-                    // BibleView WebViews.
-                    val pendingPermission by permissionState.collectAsState()
-                    pendingPermission?.let { req ->
-                        AgentPermissionDialog(
-                            request = req,
-                            onChoice = { onPermissionChoice(it) },
-                            onDismiss = { onPermissionDismiss() },
                         )
                     }
                     // F6 Task 8a: the modal search-settings sheet — a fourth sibling

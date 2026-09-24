@@ -50,6 +50,7 @@ import net.bible.android.view.activity.ai.RawLogServiceImpl
 import net.bible.android.view.activity.ai.ReadingLlmServiceImpl
 import net.bible.android.view.activity.ai.ToolPermissionServiceImpl
 import net.bible.sharedcore.ai.AgentPermissionController
+import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.ai.DocumentFilterService
 import net.bible.sharedcore.ai.LlmModelService
@@ -125,6 +126,10 @@ val coreModule = module {
     // the controller must outlive any single Activity — the awaiting request survives an activity
     // recreation, and whichever ComposeReadingViewHost is currently installed renders it.
     single { AgentPermissionController() }
+    // Platform-dialog removal (spec D6): the app-wide queue of owner-less dialogs. App-scoped for the
+    // same reason as AgentPermissionController above: a request must survive a host swap
+    // (StartupActivity -> NavHostComposeActivity) and a service must be able to raise one.
+    single { AppDialogController() }
     singleOf(::RawLogServiceImpl) { bind<RawLogService>() }
     singleOf(::ReadingLlmServiceImpl) { bind<ReadingLlmService>() }
     singleOf(::AgentSessionServiceImpl) { bind<AgentSessionService>() }

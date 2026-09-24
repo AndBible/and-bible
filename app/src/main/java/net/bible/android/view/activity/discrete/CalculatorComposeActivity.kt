@@ -26,6 +26,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.removeLeadingZeroes
 import net.bible.sharedcore.calculator.CalculatorController
 import net.bible.sharedcore.calculator.EvalResult
+import net.bible.android.view.activity.base.AppDialogOverlay
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.calculator.CalculatorScreen
 import net.objecthunter.exp4j.ExpressionBuilder
@@ -89,6 +90,7 @@ class CalculatorComposeActivity : ActivityBase() {
                     val display by controller.display.collectAsState()
                     val error by controller.error.collectAsState()
                     CalculatorScreen(display, error, controller::onKey)
+                    AppDialogOverlay()
             }
         }
     }

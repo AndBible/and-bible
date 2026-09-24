@@ -236,4 +236,21 @@ class ReadingTextSettingEditorTest {
                 "must not bump the generation",
         )
     }
+
+    /**
+     * Task 5: `AppDialogOverlay`'s `onSheetOpening` calls `NavHostComposeActivity.composeReadingViewHost
+     * ?.closeModalOverlays()` before showing an app-wide dialog/sheet, so it never stacks under (or
+     * gets stacked under by) a reading-view modal overlay. Opens the text-settings sheet, then
+     * asserts [ComposeReadingViewHost.closeModalOverlays] closed it.
+     */
+    @Test
+    fun closeModalOverlaysClosesTheTextSettingsEditor() {
+        val host = host()
+        host.showTextSettingEditor(SettingsScope.Workspace("ws"), SettingsEditorPage.Colors) { }
+        assertEquals(1, host.textSettingsEditor.depth, "sanity: the sheet is open")
+
+        host.closeModalOverlays()
+
+        assertEquals(0, host.textSettingsEditor.depth, "closeModalOverlays must close the text-settings editor")
+    }
 }

@@ -42,6 +42,7 @@ import net.bible.android.control.event.onMain
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.base.mountAppDialogOverlay
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -143,6 +144,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
         }
         setContentView(spinnerBinding.root)
+        mountAppDialogOverlay()
         supportActionBar!!.hide()
 
         lifecycleScope.launch {

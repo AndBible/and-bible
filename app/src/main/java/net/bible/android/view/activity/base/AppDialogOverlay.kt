@@ -1,0 +1,111 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+package net.bible.android.view.activity.base
+
+import android.view.ViewGroup
+import androidx.activity.ComponentActivity
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.ai.AgentPermissionController
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedui.AbAppTheme
+import net.bible.sharedui.components.AppDialogHost
+import org.koin.java.KoinJavaComponent
+
+/**
+ * Which host draws [AppDialogController]'s queue (spec D6, plan correction 3): the host that most
+ * recently RESUMED, for as long as it stays STARTED. Exactly one owner at a time, so two live hosts
+ * never both draw the same request, and a paused host keeps its dialog (and a half-typed field).
+ */
+object AppDialogRendering {
+    private val mutableOwner = MutableStateFlow<Any?>(null)
+    val owner: StateFlow<Any?> = mutableOwner.asStateFlow()
+    fun claim(owner: Any) {
+        mutableOwner.value = owner
+    }
+    fun release(owner: Any) {
+        mutableOwner.compareAndSet(owner, null)
+    }
+}
+
+/**
+ * Every dialog-capable host renders this once (Task 5: `NavHostComposeActivity`,
+ * `CalculatorComposeActivity`, and — via [mountAppDialogOverlay] — `StartupActivity` and
+ * `ErrorActivity`). Draws nothing unless this host currently owns rendering (see
+ * [AppDialogRendering]).
+ *
+ * `koinInject` (koin-compose) is not on `:app`'s classpath, so the two controllers are looked up
+ * with `KoinJavaComponent.get` instead, same as everywhere else in `:app`.
+ */
+@Composable
+fun AppDialogOverlay(onSheetOpening: () -> Unit = {}) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) = AppDialogRendering.claim(context)
+            override fun onStop(owner: LifecycleOwner) = AppDialogRendering.release(context)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            AppDialogRendering.release(context)
+        }
+    }
+    val renderingOwner by AppDialogRendering.owner.collectAsState()
+    if (renderingOwner !== context) return
+
+    val dialogs = remember { KoinJavaComponent.get<AppDialogController>(AppDialogController::class.java) }
+    val permissions = remember { KoinJavaComponent.get<AgentPermissionController>(AgentPermissionController::class.java) }
+    val shown by dialogs.pending.collectAsState()
+    val permission by permissions.pending.collectAsState()
+    AppDialogHost(
+        shown = shown,
+        permission = permission,
+        onRespond = dialogs::respond,
+        onPermissionChoice = permissions::respond,
+        onPermissionDismiss = permissions::dismiss,
+        onOpenLink = { CommonUtils.openLink(it) },
+        onSheetOpening = onSheetOpening,
+    )
+}
+
+/**
+ * For the two hosts with no Compose content of their own — the View-based `StartupActivity` and the
+ * UI-less `ErrorActivity`: a transparent `ComposeView` over the content. Call after
+ * `setContentView` (or, with no content view, anywhere in `onCreate`). Draws nothing and has no
+ * clickable node while the queue is empty, so it never intercepts touches meant for the content
+ * beneath it.
+ */
+fun ComponentActivity.mountAppDialogOverlay() {
+    addContentView(
+        ComposeView(this).apply { setContent { AbAppTheme { AppDialogOverlay() } } },
+        ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT),
+    )
+}

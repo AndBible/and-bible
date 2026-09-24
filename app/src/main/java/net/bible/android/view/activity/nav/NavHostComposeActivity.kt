@@ -160,6 +160,7 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.ai.LlmDialogHelper
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.AppDialogOverlay
 import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.themePixelSize
@@ -4249,6 +4250,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                         )
                     }
                 }
+
+                AppDialogOverlay(onSheetOpening = { composeReadingViewHost?.closeModalOverlays() })
             }
         }
     }
