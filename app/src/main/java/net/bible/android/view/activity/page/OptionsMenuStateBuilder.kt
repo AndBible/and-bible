@@ -211,6 +211,11 @@ object OptionsMenuStateBuilder {
      * signature, and read-at-call-time suppliers for the OWNING host's window repository (NOT
      * `windowControl.windowRepository`, which is whichever host resumed last) and for the mounted
      * reading-view host.
+     *
+     * Returns whether the menu should stay open: `true` for a boolean toggle (so the host can
+     * rebuild the list and show the flipped check), `false` once a sheet/dialog/activity/action
+     * has been launched, or for the (practically unreachable via [build]'s item set)
+     * [SubMenuPreference] no-op case.
      */
     fun dispatch(
         hostActivity: ActivityBase,
