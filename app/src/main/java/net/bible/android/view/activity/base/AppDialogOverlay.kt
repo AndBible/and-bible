@@ -84,6 +84,7 @@ fun AppDialogOverlay(onSheetOpening: () -> Unit = {}) {
     val dialogs = remember { KoinJavaComponent.get<AppDialogController>(AppDialogController::class.java) }
     val permissions = remember { KoinJavaComponent.get<AgentPermissionController>(AgentPermissionController::class.java) }
     val shown by dialogs.pending.collectAsState()
+    val progress by dialogs.progress.collectAsState()
     val permission by permissions.pending.collectAsState()
     AppDialogHost(
         shown = shown,
@@ -93,6 +94,7 @@ fun AppDialogOverlay(onSheetOpening: () -> Unit = {}) {
         onPermissionDismiss = permissions::dismiss,
         onOpenLink = { CommonUtils.openLink(it) },
         onSheetOpening = onSheetOpening,
+        progress = progress,
     )
 }
 

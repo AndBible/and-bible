@@ -45,6 +45,15 @@ class AppDialogHostGoldenTest {
         )
     }
 
+    /** Progress renders through the NEW `progress` parameter now, not through `shown` (C1). */
+    private fun progressHost(request: AppDialogRequest.Progress): @androidx.compose.runtime.Composable () -> Unit = {
+        AppDialogHost(
+            shown = null, permission = null,
+            onRespond = { _, _ -> }, onPermissionChoice = {}, onPermissionDismiss = {}, onOpenLink = {},
+            progress = ShownDialog(1, request),
+        )
+    }
+
     @Test fun messageWithLinkAndReport() = captureMatrix("AppDialogHost", "message") {
         host(
             AppDialogRequest.Message(
@@ -79,7 +88,7 @@ class AppDialogHostGoldenTest {
     }
 
     @Test fun progress() = captureMatrix("AppDialogHost", "progress") {
-        host(AppDialogRequest.Progress(title = null, message = "Please wait…")).invoke()
+        progressHost(AppDialogRequest.Progress(title = null, message = "Please wait…")).invoke()
     }
 
     @Test

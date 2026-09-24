@@ -214,11 +214,11 @@ class DialogsShimTest {
         val activity = activity()
         val h = Hourglass(activity)
         h.show()
-        val head = dialogs.pending.value!!.request
+        val head = dialogs.progress.value!!.request
         assertTrue(head is AppDialogRequest.Progress)
         assertEquals(activity.getString(R.string.please_wait), (head as AppDialogRequest.Progress).message)
         h.dismiss()
-        assertNull(dialogs.pending.value)
+        assertNull(dialogs.progress.value)
     }
 
     @Test
@@ -228,6 +228,22 @@ class DialogsShimTest {
         h.show()
         h.dismiss()
         h.dismiss()
-        assertNull(dialogs.pending.value)
+        assertNull(dialogs.progress.value)
+    }
+
+    /** C1: the Hourglass's Progress must not block a question raised while it is showing. */
+    @Test
+    fun aQuestionWhileTheHourglassShowsIsAnswerable() = runTest {
+        val activity = activity()
+        val h = Hourglass(activity)
+        h.show()
+        assertNotNull(dialogs.progress.value)
+        val answer = async { Dialogs.simpleQuestion(activity, "message") }
+        yield()
+        assertNotNull(dialogs.pending.value)
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
+        assertEquals(true, answer.await())
+        h.dismiss()
+        assertNull(dialogs.progress.value)
     }
 }

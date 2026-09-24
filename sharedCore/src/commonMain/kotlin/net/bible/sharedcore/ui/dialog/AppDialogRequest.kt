@@ -83,7 +83,8 @@ sealed interface AppDialogRequest {
     /**
      * Class F. [asActionSheet] is spec §7's split: true = a list of actions (`AbActionSheet`),
      * false = answers to a question (`AbOptionsDialog`). Answered [AppDialogResult.Selected] with the
-     * chosen [SettingsItem.Choice.value], or [AppDialogResult.Cancel].
+     * chosen [SettingsItem.Choice.value], or [AppDialogResult.Cancel]. [message] is HTML, rendered by
+     * `AbHtmlText`, like [Message.message] and [Confirm.message].
      */
     data class Options(
         override val title: String?,
@@ -94,7 +95,10 @@ sealed interface AppDialogRequest {
         val cancellable: Boolean = true,
     ) : AppDialogRequest
 
-    /** `Hourglass`. Never answered — removed by [AppDialogController.dismiss]. Never cancellable. */
+    /**
+     * `Hourglass`. Never answered — removed by [AppDialogController.dismiss]. Never cancellable.
+     * Drawn underneath; never blocks answerable requests (see [AppDialogController.progress]).
+     */
     data class Progress(override val title: String?, val message: String) : AppDialogRequest
 }
 

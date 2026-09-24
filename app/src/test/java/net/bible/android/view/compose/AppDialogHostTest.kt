@@ -68,7 +68,7 @@ class AppDialogHostTest {
     private val opened = mutableListOf<String>()
     private val choices = mutableListOf<AgentPermissionChoice>()
 
-    private fun show(shown: ShownDialog?, permission: AgentPermissionRequest? = null) = compose.setContent {
+    private fun show(shown: ShownDialog?, permission: AgentPermissionRequest? = null, progress: ShownDialog? = null) = compose.setContent {
         ProvideAppLocals {
             AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                 AppDialogHost(
@@ -76,6 +76,7 @@ class AppDialogHostTest {
                     onRespond = { id, r -> answers += id to r },
                     onPermissionChoice = { choices += it }, onPermissionDismiss = { choices += AgentPermissionChoice.DENY },
                     onOpenLink = { opened += it },
+                    progress = progress,
                 )
             }
         }
@@ -210,6 +211,39 @@ class AppDialogHostTest {
         state.value = ShownDialog(9, AppDialogRequest.TextInput("B", null, "second", "OK", "Cancel"))
         compose.waitForIdle()
         compose.onNode(hasSetTextAction()).assertTextEquals("second")
+    }
+
+    /** C1: a Progress drawn underneath must not block the answerable dialog queued behind it. */
+    @Test fun aProgressDoesNotBlockAConfirmShownAlongsideIt() {
+        show(
+            ShownDialog(10, AppDialogRequest.Confirm("Sure?", null, "OK", "Cancel")),
+            progress = ShownDialog(11, AppDialogRequest.Progress(title = null, message = "Please wait")),
+        )
+        compose.onNodeWithText("Please wait").assertExists()
+        compose.onNodeWithText("OK").assertExists()
+        compose.onNodeWithText("OK").performClick()
+        assertEquals(listOf(10L to AppDialogResult.Ok), answers)
+    }
+
+    /** I2: two consecutive MultiChoice requests with the same options don't share selection state. */
+    @Test fun twoConsecutiveMultiChoiceRequestsDoNotShareToggledSelection() {
+        val options = listOf(SettingsItem.Choice("a", "A"), SettingsItem.Choice("b", "B"))
+        val state = mutableStateOf(
+            ShownDialog(1, AppDialogRequest.MultiChoice(null, options, emptyList(), "OK", "Cancel")) as ShownDialog?,
+        )
+        compose.setContent {
+            ProvideAppLocals {
+                AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
+                    AppDialogHost(state.value, null, { id, r -> answers += id to r }, {}, {}, {})
+                }
+            }
+        }
+        compose.onNodeWithText("A").performClick() // toggle "a" selected in the first request
+        state.value = ShownDialog(2, AppDialogRequest.MultiChoice(null, options, emptyList(), "OK", "Cancel"))
+        compose.waitForIdle()
+        compose.onNodeWithText("OK").performClick() // confirm the SECOND request
+        // A fresh sheet, not the toggled-over-from-the-first one: "a" is not pre-selected.
+        assertEquals(listOf(2L to AppDialogResult.SelectedMany(emptyList())), answers)
     }
 
     @Test fun permissionRequestRendersAndAnswers() {

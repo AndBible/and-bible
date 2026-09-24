@@ -104,14 +104,26 @@ class AppDialogControllerTest {
         assertNull(c.pending.value)
     }
 
-    @Test fun progressIsDismissedNotAnsweredAndBlocksTheQueueBehindIt() = runTest {
+    @Test fun aProgressDoesNotBlockAQuestionPostedBehindIt() = runTest {
         val c = AppDialogController()
         val p = c.show(AppDialogRequest.Progress(title = null, message = "Please wait"))
         c.post(msg("after"))
-        c.respond(p, AppDialogResult.Ok)       // a progress cannot be answered
-        assertEquals(p, c.pending.value!!.id)
-        c.dismiss(p)
+        assertEquals(p, c.progress.value!!.id)
         assertEquals("after", (c.pending.value!!.request as AppDialogRequest.Message).message)
+        c.respond(p, AppDialogResult.Ok)       // a progress cannot be answered
+        assertEquals(p, c.progress.value!!.id)
+        c.dismiss(p)
+        assertNull(c.progress.value)
+        assertEquals("after", (c.pending.value!!.request as AppDialogRequest.Message).message)
+    }
+
+    @Test fun theNewestProgressIsTheOneShown() {
+        val c = AppDialogController()
+        val first = c.show(AppDialogRequest.Progress(title = null, message = "first"))
+        val second = c.show(AppDialogRequest.Progress(title = null, message = "second"))
+        assertEquals(second, c.progress.value!!.id)
+        c.dismiss(second)
+        assertEquals(first, c.progress.value!!.id)
     }
 
     @Test fun dismissOfAnAlreadyRemovedIdIsANoOp() {

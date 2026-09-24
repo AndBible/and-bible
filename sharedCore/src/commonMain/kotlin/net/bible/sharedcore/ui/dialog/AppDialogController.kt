@@ -30,7 +30,9 @@ import kotlinx.coroutines.flow.asStateFlow
  * raise one without knowing any Activity.
  *
  * Invariants, each pinned by `AppDialogControllerTest`:
- * - FIFO; only the head is [pending]; a new request never replaces the one showing.
+ * - FIFO among answerable requests; only the head is [pending]; a new request never replaces the
+ *   one showing. [AppDialogRequest.Progress] is drawn underneath, via [progress]; it never blocks
+ *   answerable requests -- [pending] is the first non-`Progress` entry in the queue.
  * - Every answerable request reaches its caller EXACTLY once: [respond], [cancelAll], or — for
  *   [await] — the caller's own cancellation (which removes the request without answering it).
  *   A dropped request is a hung caller, and that failure is silent.
@@ -50,9 +52,13 @@ class AppDialogController {
     private val queue = ArrayList<Entry>()
     private var nextId = 1L
     private val mutablePending = MutableStateFlow<ShownDialog?>(null)
+    private val mutableProgress = MutableStateFlow<ShownDialog?>(null)
 
-    /** The queue head, or null. The host renders exactly this. */
+    /** The first answerable (non-[AppDialogRequest.Progress]) queue entry, or null. */
     val pending: StateFlow<ShownDialog?> = mutablePending.asStateFlow()
+
+    /** The most recently shown [AppDialogRequest.Progress] still in the queue, or null. */
+    val progress: StateFlow<ShownDialog?> = mutableProgress.asStateFlow()
 
     /** Raises [request] and suspends until it is answered. Cancelling the caller withdraws it. */
     suspend fun await(request: AppDialogRequest): AppDialogResult {
@@ -81,7 +87,7 @@ class AppDialogController {
             val e = queue.firstOrNull { it.id == id } ?: return
             if (e.request is AppDialogRequest.Progress) return
             queue.remove(e)
-            publishHead()
+            publish()
             e
         }
         entry.onResult?.invoke(result)
@@ -92,7 +98,7 @@ class AppDialogController {
         val dropped = synchronized(lock) {
             val all = queue.toList()
             queue.clear()
-            publishHead()
+            publish()
             all
         }
         dropped.forEach { it.onResult?.invoke(AppDialogResult.Cancel) }
@@ -102,18 +108,21 @@ class AppDialogController {
         synchronized(lock) {
             val id = nextId++
             queue.add(Entry(id, request, onResult))
-            publishHead()
+            publish()
             id
         }
 
     private fun remove(id: Long) {
         synchronized(lock) {
-            if (queue.removeAll { it.id == id }) publishHead()
+            if (queue.removeAll { it.id == id }) publish()
         }
     }
 
-    /** Called with [lock] held. */
-    private fun publishHead() {
-        mutablePending.value = queue.firstOrNull()?.let { ShownDialog(it.id, it.request) }
+    /** Called with [lock] held. Republishes both [pending] (first answerable) and [progress] (last Progress). */
+    private fun publish() {
+        mutablePending.value = queue.firstOrNull { it.request !is AppDialogRequest.Progress }
+            ?.let { ShownDialog(it.id, it.request) }
+        mutableProgress.value = queue.lastOrNull { it.request is AppDialogRequest.Progress }
+            ?.let { ShownDialog(it.id, it.request) }
     }
 }

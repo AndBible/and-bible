@@ -51,11 +51,19 @@ fun AppDialogHost(
     onPermissionDismiss: () -> Unit,
     onOpenLink: (String) -> Unit,
     onSheetOpening: () -> Unit = {},
+    progress: ShownDialog? = null,
 ) {
     val uriHandler = remember(onOpenLink) { object : UriHandler { override fun openUri(uri: String) = onOpenLink(uri) } }
     CompositionLocalProvider(LocalUriHandler provides uriHandler) {
         if (permission != null) {
             AgentPermissionDialog(request = permission, onChoice = onPermissionChoice, onDismiss = onPermissionDismiss)
+        }
+        // Drawn FIRST, so its window is created before the answerable `shown` dialog's -- the
+        // question's window then sits on top and stays clickable (C1: a Progress must never block
+        // an answerable request queued behind it).
+        if (progress != null) {
+            val p = progress.request as AppDialogRequest.Progress
+            AbProgressDialog(message = p.message, title = p.title)
         }
         if (shown == null) return@CompositionLocalProvider
         val id = shown.id
@@ -76,18 +84,25 @@ fun AppDialogHost(
                 onConfirm = { onRespond(id, AppDialogResult.Ok) }, onDismissRequest = cancel,
                 dismissText = request.dismissText, cancellable = request.cancellable,
             )
-            is AppDialogRequest.SingleChoice -> AbChoiceSheet(
-                open = true, title = request.title.orEmpty(), choices = request.choices,
-                selectedValue = request.selectedValue.orEmpty(),
-                onSelect = { onRespond(id, AppDialogResult.Selected(it)) }, onDismiss = cancel,
-            )
-            is AppDialogRequest.MultiChoice -> AbMultiSelectSheet(
-                open = true, title = request.title.orEmpty(), options = request.options,
-                selectedIds = request.selectedIds, idOf = SettingsItem.Choice::value, labelOf = SettingsItem.Choice::label,
-                confirmText = request.confirmText, dismissText = request.dismissText,
-                onConfirm = { onRespond(id, AppDialogResult.SelectedMany(it)) }, onDismiss = cancel,
-                selectAllText = request.selectAllText, selectNoneText = request.selectNoneText,
-            )
+            is AppDialogRequest.SingleChoice -> key(id) {
+                // key(id): two consecutive requests must not share remembered sheet/selection state.
+                AbChoiceSheet(
+                    open = true, title = request.title.orEmpty(), choices = request.choices,
+                    selectedValue = request.selectedValue.orEmpty(),
+                    onSelect = { onRespond(id, AppDialogResult.Selected(it)) }, onDismiss = cancel,
+                )
+            }
+            is AppDialogRequest.MultiChoice -> key(id) {
+                // key(id): two consecutive requests (even with identical options) must not share a
+                // toggled-selection remembered inside AbMultiSelectSheet (I2).
+                AbMultiSelectSheet(
+                    open = true, title = request.title.orEmpty(), options = request.options,
+                    selectedIds = request.selectedIds, idOf = SettingsItem.Choice::value, labelOf = SettingsItem.Choice::label,
+                    confirmText = request.confirmText, dismissText = request.dismissText,
+                    onConfirm = { onRespond(id, AppDialogResult.SelectedMany(it)) }, onDismiss = cancel,
+                    selectAllText = request.selectAllText, selectNoneText = request.selectNoneText,
+                )
+            }
             is AppDialogRequest.TextInput -> key(id) {
                 // key(id), not just AbTextInputContent's own remember(initial): two consecutive
                 // requests that happen to share the same `initial` (e.g. both "") must still not
@@ -106,9 +121,12 @@ fun AppDialogHost(
                 )
             }
             is AppDialogRequest.Options -> if (request.asActionSheet) {
-                AbActionSheet(open = true, title = request.title.orEmpty(), message = request.message, onDismiss = cancel) {
-                    request.options.forEach { option ->
-                        AbActionSheetRow(label = option.label, onClick = { onRespond(id, AppDialogResult.Selected(option.value)) })
+                key(id) {
+                    // key(id): same reason as SingleChoice/MultiChoice above (I2).
+                    AbActionSheet(open = true, title = request.title.orEmpty(), message = request.message, onDismiss = cancel) {
+                        request.options.forEach { option ->
+                            AbActionSheetRow(label = option.label, onClick = { onRespond(id, AppDialogResult.Selected(option.value)) })
+                        }
                     }
                 }
             } else {
@@ -118,6 +136,11 @@ fun AppDialogHost(
                     dismissText = request.dismissText, cancellable = request.cancellable,
                 )
             }
+            // Unreachable in production: AppDialogController.pending (what feeds `shown`) is the
+            // first NON-Progress entry -- a Progress only ever arrives via the `progress` parameter
+            // above. Kept as a defensive render (never as Unit) so a caller that builds a `shown`
+            // ShownDialog directly around a Progress (as some tests still do) still shows something
+            // sane rather than silently nothing.
             is AppDialogRequest.Progress -> AbProgressDialog(message = request.message, title = request.title)
         }
     }
