@@ -181,11 +181,23 @@ class ClassicReadingPlanRemovalGuardTest {
     @Test fun theSurvivingReadingPlanCollaboratorsStillExist() {
         val expected = listOf(
             "src/main/java/net/bible/android/view/activity/readingplan/ReadingPlanKeys.kt",
-            "src/main/res/layout/list_content_simple.xml",
         )
         val missing = expected.filterNot { File(it).isFile }
         assertEquals("S2 deleted a file it was supposed to keep", emptyList<String>(), missing)
     }
+
+    /**
+     * `list_content_simple.xml` used to be pinned PRESENT alongside `ReadingPlanKeys.kt` above: it
+     * was `ListActivityBase.kt`'s layout, referenceless from S2's own deletions but kept as spec
+     * §2.4 tail-sweep residue (like `ChooseKeyBase` and `choose_general_book_key.xml` in
+     * [ClassicKeyChooserRemovalGuardTest]). nav-graph slice 8 F7 was that tail sweep — it deleted
+     * `ListActivityBase.kt` itself (zero subclasses after F4/F6) and this, its sole layout,
+     * with it.
+     */
+    @Test fun theTailSweptLayoutIsGone() = ClassicRemovalScan.assertPathsGone(
+        listOf("src/main/res/layout/list_content_simple.xml"),
+        "slice 8 F7: zero subclasses; spec §2 deletes the family's dead members",
+    )
 
     /**
      * The reference proof of spec §3.3, expressed as a test so it survives this session. Delegates

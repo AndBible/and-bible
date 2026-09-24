@@ -77,9 +77,11 @@ class ClassicBookmarkRemovalGuardTest {
      * the same, and this list is what keeps it: neither file may be swept up as "obviously
      * unused", because spec 2.4 protects `view/util/widget/` by name.
      *
-     * `res/layout/list_content_simple.xml` is NOT in this list on purpose. It is also kept, but
-     * it is not referenceless — `ListActivityBase.kt:178` still inflates it and three classic
-     * screens in later slices still extend that base.
+     * `res/layout/list_content_simple.xml` was NOT in this list, on purpose: at the time this
+     * slice landed it was not yet referenceless — `ListActivityBase.kt:178` still inflated it and
+     * three classic screens in later slices still extended that base. `ListActivityBase` itself
+     * lost its last subclass and was deleted by nav-graph slice 8 F7, and
+     * `list_content_simple.xml` went with it (see `ClassicReadingPlanRemovalGuardTest`).
      */
     private val survivingCollaborators = listOf(
         "src/main/java/net/bible/android/view/util/widget/BookmarkStyleAdapterHelper.kt",

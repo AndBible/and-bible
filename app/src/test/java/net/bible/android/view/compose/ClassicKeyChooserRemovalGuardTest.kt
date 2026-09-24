@@ -28,13 +28,14 @@ import org.junit.Test
  * durable — a regression that re-adds a file, an import, a manifest entry or a flag branch would
  * otherwise only be noticed if something else broke.
  *
- * It also does something the S1 and S2 guards did not have to: it asserts that three files which
- * become REFERENCELESS in this slice are still present. `ChooseGeneralBookKey` and `ChooseMapKey`
- * are the only two subclasses of `ChooseKeyBase`, so once they go, the base, its adapter and its
- * layout have no consumer at all — and spec §2.4 keeps them anyway, as a tail-sweep item, together
- * with `ListActivityBase` and `DocumentSelectionBase`. Deleting them would compile, would pass the
- * `grep -a` reference proof and would pass every gate; only the written decision defends them, and
- * only this test makes that decision enforceable.
+ * It also does something the S1 and S2 guards did not have to: it asserts that a file which
+ * becomes REFERENCELESS in this slice is still present. `ChooseGeneralBookKey` and `ChooseMapKey`
+ * were the only two subclasses of `ChooseKeyBase`, so once they went, the base, its adapter and
+ * its layout had no consumer at all — and spec §2.4 kept them for a time anyway, as a tail-sweep
+ * item, together with `ListActivityBase` and `DocumentSelectionBase`. nav-graph slice 8 F7 was
+ * that tail sweep for `ChooseKeyBase` and `choose_general_book_key.xml` (zero subclasses even
+ * after F4/F6): see [theTailSweptFilesAreGone]. `KeyItemAdapter.kt` was NOT part of that sweep —
+ * it remains spec-2.4-protected residue here, unrelated to F7's own dead-member family.
  *
  * Source scan rather than a reflective "class not found", matching [ClassicSearchRemovalGuardTest]
  * and [ClassicReadingPlanRemovalGuardTest] and sharing their machinery via [ClassicRemovalScan].
@@ -69,18 +70,19 @@ class ClassicKeyChooserRemovalGuardTest {
         val survivors = doomedPaths.filter { File(it).exists() }
         assertEquals(
             "these classic key-chooser files or resources should have been deleted in S3. Note " +
-                "what is NOT in this list: ChooseKeyBase.kt, KeyItemAdapter.kt and " +
-                "choose_general_book_key.xml are kept on purpose (spec 2.4) even though nothing " +
-                "references them after this slice.",
+                "what is NOT in this list: KeyItemAdapter.kt is kept on purpose (spec 2.4) even " +
+                "though nothing references it after this slice. ChooseKeyBase.kt and " +
+                "choose_general_book_key.xml were ALSO kept here for the same reason, until " +
+                "nav-graph slice 8 F7 swept them -- see theTailSweptFilesAreGone.",
             emptyList<String>(),
             survivors,
         )
     }
 
     /**
-     * The inverse assertion, and this slice's signature. Every one of these has NO consumer once
-     * S3 lands, so an implementer or a later tidy-up could delete any of them and every gate would
-     * still pass — a compile is green, the reference proof is green, the goldens do not move.
+     * The inverse assertion, and this slice's signature. `KeyItemAdapter.kt` has NO consumer once
+     * S3 lands, so an implementer or a later tidy-up could delete it and every gate would still
+     * pass — a compile is green, the reference proof is green, the goldens do not move.
      * `KeyChooserKeys.kt` is the exception that proves the rule: it sits in the same doomed-looking
      * package and is named after the deleted feature, but it is read by two SURVIVING Compose
      * activities and by the reading view's quick-sheet, so deleting it breaks shipping code
@@ -88,22 +90,32 @@ class ClassicKeyChooserRemovalGuardTest {
      */
     @Test fun theSurvivingKeyChooserCollaboratorsStillExist() {
         val mustExist = listOf(
-            "src/main/java/net/bible/android/view/activity/navigation/genbookmap/ChooseKeyBase.kt",
             "src/main/java/net/bible/android/view/activity/navigation/genbookmap/KeyItemAdapter.kt",
             "src/main/java/net/bible/android/view/activity/navigation/genbookmap/KeyChooserKeys.kt",
-            "src/main/res/layout/choose_general_book_key.xml",
         )
         val missing = mustExist.filterNot { File(it).exists() }
         assertEquals(
-            "S3 deleted a file it was supposed to keep. ChooseKeyBase, KeyItemAdapter and " +
-                "choose_general_book_key.xml become referenceless in this slice and are kept by " +
-                "spec 2.4 as a tail-sweep item, exactly like ListActivityBase and " +
-                "DocumentSelectionBase; KeyChooserKeys.kt is read by the surviving Compose " +
-                "activities and by ComposeReadingViewHost's quick-sheet.",
+            "S3 deleted a file it was supposed to keep. KeyItemAdapter becomes referenceless in " +
+                "this slice and is kept by spec 2.4; KeyChooserKeys.kt is read by the surviving " +
+                "Compose activities and by ComposeReadingViewHost's quick-sheet.",
             emptyList<String>(),
             missing,
         )
     }
+
+    /**
+     * nav-graph slice 8 F7: `ChooseKeyBase` lost its last subclass (both `ChooseGeneralBookKey`
+     * and `ChooseMapKey` already gone, since S3) and is deleted, along with the layout only it
+     * inflated. Moved out of [theSurvivingKeyChooserCollaboratorsStillExist] above, which used to
+     * pin both PRESENT.
+     */
+    @Test fun theTailSweptFilesAreGone() = ClassicRemovalScan.assertPathsGone(
+        listOf(
+            "src/main/java/net/bible/android/view/activity/navigation/genbookmap/ChooseKeyBase.kt",
+            "src/main/res/layout/choose_general_book_key.xml",
+        ),
+        "slice 8 F7: zero subclasses; spec §2 deletes the family's dead members",
+    )
 
     /**
      * The reference proof of spec §3.3, expressed as a test so it survives this session. Delegates
