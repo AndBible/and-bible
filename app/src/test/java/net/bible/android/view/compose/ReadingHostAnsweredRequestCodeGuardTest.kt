@@ -477,8 +477,8 @@ class ReadingHostAnsweredRequestCodeGuardTest {
         /**
          * Every request code classic `MainBibleActivity.onActivityResult` answered, by SIMPLE name —
          * derived from `MainBibleActivity.onActivityResult` (its `when (requestCode)` arms, its
-         * `requestCode ==` comparisons and `MenuCommandHandler`'s predicates) at the class's
-         * deletion in slice 8 F4; frozen because the class is gone. `REFRESH_DISPLAY_ON_FINISH` is
+         * `requestCode ==` comparisons and `MenuCommandHandler`'s predicates) in slice 8 F3, before
+         * the F4 deletion; frozen because the class is gone. `REFRESH_DISPLAY_ON_FINISH` is
          * the one that was never a literal in classic's body: it came from following the tail's
          * `mainMenuCommandHandler` predicates into `MenuCommandHandler`.
          */

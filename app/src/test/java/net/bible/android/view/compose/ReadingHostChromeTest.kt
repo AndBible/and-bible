@@ -18,6 +18,7 @@
 package net.bible.android.view.compose
 
 import androidx.test.core.app.ApplicationProvider
+import java.io.File
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.SharedActivityState
@@ -174,6 +175,51 @@ class ReadingHostChromeTest {
                 "with another host's",
             UninitializedPropertyAccessException::class.java,
         ) { host.hostWindowRepository }
+    }
+
+    /**
+     * The two duplications R6d created were HOISTED rather than guarded -- the page-title body onto
+     * `ReadingCommands.pageTitleText`, the theme-dimension body onto `Activity.themePixelSize` -- and
+     * a hoist is only a fix while it stays the single copy. This is the standing assertion that the
+     * nav host has not re-grown one, keyed on each hoisted body's most distinctive line, plus the
+     * positive half, so a rename of the hoist target turns this red instead of vacuous.
+     *
+     * Moved here in slice 8 F3 fix round 1 from `ReadingChromePortDriftTest`
+     * (`neitherHostReImplementsABodyR6dHoisted`), NavHost-only: the classic half went with
+     * `MainBibleActivity`, the host half outlives it and nothing else pins it.
+     */
+    @Test
+    fun theNavHostReImplementsNoBodyR6dHoisted() {
+        val readingCommands = sourceOf("src/main/java/net/bible/android/view/activity/page/ReadingCommands.kt")
+        val activityBase = sourceOf("src/main/java/net/bible/android/view/activity/base/ActivityBase.kt")
+        assertTrue(
+            "ReadingCommands.pageTitleText is the ONE page-title body; if it is gone, the two " +
+                "assertions below are watching nothing",
+            readingCommands.contains("CommonUtils.getWholeChapter(key, false).name"),
+        )
+        assertTrue(
+            "Activity.themePixelSize is the ONE theme-dimension body; same reason",
+            activityBase.contains("TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)"),
+        )
+        val navHostPath = "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"
+        val navHost = sourceOf(navHostPath)
+        assertEquals(
+            "$navHostPath re-implements the page-title body — it is ReadingCommands.pageTitleText " +
+                "(R6d fix round 1)",
+            0, Regex("CommonUtils\\.getWholeChapter\\(").findAll(navHost).count(),
+        )
+        assertEquals(
+            "$navHostPath re-implements the theme-dimension body — it is Activity.themePixelSize " +
+                "(R6d fix round 1)",
+            0, Regex("complexToDimensionPixelSize").findAll(navHost).count(),
+        )
+    }
+
+    private fun sourceOf(path: String): String {
+        val f = File(path)
+        // Anti-vacuity: a path that stops existing must FAIL the guard, not quietly contribute "".
+        require(f.exists()) { "$path not found — ReadingHostChromeTest scans it" }
+        return f.readText()
     }
 
     private fun buildNavHost(): NavHostComposeActivity = Robolectric.buildActivity(

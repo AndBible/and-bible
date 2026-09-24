@@ -1303,7 +1303,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // [readingAppBootstrap]. It was deliberately NOT substituted into the ported chrome while
     // `ReadingChromePortDriftTest` compared this region with classic's (that guard pinned the
     // substitution at exactly two occurrences); slice 8 F3 deleted the guard with classic, so this
-    // is now the one copy, pinned by `ReadingHostChromeTest`.
+    // is now the one copy -- wired, not behaviour-pinned (`ReadingHostChromeTest` only checks that
+    // its calls do not throw).
     //
     // R8 settled the rest of this host's `windowControl.windowRepository` reads, and the verdict is
     // NOT "substitute them all". Only [restorePaneFocus] was re-pointed, because only it is a
