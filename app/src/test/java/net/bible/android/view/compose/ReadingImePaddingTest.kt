@@ -302,7 +302,7 @@ class ReadingImePaddingTest {
     }
 
     /**
-     * F59 fix round 2 (extra adversarial review + controller ruling R10). Task 7's original fix
+     * F59 fix round 2 (extra adversarial review). Task 7's original fix
      * set `ADJUST_NOTHING` for the window's WHOLE life on `SDK_INT >= appOwnsImeInsetFromSdk`, which
      * un-lifted every non-reading destination this host hosts on API 30-34 -- e.g.
      * `CustomRepositoryEditorScreen`'s `OutlinedTextField`s, `AiConnectionSettingsScreen`'s

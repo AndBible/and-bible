@@ -76,8 +76,8 @@ class ClassicDocumentSelectionRemovalGuardTest {
 
     /**
      * nav-graph slice 8 F7: `DocumentSelectionBase` lost its only two subclasses (the abstract,
-     * subclass-less `ChooseKeyBase` and `DocumentSelectionBase` itself, per plan-context.md
-     * correction 10) and is deleted. `document_selection.xml` (its binding) and
+     * subclass-less `ChooseKeyBase` and `DocumentSelectionBase` itself, per the slice 8 plan's
+     * "Corrections to the spec", correction 10) and is deleted. `document_selection.xml` (its binding) and
      * `document_context_menu.xml` go with it: the menu was kept past S6 only because
      * `DocumentSelectionBase.onActionItemClicked` still named `R.id.about` and `R.id.delete_index`
      * from it (see the superseded note this replaces) — with that reader gone, it has no referrer

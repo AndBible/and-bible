@@ -35,7 +35,7 @@ class MainBibleActivityRemovalGuardTest {
     /**
      * F2: every Robolectric test that built `MainBibleActivity` is rehosted on `NavHostComposeActivity` or deleted
      * with its subject (spec §5.3), so Task F4 can delete the class. Scans CODE only -- comments and string literals
-     * are stripped first (controller ruling R2: `ReadingHostLauncherGuardTest` legitimately names the class inside a
+     * are stripped first (because `ReadingHostLauncherGuardTest` legitimately names the class inside a
      * string it scans for, and this file's own regex would otherwise match itself), and this file is skipped.
      */
     @Test

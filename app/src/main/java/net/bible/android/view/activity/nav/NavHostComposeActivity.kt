@@ -2718,7 +2718,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
-     * F59 fix round 2 (extra adversarial review + controller ruling R10). `ADJUST_NOTHING` must NOT
+     * F59 fix round 2 (extra adversarial review). `ADJUST_NOTHING` must NOT
      * apply to the whole window regardless of which destination is current: the only IME sink this
      * batch built is the `reading` destination's `ReadingViewScreen.imeBottomPadding` (spec §3.3,
      * `ComposeReadingViewHost`'s `imeBottomPaddingPxState`). Every OTHER destination this NavHost
@@ -2754,7 +2754,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * non-reading destination is current, so its own `ADJUST_NOTHING` write on this host can never
      * race this function's `ADJUST_RESIZE` for a different destination.
      *
-     * **Known debt this round does not specifically re-verify (controller ruling R10).** On API
+     * **Known debt this round does not specifically re-verify (accepted as out of F59's scope).** On API
      * 35+, a non-reading destination reached AFTER the reading bootstrap had already run was ALSO
      * un-lifted -- pre-existing since before this whole T9 batch (`setSoftKeyboardMode`'s original
      * "Android 15 edge-to-edge enforcement fix" already set a permanent, whole-window
@@ -3024,7 +3024,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      *
      * A start diverted here still runs INITIALISED: [doNotInitializeApp] reads the RAW launch route
      * (`initRoute`), not this gated one, and is deliberately not routed through this gate -- the
-     * usable-Bible check itself needs the Books loaded. Accepted (Controller ruling R6): initialising
+     * usable-Bible check itself needs the Books loaded. Accepted: initialising
      * tolerates zero Bibles, and `FLAG_SECURE` ends up applied, the safer side.
      */
     private fun gatedReadingRoute(route: String): String =
@@ -3082,7 +3082,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     private var initialisedAfterStart = false
 
     /**
-     * Controller ruling R4 (spec §3.1 rule 2: INSTALL_ZIP initialises "as today"). A host that STARTED
+     * Slice 8 spec §3.1 rule 2 (INSTALL_ZIP initialises "as today"). A host that STARTED
      * uninitialised ([doNotInitializeApp], i.e. on WELCOME or BACKUP) performs, once, what
      * `ActivityBase.onCreate` does for an initialised start: [CommonUtils.initializeApp] and
      * [applyInitialisedWindowState]. Classic reached InstallZip as a separate Activity whose own
@@ -3118,7 +3118,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * A WELCOME-started host (uninitialised, spec §3.1 rule 2) initialises the app AND its window when a flow
      * leaves Welcome for Download / InstallZip: those screens were separate, initialised Activities before
      * slice 8, so they had `FLAG_SECURE` in discrete mode (plan Correction 6) and an initialised app.
-     * Controller ruling R4: this IS [initialiseIfStartedUninitialised] (idempotent, a no-op once initialised);
+     * Spec §3.1 rule 2: this IS [initialiseIfStartedUninitialised] (idempotent, a no-op once initialised);
      * Welcome needs nothing beyond it on the way out -- the unlock attempt and the predicate belong to the
      * way back, [welcomeAfterFlow].
      */
@@ -3193,8 +3193,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         super.onCreate(savedInstanceState)
         applyComposeHostWindowSetup()
         // F59 (T9 walk, spec §3.1.1): the manifest keeps `adjustResize` on this Activity's block
-        // (a manifest attribute cannot be per-API). F59 fix round 2 (extra adversarial review +
-        // controller ruling R10): the soft-input mode is no longer set unconditionally here for the
+        // (a manifest attribute cannot be per-API). F59 fix round 2 (extra adversarial
+        // review): the soft-input mode is no longer set unconditionally here for the
         // WHOLE window's life -- see [applySoftInputModeFor]'s kdoc for why (only `reading` has an
         // IME sink; every other destination this host hosts needs the manifest's `adjustResize`, not
         // `ADJUST_NOTHING`). The call below runs once [resolveStartRoute] is known, still before
@@ -8737,7 +8737,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * runs (`InstallZipAwaitGuardTest`). [action]/[uris] are for an entry that already has files (the
      * reading-plan import picks one first); the in-app default shows the picker.
      *
-     * Controller ruling R4: initialises the app first when this host started uninitialised (on BACKUP,
+     * Slice 8 spec §3.1 rule 2: initialises the app first when this host started uninitialised (on BACKUP,
      * whose "restore documents" opens InstallZip) -- see [initialiseIfStartedUninitialised].
      */
     internal fun openInstallZip(

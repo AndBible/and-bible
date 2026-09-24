@@ -98,7 +98,7 @@ class SpeakSettingsServiceImpl : SpeakSettingsService, KoinComponent {
     }
 
     override fun setRepeatRange(startOsisId: String, endOsisId: String) {
-        // Ruling R2 (pre-flight): the versification comes from navigationControl unconditionally —
+        // Pre-flight decision: the versification comes from navigationControl unconditionally —
         // verbatim what the deleted BibleSpeakComposeActivity.onActivityResult did. Preferring an
         // existing range's own versification would make the write depend on what it overwrites.
         val v11n = navigationControl.versification

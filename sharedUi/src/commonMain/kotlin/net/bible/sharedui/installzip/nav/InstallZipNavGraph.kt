@@ -90,7 +90,7 @@ class InstallZipNavDeps(
 }
 
 /**
- * One [InstallZipSession] per InstallZip NavBackStackEntry OBJECT (D1 controller rulings).
+ * One [InstallZipSession] per InstallZip NavBackStackEntry OBJECT (slice 8 Task D1).
  *
  * Navigation disposes a destination's composition when another destination covers it and recomposes it on
  * return; a session tied to that composition would be recreated and `start()` again -- re-enqueueing a

@@ -28,7 +28,7 @@ import org.robolectric.annotation.GraphicsMode
 
 /**
  * The labels help dialog, one capture per [ManageLabelsMode]. The legend rows differ by mode
- * (ASSIGN gets all six rows per round 15a ruling R6; WORKSPACE four; HIDELABELS just the re-order
+ * (ASSIGN gets all six rows, as round 15a settled; WORKSPACE four; HIDELABELS just the re-order
  * row; STUDYPAD has no legend at all), so each mode is its own state rather than one shared golden.
  */
 @RunWith(RobolectricTestRunner::class)

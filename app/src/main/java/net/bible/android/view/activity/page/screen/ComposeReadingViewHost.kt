@@ -1737,7 +1737,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             onDispose { speakGridBack = null }
         }
         val ui by controller.ui.collectAsState()
-        // The sheet shell bounds the body to 400dp (Task 11, ruling R3), so `fillMaxSize()` here is
+        // The sheet shell bounds the body to 400dp (Task 11), so `fillMaxSize()` here is
         // bounded and safe — the grid sizes its cells against that height.
         GridChoosePassageContent(ui, controller::pick, Modifier.fillMaxSize())
     }

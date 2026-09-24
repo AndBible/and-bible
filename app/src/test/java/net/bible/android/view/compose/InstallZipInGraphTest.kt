@@ -85,7 +85,7 @@ class InstallZipInGraphTest {
     private fun fakeSessionFor(action: String?, uris: List<String>, onFinished: (InstallZipResult) -> Unit): InstallZipSession =
         FakeSession(onFinished).also { sessions += Triple(action, uris, it) }
 
-    // ——— the real InstallZipFlow, for the entry-lifetime tests (controller ruling on D1 concern 1) ———
+    // ——— the real InstallZipFlow, for the entry-lifetime tests (D1's first review concern) ———
     private val jobs = MutableStateFlow<List<InstallJobState>>(emptyList())
     private val enqueued = mutableListOf<List<Uri>>()
     private var realSessions = 0
@@ -230,7 +230,7 @@ class InstallZipInGraphTest {
     /**
      * Fix round 2. A second share while InstallZip is on top: `navigateToRoute`'s `launchSingleTop` REPLACES
      * the top entry with a new object carrying the SAME id and the new arguments (pinned here first, since
-     * the fix depends on it). Controller ruling: the re-share replaces the session, as classic started a
+     * the fix depends on it). The re-share replaces the session, as classic started a
      * fresh Activity per share -- the new URIs are enqueued, and back still pops.
      */
     @Test

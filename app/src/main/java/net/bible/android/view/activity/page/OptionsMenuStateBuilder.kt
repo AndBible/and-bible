@@ -50,7 +50,7 @@ import net.bible.sharedcore.settings.textSettingEditorPageFor
  * `MainBibleActivity` into [net.bible.android.view.activity.page.ReadingCommands]; the Activity
  * keeps delegating stubs of the same names, which is what `OptionsMenuStateBuilderTest` and
  * `ReadingOptionsMenuTest` drive. [dispatch]'s [activity] parameter is deliberately UNCHANGED at
- * this task (controller ruling C-5): re-typing it belongs to R6, with the rest of the seam.
+ * this task: re-typing it belongs to R6, with the rest of the seam.
  */
 object OptionsMenuStateBuilder {
 

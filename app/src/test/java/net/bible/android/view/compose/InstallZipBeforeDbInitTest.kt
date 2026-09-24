@@ -39,7 +39,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 /**
- * Slice 8 D1, controller ruling R4. A host started UNINITIALISED on BACKUP (the crash dialog's "Backup &
+ * Slice 8 D1 (spec §3.1 rule 2: INSTALL_ZIP initialises "as today"). A host started UNINITIALISED on BACKUP (the crash dialog's "Backup &
  * restore", before `initializeDatabase()`) can reach InstallZip in-graph (Backup's "restore documents",
  * wired in D2). The classic `InstallZipComposeActivity` initialised the app in its own `ActivityBase.onCreate`,
  * so the in-graph destination must too, before the install touches the database. Same test-side trick as
