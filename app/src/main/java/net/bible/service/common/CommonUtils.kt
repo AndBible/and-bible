@@ -118,6 +118,7 @@ import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.DataBaseNotReady
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.BookAndKey
@@ -390,12 +391,31 @@ object CommonUtils : CommonUtilsBase() {
     val doubleSettings get() = DatabaseContainer.instance.settingsDb.doubleSettingDao()
 
     class AndBibleSettings {
-        fun getString(key: String, default: String? = null) = stringSettings.get(key, default)
-        fun getLong(key: String, default: Long) = longSettings.get(key, default)
-        fun getInt(key: String, default: Int) = longSettings.get(key, default.toLong()).toInt()
+        fun getString(key: String, default: String? = null) = orDefaultIfDbNotReady(default) { stringSettings.get(key, default) }
+        fun getLong(key: String, default: Long) = orDefaultIfDbNotReady(default) { longSettings.get(key, default) }
+        fun getInt(key: String, default: Int) = orDefaultIfDbNotReady(default) { longSettings.get(key, default.toLong()).toInt() }
         fun getBoolean(key: String, default: Boolean) = if(initialized) booleanSettings.get(key, default) else default
-        fun getDouble(key: String, default: Double) = doubleSettings.get(key, default)
-        fun getFloat(key: String, default: Float): Float = doubleSettings.get(key, default.toDouble()).toFloat()
+        fun getDouble(key: String, default: Double) = orDefaultIfDbNotReady(default) { doubleSettings.get(key, default) }
+        fun getFloat(key: String, default: Float): Float = orDefaultIfDbNotReady(default) { doubleSettings.get(key, default.toDouble()).toFloat() }
+
+        /**
+         * Nav-graph slice 8 C3 (Review Focus #1): a read before the database exists answers [default]
+         * instead of crashing. "Backup & restore" from `ErrorReportControl.checkCrash` runs before
+         * `StartupActivity.initializeDatabase()`, and its host's theme reads `getDisplayColorMode`
+         * through [getString]; `DatabaseContainer.instance` throws [DataBaseNotReady] there.
+         *
+         * The guard is on exactly that throw, NOT on [initialized] like [getBoolean]: the database is
+         * already readable while `initialized` is still false, and those reads must keep their stored values.
+         *  - [migrateOldSettingsKeys] runs inside the first `DatabaseContainer.instance`, before
+         *    `initializeApp` sets `initialized`. Its secret migration reads [getString]; an
+         *    `initialized` guard would return null and never migrate the old cloud-sync credentials.
+         *  - `StartupActivity` sets `DatabaseContainer.ready` in `initializeDatabase()` long before
+         *    `initializeAppCoroutine()`. The calculator, Welcome and crash-check screens in between
+         *    read real settings, such as the theme's colour mode.
+         * Setters stay unguarded: writing before the database exists is still a crash.
+         */
+        private inline fun <T> orDefaultIfDbNotReady(default: T, read: () -> T): T =
+            try { read() } catch (e: DataBaseNotReady) { default }
 
         fun setString(key: String, value: String?) = stringSettings.set(key, value)
         fun setLong(key: String, value: Long?) = longSettings.set(key, value)
