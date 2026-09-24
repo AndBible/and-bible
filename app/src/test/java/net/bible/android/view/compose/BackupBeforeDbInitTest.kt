@@ -27,6 +27,7 @@ import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.test.resetComposeUiDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -62,6 +63,9 @@ class BackupBeforeDbInitTest {
         DatabaseContainer.ready = false
         CommonUtils.initialized = false
         runningTests = false
+        // Without it, after the first NavHost host in this JVM the destination never recomposes, so
+        // Backup's ON_RESUME load() -- the part of the screen that could touch the database -- never ran.
+        resetComposeUiDispatcher()
         val controller = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.BACKUP),
