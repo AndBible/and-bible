@@ -30,10 +30,11 @@ package net.bible.sharedcore.reading
  *
  *  - **A dead back key.** With a classic secondary Activity over a backgrounded host whose reading
  *    destination is still composed, `depth > 0` kept `ReadingViewVisibility.isVisible` true, so
- *    `HistoryManager.goBack()`'s `if (!isVisible) currentActivity?.finish()` never fired — and
- *    `ActivityBase.onBackPressed` returns WITHOUT `super` whenever `historyTraversal.goBack()`
- *    returned true, so the user got a back press that reverted history and left them on the same
- *    secondary screen.
+ *    `HistoryManager.goBack()`'s `if (!isVisible) currentActivity?.finish()` never fired (that call
+ *    is `leaveCurrentScreen()` since slice 8 A3 — NavHost pops, classic Activities finish — but the
+ *    bug and its fix predate that rename) — and `ActivityBase.onBackPressed` returns WITHOUT
+ *    `super` whenever `historyTraversal.goBack()` returned true, so the user got a back press that
+ *    reverted history and left them on the same secondary screen.
  *  - **Keys dispatched into a backgrounded destination.** `ReadingViewHostCallbacks.current` was
  *    "last published", so with two reading views alive the handlers on top of the publish stack
  *    could belong to the one the user cannot see — while volume keys and screen-state broadcasts

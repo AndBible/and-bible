@@ -42,8 +42,10 @@ package net.bible.sharedcore.reading
  * background — navigation-compose does not dispose the current entry's content when the Activity
  * stops. So "registered" used to mean "visible", and with a classic secondary Activity over a
  * backgrounded host the flag stayed true: `HistoryManager.goBack()`'s
- * `if (!isVisible) currentActivity?.finish()` never fired and the user got a DEAD BACK KEY
- * (`ActivityBase.onBackPressed` returns without `super` when `goBack()` returned true). The same
+ * `if (!isVisible) currentActivity?.finish()` (that call is `leaveCurrentScreen()` since slice 8
+ * A3 — NavHost pops, classic Activities finish — but the bug and its fix predate that rename)
+ * never fired and the user got a DEAD BACK KEY (`ActivityBase.onBackPressed` returns without
+ * `super` when `goBack()` returned true). The same
  * state also recorded a `KeyHistoryItem` for an `AddHistoryItem` posted while the app was in the
  * background. [ReadingHostPresence]'s kdoc has the full argument, including why the Activity input
  * and the destination input could not simply be ANDed with a lifecycle observer each: they would be
