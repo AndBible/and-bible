@@ -1614,12 +1614,16 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    suspend fun requestNotificationPermission(activity_: ActivityBase? = null) {
-        val activity = activity_ ?: CurrentActivityHolder.currentActivity ?: return
+    suspend fun requestNotificationPermission(activity_: ActivityBase? = null) = withContext(Dispatchers.Main) {
+        val activity = activity_ ?: CurrentActivityHolder.currentActivity ?: return@withContext
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
                 var request = true
                 if (activity.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                    // dialogs.await(...) is thread-safe on its own, but this whole function runs on
+                    // Main (below) because checkSelfPermission/shouldShowRequestPermissionRationale/
+                    // requestPermissions are Activity calls that must not run off the main thread --
+                    // GlobalScope.launch(Dispatchers.Default) callers exist (SpeakControl.prepareForSpeaking).
                     val answer = dialogs.await(
                         AppDialogRequest.Confirm(
                             title = activity.getString(R.string.permission_required),

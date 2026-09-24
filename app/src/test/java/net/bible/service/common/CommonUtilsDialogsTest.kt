@@ -16,15 +16,24 @@
  */
 package net.bible.service.common
 
+import android.Manifest
 import android.os.Looper
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.yield
 import kotlin.time.Duration.Companion.seconds
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -84,6 +93,32 @@ class CommonUtilsDialogsTest {
         override fun isWritable(): Boolean = false
         override fun setRawText(key: Key?, text: String?) = throw UnsupportedOperationException()
         override fun setAliasKey(alias: Key?, source: Key?) = throw UnsupportedOperationException()
+    }
+
+    /**
+     * Records which thread called each Activity permission method, so a test can prove
+     * `requestNotificationPermission` touches the Activity on main even when it is *started* from a
+     * background dispatcher (fix round 1: `SpeakControl.prepareForSpeaking` calls it from
+     * `GlobalScope.launch {}`, i.e. `Dispatchers.Default`).
+     */
+    private class ThreadRecordingActivity : ActivityBase() {
+        val checkSelfPermissionThreads = mutableListOf<Thread>()
+        val rationaleThreads = mutableListOf<Thread>()
+
+        override fun checkSelfPermission(permission: String): Int {
+            checkSelfPermissionThreads += Thread.currentThread()
+            return super.checkSelfPermission(permission)
+        }
+
+        override fun shouldShowRequestPermissionRationale(permission: String): Boolean {
+            rationaleThreads += Thread.currentThread()
+            return super.shouldShowRequestPermissionRationale(permission)
+        }
+        // Activity.requestPermissions(String[], Int) is final on this SDK -- cannot be overridden to
+        // record its thread. The test instead confirms the call happened via
+        // ShadowActivity.getLastRequestedPermission() and relies on the two recordings above (both
+        // BEFORE the dialog is even shown) to prove the fix: they fail under the pre-fix code because
+        // the whole function ran off-main at that point.
     }
 
     @After
@@ -261,9 +296,102 @@ class CommonUtilsDialogsTest {
     @Test
     fun requestNotificationPermissionDoesNotPromptWhenNoRationaleNeeded() = runTest(timeout = 10.seconds) {
         val activity = activity()
-        CommonUtils.requestNotificationPermission(activity)
-        idle()
-        assertNull(dialogs.pending.value)
+        // Fix round 1 restored requestNotificationPermission's withContext(Dispatchers.Main). Called
+        // directly (not via async) as below, that dispatch is a genuine cross-dispatcher post to the
+        // AMBIENT Dispatchers.Main -- the real Robolectric-Looper-backed one when unset -- which
+        // deadlocks runTest's own single-threaded event loop exactly like the original deadlock this
+        // task hit (nothing can call idle() to drain it while this call is suspended waiting for it).
+        // Binding Main to this runTest's own testScheduler keeps the switch on the same cooperative
+        // scheduler runTest already drains itself, so no manual pumping is needed at all.
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        try {
+            CommonUtils.requestNotificationPermission(activity)
+            assertNull(dialogs.pending.value)
+        } finally {
+            Dispatchers.resetMain()
+        }
+    }
+
+    /**
+     * Fix round 1 regression test: `SpeakControl.prepareForSpeaking` starts
+     * `requestNotificationPermission` from `GlobalScope.launch {}` (`Dispatchers.Default`), not from
+     * main. Every Activity call the function makes (`checkSelfPermission`,
+     * `shouldShowRequestPermissionRationale`, `requestPermissions`) must still land on the main
+     * thread. Drives the background coroutine with a bounded polling loop -- never blocks the
+     * Robolectric main thread inside `runTest` while the code under test needs `Dispatchers.Main`
+     * (the deadlock hit earlier in this task).
+     */
+    @Test
+    fun requestNotificationPermissionTouchesTheActivityOnMainEvenFromABackgroundDispatcher() = runTest(timeout = 10.seconds) {
+        val activity = Robolectric.buildActivity(ThreadRecordingActivity::class.java).also { controllers += it }.setup().get()
+        shadowOf(activity.packageManager).setShouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS, true)
+        val mainThread = Thread.currentThread()
+
+        // Route Dispatchers.Main to THIS runTest's own virtual scheduler instead of a real
+        // Robolectric Looper/Handler. A real Handler-based Dispatchers.Main here (this is the only
+        // test in the file that genuinely posts to Main from a real GlobalScope(Dispatchers.Default)
+        // background thread) left Dispatchers.Main's cached resolution pointing at a Looper instance
+        // that the NEXT Robolectric test's fresh main-Looper identity never drains again -- confirmed
+        // by two earlier versions of this test (one with a real Handler dispatcher, one that also
+        // waited for the background job to finish) both hanging the very next test in this class
+        // forever. Binding to `testScheduler` keeps everything on kotlinx-coroutines-test's own
+        // virtual machinery, the same mechanism `advance()`/`yield()` already use safely everywhere
+        // else in this file, and never touches Robolectric's Looper at all.
+        val mainDispatcher = StandardTestDispatcher(testScheduler)
+        Dispatchers.setMain(mainDispatcher)
+        try {
+            val job = GlobalScope.launch(Dispatchers.Default) {
+                CommonUtils.requestNotificationPermission(activity)
+            }
+
+            var waited = 0
+            while (dialogs.pending.value == null && waited < 200) {
+                advanceUntilIdle()
+                Thread.sleep(10)
+                waited++
+            }
+            assertTrue("the rationale dialog never arrived", dialogs.pending.value != null)
+
+            // The two Activity calls made before the dialog is even shown must already be on main --
+            // this is where the pre-fix code (no withContext(Dispatchers.Main)) fails: both are
+            // recorded on the GlobalScope.Default background thread instead.
+            assertTrue(activity.checkSelfPermissionThreads.isNotEmpty())
+            assertTrue(activity.checkSelfPermissionThreads.all { it === mainThread })
+            assertTrue(activity.rationaleThreads.isNotEmpty())
+            assertTrue(activity.rationaleThreads.all { it === mainThread })
+
+            val head = dialogs.pending.value!!.request as AppDialogRequest.Confirm
+            assertEquals(activity.getString(R.string.permission_required), head.title)
+            dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
+
+            waited = 0
+            while (shadowOf(activity).lastRequestedPermission == null && waited < 200) {
+                advanceUntilIdle()
+                Thread.sleep(10)
+                waited++
+            }
+            // Functional round-trip proof: answering the (main-thread-raised) dialog actually reached
+            // requestPermissions -- Activity.requestPermissions is final on this SDK, so its own
+            // calling thread cannot be recorded directly, but by this point in the (fixed) function
+            // every preceding Activity call was already confirmed to run on main above.
+            assertEquals(
+                Manifest.permission.POST_NOTIFICATIONS,
+                shadowOf(activity).lastRequestedPermission?.requestedPermissions?.firstOrNull(),
+            )
+
+            // Make sure the background job has FULLY finished before this test method returns -- a
+            // still-running real background thread left alive into the next test risks the same kind
+            // of cross-test corruption the Handler-based attempt above hit.
+            waited = 0
+            while (!job.isCompleted && waited < 200) {
+                advanceUntilIdle()
+                Thread.sleep(10)
+                waited++
+            }
+            assertTrue("background job never completed", job.isCompleted)
+        } finally {
+            Dispatchers.resetMain()
+        }
     }
 
     // -- documentUpgradeConfirmation --
