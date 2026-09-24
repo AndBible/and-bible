@@ -57,11 +57,6 @@ object Dialogs {
         if (Looper.myLooper() == Looper.getMainLooper()) block() else mainHandler.post(block)
 
     @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
-    fun showMsg(msgId: Int, isCancelable: Boolean, okayCallback: (() -> Unit)) {
-        showMsg(application.getString(msgId), isCancelable, okayCallback, null)
-    }
-
-    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showMsg(msgId: Int) {
         showErrorMsg(application.getString(msgId))
     }
