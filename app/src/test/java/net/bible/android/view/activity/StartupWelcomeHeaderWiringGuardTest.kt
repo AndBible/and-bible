@@ -38,15 +38,18 @@ private fun stripComments(text: String): String {
 
 /**
  * F62 -- a wiring guard for [net.bible.android.view.activity.startupWelcomeAppNameRes] and
- * [net.bible.android.view.activity.startupWelcomeLogoRes]'s one production call site.
+ * [net.bible.android.view.activity.startupWelcomeLogoRes]'s one production call site: since slice 8 E2,
+ * `WelcomeFlow.navDeps()`'s `WelcomeNavDeps(...)` call. (The `StartupWelcomeScreen(...)` call itself now
+ * lives in `:sharedUi`'s `WelcomeNavGraph` and passes on whatever the deps carry, so the CHOICE is made --
+ * and guarded -- here.)
  *
  * Both helpers exist so the discrete-mode CHOICE is unit-testable
  * (`StartupWelcomeDiscreteChromeTest`) without a Compose rendering harness -- but that test calls
  * the helpers directly, so it proves the helpers are correct while proving nothing about whether
- * `StartupComposeActivity.onCreate`'s `StartupWelcomeScreen(...)` call, their only production call
- * site, actually still uses them. Reverting `appName = getString(startupWelcomeAppNameRes())` /
- * `logo = painterResource(startupWelcomeLogoRes())` back to raw
- * `getString(R.string.app_name_long)` / `painterResource(R.drawable.ic_logo)` literals leaves every
+ * `WelcomeFlow.navDeps()`'s `WelcomeNavDeps(...)` call, their only production call
+ * site, actually still uses them. Reverting `appName = host.getString(startupWelcomeAppNameRes())` /
+ * `logo = { painterResource(startupWelcomeLogoRes()) }` back to raw
+ * `host.getString(R.string.app_name_long)` / `painterResource(R.drawable.ic_logo)` literals leaves every
  * existing test green: the helper functions themselves become unreachable-but-still-present dead
  * code, and nothing else notices. That is exactly the "silently no wiring" failure shape
  * `SearchHostBackRoutingGuardTest`'s kdoc names for F43 and F55, and the same shape
@@ -57,7 +60,7 @@ private fun stripComments(text: String): String {
  * comparable in a unit test, so the only thing left to assert is the WIRING -- that the call site
  * spells the helper, not the raw resource literal.
  *
- * Scoped narrowly to the `StartupWelcomeScreen(...)` call's own argument list, not the whole file:
+ * Scoped narrowly to the `WelcomeNavDeps(...)` call's own argument list, not the whole file:
  * the helpers' own bodies legitimately contain the literals `R.string.app_name_long` and
  * `R.drawable.ic_logo` as their non-discrete branches, so a file-wide "the literal must not appear
  * anywhere" assertion would fail permanently on a correct fix, not just on a reverted one.
@@ -66,33 +69,33 @@ class StartupWelcomeHeaderWiringGuardTest {
 
     companion object {
         private const val HOST_FILE =
-            "src/main/java/net/bible/android/view/activity/StartupComposeActivity.kt"
-        private const val WELCOME_CALL_START = "StartupWelcomeScreen("
-        private val APP_NAME_CALL_SITE = Regex("""appName\s*=\s*getString\(startupWelcomeAppNameRes\(\)\)""")
-        private val LOGO_CALL_SITE = Regex("""logo\s*=\s*painterResource\(startupWelcomeLogoRes\(\)\)""")
+            "src/main/java/net/bible/android/view/activity/WelcomeFlow.kt"
+        private const val WELCOME_CALL_START = "WelcomeNavDeps("
+        private val APP_NAME_CALL_SITE = Regex("""appName\s*=\s*host\.getString\(startupWelcomeAppNameRes\(\)\)""")
+        private val LOGO_CALL_SITE = Regex("""logo\s*=\s*\{\s*painterResource\(startupWelcomeLogoRes\(\)\)\s*\}""")
 
         // Fix round 1 (review): the header is discrete-aware, but loadInfo() -- the SAME screen's
         // body text -- independently spelled the real app name, so discrete mode's card still read
         // "Thank you for downloading AndBible..." and "Supported formats: AndBible zip, ...".
         private val WELCOME_MESSAGE_CALL_SITE =
-            Regex("""getString\(R\.string\.welcome_message,\s*getString\(startupWelcomeAppNameRes\(\)\)\)""")
+            Regex("""host\.getString\(R\.string\.welcome_message,\s*host\.getString\(startupWelcomeAppNameRes\(\)\)\)""")
         private val FORMAT_ZIP_CALL_SITE =
-            Regex("""getString\(R\.string\.format_zip,\s*getString\(startupWelcomeShortAppNameRes\(\)\)\)""")
+            Regex("""host\.getString\(R\.string\.format_zip,\s*host\.getString\(startupWelcomeShortAppNameRes\(\)\)\)""")
         private const val RAW_WELCOME_MESSAGE_LITERAL =
-            "getString(R.string.welcome_message, getString(R.string.app_name_long))"
+            "host.getString(R.string.welcome_message, host.getString(R.string.app_name_long))"
         private const val RAW_FORMAT_ZIP_LITERAL =
-            "getString(R.string.format_zip, getString(R.string.app_name_andbible))"
+            "host.getString(R.string.format_zip, host.getString(R.string.app_name_andbible))"
     }
 
     private val rawSource = java.io.File(HOST_FILE).readText()
     private val source = stripComments(rawSource)
 
     /**
-     * The `StartupWelcomeScreen(...)` call's argument list only -- from just after
-     * `StartupWelcomeScreen(` to the closing `)` that sits alone on its own (indented) line, which
+     * The `WelcomeNavDeps(...)` call's argument list only -- from just after
+     * `WelcomeNavDeps(` to the closing `)` that sits alone on its own (indented) line, which
      * is how the real call site is formatted (each argument ends with a trailing comma; the closing
      * paren does not). Unlike [net.bible.android.view.activity.page.screen.ReadingToolbarBibleIconWiringGuardTest]'s
-     * top-level `readingToolbarIcons()`, this call site is nested inside `onCreate`'s `setContent`,
+     * top-level `readingToolbarIcons()`, this call site is a member of `WelcomeFlow`,
      * so its closing paren is indented rather than sitting at column 0 -- `\n\s*\)`, not a literal
      * `\n)`.
      */
@@ -100,10 +103,10 @@ class StartupWelcomeHeaderWiringGuardTest {
 
     private fun welcomeCallBody(): String {
         val startAt = source.indexOf(WELCOME_CALL_START)
-        assertThat("$HOST_FILE must still call StartupWelcomeScreen(...)", startAt >= 0, equalTo(true))
+        assertThat("$HOST_FILE must still call WelcomeNavDeps(...)", startAt >= 0, equalTo(true))
         val bodyStart = startAt + WELCOME_CALL_START.length
         val closingMatch = CLOSING_PAREN_LINE.find(source, bodyStart)
-        assertThat("StartupWelcomeScreen(...)'s closing ) must be found", closingMatch != null, equalTo(true))
+        assertThat("WelcomeNavDeps(...)'s closing ) must be found", closingMatch != null, equalTo(true))
         return source.substring(bodyStart, closingMatch!!.range.first)
     }
 
@@ -111,7 +114,7 @@ class StartupWelcomeHeaderWiringGuardTest {
     fun theWelcomeCallSiteUsesTheDiscreteModeAppNameHelper() {
         val body = welcomeCallBody()
         assertThat(
-            "StartupWelcomeScreen(...)'s `appName` argument must call startupWelcomeAppNameRes() " +
+            "WelcomeNavDeps(...)'s `appName` argument must call startupWelcomeAppNameRes() " +
                 "(F62) -- reverting it to a raw getString(R.string.app_name_long) leaves discrete " +
                 "mode's welcome header un-swapped, and StartupWelcomeDiscreteChromeTest, which calls " +
                 "startupWelcomeAppNameRes() directly, would not notice",
@@ -123,7 +126,7 @@ class StartupWelcomeHeaderWiringGuardTest {
     fun theWelcomeCallSiteUsesTheDiscreteModeLogoHelper() {
         val body = welcomeCallBody()
         assertThat(
-            "StartupWelcomeScreen(...)'s `logo` argument must call startupWelcomeLogoRes() (F62) -- " +
+            "WelcomeNavDeps(...)'s `logo` argument must call startupWelcomeLogoRes() (F62) -- " +
                 "reverting it to a raw painterResource(R.drawable.ic_logo) leaves discrete mode's " +
                 "welcome header logo un-swapped, and StartupWelcomeDiscreteChromeTest, which calls " +
                 "startupWelcomeLogoRes() directly, would not notice",
@@ -135,13 +138,13 @@ class StartupWelcomeHeaderWiringGuardTest {
     fun noRawAppNameOrLogoLiteralRemainsInTheWelcomeCallSite() {
         val body = welcomeCallBody()
         assertThat(
-            "StartupWelcomeScreen(...)'s argument list must not spell R.string.app_name_long " +
+            "WelcomeNavDeps(...)'s argument list must not spell R.string.app_name_long " +
                 "directly -- that literal belongs only inside startupWelcomeAppNameRes()'s own " +
                 "non-discrete branch",
             body.contains("R.string.app_name_long"), equalTo(false),
         )
         assertThat(
-            "StartupWelcomeScreen(...)'s argument list must not spell R.drawable.ic_logo directly " +
+            "WelcomeNavDeps(...)'s argument list must not spell R.drawable.ic_logo directly " +
                 "-- that literal belongs only inside startupWelcomeLogoRes()'s own non-discrete branch",
             body.contains("R.drawable.ic_logo"), equalTo(false),
         )
@@ -154,10 +157,10 @@ class StartupWelcomeHeaderWiringGuardTest {
         // (unstripped) substring search over the whole function would be satisfied by the comment
         // alone, even though the real arguments no longer call the helpers.
         val synthetic = """
-            |StartupWelcomeScreen(
-            |    // F62: appName = getString(startupWelcomeAppNameRes()), logo = painterResource(startupWelcomeLogoRes())
-            |    appName = getString(R.string.app_name_long),
-            |    logo = painterResource(R.drawable.ic_logo),
+            |WelcomeNavDeps(
+            |    // F62: appName = host.getString(startupWelcomeAppNameRes()), logo = { painterResource(startupWelcomeLogoRes()) }
+            |    appName = host.getString(R.string.app_name_long),
+            |    logo = { painterResource(R.drawable.ic_logo) },
             |)
         """.trimMargin()
         val stripped = stripComments(synthetic)

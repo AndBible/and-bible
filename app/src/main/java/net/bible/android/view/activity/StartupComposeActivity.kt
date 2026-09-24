@@ -20,7 +20,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -230,37 +229,3 @@ class StartupComposeActivity : ActivityBase() {
         } catch (e: Exception) { /* no browser — ignore, parity with a dead link */ }
     }
 }
-
-/**
- * F62: the welcome header's app name under discrete mode, mirroring `bibleToolbarIconRes()`
- * (F58, `ComposeReadingViewHost.kt`) and `StartupActivity.onCreate`'s own spinner swap (:199-205).
- * A plain function rather than an inline `getString` argument so `StartupWelcomeDiscreteChromeTest`
- * can assert the CHOICE -- the rendered string is not usefully comparable in a unit test, and the
- * choice is the behaviour.
- */
-@StringRes
-internal fun startupWelcomeAppNameRes(): Int =
-    if (CommonUtils.isDiscrete) R.string.app_name_calculator else R.string.app_name_long
-
-/** F62: the welcome header's logo under discrete mode -- same rationale as [startupWelcomeAppNameRes]. */
-@DrawableRes
-internal fun startupWelcomeLogoRes(): Int =
-    if (CommonUtils.isDiscrete) R.drawable.ic_calculator_color else R.drawable.ic_logo
-
-/**
- * F62 fix round 1: the welcome CARD's two other app-name substitutions (`loadInfo()`'s
- * `welcomeText` and the "Supported formats" zip line) must be discrete-aware too, not just the
- * header -- review caught that `loadInfo()` still spelled the real name unconditionally, so
- * discrete mode's card read "Thank you for downloading AndBible..." even though the header above
- * it correctly showed the calculator identity.
- *
- * A SEPARATE helper from [startupWelcomeAppNameRes], not a reuse of it: the non-discrete branch
- * intentionally differs. `format_zip`'s `%s` is documented (`strings.xml`'s comment above it) to
- * take [R.string.app_name_andbible] ("AndBible"), the short form -- not [R.string.app_name_long]
- * ("AndBible: Bible Study"), which would read oddly inline in "Zip file containing ... created by
- * AndBible: Bible Study". Discrete mode has only one calculator-identity string
- * ([R.string.app_name_calculator]), so both helpers converge on it there.
- */
-@StringRes
-internal fun startupWelcomeShortAppNameRes(): Int =
-    if (CommonUtils.isDiscrete) R.string.app_name_calculator else R.string.app_name_andbible

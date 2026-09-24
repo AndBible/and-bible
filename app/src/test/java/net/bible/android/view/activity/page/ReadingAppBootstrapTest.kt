@@ -187,15 +187,19 @@ class ReadingAppBootstrapTest {
      * `EXTRA_ROUTE` navigating the live graph onto reading, on a host that started elsewhere and
      * therefore never bootstrapped — the composition would read `WindowControl`'s uninitialised
      * lazy fallback).
+     *
+     * Slice 8 E2 adds the third, in-graph entry point: gate (b), `welcomeAfterFlow()`, which turns a
+     * WELCOME-started host into a reading host by navigating onto reading (spec §4). The name keeps
+     * "both" for the two ROUTE entry points it was written for.
      */
     @Test
     fun theReadingBootstrapIsReachedFromBothRouteEntryPoints() {
         val lines = codeLinesOf(navHostActivity)
         val callLines = lines.withIndex().filter { (_, l) -> l.contains("bootstrapIfNeeded()") && !l.contains("fun ") }
         assertEquals(
-            "exactly two call sites expected — onCreate's start-route gate and onNewIntent's; " +
-                "found: " + callLines.map { it.value.trim() },
-            2, callLines.size,
+            "exactly three call sites expected — onCreate's start-route gate, onNewIntent's and " +
+                "welcomeAfterFlow's (gate (b)); found: " + callLines.map { it.value.trim() },
+            3, callLines.size,
         )
         val decl = lines.indexOfFirst { it.contains("private fun bootstrapIfNeeded()") }
         assertTrue("bootstrapIfNeeded() is not declared in NavHostComposeActivity", decl >= 0)
@@ -211,6 +215,12 @@ class ReadingAppBootstrapTest {
         assertTrue(
             "one call must be in onCreate, before setContent",
             callLines.any { it.index > onCreate && it.index < onCreate + 20 },
+        )
+        val welcomeAfterFlow = lines.indexOfFirst { it.contains("internal fun welcomeAfterFlow(") }
+        assertTrue("welcomeAfterFlow not found", welcomeAfterFlow >= 0)
+        assertTrue(
+            "one call must be in welcomeAfterFlow -- gate (b) navigates a WELCOME-started host onto reading",
+            callLines.any { it.index > welcomeAfterFlow && it.index < welcomeAfterFlow + 20 },
         )
     }
 

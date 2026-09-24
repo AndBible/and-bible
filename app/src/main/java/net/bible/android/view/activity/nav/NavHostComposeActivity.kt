@@ -234,6 +234,7 @@ import net.bible.service.download.GenericFileDownloader
 import net.bible.service.download.RepoFactory
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.hasUsableBible
+import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.backup.BackupServiceImpl
 import net.bible.service.db.exportStudyPads
@@ -275,6 +276,9 @@ import net.bible.sharedcore.nav.InstallZipResult
 import net.bible.sharedui.installzip.nav.InstallZipNavDeps
 import net.bible.sharedui.installzip.nav.InstallZipSession
 import net.bible.sharedui.installzip.nav.installZipNavGraph
+import net.bible.sharedui.startup.nav.welcomeNavGraph
+import net.bible.android.view.activity.WelcomeFlow
+import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.sharedcore.ai.AiConnectionLabels
 import net.bible.sharedcore.ai.AiConnectionSettingsController
 import net.bible.sharedcore.ai.AiDocumentFilterController
@@ -2939,6 +2943,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 refreshIfNightModeChange()
             }
         }
+        // Slice 8 E2: StartupComposeActivity's progress line on its welcome card.
+        onMain<InstallZipEvent> { e -> welcomeFlowOrNull?.controllerIfCreated?.setProgress(e.message) }
     }
 
     /**
@@ -3035,6 +3041,68 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         CommonUtils.initializeApp()
         applyInitialisedWindowState()
         initialisedAfterStart = true
+    }
+
+    /**
+     * Slice 8 E2: the first-run welcome's host-held orchestration. Built on first use -- every host's
+     * composition asks it for the destination's deps -- but cheap: its controller (a DB read) is built only
+     * by a WELCOME entry ([WelcomeFlow.controllerIfCreated]).
+     */
+    private var welcomeFlowOrNull: WelcomeFlow? = null
+
+    internal val welcomeFlow: WelcomeFlow
+        get() = welcomeFlowOrNull ?: WelcomeFlow(this).also { welcomeFlowOrNull = it }
+
+    /** Navigate the live graph with this host's single-top rule -- for collaborators such as [WelcomeFlow]. */
+    internal fun navigateInGraph(route: String) {
+        navController?.let { navigateToRoute(it, route) }
+    }
+
+    /**
+     * A WELCOME-started host (uninitialised, spec §3.1 rule 2) initialises the app AND its window when a flow
+     * leaves Welcome for Download / InstallZip: those screens were separate, initialised Activities before
+     * slice 8, so they had `FLAG_SECURE` in discrete mode (plan Correction 6) and an initialised app.
+     * Controller ruling R4: this IS [initialiseIfStartedUninitialised] (idempotent, a no-op once initialised);
+     * Welcome needs nothing beyond it on the way out -- the unlock attempt and the predicate belong to the
+     * way back, [welcomeAfterFlow].
+     */
+    internal fun initialiseLeavingWelcome() = initialiseIfStartedUninitialised()
+
+    /**
+     * Slice 8 §4 gate (b), and `StartupComposeActivity.afterFlow`'s other half. After a welcome flow:
+     * `initializeAppCoroutine()` (unlocks books with stored keys), the shared unlock attempt
+     * (`gotoMainBibleActivity`'s), then the predicate. With a usable Bible: the initialised-window state
+     * (FLAG_SECURE, Correction 6, through [initialiseIfStartedUninitialised] so this host also answers as an
+     * initialised one from now on -- it is a reading host), the reading bootstrap, and READING replacing
+     * WELCOME. Without: stay and refresh, as `afterFlow` did. **Never writes `comingFromStartupActivity`**
+     * (Correction 5): an in-graph navigate produces no `onResume`, so the flag would outlive this transition
+     * and suppress the next real calculator prompt.
+     */
+    internal fun welcomeAfterFlow() {
+        val flow = welcomeFlow
+        lifecycleScope.launch(Dispatchers.Main) {
+            CommonUtils.initializeAppCoroutine()
+            unlockLockedBiblesIfNoneUsable(this@NavHostComposeActivity, usable = usableBibleGate)
+            if (!usableBibleGate()) {
+                flow.controller.setProgress(null)
+                flow.controller.refresh()
+                return@launch
+            }
+            // After initializeAppCoroutine, its initializeApp() is a no-op: what it adds is the window state.
+            initialiseIfStartedUninitialised()
+            bootstrapIfNeeded()
+            val controller = navController ?: return@launch
+            controller.navigate(NavRoutes.READING) { popUpTo(NavRoutes.WELCOME) { inclusive = true } }
+        }
+    }
+
+    /** The destination listener's half of spec §4's re-check -- only after a flow LEFT Welcome. */
+    internal fun recheckOnReturnToWelcome(route: String?) {
+        if (route?.substringBefore('?') != NavRoutes.WELCOME) return
+        val flow = welcomeFlowOrNull ?: return
+        if (!flow.awaitingReturn) return
+        flow.awaitingReturn = false
+        welcomeAfterFlow()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -3152,6 +3220,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                         applyPendingDocumentUpdateOnReturnToReading(destination.route)
                         applySoftInputModeFor(destination.route)
                         completeBackupReturnIfLeft(controller)
+                        recheckOnReturnToWelcome(destination.route)
                     }
                     navController.addOnDestinationChangedListener(onDestinationChanged)
                     onDispose {
@@ -3805,6 +3874,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                         hostUnbound = { DocumentInstallService.hostUnbound() },
                     )
                 }
+                // Slice 8 E2: the first-run welcome, formerly StartupComposeActivity -- see [WelcomeFlow].
+                val welcomeDeps = remember { welcomeFlow.navDeps() }
                 val workspaceDeps = remember {
                     WorkspaceNavDeps(
                         exitHost = { finish() },
@@ -3906,6 +3977,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     workspaceNavGraph(navController, workspaceDeps)
                     backupNavGraph(navController, backupDeps)
                     installZipNavGraph(navController, installZipDeps)
+                    welcomeNavGraph(welcomeDeps)
                     readingNavGraph(navController, readingNavDeps)
                 }
                 InstallZipReturnCollector()
