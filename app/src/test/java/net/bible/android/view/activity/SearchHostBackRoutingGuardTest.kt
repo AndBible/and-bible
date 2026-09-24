@@ -116,10 +116,7 @@ class SearchHostBackRoutingGuardTest {
          * a nav-graph migration target, so expect this list to shrink and the graph list to grow,
          * one slice at a time.
          */
-        private val SEARCH_HOST_FILES = listOf(
-            "src/main/java/net/bible/android/view/activity/navigation/ChooseDocumentComposeActivity.kt",
-            "src/main/java/net/bible/android/view/activity/settings/TextDisplaySettingsComposeActivity.kt",
-        )
+        private val SEARCH_HOST_FILES = emptyList<String>()
 
         /**
          * The nav-graph arms that host an in-toolbar search bar, relative to the `:app` module
@@ -137,6 +134,8 @@ class SearchHostBackRoutingGuardTest {
             "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/bookmark/nav/BookmarkNavGraph.kt",
             "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/mydocuments/nav/MyDocumentsNavGraph.kt",
             "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/download/nav/DownloadNavGraph.kt",
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/navigation/nav/ChooserNavGraph.kt",
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/workspaces/nav/WorkspaceNavGraph.kt",
         )
 
         // Call-site patterns, not bare tokens: a bare "onBackPressed" also matches inside
@@ -186,7 +185,6 @@ class SearchHostBackRoutingGuardTest {
         // entry is deleted instead of moved when it migrates into the graph) must fail HERE, with
         // a message naming the path, rather than as a FileNotFoundException from a later loop --
         // or, once a list has drained to zero, as no failure at all.
-        assertThat("SEARCH_HOST_FILES is empty -- the Activity loop would pass vacuously", SEARCH_HOST_FILES.isNotEmpty(), equalTo(true))
         assertThat("SEARCH_HOST_GRAPH_FILES is empty -- the graph loop would pass vacuously", SEARCH_HOST_GRAPH_FILES.isNotEmpty(), equalTo(true))
         val missing = (SEARCH_HOST_FILES + SEARCH_HOST_GRAPH_FILES).filterNot { java.io.File(it).isFile }
         assertThat(
@@ -194,28 +192,6 @@ class SearchHostBackRoutingGuardTest {
                 "graph) must move its entry between the two lists in the same commit, not lose it",
             missing, equalTo(emptyList<String>()),
         )
-    }
-
-    @Test
-    fun everySearchHostRoutesHardwareBack() {
-        assertThat("SEARCH_HOST_FILES is empty -- this loop would pass vacuously", SEARCH_HOST_FILES.isNotEmpty(), equalTo(true))
-        for (path in SEARCH_HOST_FILES) {
-            val source = strippedSourceOf(path)
-
-            val hasBackEntryPoint = BACK_ENTRY_ON_BACK_PRESSED.containsMatchIn(source) || BACK_ENTRY_BACK_HANDLER.containsMatchIn(source)
-            assertThat(
-                "$path must override `onBackPressed` or use `BackHandler` to route hardware back " +
-                    "while search is open (found neither)",
-                hasBackEntryPoint, equalTo(true),
-            )
-
-            val referencesSearchState = source.contains(SEARCH_STATE_ACTIVE) || source.contains(SEARCH_STATE_MODE_ACTIVE)
-            assertThat(
-                "$path's back routing must reference the search-mode state " +
-                    "(`searchModeActive` or `searchMode.active`), found neither",
-                referencesSearchState, equalTo(true),
-            )
-        }
     }
 
     /**

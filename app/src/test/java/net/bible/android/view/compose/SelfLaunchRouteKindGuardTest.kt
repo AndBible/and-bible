@@ -34,12 +34,14 @@ import org.junit.Test
  * **What counts as "self-launched".** `navigateInsteadOfSelfLaunch` is an override of
  * `startActivityForResult` that only runs when the call executes ON a `NavHostComposeActivity`
  * instance -- it can never see, let alone intercept, an `awaitIntent` issued by a *different*
- * Activity (`StartupComposeActivity`, `StartupActivity`, `ChooseDocumentComposeActivity`,
- * `TextDisplaySettingsComposeActivity` each extend an `ActivityBase` subtree of their own, never
- * `NavHostComposeActivity`), even when the target route is built the same way. Those files launch
- * this host as a genuinely fresh instance and get a real platform result back, so their
- * `NavRoutes.download(...)` self-launches -- unanswered by design (`ReadingResultKind`'s own kdoc:
- * "download, settings, search ... silent on purpose") -- are structurally not F53-shaped and are
+ * Activity (`StartupActivity` extends an `ActivityBase` subtree of its own, never
+ * `NavHostComposeActivity`). Slice 8 deleted the other three of the original four
+ * (`StartupComposeActivity`, `ChooseDocumentComposeActivity`, `TextDisplaySettingsComposeActivity`)
+ * -- their screens are destinations of the one host now, so an `awaitIntent` naming their routes IS
+ * self-launch-shaped and is no longer excluded. `StartupActivity` launches
+ * this host as a genuinely fresh instance and gets a real platform result back, so its
+ * `NavRoutes.download(...)` self-launch -- unanswered by design (`ReadingResultKind`'s own kdoc:
+ * "download, settings, search ... silent on purpose") -- is structurally not F53-shaped and is
  * excluded by name, the same way `ActivityResultDispatchGuardTest.everyKindIsProducedBySomeScreen`
  * excludes `ActivityResultKind.kt`/`MainBibleActivity.kt`.
  *
@@ -106,10 +108,7 @@ class SelfLaunchRouteKindGuardTest {
 
     /** See the class kdoc's "What counts as self-launched" -- these can never BE the host. */
     private val externalLauncherFiles = setOf(
-        "StartupComposeActivity.kt",
         "StartupActivity.kt",
-        "ChooseDocumentComposeActivity.kt",
-        "TextDisplaySettingsComposeActivity.kt",
     )
 
     /**

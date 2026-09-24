@@ -21,27 +21,18 @@ import android.content.Context
 import android.content.Intent
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
-import net.bible.android.view.activity.installzip.InstallZipComposeActivity
-import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
-import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
-import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
-import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
-import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
-import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
-import net.bible.android.view.activity.StartupComposeActivity
-import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 
 /**
  * The screens [ScreenLauncher] routes to. Named for what they ARE, not for how they are built --
  * this used to be "screens that have both a classic (XML) and a new (Compose) implementation", and
  * after Batch Z-late phase 1 none of them has a classic half left.
  *
- * Not every screen is an Activity, so not every screen is in here. `History` and `BibleSpeak` both
- * left the enum in the epilogue: each is now a sheet drawn over the reading view by
- * `ComposeReadingViewHost`, so a routing target for either would name an Activity that no longer
- * exists. Reaching them is a host call (`showHistorySheet()`, `showSpeakTransport()`), not a launch.
+ * Not every screen is an Activity, so not every screen is in here. Since slice 8 only `Calculator`
+ * is. `History` and `BibleSpeak` both left the enum in the epilogue: each is now a sheet drawn over
+ * the reading view by `ComposeReadingViewHost`, so a routing target for either would name an
+ * Activity that no longer exists. Reaching them is a host call (`showHistorySheet()`,
+ * `showSpeakTransport()`), not a launch.
  */
 enum class Screen { Calculator, SearchIndexProgress, SearchIndex, SearchResults, ReadingPlanSelector, DailyReadingList, ReadingPlan, ChooseGeneralBookKey, ChooseMapKey, ChooseDictionaryWord, GridChoosePassageBook, ChooseDocument, Download, Search, EpubSearch, EpubSearchResults, MyDocuments, MyDocumentPages, CloudDocuments, WorkspaceSelector, AiConnectionSettings, AiProviders, AiModels, AiPrompts, PromptEdit, GlobalToolPermissions, ToolInfo, AiDocumentFilter, RawLogHistory, RawLlmLog, LabelEdit, ManageLabels, Bookmarks, ReadingProgress, Settings, ReadingProgressSettings, SyncSettings, Startup, InstallZip, TextDisplaySettings, CustomRepositories, CustomRepositoryEditor, Backup, ProgressStatus }
 
@@ -252,11 +243,11 @@ object ScreenLauncher {
         Screen.ReadingPlanSelector -> targetForMigratedScreen(screen)
         Screen.DailyReadingList -> targetForMigratedScreen(screen)
         Screen.ReadingPlan -> targetForMigratedScreen(screen)
-        Screen.ChooseGeneralBookKey -> ChooseGeneralBookKeyComposeActivity::class.java
-        Screen.ChooseMapKey -> ChooseMapKeyComposeActivity::class.java
-        Screen.ChooseDictionaryWord -> ChooseDictionaryWordComposeActivity::class.java
-        Screen.GridChoosePassageBook -> GridChoosePassageComposeActivity::class.java
-        Screen.ChooseDocument -> ChooseDocumentComposeActivity::class.java
+        Screen.ChooseGeneralBookKey -> targetForMigratedScreen(screen)
+        Screen.ChooseMapKey -> targetForMigratedScreen(screen)
+        Screen.ChooseDictionaryWord -> targetForMigratedScreen(screen)
+        Screen.GridChoosePassageBook -> targetForMigratedScreen(screen)
+        Screen.ChooseDocument -> targetForMigratedScreen(screen)
         Screen.Download -> targetForMigratedScreen(screen)
         Screen.Search -> targetForMigratedScreen(screen)
         Screen.EpubSearch -> targetForMigratedScreen(screen)
@@ -264,13 +255,13 @@ object ScreenLauncher {
         Screen.MyDocuments -> targetForMigratedScreen(screen)
         Screen.MyDocumentPages -> targetForMigratedScreen(screen)
         Screen.CloudDocuments -> targetForMigratedScreen(screen)
-        Screen.WorkspaceSelector -> WorkspaceSelectorComposeActivity::class.java
+        Screen.WorkspaceSelector -> targetForMigratedScreen(screen)
         // The ten classic AI-cluster *ComposeActivity classes were deleted in nav-graph Task 10;
         // the reading-plan, search and settings clusters followed in nav-graph 3/5/6 Task 9, the
         // bookmark cluster (LabelEdit/ManageLabels/Bookmarks) in nav-graph slices 2+4 Task 7, and
         // MyDocuments/MyDocumentPages/Download/CustomRepositories/CustomRepositoryEditor/
         // ProgressStatus/CloudDocuments in nav-graph slice 4 Task 9. See targetForMigratedScreen
-        // below for why all 33 of those arms are kept, one per screen.
+        // below for why all 43 of those arms are kept, one per screen.
         Screen.AiConnectionSettings -> targetForMigratedScreen(screen)
         Screen.AiProviders -> targetForMigratedScreen(screen)
         Screen.AiModels -> targetForMigratedScreen(screen)
@@ -288,12 +279,12 @@ object ScreenLauncher {
         Screen.Settings -> targetForMigratedScreen(screen)
         Screen.ReadingProgressSettings -> targetForMigratedScreen(screen)
         Screen.SyncSettings -> targetForMigratedScreen(screen)
-        Screen.Startup -> StartupComposeActivity::class.java
-        Screen.InstallZip -> InstallZipComposeActivity::class.java
-        Screen.TextDisplaySettings -> TextDisplaySettingsComposeActivity::class.java
+        Screen.Startup -> targetForMigratedScreen(screen)
+        Screen.InstallZip -> targetForMigratedScreen(screen)
+        Screen.TextDisplaySettings -> targetForMigratedScreen(screen)
         Screen.CustomRepositories -> targetForMigratedScreen(screen)
         Screen.CustomRepositoryEditor -> targetForMigratedScreen(screen)
-        Screen.Backup -> BackupComposeActivity::class.java
+        Screen.Backup -> targetForMigratedScreen(screen)
         Screen.ProgressStatus -> targetForMigratedScreen(screen)
     }
 
@@ -305,8 +296,10 @@ object ScreenLauncher {
      * slice 4 destinations whose classic Activities Task 9 deleted: `MyDocuments` (Task 6's arm was
      * already pointed here; the class itself was deleted only now), `MyDocumentPages`, `Download`,
      * `CustomRepositories`, `CustomRepositoryEditor`, `ProgressStatus` and `CloudDocuments`.
-     * Twenty-four of these 33 arms reach the graph through [MIGRATED] via [intentFor]/[open], so
-     * [intentFor] never falls through to [targetFor] for them; the other NINE -- `RawLlmLog`,
+     * Thirty-four of these 43 arms reach the graph through [MIGRATED] via [intentFor]/[open]
+     * (and slice 8's ten -- the five choosers, `WorkspaceSelector`, `TextDisplaySettings`, `Backup`,
+     * `Startup` → WELCOME, `InstallZip`), so [intentFor] never falls through to [targetFor] for
+     * them; the other NINE -- `RawLlmLog`,
      * `SearchResults`, `EpubSearchResults`, `SearchIndexProgress`, `LabelEdit`, `ManageLabels`,
      * `MyDocumentPages`, `Download` and `CustomRepositoryEditor` -- are deliberately absent from
      * [MIGRATED]. The first six: an argument-free route would render an empty screen with nothing
@@ -330,7 +323,7 @@ object ScreenLauncher {
      * a direct [targetFor] call for a graph-only screen) fails loudly instead of returning a class
      * that no longer exists.
      *
-     * The arms are kept as 33 SEPARATE arms -- never merged into one combined
+     * The arms are kept as 43 SEPARATE arms -- never merged into one combined
      * `Screen.A, Screen.B -> ...` -- because the Classic*RemovalGuardTest family text-scans this
      * file for a literal "Screen.X ->" per screen and treats a missing arm as an offender.
      */

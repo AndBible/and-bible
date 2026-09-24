@@ -194,10 +194,10 @@ class ReadingHostActivityResultTest {
 
         assertTrue(
             aCancelFromThisIntentWouldBeTheUsers(
-                Intent(context, net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity::class.java),
+                Intent(context, net.bible.android.view.activity.discrete.CalculatorComposeActivity::class.java),
                 host,
             ),
-            "a chooser Activity of this app, started in this task: its cancel IS the user's",
+            "a separate Activity of this app, started in this task: its cancel IS the user's",
         )
         assertFalse(
             aCancelFromThisIntentWouldBeTheUsers(NavHostComposeActivity.intentFor(context, NavRoutes.READING_PLAN_SELECTOR), host),
@@ -205,7 +205,7 @@ class ReadingHostActivityResultTest {
         )
         assertFalse(
             aCancelFromThisIntentWouldBeTheUsers(
-                Intent(context, net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity::class.java)
+                Intent(context, net.bible.android.view.activity.discrete.CalculatorComposeActivity::class.java)
                     .apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK },
                 host,
             ),

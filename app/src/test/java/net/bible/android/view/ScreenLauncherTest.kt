@@ -20,16 +20,6 @@ package net.bible.android.view
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.view.activity.backup.BackupComposeActivity
-import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
-import net.bible.android.view.activity.installzip.InstallZipComposeActivity
-import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
-import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
-import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
-import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
-import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
-import net.bible.android.view.activity.StartupComposeActivity
-import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -82,31 +72,6 @@ class ScreenLauncherTest {
         // The ARGUMENT-FREE daily-reading route: "no plan, no day" means "the current plan's
         // current day", which is a real state rather than a dropped argument.
         assertEquals(NavRoutes.dailyReading(), ScreenLauncher.MIGRATED[Screen.ReadingPlan])
-    }
-
-    @Test
-    fun chooseGeneralBookKey_routes_to_compose() {
-        assertEquals(ChooseGeneralBookKeyComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseGeneralBookKey))
-    }
-
-    @Test
-    fun chooseMapKey_routes_to_compose() {
-        assertEquals(ChooseMapKeyComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseMapKey))
-    }
-
-    @Test
-    fun chooseDictionaryWord_routes_to_compose() {
-        assertEquals(ChooseDictionaryWordComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseDictionaryWord))
-    }
-
-    @Test
-    fun chooseDocument_routes_to_compose() {
-        assertEquals(ChooseDocumentComposeActivity::class.java, ScreenLauncher.targetFor(Screen.ChooseDocument))
-    }
-
-    @Test
-    fun gridChoosePassageBook_routes_to_compose() {
-        assertEquals(GridChoosePassageComposeActivity::class.java, ScreenLauncher.targetFor(Screen.GridChoosePassageBook))
     }
 
     @Test
@@ -170,14 +135,6 @@ class ScreenLauncherTest {
     @Test
     fun cloudDocuments_routes_to_the_nav_graph() {
         assertEquals(NavRoutes.cloudDocuments(), ScreenLauncher.MIGRATED[Screen.CloudDocuments])
-    }
-
-    @Test
-    fun workspaceSelector_routes_to_compose() {
-        assertEquals(
-            WorkspaceSelectorComposeActivity::class.java,
-            ScreenLauncher.targetFor(Screen.WorkspaceSelector),
-        )
     }
 
     // The nine tests below were converted from `targetFor(Screen.X) == XComposeActivity::class.java`
@@ -293,23 +250,8 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun startup_routes_to_compose() {
-        assertEquals(StartupComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Startup))
-    }
-
-    @Test
     fun startup_routes_to_the_welcome_destination() {
         assertEquals(NavRoutes.WELCOME, ScreenLauncher.MIGRATED[Screen.Startup])
-    }
-
-    @Test
-    fun installZip_routes_to_compose() {
-        assertEquals(InstallZipComposeActivity::class.java, ScreenLauncher.targetFor(Screen.InstallZip))
-    }
-
-    @Test
-    fun textDisplaySettings_routes_to_compose() {
-        assertEquals(TextDisplaySettingsComposeActivity::class.java, ScreenLauncher.targetFor(Screen.TextDisplaySettings))
     }
 
     @Test
@@ -330,11 +272,6 @@ class ScreenLauncherTest {
     }
 
     @Test
-    fun backup_routes_to_compose() {
-        assertEquals(BackupComposeActivity::class.java, ScreenLauncher.targetFor(Screen.Backup))
-    }
-
-    @Test
     fun backup_routes_to_the_nav_graph() {
         assertEquals(NavRoutes.BACKUP, ScreenLauncher.MIGRATED[Screen.Backup])
     }
@@ -350,7 +287,7 @@ class ScreenLauncherTest {
     }
 
     // ——— slice 8 B7: the seven slice-7 screens route to the nav graph ———————————————————————————
-    // targetFor still names their Activities until Task F6 deletes them; MIGRATED is what intentFor reads.
+    // Task F6 deleted their Activities; targetFor throws for all seven now, and MIGRATED is what intentFor reads.
 
     @Test
     fun theSevenSliceSevenScreensRouteToTheNavGraph() {
@@ -361,5 +298,14 @@ class ScreenLauncherTest {
         assertEquals(NavRoutes.chooseDocument(), ScreenLauncher.MIGRATED[Screen.ChooseDocument])
         assertEquals(NavRoutes.WORKSPACE_SELECTOR, ScreenLauncher.MIGRATED[Screen.WorkspaceSelector])
         assertEquals(NavRoutes.textDisplaySettings(), ScreenLauncher.MIGRATED[Screen.TextDisplaySettings])
+    }
+
+    @Test
+    fun theTenSliceEightScreensHaveNoActivityOfTheirOwn() {
+        listOf(
+            Screen.ChooseGeneralBookKey, Screen.ChooseMapKey, Screen.ChooseDictionaryWord, Screen.GridChoosePassageBook,
+            Screen.ChooseDocument, Screen.WorkspaceSelector, Screen.Startup, Screen.InstallZip,
+            Screen.TextDisplaySettings, Screen.Backup,
+        ).forEach { screen -> assertFailsWith<IllegalStateException> { ScreenLauncher.targetFor(screen) } }
     }
 }

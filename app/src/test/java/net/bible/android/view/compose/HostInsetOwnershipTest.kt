@@ -26,18 +26,10 @@ import androidx.core.view.WindowInsetsCompat
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
-import net.bible.android.view.activity.backup.BackupComposeActivity
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity
-import net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity
-import net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity
-import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity
-import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity
 import net.bible.android.view.activity.page.SystemInsetsChangedEvent
-import net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity
-import net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -47,8 +39,9 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * The content-root inset padding that `ActivityBase.setupUi()` applies on API 35+, and the nine
- * Compose hosts' (host-inset-ownership fix round 1, Critical 1) ownership of it.
+ * The content-root inset padding that `ActivityBase.setupUi()` applies on API 35+, and the one
+ * Compose host's (slice 8 deleted the other eight; their screens are its destinations)
+ * (host-inset-ownership fix round 1, Critical 1) ownership of it.
  *
  * `@Config(sdk = [35])` is load-bearing and must not be relaxed to `TEST_SDK` (33): the padding
  * listener at `ActivityBase.kt:144` is inside an `SDK_INT >= VANILLA_ICE_CREAM` branch, so at 33
@@ -103,7 +96,7 @@ class HostInsetOwnershipTest {
         assertEquals("ActivityBase.setupUi() must pad the content root by the navigation bar", 39, root.paddingBottom)
     }
 
-    /** A host shaped like the nine real Compose hosts after this task. */
+    /** A host shaped like the one real Compose host after this task. */
     class ComposeHostProbeActivity : ActivityBase() {
         override val doNotInitializeApp = true
         override val disableBaseSetupUi = true
@@ -152,11 +145,9 @@ class HostInsetOwnershipTest {
     /**
      * The registry of every `ActivityBase` subclass whose Compose content reaches `AbScaffold` /
      * `AbSelectionScaffold` (directly, or through a wrapper like `AbDocumentListScaffold` or
-     * `AbSettingsScreen`) -- fix round 1, Critical 1's full include list. `StartupComposeActivity`,
-     * `CalculatorComposeActivity` and `InstallZipComposeActivity` are the excluded Compose hosts:
-     * their content uses no `Ab*` scaffold (the first two render a bare screen, the third only
-     * `AbConfirmDialog`/`AbErrorDialog`), so they still want `ActivityBase`'s content-root padding
-     * and must NOT appear here.
+     * `AbSettingsScreen`) -- fix round 1, Critical 1's full include list. Slice 8 deleted the other
+     * eight; their screens are its destinations. `CalculatorComposeActivity` is the excluded Compose
+     * host; `InstallZipComposeActivity` is now a content-less redirect.
      *
      * What this guard cannot see: it is a hand-maintained list, not a reflective scan of every
      * `ActivityBase` subclass, so it cannot catch (a) a NEW `Ab*`-scaffold host that is added later
@@ -166,14 +157,6 @@ class HostInsetOwnershipTest {
      */
     private val composeHostsOwningTheirInsets: List<Pair<String, ActivityBase>> = listOf(
         "NavHostComposeActivity" to NavHostComposeActivity(),
-        "BackupComposeActivity" to BackupComposeActivity(),
-        "ChooseDocumentComposeActivity" to ChooseDocumentComposeActivity(),
-        "ChooseDictionaryWordComposeActivity" to ChooseDictionaryWordComposeActivity(),
-        "GridChoosePassageComposeActivity" to GridChoosePassageComposeActivity(),
-        "ChooseGeneralBookKeyComposeActivity" to ChooseGeneralBookKeyComposeActivity(),
-        "ChooseMapKeyComposeActivity" to ChooseMapKeyComposeActivity(),
-        "TextDisplaySettingsComposeActivity" to TextDisplaySettingsComposeActivity(),
-        "WorkspaceSelectorComposeActivity" to WorkspaceSelectorComposeActivity(),
     )
 
     @Test

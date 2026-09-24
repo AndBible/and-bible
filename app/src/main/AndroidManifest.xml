@@ -94,24 +94,6 @@
             </intent-filter>
         </activity-alias>
 
-        <activity
-            android:name="net.bible.android.view.activity.backup.BackupComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/backup_and_restore"
-            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.navigation.ChooseDocumentComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/chooseBook"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.navigation.GridChoosePassageComposeActivity"
-            android:configChanges="keyboardHidden|locale"
-            android:theme="@style/Theme.AbCompose" />
         <!-- No android:label: one host serves four clusters, so the window title is set per
              destination via <Cluster>NavDeps.setWindowTitle (nav-graph slices 3/5/6, plan D2).
              The label that used to live here ("@string/ai_settings") was slice 1's M5 fix for
@@ -135,44 +117,7 @@
              It used to name MainBibleActivity, which was harmless while the classic Activity was
              the app's main screen; now that this host IS the main screen (StartupActivity's boot
              handoff opens it on NavRoutes.READING) a parent would have to be itself, and an
-             Activity cannot be its own Up target. The other seven parentActivityName attributes
-             below were repointed here in the same commit. -->
-        <activity
-            android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWordComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/dictionary"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKeyComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/general_book"
-            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseMapKeyComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/doc_type_map"
-            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity" />
-        <activity
-            android:name="net.bible.android.view.activity.StartupComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:exported="false" />
-        <activity
-            android:name="net.bible.android.view.activity.workspaces.WorkspaceSelectorComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/workspace_selector_title"
-            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity"
-            />
-        <activity
-            android:name="net.bible.android.view.activity.settings.TextDisplaySettingsComposeActivity"
-            android:theme="@style/Theme.AbCompose"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/text_display_settings_activity_title"
-            android:parentActivityName="net.bible.android.view.activity.nav.NavHostComposeActivity" />
+             Activity cannot be its own Up target. -->
         <!--
           ~ CalculatorComposeActivity below locks screenOrientation. From API 36
           ~ onwards the platform ignores screenOrientation/resizableActivity/min-maxAspectRatio on

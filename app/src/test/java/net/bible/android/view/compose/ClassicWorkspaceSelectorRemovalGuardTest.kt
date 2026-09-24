@@ -77,7 +77,8 @@ class ClassicWorkspaceSelectorRemovalGuardTest {
         ClassicRemovalScan.assertLauncherArmsUnconditional(
             listOf("Screen.WorkspaceSelector"),
             "the WorkspaceSelector arm still branches on the flag (or is missing entirely) — S11 " +
-                "collapses it to WorkspaceSelectorComposeActivity unconditionally",
+                "collapses it unconditionally to the nav graph's WORKSPACE_SELECTOR route (slice 8 " +
+                "Task B7 replaced WorkspaceSelectorComposeActivity, itself deleted in Task F6)",
         )
     }
 

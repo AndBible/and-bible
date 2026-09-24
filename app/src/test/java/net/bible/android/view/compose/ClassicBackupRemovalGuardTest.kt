@@ -60,9 +60,9 @@ class ClassicBackupRemovalGuardTest {
     @Test fun noSourceFileNamesTheClassicBackupActivity() {
         ClassicRemovalScan.assertNoSourceNames(
             doomedClassNames,
-            "these files still name control.backup.BackupActivity deleted in S17. The surviving " +
-                "twin is view.activity.backup.BackupComposeActivity — a different package as well " +
-                "as a different name.",
+            "these files still name control.backup.BackupActivity deleted in S17. Its surviving " +
+                "destination is the nav graph's BACKUP route (slice 8 Task C3 replaced " +
+                "view.activity.backup.BackupComposeActivity, itself deleted in Task F6).",
         )
     }
 

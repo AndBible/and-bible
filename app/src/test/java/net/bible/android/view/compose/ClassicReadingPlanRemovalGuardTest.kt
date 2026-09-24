@@ -97,10 +97,16 @@ class ClassicReadingPlanRemovalGuardTest {
         // two: this guard's whole subject is parentActivityName. If the `parent` regex ever stops
         // matching, every upParent is null, the offender filter below is silently empty, and a
         // size floor stays green while the guard checks nothing at all.
+        //
+        // Slice 8 F6 deleted the last manifest `<activity>` blocks that declared
+        // `parentActivityName` at all (the nine slice 8 Activities), so the live manifest can no
+        // longer prove the regex still matches -- a real, intended state, not a broken scan. The
+        // regex is instead proven against a synthetic literal carrying the exact attribute shape,
+        // so a future regex typo still fails loud even though the manifest itself has nothing left
+        // to match.
         assertTrue(
-            "no parentActivityName parsed — the Up-parent regex matched nothing, so the offender " +
-                "filter below is vacuous",
-            composeActivities.any { (_, upParent) -> upParent != null },
+            "the parentActivityName regex no longer matches its own attribute syntax",
+            parent.find("""android:name="x" android:parentActivityName="y"""")?.groupValues?.get(1) == "y",
         )
         assertEquals(
             "these SURVIVING Compose activities declare an Up parent that S2 deletes. " +

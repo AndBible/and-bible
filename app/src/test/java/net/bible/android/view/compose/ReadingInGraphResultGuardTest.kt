@@ -368,9 +368,9 @@ class ReadingInGraphResultGuardTest {
                     "whose arm collects it (DownloadNavGraph.kt:529). Its exitWithResult is a hard " +
                     "error(...) precisely because it has no external entry.",
             "textSettingsResults" to
-                "the text-display settings editor publishes to the workspace SELECTOR arm, which " +
-                    "collects it in-graph (WorkspaceNavGraph.kt:609). The reading view opens " +
-                    "TextDisplaySettingsComposeActivity, a separate Activity, not this route.",
+                "the text-display settings editor publishes only to the workspace SELECTOR arm, which " +
+                    "collects it in-graph (WorkspaceNavGraph.kt). The reading view opens it with no " +
+                    "result (its edits write through).",
             "installZipResults" to
                 "InstallZip's answer goes back to whichever HOST function opened it (openInstallZip's " +
                     "onResult, run by InstallZipReturnCollector outside the NavHost). The reading view " +

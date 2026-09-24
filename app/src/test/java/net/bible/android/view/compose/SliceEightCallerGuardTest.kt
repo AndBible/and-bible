@@ -11,10 +11,11 @@ import org.junit.Test
  * `intentFor`/`intentForColors`/`intentForDetachedWorkspace`. They navigate the graph with a route built
  * from arguments.
  *
- * Excluded by FILE, with the reason: `ScreenLauncher.kt` (the arm table itself) and the seven
- * Activities' own files (deleted in Task F6; the selector's launch of the editor is the Activity
- * PAIR's, whose graph twin already exists). (`MainBibleActivity.kt`, dead since T8b, was deleted in
- * slice 8 F4 and dropped from this list.)
+ * Excluded by FILE, with the reason: `ScreenLauncher.kt` (the arm table itself). The seven Activities'
+ * own files were excluded until Task F6 deleted them along with every other slice 8 Activity; now
+ * that they no longer exist the scan can no longer find a self-reference inside them to skip, so the
+ * exclusion is dropped along with the files. (`MainBibleActivity.kt`, dead since T8b, was deleted in
+ * slice 8 F4 and dropped from this list the same way.)
  *
  * [ALLOWLIST] is a RATCHET: each entry is a not-yet-repointed call site with the task that repoints it.
  * An entry that no longer matches a real offender fails ([everyAllowlistEntryIsStillAnOffender]), so the
@@ -27,13 +28,7 @@ class SliceEightCallerGuardTest {
         "ChooseMapKey", "WorkspaceSelector", "TextDisplaySettings",
     )
 
-    private val excludedFiles = setOf(
-        "ScreenLauncher.kt",
-        "ChooseDocumentComposeActivity.kt", "GridChoosePassageComposeActivity.kt",
-        "ChooseDictionaryWordComposeActivity.kt", "ChooseGeneralBookKeyComposeActivity.kt",
-        "ChooseMapKeyComposeActivity.kt", "WorkspaceSelectorComposeActivity.kt",
-        "TextDisplaySettingsComposeActivity.kt",
-    )
+    private val excludedFiles = setOf("ScreenLauncher.kt")
 
     private val launch = Regex(
         """ScreenLauncher\.intentFor\([^)]*Screen\.(""" + screens.joinToString("|") + """)\b|""" +

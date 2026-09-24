@@ -52,7 +52,8 @@ class ClassicPassageGridRemovalGuardTest {
             doomedPaths,
             "these classic passage-grid files should have been deleted in S4. Note what is NOT in " +
                 "this list: no layout, because all three screens built their grids " +
-                "programmatically, and GridChoosePassageComposeActivity, which survives.",
+                "programmatically, and the nav graph's GridChoosePassageBook route (slice 8 Task B7 " +
+                "replaced GridChoosePassageComposeActivity, itself deleted in Task F6), which survives.",
         )
     }
 
@@ -79,7 +80,7 @@ class ClassicPassageGridRemovalGuardTest {
         ClassicRemovalScan.assertLauncherArmsUnconditional(
             listOf("Screen.GridChoosePassageBook"),
             "the passage-grid arm still branches on the flag (or is missing entirely) — S4 " +
-                "collapses it to the Compose class unconditionally",
+                "collapses it unconditionally to the nav graph's GridChoosePassageBook route",
         )
     }
 
