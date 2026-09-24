@@ -253,4 +253,34 @@ class UsableBibleGateTest {
         idle()
         assertFalse(comingFromStartupActivity)
     }
+
+    @Test
+    fun aReadingStartWithoutAUsableBibleOpensWelcomeInstead() {
+        firstTime = false
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).also { controllers += it }
+        controller.get().usableBibleGate = { false }
+        val activity = controller.create().get()
+        val startRoute = NavHostComposeActivity::class.java.getDeclaredField("startRoute")
+            .apply { isAccessible = true }.get(activity)
+        assertEquals("gate (c): M7's PendingIntents must not reach a Bible-less reading view", NavRoutes.WELCOME, startRoute)
+        assertFalse(bootstrapped(activity))
+    }
+
+    @Test
+    fun aReadingRouteDeliveredLaterWithoutAUsableBibleDoesNotBootstrap() {
+        firstTime = false
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.WELCOME),
+        ).also { controllers += it }
+        controller.get().usableBibleGate = { false }
+        val activity = controller.create().start().resume().visible().get()
+        controller.newIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.READING))
+        idle()
+        assertFalse("onNewIntent is the second READING entry point", bootstrapped(activity))
+        assertEquals(NavRoutes.WELCOME, nav(activity).currentDestination?.route)
+    }
 }

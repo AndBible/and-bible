@@ -815,7 +815,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // loud default (see navHostStartRoute) -- but letting one through would still replace a
         // meaningful intent with a meaningless one, and `savedStartRoute` only pins the START route,
         // not `getIntent()` itself, which `bootstrapIfNeeded` reads `openLink` off.
-        val route = intent.getStringExtra(EXTRA_ROUTE) ?: return
+        val route = intent.getStringExtra(EXTRA_ROUTE)?.let(::gatedReadingRoute) ?: return
         setIntent(intent)
 
         // R7 fix round 1 (review Important 3): reading is reachable HERE too, on a host that
@@ -2987,7 +2987,19 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * `ReadingAppBootstrapTest.theReadingBootstrapIsReachedFromAllThreeReadingEntryPoints` checks by
      * proximity.
      */
-    private fun resolveStartRoute(savedInstanceState: Bundle?): String = navHostStartRoute(
+    /**
+     * Slice 8 §4 gate (c): a requested READING with no usable Bible resolves to WELCOME. Applied to the
+     * start route AND to [onNewIntent]'s route (plan Correction 7) -- the two ways READING enters this host.
+     */
+    private fun gatedReadingRoute(route: String): String =
+        if (route.substringBefore('?') == NavRoutes.READING && !usableBibleGate()) {
+            Log.w(TAG_START_ROUTE, "READING requested with no usable Bible -- opening ${NavRoutes.WELCOME} instead (gate c).")
+            NavRoutes.WELCOME
+        } else {
+            route
+        }
+
+    private fun resolveStartRoute(savedInstanceState: Bundle?): String = gatedReadingRoute(navHostStartRoute(
         savedStartRoute = savedInstanceState?.getString(STATE_START_ROUTE),
         intentRoute = intent.getStringExtra(EXTRA_ROUTE),
     ) {
@@ -3012,7 +3024,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     "'${NavRoutes.READING}'. Launch this host via NavHostComposeActivity.intentFor()."
             )
         }
-    }
+    })
 
     /**
      * The route this instance was (re)started on, captured before `super.onCreate` so that
