@@ -1155,10 +1155,17 @@ class ReadingCommands(
                 if (book != null && key != null) {
                     val selection = Selection(book.initials, key.osisRef, -1, -1)
                     // This ☰ pane menu only exists on the Compose path (composeReadingViewHost
-                    // installed), so route straight through the host; the classic call is kept as
-                    // an `?:` fallback for safety rather than assumed unreachable.
-                    composeReadingViewHost?.showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
-                        ?: hostCallbacks.llmDialogHelper().showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
+                    // installed), and slice 8 made NavHost the only reading host, so the classic
+                    // `LlmDialogHelper` fallback this used to carry `?:` for "safety" is unreachable
+                    // in production. Platform-dialog removal Task 10 deletes `LlmDialogHelper`
+                    // outright; logged rather than silently dropped in case that invariant ever
+                    // breaks.
+                    val host = composeReadingViewHost
+                    if (host == null) {
+                        Log.e(TAG, "ID_LLM_ACTIONS_SUBMENU: no reading-view host mounted")
+                    } else {
+                        host.showPromptSelector(selection, PromptContext.WINDOW_MENU, currentPage.documentCategory)
+                    }
                 }
                 false
             }
@@ -1242,12 +1249,26 @@ class ReadingCommands(
             val onReady: () -> Unit = { window.bibleView?.updateTextDisplaySettings() }
             val host = composeReadingViewHost
             val page = (itemOptions as? Preference)?.let { textSettingEditorPageFor(it.type.name) }
-            if (page != null && host != null) {
+            if (page != null) {
                 // WINDOW-scoped: settingsBundle.toScope() carries level=WINDOW, so the sheet edits
                 // this pane's own setting — which is what the pane menu means.
+                //
+                // Platform-dialog removal Task 10: `host == null` used to fall through to the
+                // classic `openDialog` here. This ☰ pane menu only exists on the Compose reading
+                // toolbar the host itself renders, and slice 8 made NavHost the only reading host,
+                // so a sheet-editable type with no host mounted is unreachable in production --
+                // logged rather than silently dropped in case that invariant ever breaks, instead of
+                // reaching for `openDialog` (whose bodies this task deletes for the sheet-editable
+                // types anyway).
+                if (host == null) {
+                    Log.e(TAG, "handleWindowTextOptionItem: sheet page $page but no host mounted")
+                    return false
+                }
                 host.showTextSettingEditor(settingsBundle.toScope(), page, onReady)
                 return false
             }
+            // Not sheet-editable (CommandPreference/AutoAssignPreference/HIDELABELS/…): the classic
+            // dialog/activity launch still runs, host or no host.
             itemOptions.openDialog(hostActivity, { onReady() }, onReady)
             false
         }

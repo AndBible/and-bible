@@ -31,7 +31,9 @@ import org.junit.Test
 class CollaboratorTypeGuardTest {
     private val files = listOf(
         "src/main/java/net/bible/android/control/page/PageTiltScrollControl.kt",
-        "src/main/java/net/bible/android/view/activity/ai/LlmDialogHelper.kt",
+        // `LlmDialogHelper.kt` was scanned here until platform-dialog removal Task 10 deleted the
+        // file outright (it was the pane menu's `?:` fallback, unreachable once slice 8 made NavHost
+        // the only reading host).
         "src/main/java/net/bible/android/view/activity/page/screen/DocumentViewManager.kt",
         "src/main/java/net/bible/android/view/activity/page/BibleGestureListener.kt",
         "src/main/java/net/bible/android/view/activity/page/OptionsMenuItems.kt",

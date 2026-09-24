@@ -248,19 +248,16 @@ class OptionsMenuStateBuilderTest {
     // Settings editor sheets T11: both reading-view menus route to the in-place sheet.
     //
     // dispatch's `else` branch (where the boolean-toggle check has already failed) checks
-    // `textSettingEditorPageFor(itemOptions.type.name)` before falling through to
-    // `itemOptions.openDialog`, and takes the sheet only when BOTH that page and a mounted host
-    // are non-null (`page != null && host != null`).
-    //
-    // Batch Z-late epilogue, Task 7: the `use_compose_ui` clause is gone from that condition (spec
-    // 10.2), so "off" no longer means a flag -- it means one of the two remaining operands is null.
-    // The tests below pin all four cases the condition can be in, and each null operand is now
-    // pinned SEPARATELY because with the flag gone they are the only two ways the classic
-    // fall-through is still reachable at all:
-    //   * both non-null            -> the sheet takes over;
-    //   * host == null             -> the classic dialog, for a type that IS sheet-editable;
-    //   * page == null, host set   -> the classic dialog, for a type that is not (HIDELABELS);
-    //   * page == null, no host    -> the classic dialog, the same type with neither operand.
+    // `textSettingEditorPageFor(itemOptions.type.name)` first. `page != null` means a sheet-editable
+    // type: it takes the sheet if a host is mounted, or logs and returns false if not (platform-
+    // dialog removal Task 10 -- unreachable in production, since this menu only exists on the host
+    // that renders it). `page == null` (CommandPreference, AutoAssignPreference, HIDELABELS, and
+    // every type textSettingEditorPageFor does not name) still falls through to `itemOptions
+    // .openDialog`, host or no host -- that's the only fall-through left. The tests below pin all
+    // three live cases:
+    //   * page != null, host set   -> the sheet takes over;
+    //   * page != null, no host    -> logged and returns false, `openDialog` NOT reached;
+    //   * page == null             -> the classic dialog (host state irrelevant), for HIDELABELS.
     // Plus the negative that never reaches the `else` branch at all: a boolean row.
     // ------------------------------------------------------------------------------------------
 
@@ -307,25 +304,26 @@ class OptionsMenuStateBuilderTest {
     }
 
     /**
-     * `host == null` for a type that IS sheet-editable — one of the two null operands that still
+     * `host == null` for a type that IS sheet-editable — one of the two null operands that used to
      * make the classic fall-through reachable.
      *
-     * Batch Z-late epilogue, Task 7: this used to be named `...WhenComposeIsOff` and set
-     * `use_compose_ui = false`. Task 1 removed the flag clause from the interception, after which
-     * the setBoolean line did nothing and the test passed only because this fixture installs no
-     * host — its name, its assertion message and the block comment above it all described a gate
-     * the code no longer had. Retargeted on the condition it actually exercises, and the null host
-     * is now stated explicitly rather than inherited from the fixture.
+     * Platform-dialog removal Task 10: this used to assert `openDialog` still ran (retargeted from
+     * an even older `...WhenComposeIsOff` flag test by the Batch Z-late epilogue). This overflow
+     * menu only exists on the Compose reading toolbar the host itself renders, and slice 8 made
+     * NavHost the only reading host, so a sheet-editable type with no host mounted is now treated as
+     * unreachable in production: `dispatch` logs and returns `false` instead of falling through to
+     * `openDialog` — which no longer even HAS a body for FONTSIZE (`FontSizeWidget`'s dialog code is
+     * deleted by this task too, alongside `StrongsPreference`'s and the other seven sheet types').
      */
     @Test
-    fun aSheetEditableTextOptionStillOpensTheClassicDialogWhenNoHostIsInstalled() {
+    fun aSheetEditableTextOptionWithNoHostLogsAndStaysClosedRatherThanOpeningTheClassicDialog() {
         activity.composeReadingViewHost = null
         val pref = RecordingPreference(workspaceSettingsBundle(), WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
 
         val stayOpen = OptionsMenuStateBuilder.dispatch(activity, { activity.hostWindowRepository }, { activity.composeReadingViewHost }, { _, _ -> pref }, "textOptionItem:0")
 
         assertFalse(stayOpen)
-        assertTrue(pref.openDialogCalled, "with no host mounted a sheet-editable type must still reach openDialog")
+        assertFalse(pref.openDialogCalled, "no host mounted is now unreachable in production, so openDialog must NOT be reached any more")
     }
 
     /** Negative #1: a boolean row never reaches the `else` branch at all (the `isBoolean` check
@@ -406,36 +404,23 @@ class OptionsMenuStateBuilderTest {
     }
 
     /**
-     * Final fix wave, Fix 6: [windowPaneSheetEditableTextOptionGoesToTheHost]'s no-host twin,
-     * missing before this fix round. `ReadingCommands.handleWindowTextOptionItem`
-     * and `OptionsMenuStateBuilder.dispatch`'s `else` branch are HAND-DUPLICATED code, not a shared
-     * helper, so the overflow menu's own pair (
-     * [aSheetEditableTextOptionGoesToTheHost] /
-     * [aSheetEditableTextOptionStillOpensTheClassicDialogWhenNoHostIsInstalled]) proves nothing
+     * [windowPaneSheetEditableTextOptionGoesToTheHost]'s no-host twin. `ReadingCommands
+     * .handleWindowTextOptionItem` and `OptionsMenuStateBuilder.dispatch`'s `else` branch are
+     * HAND-DUPLICATED code, not a shared helper, so the overflow menu's own pair proves nothing
      * about this second, independently maintained copy.
      *
-     * Can't reuse [RecordingPreference] here the way the overflow twin does: unlike
-     * `OptionsMenuStateBuilder.dispatch`, `handleWindowTextOptionItem` has no injectable
-     * `getItemOptions` -- it always builds the real `Preference` via the module-level `getPrefItem`.
-     * So this asserts the same thing the overflow twin asserts, by the same "assert the routing
-     * decision, not the UI" convention this file's class kdoc states, just via the one seam that
-     * IS available: the RETURN VALUE. `handleWindowTextOptionItem`'s only `false`-returning paths
-     * are the sheet takeover -- gated on `composeReadingViewHost != null`, and so unreachable with
-     * no host installed -- and the classic `itemOptions.openDialog(...); false` tail. So `false`
-     * here can only mean the classic dialog path ran, exactly as before T11 (proven not to crash
-     * under Robolectric with a non-`.create()`d activity, matching the ON twin's own house style of
-     * driving the real [ReadingCommands.handleWindowPaneMenuItem] bridge rather than a fixture).
-     *
-     * Batch Z-late epilogue, Task 1: this used to clear the old `use_compose_ui` setting and leave
-     * the host installed. The flag clause is gone from the interception (spec 10.2 -- it is now
-     * `page != null && host != null`), so the OFF state this pins is "no host installed".
-     *
-     * Task 2, carrying a Task 1 review finding: Task 1 kept building a local host that it then did
-     * not install, and asserted `assertNull` on its editor stack. Production never sees that
-     * object, so the assertion could not fail; both it and the local are gone.
+     * Platform-dialog removal Task 10: `handleWindowTextOptionItem`'s `host == null` fall-through no
+     * longer reaches `openDialog` at all (that body doesn't even exist for FONTSIZE any more --
+     * `FontSizeWidget`'s dialog code is deleted by this task). This ☰ pane menu only exists on the
+     * Compose reading toolbar the host itself renders, and slice 8 made NavHost the only reading
+     * host, so a sheet-editable type with no host mounted is treated as unreachable in production: it
+     * logs and returns `false`. The RETURN VALUE is the only seam available here (no injectable
+     * `getItemOptions`, unlike `dispatch`), so unlike the overflow twin this test can only confirm
+     * "still returns false, doesn't crash" -- it does not by itself distinguish the log+return path
+     * from a hypothetical dialog path the way it used to when `openDialog` was still live.
      */
     @Test
-    fun windowPaneSheetEditableTextOptionStillOpensTheClassicDialogWhenNoHostIsInstalled() {
+    fun windowPaneSheetEditableTextOptionWithNoHostLogsAndReturnsFalseWithoutCrashing() {
         activity.composeReadingViewHost = null
         CommonUtils.displaySettingChanged(WorkspaceEntities.TextDisplaySettings.Types.FONTSIZE)
         val window = windowRepository.activeWindow
@@ -443,7 +428,7 @@ class OptionsMenuStateBuilderTest {
         val stayOpen = activity.readingCommands.handleWindowPaneMenuItem(
             window.id.toString(), WindowPaneMenuStateBuilder.idForTextOptionItem(0))
 
-        assertFalse(stayOpen, "no host must still reach the classic dialog tail, which returns false")
+        assertFalse(stayOpen, "no host mounted is unreachable in production; the log+return path still returns false")
     }
 
     // ------------------------------------------------------------------------------------------

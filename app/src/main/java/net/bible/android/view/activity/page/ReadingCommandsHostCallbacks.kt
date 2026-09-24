@@ -19,7 +19,6 @@ package net.bible.android.view.activity.page
 
 import android.view.View
 import net.bible.android.control.page.window.WindowRepository
-import net.bible.android.view.activity.ai.LlmDialogHelper
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
@@ -66,7 +65,7 @@ import org.crosswire.jsword.book.Book
  * is whichever host most RESUMED last, which is a different object from the owning host's own
  * repository for a second, not-yet-resumed reading host (`MainBibleActivity.onResume` and
  * `unFreeze()` exist only to reconcile the two). [composeReadingViewHost], [readingInsets],
- * [documentViewManager], [llmDialogHelper], [currentNightMode] and [transportBarVisible] are all
+ * [documentViewManager], [currentNightMode] and [transportBarVisible] are all
  * either late-bound or mutable on the host for the same class of reason. A supplier invoked once and stored is that bug in new clothes.
  *
  * **A missing body shows up here as an unfilled constructor parameter, not as a silent no-op
@@ -110,9 +109,9 @@ class ReadingCommandsHostCallbacks(
      */
     val documentViewManager: () -> DocumentViewManager,
 
-    /** The host's per-host LLM dialog helper; the `?:` fallback of the pane menu's AI row. A
-     *  supplier for [readingInsets]'s initialisation-order reason. */
-    val llmDialogHelper: () -> LlmDialogHelper,
+    // Platform-dialog removal Task 10: `llmDialogHelper` (the `?:` fallback of the pane menu's AI
+    // row) is gone -- `LlmDialogHelper` itself is deleted, since the pane menu only exists on the
+    // Compose path and slice 8 made NavHost the only reading host, so the fallback was unreachable.
 
     /** `MainBibleActivity.currentNightMode`, re-read on every access (it flips at runtime). */
     val currentNightMode: () -> Boolean,

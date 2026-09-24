@@ -48,25 +48,34 @@ class PlatformDialogRemovalGuardTest {
         /** A fully-qualified use outside an import line, e.g. `android.app.AlertDialog.Builder(`. */
         val QUALIFIED = Regex("""(?<![\w.])$PKG\b""")
 
-        /** Relative to `app/`. Task 0's measured baseline (23 files), confirmed unchanged by Task 6. */
+        /**
+         * Relative to `app/`. Task 0's measured baseline was 23 files, confirmed unchanged by
+         * Task 6. Platform-dialog removal Task 10 shrinks it to 16: `LlmDialogHelper.kt` (deleted
+         * outright), `OptionsMenuItems.kt` (its three remaining `AlertDialog` builders --
+         * StrongsPreference/PageScrollAmountPreference/ScrollHelperLineStylePreference -- and the
+         * `FontSizePreference`/`TopMarginPreference`/`FontFamilyPreference`/`LineSpacingPreference`/
+         * `MarginSizePreference` `openDialog` bodies that called the three widget files below, are
+         * all deleted; `CommandPreference`/`ColorPreference`/`HideLabelsPreference`/
+         * `AutoAssignPreference`'s `openDialog`s launch activities/intents, never an `AlertDialog`,
+         * so they were never what put this file here), and `FontSizeWidget.kt`/`LineSpacing.kt`/
+         * `MarginSizeWidget.kt` (the widget-side `AlertDialog.Builder`s those five preferences
+         * called; `LineSpacing.kt`/`MarginSizeWidget.kt` are deleted entirely, `FontSizeWidget.kt`
+         * keeps only `FontDefinition`/`availableFonts`, still used by
+         * `TextDisplaySettingsServiceImpl.fontFamilyEntries`).
+         */
         val BASELINE: Set<String> = setOf(
             "src/main/java/net/bible/android/control/backup/BackupControl.kt",
             "src/main/java/net/bible/android/control/bookmark/BookmarkControl.kt",
             "src/main/java/net/bible/android/control/page/window/WindowControl.kt",
             "src/main/java/net/bible/android/control/report/ErrorReportControl.kt",
             "src/main/java/net/bible/android/view/activity/StartupActivity.kt",
-            "src/main/java/net/bible/android/view/activity/ai/LlmDialogHelper.kt",
             "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt",
             "src/main/java/net/bible/android/view/activity/page/BibleView.kt",
             "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
-            "src/main/java/net/bible/android/view/activity/page/OptionsMenuItems.kt",
             "src/main/java/net/bible/android/view/activity/page/ReadingAppBootstrap.kt",
             "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
             "src/main/java/net/bible/android/view/activity/progress/ReadHistoryDialog.kt",
-            "src/main/java/net/bible/android/view/util/widget/FontSizeWidget.kt",
-            "src/main/java/net/bible/android/view/util/widget/LineSpacing.kt",
-            "src/main/java/net/bible/android/view/util/widget/MarginSizeWidget.kt",
             "src/main/java/net/bible/android/view/util/widget/ShareWidget.kt",
             "src/main/java/net/bible/service/cloudsync/CloudSync.kt",
             "src/main/java/net/bible/service/common/CommonUtils.kt",

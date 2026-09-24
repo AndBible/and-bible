@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.page
 
+import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.view.activity.base.ActivityBase
@@ -39,7 +40,7 @@ import net.bible.sharedcore.settings.textSettingEditorPageFor
  *
  * [build] and [dispatch] both take the real `getItemOptions(itemId, order)` lookup as a
  * parameter rather than calling it directly: the actual implementation is `private`
- * (it closes over the host's `windowRepository`/`llmDialogHelper`/etc. to build
+ * (it closes over the host's `windowRepository`/etc. to build
  * each [OptionsMenuItemInterface]) — `buildOptionsMenuItems()`/`handleOptionsMenuItem(id)` are the
  * thin bridges that close over it (from inside the declaring class body, where the private access is
  * legal) and forward here. This keeps the actual build/dispatch logic — and the single
@@ -53,6 +54,7 @@ import net.bible.sharedcore.settings.textSettingEditorPageFor
  * this task: re-typing it belongs to R6, with the rest of the seam.
  */
 object OptionsMenuStateBuilder {
+    private const val TAG = "OptionsMenuStateBuilder"
 
     /**
      * The static ids from `R.menu.main_bible_options_menu`, in menu-declaration order — EXCEPT
@@ -248,9 +250,20 @@ object OptionsMenuStateBuilder {
             // Everything else (CommandPreference, AutoAssignPreference, HIDELABELS, and every type
             // textSettingEditorPageFor does not name) falls through to openDialog unchanged: `page`
             // is genuinely null for those, so this fall-through stays live.
+            //
+            // Platform-dialog removal Task 10: `host == null` used to be the OTHER way this
+            // fell through to `openDialog`. This overflow menu only exists on the Compose reading
+            // toolbar the host itself renders, and slice 8 made NavHost the only reading host, so a
+            // sheet-editable type with no host mounted is unreachable in production -- logged rather
+            // than silently dropped in case that invariant ever breaks, instead of reaching for
+            // `openDialog` (whose bodies this task deletes for the sheet-editable types anyway).
             val host = composeReadingViewHost()
             val page = (itemOptions as? Preference)?.let { textSettingEditorPageFor(it.type.name) }
-            if (page != null && host != null) {
+            if (page != null) {
+                if (host == null) {
+                    Log.e(TAG, "dispatch: sheet page $page but no host mounted")
+                    return false
+                }
                 host.showTextSettingEditor((itemOptions as Preference).settings.toScope(), page, onReady)
                 return false
             }

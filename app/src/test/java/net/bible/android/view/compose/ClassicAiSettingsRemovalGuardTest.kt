@@ -41,9 +41,10 @@ import org.junit.Test
  *     this batch. S12 has since deleted `SettingsActivity.kt` itself and, with it,
  *     `settings_activity.xml` (Z-late slice S12) -- this layout is GONE now, and
  *     `ClassicSettingsRemovalGuardTest` is what pins that.
- *   - `manage_prompts_category_header.xml`, `prompt_selector_item.xml` — inflated by the SURVIVING
- *     `LlmDialogHelper.kt:112,126`, which is reading-view chrome for `MainBibleActivity`, not an
- *     AI-settings collaborator.
+ *   - `manage_prompts_category_header.xml`, `prompt_selector_item.xml` — were inflated by
+ *     `LlmDialogHelper.kt`, reading-view chrome for `MainBibleActivity`, not an AI-settings
+ *     collaborator; NOT this guard's business either way. Platform-dialog removal Task 10 deleted
+ *     `LlmDialogHelper` and both layouts — `ClassicAiPromptsRemovalGuardTest` is what pins that.
  *   - `item_tool_category_header.xml`, `item_tool_permission.xml`, `manage_prompts_options_menu.xml`
  *     — the other half's, deleted by S10-B.
  */

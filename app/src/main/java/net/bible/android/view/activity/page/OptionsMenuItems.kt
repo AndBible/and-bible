@@ -18,7 +18,6 @@
 package net.bible.android.view.activity.page
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -42,11 +41,6 @@ import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.settings.textDisplaySettingsRoute
 import net.bible.sharedcore.settings.SettingsScope
-import net.bible.android.view.util.widget.FontFamilyWidget
-import net.bible.android.view.util.widget.MarginSizeWidget
-import net.bible.android.view.util.widget.FontSizeWidget
-import net.bible.android.view.util.widget.LineSpacingWidget
-import net.bible.android.view.util.widget.TopMarginWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.FeatureType
@@ -381,23 +375,12 @@ class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDi
             super.value = value
         }
 
-    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val items = activity.resources.getStringArray(R.array.strongsModeEntries)
-        var newChoice = value
-        val dialog = AlertDialog.Builder(activity)
-            .setTitle(R.string.strongs_mode_title)
-            .setSingleChoiceItems(items, valueInt) { _, v ->
-                newChoice = v
-            }
-            .setPositiveButton(R.string.okay) { _,_ ->
-                value = newChoice
-                onChanged?.invoke(newChoice)
-            }
-            .setNeutralButton(R.string.reset_generic) { _, _ -> setNonSpecific(); onReset?.invoke() }
-            .setNegativeButton(R.string.cancel, null)
-        dialog.show()
-        return true
-    }
+    // Platform-dialog removal Task 10: `openDialog` (a native single-choice `AlertDialog`) is
+    // deleted -- STRONGS is sheet-editable (textSettingEditorPageFor resolves it to a Row page),
+    // and composeStrongsLong (ReadingCommands.kt) now routes straight to the sheet instead of
+    // calling this. The interface default (`OptionsMenuItemInterface.openDialog` returns `false`)
+    // is what runs if this is ever reached with no host mounted, which is unreachable in
+    // production (see composeStrongsLong's kdoc).
 }
 
 class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.MORPH) {
@@ -430,24 +413,10 @@ class NonStrongsWordItalicPreference(settings: SettingsBundle): Preference(setti
 }
 
 class PageScrollAmountPreference(settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.PAGE_SCROLL_AMOUNT) {
-    private val scrollValues = intArrayOf(25, 33, 50, 66, 75, 100)
-
-    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val items = activity.resources.getStringArray(R.array.pageScrollAmountEntries)
-        val currentIndex = scrollValues.indexOf(valueInt).let { if (it < 0) scrollValues.size - 1 else it }
-        var newChoice = currentIndex
-        AlertDialog.Builder(activity)
-            .setTitle(R.string.prefs_page_scroll_amount_title)
-            .setSingleChoiceItems(items, currentIndex) { _, v -> newChoice = v }
-            .setPositiveButton(R.string.okay) { _, _ ->
-                value = scrollValues[newChoice]
-                onChanged?.invoke(scrollValues[newChoice])
-            }
-            .setNeutralButton(R.string.reset_generic) { _, _ -> setNonSpecific(); onReset?.invoke() }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-        return true
-    }
+    // Platform-dialog removal Task 10: `openDialog` (a native single-choice `AlertDialog` over
+    // `scrollValues`) is deleted -- PAGE_SCROLL_AMOUNT is sheet-editable, and the reading view's two
+    // menus only ever reached this with no host mounted, which is unreachable in production since
+    // slice 8 made NavHost the only reading host.
 }
 
 class ScrollHelperLinesPreference(settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.SCROLL_HELPER_LINES) {
@@ -460,21 +429,10 @@ class PageButtonsPreference(settings: SettingsBundle) : Preference(settings, Tex
 
 class ScrollHelperLineStylePreference(settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.SCROLL_HELPER_LINE_STYLE) {
     override val visible: Boolean get() = super.visible && CommonUtils.settings.einkMode
-    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val items = activity.resources.getStringArray(R.array.scrollHelperLineStyleEntries)
-        var newChoice = valueInt
-        AlertDialog.Builder(activity)
-            .setTitle(R.string.prefs_scroll_helper_line_style_title)
-            .setSingleChoiceItems(items, valueInt) { _, v -> newChoice = v }
-            .setPositiveButton(R.string.okay) { _, _ ->
-                value = newChoice
-                onChanged?.invoke(newChoice)
-            }
-            .setNeutralButton(R.string.reset_generic) { _, _ -> setNonSpecific(); onReset?.invoke() }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-        return true
-    }
+    // Platform-dialog removal Task 10: `openDialog` (a native single-choice `AlertDialog`) is
+    // deleted -- SCROLL_HELPER_LINE_STYLE is sheet-editable, and the reading view's two menus only
+    // ever reached this with no host mounted, which is unreachable in production since slice 8 made
+    // NavHost the only reading host.
 }
 
 class FootnotesInlinePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FOOTNOTES_INLINE) {
@@ -491,64 +449,31 @@ class FootnotesInlinePreference(settings: SettingsBundle): Preference(settings, 
         }
 }
 
+// Platform-dialog removal Task 10: FontSizePreference/TopMarginPreference/FontFamilyPreference/
+// LineSpacingPreference's `openDialog` bodies (each a native `AlertDialog` wrapping
+// FontSizeWidget/TopMarginWidget/FontFamilyWidget/LineSpacingWidget -- all four deleted with them)
+// are gone. All four types are sheet-editable, and the reading view's two menus only ever fell
+// through to `openDialog` for them with no host mounted, which is unreachable in production since
+// slice 8 made NavHost the only reading host.
+
 class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTSIZE) {
     override val title: String get() = application.getString(R.string.font_size_title_pt, valueInt)
     override val visible = true
-    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        FontSizeWidget.dialog(activity, settings.actualSettings.fontFamily!!, valueInt, {
-            setNonSpecific()
-            onReset?.invoke()
-        }) {
-            value = it
-            onChanged?.invoke(it)
-        }
-        return true
-    }
 }
 
 class TopMarginPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.TOPMARGIN) {
     override val title: String get() = application.getString(R.string.prefs_top_margin_title_mm, valueInt)
     override val visible = pageManager.isBibleShown
-    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        TopMarginWidget.dialog(activity, valueInt, {
-            setNonSpecific()
-            onReset?.invoke()
-        }) {
-            value = it
-            onChanged?.invoke(it)
-        }
-        return true
-    }
 }
 
 class FontFamilyPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTFAMILY) {
     override val title: String get() = application.getString(R.string.pref_font_family_label_name, valueString)
     override val visible = true
-    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        FontFamilyWidget.dialog(activity, settings.actualSettings.fontSize!!, valueString, {
-            setNonSpecific()
-            onReset?.invoke()
-        }) {
-            value = it
-            onChanged?.invoke(it)
-        }
-        return true
-    }
 }
 
 class LineSpacingPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.LINE_SPACING) {
     override val title: String get() = application.getString(R.string.prefs_line_spacing_pt_title, valueInt.toFloat() / 10)
     override val visible = true
-    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        LineSpacingWidget.dialog(activity, valueInt, {
-            setNonSpecific()
-            onReset?.invoke()
-        }) {
-            value = it
-            onChanged?.invoke(it)
-        }
-        return true
-    }
 }
 
 /**
@@ -656,19 +581,10 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
     override val title: String get() = application.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal, maxWidth)
     override val summary: String? get() = application.getString(R.string.prefs_margin_size_summary) + " " + application.getString(R.string.prefs_margin_size_summary_2)
     override val visible = true
-    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        MarginSizeWidget.dialog(activity, marginSize,
-            {
-                setNonSpecific()
-                onReset?.invoke()
-            },
-            {
-                value = it
-                onChanged?.invoke(it)
-            })
-
-        return true
-    }
+    // Platform-dialog removal Task 10: `openDialog` (a native `AlertDialog` wrapping
+    // `MarginSizeWidget`, deleted with it) is gone -- MARGINSIZE is sheet-editable, and the reading
+    // view's two menus only ever fell through to `openDialog` for it with no host mounted, which is
+    // unreachable in production since slice 8 made NavHost the only reading host.
 }
 
 /**

@@ -98,13 +98,6 @@ import java.io.File
 import java.lang.ClassCastException
 
 
-@Serializable
-private data class AiDocPageRef(
-    val title: String,
-    val documentInitials: String,
-    val pageKey: String,
-)
-
 /**
  * How [BibleJavascriptInterface.refChooserDialog] renders the chosen verse for the JS side: SHORT
  * book-name form, whatever `BookName.isFullBookName()` happens to be globally, and that global
@@ -708,24 +701,10 @@ class BibleJavascriptInterface(
         }
     }
 
-    @JavascriptInterface
-    fun openAiDocPageChooser(markersJson: String) {
-        scope.launch(Dispatchers.Main) {
-            val markers: List<AiDocPageRef> = json.decodeFromString(serializer(), markersJson)
-            if (markers.isEmpty()) return@launch
-            if (markers.size == 1) {
-                openAiDocPage(markers[0].documentInitials, markers[0].pageKey)
-                return@launch
-            }
-            val titles = markers.map { it.title }.toTypedArray()
-            AlertDialog.Builder(hostActivity)
-                .setTitle(R.string.ai_doc_choose_page)
-                .setItems(titles) { _, which ->
-                    openAiDocPage(markers[which].documentInitials, markers[which].pageKey)
-                }
-                .show()
-        }
-    }
+    // Platform-dialog removal Task 10: `openAiDocPageChooser` (a native `AlertDialog` list picker
+    // over multiple AI doc-marker pages) is deleted -- its TS caller was never wired up
+    // (`app/bibleview-js/src/composables/android.ts:127` declared it with no call site; grep
+    // confirmed), so this was dead on both sides of the JS bridge.
 
     @JavascriptInterface
     fun speak(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) {

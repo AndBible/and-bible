@@ -158,7 +158,6 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
-import net.bible.android.view.activity.ai.LlmDialogHelper
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.AppDialogOverlay
 import net.bible.android.view.activity.base.applyComposeHostWindowSetup
@@ -1564,7 +1563,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         windowRepository = { hostWindowRepository },
         readingInsets = { readingInsets },
         documentViewManager = { documentViewManager },
-        llmDialogHelper = { llmDialogHelper },
         currentNightMode = { currentNightMode },
         transportBarVisible = { transportBarVisible },
         setTransportBarVisible = { transportBarVisible = it },
@@ -1736,9 +1734,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         DocumentViewManager(readingCommands.bibleViewFactory) { composeReadingViewHost?.rebuild() }
     }
 
-    /** This host's LLM dialog helper -- per-host, like classic's, and already typed on the
-     *  interface (R5), so it needs nothing this host cannot give. */
-    private val llmDialogHelper by lazy { LlmDialogHelper(this) }
+    // Platform-dialog removal Task 10: this host's `llmDialogHelper` (per-host, like classic's) is
+    // deleted along with `LlmDialogHelper` itself -- the pane menu's AI row's `?:` fallback to it
+    // was unreachable (this Compose host is the only reading host since slice 8).
 
     // R6d fix round 1 (review Important): this host's own copy of classic's theme-attribute
     // resolution is DELETED. It is `Activity.themePixelSize` in `ActivityBase.kt` now, and

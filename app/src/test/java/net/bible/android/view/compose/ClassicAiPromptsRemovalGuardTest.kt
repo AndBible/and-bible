@@ -32,10 +32,7 @@ import org.junit.Test
  * `AiSettingsServiceImpl` is a surviving Koin-bound Compose seam and `AiSettingsFragmentBase` was
  * S10-A's. A bare-name grep is worthless in this package; these FQNs are not.
  *
- * Two resources are deliberately KEPT, and this hint is the only place that is written down:
- *   - `manage_prompts_category_header.xml` — inflated by the SURVIVING `LlmDialogHelper.kt:111-113`,
- *     reading-view chrome for `MainBibleActivity` (epilogue, §10.2). Appendix A row 27 lists it under
- *     AiPrompts with no hint of a second user.
+ * One resource is deliberately KEPT, and this hint is the only place that is written down:
  *   - `res/xml/prompt_advanced_settings.xml` — a live fixture for `SettingsIconParityTest.kt:102`,
  *     which pins the Compose `settingsDrawableRes` table by PARSING the classic XML at test time.
  *     Deleting it is a compile error in that test, and would lose the drift-from-classic property
@@ -70,6 +67,12 @@ class ClassicAiPromptsRemovalGuardTest {
         "src/main/res/layout/raw_llm_log_item.xml",
         "src/main/res/layout/item_tool_category_header.xml",
         "src/main/res/layout/item_tool_permission.xml",
+        // Platform-dialog removal Task 10: `LlmDialogHelper.kt` (the reading-view chrome that
+        // inflated these two) is deleted outright -- its `?:` fallback was unreachable once slice 8
+        // made NavHost the only reading host -- so these move here from "deliberately KEPT" to
+        // "gone". Nothing else inflates them (grep confirmed).
+        "src/main/res/layout/manage_prompts_category_header.xml",
+        "src/main/res/layout/prompt_selector_item.xml",
     )
 
     @Test fun theClassicPromptAndRawLogFilesAndResourcesAreGone() {
@@ -111,17 +114,16 @@ class ClassicAiPromptsRemovalGuardTest {
     @Test fun theKeptAiCollaboratorsStillExist() {
         ClassicRemovalScan.assertPathsPresent(
             listOf(
-                "src/main/res/layout/manage_prompts_category_header.xml",
                 "src/main/res/xml/prompt_advanced_settings.xml",
-                "src/main/res/layout/prompt_selector_item.xml",
                 "src/main/java/net/bible/android/view/activity/ai/AgentLogAdapter.kt",
                 "src/main/res/layout/agent_log_item.xml",
             ),
-            "one of S10's deliberate survivors was deleted. manage_prompts_category_header.xml and " +
-                "prompt_selector_item.xml are inflated by the surviving LlmDialogHelper (reading-view " +
-                "chrome, epilogue work); prompt_advanced_settings.xml is SettingsIconParityTest's " +
-                "live fixture; AgentLogAdapter + agent_log_item belong to the §2.4-protected " +
-                "AgentLogWidget, not to any AI screen.",
+            "one of S10's deliberate survivors was deleted. prompt_advanced_settings.xml is " +
+                "SettingsIconParityTest's live fixture; AgentLogAdapter + agent_log_item belong to " +
+                "the §2.4-protected AgentLogWidget, not to any AI screen. " +
+                "manage_prompts_category_header.xml/prompt_selector_item.xml used to be here too " +
+                "(inflated by LlmDialogHelper) -- platform-dialog removal Task 10 moved them to " +
+                "doomedPaths once LlmDialogHelper was deleted.",
         )
     }
 }
