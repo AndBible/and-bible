@@ -35,6 +35,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
+import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
@@ -62,8 +63,9 @@ import java.util.Locale
 /**
  * Task 9: `CommonUtils`' generic dialog helpers (`unlockDocument`, `showAbout`, `showHelpDialog`,
  * `checkPoorTranslations`, `requestNotificationPermission`, `documentUpgradeConfirmation`) go
- * through `AppDialogController` instead of building platform `AlertDialog`s. `showHelp` is out of
- * scope (run 3).
+ * through `AppDialogController` instead of building platform `AlertDialog`s. `showHelp` was out of
+ * scope for Task 9 (run 3) -- it is covered here now, ported by Task 28 onto
+ * `AppDialogRequest.Notice`.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -228,6 +230,55 @@ class CommonUtilsDialogsTest {
         assertTrue(head.message.contains("search.html"))
         assertEquals(application.getString(R.string.okay), head.confirmText)
         assertTrue(head.cancellable)
+    }
+
+    // -- showHelp --
+
+    /**
+     * Task 28: ported from an `AlertDialog.Builder` to `dialogs.post(AppDialogRequest.Notice(...))`
+     * -- fire-and-forget (no caller waits on the single OK button), same block order as the brief:
+     * the per-item help text, the full-docs link, the sponsor `IconLine`, and (only when
+     * [showVersion]) the version line. `filterItems` narrows to one item so the assertions on
+     * `blocks[0]` don't have to match every help topic's text.
+     */
+    @Test
+    fun showHelpPostsANoticeWithTodaysBlocksAndAnOkOnlyButton() {
+        val activity = activity()
+        CommonUtils.showHelp(activity, filterItems = listOf(R.string.help_workspaces_title), showVersion = false)
+        idle()
+
+        val request = dialogs.pending.value!!.request as AppDialogRequest.Notice
+        assertEquals(application.getString(R.string.help), request.title)
+        assertTrue(request.showTitleLogo)
+        assertEquals(3, request.blocks.size)
+
+        val helpItems = request.blocks[0] as AppDialogRequest.NoticeBlock.Html
+        assertTrue(helpItems.html.contains(application.getString(R.string.help_workspaces_title)))
+        assertTrue(helpItems.html.contains(application.getString(R.string.help_workspaces_text)))
+
+        val fullDocs = request.blocks[1] as AppDialogRequest.NoticeBlock.Html
+        assertTrue(fullDocs.html.contains("docs.andbible.org"))
+
+        val sponsor = request.blocks[2] as AppDialogRequest.NoticeBlock.IconLine
+        assertEquals(AppDialogRequest.NoticeIcon.Money, sponsor.icon)
+        assertTrue(sponsor.html.contains(application.getString(R.string.buy_development)))
+        assertTrue(sponsor.html.contains(buyDevelopmentLink))
+
+        assertEquals(application.getString(android.R.string.ok), request.confirmText)
+        assertNull("only one button today", request.dismissText)
+        assertNull("only one button today", request.neutralText)
+    }
+
+    @Test
+    fun showHelpWithShowVersionAppendsAVersionBlock() {
+        val activity = activity()
+        CommonUtils.showHelp(activity, filterItems = listOf(R.string.help_workspaces_title), showVersion = true)
+        idle()
+
+        val request = dialogs.pending.value!!.request as AppDialogRequest.Notice
+        assertEquals(4, request.blocks.size)
+        val versionBlock = request.blocks[3] as AppDialogRequest.NoticeBlock.Html
+        assertTrue(versionBlock.html.contains(CommonUtils.applicationVersionName))
     }
 
     // -- checkPoorTranslations --

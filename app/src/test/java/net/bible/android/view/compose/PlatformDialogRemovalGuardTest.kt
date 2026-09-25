@@ -105,11 +105,16 @@ class PlatformDialogRemovalGuardTest {
          * `showForChapter` `AlertDialog` is replaced by `ReadingQuickSheet.ReadHistory` /
          * `AbReadHistorySheet`, the same `QuickSheetSlot` mount point Task 26 used;
          * `showForBook`/`showForDay` already had no callers.
+         *
+         * Run 3 Task 28 shrinks it to 1: `ReadingAppBootstrap.kt`'s `showStableNotice`/
+         * `showBetaNotice` and `CommonUtils.kt`'s `showHelp` all move onto
+         * `AppDialogRequest.Notice`/`AbNoticeDialog` (the app-logo/inline-icon shape). Clearing
+         * `CommonUtils.kt` also required deleting `fixAlertDialogButtons` — dead code (no callers
+         * anywhere) whose `dialog: AlertDialog` parameter type was the file's last remaining
+         * platform-dialog reference.
          */
         val BASELINE: Set<String> = setOf(
             "src/main/java/net/bible/android/view/activity/StartupActivity.kt",
-            "src/main/java/net/bible/android/view/activity/page/ReadingAppBootstrap.kt",
-            "src/main/java/net/bible/service/common/CommonUtils.kt",
         )
 
         private fun stripComment(line: String): String = line.substringBefore("//")

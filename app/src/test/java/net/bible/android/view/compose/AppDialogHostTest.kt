@@ -17,7 +17,11 @@
 
 package net.bible.android.view.compose
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -37,6 +41,8 @@ import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedcore.ui.dialog.ShownDialog
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.components.AppDialogHost
+import net.bible.sharedui.components.LocalNoticeIcons
+import net.bible.sharedui.components.NoticeIcons
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -53,7 +59,8 @@ import org.robolectric.annotation.GraphicsMode
  * [AppDialogResult] to the right id, back/scrim honour [AppDialogRequest.Message.cancellable] and
  * [AppDialogRequest.Confirm.cancellable], a link in the body reaches [onOpenExternal] (asking first
  * over the open dialog when [askBeforeOpeningLink]) rather than answering the dialog, and a new text
- * request does not inherit the previous one's typed value.
+ * request does not inherit the previous one's typed value. Task 28 adds
+ * [AppDialogRequest.Notice]'s button mapping and its `Html`/`IconLine` blocks' link routing.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -70,17 +77,30 @@ class AppDialogHostTest {
         permission: AgentPermissionRequest? = null,
         progress: ShownDialog? = null,
         askBeforeOpeningLink: Boolean = false,
+        provideNoticeIcons: Boolean = false,
     ) = compose.setContent {
         ProvideAppLocals {
             AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
-                AppDialogHost(
-                    shown = shown, permission = permission,
-                    onRespond = { id, r -> answers += id to r },
-                    onPermissionChoice = { choices += it }, onPermissionDismiss = { choices += AgentPermissionChoice.DENY },
-                    onOpenExternal = { opened += it },
-                    askBeforeOpeningLink = askBeforeOpeningLink,
-                    progress = progress,
-                )
+                val content: @Composable () -> Unit = {
+                    AppDialogHost(
+                        shown = shown, permission = permission,
+                        onRespond = { id, r -> answers += id to r },
+                        onPermissionChoice = { choices += it }, onPermissionDismiss = { choices += AgentPermissionChoice.DENY },
+                        onOpenExternal = { opened += it },
+                        askBeforeOpeningLink = askBeforeOpeningLink,
+                        progress = progress,
+                    )
+                }
+                if (provideNoticeIcons) {
+                    // A stand-in NoticeIcons -- honest, drawn colour swatches, never the real
+                    // drawables (:sharedUi stays resource-free) -- so a Notice's InlineTextContent
+                    // icon codepath is genuinely exercised rather than silently skipped (null
+                    // painters, as the default `show()` leaves it).
+                    val stub = NoticeIcons(ColorPainter(Color.Magenta), ColorPainter(Color.Cyan))
+                    CompositionLocalProvider(LocalNoticeIcons provides stub, content = content)
+                } else {
+                    content()
+                }
             }
         }
     }
@@ -311,5 +331,100 @@ class AppDialogHostTest {
         val denyText = ApplicationProvider.getApplicationContext<android.content.Context>().getString(R.string.permission_deny)
         compose.onNodeWithText(denyText).performClick()
         assertEquals(listOf(AgentPermissionChoice.DENY), choices)
+    }
+
+    // ——— Task 28: AppDialogRequest.Notice / AbNoticeDialog ————————————————————————————————————————
+
+    private val notice = AppDialogRequest.Notice(
+        title = "Notice title", showTitleLogo = true,
+        blocks = listOf(
+            AppDialogRequest.NoticeBlock.Html("Some notice text"),
+            AppDialogRequest.NoticeBlock.Logo,
+            AppDialogRequest.NoticeBlock.IconLine(AppDialogRequest.NoticeIcon.Money, "Support us"),
+        ),
+        confirmText = "OK", dismissText = "Cancel", neutralText = "Later",
+    )
+
+    @Test fun noticeConfirmAnswersOk() {
+        show(ShownDialog(20, notice))
+        compose.onNodeWithText("OK").performClick()
+        assertEquals(listOf(20L to AppDialogResult.Ok), answers)
+    }
+
+    @Test fun noticeNeutralAnswersNeutral() {
+        show(ShownDialog(21, notice))
+        compose.onNodeWithText("Later").performClick()
+        assertEquals(listOf(21L to AppDialogResult.Neutral), answers)
+    }
+
+    @Test fun noticeDismissAnswersCancel() {
+        show(ShownDialog(22, notice))
+        compose.onNodeWithText("Cancel").performClick()
+        assertEquals(listOf(22L to AppDialogResult.Cancel), answers)
+    }
+
+    /** [AppDialogRequest.Notice] has no `cancellable` flag -- back/scrim always answers Cancel
+     *  (none of today's three ported notices calls `setCancelable(false)`). */
+    @Test fun noticeBackAlwaysAnswersCancel() {
+        show(ShownDialog(23, notice.copy(dismissText = null, neutralText = null)))
+        compose.waitForIdle()
+        Espresso.pressBack()
+        compose.waitForIdle()
+        assertEquals(listOf(23L to AppDialogResult.Cancel), answers)
+    }
+
+    @Test fun noticeWithNoLogoPainterSkipsTheLogoBlockRatherThanCrashing() {
+        // `show()` provides no LocalNoticeIcons, so logoPainter/moneyPainter are both null here --
+        // exactly the render path a golden/preview without :app's AppDialogOverlay takes.
+        show(ShownDialog(26, notice))
+        compose.onNodeWithText("Some notice text").assertExists()
+        compose.onNodeWithText("Support us").assertExists()
+    }
+
+    /**
+     * C1/Task 28: a link in a [AppDialogRequest.NoticeBlock.Html] body goes through the same
+     * [net.bible.sharedui.components.LocalAbLinkOpener] routing as [AppDialogRequest.Message] --
+     * [AppDialogHost] wraps every request, `Notice` included, in `AbLinkRouting`. Template:
+     * `discreteLinkAsksOverTheOpenDialog_okOpensOnce_leavesTheMessageOpen` above.
+     */
+    @Test
+    fun noticeDiscreteLinkAsksOverTheOpenDialog_okOpensOnce_leavesTheNoticeOpen() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val linkNotice = AppDialogRequest.Notice(
+            title = null, showTitleLogo = false,
+            blocks = listOf(AppDialogRequest.NoticeBlock.Html("<a href=\"https://x.org\">here</a>")),
+            confirmText = "Close",
+        )
+        show(ShownDialog(24, linkNotice), askBeforeOpeningLink = true)
+
+        compose.onNodeWithText("here").performClick()
+        compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
+        compose.onNodeWithText("Close").assertExists() // the Notice is still shown, underneath
+        assertEquals(emptyList<String>(), opened)
+
+        compose.onNodeWithText(context.getString(R.string.okay)).performClick()
+        assertEquals(listOf("https://x.org"), opened)
+        compose.onNodeWithText("Close").assertExists() // still shown and still unanswered
+        assertEquals(emptyList<Pair<Long, AppDialogResult>>(), answers)
+    }
+
+    /** Same routing, for an [AppDialogRequest.NoticeBlock.IconLine] body -- brief: "including
+     *  IconLine bodies". IconLine's HTML renders through `AbHtmlText`'s `leadingIcon` overload,
+     *  which must still carry the link through [net.bible.sharedui.components.LocalAbLinkOpener]. */
+    @Test
+    fun noticeIconLineLinkTapReachesTheHost() {
+        val iconNotice = AppDialogRequest.Notice(
+            title = null, showTitleLogo = false,
+            blocks = listOf(
+                AppDialogRequest.NoticeBlock.IconLine(
+                    AppDialogRequest.NoticeIcon.Money, "<a href=\"https://sponsor.example\">sponsor</a>",
+                ),
+            ),
+            confirmText = "OK",
+        )
+        show(ShownDialog(25, iconNotice), provideNoticeIcons = true)
+        compose.onNodeWithText("sponsor", substring = true).performClick()
+        assertEquals(listOf("https://sponsor.example"), opened)
+        assertEquals(emptyList<Pair<Long, AppDialogResult>>(), answers)
     }
 }

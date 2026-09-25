@@ -356,7 +356,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
      * title-bar logo (`setIcon(ic_logo)`, now [AppDialogRequest.Notice.showTitleLogo]) still shows
      * in discrete mode, an already-recorded leak (spec §2.2) this port does not fix.
      */
-    private suspend fun showStableNotice(): Boolean {
+    internal suspend fun showStableNotice(): Boolean {
         if (CommonUtils.isBeta) return false
 
         val ver = CommonUtils.mainVersion
@@ -397,7 +397,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
     }
 
     /** Ported the same way as [showStableNotice] -- see its kdoc. */
-    private suspend fun showBetaNotice(): Boolean {
+    internal suspend fun showBetaNotice(): Boolean {
         if (!CommonUtils.isBeta) return false
 
         val announceVersion = 3

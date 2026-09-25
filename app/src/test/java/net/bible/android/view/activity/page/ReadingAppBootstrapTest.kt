@@ -31,6 +31,8 @@ import net.bible.android.activity.R
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.betaIntroVideo
+import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.common.windowPinningVideo
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.ui.dialog.AppDialogController
@@ -634,6 +636,213 @@ class ReadingAppBootstrapTest {
             assertTrue("\"don't show again\" must return true, as today, so the caller persists it", done.await())
         } finally {
             controller.close()
+        }
+    }
+
+    // ——— Task 28: showStableNotice/showBetaNotice ported to AppDialogRequest.Notice —————————————
+
+    /**
+     * `CommonUtils.isBeta` is `true` under every Robolectric unit test (measured:
+     * `application.applicationInfo` carries `FLAG_DEBUGGABLE` on the `standardGoogleplayDebug` test
+     * variant, and `isBeta` is `... || isDebugMode`) -- so [showBetaNotice]'s guard passes and
+     * [showStableNotice]'s does not, in every test below that does not call this first. Flipping the
+     * flag off also clears the OTHER two `isBeta` disjuncts for this build (`applicationVersionName`
+     * doesn't end in `-beta`/`-alpha`, and the package name doesn't end in `.next`), so it reliably
+     * forces `isBeta` to `false` -- restored in `finally` so it never bleeds into another test.
+     */
+    private suspend fun withDebuggableFlag(debuggable: Boolean, block: suspend () -> Unit) {
+        val info = ApplicationProvider.getApplicationContext<android.app.Application>().applicationInfo
+        val original = info.flags
+        info.flags = if (debuggable) {
+            original or android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
+        } else {
+            original and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE.inv()
+        }
+        try {
+            block()
+        } finally {
+            info.flags = original
+        }
+    }
+
+    @Test
+    fun showStableNoticeSkipsWithNoDialogWhenBeta() = runTest(timeout = 30.seconds) {
+        assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
+        val controller = navHostOnReading()
+        try {
+            val activity = controller.create().get()
+            assertFalse(activity.readingAppBootstrap.showStableNotice())
+            assertNull(appDialogs.pending.value)
+        } finally {
+            controller.close()
+        }
+    }
+
+    @Test
+    fun showStableNoticeSkipsWithNoDialogWhenAlreadyDisplayedForThisVersion() = runTest(timeout = 30.seconds) {
+        withDebuggableFlag(false) {
+            CommonUtils.settings.setString("stable-notice-displayed", CommonUtils.mainVersion)
+            val controller = navHostOnReading()
+            try {
+                val activity = controller.create().get()
+                assertFalse(activity.readingAppBootstrap.showStableNotice())
+                assertNull(appDialogs.pending.value)
+            } finally {
+                controller.close()
+                CommonUtils.settings.removeString("stable-notice-displayed")
+            }
+        }
+    }
+
+    @Test
+    fun showStableNoticeRaisesTodaysBlocksAndPersistsOnDismissUntilUpdate() = runTest(timeout = 30.seconds) {
+        withDebuggableFlag(false) {
+            CommonUtils.settings.removeString("stable-notice-displayed")
+            val controller = navHostOnReading()
+            try {
+                val activity = controller.create().get()
+                val done = async { activity.readingAppBootstrap.showStableNotice() }
+                advanceUntilIdle()
+
+                val request = appDialogs.pending.value!!.request as AppDialogRequest.Notice
+                assertEquals(activity.getString(R.string.stable_notice_title), request.title)
+                assertTrue("the title-bar logo (setIcon today) stays on", request.showTitleLogo)
+                assertEquals(
+                    "par1, Logo (not discrete), the video link, and the sponsor IconLine, in that order",
+                    listOf(
+                        AppDialogRequest.NoticeBlock.Html::class,
+                        AppDialogRequest.NoticeBlock.Logo::class,
+                        AppDialogRequest.NoticeBlock.Html::class,
+                        AppDialogRequest.NoticeBlock.IconLine::class,
+                    ),
+                    request.blocks.map { it::class },
+                )
+                val par1 = request.blocks[0] as AppDialogRequest.NoticeBlock.Html
+                assertTrue(par1.html.contains(activity.getString(R.string.app_name_long)))
+                val videoBlock = request.blocks[2] as AppDialogRequest.NoticeBlock.Html
+                assertTrue(videoBlock.html.contains(newFeaturesIntroVideo))
+                val iconLine = request.blocks[3] as AppDialogRequest.NoticeBlock.IconLine
+                assertEquals(AppDialogRequest.NoticeIcon.Money, iconLine.icon)
+                assertTrue(iconLine.html.contains(buyDevelopmentLink))
+                assertEquals(activity.getString(R.string.beta_notice_dismiss_until_update), request.confirmText)
+                assertEquals(activity.getString(R.string.dismiss), request.neutralText)
+                assertNull("no third/dismiss button today", request.dismissText)
+
+                appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Ok)
+                advanceUntilIdle()
+
+                assertTrue(done.isCompleted)
+                assertTrue("dismiss-until-update returns true, as today", done.await())
+                assertEquals(CommonUtils.mainVersion, CommonUtils.settings.getString("stable-notice-displayed", ""))
+            } finally {
+                controller.close()
+                CommonUtils.settings.removeString("stable-notice-displayed")
+            }
+        }
+    }
+
+    @Test
+    fun showStableNoticeNeutralDismissReturnsFalseAndDoesNotPersist() = runTest(timeout = 30.seconds) {
+        withDebuggableFlag(false) {
+            CommonUtils.settings.removeString("stable-notice-displayed")
+            val controller = navHostOnReading()
+            try {
+                val activity = controller.create().get()
+                val done = async { activity.readingAppBootstrap.showStableNotice() }
+                advanceUntilIdle()
+                appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Neutral)
+                advanceUntilIdle()
+
+                assertTrue(done.isCompleted)
+                assertFalse("plain dismiss returns false, as today", done.await())
+                assertEquals("", CommonUtils.settings.getString("stable-notice-displayed", ""))
+            } finally {
+                controller.close()
+                CommonUtils.settings.removeString("stable-notice-displayed")
+            }
+        }
+    }
+
+    @Test
+    fun showBetaNoticeSkipsWithNoDialogWhenNotBeta() = runTest(timeout = 30.seconds) {
+        withDebuggableFlag(false) {
+            val controller = navHostOnReading()
+            try {
+                val activity = controller.create().get()
+                assertFalse(activity.readingAppBootstrap.showBetaNotice())
+                assertNull(appDialogs.pending.value)
+            } finally {
+                controller.close()
+            }
+        }
+    }
+
+    @Test
+    fun showBetaNoticeSkipsWithNoDialogWhenAlreadyAnnounced() = runTest(timeout = 30.seconds) {
+        assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
+        CommonUtils.settings.setInt("beta-notice-displayed2", 3)
+        val controller = navHostOnReading()
+        try {
+            val activity = controller.create().get()
+            assertFalse(activity.readingAppBootstrap.showBetaNotice())
+            assertNull(appDialogs.pending.value)
+        } finally {
+            controller.close()
+            CommonUtils.settings.setInt("beta-notice-displayed2", null)
+        }
+    }
+
+    @Test
+    fun showBetaNoticeRaisesASingleHtmlBlockAndPersistsOnDismissUntilUpdate() = runTest(timeout = 30.seconds) {
+        assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
+        CommonUtils.settings.setInt("beta-notice-displayed2", null)
+        val controller = navHostOnReading()
+        try {
+            val activity = controller.create().get()
+            val done = async { activity.readingAppBootstrap.showBetaNotice() }
+            advanceUntilIdle()
+
+            val request = appDialogs.pending.value!!.request as AppDialogRequest.Notice
+            assertEquals(activity.getString(R.string.beta_notice_title), request.title)
+            assertTrue(request.showTitleLogo)
+            assertEquals(1, request.blocks.size)
+            val body = (request.blocks[0] as AppDialogRequest.NoticeBlock.Html).html
+            assertTrue("carries the beta intro video link", body.contains(betaIntroVideo))
+            assertTrue("carries the sponsor link", body.contains(buyDevelopmentLink))
+            assertEquals(activity.getString(R.string.beta_notice_dismiss_until_update), request.confirmText)
+            assertEquals(activity.getString(R.string.dismiss), request.neutralText)
+            assertNull(request.dismissText)
+
+            appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Ok)
+            advanceUntilIdle()
+
+            assertTrue(done.isCompleted)
+            assertTrue(done.await())
+            assertEquals(3, CommonUtils.settings.getInt("beta-notice-displayed2", 0))
+        } finally {
+            controller.close()
+            CommonUtils.settings.setInt("beta-notice-displayed2", null)
+        }
+    }
+
+    @Test
+    fun showBetaNoticeNeutralDismissReturnsFalseAndDoesNotPersist() = runTest(timeout = 30.seconds) {
+        assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
+        CommonUtils.settings.setInt("beta-notice-displayed2", null)
+        val controller = navHostOnReading()
+        try {
+            val activity = controller.create().get()
+            val done = async { activity.readingAppBootstrap.showBetaNotice() }
+            advanceUntilIdle()
+            appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Neutral)
+            advanceUntilIdle()
+
+            assertTrue(done.isCompleted)
+            assertFalse(done.await())
+            assertEquals(0, CommonUtils.settings.getInt("beta-notice-displayed2", 0))
+        } finally {
+            controller.close()
+            CommonUtils.settings.setInt("beta-notice-displayed2", null)
         }
     }
 }
