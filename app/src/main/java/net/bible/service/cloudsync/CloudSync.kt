@@ -17,7 +17,6 @@
 
 package net.bible.service.cloudsync
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
 import android.util.Log
@@ -42,10 +41,13 @@ import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
+import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
+import org.koin.java.KoinJavaComponent
 import java.io.IOException
 import kotlin.IllegalStateException
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 const val GZIP_MIMETYPE = "application/gzip"
 
@@ -98,6 +100,13 @@ enum class CloudAdapters(val isEnabled: Boolean = true) {
 }
 
 object CloudSync {
+    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+
+    // AppDialogRequest.Options ids for initializeSync's "which way?" question (Task 24 Step 3).
+    private const val FETCH_VALUE = "fetch"
+    private const val CREATE_VALUE = "create"
+    private const val DISABLE_VALUE = "disable"
+
     private var _adapter: CloudAdapter? = null
     private val adapter: CloudAdapter get() = _adapter!!
 
@@ -155,6 +164,48 @@ object CloudSync {
 
     enum class InitialOperation {FETCH_INITIAL, CREATE_NEW}
     private val uiMutex = Mutex()
+
+    /**
+     * `initializeSync`'s "fetch from cloud, create new, or disable?" question (Task 24 Step 3): an
+     * owner-less `AppDialogController` dialog in place of the old `android.app.AlertDialog`,
+     * followed by its existing confirmation (`Dialogs.simpleQuestion`, already a shim). Declining
+     * that confirmation reverts to null, same as choosing "Cancel & disable synchronization"
+     * outright. `internal`, not private, so a test can pin the mapping directly against just a
+     * [SyncableDatabaseDefinition] -- without building a whole [SyncableDatabaseAccessor].
+     */
+    internal suspend fun askInitialSyncOperation(activity: ActivityBase, category: SyncableDatabaseDefinition): InitialOperation? {
+        val containsStr = activity.getString(category.contentDescription)
+        val dialogResult = dialogs.await(
+            AppDialogRequest.Options(
+                title = activity.getString(R.string.cloud_sync_title),
+                message = activity.getString(R.string.overrideBackup, containsStr),
+                options = listOf(
+                    SettingsItem.Choice(FETCH_VALUE, activity.getString(R.string.cloud_fetch_and_restore_initial)),
+                    SettingsItem.Choice(CREATE_VALUE, activity.getString(R.string.cloud_create_new)),
+                    SettingsItem.Choice(DISABLE_VALUE, activity.getString(R.string.cloud_disable_sync)),
+                ),
+                dismissText = null,
+                asActionSheet = false,
+                cancellable = false,
+            ),
+        )
+        val q1 = when ((dialogResult as? AppDialogResult.Selected)?.value) {
+            FETCH_VALUE -> InitialOperation.FETCH_INITIAL
+            CREATE_VALUE -> InitialOperation.CREATE_NEW
+            else -> null // "Cancel & disable synchronization", or (uncancellable) Cancel/back/scrim.
+        }
+        if (q1 != null) {
+            val message = when (q1) {
+                InitialOperation.FETCH_INITIAL -> R.string.are_you_sure_reset_local
+                InitialOperation.CREATE_NEW -> R.string.are_you_sure_reset_cloud
+            }
+            val msgString = activity.getString(message, activity.getString(category.contentDescription))
+            val confirmed = Dialogs.simpleQuestion(activity, msgString)
+            if (!confirmed) return null
+        }
+        return q1
+    }
+
     private suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>) {
         var initialOperation: InitialOperation?= null
         val syncFolderName = "${app.applicationInfo.packageName}-sync-${dbDef.categoryName}"
@@ -185,36 +236,7 @@ object CloudSync {
                     Log.i(TAG, "... got through uiMutex ${dbDef.categoryName}!")
                     val activity = CurrentActivityHolder.currentActivity ?: throw CancelStartedSync()
                     withContext(Dispatchers.Main) {
-                        val q1 = suspendCoroutine {
-                            val containsStr = activity.getString(dbDef.category.contentDescription)
-                            AlertDialog.Builder(activity)
-                                .setTitle(R.string.cloud_sync_title)
-                                .setMessage(activity.getString(R.string.overrideBackup, containsStr))
-                                .setPositiveButton(R.string.cloud_fetch_and_restore_initial) { _, _ ->
-                                    it.resume(InitialOperation.FETCH_INITIAL)
-                                }
-                                .setNegativeButton(R.string.cloud_create_new) { _, _ ->
-                                    it.resume(InitialOperation.CREATE_NEW)
-                                }
-                                .setNeutralButton(R.string.cloud_disable_sync) { _, _ ->
-                                    it.resume(null)
-                                }
-                                .setCancelable(false)
-                                .create()
-                                .show()
-                        }
-                        if(q1 != null) {
-                            val message = when(q1) {
-                                InitialOperation.FETCH_INITIAL -> R.string.are_you_sure_reset_local
-                                InitialOperation.CREATE_NEW -> R.string.are_you_sure_reset_cloud
-                            }
-                            val msgString = activity.getString(message, activity.getString(dbDef.category.contentDescription))
-                            val confirmed = Dialogs.simpleQuestion(activity, msgString)
-                            if(!confirmed) {
-                                return@withContext null
-                            }
-                        }
-                        q1
+                        askInitialSyncOperation(activity, dbDef.category)
                     }
                 }
                 if (initialOperation == null) {
