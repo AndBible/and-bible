@@ -35,17 +35,19 @@ import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.koin.java.KoinJavaComponent
 
 /**
- * Class to manage the display of various dialogs.
+ * The `:app`-side string-resolving façade over [AppDialogController] / [AgentPermissionController]
+ * for owner-less callers (plan correction 7). It builds no `android.app.AlertDialog` (or any other
+ * platform dialog) — every function here resolves its `R.string` ids to `String`s (D5) and either
+ * posts/awaits an [net.bible.sharedcore.ui.dialog.AppDialogRequest] on the app-wide queue, or, for
+ * [showErrorMsg] with no live [CurrentActivityHolder.currentActivity] at all, falls back to a `Toast`
+ * (a service error on a backgrounded app must not wait for a host that may never come).
  *
- * Spec 2026-09-11 §5.3: `Dialogs` is a thin shim over the app-wide [AppDialogController] /
- * [AgentPermissionController] — it no longer builds any `android.app.AlertDialog` itself. Every
- * overload below keeps its old public signature and old-caller-visible behaviour (spec's "no content
- * changes"); only the underlying dialog mechanism changed. New callers should use
- * `AppDialogController`/`AgentPermissionController` directly, or the feature's own dialog state —
- * hence the `@Deprecated` markers, kept without `ReplaceWith` since there is no single drop-in
- * replacement expression.
- *
- * @author Martin Denham [mjdenham at gmail dot com]
+ * Kept rather than deleted and inlined at each of its ~40 call sites (correction 7): the sites are
+ * plain owner-less error/confirm/multiselect helpers with no per-feature dialog state of their own,
+ * so inlining would only duplicate the `getString` + `AppDialogController` wiring at every call site
+ * for no behavioural change. Not `@Deprecated` — this IS the intended shape for an owner-less caller
+ * that has no feature controller to hang a dialog on; a caller that DOES belongs in that feature's own
+ * sealed dialog state instead (spec D4), same as every run-2/3 feature task already does.
  */
 private const val TAG = "Dialogs"
 
@@ -56,17 +58,14 @@ object Dialogs {
     private fun onMain(block: () -> Unit) =
         if (Looper.myLooper() == Looper.getMainLooper()) block() else mainHandler.post(block)
 
-    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showMsg(msgId: Int) {
         showErrorMsg(application.getString(msgId))
     }
 
-    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showErrorMsg(msgId: Int) {
         showErrorMsg(application.getString(msgId))
     }
 
-    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showErrorMsg(msgId: Int, param: String?) {
         showErrorMsg(application.getString(msgId, param))
     }
@@ -74,7 +73,6 @@ object Dialogs {
     /**
      * Show error message and allow reporting of exception via e-mail to and-bible
      */
-    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showErrorMsg(msgId: Int, e: Exception?) {
         showErrorMsg(application.getString(msgId), e)
     }
@@ -82,13 +80,11 @@ object Dialogs {
     /**
      * Show error message and allow reporting of exception via e-mail to and-bible
      */
-    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showErrorMsg(message: String?, e: Exception?) {
         val reportCallback = { ErrorReportControl.sendErrorReportEmail(e, source = "error message") }
         showMsg(message, false, null, reportCallback)
     }
 
-    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     fun showErrorMsg(msg: String?, okayCallback: (() -> Unit)? = null) {
         showMsg(msg, false, okayCallback, null)
     }
@@ -123,12 +119,10 @@ object Dialogs {
 
     enum class Result { OK, CANCEL, REPORT, ERROR }
 
-    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     suspend fun showMsg2(activity: ActivityBase, msgId: Int, isCancelable: Boolean = false, showReport: Boolean = false): Result {
         return showMsg2(activity, application.getString(msgId), isCancelable, showReport)
     }
 
-    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     suspend fun showMsg2(activity: ActivityBase, msg: String, isCancelable: Boolean = false, showReport: Boolean = false): Result {
         Log.i(TAG, "showErrorMesage message:$msg")
         val result = dialogs.await(
@@ -149,7 +143,6 @@ object Dialogs {
         }
     }
 
-    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     suspend fun simpleQuestion(context: Context, message: String? = null, title: String? = context.getString(R.string.are_you_sure)): Boolean =
         dialogs.await(
             AppDialogRequest.Confirm(
@@ -160,7 +153,6 @@ object Dialogs {
             ),
         ) == AppDialogResult.Ok
 
-    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     suspend fun <T> multiselect(
         context: Context,
         title: String,
@@ -187,7 +179,6 @@ object Dialogs {
         return items.filterIndexed { index, _ -> index.toString() in ids }
     }
 
-    @Deprecated("Spec 2026-09-11 §5.3: use AppDialogController or the feature's own dialog state", level = DeprecationLevel.WARNING)
     suspend fun <T> multiselect(context: Context, title: Int, items: List<T>, itemToString: ((arg: T) -> String)? = null): List<T> =
         multiselect(context, context.getString(title), items, itemToString)
 
