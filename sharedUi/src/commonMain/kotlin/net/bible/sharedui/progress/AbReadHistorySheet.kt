@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.bible.sharedui.components.AbSheetHeader
@@ -151,7 +152,15 @@ fun AbReadHistorySheetContent(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
-                            IconButton(onClick = { onTogglePending(row.id) }) {
+                            IconButton(
+                                onClick = { onTogglePending(row.id) },
+                                // Test-only hook (no visual/accessibility effect, mirroring
+                                // AbSearchablePicker.kt's per-option check tag): the icon itself
+                                // swaps (✕/↩) rather than carrying a stable contentDescription, so
+                                // AbReadHistorySheetContentTest needs a stable way to find "row X's
+                                // toggle" regardless of its current pending state.
+                                modifier = Modifier.testTag("ab-read-history-toggle-${row.id}"),
+                            ) {
                                 if (isPending) {
                                     Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = null)
                                 } else {

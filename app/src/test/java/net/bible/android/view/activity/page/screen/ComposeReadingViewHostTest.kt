@@ -26,6 +26,7 @@ import net.bible.android.view.activity.page.WindowPaneMenuStateBuilder
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.progress.ReadHistoryEntry
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.speak.SpeakSheetPage
@@ -37,6 +38,7 @@ import net.bible.sharedcore.window.WindowPaneMenuItem
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowStateValue
 import net.bible.sharedcore.window.buildWindowTabBar
+import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Before
@@ -977,5 +979,40 @@ class MenuWindowIdForTest {
     @Test fun aNullOpenWindowIdIsNullForEitherSurfaceRegardlessOfAnchor() {
         assertEquals(null, menuWindowIdFor(PaneMenuAnchor.Pane, PaneMenuAnchor.Pane, null))
         assertEquals(null, menuWindowIdFor(PaneMenuAnchor.Rail, PaneMenuAnchor.Rail, null))
+    }
+}
+
+/**
+ * Task 27 (platform-dialog removal, run 3) fix round 1: [chapterReadHistoryRow] is the load/format
+ * step the review named as untested — `QuickSheetSlot`'s `is ReadingQuickSheet.ReadHistory ->`
+ * branch's `LaunchedEffect` maps every loaded [ReadHistoryEntry] through it. Extracted the same way
+ * [SpeakBarVisibilityTest]/[MenuWindowIdForTest] above extract their gates, so the mapping itself —
+ * not just the pre-existing `ReadingProgressServiceImpl.readHistoryForChapter`/
+ * `deleteReadHistoryEntries` pair `ReadingProgressServiceImplTest` already covers — is unit-tested.
+ */
+class ChapterReadHistoryRowTest {
+    private val entry = ReadHistoryEntry(
+        id = "h1", bookId = "GEN", chapter = 1, readAt = 0L, bookInitials = "KJV",
+    )
+
+    @Test fun rowIsDateTimeAndVersionWithNoChapterReference() {
+        // Classic showForChapter's showChapterPerRow = false format: "$date $time" / version — no
+        // "chapterRef · " prefix, unlike the book/day history screens' multi-chapter row format.
+        val row = chapterReadHistoryRow(entry, date = "12 Aug 2026", time = "10:15", versionUnknownText = "Unknown")
+        assertEquals(ReadHistoryRow(id = "h1", primary = "12 Aug 2026 10:15", secondary = "KJV"), row)
+    }
+
+    @Test fun emptyBookInitialsFallsBackToTheVersionUnknownText() {
+        val row = chapterReadHistoryRow(
+            entry.copy(bookInitials = ""), date = "12 Aug 2026", time = "10:15", versionUnknownText = "Unknown",
+        )
+        assertEquals("Unknown", row.secondary)
+    }
+
+    @Test fun idIsCarriedThroughUnchanged() {
+        val row = chapterReadHistoryRow(
+            entry.copy(id = "h2"), date = "12 Aug 2026", time = "10:15", versionUnknownText = "Unknown",
+        )
+        assertEquals("h2", row.id)
     }
 }

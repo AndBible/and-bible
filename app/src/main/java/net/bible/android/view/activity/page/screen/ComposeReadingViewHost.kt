@@ -192,6 +192,7 @@ import net.bible.sharedcore.navigation.buildDocumentQuickTabs
 import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.KeyRow
+import net.bible.sharedcore.progress.ReadHistoryEntry
 import net.bible.sharedcore.reading.DrawerCloseLatch
 import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedcore.reading.KeyChooserKind
@@ -413,6 +414,28 @@ internal fun speakBarVisible(fullScreen: Boolean, transportVisible: Boolean): Bo
  */
 internal fun menuWindowIdFor(surface: PaneMenuAnchor, openAnchor: PaneMenuAnchor, openWindowId: String?): String? =
     if (openAnchor == surface) openWindowId else null
+
+/**
+ * Task 27 (platform-dialog removal, run 3) fix round 1: [ReadHistoryEntry] → [ReadHistoryRow]
+ * mapping for the reading view's per-chapter read-history sheet
+ * (`QuickSheetSlot`'s `is ReadingQuickSheet.ReadHistory ->` branch), extracted as a pure function —
+ * mirroring [speakBarVisible]/[menuWindowIdFor] above — so it is unit-testable without
+ * Robolectric/Compose; see `ChapterReadHistoryRowTest`. Classic `ReadHistoryDialog.showForChapter`
+ * used `showChapterPerRow = false`: `"$date $time"` / version, no chapter reference (the chapter is
+ * already named in the sheet's title, unlike the book/day history screens' multi-chapter list,
+ * which show a chapter reference per row instead). [date]/[time] arrive ALREADY formatted —
+ * `ReadingProgressServiceImpl.formatEntryDate`/`formatEntryTime` are Android `DateFormat` calls and
+ * so not themselves portable — this function only assembles the row from them.
+ */
+internal fun chapterReadHistoryRow(
+    entry: ReadHistoryEntry,
+    date: String,
+    time: String,
+    versionUnknownText: String,
+): ReadHistoryRow {
+    val version = entry.bookInitials.ifEmpty { versionUnknownText }
+    return ReadHistoryRow(id = entry.id, primary = "$date $time", secondary = version)
+}
 
 /**
  * Auto-hide state for the pane overlay's floating ☰ button (Batch 12b follow-on Plan B Task 5) —
@@ -1878,18 +1901,15 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 LaunchedEffect(sheet) {
                     val activeCycle = readingProgressService.currentCycle()
                     val entries = readingProgressService.readHistoryForChapter(sheet.bookId, sheet.chapter, activeCycle)
+                    val versionUnknownText = activity.getString(R.string.reading_progress_history_version_unknown)
                     cycle = activeCycle
                     rows = entries.map { entry ->
-                        val date = readingProgressService.formatEntryDate(entry.readAt)
-                        val time = readingProgressService.formatEntryTime(entry.readAt)
-                        val version = entry.bookInitials.ifEmpty {
-                            activity.getString(R.string.reading_progress_history_version_unknown)
-                        }
-                        // Classic `showForChapter` used `showChapterPerRow = false` (every row is
-                        // this same chapter, already named in the title) — "$date $time" / version,
-                        // not the "chapterRef · time" / "date · version" format the book/day screens
-                        // use for a multi-chapter list.
-                        ReadHistoryRow(id = entry.id, primary = "$date $time", secondary = version)
+                        chapterReadHistoryRow(
+                            entry = entry,
+                            date = readingProgressService.formatEntryDate(entry.readAt),
+                            time = readingProgressService.formatEntryTime(entry.readAt),
+                            versionUnknownText = versionUnknownText,
+                        )
                     }
                 }
                 val loadedRows = rows
