@@ -21,9 +21,12 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -66,4 +69,19 @@ fun AbHtmlText(html: String, modifier: Modifier = Modifier, style: TextStyle = L
     val linkColor = MaterialTheme.colorScheme.primary
     val text = remember(html, linkColor) { htmlToAnnotatedString(html, linkColor) }
     Text(text = text, modifier = modifier, style = style)
+}
+
+/**
+ * Routes every link under [content] through [onOpenLink] instead of whatever [LocalUriHandler] the
+ * platform would otherwise supply (Task 15). `AppDialogHost` already does this itself for the
+ * app-wide dialog queue, pointing `onOpenLink` at the host's `CommonUtils.openLink` (which asks
+ * first in discrete mode) — a feature dialog with its own inline wiki link (App settings' discrete
+ * help, the EPUB search help, …) is rendered OUTSIDE that queue, on a destination whose ambient
+ * `LocalUriHandler` is the bare platform one, so it needs this same override wired to its own
+ * `onOpenLink` screen parameter. Reused by every feature dialog with a link (Tasks 15, 18, 19).
+ */
+@Composable
+fun AbLinkRouting(onOpenLink: (String) -> Unit, content: @Composable () -> Unit) {
+    val uriHandler = remember(onOpenLink) { object : UriHandler { override fun openUri(uri: String) = onOpenLink(uri) } }
+    CompositionLocalProvider(LocalUriHandler provides uriHandler, content = content)
 }

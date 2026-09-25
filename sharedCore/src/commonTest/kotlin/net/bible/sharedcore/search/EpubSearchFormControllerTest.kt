@@ -42,4 +42,24 @@ class EpubSearchFormControllerTest {
         c.submit()
         assertEquals("grace" to EpubSearchMode.ANY_WORD, state.second.single())
     }
+
+    // --- Task 15: FTS5 query-syntax help moved off the host into this controller's own state -----
+
+    @Test fun helpOpen_startsFalse() {
+        val (c, _) = controller()
+        assertEquals(false, c.helpOpen.value)
+    }
+
+    @Test fun showHelp_opensIt() {
+        val (c, _) = controller()
+        c.showHelp()
+        assertEquals(true, c.helpOpen.value)
+    }
+
+    @Test fun dismissHelp_closesIt() {
+        val (c, _) = controller()
+        c.showHelp()
+        c.dismissHelp()
+        assertEquals(false, c.helpOpen.value)
+    }
 }

@@ -21,6 +21,17 @@ object AppSettingsNav {
     const val CRASH_APP = "crash_app"
 }
 
+/** Which modal the main app settings screen is currently showing (screen-local, driven by the
+ *  controller). Platform-dialog removal Task 15: both used to be host `AlertDialog.Builder`s
+ *  (`confirmResetSettings`/`showDiscreteHelpDialog`) reached through `AppSettingsDeps`. [DiscreteHelp]
+ *  carries the host-formatted HTML body: it branches on `BuildVariant.Appearance.isDiscrete`
+ *  (an Android-build-flavour fact `:sharedCore` cannot see), so the host still builds the string. */
+sealed interface AppSettingsDialog {
+    data object None : AppSettingsDialog
+    data class ConfirmReset(val message: String) : AppSettingsDialog
+    data class DiscreteHelp(val title: String, val html: String) : AppSettingsDialog
+}
+
 /**
  * Builds the declarative [SettingsScreenState] for the main app settings screen from an
  * [AppSettingsService] snapshot, in the classic preference-screen order. Visibility gates come
@@ -35,13 +46,37 @@ class AppSettingsController(
     private val scope: CoroutineScope,
     private val labels: AppSettingsLabels,
     private val onNavigate: (String) -> Unit,
+    /** Classic's `resetSettings()` (Task 15): still a host callback (`SettingsReset.performReset()`,
+     *  `service.refresh()`, `recreate()` all need Android), only the confirmation QUESTION moved
+     *  here. Defaulted so existing callers/tests that never touch reset need no change. */
+    private val onConfirmReset: () -> Unit = {},
 ) {
     private val _state = MutableStateFlow(build(service.snapshot.value))
     val state: StateFlow<SettingsScreenState> = _state.asStateFlow()
 
+    private val _dialog = MutableStateFlow<AppSettingsDialog>(AppSettingsDialog.None)
+    val dialog: StateFlow<AppSettingsDialog> = _dialog.asStateFlow()
+
     init {
         scope.launch { service.snapshot.collect { _state.value = build(it) } }
     }
+
+    /** Classic's reset confirmation (`SettingsComposeActivity.kt:245-254`). */
+    fun requestReset() { _dialog.value = AppSettingsDialog.ConfirmReset(labels.resetConfirmMessage) }
+
+    /** Classic's persecution-help dialog (`SettingsComposeActivity.kt:189-216`); [html] is built by
+     *  the host exactly as before (see [AppSettingsDialog.DiscreteHelp]'s kdoc). */
+    fun showDiscreteHelp(html: String) {
+        _dialog.value = AppSettingsDialog.DiscreteHelp(labels.persecutionCat, html)
+    }
+
+    fun confirmDialog() {
+        val wasConfirmReset = _dialog.value is AppSettingsDialog.ConfirmReset
+        _dialog.value = AppSettingsDialog.None
+        if (wasConfirmReset) onConfirmReset()
+    }
+
+    fun dismissDialog() { _dialog.value = AppSettingsDialog.None }
 
     private fun List<DictOption>.optionChoices(): List<SettingsItem.Choice> =
         map { SettingsItem.Choice(it.initials, it.name) }

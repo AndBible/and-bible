@@ -10,6 +10,9 @@ data class AppSettingsLabels(
     val screenTitle: String,
     val fontSizePercentFormat: String, // e.g. "%d %%"; %d filled with the percentage
 
+    // Task 15 — platform-dialog removal: the "reset to defaults" confirmation
+    val resetConfirmMessage: String,
+
     // Category titles
     val dictionariesCat: String,
     val behaviorCat: String,
@@ -119,6 +122,9 @@ data class AppSettingsLabels(
         fun forTest() = AppSettingsLabels(
             screenTitle = "Settings",
             fontSizePercentFormat = "%d %%",
+
+            resetConfirmMessage = "Do you want to reset all global application preferences that are " +
+                "displayed on this screen to their default values?",
 
             dictionariesCat = "Dictionaries",
             behaviorCat = "Behavior",

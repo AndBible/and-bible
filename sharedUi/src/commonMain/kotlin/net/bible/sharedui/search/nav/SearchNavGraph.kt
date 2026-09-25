@@ -373,18 +373,19 @@ data class EpubSearchSetup(
  *   [saveMode] because the submitted mode also travels to the results destination as
  *   [NavRoutes.ARG_EPUB_SEARCH_MODE] — see [EpubSearchResultsDeps.modeFromWireName] for why null
  *   still means FTS there.
- * - [showHelp] is classic's `help()` (`:115-132`): a **platform `AlertDialog` with an HTML link**
- *   (`LinkMovementMethod` on the message view). It stays a platform dialog and stays host-side on
- *   purpose — converting it belongs to the separately specified platform-dialog-removal phase
- *   (`docs/superpowers/specs/2026-09-11-compose-platform-dialog-removal-design.md`), and doing it
- *   here would move a `:sharedUi` golden for a screen this task is only supposed to re-host.
+ * - Classic's `help()` (`:115-132`, a **platform `AlertDialog` with an HTML link**,
+ *   `LinkMovementMethod` on the message view) is now [EpubSearchFormController]'s own `helpOpen`
+ *   state (platform-dialog removal Task 15), rendered by [EpubSearchScreen] itself: its text comes
+ *   entirely from existing `Strings.kt` entries, so there is no host slot for it at all. [onOpenLink]
+ *   remains here (`CommonUtils.openLink`, which asks first in discrete mode) for the help dialog's
+ *   inline wiki link, since this destination's ambient `LocalUriHandler` is the bare platform one.
  */
 class EpubSearchFormDeps(
     val prepare: () -> EpubSearchSetup?,
     val loadMode: () -> EpubSearchMode,
     val saveMode: (EpubSearchMode) -> Unit,
     val modeWireName: (EpubSearchMode) -> String?,
-    val showHelp: () -> Unit,
+    val onOpenLink: (String) -> Unit,
 )
 
 /**
@@ -1031,6 +1032,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
 
             val query by controller.query.collectAsState()
             val mode by controller.mode.collectAsState()
+            val helpOpen by controller.helpOpen.collectAsState()
 
             EpubSearchScreen(
                 title = setup.title,
@@ -1039,10 +1041,13 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                 onQueryChange = controller::setQuery,
                 onMode = controller::setMode,
                 onSubmit = controller::submit,
-                // A platform AlertDialog with an HTML link, and it STAYS one — see
-                // EpubSearchFormDeps.showHelp.
-                onHelp = d.showHelp,
+                // Task 15: was a platform AlertDialog reached through EpubSearchFormDeps.showHelp;
+                // now the controller's own dialog state, rendered by EpubSearchScreen itself.
+                onHelp = controller::showHelp,
                 onNavigateUp = { navController.popOrExit(deps.exitHost) },
+                helpOpen = helpOpen,
+                onDismissHelp = controller::dismissHelp,
+                onOpenLink = d.onOpenLink,
             )
         }
     }

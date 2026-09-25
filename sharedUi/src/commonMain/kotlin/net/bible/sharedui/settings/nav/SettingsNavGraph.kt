@@ -90,12 +90,17 @@ import net.bible.sharedui.strings.LocalStrings
  *   not just the screen that asked for it. Task 10 records that as an allowed behaviour change.
  *   Called AFTER the controller's write, exactly as classic ordered it, and from the two row kinds
  *   classic wired it to (switch and list choice) and no others.
- * - [onConfirmReset] and [onShowDiscreteHelp] are the screen's two platform `AlertDialog`s
- *   (`:245-254` reset confirmation, `:189-216` the persecution-help HTML dialog whose link needs a
- *   `LinkMovementMethod`). They stay PLATFORM dialogs on purpose: a separately specified
- *   platform-dialog-removal phase owns them, and converting either here would move a Roborazzi
- *   golden, which this migration is not allowed to do. [onConfirmReset] is the whole classic
- *   chain — confirm, `SettingsReset.performReset()`, `service.refresh()`, `recreate()`.
+ * - The reset confirmation (`:245-254`) and the persecution-help HTML dialog (`:189-216`) are now
+ *   [AppSettingsController]'s own `dialog` state (platform-dialog removal Task 15), rendered by
+ *   [AppSettingsScreen] itself — this arm only forwards `AppSettingsNav.DISCRETE_HELP` into
+ *   `controller.showDiscreteHelp([discreteHelpHtml])`. [discreteHelpHtml] still builds the HTML
+ *   string host-side exactly as classic did (it branches on `BuildVariant.Appearance.isDiscrete`, an
+ *   Android-build-flavour fact `:sharedCore` cannot see); the reset's confirmed ACTION is likewise
+ *   still a host callback (`SettingsReset.performReset()`, `service.refresh()`, `recreate()`), now
+ *   wired straight into [AppSettingsController]'s own `onConfirmReset` constructor param rather than
+ *   reached through this `Deps` class. [onOpenLink] feeds the discrete-help dialog's inline wiki
+ *   link (`CommonUtils.openLink`, which asks first in discrete mode) through `AbLinkRouting`, since
+ *   this destination's ambient `LocalUriHandler` is the bare platform one otherwise.
  * - [onOpenTextDisplaySettings], [onOpenLinksSettings] and [onCrashApp] are the three navigation
  *   rows with no destination in THIS graph: the text-display-settings destination (which lives in
  *   `WorkspaceNavGraph`, migrated together with the workspace selector because the two are one round
@@ -118,13 +123,13 @@ import net.bible.sharedui.strings.LocalStrings
 class AppSettingsDeps(
     val controller: () -> AppSettingsController,
     val maybeRecreate: (key: String) -> Unit,
-    val onConfirmReset: () -> Unit,
-    val onShowDiscreteHelp: () -> Unit,
+    val discreteHelpHtml: () -> String,
     val onOpenTextDisplaySettings: () -> Unit,
     val onOpenLinksSettings: () -> Unit,
     val onCrashApp: () -> Unit,
     val resetContentDescription: String,
     val onResume: () -> Unit,
+    val onOpenLink: (String) -> Unit,
 )
 
 /**
@@ -358,6 +363,7 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
         // AppSettingsDeps.controller.
         val controller = remember { d.controller() }
         val state by controller.state.collectAsState()
+        val dialog by controller.dialog.collectAsState()
 
         // The screen's own top bar renders `state.title` (AbSettingsScreen's AbScaffold), so that
         // is the value the window title follows too — and it equals the manifest label
@@ -420,18 +426,22 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
                     AppSettingsNav.READING_PROGRESS ->
                         navController.navigate(NavRoutes.READING_PROGRESS_SETTINGS)
                     AppSettingsNav.TEXT_DISPLAY -> d.onOpenTextDisplaySettings()
-                    AppSettingsNav.DISCRETE_HELP -> d.onShowDiscreteHelp()
+                    AppSettingsNav.DISCRETE_HELP -> controller.showDiscreteHelp(d.discreteHelpHtml())
                     AppSettingsNav.OPEN_LINKS -> d.onOpenLinksSettings()
                     AppSettingsNav.CRASH_APP -> d.onCrashApp()
                 }
             },
-            onReset = d.onConfirmReset,
+            onReset = controller::requestReset,
             resetContentDescription = d.resetContentDescription,
             searchQuery = searchQuery,
             searchModeActive = searchModeActive,
             onSearchQueryChange = { searchQuery = it },
             onOpenSearch = searchMode::open,
             onCloseSearch = searchMode::close,
+            dialog = dialog,
+            onConfirmDialog = controller::confirmDialog,
+            onDismissDialog = controller::dismissDialog,
+            onOpenLink = d.onOpenLink,
         )
     }
 

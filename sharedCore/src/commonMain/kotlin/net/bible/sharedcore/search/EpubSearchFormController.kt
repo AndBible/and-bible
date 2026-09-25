@@ -19,6 +19,13 @@ class EpubSearchFormController(
     private val _mode = MutableStateFlow(loadMode())
     val mode: StateFlow<EpubSearchMode> = _mode.asStateFlow()
 
+    /** Classic `EpubSearch.help()`'s FTS5 query-syntax dialog (platform-dialog removal Task 15),
+     *  now this screen's own state -- its text comes entirely from existing `Strings.kt` entries
+     *  (`helpSearchEpub`/`helpFts5`/`helpSearchDetails`, already shared with `ReadingToolbar`'s own
+     *  search help), so [EpubSearchScreen] renders it directly with no host slot at all. */
+    private val _helpOpen = MutableStateFlow(false)
+    val helpOpen: StateFlow<Boolean> = _helpOpen.asStateFlow()
+
     fun setQuery(value: String) { _query.value = value }
 
     fun setMode(value: EpubSearchMode) { _mode.value = value; saveMode(value) }
@@ -27,4 +34,7 @@ class EpubSearchFormController(
     fun seedMode(value: EpubSearchMode) { _mode.value = value }
 
     fun submit() { val q = _query.value; if (q.isNotBlank()) onSubmit(q, _mode.value) }
+
+    fun showHelp() { _helpOpen.value = true }
+    fun dismissHelp() { _helpOpen.value = false }
 }

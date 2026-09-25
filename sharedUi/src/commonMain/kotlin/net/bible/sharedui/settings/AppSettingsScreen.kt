@@ -22,7 +22,11 @@ import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import net.bible.sharedcore.settings.AppSettingsDialog
 import net.bible.sharedcore.settings.SettingsScreenState
+import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbLinkRouting
+import net.bible.sharedui.components.AbMessageDialog
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -31,6 +35,13 @@ import net.bible.sharedui.strings.LocalStrings
  * [AbSettingsScreen]'s `actions` slot. Kept as its own composable (rather than callers using
  * [AbSettingsScreen] directly) so the reset action lives in one place and matches the classic
  * preference-screen behaviour (an app-bar reset icon on the main Settings screen only).
+ *
+ * Platform-dialog removal Task 15: [dialog] is [AppSettingsController]'s own confirm/help state
+ * (`AlertDialog.Builder`s in classic and, until this task, in `NavHostComposeActivity` too) — [onReset]
+ * now only REQUESTS the confirmation (the controller decides whether/what to show), and the discrete
+ * -help row (routed to here via `onNavigate`) does the same. [onOpenLink] feeds [AbLinkRouting] for
+ * the help body's inline wiki link, since this destination's ambient `LocalUriHandler` is the bare
+ * platform one, not `AppDialogHost`'s `CommonUtils.openLink`-backed override.
  */
 @Composable
 fun AppSettingsScreen(
@@ -49,8 +60,13 @@ fun AppSettingsScreen(
     onSearchQueryChange: (String) -> Unit = {},
     onOpenSearch: () -> Unit = {},
     onCloseSearch: () -> Unit = {},
+    dialog: AppSettingsDialog = AppSettingsDialog.None,
+    onConfirmDialog: () -> Unit = {},
+    onDismissDialog: () -> Unit = {},
+    onOpenLink: (String) -> Unit = {},
 ) {
-    val searchHint = LocalStrings.current.searchSettings
+    val strings = LocalStrings.current
+    val searchHint = strings.searchSettings
     AbSettingsScreen(
         state = state,
         onUp = onUp,
@@ -73,4 +89,25 @@ fun AppSettingsScreen(
             }
         },
     )
+
+    when (dialog) {
+        is AppSettingsDialog.ConfirmReset -> AbConfirmDialog(
+            title = null,
+            message = dialog.message,
+            confirmText = strings.yes,
+            dismissText = strings.cancel,
+            onConfirm = onConfirmDialog,
+            onDismiss = onDismissDialog,
+        )
+        is AppSettingsDialog.DiscreteHelp -> AbLinkRouting(onOpenLink = onOpenLink) {
+            AbMessageDialog(
+                title = dialog.title,
+                html = dialog.html,
+                confirmText = strings.okay,
+                onConfirm = onDismissDialog,
+                onDismissRequest = onDismissDialog,
+            )
+        }
+        AppSettingsDialog.None -> {}
+    }
 }

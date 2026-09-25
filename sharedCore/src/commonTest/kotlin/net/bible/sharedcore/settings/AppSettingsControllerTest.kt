@@ -218,4 +218,69 @@ class AppSettingsControllerTest {
         )
         assertEquals(expected, c.state.value.items.map { it.key })
     }
+
+    // --- Task 15: reset confirm + discrete-mode help moved off the host into this controller's own
+    // --- dialog state ------------------------------------------------------------------------------
+
+    private fun controllerWithReset(onConfirmReset: () -> Unit) = AppSettingsController(
+        FakeAppSettingsService(snap()),
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Unconfined),
+        AppSettingsLabels.forTest(), onNavigate = {}, onConfirmReset = onConfirmReset,
+    )
+
+    @Test fun dialog_startsNone() {
+        val c = controller(FakeAppSettingsService(snap()))
+        assertEquals(AppSettingsDialog.None, c.dialog.value)
+    }
+
+    @Test fun requestReset_showsConfirmWithTheLabelsMessage() {
+        val c = controller(FakeAppSettingsService(snap()))
+        c.requestReset()
+        assertEquals(AppSettingsDialog.ConfirmReset(AppSettingsLabels.forTest().resetConfirmMessage), c.dialog.value)
+    }
+
+    @Test fun showDiscreteHelp_showsHelpWithThePersecutionCatTitle() {
+        val c = controller(FakeAppSettingsService(snap()))
+        c.showDiscreteHelp("<p>help</p>")
+        assertEquals(AppSettingsDialog.DiscreteHelp(AppSettingsLabels.forTest().persecutionCat, "<p>help</p>"), c.dialog.value)
+    }
+
+    @Test fun confirmDialog_runsResetExactlyOnceAndClears() {
+        var resetCount = 0
+        val c = controllerWithReset { resetCount++ }
+        c.requestReset()
+        c.confirmDialog()
+        assertEquals(1, resetCount)
+        assertEquals(AppSettingsDialog.None, c.dialog.value)
+
+        // Task 13 fix round 1's guard: a stray second call (e.g. a double-tap after the dialog
+        // closed) must not run the reset again.
+        c.confirmDialog()
+        assertEquals(1, resetCount)
+    }
+
+    @Test fun confirmDialog_whenShowingDiscreteHelp_doesNotRunReset() {
+        var resetCount = 0
+        val c = controllerWithReset { resetCount++ }
+        c.showDiscreteHelp("<p>help</p>")
+        c.confirmDialog()
+        assertEquals(0, resetCount)
+        assertEquals(AppSettingsDialog.None, c.dialog.value)
+    }
+
+    @Test fun confirmDialog_whenNotShowing_isANoOp() {
+        var resetCount = 0
+        val c = controllerWithReset { resetCount++ }
+        c.confirmDialog()
+        assertEquals(0, resetCount)
+    }
+
+    @Test fun dismissDialog_runsNothingAndClears() {
+        var resetCount = 0
+        val c = controllerWithReset { resetCount++ }
+        c.requestReset()
+        c.dismissDialog()
+        assertEquals(0, resetCount)
+        assertEquals(AppSettingsDialog.None, c.dialog.value)
+    }
 }

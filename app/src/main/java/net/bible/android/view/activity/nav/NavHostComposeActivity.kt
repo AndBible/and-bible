@@ -33,7 +33,6 @@ import android.os.Looper
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.text.format.Formatter
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.util.TypedValue
 import android.view.InputDevice
@@ -42,7 +41,6 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
-import android.widget.TextView
 import android.widget.Toast
 import android.widget.ArrayAdapter
 import android.widget.ListView
@@ -234,7 +232,6 @@ import net.bible.sharedcore.cloud.CloudDocItem
 import net.bible.sharedcore.cloud.CloudDocumentsController
 import net.bible.service.common.CommonUtils.pause
 import net.bible.service.common.displayName
-import net.bible.service.common.htmlToSpan
 import net.bible.service.common.labelsAndBookmarksPlaylist
 import net.bible.service.common.studyPadsVideo
 import net.bible.service.download.FakeBookFactory
@@ -699,6 +696,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             // SETTINGS arm, because two of its seven rows are routes in this host's graph. See
             // AppSettingsDeps' kdoc.
             onNavigate = {},
+            // Task 15: the reset question is now the controller's own dialog state; confirmDialog()
+            // runs this callback, which still needs SettingsReset/appSettingsService/recreate() (no
+            // :sharedCore equivalent).
+            onConfirmReset = { resetSettings() },
         )
     }
 
@@ -3628,7 +3629,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             loadMode = { loadEpubSearchMode() },
                             saveMode = { mode -> saveEpubSearchMode(mode) },
                             modeWireName = { mode -> mode.toClassicSearchTypeName() },
-                            showHelp = { showEpubSearchHelp() },
+                            onOpenLink = { CommonUtils.openLink(it) },
                         ),
                         epubSearchResults = EpubSearchResultsDeps(
                             resolve = { searchDocument -> resolveEpubSearchTarget(searchDocument) },
@@ -3656,8 +3657,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             // [appSettingsController] and AppSettingsDeps.controller's kdoc.
                             controller = { appSettingsController },
                             maybeRecreate = { key -> maybeRecreateForSettingsKey(key) },
-                            onConfirmReset = { confirmResetSettings() },
-                            onShowDiscreteHelp = { showDiscreteHelpDialog() },
+                            discreteHelpHtml = { buildDiscreteHelpHtml() },
                             // Classic's `global_text_display_settings` row
                             // (`SettingsComposeActivity.kt:179-187`), now a graph navigation.
                             //
@@ -3685,6 +3685,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             // to stay eager.
                             resetContentDescription = getString(R.string.reset_settings),
                             onResume = { appSettingsService.refresh() },
+                            onOpenLink = { CommonUtils.openLink(it) },
                         ),
                         syncSettings = SyncSettingsDeps(
                             controller = { syncSettingsController },
@@ -6878,37 +6879,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
-     * Classic `EpubSearch.help()` (`:115-132`), verbatim: an FTS5 query-syntax **platform
-     * `AlertDialog`** whose message is an HTML span with a live link (hence the
-     * `LinkMovementMethod`). It stays a platform dialog deliberately — the separately specified
-     * platform-dialog-removal phase owns converting it, and converting it here would move a
-     * `:sharedUi` golden.
-     */
-    private fun showEpubSearchHelp() {
-        val ftsLink = "https://www.sqlite.org/fts5.html#full_text_query_syntax"
-        val link = """<a href="$ftsLink">${getString(R.string.help_fts5)}</a>"""
-        val span = htmlToSpan(
-            """
-            ${getString(R.string.help_search_epub)}<br><br>
-            ${getString(R.string.help_search_details, link)}
-            """.trimIndent()
-        )
-        val d = AlertDialog.Builder(this)
-            .setPositiveButton(R.string.okay, null)
-            // Classic read the ACTIVITY's `title`, which for EpubSearchComposeActivity was its
-            // manifest label android:label="@string/search" (AndroidManifest.xml:140) -- it never
-            // called setTitle. This host's window title is whatever the CURRENT destination set
-            // (here "Search in <abbrev>"), which is both a different string and shared mutable
-            // state across six destinations, so the label is named explicitly instead.
-            .setTitle(R.string.search)
-            .setIcon(R.drawable.ic_logo)
-            .setMessage(span)
-            .create()
-        d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
-    }
-
-    /**
      * Classic `EpubSearchResultsComposeActivity.onCreate`'s document resolution and its two guards
      * (`:205-227`) as one call. Null == "not installed, or not an epub" (classic's `Log.e` +
      * `finish()`); the `!!` on the current Bible's document is a `?: return null` for the same
@@ -7004,22 +6974,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         if (key in RECREATE_ON_CHANGE_KEYS) recreate()
     }
 
-    /**
-     * Classic's reset confirmation (`SettingsComposeActivity.kt:245-254`), a PLATFORM AlertDialog.
-     * It stays one: the separately specified platform-dialog-removal phase owns this dialog and the
-     * discrete-help one below, and converting either here would move a Roborazzi golden.
-     */
-    private fun confirmResetSettings() {
-        AlertDialog.Builder(this)
-            .setMessage(R.string.reset_app_prefs)
-            .setCancelable(true)
-            .setPositiveButton(R.string.yes) { _, _ -> resetSettings() }
-            .setNegativeButton(R.string.cancel, null)
-            .create()
-            .show()
-    }
-
-    /** Classic `:264-268` verbatim, recreate() included — see [maybeRecreateForSettingsKey]. */
+    /** Classic `:264-268` verbatim, recreate() included — see [maybeRecreateForSettingsKey]. Platform-
+     *  dialog removal Task 15: the question that used to guard this call is now
+     *  [AppSettingsController]'s own `dialog` state; this is wired into the controller's
+     *  `onConfirmReset` constructor param and runs only from `confirmDialog()`. */
     private fun resetSettings() {
         SettingsReset.performReset()
         appSettingsService.refresh()
@@ -7027,11 +6985,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
-     * Classic's persecution-help dialog (`SettingsComposeActivity.kt:189-216`), unchanged: a
-     * platform AlertDialog whose HTML body carries a wiki link that needs a `LinkMovementMethod` on
-     * the message TextView. Kept platform for the reason given on [confirmResetSettings].
+     * Classic's persecution-help HTML body (`SettingsComposeActivity.kt:189-216`), built exactly as
+     * before. Platform-dialog removal Task 15: this used to feed a platform `AlertDialog` with a
+     * `LinkMovementMethod`-enabled message view; it now feeds
+     * [net.bible.sharedcore.settings.AppSettingsController.showDiscreteHelp], rendered by
+     * [net.bible.sharedui.settings.AppSettingsScreen] as an `AbMessageDialog` whose inline wiki link
+     * this host's `onOpenLink` (`CommonUtils.openLink`) still routes.
      */
-    private fun showDiscreteHelpDialog() {
+    private fun buildDiscreteHelpHtml(): String {
         val linkUrl = "https://github.com/AndBible/and-bible/wiki/Discrete-build"
         val linkText = "<a href=\"$linkUrl\">$linkUrl</a>"
 
@@ -7045,18 +7006,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
 
         val dText = "$dPar1<br><br>$dPar2<br><br>$dLink<br><br>"
         val calcText = "$calcPar1$calcPar2<br><br>$calcPar3<br><br>$dLink"
-        val htmlMessage = if (!BuildVariant.Appearance.isDiscrete) dText else calcText
-
-        val spanned = htmlToSpan(htmlMessage)
-
-        val d = AlertDialog.Builder(this).apply {
-            setTitle(getString(R.string.prefs_persecution_cat))
-            setMessage(spanned)
-            setPositiveButton(R.string.okay, null)
-            setCancelable(true)
-        }.create()
-        d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        return if (!BuildVariant.Appearance.isDiscrete) dText else calcText
     }
 
     /** Classic's `open_links` row (`:218-227`) — the Android app-links system screen, gated to S+. */
@@ -7087,6 +7037,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     private fun buildAppSettingsLabels() = AppSettingsLabels(
         screenTitle = getString(R.string.settings),
         fontSizePercentFormat = getString(R.string.pref_font_size_multiplier_percent_format),
+
+        resetConfirmMessage = getString(R.string.reset_app_prefs),
 
         dictionariesCat = getString(R.string.prefs_dictionaries_cat),
         behaviorCat = getString(R.string.prefs_behavior_customization_cat),
