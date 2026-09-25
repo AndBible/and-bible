@@ -10,6 +10,7 @@ import net.bible.sharedcore.navigation.DocInstallStatus
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
+import net.bible.sharedcore.navigation.DocumentSelectionDialog
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedcore.navigation.defaultArrangement
 import net.bible.sharedcore.navigation.groupDocuments
@@ -201,6 +202,7 @@ class DocumentSelectionGoldenTest {
         selectionMode = selectionMode,
         selectedIds = selectedIds,
         error = null,
+        dialog = DocumentSelectionDialog.None,
         topBarActions = {},
         onQueryChange = {},
         searchModeActive = searchModeActive,
@@ -230,6 +232,8 @@ class DocumentSelectionGoldenTest {
         unlockVisible = unlockVisible,
         deleteVisible = deleteVisible,
         onDismissError = {},
+        onConfirmDialog = {},
+        onDismissDialog = {},
         onNavigateUp = {},
         onExitSelection = {},
     )

@@ -7486,6 +7486,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
 
         val hasErrors get() =
             genericFileDownloader.errors.isNotEmpty() || downloadManager.failedRepos.isNotEmpty()
+
+        /**
+         * The deletable subset [handleDownloadDelete] partitioned out (a live
+         * `documentControl.canDelete` recheck the framework-free controller cannot do), parked here
+         * for [handleDownloadDeleteConfirmed] the same way [CloudDocumentsEntry.lastPlan] parks a
+         * resolved plan (task 16, run-2 plan): the question (the controller's `ConfirmDelete`
+         * dialog) and the answer are two different calls, and this is what carries the partition
+         * between them without recomputing it (which would re-toast "can't delete" for the SAME
+         * non-deletable documents a second time).
+         */
+        var pendingDelete: List<Book> = emptyList()
     }
 
     /**
@@ -7558,7 +7569,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             },
             onSelect = { docId -> handleDownloadSelection(docId) },
             onDelete = { ids -> handleDownloadDelete(ids) },
-            onDeleteIndex = { ids -> handleDownloadDeleteIndex(ids) },
+            onConfirmDownload = { docId -> session.booksById[docId]?.let { doDownload(session, it) } },
+            onConfirmDelete = { handleDownloadDeleteConfirmed(session) },
+            onConfirmDeleteIndex = { docId -> handleDownloadDeleteIndexConfirmed(session, docId) },
             onAbout = { docId -> handleDownloadAbout(docId) },
             onUnlock = { docId -> handleDownloadUnlock(docId) },
             onStickyLanguage = { lang -> CommonUtils.settings.setString("selected_language_code", lang?.code) },
@@ -7891,11 +7904,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     }
                 }
             } else {
-                AlertDialog.Builder(this)
-                    .setMessage(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.okay) { _, _ -> doDownload(session, documentToDownload) }
-                    .setNegativeButton(R.string.cancel) { _, _ -> }.create().show()
+                session.controller.requestDownloadConfirm(
+                    documentToDownload.repoIdentity,
+                    getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name,
+                )
             }
         }
     }
@@ -7936,54 +7948,55 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         val (deletable, rest) = selected.partition { documentControl.canDelete(it.installedDocument) }
         if (rest.isNotEmpty()) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
         if (deletable.isEmpty()) return
-        val msg: CharSequence = if (deletable.size == 1) {
+        val msg: String = if (deletable.size == 1) {
             getString(R.string.delete_doc, deletable.single().name)
         } else {
             getString(R.string.delete_docs_confirm) + "\n\n" + deletable.joinToString("\n") { it.name }
         }
-        AlertDialog.Builder(this)
-            .setMessage(msg).setCancelable(true)
-            .setPositiveButton(R.string.yes) { _, _ ->
-                // Re-checked per document INSIDE the loop: Book.canDelete is `!lastBible && ...`, so
-                // with exactly two Bibles installed both pass the partition, and deleting them both
-                // would leave zero Bibles. Deleting one flips the other's flag.
-                var skipped = false
-                for (document in deletable) {
-                    if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
-                    try {
-                        Log.i(TAG_DOWNLOAD, "Deleting:$document")
-                        documentControl.deleteDocument(document.installedDocument)
-                    } catch (e: Exception) {
-                        Log.e(TAG_DOWNLOAD, "Deleting document crashed", e)
-                        Dialogs.showErrorMsg(R.string.error_occurred, e)
-                    }
-                }
-                if (skipped) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
-                lifecycleScope.launch { loadDownloadDocuments(session, false) }
-                ABEventBus.post(UpdateMainBibleActivityDocuments())
-            }
-            .setNegativeButton(R.string.no, null)
-            .create().show()
+        session.pendingDelete = deletable
+        session.controller.requestDeleteConfirm(msg)
     }
 
-    /** Classic `handleDeleteIndex` (`:710-727`). */
-    private fun handleDownloadDeleteIndex(ids: Set<String>) {
-        val session = downloadSession ?: return
-        for (document in ids.mapNotNull { session.booksById[it] }) {
-            val msg: CharSequence = getString(R.string.delete_search_index_doc, document.name)
-            AlertDialog.Builder(this)
-                .setMessage(msg).setCancelable(true)
-                .setPositiveButton(R.string.okay) { _, _ ->
-                    try {
-                        Log.i(TAG_DOWNLOAD, "Deleting index:$document")
-                        SwordDocumentFacade.deleteDocumentIndex(document.installedDocument)
-                    } catch (e: Exception) {
-                        Log.e(TAG_DOWNLOAD, "Deleting index crashed", e)
-                        Dialogs.showErrorMsg(R.string.error_occurred, e)
-                    }
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .create().show()
+    /**
+     * Task 16 (run-2 plan, NH row 8004): the confirmed half of [handleDownloadDelete] -- the
+     * `deletable` list it partitioned, parked on [DownloadSession.pendingDelete]. Unchanged from the
+     * classic `AlertDialog`'s positive button, including the per-document `canDelete` RECHECK inside
+     * the loop (`Book.canDelete` is `!lastBible && ...`, so deleting one of exactly two installed
+     * Bibles flips the other's flag -- this is a genuinely different, later check than the one
+     * [handleDownloadDelete] already toasted for).
+     */
+    private fun handleDownloadDeleteConfirmed(session: DownloadSession) {
+        val deletable = session.pendingDelete
+        var skipped = false
+        for (document in deletable) {
+            if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
+            try {
+                Log.i(TAG_DOWNLOAD, "Deleting:$document")
+                documentControl.deleteDocument(document.installedDocument)
+            } catch (e: Exception) {
+                Log.e(TAG_DOWNLOAD, "Deleting document crashed", e)
+                Dialogs.showErrorMsg(R.string.error_occurred, e)
+            }
+        }
+        if (skipped) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
+        lifecycleScope.launch { loadDownloadDocuments(session, false) }
+        ABEventBus.post(UpdateMainBibleActivityDocuments())
+    }
+
+    /**
+     * Task 16 (D8-3 fix, NH row 8034): classic's `handleDeleteIndex` (`:710-727`) opened one stacked
+     * platform dialog per selected document; [DocumentSelectionController.deleteIndex] now asks one
+     * at a time and calls this ONLY for the document just confirmed -- the delete-index action itself
+     * (no `canDelete` check in classic, and none here either) is unchanged.
+     */
+    private fun handleDownloadDeleteIndexConfirmed(session: DownloadSession, docId: String) {
+        val document = session.booksById[docId] ?: return
+        try {
+            Log.i(TAG_DOWNLOAD, "Deleting index:$document")
+            SwordDocumentFacade.deleteDocumentIndex(document.installedDocument)
+        } catch (e: Exception) {
+            Log.e(TAG_DOWNLOAD, "Deleting index crashed", e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 
@@ -8171,11 +8184,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         if (session.genericFileDownloader.errors.isNotEmpty()) {
             message += getString(R.string.failed_downloads_message, session.genericFileDownloader.errors.joinToString(",\n"))
         }
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.download_errors))
-            .setMessage(message)
-            .setPositiveButton(R.string.okay, null)
-            .create().show()
+        session.controller.showErrors(getString(R.string.download_errors), message)
     }
 
     /** Classic `onInstallZip` (`:891-897`). Slice 8 D2: in-graph, answered through [openInstallZip] (M5). */
@@ -9122,6 +9131,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
 
         /** docId (`Book.initials`) -> Book, rebuilt on every (re)load. */
         var booksById: Map<String, Book> = emptyMap()
+
+        /** See [DownloadSession.pendingDelete]'s kdoc -- same parking, same reason. */
+        var pendingDelete: List<Book> = emptyList()
     }
 
     /** The CURRENT entry's session. Reassigned by [chooseDocumentControllerFor], read by every seam
@@ -9141,7 +9153,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             langComparator = compareBy { it.displayName },
             onSelect = { docId -> handleChooseDocumentSelection(docId, onResult) },
             onDelete = { ids -> handleChooseDocumentDelete(ids) },
-            onDeleteIndex = { ids -> handleChooseDocumentDeleteIndex(ids) },
+            onConfirmDelete = { handleChooseDocumentDeleteConfirmed(session) },
+            onConfirmDeleteIndex = { docId -> handleChooseDocumentDeleteIndexConfirmed(session, docId) },
             onAbout = { docId -> handleChooseDocumentAbout(docId) },
             onUnlock = { docId -> handleChooseDocumentUnlock(docId) },
             onStickyLanguage = { lang ->
@@ -9233,56 +9246,50 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     /** Classic `handleDelete` (`:287-321`), including its one-dialog-for-the-whole-selection shape
      *  and the per-document `canDelete` re-check inside the loop (the lastBible guard). */
     private fun handleChooseDocumentDelete(ids: Set<String>) {
-        val booksById = chooseDocumentSession?.booksById ?: return
-        val selected = ids.mapNotNull { booksById[it] }
+        val session = chooseDocumentSession ?: return
+        val selected = ids.mapNotNull { session.booksById[it] }
         val (deletable, rest) = selected.partition { documentControl.canDelete(it.installedDocument) }
         if (rest.isNotEmpty()) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
         if (deletable.isEmpty()) return
-        val msg: CharSequence = if (deletable.size == 1) {
+        val msg: String = if (deletable.size == 1) {
             getString(R.string.delete_doc, deletable.single().name)
         } else {
             getString(R.string.delete_docs_confirm) + "\n\n" + deletable.joinToString("\n") { it.name }
         }
-        AlertDialog.Builder(this)
-            .setMessage(msg).setCancelable(true)
-            .setPositiveButton(R.string.yes) { _, _ ->
-                var skipped = false
-                for (document in deletable) {
-                    if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
-                    try {
-                        Log.i(TAG_CHOOSE_DOCUMENT, "Deleting:$document")
-                        documentControl.deleteDocument(document.installedDocument)
-                    } catch (e: Exception) {
-                        Log.e(TAG_CHOOSE_DOCUMENT, "Deleting document crashed", e)
-                        Dialogs.showErrorMsg(R.string.error_occurred, e)
-                    }
-                }
-                if (skipped) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
-                lifecycleScope.launch { loadChooseDocuments() }
-                ABEventBus.post(UpdateMainBibleActivityDocuments())
-            }
-            .setNegativeButton(R.string.no, null)
-            .create().show()
+        session.pendingDelete = deletable
+        session.controller.requestDeleteConfirm(msg)
     }
 
-    /** Classic `handleDeleteIndex` (`:324-341`). */
-    private fun handleChooseDocumentDeleteIndex(ids: Set<String>) {
-        val booksById = chooseDocumentSession?.booksById ?: return
-        for (document in ids.mapNotNull { booksById[it] }) {
-            val msg: CharSequence = getString(R.string.delete_search_index_doc, document.name)
-            AlertDialog.Builder(this)
-                .setMessage(msg).setCancelable(true)
-                .setPositiveButton(R.string.okay) { _, _ ->
-                    try {
-                        Log.i(TAG_CHOOSE_DOCUMENT, "Deleting index:$document")
-                        SwordDocumentFacade.deleteDocumentIndex(document.installedDocument)
-                    } catch (e: Exception) {
-                        Log.e(TAG_CHOOSE_DOCUMENT, "Deleting index crashed", e)
-                        Dialogs.showErrorMsg(R.string.error_occurred, e)
-                    }
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .create().show()
+    /** Task 16 (run-2 plan, NH row 9306) -- see [handleDownloadDeleteConfirmed]'s kdoc, this is its
+     *  ChooseDocument counterpart, unchanged apart from which session/log tag it reads. */
+    private fun handleChooseDocumentDeleteConfirmed(session: ChooseDocumentSession) {
+        val deletable = session.pendingDelete
+        var skipped = false
+        for (document in deletable) {
+            if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
+            try {
+                Log.i(TAG_CHOOSE_DOCUMENT, "Deleting:$document")
+                documentControl.deleteDocument(document.installedDocument)
+            } catch (e: Exception) {
+                Log.e(TAG_CHOOSE_DOCUMENT, "Deleting document crashed", e)
+                Dialogs.showErrorMsg(R.string.error_occurred, e)
+            }
+        }
+        if (skipped) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
+        lifecycleScope.launch { loadChooseDocuments() }
+        ABEventBus.post(UpdateMainBibleActivityDocuments())
+    }
+
+    /** Task 16 (D8-3 fix, NH row 9333) -- see [handleDownloadDeleteIndexConfirmed]'s kdoc, this is its
+     *  ChooseDocument counterpart. */
+    private fun handleChooseDocumentDeleteIndexConfirmed(session: ChooseDocumentSession, docId: String) {
+        val document = session.booksById[docId] ?: return
+        try {
+            Log.i(TAG_CHOOSE_DOCUMENT, "Deleting index:$document")
+            SwordDocumentFacade.deleteDocumentIndex(document.installedDocument)
+        } catch (e: Exception) {
+            Log.e(TAG_CHOOSE_DOCUMENT, "Deleting index crashed", e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 

@@ -35,10 +35,14 @@ import net.bible.sharedcore.navigation.DocGroupKey
 import net.bible.sharedcore.navigation.DocRow
 import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
+import net.bible.sharedcore.navigation.DocumentSelectionDialog
 import net.bible.sharedcore.navigation.LangOption
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDocumentListScaffold
 import net.bible.sharedui.components.AbErrorDialog
+import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbMessageDialog
 import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
@@ -67,6 +71,7 @@ fun DocumentSelectionScreen(
     selectionMode: Boolean,
     selectedIds: Set<String>,
     error: ChooserError?,
+    dialog: DocumentSelectionDialog,
     topBarActions: @Composable RowScope.() -> Unit,
     onQueryChange: (String) -> Unit,
     searchModeActive: Boolean,
@@ -96,6 +101,8 @@ fun DocumentSelectionScreen(
     unlockVisible: Boolean,
     deleteVisible: Boolean,
     onDismissError: () -> Unit,
+    onConfirmDialog: () -> Unit,
+    onDismissDialog: () -> Unit,
     onNavigateUp: () -> Unit,
     onExitSelection: () -> Unit,
 ) {
@@ -189,6 +196,48 @@ fun DocumentSelectionScreen(
 
     if (error != null) {
         AbErrorDialog(message = strings.errorOccurred, confirmText = strings.okay, onDismiss = onDismissError)
+    }
+
+    when (dialog) {
+        // manageDownload's confirm-before-download question (NH row 7954): classic's dialog was
+        // `setCancelable(false)` -- back/scrim do nothing -- but its Cancel BUTTON is a genuine no-op,
+        // which is exactly [onDismissDialog] here (state clears, nothing else runs).
+        is DocumentSelectionDialog.ConfirmDownload -> AbMessageDialog(
+            title = null,
+            html = dialog.message,
+            confirmText = strings.okay,
+            onConfirm = onConfirmDialog,
+            onDismissRequest = onDismissDialog,
+            dismissText = strings.cancel,
+            onDismiss = onDismissDialog,
+            cancellable = false,
+        )
+        // The bulk-delete question (NH rows 8004/9306); classic's own Yes/No wording.
+        is DocumentSelectionDialog.ConfirmDelete -> AbConfirmDialog(
+            title = null,
+            message = dialog.message,
+            confirmText = strings.yes,
+            dismissText = strings.no,
+            onConfirm = onConfirmDialog,
+            onDismiss = onDismissDialog,
+        )
+        // D8-3: one document at a time (NH rows 8034/9333); classic's own Okay/Cancel wording, "Cancel"
+        // skipping only THIS document (onDismissDialog advances the controller's queue by one).
+        is DocumentSelectionDialog.ConfirmDeleteIndex -> AbConfirmDialog(
+            title = null,
+            message = strings.deleteSearchIndexDoc(dialog.docName),
+            confirmText = strings.okay,
+            dismissText = strings.cancel,
+            onConfirm = onConfirmDialog,
+            onDismiss = onDismissDialog,
+        )
+        // The download-errors summary (NH row 8234), Download-only -- ChooseDocument never triggers it.
+        is DocumentSelectionDialog.Errors -> AbInfoDialog(
+            title = dialog.title,
+            body = dialog.message,
+            onDismiss = onDismissDialog,
+        )
+        DocumentSelectionDialog.None -> {}
     }
 }
 

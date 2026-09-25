@@ -239,7 +239,7 @@ class ChooserInGraphResultTest {
                     DocumentSelectionController(
                         langComparator = { _, _ -> 0 },
                         onSelect = { onResult(DocumentResult(book = it)) },
-                        onDelete = {}, onDeleteIndex = {}, onAbout = {}, onUnlock = {},
+                        onDelete = {}, onAbout = {}, onUnlock = {},
                         onStickyLanguage = {},
                     ).also { documentController = it }
                 },

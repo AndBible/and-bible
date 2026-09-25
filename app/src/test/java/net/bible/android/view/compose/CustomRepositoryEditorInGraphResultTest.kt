@@ -173,7 +173,7 @@ class CustomRepositoryEditorInGraphResultTest {
                 controllerFor = {
                     DocumentSelectionController(
                         langComparator = { _, _ -> 0 },
-                        onSelect = {}, onDelete = {}, onDeleteIndex = {},
+                        onSelect = {}, onDelete = {},
                         onAbout = {}, onUnlock = {}, onStickyLanguage = {},
                     )
                 },

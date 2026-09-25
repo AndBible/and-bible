@@ -135,7 +135,7 @@ class DownloadInGraphArmTest {
             controllerFor = { initialTypeFilter ->
                 controller ?: DocumentSelectionController(
                     langComparator = { _, _ -> 0 },
-                    onSelect = {}, onDelete = {}, onDeleteIndex = {},
+                    onSelect = {}, onDelete = {},
                     onAbout = {}, onUnlock = {}, onStickyLanguage = {},
                 ).also {
                     it.setTypeFilter(initialTypeFilter)

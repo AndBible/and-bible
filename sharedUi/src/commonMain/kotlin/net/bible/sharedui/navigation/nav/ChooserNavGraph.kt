@@ -524,6 +524,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
         val selectionMode by controller.selectionMode.collectAsState()
         val selectedIds by controller.selectedIds.collectAsState()
         val error by controller.error.collectAsState()
+        val dialog by controller.dialog.collectAsState()
         val searchModeActive by controller.searchModeActive.collectAsState()
         val arrangement by controller.arrangement.collectAsState()
         val repositories by controller.repositories.collectAsState()
@@ -554,6 +555,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             selectionMode = selectionMode,
             selectedIds = selectedIds,
             error = error,
+            dialog = dialog,
             topBarActions = { d.topBarActions(this) },
             onQueryChange = controller::setQuery,
             searchModeActive = searchModeActive,
@@ -591,6 +593,8 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             unlockVisible = displayed.firstOrNull { it.docId in selectedIds }?.enciphered == true,
             deleteVisible = anySelectedDeletable(displayed, selectedIds),
             onDismissError = controller::dismissError,
+            onConfirmDialog = controller::confirmDialog,
+            onDismissDialog = controller::dismissDialog,
             onNavigateUp = { navController.popOrExit(deps.exitHost) },
             onExitSelection = controller::clearSelection,
         )
