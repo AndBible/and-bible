@@ -61,4 +61,14 @@ sealed interface ReadingQuickSheet {
      * .buildShareVersesInput`) at the moment the user asks to share.
      */
     data class Share(val input: ShareVersesInput) : ReadingQuickSheet
+
+    /**
+     * Task 27 (platform-dialog removal, run 3): the reading view's per-chapter read-history list,
+     * replacing the classic `ReadHistoryDialog.showForChapter` `AlertDialog`. [bookId] is the KJV
+     * canonical book's [org.crosswire.jsword.versification.BibleBook.name] — the same portable
+     * string convention `ReadHistoryEntry.bookId`/`BookHeat.bookId` already use — and [chapter] its
+     * chapter number, both captured once per opening, the same per-opening shape as [Share]'s
+     * [ShareVersesInput].
+     */
+    data class ReadHistory(val bookId: String, val chapter: Int) : ReadingQuickSheet
 }
