@@ -92,6 +92,40 @@ class HtmlRunsTest {
     @Test fun unknownEntityIsLiteral() =
         assertEquals("&nope;", plain("&nope;"))
 
+    // --- F1 (run 3 final-review fix wave): named entities beyond the original short table ------
+
+    /** ReadingAppBootstrap's beta notice's exact shape: "&mdash;" and "Main Menu &rarr; Report a
+     *  bug", which rendered literally (the emulator-smoke symptom) before the NAMED table grew. */
+    @Test fun namedEntitiesFromRealDialogBodiesDecode() =
+        assertEquals(
+            "Many more improvements \u2014 see the video. Main Menu \u2192 Report a bug.",
+            plain("Many more improvements &mdash; see the video. Main Menu &rarr; Report a bug."),
+        )
+
+    @Test fun theFullAddedNamedEntityTableDecodes() =
+        assertEquals(
+            "\u2014\u2013\u2192\u2190\u2194\u2026\u2018\u2019\u201C\u201D\u00B7\u00A9\u00AE\u2122\u00AB\u00BB\u00D7\u00B0",
+            plain(
+                "&mdash;&ndash;&rarr;&larr;&harr;&hellip;&lsquo;&rsquo;&ldquo;&rdquo;" +
+                    "&middot;&copy;&reg;&trade;&laquo;&raquo;&times;&deg;",
+            ),
+        )
+
+    /** Decimal numeric references were already decoded before F1 -- pinned again here next to the
+     *  named/hex cases so the three forms are covered side by side. */
+    @Test fun decimalNumericEntityDecodes() =
+        assertEquals("\u00E9", plain("&#233;"))
+
+    /** Hex numeric references (both `x`/`X`) were already decoded before F1 -- same reason as
+     *  [decimalNumericEntityDecodes]. */
+    @Test fun hexNumericEntityDecodesBothCases() =
+        assertEquals("\u00E9\u00E9", plain("&#xE9;&#XE9;"))
+
+    /** An entity that looks plausible but isn't in the (still finite, by design) NAMED table must
+     *  stay literal -- same contract [unknownEntityIsLiteral] pins for a nonsense name. */
+    @Test fun aNamedEntityNotInTheTableStaysLiteral() =
+        assertEquals("&sect;", plain("&sect;"))
+
     @Test fun emptyInputIsNoRuns() =
         assertEquals(emptyList(), parseHtmlRuns(""))
 

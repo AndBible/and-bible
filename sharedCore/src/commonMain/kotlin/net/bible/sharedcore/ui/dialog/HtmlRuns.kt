@@ -43,6 +43,22 @@ private val NAMED = mapOf(
     // collapsed against a neighbouring space, matching Html.fromHtml (run-1 minor).
     "nbsp" to "\u00A0", "amp" to "&", "lt" to "<", "gt" to ">", "quot" to "\"",
     "apos" to "'", "bull" to "•",
+    // F1 (run 3 final-review fix wave, emulator smoke): the old android.app.AlertDialog's
+    // Html.fromHtml decoded these too, so a dialog body written assuming that
+    // (ReadingAppBootstrap's beta notice: "&mdash;", "&rarr;") rendered fine there but showed the
+    // entity literally once parseHtmlRuns became the only decoder -- the numeric branch below
+    // already covered `&#8212;`/`&#x2014;`, only the NAMED table was short. The list is the named
+    // entities Html.fromHtml handles that a realistic dialog body plausibly uses (typographic
+    // punctuation, arrows, a few symbols), found by grepping app/src/main/res/values*/strings.xml
+    // and the Kotlin HTML builders for `&[a-z]+;` -- not the full HTML4 entity set, which this
+    // app's dialog bodies never draw from. An entity not in this map stays literal, same as today
+    // (unknownEntityIsLiteral).
+    "mdash" to "\u2014", "ndash" to "\u2013",
+    "rarr" to "\u2192", "larr" to "\u2190", "harr" to "\u2194",
+    "hellip" to "\u2026",
+    "lsquo" to "\u2018", "rsquo" to "\u2019", "ldquo" to "\u201C", "rdquo" to "\u201D",
+    "middot" to "\u00B7", "copy" to "\u00A9", "reg" to "\u00AE", "trade" to "\u2122",
+    "laquo" to "\u00AB", "raquo" to "\u00BB", "times" to "\u00D7", "deg" to "\u00B0",
 )
 
 /**
