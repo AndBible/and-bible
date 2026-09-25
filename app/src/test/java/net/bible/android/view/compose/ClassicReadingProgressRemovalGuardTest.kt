@@ -25,11 +25,27 @@ import org.junit.Test
  * Compose implementation.
  *
  * Five assertions rather than S8's four, because this slice is the one in its batch with
- * collaborators worth defending: `ReadingProgressColors`, `ReadingProgressKeys` and
- * `ReadHistoryDialog` sit in the SAME package as the deleted screen and are named after the same
- * feature, so the obvious tidy-up is to take the package with the screen. All three have surviving
- * consumers — the Compose twin, and `BibleJavascriptInterface`, whose calls have no compile-time
- * signal from here — so [theSurvivingProgressCollaboratorsStillExist] pins them.
+ * collaborators worth defending: `ReadingProgressColors` and `ReadingProgressKeys` sit in the SAME
+ * package as the deleted screen and are named after the same feature, so the obvious tidy-up is to
+ * take the package with the screen. [theSurvivingProgressCollaboratorsStillExist] pins both.
+ *
+ * A third collaborator, `ReadHistoryDialog`, was pinned here for the same reason from S5 through
+ * platform-dialog removal Task 26 — `BibleJavascriptInterface.openChapterReadHistory` called its
+ * `showForChapter`, a call with no compile-time signal from this module, and that call also read
+ * `ReadingProgressColors.COLOR_HEAT_MAX`. Platform-dialog removal Task 27 (run 3) deleted
+ * `ReadHistoryDialog.kt` outright: `openChapterReadHistory` now opens `ReadingQuickSheet
+ * .ReadHistory` instead, so the file's only reason to survive S5's package-wide sweep is gone. It
+ * is no longer in [theSurvivingProgressCollaboratorsStillExist]'s list; see
+ * `PlatformDialogRemovalGuardTest.BASELINE`'s Task 27 entry for the deletion itself.
+ *
+ * That deletion leaves `ReadingProgressColors` with no production consumer left in `app/` —
+ * `ReadingProgressColorsTest` is now its only reader. Left pinned rather than deleted alongside
+ * `ReadHistoryDialog`: Task 27's brief named only `ReadHistoryDialog.kt`, and `ReadingProgressColors`
+ * is a general color/scale utility (`countToHeatColor`, `countBookProgressToColor`,
+ * `memorizationProgressToColor`, `textColorForBackground`) rather than a single screen's leftover, so
+ * whether it should follow `CalendarHeatmapView` into deletion or stay as a still-tested utility is
+ * an epilogue question for the maintainer, the same way `ReadingProgressKeys`' own note below treats
+ * its EXTRA_TAB.
  *
  * `CalendarHeatmapView` is deliberately NOT in that list: it became referenceless with the layout
  * that instantiated it, spec §2.4 protects named base classes and `view/util/widget/` wholesale
@@ -66,18 +82,19 @@ class ClassicReadingProgressRemovalGuardTest {
             listOf(
                 "src/main/java/net/bible/android/view/activity/progress/ReadingProgressColors.kt",
                 "src/main/java/net/bible/android/view/activity/progress/ReadingProgressKeys.kt",
-                "src/main/java/net/bible/android/view/activity/progress/ReadHistoryDialog.kt",
             ),
-            "S5 deleted a file it was supposed to keep. All three sit in the deleted screen's own " +
-                "package and are named after the same feature. Consumers as of nav-graph 3/5/6 " +
-                "Task 9, checked rather than assumed: ReadHistoryDialog is called from " +
-                "BibleJavascriptInterface.kt:627 (showForChapter, off the WebView — a path with " +
-                "no compile-time signal from this module) and reads ReadingProgressColors' " +
-                "COLOR_HEAT_MAX, so those two pin each other and the dialog pins both. " +
-                "ReadingProgressKeys is the exception: its EXTRA_TAB lost BOTH readers in this " +
-                "migration (the screen moved into the nav graph, where the tab travels in the " +
-                "route), leaving IntentKeysTest:43 as its only consumer — kept deliberately as an " +
-                "epilogue question for the maintainer, see that file's own kdoc.",
+            "S5 deleted a file it was supposed to keep. Both sit in the deleted screen's own " +
+                "package and are named after the same feature. A third, ReadHistoryDialog, was " +
+                "pinned here too from S5 through platform-dialog removal Task 26 (called from " +
+                "BibleJavascriptInterface.kt, off the WebView — a path with no compile-time " +
+                "signal from this module) but platform-dialog removal Task 27 (run 3) deleted it " +
+                "outright, so it is no longer in this list — see this file's class kdoc. " +
+                "ReadingProgressKeys' EXTRA_TAB lost BOTH readers in this migration (the screen " +
+                "moved into the nav graph, where the tab travels in the route), leaving " +
+                "IntentKeysTest:43 as its only consumer — kept deliberately as an epilogue " +
+                "question for the maintainer, see that file's own kdoc. Task 27 leaves " +
+                "ReadingProgressColors in the same position (ReadingProgressColorsTest as its " +
+                "only consumer) — see this file's class kdoc.",
         )
     }
 

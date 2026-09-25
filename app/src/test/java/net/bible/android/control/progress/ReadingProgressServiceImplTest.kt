@@ -18,7 +18,9 @@ package net.bible.android.control.progress
 
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TestBibleApplication
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.test.DatabaseResetter
+import org.crosswire.jsword.versification.BibleBook
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -52,6 +54,36 @@ class ReadingProgressServiceImplTest {
         // Verse.getOsisID() always includes the verse (Verse(kjva, book, chapter, 1) -> verse 1),
         // matching the classic ReadingProgressActivity.navigateToChapter behaviour exactly.
         assertEquals("Gen.1.1", service.osisIdForChapter("GEN", 1))
+    }
+
+    // --- read history (Task 27, platform-dialog removal run 3: ComposeReadingViewHost's
+    // ReadingQuickSheet.ReadHistory branch is this pair's only production caller now that
+    // ReadHistoryDialog.kt is deleted) ---
+
+    @Test fun readHistoryForChapter_then_delete_removes_only_the_deleted_entries() = runBlocking {
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1, "KJV")
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1, "KJV")
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2, "KJV") // different chapter, must not appear
+        val cycle = service.currentCycle()
+
+        val entries = service.readHistoryForChapter("GEN", 1, cycle)
+        assertEquals(2, entries.size)
+        assertTrue(entries.all { it.bookId == "GEN" && it.chapter == 1 && it.bookInitials == "KJV" })
+
+        service.deleteReadHistoryEntries(listOf(entries.first().id), cycle)
+
+        val remaining = service.readHistoryForChapter("GEN", 1, cycle)
+        assertEquals(1, remaining.size)
+        assertEquals(entries[1].id, remaining.single().id)
+    }
+
+    @Test fun deleteReadHistoryEntries_with_empty_ids_deletes_nothing() = runBlocking {
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1, "KJV")
+        val cycle = service.currentCycle()
+
+        service.deleteReadHistoryEntries(emptyList(), cycle)
+
+        assertEquals(1, service.readHistoryForChapter("GEN", 1, cycle).size)
     }
 
     // readingCalendarSkeleton() uses the real Calendar.getInstance(), so only deterministic
