@@ -37,6 +37,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.After
+import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -58,12 +59,24 @@ import java.io.File
 class BackupControlTest {
     private val controllers = mutableListOf<ActivityController<*>>()
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    // Shared across the whole test method, and kept as the Main dispatcher until @After -- see the
+    // matching field in ErrorReportControlTest for why resetting Main inside the test body's own
+    // `finally` (the old shape here too) can deadlock: it races a still-cancelling child off the test
+    // scheduler and onto the real Robolectric main thread while that thread is itself blocked waiting
+    // for the same child.
+    private val testDispatcher = StandardTestDispatcher()
+
+    @Before
+    fun setUpMain() {
+        Dispatchers.setMain(testDispatcher)
+    }
 
     @After
     fun tearDown() {
         controllers.forEach { runCatching { it.pause().stop().destroy() } }
         controllers.clear()
         dialogs.cancelAll()
+        Dispatchers.resetMain()
     }
 
     private fun activity(): ActivityBase =
@@ -76,14 +89,8 @@ class BackupControlTest {
      * documents). Binding Main to this runTest's own `testScheduler` makes `advanceUntilIdle()`
      * drive it instead.
      */
-    private fun <T> runOnTestMain(block: suspend kotlinx.coroutines.test.TestScope.() -> T) = runTest(timeout = 10.seconds) {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        try {
-            block()
-        } finally {
-            Dispatchers.resetMain()
-        }
-    }
+    private fun <T> runOnTestMain(block: suspend kotlinx.coroutines.test.TestScope.() -> T) =
+        runTest(testDispatcher, timeout = 10.seconds) { block() }
     /**
      * Regression guard for the "Unknown database file: ..." crash (e.g. progress.sqlite3).
      * Every database that can appear in a backup/restore must have a title mapping,

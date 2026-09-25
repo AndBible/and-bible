@@ -61,17 +61,26 @@ import org.robolectric.annotation.Config
 class BookmarkControlImportFromUriDialogTest {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
     private lateinit var bookmarkControl: BookmarkControl
+    // Shared across the whole test method, and kept as the Main dispatcher until @After -- see the
+    // matching field in ErrorReportControlTest for why resetting Main inside the test body's own
+    // `finally` (the old shape here too) can deadlock a test that leaves a still-cancelling child
+    // behind: it races that child off the test scheduler and onto the real, blocked Robolectric main
+    // thread. (Neither test below currently leaves such a child, but the shape is now uniform with
+    // the other three test classes that share this trap.)
+    private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setUp() {
         val mockedWindowControl = Mockito.mock(WindowControl::class.java)
         bookmarkControl = BookmarkControl(mockedWindowControl, Mockito.mock(AndroidResourceProvider::class.java))
+        Dispatchers.setMain(testDispatcher)
     }
 
     @After
     fun tearDown() {
         dialogs.cancelAll()
         resetDatabase()
+        Dispatchers.resetMain()
     }
 
     private fun csvUri(content: String): Uri {
@@ -82,50 +91,40 @@ class BookmarkControlImportFromUriDialogTest {
     }
 
     @Test
-    fun invalidRowsPostAMessageWithTheOriginalTitleAndErrorSummary() = runTest(timeout = 30.seconds) {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        try {
-            val context = RuntimeEnvironment.getApplication()
-            // "osisRef" header, one non-blank but unparseable data row -- getVerseRange() fails every
-            // branch (empty ordinals, unparseable osisRef, no book/chapter/verse, no bible ref) and
-            // parseCsvRowToBookmark() catches its own IllegalArgumentException and returns null, so
-            // importBookmarksFromCsv() records "Record 2: Invalid bookmark data" without throwing.
-            val uri = csvUri("osisRef\ngarbage\n")
+    fun invalidRowsPostAMessageWithTheOriginalTitleAndErrorSummary() = runTest(testDispatcher, timeout = 30.seconds) {
+        val context = RuntimeEnvironment.getApplication()
+        // "osisRef" header, one non-blank but unparseable data row -- getVerseRange() fails every
+        // branch (empty ordinals, unparseable osisRef, no book/chapter/verse, no bible ref) and
+        // parseCsvRowToBookmark() catches its own IllegalArgumentException and returns null, so
+        // importBookmarksFromCsv() records "Record 2: Invalid bookmark data" without throwing.
+        val uri = csvUri("osisRef\ngarbage\n")
 
-            bookmarkControl.importFromUri(context, uri)
-            advanceUntilIdle()
+        bookmarkControl.importFromUri(context, uri)
+        advanceUntilIdle()
 
-            val request = dialogs.pending.value!!.request as AppDialogRequest.Message
-            assertEquals(
-                "the title Dialogs.showErrorMsg cannot carry (it always posts title = null)",
-                context.getString(R.string.import_items, "CSV"), request.title,
-            )
-            assertTrue(request.message.contains("Invalid bookmark data"))
-            // I2: the plain "\n\n" between the summary and the per-record lines must survive as an
-            // explicit <br><br> -- AppDialogRequest.Message is always parsed as HTML, which
-            // otherwise collapses every newline into a single space.
-            assertTrue("line breaks must survive HTML parsing (I2)", request.message.contains("<br><br>"))
-            assertEquals(context.getString(R.string.okay), request.confirmText)
-            assertTrue("cancellable, as the old AlertDialog (default cancelable, no setCancelable(false))", request.cancellable)
-        } finally {
-            Dispatchers.resetMain()
-        }
+        val request = dialogs.pending.value!!.request as AppDialogRequest.Message
+        assertEquals(
+            "the title Dialogs.showErrorMsg cannot carry (it always posts title = null)",
+            context.getString(R.string.import_items, "CSV"), request.title,
+        )
+        assertTrue(request.message.contains("Invalid bookmark data"))
+        // I2: the plain "\n\n" between the summary and the per-record lines must survive as an
+        // explicit <br><br> -- AppDialogRequest.Message is always parsed as HTML, which
+        // otherwise collapses every newline into a single space.
+        assertTrue("line breaks must survive HTML parsing (I2)", request.message.contains("<br><br>"))
+        assertEquals(context.getString(R.string.okay), request.confirmText)
+        assertTrue("cancellable, as the old AlertDialog (default cancelable, no setCancelable(false))", request.cancellable)
     }
 
     @Test
-    fun aCleanImportPostsNothing() = runTest(timeout = 30.seconds) {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        try {
-            val context = RuntimeEnvironment.getApplication()
-            // Header only, no data rows at all -- created = updated = errors = 0.
-            val uri = csvUri("osisRef\n")
+    fun aCleanImportPostsNothing() = runTest(testDispatcher, timeout = 30.seconds) {
+        val context = RuntimeEnvironment.getApplication()
+        // Header only, no data rows at all -- created = updated = errors = 0.
+        val uri = csvUri("osisRef\n")
 
-            bookmarkControl.importFromUri(context, uri)
-            advanceUntilIdle()
+        bookmarkControl.importFromUri(context, uri)
+        advanceUntilIdle()
 
-            assertEquals(null, dialogs.pending.value)
-        } finally {
-            Dispatchers.resetMain()
-        }
+        assertEquals(null, dialogs.pending.value)
     }
 }

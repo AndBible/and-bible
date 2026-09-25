@@ -18,6 +18,7 @@ package net.bible.android.control.report
 
 import android.app.Activity
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.After
+import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -61,12 +63,26 @@ import org.robolectric.annotation.Config
 class ErrorReportControlTest {
     private val controllers = mutableListOf<ActivityController<*>>()
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    // Shared across the whole test method (one instance per @Test, per JUnit4's default) so Main
+    // stays bound to the SAME scheduler `runOnTestMain`'s `runTest` drives -- and, critically, stays
+    // the test dispatcher until @After runs, i.e. until every child the test body launched has
+    // actually finished. Resetting Main inside the test body's own `finally` (the old shape) raced a
+    // still-cancelling child off the test scheduler and onto the real Robolectric main thread, which
+    // was itself blocked waiting for that same child -- a permanent deadlock (see
+    // selectingReportStartsBugReportReportBug's history).
+    private val testDispatcher = StandardTestDispatcher()
+
+    @Before
+    fun setUpMain() {
+        Dispatchers.setMain(testDispatcher)
+    }
 
     @After
     fun tearDown() {
         controllers.forEach { runCatching { it.pause().stop().destroy() } }
         controllers.clear()
         dialogs.cancelAll()
+        Dispatchers.resetMain()
     }
 
     private fun activity(): ActivityBase =
@@ -74,14 +90,8 @@ class ErrorReportControlTest {
 
     /** [ErrorReportControl.showErrorDialog] hops via `withContext(Dispatchers.Main)`; see
      *  `DialogsShimTest.runOnTestMain` for why plain `runTest` would deadlock here. */
-    private fun <T> runOnTestMain(block: suspend kotlinx.coroutines.test.TestScope.() -> T) = runTest(timeout = 10.seconds) {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        try {
-            block()
-        } finally {
-            Dispatchers.resetMain()
-        }
-    }
+    private fun <T> runOnTestMain(block: suspend kotlinx.coroutines.test.TestScope.() -> T) =
+        runTest(testDispatcher, timeout = 10.seconds) { block() }
 
     @Test
     fun raisesAnUncancellableByDefaultActionSheetWithSkipAsDismiss() = runOnTestMain {
@@ -117,7 +127,11 @@ class ErrorReportControlTest {
         // rest of that (separately tested / out of scope) reporting flow.
         val progress = dialogs.progress.value!!.request as AppDialogRequest.Progress
         assertEquals(activity.getString(R.string.please_wait), progress.message)
-        answer.cancel()
+        // cancelAndJoin (not bare cancel()): the test body itself must observe the cancelled child
+        // fully finish -- including its withContext(Dispatchers.Main) cancellation-completion hop --
+        // rather than relying on runTest's implicit structured-concurrency wait-for-children, which
+        // is what deadlocked before Main stopped being reset mid-test (see testDispatcher above).
+        answer.cancelAndJoin()
     }
 
     /**
