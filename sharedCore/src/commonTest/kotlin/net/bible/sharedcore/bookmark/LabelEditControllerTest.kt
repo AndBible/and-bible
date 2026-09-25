@@ -83,6 +83,51 @@ class LabelEditControllerTest {
         assertFalse(c.isDirty())
     }
 
+    @Test fun requestUp_when_clean_cancels_immediately_without_asking() {
+        var result: LabelEditResult? = null
+        val c = controller(onFinish = { result = it })
+
+        c.requestUp()
+
+        assertFalse(c.discardPrompt.value)
+        assertIs<LabelEditResult.Cancel>(result)
+    }
+
+    @Test fun requestUp_when_dirty_asks_before_discarding() {
+        var result: LabelEditResult? = null
+        val c = controller(onFinish = { result = it })
+        c.setColor(999) // dirty
+
+        c.requestUp()
+
+        assertTrue(c.discardPrompt.value)
+        assertNull(result)
+    }
+
+    @Test fun confirmDiscard_clears_the_prompt_and_cancels_exactly_once() {
+        var cancelCalls = 0
+        val c = controller(onFinish = { if (it is LabelEditResult.Cancel) cancelCalls++ })
+        c.setColor(999)
+        c.requestUp()
+
+        c.confirmDiscard()
+
+        assertFalse(c.discardPrompt.value)
+        assertEquals(1, cancelCalls)
+    }
+
+    @Test fun dismissDiscardPrompt_discards_nothing() {
+        var cancelCalls = 0
+        val c = controller(onFinish = { if (it is LabelEditResult.Cancel) cancelCalls++ })
+        c.setColor(999)
+        c.requestUp()
+
+        c.dismissDiscardPrompt()
+
+        assertFalse(c.discardPrompt.value)
+        assertEquals(0, cancelCalls)
+    }
+
     @Test fun save_normalises_whole_verse_equal_to_selection() {
         var result: LabelEditResult? = null
         val c = controller(

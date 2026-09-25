@@ -494,6 +494,13 @@ class AndroidStrings(private val context: Context) : Strings {
     override val assignLabelsLabel: String get() = context.getString(R.string.assign_labels)
     override val bookmarksSearchNotesHint: String get() = context.getString(R.string.filter_by_notes)
 
+    // Task 13 — platform-dialog removal: Bookmarks delete confirm / ManageLabels reset confirm
+    override fun confirmDeleteBookmarks(count: Int): String =
+        context.getString(R.string.confirm_delete_bookmarks, count)
+    override val resetWorkspaceAutoAssignLabels: String
+        get() = context.getString(R.string.reset_workspace_auto_assign_labels)
+    override val resetHideLabels: String get() = context.getString(R.string.reset_hide_labels)
+
     // Batch 8 — ReadingProgress (Reading tab)
     override val readingProgressTitle: String get() = context.getString(R.string.reading_progress_title)
     override val readingProgressChaptersRead: String get() = context.getString(R.string.reading_progress_chapters_read)

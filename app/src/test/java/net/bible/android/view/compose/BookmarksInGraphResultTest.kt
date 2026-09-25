@@ -276,7 +276,6 @@ class BookmarksInGraphResultTest {
             iconSlot = { _, _ -> },
             actions = { _, _, _, _ -> },
             deletePromptSlot = { _, _, _, _ -> },
-            confirmDiscard = {},
         ),
     )
 

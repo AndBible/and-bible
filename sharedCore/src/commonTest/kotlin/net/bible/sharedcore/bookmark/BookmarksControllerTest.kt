@@ -210,7 +210,7 @@ class BookmarksControllerTest {
         assertEquals(setOf("B"), c.selection.value)
     }
 
-    @Test fun assignSelected_and_deleteSelected_emit_id_list() = runTest(UnconfinedTestDispatcher()) {
+    @Test fun assignSelected_emits_id_list() = runTest(UnconfinedTestDispatcher()) {
         val callbacks = Callbacks()
         val c = controller(scope = backgroundScope, callbacks = callbacks)
         c.enterSelection("A")
@@ -218,9 +218,55 @@ class BookmarksControllerTest {
 
         c.assignSelected()
         assertEquals(listOf("A", "B"), callbacks.assigned)
+    }
 
-        c.deleteSelected()
+    @Test fun requestDelete_shows_confirm_with_selection_count() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(scope = backgroundScope)
+        c.enterSelection("A")
+        c.toggleSelection("B")
+
+        c.requestDelete()
+
+        assertEquals(BookmarksDialog.ConfirmDelete(2), c.dialog.value)
+    }
+
+    @Test fun requestDelete_with_no_selection_shows_nothing() = runTest(UnconfinedTestDispatcher()) {
+        val c = controller(scope = backgroundScope)
+
+        c.requestDelete()
+
+        assertEquals(BookmarksDialog.None, c.dialog.value)
+    }
+
+    @Test fun confirmDialog_deletes_exactly_the_selected_ids_once() = runTest(UnconfinedTestDispatcher()) {
+        val callbacks = Callbacks()
+        val c = controller(scope = backgroundScope, callbacks = callbacks)
+        c.enterSelection("A")
+        c.toggleSelection("B")
+        c.requestDelete()
+
+        c.confirmDialog()
+
         assertEquals(listOf("A", "B"), callbacks.deleted)
+        assertEquals(BookmarksDialog.None, c.dialog.value)
+
+        // Calling confirmDialog() again (e.g. a stray double-tap after the dialog closed) must not
+        // delete a second time -- there is no longer a ConfirmDelete to confirm.
+        callbacks.deleted = null
+        c.confirmDialog()
+        assertEquals(null, callbacks.deleted)
+    }
+
+    @Test fun dismissDialog_deletes_nothing() = runTest(UnconfinedTestDispatcher()) {
+        val callbacks = Callbacks()
+        val c = controller(scope = backgroundScope, callbacks = callbacks)
+        c.enterSelection("A")
+        c.requestDelete()
+
+        c.dismissDialog()
+
+        assertEquals(null, callbacks.deleted)
+        assertEquals(BookmarksDialog.None, c.dialog.value)
     }
 
     @Test fun toolbar_actions_delegate_to_host() = runTest(UnconfinedTestDispatcher()) {

@@ -31,6 +31,13 @@ class LabelEditController(
     private val _deletePrompt = MutableStateFlow<DeletePrompt?>(null)
     val deletePrompt: StateFlow<DeletePrompt?> = _deletePrompt.asStateFlow()
 
+    /** Classic `requestUp`'s discard-changes question (Task 13), kept independent of [deletePrompt]:
+     *  the two can never be showing at once (one is the up/back gesture, the other the Delete
+     *  button), and unlike [deletePrompt] this one needs no Android string resource -- the message
+     *  already has a `LocalStrings` entry, so the screen renders it directly. */
+    private val _discardPrompt = MutableStateFlow(false)
+    val discardPrompt: StateFlow<Boolean> = _discardPrompt.asStateFlow()
+
     fun setName(v: String) { if (_state.value.nameEditable) _state.value = _state.value.copy(name = v) }
     fun setColor(argb: Int) { _state.value = _state.value.copy(color = argb) }
     fun setCustomIcon(name: String?) { _state.value = _state.value.copy(customIcon = name) }
@@ -55,6 +62,17 @@ class LabelEditController(
 
     fun save() = onFinish(LabelEditResult.Save(_state.value.normalizedForSave()))
     fun cancel() = onFinish(LabelEditResult.Cancel)
+
+    /** Classic `requestUp` (`LabelEditComposeActivity.kt:256-266`): a dirty editor asks before
+     *  throwing the edits away, a clean one just leaves. */
+    fun requestUp() {
+        if (isDirty()) _discardPrompt.value = true else cancel()
+    }
+    fun confirmDiscard() {
+        _discardPrompt.value = false
+        cancel()
+    }
+    fun dismissDiscardPrompt() { _discardPrompt.value = false }
 
     fun requestDelete() {
         val count = service.orphanedBookmarkCount(_state.value.labelId)

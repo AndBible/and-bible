@@ -66,7 +66,9 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.LabelCategory
 import net.bible.sharedcore.bookmark.LabelFilter
 import net.bible.sharedcore.bookmark.LabelItem
+import net.bible.sharedcore.bookmark.ManageLabelsDialog
 import net.bible.sharedcore.bookmark.ManageLabelsMode
+import net.bible.sharedcore.bookmark.ManageLabelsResetKind
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedcore.search.StyledRun
@@ -74,6 +76,7 @@ import net.bible.sharedcore.search.StyledText
 import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbColor
+import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbIcons
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchImeRequest
@@ -142,6 +145,9 @@ fun ManageLabelsScreen(
     iconSlot: @Composable (customIcon: String?, tint: Color) -> Unit,
     actions: @Composable RowScope.() -> Unit,
     searchActions: @Composable RowScope.() -> Unit,
+    dialog: ManageLabelsDialog = ManageLabelsDialog.None,
+    onConfirmDialog: () -> Unit = {},
+    onDismissDialog: () -> Unit = {},
 ) {
     val strings = LocalStrings.current
 
@@ -211,6 +217,21 @@ fun ManageLabelsScreen(
                 }
             }
         }
+    }
+
+    when (dialog) {
+        is ManageLabelsDialog.ConfirmReset -> AbConfirmDialog(
+            title = null,
+            message = when (dialog.kind) {
+                ManageLabelsResetKind.WORKSPACE -> strings.resetWorkspaceAutoAssignLabels
+                ManageLabelsResetKind.HIDE_LABELS -> strings.resetHideLabels
+            },
+            confirmText = strings.yes,
+            dismissText = strings.cancel,
+            onConfirm = onConfirmDialog,
+            onDismiss = onDismissDialog,
+        )
+        ManageLabelsDialog.None -> {}
     }
 }
 

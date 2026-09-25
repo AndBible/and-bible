@@ -64,7 +64,9 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.bookmark.BookmarkFilterLabel
 import net.bible.sharedcore.bookmark.BookmarkRow
 import net.bible.sharedcore.bookmark.BookmarkSortMode
+import net.bible.sharedcore.bookmark.BookmarksDialog
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbColor
 import net.bible.sharedui.components.AbLoadingIndicator
@@ -146,6 +148,9 @@ fun BookmarksScreen(
     onExportCsv: () -> Unit,
     onImportCsv: () -> Unit,
     onUp: () -> Unit,
+    dialog: BookmarksDialog = BookmarksDialog.None,
+    onConfirmDialog: () -> Unit = {},
+    onDismissDialog: () -> Unit = {},
 ) {
     val strings = LocalStrings.current
     val selectionMode = selection.isNotEmpty()
@@ -239,6 +244,18 @@ fun BookmarksScreen(
                 }
             }
         }
+    }
+
+    when (dialog) {
+        is BookmarksDialog.ConfirmDelete -> AbConfirmDialog(
+            title = null,
+            message = strings.confirmDeleteBookmarks(dialog.count),
+            confirmText = strings.yes,
+            dismissText = strings.cancel,
+            onConfirm = onConfirmDialog,
+            onDismiss = onDismissDialog,
+        )
+        BookmarksDialog.None -> {}
     }
 }
 

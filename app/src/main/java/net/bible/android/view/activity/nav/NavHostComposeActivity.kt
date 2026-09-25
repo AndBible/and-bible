@@ -3781,7 +3781,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             deletePromptSlot = { prompt, labelName, onConfirm, onDismiss ->
                                 LabelEditDeletePrompt(prompt, labelName, onConfirm, onDismiss)
                             },
-                            confirmDiscard = { onConfirm -> confirmDiscardLabelEdits(onConfirm) },
                         ),
                     )
                 }
@@ -4469,20 +4468,18 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         }
     }
 
-    /** Classic `onDelete` (`BookmarksComposeActivity.kt:227-240`), dialog and all. */
+    /**
+     * Classic `onDelete` (`BookmarksComposeActivity.kt:227-240`), minus the confirmation: the
+     * question now lives in `BookmarksController.dialog` (Task 13), and this runs only once the
+     * controller's own `confirmDialog()` has confirmed it -- this stays host-side because it needs
+     * the Room entities behind the selected ids.
+     */
     private fun confirmDeleteBookmarks(session: BookmarksSession, ids: List<String>) {
         val bookmarks = bookmarksService.bookmarksByIds(ids)
-        AlertDialog.Builder(this)
-            .setMessage(getString(R.string.confirm_delete_bookmarks, bookmarks.size))
-            .setPositiveButton(R.string.yes) { _, _ ->
-                for (bookmark in bookmarks) {
-                    bookmarkControl.deleteBookmark(bookmark)
-                }
-                session.controller.refresh()
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .setCancelable(true)
-            .show()
+        for (bookmark in bookmarks) {
+            bookmarkControl.deleteBookmark(bookmark)
+        }
+        session.controller.refresh()
     }
 
     /** Classic `onExportCsv` (`:244-248`) -- `exportBookmarksToCSV` wants an `Activity`, hence host-side. */
@@ -4828,31 +4825,25 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
-     * Classic `reset` (`ManageLabelsComposeActivity.kt:656-674`), unchanged: WORKSPACE clears the
+     * Classic `reset` (`ManageLabelsComposeActivity.kt:656-674`), minus the confirmation: the
+     * question ("Do you want to remove all auto-assign labels..." / "...reset setting for hiding...")
+     * now lives in `ManageLabelsController.dialog` (Task 13), and this runs only once the
+     * controller's own `confirmDialog()` has confirmed it. Unchanged otherwise: WORKSPACE clears the
      * auto-assign set IN PLACE and stays on the list, HIDELABELS flips the payload's `reset` flag and
      * leaves — the same `"data"` extra, because [ManageLabelsMapper.applyReset] sets a FIELD rather
-     * than producing a second result shape. [askConfirmation] stays an `android.app.AlertDialog`:
-     * converting platform dialogs is a separate, queued port goal.
+     * than producing a second result shape.
      */
     private fun resetManageLabels(
         session: ManageLabelsSession,
         onResult: (ManageLabelsResult) -> Unit,
     ) {
-        lifecycleScope.launch(Dispatchers.Main) {
-            when (session.data.mode) {
-                ManageLabelsContract.Mode.WORKSPACE -> {
-                    if (askConfirmation(getString(R.string.reset_workspace_auto_assign_labels))) {
-                        session.controller.clearAutoAssign()
-                    }
-                }
-                ManageLabelsContract.Mode.HIDELABELS -> {
-                    if (askConfirmation(getString(R.string.reset_hide_labels))) {
-                        ManageLabelsMapper.applyReset(session.data)
-                        deliverManageLabelsResult(session, onResult)
-                    }
-                }
-                else -> throw RuntimeException("Illegal value")
+        when (session.data.mode) {
+            ManageLabelsContract.Mode.WORKSPACE -> session.controller.clearAutoAssign()
+            ManageLabelsContract.Mode.HIDELABELS -> {
+                ManageLabelsMapper.applyReset(session.data)
+                deliverManageLabelsResult(session, onResult)
             }
+            else -> throw RuntimeException("Illegal value")
         }
     }
 
@@ -4877,16 +4868,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      */
     private fun importStudyPads(controller: ManageLabelsController) {
         openInstallZip { lifecycleScope.launch(Dispatchers.Main) { controller.refresh() } }
-    }
-
-    private suspend fun askConfirmation(message: String): Boolean = suspendCoroutine { cont ->
-        android.app.AlertDialog.Builder(this)
-            .setMessage(message)
-            .setCancelable(true)
-            .setOnCancelListener { cont.resume(false) }
-            .setPositiveButton(R.string.yes) { _, _ -> cont.resume(true) }
-            .setNegativeButton(R.string.cancel) { _, _ -> cont.resume(false) }
-            .show()
     }
 
     /**
@@ -5170,21 +5151,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 },
             )
         }
-    }
-
-    /**
-     * Classic `requestUp`'s discard-changes confirmation (`LabelEditComposeActivity.kt:256-266`),
-     * kept as the platform `android.app.AlertDialog` it was. Converting the port's remaining
-     * platform dialogs to Compose is its own queued goal; doing it inside a navigation move would
-     * change behaviour under cover of a refactor. The arm decides WHEN to ask and what "yes" means;
-     * this only asks.
-     */
-    private fun confirmDiscardLabelEdits(onConfirm: () -> Unit) {
-        AlertDialog.Builder(this)
-            .setMessage(R.string.discard_changes_confirmation)
-            .setPositiveButton(R.string.yes) { _, _ -> onConfirm() }
-            .setNegativeButton(R.string.no, null)
-            .show()
     }
 
     // --- AiConnectionSettings host baggage ----------------------------------------------------

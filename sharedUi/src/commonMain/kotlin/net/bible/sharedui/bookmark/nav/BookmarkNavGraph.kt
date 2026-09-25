@@ -114,11 +114,10 @@ import net.bible.sharedui.nav.popOrExitOnFailedPop
  *   for classic's stated reason: a name typed but not yet saved must not show stale in the
  *   confirmation.
  *
- * - [confirmDiscard] is classic's `requestUp` discard-changes `android.app.AlertDialog`
- *   (`:256-271`). It stays a host lambda: converting platform dialogs to Compose is a separate,
- *   queued port goal, and doing it here would change behaviour under cover of a navigation change.
- *   It takes the "yes, discard" continuation, so the arm keeps the decision about what discarding
- *   MEANS (`controller.cancel()`, i.e. the same exit the up-arrow takes when nothing is dirty).
+ * The discard-changes confirmation (classic `requestUp`, `:256-271`) is no longer a host slot at
+ * all (Task 13): it moved into [net.bible.sharedcore.bookmark.LabelEditController.discardPrompt],
+ * rendered by [LabelEditScreen] itself, because the message already has a `LocalStrings` entry and
+ * needs no Android string resource the way [deletePromptSlot]'s two dialogs still do.
  */
 class LabelEditDeps(
     val controllerFor: (data: String, onResult: (NavLabelEditResult) -> Unit) -> LabelEditController,
@@ -137,7 +136,6 @@ class LabelEditDeps(
         onConfirm: (deleteOrphaned: Boolean) -> Unit,
         onDismiss: () -> Unit,
     ) -> Unit,
-    val confirmDiscard: (onConfirm: () -> Unit) -> Unit,
 )
 
 /**
@@ -480,6 +478,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
         val selection by controller.selection.collectAsState()
         val expandedIds by controller.expandedIds.collectAsState()
         val loading by controller.loading.collectAsState()
+        val dialog by controller.dialog.collectAsState()
 
         // Classic's `onBackPressed` override (`:153-161`), line for line: back dismisses what is
         // visually on top -- the selection bar covers the search bar (AbSelectionScaffold's
@@ -518,7 +517,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             onToggleSelected = controller::toggleSelection,
             onToggleExpand = controller::toggleExpanded,
             onAssignSelected = controller::assignSelected,
-            onDeleteSelected = controller::deleteSelected,
+            onDeleteSelected = controller::requestDelete,
             onClearSelection = controller::clearSelection,
             onManageLabels = controller::manageLabels,
             onExportCsv = controller::exportCsv,
@@ -540,6 +539,9 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             // safe reading of this line is "pops correctly if it is ever a child", not "is ready to
             // be one".
             onUp = { navController.popOrExit(deps.exitHost) },
+            dialog = dialog,
+            onConfirmDialog = controller::confirmDialog,
+            onDismissDialog = controller::dismissDialog,
         )
     }
 
@@ -594,6 +596,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
         val searchModeActive by controller.searchModeActive.collectAsState()
         val styleTagsVisible by controller.styleTagsVisible.collectAsState()
         val filters by controller.filters.collectAsState()
+        val dialog by controller.dialog.collectAsState()
 
         // Classic gated the search-mode setting AND the row-click behaviour on
         // `data.mode == ManageLabelsContract.Mode.STUDYPAD`, an `:app` enum. The controller's own
@@ -703,6 +706,9 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             // finds nothing has no other reachable "create it with this name" action once the normal
             // bar is replaced. Classic's comment at `:210-215`.
             searchActions = { d.searchActions(this, controller) },
+            dialog = dialog,
+            onConfirmDialog = controller::confirmDialog,
+            onDismissDialog = controller::dismissDialog,
         )
     }
 
@@ -744,24 +750,21 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
 
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
 
-        // Classic's `requestUp()` (`LabelEditComposeActivity.kt:256-266`), unchanged in behaviour:
-        // a dirty editor asks before throwing the edits away, a clean one just leaves. Both branches
-        // end at `controller.cancel()` rather than at a direct `deliver(Cancelled)` -- so the
-        // controller stays the single producer of outcomes and the Save/Delete/Cancel mapping keeps
-        // living in exactly one place (the host's controllerFor). The dialog itself is host-side;
-        // see LabelEditDeps.confirmDiscard.
-        fun requestUp() {
-            if (controller.isDirty()) d.confirmDiscard { controller.cancel() } else controller.cancel()
-        }
-
         // Classic's `onBackPressed` override (`:268-271`), which routed EVERY back press through
         // requestUp -- hence `enabled = true` rather than a dirty-only handler: a clean editor must
         // still leave with RESULT_CANCELED, which a disabled handler would turn into a bare pop.
         // PlatformBackHandler, never androidx.activity.compose.BackHandler: this is commonMain.
-        PlatformBackHandler(enabled = true) { requestUp() }
+        //
+        // `controller.requestUp()` (Task 13): a dirty editor asks before throwing the edits away
+        // (LabelEditScreen renders the question from `controller.discardPrompt`), a clean one just
+        // leaves via `controller.cancel()` -- so the controller stays the single producer of
+        // outcomes and the Save/Delete/Cancel mapping keeps living in exactly one place (the host's
+        // controllerFor).
+        PlatformBackHandler(enabled = true) { controller.requestUp() }
 
         val state by controller.state.collectAsState()
         val deletePrompt by controller.deletePrompt.collectAsState()
+        val discardPrompt by controller.discardPrompt.collectAsState()
 
         LabelEditScreen(
             state = state,
@@ -776,12 +779,15 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
             onToggleAutoAssign = controller::toggleAutoAssign,
             onToggleAutoAssignPrimary = controller::toggleAutoAssignPrimary,
             onOverrideMode = controller::setOverrideMode,
-            onUp = { requestUp() },
+            onUp = { controller.requestUp() },
             iconKeys = d.iconKeys,
             iconSlot = d.iconSlot,
             // `this` is the top bar's RowScope; the two callbacks are the graph-owned controller's,
             // which is why this slot takes them rather than being a closed lambda on the host.
             actions = { d.actions(this, data, state, controller::save, controller::requestDelete) },
+            discardPrompt = discardPrompt,
+            onConfirmDiscard = controller::confirmDiscard,
+            onDismissDiscard = controller::dismissDiscardPrompt,
         )
 
         // Classic rendered this beside LabelEditScreen in the same setContent (`:126`), and it stays

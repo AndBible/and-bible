@@ -7,6 +7,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.search.SearchModeController
 
+/** Which modal the Bookmarks list is currently showing (screen-local, driven by the controller). */
+sealed interface BookmarksDialog {
+    data object None : BookmarksDialog
+    data class ConfirmDelete(val count: Int) : BookmarksDialog
+}
+
 /**
  * Owns the UI state for the Bookmarks list (mirrors classic `Bookmarks.kt`): filter/sort/search/
  * showNotes selection plus the loaded [rows] and multi-[selection]. Every state change that affects
@@ -56,6 +62,9 @@ class BookmarksController(
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
+
+    private val _dialog = MutableStateFlow<BookmarksDialog>(BookmarksDialog.None)
+    val dialog: StateFlow<BookmarksDialog> = _dialog.asStateFlow()
 
     init { reload() }
 
@@ -130,7 +139,20 @@ class BookmarksController(
 
     // ---- selection actions (delegate to host) ----
     fun assignSelected() = onAssignLabels(_selection.value.toList())
-    fun deleteSelected() = onDeleteSelected(_selection.value.toList())
+
+    /** Classic's `AlertDialog` question ("Delete N selected bookmarks?"), moved off the host into
+     *  this controller's own [dialog] state (Task 13) — [confirmDialog] runs the deletion, which
+     *  still lives in the host because it needs the Room entities behind the selected ids. */
+    fun requestDelete() {
+        val count = _selection.value.size
+        if (count > 0) _dialog.value = BookmarksDialog.ConfirmDelete(count)
+    }
+    fun confirmDialog() {
+        val wasConfirmDelete = _dialog.value is BookmarksDialog.ConfirmDelete
+        _dialog.value = BookmarksDialog.None
+        if (wasConfirmDelete) onDeleteSelected(_selection.value.toList())
+    }
+    fun dismissDialog() { _dialog.value = BookmarksDialog.None }
 
     // ---- toolbar actions (delegate to host) ----
     fun exportCsv() = onExportCsv()

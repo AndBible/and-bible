@@ -565,6 +565,11 @@ interface Strings {
     val assignLabelsLabel: String                    // R.string.assign_labels (selection action icon)
     val bookmarksSearchNotesHint: String              // R.string.filter_by_notes (notes-search field placeholder)
 
+    // Task 13 — platform-dialog removal: Bookmarks delete confirm / ManageLabels reset confirm
+    fun confirmDeleteBookmarks(count: Int): String    // R.string.confirm_delete_bookmarks
+    val resetWorkspaceAutoAssignLabels: String        // R.string.reset_workspace_auto_assign_labels
+    val resetHideLabels: String                       // R.string.reset_hide_labels
+
     // Batch 8 — ReadingProgress (Reading tab)
     val readingProgressTitle: String                        // reading_progress_title
     val readingProgressChaptersRead: String                 // reading_progress_chapters_read

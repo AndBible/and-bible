@@ -9,6 +9,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.search.SearchModeController
 
+/** Which of the two reset actions [ManageLabelsController.reset] is confirming — the mode decides,
+ *  see [ManageLabelsController.reset]; the screen uses it to pick the right question. */
+enum class ManageLabelsResetKind { WORKSPACE, HIDE_LABELS }
+
+/** Which modal the ManageLabels list is currently showing (screen-local, driven by the controller). */
+sealed interface ManageLabelsDialog {
+    data object None : ManageLabelsDialog
+    data class ConfirmReset(val kind: ManageLabelsResetKind) : ManageLabelsDialog
+}
+
 /**
  * Owns the mutable in-memory state for the ManageLabels list (mirroring classic `data` +
  * `allLabels`): the label list, the String-id sets (selected/autoAssign/changed/deleted/
@@ -63,6 +73,9 @@ class ManageLabelsController(
 
     private val _styleTagsVisible = MutableStateFlow(service.styleTagsVisible())
     val styleTagsVisible: StateFlow<Boolean> = _styleTagsVisible.asStateFlow()
+
+    private val _dialog = MutableStateFlow<ManageLabelsDialog>(ManageLabelsDialog.None)
+    val dialog: StateFlow<ManageLabelsDialog> = _dialog.asStateFlow()
 
     // ---- StudyPad content-search debounce (verbatim classic ManageLabels.kt:804-842) ----
     private var contentSearchJob: Job? = null
@@ -294,7 +307,30 @@ class ManageLabelsController(
     fun newLabel() = onEditLabel(null)
     fun selectStudyPad(labelId: String, firstMatchEntryId: String?) = onSelectStudyPad(labelId, firstMatchEntryId)
     fun save() = onSave()
-    fun reset() = onReset()
+
+    /**
+     * Classic's `askConfirmation` question ("Do you want to remove all auto-assign labels..." /
+     * "...reset setting for hiding..."), moved off the host into this controller's own [dialog]
+     * state (Task 13) -- the two messages differ by [mode], which is why [ConfirmReset] carries a
+     * [ManageLabelsResetKind] for the screen to pick the right one from. [confirmDialog] runs the
+     * confirmed reset, which stays a host callback: HIDELABELS' branch also LEAVES the screen with a
+     * result, which needs Room-adjacent host state this controller does not have.
+     */
+    fun reset() {
+        _dialog.value = ManageLabelsDialog.ConfirmReset(
+            when (mode) {
+                ManageLabelsMode.WORKSPACE -> ManageLabelsResetKind.WORKSPACE
+                ManageLabelsMode.HIDELABELS -> ManageLabelsResetKind.HIDE_LABELS
+                else -> throw RuntimeException("Illegal value")
+            },
+        )
+    }
+    fun confirmDialog() {
+        val wasConfirmReset = _dialog.value is ManageLabelsDialog.ConfirmReset
+        _dialog.value = ManageLabelsDialog.None
+        if (wasConfirmReset) onReset()
+    }
+    fun dismissDialog() { _dialog.value = ManageLabelsDialog.None }
 
     /**
      * The WORKSPACE ⋮ "Clear auto-assign labels" action (round 17b). Empties the auto-assign set

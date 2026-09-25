@@ -55,6 +55,7 @@ import net.bible.sharedcore.bookmark.OverrideMode
 import net.bible.sharedcore.bookmark.displayStyle
 import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbChoiceGroup
+import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbExpandableSection
 import net.bible.sharedui.components.AbIcons
 import net.bible.sharedui.components.AbScaffold
@@ -118,6 +119,11 @@ fun LabelEditScreen(
      *  [ManageLabelsSearchOptionsSheetContent] being public. */
     initialThisBookmarkExpanded: Boolean = false,
     initialWorkspaceExpanded: Boolean = false,
+    /** Classic `requestUp`'s discard-changes confirmation (Task 13) — see
+     *  [net.bible.sharedcore.bookmark.LabelEditController.discardPrompt]. */
+    discardPrompt: Boolean = false,
+    onConfirmDiscard: () -> Unit = {},
+    onDismissDiscard: () -> Unit = {},
 ) {
     val strings = LocalStrings.current
     var identitySheetOpen by remember { mutableStateOf(false) }
@@ -399,6 +405,17 @@ fun LabelEditScreen(
             onCustomIcon = onCustomIcon,
             onDismiss = { identitySheetOpen = false },
         ) { key, tint -> iconSlot(key, tint) }
+    }
+
+    if (discardPrompt) {
+        AbConfirmDialog(
+            title = null,
+            message = strings.discardChangesConfirmation,
+            confirmText = strings.yes,
+            dismissText = strings.no,
+            onConfirm = onConfirmDiscard,
+            onDismiss = onDismissDiscard,
+        )
     }
 }
 

@@ -61,6 +61,7 @@ class ManageLabelsControllerTest {
         // assert the write-through of a persisted preference); defaults to a fresh one built from
         // the params above, exactly as before this parameter existed.
         service: ManageLabelsService = FakeService(labels, recent, overridden, unlabeled, contentSearch),
+        onReset: () -> Unit = {},
     ): ManageLabelsController = ManageLabelsController(
         mode = mode,
         service = service,
@@ -73,7 +74,7 @@ class ManageLabelsControllerTest {
         onEditLabel = {},
         onSelectStudyPad = { _, _ -> },
         onSave = {},
-        onReset = {},
+        onReset = onReset,
     )
 
     /** Flattens rows to ids ("H_<CATEGORY>" for headers, label id for items) for order assertions. */
@@ -806,4 +807,43 @@ class ManageLabelsControllerTest {
         assertEquals(emptySet<String>(), c.resultAutoAssign())
     }
 
+    // ---- Task 13: reset() confirmation moved off the host ----
+
+    @Test fun reset_in_WORKSPACE_mode_asks_the_workspace_question() {
+        val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(A))
+        c.reset()
+        assertEquals(ManageLabelsDialog.ConfirmReset(ManageLabelsResetKind.WORKSPACE), c.dialog.value)
+    }
+
+    @Test fun reset_in_HIDELABELS_mode_asks_the_hide_labels_question() {
+        val c = controller(ManageLabelsMode.HIDELABELS, labels = listOf(A))
+        c.reset()
+        assertEquals(ManageLabelsDialog.ConfirmReset(ManageLabelsResetKind.HIDE_LABELS), c.dialog.value)
+    }
+
+    @Test fun confirmDialog_runs_the_reset_exactly_once_and_clears_the_dialog() {
+        var resetCalls = 0
+        val c = controller(ManageLabelsMode.WORKSPACE, labels = listOf(A), onReset = { resetCalls++ })
+        c.reset()
+
+        c.confirmDialog()
+
+        assertEquals(1, resetCalls)
+        assertEquals(ManageLabelsDialog.None, c.dialog.value)
+
+        // A stray second confirm (e.g. a double-tap after the dialog closed) must not reset again.
+        c.confirmDialog()
+        assertEquals(1, resetCalls)
+    }
+
+    @Test fun dismissDialog_resets_nothing() {
+        var resetCalls = 0
+        val c = controller(ManageLabelsMode.HIDELABELS, labels = listOf(A), onReset = { resetCalls++ })
+        c.reset()
+
+        c.dismissDialog()
+
+        assertEquals(0, resetCalls)
+        assertEquals(ManageLabelsDialog.None, c.dialog.value)
+    }
 }
