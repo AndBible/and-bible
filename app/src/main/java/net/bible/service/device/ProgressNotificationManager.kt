@@ -17,7 +17,9 @@
 
 package net.bible.service.device
 
-import android.app.*
+import android.app.Application
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.collection.ArraySet
