@@ -30,7 +30,9 @@ import java.io.File
  * thing and never match.
  *
  * Baseline mode (run 1): [BASELINE] is the set of files that still have one. The set may only
- * SHRINK — a task that removes a file's last platform dialog deletes its line here. Run 3 empties it.
+ * SHRINK — a task that removes a file's last platform dialog deletes its line here. Run 3 Task 29
+ * empties it, and Task 31 retires the two BASELINE-relative tests for the single zero-tolerance
+ * [theAppHasNoPlatformDialogs] (BASELINE itself stays, as the historical record its kdoc is).
  *
  * Controller ruling (Task 6): scans only CODE lines, via
  * [ClassicRemovalScan.codeLinesOf]`(path, keepImports = true)`, not raw `readLines()`. The brief's
@@ -43,8 +45,22 @@ import java.io.File
 class PlatformDialogRemovalGuardTest {
 
     companion object {
-        private const val PKG = """(android\.app\.(AlertDialog|ProgressDialog|Dialog|DialogFragment)|androidx\.appcompat\.app\.AlertDialog|androidx\.fragment\.app\.DialogFragment)"""
-        val IMPORT = Regex("""^\s*import\s+$PKG\b(\.\w+)*(\s+as\s+\w+)?\s*;?\s*$""")
+        /**
+         * Task 31 addendum item 1 (rulings R3-3/R3-4): widened from the run-1/2 set to also match
+         * `DatePickerDialog`/`TimePickerDialog`, `AppCompatDialog`/`AppCompatDialogFragment`, Material's
+         * `BottomSheetDialog`/`BottomSheetDialogFragment`/`MaterialAlertDialogBuilder`. Each named form
+         * stays an exact class name (never a prefix match) so a near-miss like `android.app.Notification`,
+         * `androidx.appcompat.app.AppCompatActivity` or
+         * `com.google.android.material.datepicker.MaterialDatePicker` (a real platform dialog, but not
+         * one this guard was asked to ban) never matches.
+         */
+        private const val PKG = """(android\.app\.(AlertDialog|ProgressDialog|Dialog|DialogFragment|DatePickerDialog|TimePickerDialog)|androidx\.appcompat\.app\.(AlertDialog|AppCompatDialog|AppCompatDialogFragment)|androidx\.fragment\.app\.DialogFragment|com\.google\.android\.material\.bottomsheet\.(BottomSheetDialog|BottomSheetDialogFragment)|com\.google\.android\.material\.dialog\.MaterialAlertDialogBuilder)"""
+        /** A wildcard import of either banned package, e.g. `import android.app.*` — banned outright
+         *  (R3-3) once its only two production users (the notification managers) were made explicit,
+         *  because a wildcard hides every future `AlertDialog`/`DatePickerDialog`/… it would silently
+         *  bring in reach without adding a new import line for [QUALIFIED] to ever see. */
+        private const val WILDCARD = """(android\.app|androidx\.appcompat\.app)\.\*"""
+        val IMPORT = Regex("""^\s*import\s+($PKG\b(\.\w+)*(\s+as\s+\w+)?|$WILDCARD)\s*;?\s*$""")
         /** A fully-qualified use outside an import line, e.g. `android.app.AlertDialog.Builder(`. */
         val QUALIFIED = Regex("""(?<![\w.])$PKG\b""")
 
@@ -116,16 +132,35 @@ class PlatformDialogRemovalGuardTest {
          * Run 3 Task 29 shrinks it to 0: `StartupActivity.kt`'s `checkWebView` `AlertDialog.Builder`
          * moves onto `AppDialogController` (a non-cancellable `Confirm`, branch-mapping extracted to
          * the testable `webViewTooOldRequest`). BASELINE is empty.
+         *
+         * Run 3 Task 31 replaces this set with [theAppHasNoPlatformDialogs] — a single zero-tolerance
+         * test, BASELINE kept (still empty) only as the historical record above documents. [PKG] was
+         * also widened this task (addendum item 1) to `DatePickerDialog`/`TimePickerDialog`/
+         * `AppCompatDialog`/`AppCompatDialogFragment`/`BottomSheetDialog`/`BottomSheetDialogFragment`/
+         * `MaterialAlertDialogBuilder`, and a wildcard `import android.app.*`/`import
+         * androidx.appcompat.app.*` is banned outright (R3-3): the app's only two wildcard importers,
+         * `ProgressNotificationManager.kt`/`TextToSpeechNotificationManager.kt`, were switched to
+         * explicit imports in the addendum item 2 commit first, so this widening finds nothing new.
+         * Task 30b (correction 10 / ruling R3-2) ported `NavHostComposeActivity.kt`'s
+         * `android.app.DatePickerDialog` off the platform type before this widening landed, so the
+         * newly-banned `DatePickerDialog` form also finds nothing.
          */
         val BASELINE: Set<String> = setOf()
 
         private fun stripComment(line: String): String = line.substringBefore("//")
 
-        /** A single file's already-code-filtered lines (see class KDoc) is "offending" if any line
-         * either imports a banned dialog type, or fully-qualifies one outside an import line. */
+        /**
+         * A single file's already-code-filtered lines (see class KDoc) is "offending" if any line
+         * either imports a banned dialog type (including a banned wildcard) or fully-qualifies one
+         * outside an import line. The trailing-comment strip now runs before the IMPORT check too
+         * (Task 31 addendum item 1: "strip a trailing `// …` before the IMPORT match") — previously
+         * only the QUALIFIED branch stripped it, so `import android.app.DatePickerDialog // needed`
+         * would NOT have matched IMPORT (its `\s*;?\s*$` anchor does not tolerate trailing prose),
+         * silently missing a real import that happened to carry a trailing comment.
+         */
         fun offendingLines(lines: List<String>): Boolean = lines.any { line ->
-            IMPORT.matches(line) ||
-                (!line.trimStart().startsWith("import ") && QUALIFIED.containsMatchIn(stripComment(line)))
+            val code = stripComment(line)
+            IMPORT.matches(code) || (!code.trimStart().startsWith("import ") && QUALIFIED.containsMatchIn(code))
         }
 
         fun offendingFiles(sources: List<File>): Set<String> = sources.filter { f ->
@@ -133,20 +168,15 @@ class PlatformDialogRemovalGuardTest {
         }.map { it.path }.toSet()
     }
 
-    @Test fun noFileOutsideTheBaselineHasAPlatformDialog() {
-        val found = offendingFiles(ClassicRemovalScan.appSources())
+    /** Spec §1/§8 goal, reached: zero platform dialogs anywhere in `app/src/main`. Replaces the
+     *  run-1/2 pair ([BASELINE]-relative "nothing new"/"nothing stale") now that [BASELINE] is
+     *  permanently empty — a single hint naming the fix (spec §5) is clearer than two asymmetric
+     *  set-difference assertions that can never again both be non-trivial. */
+    @Test fun theAppHasNoPlatformDialogs() {
         assertEquals(
-            "a platform dialog appeared in a new file; use AppDialogController (owner-less) or the " +
-                "feature's own Compose dialog state instead — spec §5",
-            emptySet<String>(), found - BASELINE,
-        )
-    }
-
-    @Test fun theBaselineHasNoStaleEntries() {
-        val found = offendingFiles(ClassicRemovalScan.appSources())
-        assertEquals(
-            "these baseline files no longer have a platform dialog — delete their lines from BASELINE",
-            emptySet<String>(), BASELINE - found,
+            "a platform dialog appeared; use AppDialogController (owner-less) or the feature's own " +
+                "Compose dialog state instead — spec §5",
+            emptySet<String>(), offendingFiles(ClassicRemovalScan.appSources()),
         )
     }
 
@@ -159,6 +189,15 @@ class PlatformDialogRemovalGuardTest {
             "import androidx.fragment.app.DialogFragment",
             "import android.app.AlertDialog as PlatformDialog",
             "import android.app.AlertDialog.Builder",
+            "import android.app.DatePickerDialog",
+            "import android.app.TimePickerDialog",
+            "import androidx.appcompat.app.AppCompatDialog",
+            "import androidx.appcompat.app.AppCompatDialogFragment",
+            "import com.google.android.material.bottomsheet.BottomSheetDialog",
+            "import com.google.android.material.bottomsheet.BottomSheetDialogFragment",
+            "import com.google.android.material.dialog.MaterialAlertDialogBuilder",
+            "import android.app.*",
+            "import androidx.appcompat.app.*",
         ).forEach { assertTrue(it, IMPORT.matches(it)) }
         listOf(
             "import androidx.compose.material3.AlertDialog",
@@ -166,7 +205,18 @@ class PlatformDialogRemovalGuardTest {
             "import androidx.compose.ui.window.Dialog",
             "import android.app.Activity",
             "import android.app.DialogInterface",   // not a dialog; it is a callback type
+            "import android.app.Notification",      // near miss for the newly-banned android.app.* wildcard
+            "import androidx.appcompat.app.AppCompatActivity", // near miss for AppCompatDialog(Fragment)
+            "import com.google.android.material.bottomsheet.BottomSheetBehavior", // near miss for BottomSheetDialog
+            "import com.google.android.material.datepicker.MaterialDatePicker", // a real dialog, but not one PKG bans
         ).forEach { assertTrue(it, !IMPORT.matches(it)) }
+    }
+
+    @Test fun aTrailingCommentOnAnImportLineDoesNotHideIt() {
+        // Task 31 addendum item 1: offendingLines strips a trailing `//` before the IMPORT check,
+        // not just before QUALIFIED — this is the case that would otherwise slip through.
+        assertTrue(offendingLines(listOf("import android.app.DatePickerDialog // needed for the picker")))
+        assertTrue(offendingLines(listOf("import android.app.* // notifications")))
     }
 
     @Test fun theQualifiedPatternSeesAnInlineBuilder() {
