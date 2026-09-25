@@ -65,12 +65,17 @@ class AiPromptsDeleteCategoryDialogTest {
     )
     private var deleteCalls = mutableListOf<Pair<String, Boolean>>()
 
-    private fun show() = compose.setContent {
+    private fun show(cat: PromptCategoryVd = category) = compose.setContent {
         ProvideAppLocals {
             AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                 AiPromptsScreen(
                     configured = true,
-                    groups = listOf(PromptGroupVd(category = category, isFavorites = false, prompts = listOf(prompt))),
+                    groups = listOf(
+                        PromptGroupVd(
+                            category = cat, isFavorites = false,
+                            prompts = listOf(prompt.copy(categoryId = cat.id)),
+                        ),
+                    ),
                     showHidden = false,
                     hasHiddenPrompts = false,
                     onUp = {},
@@ -101,9 +106,9 @@ class AiPromptsDeleteCategoryDialogTest {
      *  itself click-action (its own `onToggle`) with `mergeDescendants = true`, which folds the
      *  header's `Text(category.name)` into the ROW's own semantics -- so the icon button is found as
      *  a click-action node whose ancestor carries the category's own name, true only inside that row. */
-    private fun openCategoryOverflow() {
+    private fun openCategoryOverflow(name: String = category.name) {
         compose.onNode(
-            hasClickAction() and hasAnyAncestor(hasText(category.name, substring = true)),
+            hasClickAction() and hasAnyAncestor(hasText(name, substring = true)),
         ).performClick()
     }
 
@@ -129,6 +134,20 @@ class AiPromptsDeleteCategoryDialogTest {
         compose.onNodeWithText("Delete category").performClick()
         compose.onNodeWithText("Move prompts to root and delete category").performClick()
         assertEquals(listOf("cat1" to false), deleteCalls)
+    }
+
+    /** Fix round 1, Important finding 1: `deleteCategoryConfirm(cat.name)` goes through
+     *  `AbOptionsDialog`'s `message`, which is always HTML-parsed. Before `plainTextToHtml` wrapped
+     *  it, a name containing `<`, `>` or `&` would have its "tag" silently stripped/misinterpreted --
+     *  if that regressed, this text would NOT be found (the literal "<b>"/"&" would be gone or the
+     *  match would only see "A  C"), so the node search itself is the proof, not just an assertion
+     *  tacked onto a passing render. */
+    @Test fun categoryNameWithHtmlSpecialCharacters_rendersLiteralInTheConfirmMessage() {
+        val cat = category.copy(name = "A <b> & C")
+        show(cat)
+        openCategoryOverflow(name = cat.name)
+        compose.onNodeWithText("Delete category").performClick()
+        compose.onNodeWithText("Delete category \"A <b> & C\"?").assertExists()
     }
 
     @Test fun cancelOption_answersNeither() {

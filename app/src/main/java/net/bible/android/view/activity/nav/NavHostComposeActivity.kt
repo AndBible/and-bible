@@ -5132,6 +5132,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * two calls hoisted into [onConfirm]/[onDismiss] parameters. [labelName] comes from the LIVE
      * controller state (not the route payload's name, which `LabelEditMapper.applyToData` only syncs
      * at save/delete/share time) — otherwise a name typed but not yet saved would show stale here.
+     *
+     * Fix round 1 (Task 22 review, Important finding 2): this member function itself does nothing
+     * but resolve Android string resources and hand them to the top-level
+     * [LabelEditDeletePromptContent], which does the actual rendering. The split exists because a
+     * `private` member composable needs a live [NavHostComposeActivity] instance to test (no
+     * existing precedent for that in this file), while the extracted top-level one takes only
+     * plain values and can be driven directly by a Robolectric compose-ui test.
      */
     @Composable
     private fun LabelEditDeletePrompt(
@@ -5140,33 +5147,21 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         onConfirm: (deleteOrphaned: Boolean) -> Unit,
         onDismiss: () -> Unit,
     ) {
-        when (prompt) {
-            // AbOptionsDialog (spec §6.2): three answers (delete both, delete label only, cancel),
-            // same labels and order as the classic/ComposeAlertDialog row this replaces. The host
-            // slot stays (per LabelEditDeps.deletePromptSlot's kdoc) because these strings are
-            // Android resources with no LocalStrings entry yet -- only the composable swaps.
-            is DeletePrompt.Orphaned -> AbOptionsDialog(
-                title = getString(R.string.delete_label_confirmation, labelName),
-                message = getString(R.string.confirm_delete_orphaned_bookmarks, prompt.count),
-                options = listOf(
-                    SettingsItem.Choice(value = "both", label = getString(R.string.delete_label_and_bookmarks)),
-                    SettingsItem.Choice(value = "labelOnly", label = getString(R.string.delete_label_only)),
-                ),
-                onSelect = { value -> onConfirm(value == "both") },
-                onDismissRequest = onDismiss,
-                dismissText = getString(R.string.cancel),
-            )
-            DeletePrompt.Confirm -> ComposeAlertDialog(
-                onDismissRequest = onDismiss,
-                title = { Text(getString(R.string.delete_label_confirmation, labelName)) },
-                confirmButton = {
-                    TextButton(onClick = { onConfirm(false) }) { Text(getString(R.string.yes)) }
-                },
-                dismissButton = {
-                    TextButton(onClick = onDismiss) { Text(getString(R.string.no)) }
-                },
-            )
-        }
+        LabelEditDeletePromptContent(
+            prompt = prompt,
+            title = getString(R.string.delete_label_confirmation, labelName),
+            orphanedMessage = when (prompt) {
+                is DeletePrompt.Orphaned -> getString(R.string.confirm_delete_orphaned_bookmarks, prompt.count)
+                DeletePrompt.Confirm -> null
+            },
+            deleteBothLabel = getString(R.string.delete_label_and_bookmarks),
+            deleteOnlyLabel = getString(R.string.delete_label_only),
+            cancelLabel = getString(R.string.cancel),
+            confirmLabel = getString(R.string.yes),
+            dismissLabel = getString(R.string.no),
+            onConfirm = onConfirm,
+            onDismiss = onDismiss,
+        )
     }
 
     // --- AiConnectionSettings host baggage ----------------------------------------------------
@@ -9788,3 +9783,49 @@ private fun Tool.toToolVd() = ToolVd(
     requiresPermission = requiresPermission,
     categoryId = category.name,
 )
+
+/**
+ * [NavHostComposeActivity.LabelEditDeletePrompt]'s pure rendering (fix round 1, Task 22 review,
+ * Important finding 2): every string is pre-resolved by the caller, so this composable touches no
+ * Android resource / Activity context and can be driven directly by a Robolectric compose-ui test
+ * without a live [NavHostComposeActivity] instance. [orphanedMessage] is only read for
+ * [DeletePrompt.Orphaned] (null for [DeletePrompt.Confirm], which needs no body text).
+ *
+ * `AbOptionsDialog` (spec §6.2) renders [DeletePrompt.Orphaned]'s three answers (delete both,
+ * delete label only, cancel), same labels and order as the classic/`ComposeAlertDialog` row it
+ * replaced. [DeletePrompt.Confirm] (out of Task 22's scope, a plain 2-way "delete this label?")
+ * keeps its `ComposeAlertDialog`.
+ */
+@Composable
+internal fun LabelEditDeletePromptContent(
+    prompt: DeletePrompt,
+    title: String,
+    orphanedMessage: String?,
+    deleteBothLabel: String,
+    deleteOnlyLabel: String,
+    cancelLabel: String,
+    confirmLabel: String,
+    dismissLabel: String,
+    onConfirm: (deleteOrphaned: Boolean) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    when (prompt) {
+        is DeletePrompt.Orphaned -> AbOptionsDialog(
+            title = title,
+            message = orphanedMessage,
+            options = listOf(
+                SettingsItem.Choice(value = "both", label = deleteBothLabel),
+                SettingsItem.Choice(value = "labelOnly", label = deleteOnlyLabel),
+            ),
+            onSelect = { value -> onConfirm(value == "both") },
+            onDismissRequest = onDismiss,
+            dismissText = cancelLabel,
+        )
+        DeletePrompt.Confirm -> ComposeAlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(title) },
+            confirmButton = { TextButton(onClick = { onConfirm(false) }) { Text(confirmLabel) } },
+            dismissButton = { TextButton(onClick = onDismiss) { Text(dismissLabel) } },
+        )
+    }
+}

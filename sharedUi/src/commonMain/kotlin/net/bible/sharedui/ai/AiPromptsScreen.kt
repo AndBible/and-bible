@@ -82,6 +82,7 @@ import net.bible.sharedcore.ai.PromptVd
 import net.bible.sharedcore.ai.filterPromptGroups
 import net.bible.sharedcore.ai.promptTypeOf
 import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbChoiceSheet
@@ -359,7 +360,11 @@ fun AiPromptsScreen(
         // its prompts too. Same labels and order as the plain M3 AlertDialog this replaces.
         AbOptionsDialog(
             title = null,
-            message = strings.deleteCategoryConfirm(cat.name),
+            // I2/M4 pattern (NavHostComposeActivity.kt's downloadConfirm, BookmarkControl.kt's
+            // import-errors summary): cat.name is user-entered and this message always goes
+            // through AbHtmlText/parseHtmlRuns, which treats it as HTML -- plainTextToHtml keeps
+            // a "<", ">" or "&..." in the category name literal instead of stripped/misparsed.
+            message = plainTextToHtml(strings.deleteCategoryConfirm(cat.name)),
             options = listOf(
                 SettingsItem.Choice(value = "cascade", label = strings.deleteCategoryAndPromptsLabel),
                 SettingsItem.Choice(value = "keep", label = strings.deleteCategoryKeepPromptsLabel),
