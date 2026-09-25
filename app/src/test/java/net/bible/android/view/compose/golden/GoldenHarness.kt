@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
+import com.github.takahirom.roborazzi.RoborazziComposeOption
 import com.github.takahirom.roborazzi.RoborazziComposeOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.github.takahirom.roborazzi.inspectionMode
@@ -53,6 +54,7 @@ private fun capture(
     colorMode: DisplayColorMode,
     rtl: Boolean,
     heightDp: Int = 0,
+    captureOptions: List<RoborazziComposeOption> = emptyList(),
     content: @Composable () -> Unit,
 ) {
     // inspectionMode=true sets LocalInspectionMode, which makes Compose's InfiniteTransition
@@ -71,6 +73,12 @@ private fun capture(
         roborazziComposeOptions = RoborazziComposeOptions {
             inspectionMode(true)
             if (heightDp > 0) size(0, heightDp)
+            // captureOptions defaults to empty for every existing caller (byte-identical
+            // behaviour, no re-record needed); a caller that passes a
+            // RoborazziComposeCaptureOption (e.g. to settle an async effect before the
+            // screenshot -- see AbDatePickerDialogGoldenTest) gets its beforeCapture()/
+            // afterCapture() wired into this specific capture only.
+            captureOptions.forEach { addOption(it) }
         },
     ) {
         val dir = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
@@ -119,8 +127,14 @@ private fun capture(
  * [heightDp] > 0 overrides only the device height so a long list renders in full (default: clip
  * at the standard viewport, keeping every existing golden byte-identical).
  */
-fun captureGolden(screen: String, state: String, mode: GoldenMode, heightDp: Int = 0, content: @Composable () -> Unit) =
-    capture("src/test/roborazzi/${screen}_${state}_${mode.tag}.png", mode.dark, mode.colorMode, mode.rtl, heightDp, content)
+fun captureGolden(
+    screen: String,
+    state: String,
+    mode: GoldenMode,
+    heightDp: Int = 0,
+    captureOptions: List<RoborazziComposeOption> = emptyList(),
+    content: @Composable () -> Unit,
+) = capture("src/test/roborazzi/${screen}_${state}_${mode.tag}.png", mode.dark, mode.colorMode, mode.rtl, heightDp, captureOptions, content)
 
 /**
  * Render [content] in the light theme with RTL layout, capturing to <screen>_<state>_light_rtl.png.
@@ -128,13 +142,28 @@ fun captureGolden(screen: String, state: String, mode: GoldenMode, heightDp: Int
  * forces the layout direction. [heightDp] > 0 overrides the device height (default 0 keeps the
  * standard viewport clip, same as [captureGolden]).
  */
-fun captureRtl(screen: String, state: String, heightDp: Int = 0, content: @Composable () -> Unit) =
-    capture("src/test/roborazzi/${screen}_${state}_light_rtl.png", dark = false, colorMode = DisplayColorMode.NORMAL, rtl = true, heightDp = heightDp, content = content)
+fun captureRtl(
+    screen: String,
+    state: String,
+    heightDp: Int = 0,
+    captureOptions: List<RoborazziComposeOption> = emptyList(),
+    content: @Composable () -> Unit,
+) = capture(
+    "src/test/roborazzi/${screen}_${state}_light_rtl.png",
+    dark = false, colorMode = DisplayColorMode.NORMAL, rtl = true, heightDp = heightDp,
+    captureOptions = captureOptions, content = content,
+)
 
 /**
  * Capture [content] across the full four-mode LTR matrix. [heightDp] > 0 overrides the device
  * height for every mode (default 0 keeps the standard viewport clip, same as [captureGolden]).
  */
-fun captureMatrix(screen: String, state: String, heightDp: Int = 0, content: @Composable () -> Unit) {
-    ALL_MODES.forEach { mode -> captureGolden(screen, state, mode, heightDp = heightDp, content = content) }
+fun captureMatrix(
+    screen: String,
+    state: String,
+    heightDp: Int = 0,
+    captureOptions: List<RoborazziComposeOption> = emptyList(),
+    content: @Composable () -> Unit,
+) {
+    ALL_MODES.forEach { mode -> captureGolden(screen, state, mode, heightDp = heightDp, captureOptions = captureOptions, content = content) }
 }
