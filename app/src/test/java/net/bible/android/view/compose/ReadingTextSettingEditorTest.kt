@@ -293,7 +293,7 @@ class ReadingTextSettingEditorTest {
      * `readingLlmDialogs`' `hostScope` dispatches on `Dispatchers.Main`.
      */
     @Test
-    fun closeModalOverlaysStillDismissesTheLlmPromptSelectorSheet() {
+    fun closeModalOverlaysStillDismissesTheLlmPromptSelector() {
         val host = host()
         host.readingLlmDialogs.openPromptSelector("VERSE_SELECTION", null) { _, _, _ -> }
         // openPromptSelector's prompt-group lookup runs on Dispatchers.IO (a real background
@@ -375,7 +375,7 @@ class ReadingTextSettingEditorTest {
      *  picker is exactly what the exclusion rule is about, so opening the quick sheet must still
      *  dismiss it. */
     @Test
-    fun openingTheQuickSheetStillDismissesTheLlmPromptSelectorSheet() {
+    fun openingTheQuickSheetStillDismissesTheLlmPromptSelector() {
         val host = host()
         host.readingLlmDialogs.openPromptSelector("VERSE_SELECTION", null) { _, _, _ -> }
         val deadline = System.currentTimeMillis() + 5_000
