@@ -17,6 +17,10 @@ interface Strings {
     fun historyFor(workspace: String, window: Int): String
     val errorOccurred: String
     val okay: String
+    // C1: AbLinkRouting's "open external link?" confirmation, reusing the existing
+    // R.string.external_link / external_link_question words `CommonUtils.openLink` already asks.
+    val externalLink: String
+    fun externalLinkQuestion(link: String): String
     val indexingWaitMsg: String
     val noTasksRunning: String
     val doInBackground: String

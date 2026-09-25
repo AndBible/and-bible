@@ -17,18 +17,13 @@
 
 package net.bible.android.view.compose
 
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
-import androidx.compose.ui.text.LinkAnnotation
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import net.bible.android.TEST_SDK
@@ -41,22 +36,24 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.sharedcore.ui.dialog.ShownDialog
 import net.bible.sharedui.ProvideAppLocals
-import net.bible.sharedui.components.AbHtmlText
 import net.bible.sharedui.components.AppDialogHost
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
  * Behaviour coverage for [AppDialogHost]: every branch of `AppDialogRequest` answers the right
  * [AppDialogResult] to the right id, back/scrim honour [AppDialogRequest.Message.cancellable] and
- * [AppDialogRequest.Confirm.cancellable], a link in the body routes to `onOpenLink` rather than
- * answering the dialog, and a new text request does not inherit the previous one's typed value.
+ * [AppDialogRequest.Confirm.cancellable], a link in the body reaches [onOpenExternal] (asking first
+ * over the open dialog when [askBeforeOpeningLink]) rather than answering the dialog, and a new text
+ * request does not inherit the previous one's typed value.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -68,14 +65,20 @@ class AppDialogHostTest {
     private val opened = mutableListOf<String>()
     private val choices = mutableListOf<AgentPermissionChoice>()
 
-    private fun show(shown: ShownDialog?, permission: AgentPermissionRequest? = null, progress: ShownDialog? = null) = compose.setContent {
+    private fun show(
+        shown: ShownDialog?,
+        permission: AgentPermissionRequest? = null,
+        progress: ShownDialog? = null,
+        askBeforeOpeningLink: Boolean = false,
+    ) = compose.setContent {
         ProvideAppLocals {
             AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                 AppDialogHost(
                     shown = shown, permission = permission,
                     onRespond = { id, r -> answers += id to r },
                     onPermissionChoice = { choices += it }, onPermissionDismiss = { choices += AgentPermissionChoice.DENY },
-                    onOpenLink = { opened += it },
+                    onOpenExternal = { opened += it },
+                    askBeforeOpeningLink = askBeforeOpeningLink,
                     progress = progress,
                 )
             }
@@ -123,46 +126,79 @@ class AppDialogHostTest {
     }
 
     /**
-     * A real physical click on a link INSIDE a material3 `AlertDialog` window cannot be driven
-     * through `performClick`/`performTouchInput` on Robolectric here: three scratch probes proved
-     * this is a platform-Dialog-window limitation of this compose-ui-test/Robolectric combination,
-     * not an `AppDialogHost` defect --
-     *  1. The same link, in the same [AbHtmlText] pipeline, rendered bare (no dialog): clicks fine.
-     *  2. The same link wrapped in `AbMessageDialog`'s own `heightIn` + `verticalScroll` modifier
-     *     chain but still bare (no dialog): clicks fine -- rules out the scroll wrapper.
-     *  3. The same link rendered through the real [AbMessageDialog] (a real `AlertDialog`/`Dialog`
-     *     window), with an ambient `LocalUriHandler` provided from OUTSIDE `AppDialogHost` entirely:
-     *     the click event never reaches the link's `LinkInteractionListener` at all.
-     * So this test instead asserts, separately, the two halves that #3 could not: (a) the body
-     * `AppDialogHost` hands to `AbMessageDialog` really does carry a [LinkAnnotation.Url] for the
-     * exact href (the html-to-link parsing/rendering pipeline is wired correctly), and (b) the
-     * `UriHandler` wrapper `AppDialogHost` installs really does forward to `onOpenLink` when driven
-     * directly (proven on a plain, non-dialog composable, where clicks DO work per probe #1/#2).
+     * C1: a real click on a link inside the real [AppDialogHost]/`AbMessageDialog` `Dialog` window
+     * now reaches the host, because the listener lives on the `LinkAnnotation` itself (via
+     * `LocalAbLinkOpener`, a custom composition local the platform's `Dialog` window does not
+     * re-provide) rather than on whatever `LocalUriHandler` that window's own child composition
+     * happens to install. Before the C1 fix, this failed both ways at once: `opened` stayed empty
+     * AND a real `ACTION_VIEW` activity was started (`AndroidUriHandler`, the platform's bare
+     * fallback) -- proving Task 4's "harness limitation" write-off wrong; the click was always
+     * deliverable, only the wiring was broken.
      */
-    @Test fun linkAnnotationIsPresentInTheRenderedBody() {
+    @Test fun linkTapInsideTheDialogWindowReachesTheHost() {
         show(ShownDialog(4, AppDialogRequest.Message(null, "<a href=\"https://x.org\">here</a>", "OK")))
-        val node = compose.onNodeWithText("here").fetchSemanticsNode()
-        val text = node.config[SemanticsProperties.Text].single()
-        val links = text.getLinkAnnotations(0, text.length).map { (it.item as LinkAnnotation.Url).url }
-        assertEquals(listOf("https://x.org"), links)
+        compose.onNodeWithText("here").performClick()
+        assertEquals(listOf("https://x.org"), opened)
+        assertNull(
+            "no ACTION_VIEW activity was started directly -- the click went through onOpenExternal",
+            Shadows.shadowOf(ApplicationProvider.getApplicationContext<android.app.Application>()).nextStartedActivity,
+        )
         assertEquals(emptyList<Pair<Long, AppDialogResult>>(), answers)
     }
 
-    @Test fun uriHandlerWrapperForwardsToOnOpenLink() {
-        // The exact wrapper AppDialogHost installs: object : UriHandler { openUri = onOpenLink(it) }.
-        // Proven driveable on a plain composable (probe #1/#2 above), so clicking it here proves the
-        // forwarding logic itself, independent of the Dialog-window limitation.
-        val forwarded = mutableListOf<String>()
-        val wrapper = object : UriHandler {
-            override fun openUri(uri: String) { forwarded += uri }
-        }
+    /**
+     * C1: with [askBeforeOpeningLink], tapping the link does NOT open it -- it draws the "open
+     * external link?" question ON TOP of the still-open Message (whose own confirm text, "Close", is
+     * deliberately distinct from the question's OK/Cancel so the two can't be confused). OK opens the
+     * link exactly once and leaves the Message open and unanswered; Cancel opens nothing.
+     */
+    @Test fun discreteLinkAsksOverTheOpenDialog_okOpensOnce_leavesTheMessageOpen() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        show(ShownDialog(4, AppDialogRequest.Message(null, "<a href=\"https://x.org\">here</a>", "Close")), askBeforeOpeningLink = true)
+
+        compose.onNodeWithText("here").performClick()
+        compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
+        compose.onNodeWithText("Close").assertExists() // the Message is still shown, underneath
+        assertEquals(emptyList<String>(), opened)
+
+        compose.onNodeWithText(context.getString(R.string.okay)).performClick()
+        assertEquals(listOf("https://x.org"), opened)
+        compose.onNodeWithText("Close").assertExists() // still shown and still unanswered
+        assertEquals(emptyList<Pair<Long, AppDialogResult>>(), answers)
+    }
+
+    @Test fun discreteLinkAsksOverTheOpenDialog_cancelOpensNothing() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        show(ShownDialog(4, AppDialogRequest.Message(null, "<a href=\"https://x.org\">here</a>", "Close")), askBeforeOpeningLink = true)
+
+        compose.onNodeWithText("here").performClick()
+        compose.onNodeWithText(context.getString(R.string.cancel)).performClick()
+        assertEquals(emptyList<String>(), opened)
+        compose.onNodeWithText("Close").assertExists()
+    }
+
+    /** M6 (run-1 minor, now load-bearing per Ruling 8): a sheet-shaped request calls
+     *  [net.bible.sharedui.components.AppDialogHost]'s `onSheetOpening` exactly once for its id. */
+    @Test fun multiChoiceCallsOnSheetOpeningExactlyOnceForItsId() {
+        var sheetOpenings = 0
+        val options = listOf(SettingsItem.Choice("a", "A"))
         compose.setContent {
-            CompositionLocalProvider(LocalUriHandler provides wrapper) {
-                AbHtmlText("<a href=\"https://x.org\">probe</a>")
+            ProvideAppLocals {
+                AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
+                    AppDialogHost(
+                        shown = ShownDialog(1, AppDialogRequest.MultiChoice(null, options, emptyList(), "OK", "Cancel")),
+                        permission = null,
+                        onRespond = { _, _ -> },
+                        onPermissionChoice = {},
+                        onPermissionDismiss = {},
+                        onOpenExternal = {},
+                        onSheetOpening = { sheetOpenings++ },
+                    )
+                }
             }
         }
-        compose.onNodeWithText("probe").performClick()
-        assertEquals(listOf("https://x.org"), forwarded)
+        compose.waitForIdle()
+        assertEquals(1, sheetOpenings)
     }
 
     @Test fun htmlIsRenderedNotShownAsMarkup() {
@@ -203,7 +239,7 @@ class AppDialogHostTest {
         compose.setContent {
             ProvideAppLocals {
                 AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
-                    AppDialogHost(state.value, null, { _, _ -> }, {}, {}, {})
+                    AppDialogHost(shown = state.value, permission = null, onRespond = { _, _ -> }, onPermissionChoice = {}, onPermissionDismiss = {}, onOpenExternal = {})
                 }
             }
         }
@@ -234,7 +270,7 @@ class AppDialogHostTest {
         compose.setContent {
             ProvideAppLocals {
                 AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
-                    AppDialogHost(state.value, null, { id, r -> answers += id to r }, {}, {}, {})
+                    AppDialogHost(shown = state.value, permission = null, onRespond = { id, r -> answers += id to r }, onPermissionChoice = {}, onPermissionDismiss = {}, onOpenExternal = {})
                 }
             }
         }

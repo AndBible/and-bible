@@ -1127,6 +1127,28 @@ object CommonUtils : CommonUtilsBase() {
     /** Base URL for AndBible's user documentation. Help dialog links resolve their paths against this. */
     private const val DOCS_URL_PREFIX = "https://docs.andbible.org/en/latest/"
 
+    /**
+     * Opens [link] in a browser immediately, no question asked -- classic `openLink`'s own `else`
+     * branch, extracted (C1 fix) so a Compose caller that has ALREADY asked its own "open external
+     * link?" question (`AbLinkRouting`, driven by [isDiscrete]) does not ask a SECOND time through
+     * [openLink]'s `Dialogs.simpleQuestion` FIFO -- which would also queue behind, and so be hidden
+     * by, whatever dialog contains the link.
+     */
+    fun openLinkNow(link: String) {
+        val activity = CurrentActivityHolder.currentActivity!!
+        try {
+            activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
+                ActivityBase.STD_REQUEST_CODE
+            )
+        } catch (e: android.content.ActivityNotFoundException) {
+            Log.e(TAG, "No activity found to handle link: $link", e)
+            ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
+        }
+    }
+
+    /** Non-Compose callers only (a WebView link, …): asks first in discrete mode through the
+     *  platform `Dialogs.simpleQuestion` FIFO, same as before C1. A Compose dialog body's link goes
+     *  through `AbLinkRouting`/[openLinkNow] instead -- see [openLinkNow]'s kdoc for why. */
     fun openLink(link: String, forceAsk: Boolean = false) {
         val activity = CurrentActivityHolder.currentActivity!!
         if (isDiscrete || forceAsk) {
@@ -1136,25 +1158,11 @@ object CommonUtils : CommonUtilsBase() {
                         title = net.bible.android.view.activity.page.application.getString(R.string.external_link),
                     )
                 ) {
-                    try {
-                        activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
-                            ActivityBase.STD_REQUEST_CODE
-                        )
-                    } catch (e: android.content.ActivityNotFoundException) {
-                        Log.e(TAG, "No activity found to handle link: $link", e)
-                        ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
-                    }
+                    openLinkNow(link)
                 }
             }
         } else {
-            try {
-                activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
-                    ActivityBase.STD_REQUEST_CODE
-                )
-            } catch (e: android.content.ActivityNotFoundException) {
-                Log.e(TAG, "No activity found to handle link: $link", e)
-                ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
-            }
+            openLinkNow(link)
         }
     }
 

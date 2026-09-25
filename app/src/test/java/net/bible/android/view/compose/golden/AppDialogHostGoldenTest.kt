@@ -41,7 +41,7 @@ class AppDialogHostGoldenTest {
     private fun host(request: AppDialogRequest): @androidx.compose.runtime.Composable () -> Unit = {
         AppDialogHost(
             shown = ShownDialog(1, request), permission = null,
-            onRespond = { _, _ -> }, onPermissionChoice = {}, onPermissionDismiss = {}, onOpenLink = {},
+            onRespond = { _, _ -> }, onPermissionChoice = {}, onPermissionDismiss = {}, onOpenExternal = {},
         )
     }
 
@@ -49,7 +49,7 @@ class AppDialogHostGoldenTest {
     private fun progressHost(request: AppDialogRequest.Progress): @androidx.compose.runtime.Composable () -> Unit = {
         AppDialogHost(
             shown = null, permission = null,
-            onRespond = { _, _ -> }, onPermissionChoice = {}, onPermissionDismiss = {}, onOpenLink = {},
+            onRespond = { _, _ -> }, onPermissionChoice = {}, onPermissionDismiss = {}, onOpenExternal = {},
             progress = ShownDialog(1, request),
         )
     }

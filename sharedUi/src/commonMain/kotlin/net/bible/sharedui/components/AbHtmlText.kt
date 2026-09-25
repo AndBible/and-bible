@@ -22,11 +22,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -41,13 +44,27 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.em
 import net.bible.sharedcore.ui.dialog.HtmlRun
 import net.bible.sharedcore.ui.dialog.parseHtmlRuns
+import net.bible.sharedui.strings.LocalStrings
 
 /**
- * Builds the [AnnotatedString] for a dialog's HTML body. Links are [LinkAnnotation.Url] with no
- * listener, so a click goes to `LocalUriHandler` — which `AppDialogHost` points at the host's
- * `CommonUtils.openLink` (discrete mode asks first).
+ * A dialog body's link opener. [LocalAbLinkOpener] is a CUSTOM composition local rather than
+ * `LocalUriHandler` (C1 fix): material3's `AlertDialog`/`Dialog`/`Popup`/`ModalBottomSheet` window is
+ * its own child composition, and its `ProvideCommonCompositionLocals` re-provides a fresh
+ * `LocalUriHandler` INSIDE that window — silently shadowing whatever `AbLinkRouting`/`AppDialogHost`
+ * installed outside it, so a click reached the platform's bare `AndroidUriHandler` (Chrome, with no
+ * discrete-mode question) instead of the host's override. A custom local is never re-provided by the
+ * platform, so it survives crossing into a `Dialog`/`Popup`/sheet window.
  */
-fun htmlToAnnotatedString(html: String, linkColor: Color): AnnotatedString = buildAnnotatedString {
+fun interface AbLinkOpener { fun open(url: String) }
+val LocalAbLinkOpener = staticCompositionLocalOf<AbLinkOpener?> { null }
+
+/**
+ * Builds the [AnnotatedString] for a dialog's HTML body. Every link is a [LinkAnnotation.Url] with
+ * an EXPLICIT [androidx.compose.ui.text.LinkInteractionListener] that calls [open] directly (C1
+ * fix) — not the no-listener form that falls through to whatever `LocalUriHandler` the Text's own
+ * composition happens to read, which a `Dialog`/`Popup` window can (and does) shadow.
+ */
+fun htmlToAnnotatedString(html: String, linkColor: Color, open: (String) -> Unit): AnnotatedString = buildAnnotatedString {
     val linkStyles = TextLinkStyles(SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline))
     for (run in parseHtmlRuns(html)) {
         val style = SpanStyle(
@@ -57,31 +74,68 @@ fun htmlToAnnotatedString(html: String, linkColor: Color): AnnotatedString = bui
         )
         val href = run.href
         if (href != null) {
-            withLink(LinkAnnotation.Url(href, linkStyles)) { withStyle(style) { append(run.text) } }
+            withLink(LinkAnnotation.Url(href, linkStyles) { open((it as LinkAnnotation.Url).url) }) {
+                withStyle(style) { append(run.text) }
+            }
         } else {
             withStyle(style) { append(run.text) }
         }
     }
 }
 
+/**
+ * [LocalAbLinkOpener] when present (every production render path: [AbLinkRouting]/`AppDialogHost`),
+ * else [LocalUriHandler] (a bare `AbHtmlText()` with neither wrapper, e.g. a scratch/preview render
+ * or a future call site that forgot to wrap — fails OPEN there, exactly like before this fix, rather
+ * than crashing).
+ */
 @Composable
 fun AbHtmlText(html: String, modifier: Modifier = Modifier, style: TextStyle = LocalTextStyle.current) {
     val linkColor = MaterialTheme.colorScheme.primary
-    val text = remember(html, linkColor) { htmlToAnnotatedString(html, linkColor) }
+    val opener = LocalAbLinkOpener.current
+    val fallback = LocalUriHandler.current
+    val text = remember(html, linkColor, opener) {
+        htmlToAnnotatedString(html, linkColor) { u -> opener?.open(u) ?: fallback.openUri(u) }
+    }
     Text(text = text, modifier = modifier, style = style)
 }
 
 /**
- * Routes every link under [content] through [onOpenLink] instead of whatever [LocalUriHandler] the
- * platform would otherwise supply (Task 15). `AppDialogHost` already does this itself for the
- * app-wide dialog queue, pointing `onOpenLink` at the host's `CommonUtils.openLink` (which asks
- * first in discrete mode) — a feature dialog with its own inline wiki link (App settings' discrete
- * help, the EPUB search help, …) is rendered OUTSIDE that queue, on a destination whose ambient
- * `LocalUriHandler` is the bare platform one, so it needs this same override wired to its own
- * `onOpenLink` screen parameter. Reused by every feature dialog with a link (Tasks 15, 18, 19).
+ * Routes every link under [content] through [LocalAbLinkOpener] (C1 fix) instead of
+ * `LocalUriHandler`, which a `Dialog`/`Popup`/`ModalBottomSheet` window re-provides internally and
+ * so cannot be relied on to carry a host's override across that boundary (see [LocalAbLinkOpener]'s
+ * kdoc). `AppDialogHost` wraps the whole app-wide dialog queue in this; a feature dialog with its
+ * own inline link (App settings' discrete help, the EPUB search help, the reading view's speak/help
+ * dialogs, …) wraps itself the same way, since its destination's ambient locals are the bare
+ * platform ones otherwise.
+ *
+ * [askFirst] is `CommonUtils.isDiscrete` — when true, a tapped link does not open immediately: this
+ * composable draws its OWN "open external link?" [AbConfirmDialog] ON TOP of [content] (drawn first,
+ * so its window is created first and the question's sits above it — the same creation-order
+ * mechanism `AppDialogHost` already uses for a Progress-under-an-answerable-request). [onOpenExternal]
+ * is the actual non-asking open call (`CommonUtils.openLinkNow`); it runs directly when [askFirst] is
+ * false, and only after the question's own confirm otherwise. This keeps the question a CHILD of the
+ * dialog that owns the link (drawn here, not through `AppDialogController`'s queue), so it is never
+ * hidden behind an unrelated request and never needs a second "priority" queue slot.
  */
 @Composable
-fun AbLinkRouting(onOpenLink: (String) -> Unit, content: @Composable () -> Unit) {
-    val uriHandler = remember(onOpenLink) { object : UriHandler { override fun openUri(uri: String) = onOpenLink(uri) } }
-    CompositionLocalProvider(LocalUriHandler provides uriHandler, content = content)
+fun AbLinkRouting(askFirst: Boolean, onOpenExternal: (String) -> Unit, content: @Composable () -> Unit) {
+    var pending by remember { mutableStateOf<String?>(null) }
+    // A fresh AbLinkOpener every recomposition (never remember-keyed on askFirst/onOpenExternal):
+    // both are read fresh here, so this can never close over a stale isDiscrete/callback the way
+    // keying on them could if a caller passes a fresh lambda identity every recomposition (the
+    // common case) while some OTHER key held remember from recomputing.
+    val opener = AbLinkOpener { url -> if (askFirst) pending = url else onOpenExternal(url) }
+    CompositionLocalProvider(LocalAbLinkOpener provides opener, content = content)
+    pending?.let { url ->
+        val strings = LocalStrings.current
+        AbConfirmDialog(
+            title = strings.externalLink,
+            message = strings.externalLinkQuestion(url),
+            confirmText = strings.okay,
+            dismissText = strings.cancel,
+            onConfirm = { pending = null; onOpenExternal(url) },
+            onDismiss = { pending = null },
+        )
+    }
 }

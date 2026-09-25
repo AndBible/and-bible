@@ -92,7 +92,8 @@ fun AppDialogOverlay(onSheetOpening: () -> Unit = {}) {
         onRespond = dialogs::respond,
         onPermissionChoice = permissions::respond,
         onPermissionDismiss = permissions::dismiss,
-        onOpenLink = { CommonUtils.openLink(it) },
+        onOpenExternal = { CommonUtils.openLinkNow(it) },
+        askBeforeOpeningLink = CommonUtils.isDiscrete,
         onSheetOpening = onSheetOpening,
         progress = progress,
     )

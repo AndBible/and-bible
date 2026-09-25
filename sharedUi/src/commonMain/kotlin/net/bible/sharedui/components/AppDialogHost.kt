@@ -18,12 +18,8 @@
 package net.bible.sharedui.components
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
 import net.bible.sharedcore.ai.AgentPermissionChoice
 import net.bible.sharedcore.ai.AgentPermissionRequest
 import net.bible.sharedcore.settings.SettingsItem
@@ -36,8 +32,13 @@ import net.bible.sharedui.ai.AgentPermissionDialog
  * Renders the head of `AppDialogController`'s queue, plus the agent permission prompt, per spec §7's
  * dialog-vs-sheet rule. Stateless: every value comes in, every answer goes out through [onRespond].
  *
- * Links in any body go to [onOpenLink] (the host's `CommonUtils.openLink`, which asks first in
- * discrete mode) — [LocalUriHandler] is overridden for everything below.
+ * Links in any body go through [AbLinkRouting] ([askBeforeOpeningLink]/[onOpenExternal] — C1 fix:
+ * a plain `LocalUriHandler provides …` here does not survive into the `Dialog`/`Popup`/sheet window
+ * each request below draws into, since the platform re-provides its own `LocalUriHandler` INSIDE
+ * that window. [AbLinkRouting]'s [LocalAbLinkOpener] does survive, and
+ * [askBeforeOpeningLink] additionally draws its own "open external link?" question on top when a
+ * link is tapped, instead of going through `CommonUtils.openLink`'s FIFO (which would queue behind
+ * -- and so hide behind -- the very Message/Confirm/… that contains the link).
  *
  * [onSheetOpening] runs once per sheet-shaped request before it is shown, so the host can close its
  * own modal sheets first (two modals must not stack — `ReadingOverlayExclusion`).
@@ -49,12 +50,12 @@ fun AppDialogHost(
     onRespond: (Long, AppDialogResult) -> Unit,
     onPermissionChoice: (AgentPermissionChoice) -> Unit,
     onPermissionDismiss: () -> Unit,
-    onOpenLink: (String) -> Unit,
+    onOpenExternal: (String) -> Unit,
+    askBeforeOpeningLink: Boolean = false,
     onSheetOpening: () -> Unit = {},
     progress: ShownDialog? = null,
 ) {
-    val uriHandler = remember(onOpenLink) { object : UriHandler { override fun openUri(uri: String) = onOpenLink(uri) } }
-    CompositionLocalProvider(LocalUriHandler provides uriHandler) {
+    AbLinkRouting(askFirst = askBeforeOpeningLink, onOpenExternal = onOpenExternal) {
         if (permission != null) {
             AgentPermissionDialog(request = permission, onChoice = onPermissionChoice, onDismiss = onPermissionDismiss)
         }
@@ -65,83 +66,84 @@ fun AppDialogHost(
             val p = progress.request as AppDialogRequest.Progress
             AbProgressDialog(message = p.message, title = p.title)
         }
-        if (shown == null) return@CompositionLocalProvider
-        val id = shown.id
-        val request = shown.request
-        val isSheet = request is AppDialogRequest.SingleChoice || request is AppDialogRequest.MultiChoice ||
-            (request is AppDialogRequest.Options && request.asActionSheet)
-        if (isSheet) LaunchedEffect(id) { onSheetOpening() }
-        val cancel = { onRespond(id, AppDialogResult.Cancel) }
-        when (request) {
-            is AppDialogRequest.Message -> AbMessageDialog(
-                title = request.title, html = request.message, confirmText = request.confirmText,
-                onConfirm = { onRespond(id, AppDialogResult.Ok) }, onDismissRequest = cancel,
-                dismissText = request.dismissText, neutralText = request.neutralText,
-                onNeutral = { onRespond(id, AppDialogResult.Neutral) }, cancellable = request.cancellable,
-            )
-            is AppDialogRequest.Confirm -> AbMessageDialog(
-                title = request.title, html = request.message, confirmText = request.confirmText,
-                onConfirm = { onRespond(id, AppDialogResult.Ok) }, onDismissRequest = cancel,
-                dismissText = request.dismissText, cancellable = request.cancellable,
-            )
-            is AppDialogRequest.SingleChoice -> key(id) {
-                // key(id): two consecutive requests must not share remembered sheet/selection state.
-                AbChoiceSheet(
-                    open = true, title = request.title.orEmpty(), choices = request.choices,
-                    selectedValue = request.selectedValue.orEmpty(),
-                    onSelect = { onRespond(id, AppDialogResult.Selected(it)) }, onDismiss = cancel,
+        if (shown != null) {
+            val id = shown.id
+            val request = shown.request
+            val isSheet = request is AppDialogRequest.SingleChoice || request is AppDialogRequest.MultiChoice ||
+                (request is AppDialogRequest.Options && request.asActionSheet)
+            if (isSheet) LaunchedEffect(id) { onSheetOpening() }
+            val cancel = { onRespond(id, AppDialogResult.Cancel) }
+            when (request) {
+                is AppDialogRequest.Message -> AbMessageDialog(
+                    title = request.title, html = request.message, confirmText = request.confirmText,
+                    onConfirm = { onRespond(id, AppDialogResult.Ok) }, onDismissRequest = cancel,
+                    dismissText = request.dismissText, neutralText = request.neutralText,
+                    onNeutral = { onRespond(id, AppDialogResult.Neutral) }, cancellable = request.cancellable,
                 )
-            }
-            is AppDialogRequest.MultiChoice -> key(id) {
-                // key(id): two consecutive requests (even with identical options) must not share a
-                // toggled-selection remembered inside AbMultiSelectSheet (I2).
-                AbMultiSelectSheet(
-                    open = true, title = request.title.orEmpty(), options = request.options,
-                    selectedIds = request.selectedIds, idOf = SettingsItem.Choice::value, labelOf = SettingsItem.Choice::label,
-                    confirmText = request.confirmText, dismissText = request.dismissText,
-                    onConfirm = { onRespond(id, AppDialogResult.SelectedMany(it)) }, onDismiss = cancel,
-                    selectAllText = request.selectAllText, selectNoneText = request.selectNoneText,
-                )
-            }
-            is AppDialogRequest.TextInput -> key(id) {
-                // key(id), not just AbTextInputContent's own remember(initial): two consecutive
-                // requests that happen to share the same `initial` (e.g. both "") must still not
-                // share typed state -- they are different dialogs. aNewTextRequestStartsFromItsOwnInitialValue
-                // passes via remember(initial) alone when the initials differ, so it does not by
-                // itself force this guard red; key(id) is kept as the correct behaviour for the
-                // same-initial case that test does not exercise.
-                AbTextInputDialog(
-                    title = request.title.orEmpty(), initial = request.initial,
-                    confirmText = request.confirmText, dismissText = request.dismissText,
-                    onConfirm = { onRespond(id, AppDialogResult.Text(it)) }, onDismiss = cancel,
-                    extraContent = request.message?.let { m -> { AbHtmlText(m) } },
-                    numeric = request.numeric, masked = request.masked,
-                    neutralText = request.neutralText, onNeutral = { onRespond(id, AppDialogResult.Neutral) },
-                    cancellable = request.cancellable,
-                )
-            }
-            is AppDialogRequest.Options -> if (request.asActionSheet) {
-                key(id) {
-                    // key(id): same reason as SingleChoice/MultiChoice above (I2).
-                    AbActionSheet(open = true, title = request.title.orEmpty(), message = request.message, onDismiss = cancel) {
-                        request.options.forEach { option ->
-                            AbActionSheetRow(label = option.label, onClick = { onRespond(id, AppDialogResult.Selected(option.value)) })
-                        }
-                    }
-                }
-            } else {
-                AbOptionsDialog(
-                    title = request.title, message = request.message, options = request.options,
-                    onSelect = { onRespond(id, AppDialogResult.Selected(it)) }, onDismissRequest = cancel,
+                is AppDialogRequest.Confirm -> AbMessageDialog(
+                    title = request.title, html = request.message, confirmText = request.confirmText,
+                    onConfirm = { onRespond(id, AppDialogResult.Ok) }, onDismissRequest = cancel,
                     dismissText = request.dismissText, cancellable = request.cancellable,
                 )
+                is AppDialogRequest.SingleChoice -> key(id) {
+                    // key(id): two consecutive requests must not share remembered sheet/selection state.
+                    AbChoiceSheet(
+                        open = true, title = request.title.orEmpty(), choices = request.choices,
+                        selectedValue = request.selectedValue.orEmpty(),
+                        onSelect = { onRespond(id, AppDialogResult.Selected(it)) }, onDismiss = cancel,
+                    )
+                }
+                is AppDialogRequest.MultiChoice -> key(id) {
+                    // key(id): two consecutive requests (even with identical options) must not share a
+                    // toggled-selection remembered inside AbMultiSelectSheet (I2).
+                    AbMultiSelectSheet(
+                        open = true, title = request.title.orEmpty(), options = request.options,
+                        selectedIds = request.selectedIds, idOf = SettingsItem.Choice::value, labelOf = SettingsItem.Choice::label,
+                        confirmText = request.confirmText, dismissText = request.dismissText,
+                        onConfirm = { onRespond(id, AppDialogResult.SelectedMany(it)) }, onDismiss = cancel,
+                        selectAllText = request.selectAllText, selectNoneText = request.selectNoneText,
+                    )
+                }
+                is AppDialogRequest.TextInput -> key(id) {
+                    // key(id), not just AbTextInputContent's own remember(initial): two consecutive
+                    // requests that happen to share the same `initial` (e.g. both "") must still not
+                    // share typed state -- they are different dialogs. aNewTextRequestStartsFromItsOwnInitialValue
+                    // passes via remember(initial) alone when the initials differ, so it does not by
+                    // itself force this guard red; key(id) is kept as the correct behaviour for the
+                    // same-initial case that test does not exercise.
+                    AbTextInputDialog(
+                        title = request.title.orEmpty(), initial = request.initial,
+                        confirmText = request.confirmText, dismissText = request.dismissText,
+                        onConfirm = { onRespond(id, AppDialogResult.Text(it)) }, onDismiss = cancel,
+                        extraContent = request.message?.let { m -> { AbHtmlText(m) } },
+                        numeric = request.numeric, masked = request.masked,
+                        neutralText = request.neutralText, onNeutral = { onRespond(id, AppDialogResult.Neutral) },
+                        cancellable = request.cancellable,
+                    )
+                }
+                is AppDialogRequest.Options -> if (request.asActionSheet) {
+                    key(id) {
+                        // key(id): same reason as SingleChoice/MultiChoice above (I2).
+                        AbActionSheet(open = true, title = request.title.orEmpty(), message = request.message, onDismiss = cancel) {
+                            request.options.forEach { option ->
+                                AbActionSheetRow(label = option.label, onClick = { onRespond(id, AppDialogResult.Selected(option.value)) })
+                            }
+                        }
+                    }
+                } else {
+                    AbOptionsDialog(
+                        title = request.title, message = request.message, options = request.options,
+                        onSelect = { onRespond(id, AppDialogResult.Selected(it)) }, onDismissRequest = cancel,
+                        dismissText = request.dismissText, cancellable = request.cancellable,
+                    )
+                }
+                // Unreachable in production: AppDialogController.pending (what feeds `shown`) is the
+                // first NON-Progress entry -- a Progress only ever arrives via the `progress` parameter
+                // above. Kept as a defensive render (never as Unit) so a caller that builds a `shown`
+                // ShownDialog directly around a Progress (as some tests still do) still shows something
+                // sane rather than silently nothing.
+                is AppDialogRequest.Progress -> AbProgressDialog(message = request.message, title = request.title)
             }
-            // Unreachable in production: AppDialogController.pending (what feeds `shown`) is the
-            // first NON-Progress entry -- a Progress only ever arrives via the `progress` parameter
-            // above. Kept as a defensive render (never as Unit) so a caller that builds a `shown`
-            // ShownDialog directly around a Progress (as some tests still do) still shows something
-            // sane rather than silently nothing.
-            is AppDialogRequest.Progress -> AbProgressDialog(message = request.message, title = request.title)
         }
     }
 }
