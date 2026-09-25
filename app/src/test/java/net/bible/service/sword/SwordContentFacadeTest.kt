@@ -22,6 +22,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.misc.elementToString
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.sword.SwordContentFacade.bibleRefSplit
+import net.bible.sharedcore.reading.ShareVersesOptions
 import net.bible.test.DatabaseResetter
 
 import org.crosswire.jsword.book.Book
@@ -723,4 +724,144 @@ Psa 83:1, ESV2011"""
             separateVersesWithNewlines = true,
             compareText = """“O God, do not keep silence; do not hold your peace or be still, O God!”"""
         )
+}
+
+/**
+ * Task 26 Step 1 (platform-dialog removal, run 3): the share sheet's new path
+ * (`SwordContentFacade.buildShareVersesInput` + `ShareVersesOptions.buildText`, `:sharedCore`)
+ * must produce EXACTLY what the classic `ShareWidget`'s text-building code
+ * (`SwordContentFacade.getSelectionText`, exercised directly above by [TestShare]) already
+ * produces, for every option combination — that parity is what lets `ShareWidget` be deleted in
+ * Step 3 without a behaviour change. [assertNewPathMatchesOldPath] reuses [TestShare]'s own
+ * `Selection`-building shape, but compares the two paths against EACH OTHER, not against a
+ * hand-written string, so a regression in EITHER path surfaces here even before Step 3 hardcodes
+ * an expectation. Once `ShareWidget`/`getSelectionText`'s only remaining caller is gone, Step 3
+ * freezes each case's [assertNewPathMatchesOldPath] call's OLD-path output as a literal expected
+ * string instead — see that step's commit for the frozen values.
+ *
+ * Three distinct selections (one verse, two verses, three verses across a chapter break) times
+ * several option combinations each — chosen to also cover every `abbreviateReference`/
+ * `showReferenceAtFront`/`separateVersesWithNewlines`/`showSelectionOnly` branch
+ * [ShareVersesOptions.buildText] has, not just [TestShare]'s existing default combination.
+ */
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+class ShareVersesInputCharacterizationTest {
+    private fun assertNewPathMatchesOldPath(
+        initials: String,
+        verseRangeStr: String,
+        offsetRange: IntRange,
+        showVerseNumbers: Boolean,
+        showWholeVerse: Boolean,
+        advertiseApp: Boolean = false,
+        showReference: Boolean = true,
+        showReferenceAtFront: Boolean = false,
+        abbreviateReference: Boolean = true,
+        showNotes: Boolean = true,
+        showVersion: Boolean = true,
+        showEllipsis: Boolean = true,
+        showQuotes: Boolean = true,
+        separateVersesWithNewlines: Boolean = false,
+        notes: String? = null,
+    ) {
+        val book = Books.installed().getBook(initials) as SwordBook
+        val v11n = book.versification
+        val verseRange = VerseRangeFactory.fromString(v11n, verseRangeStr)
+
+        val sel = Selection(
+            bookInitials = initials,
+            startOrdinal = verseRange.start.ordinal,
+            startOffset = offsetRange.first,
+            endOrdinal = verseRange.end.ordinal,
+            endOffset = offsetRange.last,
+            bookmarks = emptyList(),
+            notes = notes,
+        )
+
+        val oldText = SwordContentFacade.getSelectionText(
+            sel,
+            showVerseNumbers = showVerseNumbers,
+            showSelectionOnly = !showWholeVerse,
+            showReference = showReference,
+            advertiseApp = advertiseApp,
+            showReferenceAtFront = showReferenceAtFront,
+            showQuotes = showQuotes,
+            abbreviateReference = abbreviateReference,
+            showNotes = showNotes,
+            showVersion = showVersion,
+            showEllipsis = showEllipsis,
+            separateVersesWithNewlines = separateVersesWithNewlines,
+        )
+
+        val input = SwordContentFacade.buildShareVersesInput(sel)
+        val options = ShareVersesOptions(
+            showVerseNumbers = showVerseNumbers,
+            advertiseApp = advertiseApp,
+            showReference = showReference,
+            abbreviateReference = abbreviateReference,
+            showVersion = showVersion,
+            showNotes = showNotes,
+            showSelectionOnly = !showWholeVerse,
+            showEllipsis = showEllipsis,
+            showReferenceAtFront = showReferenceAtFront,
+            showQuotes = showQuotes,
+            separateVersesWithNewlines = separateVersesWithNewlines,
+        )
+        val newText = options.buildText(input)
+
+        assertThat(newText, equalTo(oldText))
+    }
+
+    // Input 1: a single verse (Psa 83:1), partial + whole selection (mirrors TestShare1a-4a/9-12).
+    @Test fun singleVerseDefault() = assertNewPathMatchesOldPath("ESV2011", "Ps.83.1", 7..30, true, false)
+
+    @Test fun singleVerseWholeVerse() = assertNewPathMatchesOldPath("ESV2011", "Ps.83.1", 7..30, true, true)
+
+    @Test fun singleVerseNoReferenceNoQuotesNoVersion() = assertNewPathMatchesOldPath(
+        "KJV", "Ps.43.1", 0..100, showVerseNumbers = false, showWholeVerse = true,
+        showReference = false, showVersion = false, showQuotes = false,
+    )
+
+    @Test fun singleVerseReferenceAtFrontUnabbreviated() = assertNewPathMatchesOldPath(
+        "KJV", "Ps.43.1", 0..5, showVerseNumbers = false, showWholeVerse = false,
+        showReferenceAtFront = true, abbreviateReference = false, showQuotes = false, showEllipsis = false,
+    )
+
+    @Test fun singleVersePartialNoEllipsisWithNotes() = assertNewPathMatchesOldPath(
+        "KJV", "Ps.43.1", 0..5, showVerseNumbers = false, showWholeVerse = false,
+        showQuotes = false, showEllipsis = false, showVersion = true, notes = "a note on this verse",
+    )
+
+    // Input 2: a two-verse selection (Psa 83:1-2, mirrors TestShare1-4).
+    @Test fun twoVersesDefault() = assertNewPathMatchesOldPath("ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, false)
+
+    @Test fun twoVersesWholeVerse() = assertNewPathMatchesOldPath("ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, true)
+
+    @Test fun twoVersesNoVerseNumbers() = assertNewPathMatchesOldPath("ESV2011", "Ps.83.1-Ps.83.2", 7..30, false, true)
+
+    @Test fun twoVersesSeparateWithNewlines() = assertNewPathMatchesOldPath(
+        "ESV2011", "Ps.83.1-Ps.83.2", 7..30, showVerseNumbers = true, showWholeVerse = true,
+        separateVersesWithNewlines = true,
+    )
+
+    @Test fun singleVerseSeparateWithNewlinesReferenceAtFront() = assertNewPathMatchesOldPath(
+        "ESV2011", "Ps.83.1", 7..30, showVerseNumbers = true, showWholeVerse = true,
+        showReferenceAtFront = true, separateVersesWithNewlines = true,
+    )
+
+    // Input 3: a three-verse, cross-chapter selection (Matt 2:23-3:2, mirrors TestShare5-7 /
+    // testShareWithNewlines_ThreeVerses).
+    @Test fun threeVersesCrossChapterDefault() =
+        assertNewPathMatchesOldPath("ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, true)
+
+    @Test fun threeVersesCrossChapterPartial() =
+        assertNewPathMatchesOldPath("ESV2011", "Matt.2.23-Matt.3.2", 7..12, true, false)
+
+    @Test fun threeVersesCrossChapterSeparateWithNewlines() = assertNewPathMatchesOldPath(
+        "ESV2011", "Matt.2.23-Matt.3.2", 7..11, showVerseNumbers = true, showWholeVerse = true,
+        separateVersesWithNewlines = true,
+    )
+
+    @Test fun threeVerseRangeWithinOneChapter() =
+        assertNewPathMatchesOldPath("ESV2011", "Ps.43.1-Ps.43.3", 0..100, true, false)
 }
