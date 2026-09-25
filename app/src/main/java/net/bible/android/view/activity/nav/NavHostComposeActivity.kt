@@ -17,7 +17,6 @@
 package net.bible.android.view.activity.nav
 
 import android.app.Activity
-import android.app.DatePickerDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -153,6 +152,7 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.ai.resolvedCustomPromptValue
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.AppDialogOverlay
+import net.bible.android.view.activity.base.FailClosedLinkRouting
 import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.themePixelSize
@@ -418,6 +418,7 @@ import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbActionSheet
 import net.bible.sharedui.components.AbActionSheetRow
 import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.ymdToUtcMidnightMillis
 import net.bible.sharedui.components.AbMultiSelectSheet
 import net.bible.sharedui.components.AbOptionsDialog
 import net.bible.sharedui.components.AbOverflowMenu
@@ -3354,6 +3355,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
         setContent {
             AbAppTheme {
+              FailClosedLinkRouting {
                 val navController = rememberNavController()
                 // Publish the controller for onNewIntent (see its kdoc); unbound with the
                 // composition, so the field is never a handle onto a dead graph.
@@ -3530,7 +3532,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             loadDay = { plan, day -> loadReadingPlanDay(plan, day) },
                             loaded = loadedReadingDay,
                             subscribeEvents = { subscribeDailyReadingEvents() },
-                            onShowStartDatePicker = { showReadingPlanStartDatePicker() },
                             onImportPlan = { importPlanLauncher.launch("application/zip") },
                             onPlanMissing = { offerReadingPlanSelector() },
                             title = getString(R.string.rdg_plan_title),
@@ -4265,6 +4266,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                         liveAiPromptsController?.dismissImportModeChoice()
                     },
                 )
+              }
             }
         }
     }
@@ -5508,8 +5510,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // --- Reading plan host baggage ------------------------------------------------------------
     // Ported from classic DailyReadingComposeActivity / DailyReadingListComposeActivity /
     // ReadingPlanSelectorComposeActivity (all three deleted in nav-graph Task 9). Everything here
-    // needs ReadingPlanControl, SpeakControl, JSword's BookName, an Android DatePickerDialog, a SAF
-    // launcher or ABEventBus with :app-module event types — none of which commonMain can reach.
+    // needs ReadingPlanControl, SpeakControl, JSword's BookName, a SAF launcher or ABEventBus with
+    // :app-module event types — none of which commonMain can reach. (Task 30b ported the reading-plan
+    // start-date picker off the platform `DatePickerDialog`; only computing its initial/max dates
+    // still needs ReadingPlanControl here.)
     // See ReadingPlanNavGraph.kt's Deps kdocs for the seam each piece arrives through.
 
     /**
@@ -6320,6 +6324,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             else { readingPlanControl.reset(code); finish() }
         },
         onSetStartDate = { showReadingPlanStartDatePicker() },
+        onConfirmStartDate = { year, month1to12, day -> confirmReadingPlanStartDate(year, month1to12, day) },
         onImportPlan = { importPlanLauncher.launch("application/zip") },
     ).also { dailyReadingController = it }
 
@@ -6427,19 +6432,46 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         }
     }
 
-    /** Platform-only (an Android `DatePickerDialog`), ported verbatim from classic `:245-256`. */
+    /**
+     * Task 30b (correction 10 / ruling R3-2): classic's platform `android.app.DatePickerDialog`
+     * (`:245-256`) ported to [net.bible.sharedui.components.AbDatePickerDialog] via
+     * [DailyReadingController.showStartDatePicker]/`startDatePick`. This function keeps only what
+     * needs an Activity — computing the initial/max dates from [readingsDto] via
+     * [ReadingPlanInfoDto]/[Calendar] — and hands them over as UTC-midnight millis
+     * ([ymdToUtcMidnightMillis]). Both are read off the LOCAL calendar fields (never a raw instant)
+     * so the round trip through [confirmReadingPlanStartDate] reproduces exactly the same
+     * year/month/day classic's `Calendar.get(YEAR/MONTH/DAY_OF_MONTH)` did — see
+     * [ymdToUtcMidnightMillis]'s kdoc for why this sidesteps any real timezone conversion.
+     */
     private fun showReadingPlanStartDatePicker() {
         val dto = readingsDto ?: return
         val nowTime = Calendar.getInstance()
         val planStartDate = Calendar.getInstance()
         planStartDate.time = dto.readingPlanInfo.startDate ?: nowTime.time
-        val picker = DatePickerDialog(this, { _, year, month, day ->
-            planStartDate.set(year, month, day)
-            readingPlanControl.setStartDate(dto.readingPlanInfo, planStartDate.time)
-            loadReadingPlanDay(planCodeLoaded, dayLoaded)
-        }, planStartDate.get(Calendar.YEAR), planStartDate.get(Calendar.MONTH), planStartDate.get(Calendar.DAY_OF_MONTH))
-        picker.datePicker.maxDate = nowTime.timeInMillis
-        picker.show()
+        val initialUtcMillis = ymdToUtcMidnightMillis(
+            planStartDate.get(Calendar.YEAR), planStartDate.get(Calendar.MONTH) + 1, planStartDate.get(Calendar.DAY_OF_MONTH),
+        )
+        val maxUtcMillis = ymdToUtcMidnightMillis(
+            nowTime.get(Calendar.YEAR), nowTime.get(Calendar.MONTH) + 1, nowTime.get(Calendar.DAY_OF_MONTH),
+        )
+        dailyReadingController?.showStartDatePicker(initialUtcMillis, maxUtcMillis)
+    }
+
+    /**
+     * [DailyReadingController.confirmStartDate]'s host callback: classic's picker-listener body
+     * verbatim (`:245-256`), `month1to12` converted to `Calendar`'s 0-based month. Re-derives the
+     * SAME starting `Calendar` [showReadingPlanStartDatePicker] built (existing start date, or now's
+     * time-of-day) before applying `.set(year, month, day)` — classic's listener closed over that
+     * exact `planStartDate` instance, so its time-of-day fields (untouched by `.set(y, m, d)`) came
+     * from there, not from "now" at confirm time.
+     */
+    private fun confirmReadingPlanStartDate(year: Int, month1to12: Int, day: Int) {
+        val dto = readingsDto ?: return
+        val planStartDate = Calendar.getInstance()
+        planStartDate.time = dto.readingPlanInfo.startDate ?: planStartDate.time
+        planStartDate.set(year, month1to12 - 1, day)
+        readingPlanControl.setStartDate(dto.readingPlanInfo, planStartDate.time)
+        loadReadingPlanDay(planCodeLoaded, dayLoaded)
     }
 
     /** Classic's day-row primary line (date for a date-based plan, otherwise the day description). */

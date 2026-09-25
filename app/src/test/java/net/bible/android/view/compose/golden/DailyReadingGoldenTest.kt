@@ -27,7 +27,14 @@ class DailyReadingGoldenTest {
     ) = DailyReadingUi("Bible in a year", "Day 3", "Thu 9 Jan", readings, showSpeakAll = true, allRead = allRead, isDateBasedPlan = dateBased)
 
     private fun screen(ui: DailyReadingUi = ui(), speak: SpeakState = SpeakState.NONE) = @androidx.compose.runtime.Composable {
-        DailyReadingScreen(ui, speak, null, null, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+        DailyReadingScreen(
+            ui = ui, speakState = speak, error = null, confirm = null, startDatePick = null,
+            onToggleRead = {}, onRead = {}, onSpeak = {}, onSpeakAll = {}, onDone = {},
+            onPauseSpeak = {}, onStopSpeak = {}, onChangePlan = {}, onChangeDay = {}, onSetCurrentDay = {},
+            onSetStartDate = {}, onReset = {}, onImportPlan = {}, onConfirm = {}, onDismissConfirm = {},
+            onDismissError = {}, onConfirmStartDatePicker = { _, _, _ -> }, onDismissStartDatePicker = {},
+            onNavigateUp = {},
+        )
     }
 
     @Test fun daily_primary() { captureMatrix("DailyReading", "primary") { screen()() } }

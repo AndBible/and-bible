@@ -110,12 +110,17 @@ enum class DailyReadingLoad {
  *   [net.bible.sharedui.ai.nav.AiModelsDeps.onResume]'s established convention: one host now serves
  *   several clusters, and a plan sync must not `recreate()` the host while an unrelated cluster's
  *   destination is the one showing.
- * - [onShowStartDatePicker] and [onImportPlan] are the two hard platform dependencies: an Android
- *   `DatePickerDialog` (`DailyReadingComposeActivity.kt:245-256`) and a SAF `GetContent()` launcher
- *   chained into `Screen.InstallZip` (`:103`, `:268-271`). Both stay host-side as plain lambdas,
+ * - [onImportPlan] is the one remaining hard platform dependency: a SAF `GetContent()` launcher
+ *   chained into `Screen.InstallZip` (`:103`, `:268-271`). It stays host-side as a plain lambda,
  *   exactly like slice 1's `AiPromptsDeps.onImportCsv`/`onExportCsv`, and this graph binds the
- *   screen straight to them so the platform seam is visible here rather than hidden behind a
- *   controller pass-through.
+ *   screen straight to it so the platform seam is visible here rather than hidden behind a
+ *   controller pass-through. The reading-plan start-date picker (classic's Android
+ *   `DatePickerDialog`, `DailyReadingComposeActivity.kt:245-256`) went through this same host-lambda
+ *   shape before Task 30b ported it to [net.bible.sharedui.components.AbDatePickerDialog]; the
+ *   picker is now feature-owned state on [DailyReadingController] (`startDatePick`), reached through
+ *   the controller's own `setStartDate`/`confirmStartDate`/`dismissStartDatePicker` pass-throughs
+ *   like every other seam here — see [DailyReadingController]'s kdoc. Only computing the initial/max
+ *   dates still needs the host (`ReadingPlanInfoDto`, JSword-only).
  * - [onPlanMissing] is classic's two-step "no plan" behaviour, which cannot be a plain `() -> Unit`
  *   here. Classic showed the selector from `onCreate` and, when the selector returned without a
  *   pick, ran `if (!readingPlanControl.isReadingPlanSelected) finish()`. In the graph BOTH steps
@@ -138,7 +143,6 @@ class DailyReadingDeps(
     val loadDay: (plan: String?, day: Int?) -> DailyReadingLoad,
     val loaded: StateFlow<LoadedReadingDay?>,
     val subscribeEvents: () -> () -> Unit,
-    val onShowStartDatePicker: () -> Unit,
     val onImportPlan: () -> Unit,
     val onPlanMissing: () -> Boolean,
     val title: String,
@@ -369,12 +373,14 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         val speakState by controller.speakState.collectAsState()
         val error by controller.error.collectAsState()
         val confirm by controller.confirm.collectAsState()
+        val startDatePick by controller.startDatePick.collectAsState()
 
         DailyReadingScreen(
             ui = ui,
             speakState = speakState,
             error = error,
             confirm = confirm,
+            startDatePick = startDatePick,
             onToggleRead = controller::toggleRead,
             onRead = controller::read,
             onSpeak = controller::speak,
@@ -385,15 +391,20 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
             onChangePlan = controller::changePlan,
             onChangeDay = controller::changeDay,
             onSetCurrentDay = controller::requestSetCurrentDay,
-            // Straight to the platform seams rather than through the controller's pass-throughs —
-            // see DailyReadingDeps' kdoc: both need an Activity (a DatePickerDialog and a SAF
-            // launcher), same shape as slice 1's onImportCsv/onExportCsv.
-            onSetStartDate = d.onShowStartDatePicker,
+            // Task 30b: now through the controller's own pass-through, like every other seam here —
+            // the host computes the initial/max dates (needs an Activity — DatePickerDialog's Task
+            // 30b successor, ReadingPlanControl/JSword) and calls back into
+            // DailyReadingController.showStartDatePicker with them (see DailyReadingDeps' kdoc). Only
+            // onImportPlan still goes straight to the platform seam (a SAF launcher), same shape as
+            // slice 1's onImportCsv/onExportCsv.
+            onSetStartDate = controller::setStartDate,
             onReset = controller::requestReset,
             onImportPlan = d.onImportPlan,
             onConfirm = controller::confirm,
             onDismissConfirm = controller::dismissConfirm,
             onDismissError = controller::dismissError,
+            onConfirmStartDatePicker = controller::confirmStartDate,
+            onDismissStartDatePicker = controller::dismissStartDatePicker,
             onNavigateUp = { navController.popOrExit(deps.exitHost) },
         )
     }

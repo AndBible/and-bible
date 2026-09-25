@@ -38,6 +38,15 @@ enum class SpeakState { NONE, SPEAKING, PAUSED }
 enum class ConfirmKind { RESET, SET_CURRENT_DAY }
 
 /**
+ * The reading-plan start-date picker's state (Task 30b, correction 10 / ruling R3-2). [initialUtcMillis]
+ * and [maxUtcMillis] are UTC-midnight millis — see
+ * [net.bible.sharedui.components.ymdToUtcMidnightMillis]'s kdoc for why this encoding never actually
+ * needs a real timezone conversion. Computed by the host (needs `ReadingPlanInfoDto`, JSword-only)
+ * and handed to [DailyReadingController.showStartDatePicker] when the menu fires.
+ */
+data class StartDatePick(val initialUtcMillis: Long, val maxUtcMillis: Long)
+
+/**
  * Framework-free controller for the daily-reading screen. The host owns the truth (ReadingStatus,
  * ReadingPlanControl, SpeakControl) and pushes snapshots via [setUi]/[pushSpeakState]; every user
  * action forwards through a lambda seam. Reset & set-current-day are gated behind a confirm dialog.
@@ -55,6 +64,7 @@ class DailyReadingController(
     private val onSetCurrentDay: () -> Unit,
     private val onReset: () -> Unit,
     private val onSetStartDate: () -> Unit,
+    private val onConfirmStartDate: (year: Int, month1to12: Int, day: Int) -> Unit,
     private val onImportPlan: () -> Unit,
 ) {
     private val _ui = MutableStateFlow(
@@ -71,6 +81,9 @@ class DailyReadingController(
     private val _error = MutableStateFlow<ReadingPlanError?>(null)
     val error: StateFlow<ReadingPlanError?> = _error.asStateFlow()
 
+    private val _startDatePick = MutableStateFlow<StartDatePick?>(null)
+    val startDatePick: StateFlow<StartDatePick?> = _startDatePick.asStateFlow()
+
     fun setUi(ui: DailyReadingUi) { _ui.value = ui }
     fun pushSpeakState(state: SpeakState) { _speakState.value = state }
 
@@ -85,6 +98,19 @@ class DailyReadingController(
     fun changeDay() = onChangeDay()
     fun setStartDate() = onSetStartDate()
     fun importPlan() = onImportPlan()
+
+    /** [onSetStartDate] (the host) computes the current initial/max dates and calls back into this
+     *  with them — see this class's kdoc seam and [StartDatePick]. */
+    fun showStartDatePicker(initialUtcMillis: Long, maxUtcMillis: Long) {
+        _startDatePick.value = StartDatePick(initialUtcMillis, maxUtcMillis)
+    }
+
+    fun confirmStartDate(year: Int, month1to12: Int, day: Int) {
+        _startDatePick.value = null
+        onConfirmStartDate(year, month1to12, day)
+    }
+
+    fun dismissStartDatePicker() { _startDatePick.value = null }
 
     fun requestReset() { _confirm.value = ConfirmKind.RESET }
     fun requestSetCurrentDay() { _confirm.value = ConfirmKind.SET_CURRENT_DAY }

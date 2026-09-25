@@ -9,9 +9,11 @@ class DailyReadingControllerTest {
         onToggle: (Int) -> Unit = {}, onRead: (Int) -> Unit = {}, onSpeak: (Int) -> Unit = {},
         onSpeakAll: () -> Unit = {}, onDone: () -> Unit = {}, onPause: () -> Unit = {}, onStop: () -> Unit = {},
         onChangePlan: () -> Unit = {}, onChangeDay: () -> Unit = {}, onSetCurrentDay: () -> Unit = {},
-        onReset: () -> Unit = {}, onSetStartDate: () -> Unit = {}, onImport: () -> Unit = {},
+        onReset: () -> Unit = {}, onSetStartDate: () -> Unit = {},
+        onConfirmStartDate: (year: Int, month1to12: Int, day: Int) -> Unit = { _, _, _ -> },
+        onImport: () -> Unit = {},
     ) = DailyReadingController(onToggle, onRead, onSpeak, onSpeakAll, onDone, onPause, onStop,
-        onChangePlan, onChangeDay, onSetCurrentDay, onReset, onSetStartDate, onImport)
+        onChangePlan, onChangeDay, onSetCurrentDay, onReset, onSetStartDate, onConfirmStartDate, onImport)
 
     private val ui = DailyReadingUi("Plan", "Day 1", "1 Jan",
         listOf(ReadingItem(1, "Gen 1", false), ReadingItem(2, "Matt 1", true)), true, false, false)
@@ -73,5 +75,38 @@ class DailyReadingControllerTest {
         assertEquals(ReadingPlanError.FAILED, c.error.value)
         c.dismissError()
         assertNull(c.error.value)
+    }
+
+    @Test fun showStartDatePicker_pushes_state() {
+        val c = controller()
+        assertNull(c.startDatePick.value)
+        c.showStartDatePicker(1_000L, 2_000L)
+        assertEquals(StartDatePick(1_000L, 2_000L), c.startDatePick.value)
+    }
+
+    @Test fun confirmStartDate_calls_the_callback_once_and_clears() {
+        var calls = 0; var y = -1; var m = -1; var d = -1
+        val c = controller(onConfirmStartDate = { year, month, day -> calls++; y = year; m = month; d = day })
+        c.showStartDatePicker(1_000L, 2_000L)
+        c.confirmStartDate(2026, 9, 25)
+        assertEquals(1, calls)
+        assertEquals(2026, y); assertEquals(9, m); assertEquals(25, d)
+        assertNull(c.startDatePick.value)
+    }
+
+    @Test fun dismissStartDatePicker_clears_without_the_callback() {
+        var calls = 0
+        val c = controller(onConfirmStartDate = { _, _, _ -> calls++ })
+        c.showStartDatePicker(1_000L, 2_000L)
+        c.dismissStartDatePicker()
+        assertNull(c.startDatePick.value)
+        assertEquals(0, calls)
+    }
+
+    @Test fun setStartDate_fires_the_host_seam() {
+        var called = false
+        val c = controller(onSetStartDate = { called = true })
+        c.setStartDate()
+        assertEquals(true, called)
     }
 }

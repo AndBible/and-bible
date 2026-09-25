@@ -33,8 +33,10 @@ import net.bible.sharedcore.readingplan.DailyReadingUi
 import net.bible.sharedcore.readingplan.ReadingItem
 import net.bible.sharedcore.readingplan.ReadingPlanError
 import net.bible.sharedcore.readingplan.SpeakState
+import net.bible.sharedcore.readingplan.StartDatePick
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbDatePickerDialog
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbOverflowMenu
@@ -48,6 +50,7 @@ fun DailyReadingScreen(
     speakState: SpeakState,
     error: ReadingPlanError?,
     confirm: ConfirmKind?,
+    startDatePick: StartDatePick?,
     onToggleRead: (Int) -> Unit,
     onRead: (Int) -> Unit,
     onSpeak: (Int) -> Unit,
@@ -64,6 +67,8 @@ fun DailyReadingScreen(
     onConfirm: () -> Unit,
     onDismissConfirm: () -> Unit,
     onDismissError: () -> Unit,
+    onConfirmStartDatePicker: (year: Int, month1to12: Int, day: Int) -> Unit,
+    onDismissStartDatePicker: () -> Unit,
     onNavigateUp: () -> Unit,
 ) {
     val strings = LocalStrings.current
@@ -168,6 +173,16 @@ fun DailyReadingScreen(
     }
     if (error != null) {
         AbErrorDialog(message = strings.errorOccurred, confirmText = strings.okay, onDismiss = onDismissError)
+    }
+    if (startDatePick != null) {
+        AbDatePickerDialog(
+            initialUtcMillis = startDatePick.initialUtcMillis,
+            maxUtcMillis = startDatePick.maxUtcMillis,
+            confirmText = strings.okay,
+            dismissText = strings.cancel,
+            onConfirm = onConfirmStartDatePicker,
+            onDismiss = onDismissStartDatePicker,
+        )
     }
 }
 
