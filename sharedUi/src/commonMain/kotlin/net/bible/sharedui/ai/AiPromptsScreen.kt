@@ -430,10 +430,14 @@ fun AiPromptsScreen(
             },
             onDismiss = onDismissImportModeChoice,
         )
-        is AiPromptsDialog.ImportErrors -> AbErrorDialog(
-            message = d.text,
-            confirmText = strings.okay,
+        // M1: classic's post-import error summary had a title (import_prompts_csv, the same one the
+        // choice sheet above uses) -- AbErrorDialog has no title slot at all, which silently dropped
+        // it. AbInfoDialog does.
+        is AiPromptsDialog.ImportErrors -> AbInfoDialog(
+            title = strings.importPromptsCsv,
+            body = d.text,
             onDismiss = onDismissDialog,
+            confirmLabel = strings.okay,
         )
         AiPromptsDialog.None -> {}
     }

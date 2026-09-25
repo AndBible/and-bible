@@ -121,4 +121,11 @@ class AiPromptsScreenImportDialogTest {
         assertEquals(1, dismissDialogCalls)
         assertEquals(0, dismissChoiceCalls)
     }
+
+    // M1: classic's post-import summary had a title (the same "Import prompts from CSV" the choice
+    // sheet uses) -- an AbErrorDialog has no title slot at all, which silently dropped it.
+    @Test fun importErrors_showsTheTitleClassicHad() {
+        show(AiPromptsDialog.ImportErrors("2 created, 1 error"))
+        compose.onNodeWithText("Import prompts from CSV").assertExists()
+    }
 }
