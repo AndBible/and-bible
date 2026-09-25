@@ -17,13 +17,10 @@
 
 package net.bible.android.view.activity.page
 
-import android.app.AlertDialog
 import android.content.ClipData
 import android.content.Intent
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.webkit.JavascriptInterface
-import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -71,7 +68,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.bookmarksMyNotesPlaylist
 import net.bible.service.common.displayName
-import net.bible.service.common.htmlToSpan
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
@@ -844,11 +840,9 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun helpDialog(content: String, title: String?) {
-        AlertDialog.Builder(hostActivity)
-            .setTitle(title)
-            .setMessage(content)
-            .setPositiveButton(hostActivity.getString(R.string.okay), null)
-            .show()
+        // Platform-dialog removal Task 18: the reading view owns this dialog now (a `ReadingDialog`
+        // over the pane, not a `ReadingOverlay` -- see `ComposeReadingViewHost.ReadingDialog`'s kdoc).
+        hostCallbacks.composeReadingViewHost()?.showHelp(title, content)
     }
 
     @JavascriptInterface
@@ -858,15 +852,8 @@ class BibleJavascriptInterface(
         val message = "<i><a href=\"$bookmarksMyNotesPlaylist\">${hostActivity.getString(R.string.watch_tutorial_video)}</a></i>" +
             "<br><br><b>$verseTip</b><br><br>$bookmarksMyNotesHelp"
 
-        val d = AlertDialog.Builder(hostActivity)
-            .setTitle(R.string.bookmarks_and_mynotes_title)
-            .setMessage(htmlToSpan(message))
-            .setPositiveButton(hostActivity.getString(R.string.okay), null)
-            .create()
-
-        d.show()
-
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        // Platform-dialog removal Task 18: same reading-view-owned dialog state as [helpDialog].
+        hostCallbacks.composeReadingViewHost()?.showHelp(hostActivity.getString(R.string.bookmarks_and_mynotes_title), message)
     }
 
     @JavascriptInterface
@@ -1109,19 +1096,19 @@ class BibleJavascriptInterface(
     fun deleteMyDocumentPage(pageId: String) {
         val id = IdType(pageId)
         scope.launch(Dispatchers.Main) {
-            AlertDialog.Builder(hostActivity)
-                .setMessage(R.string.ai_document_delete_confirmation)
-                .setPositiveButton(R.string.yes) { _, _ ->
-                    MyDocumentBookManager.deleteAIDocumentPage(id)
-                    val window = bibleView.window
-                    if (windowControl.isWindowRemovable(window)) {
-                        windowControl.closeWindow(window)
-                    } else {
-                        window.pageManager.setCurrentDocument(window.pageManager.currentBible.currentDocument)
-                    }
+            // Platform-dialog removal Task 18: the QUESTION moves to the reading view's own dialog
+            // state; the deletion + window bookkeeping stays here, since it needs [windowControl] and
+            // the triggering [bibleView] (see `ComposeReadingViewHost.showDeleteDocumentPageConfirm`'s
+            // kdoc).
+            hostCallbacks.composeReadingViewHost()?.showDeleteDocumentPageConfirm {
+                MyDocumentBookManager.deleteAIDocumentPage(id)
+                val window = bibleView.window
+                if (windowControl.isWindowRemovable(window)) {
+                    windowControl.closeWindow(window)
+                } else {
+                    window.pageManager.setCurrentDocument(window.pageManager.currentBible.currentDocument)
                 }
-                .setNegativeButton(R.string.no, null)
-                .show()
+            }
         }
     }
 

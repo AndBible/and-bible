@@ -19,7 +19,6 @@ package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.SearchManager
 import android.content.ClipData
 import android.content.Context

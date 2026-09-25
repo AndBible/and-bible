@@ -18,13 +18,10 @@ package net.bible.android.view.activity.page.screen
 
 import android.content.Intent
 import android.text.format.DateFormat.format
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.activity.compose.BackHandler
-import androidx.appcompat.app.AlertDialog
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -161,7 +158,6 @@ import net.bible.android.view.activity.settings.buildTextDisplayControllerLabels
 import net.bible.android.view.activity.settings.buildTextDisplayScreenLabels
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.RecentDocumentsStore
-import net.bible.service.common.htmlToSpan
 import net.bible.service.common.automaticSpeakBookmarkingVideo
 import net.bible.service.common.speakHelpVideo
 import net.bible.service.device.ScreenSettings
@@ -261,7 +257,10 @@ import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.ai.reading.AgentLogPanel
 import net.bible.sharedui.ai.reading.ReadingLlmDialogs
+import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbErrorDialog
+import net.bible.sharedui.components.AbLinkRouting
+import net.bible.sharedui.components.AbMessageDialog
 import net.bible.sharedui.components.AbQuickSheet
 import net.bible.sharedui.components.AbQuickSheetFooterRow
 import net.bible.sharedui.components.AbQuickSheetTab
@@ -451,6 +450,28 @@ class WindowButtonsVisibility {
 enum class PaneMenuAnchor { Pane, Rail }
 
 /**
+ * Platform-dialog removal Task 18: the reading view's own dialogs, held as ONE host-owned state
+ * (`ComposeReadingViewHost.readingDialog`) and rendered through ONE host-private slot
+ * (`ReadingDialogSlot`) -- the same "shape 2" pattern `quickSheet`/`QuickSheetSlot` already use
+ * (Appendix -- site owners, Q1), rather than the raw-`StateFlow`-plus-many-callbacks shape
+ * `readingLlmDialogs` needs (nothing outside this host observes either of these).
+ *
+ * **Not a [net.bible.sharedcore.reading.ReadingOverlay]**: both arms are plain `AlertDialog`-shaped
+ * (via `AbMessageDialog`/`AbConfirmDialog`), and a dialog over a sheet is fine
+ * (`ReadingOverlayExclusion`'s kdoc) -- so opening one never needs to close a sheet, and no
+ * exclusion wiring/enum member is needed.
+ */
+sealed interface ReadingDialog {
+    /** `BibleJavascriptInterface.helpDialog`/`.helpBookmarks`'s plain-text or HTML help body -- a
+     *  single OK button, no negative action. */
+    data class Help(val title: String?, val html: String) : ReadingDialog
+
+    /** `BibleJavascriptInterface.deleteMyDocumentPage`'s confirm; [onConfirm] is the caller's
+     *  deletion (+ window bookkeeping), captured at open time -- only the QUESTION lives here. */
+    data class ConfirmDeleteDocumentPage(val onConfirm: () -> Unit) : ReadingDialog
+}
+
+/**
  * Mounts the Compose reading view into its host Activity's content. It replaced the classic
  * `SplitBibleArea` build, which [DocumentViewManager] used to choose between; that build is gone
  * and this is now the only reading view there is. Plan A kept the classic toolbar/drawer chrome;
@@ -560,6 +581,40 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      */
     internal fun closeModalOverlays() {
         ReadingOverlay.entries.forEach(::closeOverlay)
+    }
+
+    /**
+     * Platform-dialog removal Task 18: the reading view's own dialogs (see [ReadingDialog]'s kdoc
+     * for why this is not a [ReadingOverlay]). ONE state, rendered through the one host-private
+     * slot [ReadingDialogSlot] — the same shape as [quickSheet]/[QuickSheetSlot].
+     */
+    internal val readingDialog = mutableStateOf<ReadingDialog?>(null)
+
+    /** `BibleJavascriptInterface.helpDialog`/`.helpBookmarks`'s entry point. */
+    internal fun showHelp(title: String?, html: String) {
+        readingDialog.value = ReadingDialog.Help(title, html)
+    }
+
+    /** `BibleJavascriptInterface.deleteMyDocumentPage`'s entry point — see [ReadingDialog
+     *  .ConfirmDeleteDocumentPage]'s kdoc for why [onConfirm] is the caller's job. */
+    internal fun showDeleteDocumentPageConfirm(onConfirm: () -> Unit) {
+        readingDialog.value = ReadingDialog.ConfirmDeleteDocumentPage(onConfirm)
+    }
+
+    /**
+     * Runs the showing dialog's confirm action (if it has one) and clears it. A no-op when nothing
+     * is showing, so a second/duplicate confirm (e.g. a fast double-tap) never re-runs the deletion.
+     */
+    internal fun confirmReadingDialog() {
+        val dialog = readingDialog.value ?: return
+        readingDialog.value = null
+        if (dialog is ReadingDialog.ConfirmDeleteDocumentPage) dialog.onConfirm()
+    }
+
+    /** Dismisses whatever [ReadingDialog] is showing, running no action. A no-op when nothing is
+     *  showing. */
+    internal fun dismissReadingDialog() {
+        readingDialog.value = null
     }
 
     /**
@@ -1198,8 +1253,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     // either side of the port. Guarded by `SpeakEntryPointGuardTest`.
     // ------------------------------------------------------------------------------------------
 
-    /** The Speak sheet's page stack. One instance per host, like [textSettingsEditor]. */
-    private val speakSheet = SpeakSheetStack()
+    /** The Speak sheet's page stack. One instance per host, like [textSettingsEditor] -- `internal`
+     *  for the same reason (test-only reads of which page is open, no `ComposeTestRule` in this
+     *  module). */
+    internal val speakSheet = SpeakSheetStack()
 
     /** The repeat-range draft. Deliberately host-lived rather than page-lived: its endpoints are
      *  picked on the PickVerse page, so a draft that died with the RepeatRange page's composition
@@ -1265,29 +1322,35 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         activity.hostActivity.startActivity(Intent("com.android.settings.TTS_SETTINGS"))
     }
 
-    /** The Speak help dialog, moved here verbatim from the deleted `BibleSpeakComposeActivity`'s
-     *  `showHelp()`. It stays a platform dialog on purpose: converting the HTML link text to
-     *  Compose is out of this round's scope. */
-    private fun showSpeakHelp() {
-        val html = ("<b>${activity.getString(R.string.speak)}</b><br><br>"
+    /**
+     * Platform-dialog removal Task 18: the Speak/Advanced-Speak help dialogs' shared state — ONE
+     * `MutableState` (only one of the two sheet pages that opens either is ever composed at a time),
+     * set by [showSpeakHelp]/[showAdvancedSpeakHelp] and rendered inside [SpeakSettingsSlot] as a
+     * dialog OVER the sheet ([ReadingOverlayExclusion]'s kdoc: dialog-over-sheet is fine), so this
+     * needs no new overlay/slot param — the same reasoning as [ReadingDialog]. `internal`, like
+     * [textSettingsControllerFor]/[colorControllerFor], purely for test-only reads (no
+     * `ComposeTestRule` in this module).
+     */
+    internal val speakHelp = mutableStateOf<String?>(null)
+
+    /** The Speak help dialog's content, moved here verbatim from the deleted
+     *  `BibleSpeakComposeActivity`'s `showHelp()`. `internal` for the same test-only reason as
+     *  [speakHelp]. */
+    internal fun showSpeakHelp() {
+        speakHelp.value = ("<b>${activity.getString(R.string.speak)}</b><br><br>"
             + "<b><a href=\"$speakHelpVideo\">${activity.getString(R.string.watch_tutorial_video)}</a></b>")
-        val d = AlertDialog.Builder(activity.hostContext).setMessage(htmlToSpan(html))
-            .setPositiveButton(android.R.string.ok) { _, _ -> }.create()
-        d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     /**
-     * The ADVANCED Speak help dialog — the auto-bookmarking / playback-settings explanations, moved
-     * here verbatim from the deleted `SpeakSettingsComposeActivity`'s `showHelp()`. A second seam
-     * next to [showSpeakHelp] because it is a different dialog with different content: this one
-     * explains the two least self-evident switches on the Advanced page (`conf_speak_auto_bookmark`
-     * and `conf_save_playback_settings_to_bookmarks`). Spec §5 keeps both as platform dialogs — they
-     * carry HTML tutorial-video hyperlinks — with ownership moved to this host when the activities
-     * were deleted.
+     * The ADVANCED Speak help dialog's content — the auto-bookmarking / playback-settings
+     * explanations, moved here verbatim from the deleted `SpeakSettingsComposeActivity`'s
+     * `showHelp()`. A second seam next to [showSpeakHelp] because it is a different dialog with
+     * different content: this one explains the two least self-evident switches on the Advanced page
+     * (`conf_speak_auto_bookmark` and `conf_save_playback_settings_to_bookmarks`). `internal` for
+     * the same test-only reason as [showSpeakHelp].
      */
-    private fun showAdvancedSpeakHelp() {
-        val html = (
+    internal fun showAdvancedSpeakHelp() {
+        speakHelp.value = (
             "<b>${activity.getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
                 + "<b><a href=\"$automaticSpeakBookmarkingVideo\">${activity.getString(R.string.watch_tutorial_video)}</a></b><br><br>"
                 + activity.getString(R.string.speak_help_auto_bookmark)
@@ -1295,10 +1358,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 + activity.getString(R.string.speak_help_playback_settings)
                 + "<br><br>" + activity.getString(R.string.speak_help_playback_settings_example)
             )
-        val d = AlertDialog.Builder(activity.hostContext).setMessage(htmlToSpan(html))
-            .setPositiveButton(android.R.string.ok) { _, _ -> }.create()
-        d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     /**
@@ -1403,6 +1462,48 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     },
                 )
             }
+        }
+        // A dialog over the sheet (ReadingOverlayExclusion's kdoc) -- see [speakHelp]'s kdoc.
+        speakHelp.value?.let { html ->
+            AbLinkRouting(onOpenLink = { CommonUtils.openLink(it) }) {
+                AbMessageDialog(
+                    title = null,
+                    html = html,
+                    confirmText = activity.getString(android.R.string.ok),
+                    onConfirm = { speakHelp.value = null },
+                    onDismissRequest = { speakHelp.value = null },
+                )
+            }
+        }
+    }
+
+    /**
+     * Platform-dialog removal Task 18 — the reading view's own dialogs ([ReadingDialog]), an EIGHTH
+     * sibling overlay. Unlike the seven above, both arms are plain `AlertDialog`-shaped (via
+     * `AbMessageDialog`/`AbConfirmDialog`), which stacks fine over any sheet that happens to be open
+     * (`ReadingOverlayExclusion`'s kdoc) — so this needs no exclusion wiring, unlike the sheets below.
+     */
+    @Composable
+    private fun ReadingDialogSlot() {
+        when (val dialog = readingDialog.value) {
+            null -> Unit
+            is ReadingDialog.Help -> AbLinkRouting(onOpenLink = { CommonUtils.openLink(it) }) {
+                AbMessageDialog(
+                    title = dialog.title,
+                    html = dialog.html,
+                    confirmText = activity.getString(R.string.okay),
+                    onConfirm = ::dismissReadingDialog,
+                    onDismissRequest = ::dismissReadingDialog,
+                )
+            }
+            is ReadingDialog.ConfirmDeleteDocumentPage -> AbConfirmDialog(
+                title = null,
+                message = activity.getString(R.string.ai_document_delete_confirmation),
+                confirmText = activity.getString(R.string.yes),
+                dismissText = activity.getString(R.string.no),
+                onConfirm = ::confirmReadingDialog,
+                onDismiss = ::dismissReadingDialog,
+            )
         }
     }
 
@@ -3273,6 +3374,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // Round 13a: the Speak settings sheet.
             speakSettingsSlot = { SpeakSettingsSlot() },
             quickSheetSlot = { QuickSheetSlot() },
+            // Platform-dialog removal Task 18: the reading view's own dialogs (BJI help/delete-confirm).
+            readingDialogSlot = { ReadingDialogSlot() },
             // Task 8b Step 3: feeds MainBibleActivity.bottomOffsetForWebView's fourth term.
             onSearchSheetOffsetsChanged = { visible, heightPx -> activity.readingInsets.updateSearchSheetOffsets(visible, heightPx) },
             // Task 10: the "<document> cannot be searched" snackbar.
@@ -3781,6 +3884,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // Round 15b: the quick sheets — a seventh sibling overlay. Defaulted to a no-op so every
             // existing `mountComposeView` caller/test keeps compiling unchanged.
             quickSheetSlot: @Composable () -> Unit = { },
+            // Platform-dialog removal Task 18: the reading view's own dialogs ([ReadingDialog]) — an
+            // eighth sibling overlay, defaulted to a no-op for the same reason as the seven above.
+            readingDialogSlot: @Composable () -> Unit = { },
             // Task 8b Step 3: reports the search sheet's live (visible, measured-height-in-px) pair
             // so [ComposeReadingViewHost.install] can feed `MainBibleActivity.bottomOffsetForWebView`
             // — see [MainBibleActivity.updateSearchSheetOffsets]'s kdoc for why the height must be
@@ -3880,6 +3986,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         textSettingsEditorSlot = textSettingsEditorSlot,
                         speakSettingsSlot = speakSettingsSlot,
                         quickSheetSlot = quickSheetSlot,
+                        readingDialogSlot = readingDialogSlot,
                         onSearchSheetOffsetsChanged = onSearchSheetOffsetsChanged,
                         searchUnavailableDocNameState = searchUnavailableDocNameState,
                         onSearchUnavailableMessageShown = onSearchUnavailableMessageShown,
@@ -3979,6 +4086,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             textSettingsEditorSlot: @Composable () -> Unit,
             speakSettingsSlot: @Composable () -> Unit,
             quickSheetSlot: @Composable () -> Unit,
+            readingDialogSlot: @Composable () -> Unit,
             onSearchSheetOffsetsChanged: (visible: Boolean, heightPx: Int) -> Unit,
             searchUnavailableDocNameState: StateFlow<String?>,
             onSearchUnavailableMessageShown: () -> Unit,
@@ -4410,6 +4518,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     // Round 15b: the quick sheets — a seventh sibling overlay, same reason
                     // as the six above, and self-hiding when closed.
                     quickSheetSlot()
+                    // Platform-dialog removal Task 18: the reading view's own dialogs — an
+                    // eighth sibling overlay, self-hiding when closed like the seven above.
+                    readingDialogSlot()
             }
         }
     }

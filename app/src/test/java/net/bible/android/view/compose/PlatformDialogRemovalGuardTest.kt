@@ -62,6 +62,13 @@ class PlatformDialogRemovalGuardTest {
          * called; `LineSpacing.kt`/`MarginSizeWidget.kt` are deleted entirely, `FontSizeWidget.kt`
          * keeps only `FontDefinition`/`availableFonts`, still used by
          * `TextDisplaySettingsServiceImpl.fontFamilyEntries`).
+         *
+         * Platform-dialog removal Task 18 shrinks it to 13: `BibleJavascriptInterface.kt`
+         * (`helpDialog`/`helpBookmarks`/`deleteMyDocumentPage` moved to the reading view's own
+         * `ReadingDialog` state), `ComposeReadingViewHost.kt` (`showSpeakHelp`/`showAdvancedSpeakHelp`
+         * now render `AbMessageDialog` inside `SpeakSettingsSlot`, and the BJI dialogs render through
+         * the new `ReadingDialogSlot`), and `BibleView.kt` (its only `AlertDialog` reference was an
+         * unused `import android.app.AlertDialog`, dropped alongside).
          */
         val BASELINE: Set<String> = setOf(
             "src/main/java/net/bible/android/control/backup/BackupControl.kt",
@@ -70,11 +77,8 @@ class PlatformDialogRemovalGuardTest {
             "src/main/java/net/bible/android/control/report/ErrorReportControl.kt",
             "src/main/java/net/bible/android/view/activity/StartupActivity.kt",
             "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt",
-            "src/main/java/net/bible/android/view/activity/page/BibleJavascriptInterface.kt",
-            "src/main/java/net/bible/android/view/activity/page/BibleView.kt",
             "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
             "src/main/java/net/bible/android/view/activity/page/ReadingAppBootstrap.kt",
-            "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",
             "src/main/java/net/bible/android/view/activity/progress/ReadHistoryDialog.kt",
             "src/main/java/net/bible/android/view/util/widget/ShareWidget.kt",
             "src/main/java/net/bible/service/cloudsync/CloudSync.kt",

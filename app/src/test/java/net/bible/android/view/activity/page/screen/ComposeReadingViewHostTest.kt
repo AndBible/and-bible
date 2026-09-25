@@ -28,6 +28,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
+import net.bible.sharedcore.speak.SpeakSheetPage
 import net.bible.sharedcore.window.RailEntry
 import net.bible.sharedcore.window.ReadingViewController
 import net.bible.sharedcore.window.WindowCommands
@@ -54,6 +55,8 @@ import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -770,6 +773,120 @@ private class RecordingToolbarStateService : ToolbarStateService {
     private val _toolbar = MutableStateFlow(ToolbarState.EMPTY)
     override val toolbar: StateFlow<ToolbarState> = _toolbar.asStateFlow()
     override fun refresh() { refreshCount++ }
+}
+
+/**
+ * Platform-dialog removal Task 18 — the reading view's own dialogs
+ * ([ComposeReadingViewHost.showHelp]/[ComposeReadingViewHost.showDeleteDocumentPageConfirm], driven
+ * by `BibleJavascriptInterface`) and the Speak/Advanced-Speak help dialogs
+ * ([ComposeReadingViewHost.showSpeakHelp]/[ComposeReadingViewHost.showAdvancedSpeakHelp]). State-only
+ * assertions, same limit [MainBibleActivityHandleWindowPaneMenuItemTest]'s class kdoc documents (no
+ * `ComposeTestRule` in this repo's `:app` unit tests) — same real-host fixture, copied verbatim.
+ */
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+class ReadingDialogHostTest {
+    private lateinit var windowControl: WindowControl
+    private lateinit var windowRepository: WindowRepository
+    private lateinit var activity: NavHostComposeActivity
+
+    @Before
+    fun setUp() {
+        windowControl = CommonUtils.windowControl
+        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl.windowRepository = windowRepository
+        windowRepository.initialize()
+
+        activity = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).get()
+        activity.readingAppBootstrap.windowRepository = windowRepository
+        activity.setNewHistoryTraversal(GlobalContext.get().get())
+    }
+
+    @After
+    fun tearDown() {
+        DatabaseResetter.resetDatabase(windowRepository.scope)
+    }
+
+    private fun host() = ComposeReadingViewHost(activity)
+
+    /** `BibleJavascriptInterface.helpBookmarks`/`.helpDialog`'s entry point. */
+    @Test fun showHelpSetsTheHelpDialogState() {
+        val host = host()
+
+        host.showHelp("Bookmarks & My Notes", "<b>Long-press</b> some text to bookmark it.")
+
+        assertEquals(
+            ReadingDialog.Help("Bookmarks & My Notes", "<b>Long-press</b> some text to bookmark it."),
+            host.readingDialog.value,
+        )
+    }
+
+    /** `helpDialog`'s title is nullable (unlike `helpBookmarks`' fixed title) — confirms `showHelp`
+     *  carries a `null` title through rather than substituting one. */
+    @Test fun showHelpAcceptsANullTitle() {
+        val host = host()
+
+        host.showHelp(null, "Experimental features are new capabilities that are still being tested.")
+
+        assertEquals(
+            ReadingDialog.Help(null, "Experimental features are new capabilities that are still being tested."),
+            host.readingDialog.value,
+        )
+    }
+
+    /**
+     * `BibleJavascriptInterface.deleteMyDocumentPage`'s confirm: the deletion runs exactly once on
+     * OK, never on Cancel/dismiss, and a duplicate confirm after the dialog already cleared is a
+     * no-op — it must never re-run the deletion.
+     */
+    @Test fun deleteConfirmRunsOnceOnConfirmAndNeverOnDismiss() {
+        val host = host()
+        var confirmCalls = 0
+        host.showDeleteDocumentPageConfirm { confirmCalls++ }
+        assertIs<ReadingDialog.ConfirmDeleteDocumentPage>(host.readingDialog.value, "sanity: the confirm is showing")
+
+        host.dismissReadingDialog()
+
+        assertNull(host.readingDialog.value, "dismiss clears the dialog")
+        assertEquals(0, confirmCalls, "Cancel/dismiss must never run the deletion")
+
+        host.showDeleteDocumentPageConfirm { confirmCalls++ }
+        host.confirmReadingDialog()
+
+        assertEquals(1, confirmCalls, "OK runs the deletion exactly once")
+        assertNull(host.readingDialog.value, "confirm clears the dialog")
+
+        // Nothing is showing any more -- a duplicate confirm must be a no-op, not a second deletion.
+        host.confirmReadingDialog()
+        assertEquals(1, confirmCalls, "a duplicate confirm must not re-run the deletion")
+    }
+
+    /** The Speak help dialog renders OVER the open speak sheet: a dialog over a sheet is fine
+     *  (`ReadingOverlayExclusion`'s kdoc), so opening it must not close the sheet underneath it. */
+    @Test fun speakHelpRendersOverTheOpenSpeakSheet() {
+        val host = host()
+        host.showSpeakSettings()
+        assertEquals(SpeakSheetPage.Settings, host.speakSheet.current, "sanity: the sheet is open")
+
+        host.showSpeakHelp()
+
+        assertNotNull(host.speakHelp.value)
+        assertEquals(SpeakSheetPage.Settings, host.speakSheet.current, "the help dialog must not close the sheet underneath it")
+    }
+
+    /** Same as [speakHelpRendersOverTheOpenSpeakSheet], for the Advanced page's help dialog. */
+    @Test fun advancedSpeakHelpRendersOverTheOpenSpeakSheet() {
+        val host = host()
+        host.showSpeakSettings()
+
+        host.showAdvancedSpeakHelp()
+
+        assertNotNull(host.speakHelp.value)
+        assertEquals(SpeakSheetPage.Settings, host.speakSheet.current, "the help dialog must not close the sheet underneath it")
+    }
 }
 
 /**
