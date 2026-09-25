@@ -40,7 +40,6 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.applicationVersionName
 import net.bible.service.common.CommonUtils.megabytesFree
@@ -161,6 +160,8 @@ object ErrorReportControl {
 const val SCREENSHOT_FILE = "screenshot.webp"
 
 object BugReport {
+    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+
     private fun createErrorText(exception: Throwable? = null, stackTrace: String? = null) = try {
         StringBuilder().run {
             append("App id: ").append(BibleApplication.application.packageName).append("\n")
@@ -403,17 +404,18 @@ $crashAttachments
         }
         val stackTrace = if(stackTraceFile.canRead()) String(stackTraceFile.readBytes()) else null
 
-        val hourglass = Hourglass(activity)
-        hourglass.show()
-        withContext(Dispatchers.IO) {
-            if(!useSaved) {
-                delay(1000)
-                saveLogcat()
-                saveScreenshot()
+        val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = BibleApplication.application.getString(R.string.please_wait)))
+        try {
+            withContext(Dispatchers.IO) {
+                if(!useSaved) {
+                    delay(1000)
+                    saveLogcat()
+                    saveScreenshot()
+                }
             }
+        } finally {
+            dialogs.dismiss(progressId)
         }
-
-        hourglass.dismiss()
 
         withContext(Dispatchers.Main) {
             val result = Dialogs.simpleQuestion(

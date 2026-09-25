@@ -72,8 +72,8 @@ class BackupControlTest {
     /**
      * [BackupControl.askIfRestoreOrImport] hops via `withContext(Dispatchers.Main)`. Under plain
      * `runTest`, `Dispatchers.Main` resolves to the real Robolectric main Looper, which nothing
-     * pumps -- the coroutine deadlocks forever (same trap `DialogsShimTest.runOnTestMain` documents
-     * for `Hourglass`). Binding Main to this runTest's own `testScheduler` makes `advanceUntilIdle()`
+     * pumps -- the coroutine deadlocks forever (same trap `ErrorReportControlTest.runOnTestMain`
+     * documents). Binding Main to this runTest's own `testScheduler` makes `advanceUntilIdle()`
      * drive it instead.
      */
     private fun <T> runOnTestMain(block: suspend kotlinx.coroutines.test.TestScope.() -> T) = runTest(timeout = 10.seconds) {

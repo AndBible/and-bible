@@ -52,7 +52,7 @@ import org.robolectric.annotation.Config
  *
  * [BookmarkControl.importFromUri] does `withContext(Dispatchers.IO) { ... withContext(Dispatchers.Main)
  * { ... } }`; `Dispatchers.setMain(StandardTestDispatcher(testScheduler))` binds the inner hop to this
- * `runTest`'s own scheduler (the same pattern `DialogsShimTest`'s Hourglass tests use), so
+ * `runTest`'s own scheduler (the same pattern `ErrorReportControlTest.runOnTestMain` uses), so
  * `advanceUntilIdle()` actually drains it instead of dispatching onto a Robolectric main Looper
  * nothing pumps.
  */

@@ -25,7 +25,6 @@ import android.net.Uri
 import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.core.content.FileProvider
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,7 +51,6 @@ import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.MainBibleAfterRestore
 import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.page.application
-import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.windowControl
 import net.bible.service.common.FileManager
@@ -257,23 +255,24 @@ object BackupControl {
         val ok = if (saveOrShare == SaveOrShare.SAVE) {
             result.data?.data?.let { destinationUri ->
                 withContext(Dispatchers.IO) {
-                    val hourglass = Hourglass(activity)
-                    hourglass.show()
-
-                    val out = BibleApplication.application.contentResolver.openOutputStream(destinationUri)!!
-                    val inputStream = FileInputStream(file)
-
-                    var ok = true
+                    val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
                     try {
-                        out.use {
-                            inputStream.copyTo(out)
+                        val out = BibleApplication.application.contentResolver.openOutputStream(destinationUri)!!
+                        val inputStream = FileInputStream(file)
+
+                        var ok = true
+                        try {
+                            out.use {
+                                inputStream.copyTo(out)
+                            }
+                        } catch (ex: IOException) {
+                            Log.e(TAG, ex.message ?: "Error occurred in backuping db")
+                            ok = false
                         }
-                    } catch (ex: IOException) {
-                        Log.e(TAG, ex.message ?: "Error occurred in backuping db")
-                        ok = false
+                        ok
+                    } finally {
+                        dialogs.dismiss(progressId)
                     }
-                    hourglass.dismiss()
-                    ok
                 }
             } ?: false
         } else result.resultCode == Activity.RESULT_OK || result.resultCode == Activity.RESULT_CANCELED
@@ -525,10 +524,12 @@ object BackupControl {
 
         if (books.isEmpty()) return@withContext
 
-        val hourglass = Hourglass(callingActivity)
-        hourglass.show()
-        createModulesZip(books, zipFile)
-        hourglass.dismiss()
+        val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
+        try {
+            createModulesZip(books, zipFile)
+        } finally {
+            dialogs.dismiss(progressId)
+        }
 
         val modulesString = books.joinToString(", ") { it.abbreviation }
         val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
@@ -689,97 +690,113 @@ object BackupControl {
         activity: ActivityBase,
         uri: Uri
     ): Boolean = withContext(Dispatchers.IO) {
-        val hourglass = Hourglass(activity)
-        ABEventBus.post(ToastEvent(getString(R.string.downloading_backup)))
-        hourglass.show()
-
-        val tmpFile = File(internalDbBackupDir, "database.zip")
-        val unzipFolder = File(internalDbBackupDir, "unzip")
-
-        unzipFolder.mkdirs()
-
+        // Task 30 Step 1: no more Hourglass -- progressId tracks whichever Progress (of the several
+        // shown across this function) is currently live, so the outer finally always dismisses
+        // whatever is still up on any exit path (return, exception, or cancellation), the same
+        // guarantee Hourglass's Job-completion hook gave for free.
+        var progressId: Long? = null
+        fun showProgress() {
+            progressId?.let { dialogs.dismiss(it) }
+            progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
+        }
+        fun dismissProgress() {
+            progressId?.let { dialogs.dismiss(it) }
+            progressId = null
+        }
         try {
-            val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
-            tmpFile.outputStream().use { inputStream.copyTo(it) }
-            CommonUtils.unzipFile(tmpFile, unzipFolder)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error processing backup file", e)
-            throw IOException("Failed to process backup file: ${e.message}")
-        }
+            ABEventBus.post(ToastEvent(getString(R.string.downloading_backup)))
+            showProgress()
 
-        val restoredSelection =
-            Closeable {
-                tmpFile.delete()
-                unzipFolder.deleteRecursively()
-                activity.lifecycleScope.launch(Dispatchers.Main) { hourglass.dismiss() }
-            }.use {
-                val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
-                    .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
-                    .map { file -> file.name }
+            val tmpFile = File(internalDbBackupDir, "database.zip")
+            val unzipFolder = File(internalDbBackupDir, "unzip")
 
-                hourglass.dismiss()
-                if (containedBackups.isEmpty()) {
-                    Dialogs.showMsg(R.string.restore_unsuccessfull)
-                    return@withContext false
-                }
-                val selection =
-                    if (containedBackups.size > 1)
-                        selectDatabaseSections(activity, containedBackups)
-                    else
-                        containedBackups
-                val restoredSelection = ArrayList<SyncableDatabaseDefinition>()
-                if (selection.isEmpty()) {
-                    return@withContext false
-                }
-                hourglass.show()
-                for (fileName in selection) {
-                    val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
-                    val f = File(unzipFolder, "db/${fileName}")
-                    val restore =
-                        if (category != null)
-                            askIfRestoreOrImport(category, f, activity)
-                        else true
-                    if (restore == null) continue
+            unzipFolder.mkdirs()
 
-                    if (restore) {
-                        if(category != null) {
-                            restoredSelection.add(category)
-                            beforeRestore(category)
-                        }
-
-                        val areYouSure = if (category != null) {
-                            Dialogs.simpleQuestion(
-                                activity,
-                                activity.getString(R.string.overwrite_something,
-                                    getString(category.contentDescription)
-                                )
-                            )
-                        } else true
-                        if (!areYouSure) continue
-                        Log.i(TAG, "Restoring $fileName")
-                        if (DatabaseContainer.ready) DatabaseContainer.instance.dbByFilename[fileName]?.close()
-                        val targetFilePath = activity.getDatabasePath(fileName).path
-                        val targetFile = File(targetFilePath)
-                        f.copyTo(targetFile, overwrite = true)
-                        File("$targetFilePath-journal").delete()
-                        File("$targetFilePath-shm").delete()
-                        File("$targetFilePath-wal").delete()
-                    } else {
-                        importDatabaseFile(category!!, f)
-                    }
-                }
-                DatabaseContainer.reset()
-                restoredSelection
+            try {
+                val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
+                tmpFile.outputStream().use { inputStream.copyTo(it) }
+                CommonUtils.unzipFile(tmpFile, unzipFolder)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error processing backup file", e)
+                throw IOException("Failed to process backup file: ${e.message}")
             }
-        hourglass.show()
-        if (DatabaseContainer.ready) {
-            DatabaseContainer.instance
-            afterRestore(restoredSelection)
+
+            val restoredSelection =
+                Closeable {
+                    tmpFile.delete()
+                    unzipFolder.deleteRecursively()
+                    dismissProgress()
+                }.use {
+                    val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
+                        .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
+                        .map { file -> file.name }
+
+                    dismissProgress()
+                    if (containedBackups.isEmpty()) {
+                        Dialogs.showMsg(R.string.restore_unsuccessfull)
+                        return@withContext false
+                    }
+                    val selection =
+                        if (containedBackups.size > 1)
+                            selectDatabaseSections(activity, containedBackups)
+                        else
+                            containedBackups
+                    val restoredSelection = ArrayList<SyncableDatabaseDefinition>()
+                    if (selection.isEmpty()) {
+                        return@withContext false
+                    }
+                    showProgress()
+                    for (fileName in selection) {
+                        val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
+                        val f = File(unzipFolder, "db/${fileName}")
+                        val restore =
+                            if (category != null)
+                                askIfRestoreOrImport(category, f, activity)
+                            else true
+                        if (restore == null) continue
+
+                        if (restore) {
+                            if(category != null) {
+                                restoredSelection.add(category)
+                                beforeRestore(category)
+                            }
+
+                            val areYouSure = if (category != null) {
+                                Dialogs.simpleQuestion(
+                                    activity,
+                                    activity.getString(R.string.overwrite_something,
+                                        getString(category.contentDescription)
+                                    )
+                                )
+                            } else true
+                            if (!areYouSure) continue
+                            Log.i(TAG, "Restoring $fileName")
+                            if (DatabaseContainer.ready) DatabaseContainer.instance.dbByFilename[fileName]?.close()
+                            val targetFilePath = activity.getDatabasePath(fileName).path
+                            val targetFile = File(targetFilePath)
+                            f.copyTo(targetFile, overwrite = true)
+                            File("$targetFilePath-journal").delete()
+                            File("$targetFilePath-shm").delete()
+                            File("$targetFilePath-wal").delete()
+                        } else {
+                            importDatabaseFile(category!!, f)
+                        }
+                    }
+                    DatabaseContainer.reset()
+                    restoredSelection
+                }
+            showProgress()
+            if (DatabaseContainer.ready) {
+                DatabaseContainer.instance
+                afterRestore(restoredSelection)
+            }
+            dismissProgress()
+            Log.i(TAG, "Restored database successfully")
+            ABEventBus.post(MainBibleAfterRestore())
+            true
+        } finally {
+            progressId?.let { dialogs.dismiss(it) }
         }
-        hourglass.dismiss()
-        Log.i(TAG, "Restored database successfully")
-        ABEventBus.post(MainBibleAfterRestore())
-        true
     }
 
     suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File, context: ActivityBase): Boolean?  = withContext(Dispatchers.Main) {
@@ -815,20 +832,22 @@ object BackupControl {
         if(result2 != Dialogs.Result.OK) return false
         var result: Boolean
         ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
-        val hourglass = Hourglass(activity)
-        hourglass.show()
-        withContext(Dispatchers.IO) {
-            result = if (restoreOldMonolithicDatabaseFromInputStream(uri)) {
-                Log.i(TAG, "Restored database successfully")
-                ABEventBus.post(MainBibleAfterRestore())
-                Dialogs.showMsg(R.string.restore_success)
-                true
-            } else {
-                Dialogs.showMsg(R.string.restore_unsuccessfull)
-                false
+        val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
+        try {
+            withContext(Dispatchers.IO) {
+                result = if (restoreOldMonolithicDatabaseFromInputStream(uri)) {
+                    Log.i(TAG, "Restored database successfully")
+                    ABEventBus.post(MainBibleAfterRestore())
+                    Dialogs.showMsg(R.string.restore_success)
+                    true
+                } else {
+                    Dialogs.showMsg(R.string.restore_unsuccessfull)
+                    false
+                }
             }
+        } finally {
+            dialogs.dismiss(progressId)
         }
-        hourglass.dismiss()
         return result
     }
 

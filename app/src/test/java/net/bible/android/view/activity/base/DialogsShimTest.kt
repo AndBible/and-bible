@@ -17,25 +17,12 @@
 package net.bible.android.view.activity.base
 
 import android.os.Looper
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.yield
-import kotlin.time.Duration.Companion.seconds
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.activity.R
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
-import net.bible.android.view.util.Hourglass
 import net.bible.sharedcore.ai.AgentPermissionChoice
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -45,7 +32,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.java.KoinJavaComponent
@@ -57,9 +43,11 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowToast
 
 /**
- * Task 7/8: `Dialogs` and `Hourglass` are shims over the app-wide `AppDialogController` /
- * `AgentPermissionController`, not builders of platform `AlertDialog`/`ProgressDialog`s.
- * One test class for both (Task 8's brief adds its two Hourglass tests here).
+ * Task 7: `Dialogs` is a shim over the app-wide `AppDialogController` / `AgentPermissionController`,
+ * not a builder of platform `AlertDialog`s. (Task 8 used to add `Hourglass`'s own tests here too;
+ * Task 30 Step 1 deleted `Hourglass` -- its guarantees are now proven at its former call sites,
+ * `ErrorReportControlTest.aCancelledReportBugLeavesNoOrphanedProgress`, and generically at the
+ * controller level by `AppDialogControllerTest`.)
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -216,109 +204,5 @@ class DialogsShimTest {
         assertNotNull(permissions.pending.value)
         permissions.respond(AgentPermissionChoice.ALLOW)
         assertEquals(Dialogs.AgentPermissionResult.ALLOW, result.await())
-    }
-
-    // -- Task 8: Hourglass --
-
-    /**
-     * `Hourglass.show()`/`dismiss()` hop via `withContext(Dispatchers.Main)` (C2, restoring the old
-     * ordering) -- every test that calls them directly inside `runTest` must bind Main to THIS
-     * runTest's own testScheduler, same as [CommonUtilsDialogsTest]'s pattern; otherwise the call
-     * dispatches onto the real Robolectric main Looper while nothing pumps it, deadlocking the test
-     * (the trap the brief calls out for the C2 tests below -- it applies here too, now that `show()`
-     * suspends).
-     */
-    private fun <T> runOnTestMain(block: suspend kotlinx.coroutines.test.TestScope.() -> T) = runTest(timeout = 10.seconds) {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        try {
-            block()
-        } finally {
-            Dispatchers.resetMain()
-        }
-    }
-
-    @Test
-    fun hourglassShowsAndDismissesAProgress() = runOnTestMain {
-        val activity = activity()
-        val h = Hourglass(activity)
-        h.show()
-        val head = dialogs.progress.value!!.request
-        assertTrue(head is AppDialogRequest.Progress)
-        assertEquals(activity.getString(R.string.please_wait), (head as AppDialogRequest.Progress).message)
-        h.dismiss()
-        assertNull(dialogs.progress.value)
-    }
-
-    @Test
-    fun hourglassDismissTwiceIsHarmless() = runOnTestMain {
-        val activity = activity()
-        val h = Hourglass(activity)
-        h.show()
-        h.dismiss()
-        h.dismiss()
-        assertNull(dialogs.progress.value)
-    }
-
-    /** C1: the Hourglass's Progress must not block a question raised while it is showing. */
-    @Test
-    fun aQuestionWhileTheHourglassShowsIsAnswerable() = runOnTestMain {
-        val activity = activity()
-        val h = Hourglass(activity)
-        h.show()
-        assertNotNull(dialogs.progress.value)
-        val answer = async { Dialogs.simpleQuestion(activity, "message") }
-        advanceUntilIdle()
-        assertNotNull(dialogs.pending.value)
-        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Ok)
-        assertEquals(true, answer.await())
-        h.dismiss()
-        assertNull(dialogs.progress.value)
-    }
-
-    // -- C2: an orphaned Hourglass Progress must never lock the app --
-
-    @Test
-    fun showTwiceLeavesExactlyOneProgressAndDismissClearsIt() = runOnTestMain {
-        val activity = activity()
-        val h = Hourglass(activity)
-        h.show()
-        h.show() // the old show()/dismiss() ordering restored -- the first is dismissed first
-        assertNotNull(dialogs.progress.value)
-        h.dismiss()
-        // If the first show() had orphaned its Progress (no dismiss-the-previous-one step), a
-        // single dismiss() here would only clear the SECOND one, leaving the first still queued.
-        assertNull(dialogs.progress.value)
-    }
-
-    @Test
-    fun aCallerThatThrowsAfterShowLeavesNoProgress() = runOnTestMain {
-        val activity = activity()
-        val h = Hourglass(activity)
-        // An isolated root scope: the thrown exception must not fail THIS test via structured
-        // concurrency -- it is the (unfixed, by design) caller's own bug being exercised, not this
-        // test's.
-        val scope = CoroutineScope(Job() + Dispatchers.Unconfined + CoroutineExceptionHandler { _, _ -> })
-        val job = scope.launch {
-            h.show()
-            throw RuntimeException("boom")
-        }
-        advanceUntilIdle()
-        assertTrue("the caller's coroutine never completed", job.isCompleted)
-        assertNull(dialogs.progress.value)
-    }
-
-    @Test
-    fun aCancelledCallerLeavesNoProgress() = runOnTestMain {
-        val activity = activity()
-        val h = Hourglass(activity)
-        val job = launch {
-            h.show()
-            awaitCancellation()
-        }
-        advanceUntilIdle()
-        assertNotNull(dialogs.progress.value)
-        job.cancel()
-        job.join()
-        assertNull(dialogs.progress.value)
     }
 }

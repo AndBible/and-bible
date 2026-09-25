@@ -18,6 +18,7 @@ package net.bible.android.control.report
 
 import android.app.Activity
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -37,6 +38,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -110,11 +112,31 @@ class ErrorReportControlTest {
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
         advanceUntilIdle()
         // BugReport.reportBug's first observable action (before its real file IO / delay) is
-        // Hourglass.show() -- proof the REPORT branch really launched it, without driving the rest
-        // of that (separately tested / out of scope) reporting flow.
+        // raising an AppDialogRequest.Progress (Task 30 Step 1: dialogs.show(Progress(...)),
+        // no more Hourglass) -- proof the REPORT branch really launched it, without driving the
+        // rest of that (separately tested / out of scope) reporting flow.
         val progress = dialogs.progress.value!!.request as AppDialogRequest.Progress
         assertEquals(activity.getString(R.string.please_wait), progress.message)
         answer.cancel()
+    }
+
+    /**
+     * Task 30 Step 1 (C2, ported from the deleted `Hourglass`'s own `aCancelledCallerLeavesNoProgress`):
+     * `reportBug` no longer ties its Progress to the caller's `Job` via `invokeOnCompletion` --
+     * dismissal is now a plain `try`/`finally` around the work. Proven here through the real call
+     * site rather than a synthetic one: cancelling while `reportBug` is suspended inside its
+     * `withContext(Dispatchers.IO)` work must still reach the `finally` and dismiss the Progress it
+     * raised, exactly as the old Job-completion hook guaranteed.
+     */
+    @Test
+    fun aCancelledReportBugLeavesNoOrphanedProgress() = runOnTestMain {
+        val activity = activity()
+        val job = launch { BugReport.reportBug(activity, useSaved = false, source = "test") }
+        advanceUntilIdle()
+        assertNotNull(dialogs.progress.value)
+        job.cancel()
+        job.join()
+        assertNull(dialogs.progress.value)
     }
 
     @Test
