@@ -27,6 +27,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.time.Duration.Companion.seconds
 import net.bible.android.TEST_SDK
+import net.bible.android.activity.R
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
@@ -182,5 +183,49 @@ class BackupControlTest {
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[1].value))
         assertEquals(false, answer.await())
+    }
+
+    // -- saveOrShare's classicDestinationPrompt fallback (Task 24 Step 2) --
+
+    /**
+     * [BackupControl.classicDestinationPrompt] doesn't hop via `withContext(Dispatchers.Main)`
+     * (unlike [BackupControl.askIfRestoreOrImport]), so plain `runTest` + `advanceUntilIdle()` is
+     * enough here -- no `runOnTestMain`/`Dispatchers.setMain` needed.
+     */
+    @Test
+    fun classicDestinationPromptSelectingShareReturnsShare() = runTest {
+        val activity = activity()
+        val answer = async {
+            BackupControl.classicDestinationPrompt(activity, R.string.backup_backup_title, R.string.backup_backup_message)
+        }
+        advanceUntilIdle()
+        val head = dialogs.pending.value!!.request as AppDialogRequest.Options
+        assertTrue(head.asActionSheet)
+        assertEquals(2, head.options.size)
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
+        assertEquals(SaveOrShare.SHARE, answer.await())
+    }
+
+    @Test
+    fun classicDestinationPromptSelectingPhoneStorageReturnsSave() = runTest {
+        val activity = activity()
+        val answer = async {
+            BackupControl.classicDestinationPrompt(activity, R.string.backup_backup_title, R.string.backup_backup_message)
+        }
+        advanceUntilIdle()
+        val head = dialogs.pending.value!!.request as AppDialogRequest.Options
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[1].value))
+        assertEquals(SaveOrShare.SAVE, answer.await())
+    }
+
+    @Test
+    fun classicDestinationPromptDismissReturnsNull() = runTest {
+        val activity = activity()
+        val answer = async {
+            BackupControl.classicDestinationPrompt(activity, R.string.backup_backup_title, R.string.backup_backup_message)
+        }
+        advanceUntilIdle()
+        dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
+        assertNull(answer.await())
     }
 }

@@ -18,7 +18,6 @@
 package net.bible.android.control.backup
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -117,8 +116,6 @@ import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 const val DATABASE_BACKUP_SUFFIX = ".abdb.zip"
 const val MODULE_BACKUP_SUFFIX = ".abmd.zip"
@@ -171,6 +168,37 @@ object BackupControl {
     private const val RESTORE_VALUE = "restore"
     private const val IMPORT_VALUE = "import"
 
+    // AppDialogRequest.Options ids for saveOrShare's platformPrompt fallback (Task 24 Step 2).
+    private const val SHARE_VALUE = "share"
+    private const val SAVE_VALUE = "save"
+
+    /**
+     * `saveOrShare`'s `platformPrompt` (Task 24 Step 2): an owner-less `AppDialogController` sheet
+     * in place of the old `android.app.AlertDialog`, for the callers that pass no `chooseDestination`
+     * (NavHostComposeActivity supplies its own for the rest, via `askDestination()`). `internal`, not
+     * private, so `BackupControlTest` can pin the mapping directly without driving the whole export
+     * flow (`activity.awaitIntent` etc.).
+     */
+    internal suspend fun classicDestinationPrompt(activity: ActivityBase, promptTitle: Int, promptMessage: Int): SaveOrShare? {
+        val result = dialogs.await(
+            AppDialogRequest.Options(
+                title = activity.getString(promptTitle),
+                message = activity.getString(promptMessage),
+                options = listOf(
+                    SettingsItem.Choice(SHARE_VALUE, activity.getString(R.string.share)),
+                    SettingsItem.Choice(SAVE_VALUE, activity.getString(R.string.backup_phone_storage)),
+                ),
+                dismissText = null,
+                asActionSheet = true,
+            ),
+        )
+        return when ((result as? AppDialogResult.Selected)?.value) {
+            SHARE_VALUE -> SaveOrShare.SHARE
+            SAVE_VALUE -> SaveOrShare.SAVE
+            else -> null // Cancel, back, or scrim.
+        }
+    }
+
     internal suspend fun saveDbBackupFileViaIntent(activity: ActivityBase, file: File) =
         saveOrShare(
             activity = activity,
@@ -196,23 +224,13 @@ object BackupControl {
         errorMsg: Int = R.string.error_occurred,
         promptTitle: Int = R.string.backup_backup_title,
         promptMessage: Int = R.string.backup_backup_message,
-        // A Compose host supplies its own destination dialog here. Defaulted null so the classic
-        // path — and every existing caller — keeps the platform AlertDialog byte-for-byte.
+        // A Compose host supplies its own destination dialog here (NavHostComposeActivity's
+        // askDestination()). Defaulted null so a caller with no host-owned chooser instead gets the
+        // owner-less AppDialogController fallback below.
         chooseDestination: (suspend () -> SaveOrShare?)? = null,
     ): Boolean {
         val saveOrShare = resolveDestination(chooseDestination) {
-            withContext(Dispatchers.Main) {
-                suspendCoroutine<SaveOrShare?> {
-                    AlertDialog.Builder(activity)
-                        .setTitle(promptTitle)
-                        .setMessage(promptMessage)
-                        .setNegativeButton(R.string.backup_phone_storage) { _, _ -> it.resume(SaveOrShare.SAVE) }
-                        .setPositiveButton(R.string.share) { _, _ -> it.resume(SaveOrShare.SHARE) }
-                        .setNeutralButton(R.string.cancel) { _, _ -> it.resume(null) }
-                        .setOnCancelListener { _ -> it.resume(null) }
-                        .show()
-                }
-            }
+            classicDestinationPrompt(activity, promptTitle, promptMessage)
         } ?: return false
 
         val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", file)
