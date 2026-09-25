@@ -26,6 +26,8 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.database.IdType
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.agent.AgentPermissionWaitingEvent
@@ -33,6 +35,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -69,11 +72,45 @@ class GetCommentariesToolFilterDialogTest {
     private val originalThreshold = CommonUtils.aiSettings.commentaryMaxResponseTokens
     private val originalDeselected = CommonUtils.aiSettings.commentaryDeselected
 
+    /**
+     * [CurrentActivityHolder] (`app/src/main/java/net/bible/android/view/activity/base/CurrentActivityHolder.kt`)
+     * is process-global with no public reset. Controller finding (run 3 fix wave, after 9601082af):
+     * in the full `:app` unit suite (one JVM) an earlier test class that builds+`.setup()`s a real
+     * Activity and never tears it down (`ActivityBase.onCreate`'s first line is
+     * `CurrentActivityHolder.activate(this)`) leaves `currentActivity` non-null for every test class
+     * that runs after it -- so `postsWaitingTrueThenFalseAroundTheDialogWhenNoActivityIsCurrent`/
+     * `postsWaitingFalseInAFinallyEvenWhenTheDialogIsCancelled`'s "no Activity is built here, so
+     * `currentActivity` is null" assumption held only by suite-order luck, not by construction. Both
+     * tests need `CurrentActivityHolder.currentActivity == null` to exercise
+     * `GetCommentariesTool.filterByResponseSizeLimit`'s "no current Activity" branch at all -- with a
+     * stale Activity still registered, `postedWaiting` is false and neither test ever sees an event,
+     * which is exactly the `expected 1/2 but was 0` failure the controller's full run hit.
+     *
+     * Same reflection-based save/clear/restore idiom as `DialogsShimTest.holderActivities()` /
+     * `CurrentPageManagerNoActivityTest.holderActivities()`, so this class establishes and restores
+     * its own precondition instead of relying on suite ordering.
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun holderActivities(): ArrayList<ActivityBase> =
+        CurrentActivityHolder::class.java.getDeclaredField("activities").apply { isAccessible = true }
+            .get(CurrentActivityHolder) as ArrayList<ActivityBase>
+
+    private lateinit var savedActivities: ArrayList<ActivityBase>
+
+    @Before
+    fun ensureNoCurrentActivity() {
+        savedActivities = ArrayList(holderActivities())
+        holderActivities().clear()
+        assertNull("precondition: no current Activity", CurrentActivityHolder.currentActivity)
+    }
+
     @After
     fun tearDown() {
         dialogs.cancelAll()
         CommonUtils.aiSettings.commentaryMaxResponseTokens = originalThreshold
         CommonUtils.aiSettings.commentaryDeselected = originalDeselected
+        holderActivities().clear()
+        holderActivities().addAll(savedActivities)
     }
 
     /** A commentary whose single entry is big enough that two of these together, at
