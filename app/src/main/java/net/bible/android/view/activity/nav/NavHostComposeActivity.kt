@@ -49,7 +49,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -423,6 +422,7 @@ import net.bible.sharedui.components.AbActionSheet
 import net.bible.sharedui.components.AbActionSheetRow
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectSheet
+import net.bible.sharedui.components.AbOptionsDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.reading.nav.ReadingNavDeps
@@ -5141,23 +5141,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         onDismiss: () -> Unit,
     ) {
         when (prompt) {
-            is DeletePrompt.Orphaned -> ComposeAlertDialog(
+            // AbOptionsDialog (spec §6.2): three answers (delete both, delete label only, cancel),
+            // same labels and order as the classic/ComposeAlertDialog row this replaces. The host
+            // slot stays (per LabelEditDeps.deletePromptSlot's kdoc) because these strings are
+            // Android resources with no LocalStrings entry yet -- only the composable swaps.
+            is DeletePrompt.Orphaned -> AbOptionsDialog(
+                title = getString(R.string.delete_label_confirmation, labelName),
+                message = getString(R.string.confirm_delete_orphaned_bookmarks, prompt.count),
+                options = listOf(
+                    SettingsItem.Choice(value = "both", label = getString(R.string.delete_label_and_bookmarks)),
+                    SettingsItem.Choice(value = "labelOnly", label = getString(R.string.delete_label_only)),
+                ),
+                onSelect = { value -> onConfirm(value == "both") },
                 onDismissRequest = onDismiss,
-                title = { Text(getString(R.string.delete_label_confirmation, labelName)) },
-                text = { Text(getString(R.string.confirm_delete_orphaned_bookmarks, prompt.count)) },
-                confirmButton = {
-                    TextButton(onClick = { onConfirm(true) }) {
-                        Text(getString(R.string.delete_label_and_bookmarks))
-                    }
-                },
-                dismissButton = {
-                    Row {
-                        TextButton(onClick = { onConfirm(false) }) {
-                            Text(getString(R.string.delete_label_only))
-                        }
-                        TextButton(onClick = onDismiss) { Text(getString(R.string.cancel)) }
-                    }
-                },
+                dismissText = getString(R.string.cancel),
             )
             DeletePrompt.Confirm -> ComposeAlertDialog(
                 onDismissRequest = onDismiss,

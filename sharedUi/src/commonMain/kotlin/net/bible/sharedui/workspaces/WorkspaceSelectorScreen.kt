@@ -41,7 +41,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,12 +59,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedcore.workspaces.CopySettingsState
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbMultiSelectDialog
+import net.bible.sharedui.components.AbOptionsDialog
 import net.bible.sharedui.components.AbReorderableColumn
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchImeRequest
@@ -266,15 +267,20 @@ fun WorkspaceSelectorScreen(
         )
         null -> {}
     }
-    // Dirty-select prompt = classic 3-branch (yes=save+go, no=discard+go, tap-outside/back=stay). A
-    // plain M3 AlertDialog is used (not AbConfirmDialog) so onDismissRequest (stay) is distinct from
-    // the No button (discard) — AbConfirmDialog only has a 2-way confirm/dismiss shape.
+    // Dirty-select prompt = classic 3-branch (yes=save+go, no=discard+go, tap-outside/back=stay).
+    // AbOptionsDialog (spec §6.2) replaces the plain M3 AlertDialog: onDismissRequest (stay) is
+    // still distinct from the "No" option (discard) — AbConfirmDialog only has a 2-way
+    // confirm/dismiss shape, which is why that one isn't used here either.
     pendingSelectId?.let {
-        AlertDialog(
+        AbOptionsDialog(
+            title = null,
+            message = s.workspaceSaveChanges,
+            options = listOf(
+                SettingsItem.Choice(value = "yes", label = s.yes),
+                SettingsItem.Choice(value = "no", label = s.no),
+            ),
+            onSelect = { value -> onConfirmPendingSelect(value == "yes") },
             onDismissRequest = onDismissPendingSelect,
-            text = { Text(s.workspaceSaveChanges) },
-            confirmButton = { TextButton(onClick = { onConfirmPendingSelect(true) }) { Text(s.yes) } },
-            dismissButton = { TextButton(onClick = { onConfirmPendingSelect(false) }) { Text(s.no) } },
         )
     }
 }

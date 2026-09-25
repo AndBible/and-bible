@@ -52,7 +52,6 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
@@ -91,6 +90,7 @@ import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbMenuItem
+import net.bible.sharedui.components.AbOptionsDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchImeRequest
@@ -353,25 +353,20 @@ fun AiPromptsScreen(
         )
     }
     deleteCategoryTarget?.let { cat ->
-        // Mirrors classic AiSettingsActivity's delete-category chooser (an AlertDialog#setItems
-        // pick-list, not a plain yes/no): the category can be deleted either keeping its prompts
-        // (moved to the uncategorized bucket) or cascading the delete to its prompts too.
-        AlertDialog(
+        // AbOptionsDialog (spec §6.2): mirrors classic AiSettingsActivity's delete-category chooser
+        // (an AlertDialog#setItems pick-list, not a plain yes/no) -- the category can be deleted
+        // either keeping its prompts (moved to the uncategorized bucket) or cascading the delete to
+        // its prompts too. Same labels and order as the plain M3 AlertDialog this replaces.
+        AbOptionsDialog(
+            title = null,
+            message = strings.deleteCategoryConfirm(cat.name),
+            options = listOf(
+                SettingsItem.Choice(value = "cascade", label = strings.deleteCategoryAndPromptsLabel),
+                SettingsItem.Choice(value = "keep", label = strings.deleteCategoryKeepPromptsLabel),
+            ),
+            onSelect = { value -> deleteCategoryTarget = null; onDeleteCategory(cat.id, value == "cascade") },
             onDismissRequest = { deleteCategoryTarget = null },
-            text = { Text(strings.deleteCategoryConfirm(cat.name)) },
-            confirmButton = {
-                TextButton(onClick = { deleteCategoryTarget = null; onDeleteCategory(cat.id, true) }) {
-                    Text(strings.deleteCategoryAndPromptsLabel)
-                }
-            },
-            dismissButton = {
-                Row {
-                    TextButton(onClick = { deleteCategoryTarget = null; onDeleteCategory(cat.id, false) }) {
-                        Text(strings.deleteCategoryKeepPromptsLabel)
-                    }
-                    TextButton(onClick = { deleteCategoryTarget = null }) { Text(strings.cancel) }
-                }
-            },
+            dismissText = strings.cancel,
         )
     }
     deletePromptTarget?.let { prompt ->
