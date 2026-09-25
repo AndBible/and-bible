@@ -838,6 +838,9 @@ class BibleJavascriptInterface(
         ABEventBus.post(AppSettingsUpdated())
     }
 
+    /** [content] is now parsed as the app's small HTML subset (`AbHtmlText`/`parseHtmlRuns`) rather
+     *  than shown as literal plain text -- harmless for the callers today (no `<`/`&` in their
+     *  strings), but a caller adding one later would see it interpreted, not escaped. */
     @JavascriptInterface
     fun helpDialog(content: String, title: String?) {
         // Platform-dialog removal Task 18: the reading view owns this dialog now (a `ReadingDialog`

@@ -30,6 +30,7 @@ import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.ai.reading.ReadingLlmDialog
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedcore.settings.ColorField
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsScope
@@ -315,6 +316,85 @@ class ReadingTextSettingEditorTest {
         assertEquals(
             ReadingLlmDialog.None, host.readingLlmDialogs.state.value.dialog,
             "closeModalOverlays must still dismiss a sheet-shaped picker",
+        )
+    }
+
+    /**
+     * Fix round 1 (task review, Important): the same generalisation applies at the reading view's
+     * OWN sheet-opening call sites -- `showQuickSheet`/`showTextSettingEditor`/`showSpeakSettings`
+     * all apply `ReadingOverlayExclusion.closedBy(...).forEach(::closeOverlay)`, i.e. they share the
+     * exact `closeOverlay` the EXTRA fix changed, not just `closeModalOverlays`. Sound per
+     * `ReadingOverlayExclusion`'s and `ReadingLlmDialogController`'s own kdocs, but untested before
+     * this round -- pinned here, one test per site for the "survives" half (all three share the same
+     * code path, so one failing failure mode would show up in all three), plus one for the
+     * "still closes" half (any one site is enough, since they share `closeOverlay`; `showQuickSheet`
+     * is the cheapest to set up).
+     */
+    @Test
+    fun openingTheQuickSheetDoesNotDismissTheLlmRegenerateConfirm() {
+        val host = host()
+        var regenerateCalls = 0
+        host.readingLlmDialogs.openRegenerate("page-1") { _, _, _, _, _ -> regenerateCalls++ }
+
+        host.showQuickSheet(ReadingQuickSheet.History)
+
+        assertIs<ReadingLlmDialog.Regenerate>(
+            host.readingLlmDialogs.state.value.dialog,
+            "opening the quick sheet must not dismiss the regenerate confirm -- a dialog over a sheet is fine",
+        )
+        assertEquals(0, regenerateCalls, "opening the quick sheet must not itself run the regenerate action")
+    }
+
+    @Test
+    fun openingTheTextSettingsEditorDoesNotDismissTheLlmRegenerateConfirm() {
+        val host = host()
+        host.readingLlmDialogs.openRegenerate("page-1") { _, _, _, _, _ -> }
+
+        host.showTextSettingEditor(SettingsScope.Workspace("ws"), SettingsEditorPage.Colors) { }
+
+        assertIs<ReadingLlmDialog.Regenerate>(
+            host.readingLlmDialogs.state.value.dialog,
+            "opening the text-settings editor must not dismiss the regenerate confirm -- a dialog over a sheet is fine",
+        )
+    }
+
+    @Test
+    fun openingSpeakSettingsDoesNotDismissTheLlmRegenerateConfirm() {
+        val host = host()
+        host.readingLlmDialogs.openRegenerate("page-1") { _, _, _, _, _ -> }
+
+        host.showSpeakSettings()
+
+        assertIs<ReadingLlmDialog.Regenerate>(
+            host.readingLlmDialogs.state.value.dialog,
+            "opening the speak settings sheet must not dismiss the regenerate confirm -- a dialog over a sheet is fine",
+        )
+    }
+
+    /** The "still closes" half at a THIRD-PARTY site (not `closeModalOverlays`): a sheet-shaped LLM
+     *  picker is exactly what the exclusion rule is about, so opening the quick sheet must still
+     *  dismiss it. */
+    @Test
+    fun openingTheQuickSheetStillDismissesTheLlmPromptSelectorSheet() {
+        val host = host()
+        host.readingLlmDialogs.openPromptSelector("VERSE_SELECTION", null) { _, _, _ -> }
+        val deadline = System.currentTimeMillis() + 5_000
+        while (host.readingLlmDialogs.state.value.dialog !is ReadingLlmDialog.PromptSelector &&
+            System.currentTimeMillis() < deadline
+        ) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(10)
+        }
+        assertIs<ReadingLlmDialog.PromptSelector>(
+            host.readingLlmDialogs.state.value.dialog,
+            "sanity: the built-in VERSE_SELECTION prompts opened the sheet",
+        )
+
+        host.showQuickSheet(ReadingQuickSheet.History)
+
+        assertEquals(
+            ReadingLlmDialog.None, host.readingLlmDialogs.state.value.dialog,
+            "opening the quick sheet must still dismiss a sheet-shaped picker",
         )
     }
 }
