@@ -21,11 +21,14 @@ import android.net.Uri
 import kotlinx.serialization.Serializable
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
+import net.bible.service.llm.agent.AgentPermissionWaitingEvent
 import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.ContentFormat
 import net.bible.service.sword.OsisToPlainText
@@ -351,7 +354,23 @@ object GetCommentariesTool : Tool {
         // Sort by size descending for display
         val sorted = infos.sortedByDescending { it.estimatedChars }
 
-        val selected = showFilterDialog(sorted, thresholdTokens) ?: return null  // User cancelled
+        // Today's pre-port behaviour (d222d2ab9): while no Activity is current, the agent is
+        // running in the background and the queued dialog is invisible to the user, so tell
+        // AgentForegroundService to release the wakelock and show the "permission needed"
+        // notification. AppDialogController.await() below IS the wait now (no more 500 ms
+        // CurrentActivityHolder poll) -- only the waiting/not-waiting posts need restoring.
+        val workspaceId = context.workspaceId
+        val postedWaiting = workspaceId != null && CurrentActivityHolder.currentActivity == null
+        if (postedWaiting) {
+            ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true))
+        }
+        val selected = try {
+            showFilterDialog(sorted, thresholdTokens)
+        } finally {
+            if (postedWaiting) {
+                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
+            }
+        } ?: return null  // User cancelled
 
         val selectedInitials = selected.map { it.initials }.toSet()
         val excluded = infos.filter { it.initials !in selectedInitials }.map { it.initials }
