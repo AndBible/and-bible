@@ -1477,7 +1477,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         }
         // A dialog over the sheet (ReadingOverlayExclusion's kdoc) -- see [speakHelp]'s kdoc.
         speakHelp.value?.let { html ->
-            AbLinkRouting(onOpenLink = { CommonUtils.openLink(it) }) {
+            AbLinkRouting(askFirst = CommonUtils.isDiscrete, onOpenExternal = { CommonUtils.openLinkNow(it) }) {
                 AbMessageDialog(
                     title = null,
                     html = html,
@@ -1499,7 +1499,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private fun ReadingDialogSlot() {
         when (val dialog = readingDialog.value) {
             null -> Unit
-            is ReadingDialog.Help -> AbLinkRouting(onOpenLink = { CommonUtils.openLink(it) }) {
+            is ReadingDialog.Help -> AbLinkRouting(askFirst = CommonUtils.isDiscrete, onOpenExternal = { CommonUtils.openLinkNow(it) }) {
                 AbMessageDialog(
                     title = dialog.title,
                     html = dialog.html,

@@ -3629,7 +3629,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             loadMode = { loadEpubSearchMode() },
                             saveMode = { mode -> saveEpubSearchMode(mode) },
                             modeWireName = { mode -> mode.toClassicSearchTypeName() },
-                            onOpenLink = { CommonUtils.openLink(it) },
+                            askBeforeOpeningLink = { CommonUtils.isDiscrete },
+                            onOpenExternal = { CommonUtils.openLinkNow(it) },
                         ),
                         epubSearchResults = EpubSearchResultsDeps(
                             resolve = { searchDocument -> resolveEpubSearchTarget(searchDocument) },
@@ -3685,7 +3686,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             // to stay eager.
                             resetContentDescription = getString(R.string.reset_settings),
                             onResume = { appSettingsService.refresh() },
-                            onOpenLink = { CommonUtils.openLink(it) },
+                            askBeforeOpeningLink = { CommonUtils.isDiscrete },
+                            onOpenExternal = { CommonUtils.openLinkNow(it) },
                         ),
                         syncSettings = SyncSettingsDeps(
                             controller = { syncSettingsController },
@@ -6984,7 +6986,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * `LinkMovementMethod`-enabled message view; it now feeds
      * [net.bible.sharedcore.settings.AppSettingsController.showDiscreteHelp], rendered by
      * [net.bible.sharedui.settings.AppSettingsScreen] as an `AbMessageDialog` whose inline wiki link
-     * this host's `onOpenLink` (`CommonUtils.openLink`) still routes.
+     * this host's `askBeforeOpeningLink`/`onOpenExternal` (`CommonUtils.isDiscrete`/`openLinkNow`)
+     * still routes.
      */
     private fun buildDiscreteHelpHtml(): String {
         val linkUrl = "https://github.com/AndBible/and-bible/wiki/Discrete-build"

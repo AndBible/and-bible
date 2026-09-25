@@ -17,20 +17,17 @@
 
 package net.bible.android.view.compose
 
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.text.LinkAnnotation
+import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
+import net.bible.android.activity.R
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.settings.AppSettingsDialog
 import net.bible.sharedcore.settings.SettingsScreenState
 import net.bible.sharedui.ProvideAppLocals
-import net.bible.sharedui.components.AbHtmlText
 import net.bible.sharedui.settings.AppSettingsScreen
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Assert.assertEquals
@@ -46,8 +43,8 @@ import org.robolectric.annotation.GraphicsMode
  * persecution/discrete-mode help moved off the host (`NavHostComposeActivity.confirmResetSettings`/
  * `showDiscreteHelpDialog`) into `AppSettingsController.dialog` and are now rendered by
  * [AppSettingsScreen] itself from an `AppSettingsDialog` state -- this proves the screen renders the
- * right text, answers the right callback, and routes the discrete-help dialog's inline link through
- * `onOpenLink`.
+ * right text, answers the right callback, and (C1) routes the discrete-help dialog's inline link
+ * through [askBeforeOpeningLink]/[onOpenExternal].
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -57,9 +54,9 @@ class AppSettingsScreenDialogTest {
 
     private var confirmCalls = 0
     private var dismissCalls = 0
-    private var openedLink: String? = null
+    private val opened = mutableListOf<String>()
 
-    private fun show(dialog: AppSettingsDialog) = compose.setContent {
+    private fun show(dialog: AppSettingsDialog, askBeforeOpeningLink: Boolean = false) = compose.setContent {
         ProvideAppLocals {
             AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                 AppSettingsScreen(
@@ -76,7 +73,8 @@ class AppSettingsScreenDialogTest {
                     dialog = dialog,
                     onConfirmDialog = { confirmCalls++ },
                     onDismissDialog = { dismissCalls++ },
-                    onOpenLink = { openedLink = it },
+                    askBeforeOpeningLink = askBeforeOpeningLink,
+                    onOpenExternal = { opened += it },
                 )
             }
         }
@@ -121,40 +119,40 @@ class AppSettingsScreenDialogTest {
         assertEquals(1, dismissCalls)
     }
 
-    /**
-     * A real click on a link inside a material3 `AlertDialog` window is not driveable through
-     * `performClick` on this compose-ui-test/Robolectric combination (see
-     * `AppDialogHostTest.linkAnnotationIsPresentInTheRenderedBody`'s kdoc for the three scratch
-     * probes that pinned this down as a Dialog-window limitation, not an app defect). So, the same
-     * way that test does, this checks the two halves separately: the rendered body really carries a
-     * [LinkAnnotation.Url] for the exact href (the `AbLinkRouting` wrap did not swallow it), and the
-     * `UriHandler` wrapper `AbLinkRouting` installs really forwards to `onOpenLink` when driven
-     * directly on a plain (non-dialog) composable, where clicks do work.
-     */
-    @Test fun discreteHelp_bodyCarriesTheLinkAnnotation() {
-        show(
-            AppSettingsDialog.DiscreteHelp(
-                "Settings for the persecuted",
-                """More info at <a href="https://example.org/wiki">here</a>.""",
-            ),
-        )
-        val node = compose.onNodeWithText("here", substring = true).fetchSemanticsNode()
-        val text = node.config[SemanticsProperties.Text].single()
-        val links = text.getLinkAnnotations(0, text.length).map { (it.item as LinkAnnotation.Url).url }
-        assertEquals(listOf("https://example.org/wiki"), links)
+    /** C1: a real click on the discrete-help link, driven through the real `AbLinkRouting`-wrapped
+     *  dialog, reaches [onOpenExternal] directly (see `AppDialogHostTest
+     *  .linkTapInsideTheDialogWindowReachesTheHost`'s kdoc for why this is now real coverage rather
+     *  than the "Dialog-window limitation" this replaces). */
+    @Test fun discreteHelp_linkTapReachesOnOpenExternal() {
+        // The body is JUST the link (rather than a link inside a longer sentence, as
+        // `discreteHelp_bodyCarriesTheLinkAnnotation` used to build it): `performClick()` clicks the
+        // CENTER of the whole Text node, which only lands on the link's own glyphs when the link is
+        // the only content -- a real click on a link mid-sentence needs its own bounding box (see
+        // `EpubSearchScreenHelpDialogTest`'s equivalent test, whose HTML is fixed production content
+        // and so can't be simplified this way).
+        show(AppSettingsDialog.DiscreteHelp("Settings for the persecuted", """<a href="https://example.org/wiki">here</a>"""))
+        compose.onNodeWithText("here").performClick()
+        assertEquals(listOf("https://example.org/wiki"), opened)
     }
 
-    @Test fun onOpenLink_wrapperForwardsClicks() {
-        val forwarded = mutableListOf<String>()
-        val wrapper = object : UriHandler {
-            override fun openUri(uri: String) { forwarded += uri }
-        }
-        compose.setContent {
-            CompositionLocalProvider(LocalUriHandler provides wrapper) {
-                AbHtmlText("<a href=\"https://example.org/wiki\">probe</a>")
-            }
-        }
-        compose.onNodeWithText("probe").performClick()
-        assertEquals(listOf("https://example.org/wiki"), forwarded)
+    /** C1: with [askBeforeOpeningLink], the same tap asks first -- OK opens it exactly once, and the
+     *  help dialog stays open underneath, untouched. The help dialog's own confirm button is ALSO
+     *  labelled "OK" (both reuse `strings.okay`), so the question's button is picked out by taking
+     *  the LAST match: `AbLinkRouting` draws the question's window strictly after the help dialog's
+     *  own, same "later window sits on top" mechanism the production fix relies on. */
+    @Test fun discreteHelp_askBeforeOpeningLink_asksThenOpensOnce() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        show(
+            AppSettingsDialog.DiscreteHelp("Settings for the persecuted", """<a href="https://example.org/wiki">here</a>"""),
+            askBeforeOpeningLink = true,
+        )
+        compose.onNodeWithText("here").performClick()
+        compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
+        assertEquals(emptyList<String>(), opened)
+
+        val okNodes = compose.onAllNodesWithText(context.getString(R.string.okay))
+        okNodes[okNodes.fetchSemanticsNodes().size - 1].performClick()
+        assertEquals(listOf("https://example.org/wiki"), opened)
+        assertEquals(0, dismissCalls) // the help dialog itself is untouched by the link question
     }
 }

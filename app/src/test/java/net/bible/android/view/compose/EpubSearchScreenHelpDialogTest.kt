@@ -17,19 +17,22 @@
 
 package net.bible.android.view.compose
 
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
+import net.bible.android.activity.R
 import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.search.EpubSearchMode
 import net.bible.sharedui.ProvideAppLocals
-import net.bible.sharedui.components.AbHtmlText
 import net.bible.sharedui.search.EpubSearchScreen
 import net.bible.sharedui.theme.AbTheme
 import org.junit.Assert.assertEquals
@@ -41,10 +44,27 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /**
+ * Clicks the FIRST [androidx.compose.ui.text.LinkAnnotation] inside this node's text, at the link's
+ * own glyph position rather than the node's center -- unlike `AppDialogHostTest`'s link fixtures
+ * (where the link IS the whole body, so the default center-click lands on it), the FTS5 help link
+ * sits mid-sentence in fixed production text this test cannot simplify.
+ */
+private fun SemanticsNodeInteraction.performLinkClick() {
+    val node = fetchSemanticsNode()
+    val text = node.config[SemanticsProperties.Text].single()
+    val link = text.getLinkAnnotations(0, text.length).first()
+    val layouts = mutableListOf<TextLayoutResult>()
+    node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+    val box = layouts.single().getBoundingBox(link.start)
+    performTouchInput { click(box.center) }
+}
+
+/**
  * Task 15, Step 3: the EPUB search form's FTS5 query-syntax help moved off the host
  * (`NavHostComposeActivity.showEpubSearchHelp`) into `EpubSearchFormController.helpOpen` and is now
  * rendered by [EpubSearchScreen] itself -- this proves the screen shows the dialog only when open,
- * answers OK by dismissing, and that the inline wiki link is wired for `AbLinkRouting`.
+ * answers OK by dismissing, and (C1) that the inline wiki link is wired through
+ * [askBeforeOpeningLink]/[onOpenExternal].
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -53,8 +73,9 @@ class EpubSearchScreenHelpDialogTest {
     @get:Rule val compose = createComposeRule()
 
     private var dismissCalls = 0
+    private val opened = mutableListOf<String>()
 
-    private fun show(helpOpen: Boolean) = compose.setContent {
+    private fun show(helpOpen: Boolean, askBeforeOpeningLink: Boolean = false) = compose.setContent {
         ProvideAppLocals {
             AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
                 EpubSearchScreen(
@@ -68,7 +89,8 @@ class EpubSearchScreenHelpDialogTest {
                     onNavigateUp = {},
                     helpOpen = helpOpen,
                     onDismissHelp = { dismissCalls++ },
-                    onOpenLink = {},
+                    askBeforeOpeningLink = askBeforeOpeningLink,
+                    onOpenExternal = { opened += it },
                 )
             }
         }
@@ -87,28 +109,29 @@ class EpubSearchScreenHelpDialogTest {
         assertEquals(1, dismissCalls)
     }
 
-    /** Same Dialog-window limitation as `AppSettingsScreenDialogTest`'s link test -- see that test's
-     *  kdoc (and `AppDialogHostTest.linkAnnotationIsPresentInTheRenderedBody`'s, the original probe)
-     *  for why a real click on a link inside an `AlertDialog` is not driveable here. */
-    @Test fun helpOpen_bodyCarriesTheFts5LinkAnnotation() {
+    /** C1: a real click on the FTS5 help link, driven through the real `AbLinkRouting`-wrapped
+     *  dialog, reaches [onOpenExternal] directly (see `AppDialogHostTest
+     *  .linkTapInsideTheDialogWindowReachesTheHost`'s kdoc for why this is now real coverage rather
+     *  than the "Dialog-window limitation" this replaces). */
+    @Test fun helpOpen_linkTapReachesOnOpenExternal() {
         show(helpOpen = true)
-        val node = compose.onNodeWithText("FTS5 Full-text Query Syntax", substring = true).fetchSemanticsNode()
-        val text = node.config[SemanticsProperties.Text].single()
-        val links = text.getLinkAnnotations(0, text.length).map { (it.item as LinkAnnotation.Url).url }
-        assertEquals(listOf("https://www.sqlite.org/fts5.html#full_text_query_syntax"), links)
+        compose.onNodeWithText("FTS5 Full-text Query Syntax", substring = true).performLinkClick()
+        assertEquals(listOf("https://www.sqlite.org/fts5.html#full_text_query_syntax"), opened)
     }
 
-    @Test fun onOpenLink_wrapperForwardsClicks() {
-        val forwarded = mutableListOf<String>()
-        val wrapper = object : UriHandler {
-            override fun openUri(uri: String) { forwarded += uri }
-        }
-        compose.setContent {
-            CompositionLocalProvider(LocalUriHandler provides wrapper) {
-                AbHtmlText("<a href=\"https://www.sqlite.org/fts5.html#full_text_query_syntax\">probe</a>")
-            }
-        }
-        compose.onNodeWithText("probe").performClick()
-        assertEquals(listOf("https://www.sqlite.org/fts5.html#full_text_query_syntax"), forwarded)
+    /** C1: with [askBeforeOpeningLink], the same tap asks first -- OK opens it exactly once. The
+     *  help dialog's own confirm button is ALSO labelled "OK" (`strings.okay`), so the question's
+     *  button is picked out by taking the LAST match -- see `AppSettingsScreenDialogTest`'s equivalent test. */
+    @Test fun helpOpen_askBeforeOpeningLink_asksThenOpensOnce() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        show(helpOpen = true, askBeforeOpeningLink = true)
+        compose.onNodeWithText("FTS5 Full-text Query Syntax", substring = true).performLinkClick()
+        compose.onNodeWithText(context.getString(R.string.external_link)).assertExists()
+        assertEquals(emptyList<String>(), opened)
+
+        val okNodes = compose.onAllNodesWithText(context.getString(R.string.okay))
+        okNodes[okNodes.fetchSemanticsNodes().size - 1].performClick()
+        assertEquals(listOf("https://www.sqlite.org/fts5.html#full_text_query_syntax"), opened)
+        assertEquals(0, dismissCalls) // the help dialog itself is untouched by the link question
     }
 }

@@ -39,9 +39,9 @@ import net.bible.sharedui.strings.LocalStrings
  * Platform-dialog removal Task 15: [dialog] is [AppSettingsController]'s own confirm/help state
  * (`AlertDialog.Builder`s in classic and, until this task, in `NavHostComposeActivity` too) — [onReset]
  * now only REQUESTS the confirmation (the controller decides whether/what to show), and the discrete
- * -help row (routed to here via `onNavigate`) does the same. [onOpenLink] feeds [AbLinkRouting] for
- * the help body's inline wiki link, since this destination's ambient `LocalUriHandler` is the bare
- * platform one, not `AppDialogHost`'s `CommonUtils.openLink`-backed override.
+ * -help row (routed to here via `onNavigate`) does the same. [askBeforeOpeningLink]/[onOpenExternal]
+ * feed [AbLinkRouting] for the help body's inline wiki link (C1 fix), since this destination's
+ * ambient composition locals are the bare platform ones, not `AppDialogHost`'s override.
  */
 @Composable
 fun AppSettingsScreen(
@@ -63,7 +63,8 @@ fun AppSettingsScreen(
     dialog: AppSettingsDialog = AppSettingsDialog.None,
     onConfirmDialog: () -> Unit = {},
     onDismissDialog: () -> Unit = {},
-    onOpenLink: (String) -> Unit = {},
+    askBeforeOpeningLink: Boolean = false,
+    onOpenExternal: (String) -> Unit = {},
 ) {
     val strings = LocalStrings.current
     val searchHint = strings.searchSettings
@@ -99,7 +100,7 @@ fun AppSettingsScreen(
             onConfirm = onConfirmDialog,
             onDismiss = onDismissDialog,
         )
-        is AppSettingsDialog.DiscreteHelp -> AbLinkRouting(onOpenLink = onOpenLink) {
+        is AppSettingsDialog.DiscreteHelp -> AbLinkRouting(askFirst = askBeforeOpeningLink, onOpenExternal = onOpenExternal) {
             AbMessageDialog(
                 title = dialog.title,
                 html = dialog.html,

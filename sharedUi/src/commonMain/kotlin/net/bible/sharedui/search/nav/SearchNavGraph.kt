@@ -376,16 +376,23 @@ data class EpubSearchSetup(
  * - Classic's `help()` (`:115-132`, a **platform `AlertDialog` with an HTML link**,
  *   `LinkMovementMethod` on the message view) is now [EpubSearchFormController]'s own `helpOpen`
  *   state (platform-dialog removal Task 15), rendered by [EpubSearchScreen] itself: its text comes
- *   entirely from existing `Strings.kt` entries, so there is no host slot for it at all. [onOpenLink]
- *   remains here (`CommonUtils.openLink`, which asks first in discrete mode) for the help dialog's
- *   inline wiki link, since this destination's ambient `LocalUriHandler` is the bare platform one.
+ *   entirely from existing `Strings.kt` entries, so there is no host slot for it at all.
+ *   [askBeforeOpeningLink]/[onOpenExternal] remain here for the help dialog's inline wiki link (C1
+ *   fix): [askBeforeOpeningLink] is a GETTER, not a plain `Boolean`, because this whole `Deps` object
+ *   is built once inside the host's own `remember { }` (constructed on every host launch) -- a plain
+ *   value captured there would freeze whatever `CommonUtils.isDiscrete` was at THAT moment for the
+ *   rest of the host's lifetime, the same staleness bug `NavHostComposeActivity`'s
+ *   `textDisplayControllerLabels` kdoc describes for a different field. [onOpenExternal] is
+ *   `CommonUtils.openLinkNow`, the non-asking half -- see [AbLinkRouting]'s kdoc for why the asking
+ *   is done here, once, rather than through `CommonUtils.openLink`'s FIFO.
  */
 class EpubSearchFormDeps(
     val prepare: () -> EpubSearchSetup?,
     val loadMode: () -> EpubSearchMode,
     val saveMode: (EpubSearchMode) -> Unit,
     val modeWireName: (EpubSearchMode) -> String?,
-    val onOpenLink: (String) -> Unit,
+    val askBeforeOpeningLink: () -> Boolean,
+    val onOpenExternal: (String) -> Unit,
 )
 
 /**
@@ -1047,7 +1054,8 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                 onNavigateUp = { navController.popOrExit(deps.exitHost) },
                 helpOpen = helpOpen,
                 onDismissHelp = controller::dismissHelp,
-                onOpenLink = d.onOpenLink,
+                askBeforeOpeningLink = d.askBeforeOpeningLink(),
+                onOpenExternal = d.onOpenExternal,
             )
         }
     }

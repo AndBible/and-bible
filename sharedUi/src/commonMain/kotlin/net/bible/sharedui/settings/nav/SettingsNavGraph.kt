@@ -98,9 +98,14 @@ import net.bible.sharedui.strings.LocalStrings
  *   Android-build-flavour fact `:sharedCore` cannot see); the reset's confirmed ACTION is likewise
  *   still a host callback (`SettingsReset.performReset()`, `service.refresh()`, `recreate()`), now
  *   wired straight into [AppSettingsController]'s own `onConfirmReset` constructor param rather than
- *   reached through this `Deps` class. [onOpenLink] feeds the discrete-help dialog's inline wiki
- *   link (`CommonUtils.openLink`, which asks first in discrete mode) through `AbLinkRouting`, since
- *   this destination's ambient `LocalUriHandler` is the bare platform one otherwise.
+ *   reached through this `Deps` class. [askBeforeOpeningLink]/[onOpenExternal] feed the discrete-help
+ *   dialog's inline wiki link through `AbLinkRouting` (C1 fix), since this destination's ambient
+ *   composition locals are the bare platform ones otherwise. [askBeforeOpeningLink] is a GETTER, not
+ *   a plain `Boolean`, for the same reason [discreteHelpHtml] is a getter and not a plain `String`:
+ *   this whole `Deps` object is built once inside the host's own `remember { }` (on every host
+ *   launch), so a plain value captured there would freeze whatever `CommonUtils.isDiscrete` was at
+ *   THAT moment for the rest of the host's lifetime -- see `textDisplayControllerLabels`'s kdoc in
+ *   `NavHostComposeActivity` for the same staleness bug on a different field.
  * - [onOpenTextDisplaySettings], [onOpenLinksSettings] and [onCrashApp] are the three navigation
  *   rows with no destination in THIS graph: the text-display-settings destination (which lives in
  *   `WorkspaceNavGraph`, migrated together with the workspace selector because the two are one round
@@ -129,7 +134,8 @@ class AppSettingsDeps(
     val onCrashApp: () -> Unit,
     val resetContentDescription: String,
     val onResume: () -> Unit,
-    val onOpenLink: (String) -> Unit,
+    val askBeforeOpeningLink: () -> Boolean,
+    val onOpenExternal: (String) -> Unit,
 )
 
 /**
@@ -441,7 +447,8 @@ fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, deps: Set
             dialog = dialog,
             onConfirmDialog = controller::confirmDialog,
             onDismissDialog = controller::dismissDialog,
-            onOpenLink = d.onOpenLink,
+            askBeforeOpeningLink = d.askBeforeOpeningLink(),
+            onOpenExternal = d.onOpenExternal,
         )
     }
 

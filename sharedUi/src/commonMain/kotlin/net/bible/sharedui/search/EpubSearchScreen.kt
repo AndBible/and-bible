@@ -55,9 +55,10 @@ private const val FTS5_QUERY_SYNTAX_URL = "https://www.sqlite.org/fts5.html#full
  * [net.bible.sharedcore.search.EpubSearchFormController.helpOpen]) used to be a platform
  * `AlertDialog` with a `LinkMovementMethod`-enabled message view (classic `EpubSearch.help()`); it
  * is now this screen's own `AbMessageDialog`, built entirely from existing `Strings.kt` entries (no
- * host formatting needed, unlike App settings' discrete help). [onOpenLink] routes the inline wiki
- * link through `AbLinkRouting`, since this destination's ambient `LocalUriHandler` is the bare
- * platform one otherwise.
+ * host formatting needed, unlike App settings' discrete help). [askBeforeOpeningLink]/[onOpenExternal]
+ * route the inline wiki link through `AbLinkRouting`, since this destination's ambient composition
+ * locals are the bare platform ones otherwise (C1 fix: was a single `onOpenLink` calling
+ * `CommonUtils.openLink`, which cannot ask through a `Dialog` window it is drawn inside of).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,12 +73,13 @@ fun EpubSearchScreen(
     onNavigateUp: () -> Unit,
     helpOpen: Boolean = false,
     onDismissHelp: () -> Unit = {},
-    onOpenLink: (String) -> Unit = {},
+    askBeforeOpeningLink: Boolean = false,
+    onOpenExternal: (String) -> Unit = {},
 ) {
     val strings = LocalStrings.current
 
     if (helpOpen) {
-        AbLinkRouting(onOpenLink = onOpenLink) {
+        AbLinkRouting(askFirst = askBeforeOpeningLink, onOpenExternal = onOpenExternal) {
             AbMessageDialog(
                 title = strings.search,
                 html = "${strings.helpSearchEpub}<br><br>${strings.helpSearchDetails(
