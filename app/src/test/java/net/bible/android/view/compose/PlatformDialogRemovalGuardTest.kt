@@ -69,15 +69,19 @@ class PlatformDialogRemovalGuardTest {
          * now render `AbMessageDialog` inside `SpeakSettingsSlot`, and the BJI dialogs render through
          * the new `ReadingDialogSlot`), and `BibleView.kt` (its only `AlertDialog` reference was an
          * unused `import android.app.AlertDialog`, dropped alongside).
+         *
+         * Run 2 Task 19 shrinks it to 10: `MenuCommandHandler.kt` (rate, licence — both onto
+         * `AppDialogController`), `WindowControl.kt` (`chooseSettingsToCopy`, now `Dialogs.multiselect`),
+         * and `BookmarkControl.kt` (`importFromUri`'s error dialog) are clean. `ReadingAppBootstrap.kt`
+         * stays — `showStableNotice`/`showBetaNotice` (run 3, Task 28) still build one — and so does
+         * `BackupControl.kt` — `saveOrShare`'s `platformPrompt` and `askIfRestoreOrImport` (run 3, Task 24)
+         * still do too.
          */
         val BASELINE: Set<String> = setOf(
             "src/main/java/net/bible/android/control/backup/BackupControl.kt",
-            "src/main/java/net/bible/android/control/bookmark/BookmarkControl.kt",
-            "src/main/java/net/bible/android/control/page/window/WindowControl.kt",
             "src/main/java/net/bible/android/control/report/ErrorReportControl.kt",
             "src/main/java/net/bible/android/view/activity/StartupActivity.kt",
             "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt",
-            "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
             "src/main/java/net/bible/android/view/activity/page/ReadingAppBootstrap.kt",
             "src/main/java/net/bible/android/view/activity/progress/ReadHistoryDialog.kt",
             "src/main/java/net/bible/android/view/util/widget/ShareWidget.kt",

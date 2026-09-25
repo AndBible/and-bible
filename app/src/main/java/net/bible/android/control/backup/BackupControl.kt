@@ -25,7 +25,6 @@ import android.content.pm.ApplicationInfo
 import android.net.Uri
 import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
-import android.widget.Button
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -328,53 +327,27 @@ object BackupControl {
         return BibleApplication.application.getString(id)
     }
 
-    private suspend fun selectDatabaseSections(context: Context, available: List<String>): List<String> {
-        var result: List<String>
-        withContext(Dispatchers.Main) {
-            result = suspendCoroutine {
-                val backupNames = available.map {
-                    val titleResId = databaseTitleResIds[it]
-                        ?: throw IllegalStateException("Unknown database file: $it")
-                    context.getString(titleResId)
-                }.toTypedArray()
-
-                val checkedItems = backupNames.map { true }.toBooleanArray()
-                val dialog = AlertDialog.Builder(context)
-                    .setPositiveButton(R.string.okay) { d, _ ->
-                        val selectedBooks = available.filterIndexed { index, book -> checkedItems[index] }
-                        if (selectedBooks.isEmpty()) {
-                            it.resume(emptyList())
-                        } else {
-                            it.resume(selectedBooks)
-                        }
-                    }
-                    .setMultiChoiceItems(backupNames, checkedItems) { _, pos, value ->
-                        checkedItems[pos] = value
-                    }
-                    .setNeutralButton(R.string.select_all) { _, _ -> it.resume(emptyList()) }
-                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(emptyList()) }
-                    .setOnCancelListener { _ -> it.resume(emptyList())}
-                    .setTitle(getString(R.string.restore_backup_sections))
-                    .create()
-
-                dialog.setOnShowListener {
-                    dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                        val allSelected = checkedItems.find { !it } == null
-                        val newValue = !allSelected
-                        val v = dialog.listView
-                        for (i in 0 until v.count) {
-                            v.setItemChecked(i, newValue)
-                            checkedItems[i] = newValue
-                        }
-                        (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
-                    }
-                }
-                dialog.show()
-                CommonUtils.fixAlertDialogButtons(dialog)
-            }
-        }
-        return result
-    }
+    /**
+     * One of spec §3.2 finding 9's three hand-written select-all/none copies (Task 19). Cancel and
+     * "OK with nothing checked" already both resumed `emptyList()` in the old code (see the
+     * `setNegativeButton`/`setOnCancelListener`/select-none-then-OK arms above, all identical) — the
+     * one D site of the two this batch converts where [Dialogs.multiselect]'s own Cancel-is-empty
+     * behaviour is not a behaviour change at all, just the existing one.
+     *
+     * `internal`, not `private`: its only production caller is deep inside the restore flow (a real
+     * zip with 2+ valid database files), so `BackupControlSelectDatabaseSectionsTest` calls this
+     * directly rather than reconstructing that whole pipeline.
+     */
+    internal suspend fun selectDatabaseSections(context: Context, available: List<String>): List<String> =
+        Dialogs.multiselect(
+            context,
+            getString(R.string.restore_backup_sections),
+            available,
+            itemToString = { name ->
+                context.getString(databaseTitleResIds[name] ?: throw IllegalStateException("Unknown database file: $name"))
+            },
+            preSelected = { true },
+        )
 
     private fun relativeFileName(rootDir: File, file: File): String {
         val filePath = file.canonicalPath

@@ -322,7 +322,13 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         return result == AppDialogResult.Ok
     }
 
-    private fun showNewSyncTargetsNotice() {
+    /**
+     * `internal`, not `private`: its only production caller is `showFirstRunNotices()`, which also
+     * runs `checkCrash`/`checkPoorTranslations` (can `exitProcess`) and two other notices ahead of
+     * it -- `ReadingAppBootstrapSyncNoticeTest` calls this directly instead of reconstructing that
+     * whole sequential chain, the same reasoning `askPinningHelp`'s own KDoc gives.
+     */
+    internal fun showNewSyncTargetsNotice() {
         val displayedVer = preferences.getInt("new-sync-targets-notice-displayed", 0)
         if (displayedVer >= NEW_SYNC_TARGETS_ANNOUNCE_VERSION) return
 
@@ -334,18 +340,20 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
             return
         }
 
-        AlertDialog.Builder(host)
-            .setTitle(R.string.new_sync_targets_notice_title)
-            .setMessage(R.string.new_sync_targets_notice_message)
-            .setCancelable(false)
-            .setNegativeButton(R.string.dismiss) { _, _ ->
-                preferences.setInt("new-sync-targets-notice-displayed", NEW_SYNC_TARGETS_ANNOUNCE_VERSION)
-            }
-            .setPositiveButton(R.string.open_settings) { _, _ ->
-                preferences.setInt("new-sync-targets-notice-displayed", NEW_SYNC_TARGETS_ANNOUNCE_VERSION)
+        appDialogs.post(
+            AppDialogRequest.Confirm(
+                title = host.getString(R.string.new_sync_targets_notice_title),
+                message = host.getString(R.string.new_sync_targets_notice_message),
+                confirmText = host.getString(R.string.open_settings),
+                dismissText = host.getString(R.string.dismiss),
+                cancellable = false,
+            ),
+        ) { result ->
+            preferences.setInt("new-sync-targets-notice-displayed", NEW_SYNC_TARGETS_ANNOUNCE_VERSION)
+            if (result == AppDialogResult.Ok) {
                 ScreenLauncher.open(host, Screen.SyncSettings)
             }
-            .show()
+        }
     }
 
     private suspend fun showStableNotice() = suspendCoroutine<Boolean> {

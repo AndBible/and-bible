@@ -17,7 +17,6 @@
 package net.bible.android.control.bookmark
 
 import android.app.Activity.RESULT_OK
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -70,6 +69,8 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
@@ -77,6 +78,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.koin.java.KoinJavaComponent
 import java.lang.IllegalArgumentException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -1086,7 +1088,11 @@ open class BookmarkControl constructor(
         }
     }
 
-    private suspend fun importFromUri(context: Context, uri: Uri) = context.run {
+    /**
+     * `internal`, not `private`: exercised directly by `BookmarkControlImportFromUriDialogTest` (Task
+     * 19 Step 5's error dialog) rather than through the full `importBookmarksFromCSV` SAF round trip.
+     */
+    internal suspend fun importFromUri(context: Context, uri: Uri) = context.run {
         withContext(Dispatchers.IO) {
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, this@BookmarkControl)
@@ -1099,11 +1105,14 @@ open class BookmarkControl constructor(
                                 "\n\n" + result.errorMessages.take(5).joinToString("\n") +
                                 if (result.errorMessages.size > 5) "\n..." else ""
 
-                        AlertDialog.Builder(context)
-                            .setTitle(getString(R.string.import_items, "CSV"))
-                            .setMessage(message)
-                            .setPositiveButton(R.string.okay, null)
-                            .show()
+                        KoinJavaComponent.get<AppDialogController>(AppDialogController::class.java).post(
+                            AppDialogRequest.Message(
+                                title = getString(R.string.import_items, "CSV"),
+                                message = message,
+                                confirmText = getString(R.string.okay),
+                                cancellable = true,
+                            ),
+                        )
                     } else {
                         Toast.makeText(
                             context,

@@ -21,11 +21,8 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.MenuItem
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +46,9 @@ import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.BuildVariant
-import net.bible.service.common.htmlToSpan
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
 
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -87,6 +86,7 @@ class MenuCommandHandler(
     val searchControl: SearchControl by inject()
     val windowControl: WindowControl by inject()
     val downloadControl: DownloadControl by inject()
+    private val appDialogs: AppDialogController by inject()
 
 
     private inline val isSamsung get() = BuildVariant.DistributionChannel.isSamsung
@@ -148,35 +148,32 @@ class MenuCommandHandler(
                             $msg2 <br><br>
                             $msg3 $msg4""".trimIndent()
                     }
-                    val spanned = htmlToSpan(htmlMessage)
-
-                    val d = AlertDialog.Builder(hostActivity)
-                        .setTitle(R.string.rate_title)
-                        .setMessage(spanned)
-                        .setPositiveButton(if(isSamsung) R.string.okay else R.string.proceed_google_play) {_, _ ->
-                            val samsungUri = Uri.parse("samsungapps://AppRating/"+BibleApplication.application.packageName)
-                            val uri = Uri.parse("market://details?id=" + BibleApplication.application.packageName)
-                            val intent = Intent(Intent.ACTION_VIEW, if(isSamsung) samsungUri else uri).apply{
-                                // To count with Play market backstack, After pressing back button,
-                                // to taken back to our application, we need to add following flags to intent.
-                                addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
-                            }
-                            try {
-                                hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
-                            } catch (e: ActivityNotFoundException) {
-                                val httpSamsungUri = Uri.parse("https://apps.samsung.com/appquery/AppRating.as?appId=" +BibleApplication.application.packageName)
-                                val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + BibleApplication.application.packageName)
-                                hostActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, if(isSamsung) httpSamsungUri else httpUri), STD_REQUEST_CODE)
-                            }
+                    appDialogs.post(
+                        AppDialogRequest.Message(
+                            title = hostActivity.getString(R.string.rate_title),
+                            message = htmlMessage,
+                            confirmText = hostActivity.getString(if (isSamsung) R.string.okay else R.string.proceed_google_play),
+                            dismissText = hostActivity.getString(R.string.cancel),
+                            cancellable = true,
+                        ),
+                    ) { result ->
+                        if (result != AppDialogResult.Ok) return@post
+                        val samsungUri = Uri.parse("samsungapps://AppRating/"+BibleApplication.application.packageName)
+                        val uri = Uri.parse("market://details?id=" + BibleApplication.application.packageName)
+                        val intent = Intent(Intent.ACTION_VIEW, if(isSamsung) samsungUri else uri).apply{
+                            // To count with Play market backstack, After pressing back button,
+                            // to taken back to our application, we need to add following flags to intent.
+                            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
                         }
-                        .setNegativeButton(R.string.cancel, null)
-                        .create()
-                    d.show()
-                    d.findViewById<TextView>(android.R.id.message)?.run {
-                        movementMethod = LinkMovementMethod.getInstance()
+                        try {
+                            hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
+                        } catch (e: ActivityNotFoundException) {
+                            val httpSamsungUri = Uri.parse("https://apps.samsung.com/appquery/AppRating.as?appId=" +BibleApplication.application.packageName)
+                            val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + BibleApplication.application.packageName)
+                            hostActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, if(isSamsung) httpSamsungUri else httpUri), STD_REQUEST_CODE)
+                        }
                     }
-
                 }
                 R.id.backupMainMenu -> {
                     hostActivity.lifecycleScope.launch(Dispatchers.Main) {
@@ -288,16 +285,14 @@ class MenuCommandHandler(
                 R.id.appLicence -> {
                     val messageHtml = BibleApplication.application.resources.openRawResource(R.raw.license).readBytes().decodeToString()
 
-                    val spanned = htmlToSpan(messageHtml)
-
-                    val d = AlertDialog.Builder(hostActivity)
-                        .setTitle(R.string.app_licence_title)
-                        .setMessage(spanned)
-                        .setPositiveButton(android.R.string.ok) { _, _ ->  }
-                        .create()
-
-                    d.show()
-                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                    appDialogs.post(
+                        AppDialogRequest.Message(
+                            title = hostActivity.getString(R.string.app_licence_title),
+                            message = messageHtml,
+                            confirmText = hostActivity.getString(android.R.string.ok),
+                            cancellable = true,
+                        ),
+                    )
                     isHandled = true
                 }
                 R.id.bugReport -> {

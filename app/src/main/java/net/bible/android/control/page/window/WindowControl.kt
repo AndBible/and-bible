@@ -17,9 +17,7 @@
 
 package net.bible.android.control.page.window
 
-import android.app.AlertDialog
 import android.util.Log
-import android.widget.Button
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +34,7 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.firstBibleDoc
@@ -45,9 +44,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseKey
-
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 
 /**
@@ -286,63 +282,51 @@ open class WindowControl constructor() {
 
     val scope get() = CurrentActivityHolder.currentActivity!!.lifecycleScope
 
-    private suspend fun chooseSettingsToCopy(window: Window) = suspendCoroutine {
+    /**
+     * The copy-settings picker (spec §3.2 finding 9 — one of three hand-written copies of the same
+     * select-all/none toggle). Converted to [Dialogs.multiselect] (Task 19): Cancel and "OK with
+     * nothing checked" both now come back as an empty list, where the old `BooleanArray?` told them
+     * apart (`null` on Cancel). Every caller below already treats an empty selection as "nothing to
+     * copy" (or is made to, in this batch) — the `null` distinction bought no different USER-visible
+     * behaviour, only an occasional redundant `updateAllWindowsTextDisplaySettings()` broadcast on an
+     * explicit no-op selection, which this collapses away too.
+     */
+    private suspend fun chooseSettingsToCopy(window: Window): List<WorkspaceEntities.TextDisplaySettings.Types> {
         val context = CurrentActivityHolder.currentActivity!!
-        val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
-            getPrefItem(SettingsBundle(level = SettingsLevel.WORKSPACE, workspaceId = windowRepository.id, workspaceName = windowRepository.name,
-                workspaceSettings = window.pageManager.textDisplaySettings, globalSettings = CommonUtils.globalTextDisplaySettings), it).title
-        }.toTypedArray()
-
-        val checkedItems = items.map { false }.toBooleanArray()
-        val dialog = AlertDialog.Builder(context)
-            .setPositiveButton(R.string.okay) { d, _ ->
-                it.resume(checkedItems)
-            }
-            .setMultiChoiceItems(items, checkedItems) { _, pos, value ->
-                checkedItems[pos] = value
-            }
-            .setNeutralButton(R.string.select_all) { _, _ ->  it.resume(null) }
-            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null)}
-            .setOnCancelListener {_ -> it.resume(null)}
-            .setTitle(context.getString(R.string.copy_settings_title))
-            .create()
-
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                val allSelected = checkedItems.find { !it } == null
-                val newValue = !allSelected
-                val v = dialog.listView
-                for(i in 0 until v.count) {
-                    v.setItemChecked(i, newValue)
-                    checkedItems[i] = newValue
-                }
-                (it as Button).text = context.getString(if(allSelected) R.string.select_all else R.string.select_none)
-            }
-        }
-        dialog.show()
-        CommonUtils.fixAlertDialogButtons(dialog)
+        val types = WorkspaceEntities.TextDisplaySettings.Types.values().toList()
+        return Dialogs.multiselect(
+            context,
+            context.getString(R.string.copy_settings_title),
+            types,
+            itemToString = {
+                // OptionsMenuItemInterface.title is nullable in general (a handful of item kinds
+                // have none); every TextDisplaySettings.Types row does carry one in practice -- the
+                // old AlertDialog.Builder.setMultiChoiceItems(Array<String?>, ...) call this replaces
+                // was a Java API and never enforced the non-null Kotlin type multiselect()'s
+                // itemToString needs, so this fallback is new only in the sense that it now has to be
+                // written down, not in the sense that it can be reached.
+                getPrefItem(SettingsBundle(level = SettingsLevel.WORKSPACE, workspaceId = windowRepository.id, workspaceName = windowRepository.name,
+                    workspaceSettings = window.pageManager.textDisplaySettings, globalSettings = CommonUtils.globalTextDisplaySettings), it).title ?: it.name
+            },
+        )
     }
 
 
     fun copySettingsToWorkspace(window: Window)  = scope.launch(Dispatchers.Main) {
-        val types = WorkspaceEntities.TextDisplaySettings.Types.values()
-        val checkedTypes = chooseSettingsToCopy(window) ?: return@launch
+        val checkedTypes = chooseSettingsToCopy(window)
+        if (checkedTypes.isEmpty()) return@launch
         val target = windowRepository.textDisplaySettings
         val source = window.pageManager.textDisplaySettings
 
-        for ((tIdx, type) in types.withIndex()) {
-            if(checkedTypes[tIdx]) {
-                target.setValue(type, source.getValue(type))
-            }
+        for (type in checkedTypes) {
+            target.setValue(type, source.getValue(type))
         }
 
         windowRepository.updateAllWindowsTextDisplaySettings()
     }
 
     fun copySettingsToGlobal(window: Window) = scope.launch(Dispatchers.Main) {
-        val types = WorkspaceEntities.TextDisplaySettings.Types.values()
-        val checkedTypes = chooseSettingsToCopy(window) ?: return@launch
-        val dirtyTypes = types.filterIndexed { i, _ -> checkedTypes[i] }.toSet()
+        val dirtyTypes = chooseSettingsToCopy(window).toSet()
         // Reachable with nothing checked; an empty dirtyTypes would otherwise write the global row
         // back unchanged and run a full workspaces x windows x pageManager database scan for nothing.
         if (dirtyTypes.isEmpty()) return@launch
@@ -366,15 +350,13 @@ open class WindowControl constructor() {
         val secondWindow = windowRepository.visibleWindows[order]
 
         scope.launch(Dispatchers.Main) {
-            val types = WorkspaceEntities.TextDisplaySettings.Types.values()
-            val checkedTypes = chooseSettingsToCopy(window) ?: return@launch
+            val checkedTypes = chooseSettingsToCopy(window)
+            if (checkedTypes.isEmpty()) return@launch
             val target = secondWindow.pageManager.textDisplaySettings
             val source = window.pageManager.textDisplaySettings
 
-            for ((tIdx, type) in types.withIndex()) {
-                if (checkedTypes[tIdx]) {
-                    target.setValue(type, source.getValue(type))
-                }
+            for (type in checkedTypes) {
+                target.setValue(type, source.getValue(type))
             }
 
             secondWindow.bibleView?.updateTextDisplaySettings()
