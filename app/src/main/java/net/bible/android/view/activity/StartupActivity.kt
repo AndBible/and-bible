@@ -18,22 +18,17 @@
 package net.bible.android.view.activity
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
-import android.text.method.LinkMovementMethod
 import android.util.Log
-import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpinnerBinding
@@ -51,12 +46,15 @@ import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
-import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.hasUsableBible
 import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
+import org.koin.java.KoinJavaComponent
 
 
 var comingFromStartupActivity = false
@@ -69,6 +67,7 @@ var comingFromStartupActivity = false
  */
 open class StartupActivity : CustomTitlebarActivityBase() {
     private lateinit var spinnerBinding: SpinnerBinding
+    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
     override val doNotInitializeApp = true
 
@@ -93,37 +92,23 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         return success
     }
 
+    /**
+     * Task 29 (Startup:112): the WebView-too-old warning, raised through [AppDialogController]
+     * instead of an `AlertDialog.Builder`. `Ok` -> proceed; `Cancel` (the "Close" button; back/scrim
+     * are disabled via `cancellable = false`, same as the old `setCancelable(false)`) -> close the app.
+     */
     private suspend fun checkWebView(): Boolean {
         val info = WebViewCompat.getCurrentWebViewPackage(applicationContext)
         Log.i(TAG, "checkWebView: WebView version ${info?.packageName} ${info?.versionName}")
 
-        if(info?.packageName == "com.huawei.webview") return true // We won't check huawei version number as it does not follow Chromium version numbering.
-
-        val versionNum = info?.versionName?.split(".")?.first()?.split(" ")?.first()?.toIntOrNull() ?: return true // null -> can't check
-        val minimumVersion = 83 // tested with Android Emulator API 30 and looks to function OK
-        if(versionNum < minimumVersion) {
-            val playUrl = "https://play.google.com/store/apps/details?id=${info.packageName}"
-            val playLink = "<a href=\"$playUrl\">${getString(R.string.play)}</a>"
-
-            val msg = getString(R.string.old_webview, info.versionName, minimumVersion.toString(), getString(R.string.app_name_medium), playLink)
-
-            val spanned = htmlToSpan(msg)
-
-            return suspendCoroutine {
-                val dlgBuilder = AlertDialog.Builder(this)
-                    .setMessage(spanned)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.proceed_anyway) { _, _ -> it.resume(true) }
-                    .setNeutralButton(R.string.close) { _, _ ->
-                        it.resume(false)
-                        finish()
-                    }
-
-                val d = dlgBuilder.show()
-                d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        val request = webViewTooOldRequest(this, info?.packageName, info?.versionName) ?: return true
+        return when (dialogs.await(request)) {
+            AppDialogResult.Ok -> true
+            else -> {
+                finish()
+                false
             }
         }
-        return true
     }
 
     /** Called when the activity is first created.  */
@@ -260,4 +245,35 @@ internal fun bootHandoffIntent(context: Context, launching: Intent?, route: Stri
         handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
     }
     return handlerIntent
+}
+
+/** Task 29: the lowest WebView major version `checkWebView` accepts without warning. */
+internal const val MINIMUM_WEBVIEW_MAJOR_VERSION = 83 // tested with Android Emulator API 30 and looks to function OK
+
+/**
+ * Task 29: `checkWebView`'s branch-mapping, extracted so it is testable without a `StartupActivity`
+ * (run-1 note: `StartupActivity` could not be built under Robolectric) -- pure given [packageName] /
+ * [versionName] (as read from `WebViewCompat.getCurrentWebViewPackage`) and a [context] to resolve
+ * strings. `null` means "proceed silently": Huawei's WebView does not follow Chromium version
+ * numbering, and an unparseable [versionName] can't be checked -- both matched the old code's early
+ * `return true`. Otherwise, the same [R.string.old_webview] HTML message (rendered by `AbHtmlText`,
+ * so no `htmlToSpan` conversion is needed here) as a non-cancellable `Confirm`.
+ */
+internal fun webViewTooOldRequest(context: Context, packageName: String?, versionName: String?): AppDialogRequest.Confirm? {
+    if (packageName == "com.huawei.webview") return null
+    val versionNum = versionName?.split(".")?.first()?.split(" ")?.first()?.toIntOrNull() ?: return null
+    if (versionNum >= MINIMUM_WEBVIEW_MAJOR_VERSION) return null
+
+    val playUrl = "https://play.google.com/store/apps/details?id=$packageName"
+    val playLink = "<a href=\"$playUrl\">${context.getString(R.string.play)}</a>"
+    val msg = context.getString(
+        R.string.old_webview, versionName, MINIMUM_WEBVIEW_MAJOR_VERSION.toString(), context.getString(R.string.app_name_medium), playLink,
+    )
+    return AppDialogRequest.Confirm(
+        title = null,
+        message = msg,
+        confirmText = context.getString(R.string.proceed_anyway),
+        dismissText = context.getString(R.string.close),
+        cancellable = false,
+    )
 }

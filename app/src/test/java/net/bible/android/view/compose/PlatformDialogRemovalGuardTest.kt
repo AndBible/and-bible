@@ -112,10 +112,12 @@ class PlatformDialogRemovalGuardTest {
          * `CommonUtils.kt` also required deleting `fixAlertDialogButtons` — dead code (no callers
          * anywhere) whose `dialog: AlertDialog` parameter type was the file's last remaining
          * platform-dialog reference.
+         *
+         * Run 3 Task 29 shrinks it to 0: `StartupActivity.kt`'s `checkWebView` `AlertDialog.Builder`
+         * moves onto `AppDialogController` (a non-cancellable `Confirm`, branch-mapping extracted to
+         * the testable `webViewTooOldRequest`). BASELINE is empty.
          */
-        val BASELINE: Set<String> = setOf(
-            "src/main/java/net/bible/android/view/activity/StartupActivity.kt",
-        )
+        val BASELINE: Set<String> = setOf()
 
         private fun stripComment(line: String): String = line.substringBefore("//")
 
