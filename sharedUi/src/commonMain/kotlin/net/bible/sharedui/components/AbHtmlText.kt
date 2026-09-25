@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.components
 
+import androidx.compose.foundation.Image
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,12 +31,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -42,9 +49,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.em
+import androidx.compose.foundation.text.InlineTextContent
 import net.bible.sharedcore.ui.dialog.HtmlRun
 import net.bible.sharedcore.ui.dialog.parseHtmlRuns
 import net.bible.sharedui.strings.LocalStrings
+
+private const val LEADING_ICON_ID = "leadingIcon"
 
 /**
  * A dialog body's link opener. [LocalAbLinkOpener] is a CUSTOM composition local rather than
@@ -88,16 +98,39 @@ fun htmlToAnnotatedString(html: String, linkColor: Color, open: (String) -> Unit
  * else [LocalUriHandler] (a bare `AbHtmlText()` with neither wrapper, e.g. a scratch/preview render
  * or a future call site that forgot to wrap — fails OPEN there, exactly like before this fix, rather
  * than crashing).
+ *
+ * [leadingIcon], when non-null, is rendered as an [InlineTextContent] glyph flowing at the START of
+ * the text (`AppDialogRequest.NoticeBlock.IconLine` — the `$` sponsor icon that used to be an
+ * `ImageSpan` prepended to a classic `AlertDialog`'s spanned body). It is tinted [leadingIconTint]
+ * (today's `getTintedDrawable`, i.e. `MaterialTheme.colorScheme.onSurface` for the money icon).
  */
 @Composable
-fun AbHtmlText(html: String, modifier: Modifier = Modifier, style: TextStyle = LocalTextStyle.current) {
+fun AbHtmlText(
+    html: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = LocalTextStyle.current,
+    leadingIcon: Painter? = null,
+    leadingIconTint: Color = LocalContentColor.current,
+) {
     val linkColor = MaterialTheme.colorScheme.primary
     val opener = LocalAbLinkOpener.current
     val fallback = LocalUriHandler.current
-    val text = remember(html, linkColor, opener) {
-        htmlToAnnotatedString(html, linkColor) { u -> opener?.open(u) ?: fallback.openUri(u) }
+    val text = remember(html, linkColor, opener, leadingIcon) {
+        buildAnnotatedString {
+            if (leadingIcon != null) appendInlineContent(LEADING_ICON_ID, "[icon]")
+            append(htmlToAnnotatedString(html, linkColor) { u -> opener?.open(u) ?: fallback.openUri(u) })
+        }
     }
-    Text(text = text, modifier = modifier, style = style)
+    val inlineContent = if (leadingIcon != null) {
+        mapOf(
+            LEADING_ICON_ID to InlineTextContent(
+                Placeholder(width = 1.1.em, height = 1.1.em, placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter),
+            ) {
+                Image(leadingIcon, contentDescription = null, colorFilter = ColorFilter.tint(leadingIconTint))
+            },
+        )
+    } else emptyMap()
+    Text(text = text, modifier = modifier, style = style, inlineContent = inlineContent)
 }
 
 /**

@@ -106,6 +106,34 @@ sealed interface AppDialogRequest {
      * Drawn underneath; never blocks answerable requests (see [AppDialogController.progress]).
      */
     data class Progress(override val title: String?, val message: String) : AppDialogRequest
+
+    /**
+     * Class G. A notice with the app logo and inline icons (spec §6.1 "images are not the
+     * converter's job") — the replacement for a platform `AlertDialog.Builder` that also called
+     * `setIcon`/embedded an `ImageSpan` (`ReadingAppBootstrap.showStableNotice`/`showBetaNotice`,
+     * `CommonUtils.showHelp`). [blocks] render top-down in `AbNoticeDialog`, each spaced from its
+     * neighbours by the Column itself — none of them carries its own leading/trailing `<br><br>`.
+     * Buttons follow [Message]'s mapping: [confirmText] -> `Ok`, [dismissText] -> `Cancel` (as does
+     * back/scrim, always cancellable — there is no `cancellable` flag because none of today's three
+     * notices calls `setCancelable(false)`), [neutralText] -> `Neutral`.
+     */
+    data class Notice(
+        override val title: String?,
+        val showTitleLogo: Boolean,
+        val blocks: List<NoticeBlock>,
+        val confirmText: String,
+        val dismissText: String? = null,
+        val neutralText: String? = null,
+    ) : AppDialogRequest
+
+    sealed interface NoticeBlock {
+        data class Html(val html: String) : NoticeBlock
+        /** The app logo centred at 2× size — hidden by the CALLER in discrete mode, as today. */
+        data object Logo : NoticeBlock
+        /** One HTML line led by an inline icon (the `$` sponsor icon). */
+        data class IconLine(val icon: NoticeIcon, val html: String) : NoticeBlock
+    }
+    enum class NoticeIcon { Money }
 }
 
 sealed interface AppDialogResult {

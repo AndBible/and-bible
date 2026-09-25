@@ -147,6 +147,17 @@ fun AppDialogHost(
                         dismissText = request.dismissText, cancellable = request.cancellable,
                     )
                 }
+                is AppDialogRequest.Notice -> {
+                    val icons = LocalNoticeIcons.current
+                    AbNoticeDialog(
+                        title = request.title, showTitleLogo = request.showTitleLogo, blocks = request.blocks,
+                        confirmText = request.confirmText, onConfirm = { onRespond(id, AppDialogResult.Ok) },
+                        onDismissRequest = cancel,
+                        dismissText = request.dismissText, neutralText = request.neutralText,
+                        onNeutral = { onRespond(id, AppDialogResult.Neutral) },
+                        logoPainter = icons?.logo, moneyPainter = icons?.money,
+                    )
+                }
                 // Unreachable in production: AppDialogController.pending (what feeds `shown`) is the
                 // first NON-Progress entry -- a Progress only ever arrives via the `progress` parameter
                 // above. Kept as a defensive render (never as Unit) so a caller that builds a `shown`
