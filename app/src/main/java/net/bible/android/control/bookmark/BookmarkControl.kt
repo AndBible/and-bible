@@ -71,6 +71,7 @@ import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
@@ -1099,8 +1100,11 @@ open class BookmarkControl constructor(
 
                 withContext(Dispatchers.Main) {
                     if (result.errors > 0) {
-                        // Show detailed error dialog
-                        val message =
+                        // Show detailed error dialog. I2 fix: AppDialogRequest.Message is always
+                        // parsed as HTML (parseHtmlRuns) -- a plain "\n"-joined summary collapses
+                        // onto one line, and any "<...>" an exception's own message happens to
+                        // contain is silently dropped as an unknown tag. plainTextToHtml keeps both.
+                        val plainMessage =
                             getString(R.string.csv_import_errors, result.created, result.updated, result.errors) +
                                 "\n\n" + result.errorMessages.take(5).joinToString("\n") +
                                 if (result.errorMessages.size > 5) "\n..." else ""
@@ -1108,7 +1112,7 @@ open class BookmarkControl constructor(
                         KoinJavaComponent.get<AppDialogController>(AppDialogController::class.java).post(
                             AppDialogRequest.Message(
                                 title = getString(R.string.import_items, "CSV"),
-                                message = message,
+                                message = plainTextToHtml(plainMessage),
                                 confirmText = getString(R.string.okay),
                                 cancellable = true,
                             ),

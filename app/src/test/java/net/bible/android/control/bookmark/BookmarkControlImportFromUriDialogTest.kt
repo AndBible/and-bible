@@ -101,6 +101,10 @@ class BookmarkControlImportFromUriDialogTest {
                 context.getString(R.string.import_items, "CSV"), request.title,
             )
             assertTrue(request.message.contains("Invalid bookmark data"))
+            // I2: the plain "\n\n" between the summary and the per-record lines must survive as an
+            // explicit <br><br> -- AppDialogRequest.Message is always parsed as HTML, which
+            // otherwise collapses every newline into a single space.
+            assertTrue("line breaks must survive HTML parsing (I2)", request.message.contains("<br><br>"))
             assertEquals(context.getString(R.string.okay), request.confirmText)
             assertTrue("cancellable, as the old AlertDialog (default cancelable, no setCancelable(false))", request.cancellable)
         } finally {

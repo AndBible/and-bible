@@ -280,6 +280,7 @@ import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.installzip.DocumentInstallService
 import net.bible.sharedcore.nav.InstallZipResult
+import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import net.bible.sharedui.installzip.nav.InstallZipNavDeps
 import net.bible.sharedui.installzip.nav.InstallZipSession
 import net.bible.sharedui.installzip.nav.installZipNavGraph
@@ -7903,7 +7904,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             } else {
                 session.controller.requestDownloadConfirm(
                     documentToDownload.repoIdentity,
-                    getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name,
+                    // M4: this plain-text message (a document's `name` can itself contain "<...>")
+                    // goes through AbMessageDialog, which always parses its body as HTML -- I2's
+                    // helper keeps it literal instead of silently dropping an unknown "tag".
+                    plainTextToHtml(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name),
                 )
             }
         }
