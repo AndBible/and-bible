@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -42,10 +44,21 @@ import androidx.compose.ui.unit.dp
  * both export-destination sites (share / save) actually have — they were `AlertDialog`s whose
  * "buttons" were the choices.
  *
- * There is deliberately no Cancel row. A sheet is dismissed by swipe, scrim tap or back, and the ✕
- * in the header is the explicit affordance; a Cancel row would be a fourth way to do the same thing.
- * [onDismiss] must therefore carry whatever "the user chose nothing" means to the caller — for the
- * export sites, completing their `CompletableDeferred` with `null`.
+ * There is deliberately no Cancel row of its own — a sheet is dismissed by swipe, scrim tap or back,
+ * and the ✕ in the header is the explicit affordance. [dismissText] (run 3 final-review fix wave, I2)
+ * is the one exception: when the caller names an explicit dismiss label (`AppDialogRequest.Options`'s
+ * `dismissText`), it is drawn as a trailing [AbActionSheetRow] that answers the same as the ✕/swipe/
+ * scrim/back — needed because [cancellable] = false blocks every one of THOSE, and a sheet with no
+ * options-independent way out would trap the user (`ErrorReportControl.checkCrash`'s crash-report
+ * sheet is the one production caller of both together: `dismissText = error_skip`, `cancellable =
+ * false`). [onDismiss] must therefore carry whatever "the user chose nothing" means to the caller —
+ * for the export sites, completing their `CompletableDeferred` with `null`.
+ *
+ * [cancellable] = false (default `true`, so every existing caller is unaffected) refuses swipe-to-
+ * dismiss (`confirmValueChange` rejects `SheetValue.Hidden`), back press
+ * (`ModalBottomSheetProperties.shouldDismissOnBackPress`) and hides the ✕ ([AbSheetHeader]'s
+ * `showClose`) — the platform `setCancelable(false)` dialog this sheet replaces blocked exactly
+ * those three, leaving only its explicit buttons ([dismissText] here) as a way out.
  *
  * Rows are supplied as content rather than as a data list so a caller can build them from platform
  * resources: [AbActionSheetRow]'s `icon` is a composable slot, the same shape as `AbMenuItem`'s
@@ -63,13 +76,25 @@ fun AbActionSheet(
     open: Boolean,
     title: String,
     message: String? = null,
+    dismissText: String? = null,
+    cancellable: Boolean = true,
     onDismiss: () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     if (!open) return
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
-        AbActionSheetContent(title = title, message = message, onClose = onDismiss, content = content)
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { value -> cancellable || value != SheetValue.Hidden },
+    )
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        properties = ModalBottomSheetProperties(shouldDismissOnBackPress = cancellable),
+    ) {
+        AbActionSheetContent(
+            title = title, message = message, onClose = onDismiss,
+            dismissText = dismissText, showClose = cancellable, content = content,
+        )
     }
 }
 
@@ -78,16 +103,22 @@ fun AbActionSheet(
  * rows by construction (three at the widest call site in this port), so there is nothing below the
  * clip for a fade to advertise. A caller that grows one past a screenful should wrap its rows in
  * [AbSheetScrollBound] itself rather than have every action sheet pay for a viewport it never fills.
+ *
+ * [dismissText]/[showClose]: see [AbActionSheet]'s kdoc (run 3 final-review fix wave, I2). Both
+ * default to their old behaviour (no dismiss row, ✕ shown), so every existing caller of this content
+ * composable renders byte-identically to before.
  */
 @Composable
 fun AbActionSheetContent(
     title: String,
     message: String? = null,
     onClose: () -> Unit,
+    dismissText: String? = null,
+    showClose: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-        AbSheetHeader(title = title, onClose = onClose)
+        AbSheetHeader(title = title, onClose = onClose, showClose = showClose)
         if (message != null) {
             Text(
                 text = message,
@@ -97,6 +128,9 @@ fun AbActionSheetContent(
             )
         }
         content()
+        if (dismissText != null) {
+            AbActionSheetRow(label = dismissText, onClick = onClose)
+        }
     }
 }
 

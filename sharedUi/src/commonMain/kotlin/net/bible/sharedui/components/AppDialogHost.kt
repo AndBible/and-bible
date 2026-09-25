@@ -134,7 +134,13 @@ fun AppDialogHost(
                 is AppDialogRequest.Options -> if (request.asActionSheet) {
                     key(id) {
                         // key(id): same reason as SingleChoice/MultiChoice above (I2).
-                        AbActionSheet(open = true, title = request.title.orEmpty(), message = request.message, onDismiss = cancel) {
+                        // dismissText/cancellable (run 3 final-review fix wave, I2): both were
+                        // previously dropped here, silently ignoring what the request asked for --
+                        // see AbActionSheet's kdoc for what each one now does.
+                        AbActionSheet(
+                            open = true, title = request.title.orEmpty(), message = request.message,
+                            dismissText = request.dismissText, cancellable = request.cancellable, onDismiss = cancel,
+                        ) {
                             request.options.forEach { option ->
                                 AbActionSheetRow(label = option.label, onClick = { onRespond(id, AppDialogResult.Selected(option.value)) })
                             }

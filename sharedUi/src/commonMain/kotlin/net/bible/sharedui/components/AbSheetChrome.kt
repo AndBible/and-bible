@@ -70,6 +70,12 @@ val AbSheetContentMaxHeight: Dp = 400.dp
  * existing call site (`AbChoiceSheet.kt`, `AbMultiSelectSheet.kt`, `AbActionSheet.kt`,
  * `AbReadHistorySheet.kt`, `ReadingLlmDialogs.kt`, both still calling `AbSheetHeader(title =
  * ..., onClose = ...)` with nothing else) renders byte-identically to before.
+ *
+ * [showClose] (run 3 final-review fix wave, I2): an uncancellable action sheet
+ * (`AppDialogRequest.Options.cancellable = false`) hides the ✕ — it is a fourth way to dismiss,
+ * alongside swipe/scrim/back, all of which a non-cancellable sheet must refuse. The sheet's own
+ * [AbActionSheetRow] built from `dismissText` stays the one explicit way out. Defaults to `true`,
+ * so every other existing caller renders byte-identically to before.
  */
 @Composable
 fun AbSheetHeader(
@@ -78,6 +84,7 @@ fun AbSheetHeader(
     canGoBack: () -> Boolean = { false },
     onBack: () -> Unit = {},
     actions: (@Composable RowScope.() -> Unit)? = null,
+    showClose: Boolean = true,
 ) {
     val strings = LocalStrings.current
     Row(
@@ -107,8 +114,10 @@ fun AbSheetHeader(
             modifier = Modifier.padding(horizontal = 8.dp).weight(1f),
         )
         if (actions != null) actions()
-        IconButton(onClick = onClose) {
-            Icon(Icons.Filled.Close, contentDescription = strings.settingsEditorClose)
+        if (showClose) {
+            IconButton(onClick = onClose) {
+                Icon(Icons.Filled.Close, contentDescription = strings.settingsEditorClose)
+            }
         }
     }
 }

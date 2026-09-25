@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.performClick
@@ -263,6 +264,64 @@ class AppDialogHostTest {
         )
         compose.onNodeWithText("Import").performClick()
         assertEquals(listOf(6L to AppDialogResult.Selected("import")), answers)
+    }
+
+    /** I2 (run 3 final review): an action sheet's `dismissText` is drawn as a trailing row and
+     *  answers [AppDialogResult.Cancel], same as `ErrorReportControl.showErrorDialog`'s "Skip". */
+    @Test fun actionSheetDismissTextRendersAsARowAndAnswersCancel() {
+        show(
+            ShownDialog(
+                7,
+                AppDialogRequest.Options(
+                    "Crash!", null,
+                    listOf(SettingsItem.Choice("report", "Send report"), SettingsItem.Choice("backup", "Backup & restore")),
+                    dismissText = "Skip", asActionSheet = true, cancellable = false,
+                ),
+            ),
+        )
+        compose.onNodeWithText("Skip").performClick()
+        assertEquals(listOf(7L to AppDialogResult.Cancel), answers)
+    }
+
+    /** I2: `cancellable = false` on an action sheet blocks back (the ModalBottomSheet must not
+     *  answer Cancel through `onDismissRequest`) and hides the ✕ header close -- `dismissText`'s
+     *  row is the one way out left, matching the non-cancellable platform dialog this replaces. */
+    @Test fun nonCancellableActionSheetIgnoresBackAndHidesClose() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        show(
+            ShownDialog(
+                8,
+                AppDialogRequest.Options(
+                    "Crash!", null,
+                    listOf(SettingsItem.Choice("report", "Send report")),
+                    dismissText = "Skip", asActionSheet = true, cancellable = false,
+                ),
+            ),
+        )
+        compose.waitForIdle()
+        compose.onNodeWithContentDescription(context.getString(R.string.settings_editor_close)).assertDoesNotExist()
+        Espresso.pressBack()
+        compose.waitForIdle()
+        assertEquals(emptyList<Pair<Long, AppDialogResult>>(), answers)
+        compose.onNodeWithText("Send report").assertExists()
+    }
+
+    /** I2: a cancellable action sheet (the default, e.g. `BackupControl.classicDestinationPrompt`)
+     *  keeps the ✕ header close, unaffected by the I2 fix. */
+    @Test fun cancellableActionSheetKeepsHeaderClose() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        show(
+            ShownDialog(
+                9,
+                AppDialogRequest.Options(
+                    "Save or share?", null,
+                    listOf(SettingsItem.Choice("share", "Share"), SettingsItem.Choice("save", "Save")),
+                    dismissText = null, asActionSheet = true,
+                ),
+            ),
+        )
+        compose.onNodeWithContentDescription(context.getString(R.string.settings_editor_close)).performClick()
+        assertEquals(listOf(9L to AppDialogResult.Cancel), answers)
     }
 
     @Test fun textInputAnswersTypedText() {
