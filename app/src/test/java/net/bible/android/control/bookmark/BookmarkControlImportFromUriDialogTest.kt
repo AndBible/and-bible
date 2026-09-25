@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.bookmark
 
+import net.bible.android.AppDialogControllerResetRule
 import android.net.Uri
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
@@ -34,6 +35,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.junit.After
+import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -60,6 +62,7 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class BookmarkControlImportFromUriDialogTest {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
     private lateinit var bookmarkControl: BookmarkControl
     // Shared across the whole test method, and kept as the Main dispatcher until @After -- see the
     // matching field in ErrorReportControlTest for why resetting Main inside the test body's own

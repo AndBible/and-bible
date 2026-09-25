@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.backup
 
+import net.bible.android.AppDialogControllerResetRule
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
@@ -27,6 +28,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.After
+import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -57,6 +59,7 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class BackupControlSelectDatabaseSectionsTest {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
 
     @After
     fun tearDown() {

@@ -16,6 +16,7 @@
  */
 package net.bible.service.common
 
+import net.bible.android.AppDialogControllerResetRule
 import android.Manifest
 import android.os.Looper
 import kotlinx.coroutines.GlobalScope
@@ -46,6 +47,7 @@ import org.crosswire.jsword.book.sword.processing.RawTextToXmlProcessor
 import org.crosswire.jsword.passage.Key
 import org.jdom2.Content
 import org.junit.After
+import org.junit.Rule
 import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -73,6 +75,7 @@ import java.util.Locale
 class CommonUtilsDialogsTest {
     private val controllers = mutableListOf<ActivityController<*>>()
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
     private val originalLocale: Locale = Locale.getDefault()
     // Only the two `requestNotificationPermission*` tests below hop through `withContext
     // (Dispatchers.Main)`; the rest of this file never touches Main. Binding it here regardless

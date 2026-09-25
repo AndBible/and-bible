@@ -26,6 +26,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import net.bible.android.AppDialogControllerResetRule
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
@@ -57,6 +58,7 @@ class AppDialogOverlayTest {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
     @get:Rule val compose = createEmptyComposeRule()
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
 
     @Before
     fun setUp() {

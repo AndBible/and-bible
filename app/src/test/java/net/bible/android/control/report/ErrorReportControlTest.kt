@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.report
 
+import net.bible.android.AppDialogControllerResetRule
 import android.app.Activity
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
@@ -37,6 +38,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.After
+import org.junit.Rule
 import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -63,6 +65,7 @@ import org.robolectric.annotation.Config
 class ErrorReportControlTest {
     private val controllers = mutableListOf<ActivityController<*>>()
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
     // Shared across the whole test method (one instance per @Test, per JUnit4's default) so Main
     // stays bound to the SAME scheduler `runOnTestMain`'s `runTest` drives -- and, critically, stays
     // the test dispatcher until @After runs, i.e. until every child the test body launched has

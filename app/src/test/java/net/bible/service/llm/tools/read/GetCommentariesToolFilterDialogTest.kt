@@ -16,6 +16,7 @@
  */
 package net.bible.service.llm.tools.read
 
+import net.bible.android.AppDialogControllerResetRule
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
@@ -29,6 +30,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.After
+import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
@@ -58,6 +60,7 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class GetCommentariesToolFilterDialogTest {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
     private val context = AgentContext(promptId = IdType())
 
     private val originalThreshold = CommonUtils.aiSettings.commentaryMaxResponseTokens

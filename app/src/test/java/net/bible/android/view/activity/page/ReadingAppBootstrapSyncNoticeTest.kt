@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.page
 
+import net.bible.android.AppDialogControllerResetRule
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -28,6 +29,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.After
+import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -54,6 +56,7 @@ private const val NOTICE_PREF = "new-sync-targets-notice-displayed"
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingAppBootstrapSyncNoticeTest {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
     private val prefs get() = CommonUtils.settings
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 

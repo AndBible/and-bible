@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.page
 
+import net.bible.android.AppDialogControllerResetRule
 import android.os.Looper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +33,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.test.DatabaseResetter
 import org.junit.After
+import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertNotNull
@@ -57,6 +59,7 @@ class MenuCommandHandlerDialogTest {
     private lateinit var activity: CalculatorComposeActivity
     private lateinit var handler: MenuCommandHandler
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
 
     @Before
     fun setUp() {

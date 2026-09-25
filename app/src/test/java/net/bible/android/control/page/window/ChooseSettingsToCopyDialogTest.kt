@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.page.window
 
+import net.bible.android.AppDialogControllerResetRule
 import android.os.Looper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +31,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import net.bible.test.DatabaseResetter
 import org.junit.After
+import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -69,6 +71,7 @@ class ChooseSettingsToCopyDialogTest {
 
     private val controllers = mutableListOf<ActivityController<*>>()
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
     private lateinit var windowControl: WindowControl
     private lateinit var windowRepository: WindowRepository
 

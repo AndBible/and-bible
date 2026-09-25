@@ -25,6 +25,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import net.bible.android.AppDialogControllerResetRule
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
@@ -42,6 +43,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.java.KoinJavaComponent
@@ -89,6 +91,24 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingAppBootstrapTest {
+
+    /**
+     * Fix round (test-pollution): this class raises real [AppDialogController] requests
+     * (`showStableNotice`/`showBetaNotice` below) but never had a teardown -- unlike every sibling
+     * dialog test class, which calls `cancelAll()` in `@After`. On the happy path each notice test
+     * answers its own request, so nothing leaked from THIS class's own tests; the real exposure is
+     * indirect, via [net.bible.android.view.activity.nav.NavHostComposeActivity.bootstrapIfNeeded]'s
+     * un-awaited `lifecycleScope.launch(Dispatchers.Main) { readingAppBootstrap.showFirstRunNotices() }`,
+     * which several tests below trigger by building a real host through `navHostOnReading()`. That
+     * launch is gated by [ReadingAppBootstrap]'s process-wide (companion, not per-instance)
+     * `initialized` flag, so across the whole unit-test JVM it can fire from whichever test anywhere
+     * in the suite happens to be first to build a reading host with the Main looper pumped -- raising
+     * a stray [AppDialogRequest.Notice] this class never consumes. [AppDialogControllerResetRule]
+     * closes both ends: a clean queue before this class's own tests run, regardless of what any
+     * earlier class in the JVM left behind, and a clean queue after, so this class cannot hand the
+     * problem to whichever class runs next.
+     */
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
 
     /**
      * Every non-test Kotlin source directory of `:app`. `src/main/java` alone would miss

@@ -17,6 +17,7 @@
 
 package net.bible.android.control.backup
 
+import net.bible.android.AppDialogControllerResetRule
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -37,6 +38,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.After
+import org.junit.Rule
 import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -59,6 +61,7 @@ import java.io.File
 class BackupControlTest {
     private val controllers = mutableListOf<ActivityController<*>>()
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
     // Shared across the whole test method, and kept as the Main dispatcher until @After -- see the
     // matching field in ErrorReportControlTest for why resetting Main inside the test body's own
     // `finally` (the old shape here too) can deadlock: it races a still-cancelling child off the test

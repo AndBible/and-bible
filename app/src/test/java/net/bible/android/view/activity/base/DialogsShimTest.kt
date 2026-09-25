@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.base
 
+import net.bible.android.AppDialogControllerResetRule
 import android.os.Looper
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
@@ -28,6 +29,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.junit.After
+import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -54,6 +56,7 @@ import org.robolectric.shadows.ShadowToast
 class DialogsShimTest {
     private val controllers = mutableListOf<ActivityController<*>>()
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+    @get:Rule val dialogReset = AppDialogControllerResetRule()
 
     @After
     fun tearDown() {
