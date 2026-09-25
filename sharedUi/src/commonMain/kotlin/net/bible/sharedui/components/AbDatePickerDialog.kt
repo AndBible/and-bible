@@ -17,15 +17,28 @@
 
 package net.bible.sharedui.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 
 private const val MILLIS_PER_DAY = 86_400_000L
 
@@ -75,15 +88,29 @@ fun utcMidnightMillisToYmd(utcMillis: Long): Triple<Int, Int, Int> =
     civilFromDays(utcMillis.floorDiv(MILLIS_PER_DAY))
 
 /**
- * Material3 `DatePickerDialog` + `DatePicker` (Task 30b, correction 10 / ruling R3-2): replaces the
- * platform `android.app.DatePickerDialog` classic used for the reading plan's "set start date"
- * (`NavHostComposeActivity.showReadingPlanStartDatePicker`, classic `:245-256`). [initialUtcMillis]
- * and [maxUtcMillis] are UTC-midnight millis for the initially-shown date and the last selectable
- * date respectively (both computed by the host from local year/month/day via
+ * Material3 `DatePicker` inside a width-constrained [BasicAlertDialog] (Task 30b, correction 10 /
+ * ruling R3-2; rebuilt off M3's own `DatePickerDialog` by the run 3 final-review fix wave, I4).
+ * Replaces the platform `android.app.DatePickerDialog` classic used for the reading plan's "set
+ * start date" (`NavHostComposeActivity.showReadingPlanStartDatePicker`, classic `:245-256`).
+ * [initialUtcMillis] and [maxUtcMillis] are UTC-midnight millis for the initially-shown date and the
+ * last selectable date respectively (both computed by the host from local year/month/day via
  * [ymdToUtcMidnightMillis] — never a raw instant, so no timezone conversion ever actually happens;
  * see that function's kdoc). [onConfirm] reports the picked date back as (year, month 1-12, day),
  * decoded via [utcMidnightMillisToYmd] so the host never has to touch Material3's millis
  * representation itself.
+ *
+ * I4: M3's own `DatePickerDialog` sizes its surface with
+ * `Modifier.requiredWidth(DatePickerModalTokens.ContainerWidth)` (360dp), which `requiredWidth`
+ * enforces even on a narrower window — the platform dialog it replaced adapted to the width, so
+ * this port didn't. Built here instead on `BasicAlertDialog(properties =
+ * DialogProperties(usePlatformDefaultWidth = false))`, whose content is free to size itself against
+ * the REAL available width: a [Surface] capped at `widthIn(max = 360.dp)` but otherwise
+ * `fillMaxWidth()`, so it shrinks below 360dp rather than clipping. [BoxWithConstraints] reads that
+ * real width (measured OUTSIDE the 360dp cap, so it sees the window's actual narrowness) to start
+ * the picker in [DisplayMode.Input] below 360dp — a stack of text fields, not a 7-column calendar
+ * grid, so it has no columns to clip — and in [DisplayMode.Picker] (the calendar grid, this
+ * function's previous sole behaviour) at 360dp and up. The user can still switch modes via the
+ * picker's own toggle icon either way; only the STARTING mode depends on width.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,17 +127,36 @@ fun AbDatePickerDialog(
             override fun isSelectableDate(utcTimeMillis: Long): Boolean = utcTimeMillis <= maxUtcMillis
         }
     }
-    val state = rememberDatePickerState(initialSelectedDateMillis = initialUtcMillis, selectableDates = selectableDates)
-    DatePickerDialog(
+    BasicAlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                val (year, month, day) = utcMidnightMillisToYmd(state.selectedDateMillis ?: initialUtcMillis)
-                onConfirm(year, month, day)
-            }) { Text(confirmText) }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(dismissText) } },
+        properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        DatePicker(state = state)
+        BoxWithConstraints {
+            val state = rememberDatePickerState(
+                initialSelectedDateMillis = initialUtcMillis,
+                selectableDates = selectableDates,
+                initialDisplayMode = if (maxWidth < 360.dp) DisplayMode.Input else DisplayMode.Picker,
+            )
+            Surface(
+                modifier = Modifier.fillMaxWidth().widthIn(max = 360.dp),
+                shape = AlertDialogDefaults.shape,
+                color = AlertDialogDefaults.containerColor,
+                tonalElevation = AlertDialogDefaults.TonalElevation,
+            ) {
+                Column {
+                    DatePicker(state = state, modifier = Modifier.weight(1f, fill = false))
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(end = 8.dp, bottom = 8.dp),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        TextButton(onClick = onDismiss) { Text(dismissText) }
+                        TextButton(onClick = {
+                            val (year, month, day) = utcMidnightMillisToYmd(state.selectedDateMillis ?: initialUtcMillis)
+                            onConfirm(year, month, day)
+                        }) { Text(confirmText) }
+                    }
+                }
+            }
+        }
     }
 }
