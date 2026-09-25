@@ -50,7 +50,6 @@ import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.betaIntroVideo
 import net.bible.service.common.newFeaturesIntroVideo
-import net.bible.service.common.windowPinningVideo
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.SwordDocumentFacade
@@ -234,7 +233,6 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
             showBetaNotice()
             showStableNotice()
             showNewSyncTargetsNotice()
-            showFirstTimeHelp()
             if(!CommonUtils.isDiscrete) {
                 ABEventBus.post(ToastEvent(windowRepository.name))
             }
@@ -266,57 +264,11 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         }
     }
 
-    private suspend fun showFirstTimeHelp()  {
-        val pinningHelpShown = preferences.getBoolean("pinning-help-shown", false)
-        if(!pinningHelpShown) {
-            val save = CommonUtils.isFirstInstall || CommonUtils.mainVersionFloat >= 3.4 || askPinningHelp()
-            if(save) {
-                preferences.setBoolean("pinning-help-shown", true)
-            }
-        }
-    }
-
-    /**
-     * The pinning-help dialog's question, extracted out of [showFirstTimeHelp] so it can be
-     * exercised directly against [AppDialogController] (D8-2 fix, `ReadingAppBootstrapTest`).
-     *
-     * **Unreachable in practice.** [showFirstTimeHelp]'s `||` short-circuits before this ever
-     * runs: `CommonUtils.isFirstInstall` is true on a fresh install, and `CommonUtils.mainVersionFloat`
-     * is already >= 3.4 on this app's shipped `versionName` (5.1.1117). This method — and the fix
-     * below — exist so the dialog's own button-to-outcome mapping is correct and provable, in case
-     * that short-circuit is ever relaxed.
-     *
-     * **The fix (D8-2):** the old `suspendCoroutine`-based dialog only ever called `it.resume(true)`
-     * from its positive button; its neutral button passed a `null` listener and there was no
-     * `setOnCancelListener`, so choosing "show next time" or pressing back left the `suspendCoroutine`
-     * — and therefore [showFirstRunNotices] and its caller — hung forever. Every path now resumes:
-     * positive "don't show again" -> [AppDialogResult.Ok] (persist, as before), neutral "show next
-     * time" -> [AppDialogResult.Neutral] (do not persist), back/scrim (an [AppDialogRequest.Message]
-     * with `cancellable = true`) -> [AppDialogResult.Cancel] (do not persist).
-     */
-    internal suspend fun askPinningHelp(): Boolean {
-        val pinningTitle = host.getString(R.string.help_window_pinning_title)
-        var pinningText = host.getString(R.string.help_window_pinning_text)
-
-        pinningText += "<br><i><a href=\"$windowPinningVideo\">${host.getString(R.string.watch_tutorial_video)}</a></i><br>"
-
-        val result = appDialogs.await(
-            AppDialogRequest.Message(
-                title = pinningTitle,
-                message = pinningText,
-                confirmText = host.getString(R.string.first_time_help_do_not_show_again),
-                neutralText = host.getString(R.string.first_time_help_show_next_time),
-                cancellable = true,
-            ),
-        )
-        return result == AppDialogResult.Ok
-    }
-
     /**
      * `internal`, not `private`: its only production caller is `showFirstRunNotices()`, which also
      * runs `checkCrash`/`checkPoorTranslations` (can `exitProcess`) and two other notices ahead of
      * it -- `ReadingAppBootstrapSyncNoticeTest` calls this directly instead of reconstructing that
-     * whole sequential chain, the same reasoning `askPinningHelp`'s own KDoc gives.
+     * whole sequential chain.
      */
     internal fun showNewSyncTargetsNotice() {
         val displayedVer = preferences.getInt("new-sync-targets-notice-displayed", 0)

@@ -33,7 +33,6 @@ import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.betaIntroVideo
 import net.bible.service.common.newFeaturesIntroVideo
-import net.bible.service.common.windowPinningVideo
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -537,107 +536,19 @@ class ReadingAppBootstrapTest {
         }
     }
 
-    // ——— Task 19 D8-2: askPinningHelp resumes on every path ————————————————————————————————————
+    // ——— Task 30 Step 4: first-run pinning help deleted (unreachable, plan correction 13) ————————
 
     /**
-     * `showFirstTimeHelp`'s dialog is unreachable in practice (controller ruling 7,
-     * `2026-09-24-compose-platform-dialog-removal` run 2 context): its `||` short-circuits on
-     * `CommonUtils.isFirstInstall || CommonUtils.mainVersionFloat >= 3.4`, and the second disjunct
-     * is already true at this app's shipped `versionName` (5.1.1117). These tests exercise the
-     * extracted [ReadingAppBootstrap.askPinningHelp] directly instead of `showFirstRunNotices()`
-     * (which the brief's original skeleton called) — that call would also run `checkCrash`,
-     * `checkPoorTranslations` and the beta/stable/sync-targets notices ahead of it, none of which
-     * this fix touches, and `checkPoorTranslations` can `exitProcess` a real test JVM.
+     * `showFirstTimeHelp`'s dialog was unreachable in practice (`||` short-circuits on
+     * `CommonUtils.isFirstInstall || CommonUtils.mainVersionFloat >= 3.4`, already true at this
+     * app's shipped `versionName`) -- maintainer decision 2026-09-25 (plan correction 13) deleted
+     * `askPinningHelp()`, its dialog, `showFirstTimeHelp()` itself and the `pinning-help-shown` pref
+     * read/write (grepped repo-wide: nothing else reads that key). The same
+     * `help_window_pinning_title`/`help_window_pinning_text` strings stay reachable via Help & tips
+     * (`CommonUtils.showHelp`'s `HelpItem` list, `CommonUtils.kt:1045`) -- `CommonUtilsDialogsTest`
+     * covers `showHelp` generically, not this specific entry.
      */
     private val appDialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
-
-    @Test
-    fun askPinningHelpPostsAThreeButtonHtmlMessageWithNoDismissButton() = runTest(timeout = 30.seconds) {
-        val controller = navHostOnReading()
-        try {
-            val activity = controller.create().get()
-            val done = async { activity.readingAppBootstrap.askPinningHelp() }
-            advanceUntilIdle()
-
-            val request = appDialogs.pending.value!!.request as AppDialogRequest.Message
-            assertEquals(activity.getString(R.string.help_window_pinning_title), request.title)
-            assertTrue(
-                "body carries the tutorial video link, as HTML (rendered by AbHtmlText, not htmlToSpan)",
-                request.message.contains(windowPinningVideo),
-            )
-            assertEquals(activity.getString(R.string.first_time_help_do_not_show_again), request.confirmText)
-            assertEquals(activity.getString(R.string.first_time_help_show_next_time), request.neutralText)
-            assertNull("no dismiss button today -- only positive/neutral/back", request.dismissText)
-            assertTrue("back/scrim must close it (as AppDialogResult.Cancel) -- part of the D8-2 fix", request.cancellable)
-
-            appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Ok)
-            advanceUntilIdle()
-            assertTrue(done.isCompleted)
-        } finally {
-            controller.close()
-        }
-    }
-
-    @Test
-    fun firstRunHelpShowNextTimeCompletesTheCaller() = runTest(timeout = 30.seconds) {
-        val controller = navHostOnReading()
-        try {
-            val activity = controller.create().get()
-            val done = async { activity.readingAppBootstrap.askPinningHelp() }
-            advanceUntilIdle()
-            val shown = appDialogs.pending.value!!
-            appDialogs.respond(shown.id, AppDialogResult.Neutral)
-            advanceUntilIdle()
-
-            assertTrue(
-                "today: the old suspendCoroutine's neutral button passed a null listener and never " +
-                    "resumed, hanging showFirstRunNotices (and its caller) forever",
-                done.isCompleted,
-            )
-            assertFalse("\"show next time\" must not persist the do-not-show-again flag", done.await())
-        } finally {
-            controller.close()
-        }
-    }
-
-    @Test
-    fun firstRunHelpBackCompletesTheCaller() = runTest(timeout = 30.seconds) {
-        val controller = navHostOnReading()
-        try {
-            val activity = controller.create().get()
-            val done = async { activity.readingAppBootstrap.askPinningHelp() }
-            advanceUntilIdle()
-            val shown = appDialogs.pending.value!!
-            appDialogs.respond(shown.id, AppDialogResult.Cancel)
-            advanceUntilIdle()
-
-            assertTrue(
-                "today: the old dialog had no setOnCancelListener, so back never resumed either",
-                done.isCompleted,
-            )
-            assertFalse("back must not persist the do-not-show-again flag", done.await())
-        } finally {
-            controller.close()
-        }
-    }
-
-    @Test
-    fun firstRunHelpDontShowAgainPersistsTheChoice() = runTest(timeout = 30.seconds) {
-        val controller = navHostOnReading()
-        try {
-            val activity = controller.create().get()
-            val done = async { activity.readingAppBootstrap.askPinningHelp() }
-            advanceUntilIdle()
-            val shown = appDialogs.pending.value!!
-            appDialogs.respond(shown.id, AppDialogResult.Ok)
-            advanceUntilIdle()
-
-            assertTrue(done.isCompleted)
-            assertTrue("\"don't show again\" must return true, as today, so the caller persists it", done.await())
-        } finally {
-            controller.close()
-        }
-    }
 
     // ——— Task 28: showStableNotice/showBetaNotice ported to AppDialogRequest.Notice —————————————
 
