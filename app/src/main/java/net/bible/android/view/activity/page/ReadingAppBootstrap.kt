@@ -18,7 +18,6 @@
 package net.bible.android.view.activity.page
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Context
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -28,15 +27,8 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.Uri
 import android.os.Build
-import android.text.Layout
-import android.text.SpannableString
-import android.text.TextUtils
-import android.text.method.LinkMovementMethod
-import android.text.style.AlignmentSpan
-import android.text.style.ImageSpan
 import android.util.Log
 import android.view.WindowManager
-import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,7 +49,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.betaIntroVideo
-import net.bible.service.common.htmlToSpan
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.common.windowPinningVideo
 import net.bible.service.db.DatabaseContainer
@@ -71,8 +62,6 @@ import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.system.Versifications
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.math.max
 import kotlin.system.exitProcess
 
@@ -120,7 +109,8 @@ private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pr
  * [ActivityBase] is the nearest common supertype of the two hosts and is what most of the measured
  * code needs: `window` ([setSoftKeyboardMode]'s `SOFT_INPUT_ADJUST_*` calls),
  * `checkSelfPermission`/`requestPermissions` ([requestSdcardPermission]), a `Context` for
- * `AlertDialog.Builder` (all four notices), `lifecycleScope` (the repository's scope), and -- the
+ * `getString` (every notice's texts -- Task 28 moved the notices themselves off `AlertDialog.Builder`
+ * onto [AppDialogController.await]), `lifecycleScope` (the repository's scope), and -- the
  * binding constraint -- `ErrorReportControl.checkCrash`, `CommonUtils.checkPoorTranslations` and
  * `CloudSync.signIn` all take an `ActivityBase` parameter, so a `ComponentActivity` would not
  * compile without exactly the downcast to the concrete Activity that this batch forbids.
@@ -356,126 +346,115 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         }
     }
 
-    private suspend fun showStableNotice() = suspendCoroutine<Boolean> {
-        if(CommonUtils.isBeta) {
-            it.resume(false)
-            return@suspendCoroutine
-        }
+    /**
+     * Ported from a `suspendCoroutine`-wrapped `AlertDialog.Builder` to [AppDialogController.await]
+     * (Task 28) -- same resume values (`true` only on "dismiss until update", which also persists
+     * `ver`; `false` on plain dismiss/back) and the same texts/links, now structured as
+     * [AppDialogRequest.Notice] blocks instead of one hand-assembled `Spanned` string. The big
+     * centred logo (`imageStr`/`biggerLogoDrawable`) is [AppDialogRequest.NoticeBlock.Logo], hidden
+     * in discrete mode exactly as before (`BuildVariant.Appearance.isDiscrete`) -- the SEPARATE
+     * title-bar logo (`setIcon(ic_logo)`, now [AppDialogRequest.Notice.showTitleLogo]) still shows
+     * in discrete mode, an already-recorded leak (spec §2.2) this port does not fix.
+     */
+    private suspend fun showStableNotice(): Boolean {
+        if (CommonUtils.isBeta) return false
 
         val ver = CommonUtils.mainVersion
         val displayedVer = preferences.getString("stable-notice-displayed", "")
         Log.i(TAG, "showStableNotice: $displayedVer $ver")
+        if (displayedVer == ver) return false
 
-        if(displayedVer != ver) {
-            val videoMessage = host.getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-            val appName = host.getString(R.string.app_name_long)
-            val par1 = host.getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
-            val buy = host.getString(R.string.buy_development)
-            val support = host.getString(R.string.buy_development2)
-            val heartIcon = ImageSpan(CommonUtils.getTintedDrawable(R.drawable.baseline_attach_money_24))
-            val biggerLogoDrawable = CommonUtils.getResourceDrawable(R.drawable.ic_logo, host)!!
-            biggerLogoDrawable.setBounds(0, 0, biggerLogoDrawable.intrinsicWidth*2, biggerLogoDrawable.intrinsicHeight*2)
-            val logoSpan = ImageSpan(biggerLogoDrawable)
-            val centerSpan = AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER)
-            val imageStr = SpannableString("*")
-            val iconStr = SpannableString("*")
-            iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            imageStr.setSpan(logoSpan, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            imageStr.setSpan(centerSpan, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+        val videoMessage = host.getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
+        val appName = host.getString(R.string.app_name_long)
+        val par1 = host.getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
+        val buy = host.getString(R.string.buy_development)
+        val support = host.getString(R.string.buy_development2)
 
-            val spanned = TextUtils.concat(
-                htmlToSpan("$par1<br><br>"),
-                if(BuildVariant.Appearance.isDiscrete) "" else imageStr,
-                htmlToSpan("<br><br><big><a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a></big>"),
-                htmlToSpan("<br><br>"),
-                iconStr,
-                htmlToSpan("&nbsp;<small><a href=\"$buyDevelopmentLink\">$support ($buy)</a></small>")
-            )
-
-            val d = AlertDialog.Builder(host)
-                .setTitle(host.getString(R.string.stable_notice_title))
-                .setMessage(spanned)
-                .setIcon(R.drawable.ic_logo)
-                .setNeutralButton(host.getString(R.string.dismiss)) { _, _ -> it.resume(false)}
-                .setPositiveButton(host.getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
-                    Log.i(TAG, "showStableNotice: saving $ver")
-                    preferences.setString("stable-notice-displayed", ver)
-                    it.resume(true)
-                }
-                .setOnCancelListener {_ -> it.resume(false)}
-                .create()
-            d.show()
-            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        val result = appDialogs.await(
+            AppDialogRequest.Notice(
+                title = host.getString(R.string.stable_notice_title),
+                showTitleLogo = true,
+                blocks = listOfNotNull(
+                    AppDialogRequest.NoticeBlock.Html(par1),
+                    if (BuildVariant.Appearance.isDiscrete) null else AppDialogRequest.NoticeBlock.Logo,
+                    AppDialogRequest.NoticeBlock.Html("<big><a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a></big>"),
+                    AppDialogRequest.NoticeBlock.IconLine(
+                        AppDialogRequest.NoticeIcon.Money,
+                        "&nbsp;<small><a href=\"$buyDevelopmentLink\">$support ($buy)</a></small>",
+                    ),
+                ),
+                confirmText = host.getString(R.string.beta_notice_dismiss_until_update),
+                neutralText = host.getString(R.string.dismiss),
+            ),
+        )
+        return if (result == AppDialogResult.Ok) {
+            Log.i(TAG, "showStableNotice: saving $ver")
+            preferences.setString("stable-notice-displayed", ver)
+            true
         } else {
-            it.resume(false)
+            false
         }
     }
 
-    private suspend fun showBetaNotice() = suspendCoroutine<Boolean> {
-        if(!CommonUtils.isBeta) {
-            it.resume(false)
-            return@suspendCoroutine
-        }
+    /** Ported the same way as [showStableNotice] -- see its kdoc. */
+    private suspend fun showBetaNotice(): Boolean {
+        if (!CommonUtils.isBeta) return false
 
         val announceVersion = 3
         val displayedVer = preferences.getInt("beta-notice-displayed2", 0)
+        if (displayedVer >= announceVersion) return false
 
-        if(displayedVer < announceVersion) {
-            val videoMessage = host.getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-            val videoMessageLink = "<a href=\"${betaIntroVideo}\"><b>$videoMessage</b></a>"
+        val videoMessage = host.getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
+        val videoMessageLink = "<a href=\"${betaIntroVideo}\"><b>$videoMessage</b></a>"
 
-            val par1 = host.getString(R.string.beta_notice_content_1)
-            val par2 = host.getString(R.string.beta_notice_content_2,
-                 " <a href=\"https://github.com/AndBible/and-bible/issues\">"
-                    + "${host.getString(R.string.beta_notice_github_issues)}</a>"
-            )
-            val par3 = host.getString(R.string.beta_notice_content_3,
-                " <a href=\"https://github.com/AndBible/and-bible\">"
-                    + "${host.getString(R.string.beta_notice_github)}</a>"
+        val par1 = host.getString(R.string.beta_notice_content_1)
+        val par2 = host.getString(R.string.beta_notice_content_2,
+             " <a href=\"https://github.com/AndBible/and-bible/issues\">"
+                + "${host.getString(R.string.beta_notice_github_issues)}</a>"
+        )
+        val par3 = host.getString(R.string.beta_notice_content_3,
+            " <a href=\"https://github.com/AndBible/and-bible\">"
+                + "${host.getString(R.string.beta_notice_github)}</a>"
 
-            )
-            val extraMessage = """
-                |<b>DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS (April 2026)</b><br><br>
-                |Welcome to the 5.1 beta! Many new features have landed, including:<br>
-                |<br>
-                |• <b>AI assistant</b> with tool calling and support for multiple
-                | providers (Claude, Grok, OpenRouter, OpenAI-compatible and more).<br>
-                |• <b>Reading &amp; memorization progress tracking</b> with multiple
-                | modes: Word Scramble, Word Order, Word Blur and Type It.<br>
-                |• <b>My Documents</b>: your own editable, syncable pages.<br>
-                |• <b>Multi-translation search</b> across several Bibles at once.<br>
-                |• Many more improvements &mdash; see the "What's new" video above.<br>
-                |<br>
-                |Please test and report any bugs via
-                |<a href="https://github.com/AndBible/and-bible/issues/new/choose">GitHub</a>
-                | or Main Menu &rarr; Report a bug.<br>
-                |<br>
-                |Best regards, Tuomas<br><br>
-                |P.S. You can support AndBible development financially by
-                |<a href="$buyDevelopmentLink">sponsoring development hours</a>.
-                | <br><br>
-                | (Standard beta notice below)
-                | <br><br>
-            """.trimMargin()
-            val htmlMessage = "$extraMessage$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${host.getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
+        )
+        val extraMessage = """
+            |<b>DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS (April 2026)</b><br><br>
+            |Welcome to the 5.1 beta! Many new features have landed, including:<br>
+            |<br>
+            |• <b>AI assistant</b> with tool calling and support for multiple
+            | providers (Claude, Grok, OpenRouter, OpenAI-compatible and more).<br>
+            |• <b>Reading &amp; memorization progress tracking</b> with multiple
+            | modes: Word Scramble, Word Order, Word Blur and Type It.<br>
+            |• <b>My Documents</b>: your own editable, syncable pages.<br>
+            |• <b>Multi-translation search</b> across several Bibles at once.<br>
+            |• Many more improvements &mdash; see the "What's new" video above.<br>
+            |<br>
+            |Please test and report any bugs via
+            |<a href="https://github.com/AndBible/and-bible/issues/new/choose">GitHub</a>
+            | or Main Menu &rarr; Report a bug.<br>
+            |<br>
+            |Best regards, Tuomas<br><br>
+            |P.S. You can support AndBible development financially by
+            |<a href="$buyDevelopmentLink">sponsoring development hours</a>.
+            | <br><br>
+            | (Standard beta notice below)
+        """.trimMargin()
+        val htmlMessage = "$extraMessage<br><br>$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${host.getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
 
-            val spanned = htmlToSpan(htmlMessage)
-
-            val d = AlertDialog.Builder(host)
-                .setTitle(host.getString(R.string.beta_notice_title))
-                .setMessage(spanned)
-                .setIcon(R.drawable.ic_logo)
-                .setNeutralButton(host.getString(R.string.dismiss)) { _, _ -> it.resume(false)}
-                .setPositiveButton(host.getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
-                    preferences.setInt("beta-notice-displayed2", announceVersion)
-                    it.resume(true)
-                }
-                .setOnCancelListener {_ -> it.resume(false)}
-                .create()
-            d.show()
-            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        val result = appDialogs.await(
+            AppDialogRequest.Notice(
+                title = host.getString(R.string.beta_notice_title),
+                showTitleLogo = true,
+                blocks = listOf(AppDialogRequest.NoticeBlock.Html(htmlMessage)),
+                confirmText = host.getString(R.string.beta_notice_dismiss_until_update),
+                neutralText = host.getString(R.string.dismiss),
+            ),
+        )
+        return if (result == AppDialogResult.Ok) {
+            preferences.setInt("beta-notice-displayed2", announceVersion)
+            true
         } else {
-            it.resume(false)
+            false
         }
     }
 

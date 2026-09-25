@@ -19,23 +19,28 @@ package net.bible.android.view.activity.base
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import net.bible.android.activity.R
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedui.AbAppTheme
 import net.bible.sharedui.components.AppDialogHost
+import net.bible.sharedui.components.LocalNoticeIcons
+import net.bible.sharedui.components.NoticeIcons
 import org.koin.java.KoinJavaComponent
 
 /**
@@ -86,17 +91,26 @@ fun AppDialogOverlay(onSheetOpening: () -> Unit = {}) {
     val shown by dialogs.pending.collectAsState()
     val progress by dialogs.progress.collectAsState()
     val permission by permissions.pending.collectAsState()
-    AppDialogHost(
-        shown = shown,
-        permission = permission,
-        onRespond = dialogs::respond,
-        onPermissionChoice = permissions::respond,
-        onPermissionDismiss = permissions::dismiss,
-        onOpenExternal = { CommonUtils.openLinkNow(it) },
-        askBeforeOpeningLink = CommonUtils.isDiscrete,
-        onSheetOpening = onSheetOpening,
-        progress = progress,
+    // The two drawables an AppDialogRequest.Notice can draw (AbNoticeDialog's title logo, body
+    // Logo block and money IconLine) -- sharedUi stays resource-free, so this is the one place
+    // that resolves them for real via painterResource.
+    val noticeIcons = NoticeIcons(
+        logo = painterResource(R.drawable.ic_logo),
+        money = painterResource(R.drawable.baseline_attach_money_24),
     )
+    CompositionLocalProvider(LocalNoticeIcons provides noticeIcons) {
+        AppDialogHost(
+            shown = shown,
+            permission = permission,
+            onRespond = dialogs::respond,
+            onPermissionChoice = permissions::respond,
+            onPermissionDismiss = permissions::dismiss,
+            onOpenExternal = { CommonUtils.openLinkNow(it) },
+            askBeforeOpeningLink = CommonUtils.isDiscrete,
+            onSheetOpening = onSheetOpening,
+            progress = progress,
+        )
+    }
 }
 
 /**

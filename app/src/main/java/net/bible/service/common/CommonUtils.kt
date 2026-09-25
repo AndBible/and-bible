@@ -20,7 +20,6 @@ package net.bible.service.common
 import android.Manifest
 import android.app.Activity
 import android.app.AlarmManager
-import android.app.AlertDialog
 import android.app.Application
 import android.app.Notification
 import android.app.NotificationChannel
@@ -52,17 +51,11 @@ import android.text.Html
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextUtils
-import android.text.method.LinkMovementMethod
-import android.text.style.ImageSpan
 import android.text.style.URLSpan
 import android.util.LayoutDirection
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.preference.PreferenceManager
@@ -1033,6 +1026,13 @@ object CommonUtils : CommonUtilsBase() {
         )
     }
 
+    /**
+     * Ported from a platform `AlertDialog.Builder` to [AppDialogController.post] (Task 28) -- a
+     * fire-and-forget notice (no caller waits on its single OK button), same texts/links, now
+     * structured as [AppDialogRequest.Notice] blocks: the per-item help text (`Html`), the full-docs
+     * link (`Html`), the sponsor line (`IconLine`, the money icon that used to be an `ImageSpan`),
+     * and the version line (`Html`, only when [showVersion]) -- matching the brief's block order.
+     */
     fun showHelp(callingActivity: ActivityBase, filterItems: List<Int>? = null, showVersion: Boolean = false) {
         val app = application
         val versionMsg = app.getString(R.string.version_text, applicationVersionName)
@@ -1056,11 +1056,7 @@ object CommonUtils : CommonUtilsBase() {
 
         val buy = app.getString(R.string.buy_development)
         val support = app.getString(R.string.buy_development2)
-        val heartIcon = ImageSpan(getTintedDrawable(R.drawable.baseline_attach_money_24))
         val buyMessage = "<b>$support</b>: <a href=\"$buyDevelopmentLink\">$buy</a>"
-        val iconStr = SpannableString("* ")
-        iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-        val spannedBuy = TextUtils.concat(iconStr, htmlToSpan(buyMessage))
 
         var htmlMessage = ""
 
@@ -1080,19 +1076,21 @@ object CommonUtils : CommonUtilsBase() {
         }
 
         val fullDocsLink = app.getString(R.string.help_full_documentation_link)
-        val fullDocsMessage = "<a href=\"$DOCS_URL_PREFIX\">$fullDocsLink</a><br><br>"
+        val fullDocsMessage = "<a href=\"$DOCS_URL_PREFIX\">$fullDocsLink</a>"
 
-        val spanned = TextUtils.concat(htmlToSpan(htmlMessage), htmlToSpan(fullDocsMessage), spannedBuy, if(showVersion) htmlToSpan("<br><br><i>$versionMsg</i>") else "")
-
-        val d = AlertDialog.Builder(callingActivity)
-            .setTitle(R.string.help)
-            .setIcon(R.drawable.ic_logo)
-            .setMessage(spanned)
-            .setPositiveButton(android.R.string.ok) { _, _ ->  }
-            .create()
-
-        d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        dialogs.post(
+            AppDialogRequest.Notice(
+                title = app.getString(R.string.help),
+                showTitleLogo = true,
+                blocks = listOfNotNull(
+                    AppDialogRequest.NoticeBlock.Html(htmlMessage),
+                    AppDialogRequest.NoticeBlock.Html(fullDocsMessage),
+                    AppDialogRequest.NoticeBlock.IconLine(AppDialogRequest.NoticeIcon.Money, "&nbsp;$buyMessage"),
+                    if (showVersion) AppDialogRequest.NoticeBlock.Html("<i>$versionMsg</i>") else null,
+                ),
+                confirmText = app.getString(android.R.string.ok),
+            ),
+        )
     }
 
     /**
@@ -1506,44 +1504,6 @@ object CommonUtils : CommonUtilsBase() {
                 combineIcons(icon, R.drawable.ic_workspace_overlay_24dp, sizeMultiplier)
             else ->
                 getTintedDrawable(icon).let { if (sizeMultiplier != null) makeLarger(it, sizeMultiplier) else it }
-        }
-    }
-
-    fun fixAlertDialogButtons(dialog: AlertDialog) {
-        val positiveButton = dialog.findViewById<Button>(android.R.id.button1)
-        val negativeButton = dialog.findViewById<Button>(android.R.id.button2)
-        val neutralButton = dialog.findViewById<Button>(android.R.id.button3)
-        
-        val container = positiveButton?.parent
-        if(container is FrameLayout) {
-            container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM)
-        } else if(container is LinearLayout) {
-            // For LinearLayout (older Android versions), ensure proper orientation and layout
-            container.orientation = LinearLayout.HORIZONTAL
-            val layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
-            layoutParams.setMargins(convertDipsToPx(4), 0, convertDipsToPx(4), 0)
-            
-            // Apply equal weight to all visible buttons for even distribution
-            positiveButton.layoutParams = layoutParams
-            negativeButton?.layoutParams = layoutParams
-            neutralButton?.layoutParams = layoutParams
-        }
-        
-        // Ensure buttons have appropriate text size and padding to prevent overflow
-        listOfNotNull(positiveButton, negativeButton, neutralButton).forEach { button ->
-            button.setPadding(convertDipsToPx(8), convertDipsToPx(4), convertDipsToPx(8), convertDipsToPx(4))
-            button.minHeight = convertDipsToPx(36)
-            
-            // Ensure proper text alignment and baseline alignment
-            button.gravity = Gravity.CENTER
-            button.includeFontPadding = false
-            button.setSingleLine(false)
-            button.maxLines = 2
-            
-            // Reduce text size slightly if there are 3 buttons to ensure they fit
-            if (listOfNotNull(positiveButton, negativeButton, neutralButton).size >= 3) {
-                button.textSize = 14f
-            }
         }
     }
 
