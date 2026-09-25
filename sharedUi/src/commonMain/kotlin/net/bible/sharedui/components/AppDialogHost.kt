@@ -19,7 +19,11 @@ package net.bible.sharedui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import net.bible.sharedcore.ai.AgentPermissionChoice
 import net.bible.sharedcore.ai.AgentPermissionRequest
 import net.bible.sharedcore.settings.SettingsItem
@@ -96,12 +100,18 @@ fun AppDialogHost(
                 is AppDialogRequest.MultiChoice -> key(id) {
                     // key(id): two consecutive requests (even with identical options) must not share a
                     // toggled-selection remembered inside AbMultiSelectSheet (I2).
+                    // currentIds mirrors the sheet's own checked set purely to feed footerFor -- the
+                    // committed selection itself still lives (and is keyed by id, per the comment
+                    // above) inside AbMultiSelectSheetContent, unaffected by this local state.
+                    var currentIds by remember(id) { mutableStateOf(request.selectedIds) }
                     AbMultiSelectSheet(
                         open = true, title = request.title.orEmpty(), options = request.options,
                         selectedIds = request.selectedIds, idOf = SettingsItem.Choice::value, labelOf = SettingsItem.Choice::label,
                         confirmText = request.confirmText, dismissText = request.dismissText,
                         onConfirm = { onRespond(id, AppDialogResult.SelectedMany(it)) }, onDismiss = cancel,
                         selectAllText = request.selectAllText, selectNoneText = request.selectNoneText,
+                        footer = request.footerFor?.invoke(currentIds),
+                        onSelectionChange = if (request.footerFor != null) { { ids: List<String> -> currentIds = ids } } else null,
                     )
                 }
                 is AppDialogRequest.TextInput -> key(id) {

@@ -65,6 +65,12 @@ sealed interface AppDialogRequest {
         val dismissText: String,
         val selectAllText: String? = null,
         val selectNoneText: String? = null,
+        /**
+         * A pure function of the currently checked ids, rendered under the option list (e.g.
+         * `GetCommentariesTool`'s live token total) -- recomputed by the host every time the user
+         * toggles a row. `null`: no footer (existing callers unchanged).
+         */
+        val footerFor: ((List<String>) -> String)? = null,
     ) : AppDialogRequest
 
     /** Class E input. [neutralText] is an optional third button (answered [AppDialogResult.Neutral]). */

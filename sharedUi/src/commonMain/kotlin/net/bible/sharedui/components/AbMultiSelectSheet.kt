@@ -23,7 +23,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -65,6 +67,8 @@ fun <T> AbMultiSelectSheet(
     onDismiss: () -> Unit,
     selectAllText: String? = null,
     selectNoneText: String? = null,
+    footer: String? = null,
+    onSelectionChange: ((List<String>) -> Unit)? = null,
 ) {
     if (!open) return
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -82,6 +86,8 @@ fun <T> AbMultiSelectSheet(
             onClose = onDismiss,
             selectAllText = selectAllText,
             selectNoneText = selectNoneText,
+            footer = footer,
+            onSelectionChange = onSelectionChange,
         )
     }
 }
@@ -104,6 +110,8 @@ fun <T> AbMultiSelectSheetContent(
     onClose: () -> Unit,
     selectAllText: String? = null,
     selectNoneText: String? = null,
+    footer: String? = null,
+    onSelectionChange: ((List<String>) -> Unit)? = null,
     listState: LazyListState = rememberLazyListState(),
 ) {
     var current by remember(options, selectedIds) { mutableStateOf(selectedIds) }
@@ -115,11 +123,19 @@ fun <T> AbMultiSelectSheetContent(
                 selectedIds = selectedIds,
                 idOf = idOf,
                 labelOf = labelOf,
-                onCheckedChange = { current = it },
+                onCheckedChange = { current = it; onSelectionChange?.invoke(it) },
                 selectAllText = selectAllText,
                 selectNoneText = selectNoneText,
                 modifier = Modifier.padding(horizontal = 16.dp),
                 listState = listState,
+            )
+        }
+        if (footer != null) {
+            Text(
+                footer,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
             )
         }
         SheetConfirmRow(

@@ -201,6 +201,30 @@ class AppDialogHostTest {
         assertEquals(1, sheetOpenings)
     }
 
+    /** Task 25: [AppDialogRequest.MultiChoice.footerFor] renders under the option list and
+     *  recomputes live as the user toggles rows -- it does not reset the checked set on every
+     *  recomposition, even though [AppDialogRequest.MultiChoice] now carries a function-typed
+     *  property (equals/hashCode implications noted in the task brief). */
+    @Test fun multiChoiceFooterReflectsTheLiveSelectionAndDoesNotResetTheChecklist() {
+        val options = listOf(SettingsItem.Choice("a", "A"), SettingsItem.Choice("b", "B"))
+        show(
+            ShownDialog(
+                1,
+                AppDialogRequest.MultiChoice(
+                    title = null, options = options, selectedIds = listOf("a"), confirmText = "OK", dismissText = "Cancel",
+                    footerFor = { ids -> "Selected: ${ids.size}" },
+                ),
+            ),
+        )
+        compose.onNodeWithText("Selected: 1").assertExists()
+        compose.onNodeWithText("B").performClick() // check "b" too
+        compose.onNodeWithText("Selected: 2").assertExists()
+        compose.onNodeWithText("A").performClick() // uncheck "a"
+        compose.onNodeWithText("Selected: 1").assertExists()
+        compose.onNodeWithText("OK").performClick()
+        assertEquals(listOf(1L to AppDialogResult.SelectedMany(listOf("b"))), answers)
+    }
+
     @Test fun htmlIsRenderedNotShownAsMarkup() {
         show(ShownDialog(5, AppDialogRequest.Message(null, "a<br><b>bold</b>", "OK")))
         compose.onNodeWithText("a\nbold").assertExists()

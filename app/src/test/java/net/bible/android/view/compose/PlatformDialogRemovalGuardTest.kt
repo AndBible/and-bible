@@ -91,6 +91,11 @@ class PlatformDialogRemovalGuardTest {
          * (`initializeSync`'s fetch/create/disable question), and `ErrorReportControl.kt`
          * (`showErrorDialog`'s actions, dropping the dead `report = false` arm and the double
          * `setPositiveButton`) are clean.
+         *
+         * Run 3 Task 25 shrinks it to 5: `GetCommentariesTool.kt`'s `showFilterDialog` moves onto
+         * `AppDialogController` (`AppDialogRequest.MultiChoice.footerFor`, a live token-total sheet
+         * footer) and the 500 ms `CurrentActivityHolder` poll it existed for is deleted with it --
+         * the controller's queue is the wait now.
          */
         val BASELINE: Set<String> = setOf(
             "src/main/java/net/bible/android/view/activity/StartupActivity.kt",
@@ -98,7 +103,6 @@ class PlatformDialogRemovalGuardTest {
             "src/main/java/net/bible/android/view/activity/progress/ReadHistoryDialog.kt",
             "src/main/java/net/bible/android/view/util/widget/ShareWidget.kt",
             "src/main/java/net/bible/service/common/CommonUtils.kt",
-            "src/main/java/net/bible/service/llm/tools/read/GetCommentariesTool.kt",
         )
 
         private fun stripComment(line: String): String = line.substringBefore("//")
