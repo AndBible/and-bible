@@ -288,6 +288,12 @@ class AiProvidersDeps(
  *   import-mode choice when an app-wide sheet is about to open (two modal sheets must never stack).
  *   Neither reach exists any other way: the controller is built inside this arm (its three nav
  *   callbacks need `navController`), never as a host `by lazy` field.
+ * - [currentController] (M5 fix-round) is the read half of that same host field: the arm's
+ *   `onDispose` reads it back before clearing, and only clears when it is STILL this instance's own
+ *   controller. Without it, a SECOND `AI_PROMPTS` back-stack entry's mount (its `DisposableEffect`
+ *   runs `onControllerLifecycle(newController)` first) followed by the FIRST entry's eventual dispose
+ *   would null out the host's reference to the new, live controller -- not reachable today (nothing
+ *   pushes a second `AI_PROMPTS` entry on top of itself), but a real bug the moment something did.
  */
 class AiPromptsDeps(
     val controllerFor: (
@@ -301,6 +307,7 @@ class AiPromptsDeps(
     val onExportCsv: () -> Unit,
     val onResume: (() -> Unit)? = null,
     val onControllerLifecycle: (AiPromptsController?) -> Unit = {},
+    val currentController: () -> AiPromptsController? = { null },
 )
 
 /**
@@ -838,10 +845,17 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
 
         // Task 14: publish/withdraw the live controller so the host's onImportCsv can reach
         // chooseImportMode() and AppDialogOverlay can dismiss a showing import-mode choice -- see
-        // AiPromptsDeps.onControllerLifecycle's kdoc.
+        // AiPromptsDeps.onControllerLifecycle's kdoc. M5 fix-round: only clear the host's reference
+        // if it is STILL this instance (see AiPromptsDeps.currentController's kdoc). T14 fix-round:
+        // dismissImportModeChoice() first, so a chooseImportMode() still in flight when this
+        // destination is torn down (composition disposed, e.g. Up-press mid-import) resolves
+        // promptly with null instead of leaking an awaiting coroutine.
         DisposableEffect(controller) {
             d.onControllerLifecycle(controller)
-            onDispose { d.onControllerLifecycle(null) }
+            onDispose {
+                controller.dismissImportModeChoice()
+                if (d.currentController() === controller) d.onControllerLifecycle(null)
+            }
         }
 
         // Parity with classic AiPromptsComposeActivity's onResume() -> service.refresh() -- see

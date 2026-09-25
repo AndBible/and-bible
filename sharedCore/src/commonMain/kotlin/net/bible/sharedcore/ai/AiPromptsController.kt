@@ -55,12 +55,32 @@ class AiPromptsController(
      * flow awaits this exactly where it used to await the platform dialog's
      * `suspendCancellableCoroutine`. Returns `null` on cancel (dismiss, or an app-wide sheet request
      * pre-empting this one -- see [dismissImportModeChoice]).
+     *
+     * Fix-round T14: a second call while one is already in flight used to silently overwrite
+     * [importModeDeferred] -- the FIRST caller's `await()` then never resumes (nothing completes it
+     * any more; [confirmImportMode]/[dismissImportModeChoice] only ever complete the CURRENT
+     * `importModeDeferred`). It is now completed with `null` first, same as a dismiss. The `finally`
+     * additionally covers the destination being disposed (composition torn down) while this suspend
+     * call is still in flight: nothing else runs to clear [_dialog]/[importModeDeferred] in that case
+     * (see `AiNavGraph`'s arm, which now calls [dismissImportModeChoice] from `onDispose` precisely
+     * so this path resolves promptly rather than only on process death) -- either way, this only
+     * clears state that is still ITS OWN (`importModeDeferred === deferred`), so a dismiss that
+     * resumed this call and immediately started editing a NEW one never gets its state wiped by the
+     * old call's own cleanup running after it.
      */
     suspend fun chooseImportMode(): ImportMode? {
+        importModeDeferred?.complete(null)
         val deferred = CompletableDeferred<ImportMode?>()
         importModeDeferred = deferred
         _dialog.value = AiPromptsDialog.ChooseImportMode
-        return deferred.await()
+        try {
+            return deferred.await()
+        } finally {
+            if (importModeDeferred === deferred) {
+                importModeDeferred = null
+                if (_dialog.value == AiPromptsDialog.ChooseImportMode) _dialog.value = AiPromptsDialog.None
+            }
+        }
     }
 
     /** [AbChoiceSheet][net.bible.sharedui.components.AbChoiceSheet]'s `onSelect`. A no-op unless the

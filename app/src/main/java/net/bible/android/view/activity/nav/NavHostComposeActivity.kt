@@ -3472,6 +3472,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             // it to await chooseImportMode(), and AppDialogOverlay's onSheetOpening
                             // reads it to dismiss a showing import-mode choice.
                             onControllerLifecycle = { liveAiPromptsController = it },
+                            // M5 fix-round: the read half of the same field -- see
+                            // AiPromptsDeps.currentController's kdoc.
+                            currentController = { liveAiPromptsController },
                         ),
                         promptEdit = PromptEditDeps(
                             controllerFor = { promptId, template, defaultContext ->

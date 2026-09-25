@@ -332,6 +332,34 @@ class AiPromptsControllerTest {
         assertEquals(ImportMode.EDITABLE, answer.await())
     }
 
+    // T14 fix-round: a SECOND chooseImportMode() call while the first is still in flight (e.g. the
+    // host's import flow re-entered somehow) must not leave the first caller's await() hanging
+    // forever -- it is completed with null, same as a dismiss, before the new one starts.
+    @Test fun chooseImportMode_calledAgainWhileInFlight_completesThePreviousCallWithNull() = runTest {
+        val c = controller(Fake())
+        val first = async { c.chooseImportMode() }
+        yield()
+        val second = async { c.chooseImportMode() }
+        yield()
+        assertNull(first.await())
+        assertEquals(AiPromptsDialog.ChooseImportMode, c.dialog.value)
+        c.confirmImportMode(ImportMode.ADDON)
+        assertEquals(ImportMode.ADDON, second.await())
+    }
+
+    // T14 fix-round: simulates the AiNavGraph arm's onDispose -- while the sheet is up (a
+    // chooseImportMode() in flight), the destination is torn down and calls dismissImportModeChoice()
+    // itself. The awaiting coroutine must resolve promptly with null, and the dialog state clears.
+    @Test fun chooseImportMode_disposedWithTheSheetUp_completesWithNullAndClearsDialogState() = runTest {
+        val c = controller(Fake())
+        val answer = async { c.chooseImportMode() }
+        yield()
+        assertEquals(AiPromptsDialog.ChooseImportMode, c.dialog.value)
+        c.dismissImportModeChoice() // the arm's onDispose, T14 fix
+        assertNull(answer.await())
+        assertEquals(AiPromptsDialog.None, c.dialog.value)
+    }
+
     @Test fun dismissImportModeChoice_whenNotShowing_isANoOp() = runTest {
         val c = controller(Fake())
         c.dismissImportModeChoice()
