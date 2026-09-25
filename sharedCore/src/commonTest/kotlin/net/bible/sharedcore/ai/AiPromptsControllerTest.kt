@@ -2,10 +2,12 @@ package net.bible.sharedcore.ai
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import kotlin.test.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -262,6 +264,91 @@ class AiPromptsControllerTest {
         val c = controller(Fake(), nav)
         c.onOpenConnectionSettings()
         assertEquals(1, nav.openedConnectionSettingsCount)
+    }
+
+    // --- Task 14: CSV import-mode choice + post-import error summary ---------------------------
+
+    @Test fun dialog_startsNone() = runTest {
+        val c = controller(Fake())
+        assertEquals(AiPromptsDialog.None, c.dialog.value)
+    }
+
+    @Test fun chooseImportMode_publishesChoiceState_thenResolvesWithConfirmedMode() = runTest {
+        val c = controller(Fake())
+        val answer = async { c.chooseImportMode() }
+        yield()
+        assertEquals(AiPromptsDialog.ChooseImportMode, c.dialog.value)
+        c.confirmImportMode(ImportMode.ADDON)
+        assertEquals(ImportMode.ADDON, answer.await())
+        assertEquals(AiPromptsDialog.None, c.dialog.value)
+    }
+
+    @Test fun chooseImportMode_resolvesEditableModeToo() = runTest {
+        val c = controller(Fake())
+        val answer = async { c.chooseImportMode() }
+        yield()
+        c.confirmImportMode(ImportMode.EDITABLE)
+        assertEquals(ImportMode.EDITABLE, answer.await())
+    }
+
+    @Test fun chooseImportMode_dismiss_resolvesNull() = runTest {
+        val c = controller(Fake())
+        val answer = async { c.chooseImportMode() }
+        yield()
+        c.dismissImportModeChoice()
+        assertNull(answer.await())
+        assertEquals(AiPromptsDialog.None, c.dialog.value)
+    }
+
+    // Plan correction 11: an app-wide sheet request pre-empts a showing import-mode choice by
+    // calling dismissImportModeChoice() the same way the sheet's own Cancel/scrim does.
+    @Test fun chooseImportMode_dismissedByAppWideSheetRequest_resolvesNull() = runTest {
+        val c = controller(Fake())
+        val answer = async { c.chooseImportMode() }
+        yield()
+        c.dismissImportModeChoice()
+        assertNull(answer.await())
+    }
+
+    // Task 13 fix round 1's guard, applied here: confirm/dismiss must be a no-op unless the choice
+    // sheet is actually showing -- a stray second answer (e.g. a double-tap racing the sheet's own
+    // synchronous onSelect+onDismiss) must not complete an already-completed (or absent) deferred.
+    @Test fun confirmImportMode_whenNotShowing_isANoOp() = runTest {
+        val c = controller(Fake())
+        // No chooseImportMode() in flight at all.
+        c.confirmImportMode(ImportMode.ADDON)
+        assertEquals(AiPromptsDialog.None, c.dialog.value)
+    }
+
+    @Test fun confirmImportMode_calledTwice_answersOnlyOnce() = runTest {
+        val c = controller(Fake())
+        val answer = async { c.chooseImportMode() }
+        yield()
+        c.confirmImportMode(ImportMode.EDITABLE)
+        // AbChoiceSheet fires onSelect AND onDismiss synchronously on a tap (its own kdoc) -- the
+        // guard must make this second answer, and confirmImportMode called again, both no-ops.
+        c.dismissImportModeChoice()
+        c.confirmImportMode(ImportMode.ADDON)
+        assertEquals(ImportMode.EDITABLE, answer.await())
+    }
+
+    @Test fun dismissImportModeChoice_whenNotShowing_isANoOp() = runTest {
+        val c = controller(Fake())
+        c.dismissImportModeChoice()
+        assertEquals(AiPromptsDialog.None, c.dialog.value)
+    }
+
+    @Test fun showImportErrors_setsDialogState() = runTest {
+        val c = controller(Fake())
+        c.showImportErrors("2 created, 1 error")
+        assertEquals(AiPromptsDialog.ImportErrors("2 created, 1 error"), c.dialog.value)
+    }
+
+    @Test fun dismissDialog_clearsImportErrors() = runTest {
+        val c = controller(Fake())
+        c.showImportErrors("boom")
+        c.dismissDialog()
+        assertEquals(AiPromptsDialog.None, c.dialog.value)
     }
 
     @Test fun promptVdCarriesContextsAndSourceModule() = runTest {

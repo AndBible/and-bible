@@ -43,8 +43,11 @@ class AiConnectionSettingsControllerTest {
         override fun builtInTextTransformationSystemPromptText() = ""
         override fun refresh() {}
     }
-    private fun controller(fake: Fake, nav: (String) -> Unit = {}) =
-        AiConnectionSettingsController(fake, kotlinx.coroutines.CoroutineScope(UnconfinedTestDispatcher()), AiConnectionLabels.forTest(), nav)
+    private fun controller(fake: Fake, onResetUsageConfirm: () -> Unit = {}, nav: (String) -> Unit = {}) =
+        AiConnectionSettingsController(
+            fake, kotlinx.coroutines.CoroutineScope(UnconfinedTestDispatcher()), AiConnectionLabels.forTest(), nav,
+            onResetUsageConfirm,
+        )
 
     @Test fun noProviders_showsGettingStarted_hidesAdvancedCategories() = runTest {
         val c = controller(Fake(snap(providers = 0)))
@@ -137,5 +140,48 @@ class AiConnectionSettingsControllerTest {
         // The Compose row key and the classic preference key differ; SettingsIcons.kt is keyed by
         // the CLASSIC one (res/xml/ai_connection_settings.xml:97).
         assertEquals("auto_hide_agent_log_on_completion", row.iconKey)
+    }
+
+    // --- Task 14: "Reset usage data?" moved off the host into this controller's own dialog state --
+
+    @Test fun dialog_startsNone() = runTest {
+        val c = controller(Fake(snap()))
+        assertEquals(AiConnectionDialog.None, c.dialog.value)
+    }
+
+    @Test fun requestResetUsage_showsConfirm() = runTest {
+        val c = controller(Fake(snap()))
+        c.requestResetUsage()
+        assertEquals(AiConnectionDialog.ConfirmResetUsage, c.dialog.value)
+    }
+
+    @Test fun confirmDialog_runsResetExactlyOnceAndClears() = runTest {
+        var resetCount = 0
+        val c = controller(Fake(snap()), onResetUsageConfirm = { resetCount++ })
+        c.requestResetUsage()
+        c.confirmDialog()
+        assertEquals(1, resetCount)
+        assertEquals(AiConnectionDialog.None, c.dialog.value)
+
+        // Task 13 fix round 1's guard: a stray second call (e.g. a double-tap after the dialog
+        // closed) must not run the reset again.
+        c.confirmDialog()
+        assertEquals(1, resetCount)
+    }
+
+    @Test fun confirmDialog_whenNotShowing_isANoOp() = runTest {
+        var resetCount = 0
+        val c = controller(Fake(snap()), onResetUsageConfirm = { resetCount++ })
+        c.confirmDialog()
+        assertEquals(0, resetCount)
+    }
+
+    @Test fun dismissDialog_runsNothingAndClears() = runTest {
+        var resetCount = 0
+        val c = controller(Fake(snap()), onResetUsageConfirm = { resetCount++ })
+        c.requestResetUsage()
+        c.dismissDialog()
+        assertEquals(0, resetCount)
+        assertEquals(AiConnectionDialog.None, c.dialog.value)
     }
 }

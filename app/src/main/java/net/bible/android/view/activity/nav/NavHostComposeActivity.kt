@@ -298,6 +298,7 @@ import net.bible.sharedcore.ai.AiPromptsController
 import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.ai.DocumentFilterService
 import net.bible.sharedcore.ai.GlobalToolPermissionsController
+import net.bible.sharedcore.ai.ImportMode
 import net.bible.sharedcore.ai.LlmModelService
 import net.bible.sharedcore.ai.LlmProviderService
 import net.bible.sharedcore.ai.PromptEditController
@@ -648,11 +649,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             scope = lifecycleScope,
             labels = buildAiConnectionLabels(),
             // The real navigation branching lives in aiNavGraph's AI_CONNECTION_SETTINGS arm (six of
-            // its seven edges are navController.navigate(...); RESET_USAGE is the one host callback),
-            // not here — see AiConnectionSettingsDeps' kdoc. This constructor param is required but
-            // unused: the screen's onNavigate is wired directly in the graph, never through
-            // controller::onNavigate.
+            // its seven edges are navController.navigate(...); RESET_USAGE requests the controller's
+            // own dialog state), not here — see AiConnectionSettingsDeps' kdoc. This constructor
+            // param is required but unused: the screen's onNavigate is wired directly in the graph,
+            // never through controller::onNavigate.
             onNavigate = {},
+            // Task 14: the reset-usage question is now the controller's own dialog state;
+            // confirmDialog() runs this callback, which still needs DatabaseContainer/LlmCostTracker
+            // (no :sharedCore equivalent).
+            onResetUsageConfirm = { resetAiConnectionUsage() },
         )
     }
 
@@ -3427,7 +3432,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             customLanguageTag = CUSTOM_LANGUAGE_TAG,
                             onCustomPromptSave = { key, value -> onAiConnectionCustomPromptSave(key, value) },
                             customPromptTextFor = { key -> aiConnectionCustomPromptTextFor(key) },
-                            onResetUsageConfirm = { showAiConnectionResetUsageConfirm() },
                             actions = { AiConnectionHelpAction() },
                             onResume = { aiSettingsService.refresh() },
                         ),
@@ -3460,6 +3464,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             onImportCsv = { lifecycleScope.launch { importPrompts() } },
                             onExportCsv = { lifecycleScope.launch { exportPrompts() } },
                             onResume = { promptService.refresh() },
+                            // Task 14: the live controller this arm builds, published for exactly as
+                            // long as the AI_PROMPTS destination's composition is alive -- see
+                            // AiPromptsDeps.onControllerLifecycle's kdoc. importPrompts() below reads
+                            // it to await chooseImportMode(), and AppDialogOverlay's onSheetOpening
+                            // reads it to dismiss a showing import-mode choice.
+                            onControllerLifecycle = { liveAiPromptsController = it },
                         ),
                         promptEdit = PromptEditDeps(
                             controllerFor = { promptId, template, defaultContext ->
@@ -4248,7 +4258,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     }
                 }
 
-                AppDialogOverlay(onSheetOpening = { composeReadingViewHost?.closeModalOverlays() })
+                AppDialogOverlay(
+                    onSheetOpening = {
+                        composeReadingViewHost?.closeModalOverlays()
+                        // Plan correction 11: an app-wide sheet request pre-empts a showing
+                        // import-mode choice (two modal sheets must never stack) -- see
+                        // AiPromptsDeps.onControllerLifecycle's kdoc.
+                        liveAiPromptsController?.dismissImportModeChoice()
+                    },
+                )
             }
         }
     }
@@ -5264,23 +5282,22 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         else -> ""
     }
 
-    /** Per-model [LlmCostTracker.reset], ported from classic's `showResetUsageConfirm`. */
-    private fun showAiConnectionResetUsageConfirm() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.llm_reset_usage_confirm_title)
-            .setMessage(R.string.llm_reset_usage_confirm_message)
-            .setPositiveButton(R.string.okay) { _, _ ->
-                lifecycleScope.launch {
-                    withContext(Dispatchers.IO) {
-                        for (model in DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().all()) {
-                            LlmCostTracker.reset(model.id)
-                        }
-                    }
-                    aiSettingsService.refresh()
+    /**
+     * Per-model [LlmCostTracker.reset], ported from classic's `showResetUsageConfirm`. Platform-dialog
+     * removal Task 14: the confirmation question itself moved onto
+     * [net.bible.sharedcore.ai.AiConnectionSettingsController]'s own `dialog` state -- this function
+     * now IS the confirmed action, wired into that controller's `onResetUsageConfirm` constructor
+     * param below, and runs only from `confirmDialog()`.
+     */
+    private fun resetAiConnectionUsage() {
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                for (model in DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().all()) {
+                    LlmCostTracker.reset(model.id)
                 }
             }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+            aiSettingsService.refresh()
+        }
     }
 
     /** Help overflow (parity with classic `ai_connection_options_menu`). */
@@ -5353,10 +5370,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // --- AiPrompts host baggage — the SAF (Storage Access Framework) seam ---------------------
     // Ported VERBATIM from classic AiPromptsComposeActivity (deleted in nav-graph Task 10),
     // which itself mirrors classic AiSettingsActivity's exportPrompts/importPrompts exactly: the
-    // editable-vs-addon chooser, the ACTION_CREATE_DOCUMENT/ACTION_OPEN_DOCUMENT intents, and the
-    // result Toasts/error dialogs. None of `awaitIntent` (this Activity's ActivityBase suspend
-    // bridge to the system file picker), AlertDialog.Builder, Toast, contentResolver or
-    // SharedConstants.modulesDir has a commonMain equivalent — see AiPromptsDeps' kdoc.
+    // ACTION_CREATE_DOCUMENT/ACTION_OPEN_DOCUMENT intents and the result Toasts. None of
+    // `awaitIntent` (this Activity's ActivityBase suspend bridge to the system file picker), Toast,
+    // contentResolver or SharedConstants.modulesDir has a commonMain equivalent — see
+    // AiPromptsDeps' kdoc. Platform-dialog removal Task 14 moved the editable-vs-addon chooser and
+    // the post-import error summary onto AiPromptsController's own dialog state.
+
+    /**
+     * The live [AiPromptsController] the AI_PROMPTS destination's arm built, for exactly as long as
+     * that destination's composition is alive -- see `AiPromptsDeps.onControllerLifecycle`'s kdoc.
+     * [importPrompts] reads this to await [AiPromptsController.chooseImportMode]; the
+     * [AppDialogOverlay]'s `onSheetOpening` (below, in `setContent`) reads it to dismiss a showing
+     * import-mode choice when an app-wide sheet is about to open.
+     */
+    private var liveAiPromptsController: AiPromptsController? = null
 
     private suspend fun exportPrompts() {
         try {
@@ -5400,19 +5427,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         }
     }
 
+    /**
+     * Classic's `.setItems(editable, add-on)` chooser is now [AiPromptsController.chooseImportMode]
+     * (Task 14): `liveAiPromptsController` is null only if this somehow ran outside the AI_PROMPTS
+     * destination's lifetime (never in production -- the button that invokes [importPrompts] lives
+     * on that same screen), in which case there is nothing to ask and this just leaves.
+     */
     private suspend fun importPrompts() {
-        val options = arrayOf(
-            getString(R.string.import_prompts_editable),
-            getString(R.string.import_prompts_addon),
-        )
-        val installAsAddon = suspendCancellableCoroutine<Boolean?> { cont ->
-            AlertDialog.Builder(this)
-                .setTitle(R.string.import_prompts_csv)
-                .setItems(options) { _, which -> cont.resume(which == 1) }
-                .setNegativeButton(R.string.cancel) { _, _ -> cont.resume(null) }
-                .setOnCancelListener { cont.resume(null) }
-                .show()
-        } ?: return
+        val controller = liveAiPromptsController ?: return
+        val installAsAddon = controller.chooseImportMode() == ImportMode.ADDON
 
         try {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -5427,7 +5450,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     if (installAsAddon) {
                         installCsvAsAddon(uri)
                     } else {
-                        importCsvAsEditable(uri)
+                        importCsvAsEditable(uri, controller)
                     }
                 }
             }
@@ -5441,7 +5464,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         }
     }
 
-    private suspend fun importCsvAsEditable(uri: Uri) {
+    private suspend fun importCsvAsEditable(uri: Uri, controller: AiPromptsController) {
         val importResult = withContext(Dispatchers.IO) {
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 PromptCsvUtils.importPromptsFromCsv(inputStream)
@@ -5454,11 +5477,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                     "\n\n" + importResult.errorMessages.take(5).joinToString("\n") +
                     if (importResult.errorMessages.size > 5) "\n..." else ""
 
-            AlertDialog.Builder(this)
-                .setTitle(getString(R.string.import_prompts_csv))
-                .setMessage(message)
-                .setPositiveButton(R.string.okay, null)
-                .show()
+            // Task 14: was an AlertDialog.Builder; now AiPromptsController's own dialog state,
+            // rendered by AiPromptsScreen as an AbErrorDialog.
+            controller.showImportErrors(message)
         } else {
             Toast.makeText(
                 this,

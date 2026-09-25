@@ -54,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.ai.AiConnectionDialog
 import net.bible.sharedcore.ai.aiLanguageSelection
 import net.bible.sharedcore.settings.SettingsEditorPage
 import net.bible.sharedcore.settings.SettingsEditorStack
@@ -166,6 +167,11 @@ fun AiConnectionSettingsScreen(
      *  the editor is now full-screen, so that concern no longer applies — it now just seeds the
      *  editor open for golden capture. */
     initiallyCustomPromptDialogOpen: Boolean = false,
+    /** Platform-dialog removal Task 14: the "Reset usage data?" confirmation, now driven by
+     *  [net.bible.sharedcore.ai.AiConnectionSettingsController.dialog] instead of a host `AlertDialog`. */
+    dialog: AiConnectionDialog = AiConnectionDialog.None,
+    onConfirmDialog: () -> Unit = {},
+    onDismissDialog: () -> Unit = {},
 ) {
     val displayState = remember(state) {
         state.copy(items = state.items.map { item -> if (item.key in SPECIAL_KEYS) item.asNavigationRow() else item })
@@ -338,6 +344,21 @@ fun AiConnectionSettingsScreen(
                 }
             }
         }
+    }
+
+    when (dialog) {
+        AiConnectionDialog.ConfirmResetUsage -> {
+            val strings = LocalStrings.current
+            AbConfirmDialog(
+                title = strings.llmResetUsageConfirmTitle,
+                message = strings.llmResetUsageConfirmMessage,
+                confirmText = strings.okay,
+                dismissText = strings.cancel,
+                onConfirm = onConfirmDialog,
+                onDismiss = onDismissDialog,
+            )
+        }
+        AiConnectionDialog.None -> {}
     }
 }
 

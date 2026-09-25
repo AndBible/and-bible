@@ -501,6 +501,12 @@ class AndroidStrings(private val context: Context) : Strings {
         get() = context.getString(R.string.reset_workspace_auto_assign_labels)
     override val resetHideLabels: String get() = context.getString(R.string.reset_hide_labels)
 
+    override val llmResetUsageConfirmTitle: String get() = context.getString(R.string.llm_reset_usage_confirm_title)
+    override val llmResetUsageConfirmMessage: String get() = context.getString(R.string.llm_reset_usage_confirm_message)
+
+    override val importPromptsEditableLabel: String get() = context.getString(R.string.import_prompts_editable)
+    override val importPromptsAddonLabel: String get() = context.getString(R.string.import_prompts_addon)
+
     // Batch 8 — ReadingProgress (Reading tab)
     override val readingProgressTitle: String get() = context.getString(R.string.reading_progress_title)
     override val readingProgressChaptersRead: String get() = context.getString(R.string.reading_progress_chapters_read)

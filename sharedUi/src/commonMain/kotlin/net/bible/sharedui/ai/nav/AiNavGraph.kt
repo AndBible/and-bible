@@ -19,6 +19,7 @@ package net.bible.sharedui.ai.nav
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -181,16 +182,19 @@ class AiModelsDeps(
  *   in THIS graph as of Task 8 (like `AiProviders` since Task 6), so it navigates straight there
  *   (`navController.navigate(NavRoutes.AI_RAW_LOG_HISTORY)`), same as `MODELS`/`TOOL_PERMISSIONS`/
  *   `DOCUMENTS`/`PROVIDERS`/`EASY_SETUP`. Every one of the hub's six nav edges now stays inside
- *   this graph; `RESET_USAGE` alone remains a host callback (it opens a platform dialog, not a
- *   destination).
- * - [onResetUsageConfirm] shows a platform `AlertDialog` and runs `LlmCostTracker.reset` over
- *   `DatabaseContainer` — neither has a `:sharedUi`/`:sharedCore` equivalent, so it stays a host
- *   callback rather than becoming a `:sharedUi` dialog.
+ *   this graph; `RESET_USAGE` now opens the controller's own
+ *   [net.bible.sharedcore.ai.AiConnectionDialog.ConfirmResetUsage] (platform-dialog removal Task 14)
+ *   instead of calling a host callback directly.
  * - [actions] is the help overflow (`CommonUtils.showHelpDialog`), same shape as every other
  *   destination's `helpBody`/`helpReadMoreUrl` pair, except this screen already takes a full
  *   `actions` slot rather than plain strings, so the host supplies the whole composable.
  * - [onResume] is classic's `AiConnectionSettingsComposeActivity.onResume { service.refresh() }`,
  *   ported per [AiModelsDeps.onResume]'s established convention (route-scoped, not host-wide).
+ *
+ * Task 14: `LlmCostTracker.reset` over `DatabaseContainer` has no `:sharedUi`/`:sharedCore`
+ * equivalent, so it stays a host callback -- but it is now wired straight into the CONTROLLER's own
+ * constructor (`AiConnectionSettingsController.onResetUsageConfirm`), run from `confirmDialog()`,
+ * rather than reached through a `Deps` field the screen calls directly.
  */
 class AiConnectionSettingsDeps(
     val controller: () -> AiConnectionSettingsController,
@@ -198,7 +202,6 @@ class AiConnectionSettingsDeps(
     val customLanguageTag: String,
     val onCustomPromptSave: (key: String, value: String?) -> Unit,
     val customPromptTextFor: (key: String) -> String,
-    val onResetUsageConfirm: () -> Unit,
     val actions: @Composable RowScope.() -> Unit,
     val onResume: (() -> Unit)? = null,
 )
@@ -254,8 +257,13 @@ class AiProvidersDeps(
  *   ported verbatim onto the HOST, not reimplemented — see
  *   [net.bible.android.view.activity.nav.NavHostComposeActivity]'s kdoc) need `awaitIntent` (an
  *   [net.bible.android.view.activity.base.ActivityBase] suspend bridge to a system file picker),
- *   `AlertDialog.Builder`, `Toast`, `contentResolver` and `SharedConstants.modulesDir` — none of
- *   which `commonMain` can reach. Both are plain `() -> Unit` here, NOT `suspend` — deliberately,
+ *   `Toast`, `contentResolver` and `SharedConstants.modulesDir` — none of which `commonMain` can
+ *   reach. Platform-dialog removal Task 14 moved the editable-vs-add-on CHOICE (what used to be an
+ *   `AlertDialog.Builder#setItems` pick-list inside `importPrompts()`) onto
+ *   [AiPromptsController.chooseImportMode] — the host's `importPrompts()` now `await`s that instead
+ *   of building its own dialog, which is exactly why [onControllerLifecycle] exists: the host has no
+ *   other way to reach the controller this arm builds. Both [onImportCsv]/[onExportCsv] are plain
+ *   `() -> Unit` here, NOT `suspend` — deliberately,
  *   because of what launches them: a `rememberCoroutineScope()` in the `AI_PROMPTS` composable arm
  *   would be cancelled the instant that back-stack entry stops being the top one (Navigation
  *   disposes a popped/navigated-away-from entry's composition immediately), which is almost
@@ -273,6 +281,13 @@ class AiProvidersDeps(
  *   [RawLogHistoryDeps.onResume]'s kdoc restates for its own destination, and
  *   [AiModelsDeps.onResume]'s kdoc for the general route-scoped-not-host-wide convention this
  *   follows.
+ * - [onControllerLifecycle] (Task 14, plan correction 11) publishes the live [AiPromptsController]
+ *   instance to the host for exactly as long as this destination's composition is alive (`null` on
+ *   dispose): [onImportCsv]'s host implementation needs to call `chooseImportMode()` on THIS
+ *   destination's controller, and `AppDialogOverlay`'s `onSheetOpening` needs to dismiss a showing
+ *   import-mode choice when an app-wide sheet is about to open (two modal sheets must never stack).
+ *   Neither reach exists any other way: the controller is built inside this arm (its three nav
+ *   callbacks need `navController`), never as a host `by lazy` field.
  */
 class AiPromptsDeps(
     val controllerFor: (
@@ -285,6 +300,7 @@ class AiPromptsDeps(
     val onImportCsv: () -> Unit,
     val onExportCsv: () -> Unit,
     val onResume: (() -> Unit)? = null,
+    val onControllerLifecycle: (AiPromptsController?) -> Unit = {},
 )
 
 /**
@@ -591,6 +607,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val d = deps.aiConnectionSettings
         val controller = remember { d.controller() }
         val state by controller.state.collectAsState()
+        val dialog by controller.dialog.collectAsState()
 
         // No `strings.xxxTitle` constant here: this screen's own top bar renders `state.title`
         // (an AbScaffold(title = state.title) inside AbSettingsScreen — see
@@ -615,7 +632,8 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             // The hub's six nav edges: MODELS/TOOL_PERMISSIONS/DOCUMENTS/PROVIDERS/EASY_SETUP/
             // RAW_LOG_HISTORY all have destinations in THIS graph now (RawLogHistory joined as of
             // Task 8, AiProviders as of Task 6), so every one navigates straight there. RESET_USAGE
-            // has no destination at all (a dialog), so it always stays a host callback.
+            // has no destination at all (a dialog) -- Task 14 moved its question onto the
+            // controller's own `dialog` state, so this arm just requests it.
             onNavigate = { key ->
                 when (key) {
                     AiConnectionNav.EASY_SETUP -> navController.navigate(NavRoutes.aiProviders(startEasySetup = true))
@@ -624,9 +642,12 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                     AiConnectionNav.TOOL_PERMISSIONS -> navController.navigate(NavRoutes.AI_GLOBAL_TOOL_PERMISSIONS)
                     AiConnectionNav.DOCUMENTS -> navController.navigate(NavRoutes.AI_DOCUMENT_FILTER)
                     AiConnectionNav.RAW_LOG_HISTORY -> navController.navigate(NavRoutes.AI_RAW_LOG_HISTORY)
-                    AiConnectionNav.RESET_USAGE -> d.onResetUsageConfirm()
+                    AiConnectionNav.RESET_USAGE -> controller.requestResetUsage()
                 }
             },
+            dialog = dialog,
+            onConfirmDialog = controller::confirmDialog,
+            onDismissDialog = controller::dismissDialog,
             actions = d.actions,
             backHandler = { onBack -> PlatformBackHandler(enabled = true, onBack = onBack) },
         )
@@ -813,6 +834,15 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         val groups by controller.groups.collectAsState()
         val showHidden by controller.showHidden.collectAsState()
         val hasHiddenPrompts by controller.hasHiddenPrompts.collectAsState()
+        val dialog by controller.dialog.collectAsState()
+
+        // Task 14: publish/withdraw the live controller so the host's onImportCsv can reach
+        // chooseImportMode() and AppDialogOverlay can dismiss a showing import-mode choice -- see
+        // AiPromptsDeps.onControllerLifecycle's kdoc.
+        DisposableEffect(controller) {
+            d.onControllerLifecycle(controller)
+            onDispose { d.onControllerLifecycle(null) }
+        }
 
         // Parity with classic AiPromptsComposeActivity's onResume() -> service.refresh() -- see
         // AiPromptsDeps.onResume's kdoc.
@@ -851,6 +881,10 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
             categoriesProvider = { controller.categories() },
             helpBody = remember { d.helpBody() },
             helpReadMoreUrl = d.helpReadMoreUrl,
+            dialog = dialog,
+            onConfirmImportMode = controller::confirmImportMode,
+            onDismissImportModeChoice = controller::dismissImportModeChoice,
+            onDismissDialog = controller::dismissDialog,
         )
     }
     composable(

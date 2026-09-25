@@ -19,6 +19,14 @@ object AiConnectionNav {
     const val RESET_USAGE = "reset_usage"
 }
 
+/** Which modal the AI connection settings screen is currently showing (screen-local, driven by the
+ *  controller). Platform-dialog removal Task 14: the "Reset usage data?" confirmation used to be a
+ *  host `AlertDialog.Builder` reached through `AiConnectionSettingsDeps.onResetUsageConfirm`. */
+sealed interface AiConnectionDialog {
+    data object None : AiConnectionDialog
+    data object ConfirmResetUsage : AiConnectionDialog
+}
+
 /**
  * Host-resolved strings for the AI connection settings screen (titles/summaries/labels), kept out
  * of the controller so tests can supply stubs and translated strings stay on the Android side
@@ -131,13 +139,31 @@ class AiConnectionSettingsController(
     private val scope: CoroutineScope,
     private val labels: AiConnectionLabels,
     private val onNavigate: (String) -> Unit,
+    /** Runs the actual `LlmCostTracker.reset` sweep (Task 14): still a host callback (spec §11), only
+     *  the confirmation QUESTION moved here. Defaulted so existing callers/tests that never touch
+     *  reset-usage need no change. */
+    private val onResetUsageConfirm: () -> Unit = {},
 ) {
     private val _state = MutableStateFlow(build(service.snapshot.value))
     val state: StateFlow<SettingsScreenState> = _state.asStateFlow()
 
+    private val _dialog = MutableStateFlow<AiConnectionDialog>(AiConnectionDialog.None)
+    val dialog: StateFlow<AiConnectionDialog> = _dialog.asStateFlow()
+
     init {
         scope.launch { service.snapshot.collect { _state.value = build(it) } }
     }
+
+    /** Classic's `showResetUsageConfirm` question (Task 14), now this controller's own state. */
+    fun requestResetUsage() { _dialog.value = AiConnectionDialog.ConfirmResetUsage }
+
+    fun confirmDialog() {
+        val wasConfirmResetUsage = _dialog.value is AiConnectionDialog.ConfirmResetUsage
+        _dialog.value = AiConnectionDialog.None
+        if (wasConfirmResetUsage) onResetUsageConfirm()
+    }
+
+    fun dismissDialog() { _dialog.value = AiConnectionDialog.None }
 
     private fun build(s: AiSettingsSnapshot): SettingsScreenState {
         val hasProviders = s.providerCount > 0

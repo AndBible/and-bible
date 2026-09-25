@@ -72,6 +72,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.ai.AiPromptsDialog
+import net.bible.sharedcore.ai.ImportMode
 import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptContextIds
 import net.bible.sharedcore.ai.PromptGroupVd
@@ -85,6 +87,7 @@ import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbChoiceSheet
 import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbMenuItem
@@ -199,6 +202,12 @@ fun AiPromptsScreen(
     initiallyOverflowMenuOpen: Boolean = false,
     initiallySearchOpen: Boolean = false,
     initiallyFilter: PromptListFilter = PromptListFilter(),
+    /** Platform-dialog removal Task 14: the CSV import-mode choice sheet + post-import error summary,
+     *  now driven by [net.bible.sharedcore.ai.AiPromptsController.dialog] instead of host `AlertDialog`s. */
+    dialog: AiPromptsDialog = AiPromptsDialog.None,
+    onConfirmImportMode: (ImportMode) -> Unit = {},
+    onDismissImportModeChoice: () -> Unit = {},
+    onDismissDialog: () -> Unit = {},
 ) {
     val strings = LocalStrings.current
 
@@ -403,6 +412,30 @@ fun AiPromptsScreen(
             readMoreLabel = strings.helpReadMoreLink,
             readMoreUrl = helpReadMoreUrl,
         )
+    }
+    when (val d = dialog) {
+        AiPromptsDialog.ChooseImportMode -> AbChoiceSheet(
+            // Classic's `.setItems(editable, add-on)` pick-list had no pre-selected item -- an
+            // empty selectedValue with both choice values non-blank keeps that (nothing pre-checked
+            // until tapped).
+            open = true,
+            title = strings.importPromptsCsv,
+            choices = listOf(
+                SettingsItem.Choice(value = "editable", label = strings.importPromptsEditableLabel),
+                SettingsItem.Choice(value = "addon", label = strings.importPromptsAddonLabel),
+            ),
+            selectedValue = "",
+            onSelect = { value ->
+                onConfirmImportMode(if (value == "addon") ImportMode.ADDON else ImportMode.EDITABLE)
+            },
+            onDismiss = onDismissImportModeChoice,
+        )
+        is AiPromptsDialog.ImportErrors -> AbErrorDialog(
+            message = d.text,
+            confirmText = strings.okay,
+            onDismiss = onDismissDialog,
+        )
+        AiPromptsDialog.None -> {}
     }
     PromptFilterSheet(
         open = filterSheetOpen,

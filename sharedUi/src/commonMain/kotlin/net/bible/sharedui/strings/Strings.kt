@@ -570,6 +570,14 @@ interface Strings {
     val resetWorkspaceAutoAssignLabels: String        // R.string.reset_workspace_auto_assign_labels
     val resetHideLabels: String                       // R.string.reset_hide_labels
 
+    // Task 14 — platform-dialog removal: AI connection settings' "Reset usage data?" confirm
+    val llmResetUsageConfirmTitle: String             // R.string.llm_reset_usage_confirm_title
+    val llmResetUsageConfirmMessage: String           // R.string.llm_reset_usage_confirm_message
+
+    // Task 14 — platform-dialog removal: AI prompts CSV import mode choice
+    val importPromptsEditableLabel: String            // R.string.import_prompts_editable
+    val importPromptsAddonLabel: String                // R.string.import_prompts_addon
+
     // Batch 8 — ReadingProgress (Reading tab)
     val readingProgressTitle: String                        // reading_progress_title
     val readingProgressChaptersRead: String                 // reading_progress_chapters_read
