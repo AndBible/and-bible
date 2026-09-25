@@ -211,11 +211,17 @@ class DocumentSelectionScreenDialogTest {
     // Task 23: classic warnUserBooksNotDownloaded() (NH:8100-8114) -- one "OK" button, wired to the
     // same generic onDismissDialog every other single-button dialog in this screen uses (see
     // DocumentSelectionScreen's own comment on that branch for why confirm/dismiss are the same call).
-    @Test fun booksNotDownloaded_showsTheMessage_okAnswersDismiss() {
-        // "<br>" (HtmlRuns' own escaping/joining format, see NavHostComposeActivity
-        // .warnUserBooksNotDownloaded) renders as a newline (HtmlRuns.brBreak).
-        show(DocumentSelectionDialog.BooksNotDownloaded("KJV<br>ESV"))
-        compose.onNodeWithText("KJV\nESV").assertExists()
+    // Fix round 1: the classic layout's intro TextView (R.string.download_dialog_message, "The
+    // following books could not be downloaded:") sits ABOVE the list; NavHostComposeActivity
+    // .warnUserBooksNotDownloaded now rebuilds that shape as one HTML string (intro + "\n\n" +
+    // names, plainTextToHtml'd together -- see that function's KDoc), so the fixture here mirrors
+    // what the host actually sends rather than a bare name list.
+    @Test fun booksNotDownloaded_showsTheIntroAndTheMessage_okAnswersDismiss() {
+        val intro = androidString(net.bible.android.activity.R.string.download_dialog_message)
+        // "<br>" (HtmlRuns' own escaping/joining format) renders as a newline (HtmlRuns.brBreak).
+        show(DocumentSelectionDialog.BooksNotDownloaded("$intro<br><br>KJV<br>ESV"))
+        compose.onNodeWithText(intro, substring = true).assertExists()
+        compose.onNodeWithText("KJV\nESV", substring = true).assertExists()
         compose.onNodeWithText("OK").performClick()
         assertEquals(1, dismissCalls)
         assertEquals(0, confirmCalls)

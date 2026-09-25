@@ -8092,20 +8092,29 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
 
     /**
      * Classic `warnUserBooksNotDownloaded` (`:803-821`) -- used to inflate a LAYOUT
-     * (`R.layout.books_not_downloaded_dialog`); Task 23 replaces it with
-     * [DocumentSelectionController.showBooksNotDownloaded], an HTML message built here (D5: needs
-     * `swordDocumentInfoDao`) and rendered as `AbMessageDialog` by [DocumentSelectionScreen]. Each
-     * name is escaped with [plainTextToHtml] before joining -- these are user-visible module names,
-     * not markup, so a `&`/`<`/`>` in one must not corrupt the HTML the rest of the message parses
-     * as. `books_not_downloaded_dialog.xml`/`books_not_downloaded_list_item.xml` are deleted with
-     * this change; nothing else inflates them.
+     * (`R.layout.books_not_downloaded_dialog`, `TextView` intro + `ListView`); Task 23 replaces it
+     * with [DocumentSelectionController.showBooksNotDownloaded], an HTML message built here (D5:
+     * needs `getString`/`swordDocumentInfoDao`) and rendered as `AbMessageDialog` by
+     * [DocumentSelectionScreen]. Fix round 1: the layout's intro `TextView`
+     * (`R.string.download_dialog_message`, "The following books could not be downloaded:") is
+     * restored ABOVE the list, exactly where the old layout put it -- [notInstalled] mirrors the
+     * `getString(R.string.delete_docs_confirm) + "\n\n" + …joinToString("\n")` shape
+     * [handleDownloadDelete]/[handleChooseDocumentDelete] already use for "a title line, blank line,
+     * then one name per line". The WHOLE assembled string (intro + names) goes through
+     * [plainTextToHtml] together, not per-name: user-visible module names can contain
+     * `&`/`<`/`>`/newlines that must not corrupt the HTML the rest of the message parses as, and a
+     * single pass escapes the intro too (harmless -- it is trusted app copy with no such characters)
+     * while turning both `\n\n` (intro/list gap) and each `\n` (one name per line) into `<br>`s
+     * uniformly. `books_not_downloaded_dialog.xml`/`books_not_downloaded_list_item.xml` are deleted
+     * with this change; nothing else inflates them.
      */
     private fun warnUserBooksNotDownloaded(session: DownloadSession) {
         val books = session.booksNotFound.toTypedArray()
         lifecycleScope.launch {
             val notInstalled: List<String> = books.mapNotNull { swordDocumentInfoDao.getBook(it)?.name }
             withContext(Dispatchers.Main) {
-                session.controller.showBooksNotDownloaded(notInstalled.joinToString("<br>") { plainTextToHtml(it) })
+                val message = getString(R.string.download_dialog_message) + "\n\n" + notInstalled.joinToString("\n")
+                session.controller.showBooksNotDownloaded(plainTextToHtml(message))
             }
         }
     }
