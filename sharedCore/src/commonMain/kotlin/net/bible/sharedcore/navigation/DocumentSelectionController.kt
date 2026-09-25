@@ -66,6 +66,30 @@ fun computeDisplayedDocuments(
     )
 
 /**
+ * The document-selection screen's one confirm/error dialog slot (run-2 plan Task 16, appendix rows
+ * 7954/8004/8034/8234/9306/9333) -- shared by Download and ChooseDocument, both of which build a
+ * [DocumentSelectionController] instance, so writing this ONCE here covers both near-identical
+ * host pairs at once. Kept BESIDE the existing [DocumentSelectionController.error] (not merged into
+ * it): that field already has multiple writers (a load failure, in both hosts), a different concern
+ * from these confirm/error questions.
+ *
+ * [ConfirmDownload]/[ConfirmDelete]/[Errors] carry an already HOST-FORMATTED message (D5): each
+ * needs data this framework-free controller cannot produce itself (an Android string resource, a
+ * live `documentControl.canDelete` recheck, a `resources.getQuantityString`), so the host builds the
+ * text exactly as it did before this task and hands over the result. [ConfirmDeleteIndex] is the one
+ * exception -- its queue is resolved entirely from this controller's own [DocRow] cache (see
+ * [deleteIndex]), so it carries only the bare document name and the SCREEN formats the sentence via
+ * `Strings.deleteSearchIndexDoc`, an entry that already existed before this task.
+ */
+sealed interface DocumentSelectionDialog {
+    data object None : DocumentSelectionDialog
+    data class ConfirmDownload(val message: String) : DocumentSelectionDialog
+    data class ConfirmDelete(val message: String) : DocumentSelectionDialog
+    data class ConfirmDeleteIndex(val docName: String) : DocumentSelectionDialog
+    data class Errors(val title: String, val message: String) : DocumentSelectionDialog
+}
+
+/**
  * Framework-free controller ported from DocumentSelectionBase's filter/sort/multi-select surface.
  * The host loads the Book list off-main, flattens to DocRow, and pushes via [setDocuments]. All
  * JSword side effects (open/delete/about/unlock) happen behind the injected seams.
@@ -74,10 +98,16 @@ class DocumentSelectionController(
     private val langComparator: Comparator<LangOption>,
     private val onSelect: (String) -> Unit,
     private val onDelete: (Set<String>) -> Unit,
-    private val onDeleteIndex: (Set<String>) -> Unit,
     private val onAbout: (String) -> Unit,
     private val onUnlock: (String) -> Unit,
     private val onStickyLanguage: (LangOption?) -> Unit,
+    // Task 16 (D8-3 fix): the actual, one-document action a confirmed ConfirmDownload/ConfirmDelete/
+    // ConfirmDeleteIndex runs -- still a host callback (JSword/Android side effects), only the
+    // QUESTION moved here. Defaulted so every pre-existing positional test construction keeps
+    // compiling unchanged.
+    private val onConfirmDownload: (docId: String) -> Unit = {},
+    private val onConfirmDelete: () -> Unit = {},
+    private val onConfirmDeleteIndex: (docId: String) -> Unit = {},
     private val applicableSortKeys: Set<DocSortKey> = DocSortKey.entries.toSet(),
     private val applicableGroupKeys: List<DocGroupBy> = listOf(DocGroupBy.NONE),
     storedArrangement: String? = null,
@@ -115,6 +145,24 @@ class DocumentSelectionController(
     val selectedIds: StateFlow<Set<String>> = _selectedIds.asStateFlow()
     private val _error = MutableStateFlow<ChooserError?>(null)
     val error: StateFlow<ChooserError?> = _error.asStateFlow()
+    private val _dialog = MutableStateFlow<DocumentSelectionDialog>(DocumentSelectionDialog.None)
+    val dialog: StateFlow<DocumentSelectionDialog> = _dialog.asStateFlow()
+
+    /** [requestDownloadConfirm]'s target, consumed (and cleared) by [confirmDialog]/[dismissDialog].
+     *  Not part of [DocumentSelectionDialog.ConfirmDownload] itself -- the screen only needs the
+     *  message text, and this id is purely the confirm action's own routing. */
+    private var pendingDownloadDocId: String? = null
+
+    /**
+     * D8-3 fix: classic opened one stacked platform dialog PER selected document. This queue asks
+     * one at a time instead -- [deleteIndex] fills it from this controller's OWN [DocRow] cache (no
+     * host round trip needed for the ask step, unlike bulk [delete] whose partition needs a live
+     * `documentControl.canDelete` recheck the host alone can do), [showNextDeleteIndex] publishes the
+     * head as the dialog state, and [confirmDialog]/[dismissDialog] both advance it -- confirm runs
+     * that ONE document's action first, dismiss ("Cancel") skips only that one, exactly as the
+     * stacked dialogs did before this fix.
+     */
+    private val deleteIndexQueue = ArrayDeque<DocRow>()
 
     private val _arrangement = MutableStateFlow(
         decodeArrangement(storedArrangement, applicableSortKeys, applicableGroupKeys.toSet())
@@ -285,10 +333,83 @@ class DocumentSelectionController(
     fun clearSelection() { _selectionMode.value = false; _selectedIds.value = emptySet() }
 
     fun select(docId: String) = onSelect(docId)
+
+    /** Unchanged trigger: the host still owns the partition (a live `documentControl.canDelete`
+     *  recheck + Book access this controller cannot do) and the message text, then calls
+     *  [requestDeleteConfirm] with what it built -- see that function's kdoc. */
     fun delete() { onDelete(_selectedIds.value) }
-    fun deleteIndex() { onDeleteIndex(_selectedIds.value) }
+
+    /** D8-3 fix (see [deleteIndexQueue]'s kdoc): resolves the CURRENT selection against this
+     *  controller's own [all], queues them, and asks one at a time. No host round trip for the ask
+     *  step -- unlike [delete], deleting a SEARCH INDEX never checked `canDelete` in the classic code
+     *  this ports, so there is nothing here only the host can compute. */
+    fun deleteIndex() {
+        val ids = _selectedIds.value
+        deleteIndexQueue.clear()
+        deleteIndexQueue.addAll(all.filter { it.docId in ids })
+        showNextDeleteIndex()
+    }
+
+    private fun showNextDeleteIndex() {
+        val next = deleteIndexQueue.firstOrNull()
+        _dialog.value = if (next == null) DocumentSelectionDialog.None
+            else DocumentSelectionDialog.ConfirmDeleteIndex(next.name)
+    }
+
     fun about() { _selectedIds.value.firstOrNull()?.let(onAbout) }
     fun unlock() { _selectedIds.value.firstOrNull()?.let(onUnlock) }
+
+    /** [manageDownload]'s confirm-before-download question (run-2 plan Task 16, NH row 7954), asked
+     *  by the host once it has resolved the target [Book] and built the message; [docId] is stashed
+     *  only to route [confirmDialog]'s [onConfirmDownload] call back to the right document. */
+    fun requestDownloadConfirm(docId: String, message: String) {
+        pendingDownloadDocId = docId
+        _dialog.value = DocumentSelectionDialog.ConfirmDownload(message)
+    }
+
+    /** The bulk-delete question (NH rows 8004/9306), asked by the host once it has partitioned the
+     *  selection into deletable/not-deletable (a live `documentControl.canDelete` recheck) and built
+     *  the singular-vs-plural message -- this controller only shows it and waits. */
+    fun requestDeleteConfirm(message: String) { _dialog.value = DocumentSelectionDialog.ConfirmDelete(message) }
+
+    /** The download-errors summary (NH row 8234); [title]/[message] are host-built (D5: needs
+     *  `resources.getQuantityString`/repo names the host alone has). */
+    fun showErrors(title: String, message: String) { _dialog.value = DocumentSelectionDialog.Errors(title, message) }
+
+    fun confirmDialog() {
+        when (_dialog.value) {
+            is DocumentSelectionDialog.ConfirmDownload -> {
+                _dialog.value = DocumentSelectionDialog.None
+                pendingDownloadDocId?.let(onConfirmDownload)
+                pendingDownloadDocId = null
+            }
+            is DocumentSelectionDialog.ConfirmDelete -> {
+                _dialog.value = DocumentSelectionDialog.None
+                onConfirmDelete()
+            }
+            is DocumentSelectionDialog.ConfirmDeleteIndex -> {
+                val doc = deleteIndexQueue.removeFirstOrNull()
+                if (doc != null) onConfirmDeleteIndex(doc.docId)
+                showNextDeleteIndex()
+            }
+            is DocumentSelectionDialog.Errors -> _dialog.value = DocumentSelectionDialog.None
+            DocumentSelectionDialog.None -> {}
+        }
+    }
+
+    /** "Cancel". For [DocumentSelectionDialog.ConfirmDeleteIndex] this skips only the CURRENT
+     *  document and shows the next one -- classic's per-document stacked dialogs let a Cancel on one
+     *  skip just that document, and this fix's whole point (D8-3) is to keep that behavior while
+     *  showing them one at a time instead of all stacked. Every other dialog just clears. */
+    fun dismissDialog() {
+        if (_dialog.value is DocumentSelectionDialog.ConfirmDeleteIndex) {
+            deleteIndexQueue.removeFirstOrNull()
+            showNextDeleteIndex()
+        } else {
+            pendingDownloadDocId = null
+            _dialog.value = DocumentSelectionDialog.None
+        }
+    }
 
     fun showError() { _error.value = ChooserError.FAILED }
     fun dismissError() { _error.value = null }

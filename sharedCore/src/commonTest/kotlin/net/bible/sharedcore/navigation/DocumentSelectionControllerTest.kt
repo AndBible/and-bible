@@ -45,9 +45,15 @@ class DocumentSelectionControllerTest {
         badWarn = false, locked = false, enciphered = false, canDelete = true, installSizeMb = 1.1,
     )
 
-    private fun controller() = DocumentSelectionController(
+    private fun controller(
+        onConfirmDownload: (String) -> Unit = {},
+        onConfirmDelete: () -> Unit = {},
+        onConfirmDeleteIndex: (String) -> Unit = {},
+    ) = DocumentSelectionController(
         langComparator = compareBy { it.displayName },
-        onSelect = {}, onDelete = {}, onDeleteIndex = {}, onAbout = {}, onUnlock = {}, onStickyLanguage = {},
+        onSelect = {}, onDelete = {}, onAbout = {}, onUnlock = {}, onStickyLanguage = {},
+        onConfirmDownload = onConfirmDownload, onConfirmDelete = onConfirmDelete,
+        onConfirmDeleteIndex = onConfirmDeleteIndex,
     )
 
     @Test fun starts_loading_empty() {
@@ -176,7 +182,10 @@ class DocumentSelectionControllerTest {
 
     @Test fun setLanguage_reports_sticky() {
         var sticky: LangOption? = null
-        val c = DocumentSelectionController(compareBy { it.displayName }, {}, {}, {}, {}, {}, { sticky = it })
+        val c = DocumentSelectionController(
+            langComparator = compareBy { it.displayName },
+            onSelect = {}, onDelete = {}, onAbout = {}, onUnlock = {}, onStickyLanguage = { sticky = it },
+        )
         c.setDocuments(listOf(row("a", DocCategory.BIBLE, fi)))
         c.setLanguage(fi)
         assertEquals(fi, sticky)
@@ -184,10 +193,106 @@ class DocumentSelectionControllerTest {
 
     @Test fun select_delete_about_forward_to_seams() {
         var selected: String? = null; var deleted: Set<String>? = null
-        val c = DocumentSelectionController(compareBy { it.displayName }, { selected = it }, { deleted = it }, {}, {}, {}, {})
+        val c = DocumentSelectionController(
+            langComparator = compareBy { it.displayName },
+            onSelect = { selected = it }, onDelete = { deleted = it }, onAbout = {}, onUnlock = {}, onStickyLanguage = {},
+        )
         c.setDocuments(listOf(row("a", DocCategory.BIBLE)))
         c.select("a"); assertEquals("a", selected)
         c.enterSelection(); c.toggle("a"); c.delete(); assertEquals(setOf("a"), deleted)
+    }
+
+    // ─── Task 16: the confirm/error dialog slot ───────────────────────────────────────────────
+
+    @Test fun requestDownloadConfirm_shows_the_message_and_confirm_runs_the_action_once_and_clears() {
+        var confirmed = mutableListOf<String>()
+        val c = controller(onConfirmDownload = { confirmed.add(it) })
+        c.requestDownloadConfirm("KJV", "Download KJV")
+        assertEquals(DocumentSelectionDialog.ConfirmDownload("Download KJV"), c.dialog.value)
+
+        c.confirmDialog()
+        assertEquals(listOf("KJV"), confirmed)
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
+
+        // A second confirmDialog() call (state is already None) must be a no-op, not a second run.
+        c.confirmDialog()
+        assertEquals(listOf("KJV"), confirmed)
+    }
+
+    @Test fun requestDownloadConfirm_dismiss_clears_without_running_the_action() {
+        var confirmed = 0
+        val c = controller(onConfirmDownload = { confirmed++ })
+        c.requestDownloadConfirm("KJV", "Download KJV")
+        c.dismissDialog()
+        assertEquals(0, confirmed)
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
+    }
+
+    @Test fun requestDeleteConfirm_shows_the_message_and_confirm_runs_the_action_once_and_clears() {
+        var confirmedCount = 0
+        val c = controller(onConfirmDelete = { confirmedCount++ })
+        c.requestDeleteConfirm("Delete these documents?\n\nKJV\nFinPR")
+        assertEquals(DocumentSelectionDialog.ConfirmDelete("Delete these documents?\n\nKJV\nFinPR"), c.dialog.value)
+
+        c.confirmDialog()
+        assertEquals(1, confirmedCount)
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
+
+        c.confirmDialog() // no-op: already None
+        assertEquals(1, confirmedCount)
+    }
+
+    @Test fun requestDeleteConfirm_dismiss_clears_without_running_the_action() {
+        var confirmedCount = 0
+        val c = controller(onConfirmDelete = { confirmedCount++ })
+        c.requestDeleteConfirm("Delete KJV?")
+        c.dismissDialog()
+        assertEquals(0, confirmedCount)
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
+    }
+
+    @Test fun showErrors_shows_title_and_message_and_dismiss_clears() {
+        val c = controller()
+        c.showErrors("Download errors", "boom")
+        assertEquals(DocumentSelectionDialog.Errors("Download errors", "boom"), c.dialog.value)
+        c.dismissDialog()
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
+    }
+
+    // ─── D8-3: delete-index asks one document at a time (a stacked-dialogs regression fix) ────
+
+    @Test fun deleteIndex_asks_one_document_at_a_time_confirm_advances_through_the_whole_selection() {
+        val confirmedIds = mutableListOf<String>()
+        val c = controller(onConfirmDeleteIndex = { confirmedIds.add(it) })
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE), row("b", DocCategory.BIBLE), row("c", DocCategory.BIBLE)))
+        c.enterSelection(); c.toggle("a"); c.toggle("b"); c.toggle("c")
+
+        c.deleteIndex()
+        assertEquals(DocumentSelectionDialog.ConfirmDeleteIndex("name a"), c.dialog.value, "only doc 1 is shown")
+
+        c.confirmDialog()
+        assertEquals(listOf("a"), confirmedIds, "doc 1 deleted")
+        assertEquals(DocumentSelectionDialog.ConfirmDeleteIndex("name b"), c.dialog.value, "doc 2 shown, never two pending")
+
+        c.dismissDialog() // Cancel: skip doc 2 only
+        assertEquals(listOf("a"), confirmedIds, "doc 2 NOT deleted")
+        assertEquals(DocumentSelectionDialog.ConfirmDeleteIndex("name c"), c.dialog.value, "doc 3 shown")
+
+        c.confirmDialog()
+        assertEquals(listOf("a", "c"), confirmedIds, "doc 3 deleted")
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value, "queue drained")
+    }
+
+    @Test fun deleteIndex_with_one_document_shows_it_and_clears_on_confirm() {
+        val confirmedIds = mutableListOf<String>()
+        val c = controller(onConfirmDeleteIndex = { confirmedIds.add(it) })
+        c.setDocuments(listOf(row("a", DocCategory.BIBLE)))
+        c.enterSelection(); c.toggle("a")
+        c.deleteIndex()
+        assertEquals(DocumentSelectionDialog.ConfirmDeleteIndex("name a"), c.dialog.value)
+        c.confirmDialog()
+        assertEquals(listOf("a"), confirmedIds)
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
     }
 
     @Test fun error_show_dismiss() {
@@ -430,7 +535,7 @@ class DocumentSelectionControllerTest {
         scope: CoroutineScope? = null,
     ) = DocumentSelectionController(
         langComparator = compareBy { it.displayName },
-        onSelect = {}, onDelete = {}, onDeleteIndex = {}, onAbout = {}, onUnlock = {}, onStickyLanguage = {},
+        onSelect = {}, onDelete = {}, onAbout = {}, onUnlock = {}, onStickyLanguage = {},
         applicableSortKeys = applicable,
         applicableGroupKeys = listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.LANGUAGE, DocGroupBy.REPOSITORY),
         storedArrangement = stored,
