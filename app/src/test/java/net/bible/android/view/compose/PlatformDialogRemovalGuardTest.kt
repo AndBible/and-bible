@@ -76,12 +76,19 @@ class PlatformDialogRemovalGuardTest {
          * stays — `showStableNotice`/`showBetaNotice` (run 3, Task 28) still build one — and so does
          * `BackupControl.kt` — `saveOrShare`'s `platformPrompt` and `askIfRestoreOrImport` (run 3, Task 24)
          * still do too.
+         *
+         * Run 3 Task 23 shrinks it to 9: `NavHostComposeActivity.kt`'s last two `AlertDialog.Builder`s
+         * (`askIfWantToProceedWithDownload`, `warnUserBooksNotDownloaded`) move onto
+         * `DocumentSelectionController`'s `askProceed`/`showBooksNotDownloaded`, and the now-dead
+         * `import android.app.AlertDialog` goes with them — the file's remaining `android.app
+         * .AlertDialog`/`android.app.DatePickerDialog` mentions are all KDoc/comment prose (filtered
+         * by `codeLinesOf`) except `import android.app.DatePickerDialog` itself, which `PKG` does not
+         * match (correction 10 / ruling R3-2, Task 30b).
          */
         val BASELINE: Set<String> = setOf(
             "src/main/java/net/bible/android/control/backup/BackupControl.kt",
             "src/main/java/net/bible/android/control/report/ErrorReportControl.kt",
             "src/main/java/net/bible/android/view/activity/StartupActivity.kt",
-            "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt",
             "src/main/java/net/bible/android/view/activity/page/ReadingAppBootstrap.kt",
             "src/main/java/net/bible/android/view/activity/progress/ReadHistoryDialog.kt",
             "src/main/java/net/bible/android/view/util/widget/ShareWidget.kt",

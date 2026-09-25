@@ -37,12 +37,15 @@ import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionDialog
 import net.bible.sharedcore.navigation.LangOption
+import net.bible.sharedcore.navigation.ProceedAnswer
+import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDocumentListScaffold
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbMessageDialog
+import net.bible.sharedui.components.AbOptionsDialog
 import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
@@ -103,6 +106,13 @@ fun DocumentSelectionScreen(
     onDismissError: () -> Unit,
     onConfirmDialog: () -> Unit,
     onDismissDialog: () -> Unit,
+    // Task 23: DocumentSelectionDialog.ProceedWithDownload is answered through the controller's own
+    // confirmProceed/dismissProceed, not the generic pair above -- see DocumentSelectionController
+    // .askProceed's KDoc for why (the AiPromptsController.chooseImportMode/confirmImportMode/
+    // dismissImportModeChoice shape). ChooseDocument's arm wires this to the same controller method
+    // even though its flow never produces this dialog state.
+    onConfirmProceed: (ProceedAnswer) -> Unit,
+    onDismissProceed: () -> Unit,
     onNavigateUp: () -> Unit,
     onExitSelection: () -> Unit,
 ) {
@@ -236,6 +246,33 @@ fun DocumentSelectionScreen(
             title = dialog.title,
             body = dialog.message,
             onDismiss = onDismissDialog,
+        )
+        // Classic askIfWantToProceed() (NH:7605-7623), Download-only: yes / don't-ask-again / cancel.
+        // "Cancel" is both the explicit dismissText button AND back/scrim (classic's setCancelable
+        // default plus its own setOnCancelListener resuming false) -- cancellable stays the default
+        // true, unlike ConfirmDownload's setCancelable(false).
+        DocumentSelectionDialog.ProceedWithDownload -> AbOptionsDialog(
+            title = strings.downloadQuestionTitle,
+            message = strings.downloadQuestionMessage,
+            options = listOf(
+                SettingsItem.Choice(value = "yes", label = strings.yes),
+                SettingsItem.Choice(value = "dont_ask_again", label = strings.doNotAskAgain),
+            ),
+            onSelect = { value ->
+                onConfirmProceed(if (value == "dont_ask_again") ProceedAnswer.DONT_ASK_AGAIN else ProceedAnswer.YES)
+            },
+            onDismissRequest = onDismissProceed,
+            dismissText = strings.cancel,
+        )
+        // Classic warnUserBooksNotDownloaded() (NH:8100-8114), Download-only: an inflated ListView
+        // summary with a single "OK" button (no negative/neutral, default cancelable), now a plain
+        // HTML message -- dialog.text is already escaped/joined by the host (D5).
+        is DocumentSelectionDialog.BooksNotDownloaded -> AbMessageDialog(
+            title = null,
+            html = dialog.text,
+            confirmText = strings.okay,
+            onConfirm = onDismissDialog,
+            onDismissRequest = onDismissDialog,
         )
         DocumentSelectionDialog.None -> {}
     }

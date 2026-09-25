@@ -710,4 +710,9 @@ class AndroidStrings(private val context: Context) : Strings {
     override val promptTypeAddon: String get() = context.getString(R.string.prompt_type_addon)
     override val promptTypeUser: String get() = context.getString(R.string.prompt_type_user)
     override val promptFilterClear: String get() = context.getString(R.string.prompt_filter_clear)
+
+    // Task 23 — platform-dialog removal: Download's "proceed with downloading?" question
+    override val downloadQuestionTitle: String get() = context.getString(R.string.download_question_title)
+    override val downloadQuestionMessage: String get() = context.getString(R.string.download_question_message)
+    override val doNotAskAgain: String get() = context.getString(R.string.do_not_ask_again)
 }

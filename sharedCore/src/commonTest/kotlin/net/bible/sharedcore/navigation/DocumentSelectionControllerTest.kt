@@ -17,7 +17,10 @@
 package net.bible.sharedcore.navigation
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -256,6 +259,94 @@ class DocumentSelectionControllerTest {
         c.showErrors("Download errors", "boom")
         assertEquals(DocumentSelectionDialog.Errors("Download errors", "boom"), c.dialog.value)
         c.dismissDialog()
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
+    }
+
+    // ─── Task 23: askProceed (classic askIfWantToProceed's yes/don't-ask-again/cancel), the
+    // AiPromptsController.chooseImportMode CompletableDeferred shape ──────────────────────────────
+
+    @Test fun askProceed_publishesTheQuestion_thenResolvesWithTheConfirmedAnswer() = runTest {
+        val c = controller()
+        val answer = async { c.askProceed() }
+        yield()
+        assertEquals(DocumentSelectionDialog.ProceedWithDownload, c.dialog.value)
+        c.confirmProceed(ProceedAnswer.YES)
+        assertEquals(ProceedAnswer.YES, answer.await())
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
+    }
+
+    @Test fun askProceed_resolvesDontAskAgainToo() = runTest {
+        val c = controller()
+        val answer = async { c.askProceed() }
+        yield()
+        c.confirmProceed(ProceedAnswer.DONT_ASK_AGAIN)
+        assertEquals(ProceedAnswer.DONT_ASK_AGAIN, answer.await())
+    }
+
+    @Test fun askProceed_dismiss_resolvesNull() = runTest {
+        val c = controller()
+        val answer = async { c.askProceed() }
+        yield()
+        c.dismissProceed()
+        assertNull(answer.await())
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
+    }
+
+    // Same no-op guard every other confirm/choose function in this batch uses -- a stray second
+    // answer (e.g. a double-tap racing the dialog's own onSelect+onDismiss) must not complete an
+    // already-completed (or absent) deferred.
+    @Test fun confirmProceed_whenNotShowing_isANoOp() = runTest {
+        val c = controller()
+        c.confirmProceed(ProceedAnswer.YES)
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
+    }
+
+    @Test fun dismissProceed_whenNotShowing_isANoOp() = runTest {
+        val c = controller()
+        c.dismissProceed()
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
+    }
+
+    // A second askProceed() call while the first is still in flight must not leave the first
+    // caller's await() hanging forever -- it is completed with null first, same as a dismiss.
+    @Test fun askProceed_calledAgainWhileInFlight_completesThePreviousCallWithNull() = runTest {
+        val c = controller()
+        val first = async { c.askProceed() }
+        yield()
+        val second = async { c.askProceed() }
+        yield()
+        assertNull(first.await())
+        assertEquals(DocumentSelectionDialog.ProceedWithDownload, c.dialog.value)
+        c.confirmProceed(ProceedAnswer.YES)
+        assertEquals(ProceedAnswer.YES, second.await())
+    }
+
+    // The caller (the Download arm's LaunchedEffect) can be cancelled while the question is still
+    // up -- e.g. the destination is disposed mid-question. CompletableDeferred.await() throws
+    // CancellationException there, which askProceed's `finally` must still see, so the dialog state
+    // does not outlive a question nobody is going to answer any more.
+    @Test fun askProceed_callerCancelled_clearsDialogState() = runTest {
+        val c = controller()
+        val job = launch { c.askProceed() }
+        yield()
+        assertEquals(DocumentSelectionDialog.ProceedWithDownload, c.dialog.value)
+        job.cancel()
+        job.join()
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
+    }
+
+    @Test fun showBooksNotDownloaded_setsDialogState_dismissClears() {
+        val c = controller()
+        c.showBooksNotDownloaded("KJV<br>ESV")
+        assertEquals(DocumentSelectionDialog.BooksNotDownloaded("KJV<br>ESV"), c.dialog.value)
+        c.dismissDialog()
+        assertEquals(DocumentSelectionDialog.None, c.dialog.value)
+    }
+
+    @Test fun showBooksNotDownloaded_confirmDialogClearsToo() {
+        val c = controller()
+        c.showBooksNotDownloaded("KJV")
+        c.confirmDialog()
         assertEquals(DocumentSelectionDialog.None, c.dialog.value)
     }
 

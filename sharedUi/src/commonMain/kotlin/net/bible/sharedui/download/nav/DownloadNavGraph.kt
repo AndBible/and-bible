@@ -902,6 +902,8 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
                 onDismissError = controller::dismissError,
                 onConfirmDialog = controller::confirmDialog,
                 onDismissDialog = controller::dismissDialog,
+                onConfirmProceed = controller::confirmProceed,
+                onDismissProceed = controller::dismissProceed,
                 onNavigateUp = { navController.popOrExit(deps.exitHost) },
                 onExitSelection = controller::clearSelection,
             )

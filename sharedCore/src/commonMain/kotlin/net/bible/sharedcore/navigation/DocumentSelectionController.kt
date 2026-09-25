@@ -16,6 +16,7 @@
  */
 package net.bible.sharedcore.navigation
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -87,7 +88,23 @@ sealed interface DocumentSelectionDialog {
     data class ConfirmDelete(val message: String) : DocumentSelectionDialog
     data class ConfirmDeleteIndex(val docName: String) : DocumentSelectionDialog
     data class Errors(val title: String, val message: String) : DocumentSelectionDialog
+    /** Task 23: classic `askIfWantToProceed()`'s three-way question (`NavHostComposeActivity
+     *  :7605-7623`), answered through [DocumentSelectionController.askProceed] rather than the
+     *  generic [DocumentSelectionController.confirmDialog]/[DocumentSelectionController.dismissDialog]
+     *  pair -- see that function's KDoc for why. No payload: the title/message/option words are all
+     *  static app copy, so they live in `Strings.kt` rather than being host-formatted like
+     *  [ConfirmDownload]/[ConfirmDelete]/[Errors]. */
+    data object ProceedWithDownload : DocumentSelectionDialog
+    /** Task 23: classic `warnUserBooksNotDownloaded()`'s (`NavHostComposeActivity:8100-8114`)
+     *  inflated-ListView summary, now a plain confirm-only dialog. [text] is host-built HTML (D5):
+     *  the host resolves each not-found book's display name off `swordDocumentInfoDao`, this
+     *  framework-free controller cannot. */
+    data class BooksNotDownloaded(val text: String) : DocumentSelectionDialog
 }
+
+/** [DocumentSelectionController.askProceed]'s answer (Task 23). `null` (the suspend call's return
+ *  type, not a member here) is Cancel -- the classic neutral button, back press or scrim tap. */
+enum class ProceedAnswer { YES, DONT_ASK_AGAIN }
 
 /**
  * Framework-free controller ported from DocumentSelectionBase's filter/sort/multi-select surface.
@@ -152,6 +169,11 @@ class DocumentSelectionController(
      *  Not part of [DocumentSelectionDialog.ConfirmDownload] itself -- the screen only needs the
      *  message text, and this id is purely the confirm action's own routing. */
     private var pendingDownloadDocId: String? = null
+
+    /** [askProceed]'s one in-flight call, if any -- completed by [confirmProceed] (an answer) or
+     *  [dismissProceed]/disposal (`null`, cancel). Same shape as `AiPromptsController
+     *  .importModeDeferred` (Task 14 Step 2). */
+    private var proceedDeferred: CompletableDeferred<ProceedAnswer?>? = null
 
     /**
      * D8-3 fix: classic opened one stacked platform dialog PER selected document. This queue asks
@@ -376,6 +398,62 @@ class DocumentSelectionController(
      *  `resources.getQuantityString`/repo names the host alone has). */
     fun showErrors(title: String, message: String) { _dialog.value = DocumentSelectionDialog.Errors(title, message) }
 
+    /** The books-not-downloaded summary (NH row 8100), Download-only; [text] is host-built HTML --
+     *  see [DocumentSelectionDialog.BooksNotDownloaded]'s KDoc. */
+    fun showBooksNotDownloaded(text: String) { _dialog.value = DocumentSelectionDialog.BooksNotDownloaded(text) }
+
+    /**
+     * Classic `askIfWantToProceed()`'s (`NavHostComposeActivity:7605-7623`) three-way question, now
+     * a suspend call over [DocumentSelectionDialog.ProceedWithDownload] -- the `CompletableDeferred`
+     * shape `AiPromptsController.chooseImportMode` uses (Task 14 Step 2). Returns `null` on cancel
+     * (the classic neutral "Cancel" button, back press, or a scrim tap).
+     *
+     * The host still owns the "download_do_not_ask" pref (Android `SharedPreferences`, unreachable
+     * from this framework-free controller): it checks the pref BEFORE calling this at all, and -- on
+     * [ProceedAnswer.DONT_ASK_AGAIN] -- writes it itself, exactly as classic's own
+     * `setNegativeButton` did. This call only asks the question and reports which button was tapped.
+     *
+     * Fix-round-shaped guard (mirrors `chooseImportMode`): a second call while one is already in
+     * flight completes the FIRST caller's `await()` with `null` first, so it never hangs forever, and
+     * the `finally` covers the destination being disposed (composition torn down) while this suspend
+     * call is still in flight -- either way, it only clears state that is still ITS OWN
+     * (`proceedDeferred === deferred`), so a fresh call started by a dismissed OLD call's own
+     * cleanup running late never has its state wiped out from under it.
+     */
+    suspend fun askProceed(): ProceedAnswer? {
+        proceedDeferred?.complete(null)
+        val deferred = CompletableDeferred<ProceedAnswer?>()
+        proceedDeferred = deferred
+        _dialog.value = DocumentSelectionDialog.ProceedWithDownload
+        try {
+            return deferred.await()
+        } finally {
+            if (proceedDeferred === deferred) {
+                proceedDeferred = null
+                if (_dialog.value == DocumentSelectionDialog.ProceedWithDownload) _dialog.value = DocumentSelectionDialog.None
+            }
+        }
+    }
+
+    /** [AbOptionsDialog][net.bible.sharedui.components.AbOptionsDialog]'s `onSelect`, mapped to an
+     *  answer by the screen. A no-op unless [DocumentSelectionDialog.ProceedWithDownload] is actually
+     *  showing -- the same guard every other confirm/choose function in this batch uses. */
+    fun confirmProceed(answer: ProceedAnswer) {
+        if (_dialog.value != DocumentSelectionDialog.ProceedWithDownload) return
+        _dialog.value = DocumentSelectionDialog.None
+        proceedDeferred?.complete(answer)
+        proceedDeferred = null
+    }
+
+    /** The dialog's own dismiss (classic's neutral "Cancel" button, back press, or scrim tap). Same
+     *  no-op guard as [confirmProceed]. */
+    fun dismissProceed() {
+        if (_dialog.value != DocumentSelectionDialog.ProceedWithDownload) return
+        _dialog.value = DocumentSelectionDialog.None
+        proceedDeferred?.complete(null)
+        proceedDeferred = null
+    }
+
     fun confirmDialog() {
         when (_dialog.value) {
             is DocumentSelectionDialog.ConfirmDownload -> {
@@ -393,6 +471,11 @@ class DocumentSelectionController(
                 showNextDeleteIndex()
             }
             is DocumentSelectionDialog.Errors -> _dialog.value = DocumentSelectionDialog.None
+            is DocumentSelectionDialog.BooksNotDownloaded -> _dialog.value = DocumentSelectionDialog.None
+            // Answered through confirmProceed/dismissProceed instead -- see askProceed's KDoc. Not
+            // reached through this generic path in production; kept as a defensive no-op rather than
+            // an `else` so a NEW DocumentSelectionDialog case fails to compile here until considered.
+            DocumentSelectionDialog.ProceedWithDownload -> {}
             DocumentSelectionDialog.None -> {}
         }
     }

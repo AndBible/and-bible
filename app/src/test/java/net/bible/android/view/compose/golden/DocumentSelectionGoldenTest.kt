@@ -234,6 +234,8 @@ class DocumentSelectionGoldenTest {
         onDismissError = {},
         onConfirmDialog = {},
         onDismissDialog = {},
+        onConfirmProceed = {},
+        onDismissProceed = {},
         onNavigateUp = {},
         onExitSelection = {},
     )

@@ -59,19 +59,31 @@ class ClassicDocumentSelectionRemovalGuardTest {
     )
 
     /**
-     * The resources this slice deliberately KEEPS. Both are shared with a surviving Compose
-     * host (the books_not_downloaded layouts, which Appendix A attributes to the classic screen
-     * alone — deleting them is a runtime Resources$NotFoundException, not a compile error). Their
-     * inflater is now `NavHostComposeActivity.warnUserBooksNotDownloaded`, which nav-graph slice 4
-     * Task 7a ported out of `DownloadComposeActivity` along with the rest of the Download host's
-     * baggage; the classic Activity inflated them too until nav-graph slice 4 Task 9 deleted it, so
-     * the two layouts outlive both of those facts changing. `DocumentBadges.kt` holds top-level
-     * declarations that outlived the deleted classes.
+     * The resources this slice deliberately KEEPS. `DocumentBadges.kt` holds top-level declarations
+     * that outlived the deleted classes.
+     *
+     * Platform-dialog removal Task 23 deletes the two `books_not_downloaded` layouts this list used
+     * to pin (`books_not_downloaded_dialog.xml`/`books_not_downloaded_list_item.xml`): their sole
+     * inflater, `NavHostComposeActivity.warnUserBooksNotDownloaded` (nav-graph slice 4 Task 7a ported
+     * it out of `DownloadComposeActivity` along with the rest of the Download host's baggage), now
+     * calls `DocumentSelectionController.showBooksNotDownloaded` and the message renders as an
+     * `AbMessageDialog` off `DocumentSelectionDialog.BooksNotDownloaded` instead. See
+     * [theClassicBooksNotDownloadedLayoutsAreGone] for the guard replacing this pin.
      */
     private val survivingCollaborators = listOf(
+        "src/main/java/net/bible/android/view/activity/download/DocumentBadges.kt",
+    )
+
+    /**
+     * Task 23's negative counterpart to [theSurvivingDocumentSelectionCollaboratorsStillExist]:
+     * proves the two layouts [survivingCollaborators] used to pin are actually GONE, not merely
+     * absent from that list by oversight. Shown red (by temporarily restoring
+     * `books_not_downloaded_dialog.xml`) before this fix, per the task's own instruction — see the
+     * commit message for the failure text.
+     */
+    private val doomedBooksNotDownloadedLayouts = listOf(
         "src/main/res/layout/books_not_downloaded_dialog.xml",
         "src/main/res/layout/books_not_downloaded_list_item.xml",
-        "src/main/java/net/bible/android/view/activity/download/DocumentBadges.kt",
     )
 
     /**
@@ -100,9 +112,16 @@ class ClassicDocumentSelectionRemovalGuardTest {
         ClassicRemovalScan.assertPathsPresent(
             survivingCollaborators,
             "a collaborator slice S6 deliberately kept has been deleted: DocumentBadges.kt holds " +
-                "the top-level declarations that outlived the deleted classes, and both " +
-                "books_not_downloaded layouts are inflated by the SURVIVING NavHostComposeActivity " +
-                "(DownloadComposeActivity inflated them too until nav-graph slice 4 Task 9 deleted it)",
+                "the top-level declarations that outlived the deleted classes",
+        )
+
+    @Test fun theClassicBooksNotDownloadedLayoutsAreGone() =
+        ClassicRemovalScan.assertPathsGone(
+            doomedBooksNotDownloadedLayouts,
+            "a books_not_downloaded layout is back; platform-dialog removal Task 23 replaced its " +
+                "sole inflater (NavHostComposeActivity.warnUserBooksNotDownloaded) with " +
+                "DocumentSelectionController.showBooksNotDownloaded/AbMessageDialog, so nothing " +
+                "inflates it any more",
         )
 
     @Test fun theSpec24ResidueWentWithItsLastSubclass() =

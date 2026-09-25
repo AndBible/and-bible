@@ -595,6 +595,11 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             onDismissError = controller::dismissError,
             onConfirmDialog = controller::confirmDialog,
             onDismissDialog = controller::dismissDialog,
+            // ChooseDocument never calls controller.askProceed() (Download-only), so
+            // ProceedWithDownload never shows here -- wired for signature parity, like every other
+            // controller-method callback on this call, per DocumentSelectionScreen's own KDoc.
+            onConfirmProceed = controller::confirmProceed,
+            onDismissProceed = controller::dismissProceed,
             onNavigateUp = { navController.popOrExit(deps.exitHost) },
             onExitSelection = controller::clearSelection,
         )

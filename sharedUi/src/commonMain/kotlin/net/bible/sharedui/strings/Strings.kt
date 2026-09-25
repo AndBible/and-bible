@@ -791,6 +791,12 @@ interface Strings {
     val promptTypeAddon: String                  // R.string.prompt_type_addon
     val promptTypeUser: String                   // R.string.prompt_type_user
     val promptFilterClear: String                // R.string.prompt_filter_clear
+
+    // Task 23 — platform-dialog removal: Download's "proceed with downloading?" question (classic
+    // askIfWantToProceed(), now DocumentSelectionDialog.ProceedWithDownload/AbOptionsDialog)
+    val downloadQuestionTitle: String            // R.string.download_question_title
+    val downloadQuestionMessage: String          // R.string.download_question_message
+    val doNotAskAgain: String                    // R.string.do_not_ask_again
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

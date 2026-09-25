@@ -17,7 +17,6 @@
 package net.bible.android.view.activity.nav
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -42,8 +41,6 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.Toast
-import android.widget.ArrayAdapter
-import android.widget.ListView
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -97,7 +94,6 @@ import java.util.Locale
 import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.reflect.KFunction1
-import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -331,6 +327,7 @@ import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentSelectionController
 import net.bible.sharedcore.navigation.LangOption
+import net.bible.sharedcore.navigation.ProceedAnswer
 import net.bible.sharedcore.mydocuments.MyDocItem
 import net.bible.sharedcore.mydocuments.MyDocPageItem
 import net.bible.sharedcore.mydocuments.MyDocumentPagesController
@@ -7601,23 +7598,25 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             CommonUtils.settings.getInt("selected_document_filter_no", 0),
         ) { DocTypeFilter.ALL }
 
-    /** Classic `askIfWantToProceed()` (`:460-478`), a platform AlertDialog that can answer NO. */
+    /**
+     * Classic `askIfWantToProceed()` (`:460-478`), a platform AlertDialog that can answer NO. Task
+     * 23: the question itself is now [DocumentSelectionController.askProceed], a Compose
+     * [net.bible.sharedui.components.AbOptionsDialog] driven by [DocumentSelectionDialog
+     * .ProceedWithDownload]; this host method keeps exactly what [DocumentSelectionController]
+     * cannot do -- the "download_do_not_ask" pref read/write, an Android `SharedPreferences` seam
+     * unreachable from the framework-free `:sharedCore` controller (D5).
+     */
     private suspend fun askIfWantToProceedWithDownload(): Boolean = withContext(Dispatchers.Main) {
         if (CommonUtils.settings.getBoolean("download_do_not_ask", false)) {
             true
         } else {
-            suspendCoroutine { cont ->
-                AlertDialog.Builder(this@NavHostComposeActivity)
-                    .setTitle(R.string.download_question_title)
-                    .setMessage(getString(R.string.download_question_message))
-                    .setPositiveButton(R.string.yes) { _, _ -> cont.resume(true) }
-                    .setNegativeButton(R.string.do_not_ask_again) { _, _ ->
-                        CommonUtils.settings.setBoolean("download_do_not_ask", true)
-                        cont.resume(true)
-                    }
-                    .setNeutralButton(R.string.cancel) { _, _ -> cont.resume(false) }
-                    .setOnCancelListener { cont.resume(false) }
-                    .show()
+            when (downloadSession?.controller?.askProceed()) {
+                ProceedAnswer.YES -> true
+                ProceedAnswer.DONT_ASK_AGAIN -> {
+                    CommonUtils.settings.setBoolean("download_do_not_ask", true)
+                    true
+                }
+                null -> false
             }
         }
     }
@@ -8092,23 +8091,21 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         }
 
     /**
-     * Classic `warnUserBooksNotDownloaded` (`:803-821`) -- the one dialog in this cluster that
-     * inflates a LAYOUT (`R.layout.books_not_downloaded_dialog`). Converting the six platform
-     * dialogs in this section to Compose is a separate, queued port goal; both layouts are pinned as
-     * survivors by `ClassicDocumentSelectionRemovalGuardTest`.
+     * Classic `warnUserBooksNotDownloaded` (`:803-821`) -- used to inflate a LAYOUT
+     * (`R.layout.books_not_downloaded_dialog`); Task 23 replaces it with
+     * [DocumentSelectionController.showBooksNotDownloaded], an HTML message built here (D5: needs
+     * `swordDocumentInfoDao`) and rendered as `AbMessageDialog` by [DocumentSelectionScreen]. Each
+     * name is escaped with [plainTextToHtml] before joining -- these are user-visible module names,
+     * not markup, so a `&`/`<`/`>` in one must not corrupt the HTML the rest of the message parses
+     * as. `books_not_downloaded_dialog.xml`/`books_not_downloaded_list_item.xml` are deleted with
+     * this change; nothing else inflates them.
      */
     private fun warnUserBooksNotDownloaded(session: DownloadSession) {
         val books = session.booksNotFound.toTypedArray()
         lifecycleScope.launch {
-            val notInstalled: Array<String> = books.mapNotNull { swordDocumentInfoDao.getBook(it)?.name }.toTypedArray()
+            val notInstalled: List<String> = books.mapNotNull { swordDocumentInfoDao.getBook(it)?.name }
             withContext(Dispatchers.Main) {
-                val v = layoutInflater.inflate(R.layout.books_not_downloaded_dialog, null)
-                val adapter = ArrayAdapter(this@NavHostComposeActivity, R.layout.books_not_downloaded_list_item, notInstalled)
-                v.findViewById<ListView>(R.id.bookListView).adapter = adapter
-                AlertDialog.Builder(this@NavHostComposeActivity)
-                    .setView(v)
-                    .setPositiveButton(R.string.okay, null)
-                    .show()
+                session.controller.showBooksNotDownloaded(notInstalled.joinToString("<br>") { plainTextToHtml(it) })
             }
         }
     }
