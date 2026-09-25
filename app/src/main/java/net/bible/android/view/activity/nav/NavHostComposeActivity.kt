@@ -3886,12 +3886,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                             subscribeProgress = { onRunning -> cloudDocumentsSubscribeProgress(onRunning) },
                             statusFilterLabels = { showRemoved -> cloudDocumentsStatusFilterLabels(showRemoved) },
                             categoryFilterLabels = { cloudDocumentsCategoryFilterLabels() },
-                            confirmRemove = { initials, name, onConfirm ->
-                                cloudDocumentsConfirmRemove(initials, name, onConfirm)
-                            },
-                            confirmPurge = { initials, name, onConfirm ->
-                                cloudDocumentsConfirmPurge(initials, name, onConfirm)
-                            },
                             countLabel = { count, bytes -> cloudDocumentsCountLabel(count, bytes) },
                         ),
                     )
@@ -8301,6 +8295,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             onSyncNow = { download, upload, delete -> handleCloudDocumentsSyncNowConfirm(entry, download, upload, delete) },
             onRescan = { cloudDocumentsRunSyncAction(entry.controller) { DocumentSync.resetListingCache() } },
             onShowRemovedChange = { show -> handleCloudDocumentsShowRemovedChange(entry.controller, show) },
+            onConfirmRemove = { initials -> handleCloudDocumentsRemoveConfirmed(entry.controller, initials) },
+            onConfirmPurge = { initials -> handleCloudDocumentsPurgeConfirmed(entry.controller, initials) },
             storedArrangement = if (CommonUtils.settings.getBoolean(CLOUD_ARRANGEMENT_REMEMBER_KEY, true))
                 CommonUtils.settings.getString(CLOUD_ARRANGEMENT_KEY, null) else null,
             rememberArrangementInitially = CommonUtils.settings.getBoolean(CLOUD_ARRANGEMENT_REMEMBER_KEY, true),
@@ -8441,10 +8437,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
 
     /**
      * Classic `handleAction` (`:258-268`). [controller] is the instance
-     * [buildCloudDocumentsController] bound `onAction` to; [cloudDocumentsConfirmRemove]/
-     * [cloudDocumentsConfirmPurge]'s `onConfirm` closures below capture it too, so an `AlertDialog`
-     * positive-button tap -- which can fire arbitrarily later than this call, long past any
-     * leave-and-reopen -- still lands on the RIGHT controller (fix round 2, finding A).
+     * [buildCloudDocumentsController] bound `onAction` to; [handleCloudDocumentsRemoveConfirmed]/
+     * [handleCloudDocumentsPurgeConfirmed] (bound to the SAME instance at construction) are what
+     * eventually run the confirmed action, so a confirm tap -- which can fire arbitrarily later than
+     * this call, long past any leave-and-reopen -- still lands on the RIGHT controller (fix round 2,
+     * finding A).
      */
     private fun handleCloudDocumentsAction(controller: CloudDocumentsController, action: CloudDocAction, initials: String) {
         val item = controller.items.value.firstOrNull { it.initials == initials } ?: return
@@ -8459,15 +8456,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 DocumentSyncSettings.blockList.unblock(initials)
                 controller.setBlocked(initials, false)
             }
-            CloudDocAction.REMOVE_CLOUD -> cloudDocumentsConfirmRemove(listOf(initials), item.name) {
-                DocumentSyncService.start(this, emptyList(), emptyList(), removeInitials = listOf(initials))
-                controller.applyRemoval(initials)
-                controller.clearSelection()
+            CloudDocAction.REMOVE_CLOUD -> {
+                val enabled = DocumentSyncSettings.enabled
+                val message = getString(
+                    if (enabled) R.string.cloud_doc_remove_all_confirm else R.string.cloud_doc_remove_cloud_confirm,
+                    item.name,
+                )
+                controller.requestConfirmRemove(listOf(initials), message, allDevices = enabled)
             }
-            CloudDocAction.PURGE -> cloudDocumentsConfirmPurge(listOf(initials), item.name) {
-                DocumentSyncService.start(this, emptyList(), emptyList(), purgeInitials = listOf(initials))
-                controller.applyPurge(initials)
-                controller.clearSelection()
+            CloudDocAction.PURGE -> {
+                controller.requestConfirmPurge(listOf(initials), getString(R.string.cloud_doc_purge_confirm, item.name))
             }
         }
     }
@@ -8491,50 +8489,39 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 initials.forEach { DocumentSyncSettings.blockList.unblock(it); controller.setBlocked(it, false) }
                 controller.clearSelection()
             }
-            CloudDocAction.REMOVE_CLOUD -> cloudDocumentsConfirmRemove(initials, null) {
-                DocumentSyncService.start(this, emptyList(), emptyList(), removeInitials = initials)
-                initials.forEach { controller.applyRemoval(it) }
-                controller.clearSelection()
+            CloudDocAction.REMOVE_CLOUD -> {
+                val enabled = DocumentSyncSettings.enabled
+                val message = resources.getQuantityString(
+                    if (enabled) R.plurals.cloud_doc_bulk_remove_all_confirm else R.plurals.cloud_doc_bulk_remove_cloud_confirm,
+                    initials.size, initials.size,
+                )
+                controller.requestConfirmRemove(initials, message, allDevices = enabled)
             }
-            CloudDocAction.PURGE -> cloudDocumentsConfirmPurge(initials, null) {
-                DocumentSyncService.start(this, emptyList(), emptyList(), purgeInitials = initials)
-                initials.forEach { controller.applyPurge(it) }
-                controller.clearSelection()
+            CloudDocAction.PURGE -> {
+                val message = resources.getQuantityString(R.plurals.cloud_doc_bulk_purge_confirm, initials.size, initials.size)
+                controller.requestConfirmPurge(initials, message)
             }
         }
     }
 
     /**
-     * Classic `confirmRemove` (`:281-293`) -- one of the batch's four plural call sites (design
-     * §2.4 counted three). Owns both the platform `AlertDialog` and the plural it resolves;
-     * [onConfirm] is what the positive button did inline, supplied by whichever caller is asking.
+     * Task 17 (run-2 plan, NH rows 8574/8586): the confirmed half of both
+     * [handleCloudDocumentsAction]'s and [handleCloudDocumentsBulkAction]'s REMOVE_CLOUD branch --
+     * classic's positive button did exactly this (`DocumentSyncService.start` +
+     * `applyRemoval`/`clearSelection`) regardless of single-vs-bulk, since a bulk call is just a
+     * longer [initials]; unifying the two near-copies here is what the plan's "share it" note asks.
      */
-    private fun cloudDocumentsConfirmRemove(initials: List<String>, name: String?, onConfirm: () -> Unit) {
-        val enabled = DocumentSyncSettings.enabled
-        val title = if (enabled) R.string.cloud_doc_action_remove_all_devices else R.string.cloud_doc_action_remove_cloud
-        val message = if (name != null) {
-            getString(if (enabled) R.string.cloud_doc_remove_all_confirm else R.string.cloud_doc_remove_cloud_confirm, name)
-        } else {
-            resources.getQuantityString(
-                if (enabled) R.plurals.cloud_doc_bulk_remove_all_confirm else R.plurals.cloud_doc_bulk_remove_cloud_confirm,
-                initials.size, initials.size,
-            )
-        }
-        AlertDialog.Builder(this).setTitle(title).setMessage(message)
-            .setPositiveButton(R.string.okay) { _, _ -> onConfirm() }
-            .setNegativeButton(R.string.cancel, null).show()
+    private fun handleCloudDocumentsRemoveConfirmed(controller: CloudDocumentsController, initials: List<String>) {
+        DocumentSyncService.start(this, emptyList(), emptyList(), removeInitials = initials)
+        initials.forEach { controller.applyRemoval(it) }
+        controller.clearSelection()
     }
 
-    /** Classic `confirmPurge` (`:295-305`) -- the second of the batch's four plural call sites. */
-    private fun cloudDocumentsConfirmPurge(initials: List<String>, name: String?, onConfirm: () -> Unit) {
-        val message = if (name != null) {
-            getString(R.string.cloud_doc_purge_confirm, name)
-        } else {
-            resources.getQuantityString(R.plurals.cloud_doc_bulk_purge_confirm, initials.size, initials.size)
-        }
-        AlertDialog.Builder(this).setTitle(R.string.cloud_doc_action_purge).setMessage(message)
-            .setPositiveButton(R.string.okay) { _, _ -> onConfirm() }
-            .setNegativeButton(R.string.cancel, null).show()
+    /** Task 17 -- the PURGE counterpart of [handleCloudDocumentsRemoveConfirmed]. */
+    private fun handleCloudDocumentsPurgeConfirmed(controller: CloudDocumentsController, initials: List<String>) {
+        DocumentSyncService.start(this, emptyList(), emptyList(), purgeInitials = initials)
+        initials.forEach { controller.applyPurge(it) }
+        controller.clearSelection()
     }
 
     /**

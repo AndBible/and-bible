@@ -53,7 +53,7 @@ import net.bible.sharedcore.cloud.CloudDocActionLabel
 import net.bible.sharedcore.cloud.CloudDocFilter
 import net.bible.sharedcore.cloud.CloudDocItem
 import net.bible.sharedcore.cloud.CloudDocStatus
-import net.bible.sharedcore.cloud.SyncNowDialogState
+import net.bible.sharedcore.cloud.CloudDocumentsDialog
 import net.bible.sharedcore.cloud.actionLabelKind
 import net.bible.sharedcore.cloud.bulkMenuActions
 import net.bible.sharedcore.cloud.cloudDocStatus
@@ -66,6 +66,7 @@ import net.bible.sharedcore.navigation.DocGroupKey
 import net.bible.sharedcore.navigation.DocSortKey
 import net.bible.sharedcore.theme.accentArgbFor
 import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbDocumentListRow
 import net.bible.sharedui.components.AbDocumentListScaffold
 import net.bible.sharedui.components.AbMenuItem
@@ -93,7 +94,7 @@ fun CloudDocumentsScreen(
     selectionMode: Boolean,
     selectedIds: Set<String>,
     syncEnabled: Boolean,
-    syncNowDialog: SyncNowDialogState?,
+    dialog: CloudDocumentsDialog,
     topBarActions: @Composable RowScope.() -> Unit,
     onQueryChange: (String) -> Unit,
     searchModeActive: Boolean,
@@ -118,6 +119,8 @@ fun CloudDocumentsScreen(
     onBulkAction: (CloudDocAction) -> Unit,
     onSyncNowConfirm: (List<Boolean>) -> Unit,
     onSyncNowDismiss: () -> Unit,
+    onConfirmDialog: () -> Unit,
+    onDismissDialog: () -> Unit,
     onNavigateUp: () -> Unit,
     onExitSelection: () -> Unit,
 ) {
@@ -178,29 +181,52 @@ fun CloudDocumentsScreen(
         )
     }
 
-    if (syncNowDialog != null) {
-        // The host's contract is POSITIONAL — `onSyncNowConfirm(List<Boolean>)` feeds
-        // `CloudDocumentsController.confirmSyncNow`, which reads index 0/1/2 as download/upload/
-        // delete — while `AbMultiSelectSheet` speaks ids. The index IS the id here, so the two map
-        // onto each other exactly and the controller (and its test) stay untouched.
-        val rows = remember(syncNowDialog) {
-            syncNowDialog.labels.mapIndexed { i, label -> i.toString() to label }
+    when (dialog) {
+        is CloudDocumentsDialog.SyncNow -> {
+            val syncNowDialog = dialog.state
+            // The host's contract is POSITIONAL — `onSyncNowConfirm(List<Boolean>)` feeds
+            // `CloudDocumentsController.confirmSyncNow`, which reads index 0/1/2 as download/upload/
+            // delete — while `AbMultiSelectSheet` speaks ids. The index IS the id here, so the two map
+            // onto each other exactly and the controller (and its test) stay untouched.
+            val rows = remember(syncNowDialog) {
+                syncNowDialog.labels.mapIndexed { i, label -> i.toString() to label }
+            }
+            val preChecked = remember(syncNowDialog) {
+                syncNowDialog.checked.mapIndexedNotNull { i, on -> if (on) i.toString() else null }
+            }
+            AbMultiSelectSheet(
+                open = true,
+                title = strings.cloudDocSyncNow,
+                options = rows,
+                selectedIds = preChecked,
+                idOf = { it.first },
+                labelOf = { it.second },
+                confirmText = strings.okay,
+                dismissText = strings.cancel,
+                onConfirm = { ids -> onSyncNowConfirm(rows.indices.map { it.toString() in ids }) },
+                onDismiss = onSyncNowDismiss,
+            )
         }
-        val preChecked = remember(syncNowDialog) {
-            syncNowDialog.checked.mapIndexedNotNull { i, on -> if (on) i.toString() else null }
-        }
-        AbMultiSelectSheet(
-            open = true,
-            title = strings.cloudDocSyncNow,
-            options = rows,
-            selectedIds = preChecked,
-            idOf = { it.first },
-            labelOf = { it.second },
+        // The remove/purge question (NH rows 8574/8586); classic's own title/Okay/Cancel wording.
+        // The title is one of two ALREADY-EXISTING strings (also used as the per-row action label),
+        // picked here in the SCREEN from the bare `allDevices` flag the controller carries.
+        is CloudDocumentsDialog.ConfirmRemove -> AbConfirmDialog(
+            title = if (dialog.allDevices) strings.cloudActionRemoveAllDevices else strings.cloudActionRemoveCloud,
+            message = dialog.message,
             confirmText = strings.okay,
             dismissText = strings.cancel,
-            onConfirm = { ids -> onSyncNowConfirm(rows.indices.map { it.toString() in ids }) },
-            onDismiss = onSyncNowDismiss,
+            onConfirm = onConfirmDialog,
+            onDismiss = onDismissDialog,
         )
+        is CloudDocumentsDialog.ConfirmPurge -> AbConfirmDialog(
+            title = strings.cloudActionPurge,
+            message = dialog.message,
+            confirmText = strings.okay,
+            dismissText = strings.cancel,
+            onConfirm = onConfirmDialog,
+            onDismiss = onDismissDialog,
+        )
+        CloudDocumentsDialog.None -> {}
     }
 }
 

@@ -117,8 +117,6 @@ class CloudDocumentsInGraphArmTest {
         },
         statusFilterLabels = { showRemoved -> List(if (showRemoved) 8 else 7) { "status$it" } },
         categoryFilterLabels = { List(7) { "category$it" } },
-        confirmRemove = { _, _, _ -> error("not exercised here") },
-        confirmPurge = { _, _, _ -> error("not exercised here") },
         countLabel = { _, _ -> error("not exercised here") },
     )
 

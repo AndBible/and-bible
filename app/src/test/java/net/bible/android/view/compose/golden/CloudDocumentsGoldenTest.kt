@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.cloud.CloudDocFilter
 import net.bible.sharedcore.cloud.CloudDocItem
+import net.bible.sharedcore.cloud.CloudDocumentsDialog
 import net.bible.sharedcore.navigation.DocArrangement
 import net.bible.sharedcore.navigation.DocCategory
 import net.bible.sharedcore.navigation.DocGroup
@@ -104,17 +105,19 @@ class CloudDocumentsGoldenTest {
         statusFilters = statusFilters, selectedStatusFilter = CloudDocFilter.ALL,
         categoryFilters = categoryFilters, selectedCategoryFilter = null,
         query = query, selectionMode = selectionMode, selectedIds = selectedIds, syncEnabled = false,
-        // Deliberately always null: no golden here may open a real ModalBottomSheet (final review
-        // I1) -- that hangs Roborazzi and the whole :app suite with it. A non-null value used to be
+        // Deliberately always None: no golden here may open a real ModalBottomSheet (final review
+        // I1) -- that hangs Roborazzi and the whole :app suite with it. A SyncNow value used to be
         // reachable through this helper's own syncNowDialog parameter with nothing calling it since
-        // the sync-now golden was deleted (T6); the parameter was deleted for that reason, so this
-        // capture path structurally cannot open the sheet again.
-        syncNowDialog = null,
+        // the sync-now golden was deleted (T6); Task 17 folded that parameter into this one
+        // (CloudDocumentsDialog), so this capture path structurally still cannot open the sheet --
+        // ConfirmRemove/ConfirmPurge render a plain AlertDialog (not a sheet), so they would be safe
+        // here too, but None keeps every existing golden capture unchanged.
+        dialog = CloudDocumentsDialog.None,
         topBarActions = {}, onQueryChange = {},
         searchModeActive = searchModeActive, onOpenSearch = {}, onCloseSearch = {},
         onStatusFilterChange = {}, onCategoryFilterChange = {},
         // Task 10: arrangement + show-removed plumbing. The filter bar's own arrangement sheet is
-        // a ModalBottomSheet, so — same rule as syncNowDialog above — no golden here may open it;
+        // a ModalBottomSheet, so — same rule as the dialog above — no golden here may open it;
         // CloudDocFilterBar's chips/count render regardless, and the dedicated arrangement-sheet
         // golden below captures AbArrangementSheetContent directly instead.
         arrangement = cloudArrangement,
@@ -124,7 +127,9 @@ class CloudDocumentsGoldenTest {
         onRememberChange = {}, onResetArrangement = {},
         showRemoved = false, onShowRemovedChange = {},
         onRowClick = {}, onRowLongClick = {}, onRowAction = { _, _ -> }, onBulkAction = {},
-        onSyncNowConfirm = {}, onSyncNowDismiss = {}, onNavigateUp = {}, onExitSelection = {},
+        onSyncNowConfirm = {}, onSyncNowDismiss = {},
+        onConfirmDialog = {}, onDismissDialog = {},
+        onNavigateUp = {}, onExitSelection = {},
     )
 
     @Test fun cloud_populated() = captureMatrix("CloudDocuments", "populated") { screen() }

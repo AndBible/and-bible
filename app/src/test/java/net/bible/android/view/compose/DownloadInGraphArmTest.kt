@@ -184,8 +184,6 @@ class DownloadInGraphArmTest {
             subscribeProgress = { error("not exercised here") },
             statusFilterLabels = { error("not exercised here") },
             categoryFilterLabels = { error("not exercised here") },
-            confirmRemove = { _, _, _ -> error("not exercised here") },
-            confirmPurge = { _, _, _ -> error("not exercised here") },
             countLabel = { _, _ -> error("not exercised here") },
         ),
     )

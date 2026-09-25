@@ -23,6 +23,26 @@ import kotlinx.coroutines.launch
 data class SyncNowDialogState(val labels: List<String>, val checked: List<Boolean>)
 
 /**
+ * [CloudDocumentsController]'s one dialog slot (run-2 plan Task 17, appendix rows 8574/8586) --
+ * extends the pre-existing `syncNowDialog` (a lone nullable, effectively a one-variant sum type) into
+ * this one, rather than adding two MORE separate nullable/boolean fields beside it (the
+ * "never several booleans" rule the feature-dialog pattern states). [ConfirmRemove]/[ConfirmPurge]
+ * carry the [initials] they act on directly -- unlike a JSword `Book` (Task 16's `DocumentSelectionDialog`
+ * needed a host-side parking field for those), `initials` are plain strings this controller already
+ * traffics in, so there is nothing host-only to park. [message] is host-formatted (D5: needs
+ * `resources.getQuantityString`/a document name only the host has); [allDevices] is NOT resolved into
+ * a title string here -- the SCREEN picks between two ALREADY-EXISTING `Strings` entries
+ * (`cloudActionRemoveCloud`/`cloudActionRemoveAllDevices`, the same words the per-row action label
+ * uses) from this bare flag, exactly the "texts formatted in the SCREEN" half of the pattern.
+ */
+sealed interface CloudDocumentsDialog {
+    data object None : CloudDocumentsDialog
+    data class SyncNow(val state: SyncNowDialogState) : CloudDocumentsDialog
+    data class ConfirmRemove(val initials: List<String>, val message: String, val allDevices: Boolean) : CloudDocumentsDialog
+    data class ConfirmPurge(val initials: List<String>, val message: String) : CloudDocumentsDialog
+}
+
+/**
  * How long [CloudDocumentsController.moveSortCriterion] waits after the LAST swap of a drag
  * gesture before committing (persisting + refiltering) the reordered criteria — mirrors
  * [net.bible.sharedcore.navigation.DocumentSelectionController]'s own debounce (round 17e-1
@@ -43,6 +63,11 @@ class CloudDocumentsController(
     private val onSyncNow: (download: Boolean, upload: Boolean, delete: Boolean) -> Unit,
     private val onRescan: () -> Unit,
     private val onShowRemovedChange: (Boolean) -> Unit,
+    // Task 17: the actual remove/purge action, still a host callback (DocumentSyncService.start is
+    // Android-only) -- only the QUESTION moves here. Defaulted so pre-existing positional test
+    // construction keeps compiling unchanged.
+    private val onConfirmRemove: (initials: List<String>) -> Unit = {},
+    private val onConfirmPurge: (initials: List<String>) -> Unit = {},
     storedArrangement: String? = null,
     rememberArrangementInitially: Boolean = true,
     private val onArrangementChange: (encoded: String?, remember: Boolean) -> Unit = { _, _ -> },
@@ -86,8 +111,8 @@ class CloudDocumentsController(
     val transferRunning: StateFlow<Boolean> = _transferRunning.asStateFlow()
     private val _showRemoved = MutableStateFlow(false)
     val showRemoved: StateFlow<Boolean> = _showRemoved.asStateFlow()
-    private val _syncNowDialog = MutableStateFlow<SyncNowDialogState?>(null)
-    val syncNowDialog: StateFlow<SyncNowDialogState?> = _syncNowDialog.asStateFlow()
+    private val _dialog = MutableStateFlow<CloudDocumentsDialog>(CloudDocumentsDialog.None)
+    val dialog: StateFlow<CloudDocumentsDialog> = _dialog.asStateFlow()
 
     private val _arrangement = MutableStateFlow(
         decodeArrangement(storedArrangement, applicableSortKeys, applicableGroupKeys.toSet())
@@ -230,12 +255,36 @@ class CloudDocumentsController(
     }
     fun rescan() = onRescan()
 
-    fun showSyncNow(labels: List<String>, checked: List<Boolean>) { _syncNowDialog.value = SyncNowDialogState(labels, checked) }
+    fun showSyncNow(labels: List<String>, checked: List<Boolean>) {
+        _dialog.value = CloudDocumentsDialog.SyncNow(SyncNowDialogState(labels, checked))
+    }
     fun confirmSyncNow(selected: List<Boolean>) {
-        _syncNowDialog.value = null
+        _dialog.value = CloudDocumentsDialog.None
         onSyncNow(selected.getOrElse(0) { false }, selected.getOrElse(1) { false }, selected.getOrElse(2) { false })
     }
-    fun dismissSyncNow() { _syncNowDialog.value = null }
+    fun dismissSyncNow() { _dialog.value = CloudDocumentsDialog.None }
+
+    /** The remove/purge question (NH rows 8574/8586), asked by the host once it has built the
+     *  singular-vs-plural message (needs `resources.getQuantityString`) and resolved [allDevices]
+     *  (`DocumentSyncSettings.enabled`) -- both host-only. */
+    fun requestConfirmRemove(initials: List<String>, message: String, allDevices: Boolean) {
+        _dialog.value = CloudDocumentsDialog.ConfirmRemove(initials, message, allDevices)
+    }
+    fun requestConfirmPurge(initials: List<String>, message: String) {
+        _dialog.value = CloudDocumentsDialog.ConfirmPurge(initials, message)
+    }
+
+    /** Answers [ConfirmRemove]/[ConfirmPurge] only -- [SyncNow] answers through [confirmSyncNow],
+     *  which takes the multi-select RESULT, not a bare confirm. */
+    fun confirmDialog() {
+        when (val d = _dialog.value) {
+            is CloudDocumentsDialog.ConfirmRemove -> { _dialog.value = CloudDocumentsDialog.None; onConfirmRemove(d.initials) }
+            is CloudDocumentsDialog.ConfirmPurge -> { _dialog.value = CloudDocumentsDialog.None; onConfirmPurge(d.initials) }
+            is CloudDocumentsDialog.SyncNow, CloudDocumentsDialog.None -> {}
+        }
+    }
+
+    fun dismissDialog() { _dialog.value = CloudDocumentsDialog.None }
 
     fun applyRemoval(initials: String) { _items.value = applyOptimisticRemoval(_items.value, initials, syncEnabled()); refilter(false) }
     fun applyPurge(initials: String) { _items.value = applyOptimisticPurge(_items.value, initials); refilter(false) }

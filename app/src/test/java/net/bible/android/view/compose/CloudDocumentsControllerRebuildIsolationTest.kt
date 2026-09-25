@@ -23,6 +23,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.cloudsync.documents.SyncPlan
 import net.bible.sharedcore.cloud.CloudDocumentsController
+import net.bible.sharedcore.cloud.CloudDocumentsDialog
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -233,7 +234,10 @@ class CloudDocumentsControllerRebuildIsolationTest {
         val live = buildController(activity)
         val liveEntry = currentEntry(activity)
 
-        assertNotNull(abandoned.syncNowDialog.value, "sanity: the abandoned entry's sheet is still up")
+        assertTrue(
+            abandoned.dialog.value is CloudDocumentsDialog.SyncNow,
+            "sanity: the abandoned entry's sheet is still up",
+        )
         assertTrue(liveEntry !== abandonedEntry, "sanity: the reopen built a genuinely new entry")
         assertNull(lastPlanOf(liveEntry), "a fresh entry must start with no pinned plan")
 

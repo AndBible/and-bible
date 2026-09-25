@@ -26,7 +26,12 @@ class CloudDocumentsControllerTest {
         onBulkAction: (CloudDocAction, List<String>) -> Unit = { _, _ -> },
         onSyncNow: (Boolean, Boolean, Boolean) -> Unit = { _, _, _ -> },
         onShowRemovedChange: (Boolean) -> Unit = {},
-    ) = CloudDocumentsController({ syncEnabled }, onAction, onBulkAction, onSyncNow, {}, onShowRemovedChange)
+        onConfirmRemove: (List<String>) -> Unit = {},
+        onConfirmPurge: (List<String>) -> Unit = {},
+    ) = CloudDocumentsController(
+        { syncEnabled }, onAction, onBulkAction, onSyncNow, {}, onShowRemovedChange,
+        onConfirmRemove, onConfirmPurge,
+    )
 
     /** A minimal [CloudDocItem] for arrangement tests, where status/sync flags don't matter. */
     private fun itemOf(i: String, name: String = "name-$i", category: DocCategory = DocCategory.BIBLE) =
@@ -166,10 +171,63 @@ class CloudDocumentsControllerTest {
         var dirs: Triple<Boolean, Boolean, Boolean>? = null
         val c = controller(onSyncNow = { d, u, x -> dirs = Triple(d, u, x) })
         c.showSyncNow(listOf("dl", "ul", "del"), listOf(true, false, true))
-        assertEquals(3, c.syncNowDialog.value!!.labels.size)
+        val shown = c.dialog.value
+        check(shown is CloudDocumentsDialog.SyncNow)
+        assertEquals(3, shown.state.labels.size)
         c.confirmSyncNow(listOf(true, true, false))
         assertEquals(Triple(true, true, false), dirs)
-        assertNull(c.syncNowDialog.value) // confirm dismisses
+        assertEquals(CloudDocumentsDialog.None, c.dialog.value) // confirm dismisses
+    }
+
+    // ─── Task 17: remove/purge confirm ─────────────────────────────────────────────────────────
+
+    @Test fun requestConfirmRemove_shows_the_message_and_confirm_runs_the_action_once_and_clears() {
+        var confirmed: List<String>? = null
+        val c = controller(onConfirmRemove = { confirmed = it })
+        c.requestConfirmRemove(listOf("KJV", "ESV"), "Remove 2 documents from the cloud?", allDevices = false)
+        assertEquals(
+            CloudDocumentsDialog.ConfirmRemove(listOf("KJV", "ESV"), "Remove 2 documents from the cloud?", false),
+            c.dialog.value,
+        )
+
+        c.confirmDialog()
+        assertEquals(listOf("KJV", "ESV"), confirmed)
+        assertEquals(CloudDocumentsDialog.None, c.dialog.value)
+
+        // A second confirmDialog() call (state already None) must be a no-op, not a second run.
+        c.confirmDialog()
+        assertEquals(listOf("KJV", "ESV"), confirmed)
+    }
+
+    @Test fun requestConfirmRemove_dismiss_clears_without_running_the_action() {
+        var confirmedCount = 0
+        val c = controller(onConfirmRemove = { confirmedCount++ })
+        c.requestConfirmRemove(listOf("KJV"), "Remove KJV?", allDevices = true)
+        c.dismissDialog()
+        assertEquals(0, confirmedCount)
+        assertEquals(CloudDocumentsDialog.None, c.dialog.value)
+    }
+
+    @Test fun requestConfirmPurge_shows_the_message_and_confirm_runs_the_action_once_and_clears() {
+        var confirmed: List<String>? = null
+        val c = controller(onConfirmPurge = { confirmed = it })
+        c.requestConfirmPurge(listOf("KJV"), "Permanently remove KJV from the cloud history?")
+        assertEquals(
+            CloudDocumentsDialog.ConfirmPurge(listOf("KJV"), "Permanently remove KJV from the cloud history?"),
+            c.dialog.value,
+        )
+        c.confirmDialog()
+        assertEquals(listOf("KJV"), confirmed)
+        assertEquals(CloudDocumentsDialog.None, c.dialog.value)
+    }
+
+    @Test fun requestConfirmPurge_dismiss_clears_without_running_the_action() {
+        var confirmedCount = 0
+        val c = controller(onConfirmPurge = { confirmedCount++ })
+        c.requestConfirmPurge(listOf("KJV"), "Permanently remove KJV?")
+        c.dismissDialog()
+        assertEquals(0, confirmedCount)
+        assertEquals(CloudDocumentsDialog.None, c.dialog.value)
     }
 
     @Test

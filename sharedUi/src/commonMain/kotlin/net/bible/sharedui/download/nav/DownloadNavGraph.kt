@@ -371,15 +371,17 @@ class DownloadDeps(
  *   takes `showRemoved` because the REMOVED label is only the eighth one when it is true, exactly
  *   like classic's own conditional `add`.
  *
- * - [confirmRemove]/[confirmPurge] are classic `confirmRemove`/`confirmPurge` (`:281-305`): each owns
- *   BOTH the platform `AlertDialog` AND the plural it resolves (`Strings` has no plural equivalent
- *   either) -- design §2.4 counted three plural call sites; there are FOUR (`:285` branches between
- *   two, plus `:297`/`:341`/`:342`). `onConfirm` is what classic's positive button did inline
- *   (`DocumentSyncService.start` + `applyRemoval`/`applyPurge` + `clearSelection`), supplied by
- *   whichever of [CloudDocumentsController]'s `onAction`/`onBulkAction` closures is asking, so the
- *   dialog itself stays ignorant of single-vs-bulk.
+ * - Classic `confirmRemove`/`confirmPurge` (`:281-305`) are GONE from here (Task 16/17 run-2 plan):
+ *   the question they asked now lives in `CloudDocumentsController.dialog`
+ *   (`CloudDocumentsDialog.ConfirmRemove`/`ConfirmPurge`, plan Task 17), rendered by
+ *   `CloudDocumentsScreen` itself and answered through `controller.confirmDialog()`/`dismissDialog()`.
+ *   `onConfirm` -- classic's positive button (`DocumentSyncService.start` +
+ *   `applyRemoval`/`applyPurge` + `clearSelection`) -- is now `CloudDocumentsController`'s own
+ *   `onConfirmRemove`/`onConfirmPurge` constructor callbacks, bound once inside `controllerFor`
+ *   rather than rebuilt per call.
  *
- * - [countLabel] is classic `countLabel` (`:339-343`), the fourth plural call site, used by the
+ * - [countLabel] is classic `countLabel` (`:339-343`), the fourth plural call site (design §2.4
+ *   counted three; there are FOUR -- `:285` branches between two, plus `:297`/`:341`/`:342`), used by the
  *   Sync-now preview the overflow menu's "Sync now" row builds -- also host-only (needs
  *   `Formatter.formatShortFileSize` and `resources.getQuantityString`).
  *
@@ -397,8 +399,6 @@ class CloudDocumentsDeps(
     val subscribeProgress: (onRunning: (Boolean) -> Unit) -> () -> Unit,
     val statusFilterLabels: (showRemoved: Boolean) -> List<String>,
     val categoryFilterLabels: () -> List<String>,
-    val confirmRemove: (initials: List<String>, name: String?, onConfirm: () -> Unit) -> Unit,
-    val confirmPurge: (initials: List<String>, name: String?, onConfirm: () -> Unit) -> Unit,
     val countLabel: (count: Int, bytes: Long?) -> String,
 )
 
@@ -972,7 +972,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         val busy by controller.busy.collectAsState()
         val transferRunning by controller.transferRunning.collectAsState()
         val showRemoved by controller.showRemoved.collectAsState()
-        val syncNowDialog by controller.syncNowDialog.collectAsState()
+        val dialog by controller.dialog.collectAsState()
         val arrangement by controller.arrangement.collectAsState()
         val rememberArrangement by controller.rememberArrangement.collectAsState()
         val arrangementIsDefault by controller.arrangementIsDefault.collectAsState()
@@ -1000,7 +1000,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
             selectionMode = selectionMode,
             selectedIds = selectedIds,
             syncEnabled = controller.syncEnabled(),
-            syncNowDialog = syncNowDialog,
+            dialog = dialog,
             topBarActions = d.topBarActions,
             onQueryChange = controller::setQuery,
             searchModeActive = searchModeActive,
@@ -1025,6 +1025,8 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
             onBulkAction = { controller.performBulk(it) },
             onSyncNowConfirm = controller::confirmSyncNow,
             onSyncNowDismiss = controller::dismissSyncNow,
+            onConfirmDialog = controller::confirmDialog,
+            onDismissDialog = controller::dismissDialog,
             onNavigateUp = {
                 if (selectionMode) controller.clearSelection() else navController.popOrExit(deps.exitHost)
             },
