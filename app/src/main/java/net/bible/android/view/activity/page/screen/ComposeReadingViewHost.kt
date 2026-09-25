@@ -124,6 +124,7 @@ import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowStateServiceImpl
+import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
@@ -269,6 +270,8 @@ import net.bible.sharedui.components.AbQuickSheet
 import net.bible.sharedui.components.AbQuickSheetFooterRow
 import net.bible.sharedui.components.AbQuickSheetTab
 import net.bible.sharedui.history.HistoryListContent
+import net.bible.sharedui.progress.AbReadHistorySheet
+import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.sharedui.reading.BibleReferenceOverlay
 import net.bible.sharedui.navigation.DocumentQuickContent
 import net.bible.sharedui.navigation.GridChoosePassageContent
@@ -738,6 +741,17 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         shareVersesOptions = options
         persistShareVersesOptions(options)
     }
+
+    private val readingProgressService: ReadingProgressServiceImpl by inject()
+
+    /**
+     * Task 27 (platform-dialog removal, run 3): the reading view's per-chapter read-history sheet.
+     * `BibleJavascriptInterface.openChapterReadHistory` is the only caller — it replaces classic
+     * `ReadHistoryDialog.showForChapter`, which it already resolves the tapped verse's KJV book/
+     * chapter for.
+     */
+    internal fun showReadHistorySheet(bookId: String, chapter: Int) =
+        showQuickSheet(ReadingQuickSheet.ReadHistory(bookId, chapter))
 
     /** Fires the same `Intent.ACTION_SEND` chooser the classic `ShareWidget`'s Share button did. */
     internal fun shareVersesText(text: String) {
@@ -1855,6 +1869,48 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 onCopy = { text -> copyVersesText(text, sheet.input.referenceFull) },
                 onDismiss = ::closeQuickSheet,
             )
+            is ReadingQuickSheet.ReadHistory -> {
+                // Loaded once per opening, exactly as classic `ReadHistoryDialog.loadAndShow` loaded
+                // before calling `show` — the dialog never appeared while the query ran, so neither
+                // does this sheet: `rows == null` renders nothing rather than an empty shell.
+                var rows by remember(sheet) { mutableStateOf<List<ReadHistoryRow>?>(null) }
+                var cycle by remember(sheet) { mutableIntStateOf(0) }
+                LaunchedEffect(sheet) {
+                    val activeCycle = readingProgressService.currentCycle()
+                    val entries = readingProgressService.readHistoryForChapter(sheet.bookId, sheet.chapter, activeCycle)
+                    cycle = activeCycle
+                    rows = entries.map { entry ->
+                        val date = readingProgressService.formatEntryDate(entry.readAt)
+                        val time = readingProgressService.formatEntryTime(entry.readAt)
+                        val version = entry.bookInitials.ifEmpty {
+                            activity.getString(R.string.reading_progress_history_version_unknown)
+                        }
+                        // Classic `showForChapter` used `showChapterPerRow = false` (every row is
+                        // this same chapter, already named in the title) — "$date $time" / version,
+                        // not the "chapterRef · time" / "date · version" format the book/day screens
+                        // use for a multi-chapter list.
+                        ReadHistoryRow(id = entry.id, primary = "$date $time", secondary = version)
+                    }
+                }
+                val loadedRows = rows
+                if (loadedRows != null) {
+                    AbReadHistorySheet(
+                        title = activity.hostContext.getString(
+                            R.string.reading_progress_history_for,
+                            "${readingProgressService.bookShortName(sheet.bookId)} ${sheet.chapter}",
+                        ),
+                        rows = loadedRows,
+                        onApplyDeletes = { ids ->
+                            if (ids.isNotEmpty()) {
+                                activity.lifecycleScope.launch {
+                                    readingProgressService.deleteReadHistoryEntries(ids, cycle)
+                                }
+                            }
+                        },
+                        onDismiss = ::closeQuickSheet,
+                    )
+                }
+            }
         }
     }
 

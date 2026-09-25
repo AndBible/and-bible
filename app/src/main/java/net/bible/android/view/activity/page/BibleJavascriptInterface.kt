@@ -56,7 +56,6 @@ import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.progress.ReadingSource
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
-import net.bible.android.view.activity.progress.ReadHistoryDialog
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -132,9 +131,9 @@ class BibleJavascriptInterface(
      * Activity API (`startActivity`, `startActivityForResult`, `getString`, `lifecycleScope`, an
      * `AlertDialog.Builder` receiver) or library helpers that demand an `Activity`/`ActivityBase`
      * BY SIGNATURE — `CommonUtils.showHelpDialog`, `BackupControl.saveOrShare`,
-     * `SearchControl.getSearchIntent`, `CurrentPage.startKeyChooser`,
-     * `ReadHistoryDialog.showForChapter`. Those keep their spelling against [ActivityBase], which
-     * BOTH reading hosts really are, so nothing is cast and nothing can fail at Task 8. The four
+     * `SearchControl.getSearchIntent`, `CurrentPage.startKeyChooser`. Those keep their spelling
+     * against [ActivityBase], which BOTH reading hosts really are, so nothing is cast and nothing
+     * can fail at Task 8. The four
      * that were genuinely `MainBibleActivity`-only went into [BibleViewHostCallbacks]; two more
      * (`speakControl`, `searchControl`) are Koin singletons and are injected here instead of
      * borrowed off the Activity, which is R1's move.
@@ -664,7 +663,7 @@ class BibleJavascriptInterface(
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
         val kjvBook = Verse(v11n, startOrdinal).toV11n(KJVA).book
         scope.launch(Dispatchers.Main) {
-            ReadHistoryDialog.showForChapter(hostActivity, kjvBook, chapter)
+            hostCallbacks.composeReadingViewHost()?.showReadHistorySheet(kjvBook.name, chapter)
         }
     }
 

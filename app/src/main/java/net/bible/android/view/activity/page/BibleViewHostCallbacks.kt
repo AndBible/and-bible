@@ -42,8 +42,8 @@ import net.bible.service.llm.PromptContext
  * and the surface it exposes is the plain ANDROID Activity API that four library helpers demand by
  * signature and no host-shaped interface should be pretending to hide:
  * `startActivityForResult`/[ActivityBase.awaitIntent], `CommonUtils.showHelpDialog(activity: Activity, …)`,
- * `BackupControl.saveOrShare(activity: ActivityBase, …)`, `SearchControl.getSearchIntent(…, activity: Activity)`,
- * `CurrentPage.startKeyChooser(context: ActivityBase)` and `ReadHistoryDialog.showForChapter<A : Activity>`.
+ * `BackupControl.saveOrShare(activity: ActivityBase, …)`, `SearchControl.getSearchIntent(…, activity: Activity)`
+ * and `CurrentPage.startKeyChooser(context: ActivityBase)`.
  * Wrapping those in six more lambdas would decouple nothing — the callee still needs an Activity —
  * and R7 set the precedent explicitly when it gave `ReadingAppBootstrap` a `ComponentActivity`
  * rather than the reading-host interface.
