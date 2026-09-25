@@ -38,6 +38,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedui.AbAppTheme
+import net.bible.sharedui.components.AbLinkRouting
 import net.bible.sharedui.components.AppDialogHost
 import net.bible.sharedui.components.LocalNoticeIcons
 import net.bible.sharedui.components.NoticeIcons
@@ -114,6 +115,20 @@ fun AppDialogOverlay(onSheetOpening: () -> Unit = {}) {
 }
 
 /**
+ * Task 31 addendum item 3 (correction 12, parked in run 2): provided once at every Compose host
+ * root, so a FUTURE dialog/sheet that forgets its own [AbLinkRouting] wrap still asks before leaving
+ * the app in discrete mode — fail CLOSED — instead of silently falling through to the platform's
+ * bare `LocalUriHandler` (see [net.bible.sharedui.components.LocalAbLinkOpener]'s kdoc). A dialog
+ * that already wraps itself (`ComposeReadingViewHost`'s `SpeakSettingsSlot`/`ReadingDialogSlot`, or
+ * `AppDialogHost` itself via `askBeforeOpeningLink`) simply re-provides [LocalAbLinkOpener] again,
+ * one level deeper — harmless, since only the innermost provider for a given link's composition
+ * governs.
+ */
+@Composable
+fun FailClosedLinkRouting(content: @Composable () -> Unit) =
+    AbLinkRouting(askFirst = CommonUtils.isDiscrete, onOpenExternal = { CommonUtils.openLinkNow(it) }, content = content)
+
+/**
  * For the two hosts with no Compose content of their own — the View-based `StartupActivity` and the
  * UI-less `ErrorActivity`: a transparent `ComposeView` over the content. Call after
  * `setContentView` (or, with no content view, anywhere in `onCreate`). Draws nothing and has no
@@ -122,7 +137,7 @@ fun AppDialogOverlay(onSheetOpening: () -> Unit = {}) {
  */
 fun ComponentActivity.mountAppDialogOverlay() {
     addContentView(
-        ComposeView(this).apply { setContent { AbAppTheme { AppDialogOverlay() } } },
+        ComposeView(this).apply { setContent { AbAppTheme { FailClosedLinkRouting { AppDialogOverlay() } } } },
         ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT),
     )
 }

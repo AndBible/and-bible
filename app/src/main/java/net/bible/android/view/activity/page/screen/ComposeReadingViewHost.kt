@@ -130,6 +130,7 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.FailClosedLinkRouting
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.navigation.DocRowMapper
 import net.bible.android.view.activity.navigation.buildGridStep
@@ -4321,6 +4322,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // letting AbAppTheme re-read the static ScreenSettings.nightMode getter (which
             // would only catch up on some unrelated recomposition). See AbAppTheme's KDoc.
             AbAppTheme(darkTheme = nightModeState.value) {
+              FailClosedLinkRouting {
                     val layout by controller.layout.collectAsState()
                     val toolbarState by toolbar.collectAsState()
                     val gen by generationState
@@ -4736,6 +4738,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     // Platform-dialog removal Task 18: the reading view's own dialogs — an
                     // eighth sibling overlay, self-hiding when closed like the seven above.
                     readingDialogSlot()
+              }
             }
         }
     }
