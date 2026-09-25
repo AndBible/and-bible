@@ -116,6 +116,23 @@ class LabelEditControllerTest {
         assertEquals(1, cancelCalls)
     }
 
+    @Test fun confirmDiscard_called_twice_cancels_only_once() {
+        var cancelCalls = 0
+        val c = controller(onFinish = { if (it is LabelEditResult.Cancel) cancelCalls++ })
+        c.setColor(999)
+        c.requestUp()
+
+        c.confirmDiscard()
+        assertEquals(1, cancelCalls)
+
+        // A stray second confirm (e.g. a double-tap after the dialog closed, or back-then-confirm
+        // racing) must not cancel a second time -- there is no longer a discard prompt showing to
+        // confirm, so this must be a no-op, matching BookmarksController.confirmDialog() and
+        // ManageLabelsController.confirmDialog()'s guard in the same commit.
+        c.confirmDiscard()
+        assertEquals(1, cancelCalls)
+    }
+
     @Test fun dismissDiscardPrompt_discards_nothing() {
         var cancelCalls = 0
         val c = controller(onFinish = { if (it is LabelEditResult.Cancel) cancelCalls++ })

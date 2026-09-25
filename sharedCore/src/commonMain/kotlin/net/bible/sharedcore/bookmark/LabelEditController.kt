@@ -69,8 +69,9 @@ class LabelEditController(
         if (isDirty()) _discardPrompt.value = true else cancel()
     }
     fun confirmDiscard() {
+        val wasShowing = _discardPrompt.value
         _discardPrompt.value = false
-        cancel()
+        if (wasShowing) cancel()
     }
     fun dismissDiscardPrompt() { _discardPrompt.value = false }
 
