@@ -84,15 +84,19 @@ class PlatformDialogRemovalGuardTest {
          * .AlertDialog`/`android.app.DatePickerDialog` mentions are all KDoc/comment prose (filtered
          * by `codeLinesOf`) except `import android.app.DatePickerDialog` itself, which `PKG` does not
          * match (correction 10 / ruling R3-2, Task 30b).
+         *
+         * Run 3 Task 24 shrinks it to 6: `BackupControl.kt` (`saveOrShare`'s `platformPrompt` fallback
+         * and `askIfRestoreOrImport` both move onto `AppDialogController`; D8-1 also fixed there --
+         * back/scrim now answers Cancel, not the old accidental alias to Import), `CloudSync.kt`
+         * (`initializeSync`'s fetch/create/disable question), and `ErrorReportControl.kt`
+         * (`showErrorDialog`'s actions, dropping the dead `report = false` arm and the double
+         * `setPositiveButton`) are clean.
          */
         val BASELINE: Set<String> = setOf(
-            "src/main/java/net/bible/android/control/backup/BackupControl.kt",
-            "src/main/java/net/bible/android/control/report/ErrorReportControl.kt",
             "src/main/java/net/bible/android/view/activity/StartupActivity.kt",
             "src/main/java/net/bible/android/view/activity/page/ReadingAppBootstrap.kt",
             "src/main/java/net/bible/android/view/activity/progress/ReadHistoryDialog.kt",
             "src/main/java/net/bible/android/view/util/widget/ShareWidget.kt",
-            "src/main/java/net/bible/service/cloudsync/CloudSync.kt",
             "src/main/java/net/bible/service/common/CommonUtils.kt",
             "src/main/java/net/bible/service/llm/tools/read/GetCommentariesTool.kt",
         )
