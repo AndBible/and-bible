@@ -90,6 +90,11 @@ import net.bible.service.sword.mysword.isManuallyInstalledMySwordBook
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import net.bible.service.sword.ttf.isManuallyInstalledTtf
 import net.bible.service.sword.ttf.ttfFile
+import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
+import org.koin.java.KoinJavaComponent
 import org.crosswire.common.util.NetUtil
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -160,6 +165,12 @@ val databaseTitleResIds: Map<String, Int> = mapOf(
 )
 
 object BackupControl {
+    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+
+    // AppDialogRequest.Options ids for askIfRestoreOrImport (D8-1).
+    private const val RESTORE_VALUE = "restore"
+    private const val IMPORT_VALUE = "import"
+
     internal suspend fun saveDbBackupFileViaIntent(activity: ActivityBase, file: File) =
         saveOrShare(
             activity = activity,
@@ -757,17 +768,24 @@ object BackupControl {
         val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS && DatabaseContainer.ready) {
             " (${bookmarksDbStats(category, backupFile)})"
         } else ""
-        suspendCoroutine {
-            val message =
-                context.getString(R.string.ask_restore_or_import, context.getString(category.contentDescription) + contents)
-            AlertDialog.Builder(context)
-                .setTitle(category.contentDescription)
-                .setMessage(message)
-                .setNeutralButton(R.string.cancel) {_, _ -> it.resume(null) }
-                .setPositiveButton(R.string.restore) { _, _ -> it.resume(true) }
-                .setNegativeButton(R.string.import2) { _, _ -> it.resume(false) }
-                .setOnCancelListener { _ -> it.resume(false) }
-                .show()
+        val message =
+            context.getString(R.string.ask_restore_or_import, context.getString(category.contentDescription) + contents)
+        val result = dialogs.await(
+            AppDialogRequest.Options(
+                title = context.getString(category.contentDescription),
+                message = message,
+                options = listOf(
+                    SettingsItem.Choice(RESTORE_VALUE, context.getString(R.string.restore)),
+                    SettingsItem.Choice(IMPORT_VALUE, context.getString(R.string.import2)),
+                ),
+                dismissText = context.getString(R.string.cancel),
+                asActionSheet = false,
+            ),
+        )
+        when ((result as? AppDialogResult.Selected)?.value) {
+            RESTORE_VALUE -> true
+            IMPORT_VALUE -> false
+            else -> null // Cancel button, back, or scrim -- D8-1: no longer aliased to Import.
         }
     }
 
