@@ -193,6 +193,7 @@ import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.navigation.GridStep
 import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedcore.progress.ReadHistoryEntry
+import net.bible.sharedcore.progress.ReadingProgressService
 import net.bible.sharedcore.reading.DrawerCloseLatch
 import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedcore.reading.KeyChooserKind
@@ -435,6 +436,33 @@ internal fun chapterReadHistoryRow(
 ): ReadHistoryRow {
     val version = entry.bookInitials.ifEmpty { versionUnknownText }
     return ReadHistoryRow(id = entry.id, primary = "$date $time", secondary = version)
+}
+
+/**
+ * Task 27 (platform-dialog removal, run 3) fix round 2: the `onApplyDeletes` callback
+ * `QuickSheetSlot`'s `is ReadingQuickSheet.ReadHistory ->` branch wires into `AbReadHistorySheet`,
+ * extracted as its own function — mirroring [chapterReadHistoryRow] above — so it is unit-testable
+ * with a fake [ReadingProgressService] instead of only being exercisable by re-implementing its
+ * `ids.isNotEmpty()` guard inside a test harness (review round 1's gap, named again in round 2: the
+ * guard AND the `cycle` threading from the `LaunchedEffect`'s load were both unverified against the
+ * real production lambda). `ComposeReadingViewHost` now calls this function VERBATIM — see
+ * `ReadHistoryApplyDeletesTest`.
+ *
+ * [service] is typed to the portable [ReadingProgressService] interface, not
+ * `ReadingProgressServiceImpl`, specifically so it is fakeable without Room/Robolectric — the same
+ * reason `:sharedCore`'s own `ReadingProgressControllerTest.Fake` exists. [cycle] is captured once,
+ * at assembly time (the `LaunchedEffect`'s `activeCycle`), not re-read per call — matching classic
+ * `ReadHistoryDialog.applyPendingDeletes`, which closed over the SAME `cycle` its `loadAndShow` had
+ * already fetched, not a re-queried one.
+ */
+internal fun readHistoryApplyDeletes(
+    coroutineScope: CoroutineScope,
+    service: ReadingProgressService,
+    cycle: Int,
+): (List<String>) -> Unit = { ids ->
+    if (ids.isNotEmpty()) {
+        coroutineScope.launch { service.deleteReadHistoryEntries(ids, cycle) }
+    }
 }
 
 /**
@@ -1920,13 +1948,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                             "${readingProgressService.bookShortName(sheet.bookId)} ${sheet.chapter}",
                         ),
                         rows = loadedRows,
-                        onApplyDeletes = { ids ->
-                            if (ids.isNotEmpty()) {
-                                activity.lifecycleScope.launch {
-                                    readingProgressService.deleteReadHistoryEntries(ids, cycle)
-                                }
-                            }
-                        },
+                        onApplyDeletes = readHistoryApplyDeletes(activity.lifecycleScope, readingProgressService, cycle),
                         onDismiss = ::closeQuickSheet,
                     )
                 }

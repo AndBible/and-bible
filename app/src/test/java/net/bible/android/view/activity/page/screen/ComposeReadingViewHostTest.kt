@@ -10,6 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.ABEventBus
@@ -27,6 +29,7 @@ import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.progress.ReadHistoryEntry
+import net.bible.sharedcore.progress.ReadingProgressService
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.speak.SpeakSheetPage
@@ -1014,5 +1017,88 @@ class ChapterReadHistoryRowTest {
             entry.copy(id = "h2"), date = "12 Aug 2026", time = "10:15", versionUnknownText = "Unknown",
         )
         assertEquals("h2", row.id)
+    }
+}
+
+/**
+ * Task 27 (platform-dialog removal, run 3) fix round 2: [readHistoryApplyDeletes] is the
+ * `onApplyDeletes` callback assembly review round 2 named as still untested after round 1 — round
+ * 1's `AbReadHistorySheetContentTest` could only REPRODUCE the `ids.isNotEmpty()` guard in its own
+ * test harness, not exercise the real one, and nothing verified the `cycle` `LaunchedEffect` loads
+ * actually reaches `deleteReadHistoryEntries`. `QuickSheetSlot`'s `is ReadingQuickSheet.ReadHistory
+ * ->` branch now calls this function VERBATIM (`onApplyDeletes = readHistoryApplyDeletes(activity
+ * .lifecycleScope, readingProgressService, cycle)`) instead of inlining the lambda, so this test
+ * exercises the actual production glue.
+ *
+ * [RecordingReadingProgressService] fakes [ReadingProgressService] the same one-member-per-line way
+ * `:sharedCore`'s own `ReadingProgressControllerTest.Fake` does (mockk was removed from this repo;
+ * no mocking framework is used) — typed to the portable interface, not
+ * `ReadingProgressServiceImpl`, specifically so it needs no Room/Robolectric. `UnconfinedTestDispatcher`
+ * runs `readHistoryApplyDeletes`'s `coroutineScope.launch { … }` eagerly, so the fake's call is
+ * already recorded by the time the returned lambda's invocation returns.
+ */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+class ReadHistoryApplyDeletesTest {
+    private class RecordingReadingProgressService : ReadingProgressService {
+        val deleteCalls = mutableListOf<Pair<List<String>, Int>>()
+
+        override fun currentCycle() = 0
+        override fun latestCycle() = 0
+        override fun setActiveCycle(cycle: Int) {}
+        override fun startNewCycle() = 0
+        override suspend fun readingSummary(cycle: Int) = error("not needed")
+        override suspend fun bookReadProgress(cycle: Int) = error("not needed")
+        override suspend fun chapterReadCounts(bookId: String, cycle: Int) = error("not needed")
+        override suspend fun readingCalendarSkeleton() = error("not needed")
+        override suspend fun dailyReadCounts(cycle: Int) = error("not needed")
+        override suspend fun readHistoryForBook(bookId: String, cycle: Int) = error("not needed")
+        override suspend fun readHistoryForChapter(bookId: String, chapter: Int, cycle: Int) = error("not needed")
+        override suspend fun readHistoryForDay(dayTimestamp: Long, cycle: Int) = error("not needed")
+        override suspend fun deleteReadHistoryEntries(ids: List<String>, cycle: Int) {
+            deleteCalls.add(ids to cycle)
+        }
+        override fun dayTitle(dayTimestamp: Long) = error("not needed")
+        override fun formatEntryDate(readAt: Long) = error("not needed")
+        override fun formatEntryTime(readAt: Long) = error("not needed")
+        override fun bookShortName(bookId: String) = error("not needed")
+        override fun bookLongName(bookId: String) = error("not needed")
+        override suspend fun memorizeSummary() = error("not needed")
+        override suspend fun bookMemorizationProgress() = error("not needed")
+        override suspend fun chapterMemorizationProgress(bookId: String) = error("not needed")
+        override suspend fun dailyMemorizationCounts() = error("not needed")
+        override suspend fun memorizedPassages() = error("not needed")
+        override suspend fun memorizeTargets() = error("not needed")
+        override suspend fun unmarkMemorized(startOrdinal: Int, endOrdinal: Int) = error("not needed")
+        override suspend fun removeMemorizationTarget(id: String) = error("not needed")
+    }
+
+    @Test fun nonEmptyIdsCallDeleteExactlyOnceWithTheIdsAndTheLoadedCycle() = runTest(UnconfinedTestDispatcher()) {
+        val service = RecordingReadingProgressService()
+        val apply = readHistoryApplyDeletes(this, service, cycle = 7)
+
+        apply(listOf("h1", "h2"))
+
+        assertEquals(listOf(listOf("h1", "h2") to 7), service.deleteCalls)
+    }
+
+    @Test fun emptyIdsNeverCallDelete() = runTest(UnconfinedTestDispatcher()) {
+        val service = RecordingReadingProgressService()
+        val apply = readHistoryApplyDeletes(this, service, cycle = 7)
+
+        apply(emptyList())
+
+        assertTrue(service.deleteCalls.isEmpty())
+    }
+
+    @Test fun eachAssemblyUsesTheCycleItWasGivenNotAStaleOne() = runTest(UnconfinedTestDispatcher()) {
+        // Two sheet openings (e.g. a cycle rollover between them) must each apply against THEIR
+        // OWN loaded cycle -- this is what "cycle threading" means concretely, and is exactly what
+        // the review named as unverified.
+        val service = RecordingReadingProgressService()
+
+        readHistoryApplyDeletes(this, service, cycle = 3)(listOf("a"))
+        readHistoryApplyDeletes(this, service, cycle = 9)(listOf("b"))
+
+        assertEquals(listOf(listOf("a") to 3, listOf("b") to 9), service.deleteCalls)
     }
 }
