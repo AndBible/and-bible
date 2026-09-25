@@ -96,12 +96,15 @@ class PlatformDialogRemovalGuardTest {
          * `AppDialogController` (`AppDialogRequest.MultiChoice.footerFor`, a live token-total sheet
          * footer) and the 500 ms `CurrentActivityHolder` poll it existed for is deleted with it --
          * the controller's queue is the wait now.
+         *
+         * Run 3 Task 26 shrinks it to 4: `ShareWidget.kt` is deleted outright — its `AlertDialog`
+         * (three-button verse-share prompt) is replaced by `ReadingQuickSheet.Share` /
+         * `ShareVersesSheet`, a quick sheet rendered by `ComposeReadingViewHost.QuickSheetSlot`.
          */
         val BASELINE: Set<String> = setOf(
             "src/main/java/net/bible/android/view/activity/StartupActivity.kt",
             "src/main/java/net/bible/android/view/activity/page/ReadingAppBootstrap.kt",
             "src/main/java/net/bible/android/view/activity/progress/ReadHistoryDialog.kt",
-            "src/main/java/net/bible/android/view/util/widget/ShareWidget.kt",
             "src/main/java/net/bible/service/common/CommonUtils.kt",
         )
 

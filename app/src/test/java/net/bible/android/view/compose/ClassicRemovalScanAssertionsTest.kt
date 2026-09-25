@@ -20,7 +20,9 @@ package net.bible.android.view.compose
 import java.io.File
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 
 /**
  * Tests the assertion helpers [ClassicRemovalScan] gained in batch S4+S5+S7+S8, in BOTH
@@ -80,6 +82,11 @@ class ClassicRemovalScanAssertionsTest {
         )
     }
 
+    /** Rooted inside `src/` (not the OS temp dir) so [ClassicRemovalScan.appResourceXml]'s literal
+     *  `File("src").listFiles { ... }` walk actually finds what this rule creates — cleaned up by
+     *  JUnit after every test, pass or fail, so nothing this test writes is ever left in the repo. */
+    @get:Rule val srcTempFolder = TemporaryFolder(File("src"))
+
     /**
      * The resource arm, added in this batch. Batch S4+S5+S7+S8's final review found the sweep
      * walked only `.kt`/`.java` while its KDoc claimed a fully-qualified name "cannot escape" it —
@@ -87,32 +94,38 @@ class ClassicRemovalScanAssertionsTest {
      * resolved by `LayoutInflater` at RUNTIME, so nothing else in the gate can see it.
      */
     @Test fun assertNoSourceNamesFailsOnAClassOnlyALayoutNames() {
-        // SwitchCompat is inflated by name from ONE surviving layout (share_verses.xml, twelve
-        // times) and is written UNQUALIFIED nowhere in Kotlin either -- ShareWidget.kt goes
-        // through view binding -- so its fully-qualified name appears in NO shipping .kt/.java
-        // file. Both premises are asserted before use: if either stops holding, this test would
-        // pass for the wrong reason, which is the exact vacuity it exists to prevent.
-        //
-        // The fixture used to be net.bible.android.view.util.widget.BookmarkListItem, named by
-        // studypad_list_item.xml. The epilogue deleted that layout, and with it the LAST resource
-        // XML in the tree naming any net.bible class fully-qualified -- settings.xml's three
-        // InverseMultiSelectListPreference tags went in the same commit. So there is no net.bible
-        // candidate left at all, and the fixture is a third-party view class instead. The helper
-        // does not care about the package: what it needs is a class that resource XML names and
-        // source does not.
-        val fq = "androidx.appcompat.widget.SwitchCompat"
+        // Task 26 (platform-dialog removal, run 3) deleted share_verses.xml, the last real layout
+        // in the tree naming a class fully-qualified (`androidx.appcompat.widget.SwitchCompat`,
+        // twelve times) — the same fate this KDoc already documents for the PREVIOUS fixture
+        // (studypad_list_item.xml / BookmarkListItem). This time there is no real corpus witness
+        // left AT ALL to "pick another class from a surviving layout": every layout across every
+        // shipping source set (`main`/`debug`/`discrete`; `standard` has no `res/`) was checked —
+        // `androidx.constraintlayout.widget.ConstraintLayout` is the only other FQN any resource
+        // XML names, and it fails the OTHER premise (it is a real, load-bearing import in
+        // ComposeReadingViewHost.kt). So this test now builds its OWN one-file resource "source
+        // set" under `src/` via [srcTempFolder] — the same shape the launcher-arm test below takes
+        // with a synthetic `.kt` fixture, adapted here because [ClassicRemovalScan.appResourceXml]
+        // walks a real directory rather than taking a path.
+        val fq = "com.example.classicremovalscanfixture.ClassicRemovalScanFixtureWidget"
         val ref = ClassicRemovalScan.refsFor(listOf(fq)).single()
+
+        val fixtureResDir = srcTempFolder.newFolder("res", "xml")
+        File(fixtureResDir, "classic_removal_scan_fixture.xml").writeText(
+            """<?xml version="1.0" encoding="utf-8"?>
+            |<$fq xmlns:android="http://schemas.android.com/apk/res/android" />
+            |""".trimMargin(),
+        )
+
         val namedInSource = ClassicRemovalScan.appSources()
             .filter { ref.containsMatchIn(ClassicRemovalScan.codeLinesOf(it.path, keepImports = true)) }
             .map { it.path }
         assertTrue(
-            "$fq is now named fully-qualified in $namedInSource, so the SOURCE arm would supply " +
-                "the failure and this test would no longer prove the resource arm works — pick " +
-                "another class named only by a layout",
+            "$fq is somehow named fully-qualified in $namedInSource — the fixture package must be unique",
             namedInSource.isEmpty(),
         )
         assertTrue(
-            "no resource XML names $fq any more — pick another class from a surviving layout",
+            "the fixture resource file this test just wrote was not found by appResourceXml() — " +
+                "either the walk or this test's own temp-folder placement is broken",
             ClassicRemovalScan.appResourceXml().any { f -> f.readLines().any { ref.containsMatchIn(it) } },
         )
         assertThrows(AssertionError::class.java) {

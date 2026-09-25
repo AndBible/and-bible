@@ -63,7 +63,7 @@ import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.android.view.util.widget.ShareWidget
+import net.bible.service.sword.SwordContentFacade
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.bookmarksMyNotesPlaylist
@@ -487,7 +487,9 @@ class BibleJavascriptInterface(
     fun shareBookmarkVerse(bookmarkId: String) {
         val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId))!!
         scope.launch(Dispatchers.Main) {
-            ShareWidget.dialog(hostActivity, bookmark)
+            hostCallbacks.composeReadingViewHost()?.showShareSheet(
+                SwordContentFacade.buildShareVersesInput(Selection(bookmark))
+            )
         }
     }
 
@@ -499,7 +501,9 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun shareVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
-            ShareWidget.dialog(hostActivity, Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+            hostCallbacks.composeReadingViewHost()?.showShareSheet(
+                SwordContentFacade.buildShareVersesInput(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+            )
         }
     }
 

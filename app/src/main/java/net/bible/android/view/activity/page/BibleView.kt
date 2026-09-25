@@ -132,7 +132,7 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.util.UiUtils
-import net.bible.android.view.util.widget.ShareWidget
+import net.bible.service.sword.SwordContentFacade
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
@@ -413,7 +413,7 @@ class BibleView(
             }
             R.id.share_verses -> {
                 val sel = currentSelection ?: return true
-                ShareWidget.dialog(host.hostContext, sel)
+                hostCallbacks.composeReadingViewHost()?.showShareSheet(SwordContentFacade.buildShareVersesInput(sel))
                 return true
             }
             R.id.open_ref -> {
