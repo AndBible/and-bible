@@ -6,8 +6,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Round 15b: the four quick sheets share ONE state and must therefore share ONE mount point.
- * A second `QuickSheetSlot()` call — the most plausible way this design decays — fails here.
+ * Round 15b: the quick sheets (four then, five since Task 26's `ReadingQuickSheet.Share`) share
+ * ONE state and must therefore share ONE mount point. A second `QuickSheetSlot()` call — the most
+ * plausible way this design decays — fails here.
  */
 class QuickSheetMountGuardTest {
     private val host = File("src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt")

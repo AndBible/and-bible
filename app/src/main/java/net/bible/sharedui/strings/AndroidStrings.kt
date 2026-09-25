@@ -715,4 +715,18 @@ class AndroidStrings(private val context: Context) : Strings {
     override val downloadQuestionTitle: String get() = context.getString(R.string.download_question_title)
     override val downloadQuestionMessage: String get() = context.getString(R.string.download_question_message)
     override val doNotAskAgain: String get() = context.getString(R.string.do_not_ask_again)
+
+    // Task 26 — platform-dialog removal: the verse-share quick sheet
+    override val shareSheetTitle: String get() = context.getString(R.string.share_verse_widget_title)
+    override val shareShowReference: String get() = context.getString(R.string.show_reference)
+    override val shareAbbreviateReference: String get() = context.getString(R.string.abbreviate_reference)
+    override val shareShowVersion: String get() = context.getString(R.string.show_version_name)
+    override val shareShowReferenceAtFront: String get() = context.getString(R.string.show_reference_at_front)
+    override val shareShowVerseNumbers: String get() = context.getString(R.string.show_versenumbers)
+    override val shareShowQuotes: String get() = context.getString(R.string.show_quotes)
+    override val shareSeparateVersesWithNewlines: String
+        get() = context.getString(R.string.separate_verses_with_newlines)
+    override val shareShowSelectionOnly: String get() = context.getString(R.string.show_selection_only)
+    override val shareShowEllipsis: String get() = context.getString(R.string.show_ellipsis)
+    override val shareAdvertiseApp: String get() = context.getString(R.string.advertise_app)
 }

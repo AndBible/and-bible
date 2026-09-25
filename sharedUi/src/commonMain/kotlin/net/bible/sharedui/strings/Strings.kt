@@ -797,6 +797,20 @@ interface Strings {
     val downloadQuestionTitle: String            // R.string.download_question_title
     val downloadQuestionMessage: String          // R.string.download_question_message
     val doNotAskAgain: String                    // R.string.do_not_ask_again
+
+    // Task 26 — platform-dialog removal: the verse-share quick sheet (classic ShareWidget's
+    // AlertDialog). `shareLabel`/`copyLabel`/`showNotesLabel` above are reused as-is.
+    val shareSheetTitle: String                  // R.string.share_verse_widget_title
+    val shareShowReference: String               // R.string.show_reference
+    val shareAbbreviateReference: String         // R.string.abbreviate_reference
+    val shareShowVersion: String                 // R.string.show_version_name
+    val shareShowReferenceAtFront: String        // R.string.show_reference_at_front
+    val shareShowVerseNumbers: String            // R.string.show_versenumbers
+    val shareShowQuotes: String                  // R.string.show_quotes
+    val shareSeparateVersesWithNewlines: String  // R.string.separate_verses_with_newlines
+    val shareShowSelectionOnly: String           // R.string.show_selection_only
+    val shareShowEllipsis: String                // R.string.show_ellipsis
+    val shareAdvertiseApp: String                // R.string.advertise_app
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

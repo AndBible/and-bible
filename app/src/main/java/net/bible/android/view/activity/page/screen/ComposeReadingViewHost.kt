@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.page.screen
 
+import android.content.ClipData
 import android.content.Intent
 import android.text.format.DateFormat.format
 import android.util.Log
@@ -201,6 +202,8 @@ import net.bible.sharedcore.reading.ReadingOverlay
 import net.bible.sharedcore.reading.ReadingOverlayExclusion
 import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedcore.reading.ReadingSearchBarState
+import net.bible.sharedcore.reading.ShareVersesInput
+import net.bible.sharedcore.reading.ShareVersesOptions
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.reading.bibleReferenceOverlayVisible
@@ -279,6 +282,7 @@ import net.bible.sharedui.reading.ReadingSearchBarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
+import net.bible.sharedui.reading.ShareVersesSheet
 import net.bible.sharedui.reading.SpeakTransportBar
 import net.bible.sharedui.reading.WindowButton
 import net.bible.sharedui.reading.WindowButtonMode
@@ -715,6 +719,44 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     internal fun showDocumentSheet() = showQuickSheet(ReadingQuickSheet.Documents)
 
     /**
+     * Task 26 (platform-dialog removal, run 3): the verse-share sheet's toggle state, loaded once
+     * from prefs and kept live for this host's whole life. [updateShareVersesOptions] is the only
+     * writer — every switch in [ShareVersesSheet] calls it, which both updates this state (so the
+     * preview redraws) and persists it (so it survives a reopen, exactly as the classic
+     * `ShareWidget`'s per-click `CommonUtils.settings.setBoolean(...)` did).
+     */
+    internal var shareVersesOptions by mutableStateOf(loadShareVersesOptions())
+
+    /**
+     * `BibleView`'s "Share" selection action and `BibleJavascriptInterface`'s two share entry
+     * points (bookmark share, JS selection share) all resolve a [ShareVersesInput] via
+     * `SwordContentFacade.buildShareVersesInput` and call this.
+     */
+    internal fun showShareSheet(input: ShareVersesInput) = showQuickSheet(ReadingQuickSheet.Share(input))
+
+    internal fun updateShareVersesOptions(options: ShareVersesOptions) {
+        shareVersesOptions = options
+        persistShareVersesOptions(options)
+    }
+
+    /** Fires the same `Intent.ACTION_SEND` chooser the classic `ShareWidget`'s Share button did. */
+    internal fun shareVersesText(text: String) {
+        val sendIntent = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_TEXT, text)
+            type = "text/plain"
+        }
+        val chooserIntent = Intent.createChooser(sendIntent, activity.hostContext.getString(R.string.share_verse_menu_title))
+        activity.hostContext.startActivity(chooserIntent)
+    }
+
+    /** Copies [text] to the clipboard exactly as the classic `ShareWidget`'s Copy button did (same
+     *  toast, via [CommonUtils.copyToClipboard]). [clipLabel] is only the `ClipData`'s invisible
+     *  description, not part of the copied text. */
+    internal fun copyVersesText(text: String, clipLabel: String?) {
+        CommonUtils.copyToClipboard(ClipData.newPlainText(clipLabel, text))
+    }
+
+    /**
      * The document quick sheet's three tabs, built from the same inputs the full ChooseDocument
      * screen uses (spec §4.5).
      *
@@ -784,6 +826,41 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
 
     /** The document shown in the active window — the row the sheet draws bold and inert. */
     private fun currentDocumentInitials(): String? = documentControl.currentDocument?.initials
+
+    /** Loads the verse-share sheet's toggle state from the same pref keys the classic
+     *  `ShareWidget` read, with the same defaults. */
+    private fun loadShareVersesOptions(): ShareVersesOptions = ShareVersesOptions(
+        showVerseNumbers = CommonUtils.settings.getBoolean(SHARE_VERSE_NUMBERS_KEY, true),
+        advertiseApp = CommonUtils.settings.getBoolean(SHARE_SHOW_ADD_KEY, true),
+        showReference = CommonUtils.settings.getBoolean(SHARE_SHOW_REFERENCE_KEY, true),
+        abbreviateReference = CommonUtils.settings.getBoolean(SHARE_ABBREVIATE_REFERENCE_KEY, true),
+        showVersion = CommonUtils.settings.getBoolean(SHARE_SHOW_VERSION_KEY, true),
+        showNotes = CommonUtils.settings.getBoolean(SHARE_SHOW_NOTES_KEY, true),
+        showSelectionOnly = CommonUtils.settings.getBoolean(SHARE_SHOW_SELECTION_ONLY_KEY, true),
+        showEllipsis = CommonUtils.settings.getBoolean(SHARE_SHOW_ELLIPSIS_KEY, true),
+        showReferenceAtFront = CommonUtils.settings.getBoolean(SHARE_SHOW_REFERENCE_AT_FRONT_KEY, true),
+        showQuotes = CommonUtils.settings.getBoolean(SHARE_SHOW_QUOTES_KEY, false),
+        separateVersesWithNewlines = CommonUtils.settings.getBoolean(SHARE_SEPARATE_VERSES_NEWLINES_KEY, false),
+    )
+
+    /** Persists every toggle back to the same keys [loadShareVersesOptions] reads — the classic
+     *  `ShareWidget` wrote all eleven on every single click (`updateSelectionOptions`); this does
+     *  the same on every [updateShareVersesOptions] call. */
+    private fun persistShareVersesOptions(options: ShareVersesOptions) {
+        CommonUtils.settings.apply {
+            setBoolean(SHARE_VERSE_NUMBERS_KEY, options.showVerseNumbers)
+            setBoolean(SHARE_SHOW_ADD_KEY, options.advertiseApp)
+            setBoolean(SHARE_SHOW_REFERENCE_KEY, options.showReference)
+            setBoolean(SHARE_ABBREVIATE_REFERENCE_KEY, options.abbreviateReference)
+            setBoolean(SHARE_SHOW_VERSION_KEY, options.showVersion)
+            setBoolean(SHARE_SHOW_NOTES_KEY, options.showNotes)
+            setBoolean(SHARE_SHOW_SELECTION_ONLY_KEY, options.showSelectionOnly)
+            setBoolean(SHARE_SHOW_ELLIPSIS_KEY, options.showEllipsis)
+            setBoolean(SHARE_SHOW_REFERENCE_AT_FRONT_KEY, options.showReferenceAtFront)
+            setBoolean(SHARE_SHOW_QUOTES_KEY, options.showQuotes)
+            setBoolean(SHARE_SEPARATE_VERSES_NEWLINES_KEY, options.separateVersesWithNewlines)
+        }
+    }
 
     /**
      * The full ChooseDocument screen — `MainBibleActivity.composeChooseDocument`'s classic body,
@@ -1764,6 +1841,20 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     title = activity.getString(R.string.general_book),
                 )
             }
+            is ReadingQuickSheet.Share -> ShareVersesSheet(
+                open = true,
+                title = LocalStrings.current.shareSheetTitle,
+                options = shareVersesOptions,
+                onOptionsChange = ::updateShareVersesOptions,
+                input = sheet.input,
+                onShare = ::shareVersesText,
+                // The clip's invisible description only — the classic ShareWidget used the
+                // selection's (ambient-locale) verse-range name for it; `referenceFull` is the
+                // same JSword call this input already resolved for the "abbreviate reference"
+                // toggle, so no extra JSword lookup is needed here.
+                onCopy = { text -> copyVersesText(text, sheet.input.referenceFull) },
+                onDismiss = ::closeQuickSheet,
+            )
         }
     }
 
@@ -3676,6 +3767,20 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
 
         /** Round 15b: the document quick sheet's last-used TAB ID (never an index — see [restoreQuickDocTab]). */
         private const val QUICK_DOC_TAB_KEY = "document_quick_tab"
+
+        /** Task 26: the verse-share sheet's toggle pref keys — verbatim from the classic
+         *  `ShareWidget`, so an existing user's saved choices carry over unchanged. */
+        private const val SHARE_VERSE_NUMBERS_KEY = "share_verse_numbers"
+        private const val SHARE_SHOW_ADD_KEY = "share_show_add"
+        private const val SHARE_SHOW_REFERENCE_KEY = "share_show_reference"
+        private const val SHARE_ABBREVIATE_REFERENCE_KEY = "share_abbreviate_reference"
+        private const val SHARE_SHOW_VERSION_KEY = "share_show_version"
+        private const val SHARE_SHOW_NOTES_KEY = "show_notes"
+        private const val SHARE_SHOW_SELECTION_ONLY_KEY = "show_selection_only"
+        private const val SHARE_SHOW_ELLIPSIS_KEY = "show_ellipsis"
+        private const val SHARE_SHOW_REFERENCE_AT_FRONT_KEY = "share_show_reference_at_front"
+        private const val SHARE_SHOW_QUOTES_KEY = "share_show_quotes"
+        private const val SHARE_SEPARATE_VERSES_NEWLINES_KEY = "share_separate_verses_newlines"
 
         /** Settings keys shared with the search Activities — see [searchQueries]/[setSearchTranslations]. */
         private const val SEARCH_TRANSLATIONS_KEY = "search_selected_translations"

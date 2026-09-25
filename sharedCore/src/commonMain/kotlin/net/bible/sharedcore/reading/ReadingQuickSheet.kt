@@ -53,4 +53,12 @@ sealed interface ReadingQuickSheet {
         val kind: KeyChooserKind,
         val navigateToVerse: Boolean = false,
     ) : ReadingQuickSheet
+
+    /**
+     * Task 26 (platform-dialog removal, run 3): the verse-share sheet, replacing the classic
+     * `ShareWidget` `AlertDialog`. [input] is captured once per opening — the same per-opening
+     * shape as [KeyChooser] — since it is built from JSword state (`SwordContentFacade
+     * .buildShareVersesInput`) at the moment the user asks to share.
+     */
+    data class Share(val input: ShareVersesInput) : ReadingQuickSheet
 }
