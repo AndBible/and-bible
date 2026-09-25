@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.compose
 
+import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.ai.reading.ReadingLlmDialog
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.settings.ColorField
 import net.bible.sharedcore.settings.SettingsEditorPage
@@ -44,8 +46,10 @@ import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 /**
  * Settings editor sheets T10 — the `:app` host wiring for the reading view's in-place
@@ -252,5 +256,65 @@ class ReadingTextSettingEditorTest {
         host.closeModalOverlays()
 
         assertEquals(0, host.textSettingsEditor.depth, "closeModalOverlays must close the text-settings editor")
+    }
+
+    /**
+     * Controller ruling (2026-09-25, platform-dialog removal Task 18 EXTRA step):
+     * [ComposeReadingViewHost.closeModalOverlays] used to dismiss `readingLlmDialogs` unconditionally
+     * for [net.bible.sharedcore.reading.ReadingOverlay.Llm], which silently dropped a pending LLM
+     * answer -- e.g. free-text instructions the user had already typed into the regenerate-confirm
+     * dialog -- the moment ANY app-wide dialog/sheet opened. `Regenerate` is one of the two
+     * `AlertDialog` arms (`ReadingLlmDialogController`'s `onSheetOpening` kdoc: a dialog over a sheet
+     * is fine, and is not what the exclusion rule is about), so it must survive.
+     */
+    @Test
+    fun closeModalOverlaysDoesNotDismissTheLlmRegenerateConfirm() {
+        val host = host()
+        var regenerateCalls = 0
+        host.readingLlmDialogs.openRegenerate("page-1") { _, _, _, _, _ -> regenerateCalls++ }
+        assertIs<ReadingLlmDialog.Regenerate>(host.readingLlmDialogs.state.value.dialog, "sanity: the confirm is showing")
+
+        host.closeModalOverlays()
+
+        assertIs<ReadingLlmDialog.Regenerate>(
+            host.readingLlmDialogs.state.value.dialog,
+            "closeModalOverlays must not dismiss the regenerate confirm -- a dialog over a sheet is fine",
+        )
+        assertEquals(0, regenerateCalls, "closeModalOverlays must not itself run the regenerate action")
+    }
+
+    /**
+     * The other half of the same fix: `PromptSelector`/`ModelSelection` ARE `ModalBottomSheet`s (the
+     * two arms `ReadingLlmDialogController`'s `onSheetOpening` DOES fire for), exactly what this
+     * exclusion rule is about, so `closeModalOverlays` must keep dismissing them. Reaches
+     * `PromptSelector` through the real built-in prompts (`PromptRepository`/`BuiltInPrompts` ship
+     * several for `VERSE_SELECTION` with no seeding needed), and idles the main looper because
+     * `readingLlmDialogs`' `hostScope` dispatches on `Dispatchers.Main`.
+     */
+    @Test
+    fun closeModalOverlaysStillDismissesTheLlmPromptSelectorSheet() {
+        val host = host()
+        host.readingLlmDialogs.openPromptSelector("VERSE_SELECTION", null) { _, _, _ -> }
+        // openPromptSelector's prompt-group lookup runs on Dispatchers.IO (a real background
+        // thread), so its Main-dispatched state update can land after a single idle() call —
+        // bounded poll, same idiom as ReadingHostSyncAndRestoreEventsTest.returningToForegroundStartsSync.
+        val deadline = System.currentTimeMillis() + 5_000
+        while (host.readingLlmDialogs.state.value.dialog !is ReadingLlmDialog.PromptSelector &&
+            System.currentTimeMillis() < deadline
+        ) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(10)
+        }
+        assertIs<ReadingLlmDialog.PromptSelector>(
+            host.readingLlmDialogs.state.value.dialog,
+            "sanity: the built-in VERSE_SELECTION prompts opened the sheet",
+        )
+
+        host.closeModalOverlays()
+
+        assertEquals(
+            ReadingLlmDialog.None, host.readingLlmDialogs.state.value.dialog,
+            "closeModalOverlays must still dismiss a sheet-shaped picker",
+        )
     }
 }

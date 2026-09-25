@@ -176,6 +176,7 @@ import net.bible.service.sword.nameWithoutDocument
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.agentPanelHeight
+import net.bible.sharedcore.ai.reading.ReadingLlmDialog
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogController
 import net.bible.sharedcore.ai.reading.ReadingLlmDialogState
 import net.bible.sharedcore.ai.reading.ReadingLlmService
@@ -564,10 +565,21 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * [showTextSettingEditor] and [showSpeakSettings]) and by [closeModalOverlays] (spec Task 5,
      * `AppDialogOverlay`'s `onSheetOpening`), instead of repeating the same four-way `when` at each
      * call site.
+     *
+     * **[ReadingOverlay.Llm] only dismisses the two SHEET-shaped arms.** `readingLlmDialogs`'
+     * `PromptSelector`/`ModelSelection` are `ModalBottomSheet`s and are exactly what this exclusion
+     * rule is about; `SpecifyBeforeRun`/`Regenerate` are plain `AlertDialog`s, and
+     * `ReadingOverlayExclusion`'s own kdoc says a dialog over a sheet is fine — unconditionally
+     * dismissing them here (platform-dialog removal Task 18's fix) used to silently drop a pending
+     * LLM answer (e.g. free-text instructions the user had already typed) the moment ANY other
+     * overlay/sheet opened, including an unrelated app-wide one via [closeModalOverlays].
      */
     private fun closeOverlay(overlay: ReadingOverlay) {
         when (overlay) {
-            ReadingOverlay.Llm -> readingLlmDialogs.dismiss()
+            ReadingOverlay.Llm -> when (readingLlmDialogs.state.value.dialog) {
+                is ReadingLlmDialog.PromptSelector, is ReadingLlmDialog.ModelSelection -> readingLlmDialogs.dismiss()
+                is ReadingLlmDialog.None, is ReadingLlmDialog.SpecifyBeforeRun, is ReadingLlmDialog.Regenerate -> Unit
+            }
             ReadingOverlay.SpeakSheet -> speakSheet.close()
             ReadingOverlay.TextSettingsEditor -> textSettingsEditor.close()
             ReadingOverlay.QuickSheet -> closeQuickSheet()
