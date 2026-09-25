@@ -823,6 +823,28 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     }
 
     /**
+     * [ReadingQuickSheet.Share]'s `onShare`/`onCopy` wiring (I3, run 3 final-review fix wave): the
+     * classic `ShareWidget` dialog's Share and Copy were `AlertDialog` buttons, which dismiss the
+     * dialog on click -- these wrap [shareVersesText]/[copyVersesText] with [closeQuickSheet] to
+     * restore that. Without it the sheet stayed open after the share chooser returned, or after
+     * Copy's toast, across all three entry points (selection menu, bookmark share, JS share).
+     *
+     * `internal`, not private lambdas inlined at the `QuickSheetSlot` call site, purely so
+     * `ComposeReadingViewHostTest` can pin the close-after-action behaviour directly -- an open
+     * `ModalBottomSheet` must never be idled in a Robolectric test (this run's "Hang protection"
+     * rule), so the wiring has to be reachable without rendering the sheet.
+     */
+    internal fun shareVersesTextAndCloseSheet(text: String) {
+        shareVersesText(text)
+        closeQuickSheet()
+    }
+
+    internal fun copyVersesTextAndCloseSheet(text: String, clipLabel: String?) {
+        copyVersesText(text, clipLabel)
+        closeQuickSheet()
+    }
+
+    /**
      * The document quick sheet's three tabs, built from the same inputs the full ChooseDocument
      * screen uses (spec §4.5).
      *
@@ -1913,12 +1935,12 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 options = shareVersesOptions,
                 onOptionsChange = ::updateShareVersesOptions,
                 input = sheet.input,
-                onShare = ::shareVersesText,
+                onShare = ::shareVersesTextAndCloseSheet,
                 // The clip's invisible description only — the classic ShareWidget used the
                 // selection's (ambient-locale) verse-range name for it; `referenceFull` is the
                 // same JSword call this input already resolved for the "abbreviate reference"
                 // toggle, so no extra JSword lookup is needed here.
-                onCopy = { text -> copyVersesText(text, sheet.input.referenceFull) },
+                onCopy = { text -> copyVersesTextAndCloseSheet(text, sheet.input.referenceFull) },
                 onDismiss = ::closeQuickSheet,
             )
             is ReadingQuickSheet.ReadHistory -> {

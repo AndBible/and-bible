@@ -30,6 +30,9 @@ import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.progress.ReadHistoryEntry
 import net.bible.sharedcore.progress.ReadingProgressService
+import net.bible.sharedcore.reading.ReadingQuickSheet
+import net.bible.sharedcore.reading.ShareVersesEntry
+import net.bible.sharedcore.reading.ShareVersesInput
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedcore.speak.SpeakSheetPage
@@ -891,6 +894,53 @@ class ReadingDialogHostTest {
 
         assertNotNull(host.speakHelp.value)
         assertEquals(SpeakSheetPage.Settings, host.speakSheet.current, "the help dialog must not close the sheet underneath it")
+    }
+
+    private val shareInput = ShareVersesInput(
+        verses = listOf(ShareVersesEntry(1, "In the beginning God created the heaven and the earth.")),
+        startOffset = 0,
+        endOffset = null,
+        referenceAbbreviated = "Gen 1:1",
+        referenceFull = "Genesis 1:1",
+        versionAbbreviation = "KJV",
+        notesText = null,
+        advertiseText = "Shared from AndBible Bible Study (https://andbible.github.io)",
+        hasRange = false,
+    )
+
+    /**
+     * I3 (run 3 final review): the classic `ShareWidget` `AlertDialog`'s Share/Copy buttons
+     * dismissed the dialog on click; `ReadingQuickSheet.Share`'s equivalents must too, unlike the
+     * port's regression where the sheet stayed open after either action. Exercises
+     * `shareVersesTextAndCloseSheet`/`copyVersesTextAndCloseSheet` directly (the same functions
+     * `QuickSheetSlot`'s `is ReadingQuickSheet.Share ->` arm wires `onShare`/`onCopy` to) rather
+     * than rendering the sheet -- an open `ModalBottomSheet` must never be idled in a Robolectric
+     * test (this run's "Hang protection" rule).
+     */
+    @Test fun shareClosesTheQuickSheetAfterFiringTheShareChooser() {
+        val host = host()
+        host.showShareSheet(shareInput)
+        assertIs<ReadingQuickSheet.Share>(host.quickSheet.value, "sanity: the share sheet is open")
+
+        host.shareVersesTextAndCloseSheet("Gen 1:1 KJV In the beginning...")
+
+        assertNull(host.quickSheet.value, "Share must close the sheet, like the old dialog's Share button did")
+        val started = shadowOf(activity).nextStartedActivity
+        assertNotNull(started, "the share chooser must still fire")
+        assertEquals(android.content.Intent.ACTION_CHOOSER, started.action)
+    }
+
+    @Test fun copyClosesTheQuickSheetAfterCopyingToTheClipboard() {
+        val host = host()
+        host.showShareSheet(shareInput)
+        assertIs<ReadingQuickSheet.Share>(host.quickSheet.value, "sanity: the share sheet is open")
+
+        host.copyVersesTextAndCloseSheet("Gen 1:1 KJV In the beginning...", shareInput.referenceFull)
+
+        assertNull(host.quickSheet.value, "Copy must close the sheet, like the old dialog's Copy button did")
+        val clipboard = ApplicationProvider.getApplicationContext<android.content.Context>()
+            .getSystemService(android.content.ClipboardManager::class.java)
+        assertEquals("Gen 1:1 KJV In the beginning...", clipboard.primaryClip?.getItemAt(0)?.text)
     }
 }
 
