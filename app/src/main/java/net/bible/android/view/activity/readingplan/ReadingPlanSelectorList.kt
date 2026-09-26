@@ -28,6 +28,7 @@ import android.view.View
 import android.widget.AdapterView.AdapterContextMenuInfo
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import androidx.activity.result.contract.ActivityResultContracts
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ListBinding
@@ -35,6 +36,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.android.view.activity.installzip.InstallZip
 import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.readingplan.ReadingPlanInfoDto
 
@@ -44,7 +46,7 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class ReadingPlanSelectorList : ListActivityBase() {
+class ReadingPlanSelectorList : ListActivityBase(R.menu.reading_plan_selector) {
 
     private lateinit var mReadingPlanList: List<ReadingPlanInfoDto>
     private lateinit var mPlanArrayAdapter: ArrayAdapter<ReadingPlanInfoDto>
@@ -128,11 +130,30 @@ class ReadingPlanSelectorList : ListActivityBase() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.import_reading_plan -> {
+                importPlanLauncher.launch("application/zip")
+                true
+            }
             android.R.id.home -> {
                 finish()
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private val importPlanLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uriResult ->
+        Log.i(TAG, "Importing plan. Result uri is${if (uriResult != null) " not" else ""} null")
+        val uri = uriResult ?: return@registerForActivityResult
+
+        val intent = Intent(Intent.ACTION_VIEW, uri, this, InstallZip::class.java)
+        installZipLauncher.launch(intent)
+    }
+
+    private val installZipLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            // Refresh list so newly imported plans are immediately selectable
+            recreate()
         }
     }
 
