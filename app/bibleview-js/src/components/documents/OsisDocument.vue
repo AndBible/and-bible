@@ -60,7 +60,7 @@ import FeaturesLink from "@/components/FeaturesLink.vue";
 import OpenAllLink from "@/components/OpenAllLink.vue";
 import {useCommon, useReferenceCollector} from "@/composables";
 import {androidKey, customCssKey, globalBookmarksKey, osisDocumentInfoKey, referenceCollectorKey} from "@/types/constants";
-import {computed, inject, provide, ref} from "vue";
+import {computed, inject, onBeforeUnmount, onMounted, provide, ref} from "vue";
 import {useStrings} from "@/composables/strings";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faEdit} from "@fortawesome/free-solid-svg-icons";
@@ -69,6 +69,7 @@ import {useBookmarks} from "@/composables/bookmarks";
 import {setupEventBusListener} from "@/eventbus";
 import {TextContentType} from "@/types/client-objects";
 import {useInlineActionIcons} from "@/composables/inline-action-icons";
+import {enhanceMyDocumentTasks} from "@/composables/mydocument-tasks.mts";
 
 const props = defineProps<{ document: OsisDocument }>();
 
@@ -122,6 +123,40 @@ const editMode = ref(false);
 const editContent = ref<string>("");
 const editContentType = ref<TextContentType>("MARKDOWN");
 const editPageId = ref<string>("");
+
+let pendingSave: ReturnType<typeof setTimeout> | null = null;
+let pendingContent: string | null = null;
+let taskPageId: string | null = null;
+
+function flushTaskSave() {
+    if (pendingSave !== null) clearTimeout(pendingSave);
+    pendingSave = null;
+    if (pendingContent !== null && taskPageId) {
+        android.saveMyDocumentPageContent(bookInitials, taskPageId, pendingContent, null);
+        pendingContent = null;
+    }
+}
+
+onMounted(async () => {
+    if (!isMyDocument) return;
+    const root = document.getElementById(`doc-${id}`)?.querySelector<HTMLElement>(".mydoc-markdown");
+    if (!root) return;
+    let info;
+    try {
+        info = await android.getMyDocumentPageRawContent(bookInitials, osisRef);
+    } catch {
+        return; // Leave the server-rendered Markdown as-is when the source is unavailable.
+    }
+    if (!root.isConnected || info?.contentType !== "MARKDOWN" || !info.pageId) return;
+    taskPageId = info.pageId;
+    enhanceMyDocumentTasks(root, info.content, content => {
+        pendingContent = content;
+        if (pendingSave !== null) clearTimeout(pendingSave);
+        pendingSave = setTimeout(flushTaskSave, 200);
+    });
+});
+
+onBeforeUnmount(flushTaskSave);
 
 async function startEditing() {
     const info = await android.getMyDocumentPageRawContent(bookInitials, osisRef);
