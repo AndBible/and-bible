@@ -29,6 +29,7 @@ import android.content.pm.ResolveInfo
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
+import android.os.SystemClock
 import android.os.Bundle
 import android.os.Looper
 import android.text.TextUtils
@@ -1724,6 +1725,32 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         pageTiltScroller.recalculateViewingPosition()
 
         return handled
+    }
+
+    /**
+     * Cancels any in-flight fling, as putting a finger on the page does.
+     *
+     * The passage finder overlays the reader and consumes touches, so the WebView never
+     * learns the user has pinned a finger down and would otherwise keep gliding beneath
+     * it. Handing it a synthetic down-then-cancel gives exactly the signal a real touch
+     * would: the down stops the fling, and the cancel means no tap, text selection or
+     * gesture is synthesised from it. Delivered straight to the WebView's own handler so
+     * it bypasses the OnTouchListener, and with it the gesture detector that would
+     * otherwise see a stray press.
+     */
+    fun stopScrolling() {
+        val now = SystemClock.uptimeMillis()
+        val x = width / 2f
+        val y = height / 2f
+        val down = MotionEvent.obtain(now, now, MotionEvent.ACTION_DOWN, x, y, 0)
+        val cancel = MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, x, y, 0)
+        try {
+            super.onTouchEvent(down)
+            super.onTouchEvent(cancel)
+        } finally {
+            down.recycle()
+            cancel.recycle()
+        }
     }
 
     fun scroll(forward: Boolean, scrollAmount: Int): Boolean {

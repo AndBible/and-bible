@@ -99,6 +99,7 @@ import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.PageControl
+import net.bible.android.view.activity.passagefinder.PassageFinderLauncher
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.report.ErrorReportControl
@@ -220,6 +221,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var documentViewManager: DocumentViewManager
     lateinit var bibleViewFactory: BibleViewFactory
     private lateinit var mainMenuCommandHandler: MenuCommandHandler
+    lateinit var passageFinderLauncher: PassageFinderLauncher
 
     val llmDialogHelper = LlmDialogHelper(this)
 
@@ -321,6 +323,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
 
         CommonUtils.buildActivityComponent().inject(this)
+
+        passageFinderLauncher = PassageFinderLauncher(this, navigationControl, pageControl).apply {
+            onNoBooks = {
+                pageControl.currentPageManager.currentPage.startKeyChooser(this@MainBibleActivity)
+            }
+        }
 
         windowRepository = WindowRepository(lifecycleScope)
         windowControl.windowRepository = windowRepository
@@ -758,7 +766,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
 
             override fun onSingleTapUp(e: MotionEvent): Boolean {
-                pageControl.currentPageManager.currentPage.startKeyChooser(this@MainBibleActivity)
+                // The tap position anchors the finder's strips under the thumb that opened
+                // it, which on a landscape screen is the difference between reaching the
+                // widget and not.
+                val passageFinderShown = CommonUtils.settings.getBoolean("passage_finder_enabled", false)
+                    && passageFinderLauncher.show(e.rawX)
+                if (!passageFinderShown) {
+                    // Fall back to the legacy key chooser when the passage finder is
+                    // disabled or refused to open (e.g. the active module has no books).
+                    pageControl.currentPageManager.currentPage.startKeyChooser(this@MainBibleActivity)
+                }
                 return true
             }
 
@@ -774,6 +791,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed $fullScreen")
+        if (passageFinderLauncher.isVisible) {
+            passageFinderLauncher.hide()
+            return
+        }
         if(fullScreen) {
             toggleFullScreen()
             return
@@ -1274,6 +1295,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     fun onEventMainThread(passageEvent: CurrentVerseChangedEvent) {
         if(paused) return
         updateTitle()
+        // Keep an open passage finder pointing at whatever the reader is showing, so one
+        // opened mid-scroll follows the text rather than freezing on a stale reference.
+        passageFinderLauncher.onCurrentVerseChanged()
     }
 
     fun onEventMainThread(event: CloudSyncEvent) {
@@ -2236,6 +2260,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView.asView().requestFocus()
+
+        // Read the active module's book list ahead of time so tapping the title opens the
+        // passage finder on real content instead of a placeholder. Posted so it queues
+        // behind the work of actually getting back on screen, and cheap when already warm.
+        if (CommonUtils.settings.getBoolean("passage_finder_enabled", false)) {
+            binding.root.post { passageFinderLauncher.warmUp() }
+        }
 
         // Check for pending AI agent results that completed while app was backgrounded
         handlePendingAgentResult()

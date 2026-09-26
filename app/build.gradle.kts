@@ -278,7 +278,12 @@ android {
 
         create("github") {
             dimension = dimDistributionChannelName
-            minSdk = 21
+            // Brought in line with every other flavor, which already default to 23.
+            // At 21 this flavor was only nominally supported: the app calls API 23 APIs
+            // unguarded in several places that predate this branch (Context#getColor in
+            // the AI log adapter and settings screens among them), so lint fails and
+            // those screens would throw on Android 5.x.
+            minSdk = 23
         }
 
         create("accrescent") {
@@ -425,6 +430,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.14.0")
+
     implementation("net.objecthunter:exp4j:0.4.8")
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
     implementation("org.yaml:snakeyaml:2.2")
@@ -499,6 +505,7 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest-library:2.2")
     testImplementation("org.mockito:mockito-core:3.12.4")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${coroutinesVersion}")
 
     // Android instrumentation testing
 
