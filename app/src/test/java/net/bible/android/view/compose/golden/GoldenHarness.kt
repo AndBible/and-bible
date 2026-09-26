@@ -21,6 +21,7 @@ import net.bible.service.common.DisplayColorMode
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.theme.AbTheme
 import net.bible.sharedui.theme.LocalSystemBarSync
+import net.bible.test.resetComposeUiDispatcher
 
 /** The four LTR golden renders (theme modes). The RTL check is a separate Arabic-locale capture. */
 enum class GoldenMode(
@@ -68,6 +69,15 @@ private fun capture(
     // already exercises the tightest layout case; a per-test `qualifiers = "w320dp"` changes
     // nothing and only looks like it does (round-10a Task 6, fix round 5 -- a whole extra golden
     // was recorded on that false premise before this comment existed).
+    //
+    // Re-arm Compose's JVM-static UI dispatcher first. An earlier test in the same JVM that ended
+    // with a trampoline/frame dispatch pending leaves it stuck (see resetComposeUiDispatcher's kdoc),
+    // and then the capture happens before anything that needs a post-first-composition pass --
+    // a LaunchedEffect load, an onTextLayout-driven chevron -- so the image comes out poorer than the
+    // golden. That was the "first-capture drift" seen only in full-suite runs: bisected 2026-09-26 to
+    // ReadingHostResumeReconciliationTest / ReadingHostSyncAndRestoreEventsTest, each of which alone
+    // turned the next golden class red.
+    resetComposeUiDispatcher()
     captureRoboImage(
         path,
         roborazziComposeOptions = RoborazziComposeOptions {
