@@ -22,7 +22,6 @@
 /projectFilesBackup/
 /app/src/main/assets/web/bibleview-js/
 /tmp/
-/ai-local/
 /wiki/
 /readthedocs/
 /.playwright-mcp/
@@ -46,3 +45,4 @@ hooks
 objects
 refs
 /.kotlin/
+/.setup-markers/
