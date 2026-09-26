@@ -145,6 +145,7 @@ import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
@@ -1497,6 +1498,32 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private val isActive get() = windowControl.activeWindow.id == window.id
 
+    /** True when a dedicated links window is currently visible showing a
+     *  Strong's / lexicon definition (see [windowShowsStrongsDefinition]). Used by
+     *  the Vue side to switch the open definition on a subsequent Strong's tap. */
+    private val strongsLinkOpen get() =
+        windowControl.windowRepository.visibleWindows.any {
+            it.isLinksWindow && windowShowsStrongsDefinition(it)
+        }
+
+    /**
+     * A links window shows a Strong's/lexicon definition when either its current document is a
+     * dictionary (single Strong's link) or its current key references a dictionary book (the
+     * "Definition & Morphology" case, which loads a multi-document combining lexicon + morphology).
+     * Cross-reference multi-documents reference Bible books, so they are correctly excluded.
+     */
+    private fun windowShowsStrongsDefinition(w: Window): Boolean {
+        val page = w.pageManager.currentPage
+        if (page.currentDocument?.bookCategory == BookCategory.DICTIONARY) return true
+        return keyReferencesDictionary(page.key)
+    }
+
+    private fun keyReferencesDictionary(key: Key?): Boolean = when (key) {
+        is BookAndKey -> key.document?.bookCategory == BookCategory.DICTIONARY
+        is BookAndKeyList -> key.any { keyReferencesDictionary(it) }
+        else -> false
+    }
+
     private fun updateActive() =
         executeJavascriptOnUiThread("""bibleView.emit('set_active', {isActive: $isActive, hasActiveIndicator: $hasActiveIndicator})""")
 
@@ -1520,12 +1547,15 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val colorEinkMode = CommonUtils.settings.colorEinkMode
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
+        val highlightStrongsWord = CommonUtils.settings.highlightStrongsWord
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()},
                     appSettings: {
                         activeWindow: $isActive,
+                        strongsLinkOpen: $strongsLinkOpen,
+                        highlightStrongsWord: $highlightStrongsWord,
                         isBottomWindow: $isBottomWindow,
                         hasActiveIndicator: $hasActiveIndicator,
                         nightMode: $nightMode,

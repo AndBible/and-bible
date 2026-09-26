@@ -87,6 +87,8 @@ import {
     getEventVerseInfo,
     getHighestPriorityEventFunctions,
     isBottomHalfClicked,
+    findStrongsSwitchCallback,
+    findWordHighlightOnMenu,
 } from "@/utils";
 import AmbiguousSelectionBookmarkButton from "@/components/modals/AmbiguousSelectionBookmarkButton.vue";
 import {emit, setupEventBusListener} from "@/eventbus";
@@ -329,6 +331,20 @@ async function handle(event: MouseEvent) {
     }
     multiSelectionMode.value = false;
 
+    // A Strong's definition window is open: a tap on a Strong's word switches the
+    // open definition immediately, skipping the ambiguous-selection menu.
+    const strongsSwitch = findStrongsSwitchCallback(allEventFunctions, appSettings.strongsLinkOpen);
+    if (strongsSwitch) {
+        strongsSwitch();
+        close();
+        return;
+    }
+
+    // When opening the menu for a Strong's tap, highlight only the tapped word
+    // (replacing the whole-verse highlight) so it is clear which word's definition
+    // the lexicon action applies to. Null for plain/bookmark-only taps (verse highlight kept).
+    const highlightWordOnMenu = findWordHighlightOnMenu(allEventFunctions, appSettings.highlightStrongsWord);
+
     if (eventFunctions.length > 0 || _verseInfo != null || _ordinalInfo != null) {
         const firstFunc = eventFunctions[0];
         if (
@@ -350,10 +366,12 @@ async function handle(event: MouseEvent) {
                 }
             } else if (_verseInfo) {
                 setInitialVerse(_verseInfo);
+                highlightWordOnMenu?.();
                 const s = await select(event, allEventFunctions);
                 if (s && s.type === "callback" && s.callback) s.callback();
             } else if (_ordinalInfo) {
                 setInitialOrdinal(_ordinalInfo);
+                highlightWordOnMenu?.();
                 const s = await select(event, allEventFunctions);
                 if (s && s.type === "callback" && s.callback) s.callback();
             }

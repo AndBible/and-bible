@@ -429,6 +429,38 @@ export function getAllEventFunctions(event: EventWithEventFunctions): Callback[]
     return sortBy(all, [v => -v.options.priority, v => v.options.title]);
 }
 
+/**
+ * When a Strong's definition window is open, a tap on a word carrying a Strong's
+ * number should switch the open definition to that word directly, bypassing the
+ * ambiguous-selection menu. Returns the Strong's callback to fire, or null when
+ * no switch should happen (window closed, or no Strong's candidate under the tap).
+ */
+export function findStrongsSwitchCallback(
+    allEventFunctions: Callback[],
+    strongsLinkOpen: boolean
+): Nullable<() => void> {
+    if (!strongsLinkOpen) return null;
+    const strongsFunc = allEventFunctions.find(e => e.options.strongs);
+    return strongsFunc?.callback ?? null;
+}
+
+/**
+ * When the ambiguous-selection menu opens for a tap that carries a Strong's number,
+ * highlight only the tapped word (instead of the whole verse) to make clear which
+ * word's definition the lexicon action applies to. Gated by the "Strong's tap
+ * highlight" setting. Returns the word-highlight function supplied by the tapped word
+ * (W.vue), or null when the setting is off or the tap has no Strong's candidate
+ * (plain word / bookmark-only) — in which case the whole-verse highlight is kept.
+ */
+export function findWordHighlightOnMenu(
+    allEventFunctions: Callback[],
+    highlightStrongsWord: boolean
+): Nullable<() => void> {
+    if (!highlightStrongsWord) return null;
+    const strongsFunc = allEventFunctions.find(e => e.options.strongs);
+    return strongsFunc?.options?.highlightWord ?? null;
+}
+
 export function draggableElement(element: HTMLElement, dragHandle: HTMLElement) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
