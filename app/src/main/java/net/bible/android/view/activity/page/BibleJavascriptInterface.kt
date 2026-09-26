@@ -475,6 +475,15 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun copyText(text: String) {
+        scope.launch(Dispatchers.Main) {
+            CommonUtils.copyToClipboard(
+                ClipData.newPlainText(bibleView.context.getString(R.string.app_name), text)
+            )
+        }
+    }
+
+    @JavascriptInterface
     fun addBookmark(bookInitials: String, startOrdinal: Int, endOrdinal: Int, addNote: Boolean) {
         bibleView.makeBookmark(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)), true, addNote)
     }
