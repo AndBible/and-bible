@@ -89,6 +89,9 @@ class ModuleBackupRoundTripTest {
             Books.installed().removeBook(b)
         }
         File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR).deleteRecursively()
+        // Room connections are also process-global under Robolectric — same reset as
+        // PromptCsvUtilsTest, else later tests hit stale connection pointers.
+        net.bible.test.DatabaseResetter.resetDatabase()
     }
 
     /**

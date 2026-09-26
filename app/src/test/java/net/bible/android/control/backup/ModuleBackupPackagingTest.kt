@@ -27,6 +27,8 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
+import net.bible.test.DatabaseResetter.resetDatabase
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -56,6 +58,11 @@ import java.util.zip.ZipFile
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ModuleBackupPackagingTest {
+    @After
+    fun tearDown() {
+        resetDatabase()
+    }
+
     private fun fakeBook(initials: String, conf: String): Book {
         val bmd = SwordBookMetaData(conf.toByteArray(), initials)
         return SwordBook(bmd, NullBackend())
