@@ -28,14 +28,13 @@ import android.text.format.DateFormat
 import android.text.format.DateUtils
 import android.text.style.RelativeSizeSpan
 import android.text.style.SuperscriptSpan
-import android.util.TypedValue
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.HorizontalScrollView
 import android.widget.GridLayout
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -78,9 +77,7 @@ class ReadingProgressActivity : ActivityBase() {
 
     /** Secondary text color from current theme (adapts to light/dark/monochrome). */
     private val secondaryTextColor: Int by lazy {
-        val tv = TypedValue()
-        theme.resolveAttribute(android.R.attr.textColorSecondary, tv, true)
-        if (tv.resourceId != 0) getColor(tv.resourceId) else tv.data
+        themeColor(android.R.attr.textColorSecondary, Color.GRAY)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -661,13 +658,14 @@ class ReadingProgressActivity : ActivityBase() {
                 addView(TextView(context).apply {
                     this.text = formatRelativeTime(memorizedAt)
                     textSize = 11f
-                    setTextColor(Color.GRAY)
+                    setTextColor(secondaryTextColor)
                 })
             })
 
             addView(TextView(context).apply {
                 this.text = "\u00D7"
                 textSize = 18f
+                setTextColor(secondaryTextColor)
                 setPadding(dp8, 0, dp8, 0)
                 setOnClickListener {
                     AlertDialog.Builder(this@ReadingProgressActivity)
@@ -716,13 +714,14 @@ class ReadingProgressActivity : ActivityBase() {
                     addView(TextView(context).apply {
                         this.text = formatRelativeTime(createdAt)
                         textSize = 11f
-                        setTextColor(Color.GRAY)
+                        setTextColor(secondaryTextColor)
                     })
                 })
 
                 addView(TextView(context).apply {
                     this.text = "\u00D7"
                     textSize = 18f
+                    setTextColor(secondaryTextColor)
                     setPadding(dp8, 0, dp8, 0)
                     setOnClickListener {
                         AlertDialog.Builder(this@ReadingProgressActivity)

@@ -26,6 +26,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +37,7 @@ import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.progress.ProgressControl.ChapterReadEntry
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
-import net.bible.android.view.activity.progress.ReadingProgressColors.COLOR_HEAT_MAX
+import net.bible.android.view.activity.progress.ReadingProgressColors.COLOR_HEAT_MID
 import org.crosswire.jsword.versification.BibleBook
 import java.util.Date
 
@@ -118,11 +119,14 @@ object ReadHistoryDialog {
         val dp4 = (4 * density).toInt()
         val dp8 = (8 * density).toInt()
         val pendingDeleteIds = mutableSetOf<IdType>()
+        val primaryTextColor = activity.themeColor(android.R.attr.textColorPrimary, Color.BLACK)
+        val secondaryTextColor = activity.themeColor(android.R.attr.textColorSecondary, Color.GRAY)
+        val dividerColor = ColorUtils.setAlphaComponent(secondaryTextColor, 0x40)
 
         fun updateDeleteRowState(row: LinearLayout, deleteButton: TextView, pendingDelete: Boolean) {
             row.alpha = if (pendingDelete) 0.45f else 1f
             deleteButton.text = if (pendingDelete) "\u21B6" else "\u00D7"
-            deleteButton.setTextColor(if (pendingDelete) COLOR_HEAT_MAX else Color.DKGRAY)
+            deleteButton.setTextColor(if (pendingDelete) COLOR_HEAT_MID else secondaryTextColor)
         }
 
         fun applyPendingDeletes() {
@@ -147,7 +151,7 @@ object ReadHistoryDialog {
                 textSize = 14f
                 gravity = Gravity.CENTER
                 setPadding(dp8, dp8 * 2, dp8, dp8 * 2)
-                setTextColor(Color.GRAY)
+                setTextColor(secondaryTextColor)
             })
         } else {
             for (entry in entries) {
@@ -177,11 +181,12 @@ object ReadHistoryDialog {
                     addView(TextView(activity).apply {
                         text = primaryText
                         textSize = 16f
+                        setTextColor(primaryTextColor)
                     })
                     addView(TextView(activity).apply {
                         text = secondaryText
                         textSize = 12f
-                        setTextColor(Color.GRAY)
+                        setTextColor(secondaryTextColor)
                     })
                 })
 
@@ -192,7 +197,6 @@ object ReadHistoryDialog {
                     minHeight = dp8 * 6
                     gravity = Gravity.CENTER
                     setPadding(dp8, dp4, dp8, dp4)
-                    setTextColor(Color.DKGRAY)
                     setOnClickListener {
                         val pendingDelete = if (entry.id in pendingDeleteIds) {
                             pendingDeleteIds.remove(entry.id)
@@ -213,7 +217,7 @@ object ReadHistoryDialog {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT, 1
                     ).also { it.setMargins(0, dp4, 0, 0) }
-                    setBackgroundColor(Color.LTGRAY)
+                    setBackgroundColor(dividerColor)
                 })
             }
         }
