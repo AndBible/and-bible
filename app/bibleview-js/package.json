@@ -61,7 +61,7 @@
     "tosource": "~2.0.0-alpha.3",
     "typescript": "~5.8.3",
     "vite": "~7.0.8",
-    "vitest": "~3.2.4",
+    "vitest": "~4.1.0",
     "vue-tsc": "~3.0.1"
   }
 }
