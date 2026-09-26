@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<resources>
+    <string-array name="color_theme_entries">
+        <item>@string/color_theme_custom</item>
+        <item>@string/color_theme_gruvbox</item>
+        <item>@string/color_theme_nord</item>
+        <item>@string/color_theme_solarized</item>
+        <item>@string/color_theme_dracula</item>
+        <item>@string/color_theme_sepia</item>
+        <item>@string/color_theme_catppuccin</item>
+        <item>@string/color_theme_tokyo_night</item>
+        <item>@string/color_theme_one_dark</item>
+        <item>@string/color_theme_monokai</item>
+    </string-array>
+    <string-array name="color_theme_values" translatable="false">
+        <item>custom</item>
+        <item>gruvbox</item>
+        <item>nord</item>
+        <item>solarized</item>
+        <item>dracula</item>
+        <item>sepia</item>
+        <item>catppuccin</item>
+        <item>tokyo_night</item>
+        <item>one_dark</item>
+        <item>monokai</item>
+    </string-array>
+</resources>

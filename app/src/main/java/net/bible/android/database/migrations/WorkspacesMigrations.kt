@@ -302,6 +302,19 @@ private val addBackgroundImage = makeMigration(23..24) { _db ->
     }
 }
 
+private val addColorThemePresets = makeMigration(24..25) { _db ->
+    for (table in listOf("Workspace", "PageManager", "GlobalTextDisplaySettings")) {
+        for (col in listOf(
+            "dayLinkColor", "nightLinkColor",
+            "dayVerseNumberColor", "nightVerseNumberColor",
+            "dayHeadingColor", "nightHeadingColor",
+        )) {
+            _db.execSQL("ALTER TABLE `$table` ADD COLUMN `text_display_settings_colors_$col` INTEGER DEFAULT NULL")
+        }
+        _db.execSQL("ALTER TABLE `$table` ADD COLUMN `text_display_settings_colors_themeName` TEXT DEFAULT NULL")
+    }
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -326,6 +339,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addShowOrdinals,
     addShowReadingProgress,
     addBackgroundImage,
+    addColorThemePresets,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 24
+const val WORKSPACE_DATABASE_VERSION = 25

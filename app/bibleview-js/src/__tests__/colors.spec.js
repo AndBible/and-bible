@@ -17,6 +17,7 @@
 
 
 import {adjustedColor, colorLightness, mixColors} from "@/utils";
+import {resolveThemeAccentColors} from "@/composables/theme-colors";
 import Color from "color";
 import { describe, it, expect } from 'vitest'
 
@@ -44,4 +45,32 @@ describe("myMixColors test", () => {
     it("Test 1 ", () => expect(Color("#FCE6EA").lighten(0.4).hex()).toEqual("#FFFFFF"));
     it("Test 2 ", () => expect(col.lighten(0.6).hex()).toEqual("#FFFFFF"));
     it("Adjusted color 1 ", () => expect(adjustedColor(-1282938, -0.6).hex()).toEqual("#FEF5F7"));
+});
+
+describe("resolveThemeAccentColors", () => {
+    const themed = {
+        dayLinkColor: 0x076678, dayVerseNumberColor: 0x7c6f64, dayHeadingColor: 0xb57614,
+        nightLinkColor: 0x83a598, nightVerseNumberColor: 0xa89984, nightHeadingColor: 0xfabd2f,
+    };
+    it("day mode returns day colors", () => {
+        const r = resolveThemeAccentColors(themed, {nightMode: false, monochromeMode: false});
+        expect(Color(r.linkColor).hex()).toEqual("#076678");
+        expect(Color(r.headingColor).hex()).toEqual("#B57614");
+    });
+    it("night mode returns night colors", () => {
+        const r = resolveThemeAccentColors(themed, {nightMode: true, monochromeMode: false});
+        expect(Color(r.linkColor).hex()).toEqual("#83A598");
+    });
+    it("monochrome suppresses all accents", () => {
+        const r = resolveThemeAccentColors(themed, {nightMode: false, monochromeMode: true});
+        expect(r.linkColor).toBeNull();
+        expect(r.verseNumberColor).toBeNull();
+        expect(r.headingColor).toBeNull();
+    });
+    it("unset fields return null (fallback to defaults)", () => {
+        const r = resolveThemeAccentColors({}, {nightMode: false, monochromeMode: false});
+        expect(r.linkColor).toBeNull();
+        expect(r.verseNumberColor).toBeNull();
+        expect(r.headingColor).toBeNull();
+    });
 });

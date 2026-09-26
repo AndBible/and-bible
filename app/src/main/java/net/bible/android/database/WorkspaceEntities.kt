@@ -151,6 +151,13 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var nightBackgroundImage: String?,
         @ColumnInfo(defaultValue = "NULL") var dayBackgroundImageOpacity: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightBackgroundImageOpacity: Int?,
+        @ColumnInfo(defaultValue = "NULL") var dayLinkColor: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var nightLinkColor: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var dayVerseNumberColor: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var nightVerseNumberColor: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var dayHeadingColor: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var nightHeadingColor: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var themeName: String? = null,
     ) {
         // This is saved to database in WorkspaceSettings. Here just to get it through to activities in SettingsBundle
         @Ignore var workspaceColor: Int? = null
@@ -180,6 +187,13 @@ class WorkspaceEntities {
                 nightBackgroundImage = override.nightBackgroundImage ?: nightBackgroundImage,
                 dayBackgroundImageOpacity = override.dayBackgroundImageOpacity ?: dayBackgroundImageOpacity,
                 nightBackgroundImageOpacity = override.nightBackgroundImageOpacity ?: nightBackgroundImageOpacity,
+                dayLinkColor = override.dayLinkColor ?: dayLinkColor,
+                nightLinkColor = override.nightLinkColor ?: nightLinkColor,
+                dayVerseNumberColor = override.dayVerseNumberColor ?: dayVerseNumberColor,
+                nightVerseNumberColor = override.nightVerseNumberColor ?: nightVerseNumberColor,
+                dayHeadingColor = override.dayHeadingColor ?: dayHeadingColor,
+                nightHeadingColor = override.nightHeadingColor ?: nightHeadingColor,
+                themeName = override.themeName ?: themeName,
             )
         }
 

@@ -26,6 +26,15 @@
         android:title="@string/color_workspace"
         />
 
+    <ListPreference
+        android:key="color_theme"
+        android:title="@string/color_theme"
+        android:entries="@array/color_theme_entries"
+        android:entryValues="@array/color_theme_values"
+        android:defaultValue=""
+        app:useSimpleSummaryProvider="true"
+        />
+
     <PreferenceCategory
         android:title="@string/colors_day_mode_title"
         >

@@ -49,4 +49,23 @@ class ColorsMergeTest {
         assertEquals(100, colors.dayBackgroundImageOpacity)
         assertEquals(100, colors.nightBackgroundImageOpacity)
     }
+
+    @Test
+    fun mergeFallsBackAccentAndThemePerField() {
+        val base = blank().copy(dayLinkColor = 0x111111, dayVerseNumberColor = 0x222222, themeName = "gruvbox")
+        val override = blank().copy(nightLinkColor = 0x333333, dayHeadingColor = 0x444444)
+        val merged = base.merge(override)
+        assertEquals(0x111111, merged.dayLinkColor)
+        assertEquals(0x333333, merged.nightLinkColor)
+        assertEquals(0x222222, merged.dayVerseNumberColor)
+        assertEquals(0x444444, merged.dayHeadingColor)
+        assertEquals("gruvbox", merged.themeName)
+    }
+
+    @Test
+    fun overrideThemeNameWins() {
+        val base = blank().copy(themeName = "gruvbox")
+        val override = blank().copy(themeName = "nord")
+        assertEquals("nord", base.merge(override).themeName)
+    }
 }
