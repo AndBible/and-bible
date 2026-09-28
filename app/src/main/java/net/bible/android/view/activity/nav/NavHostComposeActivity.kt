@@ -1990,10 +1990,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * whose first statement it has always been: nothing `super.onPause()` reaches reads
      * `ReadingViewVisibility`. Classic needs no reordering of its own — its `onScreenTurnedOff`
      * override goes straight to `documentViewManager`, not through this seam.
+     *
+     * It also saves the window repository to the DB (F93/F94), on every destination, as classic did.
      */
     override fun onPause() {
         ReadingViewVisibility.setActivityVisible(this, false)
         paused = true
+        // Fix batch 1 §2.1 (F93/F94): classic MainBibleActivity.onPause saved here (`47dc2f73f^`
+        // :1872). Every reload path -- a new host, process death, resume-reclaim -- reads the DB, so
+        // without this the last INCIDENTAL save (workspace switch, sync tick) is what comes back.
+        // Saved on every destination: the repository belongs to the host, not to `reading`.
+        if (readingAppBootstrapped) hostWindowRepository.saveIntoDb(false)
         super.onPause()
         // AFTER super: see this method's kdoc -- super.onPause() dispatches onScreenTurnedOff, and
         // that reaches the reading view only while this host is still the foreground one.
