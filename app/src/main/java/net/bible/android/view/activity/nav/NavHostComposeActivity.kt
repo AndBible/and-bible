@@ -1112,6 +1112,21 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     }
 
     /**
+     * Fix batch 1 §2.2 (F94): daily reading's Passage/Reset were classic
+     * `DailyReadingComposeActivity`'s `finish()` -- right when daily reading was its own Activity,
+     * wrong now that it is pushed above `reading` in THIS host, where it closes the reading view's
+     * own host. Pop back to `reading` when it is on the back stack; finish only when this host was
+     * started on the day itself (nothing beneath to return to).
+     */
+    private fun returnToReadingOrFinish() {
+        val controller = navController
+        val readingOnStack = controller?.currentBackStack?.value
+            ?.any { it.destination.route?.substringBefore('?') == NavRoutes.READING } == true
+        if (controller != null && readingOnStack) controller.popBackStack(NavRoutes.READING, inclusive = false)
+        else finish()
+    }
+
+    /**
      * F55: long-press BACK opens the History sheet, classic `MainBibleActivity.onKeyLongPress`.
      *
      * `ActivityBase.onKeyLongPress` (`:282-285`) returns `true` for `KEYCODE_BACK` and does nothing,
@@ -3194,6 +3209,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     internal fun navigateInGraph(route: String) {
         navController?.let { navigateToRoute(it, route) }
     }
+
+    /** Fix batch 1 §2.2 test seam: the daily reading controller the graph built. */
+    @VisibleForTesting
+    internal fun dailyReadingControllerForTest() = checkNotNull(dailyReadingController)
+
+    /** Fix batch 1 test seam: the graph's current destination route (with its argument template). */
+    @VisibleForTesting
+    internal fun currentRouteForTest(): String? = navController?.currentDestination?.route
 
     /**
      * A WELCOME-started host (uninitialised, spec §3.1 rule 2) initialises the app AND its window when a flow
@@ -6307,7 +6330,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             // super.intentForHistoryList — the argument-free route, i.e. the wrong day. The two
             // halves of the seam only ever move together, through setHistoryRoute.
             readingPlanControl.read(dayLoaded, readingNo, key)
-            finish()
+            returnToReadingOrFinish()
         },
         onSpeak = { readingNo ->
             val dto = readingsDto ?: return@DailyReadingController
@@ -6328,7 +6351,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         onReset = {
             val code = planCodeLoaded
             if (code.isNullOrEmpty()) dailyReadingController?.showError()
-            else { readingPlanControl.reset(code); finish() }
+            else { readingPlanControl.reset(code); returnToReadingOrFinish() }
         },
         onSetStartDate = { showReadingPlanStartDatePicker() },
         onConfirmStartDate = { year, month1to12, day -> confirmReadingPlanStartDate(year, month1to12, day) },
