@@ -623,8 +623,8 @@ class BibleView(
 
     val scope get() = host.lifecycleScope
 
-    internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.IO) {
-        val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
+    internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.Main) {
+        val labels = withContext(Dispatchers.IO) { bookmarkControl.labelsForBookmark(bookmark).map { it.id } }
         // Screen.ManageLabels is deliberately not in ScreenLauncher.MIGRATED (its `data` argument is
         // required), and the classic ManageLabelsComposeActivity ScreenLauncher.targetFor used to
         // resolve it to is gone (nav-graph slices 2+4 Task 7), so this builds the nav-host Intent
@@ -641,7 +641,7 @@ class BibleView(
         if(result.resultCode == Activity.RESULT_OK) {
             val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
             bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
-            bookmarkControl.addOrUpdateBookmark(bookmark, resultData.selectedLabels)
+            withContext(Dispatchers.IO) { bookmarkControl.addOrUpdateBookmark(bookmark, resultData.selectedLabels) }
             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
         }
     }

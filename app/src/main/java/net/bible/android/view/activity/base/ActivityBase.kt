@@ -43,10 +43,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.comingFromStartupActivity
 import net.bible.android.view.Screen
@@ -455,13 +457,18 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
     }
 
-    suspend fun awaitIntent(intent: Intent) : ActivityResult
-    {
+    /**
+     * Fix batch 1 §2.3 (F99): always on Main. Callers await from any dispatcher (BibleView's
+     * assignLabels ran on IO), but everything below is main-thread state: `resultByCode` and
+     * `currentCode` are plain fields, and since F53 (`aca478714`) a self-launch here is a
+     * `NavController.navigate`, which asserts the main thread.
+     */
+    suspend fun awaitIntent(intent: Intent): ActivityResult = withContext(Dispatchers.Main.immediate) {
         val activityResult = CompletableDeferred<ActivityResult>()
         val resultCode = currentCode++
         resultByCode[resultCode] = activityResult
         startActivityForResult(intent, resultCode + ASYNC_REQUEST_CODE_START)
-        return activityResult.await()
+        activityResult.await()
     }
 
     protected val preferences get() = CommonUtils.settings
