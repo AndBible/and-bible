@@ -901,6 +901,7 @@ object CommonUtils : CommonUtilsBase() {
                     dismissText = application.getString(R.string.cancel),
                     neutralText = application.getString(R.string.show_unlock_info),
                     cancellable = false,
+                    draftKey = "unlock:${book.initials}",
                 ),
             )
             val passphrase: String? = when (answer) {

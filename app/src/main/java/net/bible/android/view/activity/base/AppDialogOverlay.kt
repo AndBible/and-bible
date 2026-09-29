@@ -110,6 +110,8 @@ fun AppDialogOverlay(onSheetOpening: () -> Unit = {}) {
             askBeforeOpeningLink = CommonUtils.isDiscrete,
             onSheetOpening = onSheetOpening,
             progress = progress,
+            draftFor = dialogs::draft,
+            onDraftChange = dialogs::saveDraft,
         )
     }
 }

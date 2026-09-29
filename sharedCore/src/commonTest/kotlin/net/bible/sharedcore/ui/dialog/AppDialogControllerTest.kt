@@ -143,4 +143,53 @@ class AppDialogControllerTest {
         while (c.pending.value != null) { c.respond(c.pending.value!!.id, AppDialogResult.Ok); count++ }
         assertEquals(200, count)
     }
+
+    private fun unlock(key: String? = "unlock:X") = AppDialogRequest.TextInput(
+        title = "t", message = null, initial = "", confirmText = "ok", dismissText = "no", draftKey = key,
+    )
+
+    @Test fun aDraftIsReadBackForTheSameRequest() {
+        val c = AppDialogController()
+        val id = c.post(unlock())
+        c.saveDraft(id, "halfpass")
+        assertEquals("halfpass", c.draft(id))
+    }
+
+    @Test fun anAnswerClearsTheDraft() {
+        val c = AppDialogController()
+        val id = c.post(unlock())
+        c.saveDraft(id, "halfpass")
+        c.respond(id, AppDialogResult.Cancel)
+        val next = c.post(unlock())
+        assertNull(c.draft(next))
+    }
+
+    /** Review Focus 4a: the caller's cancellation (Activity recreate) keeps it for the NEW request with the same key. */
+    @Test fun aWithdrawnRequestsDraftCarriesToTheNextRequestWithTheSameKey() = runTest {
+        val c = AppDialogController()
+        val job = launch { c.await(unlock()) }
+        testScheduler.advanceUntilIdle()
+        c.saveDraft(c.pending.value!!.id, "halfpass")
+        job.cancel(); testScheduler.advanceUntilIdle()     // recreate: the old coroutine is cancelled
+
+        val next = c.post(unlock())
+        assertEquals("halfpass", c.draft(next))
+    }
+
+    /** Review Focus 4b. */
+    @Test fun cancelAllClearsEveryDraft() {
+        val c = AppDialogController()
+        val id = c.post(unlock())
+        c.saveDraft(id, "halfpass")
+        c.cancelAll()
+        assertNull(c.draft(c.post(unlock())))
+    }
+
+    @Test fun withoutADraftKeyTwoRequestsNeverShare() {
+        val c = AppDialogController()
+        val a = c.post(unlock(key = null))
+        c.saveDraft(a, "x")
+        c.respond(a, AppDialogResult.Cancel)
+        assertNull(c.draft(c.post(unlock(key = null))))
+    }
 }

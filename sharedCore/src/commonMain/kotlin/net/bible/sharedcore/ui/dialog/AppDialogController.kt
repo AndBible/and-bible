@@ -60,6 +60,32 @@ class AppDialogController {
     /** The most recently shown [AppDialogRequest.Progress] still in the queue, or null. */
     val progress: StateFlow<ShownDialog?> = mutableProgress.asStateFlow()
 
+    /**
+     * Fix batch 1 §2.9 (F82/F104): a text request's half-typed value, outliving the composition that
+     * showed it. `AppDialogOverlay` releases rendering on `onStop`, which disposes the field's
+     * `remember`; a recreate even withdraws the request and raises a new one. Keyed by the request's
+     * [AppDialogRequest.TextInput.draftKey] when it has one (so it survives the recreate's NEW
+     * request), else by its id. Cleared by an answer and by [cancelAll], never by a withdrawal of a
+     * keyed request. Guarded by [lock].
+     */
+    private val drafts = HashMap<String, String>()
+
+    private fun draftKeyOf(entry: Entry): String? =
+        (entry.request as? AppDialogRequest.TextInput)?.let { it.draftKey ?: "id:${entry.id}" }
+
+    /** The half-typed text saved for the queued request [id], or null. */
+    fun draft(id: Long): String? = synchronized(lock) {
+        queue.firstOrNull { it.id == id }?.let(::draftKeyOf)?.let(drafts::get)
+    }
+
+    /** Remembers [text] as the half-typed value of the queued request [id] (no-op if it is not queued). */
+    fun saveDraft(id: Long, text: String) {
+        synchronized(lock) {
+            val key = queue.firstOrNull { it.id == id }?.let(::draftKeyOf) ?: return
+            drafts[key] = text
+        }
+    }
+
     /** Raises [request] and suspends until it is answered. Cancelling the caller withdraws it. */
     suspend fun await(request: AppDialogRequest): AppDialogResult {
         val answer = CompletableDeferred<AppDialogResult>()
@@ -87,6 +113,7 @@ class AppDialogController {
             val e = queue.firstOrNull { it.id == id } ?: return
             if (e.request is AppDialogRequest.Progress) return
             queue.remove(e)
+            draftKeyOf(e)?.let(drafts::remove)
             publish()
             e
         }
@@ -98,6 +125,7 @@ class AppDialogController {
         val dropped = synchronized(lock) {
             val all = queue.toList()
             queue.clear()
+            drafts.clear()
             publish()
             all
         }
@@ -114,6 +142,10 @@ class AppDialogController {
 
     private fun remove(id: Long) {
         synchronized(lock) {
+            // A withdrawal keeps a keyed draft for the re-raised request; a key-less one is unreachable.
+            queue.firstOrNull { it.id == id }?.let { e ->
+                if ((e.request as? AppDialogRequest.TextInput)?.draftKey == null) drafts.remove("id:$id")
+            }
             if (queue.removeAll { it.id == id }) publish()
         }
     }

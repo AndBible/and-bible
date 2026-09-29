@@ -102,6 +102,7 @@ fun AbTextInputDialog(
     neutralText: String? = null,
     onNeutral: () -> Unit = {},
     cancellable: Boolean = true,
+    onValueChange: (String) -> Unit = {},
 ) {
     var current by remember { mutableStateOf(initial) }
     AlertDialog(
@@ -111,7 +112,7 @@ fun AbTextInputDialog(
         text = {
             AbTextInputContent(
                 initial = initial,
-                onValueChange = { current = it },
+                onValueChange = { current = it; onValueChange(it) },
                 numeric = numeric,
                 masked = masked,
                 extraContent = extraContent,

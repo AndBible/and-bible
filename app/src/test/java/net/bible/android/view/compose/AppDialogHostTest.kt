@@ -28,6 +28,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
@@ -350,6 +351,38 @@ class AppDialogHostTest {
         state.value = ShownDialog(9, AppDialogRequest.TextInput("B", null, "second", "OK", "Cancel"))
         compose.waitForIdle()
         compose.onNode(hasSetTextAction()).assertTextEquals("second")
+    }
+
+    @Test fun aTextRequestStartsFromItsDraftWhenTheHostHasOne() {
+        compose.setContent {
+            ProvideAppLocals {
+                AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
+                    AppDialogHost(
+                        shown = ShownDialog(7, AppDialogRequest.TextInput("t", null, "", "OK", "Cancel")),
+                        permission = null, onRespond = { _, _ -> }, onPermissionChoice = {}, onPermissionDismiss = {},
+                        onOpenExternal = {}, draftFor = { if (it == 7L) "halfpass" else null },
+                    )
+                }
+            }
+        }
+        compose.onNode(hasSetTextAction()).assertTextEquals("halfpass")
+    }
+
+    @Test fun typingReportsTheDraft() {
+        val drafts = mutableListOf<String>()
+        compose.setContent {
+            ProvideAppLocals {
+                AbTheme(darkTheme = false, colorMode = DisplayColorMode.NORMAL, disableAnimations = true) {
+                    AppDialogHost(
+                        shown = ShownDialog(7, AppDialogRequest.TextInput("t", null, "", "OK", "Cancel")),
+                        permission = null, onRespond = { _, _ -> }, onPermissionChoice = {}, onPermissionDismiss = {},
+                        onOpenExternal = {}, onDraftChange = { _, text -> drafts += text },
+                    )
+                }
+            }
+        }
+        compose.onNode(hasSetTextAction()).performTextInput("ab")
+        assertEquals("ab", drafts.last())
     }
 
     /** C1: a Progress drawn underneath must not block the answerable dialog queued behind it. */

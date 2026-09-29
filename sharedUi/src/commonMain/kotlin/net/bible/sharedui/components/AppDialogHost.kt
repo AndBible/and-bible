@@ -58,6 +58,8 @@ fun AppDialogHost(
     askBeforeOpeningLink: Boolean = false,
     onSheetOpening: () -> Unit = {},
     progress: ShownDialog? = null,
+    draftFor: (Long) -> String? = { null },
+    onDraftChange: (Long, String) -> Unit = { _, _ -> },
 ) {
     AbLinkRouting(askFirst = askBeforeOpeningLink, onOpenExternal = onOpenExternal) {
         if (permission != null) {
@@ -121,14 +123,19 @@ fun AppDialogHost(
                     // passes via remember(initial) alone when the initials differ, so it does not by
                     // itself force this guard red; key(id) is kept as the correct behaviour for the
                     // same-initial case that test does not exercise.
+                    // Fix batch 1 §2.9: read ONCE per composition (remember), so the field's own
+                    // remember(initial) is not reset on every keystroke; the composition is rebuilt
+                    // after onStop, which is exactly when the draft must be read again.
+                    val start = remember { draftFor(id) ?: request.initial }
                     AbTextInputDialog(
-                        title = request.title.orEmpty(), initial = request.initial,
+                        title = request.title.orEmpty(), initial = start,
                         confirmText = request.confirmText, dismissText = request.dismissText,
                         onConfirm = { onRespond(id, AppDialogResult.Text(it)) }, onDismiss = cancel,
                         extraContent = request.message?.let { m -> { AbHtmlText(m) } },
                         numeric = request.numeric, masked = request.masked,
                         neutralText = request.neutralText, onNeutral = { onRespond(id, AppDialogResult.Neutral) },
                         cancellable = request.cancellable,
+                        onValueChange = { onDraftChange(id, it) },
                     )
                 }
                 is AppDialogRequest.Options -> if (request.asActionSheet) {
