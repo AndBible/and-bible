@@ -488,6 +488,19 @@ private fun downloadSeedKey(
     return "$sessionToken|$firstDownload|$downloadRecommended|$addons|${enc(search)}|${enc(documentIds)}"
 }
 
+/**
+ * Fix batch 1 §2.8 (F81/F101): the gate's key is the route's ARGUMENTS only. [downloadSeedKey]'s
+ * session half exists because a recreate rebuilds the session EMPTY and it must be re-seeded
+ * (refresh, auto-download); the user's YES is not session state -- a recreate must not re-ask it.
+ */
+private fun downloadGateKey(
+    firstDownload: Boolean,
+    downloadRecommended: Boolean,
+    search: String?,
+    addons: Boolean,
+    documentIds: String?,
+): String = downloadSeedKey(sessionToken = "", firstDownload, downloadRecommended, search, addons, documentIds)
+
 // ——————————————————————————————————————————————————————————————————————————————————————————————
 // The graph
 // ——————————————————————————————————————————————————————————————————————————————————————————————
@@ -765,13 +778,23 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         // this block is what fills it (`refreshCatalogue`, and on onboarding `onAutoDownload`), so a
         // bare boolean restoring `true` is exactly a blank, unrefreshed catalogue with the
         // onboarding auto-download silently dropped.
+        //
+        // The GATE has its own, argument-only flag (fix batch 1 §2.8, F81/F101): the user's YES is
+        // not session state, so a recreate re-seeds the rebuilt session but does not re-ask an
+        // already-answered gate. Only a YES is remembered; a refusal leaves the screen, and a gate
+        // never answered (recreated while showing) is asked again.
+        val gateKey = downloadGateKey(firstDownload, downloadRecommended, search, addons, documentIds)
+        var gateAnsweredFor by rememberSaveable { mutableStateOf<String?>(null) }
         var ranEntrySetupFor by rememberSaveable { mutableStateOf<String?>(null) }
         LaunchedEffect(seedKey) {
             if (ranEntrySetupFor == seedKey) return@LaunchedEffect
             ranEntrySetupFor = seedKey
-            if (!d.askIfWantToProceed()) {
-                navController.popOrExit(deps.exitHost)
-                return@LaunchedEffect
+            if (gateAnsweredFor != gateKey) {
+                if (!d.askIfWantToProceed()) {
+                    navController.popOrExit(deps.exitHost)
+                    return@LaunchedEffect
+                }
+                gateAnsweredFor = gateKey
             }
             d.requestNotificationPermission()
             // false = do not FORCE a repository re-fetch; the host still honours its own

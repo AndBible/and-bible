@@ -456,9 +456,9 @@ class DownloadInGraphArmTest {
         compose.waitForIdle()
 
         assertEquals(
-            listOf("gate", "permission", "refresh=false", "autoDownload"),
+            listOf("permission", "refresh=false", "autoDownload"),
             calls.filterNot { it.endsWith("+") },
-            "the rebuilt session was left unseeded: the restored one-shots skipped classic's onCreate work",
+            "a recreate must re-seed the rebuilt session but NOT re-ask an already-answered gate -- F81/F101",
         )
         assertEquals(
             """[{"initials":"ESV"}]""" to true,
@@ -466,6 +466,31 @@ class DownloadInGraphArmTest {
             "the onboarding auto-download was silently dropped by the recreation",
         )
         assertEquals("ESV", assertNotNull(controller).query.value, "the route's search seed was not re-applied")
+    }
+
+    /** Review Focus 5: a gate never answered YES (recreated while showing) is asked again, and No still leaves. */
+    @Test
+    fun aRecreateWhileTheGateIsUnansweredAsksAgainAndARefusalLeaves() {
+        gateAnswer = false
+        val tester = setGraphWithStateRestoration(NavRoutes.download())
+        assertEquals(1, exitHostCalls)
+        controller = null; calls.clear()
+
+        tester.emulateSavedInstanceStateRestore()
+        compose.waitForIdle()
+
+        assertEquals(listOf("gate"), calls.filterNot { it.endsWith("+") })
+        assertEquals(2, exitHostCalls)
+    }
+
+    /** Different ARGUMENTS are a different flow: a new route still asks. */
+    @Test
+    fun aDifferentRouteAfterAnAnsweredGateAsksAgain() {
+        setGraph(NavRoutes.download())
+        calls.clear()
+        navigateAsHostWould(NavRoutes.download(search = "ESV"))
+        compose.waitForIdle()
+        assertTrue("gate" in calls)
     }
 
     /**
