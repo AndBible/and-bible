@@ -37,8 +37,6 @@ import android.util.TypedValue
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
@@ -1321,11 +1319,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     // ——— The reading view's window chrome (reading-host re-typing R4) ———————————————————————————
     // This host had NONE of it: no fullscreen bit, no system-bar calls, no NightModeChanged
-    // subscription. [hideSystemUI] and [showSystemUI] below are ported from `MainBibleActivity`
-    // VERBATIM, comments included -- they encode a single-writer rule about status-bar appearance
-    // versus `LocalSystemBarSync` that is easy to "simplify" into a bug. The ONE adaptation is
-    // `windowRepository` -> `windowControl.windowRepository` (twice, in [showSystemUI]): until
-    // slice 7 Task 12 makes this host the launcher, the repository it reads is the one
+    // subscription. Classic's `hideSystemUI`/`showSystemUI` were ported from `MainBibleActivity`; since
+    // fix batch 2 (§2.4) the visibility half of both is [refreshSystemBars] (one decision in
+    // `decideSystemBars`, one writer in `SystemBarController`), and [showSystemUI] keeps only the
+    // nav-bar colour work in [applyReadingNavBarColors]. The one adaptation from classic is
+    // `windowRepository` -> `windowControl.windowRepository` (twice, in [applyReadingNavBarColors]):
+    // until slice 7 Task 12 makes this host the launcher, the repository it reads is the one
     // `MainBibleActivity` created -- which is the object classic read too.
     //
     // R6d fix round 1: the old wording here said this host "has no `windowRepository` field", which
@@ -1478,7 +1477,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** [ReadingHostActivity.applyIdleSystemUi] -- classic's `STATE_IDLE` at slide offset 0, and the
      *  same pair classic's `resetSystemUi`/`updateToolbar` apply. */
     override fun applyIdleSystemUi() {
-        if (fullScreen) hideSystemUI() else showSystemUI()
+        if (fullScreen) refreshSystemBars() else showSystemUI()
     }
 
     /**
@@ -1827,8 +1826,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         )
     }
 
-    private fun hideSystemUI() = refreshSystemBars()
-
     private fun showSystemUI(setNavBarColor: Boolean = true) {
         refreshSystemBars(forceNotFullScreen = true)
         applyReadingNavBarColors(setNavBarColor)
@@ -1868,7 +1865,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                         // No `statusBarColor` write: the Compose seam owns the status bar
-                        // (`LocalSystemBarSync`), same single-writer rule as the appearance mask above.
+                        // (`LocalSystemBarSync`), same single-writer rule as the status-icon policy ([SystemBarController]).
                         navigationBarColor = color
                     }
                 }

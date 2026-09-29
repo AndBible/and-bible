@@ -62,15 +62,30 @@ class SystemBarPolicyHostTest {
         a.navigateInGraph(NavRoutes.AI_TOOL_INFO); idle()
         assertEquals("the nav bar must show on a non-reading destination", false, navHidden(a))
 
-        // Not onBackPressed(): under sdk 29 the dispatcher does not pop this graph (it does at 30).
+        // Not onBackPressed(): at sdk 29 the dispatcher does not pop this graph when the test runs after
+        // others in this class (it does standalone, and at sdk 30 -- see the system-back test below).
         a.navigateInGraph(NavRoutes.READING); idle()
         assertTrue("returned to reading, fullscreen hides it again", navHidden(a))
+    }
+
+    // Review Focus 4, the real return leg: system back from a non-reading destination, fullscreen ON.
+    @Config(sdk = [30])
+    @Test fun systemBackToFullScreenReadingHidesTheNavBarAgain() {
+        val a = host(NavRoutes.READING)
+        a.fullScreen = true
+        a.applyIdleSystemUi()
+        a.navigateInGraph(NavRoutes.AI_TOOL_INFO); idle()
+        assertEquals(true, a.lastAppliedSystemBars?.navVisible)
+        a.onBackPressedDispatcher.onBackPressed(); idle()
+        assertEquals(NavRoutes.READING, a.currentRouteForTest()?.substringBefore('?'))
+        assertEquals("back on reading, fullscreen hides the nav bar again", false, a.lastAppliedSystemBars?.navVisible)
     }
 
     // Review Focus 5: switching the setting OFF while elsewhere shows the bar at once.
     @Test fun turningTheSettingOffAppliesImmediatelyOffReading() {
         CommonUtils.settings.setBoolean("hide_status_bar", true)
         val a = host(NavRoutes.AI_TOOL_INFO)
+        assertTrue("precondition: the status bar starts hidden", statusHidden(a))
         CommonUtils.settings.setBoolean("hide_status_bar", false)
         ABEventBus.post(SystemBarSettingChangedEvent()); idle()
         assertEquals(false, statusHidden(a))
