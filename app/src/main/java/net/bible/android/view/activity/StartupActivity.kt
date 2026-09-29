@@ -156,10 +156,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     private suspend fun initializeDatabase() {
-        withContext(Dispatchers.IO) {
-            DatabaseContainer.ready = true
-            DatabaseContainer.instance
-        }
+        withContext(Dispatchers.IO) { DatabaseContainer.openForUse() }
     }
 
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {

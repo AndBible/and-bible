@@ -354,6 +354,17 @@ class DatabaseContainer {
 
     companion object {
         var ready: Boolean = false
+
+        /**
+         * Opens the databases for use: what `StartupActivity.initializeDatabase` has always done
+         * inline. Also the Welcome flow's entry when its host was restored after process death and
+         * never passed through StartupActivity (fix batch 1 §2.6). Opening the DB is not
+         * `initializeApp`, so a Welcome host stays "uninitialised" in slice 8's sense.
+         */
+        fun openForUse(): DatabaseContainer {
+            ready = true
+            return instance
+        }
         private var _instance: DatabaseContainer? = null
         val instance: DatabaseContainer get() {
             if(!ready && !application.isRunningTests) throw DataBaseNotReady()

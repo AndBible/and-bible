@@ -57,7 +57,8 @@ import net.bible.sharedui.strings.LocalStrings
  */
 internal class WelcomeFlow(private val host: NavHostComposeActivity) {
 
-    private val docsDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+    // A host restored on WELCOME after process death never ran StartupActivity's DB open (fix batch 1 §2.6).
+    private val docsDao get() = DatabaseContainer.openForUse().repoDb.swordDocumentInfoDao()
     private val previousInstallDetected: Boolean get() = docsDao.getKnownInstalled().isNotEmpty()
 
     private val controllerLazy = lazy { StartupWelcomeController(::loadInfo) }
