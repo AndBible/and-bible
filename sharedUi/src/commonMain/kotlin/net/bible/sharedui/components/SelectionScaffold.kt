@@ -106,8 +106,8 @@ fun AbSelectionScaffold(
                 )
             }
         },
-        // No contentWindowInsets override -- left at the Material default, which AbScaffold's two
-        // overloads now also use (host-inset-ownership spec, 2026-09-18), so the two scaffolds agree.
+        // Same content insets as AbScaffold (`abScaffoldContentInsets`, fix batch 2).
+        contentWindowInsets = abScaffoldContentInsets(),
         content = content,
     )
 }

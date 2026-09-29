@@ -21,6 +21,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
@@ -37,6 +40,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -303,6 +307,17 @@ private fun AbSearchTopAppBar(
 }
 
 /**
+ * The content insets every app scaffold uses: Material's default (system bars) plus the IME (fix
+ * batch 2 §2.1.2). On an edge-to-edge window (the nav host from API 35) `adjustResize` does not shrink
+ * the content, so without the IME here a text field in the lower part of a screen stays under the
+ * keyboard and cannot scroll into view. Where the decor still fits system windows (API < 35
+ * non-reading destinations) Compose sees ime = 0 and this adds nothing. Not used by the reading
+ * destination, which owns its IME lift itself (`ReadingViewScreen.imeBottomPadding`).
+ */
+@Composable
+fun abScaffoldContentInsets(): WindowInsets = ScaffoldDefaults.contentWindowInsets.union(WindowInsets.ime)
+
+/**
  * Scaffold + a simple string-title top app bar. Backward-compatible with the Batch 1 call sites.
  *
  * [search] / [searchCallbacks] default to `null` (see [AbTopAppBar]); `content` stays the LAST
@@ -339,6 +354,7 @@ fun AbScaffold(
         // purpose (host-inset-ownership spec, 2026-09-18). So this Scaffold applies Material's real
         // window insets. Zeroing them here, as this line did until 2026-09-18, would put the content
         // under the status bar; adding the host padding back would double it. The two go together.
+        contentWindowInsets = abScaffoldContentInsets(),
         content = content,
     )
 }
@@ -356,6 +372,7 @@ fun AbScaffold(
         // purpose (host-inset-ownership spec, 2026-09-18). So this Scaffold applies Material's real
         // window insets. Zeroing them here, as this line did until 2026-09-18, would put the content
         // under the status bar; adding the host padding back would double it. The two go together.
+        contentWindowInsets = abScaffoldContentInsets(),
         content = content,
     )
 }
