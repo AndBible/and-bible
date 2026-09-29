@@ -42,7 +42,10 @@ fun decideSystemBars(
 fun backgroundIsLight(argb: Int): Boolean = Color(argb).luminance() >= 0.45f
 
 /**
- * The single writer of system-bar visibility, behaviour and status-icon appearance on the nav host.
+ * The single writer, on the nav host, of system-bar visibility, behaviour and status-icon
+ * appearance (the last since fix batch 2 task 5b, through [SystemBarPolicyHost]). Navigation-bar
+ * icon appearance is NOT decided here: it keeps its two existing writers, `applySystemBarColor`'s
+ * `fillWindowBackground` branch and the host's pane-background block (spec correction C3).
  * `WindowInsetsControllerCompat` on every API level. Below 30 it flips individual
  * `systemUiVisibility` bits instead of assigning the whole field, which is what removes the
  * API 23-29 race that cleared `LIGHT_STATUS_BAR` (F71).

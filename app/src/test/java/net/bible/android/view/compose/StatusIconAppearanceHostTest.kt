@@ -9,6 +9,7 @@ import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.applySystemBarColor
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +49,9 @@ class StatusIconAppearanceHostTest {
         applySystemBarColor(a, Color.White, fillWindowBackground = false)
         a.applyIdleSystemUi()
         assertTrue("the idle pass must not clear the light-status request (API 23-29 race)", lightStatus(a))
+        // Discriminating: the flag bit alone also holds when the toolbar writes it directly (5a already
+        // removed the race). Only the 5b seam makes the HOST's policy decide the icons.
+        assertEquals("the host policy decided the icons from the reported toolbar colour", true, a.lastAppliedSystemBars?.lightStatusIcons)
     }
 
     @Test fun inFullScreenTheIconsFollowTheLightPageNotTheDarkToolbar() {

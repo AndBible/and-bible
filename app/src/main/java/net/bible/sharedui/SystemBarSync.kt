@@ -17,7 +17,6 @@
 
 package net.bible.sharedui
 
-import net.bible.android.view.activity.nav.SystemBarPolicyHost
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -27,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.view.WindowInsetsControllerCompat
+import net.bible.android.view.activity.nav.SystemBarPolicyHost
 
 /** Unwraps [ContextWrapper]s until an [Activity] is found; `null` when there is none (the
  *  Roborazzi golden harness and any `@Preview`). */
@@ -53,9 +53,10 @@ fun Context.findActivity(): Activity? {
  *   previous screen's `true` call left painted there (host-inset-ownership spec, section 3.5).
  *   `false` is no longer inert: before that fix it left the previous fill in place.
  * - The status-bar icon appearance follows [container]'s luminance, same 0.45 threshold as
- *   `ReadingProgressPalette.textColorForBackground`. When [activity] is a `SystemBarPolicyHost` (the
- *   nav host) the write is delegated: the colour is only reported and the host's policy decides. Classic only ever set light-icon mode for
- *   monochrome+day, which would leave white icons unreadable on a light workspace colour.
+ *   `ReadingProgressPalette.textColorForBackground`. Classic only ever set light-icon mode for
+ *   monochrome+day, which would leave white icons unreadable on a light workspace colour. When
+ *   [activity] is a `SystemBarPolicyHost` (the nav host) the write is delegated: the colour is only
+ *   reported and the host's policy decides.
  * - **Floating windows are skipped for both the colour and the appearance write** (A/B batch 3
  *   review fix, Minor 7). A dialog-themed Activity (the since-deleted `HistoryComposeActivity`
  *   was this codebase's one example,
