@@ -27,6 +27,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
+import net.bible.test.resetComposeUiDispatcher
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,6 +67,9 @@ class DailyReadingPassageStaysInHostTest {
      * true -- which destroys the composition (and `navController`) mid-test.
      */
     private fun host(route: String = NavRoutes.READING): ActivityController<NavHostComposeActivity> {
+        // The daily reading controller is built by the graph's first frames; an earlier host test in the
+        // same JVM can leave Compose's static UI dispatcher stuck, so they never run (fix wave, finding B).
+        resetComposeUiDispatcher()
         firstTime = false
         return Robolectric.buildActivity(
             NavHostComposeActivity::class.java,

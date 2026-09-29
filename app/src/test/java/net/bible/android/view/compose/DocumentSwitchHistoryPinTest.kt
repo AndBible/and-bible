@@ -23,6 +23,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.CommonUtils
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordDocumentFacade
@@ -30,12 +31,12 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
+import net.bible.test.resetComposeUiDispatcher
 import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.versification.system.Versifications
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.GlobalContext
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -56,11 +57,14 @@ import kotlin.test.assertNotNull
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class DocumentSwitchHistoryPinTest {
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
+    private var history: HistoryManager? = null
 
     @After
     fun tearDown() {
         controllers.forEach { it.close() }
         controllers.clear()
+        history?.let { ABEventBus.unregister(it) }
+        history = null
         ReadingHostPresence.setForeground(null)
         ReadingViewVisibility.setVisible(false)
         DatabaseResetter.resetDatabase()
@@ -68,11 +72,13 @@ class DocumentSwitchHistoryPinTest {
 
     private fun idle() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
-    private fun verse(book: String, osis: String) =
+    private fun verse(osis: String) =
         VerseFactory.fromString(Versifications.instance().getVersification("KJV"), osis)
 
     @Test
     fun backAfterADocumentSwitchWalksKjvGen24ThenKjvGen11ThenFinRkGen11() {
+        // Compose's JVM-static UI dispatcher can be left stuck by an earlier host test in the same JVM.
+        resetComposeUiDispatcher()
         firstTime = false
         val activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -81,19 +87,23 @@ class DocumentSwitchHistoryPinTest {
         idle()
         val kjv = assertNotNull(SwordDocumentFacade.getDocumentByInitials("KJV"), "KJV test module missing (~/.sword)")
         val finRk = assertNotNull(SwordDocumentFacade.getDocumentByInitials("FinRK"), "FinRK test module missing (~/.sword)")
-        val history: HistoryManager = GlobalContext.get().get()
+        // NOT the Koin singleton: it subscribes to ABEventBus once, in its init, and several tests in this
+        // JVM call ABEventBus.unregisterAll() (TestBibleApplication.onTerminate, the download/sync tests),
+        // after which the singleton never hears AddHistoryItem again and records nothing (fix wave, finding
+        // A). A fresh manager registers itself on construction -- ReadingHistoryAnchorTest does the same.
+        val history = HistoryManager(CommonUtils.windowControl).also { this.history = it }
         val window = CommonUtils.windowControl.activeWindow
         val pm = window.pageManager
 
-        pm.setCurrentDocumentAndKey(finRk, verse("Gen", "Gen.1.1"))
+        pm.setCurrentDocumentAndKey(finRk, verse("Gen.1.1"))
         idle()
         history.clear()
 
         pm.setCurrentDocument(kjv)   // the chooser path
         idle()
-        pm.currentBible.setKey(verse("Gen", "Gen.2.4"), true)   // search-result tap path
+        pm.currentBible.setKey(verse("Gen.2.4"), true)   // search-result tap path
         idle()
-        pm.currentBible.setKey(verse("Exod", "Exod.2.10"), true)
+        pm.currentBible.setKey(verse("Exod.2.10"), true)
         idle()
 
         fun here() = pm.currentBible.currentDocument?.initials to pm.currentBible.singleKey?.osisID
