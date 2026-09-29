@@ -284,6 +284,23 @@ object AdvancedSpeakSettings {
     }
 }
 
+/**
+ * Fix batch 1 2.5b: the explicit state [CommonUtils.changeAppIconAndName] must write for one launcher
+ * component, or null when the current state already matches. `COMPONENT_ENABLED_STATE_DEFAULT`
+ * means "whatever the manifest says" -- a fresh install reports it for both aliases, and reading it
+ * as a mismatch force-stopped every fresh install on its first Settings visit.
+ */
+internal fun componentStateToWrite(current: Int, manifestEnabled: Boolean, wantEnabled: Boolean): Int? {
+    val effective = when (current) {
+        PackageManager.COMPONENT_ENABLED_STATE_DEFAULT -> manifestEnabled
+        PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> true
+        else -> false
+    }
+    if (effective == wantEnabled) return null
+    return if (wantEnabled) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+    else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+}
+
 object CommonUtils : CommonUtilsBase() {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
     private const val COLON = ":"
@@ -1627,19 +1644,22 @@ object CommonUtils : CommonUtilsBase() {
             val value = name == activeName
             Log.d(TAG, "changing $name to $value")
             val component = ComponentName(packageName, name)
-            val currentSettings = application.packageManager.getComponentEnabledSetting(component)
-            val newSetting =
-                if(value) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-
-            if(currentSettings != newSetting) {
-                application.packageManager.setComponentEnabledSetting(
-                    component,
-                    newSetting,
-                    PackageManager.DONT_KILL_APP
-                )
-                settingsChanged = true
-            }
+            // minSdk is 23 (and this function returns early on <= 22), so use the API-23 flag; it has the
+            // same value (512) as MATCH_DISABLED_COMPONENTS (API 24+).
+            @Suppress("DEPRECATION")
+            val manifestEnabled = application.packageManager
+                .getActivityInfo(component, PackageManager.GET_DISABLED_COMPONENTS).enabled
+            val toWrite = componentStateToWrite(
+                current = application.packageManager.getComponentEnabledSetting(component),
+                manifestEnabled = manifestEnabled,
+                wantEnabled = value,
+            ) ?: continue
+            application.packageManager.setComponentEnabledSetting(
+                component,
+                toWrite,
+                PackageManager.DONT_KILL_APP
+            )
+            settingsChanged = true
         }
         if(settingsChanged) {
             forceStopApp()
