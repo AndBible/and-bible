@@ -47,11 +47,6 @@ sealed interface AppDialogRequest {
         val confirmText: String,
         val dismissText: String,
         val cancellable: Boolean = true,
-        /**
-         * Fix batch 1 §2.9: when non-null, the half-typed value is kept under this key across a
-         * withdrawn-and-reraised request (Activity recreate). See `AppDialogController.draft`.
-         */
-        val draftKey: String? = null,
     ) : AppDialogRequest
 
     /** Class C, a sheet. */
