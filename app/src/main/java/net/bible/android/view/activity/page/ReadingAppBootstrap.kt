@@ -545,21 +545,10 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         // `Type.ime()` from the system-window inset, which only carries the keyboard while the
         // framework is actually resizing the window for it, and `ADJUST_NOTHING` stops it resizing.
         //
-        // F59 fix round 1: the threshold below is PER HOST -- `host.appOwnsImeInsetFromSdk` -- not a
-        // single `>= R` constant. This method is the ONE `setSoftKeyboardMode` shared by both hosts
-        // (`MainBibleActivity` and `NavHostComposeActivity` each call it, see their own call sites),
-        // and the API 30+ narrowing is a NAV-HOST finding: only `NavHostComposeActivity` has the
-        // insets listener + sink (`ReadingInsets` -> `applyImeBottomPadding`) that let its Compose
-        // tree see `WindowInsets.ime` once `ADJUST_NOTHING` is set. `MainBibleActivity` was never
-        // measured and has neither -- its own compensating listener and `ActivityBase`'s inset setup
-        // both stay gated at `>= VANILLA_ICE_CREAM` (35), untouched by this batch. A single `>= R`
-        // constant here would have put `MainBibleActivity`'s window into `ADJUST_NOTHING` on API
-        // 30-34 with NEITHER the framework's resize (suppressed) NOR this host's own padding (its
-        // `imeBottomPaddingPx` is a permanent 0) compensating -- see
-        // `ReadingHostActivity.appOwnsImeInsetFromSdk`'s kdoc for the full argument.
-        //
-        // `NavHostComposeActivity` reads the SAME member for its own `onCreate`'s `ADJUST_NOTHING`
-        // call and its insets-listener gate, so the three sites cannot drift apart.
+        // The threshold below is `host.appOwnsImeInsetFromSdk`. `MainBibleActivity` was deleted in
+        // `47dc2f73f`, so there is one host; the value is a member only so this call and the nav
+        // host's own window-mode call and insets-listener gate read the same number. See
+        // `ReadingHostActivity.appOwnsImeInsetFromSdk`'s kdoc.
         if (Build.VERSION.SDK_INT >= host.appOwnsImeInsetFromSdk) {
             host.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         } else if (windowControl.isMultiWindow) {

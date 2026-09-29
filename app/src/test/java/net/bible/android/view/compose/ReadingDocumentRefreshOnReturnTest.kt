@@ -160,7 +160,7 @@ class ReadingDocumentRefreshOnReturnTest {
      * `NavController.navigate`, the exact singleTop self-launch path production uses to return from
      * Download/Settings (see `readingReturnDebts`'s kdoc) — the same live pattern
      * `ReadingImePaddingTest.theModeFollowsTheCurrentDestinationNotJustTheStartRoute` already uses to
-     * exercise this SAME listener's `applySoftInputModeFor` arm. `controller.newIntent(...)` alone,
+     * exercise this SAME listener's `applyWindowModeFor` arm. `controller.newIntent(...)` alone,
      * with no `pause()`/`resume()`, is deliberate: that absence of a real `onResume` is the whole of
      * F57's defect.
      *

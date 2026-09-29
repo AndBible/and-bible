@@ -115,7 +115,7 @@ fun ReadingViewScreen(
     /**
      * The keyboard shrink, supplied by the host (F59). Applied as a plain bottom padding on the
      * reading column -- never `Modifier.imePadding()`, which consumes `WindowInsets.ime` and would
-     * blind `SplitContent`'s anti-flip latch (F64). `0.dp` on hosts that pad their own container.
+     * blind the ledger's IME read (the split's orientation follows the window shape, `splitIsHorizontal`). `0.dp` on hosts that pad their own container.
      */
     imeBottomPadding: Dp = 0.dp,
     onWindowActivated: (String) -> Unit,

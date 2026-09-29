@@ -88,23 +88,10 @@ interface ReadingHostActivity : LifecycleOwner {
      * [imeBottomPaddingPx]'s sink -- rather than leaving it to the framework's window resize (F59 fix
      * round 1).
      *
-     * **Per-host, not a single global threshold.** `ReadingAppBootstrap.setSoftKeyboardMode()` is the
-     * ONE method shared by both hosts, and the T9 walk's API 30+ narrowing (spec §3.1.1) is a nav-host
-     * finding: it measured that `NavHostComposeActivity`'s Compose tree can see `WindowInsets.ime`
-     * once `ADJUST_NOTHING` is set from API 30, and its own insets listener + sink exist to feed it.
-     * `MainBibleActivity` was never measured and has neither of those -- its compensating listener
-     * (`MainBibleActivity.kt` ~:677) and `ActivityBase`'s inset setup (~:130/:141) both stay gated at
-     * `>= VANILLA_ICE_CREAM` (35), unchanged by this batch. Moving `setSoftKeyboardMode()`'s gate to a
-     * single `>= R` constant would have put `MainBibleActivity`'s window into `ADJUST_NOTHING` on API
-     * 30-34 with nothing on either side compensating -- neither the framework's resize (suppressed)
-     * nor this host's own padding (it only ever answers a permanent 0, per [imeBottomPaddingPx]'s
-     * kdoc) -- silently hiding the reading content behind the keyboard on real 30-34 devices. Classic
-     * is not launched in production today, but the regression must not be introduced.
-     *
-     * `MainBibleActivity` answers `Build.VERSION_CODES.VANILLA_ICE_CREAM` (today's threshold,
-     * unchanged); `NavHostComposeActivity` answers `Build.VERSION_CODES.R` and reads this SAME member
-     * for its own `onCreate`'s `ADJUST_NOTHING` call and its insets-listener gate, so the three sites
-     * (bootstrap, onCreate's soft-input call, onCreate's listener registration) cannot drift apart.
+     * `MainBibleActivity` was deleted in `47dc2f73f`, so there is ONE host now (`NavHostComposeActivity`,
+     * which answers `Build.VERSION_CODES.R`). The threshold stays a member only so the three sites
+     * that read it (`ReadingAppBootstrap.setSoftKeyboardMode`, the nav host's window-mode call and its
+     * insets-listener gate) read one value and cannot drift apart.
      */
     val appOwnsImeInsetFromSdk: Int
 
