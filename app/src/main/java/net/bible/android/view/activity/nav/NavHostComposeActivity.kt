@@ -2109,6 +2109,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             // debt was recorded for (F53 measured it on a device). Holding it paid the Settings
             // return work on ENTRY -- `preferenceSettingsChanged` -> `changeAppIconAndName` ->
             // `forceStopApp` on a fresh install (F88) -- and the debt paid it a second time on return.
+            // A genuine second-instance RESULT_CANCELED for a code that has an outstanding debt is
+            // dropped the same way (indistinguishable from the synthetic one); the debt still pays on
+            // the next return to reading.
             Log.i(TAG_START_ROUTE, "Dropping the synthetic cancel for self-launch code $requestCode; the debt pays it on return.")
             return
         }
