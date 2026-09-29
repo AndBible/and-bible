@@ -2101,6 +2101,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode !in ANSWERED_REQUEST_CODES) return
+        if (requestCode in RETURN_TO_READING_REQUEST_CODES &&
+            resultCode == Activity.RESULT_CANCELED &&
+            requestCode in readingReturnDebts
+        ) {
+            // Fix batch 1 §2.5a: the platform's synthetic answer to the singleTop SELF-launch the
+            // debt was recorded for (F53 measured it on a device). Holding it paid the Settings
+            // return work on ENTRY -- `preferenceSettingsChanged` -> `changeAppIconAndName` ->
+            // `forceStopApp` on a fresh install (F88) -- and the debt paid it a second time on return.
+            Log.i(TAG_START_ROUTE, "Dropping the synthetic cancel for self-launch code $requestCode; the debt pays it on return.")
+            return
+        }
         if (requestCode != ActivityBase.STD_REQUEST_CODE) {
             // T8d: the codes classic answers OUTSIDE its `STD_REQUEST_CODE` arm. They are held for
             // the same reason that one is (see this method's kdoc) -- `applyWorkspaceChangedResult`
@@ -2529,9 +2540,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     //    two codes were asking for -- "the user has come back" -- is the graph returning to
     //    `reading`. That is what [readingReturnDebts] records and [applyReadingReturnDebts] spends.
     //    Both arms are answered in `onActivityResult` TOO, for the case the platform does create a
-    //    second instance (this host not being top of its task at the moment of the launch); the two
-    //    cannot both fire, because a debt is only recorded for a launch aimed at this host and a
-    //    result only arrives for one that is not.
+    //    second instance (this host not being top of its task at the moment of the launch). Both CAN
+    //    arrive for one launch: the platform also delivers a synthetic RESULT_CANCELED for the
+    //    self-launch (F53). Fix batch 1 §2.5a: `onActivityResult` drops that cancel when a debt is
+    //    recorded for its code, so the return work is paid once, on return, by the debt.
 
     /**
      * Classic's two request-code arms that are not a chooser answer, applied on THIS host through
@@ -2826,6 +2838,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
      * to [RETURN_TO_READING_REQUEST_CODES] without an arm loud rather than silent (Ruling D).
      */
     private fun applyReadingReturnWork(requestCode: Int) {
+        onReadingReturnWorkForTest?.let { it(requestCode); return }
         when (requestCode) {
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> onToolbarStateMayHaveChanged()
             IntentHelper.REFRESH_DISPLAY_ON_FINISH -> {
@@ -3209,6 +3222,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     internal fun navigateInGraph(route: String) {
         navController?.let { navigateToRoute(it, route) }
     }
+
+    /**
+     * Fix batch 1 §2.5a test seam: when set, [applyReadingReturnWork] only reports the request code
+     * it was asked to pay, so a test can count payments without reaching `changeAppIconAndName`
+     * (whose `forceStopApp` is `exitProcess`).
+     */
+    @VisibleForTesting
+    internal var onReadingReturnWorkForTest: ((Int) -> Unit)? = null
 
     /** Fix batch 1 §2.2 test seam: the daily reading controller the graph built. */
     @VisibleForTesting
