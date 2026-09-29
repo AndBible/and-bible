@@ -21,6 +21,7 @@ import androidx.test.core.app.ApplicationProvider
 import java.time.Duration
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
@@ -36,11 +37,12 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
  * F102 probe (fix batch 1, spec §2.10): does the `openLink` extra a deep link launches the host with
- * actually end up showing the verse in some window?
+ * actually end up showing the verse -- in the links window, and is that window on screen?
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -60,7 +62,7 @@ class DeepLinkOpensVerseTest {
     private fun idleMain() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
     @Test
-    fun aDeepLinkOpenLinkExtraShowsTheVerseInSomeWindow() {
+    fun aDeepLinkOpenLinkExtraShowsTheVerseInAVisibleLinksWindow() {
         firstTime = false
         val intent = NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING)
             .putExtra("openLink", "https://read.andbible.org/Ps.23.1?document=KJV")
@@ -68,12 +70,13 @@ class DeepLinkOpensVerseTest {
             .apply { create().start().resume() }
         idleMain()
         val repo = controller.get().hostWindowRepository
-        val shown = repo.sortedWindows.map { it.pageManager.currentPage.currentDocument?.initials to it.pageManager.currentPage.singleKey?.osisID }
-        val activeShown = repo.activeWindow.let { it.pageManager.currentPage.currentDocument?.initials to it.pageManager.currentPage.singleKey?.osisID }
-        println("F102 PROBE windows=$shown active=$activeShown activeIsShowing=${shown.any { it == activeShown }} links=${repo.sortedWindows.map { it.isLinksWindow }}")
+        val links = repo.sortedWindows.single { it.isLinksWindow }
+        val doc = links.pageManager.currentPage.currentDocument?.initials
+        val key = links.pageManager.currentPage.singleKey?.osisID
+        assertEquals("KJV" to "Ps.23.1", doc to key, "the links window does not hold the deep-linked verse")
         assertTrue(
-            shown.any { (doc, key) -> doc == "KJV" && key?.startsWith("Ps.23.1") == true },
-            "no window shows KJV Ps 23:1 after the deep link: $shown",
+            links.isVisible && !links.isMinimised && links.windowState != WindowState.CLOSED,
+            "the links window holds Ps.23.1 but is not on screen (state=${links.windowState}, visible=${links.isVisible})",
         )
     }
 }
