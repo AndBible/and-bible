@@ -17,6 +17,9 @@
 package net.bible.android.view.activity.settings
 
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
+import net.bible.android.view.activity.nav.SystemBarSettingChangedEvent
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.settings.DictOption
 import net.bible.test.DatabaseResetter
@@ -64,6 +67,21 @@ class AppSettingsServiceImplTest {
         assertTrue(CommonUtils.settings.getBoolean("eink_mode", false))
         assertFalse(CommonUtils.realSharedPreferences.getBoolean("eink_mode", false))
         assertTrue(service.snapshot.value.einkMode)
+    }
+
+    @Test fun writingHideStatusBarAnnouncesIt() {
+        var seen = 0
+        val subscriber = Any()
+        ABEventBus.register(subscriber) { on<SystemBarSettingChangedEvent> { seen++ } }
+        try {
+            AppSettingsServiceImpl().setBool("hide_status_bar", true)
+            assertEquals(1, seen)
+            AppSettingsServiceImpl().setBool("volume_keys_scroll", true)
+            assertEquals("other keys do not announce it", 1, seen)
+        } finally {
+            ABEventBus.unregister(subscriber)
+            CommonUtils.settings.setBoolean("hide_status_bar", false)
+        }
     }
 
     // --- (b) Inverse multi-select round trip ---

@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.settings
 
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.view.activity.nav.SystemBarSettingChangedEvent
 import android.os.Build
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -263,6 +265,7 @@ class AppSettingsServiceImpl(
         if (useRealShared(key)) CommonUtils.realSharedPreferences.edit().putBoolean(key, value).apply()
         else CommonUtils.settings.setBoolean(key, value)
         refresh()
+        if (key == "hide_status_bar") ABEventBus.post(SystemBarSettingChangedEvent())
     }
 
     override fun setString(key: String, value: String) {

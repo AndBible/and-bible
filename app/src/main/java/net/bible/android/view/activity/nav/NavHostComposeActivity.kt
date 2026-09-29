@@ -1790,112 +1790,48 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // `ReadingCommands.pageTitleText` now, read by both hosts through their own command surface,
     // and `ReadingCommandsHostCallbacks.pageTitleText` went with it.
 
-    private fun hideSystemUI() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.decorView.windowInsetsController?.apply {
-                hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            var uiFlags = (
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+    private val systemBarController by lazy { SystemBarController(window) }
+
+    @VisibleForTesting
+    internal val lastAppliedSystemBars: SystemBarState? get() = systemBarController.lastApplied
+
+    private fun currentRouteOrStart(): String? = navController?.currentDestination?.route ?: startRoute
+
+    /** Fix batch 2 §2.4: re-decide the system bars for [route]. [forceNotFullScreen] is the
+     *  drawer-in-motion / idle-show case, which shows the bars even while fullscreen is on. */
+    internal fun refreshSystemBars(route: String? = currentRouteOrStart(), forceNotFullScreen: Boolean = false) {
+        val onReading = route?.substringBefore('?') == NavRoutes.READING
+        systemBarController.apply(
+            decideSystemBars(
+                onReading = onReading,
+                hideStatusBar = CommonUtils.settings.hideStatusBar,
+                fullScreen = fullScreen && !forceNotFullScreen,
+                topBarArgb = null,          // Task 5b
+                pageBackgroundArgb = null,  // Task 5b
             )
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (!ScreenSettings.nightMode) {
-                    uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                }
-            }
-
-            window.decorView.systemUiVisibility = uiFlags
-        }
+        )
     }
 
-    private fun showSystemUI(setNavBarColor: Boolean=true) {
-        // Nothing here touches the reading toolbar any more: the Compose `ReadingToolbar` (via
-        // `MaterialTheme.colorScheme`/`AbTheme`) owns its own colors, and `toolbarLayout` is GONE
-        // (see `ComposeReadingViewHost.install`). What survives is the window-level chrome that
-        // was always applied unconditionally -- the system-bar show/hide/appearance flags,
-        // `navigationBarColor`. The classic `speakTransport` bar's background write went with the
-        // bar itself (spec 10.4): the Compose `SpeakTransportBar` paints its own surface.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.decorView.windowInsetsController?.apply {
-                if (CommonUtils.settings.hideStatusBar) {
-                    // Keep the navigation bar (and AndBible's own toolbar) visible, but hide only
-                    // the Android status bar. Swiping from the top edge reveals it transiently.
-                    show(WindowInsets.Type.navigationBars())
-                    hide(WindowInsets.Type.statusBars())
-                    systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                } else {
-                    show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                }
-                if (!ScreenSettings.nightMode) {
-                    var appearance = WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-                    if (CommonUtils.settings.monochromeMode) {
-                        appearance = appearance or WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-                    }
-                    // A/B batch 3 review fix (Important 1): the status-bar *icon appearance* is
-                    // owned by `LocalSystemBarSync`/`applySystemBarColor` (called from
-                    // `ReadingToolbar`/`AbTopAppBar` via a `SideEffect`), derived from the actual
-                    // container colour rather than the classic toolbar's fixed
-                    // "dark unless monochrome" rule. So `APPEARANCE_LIGHT_STATUS_BARS` is
-                    // deliberately absent from the MASK: this call must neither set nor clear it,
-                    // leaving the seam its single writer. (Classic cleared it in the
-                    // day+non-monochrome case, right for its dark `#444444` toolbar and exactly
-                    // wrong for a light M3 surface.) A consequence worth knowing before editing:
-                    // the `APPEARANCE_LIGHT_STATUS_BARS` bit the monochrome clause above ORs into
-                    // `appearance` is therefore INERT -- outside the mask, it is neither set nor
-                    // cleared. Deleting that clause would be exactly as behaviour-neutral as
-                    // keeping it; it stays to preserve the INTENT (what monochrome asks for) for
-                    // the day the bit re-enters the mask, not because anything today depends on it.
-                    //
-                    // The NAVIGATION-bar appearance bit is not this call's alone either
-                    // (whole-branch review, Minor 4). (1) Since round 12b §3,
-                    // `SystemBarSync.applySystemBarColor` writes `isAppearanceLightNavigationBars`
-                    // whenever `fillWindowBackground = true` (`SystemBarSync.kt:103-107`). It stays
-                    // untouched in THIS window only because the two composables that sync are
-                    // `ReadingToolbar` (which passes `false`, `ReadingToolbar.kt:351`) and
-                    // `AbScaffold`/`AbTopAppBar` (which pass `true` but are never composed inside this
-                    // activity — the reading search sheet deliberately avoids `AbTopAppBar` for
-                    // exactly this reason, `SearchSheetContent.kt:50-56`). Compose an `AbScaffold`
-                    // into the reading view and this mask stops being the only writer.
-                    // (2) The bit written here is OVERWRITTEN a few dozen lines below, from the pane
-                    // background, whenever there is any visible window — so this write is the value
-                    // that survives only in the no-visible-windows path.
-                    setSystemBarsAppearance(
-                        appearance,
-                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-                    )
-                }
-            }
-        } else {
-            var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
-            if (CommonUtils.settings.hideStatusBar) {
-                // Hide only the status bar (not the navigation bar) while keeping the toolbar.
-                uiFlags = (uiFlags
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (!ScreenSettings.nightMode) {
-                    // Classic's SYSTEM_UI_FLAG_LIGHT_STATUS_BAR bit is not set here, mirroring the
-                    // API-R+ branch's intent (Important 1). The parallel stops at the intent, and
-                    // this branch IS live -- minSdk is 23. Below API 30 there is no mask: the
-                    // `systemUiVisibility = uiFlags` assignment a few lines down writes every bit
-                    // at once, so it also CLEARS whatever `SystemBarSync.applySystemBarColor` set
-                    // through `WindowInsetsControllerCompat`, which on API < 30 targets this very
-                    // flag on this very field. So the Compose seam is NOT the single writer here,
-                    // whatever the API-R+ comment can say for its own masked call -- the two race,
-                    // and whichever ran last wins. Pre-existing, unchanged by the flag collapse,
-                    // and never audited on real API 23-29 hardware.
-                    uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                }
-            }
-            window.decorView.systemUiVisibility = uiFlags
-        }
+    private fun hideSystemUI() = refreshSystemBars()
 
+    private fun showSystemUI(setNavBarColor: Boolean = true) {
+        refreshSystemBars(forceNotFullScreen = true)
+        applyReadingNavBarColors(setNavBarColor)
+    }
+
+    /**
+     * The window-level nav-bar chrome that used to share `showSystemUI` with the visibility writes
+     * (those are [refreshSystemBars]'s now). Nothing here touches the reading toolbar: the Compose
+     * `ReadingToolbar` owns its own colours, and the status-bar icon appearance is the policy's.
+     */
+    private fun applyReadingNavBarColors(setNavBarColor: Boolean) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !ScreenSettings.nightMode) {
+            // Was part of the two visibility branches (setSystemBarsAppearance mask on 30+, the
+            // LIGHT_NAVIGATION_BAR bit in the wholesale systemUiVisibility write). Kept, now through
+            // compat so it no longer clobbers other bits. The block below still overwrites it from
+            // the pane background whenever a window is visible.
+            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightNavigationBars = true
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(windowControl.windowRepository.visibleWindows.isNotEmpty()) {
                 val colors = TextDisplaySettings.actual(null, windowControl.windowRepository.textDisplaySettings, CommonUtils.globalTextDisplaySettings).colors!!
@@ -3005,6 +2941,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 refreshIfNightModeChange()
             }
         }
+        // Fix batch 2 (F77): the setting applies on every destination, immediately.
+        onMain<SystemBarSettingChangedEvent> { refreshSystemBars() }
         // Slice 8 E2: StartupComposeActivity's progress line on its welcome card.
         onMain<InstallZipEvent> { e -> welcomeFlowOrNull?.controllerIfCreated?.setProgress(e.message) }
 
@@ -3372,6 +3310,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         // is a no-op against the manifest's own value but keeps this the ONE place that decides the
         // mode rather than leaving a non-reading start to the manifest by omission.
         applyWindowModeFor(startRoute)
+        refreshSystemBars(startRoute)
         if (startRoute == NavRoutes.READING) bootstrapIfNeeded()
         // R8: build [readingCommands] NOW, while this Activity is still CREATED.
         //
@@ -3420,6 +3359,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                         answerAbandonedReadingRequests(destination.route)
                         applyPendingDocumentUpdateOnReturnToReading(destination.route)
                         applyWindowModeFor(destination.route)
+                        refreshSystemBars(destination.route)
                         completeBackupReturnIfLeft(controller)
                         recheckOnReturnToWelcome(controller, destination.route)
                     }
