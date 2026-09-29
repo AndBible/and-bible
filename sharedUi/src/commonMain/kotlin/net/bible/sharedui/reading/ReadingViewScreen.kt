@@ -21,9 +21,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +46,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.reading.agentPanelDragCeiling
 import net.bible.sharedcore.reading.agentLogOwnsNavBarInset
+import net.bible.sharedcore.reading.railOwnsNavBarInset
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.ToolbarState
@@ -52,7 +60,8 @@ import net.bible.sharedcore.window.WindowLayoutState
  * folds the toolbar in, dropping it entirely — rather than merely hiding it — when [fullScreen], so
  * [SplitContent] reclaims the full height via `Modifier.weight(1f)`.
  *
- * [tabBar] is an optional slot floated over the split's bottom-end corner rather than rendered
+ * [tabBar] is an optional slot (its argument is whether it owns the nav bar's bottom inset; the host
+ * pads with `readingRailInsetPadding(applyNavBarInset)`) floated over the split's bottom-end corner rather than rendered
  * in-flow in this `Column`: it is forwarded into [SplitContent]'s `railOverlay` (a sibling of the
  * panes container, inside `SplitContent`'s own `BoxWithConstraints`, aligned `BottomEnd`), so it
  * overlaps the panes instead of taking a layout band from them — matching classic
@@ -131,7 +140,7 @@ fun ReadingViewScreen(
     onQuickDocSelect: (id: String) -> Unit = {},
     onQuickDocDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
-    tabBar: (@Composable () -> Unit)? = null,
+    tabBar: (@Composable (applyNavBarInset: Boolean) -> Unit)? = null,
     /**
      * The agent-log panel, rendered as a bottom-anchored OVERLAY rather than an in-flow child
      * (round 12b §4). The parameters are what only this screen knows: whether the panel owns the
@@ -229,12 +238,17 @@ fun ReadingViewScreen(
                 pane = pane,
                 // Measured so the panel's drag ceiling can be "the bottom of the toolbar": that is
                 // this height plus the panel's own reservation right below it.
-                modifier = Modifier.weight(1f).onSizeChanged {
-                    splitHeightDp = with(density) { it.height.toDp() }.value
-                },
+                modifier = Modifier.weight(1f)
+                    // Correction C2: the reading tree is edge-to-edge, and nothing else pads a side nav
+                    // bar (landscape 3-button) or a side cutout. The toolbar pads its own row the same
+                    // way (ReadingToolbar's systemBars ∪ displayCutout, Horizontal).
+                    .windowInsetsPadding(
+                        WindowInsets.systemBars.union(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal)
+                    )
+                    .onSizeChanged { splitHeightDp = with(density) { it.height.toDp() }.value },
                 paneOverlay = paneOverlay,
                 bottomOverlay = bottomOverlay,
-                railOverlay = tabBar?.let { bar -> { Box(Modifier.align(Alignment.BottomEnd)) { bar() } } },
+                railOverlay = tabBar?.let { bar -> { Box(Modifier.align(Alignment.BottomEnd)) { bar(railOwnsNavBarInset(agentLogVisible, speakBarVisible)) } } },
                 paneBackground = paneBackground,
             )
             // The overlay's footprint. Zero when the panel is hidden.

@@ -57,7 +57,7 @@ fun SpeakTransportBar(
      * Round 12b §3: consume the bottom navigation-bar inset. `true` only when this bar is the
      * bottom-most one in the reading view (`agentLogOwnsNavBarInset`'s complement).
      *
-     * `ime` is excluded because `MainBibleActivity.applyImePadding()` already pads the container
+     * `ime` is excluded because the nav host's IME padding (`ReadingInsets`) already pads the container
      * this whole Compose tree is installed into by `max(systemBars.bottom, ime.bottom)` whenever the
      * keyboard is up, and `windowInsetsPadding` is not consumption-aware — without the exclusion a
      * bar visible over an open keyboard would double-reserve and float a navigation-bar height above
@@ -97,7 +97,7 @@ fun SpeakTransportBar(
     ) {
         // The nav-bar inset goes on the INNER Column, not the Surface: the tinted surface and its
         // corners then bleed into the nav-bar strip while the content clears it. `ime` is excluded
-        // because MainBibleActivity.applyImePadding() already pads this container when the keyboard
+        // because the nav host's IME padding (`ReadingInsets`) already pads this container when the keyboard
         // is up, and windowInsetsPadding is not consumption-aware.
         Column(
             Modifier.then(

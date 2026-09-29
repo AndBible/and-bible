@@ -18,6 +18,7 @@
 package net.bible.sharedcore.reading
 
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -52,5 +53,24 @@ class BottomBarInsetsTest {
     @Test fun theInsetOwnerAndTheEdgeOwnerAreDifferentSurfacesWhenBothBarsAreUp() {
         assertFalse(agentLogOwnsNavBarInset(agentLogVisible = true, speakBarVisible = true))
         assertFalse(speakBarOwnsTopEdge(agentLogVisible = true))
+    }
+
+    @Test fun theRailOwnsTheInsetOnlyWhenNoBottomBarIsUp() {
+        assertTrue(railOwnsNavBarInset(agentLogVisible = false, speakBarVisible = false))
+        assertFalse(railOwnsNavBarInset(agentLogVisible = true, speakBarVisible = false), "F67")
+        assertFalse(railOwnsNavBarInset(agentLogVisible = false, speakBarVisible = true), "the Speak-bar twin of F67")
+        assertFalse(railOwnsNavBarInset(agentLogVisible = true, speakBarVisible = true))
+    }
+
+    /** Exactly one surface owns the bottom inset in every combination. */
+    @Test fun exactlyOneSurfaceOwnsTheBottomInset() {
+        for (agent in listOf(false, true)) for (speak in listOf(false, true)) {
+            val owners = listOf(
+                railOwnsNavBarInset(agent, speak),
+                agentLogOwnsNavBarInset(agent, speak),
+                speak, // the speak bar owns it whenever visible (ReadingViewScreen passes speakBarVisible)
+            ).count { it }
+            assertEquals(1, owners, "agent=$agent speak=$speak")
+        }
     }
 }

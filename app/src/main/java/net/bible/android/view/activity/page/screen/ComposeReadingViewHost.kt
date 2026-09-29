@@ -31,13 +31,11 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -285,6 +283,7 @@ import net.bible.sharedui.reading.QuickDocMenuState
 import net.bible.sharedui.reading.ReadingDrawerContent
 import net.bible.sharedui.reading.ReadingDrawerWidth
 import net.bible.sharedui.reading.ReadingSearchBarCallbacks
+import net.bible.sharedui.reading.readingRailInsetPadding
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
 import net.bible.sharedui.reading.ReadingToolbarIcons
 import net.bible.sharedui.reading.ReadingViewScreen
@@ -4661,16 +4660,12 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                                     speakBarVisible = speakBarVisibleState(),
                                     bottomOverlay = { BibleReferenceOverlay(visible = overlayVisible, text = overlayText) },
                                     tabBar = if (hideTabBarInFullScreen) null else {
-                                        {
+                                        { applyNavBarInset ->
                                             WindowTabBar(
-                                                // Classic lifts restoreButtonsContainer clear of the
-                                                // system/transport chrome with translationY(-bottomOffset2)
-                                                // (SplitBibleArea.kt:619). mainBibleView is bottom-padded
-                                                // only while the IME is open (MainBibleActivity.kt:642-648),
-                                                // so the floating rail must consume the navigation-bar inset
-                                                // itself. The agentLog/speakBar slots sit BELOW the split
-                                                // and are unaffected by this padding.
-                                                modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars),
+                                                // Fix batch 2 (F66/F67): the strip pads the nav bar's
+                                                // bottom inset only when it is the bottom-most surface,
+                                                // minus the IME. See `readingRailInsetPadding`.
+                                                modifier = Modifier.readingRailInsetPadding(applyNavBarInset),
                                                 model = tabBarModel,
                                                 onRestore = controller::onRestore,
                                                 // Plan B Task 5: a rail long-press now opens the SAME

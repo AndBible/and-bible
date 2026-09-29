@@ -122,7 +122,7 @@ class ReadingViewScreenGoldenTest {
 
     private fun screen(
         fullScreen: Boolean,
-        tabBar: (@Composable () -> Unit)? = null,
+        tabBar: (@Composable (applyNavBarInset: Boolean) -> Unit)? = null,
         agentLog: (@Composable (
             applyNavBarInset: Boolean,
             maxHeightDp: Float,
@@ -294,7 +294,7 @@ class ReadingViewScreenGoldenTest {
         "ReadingViewScreen", "withRail", EDGE_MODE,
         content = screen(
             fullScreen = false,
-            tabBar = {
+            tabBar = { _ ->
                 WindowTabBar(
                     model = railModel,
                     onRestore = {},

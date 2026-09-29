@@ -22,8 +22,9 @@ package net.bible.sharedcore.reading
  * navigation-bar inset inside its own painted surface.
  *
  * Round 12b §3 replaces the old `bottomInsetReserved` + unpainted `Spacer` arrangement. The whole
- * Compose reading tree is edge-to-edge: the toolbar consumes `statusBars` itself and the floating
- * window rail consumes `navigationBars` itself, so the bottom-most in-flow child has to consume the
+ * Compose reading tree is edge-to-edge: the toolbar consumes `statusBars` itself, the floating
+ * window rail consumes the bottom `navigationBars` inset only when it is the bottom-most surface
+ * (`railOwnsNavBarInset`), and the split consumes the side insets, so the bottom-most in-flow child has to consume the
  * bottom inset. Reserving it with a bare `Spacer` after the bars did reserve the right amount of
  * SPACE but painted nothing there, so the strip showed `BottomSheetScaffold`'s default `surface`
  * while the panel right above it is `surfaceColorAtElevation(3.dp)` — a visible seam, which is the
@@ -75,3 +76,15 @@ fun agentLogOwnsNavBarInset(agentLogVisible: Boolean, speakBarVisible: Boolean):
  * A pure function so the decision is unit-testable, like its neighbour — see `BottomBarInsetsTest`.
  */
 fun speakBarOwnsTopEdge(agentLogVisible: Boolean): Boolean = !agentLogVisible
+
+/**
+ * Whether the floating window-buttons strip is the bottom-most surface and must therefore pad the
+ * navigation bar's BOTTOM inset itself (fix batch 2, F66/F67). When either bottom bar is visible, that
+ * bar owns the inset (see [agentLogOwnsNavBarInset]) and the split -- and the strip in its
+ * `railOverlay` -- already ends above it. Padding the strip then puts one nav-bar height of gap
+ * between it and the bar (F67; the Speak bar showed the same). With the keyboard up the column is
+ * already padded by the IME, which includes the nav bar (F66); the strip handles that by excluding
+ * `ime` from the inset it pads, not through this predicate.
+ */
+fun railOwnsNavBarInset(agentLogVisible: Boolean, speakBarVisible: Boolean): Boolean =
+    !agentLogVisible && !speakBarVisible
