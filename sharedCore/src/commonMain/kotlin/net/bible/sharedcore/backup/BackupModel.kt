@@ -54,11 +54,19 @@ interface BackupService {
     /** Persists [kind] = [value] (classic `CommonUtils.settings.setBoolean`). */
     fun setToggle(kind: ToggleKind, value: Boolean)
 
-    /** Runs the backup dispatched by whichever [ToggleKind] backup toggle is currently on. */
-    suspend fun backup()
+    /**
+     * Runs the backup dispatched by whichever backup toggles are on in [toggles] -- the screen's
+     * current toggles; the service must not re-read them from settings, which before DB init
+     * answer defaults (F103).
+     */
+    suspend fun backup(toggles: Map<ToggleKind, Boolean>)
 
-    /** Runs the restore dispatched by whichever [ToggleKind] restore toggle is currently on. */
-    suspend fun restore()
+    /**
+     * Runs the restore dispatched by whichever restore toggles are on in [toggles] -- the screen's
+     * current toggles; the service must not re-read them from settings, which before DB init
+     * answer defaults (F103).
+     */
+    suspend fun restore(toggles: Map<ToggleKind, Boolean>)
 
     /** Exports (save/share) the local backup file addressed by [token]. */
     suspend fun exportFile(token: String)

@@ -113,6 +113,20 @@ class BackupServiceImplTest {
         assertEquals(true, state.toggles[ToggleKind.RestoreDocuments])
     }
 
+    /** F103: before DB init a toggle is screen state only -- no settings write, no crash. */
+    @Test fun setToggleBeforeInitDoesNotTouchSettings() {
+        val wasInitialized = CommonUtils.initialized
+        CommonUtils.initialized = false
+        try {
+            service.setToggle(ToggleKind.RestoreDocuments, true)   // threw DataBaseNotReady on device
+        } finally { CommonUtils.initialized = wasInitialized }
+        // Read AFTER re-enabling: getBoolean answers the default while !initialized, which would mask a write.
+        assertEquals(
+            "persisted before init -- see BackupServiceImpl's KEY_RESTORE_DOCUMENTS",
+            false, CommonUtils.settings.getBoolean("restore_documents", false),
+        )
+    }
+
     // --- load(): resettableDbs ---
 
     @Test fun load_resettableDbs_allEightInClassicOrderWithNonBlankTitles() = runBlocking {

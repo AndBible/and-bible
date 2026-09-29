@@ -112,6 +112,10 @@ class BackupServiceImpl(private val activity: ActivityBase) : BackupService {
     }
 
     override fun setToggle(kind: ToggleKind, value: Boolean) {
+        // Fix batch 1 section 2.4 (F103): the crash sheet opens this screen before DB init, where the
+        // settings setters throw DataBaseNotReady. Classic BackupActivity simply did not save then;
+        // BackupController keeps the value as screen state and hands it to backup()/restore().
+        if (!CommonUtils.initialized) return
         val key = when (kind) {
             ToggleKind.BackupApp -> KEY_BACKUP_APPLICATION
             ToggleKind.BackupDatabase -> KEY_BACKUP_DATABASE
@@ -122,11 +126,11 @@ class BackupServiceImpl(private val activity: ActivityBase) : BackupService {
         CommonUtils.settings.setBoolean(key, value)
     }
 
-    override suspend fun backup() {
+    override suspend fun backup(toggles: Map<ToggleKind, Boolean>) {
         val actions = backupActionsFor(
-            backupApp = CommonUtils.settings.getBoolean(KEY_BACKUP_APPLICATION, false),
-            backupDatabase = CommonUtils.settings.getBoolean(KEY_BACKUP_DATABASE, true),
-            backupDocuments = CommonUtils.settings.getBoolean(KEY_BACKUP_DOCUMENTS, false),
+            backupApp = toggles[ToggleKind.BackupApp] ?: false,
+            backupDatabase = toggles[ToggleKind.BackupDatabase] ?: true,
+            backupDocuments = toggles[ToggleKind.BackupDocuments] ?: false,
         )
         for (action in actions) {
             when (action) {
@@ -137,10 +141,10 @@ class BackupServiceImpl(private val activity: ActivityBase) : BackupService {
         }
     }
 
-    override suspend fun restore() {
+    override suspend fun restore(toggles: Map<ToggleKind, Boolean>) {
         val actions = restoreActionsFor(
-            restoreDatabase = CommonUtils.settings.getBoolean(KEY_RESTORE_DATABASE, true),
-            restoreDocuments = CommonUtils.settings.getBoolean(KEY_RESTORE_DOCUMENTS, false),
+            restoreDatabase = toggles[ToggleKind.RestoreDatabase] ?: true,
+            restoreDocuments = toggles[ToggleKind.RestoreDocuments] ?: false,
         )
         for (action in actions) {
             when (action) {

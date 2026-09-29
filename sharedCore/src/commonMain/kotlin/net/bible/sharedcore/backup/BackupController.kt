@@ -38,26 +38,36 @@ class BackupController(
     private val _state = MutableStateFlow(BackupState())
     val state: StateFlow<BackupState> = _state.asStateFlow()
 
-    /** (Re)loads the full screen state from [service]. */
+    /**
+     * The toggles the user has set on THIS screen, which win over whatever [BackupService.load]
+     * answers. Before DB init the service cannot persist them (classic `BackupActivity` returned
+     * early from saving when `!CommonUtils.initialized`), so a reload -- every ON_RESUME, e.g. after
+     * the file picker -- would otherwise flip them back to the defaults (fix batch 1 section 2.4, F103).
+     */
+    private val userToggles = mutableMapOf<ToggleKind, Boolean>()
+
+    /** (Re)loads the full screen state from [service]; toggles the user set on this screen win. */
     fun load() {
         scope.launch {
-            _state.value = service.load()
+            val loaded = service.load()
+            _state.value = loaded.copy(toggles = loaded.toggles + userToggles)
         }
     }
 
     /** Optimistically flips [kind] in [state] and persists the change via [service]. */
     fun setToggle(kind: ToggleKind, value: Boolean) {
+        userToggles[kind] = value
         _state.value = _state.value.copy(toggles = _state.value.toggles + (kind to value))
         service.setToggle(kind, value)
     }
 
     fun backup() {
-        scope.launch { service.backup() }
+        scope.launch { service.backup(_state.value.toggles) }
     }
 
     fun restore() {
         scope.launch {
-            service.restore()
+            service.restore(_state.value.toggles)
             load()
         }
     }

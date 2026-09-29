@@ -68,8 +68,8 @@ class BackupInGraphTest {
     private inner class FakeBackupService : BackupService {
         override suspend fun load(): BackupState { loads++; return BackupState() }
         override fun setToggle(kind: ToggleKind, value: Boolean) = Unit
-        override suspend fun backup() = Unit
-        override suspend fun restore() = Unit
+        override suspend fun backup(toggles: Map<ToggleKind, Boolean>) = Unit
+        override suspend fun restore(toggles: Map<ToggleKind, Boolean>) = Unit
         override suspend fun exportFile(token: String) = Unit
         override suspend fun restoreFile(token: String) = Unit
         override suspend fun resetDb(dbFileName: String) = Unit

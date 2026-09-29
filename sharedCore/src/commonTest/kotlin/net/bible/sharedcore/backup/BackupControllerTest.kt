@@ -30,6 +30,8 @@ private class FakeBackupService(
     val toggleCalls = mutableListOf<Pair<ToggleKind, Boolean>>()
     var backupCallCount = 0
     var restoreCallCount = 0
+    val backupToggles = mutableListOf<Map<ToggleKind, Boolean>>()
+    val restoreToggles = mutableListOf<Map<ToggleKind, Boolean>>()
     val exportCalls = mutableListOf<String>()
     val restoreFileCalls = mutableListOf<String>()
     val resetDbCalls = mutableListOf<String>()
@@ -46,14 +48,51 @@ private class FakeBackupService(
     override fun setToggle(kind: ToggleKind, value: Boolean) {
         toggleCalls.add(kind to value)
     }
-    override suspend fun backup() { backupCallCount++ }
-    override suspend fun restore() { restoreCallCount++ }
+    override suspend fun backup(toggles: Map<ToggleKind, Boolean>) { backupCallCount++; backupToggles += toggles }
+    override suspend fun restore(toggles: Map<ToggleKind, Boolean>) { restoreCallCount++; restoreToggles += toggles }
     override suspend fun exportFile(token: String) { exportCalls.add(token) }
     override suspend fun restoreFile(token: String) { restoreFileCalls.add(token) }
     override suspend fun resetDb(dbFileName: String) { resetDbCalls.add(dbFileName) }
 }
 
 class BackupControllerTest {
+    /** F103: before DB init the service cannot persist, so load() keeps answering defaults. */
+    @Test fun aToggleSurvivesAReloadThatStillReturnsTheDefaults() = runTest {
+        val svc = FakeBackupService(initialToggles = mapOf(ToggleKind.RestoreDocuments to false, ToggleKind.RestoreDatabase to true))
+        val c = BackupController(svc, this)
+        c.load(); testScheduler.advanceUntilIdle()
+
+        c.setToggle(ToggleKind.RestoreDocuments, true)
+        c.load(); testScheduler.advanceUntilIdle()          // ON_RESUME after the file picker
+
+        assertEquals(true, c.state.value.toggles[ToggleKind.RestoreDocuments])
+    }
+
+    @Test fun restoreDispatchesTheScreensToggles() = runTest {
+        val svc = FakeBackupService(initialToggles = mapOf(ToggleKind.RestoreDocuments to false, ToggleKind.RestoreDatabase to true))
+        val c = BackupController(svc, this)
+        c.load(); testScheduler.advanceUntilIdle()
+        c.setToggle(ToggleKind.RestoreDocuments, true)
+        c.setToggle(ToggleKind.RestoreDatabase, false)
+
+        c.restore(); testScheduler.advanceUntilIdle()
+
+        assertEquals(false, svc.restoreToggles.single()[ToggleKind.RestoreDatabase])
+        assertEquals(true, svc.restoreToggles.single()[ToggleKind.RestoreDocuments])
+    }
+
+    @Test fun backupDispatchesTheScreensToggles() = runTest {
+        val svc = FakeBackupService(initialToggles = mapOf(ToggleKind.BackupDatabase to true))
+        val c = BackupController(svc, this)
+        c.load(); testScheduler.advanceUntilIdle()
+        c.setToggle(ToggleKind.BackupDocuments, true)
+
+        c.backup(); testScheduler.advanceUntilIdle()
+
+        assertEquals(true, svc.backupToggles.single()[ToggleKind.BackupDocuments])
+        assertEquals(true, svc.backupToggles.single()[ToggleKind.BackupDatabase])
+    }
+
     @Test fun loadPopulatesStateFromService() = runTest {
         val svc = FakeBackupService(
             initialToggles = mapOf(ToggleKind.BackupDatabase to true, ToggleKind.RestoreDocuments to false),
