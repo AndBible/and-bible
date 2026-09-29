@@ -27,15 +27,12 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -158,16 +155,15 @@ fun SplitContent(
         // to resolve maxWidth/maxHeight through an ambiguous nested-receiver chain.
         val maxWidthPx = with(density) { maxWidth.toPx() }
         val maxHeightPx = with(density) { maxHeight.toPx() }
-        // A/B F6-B1: the orientation must not follow the keyboard -- see rememberSplitIsHorizontal.
-        // F65: the latch resets when the WINDOW's orientation changes (a rotation), which the keyboard
-        // never causes on API 30+ (ADJUST_NOTHING leaves the window its full size).
+        // F69 / F64: orientation follows the WINDOW's shape, which no keyboard changes -- see
+        // splitIsHorizontal. The measured box is only the fallback before the window size is known.
         val windowSize = LocalWindowInfo.current.containerSize
-        val isHorizontal = rememberSplitIsHorizontal(
-            widthPx = maxWidthPx,
-            heightPx = maxHeightPx,
+        val isHorizontal = splitIsHorizontal(
+            windowWidthPx = windowSize.width,
+            windowHeightPx = windowSize.height,
+            boxWidthPx = maxWidthPx,
+            boxHeightPx = maxHeightPx,
             reverseSplitMode = layout.reverseSplitMode,
-            imeVisible = WindowInsets.ime.getBottom(density) > 0,
-            resetKey = windowSize.width > windowSize.height,
         )
         val weights = effectiveWeights(windows)
 
@@ -494,40 +490,4 @@ private fun BoxScope.DragStrip(
                 onDragStopped = { handlers.onDragEnd() },
             ),
     )
-}
-
-/**
- * [splitIsHorizontal] with its latch: the last committed answer is held while the IME is visible
- * (A/B F6-B1 -- the keyboard's shrink of the measured height must not flip the split), and the latch
- * is DROPPED whenever [resetKey] changes.
- *
- * F65: the latch used to be a plain `remember { }`. That was only correct on classic, where
- * `MainBibleActivity`'s `configChanges` omits `orientation` so a rotation recreates the Activity and the
- * latch with it. `NavHostComposeActivity` DECLARES `orientation` (`AndroidManifest.xml`), so the
- * composition survives a rotation and the latch carried the pre-rotation answer across it: rotate with
- * the keyboard up and the split stayed in the old orientation until the keyboard closed. [SplitContent]
- * passes the window's own orientation as [resetKey] -- something a rotation changes and the keyboard
- * does not.
- *
- * Recorded in a SideEffect rather than assigned during composition, because writing snapshot state
- * during composition is exactly the pattern Compose warns about.
- */
-@Composable
-fun rememberSplitIsHorizontal(
-    widthPx: Float,
-    heightPx: Float,
-    reverseSplitMode: Boolean,
-    imeVisible: Boolean,
-    resetKey: Any?,
-): Boolean {
-    var latchedHorizontal by remember(resetKey) { mutableStateOf<Boolean?>(null) }
-    val isHorizontal = splitIsHorizontal(
-        widthPx = widthPx,
-        heightPx = heightPx,
-        reverseSplitMode = reverseSplitMode,
-        imeVisible = imeVisible,
-        previous = latchedHorizontal,
-    )
-    SideEffect { latchedHorizontal = isHorizontal }
-    return isHorizontal
 }

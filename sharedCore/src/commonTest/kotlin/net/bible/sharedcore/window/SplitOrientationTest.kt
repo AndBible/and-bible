@@ -22,79 +22,38 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * A/B F6-B1. The split used to flip from stacked to side-by-side the moment the keyboard opened,
- * because the orientation is decided from the MEASURED height and the IME shrinks it (on API 35+ via
- * `MainBibleActivity`'s padding on the Compose container, below it via `ADJUST_RESIZE`). Classic never
- * had this: it read the configuration orientation, which no keyboard can change.
+ * F69 / F64 / A/B F6-B1. The split follows the WINDOW's shape; the measured box is only a fallback.
+ * The keyboard shrinks the box, never the window, so every "keyboard up" case below is expressed as
+ * a window/box mismatch.
  */
 class SplitOrientationTest {
-    @Test
-    fun landscapeSplitsSideBySide() {
-        assertTrue(splitIsHorizontal(1000f, 500f, reverseSplitMode = false, imeVisible = false, previous = null))
+    @Test fun aLandscapeWindowSplitsSideBySide() =
+        assertTrue(splitIsHorizontal(2000, 1000, 2000f, 900f, reverseSplitMode = false))
+
+    @Test fun aPortraitWindowStacks() =
+        assertFalse(splitIsHorizontal(1000, 2000, 1000f, 1800f, reverseSplitMode = false))
+
+    // F69 and A/B F6-B1 in one case: portrait window, keyboard up, the box is now wider than tall.
+    @Test fun aPortraitWindowStacksEvenWhenTheKeyboardMadeTheBoxWiderThanTall() =
+        assertFalse(splitIsHorizontal(1000, 2000, 1000f, 400f, reverseSplitMode = false))
+
+    // The mirror: landscape window whose box became taller than wide (e.g. a tall agent panel).
+    @Test fun aLandscapeWindowStaysSideBySideWhateverTheBoxShape() =
+        assertTrue(splitIsHorizontal(2000, 1000, 500f, 900f, reverseSplitMode = false))
+
+    @Test fun reverseSplitModeInvertsBothOrientations() {
+        assertFalse(splitIsHorizontal(2000, 1000, 2000f, 900f, reverseSplitMode = true))
+        assertTrue(splitIsHorizontal(1000, 2000, 1000f, 400f, reverseSplitMode = true))
     }
 
-    @Test
-    fun portraitStacks() {
-        assertFalse(splitIsHorizontal(500f, 1000f, reverseSplitMode = false, imeVisible = false, previous = null))
+    // Review Focus 2: an unknown window (0 on either side) falls back to the box, not to "stacked".
+    @Test fun anUnknownWindowSizeFallsBackToTheBox() {
+        assertTrue(splitIsHorizontal(0, 0, 1000f, 500f, reverseSplitMode = false))
+        assertFalse(splitIsHorizontal(0, 0, 500f, 1000f, reverseSplitMode = false))
+        assertTrue(splitIsHorizontal(1080, 0, 1000f, 500f, reverseSplitMode = false))
     }
 
-    @Test
-    fun reverseSplitModeInvertsBoth() {
-        assertFalse(splitIsHorizontal(1000f, 500f, reverseSplitMode = true, imeVisible = false, previous = null))
-        assertTrue(splitIsHorizontal(500f, 1000f, reverseSplitMode = true, imeVisible = false, previous = null))
-    }
-
-    // THE BUG. Portrait 500x1000 stacked; the keyboard eats 600px of height, so the measured box is
-    // 500x400 and the raw formula would say "side by side". The latch must hold the stacked answer.
-    @Test
-    fun aVisibleImeHoldsTheStackedAnswerEvenWhenTheBoxBecomesWiderThanTall() {
-        assertFalse(splitIsHorizontal(500f, 400f, reverseSplitMode = false, imeVisible = true, previous = false))
-    }
-
-    // The mirror case, and it needs `reverseSplitMode` to exist at all: losing height can only flip
-    // stacked -> side-by-side, so with reverse OFF there is no pair where the raw formula would turn a
-    // side-by-side split into a stacked one. With reverse ON, portrait 500x1000 computes side-by-side
-    // and the IME shrink to 500x400 would compute stacked — so this is what the latch has to hold.
-    @Test
-    fun aVisibleImeHoldsTheSideBySideAnswerToo() {
-        assertTrue(splitIsHorizontal(500f, 400f, reverseSplitMode = true, imeVisible = true, previous = true))
-    }
-
-    // First composition with the keyboard ALREADY up (e.g. the activity was recreated while search
-    // was open). There is nothing to latch, so it must compute rather than pick a default.
-    @Test
-    fun withNoPreviousAnswerAVisibleImeStillComputes() {
-        assertTrue(splitIsHorizontal(500f, 400f, reverseSplitMode = false, imeVisible = true, previous = null))
-    }
-
-    // With the keyboard hidden a genuine size change must be honoured, latch or no latch — otherwise
-    // rotating with a stale latch would freeze the split in the old orientation.
-    @Test
-    fun withTheImeHiddenAGenuineSizeChangeOverridesThePreviousAnswer() {
-        assertTrue(splitIsHorizontal(1000f, 500f, reverseSplitMode = false, imeVisible = false, previous = false))
-        assertFalse(splitIsHorizontal(500f, 1000f, reverseSplitMode = false, imeVisible = false, previous = true))
-    }
-
-    // A square box is not "wider than tall", so it stacks. Pinned because the comparison is strict.
-    @Test
-    fun anExactlySquareBoxStacks() {
-        assertFalse(splitIsHorizontal(800f, 800f, reverseSplitMode = false, imeVisible = false, previous = null))
-    }
-
-    @Test
-    fun aFreshLatchAfterARotationRecomputesRatherThanHoldingTheOldAnswer() {
-        // Keyboard up, previously stacked: the latch holds.
-        val heldWhileTyping = splitIsHorizontal(
-            widthPx = 1200f, heightPx = 370f, reverseSplitMode = false,
-            imeVisible = true, previous = false,
-        )
-        assertFalse(heldWhileTyping, "the latch holds while the keyboard is up")
-
-        // The caller reset the latch because the window rotated: same geometry, null previous.
-        val afterRotation = splitIsHorizontal(
-            widthPx = 1200f, heightPx = 370f, reverseSplitMode = false,
-            imeVisible = true, previous = null,
-        )
-        assertTrue(afterRotation, "with the latch reset by a rotation, the new geometry decides (F65)")
-    }
+    // Strict comparison: a square window is not "wider than tall".
+    @Test fun anExactlySquareWindowStacks() =
+        assertFalse(splitIsHorizontal(800, 800, 900f, 700f, reverseSplitMode = false))
 }

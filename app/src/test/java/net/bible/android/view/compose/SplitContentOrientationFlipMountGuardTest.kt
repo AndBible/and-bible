@@ -45,7 +45,7 @@ import org.robolectric.annotation.GraphicsMode
  * `BibleView`, which drops its window token and hides the IME (fix round 1 review finding).
  *
  * Flips orientation via `reverseSplitMode`, not window size: `splitIsHorizontal` (`SplitOrientation.kt`)
- * computes `(widthPx > heightPx) != reverseSplitMode` whenever the IME is not latched, so toggling
+ * computes `(window is wider than tall) != reverseSplitMode`, so toggling
  * `reverseSplitMode` flips `isHorizontal` while every other input -- including the Robolectric
  * viewport's fixed width/height -- stays constant. This is the same lever
  * `ReadingSplitGoldenTest.twoPaneVerticalViaReverse` already uses to reach the vertical branch, so it

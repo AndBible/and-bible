@@ -22,6 +22,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
@@ -176,6 +177,7 @@ import net.bible.android.view.activity.download.isBadDocument
 import net.bible.android.view.activity.download.isInstalled
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.ActivityResultKind
+import net.bible.android.view.activity.page.ConfigurationChanged
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.FullScreenEvent
 import net.bible.android.view.activity.page.KeyChooserResults
@@ -3315,6 +3317,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
         true
     } catch (e: IllegalArgumentException) {
         false
+    }
+
+    /**
+     * Fix batch 2 §2.3: this host is NOT recreated on rotation (`orientation` is in its
+     * `configChanges`, F65), so BibleView must be told -- it re-derives `isSplitVertically` and
+     * re-sends its pane offsets on `ConfigurationChanged` (the event `SplitModePreference` already
+     * posts for the same reason).
+     */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        ABEventBus.post(ConfigurationChanged(newConfig))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
