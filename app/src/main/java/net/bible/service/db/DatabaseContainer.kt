@@ -315,9 +315,7 @@ class DatabaseContainer {
         val needBackup = maxVersions != versions
 
         if(needBackup) {
-            ready = false
-            val backupZipFile = BackupControl.makeDatabaseBackupFile()
-            ready = true
+            val backupZipFile = withReadyCleared { BackupControl.makeDatabaseBackupFile() }
             backupZipFile ?: return
             val versionString = versions.joinToString("-")
             Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")
@@ -354,6 +352,18 @@ class DatabaseContainer {
 
     companion object {
         var ready: Boolean = false
+
+        /**
+         * Runs [block] with [ready] cleared, and restores it however [block] ends. The clearing makes
+         * `makeDatabaseBackupFile` skip vacuum/sync, which would otherwise re-enter [instance] mid-
+         * construction; without the `finally`, a throwing backup left `ready = false` forever and
+         * every later settings read silently answered its default (fix batch 1 §2.7). The failure
+         * itself propagates: no migration without the safety-net backup (maintainer decision).
+         */
+        internal inline fun <T> withReadyCleared(block: () -> T): T {
+            ready = false
+            try { return block() } finally { ready = true }
+        }
 
         /**
          * Opens the databases for use: what `StartupActivity.initializeDatabase` has always done
