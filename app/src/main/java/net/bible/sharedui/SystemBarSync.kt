@@ -17,6 +17,7 @@
 
 package net.bible.sharedui
 
+import net.bible.android.view.activity.nav.SystemBarPolicyHost
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -52,7 +53,8 @@ fun Context.findActivity(): Activity? {
  *   previous screen's `true` call left painted there (host-inset-ownership spec, section 3.5).
  *   `false` is no longer inert: before that fix it left the previous fill in place.
  * - The status-bar icon appearance follows [container]'s luminance, same 0.45 threshold as
- *   `ReadingProgressPalette.textColorForBackground`. Classic only ever set light-icon mode for
+ *   `ReadingProgressPalette.textColorForBackground`. When [activity] is a `SystemBarPolicyHost` (the
+ *   nav host) the write is delegated: the colour is only reported and the host's policy decides. Classic only ever set light-icon mode for
  *   monochrome+day, which would leave white icons unreadable on a light workspace colour.
  * - **Floating windows are skipped for both the colour and the appearance write** (A/B batch 3
  *   review fix, Minor 7). A dialog-themed Activity (the since-deleted `HistoryComposeActivity`
@@ -96,9 +98,16 @@ fun applySystemBarColor(activity: Activity, container: Color, fillWindowBackgrou
         // light container asks for a light STATUS BAR BACKGROUND, i.e. DARK icons drawn on top of it.
         // ("wantsLightIcons" was an inverted misnomer: it read as "light container -> light icons",
         // which is exactly the F1 bug this function fixes.)
-        val statusBarBackgroundIsLight = container.luminance() >= 0.45f
-        if (controller.isAppearanceLightStatusBars != statusBarBackgroundIsLight) {
-            controller.isAppearanceLightStatusBars = statusBarBackgroundIsLight
+        val policyHost = activity as? SystemBarPolicyHost
+        if (policyHost != null) {
+            // Fix batch 2 §2.4: the nav host decides the status icons (it knows fullscreen and what is
+            // really under the bar); a top bar only reports its colour.
+            policyHost.onTopBarColourReported(argb)
+        } else {
+            val statusBarBackgroundIsLight = container.luminance() >= 0.45f
+            if (controller.isAppearanceLightStatusBars != statusBarBackgroundIsLight) {
+                controller.isAppearanceLightStatusBars = statusBarBackgroundIsLight
+            }
         }
 
         // Round 12b §3: the same luminance rule for the NAVIGATION bar's icons — but only when

@@ -114,6 +114,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.android.control.event.on
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.ToastEvent
@@ -521,7 +522,7 @@ import org.koin.android.ext.android.inject
  * theming, locale attachment, edge-to-edge setup, `CurrentActivityHolder` registration and — the
  * one that matters for this cluster — `awaitIntent`, which the SAF flows need.
  */
-class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
+class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPolicyHost {
     private val documentFilterService: DocumentFilterService by inject()
     private val toolPermissionService: ToolPermissionService by inject()
     private val llmModelService: LlmModelService by inject()
@@ -1790,6 +1791,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
     // `ReadingCommands.pageTitleText` now, read by both hosts through their own command surface,
     // and `ReadingCommandsHostCallbacks.pageTitleText` went with it.
 
+    /** The last colour a top bar reported (`applySystemBarColor`); `null` until one has. */
+    private var reportedTopBarArgb: Int? = null
+
+    override fun onTopBarColourReported(argb: Int) {
+        // SyncSystemBars runs in a SideEffect on every recomposition: only a CHANGE re-decides.
+        if (reportedTopBarArgb == argb) return
+        reportedTopBarArgb = argb
+        refreshSystemBars()
+    }
+
+    /** The page under a fullscreen reading view's transient bar; `null` before the reading bootstrap. */
+    private fun pageBackgroundArgbOrNull(): Int? =
+        if (!readingAppBootstrapped) null else bibleViewBackgroundColorFor(windowControl.activeWindow)
+
     private val systemBarController by lazy { SystemBarController(window) }
 
     @VisibleForTesting
@@ -1806,8 +1821,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
                 onReading = onReading,
                 hideStatusBar = CommonUtils.settings.hideStatusBar,
                 fullScreen = fullScreen && !forceNotFullScreen,
-                topBarArgb = null,          // Task 5b
-                pageBackgroundArgb = null,  // Task 5b
+                topBarArgb = reportedTopBarArgb,
+                pageBackgroundArgb = if (onReading && fullScreen && !forceNotFullScreen) pageBackgroundArgbOrNull() else null,
             )
         )
     }
@@ -2939,6 +2954,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity {
             if(paused) return@on
             if(CurrentActivityHolder.currentActivity == this@NavHostComposeActivity) {
                 refreshIfNightModeChange()
+                // The light-sensor night flip does not recreate (`AbAppTheme.kt`), and the fullscreen
+                // page colour changes with it.
+                refreshSystemBars()
             }
         }
         // Fix batch 2 (F77): the setting applies on every destination, immediately.

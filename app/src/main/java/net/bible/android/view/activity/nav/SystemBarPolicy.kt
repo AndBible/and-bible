@@ -65,3 +65,13 @@ class SystemBarController(private val window: Window) {
 
 /** Posted when `hide_status_bar` is written, so the host re-decides on the current destination. */
 class SystemBarSettingChangedEvent
+
+/**
+ * Implemented by the nav host: a top bar's `SyncSystemBars` REPORTS its colour here instead of
+ * writing the status-icon appearance itself, so the host's [SystemBarController] stays its single
+ * writer (fix batch 2 §2.4). Activities that do not implement it keep the direct write in
+ * `applySystemBarColor`.
+ */
+interface SystemBarPolicyHost {
+    fun onTopBarColourReported(argb: Int)
+}
