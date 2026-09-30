@@ -17,12 +17,15 @@
 
 package net.bible.sharedui.progress
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -39,6 +42,7 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -137,6 +141,7 @@ fun ReadingProgressScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ReadingTabBody(
     model: ReadingProgressModel,
@@ -151,6 +156,19 @@ private fun ReadingTabBody(
     onCalendarDayClick: (dayTimestamp: Long) -> Unit,
 ) {
     var confirmNewCycle by remember { mutableStateOf(false) }
+
+    // F95 (fix batch 3 §2.3.3): classic's showChapterDetail scrolled to the detail it opened. The
+    // FIRST composition is skipped on purpose: a detail that is already there when the screen appears
+    // (the goldens, a restored screen) is not the result of a tap, and scrolling to it would move them.
+    val detailHeading = remember { BringIntoViewRequester() }
+    var firstDetailSeen by remember { mutableStateOf(false) }
+    LaunchedEffect(model.chapterDetail?.title) {
+        if (!firstDetailSeen) {
+            firstDetailSeen = true
+            return@LaunchedEffect
+        }
+        if (model.chapterDetail != null) detailHeading.bringIntoView()
+    }
 
     Column(
         modifier = Modifier
@@ -227,7 +245,11 @@ private fun ReadingTabBody(
         // 5. Chapter detail (only when a book is selected).
         val detail = model.chapterDetail
         if (detail != null) {
-            Text(text = detail.title, style = MaterialTheme.typography.titleSmall)
+            Text(
+                text = detail.title,
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.bringIntoViewRequester(detailHeading),
+            )
             Spacer(Modifier.height(4.dp))
             AbColorScaleLegend(
                 label = strings.readingProgressReadCountScale,
