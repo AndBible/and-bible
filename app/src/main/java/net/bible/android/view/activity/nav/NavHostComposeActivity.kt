@@ -959,7 +959,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         listOf(
             // Classic :778. The Compose drawer is modal -- it must win.
             BackStep("drawer") { readingCommands.composeCloseDrawerIfOpen() },
-            // Classic :797. Two stages: the results sheet first, then search mode.
+            // Classic :797. Three stages: the results list after a result tap (F83), then the sheet, then search mode.
             BackStep("search") { readingCommands.composeCloseSearchIfOpen() },
             // Classic :798-801.
             BackStep("fullscreen") {
