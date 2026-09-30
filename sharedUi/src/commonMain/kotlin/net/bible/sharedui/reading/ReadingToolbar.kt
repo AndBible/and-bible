@@ -391,7 +391,10 @@ fun ReadingToolbar(
                     // a background covers the padding applied after it, so the container colour
                     // extends under the status bar instead of stopping below it.
                     .background(container)
-                    .windowInsetsPadding(WindowInsets.statusBars)
+                    // Union (max), not sum: with the status bar hidden (hide_status_bar, fullscreen) the
+                    // top display cutout is the only thing left to clear -- edge-to-edge no longer gets
+                    // it from the legacy decor-fits insets.
+                    .windowInsetsPadding(WindowInsets.statusBars.union(WindowInsets.displayCutout.only(WindowInsetsSides.Top)))
                     // The normal row does the same below: without it the field slides under a display
                     // cutout in landscape.
                     .windowInsetsPadding(
@@ -533,7 +536,7 @@ fun ReadingToolbar(
             // padding applied after it, so the container colour extends under the status bar
             // instead of stopping below it (the reported "light strip, white clock" bug).
             .background(container)
-            .windowInsetsPadding(WindowInsets.statusBars)
+            .windowInsetsPadding(WindowInsets.statusBars.union(WindowInsets.displayCutout.only(WindowInsetsSides.Top)))
             .windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal))
             .height(ToolbarHeight),
     ) {
