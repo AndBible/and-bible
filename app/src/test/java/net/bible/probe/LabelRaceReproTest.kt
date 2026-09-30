@@ -7,7 +7,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.service.db.DatabaseContainer
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -23,10 +22,9 @@ class LabelRaceReproTest {
      * Minimal reproduction of the production race behind the leaked `UNIQUE constraint failed:
      * Label.id` (fix batch 2 task 6, run 2): `BookmarkControl.getOrCreateSpecialLabel` is a
      * check-then-insert with no lock, so two threads on a fresh DB both insert. Measured 265/300
-     * iterations fail. Ignored because it is a known production defect awaiting a ruling; remove
-     * the @Ignore once getOrCreateSpecialLabel is made race-free (it then must report 0 failures).
+     * iterations failed (271 at the RED run) before the fix; getOrCreateSpecialLabel now does check+insert
+     * under one lock, so it must report 0.
      */
-    @Ignore("documents the getOrCreateSpecialLabel race; un-ignore when production is fixed")
     @Test fun twoThreadsCreatingTheSameSpecialLabel() {
         val bc = BookmarkControl(Mockito.mock(WindowControl::class.java), Mockito.mock(AndroidResourceProvider::class.java))
         val failures = AtomicInteger()

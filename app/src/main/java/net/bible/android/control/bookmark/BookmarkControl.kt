@@ -536,12 +536,25 @@ open class BookmarkControl constructor(
 
     val assignableLabels: List<Label> get() = dao.allLabelsSortedByName()
 
+    private val specialLabelLock get() = SPECIAL_LABEL_LOCK
+
     private fun getOrCreateSpecialLabel(
         canonicalId: IdType,
         create: () -> Label
-    ): Label = dao.labelById(canonicalId) ?: create().also {
-        dao.insert(it)
-        ABEventBus.post(LabelAddedOrUpdatedEvent(it))
+    ): Label {
+        // The check and the insert must be one step: every caller (BibleView.loadDocument runs for
+        // several windows at once, on Dispatchers.IO) would otherwise both see "no label" on a fresh
+        // database and the loser's insert dies with UNIQUE constraint failed: Label.id. The lock is
+        // process-wide (not per instance) because the database is. The event is posted outside it.
+        var created: Label? = null
+        val label = synchronized(specialLabelLock) {
+            dao.labelById(canonicalId) ?: create().also {
+                dao.insert(it)
+                created = it
+            }
+        }
+        created?.let { ABEventBus.post(LabelAddedOrUpdatedEvent(it)) }
+        return label
     }
 
     val speakLabel: Label get() = getOrCreateSpecialLabel(SPEAK_LABEL_ID) {
@@ -1132,6 +1145,7 @@ open class BookmarkControl constructor(
     companion object {
         const val LABEL_NO_EXTRA = "labelNo"
         private const val TAG = "BookmarkControl"
+        private val SPECIAL_LABEL_LOCK = Any()
     }
 
 }
