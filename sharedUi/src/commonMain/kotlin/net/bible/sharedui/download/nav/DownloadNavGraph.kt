@@ -831,7 +831,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         val grouped by controller.grouped.collectAsState()
         val languages by controller.languages.collectAsState()
         val selectedLanguage by controller.selectedLanguage.collectAsState()
-        val selectedTypeFilter by controller.selectedTypeFilter.collectAsState()
+        val shownTypeFilter by controller.shownTypeFilter.collectAsState()
         val query by controller.query.collectAsState()
         val resultCount by controller.resultCount.collectAsState()
         val selectionMode by controller.selectionMode.collectAsState()
@@ -882,7 +882,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
                 languages = languages,
                 selectedLanguage = selectedLanguage,
                 typeFilters = typeFilterLabels(strings),
-                selectedTypeFilter = selectedTypeFilter,
+                selectedTypeFilter = shownTypeFilter,
                 query = query,
                 resultCount = strings.docFilterResults(resultCount),
                 selectionMode = selectionMode,
@@ -895,7 +895,7 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
                 onOpenSearch = controller::openSearch,
                 onCloseSearch = controller::closeSearch,
                 onLanguageChange = controller::setLanguage,
-                onTypeFilterChange = { d.persistTypeFilter(it); controller.setTypeFilter(it) },
+                onTypeFilterChange = { if (controller.pickTypeFilter(it)) d.persistTypeFilter(it) },
                 arrangement = arrangement,
                 groupKeys = controller.groupKeys,
                 repositories = repositories,

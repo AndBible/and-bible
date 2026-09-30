@@ -159,6 +159,54 @@ class DocumentSelectionControllerTest {
         )
     }
 
+    // ---- F72 (fix batch 3 §2.2.1): the chip shows what the search actually applies --------------
+
+    @Test fun a_live_query_shows_the_chip_as_all_and_keeps_the_persisted_filter() {
+        val c = controller()
+        c.setDocuments(listOf(row("kjv", DocCategory.BIBLE), row("mhc", DocCategory.COMMENTARY)))
+        c.setTypeFilter(DocTypeFilter.BIBLE)
+        assertEquals(DocTypeFilter.BIBLE, c.shownTypeFilter.value, "sanity: no query shows the persisted filter")
+
+        c.setQuery("repo")
+        assertEquals(DocTypeFilter.ALL, c.shownTypeFilter.value, "F72: a search ignores the filter, so the chip must say All")
+        assertEquals(listOf("kjv", "mhc"), c.displayed.value.map { it.docId }, "F56(b): the search still bypasses the persisted filter")
+        assertEquals(DocTypeFilter.BIBLE, c.selectedTypeFilter.value, "the persisted filter is untouched")
+    }
+
+    @Test fun picking_a_type_during_a_search_narrows_the_search_without_persisting() {
+        val c = controller()
+        c.setDocuments(listOf(row("kjv", DocCategory.BIBLE), row("mhc", DocCategory.COMMENTARY)))
+        c.setQuery("repo")
+
+        assertFalse(c.pickTypeFilter(DocTypeFilter.COMMENTARY), "a pick during a search must not be persisted")
+        assertEquals(DocTypeFilter.COMMENTARY, c.shownTypeFilter.value)
+        assertEquals(listOf("mhc"), c.displayed.value.map { it.docId })
+        assertEquals(DocTypeFilter.ALL, c.selectedTypeFilter.value, "the persisted filter is untouched")
+    }
+
+    @Test fun clearingTheQueryDropsTheTransientFilter() {
+        val c = controller()
+        c.setDocuments(listOf(row("kjv", DocCategory.BIBLE), row("mhc", DocCategory.COMMENTARY)))
+        c.setTypeFilter(DocTypeFilter.BIBLE)
+        c.setQuery("repo")
+        c.pickTypeFilter(DocTypeFilter.COMMENTARY)
+
+        c.setQuery("")
+        assertEquals(DocTypeFilter.BIBLE, c.shownTypeFilter.value, "back to the persisted filter")
+        assertEquals(listOf("kjv"), c.displayed.value.map { it.docId })
+        c.setQuery("repo")
+        assertEquals(DocTypeFilter.ALL, c.shownTypeFilter.value, "a new search starts unfiltered again")
+    }
+
+    @Test fun picking_a_type_without_a_query_persists_and_applies_it() {
+        val c = controller()
+        c.setDocuments(listOf(row("kjv", DocCategory.BIBLE), row("mhc", DocCategory.COMMENTARY)))
+        assertTrue(c.pickTypeFilter(DocTypeFilter.BIBLE))
+        assertEquals(DocTypeFilter.BIBLE, c.selectedTypeFilter.value)
+        assertEquals(DocTypeFilter.BIBLE, c.shownTypeFilter.value)
+        assertEquals(listOf("kjv"), c.displayed.value.map { it.docId })
+    }
+
     @Test fun sort_puts_being_installed_first_then_not_installed_then_category_then_abbr() {
         val c = controller()
         val rows = listOf(

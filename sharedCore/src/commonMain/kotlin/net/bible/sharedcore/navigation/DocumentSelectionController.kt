@@ -44,6 +44,7 @@ fun computeDisplayedDocuments(
     type: DocTypeFilter,
     query: String,
     arrangement: DocArrangement = defaultArrangement(DocSortKey.entries.toSet()),
+    searchType: DocTypeFilter? = null,
 ): List<DocRow> =
     sortDocuments(
         all.filter { row ->
@@ -52,8 +53,10 @@ fun computeDisplayedDocuments(
             // whatever the user last picked, in some other session. A targeted search (a
             // `download://` deep link naming one module) has no way to know or change that, so it
             // must not be narrowed by it. Classic behaved the same way; this is a deliberate
-            // improvement, not parity.
-            (query.isNotBlank() || type.test(row)) &&
+            // improvement, not parity. F72: a category picked DURING a search
+            // ([DocumentSelectionController.pickTypeFilter]) narrows that search via [searchType];
+            // the persisted filter still never applies to one.
+            (if (query.isNotBlank()) searchType?.test(row) ?: true else type.test(row)) &&
                 (lang == null || row.language.groupingKey == lang.groupingKey || row.category == DocCategory.AND_BIBLE) &&
                 // F56(a): `osisId` first, as the @Fts4 DocumentSearch entity had it. Dropping it in
                 // 5e0a78051 is what made `download://?initials=X` unable to match anything.
@@ -150,6 +153,18 @@ class DocumentSelectionController(
     val selectedLanguage: StateFlow<LangOption?> = _selectedLanguage.asStateFlow()
     private val _selectedTypeFilter = MutableStateFlow(DocTypeFilter.ALL)
     val selectedTypeFilter: StateFlow<DocTypeFilter> = _selectedTypeFilter.asStateFlow()
+
+    /**
+     * F72 (fix batch 3 §2.2.1): a category picked while a query is active. It narrows that search
+     * only; the persisted [selectedTypeFilter] never applies to a search (F56(b)) and is not changed
+     * by this. Null = the search is unfiltered. Cleared whenever the query becomes blank.
+     */
+    private var searchTypeFilter: DocTypeFilter? = null
+
+    private val _shownTypeFilter = MutableStateFlow(DocTypeFilter.ALL)
+
+    /** What the type chip shows: the filter that actually applies to [displayed] right now. */
+    val shownTypeFilter: StateFlow<DocTypeFilter> = _shownTypeFilter.asStateFlow()
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()
     private val searchMode = SearchModeController(onClearQuery = { setQuery("") })
@@ -331,22 +346,41 @@ class DocumentSelectionController(
      * the per-keystroke IO hop still go with it. `matchesDocumentQuery` is shared with the cloud
      * list, which is what makes the two screens' search behave the same.
      */
-    fun setQuery(q: String) { _query.value = q; refilter() }
+    fun setQuery(q: String) { _query.value = q; if (q.isBlank()) searchTypeFilter = null; refilter() }
     fun openSearch() = searchMode.open()
     fun closeSearch() = searchMode.close()
     fun setLanguage(lang: LangOption?) { _selectedLanguage.value = lang; onStickyLanguage(lang); refilter() }
     fun setTypeFilter(f: DocTypeFilter) { _selectedTypeFilter.value = f; refilter() }
 
+    /**
+     * The type chip's pick. With a live query it narrows that search only and returns false (the
+     * caller must NOT persist it); otherwise it is [setTypeFilter] and returns true.
+     */
+    fun pickTypeFilter(f: DocTypeFilter): Boolean {
+        if (_query.value.isBlank()) {
+            setTypeFilter(f)
+            return true
+        }
+        searchTypeFilter = f
+        refilter()
+        return false
+    }
+
     private fun refilter() {
         clearSelection()
-        val out = computeDisplayed(all, _selectedLanguage.value, _selectedTypeFilter.value, _query.value)
+        val out = computeDisplayed(all, _selectedLanguage.value, _selectedTypeFilter.value, _query.value, searchTypeFilter)
         _displayed.value = out
         _grouped.value = groupDocuments(out, _arrangement.value.groupBy)
         _resultCount.value = out.size
+        _shownTypeFilter.value =
+            if (_query.value.isNotBlank()) searchTypeFilter ?: DocTypeFilter.ALL else _selectedTypeFilter.value
     }
 
-    fun computeDisplayed(all: List<DocRow>, lang: LangOption?, type: DocTypeFilter, query: String): List<DocRow> =
-        computeDisplayedDocuments(all, lang, type, query, _arrangement.value)
+    fun computeDisplayed(
+        all: List<DocRow>, lang: LangOption?, type: DocTypeFilter, query: String,
+        searchType: DocTypeFilter? = null,
+    ): List<DocRow> =
+        computeDisplayedDocuments(all, lang, type, query, _arrangement.value, searchType)
 
     fun enterSelection() { _selectionMode.value = true }
     fun toggle(id: String) {

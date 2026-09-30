@@ -52,8 +52,9 @@ import net.bible.sharedui.strings.Strings
  * Exactly one sheet can be open at a time (a single [openSheet] state), which preserves the
  * screen's no-nested-bottom-sheets invariant.
  *
- * Deliberately search-agnostic: it takes no query state. Moving the search field into the
- * toolbar is a separate, later change that must not have to touch this file.
+ * Search-agnostic: it takes no query state. The controller decides what
+ * [selectedTypeFilter] means under a live query (F72: `DocumentSelectionController.shownTypeFilter`),
+ * so this bar always draws the filter that actually applies.
  */
 @Composable
 fun DocumentFilterBar(

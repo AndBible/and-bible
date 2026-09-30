@@ -518,7 +518,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
         val grouped by controller.grouped.collectAsState()
         val languages by controller.languages.collectAsState()
         val selectedLanguage by controller.selectedLanguage.collectAsState()
-        val selectedTypeFilter by controller.selectedTypeFilter.collectAsState()
+        val shownTypeFilter by controller.shownTypeFilter.collectAsState()
         val query by controller.query.collectAsState()
         val resultCount by controller.resultCount.collectAsState()
         val selectionMode by controller.selectionMode.collectAsState()
@@ -549,7 +549,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             languages = languages,
             selectedLanguage = selectedLanguage,
             typeFilters = chooserTypeFilterLabels(strings),
-            selectedTypeFilter = selectedTypeFilter,
+            selectedTypeFilter = shownTypeFilter,
             query = query,
             resultCount = strings.docFilterResults(resultCount),
             selectionMode = selectionMode,
@@ -564,7 +564,7 @@ fun NavGraphBuilder.chooserNavGraph(navController: NavHostController, deps: Choo
             onLanguageChange = controller::setLanguage,
             // Classic persisted `selected_document_filter_no` inline before applying the filter
             // (`:184-188`), so "else last saved" keeps working on the next open.
-            onTypeFilterChange = { d.persistTypeFilter(it); controller.setTypeFilter(it) },
+            onTypeFilterChange = { if (controller.pickTypeFilter(it)) d.persistTypeFilter(it) },
             arrangement = arrangement,
             groupKeys = controller.groupKeys,
             repositories = repositories,
