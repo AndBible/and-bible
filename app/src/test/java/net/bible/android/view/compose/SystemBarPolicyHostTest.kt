@@ -65,8 +65,9 @@ class SystemBarPolicyHostTest {
         a.navigateInGraph(NavRoutes.AI_TOOL_INFO); idle()
         assertEquals("the nav bar must show on a non-reading destination", false, navHidden(a))
 
-        // Not onBackPressed(): at sdk 29 the dispatcher did not pop this graph when the test ran after
-        // others in this class (it does standalone, and at sdk 30 -- see the system-back test below).
+        // navigateInGraph rather than a back press: the real back press is the sdk-30 test below. (An
+        // earlier version of this comment blamed sdk 29; the actual cause of a back press not popping
+        // was stale AndroidUiDispatcher flags, which ComposeUiDispatcherResetRule now resets.)
         a.navigateInGraph(NavRoutes.READING); idle()
         assertTrue("returned to reading, fullscreen hides it again", navHidden(a))
     }

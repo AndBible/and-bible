@@ -536,8 +536,11 @@ open class BookmarkControl constructor(
 
     val assignableLabels: List<Label> get() = dao.allLabelsSortedByName()
 
-    private val specialLabelLock get() = SPECIAL_LABEL_LOCK
-
+    /**
+     * Backs [speakLabel], [labelUnlabelled], [paragraphBreakLabel] and [aiLabel]. Takes
+     * [SPECIAL_LABEL_LOCK], so **never call those getters inside a database transaction**: another
+     * thread may hold the lock while waiting for that transaction's write lock.
+     */
     private fun getOrCreateSpecialLabel(
         canonicalId: IdType,
         create: () -> Label
@@ -547,7 +550,7 @@ open class BookmarkControl constructor(
         // database and the loser's insert dies with UNIQUE constraint failed: Label.id. The lock is
         // process-wide (not per instance) because the database is. The event is posted outside it.
         var created: Label? = null
-        val label = synchronized(specialLabelLock) {
+        val label = synchronized(SPECIAL_LABEL_LOCK) {
             dao.labelById(canonicalId) ?: create().also {
                 dao.insert(it)
                 created = it

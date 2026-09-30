@@ -1,4 +1,4 @@
-package net.bible.probe
+package net.bible.test
 
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlin.coroutines.AbstractCoroutineContextElement

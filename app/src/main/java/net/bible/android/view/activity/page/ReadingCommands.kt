@@ -1413,8 +1413,8 @@ class ReadingCommands(
      * locale/theme/colour/discrete VISUALLY and covers none of these:
      *
      *  - the system bars, re-applied for the fullscreen state in force (classic's `resetSystemUi()`,
-     *    which is the same `hideSystemUI`/`showSystemUI` pair [ReadingHostActivity.applyIdleSystemUi]
-     *    is);
+     *    which is what [ReadingHostActivity.applyIdleSystemUi] does here
+     *    (`refreshSystemBars` / `showSystemUI`, the single system-bar writer));
      *  - the SD-card permission the "manual install folder" preference asks for, which is only ever
      *    requested on the way back from Settings;
      *  - `SynchronizeWindowsEvent(true)`, which NOTHING else in the tree posts;

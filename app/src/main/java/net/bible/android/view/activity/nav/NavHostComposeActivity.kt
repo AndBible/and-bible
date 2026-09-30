@@ -1445,10 +1445,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /**
      * [ReadingHostActivity.appOwnsImeInsetFromSdk] (F59 fix round 1) -- this host is the one this
-     * batch measured (spec §3.1.1), so it answers `R` (30). [onCreate]'s own `ADJUST_NOTHING` call
-     * and its insets-listener gate both read this SAME member, so the three sites (this, that call,
-     * that gate) cannot drift apart. See the interface member's kdoc for the full argument and why
-     * `MainBibleActivity` answers a different constant.
+     * batch measured (spec §3.1.1), so it answers `R` (30). [windowModeFor]/[applyWindowModeFor],
+     * `ReadingAppBootstrap.setSoftKeyboardMode` and the insets-listener gate all read this SAME
+     * member, so those sites cannot drift apart. See the interface member's kdoc.
      */
     override val appOwnsImeInsetFromSdk: Int = Build.VERSION_CODES.R
 
@@ -1645,8 +1644,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      *   host, exactly as classic asks it;
      * - `applyImeBottomPadding` (F59) publishes the ledger's shrink to [imeBottomPaddingPxState];
      *   [ComposeReadingViewHost] reads [imeBottomPaddingPx] and applies it as a plain bottom padding
-     *   on the reading content (spec §3.3) -- NOT `Modifier.imePadding()`, which would consume
-     *   `WindowInsets.ime` and blind the split (its orientation follows the window shape, `splitIsHorizontal`).
+     *   on the reading content (spec §3.3) -- NOT `Modifier.imePadding()`: that would lift the column
+     *   a second time on top of the ledger's padding, and it would consume `ime`, so the bars'
+     *   `navigationBars.exclude(ime)` could no longer see the keyboard and would pad the nav bar again.
      *
      * `by lazy` for [readingCommands]' reason.
      */
@@ -1676,8 +1676,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // computes is published here and applied as a plain bottom padding on the reading
                 // content, the Compose counterpart of classic's binding.mainBibleView.setPadding.
                 //
-                // NOT `Modifier.imePadding()` at the consumer: that CONSUMES WindowInsets.ime, which
-                // would consume the IME inset the ledger reads (split orientation itself follows the window shape, `splitIsHorizontal`).
+                // NOT `Modifier.imePadding()` at the consumer: that would double the lift on top of
+                // this padding and consume `ime`, hiding it from the bars' `navigationBars.exclude(ime)`.
                 applyImeBottomPadding = { px -> imeBottomPaddingPxState.intValue = px },
             )
         )

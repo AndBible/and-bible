@@ -123,8 +123,9 @@ fun ReadingViewScreen(
     fullScreen: Boolean,
     /**
      * The keyboard shrink, supplied by the host (F59). Applied as a plain bottom padding on the
-     * reading column -- never `Modifier.imePadding()`, which consumes `WindowInsets.ime` and would
-     * blind the ledger's IME read (the split's orientation follows the window shape, `splitIsHorizontal`). `0.dp` on hosts that pad their own container.
+     * reading column -- never `Modifier.imePadding()`: that would lift the column a second time on
+     * top of this padding and consume `ime`, so the bars' `navigationBars.exclude(ime)` (the strip,
+     * Speak bar, agent panel) could no longer see the keyboard. `0.dp` on hosts that pad their own container.
      */
     imeBottomPadding: Dp = 0.dp,
     onWindowActivated: (String) -> Unit,

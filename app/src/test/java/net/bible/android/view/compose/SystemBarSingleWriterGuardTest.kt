@@ -23,6 +23,23 @@ class SystemBarSingleWriterGuardTest {
     @Test fun theNavHostHasNoRawSystemBarWrites() =
         assertEquals(emptyList<String>(), offendingLines(host.readText()))
 
+    // The status-icon appearance has two sanctioned writers; anywhere else in :app is a third.
+    private val appearanceWrite = Regex("""isAppearanceLightStatusBars\s*=(?!=)""")
+    private val sanctioned = setOf("SystemBarPolicy.kt", "SystemBarSync.kt")
+
+    internal fun appearanceWriters(root: File): List<String> = root.walkTopDown()
+        .filter { it.isFile && it.extension == "kt" && it.name !in sanctioned }
+        .filter { f -> f.readLines().any { appearanceWrite.containsMatchIn(it.substringBefore("//")) } }
+        .map { it.path }.toList()
+
+    @Test fun onlyThePolicyAndTheSyncWriteStatusIconAppearance() =
+        assertEquals(emptyList<String>(), appearanceWriters(File("src/main")))
+
+    @Test fun theAppearanceScanCanFail() {
+        assertTrue(appearanceWrite.containsMatchIn("c.isAppearanceLightStatusBars = true"))
+        assertTrue(!appearanceWrite.containsMatchIn("if (c.isAppearanceLightStatusBars == true)"))
+    }
+
     @Test fun theScanSeesTheSource() = assertTrue("run from app/", host.isFile)
 
     @Test fun theGuardCanFail() {

@@ -1,8 +1,7 @@
-package net.bible.probe
+package net.bible.android.control.bookmark
 
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
 import net.bible.android.common.resource.AndroidResourceProvider
@@ -17,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
-class LabelRaceReproTest {
+class BookmarkControlSpecialLabelRaceTest {
     /**
      * Minimal reproduction of the production race behind the leaked `UNIQUE constraint failed:
      * Label.id` (fix batch 2 task 6, run 2): `BookmarkControl.getOrCreateSpecialLabel` is a
