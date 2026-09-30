@@ -159,4 +159,32 @@ class SearchSheetStructureGuardTest {
         val stripped = stripComments(synthetic)
         assertThat("the comment's occurrence of the pattern must be gone after stripping", stripped.contains("key(gen) {"), equalTo(false))
     }
+
+    /** The text of the named argument's lambda: from `name = {` to its matching closing brace. */
+    private fun lambdaBody(name: String): String {
+        val at = source.indexOf("$name = {")
+        assertThat("`$name = {` must exist in the scaffold call", at >= 0, equalTo(true))
+        var depth = 0
+        var i = source.indexOf('{', at)
+        val start = i
+        while (i < source.length) {
+            when (source[i]) { '{' -> depth++; '}' -> { depth--; if (depth == 0) return source.substring(start, i + 1) } }
+            i++
+        }
+        error("unbalanced braces after $name")
+    }
+
+    // Final review Important 2: BottomSheetScaffold (material3 1.4.0) applies no window insets and the
+    // reading tree is edge-to-edge, so the sheet content and the snackbar must each pad the nav bar /
+    // cutout themselves. The behaviour of the modifier is ReadingSheetInsetPaddingTest; this guard is
+    // that the host actually uses it in both places (nothing renders the whole host in a test).
+    @Test
+    fun theSheetContentPadsTheSystemInsets() {
+        assertThat(lambdaBody("sheetContent").contains("readingSheetInsetPadding()"), equalTo(true))
+    }
+
+    @Test
+    fun theSnackbarHostPadsTheSystemInsets() {
+        assertThat(lambdaBody("snackbarHost").contains("readingSheetInsetPadding()"), equalTo(true))
+    }
 }

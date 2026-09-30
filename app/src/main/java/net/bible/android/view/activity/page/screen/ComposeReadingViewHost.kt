@@ -34,7 +34,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -299,6 +298,7 @@ import net.bible.sharedui.search.EpubSearchSettings
 import net.bible.sharedui.search.SearchIndexPanel
 import net.bible.sharedui.search.SearchSettingsSheet
 import net.bible.sharedui.search.SearchSheetContent
+import net.bible.sharedui.search.readingSheetInsetPadding
 import net.bible.sharedui.search.bibleResultRows
 import net.bible.sharedui.search.epubResultRows
 import net.bible.sharedui.settings.ColorSettingsEditorSheet
@@ -4553,7 +4553,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         BottomSheetScaffold(
                             scaffoldState = searchSheetState,
                             sheetPeekHeight = 0.dp,
-                            snackbarHost = { SnackbarHost(searchSnackbarHostState) },
+                            // BottomSheetScaffold applies no window insets (material3 1.4.0) and this tree is
+                            // edge-to-edge: clear the nav bar / cutout ourselves.
+                            snackbarHost = { SnackbarHost(searchSnackbarHostState, Modifier.readingSheetInsetPadding()) },
                             sheetDragHandle = {
                                 Box(Modifier.onSizeChanged { size -> searchSheetHandleHeightPx = size.height }) {
                                     BottomSheetDefaults.DragHandle()
@@ -4574,7 +4576,12 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                                 // no-op. Keeping a hairline sheet keeps the anchor alive at
                                 // all times (invisible: at 1.dp the sheet sits a pixel off
                                 // the bottom edge, and `Hidden` is where it rests anyway).
-                                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                                //
+                                // The nav-bar/cutout padding is OUTSIDE the measured Box on purpose:
+                                // `searchSheetContentHeightPx` feeds `bottomOffsetForWebView`, which
+                                // already adds the nav bar (ReadingInsets), so measuring it here would
+                                // reserve it twice.
+                                BoxWithConstraints(Modifier.fillMaxWidth().readingSheetInsetPadding()) {
                                     Box(
                                         Modifier
                                             .heightIn(

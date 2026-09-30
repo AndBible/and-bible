@@ -31,8 +31,9 @@ data class WindowMode(val decorFitsSystemWindows: Boolean, val softInputAdjust: 
  *   resizes it under the manifest's `adjustResize` and `ReadingAppBootstrap.setSoftKeyboardMode`
  *   keeps its own below-30 branch (ADJUST_PAN in multi-window).
  * - `reading`: edge-to-edge + `ADJUST_NOTHING`. The reading tree owns every inset itself (toolbar:
- *   status bars; bottom bars / strip: nav bar; split: horizontal bars and cutout; `ReadingInsets`:
- *   the IME). Edge-to-edge is what lets the IME inset REACH it: with decor-fits the decor consumes
+ *   status bar and top cutout; bottom bars / strip: nav bar; split: horizontal bars and cutout; search
+ *   sheet content and snackbar: nav bar and cutout, `readingSheetInsetPadding`; `ReadingInsets`: the
+ *   IME). Edge-to-edge is what lets the IME inset REACH it: with decor-fits the decor consumes
  *   it and `ime()` reads 0, which was F68.
  * - Anything else: `ADJUST_RESIZE` (the manifest's value, set explicitly because the window does not
  *   revert on its own), with decor-fits below 35 so the framework lifts text fields there. From 35
