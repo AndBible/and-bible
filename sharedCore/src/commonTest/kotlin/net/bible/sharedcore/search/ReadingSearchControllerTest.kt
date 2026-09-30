@@ -19,12 +19,14 @@ class ReadingSearchControllerTest {
     private fun controller(
         doc: SearchDocumentInfo? = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, true),
         r: Recorder = Recorder(),
+        unindexedInSelection: String? = null,
     ) = r to ReadingSearchController(
         resolveDoc = { doc },
         onUnavailable = { r.unavailable++ },
         onLeaveFullScreen = { r.leftFullScreen++ },
         onStartIndexing = { r.indexingStarted.add(it) },
         onRunSearch = { id, q, epub -> r.searchesRun.add(Triple(id, q, epub)) },
+        firstUnindexedInSelection = { unindexedInSelection },
     )
 
     @Test
@@ -227,6 +229,52 @@ class ReadingSearchControllerTest {
         c.onResultOpened()
         assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value)
         assertFalse(c.reopenResultsOnBack())
+    }
+
+    // ---- F100 (fix batch 3 §2.1.3): the persisted selection's index gate -------------------------
+
+    @Test
+    fun submitWithAnUnindexedSelectedTranslationPromptsForItInsteadOfSearching() {
+        val (r, c) = controller(unindexedInSelection = "ESV")
+        c.open()
+        c.queries.setQuery("light")
+        c.submit()
+        assertEquals(ReadingSearchPhase.NeedsIndex("ESV", forEpub = false), c.phase.value)
+        assertTrue(c.sheetVisible.value)
+        assertTrue(r.searchesRun.isEmpty(), "nothing is searched until the index exists")
+        c.acceptIndexing()
+        assertEquals(listOf("ESV"), r.indexingStarted)
+    }
+
+    @Test
+    fun closingSettingsWithAnUnindexedSelectionPromptsToo() {
+        val (r, c) = controller(unindexedInSelection = "ESV")
+        c.open()
+        c.queries.setQuery("light")
+        c.settingsClosed()
+        assertEquals(ReadingSearchPhase.NeedsIndex("ESV", forEpub = false), c.phase.value)
+        assertTrue(r.searchesRun.isEmpty())
+    }
+
+    @Test
+    fun anEpubSubmitNeverPromptsForTheBibleSelection() {
+        val (r, c) = controller(
+            doc = SearchDocumentInfo("EP", SearchDocumentCategory.GENERAL_BOOK, isEpub = true, indexDone = true),
+            unindexedInSelection = "ESV",
+        )
+        c.open()
+        c.queries.setQuery("light")
+        c.submit()
+        assertEquals(ReadingSearchPhase.Results("EP", forEpub = true), c.phase.value)
+        assertEquals(listOf(Triple("EP", "light", true)), r.searchesRun)
+    }
+
+    @Test
+    fun aSeededOpenWithAnUnindexedSelectionPromptsToo() {
+        val (r, c) = controller(unindexedInSelection = "ESV")
+        c.open(seedQuery = "light")
+        assertEquals(ReadingSearchPhase.NeedsIndex("ESV", forEpub = false), c.phase.value)
+        assertTrue(r.searchesRun.isEmpty())
     }
 
     // ---- 17d C5 / spec §7, D6: the toolbar's back-to-results button ------------------------------

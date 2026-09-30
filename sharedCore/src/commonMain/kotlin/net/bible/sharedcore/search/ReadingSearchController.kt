@@ -46,6 +46,13 @@ class ReadingSearchController(
     private val onLeaveFullScreen: () -> Unit,
     private val onStartIndexing: (docId: String) -> Unit,
     private val onRunSearch: (docId: String, query: String, forEpub: Boolean) -> Unit,
+    /**
+     * F100 (fix batch 3 §2.1.3): the first translation in the user's persisted search selection that
+     * has no usable index, or null. A Bible search covers that selection as well as the active
+     * document, and JSword silently skips an unindexed translation — so without this gate the user
+     * sees "0 verses" with no hint why. Defaults to "none" for callers with no selection.
+     */
+    private val firstUnindexedInSelection: () -> String? = { null },
     val queries: SearchQueryController = SearchQueryController(),
 ) {
     private val _phase = MutableStateFlow<ReadingSearchPhase>(ReadingSearchPhase.Closed)
@@ -174,7 +181,7 @@ class ReadingSearchController(
                 _sheetVisible.value = true
                 requestFieldRelease()
             }
-            else -> runSearch(docId, forEpub, q)
+            else -> if (forEpub || !promptForUnindexedSelection()) runSearch(docId, forEpub, q)
         }
     }
 
@@ -208,7 +215,10 @@ class ReadingSearchController(
                 queries.recordRecentTerm(q)
                 promptIndexImplicitly(kind.docId, kind.forEpub)
             }
-            is SearchKind.Bible -> { queries.recordRecentTerm(q); runSearch(kind.docId, false, q) }
+            is SearchKind.Bible -> {
+                queries.recordRecentTerm(q)
+                if (!promptForUnindexedSelection()) runSearch(kind.docId, false, q)
+            }
             is SearchKind.Epub -> { queries.recordRecentTerm(q); runSearch(kind.docId, true, q) }
         }
     }
@@ -248,6 +258,22 @@ class ReadingSearchController(
         _sheetVisible.value = true
         requestFieldRelease()
         indexPromptIsExplicit = false
+    }
+
+    /**
+     * F100: prompt for [firstUnindexedInSelection]'s translation instead of running a Bible search.
+     * Explicit ([indexPromptIsExplicit]) for the same reason [promptIndexFor]'s is: the prompt names
+     * a document the active window is not showing, and a window switch must not overwrite it.
+     * Returns true when it prompted.
+     */
+    private fun promptForUnindexedSelection(): Boolean {
+        val docId = firstUnindexedInSelection() ?: return false
+        _phase.value = ReadingSearchPhase.NeedsIndex(docId, forEpub = false)
+        _sheetVisible.value = true
+        requestFieldRelease()
+        indexPromptIsExplicit = true
+        resultTapPending = false
+        return true
     }
 
     /**
@@ -375,7 +401,7 @@ class ReadingSearchController(
         when (val kind = searchKindFor(resolveDoc())) {
             SearchKind.Unavailable -> onUnavailable()
             is SearchKind.NeedsIndex -> promptIndexImplicitly(kind.docId, kind.forEpub)
-            is SearchKind.Bible -> runSearch(kind.docId, false, q)
+            is SearchKind.Bible -> if (!promptForUnindexedSelection()) runSearch(kind.docId, false, q)
             is SearchKind.Epub -> runSearch(kind.docId, true, q)
         }
     }

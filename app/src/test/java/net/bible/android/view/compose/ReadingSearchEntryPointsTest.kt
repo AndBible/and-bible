@@ -850,6 +850,38 @@ class ReadingSearchEntryPointsTest {
         }
     }
 
+    /**
+     * F100 (fix batch 3 §2.1.3): the persisted selection is searched too, and JSword silently skips
+     * a translation without an index. Classic validated every selected translation
+     * (`BibleSearchServiceImpl.validateIndex`); a submit must prompt for the first unindexed one.
+     */
+    @Test fun submittingWithAnUnindexedTranslationInTheSelectionPromptsForItsIndex() {
+        val fakeBook = indexedFakeBible("FAKE")
+        Books.installed().addBook(fakeBook)
+        try {
+            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+            windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(fakeBook, verse)
+            // KJV is installed in this environment but has no Lucene index (see setKjvAsCurrentDocument).
+            CommonUtils.settings.setString("search_selected_translations", "KJV")
+            val host = host()
+            host.openSearch()
+            assertEquals(ReadingSearchPhase.Form("FAKE", forEpub = false), host.searchController.phase.value, "sanity")
+
+            host.searchController.queries.setQuery("light")
+            host.searchController.submit()
+
+            assertEquals(
+                ReadingSearchPhase.NeedsIndex("KJV", forEpub = false),
+                host.searchController.phase.value,
+                "F100: KJV is selected and has no index, so the submit must ask for one",
+            )
+            assertEquals(listOf("KJV"), host.searchSelectorPendingIdsForTest, "the Task 11 chain is armed for the selection")
+        } finally {
+            CommonUtils.settings.removeString("search_selected_translations")
+            Books.installed().removeBook(fakeBook)
+        }
+    }
+
     /** An empty result set (nothing to add to the multi-document link) must not throw, and still
      *  closes the sheet exactly like a populated one. */
     @Test fun openSearchResultsInWindowClosesTheSheetEvenWithNoRows() {

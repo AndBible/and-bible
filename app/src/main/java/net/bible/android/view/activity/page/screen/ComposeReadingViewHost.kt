@@ -2208,6 +2208,13 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // F43 Task 6: every document type now reaches here (see [openSearch]) — an EPUB runs
         // `runEpubSearch`, everything else the SWORD `runSearch`.
         onRunSearch = { docId, query, forEpub -> if (forEpub) runEpubSearch(docId, query) else runSearch(docId, query) },
+        // F100 (fix batch 3 §2.1.3): an unindexed translation in the persisted selection prompts, and
+        // arms the Task 11 chain ([searchSelectorPendingIds]) for the whole selection, so every
+        // unindexed one is built before the search runs — exactly as a results-selector choice does.
+        firstUnindexedInSelection = {
+            val selection = searchTranslations.value
+            bibleSearchService.unindexedAmong(selection).firstOrNull()?.also { searchSelectorPendingIds = selection }
+        },
         queries = searchQueries,
     )
 
@@ -2462,9 +2469,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * every one of them is indexed (or a build fails). `null` in every other flow, including the
      * plain "the document being read has no index" case ([ReadingSearchController.open]'s own
      * `NeedsIndex`) — [onSearchIndexWorkEvent] gates the chaining on THIS field rather than on
-     * whether the chosen set contains an unindexed translation in general, because a persisted
-     * selection that happens to hold one must not start prompting on an ordinary submit; only a
-     * fresh choice made in the selector may. Cleared in [onSearchModeClosed] so a cancelled session
+     * whether the chosen set contains an unindexed translation in general. It is armed by a
+     * results-selector choice ([onSearchTranslationsChosen]) and, since fix batch 3 (F100), by an
+     * ordinary submit or settings close whose persisted selection holds an unindexed translation
+     * ([ReadingSearchController]'s `firstUnindexedInSelection`). Cleared in [onSearchModeClosed] so a cancelled session
      * leaves nothing armed.
      */
     private var searchSelectorPendingIds: List<String>? = null
