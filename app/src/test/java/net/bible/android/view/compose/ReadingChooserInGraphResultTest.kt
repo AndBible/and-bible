@@ -29,6 +29,7 @@ import java.time.Duration
 import kotlinx.coroutines.launch
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ErrorActivity
@@ -94,6 +95,15 @@ class ReadingChooserInGraphResultTest {
 
     private fun composedReadingHost(): NavHostComposeActivity {
         firstTime = false
+        // Create the special labels up front, on this thread. `BibleView.loadDocument` creates them
+        // lazily with a check-then-insert (`BookmarkControl.getOrCreateSpecialLabel`) from
+        // `Window.loadText`'s Dispatchers.IO coroutine, and a test that changes the document twice
+        // (`aDocumentChosenInGraphIsAppliedToTheActiveWindow`) runs two such loads at once against a
+        // freshly reset database: both see no label, one insert loses with `UNIQUE constraint failed:
+        // Label.id`. Which one wins is thread timing, so it failed only in some full-suite orders.
+        // The race itself is production code's (reported, not changed here); this test is about the
+        // chooser answer, not about first-run label creation.
+        GlobalContext.get().get<BookmarkControl>().apply { labelUnlabelled; speakLabel; paragraphBreakLabel }
         return Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
