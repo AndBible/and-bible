@@ -3,6 +3,7 @@ package net.bible.sharedcore.cloud
 import net.bible.sharedcore.navigation.DocCategory
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class CloudDocFunctionsTest {
     private fun item(
@@ -262,13 +263,32 @@ class CloudDocFunctionsTest {
         }
     }
 
-    @Test fun menu_actions_blocked_local_only_offers_push_and_unblock() {
-        // Ported from CloudDocumentsMenuTest.blockedLocalOnlyOffersUnblock: a blocked device-only
-        // document offers Push plus the un-block half of the opt-out, and still no Remove.
+    @Test fun menu_actions_blocked_local_only_offers_only_sync_to_cloud() {
+        // F74 (fix batch 3 §2.2.3): a device-only blocked document ("Won't sync to cloud") used to
+        // offer both "Push to cloud" and "Sync to cloud"; Push uploaded it and left it blocked. The
+        // one action is UNBLOCK, labelled "Sync to cloud", which unblocks AND pushes (pushOnUnblock).
         assertEquals(
-            listOf(CloudDocAction.PUSH, CloudDocAction.UNBLOCK),
+            listOf(CloudDocAction.UNBLOCK),
             documentMenuActions(item("A", localOnly = true, blocked = true), syncEnabled = true),
         )
+    }
+
+    @Test fun menu_actions_blocked_cloud_copy_newer_locally_keeps_push() {
+        // Blocked with a cloud copy: the block means "do not download to this device"; pushing a
+        // newer local copy is still meaningful and does not touch the block.
+        val actions = documentMenuActions(item("A", localNewer = true, blocked = true), syncEnabled = true)
+        assertTrue(CloudDocAction.PUSH in actions)
+        assertTrue(CloudDocAction.UNBLOCK in actions)
+    }
+
+    @Test fun pushOnUnblockSelectsOnlyDeviceOnlyDocuments() {
+        val items = listOf(
+            item("DEV", localOnly = true, blocked = true),
+            item("CLOUD", cloudOnly = true, blocked = true),
+            item("BOTH", blocked = true),
+        )
+        assertEquals(listOf("DEV"), pushOnUnblock(items, listOf("DEV", "CLOUD", "BOTH")))
+        assertEquals(emptyList<String>(), pushOnUnblock(items, listOf("MISSING")))
     }
 
     @Test fun menu_actions_update_available_offers_download_not_push() {

@@ -43,7 +43,10 @@ fun documentMenuActions(item: CloudDocItem, syncEnabled: Boolean): List<CloudDoc
         return@buildList
     }
     if (item.cloudOnly || item.updateAvailable) add(CloudDocAction.DOWNLOAD)
-    if (item.localOnly || item.localNewer) add(CloudDocAction.PUSH)
+    // F74 (fix batch 3 §2.2.3): not for a device-only BLOCKED document -- its "Sync to cloud"
+    // (UNBLOCK, see [pushOnUnblock]) already pushes, and a bare PUSH would upload it and leave it
+    // blocked, with two indistinguishable labels side by side.
+    if ((item.localOnly || item.localNewer) && !(item.localOnly && item.blocked)) add(CloudDocAction.PUSH)
     if (!item.localOnly && !(syncEnabled && !item.canDeleteLocal)) add(CloudDocAction.REMOVE_CLOUD)
     if (item.blocked) add(CloudDocAction.UNBLOCK) else add(CloudDocAction.BLOCK)
 }
@@ -57,6 +60,14 @@ fun bulkMenuActions(selected: List<CloudDocItem>, syncEnabled: Boolean): List<Cl
 /** Initials of the [selected] items that support [action] — the exact subset a bulk action runs on. */
 fun applicableInitials(action: CloudDocAction, selected: List<CloudDocItem>, syncEnabled: Boolean): List<String> =
     selected.filter { action in documentMenuActions(it, syncEnabled) }.map { it.initials }
+
+/**
+ * F74 (fix batch 3 §2.2.3): which of [initials] an UNBLOCK must also PUSH. A device-only document's
+ * UNBLOCK is labelled "Sync to cloud" (`actionLabelKind`'s `ALLOW_SYNC`), so it must upload the
+ * document as well; a document already in the cloud is only unblocked (allowed to download here).
+ */
+fun pushOnUnblock(items: List<CloudDocItem>, initials: List<String>): List<String> =
+    initials.filter { id -> items.firstOrNull { it.initials == id }?.localOnly == true }
 
 /** Expected list state right after a remove, applied optimistically. */
 fun applyOptimisticRemoval(items: List<CloudDocItem>, initials: String, syncEnabled: Boolean): List<CloudDocItem> {

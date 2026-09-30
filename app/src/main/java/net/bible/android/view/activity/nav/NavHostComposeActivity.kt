@@ -227,6 +227,7 @@ import net.bible.service.cloudsync.documents.SyncPlan
 import net.bible.sharedcore.cloud.CloudDocAction
 import net.bible.sharedcore.cloud.CloudDocItem
 import net.bible.sharedcore.cloud.CloudDocumentsController
+import net.bible.sharedcore.cloud.pushOnUnblock
 import net.bible.service.common.CommonUtils.pause
 import net.bible.service.common.displayName
 import net.bible.service.common.labelsAndBookmarksPlaylist
@@ -8489,8 +8490,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 controller.setBlocked(initials, true)
             }
             CloudDocAction.UNBLOCK -> {
+                val push = pushOnUnblock(controller.items.value, listOf(initials))
                 DocumentSyncSettings.blockList.unblock(initials)
                 controller.setBlocked(initials, false)
+                if (push.isNotEmpty()) DocumentSyncService.start(this, push, emptyList())
             }
             CloudDocAction.REMOVE_CLOUD -> {
                 val enabled = DocumentSyncSettings.enabled
@@ -8522,7 +8525,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 controller.clearSelection()
             }
             CloudDocAction.UNBLOCK -> {
+                val push = pushOnUnblock(controller.items.value, initials)
                 initials.forEach { DocumentSyncSettings.blockList.unblock(it); controller.setBlocked(it, false) }
+                if (push.isNotEmpty()) DocumentSyncService.start(this, push, emptyList())
                 controller.clearSelection()
             }
             CloudDocAction.REMOVE_CLOUD -> {
