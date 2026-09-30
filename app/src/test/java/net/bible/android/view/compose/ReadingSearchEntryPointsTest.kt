@@ -812,6 +812,44 @@ class ReadingSearchEntryPointsTest {
         assertTrue(host.searchController.searchModeActive.value, "search mode itself stays open")
     }
 
+    /**
+     * F83 (fix batch 3 §2.1.1): classic's results screen was a history item, so BACK from a verse
+     * opened from it returned to the list. The first back after a result tap must bring the list
+     * back, not leave search mode.
+     */
+    @Test fun backAfterAResultTapReopensTheResultsListInsteadOfLeavingSearch() {
+        val fakeBook = indexedFakeBible("ResultDoc")
+        Books.installed().addBook(fakeBook)
+        try {
+            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+            windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(fakeBook, verse)
+            val host = host()
+            GlobalContext.get().get<SearchResultsCache>().put(
+                SearchRequest(
+                    query = "light",
+                    searchType = SearchType.ANY_WORDS,
+                    bibleSection = SearchBibleSection.ALL,
+                    translationIds = listOf("ResultDoc"),
+                    currentBookName = GlobalContext.get().get<SearchControl>().currentBookName,
+                    isStrongsSearch = false,
+                ),
+                MultiSearchResults(main = emptyList(), other = emptyList(), total = 3),
+            )
+            host.openSearch("light", preDecorated = true)
+            assertEquals(ReadingSearchPhase.Results("ResultDoc", forEpub = false), host.searchController.phase.value, "sanity")
+
+            host.onSearchResultSelected("Gen.1.5", "ResultDoc")
+            assertFalse(host.searchController.sheetVisible.value, "sanity: the tap hides the sheet")
+
+            assertTrue(host.closeSearchIfOpen(), "the back press is consumed")
+            assertTrue(host.searchController.searchModeActive.value, "F83: the first back must not leave search mode")
+            assertTrue(host.searchController.sheetVisible.value, "F83: the first back brings the results list back")
+        } finally {
+            GlobalContext.get().get<SearchResultsCache>().clear()
+            Books.installed().removeBook(fakeBook)
+        }
+    }
+
     /** An empty result set (nothing to add to the multi-document link) must not throw, and still
      *  closes the sheet exactly like a populated one. */
     @Test fun openSearchResultsInWindowClosesTheSheetEvenWithNoRows() {

@@ -2348,12 +2348,15 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     }
 
     /**
-     * The two-stage back for search, in one call: first press closes the results/index sheet
-     * (keeping the query and the results), second leaves search mode. Returns whether the press was
-     * consumed. Wired into `MainBibleActivity.onBackPressed` by Task 9 — inert until then.
+     * The three-stage back for search, in one call: after a result tap the first press brings the
+     * results list back (F83, [ReadingSearchController.reopenResultsOnBack]); then a press closes the
+     * results/index sheet (keeping the query and the results); the last leaves search mode. Returns
+     * whether the press was consumed. Wired into `MainBibleActivity.onBackPressed` by Task 9 — inert
+     * until then.
      */
     fun closeSearchIfOpen(): Boolean {
         if (searchController.closeSheet()) return true
+        if (searchController.reopenResultsOnBack()) return true
         if (searchController.closeSearchMode()) {
             onSearchModeClosed()
             return true
@@ -2585,7 +2588,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         try {
             val key = epubKeyFor(book, docId, keyId, ordinal)
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
-            searchController.closeSheet()
+            searchController.onResultOpened()
         } catch (e: Exception) {
             Log.e(TAG, "onEpubSearchResultSelected: bad key '$keyId' in $docId", e)
         }
@@ -3738,7 +3741,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * synchronously (`CurrentPageManager.kt:197-231`), so navigation is complete at that call —
      * unlike the old Activity pair, there is no Activity here to bring to front or `finish()`.
      *
-     * Closes the SHEET only (not the whole search session — see [ReadingSearchController.closeSheet]),
+     * Hides the sheet via [ReadingSearchController.onResultOpened] (not the whole search session),
+     * which also arms the F83 reopen on the next back press; it does
      * not `partialExpand()`: the scaffold runs with `sheetPeekHeight = 0.dp`, where M3's
      * `PartiallyExpanded` anchor sits exactly where `Hidden` does (see [DriveSearchSheet]'s kdoc), and
      * poking the M3 sheet state directly would desync it from the session's own `sheetVisible`, which
@@ -3757,7 +3761,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         try {
             val key = book.getKey(referenceName)
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
-            searchController.closeSheet()
+            searchController.onResultOpened()
         } catch (e: Exception) {
             Log.e(TAG, "onSearchResultSelected: bad key '$referenceName' in ${book.initials}", e)
         }

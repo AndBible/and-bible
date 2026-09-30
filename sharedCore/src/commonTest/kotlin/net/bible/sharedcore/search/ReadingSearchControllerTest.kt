@@ -189,6 +189,46 @@ class ReadingSearchControllerTest {
         assertEquals(1, r.searchesRun.size, "reopening must serve the existing results, not re-run")
     }
 
+    // ---- F83 (fix batch 3 §2.1.1): back after a result tap -------------------------------------
+
+    @Test
+    fun backAfterAResultTapReopensTheResultsListBeforeLeavingSearch() {
+        val (r, c) = controller()
+        c.open(seedQuery = "light")
+        c.onResultOpened()
+        assertFalse(c.sheetVisible.value, "a result tap hides the sheet so the verse is readable")
+
+        assertFalse(c.closeSheet(), "sanity: nothing for the sheet-close step to consume")
+        assertTrue(c.reopenResultsOnBack(), "the first back after a result tap brings the list back")
+        assertTrue(c.sheetVisible.value)
+        assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), c.phase.value)
+        assertEquals(1, r.searchesRun.size, "reopening serves the existing rows, never re-runs")
+
+        assertTrue(c.closeSheet(), "the second back closes the sheet")
+        assertFalse(c.reopenResultsOnBack(), "the reopen is one-shot")
+        assertTrue(c.closeSearchMode(), "the third back leaves search mode")
+    }
+
+    @Test
+    fun aNewSearchDisarmsTheResultReopen() {
+        val (_, c) = controller()
+        c.open(seedQuery = "light")
+        c.onResultOpened()
+        c.queries.setQuery("dark")
+        c.submit()
+        assertTrue(c.closeSheet(), "sanity: the new query's sheet is up and closes normally")
+        assertFalse(c.reopenResultsOnBack(), "the reopen belonged to the previous results")
+    }
+
+    @Test
+    fun aResultTapOutsideResultsArmsNothing() {
+        val (_, c) = controller()
+        c.open()
+        c.onResultOpened()
+        assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value)
+        assertFalse(c.reopenResultsOnBack())
+    }
+
     // ---- 17d C5 / spec §7, D6: the toolbar's back-to-results button ------------------------------
 
     @Test

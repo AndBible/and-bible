@@ -105,10 +105,37 @@ class ReadingSearchController(
     private var indexPromptIsExplicit = false
 
     /**
+     * F83 (fix batch 3 §2.1.1): a result row was tapped. The sheet was hidden so the verse is
+     * readable, and the NEXT back press must bring the results list back — classic's results screen
+     * was a history item, so BACK from the verse returned to it. One-shot: [reopenResultsOnBack]
+     * spends it, and every transition that replaces or re-shows the results clears it.
+     */
+    private var resultTapPending = false
+
+    /** A result row was tapped: hide the sheet, keep search mode, and (from Results) arm [reopenResultsOnBack]. */
+    fun onResultOpened() {
+        _sheetVisible.value = false
+        // Only a Results phase has a list to come back to; any other phase just hides the sheet as
+        // `closeSheet()` always did (the pre-F83 behaviour of a result tap).
+        resultTapPending = _phase.value is ReadingSearchPhase.Results
+    }
+
+    /**
+     * The back press after a result tap. Returns true if it consumed the press (the results list is
+     * showing again); false when there was no pending result tap or the sheet is already up.
+     */
+    fun reopenResultsOnBack(): Boolean {
+        if (!resultTapPending || _sheetVisible.value) return false
+        resultTapPending = false
+        return showResults()
+    }
+
+    /**
      * Opens search for the active window's document. [seedQuery] comes from the entry points that bypass
      * the form (text-selection "Search …", Strong's find-all), and runs immediately.
      */
     fun open(seedQuery: String? = null) {
+        resultTapPending = false
         val kind = searchKindFor(resolveDoc())
         if (kind is SearchKind.Unavailable) {
             onUnavailable()
@@ -152,6 +179,7 @@ class ReadingSearchController(
     }
 
     private fun runSearch(docId: String, forEpub: Boolean, query: String, touchIme: Boolean = true) {
+        resultTapPending = false
         onRunSearch(docId, query, forEpub)
         lastResults = ResultsKey(query, docId, forEpub)
         _phase.value = ReadingSearchPhase.Results(docId, forEpub)
@@ -363,6 +391,7 @@ class ReadingSearchController(
      * asking to see again.
      */
     fun showResults(): Boolean {
+        resultTapPending = false
         if (_phase.value !is ReadingSearchPhase.Results) return false
         _sheetVisible.value = true
         requestFieldRelease()
@@ -393,6 +422,7 @@ class ReadingSearchController(
         queries.setQuery("")
         _imeRequest.value = null
         indexPromptIsExplicit = false
+        resultTapPending = false
         return true
     }
 
