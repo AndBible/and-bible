@@ -135,4 +135,25 @@ class ManageLabelsMapperTest {
         assertEquals(setOf(a), result.selectedLabels)
         assertEquals(ManageLabelsContract.Mode.HIDELABELS, result.mode)
     }
+
+    // ---- F97 (fix batch 3 §2.3.1): HIDELABELS carries no workspace auto-assign state -------------
+
+    @Test
+    fun `hideLabelsData carries the hidden set and no auto-assign state`() {
+        val hidden = listOf(IdType(), IdType())
+        val data = ManageLabelsMapper.hideLabelsData(hidden, isWindow = true)
+        assertEquals(ManageLabelsContract.Mode.HIDELABELS, data.mode)
+        assertEquals(hidden.toSet(), data.selectedLabels)
+        assertTrue(data.isWindow)
+        assertTrue("F97: another workspace's auto-assign list must not ride along", data.autoAssignLabels.isEmpty())
+        assertNull(data.autoAssignPrimaryLabel)
+    }
+
+    @Test
+    fun `the label editor opened from HIDELABELS has no workspace context`() {
+        assertFalse(ManageLabelsMapper.labelEditHasWorkspaceContext(ManageLabelsContract.Mode.HIDELABELS))
+        assertTrue(ManageLabelsMapper.labelEditHasWorkspaceContext(ManageLabelsContract.Mode.WORKSPACE))
+        assertTrue(ManageLabelsMapper.labelEditHasWorkspaceContext(ManageLabelsContract.Mode.ASSIGN))
+        assertTrue(ManageLabelsMapper.labelEditHasWorkspaceContext(ManageLabelsContract.Mode.STUDYPAD))
+    }
 }

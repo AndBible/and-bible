@@ -30,6 +30,28 @@ import net.bible.sharedcore.bookmark.ManageLabelsMode
  */
 object ManageLabelsMapper {
 
+    /**
+     * F97 (fix batch 3 §2.3.1): the HIDELABELS payload -- the hidden-label set and nothing else.
+     * Deliberately NOT `applyFrom(workspaceSettings)`: that copied the ACTIVE workspace's
+     * auto-assign list in, so a label editor opened from another workspace's hide list showed (and
+     * the return path wrote back) the active workspace's state. Classic had the same leak.
+     */
+    fun hideLabelsData(selected: Collection<IdType>, isWindow: Boolean): ManageLabelsContract.ManageLabelsData =
+        ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.HIDELABELS,
+            selectedLabels = selected.toMutableSet(),
+            isWindow = isWindow,
+        )
+
+    /**
+     * F97: whether the label editor reached from [mode] may show and write workspace state (the
+     * "This workspace" section and its per-label override). Hiding labels is not the place to edit
+     * another workspace's auto-assign, and the editor has no way to know which workspace a hide list
+     * belongs to.
+     */
+    fun labelEditHasWorkspaceContext(mode: ManageLabelsContract.Mode): Boolean =
+        mode != ManageLabelsContract.Mode.HIDELABELS
+
     /** [ManageLabelsContract.Mode] -> the portable [ManageLabelsMode] the shared controller/screen use. */
     fun toMode(mode: ManageLabelsContract.Mode): ManageLabelsMode = when (mode) {
         ManageLabelsContract.Mode.STUDYPAD -> ManageLabelsMode.STUDYPAD

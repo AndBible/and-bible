@@ -38,6 +38,7 @@ import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.bookmark.ManageLabelsContract
+import net.bible.android.view.activity.bookmark.ManageLabelsMapper
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.settings.textDisplaySettingsRoute
 import net.bible.sharedcore.settings.SettingsScope
@@ -522,11 +523,8 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
         // resolve it to is gone (nav-graph slices 2+4 Task 7), so this builds the nav-host Intent
         // directly. The "data" extra on the RESULT is unchanged -- NavResultIntents.forManageLabels
         // still writes it under that key.
-        val data = ManageLabelsContract.ManageLabelsData(
-            mode = ManageLabelsContract.Mode.HIDELABELS,
-            selectedLabels = originalValues.toMutableSet(),
-            isWindow = settings.windowId != null
-        ).applyFrom(windowRepository.workspaceSettings).toJSON()
+        // F97 (fix batch 3 §2.3.1): no workspace auto-assign state rides along, and none is written back.
+        val data = ManageLabelsMapper.hideLabelsData(originalValues, isWindow = settings.windowId != null).toJSON()
         val intent = NavHostComposeActivity.intentFor(activity, NavRoutes.manageLabels(data))
         activity.lifecycleScope.launch (Dispatchers.Main) {
             val result = activity.awaitIntent(intent)
@@ -537,7 +535,6 @@ class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.T
                     onReset?.invoke()
                 } else {
                     value = resultData.selectedLabels.toList()
-                    windowRepository.workspaceSettings.updateFrom(resultData)
                     onChanged?.invoke(value)
                 }
             }

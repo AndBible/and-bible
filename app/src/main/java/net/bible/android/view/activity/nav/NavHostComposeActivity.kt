@@ -4643,14 +4643,18 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             null
         }
 
-        val workspaceId = windowControl.windowRepository.id
-        val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        val existingOverrides = if (!isNew) workspaceDao.labelOverrides(workspaceId) else emptyList()
-        val existingOverride = existingOverrides.find { it.labelId == label.id }
-        val workspaceOverride = existingOverride ?: WorkspaceEntities.WorkspaceLabelOverride(
-            workspaceId = workspaceId,
-            labelId = label.id,
-        )
+        // F97 (fix batch 3 §2.3.1): a hide list does not know its workspace, so its editor gets none --
+        // no override is read, none is returned, and applyLabelEditResult's override write is skipped.
+        val workspaceContext = ManageLabelsMapper.labelEditHasWorkspaceContext(session.data.mode)
+        val workspaceOverride = if (!workspaceContext) null else {
+            val workspaceId = windowControl.windowRepository.id
+            val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+            val existingOverrides = if (!isNew) workspaceDao.labelOverrides(workspaceId) else emptyList()
+            existingOverrides.find { it.labelId == label.id } ?: WorkspaceEntities.WorkspaceLabelOverride(
+                workspaceId = workspaceId,
+                labelId = label.id,
+            )
+        }
 
         val labelData = LabelEditContract.LabelData(
             isAssigning = session.data.mode == ManageLabelsContract.Mode.ASSIGN,
@@ -4661,7 +4665,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             isThisBookmarkSelected = controller.resultSelected().contains(label.id.toString()),
             suggestedName = suggestedName,
             workspaceOverride = workspaceOverride,
-            hasWorkspaceContext = true,
+            hasWorkspaceContext = workspaceContext,
         )
         if (isNew) {
             when (session.data.mode) {
@@ -9652,20 +9656,23 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * code was collecting. This is the shape `DownloadDeps.reloadCatalogueIfRequested` had to stop
      * using (`ChooseDocument`'s Download row, [onChooseDocumentDownload], was the last), and this one was reachable
      * the day Task 5 landed, through the live `settings` destination's global-text-settings row.
+     *
+     * Since fix batch 3 (F97) it no longer seeds the active workspace's auto-assign list -- see
+     * [ManageLabelsMapper.hideLabelsData].
      */
     private fun textDisplayHideLabelsPayload(
         service: TextDisplaySettingsServiceImpl,
         scope: SettingsScope,
-    ): String = ManageLabelsContract.ManageLabelsData(
-        mode = ManageLabelsContract.Mode.HIDELABELS,
-        selectedLabels = service.currentHideLabelsIds(scope).toMutableSet(),
+    ): String = ManageLabelsMapper.hideLabelsData(
+        service.currentHideLabelsIds(scope),
         isWindow = scope is SettingsScope.Window,
-    ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
+    ).toJSON()
 
     /**
      * Classic's `RESULT_OK` branch of the same bridge, line for line: a `reset` answer reverts the
-     * row, anything else applies the `workspaceSettings.updateFrom(data)` recent-labels side effect
-     * and hands the chosen ids to the controller.
+     * row, anything else hands the chosen ids to the controller. The classic
+     * `workspaceSettings.updateFrom(data)` side effect is gone (F97): it wrote a hide list's
+     * round-tripped auto-assign set into the ACTIVE workspace.
      *
      * There is no result-code check any more and none is missing: `ManageLabelsComposeActivity` had
      * no cancel path at all (its back press saves -- see [manageLabelsResults]'s kdoc), so every exit
@@ -9677,7 +9684,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (resultData.reset) {
             controller.onRevert(TextSettingType.BOOKMARKS_HIDELABELS.name)
         } else {
-            windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
             controller.onHideLabelsChange(resultData.selectedLabels.map { it.toString() })
         }
     }
