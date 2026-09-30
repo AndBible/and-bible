@@ -1,5 +1,6 @@
 package net.bible.sharedcore.search
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -43,6 +44,33 @@ class SearchResultsControllerTest {
         assertEquals(listOf("Gen 1:1"), c.displayed.value.map { it.referenceName })
         assertTrue(c.scriptureToggleVisible.value)
         assertFalse(c.loading.value)
+    }
+    // F91 (fix batch 3 §2.1.2): while a new query loads, the sheet must not show the previous
+    // query's count and rows as if they were this query's.
+    @Test fun a_new_run_does_not_show_the_previous_runs_results_while_it_loads() = runTest(UnconfinedTestDispatcher()) {
+        val gate = CompletableDeferred<MultiSearchResults>()
+        var calls = 0
+        val slow = object : BibleSearchService by fake {
+            override suspend fun searchMulti(request: SearchRequest): MultiSearchResults {
+                calls++
+                return if (calls == 1) {
+                    MultiSearchResults(main = listOf(row("Gen 1:1")), other = emptyList(), total = 5001)
+                } else {
+                    gate.await()
+                }
+            }
+        }
+        val c = SearchResultsController(slow, backgroundScope)
+        c.run(SearchRequest("lord", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV"), ""))
+        assertEquals(5001, c.results.value.total, "sanity: the first run completed")
+
+        c.run(SearchRequest("shepherd", SearchType.ALL_WORDS, SearchBibleSection.ALL, listOf("KJV"), ""))
+        assertTrue(c.loading.value, "sanity: the second run is still loading")
+        assertEquals(0, c.results.value.total, "F91: a loading run must not carry the previous count")
+        assertTrue(c.displayed.value.isEmpty(), "F91: nor the previous rows")
+
+        gate.complete(MultiSearchResults(main = emptyList(), other = emptyList(), total = 3))
+        assertEquals(3, c.results.value.total)
     }
     @Test fun toggle_switches_to_other_partition() = runTest(UnconfinedTestDispatcher()) {
         val c = SearchResultsController(fake, backgroundScope)

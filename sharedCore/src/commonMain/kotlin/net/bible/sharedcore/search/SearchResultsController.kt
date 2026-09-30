@@ -56,6 +56,8 @@ class SearchResultsController(
             _loading.value = false
             return
         }
+        // F91: a new query must not show the previous query's count and rows while it loads.
+        _results.value = MultiSearchResults.EMPTY
         _loading.value = true
         scope.launch {
             try {
@@ -85,6 +87,8 @@ class SearchResultsController(
         }
         val request = (storedRequest ?: return).copy(translationIds = ids)
         storedRequest = request
+        // F91: a new query must not show the previous query's count and rows while it loads.
+        _results.value = MultiSearchResults.EMPTY
         _loading.value = true
         scope.launch {
             try {

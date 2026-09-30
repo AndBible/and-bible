@@ -57,7 +57,8 @@ import net.bible.sharedui.strings.LocalStrings
  *   bars in the header's colour, and the real inset padding would double-inset a header that
  *   already sits inside the host scaffold's own inset-aware layout.
  *
- * @param countLabel the already-formatted result count (the caller owns the wording).
+ * @param countLabel the already-formatted result count (the caller owns the wording). Not shown
+ *   while [loading]: a count next to the spinner reads as a finished result (F91).
  * @param empty passed in rather than derived from the list, because "no rows" and "nothing searched
  *   yet" are different states to the caller.
  * @param listState hoisted so the host can restore the scroll position across a search (F25).
@@ -81,7 +82,7 @@ fun SearchSheetContent(
             Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(countLabel, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            Text(if (loading) "" else countLabel, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
             actions()
         }
         when {
