@@ -109,15 +109,20 @@ fun AbDocumentListRow(
             .onGloballyPositioned { rowLeftInWindow = it.positionInWindow().x }
             .pointerInput(edges, windowWidth) {
                 awaitEachGesture {
-                    val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
-                    pressStartedInEdge = windowWidth > 0f &&
-                        isInHorizontalGestureEdge(rowLeftInWindow + down.position.x, windowWidth, edges)
-                    // Reset when the gesture ends (Final pass: after combinedClickable has fired), so a
-                    // later non-pointer activation (TalkBack, keyboard) is not dropped by a stale flag.
-                    do {
-                        val event = awaitPointerEvent(PointerEventPass.Final)
-                    } while (event.changes.any { it.pressed })
-                    pressStartedInEdge = false
+                    // try/finally: a pointerInput restart (edges / window width changed) cancels this
+                    // block mid-gesture, and the reset below would never run — the flag would stay set.
+                    try {
+                        val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                        pressStartedInEdge = windowWidth > 0f &&
+                            isInHorizontalGestureEdge(rowLeftInWindow + down.position.x, windowWidth, edges)
+                        // Reset when the gesture ends (Final pass: after combinedClickable has fired), so a
+                        // later non-pointer activation (TalkBack, keyboard) is not dropped by a stale flag.
+                        do {
+                            val event = awaitPointerEvent(PointerEventPass.Final)
+                        } while (event.changes.any { it.pressed })
+                    } finally {
+                        pressStartedInEdge = false
+                    }
                 }
             }
             .combinedClickable(onClick = { if (!pressStartedInEdge) onClick() }, onLongClick = onLongClick)
