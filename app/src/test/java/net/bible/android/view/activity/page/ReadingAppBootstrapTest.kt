@@ -231,9 +231,13 @@ class ReadingAppBootstrapTest {
                 "reaches reading only through it",
             callLines.any { it.index > onNewIntent && it.index < onNewIntent + 40 },
         )
+        // Anchor on the real `setContent` (the first one after onCreate), not a line-count window: a
+        // window of N code lines broke every time onCreate gained a statement (fix batch 2 added
+        // refreshSystemBars), while the property under test is only "before setContent".
+        val setContentInOnCreate = lines.withIndex().first { (i, l) -> i > onCreate && l.contains("setContent {") }.index
         assertTrue(
             "one call must be in onCreate, before setContent",
-            callLines.any { it.index > onCreate && it.index < onCreate + 20 },
+            callLines.any { it.index > onCreate && it.index < setContentInOnCreate },
         )
         val welcomeAfterFlow = lines.indexOfFirst { it.contains("internal fun welcomeAfterFlow(") }
         assertTrue("welcomeAfterFlow not found", welcomeAfterFlow >= 0)
