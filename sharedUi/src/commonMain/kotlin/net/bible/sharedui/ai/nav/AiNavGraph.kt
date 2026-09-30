@@ -695,9 +695,20 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         // F31: the continuation stashed while the "Accept AI disclaimer" dialog is shown (`null` =
         // no dialog pending). A lambda, so it cannot survive process death — kept in `remember`,
         // never routed through a SavedStateHandle. See AiProvidersDeps' kdoc.
+        val enteredForQuickSetup = remember {
+            backStackEntry.arguments?.read { getBooleanOrNull(NavRoutes.ARG_START_EASY_SETUP) } ?: false
+        }
+        val quickSetupExit = remember { QuickSetupEntryExit(enteredForQuickSetup) { navController.popOrExit(deps.exitHost) } }
+        // Whether the pending disclaimer guards the Quick Setup start (vs. an Add) -- see QuickSetupEntryExit.
+        var pendingDisclaimerIsQuickSetup by remember { mutableStateOf(false) }
         var pendingDisclaimerAction by remember { mutableStateOf<(() -> Unit)?>(null) }
-        fun ensureDisclaimerAccepted(onAccepted: () -> Unit) {
-            if (controller.disclaimerAccepted()) onAccepted() else pendingDisclaimerAction = onAccepted
+        fun ensureDisclaimerAccepted(forQuickSetup: Boolean = false, onAccepted: () -> Unit) {
+            if (controller.disclaimerAccepted()) {
+                onAccepted()
+            } else {
+                pendingDisclaimerIsQuickSetup = forQuickSetup
+                pendingDisclaimerAction = onAccepted
+            }
         }
 
         // Swallows the single synchronous onDismiss the PICK_TYPE-step AbListChoiceDialog fires
@@ -725,11 +736,8 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
         // onCreate — it (re)runs once per fresh entry into composition, which happens again whenever
         // the host Activity is recreated (e.g. by a config change without configChanges handling).
         LaunchedEffect(Unit) {
-            val startEasySetupArg = backStackEntry.arguments?.read {
-                getBooleanOrNull(NavRoutes.ARG_START_EASY_SETUP)
-            } ?: false
-            if (startEasySetupArg) {
-                ensureDisclaimerAccepted { startEasySetup() }
+            if (enteredForQuickSetup) {
+                ensureDisclaimerAccepted(forQuickSetup = true) { startEasySetup() }
             }
         }
 
@@ -761,9 +769,15 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                 controller.acceptDisclaimer()
                 val onAccepted = pendingDisclaimerAction
                 pendingDisclaimerAction = null
+                pendingDisclaimerIsQuickSetup = false
                 onAccepted?.invoke()
             },
-            onDismissAcceptDisclaimer = { pendingDisclaimerAction = null },
+            onDismissAcceptDisclaimer = {
+                val wasQuickSetupStart = pendingDisclaimerIsQuickSetup
+                pendingDisclaimerAction = null
+                pendingDisclaimerIsQuickSetup = false
+                quickSetupExit.disclaimerDismissed(wasQuickSetupStart)
+            },
         )
 
         easySetupState?.let { state ->
@@ -814,6 +828,7 @@ fun NavGraphBuilder.aiNavGraph(navController: NavHostController, deps: AiNavDeps
                         swallowNextEasySetupDismiss = false
                     } else {
                         easySetupState = null
+                        quickSetupExit.wizardClosed()
                     }
                 },
             )
