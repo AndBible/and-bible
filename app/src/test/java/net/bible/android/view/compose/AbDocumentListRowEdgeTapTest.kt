@@ -21,7 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.AnnotatedString
@@ -86,6 +88,17 @@ class AbDocumentListRowEdgeTapTest {
     @Test fun aTapInTheMiddleClicks() {
         show()
         compose.onNodeWithTag("row").performTouchInput { down(center); up() }
+        compose.waitForIdle()
+        assertEquals(1, clicks)
+    }
+
+    @Test fun aSemanticsActivationAfterAnEdgeStartedTapStillClicks() {
+        show()
+        compose.onNodeWithTag("row").performTouchInput { down(Offset(5f, centerY)); up() }
+        compose.waitForIdle()
+        assertEquals(0, clicks)
+        // TalkBack double-tap / keyboard Enter: no pointer down, must not be swallowed by the stale edge flag.
+        compose.onNodeWithTag("row").performSemanticsAction(SemanticsActions.OnClick)
         compose.waitForIdle()
         assertEquals(1, clicks)
     }

@@ -112,6 +112,12 @@ fun AbDocumentListRow(
                     val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                     pressStartedInEdge = windowWidth > 0f &&
                         isInHorizontalGestureEdge(rowLeftInWindow + down.position.x, windowWidth, edges)
+                    // Reset when the gesture ends (Final pass: after combinedClickable has fired), so a
+                    // later non-pointer activation (TalkBack, keyboard) is not dropped by a stale flag.
+                    do {
+                        val event = awaitPointerEvent(PointerEventPass.Final)
+                    } while (event.changes.any { it.pressed })
+                    pressStartedInEdge = false
                 }
             }
             .combinedClickable(onClick = { if (!pressStartedInEdge) onClick() }, onLongClick = onLongClick)
