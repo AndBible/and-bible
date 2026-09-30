@@ -3809,6 +3809,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             controllerFor = { onDuplicate ->
                                 CustomRepositoryController(customRepositoryService, lifecycleScope).apply {
                                     this.onDuplicate = onDuplicate
+                                    this.onChanged = { pendingDownloadCatalogueReload = true }
                                 }
                             },
                             title = getString(R.string.custom_repositories),
@@ -7667,7 +7668,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /**
-     * Armed when the overflow menu navigates to `CustomRepositories`, disarmed by
+     * Armed by [CustomRepositoryController.onChanged] when a repository was added, edited or deleted
+     * (F96, fix batch 3 -- classic reloaded after every visit), disarmed by
      * [reloadDownloadCatalogueIfRequested]. Classic awaited that Activity's result and then reloaded
      * (`DownloadComposeActivity.kt:899-905`); an in-graph hop has no result to await, so the
      * "and then reloaded" half is carried here instead of being lost.
@@ -8180,12 +8182,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 text = getString(R.string.custom_repositories),
                 // An in-graph hop, not classic's awaitIntent(Screen.CustomRepositories): that
                 // destination lives in THIS graph (Task 3), so an Intent would launch this host at
-                // itself. An in-graph hop has no result to await, so classic's follow-up
-                // `loadDocuments(true)` (:904) is ARMED here and performed by
+                // itself. An in-graph hop has no result to await; classic's follow-up
+                // `loadDocuments(true)` (:904) is armed by CustomRepositoryController.onChanged (F96),
+                // so a view-only visit reloads nothing, and performed by
                 // [reloadDownloadCatalogueIfRequested] when the destination composes again.
                 onClick = {
                     close()
-                    pendingDownloadCatalogueReload = true
                     navController.navigate(NavRoutes.customRepositories())
                 },
                 // Icons.Filled.Dns (a stack of servers) rather than the "Install zip" unarchive

@@ -41,6 +41,13 @@ class CustomRepositoryController(
 
     var onDuplicate: (name: String) -> Unit = {}
 
+    /**
+     * F96 (fix batch 3 §2.2.4): fired after an upsert or delete was actually applied -- never for a
+     * cancel or a rejected duplicate. The download catalogue reloads only on this; merely viewing
+     * the list must not re-fetch every repository.
+     */
+    var onChanged: () -> Unit = {}
+
     init { refresh() }
 
     fun refresh() {
@@ -63,6 +70,7 @@ class CustomRepositoryController(
                     return@launch
                 }
             }
+            onChanged()
             refresh()
         }
     }

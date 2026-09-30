@@ -62,6 +62,31 @@ class CustomRepositoryControllerTest {
         c.applyResult(RepositoryResult(cancel = true)); testScheduler.advanceUntilIdle()
         assertEquals(1, c.state.value.rows.size)
     }
+
+    // F96 (fix batch 3 §2.2.4): only a real change may force the catalogue reload.
+    @Test fun onChangedFiresAfterAnInsertAndADelete() = runTest {
+        val svc = FakeService(mutableListOf(CustomRepositoryData(id = 5, name = "X")))
+        val c = CustomRepositoryController(svc, this)
+        var changes = 0
+        c.onChanged = { changes++ }
+        c.applyResult(RepositoryResult(repository = CustomRepositoryData(name = "New")))
+        testScheduler.advanceUntilIdle()
+        c.applyResult(RepositoryResult(repository = CustomRepositoryData(id = 5, name = "X"), delete = true))
+        testScheduler.advanceUntilIdle()
+        assertEquals(2, changes)
+    }
+
+    @Test fun onChangedDoesNotFireForACancelOrADuplicate() = runTest {
+        val svc = FakeService(mutableListOf(CustomRepositoryData(id = 1, name = "A")))
+        val c = CustomRepositoryController(svc, this)
+        var changes = 0
+        c.onChanged = { changes++ }
+        c.applyResult(RepositoryResult(repository = CustomRepositoryData(id = 1, name = "A"), cancel = true))
+        svc.duplicate = true
+        c.applyResult(RepositoryResult(repository = CustomRepositoryData(name = "A")))
+        testScheduler.advanceUntilIdle()
+        assertEquals(0, changes)
+    }
     @Test fun duplicateFiresCallback() = runTest {
         val svc = FakeService().apply { duplicate = true }
         val c = CustomRepositoryController(svc, this)
