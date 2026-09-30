@@ -13,6 +13,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -25,6 +26,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [29])
 class SystemBarPolicyHostTest {
+    @get:Rule val composeDispatcherReset = net.bible.android.ComposeUiDispatcherResetRule()
+
     private val hostControllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     private fun host(route: String): NavHostComposeActivity {
@@ -62,7 +65,7 @@ class SystemBarPolicyHostTest {
         a.navigateInGraph(NavRoutes.AI_TOOL_INFO); idle()
         assertEquals("the nav bar must show on a non-reading destination", false, navHidden(a))
 
-        // Not onBackPressed(): at sdk 29 the dispatcher does not pop this graph when the test runs after
+        // Not onBackPressed(): at sdk 29 the dispatcher did not pop this graph when the test ran after
         // others in this class (it does standalone, and at sdk 30 -- see the system-back test below).
         a.navigateInGraph(NavRoutes.READING); idle()
         assertTrue("returned to reading, fullscreen hides it again", navHidden(a))

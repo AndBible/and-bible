@@ -10,6 +10,7 @@ import net.bible.android.view.activity.nav.WindowMode
 import net.bible.sharedcore.nav.NavRoutes
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -29,6 +30,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
 class ReadingWindowModeHostTest {
+    @get:Rule val composeDispatcherReset = net.bible.android.ComposeUiDispatcherResetRule()
+
     private val hostControllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
 
     private fun host(route: String): NavHostComposeActivity {
