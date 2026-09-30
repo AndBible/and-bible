@@ -66,6 +66,13 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.unloadKoinModules
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.module
+import net.bible.android.control.search.SearchIndexServiceImpl
+import net.bible.sharedcore.search.SearchIndexService
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -876,6 +883,85 @@ class ReadingSearchEntryPointsTest {
                 "F100: KJV is selected and has no index, so the submit must ask for one",
             )
             assertEquals(listOf("KJV"), host.searchSelectorPendingIdsForTest, "the Task 11 chain is armed for the selection")
+        } finally {
+            CommonUtils.settings.removeString("search_selected_translations")
+            Books.installed().removeBook(fakeBook)
+        }
+    }
+
+    /** Runs [block] with a [SearchIndexService] that records `createIndex` instead of building a real index. */
+    private fun withRecordingIndexService(block: () -> Unit) {
+        val fake = object : SearchIndexService {
+            override fun hasIndex(docId: String) = false
+            override fun createIndex(docId: String) {}
+        }
+        val overrideModule = module { single<SearchIndexService> { fake } }
+        loadKoinModules(overrideModule)
+        try {
+            block()
+        } finally {
+            // Same hand re-install as `ReadingSearchHostTest`'s EpubSearchService override.
+            unloadKoinModules(overrideModule)
+            loadKoinModules(module { singleOf(::SearchIndexServiceImpl) { bind<SearchIndexService>() } })
+        }
+    }
+
+    /**
+     * Review I1: after the F100 index prompt the automatic search must cover exactly what the submit it
+     * replaced would have — the selection PLUS the active (indexed) document (F44/B4) — not just the
+     * translation the prompt built. Selection [KJV] (unindexed), active FAKE (indexed).
+     */
+    @Test fun theAutoRunAfterTheSelectionIndexPromptStillSearchesTheActiveDocument() {
+        val fakeBook = indexedFakeBible("FAKE")
+        Books.installed().addBook(fakeBook)
+        try {
+            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+            windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(fakeBook, verse)
+            CommonUtils.settings.setString("search_selected_translations", "KJV")
+            withRecordingIndexService {
+                val host = host()
+                host.openSearch()
+                host.searchController.queries.setQuery("lord")
+                host.searchController.submit()
+                assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), host.searchController.phase.value, "sanity")
+
+                host.searchController.acceptIndexing()
+                host.searchController.onIndexingFinished(true)
+
+                val ids = assertNotNull(host.lastSearchRequestForTest, "the build finishing must run the waiting search").translationIds
+                assertEquals(listOf("KJV", "FAKE"), ids, "I1: the active document is searched too, as the submit would have")
+            }
+        } finally {
+            CommonUtils.settings.removeString("search_selected_translations")
+            Books.installed().removeBook(fakeBook)
+        }
+    }
+
+    /**
+     * Review M1: a prompt abandoned (BACK, then a pane switch) must not leave its chain armed. The
+     * next submit raises an ordinary prompt for the new pane's own document, and the build that follows
+     * must not be hijacked into prompting for KJV again.
+     */
+    @Test fun anAbandonedSelectionPromptDoesNotLeaveAStalePendingChain() {
+        val fakeBook = indexedFakeBible("FAKE")
+        Books.installed().addBook(fakeBook)
+        try {
+            val verse = Verse(Versifications.instance().getVersification("KJV"), BibleBook.GEN, 1, 1)
+            windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(fakeBook, verse)
+            CommonUtils.settings.setString("search_selected_translations", "KJV")
+            val host = host()
+            host.openSearch()
+            host.searchController.queries.setQuery("lord")
+            host.searchController.submit()
+            assertEquals(listOf("KJV"), host.searchSelectorPendingIdsForTest, "sanity: the prompt armed the chain")
+            host.searchController.closeSheet()
+
+            // The pane switch: the active document is now KJV, which has no index.
+            setKjvAsCurrentDocument()
+            host.searchController.submit()
+
+            assertEquals(ReadingSearchPhase.NeedsIndex("KJV", forEpub = false), host.searchController.phase.value, "sanity")
+            assertNull(host.searchSelectorPendingIdsForTest, "M1: the abandoned prompt's chain must be gone")
         } finally {
             CommonUtils.settings.removeString("search_selected_translations")
             Books.installed().removeBook(fakeBook)

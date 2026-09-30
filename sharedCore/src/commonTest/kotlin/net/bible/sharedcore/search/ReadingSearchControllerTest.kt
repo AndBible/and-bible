@@ -277,6 +277,33 @@ class ReadingSearchControllerTest {
         assertTrue(r.searchesRun.isEmpty())
     }
 
+    @Test
+    fun theAutoRunAfterASelectionIndexPromptSearchesTheDocumentTheSubmitWouldHave() {
+        // Review I1: the prompt is for ESV, but the intercepted search was for the active KJV; the host
+        // adds the searched document to the translation set, so running against "ESV" would drop KJV.
+        val (r, c) = controller(unindexedInSelection = "ESV")
+        c.open()
+        c.queries.setQuery("light")
+        c.submit()
+        c.acceptIndexing()
+        c.onIndexingFinished(true)
+        assertEquals(listOf(Triple("KJV", "light", false)), r.searchesRun)
+        assertEquals(ReadingSearchPhase.Results("KJV", forEpub = false), c.phase.value)
+    }
+
+    @Test
+    fun aResultsSelectorPromptStillRunsAgainstTheChosenDocument() {
+        // The selector's chosen set IS the whole search, so promptIndexFor drops any F100 interception.
+        val (r, c) = controller(unindexedInSelection = "ESV")
+        c.open()
+        c.queries.setQuery("light")
+        c.submit()
+        assertTrue(c.promptIndexFor("NIV"))
+        c.acceptIndexing()
+        c.onIndexingFinished(true)
+        assertEquals(listOf(Triple("NIV", "light", false)), r.searchesRun)
+    }
+
     // ---- 17d C5 / spec §7, D6: the toolbar's back-to-results button ------------------------------
 
     @Test

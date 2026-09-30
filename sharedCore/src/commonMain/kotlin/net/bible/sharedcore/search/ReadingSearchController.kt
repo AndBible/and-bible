@@ -51,8 +51,21 @@ class ReadingSearchController(
      * has no usable index, or null. A Bible search covers that selection as well as the active
      * document, and JSword silently skips an unindexed translation — so without this gate the user
      * sees "0 verses" with no hint why. Defaults to "none" for callers with no selection.
+     *
+     * Called only on the submit / seeded-open / settings-closed paths, once per attempt. The host's
+     * implementation has a side effect: it arms (or, when nothing is unindexed, clears) the host's
+     * pending-index chain for the selection it inspected — so a prompt abandoned earlier cannot
+     * leave a stale chain behind (review M1).
      */
     private val firstUnindexedInSelection: () -> String? = { null },
+    /**
+     * Review M1: the session moved on without the F100 selection prompt it raised earlier being
+     * answered — a search ran, an implicit prompt replaced it, or search mode was (re)opened. The host
+     * drops the pending-index chain it armed from [firstUnindexedInSelection], which would otherwise
+     * outlive the abandoned prompt and hijack an unrelated build. NOT called by [promptIndexFor]: the
+     * results selector arms its own chain just before calling it.
+     */
+    private val onSelectionPromptDropped: () -> Unit = {},
     val queries: SearchQueryController = SearchQueryController(),
 ) {
     private val _phase = MutableStateFlow<ReadingSearchPhase>(ReadingSearchPhase.Closed)
@@ -112,6 +125,17 @@ class ReadingSearchController(
     private var indexPromptIsExplicit = false
 
     /**
+     * Review I1: the document the search would have run against had [promptForUnindexedSelection] not
+     * intercepted it (the active window's indexed Bible). The automatic search after the index build
+     * must use THAT document, not the prompted translation's id — the host's request builder adds the
+     * document it is given to the translation set (F44/B4), so running against the prompted id would
+     * drop the active document from a search the user already submitted. Null unless an F100 prompt
+     * is pending; consumed by [onIndexingFinished], replaced by [runSearch], and cleared by every
+     * transition that abandons or redirects the session.
+     */
+    private var interceptedSearchDocId: String? = null
+
+    /**
      * F83 (fix batch 3 §2.1.1): a result row was tapped. The sheet was hidden so the verse is
      * readable, and the NEXT back press must bring the results list back — classic's results screen
      * was a history item, so BACK from the verse returned to it. One-shot: [reopenResultsOnBack]
@@ -153,6 +177,7 @@ class ReadingSearchController(
         onLeaveFullScreen()
         _searchModeActive.value = true
         indexPromptIsExplicit = false
+        dropInterceptedSearch()
         if (seedQuery != null) queries.setQuery(seedQuery)
 
         when (kind) {
@@ -181,12 +206,13 @@ class ReadingSearchController(
                 _sheetVisible.value = true
                 requestFieldRelease()
             }
-            else -> if (forEpub || !promptForUnindexedSelection()) runSearch(docId, forEpub, q)
+            else -> if (forEpub || !promptForUnindexedSelection(docId)) runSearch(docId, forEpub, q)
         }
     }
 
     private fun runSearch(docId: String, forEpub: Boolean, query: String, touchIme: Boolean = true) {
         resultTapPending = false
+        dropInterceptedSearch()
         onRunSearch(docId, query, forEpub)
         lastResults = ResultsKey(query, docId, forEpub)
         _phase.value = ReadingSearchPhase.Results(docId, forEpub)
@@ -217,7 +243,7 @@ class ReadingSearchController(
             }
             is SearchKind.Bible -> {
                 queries.recordRecentTerm(q)
-                if (!promptForUnindexedSelection()) runSearch(kind.docId, false, q)
+                if (!promptForUnindexedSelection(kind.docId)) runSearch(kind.docId, false, q)
             }
             is SearchKind.Epub -> { queries.recordRecentTerm(q); runSearch(kind.docId, true, q) }
         }
@@ -258,6 +284,7 @@ class ReadingSearchController(
         _sheetVisible.value = true
         requestFieldRelease()
         indexPromptIsExplicit = false
+        dropInterceptedSearch()
     }
 
     /**
@@ -266,8 +293,14 @@ class ReadingSearchController(
      * a document the active window is not showing, and a window switch must not overwrite it.
      * Returns true when it prompted.
      */
-    private fun promptForUnindexedSelection(): Boolean {
+    private fun dropInterceptedSearch() {
+        interceptedSearchDocId = null
+        onSelectionPromptDropped()
+    }
+
+    private fun promptForUnindexedSelection(searchDocId: String): Boolean {
         val docId = firstUnindexedInSelection() ?: return false
+        interceptedSearchDocId = searchDocId
         _phase.value = ReadingSearchPhase.NeedsIndex(docId, forEpub = false)
         _sheetVisible.value = true
         requestFieldRelease()
@@ -291,8 +324,11 @@ class ReadingSearchController(
      * routing through the SAME phase, rather than adding a parallel "index this other document" path,
      * is what lets the existing indexing pipeline serve a document the active window isn't showing.
      */
-    fun promptIndexFor(docId: String): Boolean {
+    fun promptIndexFor(docId: String, keepInterceptedSearch: Boolean = false): Boolean {
         val forEpub = forEpubOf(_phase.value) ?: return false
+        // A results-selector choice IS the whole search, so it drops an F100 interception; the host's
+        // chain to the NEXT unindexed translation of an F100 prompt passes `true` to keep it.
+        if (!keepInterceptedSearch) interceptedSearchDocId = null
         _phase.value = ReadingSearchPhase.NeedsIndex(docId, forEpub)
         _sheetVisible.value = true
         requestFieldRelease()
@@ -325,7 +361,7 @@ class ReadingSearchController(
             return true
         }
         val docId = docIdOf(p) ?: return false
-        return promptIndexFor(docId)
+        return promptIndexFor(docId, keepInterceptedSearch = true)
     }
 
     fun acceptIndexing() {
@@ -386,7 +422,7 @@ class ReadingSearchController(
             _sheetVisible.value = false
             if (stillWatching) requestFieldFocus()
         } else {
-            runSearch(p.docId, p.forEpub, q, touchIme = stillWatching)
+            runSearch(interceptedSearchDocId ?: p.docId, p.forEpub, q, touchIme = stillWatching)
         }
     }
 
@@ -401,7 +437,7 @@ class ReadingSearchController(
         when (val kind = searchKindFor(resolveDoc())) {
             SearchKind.Unavailable -> onUnavailable()
             is SearchKind.NeedsIndex -> promptIndexImplicitly(kind.docId, kind.forEpub)
-            is SearchKind.Bible -> if (!promptForUnindexedSelection()) runSearch(kind.docId, false, q)
+            is SearchKind.Bible -> if (!promptForUnindexedSelection(kind.docId)) runSearch(kind.docId, false, q)
             is SearchKind.Epub -> runSearch(kind.docId, true, q)
         }
     }
@@ -448,6 +484,7 @@ class ReadingSearchController(
         queries.setQuery("")
         _imeRequest.value = null
         indexPromptIsExplicit = false
+        interceptedSearchDocId = null
         resultTapPending = false
         return true
     }

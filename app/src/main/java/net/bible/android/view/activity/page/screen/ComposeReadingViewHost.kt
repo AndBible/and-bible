@@ -2215,6 +2215,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             val selection = searchTranslations.value
             bibleSearchService.unindexedAmong(selection).firstOrNull()?.also { searchSelectorPendingIds = selection }
         },
+        // Review M1: an F100 prompt that was abandoned (BACK, a pane switch, a new search) must not leave
+        // its chain armed for an unrelated later build.
+        onSelectionPromptDropped = { searchSelectorPendingIds = null },
         queries = searchQueries,
     )
 
@@ -2527,6 +2530,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     // `internal`, not `private` — same test-visibility rationale as [runEpubSearch] below: review M10
     // asked for the BIBLE direction of the routing to be pinned too (a Bible query must leave the EPUB
     // controller untouched), and that assertion has to call this side directly.
+    /** Test-only: the request the most recent [runSearch] built (the results controller keeps it private). */
+    internal var lastSearchRequestForTest: SearchRequest? = null
+        private set
+
     internal fun runSearch(docId: String, query: String) {
         // A new query's rows are new rows: keep no stale expansion state keyed by reference name.
         searchResultsExpanded.clear()
@@ -2537,6 +2544,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // at the bottom and looking empty.
         searchResultsListState.value = LazyListState()
         val request = buildSearchRequest(docId, query)
+        lastSearchRequestForTest = request
         // The searched list and the USER's selection are two different things (F44 fix round, I2):
         // `buildSearchRequest` appends the active document when it is indexed (B4), but the results
         // sheet's document selector must keep showing — and, on confirm, persisting — only what the
@@ -2699,7 +2707,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // `onIndexingFinished` re-run against only the just-built translation.
             val next = nextSelectorIndexPrompt(searchSelectorPendingIds, indexDone) { bibleSearchService.unindexedAmong(it) }
             if (next != null) {
-                searchController.promptIndexFor(next)
+                searchController.promptIndexFor(next, keepInterceptedSearch = true)
                 return@launch
             }
             searchSelectorPendingIds = null
@@ -3754,7 +3762,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * not `partialExpand()`: the scaffold runs with `sheetPeekHeight = 0.dp`, where M3's
      * `PartiallyExpanded` anchor sits exactly where `Hidden` does (see [DriveSearchSheet]'s kdoc), and
      * poking the M3 sheet state directly would desync it from the session's own `sheetVisible`, which
-     * is what actually drives it. `closeSheet()` keeps search mode and the `Results` phase, so the
+     * is what actually drives it. Search mode and the `Results` phase stay, so the
      * verse is readable and re-opening search serves the same results without re-running.
      */
     // `internal`, not `private`, for direct test coverage (`ReadingSearchEntryPointsTest`) — same
