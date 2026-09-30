@@ -7,12 +7,14 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -84,15 +86,19 @@ class ReadingInsetOwnershipTest {
     /** Records what Compose itself sees, so a dispatch that never reaches Compose fails loudly. */
     private val seenNavBottom = mutableIntStateOf(-1)
 
-    private fun mount(speakBarVisible: Boolean) {
+    private val seenImeBottom = mutableIntStateOf(-1)
+
+    private fun mount(speakBarVisible: Boolean, agentLogVisible: Boolean = false, imeBottomPx: Int = 0) {
         compose.setContent {
             val d = LocalDensity.current
+            seenImeBottom.intValue = WindowInsets.ime.getBottom(d)
             seenNavBottom.intValue = WindowInsets.navigationBars.getBottom(d)
             ProvideAppLocals {
                 Box(Modifier.fillMaxSize().testTag("root")) {
                     ReadingViewScreen(
                         layout = layout(), toolbar = ToolbarState.EMPTY, toolbarIcons = icons(),
                         toolbarCallbacks = callbacks(), fullScreen = false,
+                        imeBottomPadding = with(d) { imeBottomPx.toDp() },
                         onWindowActivated = {}, onSeparatorCommitted = { _, _, _, _ -> },
                         pane = { Box(Modifier.fillMaxSize().testTag("pane")) },
                         tabBar = { apply -> Box(Modifier.readingRailInsetPadding(apply).size(20.dp).testTag("strip")) },
@@ -105,19 +111,38 @@ class ReadingInsetOwnershipTest {
                             )
                         },
                         speakBarVisible = speakBarVisible,
+                        agentLogVisible = agentLogVisible,
+                        // Like the real panel: paints its own nav-bar inset when it owns it and
+                        // reports its measured height, which the screen reserves.
+                        agentLog = { apply, _, _, onMeasured ->
+                            Box(
+                                Modifier.fillMaxWidth()
+                                    // Outermost, so the reported height includes the nav-bar padding.
+                                    .onSizeChanged { onMeasured(with(d) { it.height.toDp() }.value) }
+                                    .testTag("agent")
+                                    .then(if (apply) Modifier.windowInsetsPadding(WindowInsets.navigationBars) else Modifier)
+                                    .height(40.dp)
+                            )
+                        },
                     )
                 }
             }
         }
     }
 
-    private fun dispatch(left: Int, right: Int, bottom: Int) {
+    private fun dispatch(left: Int, right: Int, bottom: Int, imeBottom: Int = 0) {
         val root: ViewGroup = compose.activity.findViewById(android.R.id.content)
         compose.runOnUiThread {
             ViewCompat.dispatchApplyWindowInsets(
                 root,
                 WindowInsetsCompat.Builder()
                     .setInsets(WindowInsetsCompat.Type.navigationBars(), Insets.of(left, 0, right, bottom))
+                    .apply {
+                        if (imeBottom > 0) {
+                            setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, imeBottom))
+                            setVisible(WindowInsetsCompat.Type.ime(), true)
+                        }
+                    }
                     .build(),
             )
         }
@@ -146,5 +171,25 @@ class ReadingInsetOwnershipTest {
         mount(speakBarVisible = false)
         dispatch(0, navPx, 0)
         assertEquals(bounds("root").right - navPx, bounds("pane").right, 1f)
+    }
+
+    // F66: keyboard up. The column is already padded by the IME (which includes the nav bar), so the
+    // strip must sit ON the column's bottom -- padding the nav bar again floats it one nav bar high.
+    @Test fun withTheKeyboardUpTheStripSitsOnTheColumnBottom() {
+        val imePx = 300
+        mount(speakBarVisible = false, imeBottomPx = imePx)
+        dispatch(0, 0, navPx, imeBottom = imePx)
+        assertEquals("the nav dispatch must reach Compose", navPx, seenNavBottom.intValue)
+        assertEquals("the IME dispatch must reach Compose", imePx, seenImeBottom.intValue)
+        assertEquals(bounds("root").bottom - imePx, bounds("strip").bottom, 1f)
+    }
+
+    // F67: the agent panel is up. It owns the nav bar inside its own surface, so the strip sits on
+    // the panel's reservation rather than one nav bar above it.
+    @Test fun withTheAgentPanelUpTheStripSitsOnThePanel() {
+        mount(speakBarVisible = false, agentLogVisible = true)
+        dispatch(0, 0, navPx)
+        assertEquals("the dispatch must reach Compose", navPx, seenNavBottom.intValue)
+        assertEquals(bounds("agent").top, bounds("strip").bottom, 1f)
     }
 }
