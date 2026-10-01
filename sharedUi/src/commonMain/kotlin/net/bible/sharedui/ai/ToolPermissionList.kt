@@ -64,7 +64,7 @@ import net.bible.sharedui.strings.Strings
  * A single selectable option in a tool's permission control: the [ToolPermission] it sets and its
  * (already-localized) display label.
  */
-private data class ToolPermissionOption(val permission: ToolPermission, val label: String)
+private data class ToolPermissionOption(val permission: ToolPermission, val label: String, val icon: ImageVector)
 
 /**
  * Categorized, collapsible tool-permission list shared by the classic-parity GLOBAL screen
@@ -292,7 +292,7 @@ private fun CategoryPermissionControl(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val current = (state as? CategoryPermissionState.Uniform)?.permission
-    val icon = current?.let { permissionIcon(it) } ?: Icons.Filled.Remove
+    val icon = current?.let { p -> options.firstOrNull { it.permission == p }?.icon ?: permissionIcon(p) } ?: Icons.Filled.Remove
     val label = current?.let { p -> options.firstOrNull { it.permission == p }?.label } ?: strings.toolPermissionMixed
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
@@ -309,7 +309,7 @@ private fun CategoryPermissionControl(
                     AbMenuItem(
                         text = option.label,
                         onClick = { onSet(option.permission); expanded = false },
-                        icon = { Icon(permissionIcon(option.permission), contentDescription = null) },
+                        icon = { Icon(option.icon, contentDescription = null) },
                         checkable = true,
                         checked = option.permission == current,
                     )
@@ -367,7 +367,7 @@ private fun ReadToolPermissionToggle(
     val currentIndex = options.indexOfFirst { it.permission == current }.coerceAtLeast(0)
     val currentOption = options[currentIndex]
     IconButton(onClick = { onSet(options[(currentIndex + 1) % options.size].permission) }) {
-        Icon(imageVector = permissionIcon(currentOption.permission), contentDescription = currentOption.label)
+        Icon(imageVector = currentOption.icon, contentDescription = currentOption.label)
     }
 }
 
@@ -389,14 +389,14 @@ private fun WriteToolPermissionControl(
     val currentOption = options.firstOrNull { it.permission == current } ?: options.first()
     Box {
         IconButton(onClick = { expanded = true }) {
-            Icon(imageVector = permissionIcon(currentOption.permission), contentDescription = currentOption.label)
+            Icon(imageVector = currentOption.icon, contentDescription = currentOption.label)
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->
                 AbMenuItem(
                     text = option.label,
                     onClick = { onSet(option.permission); expanded = false },
-                    icon = { Icon(permissionIcon(option.permission), contentDescription = null) },
+                    icon = { Icon(option.icon, contentDescription = null) },
                     checkable = true,
                     checked = option.permission == current,
                 )
@@ -413,13 +413,14 @@ private fun WriteToolPermissionControl(
  * to a blocked/no-entry circle (17f: these are the same user-facing concept — "always block" — on
  * two kinds of tool, and read/write tools never share an option list, so one icon is unambiguous);
  * [ToolPermission.ASK] = a question mark (GLOBAL mode's neutral "ask every time" write default);
- * [ToolPermission.DEFAULT] = a globe ("inherits the global default" -- its specific resolved value
- * is carried in the option's text label, not the icon, per [globalDefaultLabelFor]).
+ * [ToolPermission.DEFAULT] is never drawn with its own icon: a Default option carries its resolved
+ * permission's icon (F79, see [resolvedDefaultPermission]); the branch below only keeps this total.
  */
-private fun permissionIcon(permission: ToolPermission): ImageVector = when (permission) {
+internal fun permissionIcon(permission: ToolPermission): ImageVector = when (permission) {
     ToolPermission.ENABLED, ToolPermission.ALLOW -> Icons.Filled.CheckCircle
     ToolPermission.DISABLED, ToolPermission.DENY -> Icons.Filled.Block
     ToolPermission.ASK -> Icons.AutoMirrored.Filled.HelpOutline
+    // Options never reach this: a Default option uses its resolved permission's icon (F79).
     ToolPermission.DEFAULT -> Icons.Filled.Public
 }
 
@@ -437,28 +438,48 @@ private fun toolOptions(tool: ToolVd, defaultToken: String?, strings: Strings): 
     buildList {
         if (tool.requiresPermission) {
             if (defaultToken != null) {
-                add(ToolPermissionOption(ToolPermission.DEFAULT, defaultOptionLabel(tool.requiresPermission, defaultToken, strings)))
+                add(defaultOption(tool.requiresPermission, defaultToken, strings))
             } else {
-                add(ToolPermissionOption(ToolPermission.ASK, strings.toolOptionAsk))
+                add(ToolPermissionOption(ToolPermission.ASK, strings.toolOptionAsk, permissionIcon(ToolPermission.ASK)))
             }
-            add(ToolPermissionOption(ToolPermission.ALLOW, strings.toolOptionAllow))
-            add(ToolPermissionOption(ToolPermission.DENY, strings.toolOptionDeny))
+            add(ToolPermissionOption(ToolPermission.ALLOW, strings.toolOptionAllow, permissionIcon(ToolPermission.ALLOW)))
+            add(ToolPermissionOption(ToolPermission.DENY, strings.toolOptionDeny, permissionIcon(ToolPermission.DENY)))
         } else {
             if (defaultToken != null) {
-                add(ToolPermissionOption(ToolPermission.DEFAULT, defaultOptionLabel(tool.requiresPermission, defaultToken, strings)))
+                add(defaultOption(tool.requiresPermission, defaultToken, strings))
             }
-            add(ToolPermissionOption(ToolPermission.ENABLED, strings.toolOptionEnabled))
-            add(ToolPermissionOption(ToolPermission.DISABLED, strings.toolOptionDisabled))
+            add(ToolPermissionOption(ToolPermission.ENABLED, strings.toolOptionEnabled, permissionIcon(ToolPermission.ENABLED)))
+            add(ToolPermissionOption(ToolPermission.DISABLED, strings.toolOptionDisabled, permissionIcon(ToolPermission.DISABLED)))
         }
     }
 
-private fun defaultOptionLabel(requiresPermission: Boolean, token: String, strings: Strings): String =
+/**
+ * What a [ToolPermission.DEFAULT] option inherits, from the global-default token
+ * ([globalDefaultLabelFor]). Unknown tokens fall back as [defaultOptionLabel] does: allowed/enabled.
+ */
+internal fun resolvedDefaultPermission(requiresPermission: Boolean, token: String): ToolPermission =
     if (requiresPermission) {
         when (token) {
-            ToolPermission.DENY.name -> strings.toolOptionDefaultDenied
-            ToolPermission.ASK.name -> strings.toolOptionAsk
-            else -> strings.toolOptionDefaultAllowed
+            ToolPermission.DENY.name -> ToolPermission.DENY
+            ToolPermission.ASK.name -> ToolPermission.ASK
+            else -> ToolPermission.ALLOW
         }
     } else {
-        if (token == ToolPermission.DISABLED.name) strings.toolOptionDefaultDisabled else strings.toolOptionDefaultEnabled
+        if (token == ToolPermission.DISABLED.name) ToolPermission.DISABLED else ToolPermission.ENABLED
+    }
+
+private fun defaultOption(requiresPermission: Boolean, token: String, strings: Strings): ToolPermissionOption =
+    ToolPermissionOption(
+        ToolPermission.DEFAULT,
+        defaultOptionLabel(requiresPermission, token, strings),
+        permissionIcon(resolvedDefaultPermission(requiresPermission, token)),
+    )
+
+private fun defaultOptionLabel(requiresPermission: Boolean, token: String, strings: Strings): String =
+    when (resolvedDefaultPermission(requiresPermission, token)) {
+        ToolPermission.DENY -> strings.toolOptionDefaultDenied
+        ToolPermission.ASK -> strings.toolOptionAsk
+        ToolPermission.DISABLED -> strings.toolOptionDefaultDisabled
+        ToolPermission.ENABLED -> strings.toolOptionDefaultEnabled
+        else -> strings.toolOptionDefaultAllowed
     }
