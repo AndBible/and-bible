@@ -105,7 +105,7 @@ val coreModule = module {
     singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() }
     singleOf(::PageControl)
     singleOf(::ReadingPlanControl)
-    singleOf(::ReadingPlanRepository)
+    single { ReadingPlanRepository() }
     singleOf(::SearchControl)
     singleOf(::BibleSearchServiceImpl) { bind<BibleSearchService>() }
     // F26: shared across SearchResultsComposeActivity recreations (history-revert Back) so returning
