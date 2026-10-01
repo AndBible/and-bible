@@ -848,6 +848,13 @@ fun MaxIterationsSheetContent(
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
         AbSheetHeader(title = strings.promptMaxIterationsLabel, onClose = onClose)
         Column(Modifier.padding(horizontal = 16.dp)) {
+            // F80: the explanation the row never had (the string existed, unreferenced).
+            Text(
+                strings.promptMaxIterationsDescription,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

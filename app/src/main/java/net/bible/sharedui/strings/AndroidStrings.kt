@@ -380,6 +380,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val promptModelOverrideLabel: String get() = context.getString(R.string.prompt_model_override)
     override val promptMaxIterationsLabel: String get() = context.getString(R.string.prompt_max_iterations)
     override val promptMaxIterationsHint: String get() = context.getString(R.string.prompt_max_iterations_hint)
+    override val promptMaxIterationsDescription: String get() = context.getString(R.string.prompt_max_iterations_description)
     override fun promptMaxIterationsUseGlobal(value: String) = context.getString(R.string.prompt_max_iterations_use_global, value)
     override val promptStrictContextMatchingLabel: String get() = context.getString(R.string.prompt_strict_context_matching)
     override val promptStrictContextMatchingDescription: String get() = context.getString(R.string.prompt_strict_context_matching_description)
