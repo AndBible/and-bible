@@ -1180,7 +1180,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // F89-DIAG (temporary, spec 2026-10-02 section 1.8): remove in the commit that fixes F89.
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
             Log.i(TAG_NAV_HOST, "F89-DIAG onKeyDown $keyCode handlers=${ReadingViewHostCallbacks.current != null} " +
-                "owns=${readingViewOwnsVolumeKeys()} bibleView=${windowControl.activeWindow.bibleView != null}")
+                "owns=${readingViewOwnsVolumeKeys()} bibleView=${windowControl.windowRepository.let { it.initialized && it.activeWindow.bibleView != null }}")
         }
         val handlers = ReadingViewHostCallbacks.current
         if (handlers != null) {
