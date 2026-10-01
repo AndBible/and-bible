@@ -48,6 +48,7 @@ class SelectionBarSystemBarSyncTest {
         val seen = mutableListOf<Color>()
         var expectedContainer: Color? = null
         compose.setContent {
+            ProvideAppLocals {
             CompositionLocalProvider(
                 LocalSystemBarSync provides { container, _ -> seen.add(container) }
             ) {
@@ -61,6 +62,7 @@ class SelectionBarSystemBarSyncTest {
                     onNavigateUp = {},
                     onExitSelection = {},
                 ) { }
+            }
             }
         }
         compose.waitForIdle()
