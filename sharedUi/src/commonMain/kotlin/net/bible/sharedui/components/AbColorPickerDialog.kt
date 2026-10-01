@@ -19,6 +19,7 @@ package net.bible.sharedui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -84,6 +85,7 @@ fun AbColorPickerDialog(
     initialColor: Int,
     onConfirm: (Int) -> Unit,
     onDismiss: () -> Unit,
+    onResetToDefault: (() -> Unit)? = null,
 ) {
     val strings = LocalStrings.current
     val opaqueInitial = remember(initialColor) { initialColor or (0xFF shl 24) }
@@ -94,12 +96,19 @@ fun AbColorPickerDialog(
         onDismissRequest = onDismiss,
         title = { Text(strings.colorPickerTitle) },
         text = {
-            AbColorPickerContent(
-                initialColor = opaqueInitial,
-                working = working,
-                onWorkingChange = { working = it },
-                presetsPage = presetsPage,
-            )
+            Column {
+                AbColorPickerContent(
+                    initialColor = opaqueInitial,
+                    working = working,
+                    onWorkingChange = { working = it },
+                    presetsPage = presetsPage,
+                )
+                if (onResetToDefault != null) {
+                    TextButton(onClick = onResetToDefault, modifier = Modifier.align(Alignment.End)) {
+                        Text(strings.resetToDefault)
+                    }
+                }
+            }
         },
         confirmButton = {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

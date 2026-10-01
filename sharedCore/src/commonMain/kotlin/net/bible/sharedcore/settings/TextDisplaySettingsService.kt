@@ -93,6 +93,8 @@ interface TextDisplaySettingsService {
     fun setColor(scope: SettingsScope, field: ColorField, argb: Int)
     fun setNoise(scope: SettingsScope, night: Boolean, value: Int)
     fun setWorkspaceColor(scope: SettingsScope, argb: Int)
+    /** F78: back to "unset" -- stores null (stock theme), not the #ff444444 sentinel. */
+    fun clearWorkspaceColor(scope: SettingsScope)
     fun setBackgroundImage(scope: SettingsScope, night: Boolean, initials: String?)
     fun setBackgroundOpacity(scope: SettingsScope, night: Boolean, opacity: Int)
     /** Whole-Colors reset (the classic ColorSettingsActivity "Reset" menu). Scope-dependent, per

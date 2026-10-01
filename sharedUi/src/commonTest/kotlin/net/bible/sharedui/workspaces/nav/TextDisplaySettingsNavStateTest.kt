@@ -98,6 +98,7 @@ class TextDisplaySettingsNavStateTest {
         override fun setColor(scope: SettingsScope, field: ColorField, argb: Int) = error("not used")
         override fun setNoise(scope: SettingsScope, night: Boolean, value: Int) = error("not used")
         override fun setWorkspaceColor(scope: SettingsScope, argb: Int) = error("not used")
+        override fun clearWorkspaceColor(scope: SettingsScope) = error("not used")
         override fun setBackgroundImage(scope: SettingsScope, night: Boolean, initials: String?) = error("not used")
         override fun setBackgroundOpacity(scope: SettingsScope, night: Boolean, opacity: Int) = error("not used")
         override fun resetColors(scope: SettingsScope) = error("not used")

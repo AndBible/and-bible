@@ -89,6 +89,7 @@ fun ColorSettingsScreen(
     onColorChange: (ColorField, Int) -> Unit,
     onNoiseChange: (night: Boolean, value: Int) -> Unit,
     onWorkspaceColorChange: (Int) -> Unit,
+    onWorkspaceColorReset: () -> Unit,
     onOpacityChange: (night: Boolean, value: Int) -> Unit,
     onChangeBackgroundImage: (night: Boolean) -> Unit,
 ) {
@@ -136,6 +137,7 @@ fun ColorSettingsScreen(
             initialColor = colors.workspaceColor,
             onConfirm = { onWorkspaceColorChange(it); workspaceDialogOpen = false },
             onDismiss = { workspaceDialogOpen = false },
+            onResetToDefault = { onWorkspaceColorReset(); workspaceDialogOpen = false },
         )
     }
 

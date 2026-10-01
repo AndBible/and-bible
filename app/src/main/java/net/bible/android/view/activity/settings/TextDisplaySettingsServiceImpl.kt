@@ -442,6 +442,7 @@ class TextDisplaySettingsServiceImpl(
     }
 
     override fun setWorkspaceColor(scope: SettingsScope, argb: Int) = editColors(scope) { it.workspaceColor = argb }
+    override fun clearWorkspaceColor(scope: SettingsScope) = editColors(scope) { it.workspaceColor = null }
 
     override fun setBackgroundImage(scope: SettingsScope, night: Boolean, initials: String?) = editColors(scope) {
         if (night) it.nightBackgroundImage = initials else it.dayBackgroundImage = initials

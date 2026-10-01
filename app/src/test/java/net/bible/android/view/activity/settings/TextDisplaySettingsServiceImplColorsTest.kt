@@ -69,6 +69,16 @@ class TextDisplaySettingsServiceImplColorsTest {
         assertEquals(-65536, repo.workspaceSettings.workspaceColor)
     }
 
+    /** F78: "unset" is stored as null (the honest value), and reads back as the default colour. */
+    @Test fun clearWorkspaceColorStoresNullAndReadsBackAsTheDefault() {
+        val scope = SettingsScope.Workspace(repo.id.toString())
+        impl.setWorkspaceColor(scope, -65536)
+        impl.clearWorkspaceColor(scope)
+        assertNull(repo.workspaceSettings.workspaceColor)
+        assertEquals(defaultWorkspaceColor, impl.loadColors(scope).workspaceColor)
+        assertFalse(net.bible.sharedcore.reading.isWorkspaceColorSet(impl.loadColors(scope).workspaceColor))
+    }
+
     // T8: setColor's `when(field)` gained a WORKSPACE branch to keep the enum total. Reached only if
     // a future caller bypasses ColorSettingsController's routing (which intercepts WORKSPACE and
     // calls setWorkspaceColor directly) -- proved here so that branch is not merely unreachable, but

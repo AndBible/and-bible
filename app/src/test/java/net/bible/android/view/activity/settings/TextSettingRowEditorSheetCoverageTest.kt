@@ -77,6 +77,7 @@ class TextSettingRowEditorSheetCoverageTest {
         override fun setColor(scope: SettingsScope, field: ColorField, argb: Int) {}
         override fun setNoise(scope: SettingsScope, night: Boolean, value: Int) {}
         override fun setWorkspaceColor(scope: SettingsScope, argb: Int) {}
+        override fun clearWorkspaceColor(scope: SettingsScope) {}
         override fun setBackgroundImage(scope: SettingsScope, night: Boolean, initials: String?) {}
         override fun setBackgroundOpacity(scope: SettingsScope, night: Boolean, opacity: Int) {}
         override fun resetColors(scope: SettingsScope) {}

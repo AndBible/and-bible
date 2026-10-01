@@ -30,6 +30,8 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -99,6 +101,7 @@ fun ColorSettingsEditorSheet(
     importVisible: Boolean,
     onColorChange: (ColorField, Int) -> Unit,
     onWorkspaceColorChange: (Int) -> Unit,
+    onWorkspaceColorReset: () -> Unit,
     onNoiseChange: (night: Boolean, value: Int) -> Unit,
     onOpacityChange: (night: Boolean, value: Int) -> Unit,
     onSelectBackgroundImage: (night: Boolean, initials: String?) -> Unit,
@@ -194,6 +197,12 @@ fun ColorSettingsEditorSheet(
                     onWorkingChange = { working = it },
                     presetsPage = presetsPage,
                 )
+                if (page.field == ColorField.WORKSPACE) {
+                    // F78: back to "unset" (stock theme); applies at once, so it is its own confirm.
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.End) {
+                        TextButton(onClick = { onWorkspaceColorReset(); onPop() }) { Text(strings.resetToDefault) }
+                    }
+                }
                 // A purpose-named row, not SheetResetConfirmRow: onSwitchPage toggles presets/custom,
                 // it does not reset anything, and reusing that row's onReset slot for this would make
                 // the parameter lie about what it does. See SheetPageSwitchConfirmRow's kdoc.

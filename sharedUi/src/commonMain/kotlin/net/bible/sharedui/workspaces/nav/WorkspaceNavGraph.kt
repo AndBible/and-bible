@@ -799,6 +799,7 @@ fun NavGraphBuilder.workspaceNavGraph(navController: NavHostController, deps: Wo
                     onColorChange = colorController::onColorChange,
                     onNoiseChange = colorController::onNoiseChange,
                     onWorkspaceColorChange = colorController::onWorkspaceColorChange,
+                    onWorkspaceColorReset = colorController::onWorkspaceColorReset,
                     onOpacityChange = colorController::onOpacityChange,
                     onChangeBackgroundImage = { n -> nav.selectBackgroundImageSlot(n) },
                 )

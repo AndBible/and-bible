@@ -78,6 +78,7 @@ class ColorSettingsScreenGoldenTest {
             onColorChange = { _, _ -> },
             onNoiseChange = { _, _ -> },
             onWorkspaceColorChange = {},
+            onWorkspaceColorReset = {},
             onOpacityChange = { _, _ -> },
             onChangeBackgroundImage = {},
         )

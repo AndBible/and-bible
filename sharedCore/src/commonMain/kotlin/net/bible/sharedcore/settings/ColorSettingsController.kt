@@ -57,6 +57,11 @@ class ColorSettingsController(
         reload()
     }
 
+    fun onWorkspaceColorReset() {
+        service.clearWorkspaceColor(scope)
+        reload()
+    }
+
     fun onOpacityChange(night: Boolean, value: Int) {
         service.setBackgroundOpacity(scope, night, value)
         reload()

@@ -24,6 +24,7 @@ class ColorSettingsControllerTest {
         override fun setColor(scope: SettingsScope, field: ColorField, argb: Int) { calls += "setColor:$field:$argb" }
         override fun setNoise(scope: SettingsScope, night: Boolean, value: Int) { calls += "setNoise:$night:$value" }
         override fun setWorkspaceColor(scope: SettingsScope, argb: Int) { calls += "setWorkspaceColor:$argb" }
+        override fun clearWorkspaceColor(scope: SettingsScope) { calls += "clearWorkspaceColor" }
         override fun setBackgroundImage(scope: SettingsScope, night: Boolean, initials: String?) { calls += "setBg:$night:$initials"; if (!night) dayImage = initials }
         override fun setBackgroundOpacity(scope: SettingsScope, night: Boolean, opacity: Int) { calls += "setOpacity:$night:$opacity" }
         override suspend fun importBackgroundImage(picker: suspend () -> String?): BackgroundImageOption? {
@@ -62,6 +63,13 @@ class ColorSettingsControllerTest {
         c.onWorkspaceColorChange(9)
         c.onOpacityChange(false, 70)
         assertEquals(listOf("setColor:DAY_TEXT:5", "setNoise:true:30", "setWorkspaceColor:9", "setOpacity:false:70"), svc.calls)
+    }
+
+    @Test fun workspaceColorResetClearsInsteadOfWritingAColour() {
+        val svc = RecordingService()
+        val c = controller(svc)
+        c.onWorkspaceColorReset()
+        assertEquals(listOf("clearWorkspaceColor"), svc.calls)
     }
 
     // A ColorPick page addressing the workspace swatch (SettingsEditorPage.ColorPick(ColorField.WORKSPACE))

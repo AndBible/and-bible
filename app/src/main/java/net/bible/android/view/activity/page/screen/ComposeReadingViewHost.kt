@@ -1398,6 +1398,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     importVisible = true,
                     onColorChange = { f, c -> colorController.onColorChange(f, c); textSettingsOnReady() },
                     onWorkspaceColorChange = { c -> colorController.onWorkspaceColorChange(c); textSettingsOnReady() },
+                    onWorkspaceColorReset = { colorController.onWorkspaceColorReset(); textSettingsOnReady() },
                     onNoiseChange = { n, v -> colorController.onNoiseChange(n, v); textSettingsOnReady() },
                     onOpacityChange = { n, v -> colorController.onOpacityChange(n, v); textSettingsOnReady() },
                     onSelectBackgroundImage = { n, i ->
