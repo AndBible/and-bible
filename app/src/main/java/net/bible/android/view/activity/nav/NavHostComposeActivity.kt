@@ -8340,6 +8340,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             onShowRemovedChange = { show -> handleCloudDocumentsShowRemovedChange(entry.controller, show) },
             onConfirmRemove = { initials -> handleCloudDocumentsRemoveConfirmed(entry.controller, initials) },
             onConfirmPurge = { initials -> handleCloudDocumentsPurgeConfirmed(entry.controller, initials) },
+            onConfirmBlock = { initials -> handleCloudDocumentsBlockConfirmed(entry.controller, initials) },
             storedArrangement = if (CommonUtils.settings.getBoolean(CLOUD_ARRANGEMENT_REMEMBER_KEY, true))
                 CommonUtils.settings.getString(CLOUD_ARRANGEMENT_KEY, null) else null,
             rememberArrangementInitially = CommonUtils.settings.getBoolean(CLOUD_ARRANGEMENT_REMEMBER_KEY, true),
@@ -8527,8 +8528,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 controller.clearSelection()
             }
             CloudDocAction.BLOCK -> {
-                initials.forEach { DocumentSyncSettings.blockList.block(it); controller.setBlocked(it, true) }
-                controller.clearSelection()
+                // F75: ask first; the confirmed half is handleCloudDocumentsBlockConfirmed.
+                val message = resources.getQuantityString(R.plurals.cloud_doc_bulk_block_confirm, initials.size, initials.size)
+                controller.requestConfirmBlock(initials, message)
             }
             CloudDocAction.UNBLOCK -> {
                 val push = pushOnUnblock(controller.items.value, initials)
@@ -8568,6 +8570,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun handleCloudDocumentsPurgeConfirmed(controller: CloudDocumentsController, initials: List<String>) {
         DocumentSyncService.start(this, emptyList(), emptyList(), purgeInitials = initials)
         initials.forEach { controller.applyPurge(it) }
+        controller.clearSelection()
+    }
+
+    /** F75 -- the confirmed half of [handleCloudDocumentsBulkAction]'s BLOCK branch (classic's direct body). */
+    private fun handleCloudDocumentsBlockConfirmed(controller: CloudDocumentsController, initials: List<String>) {
+        initials.forEach { DocumentSyncSettings.blockList.block(it); controller.setBlocked(it, true) }
         controller.clearSelection()
     }
 

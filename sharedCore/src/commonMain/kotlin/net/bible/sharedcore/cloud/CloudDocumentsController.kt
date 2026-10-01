@@ -40,6 +40,7 @@ sealed interface CloudDocumentsDialog {
     data class SyncNow(val state: SyncNowDialogState) : CloudDocumentsDialog
     data class ConfirmRemove(val initials: List<String>, val message: String, val allDevices: Boolean) : CloudDocumentsDialog
     data class ConfirmPurge(val initials: List<String>, val message: String) : CloudDocumentsDialog
+    data class ConfirmBlock(val initials: List<String>, val message: String) : CloudDocumentsDialog
 }
 
 /**
@@ -68,6 +69,8 @@ class CloudDocumentsController(
     // construction keeps compiling unchanged.
     private val onConfirmRemove: (initials: List<String>) -> Unit = {},
     private val onConfirmPurge: (initials: List<String>) -> Unit = {},
+    // F75: bulk Block asks first (single-row Block stays immediate -- reversible from the same row).
+    private val onConfirmBlock: (initials: List<String>) -> Unit = {},
     storedArrangement: String? = null,
     rememberArrangementInitially: Boolean = true,
     private val onArrangementChange: (encoded: String?, remember: Boolean) -> Unit = { _, _ -> },
@@ -273,6 +276,10 @@ class CloudDocumentsController(
     fun requestConfirmPurge(initials: List<String>, message: String) {
         _dialog.value = CloudDocumentsDialog.ConfirmPurge(initials, message)
     }
+    /** F75: the bulk-Block question; [message] is host-formatted (plurals), like [requestConfirmPurge]. */
+    fun requestConfirmBlock(initials: List<String>, message: String) {
+        _dialog.value = CloudDocumentsDialog.ConfirmBlock(initials, message)
+    }
 
     /** Answers [ConfirmRemove]/[ConfirmPurge] only -- [SyncNow] answers through [confirmSyncNow],
      *  which takes the multi-select RESULT, not a bare confirm. */
@@ -280,6 +287,7 @@ class CloudDocumentsController(
         when (val d = _dialog.value) {
             is CloudDocumentsDialog.ConfirmRemove -> { _dialog.value = CloudDocumentsDialog.None; onConfirmRemove(d.initials) }
             is CloudDocumentsDialog.ConfirmPurge -> { _dialog.value = CloudDocumentsDialog.None; onConfirmPurge(d.initials) }
+            is CloudDocumentsDialog.ConfirmBlock -> { _dialog.value = CloudDocumentsDialog.None; onConfirmBlock(d.initials) }
             is CloudDocumentsDialog.SyncNow, CloudDocumentsDialog.None -> {}
         }
     }

@@ -28,9 +28,10 @@ class CloudDocumentsControllerTest {
         onShowRemovedChange: (Boolean) -> Unit = {},
         onConfirmRemove: (List<String>) -> Unit = {},
         onConfirmPurge: (List<String>) -> Unit = {},
+        onConfirmBlock: (List<String>) -> Unit = {},
     ) = CloudDocumentsController(
         { syncEnabled }, onAction, onBulkAction, onSyncNow, {}, onShowRemovedChange,
-        onConfirmRemove, onConfirmPurge,
+        onConfirmRemove, onConfirmPurge, onConfirmBlock,
     )
 
     /** A minimal [CloudDocItem] for arrangement tests, where status/sync flags don't matter. */
@@ -206,6 +207,30 @@ class CloudDocumentsControllerTest {
         c.dismissDialog()
         assertEquals(0, confirmedCount)
         assertEquals(CloudDocumentsDialog.None, c.dialog.value)
+    }
+
+    @Test fun requestConfirmBlock_shows_the_message_and_confirm_runs_the_action_once_and_clears() {
+        var confirmed: List<String>? = null
+        val c = controller(onConfirmBlock = { confirmed = it })
+        c.requestConfirmBlock(listOf("KJV", "ESV"), "Stop syncing 2 documents?")
+        assertEquals(CloudDocumentsDialog.ConfirmBlock(listOf("KJV", "ESV"), "Stop syncing 2 documents?"), c.dialog.value)
+        c.confirmDialog()
+        assertEquals(listOf("KJV", "ESV"), confirmed)
+        assertEquals(CloudDocumentsDialog.None, c.dialog.value)
+    }
+
+    @Test fun cancellingBulkBlockKeepsTheSelectionAndBlocksNothing() {
+        var confirmedCount = 0
+        var bulk: Pair<CloudDocAction, List<String>>? = null
+        val c = controller(onConfirmBlock = { confirmedCount++ }, onBulkAction = { a, i -> bulk = a to i })
+        c.setItems(listOf(item("KJV"), item("ESV")))
+        c.enterSelection(); c.toggle("KJV"); c.toggle("ESV")
+        c.requestConfirmBlock(listOf("KJV", "ESV"), "Stop syncing 2 documents?")
+        c.dismissDialog()
+        assertEquals(0, confirmedCount)
+        assertNull(bulk)
+        assertEquals(setOf("KJV", "ESV"), c.selectedIds.value)
+        assertTrue(c.selectionMode.value)
     }
 
     @Test fun requestConfirmPurge_shows_the_message_and_confirm_runs_the_action_once_and_clears() {

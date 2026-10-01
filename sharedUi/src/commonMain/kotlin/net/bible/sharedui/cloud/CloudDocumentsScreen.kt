@@ -226,6 +226,14 @@ fun CloudDocumentsScreen(
             onConfirm = onConfirmDialog,
             onDismiss = onDismissDialog,
         )
+        is CloudDocumentsDialog.ConfirmBlock -> AbConfirmDialog(
+            title = strings.cloudActionBlock,
+            message = dialog.message,
+            confirmText = strings.okay,
+            dismissText = strings.cancel,
+            onConfirm = onConfirmDialog,
+            onDismiss = onDismissDialog,
+        )
         CloudDocumentsDialog.None -> {}
     }
 }
