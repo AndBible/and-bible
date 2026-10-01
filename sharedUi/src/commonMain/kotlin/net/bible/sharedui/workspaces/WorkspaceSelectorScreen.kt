@@ -299,7 +299,7 @@ private fun RowOverflow(
     // (WindowPaneMenu.kt:64-66 does the same with its path stack).
     LaunchedEffect(expanded) { if (!expanded) submenuOpen = false }
     Box {
-        IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
+        IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = LocalStrings.current.menu) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             WorkspaceRowMenuRows(
                 canDelete = canDelete,

@@ -93,9 +93,8 @@ fun AbSheetHeader(
     ) {
         if (canGoBack()) {
             IconButton(onClick = onBack) {
-                // contentDescription = null matches AbScaffold.kt:151-157 and AbTopAppBar's own
-                // back arrow; do not invent a string for it here.
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                // F84: same label as AbTopAppBar's back arrow.
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = strings.settingsEditorBack)
             }
         }
         Text(

@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.SyncSystemBars
 
 /**
@@ -77,7 +78,7 @@ fun AbSelectionScaffold(
                     title = { Text("$selectedCount") },
                     navigationIcon = {
                         IconButton(onClick = onExitSelection) {
-                            Icon(Icons.Filled.Close, contentDescription = null)
+                            Icon(Icons.Filled.Close, contentDescription = LocalStrings.current.cancel)
                         }
                     },
                     actions = selectionActions,

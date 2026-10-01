@@ -283,7 +283,7 @@ private fun PageOverflow(onRename: () -> Unit, onExport: () -> Unit, onDelete: (
     val s = LocalStrings.current
     var expanded by remember { mutableStateOf(false) }
     Box {
-        IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
+        IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = LocalStrings.current.menu) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             AbMenuItem(
                 text = s.rename,

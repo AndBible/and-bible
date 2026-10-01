@@ -26,6 +26,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -205,7 +207,11 @@ private fun ReadingRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Checkbox(checked = item.isRead, onCheckedChange = { onToggleRead(item.readingNo) })
+        Checkbox(
+            checked = item.isRead,
+            onCheckedChange = { onToggleRead(item.readingNo) },
+            modifier = Modifier.semantics { contentDescription = item.passage },
+        )
         Text(item.passage, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
         TextButton(onClick = { onRead(item.readingNo) }) { Text(readLabel) }
         TextButton(onClick = { onSpeak(item.readingNo) }) { Text(speakLabel) }

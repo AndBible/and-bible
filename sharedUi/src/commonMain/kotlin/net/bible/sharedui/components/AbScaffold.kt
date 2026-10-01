@@ -155,7 +155,7 @@ fun AbTopAppBar(
                 IconButton(onClick = onNavigateUp) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null,
+                        contentDescription = LocalStrings.current.settingsEditorBack,
                         modifier = Modifier.size(AbActionIconSize),
                     )
                 }

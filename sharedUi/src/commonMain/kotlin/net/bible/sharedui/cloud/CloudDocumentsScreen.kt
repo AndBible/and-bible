@@ -138,7 +138,7 @@ fun CloudDocumentsScreen(
         actions = { AbActionIcon(Icons.Filled.Search, strings.search, onOpenSearch); topBarActions() },
         selectionActions = {
             bulkActions.forEach { action ->
-                IconButton(onClick = { onBulkAction(action) }) { Icon(bulkIcon(action), contentDescription = null) }
+                IconButton(onClick = { onBulkAction(action) }) { Icon(bulkIcon(action), contentDescription = bulkActionLabel(action, strings)) }
             }
         },
         search = if (searchModeActive) AbTopBarSearchState(query = query, imeRequest = AbSearchImeRequest.Focus) else null,
@@ -262,6 +262,16 @@ private fun cloudGroupHeaderLabel(key: DocGroupKey, strings: Strings): String = 
     is DocGroupKey.Language, is DocGroupKey.Repository, DocGroupKey.None -> ""
 }
 
+private fun bulkActionLabel(action: CloudDocAction, strings: Strings): String = when (action) {
+    CloudDocAction.DOWNLOAD -> strings.cloudActionDownload
+    CloudDocAction.PUSH -> strings.cloudActionPush
+    CloudDocAction.REMOVE_CLOUD -> strings.cloudActionRemoveCloud
+    CloudDocAction.BLOCK -> strings.cloudActionBlock
+    CloudDocAction.UNBLOCK -> strings.cloudActionUnblock
+    CloudDocAction.RESTORE -> strings.cloudActionRestore
+    CloudDocAction.PURGE -> strings.cloudActionPurge
+}
+
 private fun bulkIcon(action: CloudDocAction): ImageVector = when (action) {
     CloudDocAction.DOWNLOAD -> Icons.Filled.Download
     CloudDocAction.PUSH, CloudDocAction.RESTORE -> Icons.Filled.Upload
@@ -379,7 +389,7 @@ private fun CloudDocRow(
             if (!selectionMode) {
                 var expanded by remember { mutableStateOf(false) }
                 IconButton(onClick = { expanded = true }) {
-                    Icon(Icons.Filled.MoreVert, contentDescription = null)
+                    Icon(Icons.Filled.MoreVert, contentDescription = strings.menu)
                 }
                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                     documentMenuActions(item, syncEnabled).forEach { action ->

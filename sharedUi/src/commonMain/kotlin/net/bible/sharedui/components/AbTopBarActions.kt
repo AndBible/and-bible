@@ -25,6 +25,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import net.bible.sharedui.strings.LocalStrings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,6 +61,8 @@ fun AbActionIcon(
  * `DropdownMenuItem`s as [content]; open/close state is handled internally. The [content] lambda
  * receives a `close` callback so items can dismiss the menu on tap (call it from their `onClick`).
  *
+ * [contentDescription] null means the shared "Menu" label (F84); every call site passes null today.
+ *
  * [initiallyExpanded] seeds the internal open state — normally left `false` (the menu starts
  * closed); a test-only hook (same `initiallyXxxOpen` pattern as [net.bible.sharedui.search.SearchScreen]'s
  * `initiallyRecentMenuOpen`/`initiallySettingsOpen`) so a golden test can capture the menu OPEN
@@ -67,11 +70,11 @@ fun AbActionIcon(
  */
 @Composable
 fun AbOverflowMenu(
-    contentDescription: String?,
+    contentDescription: String? = null,
     initiallyExpanded: Boolean = false,
     content: @Composable ColumnScope.(close: () -> Unit) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(initiallyExpanded) }
-    AbActionIcon(Icons.Filled.MoreVert, contentDescription = contentDescription) { expanded = true }
+    AbActionIcon(Icons.Filled.MoreVert, contentDescription = contentDescription ?: LocalStrings.current.menu) { expanded = true }
     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) { content { expanded = false } }
 }
