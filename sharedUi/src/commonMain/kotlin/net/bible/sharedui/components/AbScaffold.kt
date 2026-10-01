@@ -70,21 +70,20 @@ import net.bible.sharedui.theme.SyncSystemBars
 /**
  * The floor the title is allowed to shrink to. Above this it autosizes; below it, it ellipsises.
  *
- * Chosen so an ORDINARY title still renders at full `titleLarge` and therefore does not move a
- * single golden: the previous attempt at this problem set `maxLines = 1` with an ellipsis on this
- * same seam and was reverted (`d2e8ecd71`) precisely because it truncated titles that were merely
- * normal-length on the 320dp golden canvas ("Default tool settings" → "Default tool se…").
+ * F76 (2026-10-02): titles stay on ONE line. The previous single-line attempt (`1d3e79b76`) was
+ * reverted by `d2e8ecd71` because at a 15sp floor eight screens' normal-length titles ellipsised on
+ * the 320dp golden canvas ("Default tool settings" -> "Default tool se…"); the lower floor is what
+ * makes one line viable. A title that still ellipsises at 12sp is recorded, not shrunk further.
  */
-private val AbTopBarTitleMinFontSize = 15.sp
+private val AbTopBarTitleMinFontSize = 12.sp
 
 /**
  * The shared screen title for [AbTopAppBar]'s `title` slot.
  *
  * Material3's `TopAppBar` GROWS with its title slot, and a bare `Text` wraps without bound — so a
  * long screen title inflated the whole bar (reported as F15 and again in the F45–F50 round). Here
- * the title shrinks to fit instead: up to two lines, autosized down to
- * [AbTopBarTitleMinFontSize], then ellipsised. Classic's ActionBar truncated to one line, which is
- * strictly less readable for a title that is only slightly too long.
+ * the title shrinks to fit instead: on one line, autosized down to
+ * [AbTopBarTitleMinFontSize], then ellipsised (as Classic's ActionBar did).
  *
  * Uses `BasicText` because that is what carries `autoSize` — and `BasicText` takes its colour from
  * its `style`, NOT from `LocalContentColor`, so the colour must be copied in explicitly. Omitting
@@ -102,7 +101,7 @@ fun AbTopBarTitle(text: String) {
     BasicText(
         text = text,
         style = style.copy(color = LocalContentColor.current),
-        maxLines = 2,
+        maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         autoSize = TextAutoSize.StepBased(
             minFontSize = AbTopBarTitleMinFontSize,

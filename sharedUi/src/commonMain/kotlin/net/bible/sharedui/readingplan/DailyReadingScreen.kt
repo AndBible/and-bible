@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.readingplan.ConfirmKind
 import net.bible.sharedcore.readingplan.DailyReadingUi
@@ -81,11 +82,15 @@ fun DailyReadingScreen(
                         Text(
                             ui.planName,
                             style = MaterialTheme.typography.titleMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.clickable(onClick = onChangePlan),
                         )
                         Text(
                             ui.dayDesc,
                             style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.clickable(onClick = onChangeDay),
                         )
                     }

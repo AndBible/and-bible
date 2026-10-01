@@ -28,7 +28,7 @@ import org.robolectric.annotation.GraphicsMode
 /**
  * F50: the shared top-bar title autosizes down instead of letting the M3 TopAppBar grow.
  *
- * Three states, and the FIRST is the important one: a short title must still render at full
+ * F76: titles are one line (12sp floor). Three states, and the FIRST is the important one: a short title must still render at full
  * titleLarge, because the previous attempt at this problem (maxLines = 1 + ellipsis, reverted in
  * d2e8ecd71) broke 19 goldens by truncating ordinary titles.
  */
@@ -41,7 +41,7 @@ class AbTopBarTitleGoldenTest {
         AbScaffold(title = "History", onNavigateUp = {}) { }
     }
 
-    @Test fun long_title_shrinks_to_two_lines() = captureMatrix("AbTopBarTitle", "long", heightDp = 120) {
+    @Test fun long_title_shrinks_to_one_line() = captureMatrix("AbTopBarTitle", "long", heightDp = 120) {
         AbScaffold(title = "Workspace color setting defaults", onNavigateUp = {}) { }
     }
 
