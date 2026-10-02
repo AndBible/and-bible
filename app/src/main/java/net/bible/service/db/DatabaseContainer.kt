@@ -359,6 +359,7 @@ class DatabaseContainer {
          * that window writes into a closed or replaced file.
          */
         private val replaceDepth = java.util.concurrent.atomic.AtomicInteger(0)
+        /** Backs [replaceEpoch]; atomic because CloudSync categories replace concurrently. */
         private val replaceEpochCounter = java.util.concurrent.atomic.AtomicLong(0L)
 
         /** Batch 6 §1.2: true while ANY replace is running; replaces can nest and overlap. */
