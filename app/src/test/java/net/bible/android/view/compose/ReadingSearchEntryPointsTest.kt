@@ -752,14 +752,16 @@ class ReadingSearchEntryPointsTest {
         assertNull(shadowOf(readingHost).nextStartedActivityForResult)
     }
 
-    @Test fun searchKeyFallsBackToClassicIntentWhenNotHosted() = onASetUpReadingHost { readingHost ->
+    @Test fun searchKeyNavigatesTheGraphToSearchWhenNotHosted() = onASetUpReadingHost { readingHost ->
         readingHost.composeReadingViewHost = null
 
         val handled = readingHost.onKeyUp(KeyEvent.KEYCODE_SEARCH, searchKeyEvent())
 
         assertTrue(handled)
-        val started = shadowOf(readingHost).nextStartedActivityForResult
-        assertEquals(ActivityBase.STD_REQUEST_CODE, started?.requestCode)
+        // F118 (fix batch 6, plan C5): the STD self-launch is handled in the live graph, never by the platform
+        // (no second host instance below API 31). KJV has no index here, so the destination is the index prompt.
+        assertNull(shadowOf(readingHost).nextStartedActivityForResult)
+        assertEquals("search/index", readingHost.currentRouteForTest()?.substringBefore('?'))
     }
 
     // ---- Entry point 8: LinkControl.showAllOccurrences (Strong's find-all) ----------------------
