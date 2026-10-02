@@ -46,7 +46,7 @@ import net.bible.android.control.event.ABEventBus
  *
  * | member | nav host's answer | why it is honest |
  * |---|---|---|
- * | [transportBarVisible] / [transportBarHeight] | `false` / `0` | the speak transport bar is a Compose bar below the panes, so the WebView already ends above it; `bottomOffsetForWebView` therefore drops both it and the nav-bar term while it is up |
+ * | [transportBarVisible] / [transportBarHeight] | live `transportBarVisible` (set by the host while the speak bar shows) / height from `R.attr.transportBarHeight` | the speak transport bar is a Compose bar below the panes, so the WebView already ends above it; `bottomOffsetForWebView` therefore drops both it and the nav-bar term while it is up |
  * | [agentLogVisible] / [agentLogHeight] | `false` / `0` | likewise — the agent log strip is `MainBibleActivity`'s `binding`, mirrored into the ledger by an event |
  * | [restoreButtonsVisible] / [windowButtonHeight] | the same workspace setting / the same theme dimension | both are host-independent facts (`windowRepository.workspaceSettings`, an `R.attr` on the theme); the nav host can read both, and once it draws restore buttons the answer stays correct without a change here |
  * | [composeSearchFieldFocused] | its own reading-view host's `searchFieldFocused` | the Compose search field is the *reading view's*, not the Activity's — `MainBibleActivity` already answers it by asking `composeReadingViewHost?.searchFieldFocused`, so the nav host answers it the same way |
