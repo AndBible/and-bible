@@ -14,6 +14,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
@@ -33,6 +34,7 @@ class RestoreReleaseTest {
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
 
     @Before fun setUp() {
+        DatabaseResetter.resetDatabase()
         CommonUtils.settings.setBoolean("first-time", false)
         repo = WindowRepository(CoroutineScope(Dispatchers.Main))
         CommonUtils.windowControl.windowRepository = repo
@@ -53,6 +55,21 @@ class RestoreReleaseTest {
         } } }
         // The next access must reopen, not hit the closed Room instance.
         assertNotNull(DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id))
+    }
+
+    /** The old monolithic restore: reset, delete, reopen (migrate) -- and the migration throws. */
+    @Test fun aReplaceWhoseReopenThrowsStillReleasesTheFreezeAndMovesTheEpoch() {
+        val epoch = DatabaseContainer.replaceEpoch
+        val realFactory = DatabaseContainer.containerFactory
+        try {
+            runCatching { runBlocking { DatabaseContainer.replacingDatabases {
+                DatabaseContainer.reset()
+                DatabaseContainer.containerFactory = { error("migration failed") }
+                DatabaseContainer.instance
+            } } }
+        } finally { DatabaseContainer.containerFactory = realFactory }
+        assertFalse("replacing must be released", DatabaseContainer.replacing)
+        assertEquals(epoch + 1, DatabaseContainer.replaceEpoch)
     }
 
     private fun countReloads(block: () -> Unit): Int {

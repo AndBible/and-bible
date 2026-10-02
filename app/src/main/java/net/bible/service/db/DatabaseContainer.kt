@@ -382,14 +382,36 @@ class DatabaseContainer {
             } finally {
                 // F115: a block that throws or is cancelled mid-copy may leave `_instance` holding a database it
                 // closed. Drop it before the depth falls, so the reload reopens from disk.
-                if (!completed) reset()
-                replaceDepth.decrementAndGet()
+                try {
+                    if (!completed) dropInstanceWithoutOpening()
+                } finally {
+                    replaceDepth.decrementAndGet()
+                }
             }
         }
 
         /** Tests share one JVM: `DatabaseResetter.resetDatabase()` calls this so no epoch leaks into the next class (C1). */
         @VisibleForTesting
-        internal fun forgetReplacesForTest() { replaceDepth.set(0); replaceEpochCounter.set(0L) }
+        internal fun forgetReplacesForTest() { replaceDepth.set(0); replaceEpochCounter.set(0L); containerFactory = { DatabaseContainer() } }
+
+        /** Test seam: lets a test make opening the container throw (a migration failing after a restore). */
+        @VisibleForTesting
+        internal var containerFactory: () -> DatabaseContainer = { DatabaseContainer() }
+
+        /**
+         * Failure-path variant of [reset]: closes only an instance that already exists. [reset] goes through
+         * the `instance` getter, which BUILDS a container (open, migrate, backup) when `_instance` is null,
+         * just to close it; a restore whose migration threw would then throw again from its own cleanup.
+         */
+        private fun dropInstanceWithoutOpening() {
+            synchronized(this) {
+                try {
+                    _instance?.closeAll()
+                } finally {
+                    _instance = null
+                }
+            }
+        }
 
         /**
          * Runs [block] with [ready] cleared, and restores it however [block] ends. The clearing makes
@@ -417,7 +439,7 @@ class DatabaseContainer {
         val instance: DatabaseContainer get() {
             if(!ready && !application.isRunningTests) throw DataBaseNotReady()
             return _instance ?: synchronized(this) {
-                _instance ?: try { DatabaseContainer() } catch (e: Exception) {
+                _instance ?: try { containerFactory() } catch (e: Exception) {
                     Log.e(TAG, "Can't open database", e)
                     throw e
                 }

@@ -29,6 +29,7 @@ class WindowRepositoryRestoreOverwriteTest {
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
 
     @Before fun setUp() {
+        DatabaseResetter.resetDatabase()
         CommonUtils.settings.setBoolean("first-time", false)
         repo = WindowRepository(CoroutineScope(Dispatchers.Main))
         CommonUtils.windowControl.windowRepository = repo
