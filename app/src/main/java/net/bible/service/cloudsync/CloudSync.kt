@@ -46,6 +46,7 @@ import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.koin.java.KoinJavaComponent
+import java.io.File
 import java.io.IOException
 import kotlin.IllegalStateException
 
@@ -339,26 +340,37 @@ object CloudSync {
             Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > ${dbDef.version}")
             throw CancelStartedSync()
         } else {
-            dbDef.localDb.close()
-            tmpFile.copyTo(dbDef.localDbFile, overwrite = true)
-            tmpFile.delete()
-            dbDef.resetLocalDb()
-            dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, syncFolderId)
-            dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
-            dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
-            dbDef.dao.setConfig(adapterConfigs)
-            dropTriggers(dbDef)
-            createTriggers(dbDef)
-            dbDef.dao.addStatus(
-                SyncStatus(
-                    CommonUtils.deviceIdentifier,
-                    0,
-                    initialFile.size,
-                    initialFile.createdTime
+            swapInInitialDb(dbDef, tmpFile) {
+                dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, syncFolderId)
+                dbDef.dao.setConfig(SYNC_DEVICE_FOLDER_FILE_ID_KEY, deviceFolderId)
+                dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, System.currentTimeMillis())
+                dbDef.dao.setConfig(adapterConfigs)
+                dropTriggers(dbDef)
+                createTriggers(dbDef)
+                dbDef.dao.addStatus(
+                    SyncStatus(
+                        CommonUtils.deviceIdentifier,
+                        0,
+                        initialFile.size,
+                        initialFile.createdTime
+                    )
                 )
-            )
-            ABEventBus.post(WorkspaceRefreshRequired())
+            }
         }
+    }
+
+    /** The initial-download swap: close, copy the downloaded file over the local one, reopen. */
+    internal suspend fun swapInInitialDb(
+        dbDef: SyncableDatabaseAccessor<*>,
+        downloaded: File,
+        afterReset: suspend () -> Unit,
+    ) {
+        dbDef.localDb.close()
+        downloaded.copyTo(dbDef.localDbFile, overwrite = true)
+        downloaded.delete()
+        dbDef.resetLocalDb()
+        afterReset()
+        ABEventBus.post(WorkspaceRefreshRequired())
     }
 
     private val syncMutex = Mutex()
