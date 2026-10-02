@@ -376,7 +376,15 @@ class DatabaseContainer {
         suspend fun <T> replacingDatabases(block: suspend () -> T): T {
             replaceDepth.incrementAndGet()
             replaceEpochCounter.incrementAndGet()
-            try { return block() } finally { replaceDepth.decrementAndGet() }
+            var completed = false
+            try {
+                return block().also { completed = true }
+            } finally {
+                // F115: a block that throws or is cancelled mid-copy may leave `_instance` holding a database it
+                // closed. Drop it before the depth falls, so the reload reopens from disk.
+                if (!completed) reset()
+                replaceDepth.decrementAndGet()
+            }
         }
 
         /** Tests share one JVM: `DatabaseResetter.resetDatabase()` calls this so no epoch leaks into the next class (C1). */

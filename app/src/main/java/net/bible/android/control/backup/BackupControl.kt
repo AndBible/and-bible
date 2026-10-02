@@ -325,17 +325,19 @@ object BackupControl {
                     }
                     if(version <= OLD_DATABASE_VERSION) {
                         Log.i(TAG, "Loading from backup database with version $version")
-                        DatabaseContainer.replacingDatabases {
-                            for (def in SyncableDatabaseDefinition.ALL) {
-                                beforeRestore(def)
-                            }
-                            DatabaseContainer.reset()
-                            // When restoring old style db, we need to remove all databases first
-                            deleteAllDatabases()
-                            ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
-                            if(DatabaseContainer.ready) {
-                                DatabaseContainer.instance // initialize (migrate etc)
-                                afterRestore()
+                        reloadingAfterReplace {
+                            DatabaseContainer.replacingDatabases {
+                                for (def in SyncableDatabaseDefinition.ALL) {
+                                    beforeRestore(def)
+                                }
+                                DatabaseContainer.reset()
+                                // When restoring old style db, we need to remove all databases first
+                                deleteAllDatabases()
+                                ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
+                                if(DatabaseContainer.ready) {
+                                    DatabaseContainer.instance // initialize (migrate etc)
+                                    afterRestore()
+                                }
                             }
                         }
                     }
@@ -688,6 +690,21 @@ object BackupControl {
         }
     }
 
+    /**
+     * F115. Runs [body] and, however it ends (normally, by an exception, or cancelled), posts
+     * [MainBibleAfterRestore] iff a [DatabaseContainer.replacingDatabases] ran inside it. The epoch bump froze
+     * the live `WindowRepository`'s saving; only the reload this triggers releases it. The ONLY poster of
+     * [MainBibleAfterRestore] in this file (BackupControlReplaceGuardTest).
+     */
+    internal suspend fun <T> reloadingAfterReplace(body: suspend () -> T): T {
+        val epoch = DatabaseContainer.replaceEpoch
+        try {
+            return body()
+        } finally {
+            if (DatabaseContainer.replaceEpoch != epoch) ABEventBus.post(MainBibleAfterRestore())
+        }
+    }
+
     private suspend fun restoreDatabaseZipFileInputStreamWithUI(
         activity: ActivityBase,
         uri: Uri
@@ -723,80 +740,83 @@ object BackupControl {
                 throw IOException("Failed to process backup file: ${e.message}")
             }
 
-            val restoredSelection =
-                Closeable {
-                    tmpFile.delete()
-                    unzipFolder.deleteRecursively()
-                    dismissProgress()
-                }.use {
-                    val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
-                        .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
-                        .map { file -> file.name }
+            val restored = reloadingAfterReplace {
+                val restoredSelection =
+                    Closeable {
+                        tmpFile.delete()
+                        unzipFolder.deleteRecursively()
+                        dismissProgress()
+                    }.use {
+                        val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
+                            .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
+                            .map { file -> file.name }
 
-                    dismissProgress()
-                    if (containedBackups.isEmpty()) {
-                        Dialogs.showMsg(R.string.restore_unsuccessfull)
-                        return@withContext false
-                    }
-                    val selection =
-                        if (containedBackups.size > 1)
-                            selectDatabaseSections(activity, containedBackups)
-                        else
-                            containedBackups
-                    val restoredSelection = ArrayList<SyncableDatabaseDefinition>()
-                    if (selection.isEmpty()) {
-                        return@withContext false
-                    }
-                    showProgress()
-                    DatabaseContainer.replacingDatabases {
-                        for (fileName in selection) {
-                            val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
-                            val f = File(unzipFolder, "db/${fileName}")
-                            val restore =
-                                if (category != null)
-                                    askIfRestoreOrImport(category, f, activity)
-                                else true
-                            if (restore == null) continue
-
-                            if (restore) {
-                                if(category != null) {
-                                    restoredSelection.add(category)
-                                    beforeRestore(category)
-                                }
-
-                                val areYouSure = if (category != null) {
-                                    Dialogs.simpleQuestion(
-                                        activity,
-                                        activity.getString(R.string.overwrite_something,
-                                            getString(category.contentDescription)
-                                        )
-                                    )
-                                } else true
-                                if (!areYouSure) continue
-                                Log.i(TAG, "Restoring $fileName")
-                                if (DatabaseContainer.ready) DatabaseContainer.instance.dbByFilename[fileName]?.close()
-                                val targetFilePath = activity.getDatabasePath(fileName).path
-                                val targetFile = File(targetFilePath)
-                                f.copyTo(targetFile, overwrite = true)
-                                File("$targetFilePath-journal").delete()
-                                File("$targetFilePath-shm").delete()
-                                File("$targetFilePath-wal").delete()
-                            } else {
-                                importDatabaseFile(category!!, f)
-                            }
+                        dismissProgress()
+                        if (containedBackups.isEmpty()) {
+                            Dialogs.showMsg(R.string.restore_unsuccessfull)
+                            return@reloadingAfterReplace false
                         }
-                        DatabaseContainer.reset()
+                        val selection =
+                            if (containedBackups.size > 1)
+                                selectDatabaseSections(activity, containedBackups)
+                            else
+                                containedBackups
+                        val restoredSelection = ArrayList<SyncableDatabaseDefinition>()
+                        if (selection.isEmpty()) {
+                            return@reloadingAfterReplace false
+                        }
+                        showProgress()
+                        DatabaseContainer.replacingDatabases {
+                            for (fileName in selection) {
+                                val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
+                                val f = File(unzipFolder, "db/${fileName}")
+                                val restore =
+                                    if (category != null)
+                                        askIfRestoreOrImport(category, f, activity)
+                                    else true
+                                if (restore == null) continue
+
+                                if (restore) {
+                                    if(category != null) {
+                                        restoredSelection.add(category)
+                                        beforeRestore(category)
+                                    }
+
+                                    val areYouSure = if (category != null) {
+                                        Dialogs.simpleQuestion(
+                                            activity,
+                                            activity.getString(R.string.overwrite_something,
+                                                getString(category.contentDescription)
+                                            )
+                                        )
+                                    } else true
+                                    if (!areYouSure) continue
+                                    Log.i(TAG, "Restoring $fileName")
+                                    if (DatabaseContainer.ready) DatabaseContainer.instance.dbByFilename[fileName]?.close()
+                                    val targetFilePath = activity.getDatabasePath(fileName).path
+                                    val targetFile = File(targetFilePath)
+                                    f.copyTo(targetFile, overwrite = true)
+                                    File("$targetFilePath-journal").delete()
+                                    File("$targetFilePath-shm").delete()
+                                    File("$targetFilePath-wal").delete()
+                                } else {
+                                    importDatabaseFile(category!!, f)
+                                }
+                            }
+                            DatabaseContainer.reset()
+                        }
+                        restoredSelection
                     }
-                    restoredSelection
+                showProgress()
+                if (DatabaseContainer.ready) {
+                    DatabaseContainer.instance
+                    afterRestore(restoredSelection)
                 }
-            showProgress()
-            if (DatabaseContainer.ready) {
-                DatabaseContainer.instance
-                afterRestore(restoredSelection)
+                dismissProgress()
+                Log.i(TAG, "Restored database successfully")
+                true
             }
-            dismissProgress()
-            Log.i(TAG, "Restored database successfully")
-            ABEventBus.post(MainBibleAfterRestore())
+            if (!restored) return@withContext false
             true
         } finally {
             progressId?.let { dialogs.dismiss(it) }
@@ -841,7 +861,6 @@ object BackupControl {
             withContext(Dispatchers.IO) {
                 result = if (restoreOldMonolithicDatabaseFromInputStream(uri)) {
                     Log.i(TAG, "Restored database successfully")
-                    ABEventBus.post(MainBibleAfterRestore())
                     Dialogs.showMsg(R.string.restore_success)
                     true
                 } else {
@@ -1053,32 +1072,33 @@ object BackupControl {
         if (!confirmed) return
 
         withContext(Dispatchers.IO) {
-            DatabaseContainer.replacingDatabases {
-                if (syncCategory != null) {
-                    beforeRestore(syncCategory)
-                }
-
-                if (DatabaseContainer.ready) {
-                    DatabaseContainer.instance.dbByFilename[dbFileName]?.close()
-                }
-
-                val dbPath = activity.getDatabasePath(dbFileName).path
-                File(dbPath).delete()
-                File("$dbPath-journal").delete()
-                File("$dbPath-shm").delete()
-                File("$dbPath-wal").delete()
-
-                DatabaseContainer.reset()
-                if (DatabaseContainer.ready) {
-                    DatabaseContainer.instance
+            reloadingAfterReplace {
+                DatabaseContainer.replacingDatabases {
                     if (syncCategory != null) {
-                        afterRestore(listOf(syncCategory))
+                        beforeRestore(syncCategory)
+                    }
+
+                    if (DatabaseContainer.ready) {
+                        DatabaseContainer.instance.dbByFilename[dbFileName]?.close()
+                    }
+
+                    val dbPath = activity.getDatabasePath(dbFileName).path
+                    File(dbPath).delete()
+                    File("$dbPath-journal").delete()
+                    File("$dbPath-shm").delete()
+                    File("$dbPath-wal").delete()
+
+                    DatabaseContainer.reset()
+                    if (DatabaseContainer.ready) {
+                        DatabaseContainer.instance
+                        if (syncCategory != null) {
+                            afterRestore(listOf(syncCategory))
+                        }
                     }
                 }
             }
-        }
+            }
 
-        ABEventBus.post(MainBibleAfterRestore())
         Dialogs.showMsg(R.string.reset_database_success)
     }
 

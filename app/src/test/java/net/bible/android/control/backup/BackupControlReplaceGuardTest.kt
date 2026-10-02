@@ -40,4 +40,19 @@ class BackupControlReplaceGuardTest {
     @Test fun theCloudSyncScanSeesTheSource() = assertTrue(cloudSync.isFile && "resetLocalDb()" in cloudSync.readText())
     @Test fun theLocalDbGuardCanFail() =
         assertEquals(1, unguarded("fun x() { dbDef.resetLocalDb() }", Regex("""\.resetLocalDb\(\)""")).size)
+
+    // F115 (fix batch 6 §1.3): every replace in BackupControl is followed by exactly one reload.
+    @Test fun everyReplaceIsInsideAReloadingAfterReplace() {
+        val src = file.readText()
+        val reloadBlocks = blocks(src, Regex("""reloadingAfterReplace\s*\{"""))
+        val replaces = Regex("""replacingDatabases\s*\{""").findAll(src).map { it.range.first }.toList()
+        assertTrue("scan must see replaces", replaces.isNotEmpty())
+        assertEquals(emptyList<Int>(), replaces.filter { idx -> reloadBlocks.none { idx in it } })
+    }
+    @Test fun theReloadIsPostedExactlyOnceInTheFile() =
+        assertEquals(1, Regex("""post\(MainBibleAfterRestore\(\)\)""").findAll(file.readText()).count())
+    @Test fun theReloadGuardCanFail() {
+        val src = "fun x() { DatabaseContainer.replacingDatabases { } }"
+        assertEquals(1, Regex("""replacingDatabases\s*\{""").findAll(src).count { m -> blocks(src, Regex("""reloadingAfterReplace\s*\{""")).none { m.range.first in it } })
+    }
 }
