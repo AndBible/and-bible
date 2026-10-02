@@ -29,6 +29,8 @@ data class StartupWelcomeInfo(
     val easyStartMessage: String,
     val previousInstallDetected: Boolean,
     val easyStartAvailable: Boolean,
+    /** Batch 6 A6: false in discrete mode -- the Homepage / GitHub buttons open AndBible URLs. */
+    val homepageButtonsVisible: Boolean = true,
 )
 
 /** View-data the composable renders. */
@@ -42,6 +44,8 @@ data class StartupWelcomeState(
     val showRestore: Boolean,
     val showEasyStart: Boolean,
     val progressText: String? = null,
+    /** Batch 6 A6: false in discrete mode -- hides the Homepage and GitHub buttons (they name AndBible). */
+    val homepageButtonsVisible: Boolean = true,
 )
 
 /**
@@ -72,5 +76,6 @@ class StartupWelcomeController(
         showRestore = !info.previousInstallDetected,
         showEasyStart = info.easyStartAvailable,
         progressText = progress,
+        homepageButtonsVisible = info.homepageButtonsVisible,
     )
 }

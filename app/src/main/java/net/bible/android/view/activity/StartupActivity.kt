@@ -264,7 +264,7 @@ internal fun webViewTooOldRequest(context: Context, packageName: String?, versio
     val playUrl = "https://play.google.com/store/apps/details?id=$packageName"
     val playLink = "<a href=\"$playUrl\">${context.getString(R.string.play)}</a>"
     val msg = context.getString(
-        R.string.old_webview, versionName, MINIMUM_WEBVIEW_MAJOR_VERSION.toString(), context.getString(R.string.app_name_medium), playLink,
+        R.string.old_webview, versionName, MINIMUM_WEBVIEW_MAJOR_VERSION.toString(), context.getString(if (CommonUtils.isDiscrete) R.string.app_name_calculator else R.string.app_name_medium), playLink,
     )
     return AppDialogRequest.Confirm(
         title = null,

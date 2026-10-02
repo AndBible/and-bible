@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.activity.R
+import net.bible.android.view.activity.page.noticeLogoRes
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.ai.AgentPermissionController
 import net.bible.sharedcore.ui.dialog.AppDialogController
@@ -96,7 +97,7 @@ fun AppDialogOverlay(onSheetOpening: () -> Unit = {}) {
     // Logo block and money IconLine) -- sharedUi stays resource-free, so this is the one place
     // that resolves them for real via painterResource.
     val noticeIcons = NoticeIcons(
-        logo = painterResource(R.drawable.ic_logo),
+        logo = painterResource(noticeLogoRes(CommonUtils.isDiscrete)),
         money = painterResource(R.drawable.baseline_attach_money_24),
     )
     CompositionLocalProvider(LocalNoticeIcons provides noticeIcons) {

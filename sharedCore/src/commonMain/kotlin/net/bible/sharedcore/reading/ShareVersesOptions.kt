@@ -58,7 +58,8 @@ data class ShareVersesInput(
     val notesText: String?,
     /** The localised "advertise the app" line, WITHOUT the leading blank line — e.g. "Shared from
      *  AndBible Bible Study (https://andbible.github.io)". [ShareVersesOptions.buildText] adds the
-     *  `"\n\n"` prefix itself when `advertiseApp` is on. */
+     *  `"\n\n"` prefix itself when `advertiseApp` is on. Empty (discrete mode, batch 6 A6) means no
+     *  advert at all, whatever `advertiseApp` says. */
     val advertiseText: String,
     /** Mirrors `Selection.hasRange` — whether "Show selected text only" / "Show ellipsis" apply to
      *  this selection at all (classic `ShareWidget`'s GONE-when-false visibility for those two
@@ -122,7 +123,7 @@ data class ShareVersesOptions(
             if (abbreviateReference) input.referenceAbbreviated else input.referenceFull
         } else ""
 
-        val advertise = if (advertiseApp) "\n\n${input.advertiseText}" else ""
+        val advertise = if (advertiseApp && input.advertiseText.isNotEmpty()) "\n\n${input.advertiseText}" else ""
         val notes = if (showNotes && input.notesText != null) "\n\n${input.notesText}" else ""
 
         val verseText = if (verseTexts.size == 1) {

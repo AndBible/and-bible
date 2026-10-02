@@ -125,6 +125,14 @@ object DrawerMenuStateBuilder {
             BuildVariant.DistributionChannel.isAmazon
         )
 
+    /**
+     * Fix batch 6 A6 (surface 5): "Tell a friend" composes a message naming AndBible with its Play
+     * Store and andbible.org links, so the row is hidden when [CommonUtils.isDiscrete] -- flavor OR the
+     * `discrete_mode` preference, hence read live here and not folded into the pure-`BuildVariant`
+     * [drawerRateVisible].
+     */
+    val drawerTellFriendVisible: Boolean get() = !CommonUtils.isDiscrete
+
     /** The `R.id.*` a clicked [DrawerItem.id] maps to. Throws on an unknown id (stale click). */
     fun resIdFor(idName: String): Int =
         (entryByName[idName] ?: throw IllegalArgumentException("Unknown drawer item id: $idName")).resId
@@ -163,6 +171,7 @@ object DrawerMenuStateBuilder {
                         visible = when (e.idName) {
                             "googleDriveSync" -> isCloudSyncAvailable
                             "rateButton" -> isRateVisible
+                            "tellFriend" -> drawerTellFriendVisible
                             else -> true
                         },
                     )

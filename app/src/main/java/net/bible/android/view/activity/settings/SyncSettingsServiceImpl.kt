@@ -77,7 +77,7 @@ class SyncSettingsServiceImpl(
         if (isGoogleDrive) {
             result += " " + application.getString(
                 R.string.prefs_sync_introduction_summary2,
-                application.getString(R.string.app_name_medium),
+                application.getString(syncSummaryAppName(CommonUtils.isDiscrete)),
             )
         }
         result += " " + application.getString(R.string.sync_adapter_summary, current.displayName)
@@ -231,3 +231,8 @@ class SyncSettingsServiceImpl(
         return m
     }
 }
+
+/** Fix batch 6 A6 (surface 10): the app name in the Google Drive sync summary. */
+@androidx.annotation.StringRes
+internal fun syncSummaryAppName(discrete: Boolean): Int =
+    if (discrete) R.string.app_name_calculator else R.string.app_name_medium

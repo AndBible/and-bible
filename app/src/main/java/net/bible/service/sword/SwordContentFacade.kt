@@ -16,6 +16,7 @@
  */
 package net.bible.service.sword
 
+import net.bible.service.common.CommonUtils
 import android.text.TextUtils
 import android.util.LayoutDirection
 import android.util.Log
@@ -570,7 +571,7 @@ object SwordContentFacade {
         } else
             ""
 
-        val advertise = if (advertiseApp) "\n\n${
+        val advertise = if (shareAdvertAllowed(advertiseApp, CommonUtils.isDiscrete)) "\n\n${
             application.getString(
                 R.string.verse_share_advertise,
                 application.getString(R.string.app_name_long)
@@ -676,7 +677,8 @@ object SwordContentFacade {
         val verseRange = selection.verseRange
         val bookLocale = selection.book?.language?.code?.let { Locale(it) }
 
-        val advertiseText = "${
+        // Batch 6 A6: empty when discrete -- ShareVersesOptions.buildText appends no advert for a blank line.
+        val advertiseText = if (CommonUtils.isDiscrete) "" else "${
             application.getString(R.string.verse_share_advertise, application.getString(R.string.app_name_long))
         } (https://andbible.github.io)"
         val notesOrig = selection.notes
@@ -848,3 +850,9 @@ object SwordContentFacade {
         this.isAndroid = isAndroid
     }
 }
+
+/**
+ * Fix batch 6 A6 (surface 7): the "Shared using AndBible" advert is never appended when [discrete],
+ * whatever the `share_show_add` preference (default true) says.
+ */
+internal fun shareAdvertAllowed(userWantsAdvert: Boolean, discrete: Boolean): Boolean = userWantsAdvert && !discrete

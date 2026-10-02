@@ -1551,7 +1551,7 @@ object CommonUtils : CommonUtilsBase() {
         val instr = application.getString(R.string.instructions_for_translators)
         val instructionsUrl = "https://github.com/AndBible/and-bible/wiki/Translating-User-Interface"
         val instructionsLink = "<a href=\"$instructionsUrl\">$instr</a>"
-        val msg = application.getString(R.string.incomplete_translation, lang, application.getString(R.string.app_name_long), instructionsLink)
+        val msg = application.getString(R.string.incomplete_translation, lang, application.getString(incompleteTranslationAppName(isDiscrete)), instructionsLink)
 
         val proceedValue = "proceed"
         val dismissValue = "dismiss"
@@ -2194,3 +2194,7 @@ data class AndBibleBackupManifest(
     }
 }
 
+/** Fix batch 6 A6 (surface 8): the app name the incomplete-translation dialog uses. */
+@androidx.annotation.StringRes
+internal fun incompleteTranslationAppName(discrete: Boolean): Int =
+    if (discrete) R.string.app_name_calculator else R.string.app_name_long

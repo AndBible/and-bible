@@ -29,13 +29,14 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.view.WindowManager
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.bible.service.common.BuildVariant
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -304,9 +305,9 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
      * `ver`; `false` on plain dismiss/back) and the same texts/links, now structured as
      * [AppDialogRequest.Notice] blocks instead of one hand-assembled `Spanned` string. The big
      * centred logo (`imageStr`/`biggerLogoDrawable`) is [AppDialogRequest.NoticeBlock.Logo], hidden
-     * in discrete mode exactly as before (`BuildVariant.Appearance.isDiscrete`) -- the SEPARATE
-     * title-bar logo (`setIcon(ic_logo)`, now [AppDialogRequest.Notice.showTitleLogo]) still shows
-     * in discrete mode, an already-recorded leak (spec §2.2) this port does not fix.
+     * in discrete mode. Fix batch 6 A6: that now follows [CommonUtils.isDiscrete] (flavor OR the
+     * `discrete_mode` preference), the body names the calculator ([stableNoticeAppName]), and the
+     * SEPARATE title-bar logo is the calculator's ([noticeLogoRes], resolved in `AppDialogOverlay`).
      */
     internal suspend fun showStableNotice(): Boolean {
         if (CommonUtils.isBeta) return false
@@ -317,7 +318,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         if (displayedVer == ver) return false
 
         val videoMessage = host.getString(R.string.upgrade_video_message, CommonUtils.mainVersion)
-        val appName = host.getString(R.string.app_name_long)
+        val appName = host.getString(stableNoticeAppName(CommonUtils.isDiscrete))
         val par1 = host.getString(R.string.stable_notice_par1, CommonUtils.mainVersion, appName)
         val buy = host.getString(R.string.buy_development)
         val support = host.getString(R.string.buy_development2)
@@ -328,7 +329,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
                 showTitleLogo = true,
                 blocks = listOfNotNull(
                     AppDialogRequest.NoticeBlock.Html(par1),
-                    if (BuildVariant.Appearance.isDiscrete) null else AppDialogRequest.NoticeBlock.Logo,
+                    if (CommonUtils.isDiscrete) null else AppDialogRequest.NoticeBlock.Logo,
                     AppDialogRequest.NoticeBlock.Html("<big><a href=\"$newFeaturesIntroVideo\"><b>$videoMessage</b></a></big>"),
                     AppDialogRequest.NoticeBlock.IconLine(
                         AppDialogRequest.NoticeIcon.Money,
@@ -350,7 +351,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
 
     /** Ported the same way as [showStableNotice] -- see its kdoc. */
     internal suspend fun showBetaNotice(): Boolean {
-        if (!CommonUtils.isBeta) return false
+        if (!shouldShowBetaNotice(CommonUtils.isBeta, CommonUtils.isDiscrete)) return false
 
         val announceVersion = 3
         val displayedVer = preferences.getInt("beta-notice-displayed2", 0)
@@ -622,3 +623,19 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         var initialized = false
     }
 }
+
+/** Fix batch 6 A6 (surface 1): the app name the stable notice's body uses -- the calculator's when [discrete]. */
+@StringRes
+internal fun stableNoticeAppName(discrete: Boolean): Int =
+    if (discrete) R.string.app_name_calculator else R.string.app_name_long
+
+/** Fix batch 6 A6 (surface 2): the logo in the notices' title bar -- the calculator's when [discrete]. */
+@DrawableRes
+internal fun noticeLogoRes(discrete: Boolean): Int =
+    if (discrete) R.drawable.ic_calculator_color else R.drawable.ic_logo
+
+/**
+ * Fix batch 6 A6 (surface 4): the beta notice is English-only and links github.com/AndBible, so it is
+ * never shown when [discrete] (the maintainer's decision, spec §0).
+ */
+internal fun shouldShowBetaNotice(isBeta: Boolean, discrete: Boolean): Boolean = isBeta && !discrete

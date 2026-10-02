@@ -712,6 +712,54 @@ class ReadingAppBootstrapTest {
         }
     }
 
+    /** Fix batch 6 A6 (surfaces 1, 3): discrete by PREFERENCE only (standard flavor) -- no real name, no body logo. */
+    @Test
+    fun showStableNoticeFollowsTheDiscretePreferenceNotTheFlavor() = runTest(timeout = 30.seconds) {
+        withDebuggableFlag(false) {
+            CommonUtils.settings.removeString("stable-notice-displayed")
+            CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).commit()
+            val controller = navHostOnReading()
+            try {
+                val activity = controller.create().get()
+                val done = async { activity.readingAppBootstrap.showStableNotice() }
+                advanceUntilIdle()
+
+                val request = appDialogs.pending.value!!.request as AppDialogRequest.Notice
+                assertFalse(
+                    "the body logo is the real logo: hidden when discrete",
+                    request.blocks.any { it is AppDialogRequest.NoticeBlock.Logo },
+                )
+                val par1 = request.blocks[0] as AppDialogRequest.NoticeBlock.Html
+                assertTrue(par1.html, par1.html.contains(activity.getString(R.string.app_name_calculator)))
+                assertFalse(par1.html, par1.html.contains("AndBible"))
+
+                appDialogs.respond(appDialogs.pending.value!!.id, AppDialogResult.Neutral)
+                advanceUntilIdle()
+                done.await()
+            } finally {
+                controller.close()
+                CommonUtils.realSharedPreferences.edit().remove("discrete_mode").commit()
+                CommonUtils.settings.removeString("stable-notice-displayed")
+            }
+        }
+    }
+
+    /** Fix batch 6 A6 (surface 4): the English-only, github.com/AndBible beta notice is skipped when discrete. */
+    @Test
+    fun showBetaNoticeIsSkippedWhenDiscrete() = runTest(timeout = 30.seconds) {
+        assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)
+        CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).commit()
+        val controller = navHostOnReading()
+        try {
+            val activity = controller.create().get()
+            assertFalse(activity.readingAppBootstrap.showBetaNotice())
+            assertNull(appDialogs.pending.value)
+        } finally {
+            controller.close()
+            CommonUtils.realSharedPreferences.edit().remove("discrete_mode").commit()
+        }
+    }
+
     @Test
     fun showBetaNoticeSkipsWithNoDialogWhenAlreadyAnnounced() = runTest(timeout = 30.seconds) {
         assertTrue("test precondition: isBeta must be true here", CommonUtils.isBeta)

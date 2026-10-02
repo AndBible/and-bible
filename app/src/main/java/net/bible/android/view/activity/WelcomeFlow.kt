@@ -94,6 +94,8 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
             easyStartMessage = host.getString(R.string.easy_start_message),
             previousInstallDetected = previousInstallDetected,
             easyStartAvailable = Locale.getDefault().language == "en",
+            // Batch 6 A6: the Homepage / GitHub buttons open AndBible URLs.
+            homepageButtonsVisible = !CommonUtils.isDiscrete,
         )
     }
 

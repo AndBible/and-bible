@@ -162,7 +162,10 @@ fun StartupWelcomeScreen(
         }
 
         Text(state.versionText, style = MaterialTheme.typography.labelSmall)
-        TextButton(onClick = onOpenHomepage) { Text(strings.welcomeHomepageLabel) }
-        TextButton(onClick = onOpenGithub) { Text(strings.welcomeGithubLabel) }
+        // Batch 6 A6: both open AndBible URLs (the labels are the URLs), so discrete mode hides them.
+        if (state.homepageButtonsVisible) {
+            TextButton(onClick = onOpenHomepage) { Text(strings.welcomeHomepageLabel) }
+            TextButton(onClick = onOpenGithub) { Text(strings.welcomeGithubLabel) }
+        }
     }
 }
