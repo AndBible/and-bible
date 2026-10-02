@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import net.bible.sharedui.components.volumeScrollTarget
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -50,7 +51,7 @@ fun HistoryListContent(
     // I2 (whole-branch review fix wave): fillMaxWidth, not fillMaxSize -- see WorkspaceQuickContent
     // for the full rationale. The one caller that needs to fill (the full-screen HistoryScreen)
     // passes fillMaxSize() explicitly in its own modifier below.
-    LazyColumn(state = listState, modifier = modifier.fillMaxWidth()) {
+    LazyColumn(state = listState, modifier = modifier.fillMaxWidth().volumeScrollTarget(listState)) {
         items(entries, key = { it.id }) { entry ->
             TwoLineListItem(
                 title = entry.title,

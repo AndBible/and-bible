@@ -28,7 +28,7 @@ fun <T> AbReorderableColumn(
     val reorderState = rememberReorderableLazyListState(listState) { from, to ->
         onMove(from.index, to.index)
     }
-    LazyColumn(state = listState, modifier = modifier.fillMaxWidth()) {
+    LazyColumn(state = listState, modifier = modifier.fillMaxWidth().volumeScrollTarget(listState)) {
         items(items, key = { key(it) }) { item ->
             ReorderableItem(reorderState, key = key(item)) { _ ->
                 val handle = if (longPressToDrag) Modifier.longPressDraggableHandle()

@@ -1181,10 +1181,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             }
             return true
         }
+        if (volumeKeyPagesComposeList(keyCode)) return true
         return super.onKeyUp(keyCode, event)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        // Fix batch 5 F105: every non-reading destination's Compose list, under ActivityBase's gates.
+        if (volumeKeyPagesComposeList(keyCode)) {
+            lifecycleScope.launch { volumeScrollRegistry.scrollPage(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) }
+            return true
+        }
         val handlers = ReadingViewHostCallbacks.current
         if (handlers != null) {
             val key = readingViewKeyFor(keyCode, event)
@@ -1195,6 +1201,18 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
         return super.onKeyDown(keyCode, event)
     }
+
+    /**
+     * Whether a volume key belongs to the registered Compose list: not on the reading destination
+     * (which owns the keys), pref on (default on), no music playing -- `ActivityBase.onKeyDown`'s gates --
+     * and something registered. [onKeyUp] asks the same question so a consumed down never leaks its up.
+     */
+    private fun volumeKeyPagesComposeList(keyCode: Int): Boolean =
+        (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) &&
+            !readingDestinationIsCurrent() &&
+            CommonUtils.settings.getBoolean("volume_keys_scroll", true) &&
+            (getSystemService(Context.AUDIO_SERVICE) as AudioManager?)?.isMusicActive != true &&
+            volumeScrollRegistry.hasTarget
 
     /**
      * Which of the reading view's three keys this event is, or `null` for "not the reading view's".
@@ -1817,6 +1835,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /** Fix batch 5 F106: what the host window's bars are doing, mirrored into each sheet's own dialog window. */
     private val hostSystemBars = mutableStateOf<HostSystemBars?>(null)
+
+    /** Fix batch 5 F105: the Compose list the volume keys page on non-reading destinations. */
+    internal val volumeScrollRegistry = net.bible.sharedui.components.VolumeScrollRegistry()
 
     @VisibleForTesting
     internal val lastAppliedSystemBars: SystemBarState? get() = systemBarController.lastApplied
@@ -3375,7 +3396,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
         setContent {
             AbAppTheme {
-              CompositionLocalProvider(LocalHostSystemBars provides hostSystemBars.value) {
+              CompositionLocalProvider(
+                LocalHostSystemBars provides hostSystemBars.value,
+                net.bible.sharedui.components.LocalVolumeScrollRegistry provides volumeScrollRegistry,
+              ) {
               FailClosedLinkRouting {
                 val navController = rememberNavController()
                 // Publish the controller for onNewIntent (see its kdoc); unbound with the

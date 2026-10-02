@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import net.bible.sharedui.components.volumeScrollTarget
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
@@ -138,7 +139,7 @@ fun SearchResultsScreen(
                 Text(strings.emptyList, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
             }
             else -> LazyColumn(
-                Modifier.fillMaxSize().padding(padding),
+                Modifier.fillMaxSize().padding(padding).volumeScrollTarget(listState),
                 state = listState,
                 contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),

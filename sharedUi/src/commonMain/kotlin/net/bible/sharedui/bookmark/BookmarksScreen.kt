@@ -33,6 +33,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import net.bible.sharedui.components.volumeScrollTarget
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -228,7 +230,8 @@ fun BookmarksScreen(
                     Text(strings.emptyList, modifier = Modifier.padding(32.dp), style = MaterialTheme.typography.bodyLarge)
                 }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                val listState = rememberLazyListState()
+                LazyColumn(state = listState, modifier = Modifier.fillMaxSize().volumeScrollTarget(listState)) {
                     itemsIndexed(rows, key = { _, row -> row.id }) { index, row ->
                         BookmarkListRow(
                             row = row,

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -93,7 +94,8 @@ fun <T> AbDocumentListScaffold(
                         Text(emptyText, modifier = Modifier.padding(32.dp), style = MaterialTheme.typography.bodyLarge)
                     }
                 } else {
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    val listState = rememberLazyListState()
+                    LazyColumn(state = listState, modifier = Modifier.fillMaxSize().volumeScrollTarget(listState)) {
                         groups.forEach { group ->
                             // DocGroupKey.None is the ungrouped case and gets NO header — a single
                             // header reading "No grouping" over the whole list would be chrome that

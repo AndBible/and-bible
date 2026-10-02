@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import net.bible.sharedui.components.volumeScrollTarget
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -517,7 +519,8 @@ private fun PromptGroupsList(
     val collapsed = remember { mutableStateMapOf<String, Boolean>() }
     val categorized = groups.filter { it.category != null }
 
-    LazyColumn(modifier = modifier) {
+    val listState = rememberLazyListState()
+    LazyColumn(state = listState, modifier = modifier.volumeScrollTarget(listState)) {
         groups.forEachIndexed { index, group ->
             val key = groupKey(group)
             if (index > 0) item(key = "divider-$key") { HorizontalDivider() }

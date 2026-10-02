@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import net.bible.sharedui.components.volumeScrollTarget
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Undo
@@ -143,7 +145,8 @@ fun DailyReadingScreen(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                 textAlign = TextAlign.Center,
             )
-            LazyColumn(modifier = Modifier.weight(1f)) {
+            val listState = rememberLazyListState()
+            LazyColumn(state = listState, modifier = Modifier.weight(1f).volumeScrollTarget(listState)) {
                 items(ui.readings, key = { it.readingNo }) { item ->
                     ReadingRow(item, onToggleRead, onRead, onSpeak, strings.selectPassage, strings.speak)
                 }
