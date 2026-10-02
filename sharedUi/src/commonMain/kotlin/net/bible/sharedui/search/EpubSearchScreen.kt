@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -40,6 +39,7 @@ import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.components.volumeVerticalScroll
 
 /** Classic `EpubSearch.help()`'s FTS5 query-syntax link, fixed for every locale (URLs are never
  *  translated) -- shared by [EpubSearchScreen]'s own help dialog. */
@@ -109,7 +109,7 @@ fun EpubSearchScreen(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .volumeVerticalScroll(rememberScrollState())
                 .padding(vertical = 8.dp),
         ) {
             AbSearchField(

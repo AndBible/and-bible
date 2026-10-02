@@ -59,6 +59,8 @@ import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 /**
  * A single selectable option in a tool's permission control: the [ToolPermission] it sets and its
@@ -157,7 +159,8 @@ fun ToolPermissionList(
     val collapsed = remember { mutableStateMapOf<String, Boolean>() }
     var infoTool by remember { mutableStateOf(initiallyShownToolInfo) }
 
-    LazyColumn(modifier = modifier.fillMaxWidth()) {
+    val listState = rememberLazyListState()
+    LazyColumn(state = listState, modifier = modifier.fillMaxWidth().volumeScrollTarget(listState)) {
         categories.forEachIndexed { index, (category, tools) ->
             if (index > 0) {
                 item(key = "divider-${category.id}") { HorizontalDivider() }

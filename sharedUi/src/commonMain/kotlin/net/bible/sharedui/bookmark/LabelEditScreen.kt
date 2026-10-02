@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Bookmark
@@ -63,6 +62,7 @@ import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
  * Stateless port of the classic `LabelEditActivity` / `bookmark_label_edit.xml` editor. Every
@@ -140,7 +140,7 @@ fun LabelEditScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .volumeVerticalScroll(rememberScrollState())
                 // Round 17b: VERTICAL only. AbExpandableSection carries its own horizontal 16dp
                 // (so its header lines up with the AbSwitchRows it discloses), and adding an outer
                 // 16dp on top put the two section headers at 32dp while SectionTitle sat at 16dp.

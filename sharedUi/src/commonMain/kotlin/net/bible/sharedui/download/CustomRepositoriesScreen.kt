@@ -41,6 +41,8 @@ import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.TwoLineListItem
 import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 /**
  * The manual page documenting the custom-repository manifest format. Moved off the GitHub wiki
@@ -97,7 +99,8 @@ fun CustomRepositoriesScreen(
                 )
             }
         } else {
-            LazyColumn(modifier = modifier.fillMaxSize().padding(padding)) {
+            val listState = rememberLazyListState()
+            LazyColumn(state = listState, modifier = modifier.fillMaxSize().padding(padding).volumeScrollTarget(listState)) {
                 items(state.rows, key = { it.id }) { row ->
                     TwoLineListItem(
                         title = row.name,

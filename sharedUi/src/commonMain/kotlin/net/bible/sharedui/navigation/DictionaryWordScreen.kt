@@ -37,6 +37,8 @@ import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 @Composable
 fun ChooseDictionaryWordScreen(
@@ -59,7 +61,8 @@ fun ChooseDictionaryWordScreen(
             if (loading) {
                 AbLoadingIndicator(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp))
             }
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            val listState = rememberLazyListState()
+            LazyColumn(state = listState, modifier = Modifier.fillMaxSize().volumeScrollTarget(listState)) {
                 items(rows, key = { it.keyId }) { row ->
                     // Snippet loaded lazily per visible row (classic KeyInfo.toString() behavior).
                     val snippet by produceState(initialValue = "", row.keyId) {

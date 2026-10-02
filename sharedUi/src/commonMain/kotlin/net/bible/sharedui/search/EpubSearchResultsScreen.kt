@@ -33,6 +33,8 @@ import net.bible.sharedcore.search.EpubResultRow
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 /**
  * EPUB full-text-search results list. Pure state-in / callbacks-out: the host owns the FTS query and
@@ -50,6 +52,7 @@ fun EpubSearchResultsScreen(
     onNavigateUp: () -> Unit,
 ) {
     val strings = LocalStrings.current
+    val listState = rememberLazyListState()
     AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             when {
@@ -62,7 +65,7 @@ fun EpubSearchResultsScreen(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.align(Alignment.Center),
                 )
-                else -> LazyColumn(Modifier.fillMaxSize()) {
+                else -> LazyColumn(state = listState, modifier = Modifier.fillMaxSize().volumeScrollTarget(listState)) {
                     epubResultRows(rows = rows, onSelect = onSelect)
                 }
             }

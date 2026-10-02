@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.startup.StartupWelcomeState
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
  * First-run welcome screen (new-path twin of classic `StartupActivity.showFirstLayout()`).
@@ -75,7 +75,7 @@ fun StartupWelcomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .volumeVerticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),

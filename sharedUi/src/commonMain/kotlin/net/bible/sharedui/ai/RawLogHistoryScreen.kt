@@ -50,6 +50,8 @@ import net.bible.sharedui.components.AbListChoiceDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbSelectionScaffold
 import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 /**
  * The saved AI-conversation raw-log list (mirrors classic
@@ -120,7 +122,8 @@ fun RawLogHistoryScreen(
                 Text(strings.rawLogHistoryEmpty, modifier = Modifier.padding(32.dp), style = MaterialTheme.typography.bodyLarge)
             }
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
+            val listState = rememberLazyListState()
+            LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(padding).volumeScrollTarget(listState)) {
                 items(summaries, key = { it.id }) { summary ->
                     RawLogRow(
                         summary = summary,

@@ -62,6 +62,8 @@ import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.TwoLineListItem
 import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 /**
  * The two API formats a CUSTOM (OpenAI-compatible) provider can speak. Mirrors
@@ -132,7 +134,8 @@ fun AiProvidersScreen(
             }
         },
     ) { padding ->
-        LazyColumn(modifier = Modifier.padding(padding).fillMaxSize()) {
+        val listState = rememberLazyListState()
+        LazyColumn(state = listState, modifier = Modifier.padding(padding).fillMaxSize().volumeScrollTarget(listState)) {
             items(providers, key = { it.id }) { provider ->
                 TwoLineListItem(
                     title = provider.displayName,

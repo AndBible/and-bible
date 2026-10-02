@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Check
@@ -54,6 +53,7 @@ import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
  * Stateless port of classic `CustomRepositoryEditor`: the manifest-URL-driven form for adding or
@@ -114,7 +114,7 @@ fun CustomRepositoryEditorScreen(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .volumeVerticalScroll(rememberScrollState())
                 .padding(16.dp),
         ) {
             OutlinedTextField(

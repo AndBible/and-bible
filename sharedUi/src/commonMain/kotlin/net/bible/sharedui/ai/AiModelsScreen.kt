@@ -68,6 +68,8 @@ import net.bible.sharedui.components.AbSearchablePicker
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.components.TwoLineListItem
 import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 /**
  * The AI models list + add/edit dialog. Mirrors the classic `AiModelsFragment`/`ModelDialogs.kt`:
@@ -149,7 +151,8 @@ fun AiModelsScreen(
             }
         },
     ) { padding ->
-        LazyColumn(modifier = Modifier.padding(padding).fillMaxSize()) {
+        val listState = rememberLazyListState()
+        LazyColumn(state = listState, modifier = Modifier.padding(padding).fillMaxSize().volumeScrollTarget(listState)) {
             items(models, key = { it.id }) { model ->
                 ModelRow(
                     model = model,

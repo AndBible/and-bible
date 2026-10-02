@@ -55,6 +55,7 @@ import net.bible.sharedui.components.AbColorPickerDialog
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSliderRow
+import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
  * Stateless port of the classic colours editor (`ColorSettingsFragment`/`colors_settings.xml`):
@@ -194,7 +195,7 @@ fun ColorSettingsContent(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(scrollState)
+            .volumeVerticalScroll(scrollState)
             .padding(horizontal = 16.dp),
     ) {
         if (colors.workspaceColorVisible) {

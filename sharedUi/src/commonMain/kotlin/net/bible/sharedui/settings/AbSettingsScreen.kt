@@ -58,6 +58,8 @@ import net.bible.sharedui.components.AbSliderRow
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 /** What a masked settings row shows instead of its value. Fixed length — see the call site. */
 private const val MASKED_SUMMARY = "••••••••"
@@ -216,7 +218,8 @@ fun AbSettingsContent(
     // fillMaxSize() FIRST, caller's modifier (e.g. AbSettingsScreen's scaffold padding) applied
     // after — matches the original inline `Modifier.fillMaxSize().padding(padding)` chain exactly,
     // so AbSettingsScreen's delegation below is behaviour-preserving (order matters for layout).
-    LazyColumn(modifier = Modifier.fillMaxSize().then(modifier)) {
+    val listState = rememberLazyListState()
+    LazyColumn(state = listState, modifier = Modifier.fillMaxSize().then(modifier).volumeScrollTarget(listState)) {
         items(state.visibleItems, key = { it.key }) { item ->
             // A/B batch 4a F2: the badge is a row parameter now, not a Box overlay drawn on top of
             // the row (which covered the summary and the switch). `null` keeps every screen that

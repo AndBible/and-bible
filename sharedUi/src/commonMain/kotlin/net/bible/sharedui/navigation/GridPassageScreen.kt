@@ -72,6 +72,7 @@ import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbTopAppBar
 import net.bible.sharedui.components.AbTopBarTitle
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.components.volumeScrollTarget
 
 /**
  * The long-name autosize floor, as a fraction of the long-name line's own [MaterialTheme]
@@ -179,7 +180,7 @@ fun GridChoosePassageContent(
         val cellHeight = (available / contentRows).coerceAtLeast(minCell)
         LazyVerticalGrid(
             columns = GridCells.Fixed(cols),
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().volumeScrollTarget(state),
             state = state,
             contentPadding = PaddingValues(4.dp),
         ) {

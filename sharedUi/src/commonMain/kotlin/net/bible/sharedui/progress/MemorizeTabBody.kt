@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
@@ -48,6 +47,7 @@ import net.bible.sharedcore.progress.MemorizeModel
 import net.bible.sharedui.strings.LocalStrings
 import kotlin.math.min
 import kotlin.math.roundToInt
+import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
  * The Memorize-tab body (mirrors classic memorization-progress UI). Fully stateless: every value
@@ -74,7 +74,7 @@ fun MemorizeTabBody(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
+            .volumeVerticalScroll(rememberScrollState())
             .padding(16.dp),
     ) {
         // 1. Summary row.

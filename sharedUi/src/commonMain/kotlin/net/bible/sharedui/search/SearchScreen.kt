@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.AlertDialog
@@ -54,6 +53,7 @@ import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.components.AbSettingsSummarySheet
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
  * SWORD search form: query text, a submit button, and a compact read-only settings summary that
@@ -99,7 +99,7 @@ fun SearchScreen(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .volumeVerticalScroll(rememberScrollState())
                 .padding(vertical = 8.dp),
         ) {
             Box {

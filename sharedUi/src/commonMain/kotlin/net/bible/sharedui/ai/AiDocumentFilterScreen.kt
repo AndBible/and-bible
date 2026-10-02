@@ -54,6 +54,8 @@ import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 /**
  * The per-document AI access filter screen (mirrors classic
@@ -126,7 +128,8 @@ fun AiDocumentFilterScreen(
             }
         },
     ) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
+        val listState = rememberLazyListState()
+        LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(padding).volumeScrollTarget(listState)) {
             groups.forEachIndexed { index, group ->
                 if (index > 0) {
                     item(key = "divider-${group.categoryId}") { HorizontalDivider() }

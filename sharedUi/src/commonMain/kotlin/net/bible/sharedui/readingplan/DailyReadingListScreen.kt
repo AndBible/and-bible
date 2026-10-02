@@ -12,6 +12,8 @@ import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.TwoLineListItem
 import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 @Composable
 fun DailyReadingListScreen(
@@ -24,7 +26,8 @@ fun DailyReadingListScreen(
 ) {
     val strings = LocalStrings.current
     AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
+        val listState = rememberLazyListState()
+        LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(padding).volumeScrollTarget(listState)) {
             items(days, key = { it.day }) { day ->
                 TwoLineListItem(title = day.primary, subtitle = day.secondary, onClick = { onSelect(day.day) })
             }

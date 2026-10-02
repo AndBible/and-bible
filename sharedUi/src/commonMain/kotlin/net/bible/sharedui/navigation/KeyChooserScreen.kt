@@ -37,6 +37,7 @@ import net.bible.sharedcore.navigation.KeyRow
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.components.volumeScrollTarget
 
 /**
  * A single-line key list with current-item highlight + initial scroll. Reused shape for the key
@@ -66,7 +67,7 @@ fun KeyListBody(
         val idx = rows.indexOfFirst { it.keyId == currentKeyId }
         if (idx >= 0) listState.scrollToItem(idx)
     }
-    LazyColumn(state = listState, modifier = modifier.fillMaxWidth()) {
+    LazyColumn(state = listState, modifier = modifier.fillMaxWidth().volumeScrollTarget(listState)) {
         items(rows, key = { it.keyId }) { row ->
             val highlight = if (row.keyId == currentKeyId) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
             Text(

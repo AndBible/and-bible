@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +33,7 @@ import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.ProgressRow
 import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.components.volumeVerticalScroll
 
 @Composable
 fun SearchIndexProgressScreen(
@@ -52,7 +52,7 @@ fun SearchIndexProgressScreen(
     val strings = LocalStrings.current
     AbScaffold(title = title) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp).volumeVerticalScroll(rememberScrollState()),
         ) {
             Text(text = message)
             if (noTasks) {

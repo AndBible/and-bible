@@ -101,6 +101,7 @@ import net.bible.sharedui.settings.GenericSettingsEditorSheet
 import net.bible.sharedui.settings.SheetConfirmRow
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
+import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
  * The 3-tab prompt editor (mirrors classic `PromptEditActivity` / `prompt_edit.xml`). Fully
@@ -423,7 +424,7 @@ private fun PromptTabContent(
     Column(
         Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .volumeVerticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         OutlinedTextField(

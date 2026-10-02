@@ -48,6 +48,7 @@ import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
+import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
  * Stateless port of classic `BackupActivity` (`backup_view.xml` + `backup_file_list_item.xml`):
@@ -84,7 +85,7 @@ fun BackupRestoreScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState()),
+                .volumeVerticalScroll(rememberScrollState()),
         ) {
             SectionHeading(strings.backupAndRestoreTitle)
             AbSwitchRow(

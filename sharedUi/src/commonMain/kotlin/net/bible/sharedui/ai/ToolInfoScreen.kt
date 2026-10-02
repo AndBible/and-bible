@@ -39,6 +39,8 @@ import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 /**
  * The read-only "available AI tools" reference screen (mirrors classic
@@ -87,7 +89,8 @@ fun ToolInfoScreen(
             }
         },
     ) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxWidth().padding(padding)) {
+        val listState = rememberLazyListState()
+        LazyColumn(state = listState, modifier = Modifier.fillMaxWidth().padding(padding).volumeScrollTarget(listState)) {
             toolInfoSection(strings.aiReadToolsLabel, readTools)
             if (readTools.isNotEmpty() && writeTools.isNotEmpty()) {
                 item(key = "divider-read-write") { HorizontalDivider() }

@@ -47,6 +47,8 @@ import net.bible.sharedcore.settings.BackgroundImageOption
 import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbLoadingOverlay
 import net.bible.sharedui.components.AbScaffold
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import net.bible.sharedui.components.volumeScrollTarget
 
 /**
  * The background-image picker sub-screen (opened from [ColorSettingsScreen]'s "Change" buttons): a
@@ -131,10 +133,12 @@ fun BackgroundImageChooserContent(
     onRequestDelete: (BackgroundImageOption) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val gridState = rememberLazyGridState()
     Column(modifier.fillMaxWidth()) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            modifier = Modifier.fillMaxWidth(),
+            state = gridState,
+            modifier = Modifier.fillMaxWidth().volumeScrollTarget(gridState),
             contentPadding = PaddingValues(8.dp),
         ) {
             item { FixedTile(text = labels.none, onClick = { onSelect(null) }) }

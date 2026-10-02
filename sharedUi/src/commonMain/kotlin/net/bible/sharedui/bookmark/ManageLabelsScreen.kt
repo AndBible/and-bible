@@ -86,6 +86,8 @@ import net.bible.sharedui.search.styledTextToAnnotatedString
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.theme.LocalDisplayColorMode
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 /**
  * Stateless port of the classic `ManageLabels` activity / `manage_labels.xml` +
@@ -191,7 +193,8 @@ fun ManageLabelsScreen(
         },
     ) { padding: PaddingValues ->
         Column(modifier = Modifier.fillMaxWidth().padding(padding)) {
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            val listState = rememberLazyListState()
+            LazyColumn(state = listState, modifier = Modifier.fillMaxWidth().volumeScrollTarget(listState)) {
                 items(rows, key = ::rowKey) { row ->
                     when (row) {
                         is ManageLabelsRow.Header -> CategoryHeaderRow(row.category, strings)

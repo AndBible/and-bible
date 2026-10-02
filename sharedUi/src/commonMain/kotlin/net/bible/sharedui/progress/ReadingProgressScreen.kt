@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -60,6 +59,7 @@ import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
+import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
  * The tabbed reading-progress screen (mirrors classic `ReadingProgressActivity` / `reading_progress.xml`).
@@ -173,7 +173,7 @@ private fun ReadingTabBody(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
+            .volumeVerticalScroll(rememberScrollState())
             .padding(16.dp),
     ) {
         // 1. Summary row.

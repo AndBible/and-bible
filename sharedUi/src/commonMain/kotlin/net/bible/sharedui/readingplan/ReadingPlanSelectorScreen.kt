@@ -40,6 +40,8 @@ import net.bible.sharedui.components.AbConfirmDialog
 import net.bible.sharedui.components.AbErrorDialog
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -58,7 +60,8 @@ fun ReadingPlanSelectorScreen(
     var confirmResetCode by remember { mutableStateOf<String?>(null) }
 
     AbScaffold(title = title, onNavigateUp = onNavigateUp) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
+        val listState = rememberLazyListState()
+        LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(padding).volumeScrollTarget(listState)) {
             items(plans, key = { it.planCode }) { plan ->
                 // Long-press opens the reset confirm (classic context menu); tap selects.
                 Column(

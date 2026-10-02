@@ -27,7 +27,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ExpandLess
@@ -54,6 +53,9 @@ import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.components.AbOverflowMenu
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
+import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
  * The raw LLM conversation log detail screen (mirrors classic
@@ -148,7 +150,7 @@ fun RawLlmLogScreen(
 
 @Composable
 private fun RawLlmLogTextBody(text: String, modifier: Modifier = Modifier) {
-    SelectionContainer(modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+    SelectionContainer(modifier = modifier.fillMaxSize().volumeVerticalScroll(rememberScrollState())) {
         Text(
             text = text,
             fontFamily = FontFamily.Monospace,
@@ -165,7 +167,8 @@ private fun RawLlmLogEntryList(
     onToggleExpanded: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(modifier = modifier.fillMaxWidth()) {
+    val listState = rememberLazyListState()
+    LazyColumn(state = listState, modifier = modifier.fillMaxWidth().volumeScrollTarget(listState)) {
         itemsIndexed(entries) { index, entry ->
             RawLlmLogEntryRow(entry = entry, expanded = index in expandedIndices, onToggle = { onToggleExpanded(index) })
             HorizontalDivider()
