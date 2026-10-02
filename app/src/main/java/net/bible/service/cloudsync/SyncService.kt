@@ -17,6 +17,7 @@
 
 package net.bible.service.cloudsync
 
+import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
@@ -65,14 +66,8 @@ class SyncService: Service() {
 
     val scope = CoroutineScope(Dispatchers.IO)
 
-    /** Builds and posts the foreground sync notification. Text from the Application, whose Resources follow `locale_pref` live (F114); the Service's own context does not. */
-    private fun synchronize() {
-        Log.i(TAG, "Synchronize started")
-        val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
-        if (wakeLock.isHeld) {
-            throw RuntimeException("Wakelock already held, double-synchronize")
-        }
-
+    /** Builds the foreground sync notification. Text from the Application, whose Resources follow `locale_pref` live (F114); the Service's own context does not. */
+    internal fun buildSyncNotification(): Notification {
         val builder = NotificationCompat.Builder(
             this,
             if(BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else SYNC_NOTIFICATION_CHANNEL)
@@ -89,7 +84,17 @@ class SyncService: Service() {
             builder.setSmallIcon(R.drawable.ic_syncdb_24dp)
         }
 
-        val notification = builder.build()
+        return builder.build()
+    }
+
+    private fun synchronize() {
+        Log.i(TAG, "Synchronize started")
+        val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
+        if (wakeLock.isHeld) {
+            throw RuntimeException("Wakelock already held, double-synchronize")
+        }
+
+        val notification = buildSyncNotification()
         notificationManager.notify(SYNC_NOTIFICATION_ID, notification)
 
         try {

@@ -362,7 +362,7 @@ class DocumentInstallService : Service() {
             is InstallPhase.Committing -> R.string.extracting_zip_file
             else -> return
         }
-        ABEventBus.post(InstallZipEvent(BibleApplication.application.getString(messageRes)))
+        ABEventBus.post(InstallZipEvent(getString(messageRes)))
     }
 
     private fun stopSelfSafe() {

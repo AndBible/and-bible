@@ -75,12 +75,10 @@ class LocaleWithoutRestartTest {
         assertEquals(setOf("gsw", "de"), (0 until locales.size()).map { locales[it].language }.toSet())
     }
 
+    /** The notification SyncService.synchronize() posts, built without starting the IO coroutine (no race). */
     private fun syncNotificationTitle(): String? {
         val service = Robolectric.setupService(SyncService::class.java)
-        service.onStartCommand(Intent(SyncService.START_SERVICE), 0, 1)
-        val nm = shadowOf(app.getSystemService(NotificationManager::class.java))
-        val posted = nm.allNotifications.lastOrNull() ?: shadowOf(service).lastForegroundNotification
-        return posted?.extras?.getCharSequence(Notification.EXTRA_TITLE)?.toString()
+        return service.buildSyncNotification().extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
     }
 
     /** F114: a Service's own Resources do not follow `locale_pref`; the Application's do. */
