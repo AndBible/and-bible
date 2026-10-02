@@ -41,6 +41,8 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 /**
  * Fix batch 1 §2.5a (F88 + first-prefs force-stop): Settings' return work is paid on RETURN only.
@@ -115,5 +117,38 @@ class SettingsReturnWorkPaidOnceTest {
             idleMain()
         }
         assertEquals(listOf(IntentHelper.REFRESH_DISPLAY_ON_FINISH, IntentHelper.REFRESH_DISPLAY_ON_FINISH), paid)
+    }
+
+    /** F110: no platform launch -- that is what made a second host instance on API 28. */
+    @Test
+    fun aSettingsSelfLaunchNavigatesTheLiveGraphInsteadOfLaunching() {
+        val controller = host().apply { create().start().resume().visible() }
+        val activity = controller.get()
+        val paid = mutableListOf<Int>()
+        activity.onReadingReturnWorkForTest = { paid += it }
+
+        activity.startActivityForResult(ScreenLauncher.intentFor(activity, Screen.Settings), IntentHelper.REFRESH_DISPLAY_ON_FINISH)
+        idleMain()
+        assertNull(shadowOf(activity).nextStartedActivity, "the self-launch must not reach the platform")
+        assertEquals(NavRoutes.SETTINGS, activity.currentRouteForTest()?.substringBefore('?'))
+        assertEquals(emptyList(), paid)
+
+        activity.navigateInGraph(NavRoutes.READING)
+        idleMain()
+        assertEquals(listOf(IntentHelper.REFRESH_DISPLAY_ON_FINISH), paid)
+    }
+
+    @Test
+    @Config(sdk = [28])
+    fun onApi28TooTheSettingsRoundTripPaysOnReturnWithoutASecondInstance() =
+        aSettingsSelfLaunchNavigatesTheLiveGraphInsteadOfLaunching()
+
+    /** Review Focus 3. */
+    @Test
+    fun withNoGraphYetTheSelfLaunchStillGoesToThePlatform() {
+        val activity = host().create().get() // no .visible(): nothing composed, navController null
+        assertNull(activity.currentRouteForTest(), "precondition: there must be no graph yet")
+        activity.startActivityForResult(ScreenLauncher.intentFor(activity, Screen.Settings), IntentHelper.REFRESH_DISPLAY_ON_FINISH)
+        assertNotNull(shadowOf(activity).nextStartedActivity)
     }
 }
