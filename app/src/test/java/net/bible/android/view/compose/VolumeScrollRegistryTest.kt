@@ -24,6 +24,7 @@ import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.components.LocalVolumeScrollRegistry
 import net.bible.sharedui.components.VolumeScrollRegistry
 import net.bible.sharedui.components.volumeScrollTarget
+import net.bible.sharedui.theme.LocalDisableAnimations
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -41,10 +42,13 @@ class VolumeScrollRegistryTest {
 
     private lateinit var state: androidx.compose.foundation.lazy.LazyListState
 
-    private fun mount(registry: VolumeScrollRegistry, showList: () -> Boolean = { true }) {
+    private fun mount(registry: VolumeScrollRegistry, disableAnimations: Boolean = false, showList: () -> Boolean = { true }) {
         compose.setContent {
             ProvideAppLocals {
-                CompositionLocalProvider(LocalVolumeScrollRegistry provides registry) {
+                CompositionLocalProvider(
+                    LocalVolumeScrollRegistry provides registry,
+                    LocalDisableAnimations provides disableAnimations,
+                ) {
                     if (showList()) {
                         val s = rememberLazyListState()
                         state = s
@@ -94,7 +98,7 @@ class VolumeScrollRegistryTest {
     fun leavingCompositionUnregisters() {
         val registry = VolumeScrollRegistry()
         var show by mutableStateOf(true)
-        mount(registry) { show }
+        mount(registry, showList = { show })
         assertTrue(registry.hasTarget)
         show = false
         compose.waitForIdle()
@@ -114,5 +118,44 @@ class VolumeScrollRegistryTest {
         assertTrue(runBlocking { registry.scrollPage(true) }) // runBlocking has no frame clock of its own
         assertTrue("animateScrollBy must have run on the registered clock", frames > 1)
         assertEquals(900f, scrolled, 1f)
+    }
+
+    /** F105 follow-up (final review I2): the null-clock path jumps -- no frames, 90% of the viewport. */
+    @Test fun aNullClockJumpsOnceWithZeroFramesAndScrollsNinetyPercent() {
+        var scrolled = 0f
+        val state = ScrollableState { d -> scrolled += d; d }
+        val registry = VolumeScrollRegistry()
+        registry.register(state, { 1000 }, null)
+        assertTrue(runBlocking { registry.scrollPage(true) })
+        assertEquals(900f, scrolled, 1f)
+        assertTrue(runBlocking { registry.scrollPage(false) })
+        assertEquals(0f, scrolled, 1f)
+    }
+
+    /** With "Disable animations" on, a page completes without a single frame being delivered. */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test fun withDisableAnimationsThePageJumpsWithoutFrames() {
+        val registry = VolumeScrollRegistry()
+        mount(registry, disableAnimations = true)
+        compose.mainClock.autoAdvance = false
+        val job = CoroutineScope(Dispatchers.Main).async { registry.scrollPage(true) }
+        compose.waitForIdle()
+        assertTrue("a jump needs no frame", job.isCompleted)
+        compose.mainClock.autoAdvance = true
+        compose.waitForIdle()
+        assertTrue("the list must have moved", state.firstVisibleItemIndex > 0)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test fun withAnimationsOnThePageNeedsFrames() {
+        val registry = VolumeScrollRegistry()
+        mount(registry, disableAnimations = false)
+        compose.mainClock.autoAdvance = false
+        val job = CoroutineScope(Dispatchers.Main).async { registry.scrollPage(true) }
+        compose.waitForIdle()
+        assertFalse("an animated page cannot finish before a frame", job.isCompleted)
+        compose.mainClock.autoAdvance = true
+        compose.waitForIdle()
+        assertTrue(job.isCompleted)
     }
 }

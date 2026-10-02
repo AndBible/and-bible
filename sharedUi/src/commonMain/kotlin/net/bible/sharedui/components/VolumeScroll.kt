@@ -18,6 +18,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.onSizeChanged
+import net.bible.sharedui.theme.LocalDisableAnimations
 
 /** Fix batch 5 F105: the scrollable the volume keys page, last registered wins (the top destination). */
 class VolumeScrollRegistry {
@@ -52,9 +53,11 @@ val LocalVolumeScrollRegistry = staticCompositionLocalOf<VolumeScrollRegistry?> 
 /** Marks this scroll container as the one the hardware volume keys page. */
 fun Modifier.volumeScrollTarget(state: ScrollableState): Modifier = composed {
     val registry = LocalVolumeScrollRegistry.current
-    val clock = rememberCoroutineScope().coroutineContext[MonotonicFrameClock]
+    // "Disable animations" (CLAUDE.md): no clock registered means the page jumps (scrollBy) instead of animating.
+    val disableAnimations = LocalDisableAnimations.current
+    val clock = rememberCoroutineScope().coroutineContext[MonotonicFrameClock].takeUnless { disableAnimations }
     var height by remember { mutableIntStateOf(0) }
-    DisposableEffect(registry, state) {
+    DisposableEffect(registry, state, clock) {
         val unregister = registry?.register(state, { height }, clock)
         onDispose { unregister?.invoke() }
     }
