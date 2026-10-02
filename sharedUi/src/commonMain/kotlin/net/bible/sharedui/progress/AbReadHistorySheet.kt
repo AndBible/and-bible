@@ -31,7 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import net.bible.sharedui.components.AbModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -100,7 +100,7 @@ fun AbReadHistorySheet(
     }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(onDismissRequest = ::commit, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = ::commit, sheetState = sheetState) {
         AbReadHistorySheetContent(
             title = title,
             rows = rows,

@@ -49,7 +49,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import net.bible.sharedui.components.AbModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Switch
@@ -625,7 +625,7 @@ private fun PermissionsTabContent(
 
     if (sheetOpen) {
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        ModalBottomSheet(onDismissRequest = { sheetOpen = false }, sheetState = sheetState) {
+        AbModalBottomSheet(onDismissRequest = { sheetOpen = false }, sheetState = sheetState) {
             PromptPermissionSheetContent(
                 choices = permissionModeChoices,
                 selectedValue = selectedMode,
@@ -817,7 +817,7 @@ private fun AdvancedTabContent(
 
     if (maxIterationsSheetOpen) {
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        ModalBottomSheet(onDismissRequest = { maxIterationsSheetOpen = false }, sheetState = sheetState) {
+        AbModalBottomSheet(onDismissRequest = { maxIterationsSheetOpen = false }, sheetState = sheetState) {
             MaxIterationsSheetContent(
                 current = state.maxIterations,
                 globalLabel = globalMaxIterationsLabel,

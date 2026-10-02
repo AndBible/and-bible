@@ -55,8 +55,11 @@ import org.junit.Test
 class SheetExpansionGuardTest {
     private val sharedUiCommon = File("../sharedUi/src/commonMain/kotlin")
 
-    /** No exclusions today. Kept as an explicit empty list so a future one has an obvious home. */
-    private val excluded = emptySet<String>()
+    /**
+     * `AbModalBottomSheet.kt` is the wrapper itself (F106): it TAKES the state as a parameter and forwards it,
+     * so the "creates its own state" rule applies to its callers, which this walk now counts as `AbModalBottomSheet(`.
+     */
+    private val excluded = setOf("AbModalBottomSheet.kt")
 
     private fun stripComments(text: String): String {
         val noBlockComments = Regex("/\\*.*?\\*/", RegexOption.DOT_MATCHES_ALL).replace(text, "")
@@ -68,7 +71,7 @@ class SheetExpansionGuardTest {
 
     private fun sheetFiles(): List<File> = sharedUiCommon.walkTopDown()
         .filter { it.isFile && it.extension == "kt" && it.name !in excluded }
-        .filter { Regex("""\bModalBottomSheet\s*\(""").containsMatchIn(stripComments(it.readText())) }
+        .filter { Regex("""\b(?:Ab)?ModalBottomSheet\s*\(""").containsMatchIn(stripComments(it.readText())) }
         .toList()
 
     /**
@@ -132,7 +135,7 @@ class SheetExpansionGuardTest {
     @Test fun everySheetCallSiteHasItsOwnSkipPartiallyExpandedState() {
         val offenders = sheetFiles().mapNotNull { file ->
             val src = stripComments(file.readText())
-            val sheets = Regex("""\bModalBottomSheet\s*\(""").findAll(src).count()
+            val sheets = Regex("""\b(?:Ab)?ModalBottomSheet\s*\(""").findAll(src).count()
             // Tolerant on purpose: `skipPartiallyExpanded = true` may be followed by a trailing comma
             // (a formatter's doing) or by a second, legitimate argument such as
             // `confirmValueChange = { ... }` — neither changes the property this test cares about, and
@@ -158,7 +161,7 @@ class SheetExpansionGuardTest {
     @Test fun everySheetCallSitePassesASheetStateArgument() {
         val offenders = sheetFiles().mapNotNull { file ->
             val src = stripComments(file.readText())
-            val calls = callArgLists(src, "ModalBottomSheet")
+            val calls = callArgLists(src, "(?:Ab)?ModalBottomSheet")
             val missing = calls.count { !Regex("""\bsheetState\s*=""").containsMatchIn(it) }
             if (missing == 0) null else "${file.name} ($missing of ${calls.size} ModalBottomSheet call(s))"
         }.sorted()

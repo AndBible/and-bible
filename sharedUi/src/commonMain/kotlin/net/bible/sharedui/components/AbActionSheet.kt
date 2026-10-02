@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
@@ -86,7 +85,7 @@ fun AbActionSheet(
         skipPartiallyExpanded = true,
         confirmValueChange = { value -> cancellable || value != SheetValue.Hidden },
     )
-    ModalBottomSheet(
+    AbModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         properties = ModalBottomSheetProperties(shouldDismissOnBackPress = cancellable),

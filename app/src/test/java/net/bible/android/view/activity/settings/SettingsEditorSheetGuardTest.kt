@@ -121,7 +121,7 @@ class SettingsEditorSheetGuardTest {
             assertEquals(
                 "$path must reach the sheet through SettingsEditorSheet, not construct its own " +
                     "(the sole exception is AiConnectionSettingsScreen's own RetentionSheet, 17f-A9)",
-                expected, Regex("""\bModalBottomSheet\s*\(""").findAll(src).count(),
+                expected, Regex("""\b(?:Ab)?ModalBottomSheet\s*\(""").findAll(src).count(),
             )
         }
     }
@@ -283,7 +283,7 @@ class SettingsEditorSheetGuardTest {
             val src = strippedSource(path)
             assertEquals(
                 "$path must reach the sheet through SpeakSettingsSheet, not build its own",
-                0, Regex("""\bModalBottomSheet\s*\(""").findAll(src).count(),
+                0, Regex("""\b(?:Ab)?ModalBottomSheet\s*\(""").findAll(src).count(),
             )
         }
     }
@@ -307,7 +307,7 @@ class SettingsEditorSheetGuardTest {
             val src = strippedSource(path)
             assertEquals(
                 "$path must reach the sheet through AbQuickSheet, not build its own",
-                0, Regex("""\bModalBottomSheet\s*\(""").findAll(src).count(),
+                0, Regex("""\b(?:Ab)?ModalBottomSheet\s*\(""").findAll(src).count(),
             )
         }
     }

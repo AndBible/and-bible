@@ -33,7 +33,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -139,7 +138,7 @@ fun <T> AbSearchableOptionSheet(
     // default — and its body is a LazyColumn capped at 480dp, i.e. exactly the bounded-scroll shape
     // §7.a is about. skipPartiallyExpanded = true makes it open at content height like the rest.
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    AbModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         AbSearchableOptionSheetContent(
             options = options,
             selected = selected,

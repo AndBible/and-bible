@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -82,7 +81,7 @@ fun AbSettingsSummarySheet(
         // skipPartiallyExpanded (round 14b §7.a / spec D4) — uniform with every other sheet.
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         val close = { open = false }
-        ModalBottomSheet(onDismissRequest = close, sheetState = sheetState) {
+        AbModalBottomSheet(onDismissRequest = close, sheetState = sheetState) {
             Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
                 sheetContent(close)
             }

@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -100,7 +99,7 @@ fun AbQuickSheet(
     if (!open) return
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    ModalBottomSheet(
+    AbModalBottomSheet(
         // Swipe, scrim tap and back all arrive here, and M3 cannot tell them apart. When the body
         // has somewhere to go back to, that is what a dismiss means; only an empty stack closes —
         // unless the caller has its own BackHandler and opted out with `dismissRoutesToBack = false`,
