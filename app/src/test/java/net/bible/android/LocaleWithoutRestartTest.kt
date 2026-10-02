@@ -92,12 +92,14 @@ class LocaleWithoutRestartTest {
     /** Review Focus 4. */
     @Test fun defaultLanguageGivesTheSystemLanguageText() {
         setPref("fi"); setPref("")
-        assertEquals(app.getString(R.string.synchronizing), syncNotificationTitle())
+        // A literal, not app.getString: were the Application still Finnish both sides would match.
+        assertEquals("Synchronizing\u2026", syncNotificationTitle())
     }
 
     /** `app_name_medium` is translated in `ar` (not in `fi`), so use `ar` to tell the languages apart. */
     @Test fun theSpeakWidgetTitleFollowsALanguageChange() {
-        val mgr = SpeakWidgetManager.instance ?: SpeakWidgetManager()
+        val existing = SpeakWidgetManager.instance
+        val mgr = existing ?: SpeakWidgetManager()
         try {
             val english = app.getString(R.string.app_name_medium)
             assertEquals(english, mgr.titleForTest())
@@ -107,6 +109,6 @@ class LocaleWithoutRestartTest {
             assertEquals(arabic, mgr.titleForTest())
             setPref("")
             assertEquals(english, mgr.titleForTest())
-        } finally { mgr.destroy() }
+        } finally { if (existing == null) mgr.destroy() } // only what this test created
     }
 }
