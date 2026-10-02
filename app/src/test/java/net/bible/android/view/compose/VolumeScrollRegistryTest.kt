@@ -1,17 +1,23 @@
 package net.bible.android.view.compose
 
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.sharedui.ProvideAppLocals
@@ -52,6 +58,16 @@ class VolumeScrollRegistryTest {
         compose.waitForIdle()
     }
 
+    /** Pages from a Main-dispatched coroutine: runBlocking would block the UI thread that has to deliver the
+     *  composition's frames now that the page animates on the registered clock. */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun pageOnMain(registry: VolumeScrollRegistry, down: Boolean): Boolean {
+        val job = CoroutineScope(Dispatchers.Main).async { registry.scrollPage(down) }
+        compose.waitForIdle()
+        assertTrue("the page animation must finish", job.isCompleted)
+        return job.getCompleted()
+    }
+
     @Test
     fun pagesDownThenBackUp() {
         val registry = VolumeScrollRegistry()
@@ -59,13 +75,11 @@ class VolumeScrollRegistryTest {
         assertTrue(registry.hasTarget)
         assertEquals(0, state.firstVisibleItemIndex)
 
-        assertTrue(runBlocking { registry.scrollPage(true) })
-        compose.waitForIdle()
+        assertTrue(pageOnMain(registry, true))
         val afterDown = state.firstVisibleItemIndex
         assertTrue("page down must move the list, was $afterDown", afterDown > 0)
 
-        assertTrue(runBlocking { registry.scrollPage(false) })
-        compose.waitForIdle()
+        assertTrue(pageOnMain(registry, false))
         assertTrue("page up must return towards 0", state.firstVisibleItemIndex < afterDown)
     }
 
@@ -85,5 +99,20 @@ class VolumeScrollRegistryTest {
         show = false
         compose.waitForIdle()
         assertFalse(registry.hasTarget)
+    }
+
+    @Test fun aRegisteredFrameClockMakesThePageAnimate() {
+        var frames = 0
+        val clock = object : MonotonicFrameClock {
+            var t = 0L
+            override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R { frames++; t += 16_000_000L; return onFrame(t) }
+        }
+        var scrolled = 0f
+        val state = ScrollableState { d -> scrolled += d; d }
+        val registry = VolumeScrollRegistry()
+        registry.register(state, { 1000 }, clock)
+        assertTrue(runBlocking { registry.scrollPage(true) }) // runBlocking has no frame clock of its own
+        assertTrue("animateScrollBy must have run on the registered clock", frames > 1)
+        assertEquals(900f, scrolled, 1f)
     }
 }

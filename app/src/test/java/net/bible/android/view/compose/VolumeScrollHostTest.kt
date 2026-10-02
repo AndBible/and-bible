@@ -96,7 +96,7 @@ class VolumeScrollHostTest {
                 })
             }
         }
-        activity.volumeScrollRegistry.register(fake) { 1000 }
+        activity.volumeScrollRegistry.register(fake, { 1000 })
         return Fixture(activity, pages)
     }
 
