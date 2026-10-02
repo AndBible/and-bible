@@ -185,6 +185,9 @@ class AppDialogOverlayTest {
             assertTrue(found)
         } finally {
             Locale.setDefault(originalLocale)
+            androidx.preference.PreferenceManager.getDefaultSharedPreferences(
+                androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+            ).edit().remove("locale_pref").commit()
         }
     }
 }

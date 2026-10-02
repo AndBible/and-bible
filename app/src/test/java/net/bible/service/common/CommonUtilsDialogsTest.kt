@@ -148,6 +148,8 @@ class CommonUtilsDialogsTest {
         controllers.clear()
         dialogs.cancelAll()
         Locale.setDefault(originalLocale)
+        androidx.preference.PreferenceManager.getDefaultSharedPreferences(application)
+            .edit().remove("locale_pref").commit()
         CommonUtils.settings.removeString("poor-translations-dismissed")
         CommonUtils.settings.removeString("poor-translations-dismissed-version")
         Dispatchers.resetMain()
