@@ -60,6 +60,9 @@ class AndroidStrings(private val context: Context) : Strings {
     override val docTypeAll: String get() = context.getString(R.string.doc_type_all)
     override val docTypeBible: String get() = context.getString(R.string.doc_type_bible)
     override val docTypeCommentary: String get() = context.getString(R.string.doc_type_commentary)
+    override val readingToolbarOptions: String get() = context.getString(R.string.reading_toolbar_options)
+    override val prefsShowStrongsTitle: String get() = context.getString(R.string.prefs_show_strongs_title)
+    override val switchToWorkspace: String get() = context.getString(R.string.switch_to_workspace)
     override val docTypeDictionary: String get() = context.getString(R.string.doc_type_dictionary)
     override val docTypeGeneralBook: String get() = context.getString(R.string.doc_type_book)
     override val docTypeMaps: String get() = context.getString(R.string.doc_type_map)
@@ -82,7 +85,7 @@ class AndroidStrings(private val context: Context) : Strings {
 
     // Settings editor sheets T5 — SettingsEditorSheet header
     override val settingsEditorBack: String get() = context.getString(R.string.settings_editor_back)
-    override val settingsEditorClose: String get() = context.getString(R.string.settings_editor_close)
+    override val settingsEditorClose: String get() = context.getString(R.string.close)
     override val settingsEditorApply: String get() = context.getString(R.string.settings_editor_apply)
 
     // Batch 5 — search

@@ -11,7 +11,7 @@ import org.junit.Test
  * `src/test/resources/icon-cd-allowlist.txt` as `path:line # reason`.
  */
 class IconContentDescriptionGuardTest {
-    private val roots = listOf(File("../sharedUi/src/commonMain/kotlin"), File("src/main/java"))
+    private val roots = listOf(File("../sharedUi/src/commonMain/kotlin"), File("../sharedCore/src"), File("src/main/java"))
     private val allow = File("src/test/resources/icon-cd-allowlist.txt").readLines()
         .map { it.substringBefore('#').trim() }.filter { it.isNotEmpty() }.toSet()
 
@@ -80,4 +80,33 @@ class IconContentDescriptionGuardTest {
     @Test fun aLabelledIconIsAccepted() = assertEquals(0, unlabelledIconButtons("p", "IconButton(onClick = {}) { Icon(if (a) X else Y, contentDescription = s.menu) }").size)
     @Test fun theDoubleToggleProbeCanFail() = assertEquals(1, doubleToggleNodes("p", "Row(Modifier.clickable {}) { Checkbox(checked = v, onCheckedChange = { x() }) }").size)
     @Test fun theDoubleToggleProbeAcceptsTheMergedForm() = assertEquals(0, doubleToggleNodes("p", "Row(Modifier.toggleable(v, onValueChange = {})) { Checkbox(checked = v, onCheckedChange = null) }").size)
+
+    /** F116: a user-facing label must come from Strings, never a string literal (interpolations are allowed). */
+    internal fun literalLabels(path: String, src: String): List<String> {
+        val out = linkedSetOf<String>()
+        for (call in listOf("ToolbarIconButton(", "Icon(", "IconButton(")) {
+            var i = src.indexOf(call)
+            while (i >= 0) {
+                val args = argsAfter(src, i + call.length - 1)
+                if (args != null) {
+                    val named = Regex("""contentDescription\s*=\s*"([^"$]*)"""").find(args)
+                    val positional = call == "ToolbarIconButton(" &&
+                        Regex("""^[^,]*,\s*"[^"$]*"""").containsMatchIn(args)
+                    if (named != null || positional) out += "$path:${lineOf(src, i)}"
+                }
+                i = src.indexOf(call, i + 1)
+            }
+        }
+        return out.toList()
+    }
+
+    @Test fun noLiteralLabels() = assertEquals(emptyList<String>(),
+        roots.flatMap { it.walkTopDown().toList() }.filter { it.extension == "kt" }
+            .flatMap { f -> literalLabels(f.path.substringAfter("kotlin/").substringAfter("java/"), f.readText()) }
+            .filter { o -> allow.none { o.startsWith(it.substringBefore(':')) && o.endsWith(":" + it.substringAfter(':')) } })
+    @Test fun theLiteralProbeCanFail() = assertEquals(1, literalLabels("p", """ToolbarIconButton(icons.x, "Menu", onClick = {})""").size)
+    @Test fun theNamedLiteralProbeCanFail() = assertEquals(1, literalLabels("p", """ToolbarIconButton(icon = x, contentDescription = "Menu", onClick = {})""").size)
+    @Test fun theLiteralProbeAcceptsATemplate() = assertEquals(0, literalLabels("p", """Icon(x, contentDescription = "${'$'}kind: ${'$'}label")""").size)
+    @Test fun theLiteralProbeAcceptsAString() = assertEquals(0, literalLabels("p", """ToolbarIconButton(icons.x, strings.menu, onClick = {})""").size)
+    @Test fun theLiteralScanSeesSharedCore() = assertTrue(File("../sharedCore/src").isDirectory)
 }

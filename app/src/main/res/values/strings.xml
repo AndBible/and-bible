@@ -973,6 +973,7 @@
 
     <!-- Uncategorized -->
     <string name="close">Close</string>
+    <string name="reading_toolbar_options">More options</string>
     <string name="something_with_parenthesis">%1$s (%2$s)</string>
 
     <string name="strongs_mode_title">Choose strongs mode</string>

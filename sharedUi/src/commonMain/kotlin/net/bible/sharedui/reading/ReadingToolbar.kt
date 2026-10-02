@@ -529,6 +529,7 @@ fun ReadingToolbar(
         }
         return
     }
+    val strings = LocalStrings.current
     BoxWithConstraints(
         modifier
             .fillMaxWidth()
@@ -548,8 +549,7 @@ fun ReadingToolbar(
             Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
                 ToolbarIconButton(
                     icon = icons.home,
-                    // TODO: no LocalStrings field for this yet — keep literal until one is added.
-                    contentDescription = "Menu",
+                    contentDescription = strings.menu,
                     onClick = callbacks.onHome,
                 )
                 ReadingToolbarTitle(state, callbacks, documentTitleColor, Modifier.weight(1f).fillMaxHeight())
@@ -568,8 +568,7 @@ fun ReadingToolbar(
                 Box {
                     ToolbarIconButton(
                         icon = icons.overflow,
-                        // TODO: no LocalStrings field for this yet — keep literal until one is added.
-                        contentDescription = "Options",
+                        contentDescription = strings.readingToolbarOptions,
                         onClick = callbacks.onOverflow,
                     )
                     ReadingOverflowMenu(
@@ -602,23 +601,20 @@ private fun QuickToolbarButton(
             ToolbarIconButton(icons.bible, strings.bible, callbacks.onBible, callbacks.onBibleLong)
             QuickDocMenu(bibleQuickDoc.expanded, bibleQuickDoc.items, onQuickDocSelect, onQuickDocDismiss)
         }
-        // TODO: no LocalStrings field for this yet — keep literal until one is added.
         ToolbarButton.COMMENTARY -> Box {
-            ToolbarIconButton(icons.commentary, "Commentary", callbacks.onCommentary, callbacks.onCommentaryLong)
+            ToolbarIconButton(icons.commentary, strings.docTypeCommentary, callbacks.onCommentary, callbacks.onCommentaryLong)
             QuickDocMenu(commentaryQuickDoc.expanded, commentaryQuickDoc.items, onQuickDocSelect, onQuickDocDismiss)
         }
         ToolbarButton.STRONGS -> ToolbarIconButton(
             icon = icons.strongs,
-            // TODO: no LocalStrings field for this yet — keep literal until one is added.
-            contentDescription = "Strong's numbers",
+            contentDescription = strings.prefsShowStrongsTitle,
             onClick = callbacks.onStrongs,
             onLongClick = callbacks.onStrongsLong,
             alpha = if (state.strongsMode == 0) 0.5f else 1f,
         )
         ToolbarButton.SEARCH -> ToolbarIconButton(icons.search, strings.search, callbacks.onSearch)
         ToolbarButton.SPEAK -> ToolbarIconButton(icons.speak, strings.speak, callbacks.onSpeak, callbacks.onSpeakLong)
-        // TODO: no LocalStrings field for this yet — keep literal until one is added.
-        ToolbarButton.WORKSPACE -> ToolbarIconButton(icons.workspace, "Workspace", callbacks.onWorkspace)
+        ToolbarButton.WORKSPACE -> ToolbarIconButton(icons.workspace, strings.switchToWorkspace, callbacks.onWorkspace)
     }
 }
 

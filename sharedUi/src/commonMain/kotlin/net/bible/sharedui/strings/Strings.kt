@@ -72,6 +72,9 @@ interface Strings {
     val docTypeAll: String
     val docTypeBible: String
     val docTypeCommentary: String
+    val readingToolbarOptions: String         // R.string.reading_toolbar_options
+    val prefsShowStrongsTitle: String         // R.string.prefs_show_strongs_title
+    val switchToWorkspace: String             // R.string.switch_to_workspace
     val docTypeDictionary: String
     val docTypeGeneralBook: String
     val docTypeMaps: String
@@ -95,8 +98,8 @@ interface Strings {
     val cancel: String
 
     // Settings editor sheets T5 — SettingsEditorSheet header
-    val settingsEditorBack: String            // R.string.settings_editor_back
-    val settingsEditorClose: String           // R.string.settings_editor_close
+    val settingsEditorBack: String            // R.string.settings_editor_back -- untranslated in every locale: left to the translation pass (F116)
+    val settingsEditorClose: String           // R.string.close (translated; settings_editor_close was English-only)
     val settingsEditorApply: String           // R.string.settings_editor_apply
 
     // Batch 5 — search
