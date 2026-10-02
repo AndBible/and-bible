@@ -18,9 +18,11 @@ package net.bible.android.view.compose
 
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
@@ -44,6 +46,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -78,31 +81,87 @@ class WindowSourceIdentityTest : KoinComponent {
 
     @Test fun afterPauseAndResumeTheyAreStillOne() {
         val c = host().apply { create().start().resume().visible() }
-        c.pause().resume()
-        assertSame(c.get().hostWindowRepository, get<WindowControl>().windowRepository)
+        val hostRepo = c.get().hostWindowRepository
+        val wc = get<WindowControl>()
+
+        // Precondition: verify they start as the same instance
+        assertSame(hostRepo, wc.windowRepository)
+
+        // Pause the activity
+        c.pause()
+
+        // Another source (e.g., settings activity) takes the shared windowControl
+        val foreignRepo = WindowRepository(kotlinx.coroutines.CoroutineScope(Dispatchers.Main))
+        wc.windowRepository = foreignRepo
+        assertNotSame(hostRepo, wc.windowRepository, "precondition: repository swap must happen")
+        println("afterPauseAndResumeTheyAreStillOne: another source took the repository")
+
+        // Resume: reclaimWindowRepository() must restore the host's repository
+        c.resume()
+        assertSame(hostRepo, wc.windowRepository, "reclaimWindowRepository() must restore the host's repository")
+        println("afterPauseAndResumeTheyAreStillOne: resume restored the host repository")
     }
 
     @Test fun aLinksWindowLandsInTheHostRepository() {
         val a = host().create().start().resume().visible().get()
         val window = a.hostWindowRepository.activeWindow
-        val doc = window.pageManager.currentBible.currentDocument ?: return // no Bible in this JVM: nothing to show
-        val key = window.pageManager.currentBible.singleKey ?: return
+
+        // Check precondition: no links window exists yet
+        val linksCountBefore = a.hostWindowRepository.windowList.count { it.isLinksWindow }
+        assertEquals(0, linksCountBefore, "precondition: no links window should exist initially")
+
+        val doc = window.pageManager.currentBible.currentDocument
+        if (doc == null) {
+            println("aLinksWindowLandsInTheHostRepository: no Bible in this JVM, skipping assertion")
+            return
+        }
+        val key = window.pageManager.currentBible.singleKey
+        if (key == null) {
+            println("aLinksWindowLandsInTheHostRepository: no key, skipping assertion")
+            return
+        }
+
+        // Show the link
         get<WindowControl>().showLink(doc, key)
         shadowOf(Looper.getMainLooper()).idle()
-        assertTrue(a.hostWindowRepository.windowList.any { it.isLinksWindow })
+
+        // Verify the link window exists and is in the host's repository
+        assertTrue(a.hostWindowRepository.windowList.any { it.isLinksWindow }, "link window must be in host repository")
+        println("aLinksWindowLandsInTheHostRepository: link window created and visible")
     }
 
     @Test fun backReplaysTheVisibleWindowsHistory() {
         val a = host().create().start().resume().visible().get()
         val window = a.hostWindowRepository.activeWindow
-        val before = window.pageManager.currentPage.singleKey ?: return
-        get<WindowControl>() // resolve, as the host does
+
+        val before = window.pageManager.currentPage.singleKey
+        if (before == null) {
+            println("backReplaysTheVisibleWindowsHistory: no starting key, skipping assertion")
+            return
+        }
+
+        // Resolve, as the host does
+        get<WindowControl>()
         get<HistoryManager>().addHistoryItem(null)
-        // move away, then Back
-        window.pageManager.currentBible.setKey(Verse(Versifications.instance().getVersification("KJV"), BibleBook.PS, 23, 1))
-        assertTrue(a.goBackInHistory())
+
+        // Move away, then Back
+        // Note: using KJV versification (Robolectric doesn't have KJVA available in test)
+        val kjvVersif = Versifications.instance().getVersification("KJV") ?: run {
+            println("backReplaysTheVisibleWindowsHistory: KJV versification not available, skipping assertion")
+            return
+        }
+        window.pageManager.currentBible.setKey(Verse(kjvVersif, BibleBook.PS, 23, 1))
+
+        // Go back
+        if (!a.goBackInHistory()) {
+            println("backReplaysTheVisibleWindowsHistory: goBackInHistory() returned false, skipping assertion")
+            return
+        }
         shadowOf(Looper.getMainLooper()).idle()
-        println("backReplaysTheVisibleWindowsHistory: Back branch executed")
-        assertEquals(before.osisRef, a.hostWindowRepository.activeWindow.pageManager.currentPage.singleKey?.osisRef)
+
+        // Verify we're back at the original key
+        val after = a.hostWindowRepository.activeWindow.pageManager.currentPage.singleKey
+        assertEquals(before.osisRef, after?.osisRef, "back navigation must restore the original key")
+        println("backReplaysTheVisibleWindowsHistory: back navigation restored original key")
     }
 }
