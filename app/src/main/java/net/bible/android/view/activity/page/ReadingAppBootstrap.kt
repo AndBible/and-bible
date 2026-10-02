@@ -593,6 +593,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
     private val now get() = System.currentTimeMillis()
 
     suspend fun synchronize(force: Boolean = false) {
+        if (DatabaseContainer.replacing) return
         if(CommonUtils.isCloudSyncEnabled && networkAvailable) {
             windowRepository.saveIntoDb(false)
             if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && CloudSync.hasChanges())) {

@@ -16,6 +16,7 @@
  */
 package net.bible.service.db
 
+import androidx.annotation.VisibleForTesting
 import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.room.Room
@@ -352,6 +353,32 @@ class DatabaseContainer {
 
     companion object {
         var ready: Boolean = false
+
+        /**
+         * Fix batch 5 §1.1. True while a restore has database files closed or overwritten. A save in
+         * that window writes into a closed or replaced file.
+         */
+        @Volatile var replacing: Boolean = false
+            private set
+
+        /**
+         * Bumped by every [replacingDatabases]. A repository loaded before the bump holds pre-restore
+         * state and must not save it over the restored database ([WindowRepository.saveIntoDb]) until
+         * it has reloaded. Deliberately NOT bumped by [reset]: tests reset between classes (C1).
+         */
+        @Volatile var replaceEpoch: Long = 0L
+            private set
+
+        /** Every BackupControl path that closes, copies over or deletes database files runs inside this. */
+        suspend fun <T> replacingDatabases(block: suspend () -> T): T {
+            replacing = true
+            replaceEpoch++
+            try { return block() } finally { replacing = false }
+        }
+
+        /** Tests share one JVM: `DatabaseResetter.resetDatabase()` calls this so no epoch leaks into the next class (C1). */
+        @VisibleForTesting
+        internal fun forgetReplacesForTest() { replacing = false; replaceEpoch = 0L }
 
         /**
          * Runs [block] with [ready] cleared, and restores it however [block] ends. The clearing makes

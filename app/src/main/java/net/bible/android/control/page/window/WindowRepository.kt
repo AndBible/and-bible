@@ -308,9 +308,18 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         return keyTitle.joinToString(", ")
     }
 
+    /** Restore epoch this repository's state was loaded at (fix batch 5 §1.1). */
+    private var loadedEpoch = DatabaseContainer.replaceEpoch
+
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.i(TAG, "saveIntoDb")
         if(!CommonUtils.initialized || !DatabaseContainer.ready) return
+        // Fix batch 5 §1.1: mid-restore, or loaded before a restore and not reloaded since -- this
+        // repository's state is pre-restore and would overwrite what was just restored.
+        if (DatabaseContainer.replacing || loadedEpoch < DatabaseContainer.replaceEpoch) {
+            Log.i(TAG, "saveIntoDb skipped: database restore in progress or not yet reloaded")
+            return
+        }
         if(stopSpeak) speakControl.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
         SpeakSettings.currentSettings?.save()
@@ -400,6 +409,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     }
 
     private fun loadFromDbInner(workspaceId: IdType?) {
+        loadedEpoch = DatabaseContainer.replaceEpoch
         Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
         val entity = (if(workspaceId != null) dao.workspace(workspaceId) else null)?: dao.firstWorkspace()
             ?: WorkspaceEntities.Workspace("").apply{
