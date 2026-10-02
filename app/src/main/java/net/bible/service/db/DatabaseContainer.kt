@@ -358,27 +358,29 @@ class DatabaseContainer {
          * Fix batch 5 §1.1. True while a restore has database files closed or overwritten. A save in
          * that window writes into a closed or replaced file.
          */
-        @Volatile var replacing: Boolean = false
-            private set
+        private val replaceDepth = java.util.concurrent.atomic.AtomicInteger(0)
+        private val replaceEpochCounter = java.util.concurrent.atomic.AtomicLong(0L)
+
+        /** Batch 6 §1.2: true while ANY replace is running; replaces can nest and overlap. */
+        val replacing: Boolean get() = replaceDepth.get() > 0
 
         /**
          * Bumped by every [replacingDatabases]. A repository loaded before the bump holds pre-restore
          * state and must not save it over the restored database ([WindowRepository.saveIntoDb]) until
          * it has reloaded. Deliberately NOT bumped by [reset]: tests reset between classes (C1).
          */
-        @Volatile var replaceEpoch: Long = 0L
-            private set
+        val replaceEpoch: Long get() = replaceEpochCounter.get()
 
         /** Every BackupControl path that closes, copies over or deletes database files runs inside this. */
         suspend fun <T> replacingDatabases(block: suspend () -> T): T {
-            replacing = true
-            replaceEpoch++
-            try { return block() } finally { replacing = false }
+            replaceDepth.incrementAndGet()
+            replaceEpochCounter.incrementAndGet()
+            try { return block() } finally { replaceDepth.decrementAndGet() }
         }
 
         /** Tests share one JVM: `DatabaseResetter.resetDatabase()` calls this so no epoch leaks into the next class (C1). */
         @VisibleForTesting
-        internal fun forgetReplacesForTest() { replacing = false; replaceEpoch = 0L }
+        internal fun forgetReplacesForTest() { replaceDepth.set(0); replaceEpochCounter.set(0L) }
 
         /**
          * Runs [block] with [ready] cleared, and restores it however [block] ends. The clearing makes
