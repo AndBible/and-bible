@@ -4636,6 +4636,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                                     onSeparatorCommitted = controller::onSeparatorCommitted,
                                     pane = pane,
                                     paneBackground = paneBackground,
+                                    // F107: read in composition, so it follows the active window
+                                    // and night/monochrome as the panes do.
+                                    edgeBackground = paneBackground(layout.activeWindowId),
                                     // F6 Task 8a: a non-null pair replaces the toolbar's
                                     // normal row with the search field (Task 4).
                                     searchBar = searchBar,

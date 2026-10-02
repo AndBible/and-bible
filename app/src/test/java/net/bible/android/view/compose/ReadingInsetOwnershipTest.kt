@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -40,6 +41,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 /**
  * F66/F67 and correction C2. The reading tree is edge-to-edge (API 35, and API 30+ after Task 2), so
@@ -53,6 +55,7 @@ import org.robolectric.annotation.Config
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35], application = android.app.Application::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ReadingInsetOwnershipTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
 
@@ -88,7 +91,7 @@ class ReadingInsetOwnershipTest {
 
     private val seenImeBottom = mutableIntStateOf(-1)
 
-    private fun mount(speakBarVisible: Boolean, agentLogVisible: Boolean = false, imeBottomPx: Int = 0) {
+    private fun mount(speakBarVisible: Boolean, agentLogVisible: Boolean = false, imeBottomPx: Int = 0, edge: Color? = null) {
         compose.setContent {
             val d = LocalDensity.current
             seenImeBottom.intValue = WindowInsets.ime.getBottom(d)
@@ -100,6 +103,7 @@ class ReadingInsetOwnershipTest {
                         toolbarCallbacks = callbacks(), fullScreen = false,
                         imeBottomPadding = with(d) { imeBottomPx.toDp() },
                         onWindowActivated = {}, onSeparatorCommitted = { _, _, _, _ -> },
+                        edgeBackground = edge,
                         pane = { Box(Modifier.fillMaxSize().testTag("pane")) },
                         tabBar = { apply -> Box(Modifier.readingRailInsetPadding(apply).size(20.dp).testTag("strip")) },
                         // Like the real bar, renders nothing while it is not visible.
@@ -191,5 +195,19 @@ class ReadingInsetOwnershipTest {
         dispatch(0, 0, navPx)
         assertEquals("the dispatch must reach Compose", navPx, seenNavBottom.intValue)
         assertEquals(bounds("agent").top, bounds("strip").bottom, 1f)
+    }
+
+    // F107: the band beside a side nav bar shows the active pane's colour, not the scaffold surface.
+    @Test
+    fun theSideNavBarBandIsPaintedInTheEdgeColour() {
+        mount(speakBarVisible = false, edge = Color.Red)
+        dispatch(0, navPx, 0)
+        // Draw the content root into a bitmap: captureToImage times out under dispatched insets.
+        val content: ViewGroup = compose.activity.findViewById(android.R.id.content)
+        val bmp = android.graphics.Bitmap.createBitmap(content.width, content.height, android.graphics.Bitmap.Config.ARGB_8888)
+        compose.runOnUiThread { content.draw(android.graphics.Canvas(bmp)) }
+        val x = bmp.width - navPx / 2
+        val y = bmp.height / 2
+        assertEquals(Color.Red, Color(bmp.getPixel(x, y)))
     }
 }

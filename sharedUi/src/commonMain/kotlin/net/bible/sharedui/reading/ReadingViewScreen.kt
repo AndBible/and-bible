@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -200,6 +201,11 @@ fun ReadingViewScreen(
     overflowIcon: @Composable (iconKey: String) -> Painter? = { null },
     /** Per-pane background colour, passed straight to [SplitContent] — see its kdoc (A/B batch 4a F5). */
     paneBackground: (windowId: String) -> Color? = { null },
+    /**
+     * Painted under the side insets the split pads; the active pane's colour, so a side nav bar or
+     * cutout band does not show the scaffold surface (F107).
+     */
+    edgeBackground: Color? = null,
 ) {
     val density = LocalDensity.current
     // Round 12b §4: the agent panel overlays the content when expanded instead of shrinking the
@@ -240,6 +246,8 @@ fun ReadingViewScreen(
                 // Measured so the panel's drag ceiling can be "the bottom of the toolbar": that is
                 // this height plus the panel's own reservation right below it.
                 modifier = Modifier.weight(1f)
+                    // F107: painted BEFORE the padding, so it fills the bands the padding leaves.
+                    .then(edgeBackground?.let { Modifier.background(it) } ?: Modifier)
                     // Correction C2: the reading tree is edge-to-edge, and nothing else pads a side nav
                     // bar (landscape 3-button) or a side cutout. The toolbar pads its own row the same
                     // way (ReadingToolbar's systemBars ∪ displayCutout, Horizontal).

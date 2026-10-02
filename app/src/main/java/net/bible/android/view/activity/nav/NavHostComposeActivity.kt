@@ -1830,6 +1830,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 pageBackgroundArgb = if (onReading && fullScreen && !forceNotFullScreen) pageBackgroundArgbOrNull() else null,
             )
         )
+        // Fix batch 5 F107: on `reading` the bands beside a side nav bar show the pane colour; the
+        // system's translucent contrast scrim on top made them bluish (not even grayscale in mono).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) window.isNavigationBarContrastEnforced = !onReading
     }
 
     private fun showSystemUI(setNavBarColor: Boolean = true) {
