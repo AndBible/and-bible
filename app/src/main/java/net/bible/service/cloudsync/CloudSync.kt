@@ -365,12 +365,23 @@ object CloudSync {
         downloaded: File,
         afterReset: suspend () -> Unit,
     ) {
-        dbDef.localDb.close()
-        downloaded.copyTo(dbDef.localDbFile, overwrite = true)
-        downloaded.delete()
-        dbDef.resetLocalDb()
-        afterReset()
-        ABEventBus.post(WorkspaceRefreshRequired())
+        try {
+            // F113: the same race class as a backup restore. A save between the close and the live
+            // repository's reload would write the pre-download windows over the downloaded file, and the
+            // freshly created triggers would then log it for upload. The epoch bump freezes saving until
+            // `WorkspaceRefreshRequired` -> `loadFromDb`.
+            DatabaseContainer.replacingDatabases {
+                dbDef.localDb.close()
+                downloaded.copyTo(dbDef.localDbFile, overwrite = true)
+                downloaded.delete()
+                dbDef.resetLocalDb()
+                afterReset()
+            }
+        } finally {
+            // Categories swap concurrently (`asyncMap`), and a restore may hold its own replace around a
+            // sync: release once, when the last replace has ended.
+            if (!DatabaseContainer.replacing) ABEventBus.post(WorkspaceRefreshRequired())
+        }
     }
 
     private val syncMutex = Mutex()
