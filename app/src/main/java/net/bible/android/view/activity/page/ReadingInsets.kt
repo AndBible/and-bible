@@ -46,7 +46,7 @@ import net.bible.android.control.event.ABEventBus
  *
  * | member | nav host's answer | why it is honest |
  * |---|---|---|
- * | [transportBarVisible] / [transportBarHeight] | `false` / `0` | the speak transport bar is a classic-toolbar view; the Compose host has no such view, so its contribution to the ledger really is zero |
+ * | [transportBarVisible] / [transportBarHeight] | `false` / `0` | the speak transport bar is a Compose bar below the panes, so the WebView already ends above it; `bottomOffsetForWebView` therefore drops both it and the nav-bar term while it is up |
  * | [agentLogVisible] / [agentLogHeight] | `false` / `0` | likewise — the agent log strip is `MainBibleActivity`'s `binding`, mirrored into the ledger by an event |
  * | [restoreButtonsVisible] / [windowButtonHeight] | the same workspace setting / the same theme dimension | both are host-independent facts (`windowRepository.workspaceSettings`, an `R.attr` on the theme); the nav host can read both, and once it draws restore buttons the answer stays correct without a change here |
  * | [composeSearchFieldFocused] | its own reading-view host's `searchFieldFocused` | the Compose search field is the *reading view's*, not the Activity's — `MainBibleActivity` already answers it by asking `composeReadingViewHost?.searchFieldFocused`, so the nav host answers it the same way |
@@ -135,14 +135,15 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
         (if (host.transportBarVisible()) host.transportBarHeight() else 0) +
         (if (host.agentLogVisible()) host.agentLogHeight() else 0)
 
-    // WebView bottom offset: navigation bar + transport + buttons + agent log + search sheet.
+    // WebView bottom offset: navigation bar (unless transport bar up) + buttons + agent log + search sheet.
     // Same three cases as above: padding applied -> 0; no keyboard -> system bars; keyboard up with
     // the padding suppressed -> system bars, because the keyboard overlays and nothing should move.
     // `bottomOffset1WithoutIme` equals `bottomOffset1` whenever the keyboard is hidden, so the two
     // pre-existing cases are byte-identical.
+    // Fix batch 5 F111: the speak bar sits in the column BELOW the panes and pads the nav bar itself,
+    // so while it is up the WebView already ends above both -- neither may be counted again.
     val bottomOffsetForWebView get() =
-        (if (imePaddingApplied) 0 else bottomOffset1WithoutIme) +
-            (if (host.transportBarVisible()) host.transportBarHeight() else 0) +
+        (if (host.transportBarVisible()) 0 else (if (imePaddingApplied) 0 else bottomOffset1WithoutIme)) +
             (if (host.restoreButtonsVisible()) host.windowButtonHeight() else 0) +
             (if (host.agentLogVisible()) host.agentLogHeight() else 0) +
             (if (searchSheetVisible) searchSheetHeight else 0)
