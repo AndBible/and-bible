@@ -528,8 +528,8 @@ class ReadingDestinationInGraphTest {
     /**
      * F89: the real dispatch entry, not a direct onKeyDown call. A volume key the window delivers
      * must reach the published handler and be reported consumed, or the system volume dialog opens.
-     * Expected to PASS at BASE (C5): if it does, the in-Activity path is sound and the device
-     * diagnosis (F89-DIAG) decides between "never delivered" and a false gate.
+     * The device diagnosis found the "Volume buttons scroll" preference was off in the original
+     * walk, so F89 is not a defect; this test stays as a regression guard of the real dispatch path.
      */
     @Test
     fun theRealKeyDispatchDeliversVolumeKeysToThePublishedHandler() {
