@@ -28,6 +28,7 @@ import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
+import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Rule
 import org.junit.Assert.assertEquals
@@ -61,6 +62,8 @@ class CloudSyncAskInitialSyncOperationTest {
         controllers.forEach { runCatching { it.pause().stop().destroy() } }
         controllers.clear()
         dialogs.cancelAll()
+        // Do not leave a DatabaseContainer open in this test's Robolectric data dir for the next class.
+        DatabaseResetter.resetDatabase()
     }
 
     private fun activity(): ActivityBase =
