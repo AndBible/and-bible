@@ -72,6 +72,9 @@ class TextToSpeechNotificationManager : KoinComponent {
 
         private var instance: TextToSpeechNotificationManager? = null
         private var serviceRunning = false
+
+        /** [refreshForLocale] on the live instance, if one exists (F114). */
+        fun refreshInstanceForLocale() { instance?.refreshForLocale() }
     }
 
     class ForegroundService: Service() {
@@ -168,7 +171,8 @@ class TextToSpeechNotificationManager : KoinComponent {
 
 
     private val app get() = BibleApplication.application
-    private var currentTitle = getString(R.string.app_name_medium)
+    /** null = the reset title, resolved live so a language change shows (F114). */
+    private var currentTitle: String? = null
     private var notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var headsetReceiver  = object: BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -220,8 +224,8 @@ class TextToSpeechNotificationManager : KoinComponent {
                 if(ev.speakCommand is TextCommand) {
                     if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
                         currentTitle = ev.speakCommand.text
-                        if(currentTitle.isEmpty()) {
-                            currentTitle = getString(R.string.app_name_medium)
+                        if(currentTitle.isNullOrEmpty()) {
+                            currentTitle = null
                         }
                     }
                     else {
@@ -233,6 +237,11 @@ class TextToSpeechNotificationManager : KoinComponent {
         }
     }
 
+    /** Re-posts the notification in the current language, only while it is showing (F114). */
+    fun refreshForLocale() {
+        if (serviceRunning) buildNotification(speakControl.isSpeaking)
+    }
+
     fun destroy() {
         app.unregisterReceiver(headsetReceiver)
         shutdown()
@@ -241,7 +250,7 @@ class TextToSpeechNotificationManager : KoinComponent {
 
     private fun shutdown() {
         Log.i(TAG, "Shutdown")
-        currentTitle = getString(R.string.app_name_medium)
+        currentTitle = null
         currentText = ""
 
         // In case service was no longer foreground, we need do this here.
@@ -313,7 +322,7 @@ class TextToSpeechNotificationManager : KoinComponent {
             builder
                 .setSmallIcon(R.drawable.ic_ichtys)
                 .setLargeIcon(bibleBitmap)
-                .setContentTitle(currentTitle)
+                .setContentTitle(currentTitle ?: getString(R.string.app_name_medium))
                 .setSubText(speakControl.getStatusText(FLAG_SHOW_ALL))
         }
 

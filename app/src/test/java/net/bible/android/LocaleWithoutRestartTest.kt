@@ -1,6 +1,13 @@
 package net.bible.android
 
+import android.app.Notification
 import android.app.NotificationManager
+import android.content.Intent
+import net.bible.android.activity.SpeakWidgetManager
+import net.bible.service.cloudsync.SyncService
+import org.junit.Assert.assertNotEquals
+import org.robolectric.Robolectric
+import org.robolectric.Shadows.shadowOf
 import android.content.res.Configuration
 import android.os.LocaleList
 import net.bible.android.view.util.locale.LocaleHelper
@@ -66,5 +73,42 @@ class LocaleWithoutRestartTest {
         val locales = localized.resources.configuration.locales
         // Robolectric may reorder the list, so compare as a set: both languages must survive.
         assertEquals(setOf("gsw", "de"), (0 until locales.size()).map { locales[it].language }.toSet())
+    }
+
+    private fun syncNotificationTitle(): String? {
+        val service = Robolectric.setupService(SyncService::class.java)
+        service.onStartCommand(Intent(SyncService.START_SERVICE), 0, 1)
+        val nm = shadowOf(app.getSystemService(NotificationManager::class.java))
+        val posted = nm.allNotifications.lastOrNull() ?: shadowOf(service).lastForegroundNotification
+        return posted?.extras?.getCharSequence(Notification.EXTRA_TITLE)?.toString()
+    }
+
+    /** F114: a Service's own Resources do not follow `locale_pref`; the Application's do. */
+    @Test fun aServiceNotificationFollowsTheAppLanguage() {
+        setPref("fi")
+        val title = syncNotificationTitle()
+        assertEquals(app.getString(R.string.synchronizing), title)
+        assertNotEquals("Synchronizing\u2026", title)
+    }
+
+    /** Review Focus 4. */
+    @Test fun defaultLanguageGivesTheSystemLanguageText() {
+        setPref("fi"); setPref("")
+        assertEquals(app.getString(R.string.synchronizing), syncNotificationTitle())
+    }
+
+    /** `app_name_medium` is translated in `ar` (not in `fi`), so use `ar` to tell the languages apart. */
+    @Test fun theSpeakWidgetTitleFollowsALanguageChange() {
+        val mgr = SpeakWidgetManager.instance ?: SpeakWidgetManager()
+        try {
+            val english = app.getString(R.string.app_name_medium)
+            assertEquals(english, mgr.titleForTest())
+            setPref("ar")
+            val arabic = app.getString(R.string.app_name_medium)
+            assertNotEquals(english, arabic)
+            assertEquals(arabic, mgr.titleForTest())
+            setPref("")
+            assertEquals(english, mgr.titleForTest())
+        } finally { mgr.destroy() }
     }
 }

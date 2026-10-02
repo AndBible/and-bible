@@ -65,6 +65,7 @@ class SyncService: Service() {
 
     val scope = CoroutineScope(Dispatchers.IO)
 
+    /** Builds and posts the foreground sync notification. Text from the Application, whose Resources follow `locale_pref` live (F114); the Service's own context does not. */
     private fun synchronize() {
         Log.i(TAG, "Synchronize started")
         val wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
@@ -80,7 +81,7 @@ class SyncService: Service() {
         builder
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setSilent(true)
-            .setContentTitle(getString(R.string.synchronizing))
+            .setContentTitle(app.getString(R.string.synchronizing))
 
         if(CommonUtils.isDiscrete) {
             builder.setSmallIcon(R.drawable.ic_calc_24)

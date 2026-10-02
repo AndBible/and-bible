@@ -316,12 +316,13 @@ class AgentForegroundService : Service() {
         )
     }
 
+    /** Notification builders in this service: Text from the Application, whose Resources follow `locale_pref` live (F114); the Service's own context does not. */
     private fun startForegroundWithNotification() {
         val notification = NotificationCompat.Builder(this, notificationChannel())
             .setSmallIcon(notificationIcon())
-            .setContentTitle(getString(R.string.ai_agent_notification_running))
+            .setContentTitle(BibleApplication.application.getString(R.string.ai_agent_notification_running))
             .setContentIntent(buildMainActivityIntent())
-            .addAction(0, getString(R.string.ai_agent_notification_cancel), buildCancelIntent())
+            .addAction(0, BibleApplication.application.getString(R.string.ai_agent_notification_cancel), buildCancelIntent())
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSilent(true)
             .setOngoing(true)
@@ -333,10 +334,10 @@ class AgentForegroundService : Service() {
     private fun updateProgressNotification(text: String) {
         val notification = NotificationCompat.Builder(this, notificationChannel())
             .setSmallIcon(notificationIcon())
-            .setContentTitle(getString(R.string.ai_agent_notification_running))
+            .setContentTitle(BibleApplication.application.getString(R.string.ai_agent_notification_running))
             .setContentText(text.take(100))
             .setContentIntent(buildMainActivityIntent())
-            .addAction(0, getString(R.string.ai_agent_notification_cancel), buildCancelIntent())
+            .addAction(0, BibleApplication.application.getString(R.string.ai_agent_notification_cancel), buildCancelIntent())
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSilent(true)
             .setOngoing(true)
@@ -350,15 +351,15 @@ class AgentForegroundService : Service() {
         if (BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else "generic-notifications"
 
     private fun showPermissionNeededNotification(toolName: String?) {
-        val text = toolName?.let { "$it — ${getString(R.string.ai_agent_notification_permission_tap)}" }
-            ?: getString(R.string.ai_agent_notification_permission_tap)
+        val text = toolName?.let { "$it — ${BibleApplication.application.getString(R.string.ai_agent_notification_permission_tap)}" }
+            ?: BibleApplication.application.getString(R.string.ai_agent_notification_permission_tap)
 
         val notification = NotificationCompat.Builder(this, permissionNotificationChannel())
             .setSmallIcon(notificationIcon())
-            .setContentTitle(getString(R.string.ai_agent_notification_permission_needed))
+            .setContentTitle(BibleApplication.application.getString(R.string.ai_agent_notification_permission_needed))
             .setContentText(text)
             .setContentIntent(buildMainActivityIntent())
-            .addAction(0, getString(R.string.ai_agent_notification_cancel), buildCancelIntent())
+            .addAction(0, BibleApplication.application.getString(R.string.ai_agent_notification_cancel), buildCancelIntent())
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setOngoing(true)
             .build()
@@ -368,7 +369,7 @@ class AgentForegroundService : Service() {
     }
 
     private fun restoreProgressNotification() {
-        updateProgressNotification(getString(R.string.ai_agent_notification_running))
+        updateProgressNotification(BibleApplication.application.getString(R.string.ai_agent_notification_running))
     }
 
     private fun showCompletionNotification() {
@@ -379,15 +380,15 @@ class AgentForegroundService : Service() {
         val hasError = session?.logEntries?.any { it.type == LogEntryType.ERROR } == true
 
         val title = if (hasError) {
-            getString(R.string.ai_agent_notification_error)
+            BibleApplication.application.getString(R.string.ai_agent_notification_error)
         } else {
-            getString(R.string.ai_agent_notification_completed)
+            BibleApplication.application.getString(R.string.ai_agent_notification_completed)
         }
 
         val notification = NotificationCompat.Builder(this, permissionNotificationChannel())
             .setSmallIcon(notificationIcon())
             .setContentTitle(title)
-            .setContentText(getString(R.string.ai_agent_notification_completed_tap))
+            .setContentText(BibleApplication.application.getString(R.string.ai_agent_notification_completed_tap))
             .setContentIntent(buildMainActivityIntent())
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)

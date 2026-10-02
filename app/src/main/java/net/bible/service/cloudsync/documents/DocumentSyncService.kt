@@ -233,6 +233,7 @@ class DocumentSyncService : Service() {
      * Builds the sync notification. [progressPct] (0-100) drives a determinate progress bar when the
      * download size is known; otherwise an ongoing op with text shows an indeterminate bar, and the
      * initial no-text notification shows no bar at all.
+     * Text from the Application, whose Resources follow `locale_pref` live (F114); the Service's own context does not.
      */
     private fun buildNotification(contentText: String?, progressPct: Int? = null) =
         NotificationCompat.Builder(this, notificationChannel())
@@ -240,7 +241,7 @@ class DocumentSyncService : Service() {
             .setSilent(true)
             .setOngoing(true)
             .setSmallIcon(if (CommonUtils.isDiscrete) R.drawable.ic_calc_24 else R.drawable.ic_syncdb_24dp)
-            .setContentTitle(getString(R.string.document_sync_notification_title))
+            .setContentTitle(BibleApplication.application.getString(R.string.document_sync_notification_title))
             .apply {
                 if (contentText != null) setContentText(contentText)
                 when {
@@ -264,7 +265,7 @@ class DocumentSyncService : Service() {
             // Uninstall removes the local copy after a remote removal — also "removing".
             is DocumentSyncOp.Uninstall -> R.string.document_sync_removing
         }
-        return getString(resId, op.initials, current, total)
+        return BibleApplication.application.getString(resId, op.initials, current, total)
     }
 
     private fun updateNotification(op: DocumentSyncOp, current: Int, total: Int) {

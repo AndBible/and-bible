@@ -69,8 +69,15 @@ class SpeakWidgetManager : KoinComponent {
 
     private val app = BibleApplication.application
     private val resetTitle get() = app.getString(R.string.app_name_medium)
-    private var currentTitle = resetTitle
+    /** null = the reset title, resolved live so a language change shows (F114). */
+    private var currentTitle: String? = null
     private var currentText = ""
+
+    @androidx.annotation.VisibleForTesting
+    internal fun titleForTest() = currentTitle ?: resetTitle
+
+    /** Re-draws the widget texts from the current resources (called when the app language changes). */
+    fun refreshTexts() = updateWidgetTexts()
 
     init {
         if(instance != null) {
@@ -82,8 +89,8 @@ class SpeakWidgetManager : KoinComponent {
                 if (ev.speakCommand is TextCommand) {
                     if (ev.speakCommand.type == TextCommand.TextType.TITLE) {
                         currentTitle = ev.speakCommand.text
-                        if (currentTitle.isEmpty()) {
-                            currentTitle = resetTitle
+                        if (currentTitle.isNullOrEmpty()) {
+                            currentTitle = null
                         }
                     } else {
                         currentText = ev.speakCommand.text
@@ -94,9 +101,9 @@ class SpeakWidgetManager : KoinComponent {
             }
             on<SpeakEvent> { ev ->
                 if (ev.isSpeaking) {
-                    currentTitle = resetTitle
+                    currentTitle = null
                 } else if (!ev.isSpeaking && !ev.isPaused) {
-                    currentTitle = resetTitle
+                    currentTitle = null
                     currentText = ""
                 }
                 updateWidgetTexts()
@@ -131,7 +138,7 @@ class SpeakWidgetManager : KoinComponent {
         Log.i(TAG, "updateWidgetTexts")
         val views = RemoteViews(app.packageName, R.layout.speak_widget)
         Log.i(TAG, "updating status")
-        views.setTextViewText(R.id.titleText, currentTitle)
+        views.setTextViewText(R.id.titleText, currentTitle ?: resetTitle)
 
         val manager = AppWidgetManager.getInstance(app.applicationContext)
         for((cls, wOptions) in widgetOptions) {

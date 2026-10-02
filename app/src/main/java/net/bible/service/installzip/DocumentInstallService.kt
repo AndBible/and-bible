@@ -36,6 +36,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
@@ -296,10 +297,11 @@ class DocumentInstallService : Service() {
         )
     }
 
+    /** Notification builders below: Text from the Application, whose Resources follow `locale_pref` live (F114); the Service's own context does not. */
     private fun progressNotification(contentText: String?): Notification =
         NotificationCompat.Builder(this, notificationChannel())
             .setSmallIcon(notificationIcon())
-            .setContentTitle(getString(notificationTitleRes()))
+            .setContentTitle(BibleApplication.application.getString(notificationTitleRes()))
             .apply { if (contentText != null) setContentText(contentText) }
             .setContentIntent(buildMainActivityIntent())
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -310,7 +312,7 @@ class DocumentInstallService : Service() {
     private fun actionRequiredNotification(request: DecisionRequest): Notification =
         NotificationCompat.Builder(this, actionRequiredChannel())
             .setSmallIcon(notificationIcon())
-            .setContentTitle(getString(notificationTitleRes()))
+            .setContentTitle(BibleApplication.application.getString(notificationTitleRes()))
             .setContentText(decisionText(request))
             .setContentIntent(buildMainActivityIntent())
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -318,8 +320,8 @@ class DocumentInstallService : Service() {
             .build()
 
     private fun decisionText(request: DecisionRequest): String = when (request) {
-        is DecisionRequest.Overwrite -> getString(R.string.overwrite_files_title)
-        is DecisionRequest.EpubUpgrade -> getString(R.string.bookmark_warning)
+        is DecisionRequest.Overwrite -> BibleApplication.application.getString(R.string.overwrite_files_title)
+        is DecisionRequest.EpubUpgrade -> BibleApplication.application.getString(R.string.bookmark_warning)
         is DecisionRequest.StudyPadImport -> request.statsText
     }
 
@@ -360,7 +362,7 @@ class DocumentInstallService : Service() {
             is InstallPhase.Committing -> R.string.extracting_zip_file
             else -> return
         }
-        ABEventBus.post(InstallZipEvent(getString(messageRes)))
+        ABEventBus.post(InstallZipEvent(BibleApplication.application.getString(messageRes)))
     }
 
     private fun stopSelfSafe() {

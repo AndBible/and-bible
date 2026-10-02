@@ -35,6 +35,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import io.requery.android.database.sqlite.SQLiteDatabase
 import net.bible.android.activity.R
+import net.bible.android.activity.SpeakWidgetManager
 
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
@@ -50,6 +51,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
 import net.bible.service.device.ProgressNotificationManager.Companion.PROGRESS_NOTIFICATION_CHANNEL
 import net.bible.service.device.speak.SPEAK_NOTIFICATIONS_CHANNEL
+import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.sword.epub.epubBookType
@@ -292,7 +294,10 @@ open class BibleApplication : Application() {
         }
         if (refresh) {
             createChannels() // re-creating an existing channel id renames it
-            // SpeakWidgets/TTS notification read their strings on demand
+            // The speak widget and the TTS notification resolve their reset title on demand (F114);
+            // re-draw what is showing.
+            SpeakWidgetManager.instance?.refreshTexts()
+            TextToSpeechNotificationManager.refreshInstanceForLocale()
         }
     }
 
