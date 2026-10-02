@@ -156,6 +156,17 @@ class CommonUtilsDialogsTest {
     private fun activity() =
         Robolectric.buildActivity(CalculatorComposeActivity::class.java).also { controllers += it }.setup().get()
 
+    /**
+     * Establishes the UI locale the way production does: through the `locale_pref` preference, which
+     * `ActivityBase.attachBaseContext` -> `LocaleHelper.localized` turns into `Locale.setDefault`
+     * (fix batch 5 A3). A bare `Locale.setDefault` before building the activity is reset to the system locale.
+     */
+    private fun activityWithUiLocale(tag: String): ActivityBase {
+        androidx.preference.PreferenceManager.getDefaultSharedPreferences(application)
+            .edit().putString("locale_pref", tag).commit()
+        return activity().also { assertEquals(tag, Locale.getDefault().toLanguageTag()) }
+    }
+
     private fun idle() = shadowOf(Looper.getMainLooper()).idle()
 
     /** Lets a suspended `dialogs.await(...)` caller reach its next line on the test dispatcher. */
@@ -313,8 +324,7 @@ class CommonUtilsDialogsTest {
 
     @Test
     fun checkPoorTranslationsProceedAnywayReturnsTrue() = runTest(timeout = 10.seconds) {
-        Locale.setDefault(Locale("xx"))
-        val activity = activity()
+        val activity = activityWithUiLocale("xx")
         val result = async { CommonUtils.checkPoorTranslations(activity) }
         advance()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
@@ -336,8 +346,7 @@ class CommonUtilsDialogsTest {
 
     @Test
     fun checkPoorTranslationsDismissUntilUpdateSetsPrefsAndReturnsTrue() = runTest(timeout = 10.seconds) {
-        Locale.setDefault(Locale("xx"))
-        val activity = activity()
+        val activity = activityWithUiLocale("xx")
         val result = async { CommonUtils.checkPoorTranslations(activity) }
         advance()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
@@ -349,8 +358,7 @@ class CommonUtilsDialogsTest {
 
     @Test
     fun checkPoorTranslationsCloseFinishesActivityAndReturnsFalse() = runTest(timeout = 10.seconds) {
-        Locale.setDefault(Locale("xx"))
-        val activity = activity()
+        val activity = activityWithUiLocale("xx")
         val result = async { CommonUtils.checkPoorTranslations(activity) }
         advance()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options

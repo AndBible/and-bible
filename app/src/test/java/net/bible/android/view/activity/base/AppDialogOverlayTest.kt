@@ -165,9 +165,13 @@ class AppDialogOverlayTest {
     @Test
     fun checkPoorTranslationsRequestIsRenderedOnAnOverlayHost() {
         val originalLocale = Locale.getDefault()
-        Locale.setDefault(Locale("xx"))
         try {
+            // The UI locale comes from the locale_pref preference (ActivityBase.attachBaseContext resets any bare default).
+            androidx.preference.PreferenceManager.getDefaultSharedPreferences(
+                androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+            ).edit().putString("locale_pref", "xx").commit()
             val activity = calculator().get()
+            assertEquals("xx", Locale.getDefault().toLanguageTag())
             GlobalScope.async(Dispatchers.Main, start = CoroutineStart.UNDISPATCHED) {
                 CommonUtils.checkPoorTranslations(activity)
             }
