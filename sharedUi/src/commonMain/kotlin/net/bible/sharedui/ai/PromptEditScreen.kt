@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -529,12 +530,14 @@ private fun LabeledCheckboxRow(
     Column(
         Modifier
             .fillMaxWidth()
+            .heightIn(min = 48.dp)
             .toggleable(value = checked, enabled = enabled, role = Role.Checkbox, onValueChange = onCheckedChange)
             .then(if (enabled) Modifier else Modifier.alpha(0.38f))
             .padding(vertical = 4.dp),
+        verticalArrangement = Arrangement.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
+            Checkbox(checked = checked, onCheckedChange = null, enabled = enabled)
             Spacer(Modifier.width(8.dp))
             Text(label)
         }
@@ -858,11 +861,12 @@ fun MaxIterationsSheetContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(min = 48.dp)
                     .toggleable(value = useGlobal, onValueChange = { useGlobal = it }, role = Role.Switch),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(strings.promptMaxIterationsUseGlobal(globalLabel), modifier = Modifier.weight(1f))
-                Switch(checked = useGlobal, onCheckedChange = { useGlobal = it })
+                Switch(checked = useGlobal, onCheckedChange = null)
             }
             OutlinedTextField(
                 value = text,

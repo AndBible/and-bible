@@ -5323,13 +5323,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Help overflow (parity with classic `ai_connection_options_menu`). */
     @Composable
     private fun RowScope.AiConnectionHelpAction() {
-        var expanded by remember { mutableStateOf(false) }
-        IconButton(onClick = { expanded = true }) {
-            Text("⋮", fontSize = 24.sp) // vertical ellipsis; Material icons aren't on the app-module classpath
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        AbOverflowMenu { close ->
             DropdownMenuItem(text = { Text(getString(R.string.help)) }, onClick = {
-                expanded = false
+                close()
                 CommonUtils.showHelpDialog(
                     activity = this@NavHostComposeActivity,
                     titleResId = R.string.help,

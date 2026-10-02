@@ -235,7 +235,7 @@ private fun InstallAffordance(
                 modifier = Modifier.width(64.dp),
             )
             IconButton(onClick = onCancel) {
-                Icon(Icons.Filled.Close, contentDescription = null)
+                Icon(Icons.Filled.Close, contentDescription = LocalStrings.current.cancel)
             }
         }
         return
@@ -257,7 +257,7 @@ private fun InstallAffordance(
                     IconButton(onClick = onDownload) {
                         Icon(
                             Icons.Filled.Download,
-                            contentDescription = null,
+                            contentDescription = LocalStrings.current.cloudActionDownload,
                             tint = downloadTint,
                             modifier = Modifier.size(28.dp),
                         )

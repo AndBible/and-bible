@@ -487,10 +487,11 @@ fun RetentionSheetContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(min = 48.dp)
                     .toggleable(value = disabled, onValueChange = { disabled = it }, role = Role.Checkbox),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Checkbox(checked = disabled, onCheckedChange = { disabled = it })
+                Checkbox(checked = disabled, onCheckedChange = null)
                 Spacer(Modifier.width(8.dp))
                 Text(strings.rawLogRetentionDisabledLabel)
             }

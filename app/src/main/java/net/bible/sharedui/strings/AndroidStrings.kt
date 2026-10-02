@@ -730,4 +730,10 @@ class AndroidStrings(private val context: Context) : Strings {
     override val shareShowSelectionOnly: String get() = context.getString(R.string.show_selection_only)
     override val shareShowEllipsis: String get() = context.getString(R.string.show_ellipsis)
     override val shareAdvertiseApp: String get() = context.getString(R.string.advertise_app)
+    override val promptFavoriteAdd: String get() = context.getString(R.string.prompt_favorite_add)
+    override val promptFavoriteRemove: String get() = context.getString(R.string.prompt_favorite_remove)
+    override val railNewWindow: String get() = context.getString(R.string.new_window)
+    override val railUnmaximise: String get() = context.getString(R.string.window_unmaximise)
+    override val railExpandCollapse: String get() = context.getString(R.string.expand_collapse)
+    override val pasteFromClipboard: String get() = context.getString(R.string.paste_from_clipboard)
 }

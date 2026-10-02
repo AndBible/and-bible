@@ -172,6 +172,7 @@ internal fun BibleResultCard(
     onSelect: (referenceName: String, translationId: String?) -> Unit,
     labelSingleMatchTranslation: Boolean = false,
 ) {
+    val strings = LocalStrings.current
     val multi = row.matches.size > 1
     val cardModifier = Modifier.fillMaxWidth().let {
         if (!multi) it.clickable { onSelect(row.referenceName, row.matches.firstOrNull()?.translationId) } else it
@@ -188,7 +189,7 @@ internal fun BibleResultCard(
                     IconButton(onClick = onToggleExpand) {
                         Icon(
                             imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                            contentDescription = null,
+                            contentDescription = if (expanded) strings.collapseRow else strings.expandRow,
                         )
                     }
                 }

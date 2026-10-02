@@ -20,12 +20,16 @@ package net.bible.sharedui.ai.reading
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -38,6 +42,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.semantics.Role
 import net.bible.sharedui.components.AbModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -251,6 +256,7 @@ private fun PromptRow(
     onClick: () -> Unit,
     onToggleFavorite: () -> Unit,
 ) {
+    val strings = LocalStrings.current
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         TwoLineListItem(
             title = name,
@@ -261,7 +267,7 @@ private fun PromptRow(
         IconButton(onClick = onToggleFavorite) {
             Icon(
                 imageVector = if (isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,
-                contentDescription = null,
+                contentDescription = if (isFavorite) strings.promptFavoriteRemove else strings.promptFavoriteAdd,
                 tint = if (isFavorite) {
                     MaterialTheme.colorScheme.primary
                 } else {
@@ -341,10 +347,15 @@ fun ModelSelectionSheetContent(
         }
         if (allowSetDefault) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .toggleable(value = setDefault, role = Role.Checkbox, onValueChange = { setDefault = it })
+                    .heightIn(min = 48.dp)
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Checkbox(checked = setDefault, onCheckedChange = { setDefault = it })
+                Checkbox(checked = setDefault, onCheckedChange = null)
+                Spacer(Modifier.width(8.dp))
                 Text(strings.setDefaultModelForPrompt)
             }
         }
@@ -371,12 +382,20 @@ private fun RegenerateDialog(
                     label = { Text(strings.aiRegenerateInstructionsHint) },
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = keepPrevious, onCheckedChange = { keepPrevious = it })
+                Row(
+                    modifier = Modifier.heightIn(min = 48.dp).toggleable(value = keepPrevious, role = Role.Checkbox, onValueChange = { keepPrevious = it }),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(checked = keepPrevious, onCheckedChange = null)
+                    Spacer(Modifier.width(8.dp))
                     Text(strings.aiRegenerateKeepPrevious)
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = freshRun, onCheckedChange = { freshRun = it })
+                Row(
+                    modifier = Modifier.heightIn(min = 48.dp).toggleable(value = freshRun, role = Role.Checkbox, onValueChange = { freshRun = it }),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(checked = freshRun, onCheckedChange = null)
+                    Spacer(Modifier.width(8.dp))
                     Text(strings.aiRegenerateFreshRun)
                 }
             }

@@ -17,7 +17,6 @@
 
 package net.bible.sharedui.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
 /** Owns the working checked set; [onCheckedChange] reports it on every toggle (the select-all/none
@@ -83,10 +84,10 @@ fun <T> AbMultiSelectContent(
                 onCheckedChange(checked.toList())
             }
             Row(
-                Modifier.fillMaxWidth().clickable { toggle() }.padding(vertical = 4.dp),
+                Modifier.fillMaxWidth().heightIn(min = 48.dp).toggleable(value = isChecked, role = Role.Checkbox, onValueChange = { toggle() }).padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Checkbox(checked = isChecked, onCheckedChange = { toggle() })
+                Checkbox(checked = isChecked, onCheckedChange = null)
                 Spacer(Modifier.width(8.dp))
                 Text(labelOf(option))
             }

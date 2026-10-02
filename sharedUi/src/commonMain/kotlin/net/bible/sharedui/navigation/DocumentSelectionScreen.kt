@@ -142,19 +142,19 @@ fun DocumentSelectionScreen(
         } else null,
         selectionActions = {
             IconButton(onClick = onSelectionAbout) {
-                Icon(Icons.Filled.Info, contentDescription = null)
+                Icon(Icons.Filled.Info, contentDescription = strings.aboutDoc)
             }
             if (deleteVisible) {
                 IconButton(onClick = onSelectionDelete) {
-                    Icon(Icons.Filled.Delete, contentDescription = null)
+                    Icon(Icons.Filled.Delete, contentDescription = strings.deleteLabel)
                 }
             }
             IconButton(onClick = onSelectionDeleteIndex) {
-                Icon(Icons.Filled.SearchOff, contentDescription = null)
+                Icon(Icons.Filled.SearchOff, contentDescription = strings.deleteIndexLabel)
             }
             if (unlockVisible) {
                 IconButton(onClick = onSelectionUnlock) {
-                    Icon(Icons.Filled.LockOpen, contentDescription = null)
+                    Icon(Icons.Filled.LockOpen, contentDescription = strings.unlockModule)
                 }
             }
         },

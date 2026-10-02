@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.window.RailEntry
 import net.bible.sharedcore.window.RailLeading
 import net.bible.sharedcore.window.WindowPaneMenuItem
+import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowStateValue
 import net.bible.sharedcore.window.WindowTabBarModel
@@ -224,11 +225,13 @@ private fun RailLeadingControl(
     onToggleCollapse: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val strings = LocalStrings.current
     when (leading) {
-        RailLeading.Unmaximise -> RailIconButton(icon = Icons.Filled.CloseFullscreen, onClick = onUnMaximise, modifier = modifier)
-        RailLeading.AddWindow -> RailIconButton(icon = Icons.Filled.Add, onClick = onAddWindow, modifier = modifier)
+        RailLeading.Unmaximise -> RailIconButton(icon = Icons.Filled.CloseFullscreen, description = strings.railUnmaximise, onClick = onUnMaximise, modifier = modifier)
+        RailLeading.AddWindow -> RailIconButton(icon = Icons.Filled.Add, description = strings.railNewWindow, onClick = onAddWindow, modifier = modifier)
         is RailLeading.CollapseToggle -> RailIconButton(
             icon = if (leading.expanded) Icons.AutoMirrored.Filled.KeyboardArrowRight else Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+            description = strings.railExpandCollapse,
             onClick = onToggleCollapse,
             modifier = modifier,
         )
@@ -236,9 +239,9 @@ private fun RailLeadingControl(
 }
 
 @Composable
-private fun RailIconButton(icon: ImageVector, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun RailIconButton(icon: ImageVector, description: String?, onClick: () -> Unit, modifier: Modifier = Modifier) {
     IconButton(onClick = onClick, modifier = modifier.size(LeadingControlSize)) {
-        Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Icon(imageVector = icon, contentDescription = description, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

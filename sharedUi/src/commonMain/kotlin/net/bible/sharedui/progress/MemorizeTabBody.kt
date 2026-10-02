@@ -216,7 +216,7 @@ private fun MemorizeList(
                     )
                 }
                 IconButton(onClick = { onPassageUnmark(row) }) {
-                    Icon(Icons.Filled.Close, contentDescription = null)
+                    Icon(Icons.Filled.Close, contentDescription = strings.deleteLabel)
                 }
             }
         }
@@ -257,7 +257,7 @@ private fun MemorizeList(
                         )
                     }
                     IconButton(onClick = { onTargetRemove(row) }) {
-                        Icon(Icons.Filled.Close, contentDescription = null)
+                        Icon(Icons.Filled.Close, contentDescription = strings.deleteLabel)
                     }
                 }
                 LinearProgressIndicator(

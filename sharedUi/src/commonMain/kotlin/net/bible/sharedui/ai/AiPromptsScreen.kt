@@ -634,7 +634,7 @@ private fun CategoryRowOverflow(
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box {
-        IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
+        IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = strings.menu) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             AbMenuItem(
                 text = if (category.isHidden) strings.showCategoryLabel else strings.hideCategoryLabel,
@@ -709,7 +709,7 @@ private fun PromptRow(
         IconButton(onClick = onToggleFavorite) {
             Icon(
                 if (prompt.isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,
-                contentDescription = null,
+                contentDescription = if (prompt.isFavorite) strings.promptFavoriteRemove else strings.promptFavoriteAdd,
                 tint = if (prompt.isFavorite) {
                     MaterialTheme.colorScheme.primary
                 } else {
@@ -770,7 +770,7 @@ private fun PromptRowOverflow(
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box {
-        IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = null) }
+        IconButton(onClick = { expanded = true }) { Icon(Icons.Filled.MoreVert, contentDescription = strings.menu) }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             if (prompt.isBuiltIn) {
                 AbMenuItem(

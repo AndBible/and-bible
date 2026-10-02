@@ -329,7 +329,15 @@ private fun LabelItemRow(
         // consistent. 4dp, not 12dp: Checkbox carries its own internal padding inside the 40dp
         // slot, so the visual gap already reads wider than the number.
         if (mode.showCheckboxes) {
-            TrailingSlot { Checkbox(checked = row.checked, onCheckedChange = { onToggleChecked(label.id) }) }
+            TrailingSlot {
+                Checkbox(
+                    checked = row.checked,
+                    onCheckedChange = { onToggleChecked(label.id) },
+                    // The row's own tap opens the label, so the checkbox cannot merge into it:
+                    // it keeps its own node and takes the label's name.
+                    modifier = Modifier.semantics { contentDescription = label.name },
+                )
+            }
             Spacer(Modifier.width(4.dp))
         }
 

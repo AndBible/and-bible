@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
@@ -32,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.cloud.CloudDocFilter
@@ -169,11 +171,14 @@ fun CloudDocFilterBar(
             onDismiss = { openSheet = CloudFilterSheet.None },
             extraContent = {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .toggleable(value = showRemoved, role = Role.Switch, onValueChange = onShowRemovedChange)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(strings.cloudDocShowRemoved, modifier = Modifier.weight(1f))
-                    Switch(checked = showRemoved, onCheckedChange = onShowRemovedChange)
+                    Switch(checked = showRemoved, onCheckedChange = null)
                 }
             },
         )

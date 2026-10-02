@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
@@ -205,11 +206,14 @@ fun AbArrangementSheetContent(
         extraContent?.invoke()
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .toggleable(value = rememberSettings, role = Role.Switch, onValueChange = onRememberChange)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(labels.rememberLabel, modifier = Modifier.weight(1f))
-            Switch(checked = rememberSettings, onCheckedChange = onRememberChange)
+            Switch(checked = rememberSettings, onCheckedChange = null)
         }
         TextButton(onClick = onReset, modifier = Modifier.padding(horizontal = 8.dp)) {
             Text(labels.resetLabel)

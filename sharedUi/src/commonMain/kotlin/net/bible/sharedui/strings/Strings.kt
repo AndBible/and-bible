@@ -812,6 +812,12 @@ interface Strings {
     val shareShowSelectionOnly: String           // R.string.show_selection_only
     val shareShowEllipsis: String                // R.string.show_ellipsis
     val shareAdvertiseApp: String                // R.string.advertise_app
+    val promptFavoriteAdd: String                // R.string.prompt_favorite_add (star, not a favourite)
+    val promptFavoriteRemove: String             // R.string.prompt_favorite_remove (star, a favourite)
+    val railNewWindow: String                    // R.string.new_window (tab rail "+" with exactly one window)
+    val railUnmaximise: String                   // R.string.window_unmaximise (tab rail, a window is maximised)
+    val railExpandCollapse: String               // R.string.expand_collapse (tab rail chevron)
+    val pasteFromClipboard: String               // R.string.paste_from_clipboard
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

@@ -126,7 +126,7 @@ fun CustomRepositoryEditorScreen(
                 trailingIcon = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = onPaste) {
-                            Icon(Icons.Filled.ContentPaste, contentDescription = null)
+                            Icon(Icons.Filled.ContentPaste, contentDescription = strings.pasteFromClipboard)
                         }
                         when (state.validation) {
                             Validation.Validating -> CircularProgressIndicator(

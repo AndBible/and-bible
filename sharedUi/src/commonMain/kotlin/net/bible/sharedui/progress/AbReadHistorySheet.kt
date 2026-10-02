@@ -162,9 +162,9 @@ fun AbReadHistorySheetContent(
                                 modifier = Modifier.testTag("ab-read-history-toggle-${row.id}"),
                             ) {
                                 if (isPending) {
-                                    Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = null)
+                                    Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = strings.restoreLabel)
                                 } else {
-                                    Icon(Icons.Filled.Close, contentDescription = null)
+                                    Icon(Icons.Filled.Close, contentDescription = strings.deleteLabel)
                                 }
                             }
                         }

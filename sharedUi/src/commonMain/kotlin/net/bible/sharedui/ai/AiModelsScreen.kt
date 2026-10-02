@@ -203,11 +203,12 @@ private fun ModelRow(
     onClick: () -> Unit,
     onSetDefault: () -> Unit,
 ) {
+    val strings = LocalStrings.current
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         IconButton(onClick = onSetDefault, enabled = !model.isDefault) {
             Icon(
                 Icons.Filled.Star,
-                contentDescription = null,
+                contentDescription = strings.modelSetDefault,
                 tint = if (model.isDefault) {
                     MaterialTheme.colorScheme.primary
                 } else {

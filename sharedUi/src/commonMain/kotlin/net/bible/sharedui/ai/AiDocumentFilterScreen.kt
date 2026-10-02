@@ -17,16 +17,17 @@
 
 package net.bible.sharedui.ai
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Checkbox
@@ -43,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import net.bible.sharedcore.ai.AiDocGroupVd
 import net.bible.sharedcore.ai.AiDocVd
@@ -173,11 +175,12 @@ private fun AiDocRow(doc: AiDocVd, onToggle: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onToggle)
+            .heightIn(min = 48.dp)
+            .toggleable(value = doc.allowed, role = Role.Checkbox, onValueChange = { onToggle() })
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Checkbox(checked = doc.allowed, onCheckedChange = { onToggle() })
+        Checkbox(checked = doc.allowed, onCheckedChange = null)
         Spacer(Modifier.width(8.dp))
         Text("${doc.initials} — ${doc.name}")
     }
