@@ -73,10 +73,11 @@ import org.robolectric.annotation.Config
  * slice 7's chooser/workspace destinations publish into. Before B1 nothing did -- each answer was left
  * in its channel's pending slot and the user's choice vanished.
  *
- * Driven on the REAL host with a composed reading destination. The destination the answer comes FROM
- * is a stand-in (`AI_TOOL_INFO`): what is under test is that the reading destination collects and
- * applies, not what the chooser draws (`ChooserInGraphResultTest` owns the arms). `deliver(...)` needs a
- * parent entry to publish rather than exit, which the stand-in above `reading` provides.
+ * Driven on the REAL host with a composed reading destination. For the STD/`WORKSPACE_CHANGED` tests the
+ * launch itself now puts the chooser on top of `reading` (fix batch 6 F118: a synchronous self-launch
+ * navigates the live graph), so `deliver(...)` has its parent entry. The remaining tests (async codes,
+ * abandonment) push a stand-in (`AI_TOOL_INFO`, [standInAbove]): what is under test is that the reading
+ * destination collects and applies, not what the chooser draws (`ChooserInGraphResultTest` owns the arms).
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -156,7 +157,8 @@ class ReadingChooserInGraphResultTest {
         activity.startActivityForResult(
             NavHostComposeActivity.intentFor(activity, NavRoutes.chooseDocument()), ActivityBase.STD_REQUEST_CODE,
         )
-        val nav = standInAbove(activity)
+        idle(); val nav = nav(activity)
+        assertEquals(NavRoutes.chooseDocument().substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'))
 
         channel<DocumentResult>(activity, "documentResults").deliver(nav, DocumentResult("ESV2011"))
         idle()
@@ -175,7 +177,8 @@ class ReadingChooserInGraphResultTest {
             NavHostComposeActivity.intentFor(activity, NavRoutes.gridChoosePassage(isScripture = true)),
             ActivityBase.STD_REQUEST_CODE,
         )
-        val nav = standInAbove(activity)
+        idle(); val nav = nav(activity)
+        assertEquals(NavRoutes.gridChoosePassage(isScripture = true).substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'))
 
         channel<PassageResult>(activity, "passageResults").deliver(nav, PassageResult("Ps.23.1"))
         idle()
@@ -196,7 +199,8 @@ class ReadingChooserInGraphResultTest {
             NavHostComposeActivity.intentFor(activity, NavRoutes.WORKSPACE_SELECTOR),
             WORKSPACE_CHANGED,
         )
-        val nav = standInAbove(activity)
+        idle(); val nav = nav(activity)
+        assertEquals(NavRoutes.WORKSPACE_SELECTOR, activity.currentRouteForTest())
 
         channel<WorkspaceResult>(activity, "workspaceResults")
             .deliver(nav, WorkspaceResult(workspaceId = target.id.toString(), changed = false))
@@ -370,7 +374,14 @@ class ReadingChooserInGraphResultTest {
         )
         assertTrue("fixture: history must be non-empty for goBack to do anything", historyDepth() > 0)
         requests(activity).record(ReadingResultKind.KeyChooser, ActivityBase.STD_REQUEST_CODE)
-        val nav = standInAbove(activity)
+        // Since fix batch 6 F118 the switch's own STD self-launch navigates to the key chooser (it no longer
+        // reaches the platform), so the chooser is already on top of `reading`; no stand-in is needed.
+        idle()
+        val nav = nav(activity)
+        assertEquals(
+            "fixture: the switch's STD launch must have put the dictionary key chooser on top",
+            NavRoutes.CHOOSE_DICTIONARY_WORD, activity.currentRouteForTest(),
+        )
 
         nav.popBackStack()   // the user backs out without choosing
         idle()

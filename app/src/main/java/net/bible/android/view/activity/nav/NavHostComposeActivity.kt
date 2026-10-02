@@ -2100,7 +2100,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             // A genuine second-instance RESULT_CANCELED for a code that has an outstanding debt is
             // dropped the same way (indistinguishable from the synthetic one); the debt still pays on
             // the next return to reading. Since fix batch 5 F110 the self-launch is normally handled in
-            // the live graph ([routeReturnToReadingSelfLaunch]) and never reaches the platform, so this
+            // the live graph ([handleSyncSelfLaunchInGraph]) and never reaches the platform, so this
             // fires only on the no-graph fallback (a launch before the first composition).
             Log.i(TAG_START_ROUTE, "Dropping the synthetic cancel for self-launch code $requestCode; the debt pays it on return.")
             return
@@ -2184,25 +2184,27 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
         recordReadingResultRequest(intent, requestCode)
         recordReadingReturnDebt(intent, requestCode)
-        if (routeReturnToReadingSelfLaunch(intent, requestCode)) return
+        if (handleSyncSelfLaunchInGraph(intent, requestCode)) return
         if (navigateInsteadOfSelfLaunch(intent, requestCode)) return
         super.startActivityForResult(intent, requestCode, options)
     }
 
     /**
-     * Fix batch 5 F110. A Settings/Download self-launch (a [RETURN_TO_READING_REQUEST_CODES] code) asked
-     * the platform for a result. On API 36 the platform answered with `onNewIntent` plus a synthetic
-     * cancel. On API 28 it opened a SECOND host instance, whose genuine cancel the drop branch in
-     * [onActivityResult] discarded, leaving the debt unpaid until some later in-graph return. Running the
-     * `onNewIntent` handler directly gives every API level today's API 36 path, without the platform.
-     * The debt was recorded just before this, and pays on the graph's return to `reading`.
+     * F118 (fix batch 6), generalising fix batch 5 F110. Any self-launch at a synchronous request code (below
+     * [ActivityBase.ASYNC_REQUEST_CODE_START]) asks the platform for a result. API 31+ answers with
+     * `onNewIntent` plus a synthetic cancel; API 28-30 build a SECOND host instance, because `singleTop` is not
+     * honoured for a launch that expects a result. In that second instance a chooser has no parent entry, so
+     * `NavResultChannel.deliver` reaches `exitWithResult`'s `error(...)` and the app crashes. Running the
+     * `onNewIntent` handler directly gives every API level the API 31+ path, without the platform. The result
+     * request and any return-to-reading debt were recorded just before this, and the STD collectors answer them.
+     * Async codes are [navigateInsteadOfSelfLaunch]'s; with no graph yet this returns false (platform fallback).
      */
-    private fun routeReturnToReadingSelfLaunch(intent: Intent, requestCode: Int): Boolean {
-        if (requestCode !in RETURN_TO_READING_REQUEST_CODES) return false
+    private fun handleSyncSelfLaunchInGraph(intent: Intent, requestCode: Int): Boolean {
+        if (requestCode >= ActivityBase.ASYNC_REQUEST_CODE_START) return false
         val component = intent.component
         if (component == null || component.className != javaClass.name) return false
         if (navController == null) return false
-        Log.i(TAG_START_ROUTE, "Return-to-reading self-launch at code $requestCode: handled in the live graph.")
+        Log.i(TAG_START_ROUTE, "Synchronous self-launch at code $requestCode: handled in the live graph.")
         applyNewIntent(intent)
         return true
     }
@@ -2222,9 +2224,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      *
      *  1. **An async code only.** Below [ActivityBase.ASYNC_REQUEST_CODE_START] there is no parked
      *     deferred to destroy. The `RETURN_TO_READING_REQUEST_CODES` launches
-     *     (`BibleView.kt:1498`, `MenuCommandHandler.kt:280`) are intercepted one step earlier by
-     *     [routeReturnToReadingSelfLaunch] (fix batch 5 F110), which runs the `onNewIntent` handler
-     *     directly; they reach here only through the no-graph fallback, which this returns false for.
+     *     (`BibleView.kt:1498`, `MenuCommandHandler.kt:280`) and every other synchronous code are
+     *     intercepted one step earlier by [handleSyncSelfLaunchInGraph] (fix batch 5 F110, generalised by
+     *     batch 6 F118), which runs the `onNewIntent` handler directly; they reach here only through the
+     *     no-graph fallback, which this returns false for.
      *  2. **A route a collector answers.** [readingResultKindForLaunch] returns non-null only for a
      *     self-launch (it compares `component.className` to `javaClass.name`) whose route is one of
      *     the [ReadingResultKind]s (nine since slice 8 B1). Intercepting a route NO collector
