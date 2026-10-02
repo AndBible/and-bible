@@ -61,6 +61,8 @@ kotlin {
             // PlatformBackHandler's android actual delegates to androidx.activity.compose.BackHandler.
             // This is :sharedUi's first androidMain dependency block.
             implementation(libs.androidx.activity.compose)
+            // HostSystemBars.android.kt: WindowInsetsControllerCompat.
+            implementation(libs.androidx.core.ktx)
         }
         commonTest.dependencies {
             // :sharedUi's first test source set (Task 3 fix round 1); kotlin("test") is enough —

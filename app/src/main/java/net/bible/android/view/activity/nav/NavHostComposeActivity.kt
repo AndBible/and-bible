@@ -58,6 +58,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -385,6 +386,8 @@ import net.bible.sharedcore.settings.TextSettingType
 import net.bible.sharedcore.workspaces.WorkspaceSelectorController
 import net.bible.sharedcore.workspaces.WorkspaceService
 import net.bible.sharedui.AbAppTheme
+import net.bible.sharedui.components.HostSystemBars
+import net.bible.sharedui.components.LocalHostSystemBars
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedui.nav.NavSessionMemo
 import net.bible.sharedui.ai.nav.AiConnectionSettingsDeps
@@ -1812,6 +1815,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     private val systemBarController by lazy { SystemBarController(window) }
 
+    /** Fix batch 5 F106: what the host window's bars are doing, mirrored into each sheet's own dialog window. */
+    private val hostSystemBars = mutableStateOf<HostSystemBars?>(null)
+
     @VisibleForTesting
     internal val lastAppliedSystemBars: SystemBarState? get() = systemBarController.lastApplied
 
@@ -1830,6 +1836,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 pageBackgroundArgb = if (onReading && fullScreen && !forceNotFullScreen) pageBackgroundArgbOrNull() else null,
             )
         )
+        hostSystemBars.value = systemBarController.lastApplied?.let { HostSystemBars(it.statusVisible, it.navVisible) }
         // Fix batch 5 F107: on `reading` the bands beside a side nav bar show the pane colour; the
         // system's translucent contrast scrim on top made them bluish (not even grayscale in mono).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) window.isNavigationBarContrastEnforced = !onReading
@@ -3368,6 +3375,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         savedInstanceState?.getIntArray(STATE_RETURN_DEBTS)?.let { readingReturnDebts += it.toList() }
         setContent {
             AbAppTheme {
+              CompositionLocalProvider(LocalHostSystemBars provides hostSystemBars.value) {
               FailClosedLinkRouting {
                 val navController = rememberNavController()
                 // Publish the controller for onNewIntent (see its kdoc); unbound with the
@@ -4282,6 +4290,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     },
                 )
               }
+              }  // CompositionLocalProvider(LocalHostSystemBars)
             }
         }
     }
