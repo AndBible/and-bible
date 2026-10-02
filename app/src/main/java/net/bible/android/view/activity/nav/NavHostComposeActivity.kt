@@ -2191,7 +2191,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /**
      * F118 (fix batch 6), generalising fix batch 5 F110. Any self-launch at a synchronous request code (below
-     * [ActivityBase.ASYNC_REQUEST_CODE_START]) asks the platform for a result. API 31+ answers with
+     * [ActivityBase.ASYNC_REQUEST_CODE_START]), including `-1` (a plain `startActivity` routes through
+     * `startActivityForResult(intent, -1)`), is handled here instead of by the platform. Plain self-launches
+     * therefore also skip the platform's pause/resume around `onNewIntent` (known, deliberate). A launch that
+     * expects a result (code >= 0) asks the platform for one. API 31+ answers with
      * `onNewIntent` plus a synthetic cancel; API 28-30 build a SECOND host instance, because `singleTop` is not
      * honoured for a launch that expects a result. In that second instance a chooser has no parent entry, so
      * `NavResultChannel.deliver` reaches `exitWithResult`'s `error(...)` and the app crashes. Running the
