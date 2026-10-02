@@ -1,6 +1,9 @@
 package net.bible.android
 
 import android.app.NotificationManager
+import android.content.res.Configuration
+import android.os.LocaleList
+import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.android.activity.R
 import net.bible.service.common.CommonUtils
 import org.junit.After
@@ -51,5 +54,17 @@ class LocaleWithoutRestartTest {
         // Robolectric does not dispatch it; ActivityThread does on a real device.
         app.onConfigurationChanged(app.baseContext.resources.configuration)
         assertEquals("Tapahtui virhe", app.getString(R.string.error_occurred))
+    }
+
+    /** Review fix: "Default" must not narrow an Activity's locale LIST to the first system locale. */
+    @Test fun defaultKeepsTheWholeLocaleListOfTheBaseContext() {
+        setPref(null)
+        val twoLanguages = Configuration(app.baseContext.resources.configuration)
+        twoLanguages.setLocales(LocaleList(Locale.forLanguageTag("gsw"), Locale.GERMAN))
+        val base = app.baseContext.createConfigurationContext(twoLanguages)
+        val localized = LocaleHelper.localized(base)
+        val locales = localized.resources.configuration.locales
+        // Robolectric may reorder the list, so compare as a set: both languages must survive.
+        assertEquals(setOf("gsw", "de"), (0 until locales.size()).map { locales[it].language }.toSet())
     }
 }

@@ -47,8 +47,12 @@ object LocaleHelper {
 
     /** Fix batch 5 §1.2: one path for API 23-36 (`createConfigurationContext` exists since 17). */
     fun localized(base: Context): Context {
-        val locale = uiLocaleFor(getOverrideLanguage(base))
+        val language = getOverrideLanguage(base)
+        val locale = uiLocaleFor(language)
         Locale.setDefault(locale)
+        // Default: leave the context alone so Android can still fall back down the user's whole language list
+        // (setLocale would narrow it to the first system locale, which AndBible may not translate).
+        if (language.isEmpty()) return base
         val configuration = Configuration(base.resources.configuration) // a COPY: never mutate the shared one
         configuration.setLocale(locale)
         return base.createConfigurationContext(configuration)
