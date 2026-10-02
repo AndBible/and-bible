@@ -19,15 +19,18 @@ package net.bible.android.view.util.locale
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.content.res.Resources
+import android.os.Build
 import android.preference.PreferenceManager
 import org.apache.commons.lang3.StringUtils
+import java.util.Locale
 
 /**
  * This class is used to change your application locale.
  * @see [article](http://gunhansancar.com/change-language-programmatically-in-android/)
  */
 object LocaleHelper {
-    private val localeChangerFactory = LocaleChangerFactory()
     private const val SELECTED_LANGUAGE = "locale_pref"
     fun translateTitle(activity: Activity) {
         if (isLocaleOverridden(activity)) {
@@ -42,14 +45,20 @@ object LocaleHelper {
         }
     }
 
-    fun onAttach(context: Context): Context {
-        val overrideLang = getOverrideLanguage(context)
-        return if (StringUtils.isNotEmpty(overrideLang)) {
-            localeChangerFactory.localeChanger.changeLocale(context, overrideLang)
-        } else {
-            context
-        }
+    /** Fix batch 5 §1.2: one path for API 23-36 (`createConfigurationContext` exists since 17). */
+    fun localized(base: Context): Context {
+        val locale = uiLocaleFor(getOverrideLanguage(base))
+        Locale.setDefault(locale)
+        val configuration = Configuration(base.resources.configuration) // a COPY: never mutate the shared one
+        configuration.setLocale(locale)
+        return base.createConfigurationContext(configuration)
     }
+
+    /** The override, or -- for "" (Default) -- the SYSTEM locale, so switching back really switches back. */
+    fun uiLocaleFor(language: String): Locale =
+        if (language.isNotEmpty()) Locale.forLanguageTag(language)
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) Resources.getSystem().configuration.locales[0]
+        else @Suppress("DEPRECATION") Resources.getSystem().configuration.locale
 
     private fun isLocaleOverridden(context: Context): Boolean {
         return StringUtils.isNotEmpty(getOverrideLanguage(context))

@@ -261,18 +261,18 @@ class TextToSpeechNotificationManager : KoinComponent {
         return NotificationCompat.Action.Builder(icon, title, pendingIntent).build()
     }
 
-    private val rewindAction = generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND)
-    private val prevAction = generateAction(android.R.drawable.ic_media_previous, getString(R.string.previous), ACTION_PREVIOUS)
-    private val pauseAction = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_SPEAK_OR_PAUSE)
-    private val playAction = run {
+    private val rewindAction get() = generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND)
+    private val prevAction get() = generateAction(android.R.drawable.ic_media_previous, getString(R.string.previous), ACTION_PREVIOUS)
+    private val pauseAction get() = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_SPEAK_OR_PAUSE)
+    private val playAction get() = run {
         val intent = Intent(app, NotificationReceiver::class.java).apply {
             action = ACTION_SPEAK_OR_PAUSE
         }
         val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         NotificationCompat.Action.Builder(android.R.drawable.ic_media_play, getString(R.string.speak), pendingIntent).build()
     }
-    private val nextAction = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
-    private val forwardAction = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
+    private val nextAction get() = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
+    private val forwardAction get() = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
     private val bibleBitmap = BitmapFactory.decodeResource(app.resources, R.drawable.bible)
 
     private fun buildNotification(isSpeaking: Boolean) {

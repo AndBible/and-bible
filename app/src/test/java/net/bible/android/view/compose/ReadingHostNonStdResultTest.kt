@@ -40,9 +40,7 @@ import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter
-import net.bible.android.BibleApplication
 import net.bible.android.activity.BuildConfig
-import net.bible.service.common.CommonUtils
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -87,25 +85,7 @@ class ReadingHostNonStdResultTest {
     private var synchronizeWindows = 0
 
     /**
-     * Classic's `REFRESH_DISPLAY_ON_FINISH` tail runs `MenuCommandHandler.restartIfRequiredOnReturn`
-     * before the refresh, and that RESTARTS THE APP (`CommonUtils.restartApp` ends in
-     * `exitProcess(2)`) when the UI locale in force differs from the one the process started with.
-     * In the real app the two agree unless the user has just changed the locale; in this fixture
-     * `BibleApplication.localeOverrideAtStartUp` is not the preference's value, so every one of
-     * these tests would take the app down with it. Restoring the invariant is what makes the tests
-     * exercise the refresh rather than the restart -- the restart branch is classic's, unchanged,
-     * and is not what T8d is about.
-     */
-    @Before
-    fun theLocaleInForceIsTheOneThisProcessStartedWith() {
-        BibleApplication::class.java.getDeclaredField("localeOverrideAtStartUp")
-            .apply { isAccessible = true }
-            .also { localeOverrideBefore = it.get(BibleApplication.application) as String? }
-            .set(BibleApplication.application, CommonUtils.localePref ?: "")
-    }
-
-    /**
-     * …and the launcher alias already says what `discrete_mode` says.
+     * The launcher alias already says what `discrete_mode` says.
      *
      * `CommonUtils.changeAppIconAndName()` — the privacy step of `preferenceSettingsChanged`, and
      * the one whose absence on the flipped host is the sharpest half of item 2 — ends in
@@ -132,19 +112,6 @@ class ReadingHostNonStdResultTest {
             PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP,
         )
     }
-
-    @After
-    fun theLocaleFieldIsPutBack() {
-        // Minor 5: the @Before below writes a private production field reflectively. Only
-        // `MenuCommandHandler.restartIfRequiredOnReturn` reads it, so the pollution risk is
-        // negligible -- but a reflective write with no undo is a thing the next reader has to
-        // reason about, and one line removes the need.
-        BibleApplication::class.java.getDeclaredField("localeOverrideAtStartUp")
-            .apply { isAccessible = true }
-            .set(BibleApplication.application, localeOverrideBefore)
-    }
-
-    private var localeOverrideBefore: String? = null
 
     @After
     fun tearDown() {

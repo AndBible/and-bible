@@ -104,9 +104,6 @@ open class BibleApplication : Application() {
         application = this
     }
 
-    var localeOverrideAtStartUp: String? = null
-        private set
-
     open val isRunningTests: Boolean = false
 
     private val appStateSharedPreferences: SharedPreferences
@@ -229,7 +226,7 @@ open class BibleApplication : Application() {
 
         // various initialisations required every time at app startup
 
-        localeOverrideAtStartUp = LocaleHelper.getOverrideLanguage(this)
+        CommonUtils.realSharedPreferences.registerOnSharedPreferenceChangeListener(localeListener)
         createChannels()
     }
 
@@ -250,11 +247,53 @@ open class BibleApplication : Application() {
         Log.i(TAG, "SQLite version: $sqliteVersion")
     }
 
+    /** Fix batch 5 §1.2: the Application's own Resources follow `locale_pref` live -- no process restart. */
+    @Volatile private var uiResources: Resources? = null
+
+    override fun getResources(): Resources = uiResources ?: super.getResources()
+
     /**
      * Override locale.  If user has selected a different ui language to the devices default language
      */
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LocaleHelper.onAttach(newBase))
+        super.attachBaseContext(newBase)
+        // C5: application.applicationContext is not usable yet; read the preference off newBase.
+        applyUiLocale(LocaleHelper.getOverrideLanguage(newBase), refresh = false)
+    }
+
+    /**
+     * The snapshot in [uiResources] carries the configuration (orientation, density, ...) it was built
+     * from, so a system configuration change rebuilds it -- otherwise it would go stale.
+     */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        applyUiLocale(LocaleHelper.getOverrideLanguage(baseContext), refresh = false)
+    }
+
+    /** Held in a field: SharedPreferences keeps listeners weakly. */
+    private val localeListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+        // key == null is what Editor.clear() reports on API 30+
+        if (key == "locale_pref" || key == null) applyUiLocale(prefs.getString("locale_pref", "") ?: "")
+    }
+
+    fun applyUiLocale(language: String, refresh: Boolean = true) {
+        val locale = LocaleHelper.uiLocaleFor(language)
+        Locale.setDefault(locale)
+        uiResources = if (language.isEmpty()) null else {
+            val c = Configuration(baseContext.resources.configuration).apply { setLocale(locale) }
+            val res = baseContext.createConfigurationContext(c).resources
+            // Self-heal: a cached Resources for an equal override can come back with a locale a configuration
+            // update clobbered (Robolectric does this; the platform merges overrides, so it never triggers there).
+            if (res.configuration.locales[0] != locale) {
+                @Suppress("DEPRECATION")
+                res.updateConfiguration(c, res.displayMetrics)
+            }
+            res
+        }
+        if (refresh) {
+            createChannels() // re-creating an existing channel id renames it
+            // SpeakWidgets/TTS notification read their strings on demand
+        }
     }
 
     private fun upgradeSharedPreferences() {

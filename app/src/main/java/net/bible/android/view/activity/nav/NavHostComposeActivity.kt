@@ -2753,11 +2753,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * Classic `MainBibleActivity.onActivityResult`'s last two arms, in classic's own order: the
      * `UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH` refresh (`updateActions()`, which on this host is
      * [onToolbarStateMayHaveChanged]) and the `REFRESH_DISPLAY_ON_FINISH` tail
-     * (`restartIfRequiredOnReturn` then `preferenceSettingsChanged()`).
-     *
-     * The inner `when` is classic's verbatim, `restartIfRequiredOnReturn`'s unconditional `false`
-     * included: it exists for its SIDE EFFECT (restarting the app when the UI locale changed), and
-     * reproducing the call is what keeps a locale change applying on this host too.
+     * (`preferenceSettingsChanged()`; fix batch 5 §1.2 removed the locale process restart that
+     * used to precede it -- the Application now follows `locale_pref` live).
      *
      * **One arm per code, spelled out** (T8d fix round, review finding 1). The
      * `UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH` half used to be an early `if` and the other half the
@@ -2770,16 +2767,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         onReadingReturnWorkForTest?.let { it(requestCode); return }
         when (requestCode) {
             IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH -> onToolbarStateMayHaveChanged()
-            IntentHelper.REFRESH_DISPLAY_ON_FINISH -> {
-                val menu = readingCommands.mainMenuCommandHandler
-                when {
-                    menu.restartIfRequiredOnReturn(requestCode) -> {
-                        // restart done in above
-                    }
-                    menu.isDisplayRefreshRequired(requestCode) ->
-                        readingCommands.preferenceSettingsChanged()
-                }
-            }
+            IntentHelper.REFRESH_DISPLAY_ON_FINISH -> readingCommands.preferenceSettingsChanged()
             else -> Log.w(
                 TAG_START_ROUTE,
                 "Request code $requestCode was owed work on return to the reading view and has no " +

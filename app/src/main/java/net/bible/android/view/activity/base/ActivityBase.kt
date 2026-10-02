@@ -228,7 +228,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
      * Override locale.  If user has selected a different ui language to the devices default language
      */
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LocaleHelper.onAttach(newBase))
+        super.attachBaseContext(LocaleHelper.localized(newBase))
     }
 
     /**	This will be called automatically for you on 2.0 or later

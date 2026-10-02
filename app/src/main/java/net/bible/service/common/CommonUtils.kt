@@ -19,12 +19,10 @@ package net.bible.service.common
 
 import android.Manifest
 import android.app.Activity
-import android.app.AlarmManager
 import android.app.Application
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ComponentName
@@ -841,18 +839,6 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     private val scope = CoroutineScope(Dispatchers.Default)
-
-    fun restartApp(callingActivity: Activity) {
-        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
-        val pendingIntent = PendingIntent.getActivity(callingActivity, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-
-        val mgr = callingActivity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        scope.launch {
-            CloudSync.waitUntilFinished()
-            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)
-            exitProcess(2)
-        }
-    }
 
     private fun forceStopApp() {
         Log.i(TAG, "forceStopApp!")

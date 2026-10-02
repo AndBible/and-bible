@@ -48,9 +48,8 @@ import org.crosswire.jsword.book.Book
  * `OptionsMenuItemInterface.openDialog(activity: ActivityBase, …)`,
  * `exportStudyPads(activity: ActivityBase, …)`,
  * `BookmarkControl.exportBookmarksToCSV(context: ActivityBase, …)`,
- * `BackupControl.backupPopup(activity: ActivityBase)`, `BugReport.reportBug(context_: ActivityBase?, …)`,
- * `CommonUtils.showHelp(callingActivity: ActivityBase, …)` and
- * `CommonUtils.restartApp(callingActivity: Activity)`. Wrapping those in a dozen more lambdas would
+ * `BackupControl.backupPopup(activity: ActivityBase)`, `BugReport.reportBug(context_: ActivityBase?, …)` and
+ * `CommonUtils.showHelp(callingActivity: ActivityBase, …)`. Wrapping those in a dozen more lambdas would
  * decouple nothing — the callee still needs an Activity. R6a's bundle carries the same member for
  * the same reason, and R7 set the precedent when it gave `ReadingAppBootstrap` a
  * `ComponentActivity` rather than the reading-host interface.

@@ -68,7 +68,7 @@ class SpeakWidgetManager : KoinComponent {
     val bookmarkControl: BookmarkControl by inject()
 
     private val app = BibleApplication.application
-    private val resetTitle = app.getString(R.string.app_name_medium)
+    private val resetTitle get() = app.getString(R.string.app_name_medium)
     private var currentTitle = resetTitle
     private var currentText = ""
 
