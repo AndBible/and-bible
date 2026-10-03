@@ -102,9 +102,12 @@ site:
 site-check:
 	cd website && uv run python -m sitegen.check && uv run pytest
 
-# Fetch missing local YouTube thumbnails into website/media/videos/.
+# Fetch missing local YouTube thumbnails into website/media/videos/. Pass options with THUMBS_ARGS:
+#   make site-thumbs THUMBS_ARGS="--refresh <id-or-url> ..."   re-download after changing a thumbnail on YouTube
+#   make site-thumbs THUMBS_ARGS="--all"                       re-download every video
+#   make site-thumbs THUMBS_ARGS="--all --dry-run"             only list what would be fetched
 site-thumbs:
-	cd website && uv run python -m sitegen.thumbnails
+	cd website && uv run python -m sitegen.thumbnails $(THUMBS_ARGS)
 
 # Preview the built site at http://localhost:8000/
 site-serve:

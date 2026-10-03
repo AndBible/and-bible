@@ -44,6 +44,22 @@ Put the video URL alone on its own line. The build turns it into a thumbnail but
 third-party request until the visitor clicks). After adding one, run `make site-thumbs` to fetch the
 thumbnail into the media repo.
 
+Changed a thumbnail on YouTube? Refresh the local copy (ids or URLs; `--all` for every video,
+`--dry-run` to preview):
+
+```
+make site-thumbs THUMBS_ARGS="--refresh <id-or-url> [<id-or-url> ...]"
+```
+
+It prefers `maxresdefault`, falls back to `hqdefault` (black letterbox bars cropped away) and then
+`mqdefault`, and reports each video as changed or unchanged; a failed id keeps its old file and the
+exit code is non-zero. Then commit in the media repo and bump the gitlink here, pushing media first:
+
+```
+git -C website/media add videos && git -C website/media commit -m "thumbnails: refresh <id>"
+git add website/media && git commit -m "website: bump media (thumbnail refresh)"
+```
+
 ## New video -> blog post
 
 ```bash
