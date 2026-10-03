@@ -19,7 +19,7 @@ def _write(tmp_path: Path, body: str) -> Path:
 
 def test_real_catalog_loads():
     reviews = load(paths.DATA / "reviews.yaml")
-    assert len(reviews) == 6
+    assert len(reviews) == 20
     assert all(r.text and isinstance(r.year, int) for r in reviews)
 
 
