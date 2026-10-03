@@ -11,7 +11,8 @@
 #   ~/.android            shared host cache -> the AVDs AND their userdata, i.e. the
 #                         installed app and any pushed Sword modules survive a container
 #                         recreate, as does the debug signing key
-#   <repo>/.local         bind-mounted from the host repo -> testmods.zip is always there
+#   <repo>/.local         gitignored in the repo clone; copy testmods.zip (and the emu-verify
+#                         kit, if used) into it on the host BEFORE creating the container
 # WHAT DOES NOT:
 #   ~/Android/Sdk is mounted READ-ONLY, so a missing system image CANNOT be installed
 #   from in here — sdkmanager will fail. Install it on the HOST, then re-run.

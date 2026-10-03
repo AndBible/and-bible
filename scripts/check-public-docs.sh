@@ -6,7 +6,7 @@ fail() { echo "FAIL: $*"; exit 1; }
 d=$ab/docs/emulator-and-webview-debugging.md
 [ -s "$d" ] || fail "docs/emulator-and-webview-debugging.md missing"
 for f in "$ab/CLAUDE.md" "$d"; do
-  grep -nE 'pebble-timetracking|AndroidMidiRecorder|ai-local|readthedocs|/home/dev/|tairaksinen|Claude-Session|sdk-api28' "$f" \
+  grep -nE 'pebble-timetracking|AndroidMidiRecorder|ai-local|readthedocs|/home/dev/|/home/[a-z]+/|/Users/[A-Za-z]+/|screenshot-avds|make screenshots|Claude-Session|sdk-api28' "$f" \
     && fail "private/superrepo reference in $(basename "$f")"
 done
 grep -q 'Java 17 (OpenJDK' "$ab/CLAUDE.md" && fail "stale Java prerequisite"

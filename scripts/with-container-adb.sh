@@ -35,8 +35,8 @@
 # and refuse to spawn a local daemon ("cannot start server on remote host").
 #
 # Usage:
-#   scripts/with-container-adb.sh make screenshots
-#   scripts/with-container-adb.sh scripts/screenshot-avds/run-screenshots.sh phone
+#   scripts/with-container-adb.sh scripts/andbible-emu.sh boot
+#   scripts/with-container-adb.sh ./gradlew connectedCheck
 #   scripts/with-container-adb.sh adb devices
 set -euo pipefail
 

@@ -9,7 +9,7 @@ s=$t/ab/scripts
 fail() { echo "FAIL: $*"; exit 1; }
 names="webview-cdp.sh cdp.mjs adb-localabstract-proxy.py with-container-adb.sh andbible-emu.sh seed-emulator-webview-debug.sh emulator-avds.sh"
 for n in $names; do [ -f "$s/$n" ] || fail "scripts/$n missing"; done
-grep -nE 'pebble-timetracking|AndroidMidiRecorder|sdk-api28|AndBible/and-bible/|ai-local' $(for n in $names; do echo "$s/$n"; done) \
+grep -nE 'pebble-timetracking|AndroidMidiRecorder|sdk-api28|AndBible/and-bible/|ai-local|screenshot-avds|make screenshots' $(for n in $names; do echo "$s/$n"; done) \
   && fail "superrepo/AMR/side-SDK reference left"
 for n in webview-cdp.sh with-container-adb.sh andbible-emu.sh seed-emulator-webview-debug.sh emulator-avds.sh; do
   bash -n "$s/$n" || fail "syntax: $n"

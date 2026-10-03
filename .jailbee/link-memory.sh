@@ -3,7 +3,7 @@
 # docs/superpowers/memory (private submodule). No-op for anyone without that submodule.
 set -euo pipefail
 REPO=${REPO:-$(cd "$(dirname "$0")/.." && pwd)}
-PROJECT_SLUG=${PROJECT_SLUG:-$(printf '%s' "$REPO" | tr '/' '-')}
+PROJECT_SLUG=${PROJECT_SLUG:-$(printf '%s' "$REPO" | sed 's/[^A-Za-z0-9]/-/g')}
 src=$REPO/docs/superpowers/memory
 dst=$HOME/.claude/projects/$PROJECT_SLUG/memory
 if [ ! -d "$src" ]; then

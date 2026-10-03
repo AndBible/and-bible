@@ -30,7 +30,8 @@ auto-spawns the container-local server and the emulator registers with it:
 
 ```bash
 scripts/with-container-adb.sh adb devices
-scripts/with-container-adb.sh make screenshots
+scripts/with-container-adb.sh scripts/andbible-emu.sh boot
+scripts/with-container-adb.sh ./gradlew connectedCheck
 ```
 
 ## Creating the AVD: `scripts/emulator-avds.sh`
