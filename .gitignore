@@ -6,6 +6,8 @@
 /build
 /captures
 /.idea
+__pycache__/
+*.pyc
 /app/huawei
 /app/samsung
 /app/amazon
