@@ -7,6 +7,6 @@
 	branch = master
 [submodule "docs/superpowers"]
 	path = docs/superpowers
-	url = git@github.com:AndBible/and-bible-superpowers.git
+	url = https://github.com/AndBible/and-bible-superpowers.git
 	update = none
 	branch = master
