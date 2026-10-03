@@ -1,0 +1,62 @@
+name: Website
+
+on:
+  pull_request:
+    paths:
+      - "website/**"
+      - "app/src/main/**"
+      - "sharedUi/src/**"
+      - "sharedCore/src/**"
+      - "Makefile"
+      - ".github/workflows/website.yml"
+  push:
+    branches: [develop, current-stable, "release/*"]
+    paths:
+      - "website/**"
+      - "app/src/main/**"
+      - "sharedUi/src/**"
+      - "sharedCore/src/**"
+      - "Makefile"
+      - ".github/workflows/website.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Only the media submodule: docs/superpowers is private, goldens are not needed.
+      # Task 12 adds website/media; until then the path does not exist, hence `|| true`.
+      - run: git submodule update --init --depth 1 website/media || true
+        if: hashFiles('.gitmodules') != ''
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.22"
+          python-version: "3.13"
+      - run: cd website && uv sync --locked
+      - run: make site
+      - run: make site-check
+      - uses: actions/upload-pages-artifact@v5
+        if: github.event_name == 'push' && github.ref == 'refs/heads/current-stable'
+        with:
+          path: website/_site
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/current-stable'
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

@@ -169,6 +169,22 @@ However, **all user-facing strings must go through the translation system**:
 
 Never hardcode user-visible text directly in code.
 
+## Website and user documentation (`website/`)
+
+andbible.org (landing page, blog, docs at `/docs/`, video catalog) is built from `website/` and
+deployed to GitHub Pages from `current-stable`. Authoring rules: `website/content/README.md`.
+
+- **User documentation lives in `website/content/en/docs/`.** A user-visible change (UI, setting,
+  feature, behavior) updates the matching docs page in the same PR. A new page goes into the
+  `website/zensical.toml` nav.
+- App links into the docs are built with `DocsLinks.page("<page>", "<anchor>")`
+  (`sharedCore`, `net.bible.sharedcore.docs`); `website/tests/test_app_deep_links.py` checks every
+  one against the built docs, so renaming a heading the app links to fails CI.
+- Before writing a blog post, read `website/content/README.md`. Blog media goes to the
+  `website/media` submodule (`AndBible/andbible-website-media`); commit there, then bump the gitlink.
+- Validate any `website/` change with `make site site-check` (needs `uv`).
+- `docs/` at the repo root is developer documentation, not user documentation.
+
 ## Theme and Display Modes
 
 **Always consider all theme/display variants when making UI changes.** AndBible supports multiple visual modes that must all work correctly:
