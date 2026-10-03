@@ -102,6 +102,10 @@ site:
 site-check:
 	cd website && uv run python -m sitegen.check && uv run pytest
 
+# Fetch missing local YouTube thumbnails into website/media/videos/.
+site-thumbs:
+	cd website && uv run python -m sitegen.thumbnails
+
 # Preview the built site at http://localhost:8000/
 site-serve:
 	cd website/_site && python3 -m http.server 8000
@@ -120,4 +124,4 @@ push:
 	echo "push: and-bible ($$branch)"; \
 	git push --recurse-submodules=check -u origin "$$branch"
 
-.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-serve push
+.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-thumbs site-serve push
