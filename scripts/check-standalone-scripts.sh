@@ -17,7 +17,11 @@ done
 python3 -m py_compile "$s/adb-localabstract-proxy.py" || fail "syntax: proxy"
 node --check "$s/cdp.mjs" || fail "syntax: cdp.mjs"
 # usage paths must work without a device and without the superrepo
-(cd /tmp && env -u ANDROID_ADB_SERVER_PORT "$s/andbible-emu.sh" 2>&1 | grep -qi usage) || fail "andbible-emu.sh usage"
-(cd /tmp && "$s/webview-cdp.sh" 2>&1 | grep -qiE 'usage|package') || fail "webview-cdp.sh usage"
-(cd /tmp && "$s/emulator-avds.sh" --help 2>&1 | grep -qi 'screenshot_phone') || fail "emulator-avds.sh --help"
+# (usage exits nonzero, so capture the output first: pipefail would fail a direct pipe into grep)
+out=$(cd /tmp && env -u ANDROID_ADB_SERVER_PORT "$s/andbible-emu.sh" 2>&1 || true)
+grep -qi usage <<<"$out" || fail "andbible-emu.sh usage"
+out=$(cd /tmp && "$s/webview-cdp.sh" 2>&1 || true)
+grep -qiE 'usage|package' <<<"$out" || fail "webview-cdp.sh usage"
+out=$(cd /tmp && "$s/emulator-avds.sh" --help 2>&1 || true)
+grep -qi 'screenshot_phone' <<<"$out" || fail "emulator-avds.sh --help"
 echo "SCRIPTS OK"
