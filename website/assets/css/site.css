@@ -117,18 +117,25 @@ img { max-width: 100%; height: auto; }
 
 /* ---- Get the app card ---- */
 .getapp { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 10px;
-  padding: 20px 20px 0; min-width: 0; background: var(--surface-2); border: 1px solid var(--border);
+  padding: 16px 20px 0; min-width: 0; background: var(--surface-2); border: 1px solid var(--border);
   border-radius: var(--radius); }
-.getapp__bar { display: flex; flex-direction: column; gap: 8px; }
-.getapp h2 { margin: 0 0 4px; font-size: 1.25rem; }
-.store { display: flex; align-items: baseline; gap: 8px; padding: 10px 14px; border: 1px solid var(--border);
+.getapp__bar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 479px) { .getapp__bar { grid-template-columns: minmax(0, 1fr); } }
+.getapp h2 { grid-column: 1 / -1; margin: 0 0 2px; font-size: 1.25rem; }
+.getapp__hint { grid-column: 1 / -1; }
+/* Name over a small note keeps the three stores in one row at card width. */
+.store { display: flex; flex-direction: column; align-items: center; gap: 0; padding: 8px 10px; text-align: center; line-height: 1.25; border: 1px solid var(--border);
   border-radius: 10px; background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 600; }
-.store small { color: var(--muted); font-weight: 400; }
+.store small { color: var(--muted); font-weight: 400; font-size: .78rem; }
 .store:hover { border-color: var(--accent); }
 .getapp__hint { margin: 0; font-size: .85rem; color: var(--faint); }
 .getapp__hint a { color: var(--muted); }
-.getapp__phone { display: block; width: min(240px, 70%); height: auto; margin: 8px auto 0; align-self: center;
+.getapp__phone { display: block; width: min(240px, 70%); aspect-ratio: 540 / 500; height: auto; object-fit: cover; object-position: top;
+  margin: 0 auto; align-self: center;
   border-radius: 22px 22px 0 0; border: 1px solid var(--border); border-bottom: 0; }
+/* Only the top half of the phone shows; the card clips it and a fade to the card surface softens the cut. */
+.getapp::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 64px; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--surface-2)); }
 /* One screenshot per effective theme: mirrors the token blocks above. */
 .getapp__phone--dark { display: none; }
 :root[data-theme="dark"] .getapp__phone--dark { display: block; }
@@ -137,7 +144,7 @@ img { max-width: 100%; height: auto; }
   :root:not([data-theme="light"]) .getapp__phone--dark { display: block; }
   :root:not([data-theme="light"]) .getapp__phone--light { display: none; }
 }
-@media (max-width: 359px) { .getapp__phone { display: none !important; } .getapp { padding-bottom: 20px; } }
+@media (max-width: 359px) { .getapp__phone, .getapp::after { display: none !important; } .getapp { padding-bottom: 20px; } }
 
 /* ---- Sections, features, cards ---- */
 section.block { padding: 48px 0 0; }
