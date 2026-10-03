@@ -30,6 +30,8 @@ shows how to find your way around the app.
 
 ## Browse by topic {#contents}
 
+<div class="ab-docs-landing" markdown>
+
 ### Getting Started
 
 | Doc | What's inside |
@@ -51,7 +53,7 @@ shows how to find your way around the app.
 | Doc | What's inside |
 |---|---|
 | [Workspaces](workspaces.md) | Keeping different window layouts and settings for different kinds of reading |
-| [Windows](windows.md) | Showing several documents at once, and the window buttons and popup menu |
+| [Windows](windows.md) | Opening several windows, pinning and syncing them, and the window buttons and popup menu |
 | [Verse Action Dialog](verse_action_dialog.md) | What the buttons do when you tap a verse |
 | [Look and Feel](look_and_feel.md) | Display settings for the app, workspaces, windows and individual modules |
 | [Bible Links](bible_links.md) | Deep links that open a Bible reference in the app from a web address |
@@ -84,7 +86,7 @@ shows how to find your way around the app.
 
 | Doc | What's inside |
 |---|---|
-| [Customisation](customisation/index.md) | Custom CSS and fonts, and creating your own modules |
+| [Customisation](customisation/index.md) | Custom CSS, and creating your own modules including custom font modules |
 | [Discrete Build](discrete_build.md) | The variant that appears as a calculator app, for places where Bible apps are not tolerated |
 
 ### Help & Reference
@@ -94,3 +96,5 @@ shows how to find your way around the app.
 | [FAQ](faq.md) | Answers to common questions, such as missing modules and older phones |
 | [Support](support.md) | Where to ask questions, report bugs and suggest features |
 | [Releases](releases/index.md) | What changed in releases 5.0, 4.1 and 4.0 |
+
+</div>

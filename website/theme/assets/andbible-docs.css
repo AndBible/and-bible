@@ -49,11 +49,8 @@
 .md-typeset img.align-center { display: block; margin-left: auto; margin-right: auto; }
 .md-typeset img.align-left { display: block; margin-right: auto; }
 
-/* ---- Docs landing (index.md, the page with #contents): section tables share one full width and
-   one first-column width so the sections line up; the page's own cards need no extra rules. ---- */
-.md-content__inner:has(#contents) .md-typeset__table, .md-content__inner:has(#contents) table { display: block; width: 100%; }
-.md-content__inner:has(#contents) table { display: table; table-layout: fixed; }
-.md-content__inner:has(#contents) th:first-child, .md-content__inner:has(#contents) td:first-child { width: 38%; }
-@media (min-width: 720px) {
-  .md-content__inner:has(#contents) th:first-child, .md-content__inner:has(#contents) td:first-child { width: 14rem; }
-}
+/* ---- Docs landing (index.md): the section tables sit in .ab-docs-landing and share one full width
+   and one first-column width so the sections line up. ---- */
+.ab-docs-landing table { display: table; table-layout: fixed; width: 100%; }
+.ab-docs-landing th:first-child, .ab-docs-landing td:first-child { width: 38%; }
+@media (min-width: 720px) { .ab-docs-landing th:first-child, .ab-docs-landing td:first-child { width: 14rem; } }
