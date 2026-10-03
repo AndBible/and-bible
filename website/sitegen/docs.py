@@ -16,6 +16,8 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
+import zensical
+
 from sitegen import paths
 from sitegen.i18n import languages, prefix, resolve
 from sitegen.youtube import embed_html, expand_lines
@@ -60,6 +62,17 @@ def stage(content: Path, lang: str, stage_dir: Path, pages: list[str],
             shutil.copytree(images, stage_dir / "images", dirs_exist_ok=True)
 
 
+def theme_language(lang: str) -> str:
+    """The language Zensical's theme should use: `lang` if the theme ships its UI strings, else English.
+
+    The theme includes `partials/languages/<lang>.html` and fails on a language it lacks, while the
+    site accepts any content/<lang>/ directory, so an untranslated theme language falls back to English.
+    """
+    shipped = Path(zensical.__file__).parent / "templates" / "partials" / "languages" / f"{lang}.html"
+    return lang if shipped.is_file() or (paths.THEME / "partials" / "languages" / f"{lang}.html").is_file() \
+        else paths.DEFAULT_LANG
+
+
 def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path) -> str:
     # Zensical 0.0.67 panics on absolute docs_dir/site_dir and rejects a site_dir outside
     # the config's directory, so both are written relative to <config dir>.
@@ -78,7 +91,7 @@ def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path) -> s
             line = f"custom_dir = {json.dumps(str(paths.THEME))}"
         lines.append(line)
         if line.strip() == "[project.theme]":
-            lines.append(f"language = {json.dumps(lang)}")
+            lines.append(f"language = {json.dumps(theme_language(lang))}")
     return "\n".join(lines) + "\n"
 
 

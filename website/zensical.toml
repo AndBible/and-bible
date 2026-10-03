@@ -7,6 +7,9 @@ site_description = "User documentation for AndBible: Bible Study."
 site_url = "https://andbible.org/docs/"
 docs_dir = "_build/en/docs"
 site_dir = "_site/docs"
+# repo_url feeds the header link and the edit-page link. The stock header partial would add the
+# data-md-component="source" widget (GitHub API calls from every page), so theme/partials/source.html
+# renders a plain link instead; sitegen.check fails the build if the widget ever comes back.
 repo_url = "https://github.com/AndBible/and-bible"
 repo_name = "AndBible/and-bible"
 edit_uri = "blob/current-stable/website/content/en/docs/"
