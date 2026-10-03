@@ -21,6 +21,7 @@
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius: 12px;
   --video-bg: #000;
+  --video-fg: #fff;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -177,9 +178,10 @@ section.block { padding: 48px 0 0; }
 .post__head h1 { margin: 0 0 .25rem; font-size: clamp(1.75rem, 4.5vw, 2.75rem); }
 .post__head time { color: var(--faint); font-size: .9rem; }
 .post__image { display: block; width: 100%; margin: 1.25rem 0; border-radius: var(--radius); }
-.post__body { font-family: var(--serif); font-size: 1.1rem; }
+/* Prose in Inter: only the 600 weight of the serif is bundled, so serif prose would render bold. */
+.post__body { font-family: var(--sans); font-size: 1.05rem; }
 .post__body pre { overflow-x: auto; padding: 12px; background: var(--surface-2); border-radius: 8px; }
 .post__body blockquote { margin: 1rem 0; padding-left: 1rem; border-left: 3px solid var(--accent); color: var(--muted); }
-.post__body table { border-collapse: collapse; }
+.post__body table { border-collapse: collapse; overflow-wrap: normal; }
 .post__body th, .post__body td { padding: 6px 10px; border: 1px solid var(--border); }
 .post__foot { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .95rem; }

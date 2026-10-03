@@ -109,3 +109,9 @@ def test_run_rejects_an_unknown_page(tmp_path):
     with pytest.raises(ValueError, match="neither imported nor explicitly skipped"):
         run(wxr, tar, tmp_path / "c", tmp_path / "m", tmp_path / "u.txt", tmp_path / "r.md",
             fetch_thumbnails=False, data=tmp_path / "data")
+
+
+def test_overlong_excerpt_is_cut_like_a_generated_summary():
+    excerpt = "<p>" + " ".join(f"w{i}" for i in range(200)) + "</p>"
+    got = summary_of("<p>x</p>", excerpt)
+    assert got.endswith("w59…") and len(got.split()) == 60

@@ -40,6 +40,7 @@ PAGES = {"privacy": "privacy", "terms": "terms", "gpl": "gpl", "tracking": "trac
 UPLOAD_REDIRECTS = "wp-uploads-redirects.yaml"
 SKIPPED_PAGES = {"about", "blog", "tutorial-videos", "sponsor-andbible-financially", "failed-orders"}
 SUMMARY_WORDS = 30
+EXCERPT_WORDS = 60  # some WordPress excerpts are the whole opening section
 _UPLOAD = re.compile(r"/wp-content/uploads/(\d{4}/\d{2}/[^/?#]+)")
 _SIZE_SUFFIX = re.compile(r"-\d+x\d+(?=\.[A-Za-z0-9]+$)")
 _EMBED_BLOCK = re.compile(r"<!-- wp:embed (\{.*?\}) -->.*?<!-- /wp:embed -->", re.S)
@@ -81,9 +82,10 @@ def prepare_html(raw: str) -> tuple[str, int, list[str]]:
 
 
 def summary_of(html_text: str, excerpt: str) -> str:
-    """The excerpt, else the first 30 words of the paragraph text, cut at a word boundary."""
+    """The excerpt (cut at 60 words), else the first 30 words of the paragraph text, cut at a word boundary."""
     if excerpt.strip():
-        return " ".join(BeautifulSoup(html.unescape(excerpt), "html.parser").get_text().split())
+        words = BeautifulSoup(html.unescape(excerpt), "html.parser").get_text().split()
+        return " ".join(words[:EXCERPT_WORDS]) + ("…" if len(words) > EXCERPT_WORDS else "")
     soup = BeautifulSoup(html_text, "html.parser")
     for junk in soup.find_all(["table", "figure", "iframe", "ol", "sup"]):
         junk.decompose()
