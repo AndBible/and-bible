@@ -173,3 +173,31 @@ def test_font_licence_names_the_real_copyright_holders():
     serif = notice.split("== Inter ==")[0]
     assert "Adobe" in serif and "Reserved Font Name" in serif and "Google Inc." not in serif
     assert "The Inter Project Authors" in notice.split("== Inter ==")[1]
+
+
+def _catalog(data, rows):
+    data.mkdir(exist_ok=True)
+    (data / "videos.yaml").write_text("".join(
+        f'- {{id: "{vid}", title: "Title {vid}", topic: "Getting started", published: "{day}"{", short: true" if short else ""}}}\n'
+        for vid, day, short in rows))
+
+
+def test_home_teases_the_three_newest_videos_newest_first(content, tmp_path):
+    _catalog(tmp_path / "data", [("oldest00001", "2024-01-01", False), ("third000003", "2025-03-01", False),
+                                 ("newest00005", "2026-09-01", True), ("second00002", "2026-02-01", False),
+                                 ("fourth00004", "2025-01-01", False)])
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    html = (out / "index.html").read_text()
+    teaser = html.split('<div class="video-grid">')[1].split("</section>")[0]
+    assert re.findall(r'data-yt-id="([^"]+)"', teaser) == ["newest00005", "second00002", "third000003"]
+    assert 'class="yt yt--short yt--card"' in teaser and teaser.count("yt--card") == 3
+    assert 'href="/videos/"' in teaser  # the catalog link stays below the cards
+    assert "youtube-nocookie" not in html and "i.ytimg.com" not in html  # first-party until the click
+
+
+def test_home_without_videos_has_no_empty_grid(content, tmp_path):
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    html = (out / "index.html").read_text()
+    assert "video-grid" not in html and 'href="/videos/"' in html

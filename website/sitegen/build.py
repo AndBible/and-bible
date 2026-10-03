@@ -34,10 +34,10 @@ def build(content: Path, out: Path, data: Path = paths.DATA, docs: bool = True) 
     env = home.environment()
     posts = load_posts(content / DEFAULT_LANG / "blog", paths.MEDIA)
     reviews = load_reviews(data / "reviews.yaml")
-    for lang in languages(content):
-        render_home(env, strings(content, lang), lang, posts, out, reviews)
     docs_pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
     videos = load_videos(data / "videos.yaml", docs_pages)
+    for lang in languages(content):
+        render_home(env, strings(content, lang), lang, posts, out, reviews, videos)
     sitemap = ["/"]
     sitemap += render_blog(env, strings(content, DEFAULT_LANG), posts, out, paths.MEDIA)
     sitemap += render_pages(env, strings(content, DEFAULT_LANG),

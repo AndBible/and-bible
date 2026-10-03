@@ -61,6 +61,11 @@
 <section class="block">
   <div class="teaser">
     <h2>{{ strings.sections.videos }}</h2>
+    {% if video_cards %}
+    <div class="video-grid">
+      {% for card in video_cards %}<div>{{ card }}</div>{% endfor %}
+    </div>
+    {% endif %}
     <p><a href="/videos/">{{ strings.sections.videos_link }}</a></p>
   </div>
 </section>
