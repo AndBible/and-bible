@@ -54,7 +54,7 @@ sections:
   support_title: Support AndBible
   support_text: >-
     AndBible is free and has no ads. Sponsored development time keeps it moving.
-  support_button: Help keep it free
+  support_button: Help keep it going
   support_url: "https://shop.andbible.org/page/info"
 footer:
   source: Source code
