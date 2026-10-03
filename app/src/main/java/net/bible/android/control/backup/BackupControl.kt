@@ -327,9 +327,7 @@ object BackupControl {
                         out.write(dbHeader)
                         inputStream.copyTo(out)
                     }
-                    val version = SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READWRITE).use {
-                        it.version
-                    }
+                    val version = readDatabaseVersion(tmpFile)
                     if(version <= OLD_DATABASE_VERSION) {
                         Log.i(TAG, "Loading from backup database with version $version")
                         reloadingAfterReplace {
@@ -354,6 +352,15 @@ object BackupControl {
         tmpFile.delete()
 
         return@withContext ok
+    }
+
+    /**
+     * Test seam (F120): the `user_version` of a SQLite file. The default goes through requery's SQLite,
+     * which unit tests exclude from the classpath (`app/build.gradle.kts`), so tests swap in the framework one.
+     */
+    @VisibleForTesting
+    internal var readDatabaseVersion: (File) -> Int = { file ->
+        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
     }
 
     /** Test seam (F120): the copy of the validated file into the database directory. */
