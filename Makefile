@@ -88,4 +88,21 @@ accrescent-debug:
 	@cp app/build/outputs/apkset/standardAccrescentDebug/app-standardAccrescentDebug.apks app/standardAccrescent/debug/
 	@echo "✓ APK set: app/standardAccrescent/debug/app-standardAccrescentDebug.apks"
 
-.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug
+# Push the current branch, pushing our own submodules (goldens, superpowers) first so the
+# gitlinks never point at unpublished commits. jsword is an upstream fork, pushed by hand;
+# --recurse-submodules=check refuses the final push if any gitlink (jsword included) is unpushed.
+PUSH_SUBMODULES := app/src/test/roborazzi docs/superpowers
+
+push:
+	@set -e; \
+	branch=$$(git symbolic-ref --short HEAD) || { echo "push: detached HEAD" >&2; exit 1; }; \
+	for sm in $(PUSH_SUBMODULES); do \
+		if [ ! -e "$$sm/.git" ]; then echo "push: $$sm not checked out, skipping"; continue; fi; \
+		smb=$$(git -C "$$sm" symbolic-ref -q --short HEAD) || { echo "push: $$sm is on a detached HEAD" >&2; exit 1; }; \
+		echo "push: $$sm ($$smb)"; \
+		git -C "$$sm" push -u origin "$$smb"; \
+	done; \
+	echo "push: and-bible ($$branch)"; \
+	git push --recurse-submodules=check -u origin "$$branch"
+
+.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug push
