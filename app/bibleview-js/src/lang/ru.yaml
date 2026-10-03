@@ -75,7 +75,11 @@ markedAsMemorized: Выучено
 removeFromTargets: Цель -
 viewReadingProgress: Прогресс чтения/заучивания
 viewReadingProgressSettings: Настройки чтения/заучивания
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · гл %s/%s"
 listenInLoop: Слушать по кругу
+viewHelp: Просмотр справки
 verseNoteLong: Написать заметку
 verseParagraphBreakLong: Разрыв абзаца
 addBookmark: Закладка

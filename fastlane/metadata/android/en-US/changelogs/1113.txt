@@ -1,0 +1,16 @@
+- Updated target API level to 36 (Android 16) (3966b9ee9)
+- Improved error handling for NextCloud operations (ab4a5cc60)
+
+AndBible 5.1 stable release!
+
+Quick tour to what's new: https://youtu.be/EKnyBIti9Fk
+
+Highlights since 5.0:
+- Optional AI assistant (Gemini, Claude, OpenRouter, ...)
+- Reading & memorization progress tracking
+- My Documents: editable, syncable pages
+- 3-level text display settings inheritance
+- Many other small features and bug fixes
+
+See https://andbible.org
+Support: https://shop.andbible.org/

@@ -23,11 +23,10 @@ feature_04: >
   انقر على أي رابط لمتابعة المراجع المتقاطعة والحواشي والتفاسير ({{commentary_examples}}) أو مجموعات المراجع المتقاطعة ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry etc.
+commentary_examples: "Gill, Matthew Henry etc."
 # Examples of cross-reference collections.
 cross_reference_examples: كنز المعرفة الكتابية، TSKe
-feature_05: >
-  تحويل النص إلى كلام متقدم مع نطق الإشارات المرجعية، مما يتيح تجربة استماع سلسة للكتاب المقدس
+feature_05: "تحويل النص إلى كلام متقدم مع نطق الإشارات المرجعية، مما يتيح تجربة استماع سلسة للكتاب المقدس\n"
 feature_06: بحث مرن في النص الكامل عبر ترجمة واحدة أو عدة ترجمات للكتاب المقدس في الوقت نفسه
 feature_07: ميزات متقدمة لوضع إشارة مرجعية وإبراز مع ملاحظات الدراسة الشخصية
 feature_08: >
@@ -37,7 +36,8 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   مكتبة كبيرة من الوثائق: ترجمات الكتاب المقدس، والتعليقات اللاهوتية، والقواميس، والخرائط، والكتب المسيحية، بإجمالي أكثر من {{total_documents}} من الوثائق بأكثر من {{total_languages}} لغة، موزعة بشكل قانوني بواسطة Crosswire ومستودعات SWORD الأخرى.
-feature_10_1: دعم مضمن لملفات MyBible، MySword، EPUB مما يمكنك من توسيع مكتبتك أكثر حتى.
+feature_10_1: >-
+  دعم مضمن لملفات MyBible، MySword، EPUB مما يمكنك من توسيع مكتبتك أكثر حتى.
 feature_11: >
   وكيل دراسة بالذكاء الاصطناعي اختياري (تفعيل اختياري فقط — يتطلب مفتاح API خاصًا بك لخدمة خارجية): استكشف التفاسير والقواميس المثبَّتة لديك بمساعدة الذكاء الاصطناعي باللغة التي تختارها، إلى جانب أساليب دراسة إبداعية أخرى. نظام أذونات مدمج يبقيك متحكمًا بالكامل في ما يستطيع الوكيل فعله.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
@@ -46,26 +46,32 @@ unavailable_documents: ESV و NIV و NKJV
 feature_12: >
   غير متصل بالإنترنت: المرة الوحيدة التي تحتاج فيها إلى الإنترنت هي لتنزيل المستندات.
 # UNUSED
-feature_13: وسادات دراسية لإضافة الملاحظات ومراجع الكتاب المقدس أثناء الاستماع إلى الخطب.
+feature_13: >-
+  وسادات دراسية لإضافة الملاحظات ومراجع الكتاب المقدس أثناء الاستماع إلى الخطب.
 subtitle_3: فلنصنع معًا أفضل تطبيق للكتاب المقدس!
 paragraph_3_1: >
   AndBible هو مشروع مجتمعي مفتوح المصدر. عملياً، هذا يعني أن أي شخص لديه المهارات المناسبة يمكنه المساهمة في المشروع، ويتم تشجيعه على ذلك، من خلال:
 contr_1: تطوير ميزات جديدة،
 contr_2: اختبار ميزات لم يتم إصدارها بعد،
 contr_3: المحافظة على تحديث ترجمات واجهة المستخدم، و
-contr_4: >
-  المساعدة في توسيع مكتبة الوحدة النمطية عن طريق الحصول على أذونات من أصحاب حقوق النشر، أو عن طريق تحويل المستندات إلى تنسيق SWORD.
+contr_4: "المساعدة في توسيع مكتبة الوحدة النمطية عن طريق الحصول على أذونات من أصحاب حقوق النشر، أو عن طريق تحويل المستندات إلى تنسيق SWORD.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  إذا كنت مهندس برامج محترف أو مختبِراً، فيرجى التفكير في المساهمة في المشروع. لمزيد من المعلومات حول كيفية المساهمة، يرجى الاطلاع على {{how_to_contribute_url}}.
+paragraph_4_1: "إذا كنت مهندس برامج محترف أو مختبِراً، فيرجى التفكير في المساهمة في المشروع. لمزيد من المعلومات حول كيفية المساهمة، يرجى الاطلاع على {{how_to_contribute_url}}.\n"
 subtitle_4: الروابط
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "الصفحة الرئيسية: {{homepage_url}}"
-link_2: "سجل اعجابك بـ AndBible على فيسبوك: {{facebook_url}}"
-link_3: "قناة يوتيوب الخاصة بنا: {{youtube_url}}"
-link_4: "الأسئلة الشائعة: {{faq_url}}"
-link_5: "صفحة المشروع على Github: {{github_url}}"
-buy_title: دعم عن طريق شراء وقت التطوير!
+link_1: >-
+  الصفحة الرئيسية: {{homepage_url}}
+link_2: >-
+  سجل اعجابك بـ AndBible على فيسبوك: {{facebook_url}}
+link_3: >-
+  قناة يوتيوب الخاصة بنا: {{youtube_url}}
+link_4: >-
+  الأسئلة الشائعة: {{faq_url}}
+link_5: >-
+  صفحة المشروع على Github: {{github_url}}
+buy_title: >-
+  دعم عن طريق شراء وقت التطوير!
 buy_1: >
   اذا لم تملك الوقت أو المهارات من أجل مساهمات المشروع، يمكنك أن تدعم المشروع أيضاً عن طريق شراء وقت عمل مطور محترف.
-buy_2: انظر إلى الخيارات
+buy_2: >-
+  انظر إلى الخيارات

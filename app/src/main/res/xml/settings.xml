@@ -151,6 +151,12 @@
             android:max="500"
             android:icon="@drawable/ic_font_size_grey_24dp"
             />
+        <SwitchPreferenceCompat android:key="hide_status_bar"
+            android:title="@string/prefs_hide_status_bar_title"
+            android:summary="@string/prefs_hide_status_bar_summary"
+            android:icon="@drawable/ic_full_screen_24"
+            android:defaultValue="false"
+            />
 		<SwitchPreferenceCompat android:key="full_screen_hide_buttons_pref"
 			android:title="@string/full_screen_hide_buttons_pref_title"
 			android:summary="@string/full_screen_hide_buttons_pref_summary"
@@ -192,10 +198,12 @@
 	</PreferenceCategory>
 
 	<PreferenceCategory android:title="@string/prefs_eink_settings_cat">
-		<SwitchPreferenceCompat android:key="monochrome_mode"
-			android:title="@string/prefs_e_ink_mode_title"
-			android:summary="@string/prefs_eink_mode_summary"
-			android:defaultValue="false"
+		<ListPreference android:key="display_color_mode"
+			android:title="@string/prefs_display_color_mode_title"
+			android:summary="@string/prefs_display_color_mode_summary"
+			android:entries="@array/prefs_display_color_mode_names"
+			android:entryValues="@array/prefs_display_color_mode_values"
+			android:defaultValue="normal"
 			android:icon="@drawable/ic_eink_24dp"
 			/>
 		<SwitchPreferenceCompat android:key="eink_mode"

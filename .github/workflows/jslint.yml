@@ -31,11 +31,16 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 10 # so that recent tags can be found
+          submodules: recursive
+
+      - name: Initialize jsword submodule with shallow clone (if needed for build)
+        run: |
+          git submodule update --init --depth=1
 
       - name: Set up Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Upgrade npm
         working-directory: app/bibleview-js
@@ -55,11 +60,16 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 10 # so that recent tags can be found
+          submodules: recursive
+
+      - name: Initialize jsword submodule with shallow clone (if needed for build)
+        run: |
+          git submodule update --init --depth=1
 
       - name: Set up Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Upgrade npm
         working-directory: app/bibleview-js
@@ -87,11 +97,16 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 10 # so that recent tags can be found
+          submodules: recursive
+
+      - name: Initialize jsword submodule with shallow clone (if needed for build)
+        run: |
+          git submodule update --init --depth=1
 
       - name: Set up Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Upgrade npm
         working-directory: app/bibleview-js

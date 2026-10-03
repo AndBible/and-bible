@@ -22,7 +22,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.GsonBuilder
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.RawLlmLogItemBinding
 import net.bible.service.llm.LlmCostTracker
@@ -126,11 +127,10 @@ class RawLlmLogAdapter(
         is RawLogEntry.ToolCallEntry -> prettyFormatJson(entry.arguments)
         is RawLogEntry.ToolResultEntry -> prettyFormatJson(entry.result)
         is RawLogEntry.ToolDefinitionsEntry -> buildString {
-            val gson = GsonBuilder().setPrettyPrinting().create()
             for (def in entry.toolDefs) {
                 appendLine("--- ${def.name} ---")
                 appendLine(context.getString(R.string.raw_llm_log_entry_tool_desc, def.description))
-                appendLine(context.getString(R.string.raw_llm_log_entry_tool_params, gson.toJson(def.parametersSchema)))
+                appendLine(context.getString(R.string.raw_llm_log_entry_tool_params, prettyJson.encodeToString(def.parametersSchema)))
                 appendLine()
             }
         }
@@ -138,6 +138,8 @@ class RawLlmLogAdapter(
     }
 
     companion object {
+        private val prettyJson = Json { prettyPrint = true }
+
         fun formatTokenCount(count: Long): String = LlmCostTracker.formatTokenCount(count)
 
         private val longStringValueRegex = Regex(""""((?:[^"\\]|\\.){80,})"""")

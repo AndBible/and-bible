@@ -106,6 +106,7 @@ export type BibleJavascriptInterface = {
     helpDialog: (content: string, title: Nullable<string>) => void,
     shareHtml: (html: string) => void,
     helpBookmarks: () => void,
+    showHelpDialog: (scopeKey: string) => void,
     onKeyDown: (key: string) => void,
     saveState: (newState: string) => void,
     setReadingProgressSettings: (json: string) => void,
@@ -593,6 +594,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.helpBookmarks();
     }
 
+    function showHelpDialog(scopeKey: string) {
+        window.android.showHelpDialog(scopeKey);
+    }
+
     function setLimitAmbiguousModalSize(value: boolean) {
         window.android.setLimitAmbiguousModalSize(value);
     }
@@ -722,6 +727,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         speakGeneric,
         speakMemorizationLoop,
         helpDialog,
+        showHelpDialog,
         onKeyDown,
         parseRef,
         saveState,

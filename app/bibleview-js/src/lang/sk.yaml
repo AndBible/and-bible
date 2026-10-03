@@ -75,7 +75,11 @@ markedAsMemorized: Naučené
 removeFromTargets: Cieľ -
 viewReadingProgress: Pokrok čítania/memorovania
 viewReadingProgressSettings: Nastavenia čítania/memorovania
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · kap %s/%s"
 listenInLoop: Počúvať v slučke
+viewHelp: Zobraziť pomoc
 verseNoteLong: Napísať poznámku
 verseParagraphBreakLong: Zalomenie odseku
 addBookmark: Záložka

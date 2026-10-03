@@ -208,12 +208,10 @@ function onCheckClick(event: Event) {
 
     .monochrome & {
         color: black;
-        border: 2px solid black;
     }
 
     .monochrome.night & {
         color: white;
-        border: 2px solid white;
     }
 }
 </style>

@@ -147,6 +147,10 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var nightTextColor: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightBackground: Int?,
         @ColumnInfo(defaultValue = "NULL") var nightNoise: Int?,
+        @ColumnInfo(defaultValue = "NULL") var dayBackgroundImage: String?,
+        @ColumnInfo(defaultValue = "NULL") var nightBackgroundImage: String?,
+        @ColumnInfo(defaultValue = "NULL") var dayBackgroundImageOpacity: Int?,
+        @ColumnInfo(defaultValue = "NULL") var nightBackgroundImageOpacity: Int?,
     ) {
         // This is saved to database in WorkspaceSettings. Here just to get it through to activities in SettingsBundle
         @Ignore var workspaceColor: Int? = null
@@ -172,6 +176,10 @@ class WorkspaceEntities {
                 nightTextColor = override.nightTextColor ?: nightTextColor,
                 nightBackground = override.nightBackground ?: nightBackground,
                 nightNoise = override.nightNoise ?: nightNoise,
+                dayBackgroundImage = override.dayBackgroundImage ?: dayBackgroundImage,
+                nightBackgroundImage = override.nightBackgroundImage ?: nightBackgroundImage,
+                dayBackgroundImageOpacity = override.dayBackgroundImageOpacity ?: dayBackgroundImageOpacity,
+                nightBackgroundImageOpacity = override.nightBackgroundImageOpacity ?: nightBackgroundImageOpacity,
             )
         }
 
@@ -218,6 +226,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var scrollHelperLineStyle: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var showPageButtons: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showOrdinals: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showReadingProgress: Boolean? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -254,6 +263,7 @@ class WorkspaceEntities {
             SCROLL_HELPER_LINE_STYLE,
             PAGE_BUTTONS,
             ORDINALS,
+            SHOW_READING_PROGRESS,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -291,6 +301,7 @@ class WorkspaceEntities {
             Types.SCROLL_HELPER_LINE_STYLE -> scrollHelperLineStyle
             Types.PAGE_BUTTONS -> showPageButtons
             Types.ORDINALS -> showOrdinals
+            Types.SHOW_READING_PROGRESS -> showReadingProgress
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -329,6 +340,7 @@ class WorkspaceEntities {
                 Types.SCROLL_HELPER_LINE_STYLE -> scrollHelperLineStyle = value as Int?
                 Types.PAGE_BUTTONS -> showPageButtons = value as Boolean?
                 Types.ORDINALS -> showOrdinals = value as Boolean?
+                Types.SHOW_READING_PROGRESS -> showReadingProgress = value as Boolean?
             }
         }
 
@@ -361,6 +373,10 @@ class WorkspaceEntities {
                     nightTextColor = white,
                     nightNoise = 0,
                     dayNoise = 0,
+                    dayBackgroundImage = null,
+                    nightBackgroundImage = null,
+                    dayBackgroundImageOpacity = 100,
+                    nightBackgroundImageOpacity = 100,
                 ),
                 marginSize = MarginSize(
                     marginLeft = 3,
@@ -399,6 +415,7 @@ class WorkspaceEntities {
                 scrollHelperLineStyle = 0,
                 showPageButtons = false,
                 showOrdinals = false,
+                showReadingProgress = false,
             )
 
             fun actual(
@@ -692,6 +709,25 @@ data class SettingsBundle (
 ) {
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() =
         WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings, workspaceSettings, globalSettings)
+
+    /**
+     * Where the effective value for [type] originates relative to this bundle's [level].
+     * - [InheritedFrom.NONE]: the value is set at this level (the user owns it here).
+     * - [InheritedFrom.WORKSPACE]: at WINDOW level, the value is null at window but set at workspace.
+     * - [InheritedFrom.GLOBAL]: the value falls through to global/defaults.
+     */
+    fun inheritedFrom(type: WorkspaceEntities.TextDisplaySettings.Types): InheritedFrom = when (level) {
+        SettingsLevel.WINDOW -> when {
+            pageManagerSettings?.getValue(type) != null -> InheritedFrom.NONE
+            workspaceSettings.getValue(type) != null -> InheritedFrom.WORKSPACE
+            else -> InheritedFrom.GLOBAL
+        }
+        SettingsLevel.WORKSPACE -> when {
+            workspaceSettings.getValue(type) != null -> InheritedFrom.NONE
+            else -> InheritedFrom.GLOBAL
+        }
+        SettingsLevel.GLOBAL -> InheritedFrom.NONE
+    }
 
     fun toJson(): String {
         return json.encodeToString(serializer(), this)

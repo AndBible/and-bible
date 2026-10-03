@@ -75,7 +75,11 @@ markedAsMemorized: 已記憶
 removeFromTargets: 目標 -
 viewReadingProgress: 閱讀/記憶進度
 viewReadingProgressSettings: 閱讀/記憶設定
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · 第 %s/%s 章"
 listenInLoop: 循環收聽
+viewHelp: 查看說明
 verseNoteLong: 寫筆記
 verseParagraphBreakLong: 段落換行
 addBookmark: 書籤

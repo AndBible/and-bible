@@ -94,6 +94,12 @@
             android:defaultValue="false"
             android:icon="@drawable/ic_baseline_description_gray_24"
             />
+        <SwitchPreferenceCompat android:key="auto_hide_agent_log_on_completion"
+            android:title="@string/auto_hide_agent_log_title"
+            android:summary="@string/auto_hide_agent_log_summary"
+            android:defaultValue="false"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
     </PreferenceCategory>
 
     <PreferenceCategory

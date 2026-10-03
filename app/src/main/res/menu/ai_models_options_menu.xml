@@ -25,4 +25,10 @@
         android:title="@string/add_model"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/show_help"
+        android:icon="@drawable/ic_help_white_24dp"
+        android:title="@string/help"
+        app:showAsAction="never" />
+
 </menu>

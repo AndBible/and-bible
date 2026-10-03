@@ -287,6 +287,21 @@ private val addShowOrdinals = makeMigration(21..22) { _db ->
     _db.execSQL("ALTER TABLE `GlobalTextDisplaySettings` ADD COLUMN `text_display_settings_showOrdinals` INTEGER DEFAULT NULL")
 }
 
+private val addShowReadingProgress = makeMigration(22..23) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showReadingProgress` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showReadingProgress` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `GlobalTextDisplaySettings` ADD COLUMN `text_display_settings_showReadingProgress` INTEGER DEFAULT NULL")
+}
+
+private val addBackgroundImage = makeMigration(23..24) { _db ->
+    for (table in listOf("Workspace", "PageManager", "GlobalTextDisplaySettings")) {
+        _db.execSQL("ALTER TABLE `$table` ADD COLUMN `text_display_settings_colors_dayBackgroundImage` TEXT DEFAULT NULL")
+        _db.execSQL("ALTER TABLE `$table` ADD COLUMN `text_display_settings_colors_nightBackgroundImage` TEXT DEFAULT NULL")
+        _db.execSQL("ALTER TABLE `$table` ADD COLUMN `text_display_settings_colors_dayBackgroundImageOpacity` INTEGER DEFAULT NULL")
+        _db.execSQL("ALTER TABLE `$table` ADD COLUMN `text_display_settings_colors_nightBackgroundImageOpacity` INTEGER DEFAULT NULL")
+    }
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -309,6 +324,8 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addAiDocMarkers,
     addPageScrollSettings,
     addShowOrdinals,
+    addShowReadingProgress,
+    addBackgroundImage,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 22
+const val WORKSPACE_DATABASE_VERSION = 24

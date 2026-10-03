@@ -293,6 +293,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
     override val integrateWithHistoryManager: Boolean = true
     override val disableBaseSetupUi: Boolean = true
+    override val enableGenericVolumeScroll: Boolean get() = false
     /**
      * Called when the activity is first created.
      */
@@ -1434,7 +1435,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun showSystemUI(setNavBarColor: Boolean=true) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.decorView.windowInsetsController?.apply {
-                show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                if (CommonUtils.settings.hideStatusBar) {
+                    // Keep the navigation bar (and AndBible's own toolbar) visible, but hide only
+                    // the Android status bar. Swiping from the top edge reveals it transiently.
+                    show(WindowInsets.Type.navigationBars())
+                    hide(WindowInsets.Type.statusBars())
+                    systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                } else {
+                    show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                }
                 if (!ScreenSettings.nightMode) {
                     var appearance = WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
                     if (CommonUtils.settings.monochromeMode) {
@@ -1448,6 +1457,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
         } else {
             var uiFlags = View.SYSTEM_UI_FLAG_VISIBLE
+            if (CommonUtils.settings.hideStatusBar) {
+                // Hide only the status bar (not the navigation bar) while keeping the toolbar.
+                uiFlags = (uiFlags
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+            }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!ScreenSettings.nightMode) {
                     uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
@@ -1821,6 +1836,32 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         updateDocumentsPending = false
     }
 
+    /**
+     * Open a MyDocument page selected in the document or page chooser.
+     *
+     * A book's key map is a snapshot built when JSword activated it, so it can
+     * be out of date with the database — and if it happened to be built while
+     * the page table was unreadable, it stays empty for the rest of the
+     * session. Rebuild it and retry once before falling back to opening the
+     * document without a key.
+     */
+    private fun openMyDocumentPage(book: Book, pageKey: String) {
+        val key = try {
+            book.getKey(pageKey)
+        } catch (e: NoSuchKeyException) {
+            Log.w(TAG, "Page key '$pageKey' missing from ${book.initials} key map, rebuilding it", e)
+            MyDocumentBookManager.refreshDocument(book.initials)
+            try {
+                book.getKey(pageKey)
+            } catch (e2: NoSuchKeyException) {
+                Log.e(TAG, "Page key '$pageKey' not found in ${book.initials}, opening book without key", e2)
+                documentControl.changeDocument(book)
+                return
+            }
+        }
+        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+    }
+
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "Activity result:$resultCode")
 
@@ -1923,8 +1964,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             if (bookInitials != null && pageKey != null) {
                                 val book = Books.installed().getBook(bookInitials)
                                 if (book != null) {
-                                    val key = book.getKey(pageKey)
-                                    windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                                    openMyDocumentPage(book, pageKey)
                                     updateActions()
                                 }
                             }
@@ -1937,13 +1977,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                                 val book = Books.installed().getBook(bookInitials)
                                 if (book != null) {
                                     if (pageKey != null) {
-                                        try {
-                                            val key = book.getKey(pageKey)
-                                            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
-                                        } catch (e: NoSuchKeyException) {
-                                            Log.e(TAG, "Page key '$pageKey' not found in book $bookInitials, opening book without key", e)
-                                            documentControl.changeDocument(book)
-                                        }
+                                        openMyDocumentPage(book, pageKey)
                                     } else {
                                         documentControl.changeDocument(book)
                                     }
@@ -2268,11 +2302,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     fun activate(v: View) {
         CurrentActivityHolder.activate(this)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        CommonUtils.onyxSupport?.setupOnyxNormal()
     }
 
     fun executeLlmPrompt(prompt: AgentPrompt, selection: Selection) =

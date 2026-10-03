@@ -192,6 +192,11 @@
             android:title="@string/prefs_show_ordinals_title"
             android:summary="@string/prefs_show_ordinals_summary"
             />
+        <SwitchPreferenceCompat
+            android:key="SHOW_READING_PROGRESS"
+            android:title="@string/prefs_show_reading_progress_title"
+            android:summary="@string/prefs_show_reading_progress_summary"
+            />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/prefs_text_bookmarks_title"

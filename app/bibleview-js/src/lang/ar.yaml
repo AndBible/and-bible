@@ -75,7 +75,11 @@ markedAsMemorized: محفوظ
 removeFromTargets: هدف -
 viewReadingProgress: تقدم القراءة والحفظ
 viewReadingProgressSettings: إعدادات القراءة والحفظ
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: الاستماع في حلقة
+viewHelp: عرض المساعدة
 verseNoteLong: كتابة ملاحظة
 verseParagraphBreakLong: فاصل فقرة
 addBookmark: إشارة مرجعية

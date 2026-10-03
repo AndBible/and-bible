@@ -1,0 +1,176 @@
+# jailbee configuration for AndBible.
+# Android (Kotlin) + Vue.js hybrid app. Java 17 + Node 20 are required;
+# Gradle reaches a fairly broad set of Google/Maven mirrors during builds.
+# See https://jailbee.gisgro.com (and docs/config.md) for the full reference.
+
+new:
+  clone_from: local
+
+# IDE: AndBible is developed with Android Studio, installable via
+# JetBrains Toolbox. `ide: studio` matches the Toolbox launcher binary
+# name (/opt/jetbrains-toolbox/apps/android-studio/bin/studio.sh).
+# autostart is OFF by repo policy; flip on per-user in global.yaml if
+# you want `jailbee new` to launch the IDE automatically.
+jetbrains:
+  enabled: true
+  ide: studio
+  autostart: false
+
+# adb model: a single host-side adb-server serves both host and container
+# adb-clients, reached from the container over a TCP port forward (see
+# `host_ports` below) rather than a bind-mounted Unix socket. Works
+# identically for USB, `adb tcpip`, and Android 11+ wireless debugging.
+#
+# The forward lands on the container's own 127.0.0.1:5037 — adb's default
+# endpoint — so the container needs NO `ADB_SERVER_SOCKET` override: a plain
+# `adb devices` in here talks to the host server.
+#
+# One-time host setup is the stock default — nothing but:
+#   adb start-server   # idempotent; listens on 127.0.0.1:5037
+# Do NOT export `ADB_SERVER_SOCKET` on the host any more: that moves the
+# server onto a Unix socket and leaves nothing on :5037 for the forward to
+# reach, so the container gets a connection that opens and then dies.
+#
+# Pair the phone once on the host (`adb pair`, `adb connect`); the
+# container inherits the running server with no extra steps.
+#
+# CAVEAT — if you ever run an Android emulator INSIDE this container, its
+# adb-server must use a different port (5038 is the convention across these
+# repos): the Incus proxy device occupies 127.0.0.1:5037 in the container, so
+# a container-local adb-server cannot bind the default port, and a client left
+# on the default would silently talk to the host server instead.
+
+# Repo-specific host bind-mounts.
+#
+# Android SDK is bind-mounted RO so Gradle can find platforms/build-tools
+# without reinstalling them in every container.
+# Personal mounts (~/.gnupg, ~/.gitconfig, JetBrains/Toolbox) belong in
+# ~/.config/jailbee/global.yaml.
+host_mounts:
+  - { host: ~/Android/Sdk,       container: /home/dev/Android/Sdk, readonly: true  }
+  # Sibling git repos that are gitignored in the main repo but live
+  # under the working tree (ai-local, wiki, readthedocs). All three are
+  # mounted RW so edits/commits made inside the container are reflected
+  # on the host. jailbee clones the main repo at /home/dev/<repo-root.name>.
+  - { host: ai-local,    container: /home/dev/and-bible/ai-local,    readonly: false }
+  - { host: wiki,        container: /home/dev/and-bible/wiki,        readonly: false }
+  - { host: readthedocs, container: /home/dev/and-bible/readthedocs, readonly: false }
+
+# Forward the host adb-server into the container (see the adb model above).
+# Container 127.0.0.1:5037 -> host 127.0.0.1:5037. Attached by `jailbee new`
+# and kept in sync by `jailbee apply` — no image rebuild, no restart.
+host_ports:
+  - { name: adb, port: 5037 }
+
+# Persistent shared caches (bind-mounted from <shared_dir>/<host_subpath>).
+# The ai-local ostickethelper / playwright tools install Chromium (~150 MB)
+# into ~/.cache/ms-playwright, which is NOT bind-mounted by default and lives
+# on the container's ephemeral overlay — so it vanishes on every `jailbee new`
+# and re-downloads each session. Persisting just ms-playwright (not all of
+# ~/.cache) keeps the browser around; jailbee auto-creates the host subpath,
+# so no manual mkdir is needed.
+shared_caches:
+  - { name: cache, host_subpath: home-caches, container_path: ~/.cache }
+  # Persist ~/.android so the generated debug.keystore (and thus the debug
+  # signing key) stays identical across `jailbee new` sessions. Without this
+  # the keystore lives on the ephemeral overlay and is regenerated each session,
+  # giving a new signing key every time — so `adb install -r` of a debug build
+  # fails with INSTALL_FAILED_UPDATE_INCOMPATIBLE against a previous session's
+  # install. A stable key lets debug builds upgrade in place.
+  - { name: android-home, host_subpath: android-home, container_path: ~/.android }
+
+# Egress allowlist applied in strict mode. These cover Android Gradle
+# builds, npm/Vue.js dependencies, and apt updates. adb-server traffic
+# goes over the bind-mounted Unix socket, not the network, so no egress
+# rule is needed for it.
+# Add github.com only when you actually need to push (or switch to
+# `jailbee net loose <name>` for that session).
+egress_allow:
+  # Android / Google
+  - dl.google.com
+  - maven.google.com
+  - android.googlesource.com
+  # Maven Central / Gradle
+  - repo.maven.apache.org
+  - repo1.maven.org
+  - plugins.gradle.org
+  - services.gradle.org
+  - jitpack.io
+  # Node / npm (for app/bibleview-js)
+  - registry.npmjs.org
+  - registry.yarnpkg.com
+  # Ubuntu apt
+  - archive.ubuntu.com:443
+  - security.ubuntu.com:443
+  - ports.ubuntu.com:443
+  - github.com:443
+  - release-assets.githubusercontent.com:443
+  - support.andbible.org:443
+
+# Container resource defaults. Android Gradle builds are memory-hungry;
+# the Vue.js side is light, but the JVM + Gradle daemon + Kotlin compiler
+# easily eats 8–12 GiB on a full build.
+defaults:
+  memory: 16GiB
+  cpu: 8
+  network: strict
+  storage_pool: default
+
+# Golden image config. Node is bumped to 24 (repo docs still say 20.x, but
+# 24 gets the built-in WebSocket global that ai-local/tools/webview-cdp
+# originally needed). Java: default JDK is 25 (latest LTS), but AndBible's
+# build.gradle.kts pins Gradle's toolchain to `jvmToolchain(17)` — Gradle's
+# toolchain resolution needs an *exact* major-version match and won't accept
+# a newer JDK in its place (unlike a plain `javac --release 17` compile,
+# which a newer JDK could do fine). Without a real JDK 17 installed, Gradle
+# would try to auto-download one from foojay/adoptium, which is blocked by
+# this container's egress rules. So openjdk-17-jdk is installed alongside
+# as an extra package purely to satisfy that toolchain lookup (Gradle
+# auto-detects JDKs under /usr/lib/jvm) — openjdk-25-jdk (via stacks) stays
+# the default `java` on PATH/JAVA_HOME for everything else (IDE, general use).
+#
+# NOTE: use `golden.stacks`, not bare `golden.java`/`golden.node` — the bare
+# keys only pin a version, they don't stage the install.d.available/ snippet
+# that actually installs the runtime. A config with only the bare keys builds
+# a golden image with neither Java nor Node present (found 2026-08-29).
+# `stacks` pins the version AND stages the snippet in one field, plus adds
+# the matching gradle/m2/npm/pnpm-store shared caches.
+golden:
+  ubuntu_version: "26.04"
+  stacks:
+    java: "openjdk-25"
+    node: 24
+  # android-tools-adb gives the container an adb-client; the actual
+  # adb-server runs on the host (see adb model comment above).
+  # openjdk-17-jdk: satisfies AndBible's jvmToolchain(17) — see note above.
+  extra_apt_packages:
+    - openjdk-17-jdk
+    - android-tools-adb
+    # typst is NOT in apt — it's installed from a GitHub release binary by
+    # .jailbee/install.d/95-typst.sh (PDF receipt generation for ostickethelper).
+    # xz-utils provides the `xz` decompressor that snippet's `tar -xJf` needs.
+    - xz-utils
+
+# Autostart left empty — leaving setup decisions to the user.
+# Useful starting points if you want to fill this in later:
+#   on_create:
+#     - name: bibleview-install
+#       run: "npm install"
+#       working_dir: app/bibleview-js
+#       network: loose
+# Container-wide env vars injected via the Incus base profile — visible
+# in every process Incus spawns (jailbee shell, jailbee tmux, autostart steps,
+# the IDE). There is deliberately NO ADB_SERVER_SOCKET here — the
+# `host_ports` forward puts the host adb-server on adb's default
+# 127.0.0.1:5037, so the stock default is already correct. ANDROID_HOME /
+# ANDROID_SDK_ROOT let the Android SDK be discovered from the RO-mounted
+# host SDK.
+container:
+  env:
+    ANDROID_HOME: /home/dev/Android/Sdk
+    ANDROID_SDK_ROOT: /home/dev/Android/Sdk
+
+autostart:
+  step_timeout: 600
+  on_create: []
+  on_start: []

@@ -75,7 +75,11 @@ markedAsMemorized: Mémorisé
 removeFromTargets: Objectif -
 viewReadingProgress: Progression lecture/mémoire
 viewReadingProgressSettings: Paramètres lecture/mémoire
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: Écouter en boucle
+viewHelp: Voir l'aide
 verseNoteLong: Écrire une note
 verseParagraphBreakLong: Retour à la ligne
 addBookmark: Signets

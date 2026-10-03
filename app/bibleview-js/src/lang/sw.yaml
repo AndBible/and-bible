@@ -75,7 +75,11 @@ markedAsMemorized: Imekaririwa
 removeFromTargets: Lengo -
 viewReadingProgress: Maendeleo ya Kusoma/Kukariri
 viewReadingProgressSettings: Mipangilio ya Kusoma/Kukariri
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · s. %s/%s"
 listenInLoop: Sikiliza katika Mzunguko
+viewHelp: Tazama msaada
 verseNoteLong: Andika maelezo
 verseParagraphBreakLong: Mapumziko ya aya
 addBookmark: Alamisho

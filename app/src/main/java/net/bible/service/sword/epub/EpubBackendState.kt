@@ -24,6 +24,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.database.EpubFragment
+import net.bible.android.database.EpubMeta
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
@@ -192,6 +193,14 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     fun read(key: Key): String {
         val frag = getFragment(key)?: return ""
         val sourceFile = File(fragDir, frag.fragFileName)
+        if (!sourceFile.exists()) {
+            // The fragment database and the optimized fragment files can get out of sync
+            // (e.g. an orphaned database reused after a failed optimization, or external
+            // storage cleaned by the system). A missing fragment file must not crash the
+            // app: return empty content and let the caller degrade gracefully.
+            Log.e(TAG, "Fragment file missing: ${sourceFile.absolutePath} (frag ${frag.id}); returning empty content")
+            return ""
+        }
         val bytes = sourceFile.inputStream().use { inp ->
             GZIPInputStream(inp).use {gzip ->
                 gzip.readBytes()
@@ -337,5 +346,49 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     fun getOrdinalRange(key: Key): IntRange {
         val frag = getFragment(key) ?: return 0..0
         return frag.ordinalStart .. frag.ordinalEnd
+    }
+
+    /** Total ordinal span of the whole book (anchor ordinals restart per spine item). */
+    val bookOrdinalSpan: Int get() = dao.fragments().sumOf { it.ordinalEnd - it.ordinalStart + 1 }
+
+    /** Sum of the ordinal spans of all fragments preceding [key] in book order. */
+    fun fragmentOffset(key: Key): Int {
+        val targetId = getFragment(key)?.id ?: return 0
+        var offset = 0
+        for (frag in dao.fragments().sortedBy { it.id }) {
+            if (frag.id == targetId) break
+            offset += frag.ordinalEnd - frag.ordinalStart + 1
+        }
+        return offset
+    }
+
+    /**
+     * Total visible-text character count of the whole book. Computed once from the
+     * fragment BVA text and cached in the EpubMeta table; subsequent reads are O(1).
+     * This avoids forcing a re-optimization of already-installed EPUBs.
+     */
+    val totalCharacters: Int get() {
+        dao.getMeta()?.let { return it.totalCharacters }
+        var total = 0
+        var failed = false
+        for (frag in dao.fragments()) {
+            try {
+                val doc = useSaxBuilder { it.build(StringReader(read(getKey(frag)))) }
+                for (bva in useXPathInstance { xp ->
+                    xp.compile("//ns:BVA", Filters.element(), null, xhtmlNamespace).evaluate(doc)
+                }) {
+                    total += bva.text.length
+                }
+            } catch (e: Exception) {
+                // A single unreadable/corrupt fragment must not abort the whole-book
+                // character count (used only for the reading-progress indicator).
+                Log.e(TAG, "Failed to read fragment ${frag.id} while computing totalCharacters; skipping", e)
+                failed = true
+            }
+        }
+        // Only cache the result when every fragment was read successfully; otherwise a
+        // transient/repairable inconsistency would freeze an inaccurate count forever.
+        if (!failed) dao.insert(EpubMeta(totalCharacters = total))
+        return total
     }
 }

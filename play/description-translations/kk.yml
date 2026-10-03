@@ -17,7 +17,8 @@ feature_01: Аудармаларды салыстыруға және түсін�
 feature_02: Қолданбаның жұмыс кеңістігі Киелі кітапты зерттеуде бірнеше реттеулерді орнатуға және олармен қолдануға мүмкіндіктер береді
 feature_03: Strong интеграциясы грек және еврей сөздерін талдауға мүмкіндік береді
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
-feature_04: ""
+feature_04: >
+  Айқас сілтемелерге, ескертпелерге және түсіндірмелерге ({{commentary_examples}}) немесе айқас сілтемелер жинақтарына ({{cross_reference_examples}}) өту үшін кез келген сілтемені түртіңіз.
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
 commentary_examples: "Гилл, Мэттью Генри және т.б. "

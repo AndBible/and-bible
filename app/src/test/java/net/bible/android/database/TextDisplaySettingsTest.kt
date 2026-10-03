@@ -112,6 +112,28 @@ class TextDisplaySettingsTest {
         }
     }
 
+    @Test
+    fun `resetting global to empty restores default for every type including ordinals`() {
+        // Models the GLOBAL-level reset (TextDisplaySettingsActivity.reset): the global overrides
+        // are replaced with an empty TextDisplaySettings, so every effective value must fall back
+        // to its built-in default. Regression guard for ordinals (and any future setting) being
+        // left out of the reset.
+        val customizedGlobal = TextDisplaySettings(showOrdinals = true, fontSize = 28, strongsMode = 2)
+        val before = TextDisplaySettings.actual(null, TextDisplaySettings(), customizedGlobal)
+        assertEquals(true, before.showOrdinals)
+        assertEquals(28, before.fontSize)
+
+        val resetGlobal = TextDisplaySettings()
+        val after = TextDisplaySettings.actual(null, TextDisplaySettings(), resetGlobal)
+        for (type in Types.values()) {
+            assertEquals(
+                "After global reset, $type should equal its default",
+                TextDisplaySettings.default.getValue(type), after.getValue(type)
+            )
+        }
+        assertEquals(false, after.showOrdinals)
+    }
+
     // --- actual() sub-object field-level merge tests ---
     //
     // Regression tests for the bug where workspace/window stored a MarginSize with
@@ -203,6 +225,10 @@ class TextDisplaySettingsTest {
                 nightTextColor = null,
                 nightBackground = null,
                 nightNoise = null,
+                dayBackgroundImage = null,
+                nightBackgroundImage = null,
+                dayBackgroundImageOpacity = null,
+                nightBackgroundImageOpacity = null,
             )
         )
         val result = TextDisplaySettings.actual(null, workspace, TextDisplaySettings())
@@ -226,18 +252,24 @@ class TextDisplaySettingsTest {
             colors = Colors(
                 dayTextColor = 1, dayBackground = null, dayNoise = null,
                 nightTextColor = null, nightBackground = null, nightNoise = null,
+                dayBackgroundImage = null, nightBackgroundImage = null,
+                dayBackgroundImageOpacity = null, nightBackgroundImageOpacity = null,
             )
         )
         val workspace = TextDisplaySettings(
             colors = Colors(
                 dayTextColor = 2, dayBackground = 3, dayNoise = null,
                 nightTextColor = null, nightBackground = null, nightNoise = null,
+                dayBackgroundImage = null, nightBackgroundImage = null,
+                dayBackgroundImageOpacity = null, nightBackgroundImageOpacity = null,
             )
         )
         val global = TextDisplaySettings(
             colors = Colors(
                 dayTextColor = 4, dayBackground = 5, dayNoise = 6,
                 nightTextColor = 7, nightBackground = null, nightNoise = null,
+                dayBackgroundImage = null, nightBackgroundImage = null,
+                dayBackgroundImageOpacity = null, nightBackgroundImageOpacity = null,
             )
         )
         val result = TextDisplaySettings.actual(page, workspace, global)
@@ -275,6 +307,8 @@ class TextDisplaySettingsTest {
         val base = Colors(
             dayTextColor = 1, dayBackground = 2, dayNoise = 3,
             nightTextColor = 4, nightBackground = 5, nightNoise = 6,
+            dayBackgroundImage = null, nightBackgroundImage = null,
+            dayBackgroundImageOpacity = null, nightBackgroundImageOpacity = null,
         )
         assertEquals(base, base.merge(null))
     }
@@ -284,10 +318,14 @@ class TextDisplaySettingsTest {
         val base = Colors(
             dayTextColor = 1, dayBackground = 2, dayNoise = 3,
             nightTextColor = 4, nightBackground = 5, nightNoise = 6,
+            dayBackgroundImage = null, nightBackgroundImage = null,
+            dayBackgroundImageOpacity = null, nightBackgroundImageOpacity = null,
         )
         val override = Colors(
             dayTextColor = 100, dayBackground = null, dayNoise = null,
             nightTextColor = null, nightBackground = 500, nightNoise = null,
+            dayBackgroundImage = null, nightBackgroundImage = null,
+            dayBackgroundImageOpacity = null, nightBackgroundImageOpacity = null,
         )
         val merged = base.merge(override)
         assertEquals(100, merged.dayTextColor)
@@ -1176,5 +1214,118 @@ class TextDisplaySettingsTest {
         assertNull("win redLetters nulled (matches ws)", win.showRedLetters)
         // lineSpacing: win=24 vs ws=null → not equal → kept
         assertEquals("win lineSpacing kept (24 != null)", 24, win.lineSpacing)
+    }
+
+    // --- SettingsBundle.inheritedFrom tests ---
+    // These verify that the icon-overlay logic correctly identifies where the effective value
+    // for a given Type comes from. Drives the gear vs. workspace overlay shown in Text options.
+
+    @Test
+    fun `inheritedFrom at GLOBAL level is always NONE`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.GLOBAL,
+            globalSettings = TextDisplaySettings(showVerseNumbers = true),
+        )
+        assertEquals(InheritedFrom.NONE, bundle.inheritedFrom(Types.VERSENUMBERS))
+        assertEquals(InheritedFrom.NONE, bundle.inheritedFrom(Types.FONTSIZE))
+    }
+
+    @Test
+    fun `inheritedFrom at WORKSPACE level is NONE when workspace has explicit value`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WORKSPACE,
+            workspaceSettings = TextDisplaySettings(showVerseNumbers = false),
+            globalSettings = TextDisplaySettings(showVerseNumbers = true),
+        )
+        assertEquals(InheritedFrom.NONE, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
+
+    @Test
+    fun `inheritedFrom at WORKSPACE level is GLOBAL when workspace null`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WORKSPACE,
+            workspaceSettings = TextDisplaySettings(),
+            globalSettings = TextDisplaySettings(showVerseNumbers = true),
+        )
+        assertEquals(InheritedFrom.GLOBAL, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
+
+    @Test
+    fun `inheritedFrom at WINDOW level is NONE when window has explicit value`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            pageManagerSettings = TextDisplaySettings(showVerseNumbers = false),
+            workspaceSettings = TextDisplaySettings(showVerseNumbers = true),
+            globalSettings = TextDisplaySettings(),
+            windowId = IdType.empty(),
+        )
+        assertEquals(InheritedFrom.NONE, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
+
+    @Test
+    fun `inheritedFrom at WINDOW level is WORKSPACE when window null and workspace has value`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            pageManagerSettings = TextDisplaySettings(),
+            workspaceSettings = TextDisplaySettings(showVerseNumbers = false),
+            globalSettings = TextDisplaySettings(showVerseNumbers = true),
+            windowId = IdType.empty(),
+        )
+        assertEquals(InheritedFrom.WORKSPACE, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
+
+    @Test
+    fun `inheritedFrom at WINDOW level is GLOBAL when window and workspace null`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            pageManagerSettings = TextDisplaySettings(),
+            workspaceSettings = TextDisplaySettings(),
+            globalSettings = TextDisplaySettings(showVerseNumbers = true),
+            windowId = IdType.empty(),
+        )
+        assertEquals(InheritedFrom.GLOBAL, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
+
+    @Test
+    fun `inheritedFrom at WINDOW level is GLOBAL when pageManagerSettings is null and workspace null`() {
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            pageManagerSettings = null,
+            workspaceSettings = TextDisplaySettings(),
+            globalSettings = TextDisplaySettings(),
+            windowId = IdType.empty(),
+        )
+        assertEquals(InheritedFrom.GLOBAL, bundle.inheritedFrom(Types.VERSENUMBERS))
+    }
+
+    @Test
+    fun `inheritedFrom survives JSON roundtrip preserving null vs non-null fields`() {
+        val original = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            pageManagerSettings = TextDisplaySettings(),
+            workspaceSettings = TextDisplaySettings(showVerseNumbers = false, fontSize = 20),
+            globalSettings = TextDisplaySettings(showRedLetters = false),
+            windowId = IdType.empty(),
+        )
+        val restored = SettingsBundle.fromJson(original.toJson())
+
+        // After JSON roundtrip the bundle must still correctly identify inheritance source.
+        assertEquals(InheritedFrom.WORKSPACE, restored.inheritedFrom(Types.VERSENUMBERS))
+        assertEquals(InheritedFrom.WORKSPACE, restored.inheritedFrom(Types.FONTSIZE))
+        assertEquals(InheritedFrom.GLOBAL, restored.inheritedFrom(Types.REDLETTERS))
+        assertEquals(InheritedFrom.GLOBAL, restored.inheritedFrom(Types.SECTIONTITLES))
+    }
+
+    @Test
+    fun `inheritedFrom at WINDOW level uses workspace value of false (not null)`() {
+        // Regression: false is a valid non-null Boolean and must not be confused with null.
+        val bundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
+            pageManagerSettings = TextDisplaySettings(),
+            workspaceSettings = TextDisplaySettings(showVerseNumbers = false),
+            globalSettings = TextDisplaySettings(showVerseNumbers = true),
+            windowId = IdType.empty(),
+        )
+        assertEquals(InheritedFrom.WORKSPACE, bundle.inheritedFrom(Types.VERSENUMBERS))
     }
 }

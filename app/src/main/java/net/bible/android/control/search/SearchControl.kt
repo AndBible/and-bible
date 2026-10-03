@@ -272,8 +272,13 @@ class SearchControl @Inject constructor(
         private const val SEARCH_NEW_TESTAMENT = "+[Mat-Rev]"
         const val SEARCH_TEXT = "SearchText"
         const val SEARCH_DOCUMENT = "SearchDocument"
-        const val TARGET_DOCUMENT = "TargetDocument"
         const val SELECTED_TRANSLATIONS = "SelectedTranslations"
+        const val IS_STRONGS_SEARCH = "IsStrongsSearch"
+        // Settings keys (not intent extras): remembered document selection for the search-results
+        // selector. Normal Bible searches share the manual search screen's key; Strong's
+        // find-all-occurrences uses its own key (its selection is a Strong's-enabled subset).
+        const val SEARCH_TRANSLATIONS_PREF = "search_selected_translations"
+        const val STRONGS_SEARCH_TRANSLATIONS_PREF = "search_results_strongs_translations"
         private const val STRONG_COLON_STRING = LuceneIndex.FIELD_STRONG + ":"
         private const val STRONG_COLON_STRING_PLACE_HOLDER = LuceneIndex.FIELD_STRONG + "COLON"
         const val MAX_SEARCH_RESULTS = 5000

@@ -156,18 +156,7 @@ open class Preference(val settings: SettingsBundle,
         SettingsLevel.GLOBAL -> false
     }
 
-    val inheritedFrom: InheritedFrom get() = when (settings.level) {
-        SettingsLevel.WINDOW -> when {
-            pageManagerSettings?.getValue(type) != null -> InheritedFrom.NONE
-            workspaceSettings.getValue(type) != null -> InheritedFrom.WORKSPACE
-            else -> InheritedFrom.GLOBAL
-        }
-        SettingsLevel.WORKSPACE -> when {
-            workspaceSettings.getValue(type) != null -> InheritedFrom.NONE
-            else -> InheritedFrom.GLOBAL
-        }
-        SettingsLevel.GLOBAL -> InheritedFrom.NONE
-    }
+    val inheritedFrom: InheritedFrom get() = settings.inheritedFrom(type)
 
     val pageManager get() = window?.pageManager ?: windowControl.activeWindowPageManager
 
@@ -260,6 +249,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.SCROLL_HELPER_LINE_STYLE -> R.string.prefs_scroll_helper_line_style_title
                 TextDisplaySettings.Types.PAGE_BUTTONS -> R.string.prefs_page_buttons_title
                 TextDisplaySettings.Types.ORDINALS -> R.string.prefs_show_ordinals_title
+                TextDisplaySettings.Types.SHOW_READING_PROGRESS -> R.string.prefs_show_reading_progress_title
             }
             return application.getString(id)
         }

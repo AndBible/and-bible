@@ -19,6 +19,7 @@ package net.bible.android.view.activity.installzip
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -53,20 +54,17 @@ import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.epub.EPUB_OPTIMIZER_VERSION
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
+import net.bible.service.sword.epub.deleteEpubModule
 import net.bible.service.sword.epub.epubInitials
-import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.esword.addESwordBook
-import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
-import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import net.bible.service.sword.mysword.addMySwordBook
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
-import org.crosswire.common.util.NetUtil
+import net.bible.service.sword.backgroundimage.BACKGROUND_IMAGE_DIR
+import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBookDriver
-import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.crosswire.jsword.book.sword.SwordConstants
 import org.crosswire.jsword.book.sword.SwordGenBook
@@ -79,7 +77,6 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import kotlin.math.roundToInt
 
 /**
  * Install SWORD module from a zip file
@@ -164,68 +161,26 @@ class ZipHandler(
     }
 
 
-    private suspend fun installZipFile() = withContext(Dispatchers.IO) {
-        val confFiles = ArrayList<File>()
-        val targetDirectory = SwordBookPath.getSwordDownloadDir()
-        val errors: MutableList<String> = mutableListOf()
-        ZipInputStream(newInputStream()).use { zIn ->
-            var ze: ZipEntry?
-            var count: Int
-            var entryNum = 0
-            val buffer = ByteArray(8192)
-            ze = zIn.nextEntry
-            while (ze != null) {
-                val name = ze.name.replace('\\', '/')
-                if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
-                    ze = zIn.nextEntry
-                    continue
-                }
+    /**
+     * Extract and register the zip via the shared headless installer in [BackupControl],
+     * forwarding per-entry progress to the Activity UI. Extraction/registration logic is
+     * not duplicated here — see [BackupControl.extractAndRegisterModuleArchive].
+     *
+     * Any [IOException] from the shared extractor (e.g. write-permission failure) is
+     * re-thrown as [CantOverwrite] so the caller's specialized error dialog is reached.
+     */
+    private suspend fun installZipFile() = try {
+        BackupControl.extractAndRegisterModuleArchive(
+            newInputStream = { newInputStream() ?: throw FileNotFound() },
+            totalEntries = totalEntries,
+            onProgress = { percent -> launchProgressUpdate(percent) },
+        )
+    } catch (e: IOException) {
+        throw CantOverwrite(listOf(e.message ?: "unknown"))
+    }
 
-                val file = File(targetDirectory, name)
-                if (name.startsWith(SwordConstants.DIR_CONF) && name.endsWith(SwordConstants.EXTENSION_CONF))
-                    confFiles.add(file)
-
-                val dir = if (ze.isDirectory) file else file.parentFile
-
-                if (!dir.isDirectory && !(dir.mkdirs() || dir.isDirectory))
-                    throw IOException()
-
-                if (ze.isDirectory) {
-                    ze = zIn.nextEntry
-                    continue
-                }
-                try {
-                    FileOutputStream(file).use { fOut ->
-                        count = zIn.read(buffer)
-                        while (count != -1) {
-                            fOut.write(buffer, 0, count)
-                            count = zIn.read(buffer)
-                        }
-                    }
-                } catch (e: IOException) {
-                    errors.add(file.name)
-                    Log.e(TAG, "Error in writing ${file.name}", e);
-                }
-                onProgressUpdate(++entryNum)
-                ze = zIn.nextEntry
-            }
-            if(errors.isNotEmpty()) {
-                throw CantOverwrite(errors)
-            }
-        }
-        // Load configuration files & register books
-        val bookDriver = SwordBookDriver.instance()
-        for (confFile in confFiles) {
-            val me = SwordBookMetaData(confFile, NetUtil.getURI(targetDirectory))
-            me.driver = bookDriver
-            SwordBookDriver.registerNewBook(me)
-        }
-        addManuallyInstalledMyBibleBooks()
-        addManuallyInstalledMySwordBooks()
-        addManuallyInstalledESwordBooks()
-        addManuallyInstalledEpubBooks()
-        addManuallyInstalledTtfBooks()
-        addManuallyInstalledCsvPromptBooks()
+    private fun launchProgressUpdate(percent: Int) {
+        activity.runOnUiThread { updateProgress(percent / totalEntries.coerceAtLeast(1)) }
     }
 
     suspend fun execute() = withContext(Dispatchers.Main) {
@@ -300,11 +255,6 @@ class ZipHandler(
         }
         finish(finishResult)
 
-    }
-
-    private suspend fun onProgressUpdate(value: Int)  = withContext(Dispatchers.Main) {
-        val progressNow = (value.toFloat() / totalEntries.toFloat() * 100).roundToInt()
-        updateProgress(progressNow/totalEntries)
     }
 
     enum class InstallResult {ERROR, INVALID_MODULE, CANCEL, OK, IGNORE}
@@ -421,8 +371,19 @@ class InstallZip : ActivityBase() {
             "application/octet-stream",
             "text/csv",
             "text/comma-separated-values",
+            "image/png",
+            "image/jpeg",
+            "image/webp",
         ))
-        val result = awaitIntent(intent)
+        val result = try {
+            awaitIntent(intent)
+        } catch (e: ActivityNotFoundException) {
+            // Some devices lack a documents UI / file manager to handle ACTION_OPEN_DOCUMENT.
+            Log.e(TAG, "No activity found to handle ACTION_OPEN_DOCUMENT", e)
+            ABEventBus.post(ToastEvent(getString(R.string.no_file_manager)))
+            finish()
+            return
+        }
         if (result.resultCode == Activity.RESULT_OK) {
             val uri = result.data!!.data!!
             val displayName = getDisplayName(uri) ?: UUID.randomUUID().toString()
@@ -483,6 +444,12 @@ class InstallZip : ActivityBase() {
         // Check for TTF files first
         if(displayName.lowercase().endsWith(".ttf") || mimeType?.contains("font") == true) {
             return installTtf(uri, displayName)
+        }
+
+        // Check for image files (background images)
+        if (mimeType?.startsWith("image/") == true ||
+            listOf(".png", ".jpg", ".jpeg", ".webp").any { displayName.lowercase().endsWith(it) }) {
+            return installBackgroundImage(uri, displayName, mimeType)
         }
 
         // Check for CSV prompt files
@@ -699,6 +666,86 @@ class InstallZip : ActivityBase() {
         true
     }
 
+    private suspend fun installBackgroundImage(uri: Uri, displayName_: String?, mimeType: String?): Boolean = withContext(Dispatchers.IO) {
+        val displayName = displayName_ ?: UUID.randomUUID().toString()
+        // The discovery scanner registers modules strictly by file extension, so guarantee the
+        // saved file carries a recognized image extension. When the display name lacks one, derive
+        // it from the MIME type; if the MIME is unrecognized/null, default to .jpg (the stream is an
+        // image per the dispatch condition) so the file stays discoverable.
+        val hasImageExtension = listOf(".jpg", ".jpeg", ".png", ".webp")
+            .any { displayName.lowercase().endsWith(it) }
+        val fileName = if (hasImageExtension) {
+            displayName
+        } else {
+            val extension = when (mimeType) {
+                "image/png" -> ".png"
+                "image/jpeg" -> ".jpg"
+                "image/webp" -> ".webp"
+                else -> ".jpg"
+            }
+            displayName + extension
+        }
+        withContext(Dispatchers.Main) {
+            binding.loadingIndicator.visibility = View.VISIBLE
+        }
+        try {
+            val inputStream = contentResolver.openInputStream(uri) ?: throw FileNotFound()
+            inputStream.use { fIn ->
+                val outDir = File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR)
+                outDir.mkdirs()
+                val outFile = File(outDir, fileName)
+
+                if (outFile.exists()) {
+                    val doInstall = withContext(Dispatchers.Main) {
+                        suspendCoroutine {
+                            AlertDialog.Builder(this@InstallZip)
+                                .setTitle(R.string.overwrite_files_title)
+                                .setMessage(getString(R.string.overwrite_files, "$BACKGROUND_IMAGE_DIR/$fileName"))
+                                .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
+                                .setNeutralButton(R.string.cancel) { _, _ -> it.resume(false) }
+                                .setOnCancelListener { _ -> it.resume(false) }
+                                .show()
+                        }
+                    }
+                    if (!doInstall) {
+                        withContext(Dispatchers.Main) {
+                            ABEventBus.post(ToastEvent(R.string.install_zip_canceled))
+                            binding.loadingIndicator.visibility = View.GONE
+                        }
+                        return@withContext false
+                    }
+                }
+
+                if ((outFile.exists() && !outFile.canWrite()) || (!outFile.exists() && !outDir.canWrite())) {
+                    throw CantWrite()
+                }
+
+                withContext(Dispatchers.IO) {
+                    val out = FileOutputStream(outFile)
+                    fIn.copyTo(out)
+                    out.close()
+                }
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "IOException when reading image file", e)
+            withContext(Dispatchers.Main) {
+                binding.loadingIndicator.visibility = View.GONE
+            }
+            throw FileNotFound()
+        }
+
+        addManuallyInstalledBackgroundImageBooks()
+
+        withContext(Dispatchers.Main) {
+            binding.loadingIndicator.visibility = View.GONE
+            ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
+            AndBibleAddons.clearCaches()
+            setResult(RESULT_OK)
+            finish()
+        }
+        true
+    }
+
 
     private suspend fun installZip(uri: Uri, displayName: String?): Boolean {
         var result = false
@@ -782,13 +829,16 @@ class InstallZip : ActivityBase() {
             val optimizerVersion = ((book as? SwordGenBook)?.backend as? EpubBackend)?.state?.optimizerVersion ?: 1
             if(DatabaseContainer.ready && bookmarksDao.genericBookmarkCountFor(initials) > 0 && optimizerVersion < EPUB_OPTIMIZER_VERSION) {
                 if(CommonUtils.documentUpgradeConfirmation(this@InstallZip)) {
-                    dir.deleteRecursively()
+                    // Remove the internal database too, not just the epub dir: reusing an orphaned
+                    // database when re-optimizing the fresh epub would leave stale fragment rows
+                    // whose files no longer exist.
+                    deleteEpubModule(dir)
                 } else {
                     finish()
                     return@withContext false
                 }
             } else {
-                dir.deleteRecursively()
+                deleteEpubModule(dir)
             }
         }
         dir.mkdirs()

@@ -38,6 +38,19 @@
     <string name="history">History</string>
     <string name="speak">Speak</string>
     <string name="help">Help</string>
+    <!-- Help dialog strings (phase 3 UI Help links) -->
+    <string name="help_read_more_link">Read more in the manual</string>
+    <string name="help_full_documentation_link">Browse the full documentation</string>
+    <string name="help_prompt_edit_text">Custom prompts let you create reusable AI instructions for your study. Set a name, description, template, the contexts where it should appear, and optionally a custom provider/model. Built-in prompts cannot be edited directly — use \"Copy to customize\" to create your own version.</string>
+    <string name="help_tool_info_text">AI tools are specialised functions the AI can call to read your data or make changes on your behalf. Read tools (verses, commentaries, dictionaries, bookmarks) never require permission. Write tools (creating bookmarks, notes, study pad entries) are gated by the permission system.</string>
+    <string name="help_ai_settings_text">AI Settings is where you manage your prompts and categories. From here you can create new prompts, organise them into categories, import/export prompts as CSV, install add-on prompt packs, and reach the AI connection settings.</string>
+    <string name="help_ai_connection_text">Configure your AI providers, models, permissions and other connection options here. Each provider needs its own API key. You can add multiple providers and select a default model.</string>
+    <string name="help_ai_providers_text">Manage AI providers (Google Gemini, OpenAI, Anthropic, etc.). Each provider needs its own API key. You can add multiple providers and assign different ones to specific prompts.</string>
+    <string name="help_ai_models_text">Manage models for this provider. You can refresh the model list from the provider\'s API to pick up new releases, or add a model name manually if it is not in the fetched list.</string>
+    <string name="help_ai_document_filter_text">Limit which Bibles, commentaries and other modules the AI agent can read. By default the AI sees all installed modules; filtering helps reduce noise and cost when you only want it to consider specific sources.</string>
+    <string name="help_global_tool_permissions_text">Configure permissions for individual AI tools. For each read tool, choose whether the AI may use it (Enabled or Disabled). For each write tool, choose Always allow, Always deny, or Ask (which falls back to the global permission mode set in AI Connection settings).</string>
+    <string name="help_reading_progress_text">Your Bible reading and memorization progress at a glance. Mark chapters as read manually with the \"Mark as read\" button, or enable automatic tracking. Memorize exercises also feed into this view.</string>
+    <string name="help_memorize_text">The Memorize view helps you learn passages by heart. Use Word Blur, Word Scramble, Word Type or Word Order to practise. Successful exercises automatically mark verses as memorized (this can be disabled).</string>
     <string name="information">Information</string>
     <string name="other">Other</string>
     <string name="contact">Contact</string>
@@ -104,6 +117,11 @@
 
     <string name="prefs_e_ink_mode_title">Black &amp; white mode</string>
     <string name="prefs_eink_mode_summary">Use application in monochrome mode (no colors), making it more suitable for E-ink devices.</string>
+    <string name="prefs_display_color_mode_title">Color mode</string>
+    <string name="prefs_display_color_mode_summary">Choose how colors are displayed. Color e-ink keeps a black &amp; white base but shows bookmark colors, the active-window indicator and helper lines in color — for color e-ink screens.</string>
+    <string name="prefs_display_color_mode_normal">Normal</string>
+    <string name="prefs_display_color_mode_bw">Black &amp; white</string>
+    <string name="prefs_display_color_mode_color_eink">Color e-ink</string>
     <string name="prefs_eink_settings_cat">E-ink settings</string>
     <string name="prefs_eink_display_title">E-ink features</string>
     <string name="prefs_eink_display_summary">Enable e-ink specific features (page scroll buttons, scroll helper lines)</string>
@@ -260,6 +278,9 @@
 
     <string name="full_screen_hide_buttons_pref_title">Hide window button bar in fullscreen</string>
     <string name="full_screen_hide_buttons_pref_summary">When switching to fullscreen mode, hide automatically window button bar that is on the bottom of the screen</string>
+
+    <string name="prefs_hide_status_bar_title">Hide status bar</string>
+    <string name="prefs_hide_status_bar_summary">Hide the Android status bar (clock, notifications) while keeping AndBible\'s own toolbar visible. Useful for distraction-free reading and e-ink devices. Swipe from the top edge to reveal it temporarily.</string>
 
     <string name="prefs_dictionaries_cat">Dictionaries</string>
     <string name="choose_strongs_greek_dictionary_title">Strongs Greek dictionary</string>
@@ -1293,6 +1314,7 @@
     <string name="sqlite_invalid_file">Invalid module file or filename: %s</string>
     <string name="sqlite_cant_write">Can not (over)write the file</string>
     <string name="install_failed_reason">Installing module failed for the following reason: %s.</string>
+    <string name="no_file_manager">No app was found for choosing a file. Please install a file manager and try again.</string>
 
     <!-- Other / uncategorized -->
     <string name="app_opened_elsewhere">App opened elsewhere</string>
@@ -1319,9 +1341,9 @@
     <string name="prefs_swipe_mode_page">Page</string>
     <string name="prefs_swipe_mode_none">Disabled</string>
     <string name="prefs_volume_keys_scroll_title">Volume buttons scroll</string>
-    <string name="prefs_volume_keys_scroll_summary">Use volume up/down to scroll Bible text</string>
+    <string name="prefs_volume_keys_scroll_summary">Use volume up/down to scroll Bible text and lists</string>
     <string name="page_number_title">Relative page number</string>
-    <string name="page_number_summary">Show page number overlay. Page number is relative to the starting position.</string>
+    <string name="page_number_summary">Show page number overlay as current/total. Both are relative to the start of the loaded text.</string>
     <string name="select_custom_icon">Select custom marker icon</string>
     <string name="invalid_url_message">The URL you entered is invalid. Please enter a valid URL (e.g., https://nextcloud.example.com)</string>
     <string name="memorize_description">Memorize Bible verses</string>
@@ -1397,6 +1419,9 @@
     <string name="agent_max_iterations_summary">Maximum iterations before asking to continue (0 = unlimited)</string>
     <string name="ask_model_before_run_title">Ask model before run</string>
     <string name="ask_model_before_run_summary">Show a model selection dialog before executing a prompt (skipped when the prompt has an explicit model override)</string>
+    <string name="auto_hide_agent_log_title">Hide AI panel when done</string>
+    <string name="auto_hide_agent_log_summary">Automatically hide the AI panel when a task finishes successfully or is cancelled. On error the panel stays visible.</string>
+    <string name="ai_task_completed">AI task completed</string>
     <string name="custom_agent_system_prompt_title">Agent system prompt</string>
     <string name="custom_system_prompt_summary">Editing not recommended unless you know what you are doing</string>
     <string name="custom_text_transform_system_prompt_title">Text transformation system prompt</string>
@@ -1854,6 +1879,8 @@
     <string name="prefs_show_ai_doc_markers_summary">Show marker icons for AI-generated document pages linked to verses</string>
     <string name="prefs_show_ordinals_title">Show ordinal numbers</string>
     <string name="prefs_show_ordinals_summary">Show ordinal position markers in text</string>
+    <string name="prefs_show_reading_progress_title">Reading progress</string>
+    <string name="prefs_show_reading_progress_summary">Show how far through the book you are (percentage, page or chapter)</string>
 
     <string name="prefs_page_scroll_amount_title">Page scroll amount</string>
     <string name="prefs_page_scroll_amount_summary">How much of the page to scroll with page up/down</string>
@@ -1866,4 +1893,102 @@
     <string name="scroll_helper_line_style_thick_solid">Thick solid line</string>
     <string name="prefs_page_buttons_title">Page scroll buttons</string>
     <string name="prefs_page_buttons_summary">Show visible page up/down buttons on screen</string>
+
+    <!-- Document sync: settings UI -->
+    <string name="document_sync_title">Documents</string>
+    <string name="document_sync_contents">Installed Bibles, commentaries and other documents</string>
+    <string name="document_sync_category_title">Document sync</string>
+    <string name="document_sync_auto_download_title">Download automatically</string>
+    <string name="document_sync_auto_download_summary">Automatically download new and updated documents from the cloud to this device</string>
+    <string name="document_sync_auto_upload_title">Upload automatically</string>
+    <string name="document_sync_auto_upload_summary">Automatically upload documents installed on this device to the cloud</string>
+    <string name="document_sync_auto_delete_title">Apply removals automatically</string>
+    <string name="document_sync_auto_delete_summary">Automatically remove documents from this device when they are removed on another device</string>
+    <string name="document_sync_wifi_only_title">Sync documents on Wi-Fi only</string>
+    <string name="document_sync_wifi_only_summary">Automatic document transfers wait for an unmetered (Wi-Fi) connection</string>
+    <string name="document_sync_manage_summary">View and manage documents stored in the cloud</string>
+
+    <!-- Document sync: cloud documents management view -->
+    <string name="document_sync_manage_title">Synced documents</string>
+    <string name="cloud_doc_status_synced">Synced</string>
+    <string name="cloud_doc_status_local_only">On this device only</string>
+    <string name="cloud_doc_status_cloud_only">In cloud only</string>
+    <string name="cloud_doc_status_update">Update available</string>
+    <string name="cloud_doc_status_blocked">Blocked on this device</string>
+    <string name="cloud_doc_status_wont_sync">Won\'t sync to cloud</string>
+    <string name="cloud_doc_version_prefix">v%1$s</string>
+    <string name="cloud_doc_filter_all">All</string>
+    <string name="cloud_doc_filter_installed">Installed</string>
+    <string name="cloud_doc_filter_cloud">In cloud</string>
+    <string name="cloud_doc_filter_updates">Updates</string>
+    <string name="cloud_doc_filter_blocked">Blocked</string>
+    <string name="cloud_doc_filter_device_only">Only on this device</string>
+    <string name="cloud_doc_filter_cloud_only">In cloud only</string>
+    <string name="cloud_doc_filter_removed">Removed</string>
+    <string name="cloud_doc_show_removed">Show removed documents</string>
+    <string name="cloud_doc_status_removed">Removed from cloud</string>
+    <string name="cloud_doc_status_still_installed">still installed here</string>
+    <string name="cloud_doc_purge_confirm">Permanently remove \"%1$s\" from the cloud history? If it is still installed on another device, that device may upload it back to the cloud on its next sync.</string>
+    <string name="cloud_doc_action_download">Download</string>
+    <string name="cloud_doc_action_push">Push to cloud</string>
+    <string name="cloud_doc_action_remove_cloud">Remove from cloud</string>
+    <string name="cloud_doc_action_remove_all_devices">Remove from all devices</string>
+    <string name="cloud_doc_action_block">Don\'t sync to this device</string>
+    <string name="cloud_doc_action_unblock">Allow on this device</string>
+    <string name="cloud_doc_action_restore">Restore to cloud</string>
+    <string name="cloud_doc_action_dont_sync">Do not sync to cloud</string>
+    <string name="cloud_doc_action_allow_sync">Sync to cloud</string>
+    <string name="cloud_doc_action_purge">Remove from cloud history</string>
+    <string name="cloud_doc_remove_all_confirm">Remove %1$s from the cloud and from all your devices, including this one?</string>
+    <string name="cloud_doc_remove_cloud_confirm">Remove %1$s from the cloud? The copy on this device is kept; devices with document sync on will also remove it.</string>
+    <string name="cloud_doc_sync_now">Sync now</string>
+    <string name="cloud_doc_rescan">Re-scan from cloud</string>
+    <string name="cloud_doc_sync_now_download">Download new and updated documents</string>
+    <string name="cloud_doc_sync_now_upload">Upload local documents to the cloud</string>
+    <string name="cloud_doc_sync_now_delete">Apply removals from other devices</string>
+    <string name="document_sync_signin_required">Sign in to your cloud account to manage synced documents.</string>
+    <string name="cloud_doc_summary_upload">Upload %1$d</string>
+    <string name="cloud_doc_summary_upload_size">Upload %1$d (%2$s)</string>
+    <string name="cloud_doc_summary_download">Download %1$d</string>
+    <string name="cloud_doc_summary_download_size">Download %1$d (%2$s)</string>
+    <string name="cloud_doc_wifi_waiting">Automatic downloads will start on Wi-Fi.</string>
+    <plurals name="cloud_doc_sync_now_count">
+        <item quantity="one">%1$d document</item>
+        <item quantity="other">%1$d documents</item>
+    </plurals>
+    <plurals name="cloud_doc_sync_now_count_size">
+        <item quantity="one">%1$d document (%2$s)</item>
+        <item quantity="other">%1$d documents (%2$s)</item>
+    </plurals>
+    <string name="cloud_doc_sync_now_count_none">Nothing to transfer</string>
+    <string name="cloud_doc_selected_count">%1$d selected</string>
+    <string name="cloud_doc_bulk_skipped">Skipped %1$d not applicable</string>
+    <plurals name="cloud_doc_bulk_remove_all_confirm">
+        <item quantity="one">Remove %1$d document from the cloud and from all your devices, including this one?</item>
+        <item quantity="other">Remove %1$d documents from the cloud and from all your devices, including this one?</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_remove_cloud_confirm">
+        <item quantity="one">Remove %1$d document from the cloud? Copies on this device are kept.</item>
+        <item quantity="other">Remove %1$d documents from the cloud? Copies on this device are kept.</item>
+    </plurals>
+    <plurals name="cloud_doc_bulk_purge_confirm">
+        <item quantity="one">Permanently remove %1$d document from the cloud history?</item>
+        <item quantity="other">Permanently remove %1$d documents from the cloud history?</item>
+    </plurals>
+    <string name="document_sync_notification_title">Syncing documents</string>
+    <string name="document_sync_downloading">Downloading %1$s (%2$d/%3$d)</string>
+    <string name="document_sync_uploading">Uploading %1$s (%2$d/%3$d)</string>
+    <string name="document_sync_removing">Removing %1$s (%2$d/%3$d)</string>
+    <string name="document_sync_started">Document sync started</string>
+    <string name="document_sync_enable_dialog_title">Start syncing documents?</string>
+    <string name="document_sync_enable_dialog_nothing">No documents to transfer yet. Newly installed documents will sync automatically.</string>
+    <string name="help_document_sync_text">Document sync copies your installed Bibles, commentaries and other documents to the cloud and keeps them in sync across your devices. Use this view to see what is stored in the cloud, download or upload individual documents, remove documents, and control what syncs to this device.</string>
+    <string name="background_image_title">Background image</string>
+    <string name="background_image_none">No background</string>
+    <string name="background_image_import">Import from gallery…</string>
+    <string name="background_image_empty">No imported images yet. Tap \"Import from gallery…\" to add one.</string>
+    <string name="background_image_day">Background image (day)</string>
+    <string name="background_image_night">Background image (night)</string>
+    <string name="background_image_opacity_day">Background image opacity (day)</string>
+    <string name="background_image_opacity_night">Background image opacity (night)</string>
 </resources>

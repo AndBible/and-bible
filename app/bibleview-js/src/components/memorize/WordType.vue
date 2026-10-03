@@ -186,13 +186,25 @@ function setWordRef(globalIndex: number, el: any) {
     wordRefs.value[globalIndex] = el;
 }
 
+// An apostrophe (straight or curly) sitting between two word characters is part of a
+// contraction/possessive (e.g. "Lord's", "don't") and must not split the word into
+// separate tokens - otherwise typing the word normally is reported as an error. A bare
+// trailing apostrophe is also kept attached when the word ends in "s" (e.g. "Jesus'",
+// "years'") since that is the standard classical/plural possessive form; a trailing
+// apostrophe after any other letter is treated as a closing quote instead.
 function getWordsFromText(text: string) {
-    const tokens = text.match(/(["".,;:!?…"'«»„‚–—\-()[\]{}]+)|([^\s"".,;:!?…"'«»„‚–—\-()[\]{}]+)/g) || [];
+    const tokens = text.match(/(["".,;:!?…"'«»„‚–—\-()[\]{}]+)|([^\s"".,;:!?…"'«»„‚–—\-()[\]{}]+(?:['’‘][^\s"".,;:!?…"'«»„‚–—\-()[\]{}]+)*(?:(?<=[sS])['’‘])?)/g) || [];
     return tokens.filter(token => token.length > 0);
 }
 
 function isPunctuation(word: string): boolean {
     return /^["".,;:!?…"'«»„‚–—\-()[\]{}]+$/.test(word);
+}
+
+// Module text may use a curly apostrophe (') while the keyboard produces a straight one -
+// normalize both to the same character before comparing typed input to the reference word.
+function normalizeApostrophes(word: string): string {
+    return word.replace(/[’‘]/g, "'");
 }
 
 function getGlobalWordIndex(itemIndex: number, wordIndex: number): number {
@@ -297,7 +309,7 @@ function onInput(event: Event) {
 
     if (isCompleted.value || value.length === 0) return;
 
-    const currentWord = getWordAt(currentWordIndex.value);
+    const currentWord = normalizeApostrophes(getWordAt(currentWordIndex.value));
 
     if (typeEverything.value) {
         // In "type everything" mode, space/enter submits the current buffer

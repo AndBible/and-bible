@@ -72,10 +72,14 @@ removeMemorizationTarget: Ziel -
 removeMemorizationTargetLong: Auswendiglernziel entfernen
 markAsMemorized: Als auswendig gelernt markieren
 markedAsMemorized: Auswendig gelernt
-removeFromTargets: Ziel -
+removeFromTargets: Aus den Zielen entfernen
 viewReadingProgress: Lese-/Lernfortschritt
 viewReadingProgressSettings: Lese-/Lerneinstellungen
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · Kap. %s/%s"
 listenInLoop: In Schleife anhören
+viewHelp: Hilfe anzeigen
 verseNoteLong: Eine Notiz schreiben
 verseParagraphBreakLong: Absatzumbruch
 addBookmark: Lesezeichen

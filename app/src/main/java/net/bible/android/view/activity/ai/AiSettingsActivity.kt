@@ -43,9 +43,11 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManagePromptsBinding
 import net.bible.android.activity.databinding.ManagePromptsCategoryHeaderBinding
 import net.bible.android.activity.databinding.ManagePromptsListItemBinding
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.sword.csvprompt.addCsvPromptBook
 import net.bible.service.common.CommonUtils
@@ -212,7 +214,7 @@ class AiSettingsActivity : ActivityBase() {
         menu.findItem(R.id.new_prompt)?.isVisible = configured
         menu.findItem(R.id.new_category)?.isVisible = configured
         menu.findItem(R.id.ai_connection_settings)?.isVisible = configured
-        menu.findItem(R.id.reset_all_ai_settings)?.isVisible = configured
+        menu.findItem(R.id.reset_all_ai_settings)?.isVisible = configured && CommonUtils.isDebugMode
         menu.findItem(R.id.export_prompts_csv)?.isVisible = configured
         menu.findItem(R.id.import_prompts_csv)?.isVisible = configured
         menu.findItem(R.id.restore_hidden_prompts)?.isVisible =
@@ -254,6 +256,15 @@ class AiSettingsActivity : ActivityBase() {
                 lifecycleScope.launch { importPrompts() }
                 true
             }
+            R.id.show_help -> {
+                CommonUtils.showHelpDialog(
+                    activity = this,
+                    titleResId = R.string.help,
+                    messageResId = R.string.help_ai_settings_text,
+                    helpPath = "ai.html",
+                )
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -287,6 +298,7 @@ class AiSettingsActivity : ActivityBase() {
                 PromptRepository.deleteAllUserPrompts()
                 PromptRepository.deleteAllUserCategories()
             }
+            ABEventBus.post(AppSettingsUpdated())
             updateView()
         }
     }

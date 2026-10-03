@@ -220,6 +220,15 @@ class ReadingProgressActivity : ActivityBase() {
                 startActivity(Intent(this, ReadingProgressSettingsActivity::class.java))
                 true
             }
+            R.id.show_help -> {
+                CommonUtils.showHelpDialog(
+                    activity = this,
+                    titleResId = R.string.help,
+                    messageResId = R.string.help_reading_progress_text,
+                    helpPath = "reading_progress.html",
+                )
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

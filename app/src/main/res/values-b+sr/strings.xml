@@ -166,7 +166,7 @@
   <string name="font_size_pt">%d тч</string>
   <string name="auto_fullscreen_summary">Аутоматски пребаци на цео екран приликом скроловања текста. Савет: увек можете прећи у приказ преко целог екрана дуплим притиском.</string>
   <string name="prefs_margin_size_title">Измени величину маргина</string>
-  <string name="prefs_margin_size_mm_title">Величина екрана (%d/%d/%d mm)</string>
+  <string name="prefs_margin_size_mm_title">Величина екрана (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Напредна подешавања</string>
   <string name="prefs_display_customization_cat">Изглед и осећај</string>
   <string name="prefs_behavior_customization_cat">Понашање апликације</string>
@@ -215,10 +215,10 @@
   <string name="windowMinimise">Минимизирај</string>
   <string name="windowSynchronise">Усклади</string>
   <string name="move_window">Премести</string>
-  <string name="move_window_to_position2">Позиција %d (%s:%s)</string>
+  <string name="move_window_to_position2">Позиција %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Копирај поставке на</string>
   <string name="copy_settings_to_workspace">Радна површ</string>
-  <string name="copy_settings_to_window">Прозор %d (%s: %s)</string>
+  <string name="copy_settings_to_window">Прозор %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Промени у обичан прозор</string>
   <string name="window_pin_mode">Истакни</string>
   <!--Notes screen-->
@@ -470,7 +470,7 @@
   <string name="backup_success">Моје белешке, Обележивачи, Планови читања и Радне површи су успешно врећене %s</string>
   <string name="error_no_backup_file">Датотека резервне копије није пронађена</string>
   <string name="backup_modules_email_subject_2">Резервна копија модула %s </string>
-  <string name="backup_modules_email_message_2">Закачена је резервна копија %s модула, која садржи следеће модуле: %s</string>
+  <string name="backup_modules_email_message_2">Закачена је резервна копија %1$s модула, која садржи следеће модуле: %2$s</string>
   <string name="backup_email_subject_2">Резервна копија базе података %s</string>
   <string name="backup_email_message_2">База података %s која садржи обележиваче, белешке, планове читања и радне површи је закачена</string>
   <string name="restore_unsuccessfull">Враћање базе података је било неуспешно. Можда сте дали неодговарајућу датотеку.</string>
@@ -486,14 +486,14 @@
   <string name="install_zip_canceled">Уградња модула отказана</string>
   <!--About-->
   <string name="module_about_copyright">Ауторска права: %s</string>
-  <string name="module_about_installed_version">Уграђена верзија: %s (%s)</string>
-  <string name="module_about_latest_version">Последња верзија; %s (%s)</string>
+  <string name="module_about_installed_version">Уграђена верзија: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Последња верзија; %1$s (%2$s)</string>
   <string name="module_about_versification">Стил стихова: %s</string>
   <string name="module_about_repository">Ризница дистрибуције: %s</string>
   <string name="module_about_osisId">OSIS ИД: %s</string>
   <!--Bug reporting-->
   <string name="send_bug_report_title">Пријави грешку</string>
-  <string name="report_bug_email_subject_2">Пријава грешке за %s %s</string>
+  <string name="report_bug_email_subject_2">Пријава грешке за %1$s %2$s</string>
   <string name="report_bug_email_message">
         --- ПИШИТЕ ИЗВЕШТАЈ ГРЕШКЕ ИЗНАД ОВЕ ЛИНИЈЕ ---\n
         Упутства:\n
@@ -577,10 +577,10 @@
   <string name="beta_notice_github">Гитхаб</string>
   <string name="beta_notice_dismiss_until_update">Склони до следећег ажурирања</string>
   <!--History-->
-  <string name="history_for">Историја (%s: Прозор %d)</string>
+  <string name="history_for">Историја (%1$s: Прозор %2$d)</string>
   <!--Uncategorized-->
   <string name="close">Затвори</string>
-  <string name="something_with_parenthesis">%s (%s)</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Разумем</string>
   <string name="first_time_help_show_next_time">Прикажи и следећи пут</string>
 </resources>

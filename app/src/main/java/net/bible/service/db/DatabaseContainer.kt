@@ -26,6 +26,7 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.BookmarkDatabase
+import net.bible.android.database.DocumentSyncDatabase
 import net.bible.android.database.LogEntry
 import net.bible.android.database.OldMonolithicAppDatabase
 import net.bible.android.database.REPO_DATABASE_VERSION
@@ -83,6 +84,8 @@ class DataBaseNotReady: Exception()
 class DatabaseContainer {
     init {
         backupDatabaseIfNeeded()
+        // The cloud-document cache DB was renamed to document-sync.sqlite3; drop the orphaned file.
+        if (!application.isRunningTests) application.deleteDatabase("cloud-documents-cache.sqlite3")
         migrateOldDatabaseIfNeeded()
     }
 
@@ -248,6 +251,15 @@ class DatabaseContainer {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
+    val documentSyncDb: DocumentSyncDatabase =
+        Room.databaseBuilder(
+            application, DocumentSyncDatabase::class.java, "document-sync.sqlite3"
+        )
+            .allowMainThreadQueries()
+            .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+
     val repoDb: RepoDatabase =
         Room.databaseBuilder(
             application, RepoDatabase::class.java, RepoDatabase.dbFileName
@@ -318,7 +330,10 @@ class DatabaseContainer {
     }
 
     private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, aiSettingsDb, progressDb)
-    private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb)
+    // documentSyncDb is intentionally NOT backed up or vacuumed (device-local, sign-out-scoped cache),
+    // but it must still be closed by closeAll() on reset()/restore — otherwise the old Room handle
+    // leaks and the next container opens a second handle to the same file (SQLite lock risk).
+    private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, documentSyncDb)
 
     val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
 

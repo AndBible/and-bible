@@ -75,7 +75,11 @@ markedAsMemorized: Gememoriseerd
 removeFromTargets: Doel -
 viewReadingProgress: Lees-/geheugenvoortgang
 viewReadingProgressSettings: Lees-/geheugeninstellingen
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · h %s/%s"
 listenInLoop: Luisteren in lus
+viewHelp: Hulp bekijken
 verseNoteLong: Schrijf een notitie
 verseParagraphBreakLong: Alineascheiding
 addBookmark: Bladwijzer

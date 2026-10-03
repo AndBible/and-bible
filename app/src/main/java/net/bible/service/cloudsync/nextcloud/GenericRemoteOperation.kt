@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2025-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -30,38 +30,51 @@ class GenericRemoteOperation(
 
     override fun run(client: OwnCloudClient): RemoteOperationResult<List<RemoteFile>> {
         var result: RemoteOperationResult<List<RemoteFile>>
-        val status = client.executeMethod(davMethod)
+        try {
+            val status = client.executeMethod(davMethod)
 
-        val isSuccess = (status == HttpStatus.SC_MULTI_STATUS || status == HttpStatus.SC_OK)
+            val isSuccess = (status == HttpStatus.SC_MULTI_STATUS || status == HttpStatus.SC_OK)
 
-        if (isSuccess) {
-            val dataInServer = davMethod.responseBodyAsMultiStatus
-            val webDavFileUtils = WebDavFileUtils()
-            val mFolderAndFiles = webDavFileUtils.readData(
-                dataInServer,
-                client,
-                false,
-                true
-            )
+            if (isSuccess) {
+                val dataInServer = davMethod.responseBodyAsMultiStatus
+                val webDavFileUtils = WebDavFileUtils()
+                val mFolderAndFiles = webDavFileUtils.readData(
+                    dataInServer,
+                    client,
+                    false,
+                    true
+                )
 
-            result = RemoteOperationResult<List<RemoteFile>>(
-                true,
-                status,
-                davMethod.responseHeaders
-            )
-            if (result.isSuccess) {
-                result.resultData = mFolderAndFiles
+                result = RemoteOperationResult<List<RemoteFile>>(
+                    true,
+                    status,
+                    davMethod.responseHeaders
+                )
+                if (result.isSuccess) {
+                    result.resultData = mFolderAndFiles
+                }
+            } else {
+                client.exhaustResponse(davMethod.responseBodyAsStream)
+                result = RemoteOperationResult<List<RemoteFile>>(
+                    false,
+                    status,
+                    davMethod.responseHeaders
+                )
             }
-        } else {
-            client.exhaustResponse(davMethod.responseBodyAsStream)
-            result = RemoteOperationResult<List<RemoteFile>>(
-                false,
-                status,
-                davMethod.responseHeaders
-            )
+        } catch (e: Exception) {
+            // client.executeMethod() throws on a dropped connection (flight mode, backgrounding,
+            // flaky network) rather than reporting it via the return value. RemoteOperation.run()
+            // (in the nextcloud/owncloud library) only catches IOException while creating the
+            // client, not while running this subclass, so an uncaught exception here escaped the
+            // worker thread and crashed the app (#3442). Library ops such as
+            // ReadFolderRemoteOperation catch it themselves and return RemoteOperationResult(e);
+            // mirror that so the failure reaches NextCloudAdapter.execute() as a normal result and
+            // is treated as a transient, retryable network error.
+            result = RemoteOperationResult<List<RemoteFile>>(e)
+        } finally {
+            davMethod.releaseConnection()
         }
 
-        this@GenericRemoteOperation.davMethod.releaseConnection()
         return result
     }
 }

@@ -1,0 +1,45 @@
+# AndBible 5.1 Changelog Summary
+
+## New Features
+- EPUB reading progress tracking (d835c0d)
+- Document sync across devices (e02c4ed)
+- AI study assistant autohide option (ef500c9)
+- Commentary browsing improvements (943af0)
+- Chrome browser support (68dd0f)
+- Multiple read/mark tracking for Bible chapters (various)
+
+## Improvements
+- Document sync improvements and error handling (c366ca, d77b2d)
+- Verse reference included in memorization by default (#3799)
+- Automatic verse reference recognition for EPUB cross-references (0eed222)
+- Play Store description updated with AI tools and cross-device sync features (62a413)
+- Simplified Onyx e-ink device support (e9cbcb)
+
+## Bug Fixes
+- Fixed duplicate languages in document selection language list (#3827)
+- Fixed bookmark note editor scrolling and modal interaction (#3572)
+- Fixed crash when opening documents without file manager installed (444d4d)
+- Fixed crash when rendering bookmarks with out-of-range text offsets (fce39c)
+- Fixed OK button bar overlapping last item on download screen (bdf9cd)
+- Fixed EPUB Bible links forcing links window to specific document (#2502)
+- Fixed AI study agent marker not appearing for window menu actions (887bb6)
+- Fixed workspace settings reset not inheriting from global settings (0d42ed)
+- Fixed link colors invisible in monochrome mode (0c547f)
+- Fixed crash when invoking AI actions on AI Documents (3cd60c)
+- Fixed memorization order mode accepting duplicate words at any position (#3735)
+- Fixed reading progress percentage text barely visible in dark mode (#3797)
+- Fixed reading activity heatmap showing empty on current day (#3800)
+
+AndBible 5.1 stable release!
+
+Quick tour to what's new: https://youtu.be/EKnyBIti9Fk
+
+Highlights since 5.0:
+- Optional AI assistant (Gemini, Claude, OpenRouter, ...)
+- Reading & memorization progress tracking
+- My Documents: editable, syncable pages
+- 3-level text display settings inheritance
+- Many other small features and bug fixes
+
+See https://andbible.org
+Support: https://shop.andbible.org/

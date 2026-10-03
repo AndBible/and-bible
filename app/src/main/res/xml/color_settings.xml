@@ -46,6 +46,15 @@
             android:summary="@string/prefs_noise_summary"
             app:showSeekBarValue="true"
             />
+        <Preference
+            android:key="background_image_day"
+            android:title="@string/background_image_day"/>
+        <SeekBarPreference
+            android:defaultValue="100"
+            android:max="100"
+            android:key="background_image_opacity_day"
+            android:title="@string/background_image_opacity_day"
+            app:showSeekBarValue="true"/>
 
     </PreferenceCategory>
     <PreferenceCategory
@@ -68,6 +77,15 @@
             android:summary="@string/prefs_noise_summary"
             app:showSeekBarValue="true"
             />
+        <Preference
+            android:key="background_image_night"
+            android:title="@string/background_image_night"/>
+        <SeekBarPreference
+            android:defaultValue="100"
+            android:max="100"
+            android:key="background_image_opacity_night"
+            android:title="@string/background_image_opacity_night"
+            app:showSeekBarValue="true"/>
 
     </PreferenceCategory>
 </PreferenceScreen>

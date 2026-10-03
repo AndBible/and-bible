@@ -75,7 +75,11 @@ markedAsMemorized: Memorisano
 removeFromTargets: Cilj -
 viewReadingProgress: Napredak čitanja/memorisanja
 viewReadingProgressSettings: Podešavanja čitanja/memorisanja
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · pog %s/%s"
 listenInLoop: Slušaj u petlji
+viewHelp: Prikaži pomoć
 verseNoteLong: Napiši belešku
 verseParagraphBreakLong: Prelom pasusa
 addBookmark: Obeleživač

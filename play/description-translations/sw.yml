@@ -15,8 +15,7 @@ paragraph_1_3: >
 subtitle_2: Vipengele vyenye nguvu vya Masomo ya Biblia
 paragraph_2_1: >
   Programu ina vipengele vingi vya kuvutia na vya asili, ambavyo hufanya uzoefu wa masomo ya kina na wa kina wa Biblia kuwa laini zaidi kuliko hapo awali. Vipengele muhimu zaidi ni kama ifuatavyo:
-feature_01: >
-  Maonyesho ya maandishi yaliyogawanywa yanayoruhusu kulinganisha tafsiri na kushauriana na maoni
+feature_01: "Maonyesho ya maandishi yaliyogawanywa yanayoruhusu kulinganisha tafsiri na kushauriana na maoni\n"
 feature_02: Maeneo ya kazi huruhusu usanidi mwingi wa masomo ya Biblia wenye mipangilio yake
 feature_03: Muunganiko wa Strong's huruhusu uchambuzi wa maneno ya Kigiriki na Kiebrania
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
@@ -24,15 +23,12 @@ feature_04: >
   Gusa kiungo chochote ili kufuata marejeleo ya msalaba yenye viungo, maelezo ya chini, na maoni ({{commentary_examples}}) au makusanyo ya marejeleo ya msalaba ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry n.k.
+commentary_examples: "Gill, Matthew Henry n.k."
 # Examples of cross-reference collections.
-cross_reference_examples: Hazina ya Maarifa ya Maandiko, TSKe
-feature_05: >
-  Maandishi-hadi-usemi wa hali ya juu wenye alamisho za kusoma, kuruhusu uzoefu laini wa kusikia Biblia
-feature_06: >
-  Utafutaji rahisi wa maandishi kamili katika tafsiri moja au nyingi za Biblia kwa wakati mmoja
-feature_07: >
-  Vipengele vya hali ya juu vya kuweka alamisho na kuangazia na maelezo ya kibinafsi ya masomo
+cross_reference_examples: "Hazina ya Maarifa ya Maandiko, TSKe"
+feature_05: "Maandishi-hadi-usemi wa hali ya juu wenye alamisho za kusoma, kuruhusu uzoefu laini wa kusikia Biblia\n"
+feature_06: "Utafutaji rahisi wa maandishi kamili katika tafsiri moja au nyingi za Biblia kwa wakati mmoja\n"
+feature_07: "Vipengele vya hali ya juu vya kuweka alamisho na kuangazia na maelezo ya kibinafsi ya masomo\n"
 feature_08: >
   Ulinganishaji kati ya vifaa: weka maeneo yako ya kazi, alamisho, maelezo, na maendeleo ya kusoma yakilingana katika vifaa vyako vyote
 feature_09: >
@@ -46,30 +42,36 @@ feature_11: >
   Wakala wa AI wa masomo wa hiari (kwa kuchagua tu — unahitaji ufunguo wako wa API kwa huduma ya nje): chunguza maoni na kamusi zako ulizosakinisha kwa msaada wa AI katika lugha unayochagua, pamoja na njia nyingine za ubunifu za masomo. Mfumo wa ndani wa ruhusa unakupa udhibiti kamili wa kile ambacho wakala anaweza kufanya.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV na NKJV
-feature_12: "Nje ya mtandao: wakati pekee unahitaji mtandao ni kwa kupakua hati."
+unavailable_documents: "ESV, NIV na NKJV"
+feature_12: >-
+  Nje ya mtandao: wakati pekee unahitaji mtandao ni kwa kupakua hati.
 # UNUSED
 feature_13: >
   Daftari za Masomo kwa kuandika maelezo na marejeleo ya Biblia unapisikiliza mahubiri.
 subtitle_3: Hebu tuunde programu bora ya Biblia pamoja!
 paragraph_3_1: >
   AndBible ni mradi wa jumuiya wa chanzo huria. Kwa vitendo, hii inamaanisha kwamba mtu yeyote mwenye ujuzi unaofaa anaweza, na anahimizwa, kuchangia mradi kwa:
-contr_1: kukuza vipengele vipya,
-contr_2: kupima vipengele ambavyo bado havijatolewa,
-contr_3: kusasisha tafsiri za kiolesura cha mtumiaji, na
-contr_4: >
-  kusaidia kupanua maktaba ya moduli kwa kupata ruhusa kutoka kwa wamiliki wa hakimiliki, au kwa kubadilisha hati hadi umbizo la SWORD.
+contr_1: "kukuza vipengele vipya,"
+contr_2: "kupima vipengele ambavyo bado havijatolewa,"
+contr_3: "kusasisha tafsiri za kiolesura cha mtumiaji, na"
+contr_4: "kusaidia kupanua maktaba ya moduli kwa kupata ruhusa kutoka kwa wamiliki wa hakimiliki, au kwa kubadilisha hati hadi umbizo la SWORD.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  Ikiwa wewe ni mhandisi wa programu au mpimaji wa kitaalamu, tafadhali fikiria kuchangia mradi. Kwa taarifa zaidi kuhusu jinsi ya kuchangia, tafadhali tazama {{how_to_contribute_url}}.
+paragraph_4_1: "Ikiwa wewe ni mhandisi wa programu au mpimaji wa kitaalamu, tafadhali fikiria kuchangia mradi. Kwa taarifa zaidi kuhusu jinsi ya kuchangia, tafadhali tazama {{how_to_contribute_url}}.\n"
 subtitle_4: Viungo
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "Ukurasa wa nyumbani: {{homepage_url}}"
-link_2: "Penda AndBible kwenye Facebook: {{facebook_url}}"
-link_3: "Kituo chetu cha Youtube: {{youtube_url}}"
-link_4: "Maswali Yanayoulizwa Mara kwa Mara: {{faq_url}}"
-link_5: "Ukurasa wa mradi kwenye Github: {{github_url}}"
-buy_title: Unga mkono kwa kununua muda wa ukuzaji!
+link_1: >-
+  Ukurasa wa nyumbani: {{homepage_url}}
+link_2: >-
+  Penda AndBible kwenye Facebook: {{facebook_url}}
+link_3: >-
+  Kituo chetu cha Youtube: {{youtube_url}}
+link_4: >-
+  Maswali Yanayoulizwa Mara kwa Mara: {{faq_url}}
+link_5: >-
+  Ukurasa wa mradi kwenye Github: {{github_url}}
+buy_title: >-
+  Unga mkono kwa kununua muda wa ukuzaji!
 buy_1: >
   Ikiwa huna muda au ujuzi wa kuchangia mradi, unaweza pia kuunga mkono mradi kwa kununua muda wa kufanya kazi wa msanidi wa kitaalamu.
-buy_2: Tazama chaguo
+buy_2: >-
+  Tazama chaguo

@@ -75,7 +75,11 @@ markedAsMemorized: Zapamiętane
 removeFromTargets: Cel -
 viewReadingProgress: Postęp czytania/nauki
 viewReadingProgressSettings: Ustawienia czytania/nauki
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · rozdz. %s/%s"
 listenInLoop: Słuchaj w pętli
+viewHelp: Wyświetl pomoc
 verseNoteLong: Napisz notatkę
 verseParagraphBreakLong: Dodaj nową linię
 addBookmark: Zakładka

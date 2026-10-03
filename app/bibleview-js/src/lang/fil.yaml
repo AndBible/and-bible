@@ -75,7 +75,11 @@ markedAsMemorized: Nakabisa na
 removeFromTargets: Layunin -
 viewReadingProgress: Progreso sa Pagbabasa/Pagkabisa
 viewReadingProgressSettings: Mga Setting ng Pagbabasa/Pagkabisa
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: Makinig sa Loop
+viewHelp: Tingnan ang tulong
 verseNoteLong: Sumulat ng tala
 verseParagraphBreakLong: Pahinga ng talata
 addBookmark: Bookmark

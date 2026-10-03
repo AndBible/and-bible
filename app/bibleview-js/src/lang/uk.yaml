@@ -75,7 +75,11 @@ markedAsMemorized: Завчено
 removeFromTargets: Мета -
 viewReadingProgress: Прогрес читання/завчення
 viewReadingProgressSettings: Налаштування читання/завчення
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · гл %s/%s"
 listenInLoop: Слухати в циклі
+viewHelp: Переглянути довідку
 verseNoteLong: Написати нотатку
 verseParagraphBreakLong: Абзац
 addBookmark: Закладка

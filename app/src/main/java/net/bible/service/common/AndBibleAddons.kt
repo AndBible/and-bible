@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -27,6 +27,10 @@ import java.io.File
 class ReloadAddonsEvent
 
 class ProvidedFont(val book: Book, val name: String, val path: String) {
+    val file: File get() = File(File(book.bookMetaData.location), path)
+}
+
+class ProvidedBackgroundImage(val book: Book, val name: String, val path: String) {
     val file: File get() = File(File(book.bookMetaData.location), path)
 }
 
@@ -75,6 +79,22 @@ object AndBibleAddons {
         return fontsByModule
     }
 
+    /** Background-image add-on modules, keyed by module initials (one image per module). */
+    val providedBackgroundImages: Map<String, ProvidedBackgroundImage> get() {
+        val byModule = mutableMapOf<String, ProvidedBackgroundImage>()
+        for (book in addons) {
+            val marker = book.bookMetaData.getValues("AndBibleProvidesBackgroundImage")?.firstOrNull() ?: continue
+            val values = marker.split(";")
+            val provided = ProvidedBackgroundImage(book, values[0], values.getOrElse(1) { "" })
+            if (provided.file.canRead()) {
+                byModule[book.initials] = provided
+            } else {
+                Log.e(TAG, "Could not read background image file ${provided.file}")
+            }
+        }
+        return byModule
+    }
+
     val providedReadingPlans: Map<String, ProvidedReadingPlan> get() {
         val readingPlansByFileName = mutableMapOf<String, ProvidedReadingPlan>()
         for (book in addons) {
@@ -111,6 +131,9 @@ object AndBibleAddons {
 
     val fontModuleNames: List<String> get() =
         addons.filter { it.bookMetaData.getValues("AndBibleProvidesFont") != null }.map { it.initials }
+
+    val backgroundImageModuleNames: List<String> get() =
+        addons.filter { it.bookMetaData.getValues("AndBibleProvidesBackgroundImage") != null }.map { it.initials }
 
     val featureModuleNames: List<String> get() =
         addons.filter { it.bookMetaData.getValues("AndBibleProvidesFeature") != null }.map { it.initials }

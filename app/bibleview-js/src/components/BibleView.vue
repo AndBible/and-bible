@@ -18,11 +18,12 @@
 <template>
   <div
       @click="ambiguousSelection?.handle"
-      :class="{night: appSettings.nightMode, noAnimation: appSettings.disableAnimations, monochrome: appSettings.monochromeMode}"
+      :class="{night: appSettings.nightMode, noAnimation: appSettings.disableAnimations, monochrome: appSettings.monochromeMode, colorEink: appSettings.colorEinkMode}"
       :style="topStyle"
       :dir="direction"
   >
-    <div class="background" :style="backgroundStyle"/>
+    <div class="background"/>
+    <div v-if="backgroundImageStyle" class="background-image" :style="backgroundImageStyle"/>
     <div :style="`height:${calculatedConfig.topOffset}px`"/>
     <div :style="modalStyle" id="modals"/>
     <template v-if="mounted">
@@ -65,12 +66,12 @@
     <div class="pagenumber"
          :style="{bottom: pageNumberBottom}"
          v-if="config.showPageNumber"
-         @click="resetPageNumber()"
     >
       <div class="pagenumber-text">
-        {{ pageNumber }}
+        {{ pageNumber }}/{{ pageCount }}
       </div>
     </div>
+    <ReadingProgress v-if="config.showReadingProgress" :text="progressText" :bottom="readingProgressBottom"/>
     <template v-if="appSettings.einkMode && config.scrollHelperLines && config.pageScrollAmount < 100">
       <div
           v-for="pos in helperLinePositions"
@@ -108,7 +109,7 @@
       @navigate-prev="android.goToPreviousChapter"
       @navigate-next="android.goToNextChapter"
     />
-    <div id="bottom"/>
+    <div id="bottom" ref="bottomElement"/>
   </div>
 </template>
 <script lang="ts" setup>
@@ -150,6 +151,7 @@ import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
 import {useFontAwesome} from "@/composables/fontawesome";
 import {black, useConfig, white} from "@/composables/config";
+import {calcHelperLinePositions, calcMaxScrollY, calcPageScrollDistance, calcRelativePageNumbers} from "@/composables/page-scroll";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {useModal} from "@/composables/modal";
 import {useCustomCss} from "@/composables/custom-css";
@@ -159,6 +161,9 @@ import {AnyDocument, BibleViewDocumentType} from "@/types/documents";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 import ChapterNavigationButtons from "@/components/ChapterNavigationButtons.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import ReadingProgress from "@/components/ReadingProgress.vue";
+import {ProgressDoc, useReadingProgress} from "@/composables/use-reading-progress";
+import {backgroundImageLayer} from "@/code/background-image";
 
 console.log("BibleView setup");
 useAddonFonts();
@@ -183,6 +188,7 @@ const lineHeight = computed(() => {
 const strings = useStrings();
 window.bibleViewDebug.documents = documents;
 const topElement = shallowRef<HTMLElement | null>(null);
+const bottomElement = shallowRef<HTMLElement | null>(null);
 const documentPromise: Ref<Promise<void> | null> = ref(null);
 const verseHighlight = useOrdinalHighlight();
 provide(ordinalHighlightKey, verseHighlight);
@@ -192,7 +198,7 @@ const customCss = useCustomCss();
 provide(customCssKey, customCss);
 
 const scroll = useScroll(config, appSettings, calculatedConfig, verseHighlight, documentPromise);
-const {doScrolling, scrollToId, scrollYAtStart, scrollY} = scroll;
+const {doScrolling, scrollToId, scrollY} = scroll;
 provide(scrollKey, scroll);
 const globalBookmarks = useGlobalBookmarks(config);
 const android = useAndroid(globalBookmarks, config);
@@ -213,13 +219,39 @@ const {closeModals, modalOpen} = modal;
 
 const mounted = ref(false);
 
+// End of the text and viewport height, measured for the page-number overlay.
+// #bottom sits right after the text and carries a tall padding so the reader can
+// scroll past the last line, so its offsetTop — not scrollHeight — is where the
+// content actually ends. Kept fresh by a ResizeObserver so the numbers also
+// follow infinite-scroll loading, font/margin changes and rotation.
+const contentEnd = ref(0);
+const viewportHeight = ref(0);
+let contentResizeObserver: ResizeObserver | null = null;
+
+function updateContentMetrics() {
+    contentEnd.value = bottomElement.value?.offsetTop ?? document.documentElement.scrollHeight;
+    viewportHeight.value = window.innerHeight;
+}
+
+const maxScrollY = computed(() =>
+    calcMaxScrollY(contentEnd.value, viewportHeight.value, appSettings.bottomOffset)
+);
+
 onMounted(() => {
     mounted.value = true;
+    updateContentMetrics();
+    contentResizeObserver = new ResizeObserver(updateContentMetrics);
+    contentResizeObserver.observe(document.documentElement);
     console.log("BibleView mounted");
 })
-onUnmounted(() => mounted.value = false)
+onUnmounted(() => {
+    mounted.value = false;
+    contentResizeObserver?.disconnect();
+    contentResizeObserver = null;
+})
 
-const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, android, topElement, scroll, lineHeight);
+const {currentVerse, currentKey} = useVerseNotifier(calculatedConfig, android, scroll, lineHeight);
+const {progressText} = useReadingProgress(config, documents as ProgressDoc[], currentVerse, currentKey, calculatedConfig, topElement, strings);
 
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);
@@ -233,7 +265,7 @@ const {
     documentSupportsChapterNavigation,
     infiniteScrollIsEnabled,
     reachedEnd
-} = useInfiniteScroll(android, scroll, documents, config);
+} = useInfiniteScroll(android, documents, config);
 
 const showChapterNavButtons = computed(() => {
     return documentSupportsChapterNavigation.value && !infiniteScrollIsEnabled.value;
@@ -318,15 +350,14 @@ provide(memorizationKey, memorization);
 
 const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection> | null>(null);
 
-const backgroundStyle = computed(() => {
-    const nightColor = appSettings.monochromeMode ? black : config.colors.nightBackground;
-    const dayColor = appSettings.monochromeMode? white : config.colors.dayBackground;
-    const colorInt = appSettings.nightMode ? nightColor : dayColor;
-    if (colorInt === null) return "";
-    const backgroundColor = Color(colorInt).hsl().string();
-    return `
-            background-color: ${backgroundColor};
-        `;
+const backgroundImageStyle = computed(() => {
+    const layer = backgroundImageLayer(config.colors, {
+        nightMode: appSettings.nightMode,
+        monochromeMode: appSettings.monochromeMode,
+        einkMode: appSettings.einkMode,
+    });
+    if (layer === null) return null;
+    return `background-image: url('${layer.url}'); opacity: ${layer.opacity};`;
 });
 
 const contentStyle = computed(() => {
@@ -415,27 +446,27 @@ setupEventBusListener("reset_loading_count", () => {
 });
 
 const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
-const scrollAmount = computed(() => {
-    let amount = calculatedConfig.value.pageHeight * (config.pageScrollAmount / 100);
-    if (config.pageScrollAmount === 100 && (documentType.value !== "bible" || (documentType.value === "bible" && !config.topMargin))) {
-        amount -= 1.5*lineHeight.value; // 1.5 times because last line might be otherwise displayed partially
-    }
-    return amount;
-})
+const scrollAmount = computed(() =>
+    calcPageScrollDistance(
+        calculatedConfig.value.pageHeight,
+        calculatedConfig.value.topMargin,
+        config.pageScrollAmount,
+        lineHeight.value,
+    )
+)
 
 function scrollUpDown(up = false) {
     doScrolling(window.scrollY + (up ? -scrollAmount.value : scrollAmount.value), 0)
 }
 
-const helperLinePercents: Record<number, number[]> = {25: [25, 50, 75], 33: [33, 66], 50: [50], 66: [33, 66], 75: [25, 75]};
-
-const helperLinePositions = computed(() => {
-    const percents = helperLinePercents[config.pageScrollAmount];
-    if (!percents) return [];
-    const topOff = calculatedConfig.value.topOffset;
-    const pageH = calculatedConfig.value.pageHeight;
-    return percents.map(p => topOff + pageH * (p / 100));
-});
+const helperLinePositions = computed(() =>
+    calcHelperLinePositions(
+        config.pageScrollAmount,
+        calculatedConfig.value.topOffset,
+        calculatedConfig.value.pageHeight,
+        calculatedConfig.value.topMargin,
+    )
+);
 
 const helperLineClass = computed(() => {
     switch (config.scrollHelperLineStyle) {
@@ -449,14 +480,18 @@ const pageNumberBottom = computed(() =>
     appSettings.isBottomWindow && !appSettings.bottomOffset ? '1cm' : `${appSettings.bottomOffset}px`
 );
 
-const pageNumber = computed(() => {
-    const num = (scrollY.value - scrollYAtStart.value) / scrollAmount.value;
-    return num.toFixed(1);
+const readingProgressBottom = computed(() => {
+    // Same base as the page-number overlay so we clear the window button bar / bottom offset.
+    const base = appSettings.isBottomWindow && !appSettings.bottomOffset ? '1cm' : `${appSettings.bottomOffset}px`;
+    // Stack above the page-number overlay (~0.7cm tall at the same base) when it is also shown.
+    return config.showPageNumber ? `calc(${base} + 0.7cm)` : base;
 });
 
-function resetPageNumber() {
-    scrollYAtStart.value = scrollY.value
-}
+const pageNumbers = computed(() =>
+    calcRelativePageNumbers(scrollY.value, maxScrollY.value, scrollAmount.value)
+);
+const pageNumber = computed(() => pageNumbers.value.current.toFixed(1));
+const pageCount = computed(() => pageNumbers.value.total);
 
 setupEventBusListener("scroll_down", () => scrollUpDown());
 setupEventBusListener("scroll_up", () => scrollUpDown(true));
@@ -482,7 +517,7 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
 }
 
 .background {
-  z-index: -3;
+  z-index: -2;
   position: fixed;
   left: 0;
   top: 0;
@@ -492,9 +527,24 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
   background-image: url("~@/assets/noise.svg");
 }
 
+.background-image {
+  z-index: -3;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
 $dayAlpha: 0.07;
 $nightAlpha: 0.3;
 $borderDistance: 0;
+$colorEinkAccent: rgba(0, 0, 255, 0.6);
+$colorEinkAccentNight: rgba(196, 196, 255, 0.8);
 
 .active-window-corner {
   position: fixed;
@@ -514,6 +564,12 @@ $borderDistance: 0;
   }
   .monochrome.night & {
     border-color: white;
+  }
+  .colorEink & {
+    border-color: $colorEinkAccent;
+  }
+  .colorEink.night & {
+    border-color: $colorEinkAccentNight;
   }
 }
 
@@ -571,6 +627,12 @@ $borderDistance: 0;
   .monochrome.night & {
     border-color: white;
   }
+  .colorEink & {
+    border-color: $colorEinkAccent;
+  }
+  .colorEink.night & {
+    border-color: $colorEinkAccentNight;
+  }
 }
 
 .top-margin {
@@ -593,6 +655,20 @@ $borderDistance: 0;
   }
   .night.noAnimation & {
     border-bottom: 1px dashed rgba(255, 255, 255, 0.5);
+  }
+  // Accent blue at lower alpha (cannot reuse $colorEinkAccent — different alpha)
+  .colorEink & {
+    background-color: rgba(0, 0, 255, 0.25);
+  }
+  .colorEink.night & {
+    background-color: rgba(196, 196, 255, 0.35);
+  }
+  .colorEink.noAnimation & {
+    background-color: unset;
+    border-bottom: 1px dashed $colorEinkAccent;
+  }
+  .colorEink.night.noAnimation & {
+    border-bottom: 1px dashed $colorEinkAccentNight;
   }
 }
 
@@ -683,7 +759,10 @@ a {
   right: 2mm;
   margin-bottom: 2mm;
   bottom: 0;
-  width: 1cm;
+  // The label holds "current/total", so it grows leftwards with the page count
+  // instead of the text spilling out of a fixed-width pill.
+  min-width: 1cm;
+  padding: 0 1mm;
   height: 0.5cm;
   font-size: 70%;
   font-weight: bold;
@@ -696,12 +775,11 @@ a {
     border-color: var(--text-color);
   }
   border-radius: 0.5cm;
+  display: flex;
+  align-items: center;
   justify-content: center;
   .pagenumber-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    white-space: nowrap;
   }
 }
 
@@ -756,6 +834,14 @@ a {
   &.helper-line-thick-solid {
     border-top: 2px solid var(--text-color);
     opacity: 0.3;
+  }
+
+  .colorEink & {
+    border-top-color: $colorEinkAccent;
+    opacity: 1;
+  }
+  .colorEink.night & {
+    border-top-color: $colorEinkAccentNight;
   }
 }
 

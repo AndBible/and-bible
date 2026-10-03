@@ -161,6 +161,15 @@ class AiDocumentFilterActivity : ActivityBase() {
                 cancelOrConfirmDiscard()
                 true
             }
+            R.id.show_help -> {
+                CommonUtils.showHelpDialog(
+                    activity = this,
+                    titleResId = R.string.help,
+                    messageResId = R.string.help_ai_document_filter_text,
+                    helpPath = "ai.html#available-data-and-documents",
+                )
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

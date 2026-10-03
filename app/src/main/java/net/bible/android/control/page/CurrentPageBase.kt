@@ -28,7 +28,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
-import net.bible.service.download.isPseudoBook
 import net.bible.service.download.isRemoved
 import net.bible.service.history.AddHistoryItem
 import net.bible.service.sword.BookAndKey
@@ -116,6 +115,25 @@ abstract class CurrentPageBase protected constructor(
         pageChange()
     }
 
+    override fun isAtSameLocationAs(key: Key): Boolean = key == this.key
+
+    override fun updateKeyFromScrolledOsisRef(osisRef: String): Boolean {
+        if(key?.osisRef == osisRef) return false
+        val newKey = try {
+            currentDocument?.getKey(osisRef)
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not resolve scrolled osisRef $osisRef", e)
+            null
+        } ?: return false
+        // The osisRef the client reports is the displayed document's, which for a commentary is the
+        // entry's whole annotateRef range (e.g. Heb.11.5-Heb.11.8) while the page key is a single
+        // verse of it. Asking the page whether that is where it already is - rather than comparing
+        // osisRefs above - is what keeps scrolling inside one entry from counting as a move.
+        if(isAtSameLocationAs(newKey)) return false
+        doSetKey(newKey)
+        return true
+    }
+
     override fun next() {}
     override fun previous() {}
 
@@ -144,6 +162,9 @@ abstract class CurrentPageBase protected constructor(
     var annotateKey: VerseRange? = null
 
     override val displayKey get() = annotateKey ?: key
+
+    /** Subclasses (commentary) may supply a verse-range descriptor shown by the Vue side. */
+    protected open fun commentaryRangeFor(key: Key): CommentaryRangeInfo? = null
 
     override fun getPageContent(key: Key): Document = try {
         val currentDocument = currentDocument!!
@@ -188,6 +209,7 @@ abstract class CurrentPageBase protected constructor(
             sourcePromptName = promptName,
             sourceModelName = cacheEntry?.sourceModelName,
             aiDocMarkers = aiDocMarkers,
+            commentaryRange = commentaryRangeFor(key),
         )
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)

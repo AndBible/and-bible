@@ -423,7 +423,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val searchParams = Bundle().apply {
                     putString(SearchControl.SEARCH_TEXT, searchText)
                     putString(SearchControl.SEARCH_DOCUMENT, currentBible.initials)
-                    putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
                 }
 
                 val intent = Intent(
@@ -1085,6 +1084,17 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    class BackgroundImageAssetHandler: PathHandler {
+        override fun handle(path: String): WebResourceResponse {
+            val moduleName = path.trim('/')
+            val provided = AndBibleAddons.providedBackgroundImages[moduleName] ?: return notFound
+            val f = provided.file
+            return if (f.isFile && f.exists()) {
+                WebResourceResponse(URLConnection.guessContentTypeFromName(f.name), null, f.inputStream())
+            } else notFound
+        }
+    }
+
     class FeatureAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse {
             val parts = path.split("/", limit = 2);
@@ -1129,6 +1139,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         .addPathHandler("/assets/", MyAssetsPathHandler())
         .addPathHandler("/module/", ModuleAssetHandler())
         .addPathHandler("/fonts/", FontsAssetHandler())
+        .addPathHandler("/background/", BackgroundImageAssetHandler())
         .addPathHandler("/features/", FeatureAssetHandler())
         .addPathHandler("/module-style/", ModuleStylesAssetHandler())
         .addPathHandler("/epub/", EpubResourcesAssetHandler())
@@ -1506,6 +1517,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         )
         val monochromeMode = CommonUtils.settings.monochromeMode
         val einkMode = CommonUtils.settings.einkMode
+        val colorEinkMode = CommonUtils.settings.colorEinkMode
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
@@ -1529,6 +1541,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         disableGenericModalButtons: $disableGenericModalButtons, 
                         monochromeMode: $monochromeMode,
                         einkMode: $einkMode,
+                        colorEinkMode: $colorEinkMode,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,
@@ -2208,6 +2221,21 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val doc = currentPage.getDocumentForChapter(newChap)
                 executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
             }
+        } else if (isCommentary) {
+            val currentPage = window.pageManager.currentCommentary
+            val first = firstKey as? Verse ?: run {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
+            }
+            val prevStart = currentPage.prevBlockStart(first) ?: run {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
+            }
+            firstKey = prevStart
+            chapterLoadJobs += scope.launch(Dispatchers.IO) {
+                val doc = currentPage.getPageContent(prevStart)
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+            }
         } else {
             val currentPage = window.pageManager.currentGeneralBook
             firstKey ?: run {
@@ -2244,6 +2272,21 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
             chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getDocumentForChapter(newChap)
+                executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
+            }
+        } else if (isCommentary) {
+            val currentPage = window.pageManager.currentCommentary
+            val last = lastKey as? Verse ?: run {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
+            }
+            val nextStart = currentPage.nextBlockStart(last) ?: run {
+                executeJavascriptOnUiThread("bibleView.response($callId, null);")
+                return@synchronized
+            }
+            lastKey = nextStart
+            chapterLoadJobs += scope.launch(Dispatchers.IO) {
+                val doc = currentPage.getPageContent(nextStart)
                 executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
             }
         } else {

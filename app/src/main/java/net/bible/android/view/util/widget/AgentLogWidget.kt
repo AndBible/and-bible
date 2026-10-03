@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.AgentLogWidgetBinding
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.ai.AgentLogAdapter
@@ -47,7 +48,9 @@ import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentLogUpdatedEvent
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.agent.AgentSessionStatusChangedEvent
+import net.bible.service.llm.agent.AgentStopReason
 import net.bible.service.llm.agent.LogEntryType
+import net.bible.service.llm.agent.shouldAutoHideAgentLog
 import javax.inject.Inject
 
 /**
@@ -95,12 +98,18 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
                 logRecyclerView.itemAnimator = null
             }
 
-            expandButton.setOnClickListener { toggleExpanded() }
-            closeButton.setOnClickListener { hide() }
+            // expand- and closeButton are wrapped in FrameLayout containers with a
+            // small horizontal padding. Binding the same handler to both the button and
+            // its container gives a slightly wider hit zone so off-by-a-few-pixel taps
+            // (more common on tablets / e-ink digitizers) still trigger the intended
+            // action instead of being captured by the adjacent toggle-clickable
+            // statusIcon/statusText.
+            val toggleListener = View.OnClickListener { toggleExpanded() }
+            expandButton.setOnClickListener(toggleListener)
+            expandButtonContainer.setOnClickListener(toggleListener)
             // Toggle is bound to the middle area only — NOT to headerLayout — so
             // taps that miss the expand/close buttons by a few dp don't get
             // hijacked into toggling the log expand/collapse state.
-            val toggleListener = View.OnClickListener { toggleExpanded() }
             statusIcon.setOnClickListener(toggleListener)
             statusText.setOnClickListener(toggleListener)
             headerCostText.setOnClickListener(toggleListener)
@@ -347,6 +356,17 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             if (event.isRunning && visibility != View.VISIBLE) {
                 show()
             }
+
+            // Auto-hide on a terminal state (unless it errored), if enabled by the user.
+            if (!event.isRunning &&
+                visibility == View.VISIBLE &&
+                shouldAutoHideAgentLog(CommonUtils.aiSettings.autoHideAgentLogOnCompletion, event.stopReason)
+            ) {
+                hide()
+                if (event.stopReason == AgentStopReason.COMPLETED) {
+                    ABEventBus.post(ToastEvent(R.string.ai_task_completed))
+                }
+            }
         }
     }
 
@@ -416,6 +436,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      * When idle: shows close icon, clicking hides the widget.
      */
     private fun updateCloseStopButton(isRunning: Boolean) {
+        val onClick: View.OnClickListener
         if (isRunning) {
             binding.closeButton.setImageResource(R.drawable.ic_stop_black_24dp)
             val stopColor = if (CommonUtils.settings.monochromeMode) {
@@ -423,15 +444,19 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             } else CommonUtils.getResourceColor(R.color.grey_500)
             binding.closeButton.setColorFilter(stopColor)
             binding.closeButton.contentDescription = context.getString(R.string.agent_log_stop)
-            binding.closeButton.setOnClickListener {
+            onClick = View.OnClickListener {
                 AgentSessionManager.stopAgent(workspaceId)
             }
         } else {
             binding.closeButton.setImageResource(R.drawable.ic_baseline_close_24)
             binding.closeButton.clearColorFilter()
             binding.closeButton.contentDescription = context.getString(R.string.agent_log_close)
-            binding.closeButton.setOnClickListener { hide() }
+            onClick = View.OnClickListener { hide() }
         }
+        binding.closeButton.setOnClickListener(onClick)
+        // Mirror handler on the container so taps within the slightly wider FrameLayout
+        // hit zone (but outside the visible button) still trigger the action.
+        binding.closeButtonContainer.setOnClickListener(onClick)
         binding.closeButton.isEnabled = true
         binding.closeButton.alpha = 1.0f
     }

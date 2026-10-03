@@ -75,7 +75,11 @@ markedAsMemorized: Memorert
 removeFromTargets: Mål -
 viewReadingProgress: Lese-/memoreringsfremdrift
 viewReadingProgressSettings: Lese-/memoreringsinnstillinger
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: Hør i løkke
+viewHelp: Vis hjelp
 verseNoteLong: Skriv et notat
 verseParagraphBreakLong: Avsnittsbrudd
 addBookmark: Bokmerke

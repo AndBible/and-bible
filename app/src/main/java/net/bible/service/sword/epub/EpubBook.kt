@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -128,6 +128,9 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
     override fun readRawContent(state: EpubBackendState, key: Key): String = state.read(key)
     fun delete() = state.delete()
     fun getOrdinalRange(key: Key) = state.getOrdinalRange(key)
+    val bookOrdinalSpan get() = state.bookOrdinalSpan
+    fun fragmentOffset(key: Key) = state.fragmentOffset(key)
+    val totalCharacters get() = state.totalCharacters
 }
 
 val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyType.TREE) {
@@ -139,6 +142,19 @@ val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyTy
     }
 }
 
+/**
+ * Remove an EPUB module completely: the (external) epub directory *and* its Room database
+ * in internal storage. The database must be deleted explicitly — [File.deleteRecursively] on
+ * the epub dir leaves the database orphaned, and a later re-download of a same-named epub
+ * would reuse it via [getEpubDatabase], resurrecting stale fragment rows that reference
+ * fragment files the fresh optimization never wrote (which then crash the reader).
+ */
+fun deleteEpubModule(epubDir: File) {
+    epubDir.deleteRecursively()
+    val appDbFilename = "epub-${epubInitials(epubDir.name)}.sqlite3"
+    application.deleteDatabase(appDbFilename)
+}
+
 fun addEpubBook(epubDir: File) {
     if(!(epubDir.canRead() && epubDir.isDirectory)) return
 
@@ -146,7 +162,7 @@ fun addEpubBook(epubDir: File) {
     if(optimizeLockFile.exists()) {
         // Optimization has failed, better we remove module so that
         // it does crash every time. Hoping user also sends bug report about crash...
-        epubDir.deleteRecursively()
+        deleteEpubModule(epubDir)
         return
     }
 
@@ -176,15 +192,15 @@ fun addManuallyInstalledEpubBooks(): Boolean {
             addEpubBook(f)
         } catch (e: JDOMParseException) {
             Log.e(TAG, "addEpubBook catched JDOMParseException", e)
-            f.deleteRecursively()
+            deleteEpubModule(f)
             ok = false
         } catch (e: IOException) {
             Log.e(TAG, "addEpubBook catched IOException", e)
-            f.deleteRecursively()
+            deleteEpubModule(f)
             ok = false
         } catch (e: Exception) {
             Log.e(TAG, "addEpubBook catched another exception", e)
-            f.deleteRecursively()
+            deleteEpubModule(f)
             ok = false
         }
     }

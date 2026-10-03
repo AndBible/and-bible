@@ -1,0 +1,18 @@
+- Add translations for new AI feature help strings and viewHelp label (f115c0ef6)
+- Fix copy icon color in PromptEditActivity toolbar (44b9d5650)
+
+5.1
+"What's new" video: https://youtu.be/EKnyBIti9Fk
+
+Highlights:
+- AI assistant (Claude, Grok, OpenRouter, ...) with tool calling
+- Reading & memorization progress tracking with multiple modes
+- My Documents: your own editable, syncable pages
+- Multi-translation search across Bibles (#1411)
+- 3-level text display settings inheritance
+- Strong's tab view & compact display
+- E-ink/monochrome improvements
+- Many bug fixes
+
+See https://andbible.org
+Support: https://shop.andbible.org/

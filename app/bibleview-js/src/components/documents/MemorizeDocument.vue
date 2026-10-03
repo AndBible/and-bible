@@ -55,6 +55,9 @@
           <div class="menu-item" @click="menuAction(listenInLoop)">
             <FontAwesomeIcon :icon="faVolumeUp"/> {{ strings.listenInLoop }}
           </div>
+          <div class="menu-item" @click="menuAction(openHelp)">
+            <FontAwesomeIcon :icon="faQuestionCircle"/> {{ strings.viewHelp }}
+          </div>
         </div>
       </div>
     </template>
@@ -122,7 +125,7 @@ import WordType from '@/components/memorize/WordType.vue';
 import WordOrder from '@/components/memorize/WordOrder.vue';
 import TabContainer from '@/components/tabs/TabContainer.vue';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faBrain, faChartLine, faCheck, faCog, faEllipsisV, faEyeSlash, faKeyboard, faRandom, faSort, faTimes, faVolumeUp} from "@fortawesome/free-solid-svg-icons";
+import {faBrain, faChartLine, faCheck, faCog, faEllipsisV, faEyeSlash, faKeyboard, faQuestionCircle, faRandom, faSort, faTimes, faVolumeUp} from "@fortawesome/free-solid-svg-icons";
 import {inject} from "vue";
 import {memorizationKey, readingProgressSettingsKey} from "@/types/constants";
 
@@ -235,6 +238,10 @@ function listenInLoop() {
     if (bookInitials && v11n && startOrdinal != null && endOrdinal != null) {
         android.speakMemorizationLoop(bookInitials, v11n, startOrdinal, endOrdinal);
     }
+}
+
+function openHelp() {
+    android.showHelpDialog('memorize');
 }
 
 const bibleUrl = computed(() => {

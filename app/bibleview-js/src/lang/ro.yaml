@@ -75,7 +75,11 @@ markedAsMemorized: Memorat
 removeFromTargets: Obiectiv -
 viewReadingProgress: Progres citire/memorare
 viewReadingProgressSettings: Setări citire/memorare
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · cap %s/%s"
 listenInLoop: Ascultă în buclă
+viewHelp: Vizualizează ajutorul
 verseNoteLong: Scrie o notiță
 verseParagraphBreakLong: Întrerupere de paragraf
 addBookmark: Semn de carte

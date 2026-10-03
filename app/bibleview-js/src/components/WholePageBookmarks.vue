@@ -76,7 +76,7 @@ function getLabel(bookmark: BaseBookmark) {
 function getColor(bookmark: BaseBookmark) {
   const label = getLabel(bookmark);
   if (!label) return "gray";
-  return adjustedColor(appSettings.monochromeMode ? "black" : label.color).string();
+  return adjustedColor((appSettings.monochromeMode && !appSettings.colorEinkMode) ? "black" : label.color).string();
 }
 
 function getIcon(bookmark: BaseBookmark) {

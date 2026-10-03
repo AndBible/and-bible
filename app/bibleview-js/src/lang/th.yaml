@@ -75,7 +75,11 @@ markedAsMemorized: ท่องจำแล้ว
 removeFromTargets: เป้าหมาย -
 viewReadingProgress: ความคืบหน้าการอ่าน/ท่องจำ
 viewReadingProgressSettings: การตั้งค่าการอ่าน/ท่องจำ
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: ฟังแบบวนซ้ำ
+viewHelp: ดูวิธีใช้
 verseNoteLong: เขียนบันทึก
 verseParagraphBreakLong: ขึ้นย่อหน้าใหม่
 addBookmark: ที่คั่นหน้า

@@ -75,7 +75,11 @@ markedAsMemorized: Đã ghi nhớ
 removeFromTargets: Mục tiêu -
 viewReadingProgress: Tiến độ đọc/ghi nhớ
 viewReadingProgressSettings: Cài đặt đọc/ghi nhớ
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: Nghe lặp lại
+viewHelp: Xem trợ giúp
 verseNoteLong: Viết ghi chú
 verseParagraphBreakLong: Ngắt đoạn văn
 addBookmark: Đánh dấu

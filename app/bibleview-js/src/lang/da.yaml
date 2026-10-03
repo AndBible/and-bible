@@ -75,7 +75,11 @@ markedAsMemorized: Lært udenad
 removeFromTargets: Mål -
 viewReadingProgress: Læse-/memoreringsforløb
 viewReadingProgressSettings: Læse-/memoreringsindstillinger
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · kap %s/%s"
 listenInLoop: Lyt i løkke
+viewHelp: Se hjælp
 verseNoteLong: Skriv en note
 verseParagraphBreakLong: Afsnitsskift
 addBookmark: Bogmærke

@@ -114,6 +114,16 @@
 		<item>@string/prefs_night_mode_system</item>
 		<item>@string/prefs_night_mode_manual</item>
 	</string-array>
+	<string-array name="prefs_display_color_mode_names">
+		<item>@string/prefs_display_color_mode_normal</item>
+		<item>@string/prefs_display_color_mode_bw</item>
+		<item>@string/prefs_display_color_mode_color_eink</item>
+	</string-array>
+	<string-array name="prefs_display_color_mode_values">
+		<item>normal</item>
+		<item>bw</item>
+		<item>color_eink</item>
+	</string-array>
 
 	<!-- Screen colors: automatic night mode, day, night -->
 

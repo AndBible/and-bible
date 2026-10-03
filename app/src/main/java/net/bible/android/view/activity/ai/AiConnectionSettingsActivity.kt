@@ -22,6 +22,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.CheckBox
 import android.widget.EditText
@@ -40,6 +41,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsActivityBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.PreferenceStore
+import net.bible.service.common.CommonUtils
 import net.bible.service.llm.LlmCostTracker
 
 class AiConnectionSettingsActivity : ActivityBase() {
@@ -59,12 +61,28 @@ class AiConnectionSettingsActivity : ActivityBase() {
             .commit()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.ai_connection_options_menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            R.id.show_help -> {
+                CommonUtils.showHelpDialog(
+                    activity = this,
+                    titleResId = R.string.help,
+                    messageResId = R.string.help_ai_connection_text,
+                    helpPath = "ai.html#getting-started",
+                )
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 }
 
@@ -82,6 +100,7 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
     private lateinit var commentaryMaxResponsePref: Preference
     private lateinit var maxIterationsPref: Preference
     private lateinit var askModelBeforeRunPref: SwitchPreferenceCompat
+    private lateinit var autoHideAgentLogPref: SwitchPreferenceCompat
     private lateinit var advancedCategory: PreferenceCategory
     private lateinit var customAgentSystemPromptPref: Preference
     private lateinit var customTextTransformSystemPromptPref: Preference
@@ -107,6 +126,7 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         commentaryMaxResponsePref = preferenceScreen.findPreference("commentary_max_response_chars")!!
         maxIterationsPref = preferenceScreen.findPreference("agent_max_iterations")!!
         askModelBeforeRunPref = preferenceScreen.findPreference("ask_model_before_run")!!
+        autoHideAgentLogPref = preferenceScreen.findPreference("auto_hide_agent_log_on_completion")!!
         advancedCategory = preferenceScreen.findPreference("ai_advanced_category")!!
         customAgentSystemPromptPref = preferenceScreen.findPreference("custom_agent_system_prompt")!!
         customTextTransformSystemPromptPref = preferenceScreen.findPreference("custom_text_transform_system_prompt")!!
@@ -134,6 +154,7 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         setupCommentaryMaxResponse()
         setupMaxIterations()
         setupAskModelBeforeRun()
+        setupAutoHideAgentLog()
         setupCustomSystemPrompts()
         setupUsage()
     }
@@ -414,6 +435,14 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         askModelBeforeRunPref.isChecked = settings.askModelBeforeRun
         askModelBeforeRunPref.setOnPreferenceChangeListener { _, newValue ->
             settings.askModelBeforeRun = newValue as Boolean
+            true
+        }
+    }
+
+    private fun setupAutoHideAgentLog() {
+        autoHideAgentLogPref.isChecked = settings.autoHideAgentLogOnCompletion
+        autoHideAgentLogPref.setOnPreferenceChangeListener { _, newValue ->
+            settings.autoHideAgentLogOnCompletion = newValue as Boolean
             true
         }
     }

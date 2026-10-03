@@ -177,7 +177,7 @@ android {
     defaultConfig {
         applicationId = applicationIdStandard
         minSdk = 23
-        targetSdk = 35
+        targetSdk = 36
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "GitHash", "\"${getGitHash()}\"")
         buildConfigField("String", "GitDescribe", "\"${getGitDescribe()}\"")
@@ -222,18 +222,20 @@ android {
             }
         }
         debug {
+            // Debug builds default to a ".debug" applicationId suffix so they can be
+            // installed alongside the production app. local.properties is gitignored, so
+            // relying on APP_SUFFIX there is not portable; APP_SUFFIX (when present) still
+            // overrides this default for setups that need a different suffix.
+            var appSuffix = ".debug"
             val propsFile = rootProject.file("local.properties")
             if (propsFile.exists()) {
                 val props = Properties()
                 FileInputStream(propsFile).use { props.load(it) }
 
-                val appSuffix: String? = props["APP_SUFFIX"] as String?
-                println("App suffix: $appSuffix")
-
-                if (appSuffix != null) {
-                    applicationIdSuffix = appSuffix
-                }
+                (props["APP_SUFFIX"] as String?)?.let { appSuffix = it }
             }
+            println("App suffix: $appSuffix")
+            applicationIdSuffix = appSuffix
 //			minifyEnabled true
 //			useProguard true
 //			proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -363,7 +365,6 @@ if(gradle.startParameter.taskNames.any { it.contains("Fdroid") }) {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         println("Excluding ${name}")
         exclude("**/googledrive/*")
-        exclude("**/onyx/*")
     }
 }
 
@@ -403,7 +404,6 @@ androidComponents {
 dependencies {
     val commonsTextVersion: String by rootProject.extra
     val jdomVersion: String by rootProject.extra
-    val jswordVersion: String by rootProject.extra
     val kotlinVersion: String by rootProject.extra
     val coroutinesVersion: String by rootProject.extra
     val kotlinxSerializationVersion: String by rootProject.extra
@@ -430,8 +430,6 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.2")
 
     for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei", "accrescent").map { "${it}Implementation" }) {
-        // Onyx SDK (e-ink devices)
-        variantImplementation("com.onyx.android.sdk:onyxsdk-device:1.2.32") // NOTE: remember to check its AndroidManifest.xml and remove unnecessary permissions in our AndroidManifest.xml
         // Google Drive API
         variantImplementation("com.google.android.gms:play-services-auth:20.7.0")
         variantImplementation("com.google.apis:google-api-services-drive:v3-rev20230212-2.0.0") {
@@ -471,7 +469,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0") // make sure this is the same version that commons-text depends on
     implementation("org.apache.commons:commons-text:$commonsTextVersion")
 
-    implementation("com.github.AndBible:jsword:$jswordVersion") {
+    implementation(project(":jsword")) {
         exclude("org.apache.httpcomponents")
     }
 
@@ -560,15 +558,6 @@ bundletool {
 configurations {
     testImplementation {
         exclude(group = "com.github.requery", module = "sqlite-android")
-    }
-}
-
-// Boox repository for Onyx SDK (e-ink devices) - NOT allowed in F-droid builds
-if (gradle.startParameter.taskNames.any { it.contains("Fdroid", ignoreCase = true) }) {
-    println("F-droid build: Boox repository excluded")
-} else {
-    repositories {
-        maven { url = uri("https://repo.boox.com/repository/maven-public/") }
     }
 }
 

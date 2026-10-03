@@ -1,0 +1,13 @@
+AndBible 5.1 stable release!
+
+Quick tour to what's new: https://youtu.be/EKnyBIti9Fk
+
+Highlights since 5.0:
+- Optional AI assistant (Gemini, Claude, OpenRouter, ...)
+- Reading & memorization progress tracking
+- My Documents: editable, syncable pages
+- 3-level text display settings inheritance
+- Many other small features and bug fixes
+
+See https://andbible.org
+Support: https://shop.andbible.org/

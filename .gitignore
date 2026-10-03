@@ -21,7 +21,6 @@
 *.env.*
 /projectFilesBackup/
 /app/src/main/assets/web/bibleview-js/
-/jsword/
 /tmp/
 /ai-local/
 /wiki/
@@ -39,7 +38,6 @@
 !.claude/skills/
 .playwright-mcp/
 .gitconfig
-.gitmodules
 .mcp.json
 .ripgreprc
 HEAD

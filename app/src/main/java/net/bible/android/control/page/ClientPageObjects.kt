@@ -37,6 +37,7 @@ import net.bible.android.misc.wrapString
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.sword.SwordContentFacade
+import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mydocument.isMyDocument
@@ -104,6 +105,14 @@ class ErrorDocument(private val errorMessage: String?, private val severity: Err
     }
 }
 
+data class CommentaryRangeInfo(val startOsisRef: String, val endOsisRef: String, val name: String) {
+    val asJson: String get() = mapToJson(mapOf(
+        "startOsisRef" to wrapString(startOsisRef),
+        "endOsisRef" to wrapString(endOsisRef),
+        "name" to wrapString(name),
+    ))
+}
+
 open class OsisDocument(
     val osisFragment: OsisFragment,
     val book: Book,
@@ -115,6 +124,7 @@ open class OsisDocument(
     val sourcePromptName: String? = null,
     val sourceModelName: String? = null,
     open val aiDocMarkers: List<AiDocMarkerInfo> = emptyList(),
+    val commentaryRange: CommentaryRangeInfo? = null,
 ): Document {
     override val asHashMap: Map<String, String> get () {
         val highlightedOrdinalRange =
@@ -128,11 +138,29 @@ open class OsisDocument(
             if (ordRange == null) "null"
             else json.encodeToString(serializer(), listOf(ordRange.first, ordRange.last))
 
+        val readingProgress: String = when {
+            book.isEpub -> book.epubBackend
+                ?.let { ReadingProgressInfo.forEpub(it.fragmentOffset(key), it.bookOrdinalSpan, it.totalCharacters).asJson }
+                ?: "null"
+            book.bookCategory == BookCategory.COMMENTARY && book is SwordBook -> {
+                val vr = when (val k = key) {
+                    is VerseRange -> k
+                    is Verse -> VerseRange(k.versification, k, k)
+                    else -> null
+                }
+                vr?.let {
+                    ReadingProgressInfo.forVerseKey(book.versification, it.toV11n(book.versification)).asJson
+                } ?: "null"
+            }
+            else -> "null"
+        }
+
         return mapOf(
             "id" to wrapString(sanitizeId("${book.initials}-${key.uniqueId}")),
             "type" to wrapString("osis"),
             "osisFragment" to mapToJson(osisFragment.toHashMap),
             "ordinalRange" to ordinalRange,
+            "readingProgress" to readingProgress,
             "bookInitials" to wrapString(book.initials),
             "bookCategory" to wrapString(book.bookCategory.name),
             "bookAbbreviation" to wrapString(book.abbreviation),
@@ -151,6 +179,7 @@ open class OsisDocument(
             "sourcePromptName" to wrapString(sourcePromptName),
             "sourceModelName" to wrapString(sourceModelName),
             "aiDocMarkers" to listToJson(aiDocMarkers.map { ClientAiDocMarker(it, (book as? SwordBook)?.versification).asJson }),
+            "commentaryRange" to (commentaryRange?.asJson ?: "null"),
         )
     }
 }
@@ -191,6 +220,7 @@ class BibleDocument(
             put("targetOrdinals", json.encodeToString(serializer(), targetOrdinals))
             put("chapterReadCount", json.encodeToString(serializer(),
                 ProgressControl.getChapterReadCount(swordBook.versification, verseRange.start.book, verseRange.start.chapter)))
+            put("readingProgress", ReadingProgressInfo.forVerseKey(swordBook.versification, vrInV11n).asJson)
         }
     }
 }
@@ -257,7 +287,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.BibleBookmarkWithNote
             val bookmarks = bookmarks.map { ClientBibleBookmark(it, KJVA).asJson }
             return mapOf(
                 "id" to wrapString(verseRange.uniqueId),
-                "type" to wrapString("notes", true),
+                "type" to wrapString("notes"),
                 "bookmarks" to listToJson(bookmarks),
                 "ordinalRange" to json.encodeToString(serializer(), listOf(verseRange.start.ordinal, verseRange.end.ordinal)),
                 "verseRange" to wrapString(verseRange.name),
@@ -300,7 +330,7 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
     }
 
     override val asHashMap: Map<String, String> get() {
-        val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
+        val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes)
         return mapOf(
             "id" to wrapString(bookmark.id.toString()),
             "hashCode" to (abs(bookmark.id.hashCode())).toString(),
@@ -344,7 +374,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
     }
 
     override val asHashMap: Map<String, String> get() {
-        val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes, true)
+        val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes)
         return mapOf(
             "id" to wrapString(bookmark.id.toString()),
             "key" to wrapString(bookmark.key),
@@ -454,8 +484,8 @@ class ClientAiDocMarker(
             "bookAbbreviation" to wrapString(marker.documentInitials),
             "createdAt" to "0",
             "lastUpdatedOn" to "0",
-            "text" to wrapString(marker.pageTitle, true),
-            "fullText" to wrapString(marker.pageTitle, true),
+            "text" to wrapString(marker.pageTitle),
+            "fullText" to wrapString(marker.pageTitle),
             "notes" to "null",
             "notesContentType" to "null",
             "hasNote" to "false",
@@ -465,7 +495,7 @@ class ClientAiDocMarker(
             "sourcePromptId" to wrapString(marker.sourcePromptId?.toString()),
             // AI doc marker specific fields
             "verseRangeAbbreviated" to wrapString(verseRangeAbbreviated),
-            "title" to wrapString(marker.pageTitle, true),
+            "title" to wrapString(marker.pageTitle),
             "documentInitials" to wrapString(marker.documentInitials),
             "pageKey" to wrapString(marker.pageKey),
             "sourceBookInitials" to wrapString(marker.sourceBookInitials),

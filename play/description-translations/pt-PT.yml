@@ -15,21 +15,18 @@ paragraph_1_3: >
 subtitle_2: Recursos poderosos de estudo da Bíblia
 paragraph_2_1: >
   A aplicação tem muitos recursos perspicazes e originais, que tornam uma experiência de estudo bíblica complexa e profunda mais suave do que nunca. Os recursos mais notáveis ​​são os seguintes:
-feature_01: >
-  Visualização em várias janelas de texto que permitem comparar traduções e consultar comentários
-feature_02: >
-  Os espaços de trabalho permitem várias configurações de estudo da Bíblia com as suas próprias configurações
+feature_01: "Visualização em várias janelas de texto que permitem comparar traduções e consultar comentários\n"
+feature_02: "Os espaços de trabalho permitem várias configurações de estudo da Bíblia com as suas próprias configurações\n"
 feature_03: A Integração de Strong permite análise de palavras em Grego e Hebreu
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Toque em qualquer ligação para seguir referências cruzadas, notas de rodapé e comentários ({{commentary_examples}}) ou coleções de referências cruzadas ({{cross_reference_examples}}).
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry etc.
+commentary_examples: "Gill, Matthew Henry etc."
 # Examples of cross-reference collections.
-cross_reference_examples: Treasure of Scripture Knowledge, TSKe
-feature_05: >
-  Texto avançado para fala com marcadores de fala, permitindo uma experiência de ouvir a Bíblia sem problemas
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Texto avançado para fala com marcadores de fala, permitindo uma experiência de ouvir a Bíblia sem problemas\n"
 feature_06: Pesquisa flexível de texto completo em uma ou várias traduções da Bíblia
 feature_07: Recursos avançados de marcadores e destaque com notas de estudo pessoais
 feature_08: >
@@ -45,30 +42,36 @@ feature_11: >
   Agente de estudo com IA opcional (ativação voluntária, requer a sua própria chave de API): explore os comentários e dicionários instalados com a ajuda da IA no idioma à sua escolha. Um sistema de permissões integrado mantém-no no controlo total.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV and NKJV
-feature_12: "Off-line: só precisa da Internet para fazer download de documentos."
+unavailable_documents: "ESV, NIV and NKJV"
+feature_12: >-
+  Off-line: só precisa da Internet para fazer download de documentos.
 # UNUSED
 feature_13: >
   Áreas de Estudo para adicionar notas e referências bíblicas enquanto ouve sermões.
 subtitle_3: Vamos fazer a melhor aplicação de Bíblia juntos!
 paragraph_3_1: >
   AndBible é um projeto comunitário de código aberto. Na prática, isso significa que qualquer pessoa com habilidades adequadas pode, e é incentivada a, contribuir para o projeto:
-contr_1: desenvolvendo novos recursos,
-contr_2: testando recursos ainda não lançados,
+contr_1: "desenvolvendo novos recursos,"
+contr_2: "testando recursos ainda não lançados,"
 contr_3: manter as traduções da interface de utilizador atualizadas e
-contr_4: >
-  ajudando a estender a biblioteca do módulo, obtendo permissões dos detentores de direitos autorais ou convertendo documentos para o formato SWORD.
+contr_4: "ajudando a estender a biblioteca do módulo, obtendo permissões dos detentores de direitos autorais ou convertendo documentos para o formato SWORD.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  Se é um engenheiro de software ou testador profissional, considere contribuir para o projeto. Para obter mais informações sobre como contribuir, consulte {{how_to_contribute_url}}.
+paragraph_4_1: "Se é um engenheiro de software ou testador profissional, considere contribuir para o projeto. Para obter mais informações sobre como contribuir, consulte {{how_to_contribute_url}}.\n"
 subtitle_4: Atalhos
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "Página inicial: {{homepage_url}}"
-link_2: "Curta o AndBible no Facebook: {{facebook_url}}"
-link_3: "O nosso canal no Youtubel: {{youtube_url}}"
-link_4: "Perguntas Frequentes: {{faq_url}}"
-link_5: "Página do projeto no Github: {{github_url}}"
-buy_title: Suporte através da compra de tempo de desenvolvimento
+link_1: >-
+  Página inicial: {{homepage_url}}
+link_2: >-
+  Curta o AndBible no Facebook: {{facebook_url}}
+link_3: >-
+  O nosso canal no Youtubel: {{youtube_url}}
+link_4: >-
+  Perguntas Frequentes: {{faq_url}}
+link_5: >-
+  Página do projeto no Github: {{github_url}}
+buy_title: >-
+  Suporte através da compra de tempo de desenvolvimento
 buy_1: >
   Se não tiver tempo ou habilidades para contribuir com o projeto é possível também suportar o projeto comprando tempo de trabalho de um desenvolvedor profissional.
-buy_2: Ver opções
+buy_2: >-
+  Ver opções

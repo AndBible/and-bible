@@ -25,7 +25,7 @@ import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.read.GetAllLabelsTool
 import net.bible.service.llm.tools.read.GetBookmarksForVerseTool
 import net.bible.service.llm.tools.read.GetBookmarksWithLabelTool
-import net.bible.service.llm.tools.ContentFormat
+import net.bible.service.sword.ContentFormat
 import net.bible.service.llm.tools.read.GetCommentariesTool
 import net.bible.service.llm.tools.read.GetDictionaryEntryTool
 import net.bible.service.llm.tools.read.GetInstalledDocumentsTool

@@ -23,13 +23,11 @@ feature_04: >
   แตะที่ลิงก์ใดก็ได้เพื่อติดตามข้อพระคัมภีร์อ้างอิง เชิงอรรถ และคำอธิบาย ({{commentary_examples}}) หรือชุดข้อพระคัมภีร์อ้างอิง ({{cross_reference_examples}}) ที่เชื่อมโยงไว้
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry ฯลฯ
+commentary_examples: "Gill, Matthew Henry ฯลฯ"
 # Examples of cross-reference collections.
-cross_reference_examples: Treasure of Scripture Knowledge, TSKe
-feature_05: >
-  การแปลงข้อความเป็นเสียงขั้นสูงพร้อมบุ๊กมาร์กเสียง เพื่อประสบการณ์ฟังพระคัมภีร์ที่ราบรื่น
-feature_06: >
-  การค้นหาแบบเต็มข้อความที่ยืดหยุ่น ครอบคลุมการแปลพระคัมภีร์หนึ่งฉบับหรือหลายฉบับพร้อมกัน
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "การแปลงข้อความเป็นเสียงขั้นสูงพร้อมบุ๊กมาร์กเสียง เพื่อประสบการณ์ฟังพระคัมภีร์ที่ราบรื่น\n"
+feature_06: "การค้นหาแบบเต็มข้อความที่ยืดหยุ่น ครอบคลุมการแปลพระคัมภีร์หนึ่งฉบับหรือหลายฉบับพร้อมกัน\n"
 feature_07: คุณสมบัติบุ๊กมาร์กและการไฮไลต์ขั้นสูงพร้อมบันทึกการศึกษาส่วนตัว
 feature_08: >
   การซิงค์ข้ามอุปกรณ์: รักษาพื้นที่ทำงาน ที่คั่นหน้า บันทึก และความคืบหน้าในการอ่านของคุณให้ตรงกันบนทุกอุปกรณ์
@@ -38,34 +36,42 @@ feature_09: >
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   คลังเอกสารขนาดใหญ่: การแปลพระคัมภีร์ คำอธิบายเทววิทยา พจนานุกรม แผนที่ และหนังสือคริสเตียน รวมกว่า {{total_documents}} รายการในกว่า {{total_languages}} ภาษา แจกจ่ายโดยชอบด้วยกฎหมายผ่าน Crosswire และคลังข้อมูล SWORD อื่น ๆ
-feature_10_1: รองรับไฟล์ MyBible, MySword และ EPUB โดยตรง ช่วยให้คุณขยายคลังได้มากยิ่งขึ้น
+feature_10_1: >-
+  รองรับไฟล์ MyBible, MySword และ EPUB โดยตรง ช่วยให้คุณขยายคลังได้มากยิ่งขึ้น
 feature_11: >
   ผู้ช่วยศึกษาพระคัมภีร์ AI ทางเลือก (เปิดใช้เองเท่านั้น — ต้องใช้ API key ของคุณเองสำหรับบริการภายนอก): สำรวจคำอธิบายและพจนานุกรมที่คุณติดตั้งไว้ด้วยความช่วยเหลือจาก AI ในภาษาที่คุณเลือก พร้อมรูปแบบการศึกษาเชิงสร้างสรรค์อื่น ๆ ระบบสิทธิ์ที่มีอยู่ในตัวช่วยให้คุณควบคุมสิ่งที่ผู้ช่วยทำได้อย่างเต็มที่
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV และ NKJV
-feature_12: "ออฟไลน์: เวลาเดียวที่คุณต้องการอินเทอร์เน็ตคือการดาวน์โหลดเอกสาร"
+unavailable_documents: "ESV, NIV และ NKJV"
+feature_12: >-
+  ออฟไลน์: เวลาเดียวที่คุณต้องการอินเทอร์เน็ตคือการดาวน์โหลดเอกสาร
 # UNUSED
-feature_13: Study Pads สำหรับเพิ่มบันทึกและข้อพระคัมภีร์ขณะฟังการเทศนา
+feature_13: >-
+  Study Pads สำหรับเพิ่มบันทึกและข้อพระคัมภีร์ขณะฟังการเทศนา
 subtitle_3: มาสร้างแอปพระคัมภีร์ที่ดีที่สุดไปด้วยกัน!
 paragraph_3_1: >
   AndBible เป็นโครงการชุมชนโอเพนซอร์ส ในทางปฏิบัติ หมายความว่าทุกคนที่มีทักษะที่เหมาะสมสามารถและได้รับการสนับสนุนให้มีส่วนร่วมในโครงการโดย:
 contr_1: พัฒนาคุณสมบัติใหม่
 contr_2: ทดสอบคุณสมบัติที่ยังไม่เปิดตัว
 contr_3: อัปเดตการแปลส่วนติดต่อผู้ใช้ให้ทันสมัย และ
-contr_4: >
-  ช่วยขยายคลังโมดูลโดยขอสิทธิ์จากเจ้าของลิขสิทธิ์ หรือโดยการแปลงเอกสารเป็นรูปแบบ SWORD
+contr_4: "ช่วยขยายคลังโมดูลโดยขอสิทธิ์จากเจ้าของลิขสิทธิ์ หรือโดยการแปลงเอกสารเป็นรูปแบบ SWORD\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  หากคุณเป็นวิศวกรซอฟต์แวร์หรือผู้ทดสอบมืออาชีพ โปรดพิจารณามีส่วนร่วมในโครงการ สำหรับข้อมูลเพิ่มเติมเกี่ยวกับวิธีการมีส่วนร่วม โปรดดูที่ {{how_to_contribute_url}}
+paragraph_4_1: "หากคุณเป็นวิศวกรซอฟต์แวร์หรือผู้ทดสอบมืออาชีพ โปรดพิจารณามีส่วนร่วมในโครงการ สำหรับข้อมูลเพิ่มเติมเกี่ยวกับวิธีการมีส่วนร่วม โปรดดูที่ {{how_to_contribute_url}}\n"
 subtitle_4: ลิงก์
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "หน้าหลัก: {{homepage_url}}"
-link_2: "ติดตาม AndBible บน Facebook: {{facebook_url}}"
-link_3: "ช่อง YouTube ของเรา: {{youtube_url}}"
-link_4: "คำถามที่พบบ่อย: {{faq_url}}"
-link_5: "หน้าโครงการบน Github: {{github_url}}"
-buy_title: สนับสนุนโดยการซื้อเวลาพัฒนา!
+link_1: >-
+  หน้าหลัก: {{homepage_url}}
+link_2: >-
+  ติดตาม AndBible บน Facebook: {{facebook_url}}
+link_3: >-
+  ช่อง YouTube ของเรา: {{youtube_url}}
+link_4: >-
+  คำถามที่พบบ่อย: {{faq_url}}
+link_5: >-
+  หน้าโครงการบน Github: {{github_url}}
+buy_title: >-
+  สนับสนุนโดยการซื้อเวลาพัฒนา!
 buy_1: >
   หากคุณไม่มีเวลาหรือทักษะในการมีส่วนร่วมในโครงการ คุณยังสามารถสนับสนุนโครงการได้โดยการซื้อเวลาทำงานของนักพัฒนามืออาชีพ
-buy_2: ดูตัวเลือก
+buy_2: >-
+  ดูตัวเลือก

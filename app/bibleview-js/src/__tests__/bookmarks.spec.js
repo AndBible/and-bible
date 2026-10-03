@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {useBookmarks, useGlobalBookmarks, verseHighlighting} from "@/composables/bookmarks";
+import {useBookmarks, useGlobalBookmarks, verseHighlighting, bookmarkHighlightColor} from "@/composables/bookmarks";
 import {ref} from "vue";
 import Color from "color";
 import {useConfig} from "@/composables/config";
@@ -427,6 +427,67 @@ describe("marker visibility tests", () => {
     });
 });
 
+describe("AI doc marker visibility tests", () => {
+    // Page represents a single chapter spanning ordinals [10, 20].
+    let gb, b;
+    beforeEach(() => {
+        const {config, appSettings} = useConfig();
+        gb = useGlobalBookmarks(config, {value: "bible"});
+        const fragmentReady = ref(true);
+        b = useBookmarks(
+            "fragKey",
+            [10, 20],
+            gb,
+            "KJV",
+            null,
+            true,
+            fragmentReady,
+            {adjustedColor: () => null},
+            config,
+            appSettings,
+        );
+    });
+
+    function addAiDocMarker(id, ordinalRange) {
+        gb.updateBookmarks([{
+            id,
+            ordinalRange,
+            offsetRange: null,
+            labels: [],
+            bookInitials: "KJV",
+            notes: null,
+            wholeVerse: false,
+            type: "ai-doc-marker",
+        }]);
+    }
+
+    const markerIds = () => b.markerBookmarks.value.map(m => m.id);
+
+    it("shows the marker on the chapter where its range ends", () => {
+        // Range ends at ordinal 18, which is on this page.
+        addAiDocMarker(1, [12, 18]);
+        expect(markerIds()).toEqual([1]);
+    });
+
+    it("shows the marker on the ending chapter even when the range starts in a previous chapter", () => {
+        // Range started in the previous chapter (ordinal 5) but ends here at 18.
+        addAiDocMarker(1, [5, 18]);
+        expect(markerIds()).toEqual([1]);
+    });
+
+    it("does NOT show the marker on a chapter the range merely crosses (range ends in a later chapter)", () => {
+        // Range starts here (15) but ends in the next chapter (25), beyond this page.
+        // The robot icon must appear only on the chapter where the range ends - same as bookmarks.
+        addAiDocMarker(1, [15, 25]);
+        expect(markerIds()).toEqual([]);
+    });
+
+    it("does not show the marker on a chapter entirely after the range", () => {
+        addAiDocMarker(1, [2, 8]);
+        expect(markerIds()).toEqual([]);
+    });
+});
+
 describe("abbreviate tests", () => {
     it("test 1", () => {
         expect(abbreviated("turhanpäiväisissä ajatuksissaan", 15)).toBe("turhanpäiväisi...")
@@ -435,5 +496,42 @@ describe("abbreviate tests", () => {
         expect(abbreviated("höpö höpö", 15)).toBe("höpö höpö")
         expect(abbreviated("höpö höpö höpö", 15)).toBe("höpö höpö höpö")
         expect(abbreviated("höpö höpö höpö höpö", 15)).toBe("höpö höpö...")
+    });
+});
+
+describe("color e-ink accent colors", () => {
+    const label = {color: 0xFF0000};
+
+    it("highlight: bw mode returns gray, color-eink returns the real color (day)", () => {
+        const normal = bookmarkHighlightColor(label, 1, {monochromeMode: false, colorEinkMode: false, nightMode: false});
+        const bw = bookmarkHighlightColor(label, 1, {monochromeMode: true, colorEinkMode: false, nightMode: false});
+        const colorEink = bookmarkHighlightColor(label, 1, {monochromeMode: true, colorEinkMode: true, nightMode: false});
+        expect(bw.hex()).toEqual("#D2D2D2");          // 210,210,210
+        expect(colorEink.string()).toEqual(normal.string());
+        expect(colorEink.hex()).not.toEqual(bw.hex());
+    });
+
+    it("highlight: bw night mode returns darker gray", () => {
+        const bwNight = bookmarkHighlightColor(label, 1, {monochromeMode: true, colorEinkMode: false, nightMode: true});
+        expect(bwNight.hex()).toEqual("#B4B4B4");      // 180,180,180
+    });
+
+    function underlineCss(appSettings) {
+        return verseHighlighting({
+            highlightLabels: [],
+            highlightLabelCount: new Map(),
+            underlineLabels: [{label: {color: 0xFF0000}, id: 1}],
+            underlineLabelCount: new Map([[1, 1]]),
+            highlightColorFn: (v) => Color(v.color),
+            appSettings,
+        });
+    }
+
+    it("underline: bw mode uses black, color-eink uses the label color (day)", () => {
+        const bw = underlineCss({monochromeMode: true, colorEinkMode: false, nightMode: false});
+        const colorEink = underlineCss({monochromeMode: true, colorEinkMode: true, nightMode: false});
+        expect(bw).toContain(Color("black").string());
+        expect(colorEink).toContain(new Color(0xFF0000).hsl().string());
+        expect(colorEink).not.toContain(Color("black").string());
     });
 });

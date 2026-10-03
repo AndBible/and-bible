@@ -27,18 +27,32 @@ import {UseAndroid} from "@/composables/android";
 import {AnyDocument, isOsisDocument} from "@/types/documents";
 import {Nullable} from "@/types/common";
 import {BookCategory} from "@/types/client-objects";
-import {UseScroll} from "@/composables/scroll";
 import {Config} from "@/composables/config";
 
 const maxConsecutiveEmptyLoads = 3; // Safety limit
 
+const enabledCategories: Set<BookCategory> = new Set(["BIBLE", "GENERAL_BOOK", "COMMENTARY"]);
+
+/**
+ * Whether the first document supports adjacent-chapter/block navigation (Bible, commentary, or
+ * general book). AI documents are single-page generated content and are excluded. Both the manual
+ * chapter controls and infinite scroll derive from this same contract.
+ */
+export function supportsChapterNavigation(documents: AnyDocument[]): boolean {
+    if (documents.length === 0) return false;
+    const doc = documents[0];
+    if (isOsisDocument(doc)) {
+        if (doc.isAiDocument) return false;
+        return enabledCategories.has(doc.bookCategory);
+    }
+    return doc.type === "bible";
+}
+
 export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
-    {scrollYAtStart}: UseScroll,
     bibleViewDocuments: AnyDocument[],
     config: Config,
 ) {
-    const enabledCategories: Set<BookCategory> = new Set(["BIBLE", "GENERAL_BOOK"]);
     let currentPos: number;
     let addMoreAtTopOnTouchUp = false;
     let bottomElem: HTMLElement;
@@ -167,24 +181,11 @@ export function useInfiniteScroll(
     }
 
     const
-        // Whether the current document type supports chapter navigation (Bible or GenBook)
-        documentSupportsChapterNavigation = computed(() => {
-           if(bibleViewDocuments.length === 0) return false;
-           const doc = bibleViewDocuments[0];
-           if(isOsisDocument(doc)) {
-                return enabledCategories.has(doc.bookCategory)
-           } else {
-               return doc.type === "bible";
-           }
-        }),
-        // Whether infinite scroll is currently active (enabled in settings, supported by document,
-        // and not an AI document which is single-page content)
-        isEnabled = computed(() => {
-            if(!config.infiniteScroll || !documentSupportsChapterNavigation.value) return false;
-            const doc = bibleViewDocuments[0];
-            if(isOsisDocument(doc) && doc.isAiDocument) return false;
-            return true;
-        }),
+        documentSupportsChapterNavigation = computed(() => supportsChapterNavigation(bibleViewDocuments)),
+        // Whether infinite scroll is currently active (enabled in settings and supported by document)
+        isEnabled = computed(() =>
+            config.infiniteScroll && documentSupportsChapterNavigation.value
+        ),
         UP_MARGIN = 2,
         DOWN_MARGIN = 200,
         bodyHeight = () => document.body.scrollHeight,
@@ -233,7 +234,6 @@ export function useInfiniteScroll(
 
             // do no try to get scrollPosition here because it has not settled
             const adjustedTop = origPosition - priorHeight + bodyHeight();
-            scrollYAtStart.value += adjustedTop;
             setScrollPosition(adjustedTop);
         }
     }

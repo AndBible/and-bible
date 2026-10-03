@@ -45,8 +45,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsActivityBinding
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.android.view.activity.settings.PreferenceStore
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
 import net.bible.service.llm.ApiFormat
 import net.bible.service.llm.DynamicModelService
@@ -79,16 +82,27 @@ class AiProvidersActivity : ActivityBase() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            R.id.add_provider -> {
+                val fragment = supportFragmentManager.findFragmentById(R.id.settings_container) as? AiProvidersFragment
+                fragment?.addProvider()
+                true
+            }
+            R.id.show_help -> {
+                CommonUtils.showHelpDialog(
+                    activity = this,
+                    titleResId = R.string.help,
+                    messageResId = R.string.help_ai_providers_text,
+                    helpPath = "ai.html#choosing-a-provider",
+                )
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        val fragment = supportFragmentManager.findFragmentById(R.id.settings_container) as? AiProvidersFragment
-        if (item.itemId == R.id.add_provider) {
-            fragment?.addProvider()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 }
 
@@ -377,6 +391,7 @@ class AiProvidersFragment : AiSettingsFragmentBase() {
                     updated.setApiKey(apiKey)
                 }
             }
+            if (isNew) ABEventBus.post(AppSettingsUpdated())
             Toast.makeText(requireContext(), R.string.ai_provider_saved, Toast.LENGTH_SHORT).show()
             refreshAll()
         }
@@ -398,6 +413,7 @@ class AiProvidersFragment : AiSettingsFragmentBase() {
                             settings.defaultModelId = remaining.firstOrNull()?.id
                         }
                     }
+                    ABEventBus.post(AppSettingsUpdated())
                     Toast.makeText(requireContext(), R.string.ai_provider_deleted, Toast.LENGTH_SHORT).show()
                     refreshAll()
                 }

@@ -15,6 +15,19 @@
   <string name="history">Histórico</string>
   <string name="speak">Fale</string>
   <string name="help">Ajuda</string>
+  <!--Help dialog strings (phase 3 UI Help links)-->
+  <string name="help_read_more_link">Ler mais no manual</string>
+  <string name="help_full_documentation_link">Consultar a documentação completa</string>
+  <string name="help_prompt_edit_text">Os prompts personalizados permitem criar instruções de IA reutilizáveis para o seu estudo. Defina um nome, descrição, modelo, os contextos onde deve aparecer e, opcionalmente, um fornecedor/modelo personalizado. Os prompts integrados não podem ser editados diretamente — utilize \"Copiar para personalizar\" para criar a sua própria versão.</string>
+  <string name="help_tool_info_text">As ferramentas de IA são funções especializadas que a IA pode invocar para ler os seus dados ou efetuar alterações em seu nome. As ferramentas de leitura (versículos, comentários, dicionários, marcadores) nunca requerem permissão. As ferramentas de escrita (criar marcadores, notas, entradas em áreas de estudo) estão sujeitas ao sistema de permissões.</string>
+  <string name="help_ai_settings_text">As Definições de IA são o local onde gere os seus prompts e categorias. A partir daqui pode criar novos prompts, organizá-los em categorias, importar/exportar prompts em CSV, instalar pacotes de prompts adicionais e aceder às definições de ligação de IA.</string>
+  <string name="help_ai_connection_text">Configure aqui os seus fornecedores de IA, modelos, permissões e outras opções de ligação. Cada fornecedor necessita da sua própria chave de API. Pode adicionar vários fornecedores e selecionar um modelo predefinido.</string>
+  <string name="help_ai_providers_text">Gerencie os fornecedores de IA (Google Gemini, OpenAI, Anthropic, etc.). Cada fornecedor necessita da sua própria chave de API. Pode adicionar vários fornecedores e atribuir fornecedores diferentes a prompts específicos.</string>
+  <string name="help_ai_models_text">Gerencie os modelos deste fornecedor. Pode atualizar a lista de modelos a partir da API do fornecedor para obter as versões mais recentes, ou adicionar manualmente um nome de modelo se não estiver na lista obtida.</string>
+  <string name="help_ai_document_filter_text">Limite quais Bíblias, comentários e outros módulos o agente de IA pode ler. Por predefinição, a IA vê todos os módulos instalados; filtrar ajuda a reduzir o ruído e o custo quando pretende que considere apenas fontes específicas.</string>
+  <string name="help_global_tool_permissions_text">Configure permissões para ferramentas de IA individuais. Para cada ferramenta de leitura, escolha se a IA pode utilizá-la (Ativada ou Desativada). Para cada ferramenta de escrita, escolha Permitir sempre, Negar sempre ou Perguntar (que recorre ao modo de permissão global definido nas definições de Ligação de IA).</string>
+  <string name="help_reading_progress_text">O seu progresso de leitura e memorização da Bíblia de relance. Marque capítulos como lidos manualmente com o botão \"Marcar como lido\" ou ative o acompanhamento automático. Os exercícios de memorização também contribuem para esta vista.</string>
+  <string name="help_memorize_text">A vista Memorizar ajuda-o a aprender passagens de cor. Utilize Desfocar Palavras, Misturar Palavras, Escrever Palavras ou Ordenar Palavras para praticar. Os exercícios bem-sucedidos marcam automaticamente os versículos como memorizados (isto pode ser desativado).</string>
   <string name="information">Informação</string>
   <string name="other">Outro</string>
   <string name="contact">Contato</string>
@@ -75,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Mostrar números de capítulo e versículo</string>
   <string name="prefs_e_ink_mode_title">Modo preto e branco</string>
   <string name="prefs_eink_mode_summary">Usar a aplicação em modo monocromático (sem cor), de forma a ficar adaptado para dispositivos E-ink</string>
+  <string name="prefs_display_color_mode_title">Modo de cor</string>
+  <string name="prefs_display_color_mode_summary">Escolha como as cores são exibidas. O e-ink a cores mantém uma base preto e branco, mas mostra as cores dos marcadores, o indicador da janela ativa e as linhas de apoio a cores — para ecrãs e-ink a cores.</string>
+  <string name="prefs_display_color_mode_normal">Normal</string>
+  <string name="prefs_display_color_mode_bw">Preto e branco</string>
+  <string name="prefs_display_color_mode_color_eink">E-ink a cores</string>
   <string name="prefs_eink_settings_cat">Definições de E-ink</string>
   <string name="prefs_eink_display_title">Funcionalidades E-ink</string>
   <string name="prefs_eink_display_summary">Ativar funcionalidades específicas de E-ink (botões de deslocamento de página, linhas auxiliares de deslocamento)</string>
@@ -207,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Não mostrar a sobreposição semitransparente de referência da Bíblia quando o aplicativo estiver no modo de ecran total</string>
   <string name="full_screen_hide_buttons_pref_title">Ocultar barra de botões da janela quando em ecran maximizado</string>
   <string name="full_screen_hide_buttons_pref_summary">Ao alternar para o modo de ecran maximizado, ocultar automaticamente a barra de botões da janela na parte inferior da tela</string>
+  <string name="prefs_hide_status_bar_title">Ocultar barra de estado</string>
+  <string name="prefs_hide_status_bar_summary">Oculta a barra de estado do Android (relógio, notificações) mantendo visível a barra de ferramentas do AndBible. Útil para leitura sem distrações e para dispositivos e-ink. Deslize o dedo a partir da margem superior para a mostrar temporariamente.</string>
   <string name="prefs_dictionaries_cat">Dicionários</string>
   <string name="choose_strongs_greek_dictionary_title">Dicionário Strongs Grego</string>
   <string name="choose_strongs_greek_dictionary_summary">Escolha o dicionário Strongs para definições de palavras gregas</string>
@@ -1097,6 +1117,7 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="sqlite_invalid_file">Arquivo ou nome de arquivo de módulo inválido: %s</string>
   <string name="sqlite_cant_write">Não foi possível escrever o arquivo</string>
   <string name="install_failed_reason">A instalação do módulo falhou pelo seguinte motivo: %s.</string>
+  <string name="no_file_manager">Não foi encontrada nenhuma aplicação para escolher um ficheiro. Instale um gestor de ficheiros e tente novamente.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">Aplicativo aberto noutro local</string>
   <string name="open_here">Abrir aqui</string>
@@ -1199,6 +1220,9 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="agent_max_iterations_summary">Máximo de iterações antes de perguntar para continuar (0 = ilimitado)</string>
   <string name="ask_model_before_run_title">Perguntar modelo antes de executar</string>
   <string name="ask_model_before_run_summary">Mostrar um diálogo de seleção de modelo antes de executar um prompt (ignorado quando o prompt tem uma substituição de modelo explícita)</string>
+  <string name="auto_hide_agent_log_title">Ocultar painel de IA ao terminar</string>
+  <string name="auto_hide_agent_log_summary">Ocultar automaticamente o painel de IA quando uma tarefa termina com êxito ou é cancelada. Em caso de erro, o painel permanece visível.</string>
+  <string name="ai_task_completed">Tarefa de IA concluída</string>
   <string name="custom_agent_system_prompt_title">Prompt de sistema do agente</string>
   <string name="custom_system_prompt_summary">Não é recomendável editar a menos que saiba o que está a fazer</string>
   <string name="custom_text_transform_system_prompt_title">Prompt de sistema de transformação de texto</string>
@@ -1633,6 +1657,8 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="prefs_show_ai_doc_markers_summary">Mostrar ícones de marcador para páginas de documentos gerados por IA ligadas a versículos</string>
   <string name="prefs_show_ordinals_title">Mostrar números ordinais</string>
   <string name="prefs_show_ordinals_summary">Mostrar marcadores de posição ordinal no texto</string>
+  <string name="prefs_show_reading_progress_title">Progresso de leitura</string>
+  <string name="prefs_show_reading_progress_summary">Mostra até onde chegou no livro (percentagem, página ou capítulo)</string>
   <string name="prefs_page_scroll_amount_title">Quantidade de deslocamento de página</string>
   <string name="prefs_page_scroll_amount_summary">Quanto da página deslocar com página acima/abaixo</string>
   <string name="prefs_scroll_helper_lines_title">Linhas auxiliares de deslocamento</string>
@@ -1644,4 +1670,96 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="scroll_helper_line_style_thick_solid">Linha grossa sólida</string>
   <string name="prefs_page_buttons_title">Botões de deslocamento de página</string>
   <string name="prefs_page_buttons_summary">Mostrar botões visíveis de página acima/abaixo no ecrã</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Documentos</string>
+  <string name="document_sync_contents">Bíblias, comentários e outros documentos instalados</string>
+  <string name="document_sync_category_title">Sincronização de documentos</string>
+  <string name="document_sync_auto_download_title">Transferir automaticamente</string>
+  <string name="document_sync_auto_download_summary">Transferir automaticamente documentos novos e atualizados da nuvem para este dispositivo</string>
+  <string name="document_sync_auto_upload_title">Carregar automaticamente</string>
+  <string name="document_sync_auto_upload_summary">Carregar automaticamente para a nuvem os documentos instalados neste dispositivo</string>
+  <string name="document_sync_auto_delete_title">Aplicar remoções automaticamente</string>
+  <string name="document_sync_auto_delete_summary">Remover automaticamente documentos deste dispositivo quando forem removidos noutro dispositivo</string>
+  <string name="document_sync_wifi_only_title">Sincronizar documentos apenas por Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">As transferências automáticas de documentos aguardam por uma ligação não tarifada (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Ver e gerir os documentos guardados na nuvem</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Documentos sincronizados</string>
+  <string name="cloud_doc_status_synced">Sincronizado</string>
+  <string name="cloud_doc_status_local_only">Apenas neste dispositivo</string>
+  <string name="cloud_doc_status_cloud_only">Apenas na nuvem</string>
+  <string name="cloud_doc_status_update">Atualização disponível</string>
+  <string name="cloud_doc_status_blocked">Bloqueado neste dispositivo</string>
+  <string name="cloud_doc_status_wont_sync">Não será sincronizado com a nuvem</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Todos</string>
+  <string name="cloud_doc_filter_installed">Instalados</string>
+  <string name="cloud_doc_filter_cloud">Na nuvem</string>
+  <string name="cloud_doc_filter_updates">Atualizações</string>
+  <string name="cloud_doc_filter_blocked">Bloqueados</string>
+  <string name="cloud_doc_filter_device_only">Apenas neste dispositivo</string>
+  <string name="cloud_doc_filter_cloud_only">Apenas na nuvem</string>
+  <string name="cloud_doc_filter_removed">Removidos</string>
+  <string name="cloud_doc_show_removed">Mostrar documentos removidos</string>
+  <string name="cloud_doc_status_removed">Removido da nuvem</string>
+  <string name="cloud_doc_status_still_installed">ainda instalado aqui</string>
+  <string name="cloud_doc_purge_confirm">Remover permanentemente \"%1$s\" do histórico da nuvem? Se ainda estiver instalado noutro dispositivo, esse dispositivo poderá voltar a carregá-lo para a nuvem na próxima sincronização.</string>
+  <string name="cloud_doc_action_download">Transferir</string>
+  <string name="cloud_doc_action_push">Carregar para a nuvem</string>
+  <string name="cloud_doc_action_remove_cloud">Remover da nuvem</string>
+  <string name="cloud_doc_action_remove_all_devices">Remover de todos os dispositivos</string>
+  <string name="cloud_doc_action_block">Não sincronizar para este dispositivo</string>
+  <string name="cloud_doc_action_unblock">Permitir neste dispositivo</string>
+  <string name="cloud_doc_action_restore">Restaurar para a nuvem</string>
+  <string name="cloud_doc_action_dont_sync">Não sincronizar com a nuvem</string>
+  <string name="cloud_doc_action_allow_sync">Sincronizar com a nuvem</string>
+  <string name="cloud_doc_action_purge">Remover do histórico da nuvem</string>
+  <string name="cloud_doc_remove_all_confirm">Remover %1$s da nuvem e de todos os seus dispositivos, incluindo este?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Remover %1$s da nuvem? A cópia neste dispositivo é mantida; os dispositivos com a sincronização de documentos ativada também a irão remover.</string>
+  <string name="cloud_doc_sync_now">Sincronizar agora</string>
+  <string name="cloud_doc_rescan">Reanalisar a partir da nuvem</string>
+  <string name="cloud_doc_sync_now_download">Transferir documentos novos e atualizados</string>
+  <string name="cloud_doc_sync_now_upload">Carregar documentos locais para a nuvem</string>
+  <string name="cloud_doc_sync_now_delete">Aplicar remoções de outros dispositivos</string>
+  <string name="document_sync_signin_required">Inicie sessão na sua conta na nuvem para gerir os documentos sincronizados.</string>
+  <string name="cloud_doc_summary_upload">Carregar %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Carregar %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Transferir %1$d</string>
+  <string name="cloud_doc_summary_download_size">Transferir %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">As transferências automáticas iniciar-se-ão por Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d documento</item>
+    <item quantity="many">%1$d documentos</item>
+    <item quantity="other">%1$d documentos</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d documento (%2$s)</item>
+    <item quantity="many">%1$d documentos (%2$s)</item>
+    <item quantity="other">%1$d documentos (%2$s)</item>
+  </plurals>
+  <string name="cloud_doc_sync_now_count_none">Nada para transferir</string>
+  <string name="cloud_doc_selected_count">%1$d selecionado(s)</string>
+  <string name="cloud_doc_bulk_skipped">%1$d ignorado(s) por não ser aplicável</string>
+  <plurals name="cloud_doc_bulk_remove_all_confirm">
+    <item quantity="one">Remover %1$d documento da nuvem e de todos os seus dispositivos, incluindo este?</item>
+    <item quantity="many">Remover %1$d documentos da nuvem e de todos os teus dispositivos, incluindo este?</item>
+    <item quantity="other">Remover %1$d documentos da nuvem e de todos os teus dispositivos, incluindo este?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_confirm">
+    <item quantity="one">Remover %1$d documento da nuvem? As cópias neste dispositivo são mantidas.</item>
+    <item quantity="many">Remover %1$d documentos da nuvem? As cópias neste dispositivo são mantidas.</item>
+    <item quantity="other">Remover %1$d documentos da nuvem? As cópias neste dispositivo são mantidas.</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_confirm">
+    <item quantity="one">Deseja eliminar definitivamente %1$d documento do histórico da nuvem?</item>
+    <item quantity="many">Deseja eliminar definitivamente %1$d documentos do histórico da nuvem?</item>
+    <item quantity="other">Deseja eliminar definitivamente %1$d documentos do histórico da nuvem?</item>
+  </plurals>
+  <string name="document_sync_notification_title">A sincronizar documentos</string>
+  <string name="document_sync_downloading">A transferir %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">A carregar %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">A remover %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Sincronização de documentos iniciada</string>
+  <string name="document_sync_enable_dialog_title">Iniciar a sincronização de documentos?</string>
+  <string name="document_sync_enable_dialog_nothing">Ainda não há documentos para transferir. Os documentos recém-instalados serão sincronizados automaticamente.</string>
 </resources>

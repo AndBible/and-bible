@@ -1,0 +1,20 @@
+- Color support for e-ink mode (89116fa9)
+- Points of interest display in top margin (3e89daff6)
+- List views UI (ae83e97b4)
+- Hide system bar option for e-ink displays (586c121b)
+- Download progress indicator (b0d610a4)
+- Device sync feature (a45efc0f0)
+
+AndBible 5.1 stable release!
+
+Quick tour to what's new: https://youtu.be/EKnyBIti9Fk
+
+Highlights since 5.0:
+- Optional AI assistant (Gemini, Claude, OpenRouter, ...)
+- Reading & memorization progress tracking
+- My Documents: editable, syncable pages
+- 3-level text display settings inheritance
+- Many other small features and bug fixes
+
+See https://andbible.org
+Support: https://shop.andbible.org/

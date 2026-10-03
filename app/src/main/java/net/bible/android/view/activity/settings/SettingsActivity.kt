@@ -161,7 +161,7 @@ class SettingsActivity: ActivityBase() {
                     "google_drive_sync",
                     "disable_bible_bookmark_modal_buttons",
                     "disable_gen_bookmark_modal_buttons",
-                    "monochrome_mode",
+                    "display_color_mode",
                     "disable_animations",
                     "disable_click_to_edit",
                     "font_size_multiplier",
@@ -240,6 +240,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
             nightModePref.setEntryValues(R.array.prefs_night_mode_values_system_manual)
             nightModePref.setDefaultValue("system")
         }
+        val displayColorModePref = preferenceScreen.findPreference<ListPreference>("display_color_mode") as ListPreference
+        displayColorModePref.setDefaultValue(if (CommonUtils.isOnyxDevice) "bw" else "normal")
         val showErrorBox = preferenceScreen.findPreference<ListPreference>("show_errorbox") as Preference
         showErrorBox.isVisible = CommonUtils.isBeta
         val greekStrongs = preferenceScreen.findPreference<MultiSelectListPreference>("strongs_greek_dictionary") as MultiSelectListPreference

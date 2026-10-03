@@ -49,10 +49,12 @@ vi.mock("@/composables", () => ({
     strings: {
       wordBlur: "Word Blur",
       wordScramble: "Word Scramble",
-      wordType: "Type"
+      wordType: "Type",
+      viewHelp: "View help"
     },
     android: {
-      saveState: vi.fn()
+      saveState: vi.fn(),
+      showHelpDialog: vi.fn()
     }
   })
 }));
@@ -273,5 +275,23 @@ describe("MemorizeDocument.vue", () => {
     if (buttons.length > 2) {
       expect(buttons[2].classes()).toContain("active");
     }
+  });
+
+  it("calls android.showHelpDialog('memorize') when the Help menu item is clicked", async () => {
+    const wrapper = createWrapper();
+
+    // Open the three-dot dropdown menu
+    const trigger = wrapper.find(".menu-trigger");
+    expect(trigger.exists()).toBe(true);
+    await trigger.trigger("click");
+
+    // Find the Help menu item by its text content
+    const menuItems = wrapper.findAll(".menu-item");
+    const helpItem = menuItems.find(item => item.text().includes("View help"));
+    expect(helpItem).toBeDefined();
+
+    await helpItem.trigger("click");
+
+    expect(wrapper.vm.android.showHelpDialog).toHaveBeenCalledWith("memorize");
   });
 });

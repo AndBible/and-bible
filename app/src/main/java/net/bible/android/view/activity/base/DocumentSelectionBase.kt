@@ -43,6 +43,7 @@ import net.bible.android.activity.databinding.DocumentSelectionBinding
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DownloadControl
+import net.bible.android.control.download.LanguageGrouping
 import net.bible.android.control.download.repo
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -125,6 +126,8 @@ abstract class DocumentSelectionBase(
     private val filterMutex = Mutex()
     // language spinner
     private val languageList = ArrayList<Language>()
+    // groups languages that should be shown once; rebuilt whenever the document list changes
+    private var languageGrouping = LanguageGrouping(emptyList())
     protected var selectedLanguageNo = -1
     private lateinit var langArrayAdapter: ArrayAdapter<Language>
 
@@ -445,7 +448,9 @@ abstract class DocumentSelectionBase(
                         for (doc in allDocuments) {
                             val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
                             if (filter.test(doc) &&
-                                (lang == null || doc.language == lang || doc.bookCategory == BookCategory.AND_BIBLE) &&
+                                (lang == null
+                                    || languageGrouping.key(doc.language) == languageGrouping.key(lang)
+                                    || doc.bookCategory == BookCategory.AND_BIBLE) &&
                                 (osisIds == null || osisIds.contains(doc.osisID)) &&
                                 !doc.isBadDocument(badDocuments.value, BadDocumentAction.HIDE)
                             ) {
@@ -502,14 +507,18 @@ abstract class DocumentSelectionBase(
      */
     private fun populateLanguageList() {
         try {
-            // temporary Set to remove duplicate Languages
+            // distinct Languages across all documents (further grouped below)
             val langSet = HashSet<Language>()
             if (allDocuments.size > 0) {
                 Log.i(TAG, "initialising language list")
                 for (doc in allDocuments) {
-                    langSet.add(doc.language)
+                    doc.language?.let { langSet.add(it) }
                 }
-                val sortedLanguages = sortLanguages(langSet)
+                // Collapse languages that refer to the same language but were declared with
+                // different code conventions (e.g. "eng"/"en", "en-Latn"/"en", "fi-FI"/"fi"),
+                // which Language.equals() treats as distinct and would otherwise show twice.
+                languageGrouping = LanguageGrouping(langSet)
+                val sortedLanguages = sortLanguages(languageGrouping.representatives)
                 languageList.clear()
                 languageList.addAll(sortedLanguages)
                 langArrayAdapter.clear()

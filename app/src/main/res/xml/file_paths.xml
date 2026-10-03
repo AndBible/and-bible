@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2019-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2019-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -20,4 +20,5 @@
     <files-path name="internal_backup_dir" path="backup"/>
     <files-path name="automatic_database_backups" path="database_backups/"/>
     <files-path name="logcats_and_screenshots" path="log"/>
+    <files-path name="exported_documents" path="export/"/>
 </paths>

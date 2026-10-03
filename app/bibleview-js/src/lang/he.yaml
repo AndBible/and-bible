@@ -75,7 +75,11 @@ markedAsMemorized: נשנן
 removeFromTargets: יעד -
 viewReadingProgress: התקדמות קריאה/שינון
 viewReadingProgressSettings: הגדרות קריאה/שינון
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · פ׳ %s/%s"
 listenInLoop: האזן בלולאה
+viewHelp: צפה בעזרה
 verseNoteLong: כתיבת הערה
 verseParagraphBreakLong: מעבר פסקה
 addBookmark: סימניה

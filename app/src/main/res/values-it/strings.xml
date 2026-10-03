@@ -13,8 +13,21 @@
   <string name="search">Trova</string>
   <string name="settings">Preferenze dell\'app</string>
   <string name="history">Cronologia</string>
-  <string name="speak">Parla/Audio</string>
+  <string name="speak">Parla</string>
   <string name="help">Supporto</string>
+  <!--Help dialog strings (phase 3 UI Help links)-->
+  <string name="help_read_more_link">Leggi di più nel manuale</string>
+  <string name="help_full_documentation_link">Sfoglia la documentazione completa</string>
+  <string name="help_prompt_edit_text">I prompt personalizzati ti permettono di creare istruzioni AI riutilizzabili per il tuo studio. Imposta un nome, una descrizione, un modello, i contesti in cui dovrebbe apparire e, facoltativamente, un fornitore/modello personalizzato. I prompt integrati non possono essere modificati direttamente — usa \"Copia per personalizzare\" per creare la tua versione.</string>
+  <string name="help_tool_info_text">Gli strumenti AI sono funzioni specializzate che l\'IA può chiamare per leggere i tuoi dati o apportare modifiche per tuo conto. Gli strumenti di lettura (versetti, commentari, dizionari, segnalibri) non richiedono mai autorizzazione. Gli strumenti di scrittura (creazione di segnalibri, note, voci degli appunti di studio) sono controllati dal sistema di autorizzazioni.</string>
+  <string name="help_ai_settings_text">Impostazioni AI è il luogo dove gestisci i tuoi prompt e le categorie. Da qui puoi creare nuovi prompt, organizzarli in categorie, importare/esportare prompt come CSV, installare pacchetti di prompt aggiuntivi e accedere alle impostazioni di connessione AI.</string>
+  <string name="help_ai_connection_text">Configura qui i tuoi fornitori AI, modelli, autorizzazioni e altre opzioni di connessione. Ogni fornitore ha bisogno della propria chiave API. Puoi aggiungere più fornitori e selezionare un modello predefinito.</string>
+  <string name="help_ai_providers_text">Gestisci i fornitori AI (Google Gemini, OpenAI, Anthropic, ecc.). Ogni fornitore ha bisogno della propria chiave API. Puoi aggiungere più fornitori e assegnarne di diversi a prompt specifici.</string>
+  <string name="help_ai_models_text">Gestisci i modelli per questo fornitore. Puoi aggiornare l\'elenco dei modelli dall\'API del fornitore per includere le nuove versioni, oppure aggiungere manualmente il nome di un modello se non è presente nell\'elenco recuperato.</string>
+  <string name="help_ai_document_filter_text">Limita quali Bibbie, commentari e altri moduli l\'agente AI può leggere. Per impostazione predefinita l\'IA vede tutti i moduli installati; il filtro aiuta a ridurre il rumore e i costi quando vuoi che consideri solo fonti specifiche.</string>
+  <string name="help_global_tool_permissions_text">Configura le autorizzazioni per i singoli strumenti AI. Per ogni strumento di lettura, scegli se l\'IA può utilizzarlo (Abilitato o Disabilitato). Per ogni strumento di scrittura, scegli Consenti sempre, Nega sempre o Chiedi (che ricade sulla modalità di autorizzazione globale impostata nelle impostazioni di connessione AI).</string>
+  <string name="help_reading_progress_text">Il tuo progresso di lettura e memorizzazione della Bibbia a colpo d\'occhio. Segna i capitoli come letti manualmente con il pulsante \"Segna come letto\", oppure abilita il monitoraggio automatico. Anche gli esercizi di memorizzazione confluiscono in questa vista.</string>
+  <string name="help_memorize_text">La vista Memorizza ti aiuta ad imparare i passi a memoria. Usa Sfocatura Parola, Rimescolamento Parola, Digitazione Parola o Ordine Parola per esercitarti. Gli esercizi riusciti contrassegnano automaticamente i versetti come memorizzati (questa opzione può essere disabilitata).</string>
   <string name="information">Informazioni</string>
   <string name="other">Altro</string>
   <string name="contact">Contatti</string>
@@ -75,6 +88,11 @@
   <string name="prefs_show_verseno_summary">Mostra numeri di capitolo e versetto</string>
   <string name="prefs_e_ink_mode_title">Modalità bianco e nero</string>
   <string name="prefs_eink_mode_summary">Usa l\'app in modalità monocromatica (senza colori), più adatta ai dispositivi E-ink.</string>
+  <string name="prefs_display_color_mode_title">Modalità colore</string>
+  <string name="prefs_display_color_mode_summary">Scegli come vengono mostrati i colori. La modalità e-ink a colori mantiene una base in bianco e nero ma mostra i colori dei segnalibri, l\'indicatore della finestra attiva e le linee guida a colori — per schermi e-ink a colori.</string>
+  <string name="prefs_display_color_mode_normal">Normale</string>
+  <string name="prefs_display_color_mode_bw">Bianco e nero</string>
+  <string name="prefs_display_color_mode_color_eink">E-ink a colori</string>
   <string name="prefs_eink_settings_cat">Impostazioni E-ink</string>
   <string name="prefs_eink_display_title">Funzionalità E-ink</string>
   <string name="prefs_eink_display_summary">Abilita funzionalità specifiche per E-ink (pulsanti di scorrimento pagina, linee guida di scorrimento)</string>
@@ -139,7 +157,7 @@
   <string name="options_menu_night_mode">Modalità notturna</string>
   <string name="prefs_navigate_to_verse_title">Naviga al versetto</string>
   <string name="prefs_navigate_to_verse_summary">Scegli il versetto (e il capitolo) quando selezioni un passaggio</string>
-  <string name="prefs_open_links_in_special_window_title">Finestra collegamenti</string>
+  <string name="prefs_open_links_in_special_window_title">Finestra dei collegamenti</string>
   <string name="prefs_open_links_in_special_window_summary">Apre i collegamenti in finestre speciali, per mostrare più rapidamente i riferimenti incrociati e gli Strong</string>
   <string name="prefs_text_size_sample_text">Testo d\'esempio</string>
   <string name="prefs_screen_keep_on_title">Tieni lo schermo acceso</string>
@@ -171,12 +189,12 @@
   <string name="text_display_settings_activity_title">Impostazioni di visualizzazione del testo</string>
   <string name="workspace_text_display_settings_title">Opzioni di testo - %s</string>
   <string name="window_text_display_settings_title">Opzioni di testo - Finestra %d</string>
-  <string name="global_text_display_settings_title">Opzioni testo globali</string>
+  <string name="global_text_display_settings_title">Opzioni di testo globali</string>
   <string name="global_text_display_settings_summary">Impostazioni di visualizzazione testo predefinite per tutti gli spazi di lavoro</string>
   <string name="parent_settings_category_title">Impostazioni superiori</string>
   <string name="workspace_text_options_link">Opzioni testo spazio di lavoro — %s</string>
   <string name="workspace_text_options_link_summary">Modifica le impostazioni di visualizzazione testo per questo spazio di lavoro</string>
-  <string name="global_text_options_link">Opzioni testo globali</string>
+  <string name="global_text_options_link">Opzioni di testo globali</string>
   <string name="global_text_options_link_summary">Modifica le impostazioni di visualizzazione testo predefinite per tutti gli spazi di lavoro</string>
   <string name="prefs_font_and_colors_title">Carattere &amp; Colori</string>
   <string name="prefs_text_layout_title">Layout testo</string>
@@ -207,6 +225,8 @@
   <string name="hide_bible_reference_overlay_summary">Non mostrare i riferimenti biblici semi-trasparenti in sovraimpressione quando l\'app è a schermo intero</string>
   <string name="full_screen_hide_buttons_pref_title">Nascondi pulsanti a schermo intero</string>
   <string name="full_screen_hide_buttons_pref_summary">Quando si passa alla modalità a schermo intero, nasconde automaticamente la barra dei pulsanti della finestra che si trova nella parte inferiore dello schermo</string>
+  <string name="prefs_hide_status_bar_title">Nascondi barra di stato</string>
+  <string name="prefs_hide_status_bar_summary">Nascondi la barra di stato di Android (orologio, notifiche) mantenendo visibile la barra degli strumenti di AndBible. Utile per una lettura senza distrazioni e per i dispositivi e-ink. Scorri dal margine superiore per mostrarla temporaneamente.</string>
   <string name="prefs_dictionaries_cat">Dizionari</string>
   <string name="choose_strongs_greek_dictionary_title">Dizionario greco di Strong</string>
   <string name="choose_strongs_greek_dictionary_summary">Scegli il dizionario Strong per le definizioni in greco</string>
@@ -335,8 +355,8 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="delete">Cancella</string>
   <string name="delete_index">Cancella l\'indice di ricerca</string>
   <string name="about">Informazioni</string>
-  <string name="delete_doc">Cancella %s?</string>
-  <string name="delete_search_index_doc">Cancellare l\'indice di %s?</string>
+  <string name="delete_doc">Elimino %s?</string>
+  <string name="delete_search_index_doc">Elimino l\'indice di %s?</string>
   <!--Verse context menu-->
   <string name="notes">Note e referenze</string>
   <string name="share_verse">Condividere…</string>
@@ -414,9 +434,9 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="speak_speed_title">Velocità del testo parlato</string>
   <string name="speak_and_play_earcons_title">Parla e riproduci effetti acustici per</string>
   <string name="playback_settings_title">Impostazioni di riproduzione</string>
-  <string name="speak_settings_title">Impostazioni generali di Parla/Audio</string>
+  <string name="speak_settings_title">Impostazioni generali del testo parlato</string>
   <string name="speak_bookmarking_settings_title">Impostazioni dei segnalibri</string>
-  <string name="speak_bookmarks_menu_title">Parla/Audio dal segnalibro</string>
+  <string name="speak_bookmarks_menu_title">Parla dal segnalibro</string>
   <string name="speak_advanced_settings">Impostazioni avanzate</string>
   <string name="speak_sleep_timer_title">Timer di spegnimento</string>
   <string name="speak_no_books_available">Nessun libro disponibile per leggere</string>
@@ -460,7 +480,7 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="assing_labels_help4">Tocca %s per aggiungere l\'etichetta all\'elenco dei tuoi preferiti per accesso rapido.</string>
   <!--param is refresh icon-->
   <string name="assing_labels_help5">Tocca %s per riordinare l\'elenco in base alle tue scelte.</string>
-  <string name="global_text_options_help_title">Opzioni testo globali</string>
+  <string name="global_text_options_help_title">Opzioni di testo globali</string>
   <string name="global_text_options_help1">Queste sono le impostazioni predefinite globali per tutti gli spazi di lavoro. Ogni spazio di lavoro può sovrascriverle con le proprie impostazioni.</string>
   <string name="workspace_text_options_help_title">Opzioni testo dello spazio di lavoro</string>
   <string name="workspace_text_options_help1">Queste impostazioni sono quelle predefinite per tutte le finestre dello spazio di lavoro.</string>
@@ -474,15 +494,15 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="reset_defaults">valori predefiniti</string>
   <string name="reset_workspace_defaults">valori predefiniti dello spazio di lavoro</string>
   <string name="speak_help_auto_bookmark">
-Un segnalibro Audio verrà aggiunto automaticamente quando Parla/Audio viene messo in pausa o interrotto. I segnalibri generati automaticamente sono etichettati con l\'etichetta speciale Audio. Se inizi da un segnalibro di Audio, il segnalibro verrà spostato nel versetto stesso interrompere o mettere in pausa alla prossima volta. Verranno spostate solo le etichette Audio, tutte le altre etichette saranno lasciate solo.</string>
+Un segnalibro Audio verrà aggiunto automaticamente quando Parla viene messo in pausa o interrotto. I segnalibri generati automaticamente sono etichettati con l\'etichetta speciale Audio. Se inizi da un segnalibro di Audio, il segnalibro verrà spostato nel versetto stesso interrompere o mettere in pausa alla prossima volta. Verranno spostate solo le etichette Audio, tutte le altre etichette saranno lasciate solo.</string>
   <string name="speak_help_playback_settings">
-Impostazioni di riproduzione speciali (in \"Impostazioni di riproduzione\" nella schermata Parla/Audio) vengono salvati in Parla/Audio segnalibri quando questa impostazione è selezionata. Quando si riavvia la conversazione da un segnalibro Parla/Audio, le impostazioni di riproduzione salvate vengono caricati dal segnalibro.</string>
+Impostazioni di riproduzione speciali (in \"Impostazioni di riproduzione\" nella schermata Parla) vengono salvati in \"Parla dai segnalibri\" quando questa impostazione è selezionata. Quando si riavvia la conversazione da un segnalibro parlato, le impostazioni di riproduzione salvate vengono caricate dal segnalibro.</string>
   <string name="speak_help_playback_settings_example">
 Ad esempio se stai ascoltando Genesi e Romani e
-desidera ascoltare la Genesi parlata rapidamente senza notifiche di modifica dei capitoli,
-ma per i romani più lentamente con suoni udibili delle cuffie sui cambi di capitolo, quindi
-puoi avere impostazioni di riproduzione diverse per questi libri,
-quando queste impostazioni vengono salvate nei segnalibri corrispondenti.</string>
+desideri ascoltare Genesi rapidamente e senza notifiche di cambio di capitolo,
+ma vuoi ascoltare Romani più lentamente con suoni al cambio del capitolo,
+puoi avere impostazioni di riproduzione diverse per questi due libri,
+quando le impostazioni vengono salvate nei segnalibri corrispondenti.</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -694,8 +714,8 @@ quello di scorrere verso il basso dalla barra degli strumenti. Puoi anche usare 
   <string name="help_hidden_features_title">Scorciatoie nascoste</string>
   <string name="help_hidden_features_text">
  Scorri verso il basso dalla barra degli strumenti per mostrare il selettore dell\'area di lavoro.
- Premere a lungo il pulsante della finestra per minimizzare rapidamente.
- Premere a lungo il pulsante della barra degli strumenti per parlare per passare rapidamente alle impostazioni vocali.
+ Premi a lungo il pulsante della finestra per minimizzare rapidamente.
+ Premi a lungo il pulsante della barra degli strumenti di Parla per passare rapidamente alle impostazioni vocali.
  Premi a lungo il titolo della posizione del versetto nella barra degli strumenti per passare al selettore documenti.
  Premi a lungo il pulsante Indietro per accedere all\'elenco Cronologia.
 </string>
@@ -979,7 +999,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
     </string>
   <string name="calculator_par2">
         In questa puoi eseguire normali calcoli, e quando vuoi accedere all\'app, ti basta
-        inserire il tuo codice PIN (predefinito è 1234) e poi premere il pulsante \"=\".
+        inserire il tuo codice PIN (quello predefinito è 1234) e poi premere il tasto \"=\".
     </string>
   <string name="calculator_par3">
         Puoi impostare un tuo PIN personale dall\'impostazione \"PIN calcolatrice\".
@@ -990,7 +1010,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
     </string>
   <string name="discrete_mode_info_par2">
         Per una maggiore sicurezza nelle zone di persecuzione, consigliamo vivamente l\'uso della
-        versione discreta dell\'app, che mostra sempre la calcolatrice, anche quando i dati sono cancellati.
+        versione discreta dell\'app, che mostra sempre la calcolatrice, anche quando i dati dell\'app vengono cancellati.
     </string>
   <string name="discrete_mode_link">
         Puoi scaricare l\'ultima versione discreta da %s.
@@ -998,7 +1018,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <!--Window synchronize groups-->
   <string name="sync_group_n">Gruppo %d</string>
   <string name="disable_sync">Disattiva sincronizzazione</string>
-  <string name="open_in_window">Apri risultati in una finestra</string>
+  <string name="open_in_window">Apri i risultati in una finestra</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Repository personalizzati</string>
@@ -1028,7 +1048,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
     </string>
   <string name="restore_backup_sections">Quali sezioni di backup desideri ripristinare?</string>
   <string name="db_repositories">Impostazioni relative ai repository</string>
-  <string name="db_bookmarks">Segnalibri, Annotazioni, Etichette and Appunti di Studio</string>
+  <string name="db_bookmarks">Segnalibri, Annotazioni, Etichette e Appunti di Studio</string>
   <string name="synchronizing">Sincronizzazione…</string>
   <string name="overrideBackup">
         Trovato nel Cloud un database esistente con cui il dispositivo non è sincronizzato.
@@ -1053,7 +1073,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="reading_progress_calendar">Attività di lettura</string>
   <string name="reading_progress_cycle">Ciclo %d</string>
   <string name="reading_progress_new_cycle">Nuovo ciclo</string>
-  <string name="reading_progress_new_cycle_confirm">Iniziare un nuovo ciclo di lettura? Inizierai a tracciare i tuoi progressi da zero, conservando i dati del ciclo precedente.</string>
+  <string name="reading_progress_new_cycle_confirm">Iniziare un nuovo ciclo di lettura? Ricomincerai a tracciare i tuoi progressi da zero, conservando i dati del ciclo precedente.</string>
   <string name="reading_progress_previous_cycle">Ciclo precedente</string>
   <string name="reading_progress_next_cycle">Ciclo successivo</string>
   <string name="cloud_fetch_and_restore_initial">Copia dal Cloud a questo dispositivo</string>
@@ -1095,6 +1115,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="sqlite_invalid_file">File o nome modulo non valido: %s</string>
   <string name="sqlite_cant_write">Impossibile (sovra)scrivere file</string>
   <string name="install_failed_reason">L\'installazione del modulo non è riuscita per il seguente motivo: %s.</string>
+  <string name="no_file_manager">Nessuna app trovata per scegliere un file. Installa un file manager e riprova.</string>
   <!--Other / uncategorized-->
   <string name="app_opened_elsewhere">L\'app è aperta altrove</string>
   <string name="open_here">Apri qui</string>
@@ -1197,6 +1218,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="agent_max_iterations_summary">Iterazioni massime prima di chiedere di continuare (0 = illimitato)</string>
   <string name="ask_model_before_run_title">Chiedi modello prima dell\'esecuzione</string>
   <string name="ask_model_before_run_summary">Mostra una finestra di selezione del modello prima di eseguire un prompt (ignorato quando il prompt ha un\'impostazione esplicita del modello)</string>
+  <string name="auto_hide_agent_log_title">Nascondi il pannello IA al termine</string>
+  <string name="auto_hide_agent_log_summary">Nascondi automaticamente il pannello IA quando un\'attività termina correttamente o viene annullata. In caso di errore il pannello rimane visibile.</string>
+  <string name="ai_task_completed">Attività IA completata</string>
   <string name="custom_agent_system_prompt_title">Prompt di sistema dell\'agente</string>
   <string name="custom_system_prompt_summary">Modifica non consigliata a meno che tu non sappia cosa stai facendo</string>
   <string name="custom_text_transform_system_prompt_title">Prompt di sistema per trasformazione testo</string>
@@ -1631,6 +1655,8 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="prefs_show_ai_doc_markers_summary">Mostra icone marcatore per le pagine di documenti generati dall\'IA collegate ai versetti</string>
   <string name="prefs_show_ordinals_title">Mostra numeri ordinali</string>
   <string name="prefs_show_ordinals_summary">Mostra marcatori di posizione ordinale nel testo</string>
+  <string name="prefs_show_reading_progress_title">Progresso di lettura</string>
+  <string name="prefs_show_reading_progress_summary">Mostra quanto sei avanti nel libro (percentuale, pagina o capitolo)</string>
   <string name="prefs_page_scroll_amount_title">Quantità scorrimento pagina</string>
   <string name="prefs_page_scroll_amount_summary">Quanto della pagina scorrere con pagina su/giù</string>
   <string name="prefs_scroll_helper_lines_title">Linee guida scorrimento</string>
@@ -1642,4 +1668,96 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="scroll_helper_line_style_thick_solid">Linea spessa continua</string>
   <string name="prefs_page_buttons_title">Pulsanti scorrimento pagina</string>
   <string name="prefs_page_buttons_summary">Mostra pulsanti visibili pagina su/giù sullo schermo</string>
+  <!--Document sync: settings UI-->
+  <string name="document_sync_title">Documenti</string>
+  <string name="document_sync_contents">Bibbie, commentari e altri documenti installati</string>
+  <string name="document_sync_category_title">Sincronizzazione documenti</string>
+  <string name="document_sync_auto_download_title">Scarica automaticamente</string>
+  <string name="document_sync_auto_download_summary">Scarica automaticamente i documenti nuovi e aggiornati dal cloud a questo dispositivo</string>
+  <string name="document_sync_auto_upload_title">Carica automaticamente</string>
+  <string name="document_sync_auto_upload_summary">Carica automaticamente nel cloud i documenti installati su questo dispositivo</string>
+  <string name="document_sync_auto_delete_title">Applica le rimozioni automaticamente</string>
+  <string name="document_sync_auto_delete_summary">Rimuovi automaticamente i documenti da questo dispositivo quando vengono rimossi su un altro dispositivo</string>
+  <string name="document_sync_wifi_only_title">Sincronizza i documenti solo tramite Wi-Fi</string>
+  <string name="document_sync_wifi_only_summary">I trasferimenti automatici dei documenti attendono una connessione non a consumo (Wi-Fi)</string>
+  <string name="document_sync_manage_summary">Visualizza e gestisci i documenti archiviati nel cloud</string>
+  <!--Document sync: cloud documents management view-->
+  <string name="document_sync_manage_title">Documenti sincronizzati</string>
+  <string name="cloud_doc_status_synced">Sincronizzato</string>
+  <string name="cloud_doc_status_local_only">Solo su questo dispositivo</string>
+  <string name="cloud_doc_status_cloud_only">Solo nel cloud</string>
+  <string name="cloud_doc_status_update">Aggiornamento disponibile</string>
+  <string name="cloud_doc_status_blocked">Bloccato su questo dispositivo</string>
+  <string name="cloud_doc_status_wont_sync">Non verrà sincronizzato con il cloud</string>
+  <string name="cloud_doc_version_prefix">v%1$s</string>
+  <string name="cloud_doc_filter_all">Tutti</string>
+  <string name="cloud_doc_filter_installed">Installati</string>
+  <string name="cloud_doc_filter_cloud">Nel cloud</string>
+  <string name="cloud_doc_filter_updates">Aggiornamenti</string>
+  <string name="cloud_doc_filter_blocked">Bloccati</string>
+  <string name="cloud_doc_filter_device_only">Solo su questo dispositivo</string>
+  <string name="cloud_doc_filter_cloud_only">Solo nel cloud</string>
+  <string name="cloud_doc_filter_removed">Rimossi</string>
+  <string name="cloud_doc_show_removed">Mostra i documenti rimossi</string>
+  <string name="cloud_doc_status_removed">Rimosso dal cloud</string>
+  <string name="cloud_doc_status_still_installed">ancora installato qui</string>
+  <string name="cloud_doc_purge_confirm">Rimuovere definitivamente \"%1$s\" dalla cronologia del cloud? Se è ancora installato su un altro dispositivo, quel dispositivo potrebbe ricaricarlo nel cloud alla successiva sincronizzazione.</string>
+  <string name="cloud_doc_action_download">Scarica</string>
+  <string name="cloud_doc_action_push">Carica nel cloud</string>
+  <string name="cloud_doc_action_remove_cloud">Rimuovi dal cloud</string>
+  <string name="cloud_doc_action_remove_all_devices">Rimuovi da tutti i dispositivi</string>
+  <string name="cloud_doc_action_block">Non sincronizzare su questo dispositivo</string>
+  <string name="cloud_doc_action_unblock">Consenti su questo dispositivo</string>
+  <string name="cloud_doc_action_restore">Ripristina nel cloud</string>
+  <string name="cloud_doc_action_dont_sync">Non sincronizzare con il cloud</string>
+  <string name="cloud_doc_action_allow_sync">Sincronizza con il cloud</string>
+  <string name="cloud_doc_action_purge">Rimuovi dalla cronologia del cloud</string>
+  <string name="cloud_doc_remove_all_confirm">Rimuovere %1$s dal cloud e da tutti i tuoi dispositivi, incluso questo?</string>
+  <string name="cloud_doc_remove_cloud_confirm">Rimuovere %1$s dal cloud? La copia su questo dispositivo viene mantenuta; i dispositivi con la sincronizzazione documenti attiva la rimuoveranno anch\'essi.</string>
+  <string name="cloud_doc_sync_now">Sincronizza ora</string>
+  <string name="cloud_doc_rescan">Ri-scansiona dal cloud</string>
+  <string name="cloud_doc_sync_now_download">Scarica i documenti nuovi e aggiornati</string>
+  <string name="cloud_doc_sync_now_upload">Carica i documenti locali nel cloud</string>
+  <string name="cloud_doc_sync_now_delete">Applica le rimozioni dagli altri dispositivi</string>
+  <string name="document_sync_signin_required">Accedi al tuo account cloud per gestire i documenti sincronizzati.</string>
+  <string name="cloud_doc_summary_upload">Carica %1$d</string>
+  <string name="cloud_doc_summary_upload_size">Carica %1$d (%2$s)</string>
+  <string name="cloud_doc_summary_download">Scarica %1$d</string>
+  <string name="cloud_doc_summary_download_size">Scarica %1$d (%2$s)</string>
+  <string name="cloud_doc_wifi_waiting">I download automatici inizieranno tramite Wi-Fi.</string>
+  <plurals name="cloud_doc_sync_now_count">
+    <item quantity="one">%1$d documento</item>
+    <item quantity="many">%1$d documenti</item>
+    <item quantity="other">%1$d documenti</item>
+  </plurals>
+  <plurals name="cloud_doc_sync_now_count_size">
+    <item quantity="one">%1$d documento (%2$s)</item>
+    <item quantity="many">%1$d documenti (%2$s)</item>
+    <item quantity="other">%1$d documenti (%2$s)</item>
+  </plurals>
+  <string name="cloud_doc_sync_now_count_none">Niente da trasferire</string>
+  <string name="cloud_doc_selected_count">%1$d selezionati</string>
+  <string name="cloud_doc_bulk_skipped">%1$d non applicabili ignorati</string>
+  <plurals name="cloud_doc_bulk_remove_all_confirm">
+    <item quantity="one">Vuoi rimuovere %1$d documento dal cloud e da tutti i tuoi dispositivi, compreso questo?</item>
+    <item quantity="many">Vuoi rimuovere %1$d documenti dal cloud e da tutti i tuoi dispositivi, compreso questo?</item>
+    <item quantity="other">Vuoi rimuovere %1$d documenti dal cloud e da tutti i tuoi dispositivi, compreso questo?</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_remove_cloud_confirm">
+    <item quantity="one">Vuoi rimuovere %1$d documento dal cloud? Le copie su questo dispositivo verranno conservate.</item>
+    <item quantity="many">Vuoi rimuovere %1$d documenti dal cloud? Le copie su questo dispositivo verranno conservate.</item>
+    <item quantity="other">Vuoi rimuovere %1$d documenti dal cloud? Le copie su questo dispositivo verranno conservate.</item>
+  </plurals>
+  <plurals name="cloud_doc_bulk_purge_confirm">
+    <item quantity="one">Vuoi rimuovere permanentemente %1$d documento dalla cronologia del cloud?</item>
+    <item quantity="many">Vuoi rimuovere permanentemente %1$d documenti dalla cronologia del cloud?</item>
+    <item quantity="other">Vuoi rimuovere permanentemente %1$d documenti dalla cronologia del cloud?</item>
+  </plurals>
+  <string name="document_sync_notification_title">Sincronizzazione documenti</string>
+  <string name="document_sync_downloading">Download di %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_uploading">Caricamento di %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_removing">Rimozione di %1$s (%2$d/%3$d)</string>
+  <string name="document_sync_started">Sincronizzazione documenti avviata</string>
+  <string name="document_sync_enable_dialog_title">Avviare la sincronizzazione dei documenti?</string>
+  <string name="document_sync_enable_dialog_nothing">Nessun documento da trasferire per ora. I documenti appena installati verranno sincronizzati automaticamente.</string>
 </resources>

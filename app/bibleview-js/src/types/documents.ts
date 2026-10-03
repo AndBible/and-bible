@@ -32,6 +32,10 @@ import {Nullable} from "@/types/common";
 
 export type BibleViewDocumentType = "multi" | "osis" | "error" | "bible" | "notes" | "journal" | "memorize"|"none"
 
+export type DocumentReadingProgress =
+    | { kind: "bible", unitStart: number, unitEnd: number, chapterCount: number, currentChapter: number }
+    | { kind: "book", fragmentOffset: number, bookOrdinalSpan: number, charCount: number }
+
 export interface BaseDocument {
     id: string
     type: BibleViewDocumentType
@@ -51,6 +55,12 @@ export interface MultiFragmentDocument extends BaseDocument {
 }
 
 
+export interface CommentaryRange {
+    startOsisRef: string
+    endOsisRef: string
+    name: string
+}
+
 interface BaseOsisDocument extends BaseDocument {
     osisFragment: OsisFragment
     bookInitials: string
@@ -63,6 +73,7 @@ interface BaseOsisDocument extends BaseDocument {
     annotateRef: string
     genericBookmarks: GenericBookmark[]
     ordinalRange: OrdinalRange
+    readingProgress: DocumentReadingProgress | null
     isNativeHtml: boolean
     isMyDocument: boolean
     isAiDocument: boolean
@@ -76,6 +87,7 @@ interface BaseOsisDocument extends BaseDocument {
 export interface OsisDocument extends BaseOsisDocument {
     type: "osis",
     highlightedOrdinalRange: Nullable<OrdinalRange>
+    commentaryRange: Nullable<CommentaryRange>
 }
 
 export interface ErrorDocument extends BaseDocument {

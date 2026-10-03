@@ -42,6 +42,7 @@ import android.database.Cursor
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -249,8 +250,7 @@ const val studyPadsVideo = notesAndStudyPadsPlayList
 const val workspacesVideo = windowsAndWorkspacesPlaylist
 
 const val betaIntroVideo = "https://youtu.be/EKnyBIti9Fk" //promoAndNewFeaturesPlaylistAutostart
-// TODO: replace with a dedicated new-features intro video when available
-const val newFeaturesIntroVideo = "https://youtu.be/EKnyBIti9Fk" // promoAndNewFeaturesPlaylistAutostart
+const val newFeaturesIntroVideo = "https://youtu.be/Gm-JLot1uf4" // What's new in 5.1
 
 const val speakHelpVideo = speakPlayList
 const val automaticSpeakBookmarkingVideo = speakPlayList
@@ -450,10 +450,15 @@ object CommonUtils : CommonUtilsBase() {
         fun removeLong(key: String) = setLong(key, null)
         fun removeBoolean(key: String) = setBoolean(key, null)
 
-        val monochromeMode: Boolean get() = getBoolean("monochrome_mode", onyxSupport?.isMonochrome == true)
+        val displayColorMode: DisplayColorMode get() =
+            DisplayColorMode.fromValue(getString("display_color_mode", null))
+                ?: if (isOnyxDevice) DisplayColorMode.BW else DisplayColorMode.NORMAL
+        val monochromeMode: Boolean get() = displayColorMode != DisplayColorMode.NORMAL
+        val colorEinkMode: Boolean get() = displayColorMode == DisplayColorMode.COLOR_EINK
         val einkMode: Boolean get() = getBoolean("eink_mode", false)
-        val disableAnimations: Boolean get() = getBoolean("disable_animations", onyxSupport?.isOnyxDevice == true)
+        val disableAnimations: Boolean get() = getBoolean("disable_animations", isOnyxDevice)
         val disableClickToEdit: Boolean get() = getBoolean("disable_click_to_edit", false)
+        val hideStatusBar: Boolean get() = getBoolean("hide_status_bar", false)
         val notesContentType: String get() = getString("notes_content_type", "HTML") ?: "HTML"
         val fontSizeMultiplier: Int get() = getInt("font_size_multiplier", 100)
         val fontSizeMultiplierFloat: Float get() = getInt("font_size_multiplier", 100) / 100F
@@ -1038,16 +1043,16 @@ object CommonUtils : CommonUtilsBase() {
         val app = application
         val versionMsg = app.getString(R.string.version_text, applicationVersionName)
 
-        data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null)
+        data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null, val docPath: String? = null)
 
         val help = listOf(
-            HelpItem(R.string.help_nav_title, R.string.help_nav_text),
+            HelpItem(R.string.help_nav_title, R.string.help_nav_text, docPath = "navigation.html"),
             HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text),
-            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, windowPinningVideo),
-            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesPlaylist), // beta video
-            HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo), // beta video
-            HelpItem(R.string.help_search_title, R.string.help_search_text2),
-            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo),
+            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, windowPinningVideo, docPath = "windows.html"),
+            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesPlaylist, docPath = "bookmarks.html"), // beta video
+            HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo, docPath = "study_pads.html"), // beta video
+            HelpItem(R.string.help_search_title, R.string.help_search_text2, docPath = "search.html"),
+            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo, docPath = "workspaces.html"),
             HelpItem(R.string.help_hidden_features_title, R.string.help_hidden_features_text)
         ).run {
             if(filterItems != null) {
@@ -1066,16 +1071,24 @@ object CommonUtils : CommonUtilsBase() {
         var htmlMessage = ""
 
         for(helpItem in help) {
-            val videoMessage =
-                if(helpItem.videoLink != null) {
-                    "<i><a href=\"${helpItem.videoLink}\">${app.getString(R.string.watch_tutorial_video)}</a></i><br>"
-                } else ""
-
             val helpText = app.getString(helpItem.text).replace("\n", "<br>")
-            htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$videoMessage$helpText<br><br>"
+
+            val links = mutableListOf<String>()
+            if(helpItem.videoLink != null) {
+                links.add("&bull;&nbsp;<i><a href=\"${helpItem.videoLink}\">${app.getString(R.string.watch_tutorial_video)}</a></i>")
+            }
+            if(helpItem.docPath != null) {
+                links.add("&bull;&nbsp;<i><a href=\"$DOCS_URL_PREFIX${helpItem.docPath}\">${app.getString(R.string.help_read_more_link)}</a></i>")
+            }
+            val linksHtml = if(links.isNotEmpty()) "<br>${links.joinToString("<br>")}<br>" else ""
+
+            htmlMessage += "<b>${app.getString(helpItem.title)}</b><br>$helpText<br>$linksHtml<br>"
         }
 
-        val spanned = TextUtils.concat(htmlToSpan(htmlMessage), spannedBuy, if(showVersion) htmlToSpan("<br><br><i>$versionMsg</i>") else "")
+        val fullDocsLink = app.getString(R.string.help_full_documentation_link)
+        val fullDocsMessage = "<a href=\"$DOCS_URL_PREFIX\">$fullDocsLink</a><br><br>"
+
+        val spanned = TextUtils.concat(htmlToSpan(htmlMessage), htmlToSpan(fullDocsMessage), spannedBuy, if(showVersion) htmlToSpan("<br><br><i>$versionMsg</i>") else "")
 
         val d = AlertDialog.Builder(callingActivity)
             .setTitle(R.string.help)
@@ -1087,6 +1100,38 @@ object CommonUtils : CommonUtilsBase() {
         d.show()
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
+
+    /**
+     * Show a help dialog with a short blurb and a clickable "Read more in the manual" link.
+     *
+     * The link opens [helpPath] resolved against the docs.andbible.org URL prefix.
+     *
+     * @param activity Activity used to launch the dialog.
+     * @param titleResId String resource for the dialog title.
+     * @param messageResId String resource for the short blurb shown above the link.
+     * @param helpPath Path under https://docs.andbible.org/en/latest/, e.g. "ai.html#permissions".
+     */
+    fun showHelpDialog(
+        activity: Activity,
+        titleResId: Int,
+        messageResId: Int,
+        helpPath: String,
+    ) {
+        val readMore = activity.getString(R.string.help_read_more_link)
+        val messageHtml = activity.getString(messageResId) +
+            "<br><br><i><a href=\"$DOCS_URL_PREFIX$helpPath\">$readMore</a></i>"
+        val spanned = htmlToSpan(messageHtml)
+        val dialog = AlertDialog.Builder(activity)
+            .setTitle(titleResId)
+            .setMessage(spanned)
+            .setPositiveButton(R.string.okay, null)
+            .show()
+        dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
+            LinkMovementMethod.getInstance()
+    }
+
+    /** Base URL for AndBible's user documentation. Help dialog links resolve their paths against this. */
+    private const val DOCS_URL_PREFIX = "https://docs.andbible.org/en/latest/"
 
     fun openLink(link: String, forceAsk: Boolean = false) {
         val activity = CurrentActivityHolder.currentActivity!!
@@ -1148,7 +1193,7 @@ object CommonUtils : CommonUtilsBase() {
 
     var initialized = false
     private var booksInitialized = false
-    var onyxSupport: OnyxSupportInterface? = null
+    val isOnyxDevice get() = Build.BRAND.lowercase() == "onyx"
 
     fun initializeApp() {
         if(!initialized) {
@@ -1168,7 +1213,6 @@ object CommonUtils : CommonUtilsBase() {
             if(!BuildVariant.Appearance.isDiscrete && ttsWidgetManager == null) {
                 ttsWidgetManager = SpeakWidgetManager()
             }
-            initializeOnyx()
 
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
@@ -1195,14 +1239,6 @@ object CommonUtils : CommonUtilsBase() {
                 }
             }
             booksInitialized = true
-        }
-    }
-
-    private fun initializeOnyx() {
-        if (!BuildVariant.DistributionChannel.isFdroid) {
-            val adapter = Class.forName("net.bible.service.onyx.OnyxSupport")
-            val constructor = adapter.getDeclaredConstructor()
-            onyxSupport = constructor.newInstance() as OnyxSupportInterface
         }
     }
 
@@ -1242,7 +1278,6 @@ object CommonUtils : CommonUtilsBase() {
             withContext(Dispatchers.Main) {
                 MyDocumentBookManager.registerAllDocuments()
             }
-            initializeOnyx()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -1647,6 +1682,11 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
+    val isMeteredNetwork: Boolean get() {
+        val cm = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return cm.isActiveNetworkMetered
+    }
+
     val isCloudSyncAvailable get() = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
@@ -1715,6 +1755,18 @@ object CommonUtils : CommonUtilsBase() {
             Log.i(TAG, "Renaming long setting 'gdrive_sync_interval' → 'cloud_sync_interval'")
             longDao.set("cloud_sync_interval", oldInterval)
             longDao.set("gdrive_sync_interval", null)
+        }
+
+        // Migrate boolean monochrome_mode → tri-state display_color_mode
+        val strDao = stringSettings
+        if (strDao.byKey("display_color_mode") == null) {
+            val oldMono = boolDao.byKey("monochrome_mode")
+            if (oldMono != null) {
+                val newValue = if (oldMono.value) DisplayColorMode.BW.value else DisplayColorMode.NORMAL.value
+                Log.i(TAG, "Migrating 'monochrome_mode'=${oldMono.value} → 'display_color_mode'=$newValue")
+                strDao.set("display_color_mode", newValue)
+                boolDao.set("monochrome_mode", null)
+            }
         }
     }
 

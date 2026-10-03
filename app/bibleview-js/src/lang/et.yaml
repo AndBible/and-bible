@@ -75,7 +75,11 @@ markedAsMemorized: Päheõpitud
 removeFromTargets: Eesmärk -
 viewReadingProgress: Lugemise/päheõppimise edenemine
 viewReadingProgressSettings: Lugemise/päheõppimise seaded
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · pt %s/%s"
 listenInLoop: Kuula tsüklina
+viewHelp: Vaata abi
 verseNoteLong: Kirjuta märge
 verseParagraphBreakLong: Lõigu vahe
 addBookmark: Järjehoidja

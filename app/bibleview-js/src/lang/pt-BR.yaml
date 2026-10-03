@@ -75,7 +75,11 @@ markedAsMemorized: Memorizado
 removeFromTargets: Meta -
 viewReadingProgress: Progresso de Leitura/Memorização
 viewReadingProgressSettings: Configurações de Leitura/Memorização
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · cap %s/%s"
 listenInLoop: Ouvir em loop
+viewHelp: Ver ajuda
 verseNoteLong: Escrever uma nota
 verseParagraphBreakLong: Quebra de parágrafo
 addBookmark: Marcador

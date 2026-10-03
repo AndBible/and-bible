@@ -110,6 +110,12 @@ class MyDocumentBackend(
         for (k in iterator()) {
             key.addAll(k)
         }
+        // An empty index is cached by SwordGenBook until the book is deactivated,
+        // and every getKey() on it then throws NoSuchKeyException. Log it so a
+        // document that silently loses its table of contents is traceable.
+        if (key.cardinality == 0) {
+            Log.w(TAG, "Empty key index built for document $documentId (${bookMetaData.initials})")
+        }
         return key
     }
 

@@ -41,6 +41,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.firstBibleDoc
+import net.bible.service.sword.BookAndKey
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
@@ -103,7 +104,20 @@ open class WindowControl @Inject constructor() {
             linksWindow.windowState = WindowState.VISIBLE
         }
 
-        linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
+        // For non-specific links (document == null) we keep the links window's current
+        // Bible so it remembers the chosen version (#2502). Only fall back to a default
+        // Bible when the link is a verse key and the links window has no Bible document
+        // yet — otherwise the verse could not be displayed (e.g. cross references opened
+        // from an EPUB into a fresh links window).
+        // A Bible cross reference opened from an EPUB arrives as a BookAndKey wrapping a
+        // verse key (with a null document), so unwrap it to detect the verse link.
+        val verseKey = if (key is BookAndKey) key.key else key
+        val actualDocument = document ?: if (verseKey is VerseKey<*> &&
+            linksWindow.pageManager.currentBible.currentDocument == null) {
+            defaultBibleDoc()
+        } else null
+
+        linksWindow.pageManager.setCurrentDocumentAndKey(actualDocument, key)
 
         if (!linksWindowWasVisible) {
             ABEventBus.post(NumberOfWindowsChangedEvent())

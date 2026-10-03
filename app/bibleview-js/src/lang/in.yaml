@@ -75,7 +75,11 @@ markedAsMemorized: Sudah dihafal
 removeFromTargets: Tujuan -
 viewReadingProgress: Kemajuan Baca/Hafal
 viewReadingProgressSettings: Pengaturan Baca/Hafal
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · bab %s/%s"
 listenInLoop: Dengarkan Berulang
+viewHelp: Lihat bantuan
 verseNoteLong: Tulis catatan
 verseParagraphBreakLong: Pemisah paragraf
 addBookmark: Penanda Buku

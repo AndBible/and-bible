@@ -93,6 +93,15 @@ class GlobalToolPermissionsActivity : ActivityBase() {
                 cancelOrConfirmDiscard()
                 true
             }
+            R.id.show_help -> {
+                CommonUtils.showHelpDialog(
+                    activity = this,
+                    titleResId = R.string.help,
+                    messageResId = R.string.help_global_tool_permissions_text,
+                    helpPath = "ai.html#setting-permissions",
+                )
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

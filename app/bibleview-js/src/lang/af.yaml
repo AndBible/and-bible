@@ -75,7 +75,11 @@ markedAsMemorized: Gememoriseer
 removeFromTargets: Doel -
 viewReadingProgress: Lees-/Geheuevordering
 viewReadingProgressSettings: Lees-/Geheueinstellings
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · ch %s/%s"
 listenInLoop: Luister in lus
+viewHelp: Bekyk hulp
 verseNoteLong: Skryf 'n nota
 verseParagraphBreakLong: Paragraafbreuk
 addBookmark: Boekmerke

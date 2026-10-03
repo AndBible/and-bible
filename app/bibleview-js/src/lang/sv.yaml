@@ -75,7 +75,11 @@ markedAsMemorized: Memorerad
 removeFromTargets: Mål -
 viewReadingProgress: Läs-/memoreringsframsteg
 viewReadingProgressSettings: Läs-/memoreringsinställningar
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · kap %s/%s"
 listenInLoop: Lyssna i loop
+viewHelp: Visa hjälp
 verseNoteLong: Skriv en anteckning
 verseParagraphBreakLong: Styckebrytning
 addBookmark: Bokmärke
@@ -103,8 +107,8 @@ unclosedTag: Tagg ej stängd
 unknownError: Okänt fel
 wordBlur: Sudda ord
 wordScramble: Rada ord
-wordType: Typ
-wordOrder: Ordning
+wordType: Skriv
+wordOrder: Ordpussel
 typeEverything: Skriv hela ord
 tapToStartTyping: Tryck här för att börja skriva
 wordVisibility: Ordsynlighet
@@ -117,6 +121,6 @@ more: Mer
 llmAction: AI
 llmActionLong: AI-åtgärd
 aiDocumentRegenerate: Återskapa
-aiDocumentDelete: Ta bort
+aiDocumentDelete: Radera
 aiGeneratedBy: "Genererad av %s"
 aiGeneratedByWithModel: "Genererad av %s (%s)"

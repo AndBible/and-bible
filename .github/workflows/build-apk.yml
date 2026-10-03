@@ -20,6 +20,11 @@ jobs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 10 # so that recent tags can be found
+        submodules: recursive
+
+    - name: Initialize jsword submodule with shallow clone
+      run: |
+        git submodule update --init --depth=1
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
@@ -30,7 +35,7 @@ jobs:
       uses: actions/setup-node@v3
       with:
         # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
-        node-version: '20'
+        node-version: '24'
 
     - name: Cache gradle dependencies
       uses: actions/cache@v3
@@ -59,10 +64,10 @@ jobs:
         grep versionName ./app/src/main/AndroidManifest.xml | cut -d\" -f2 > VNAME
         echo VERSION_NAME=$(cat VNAME) >> $GITHUB_OUTPUT
         echo RELEASE_TITLE=$( if [[ $GITHUB_REF =~ test- ]]; then echo "Test release $(cat VNAME)"; else echo "Release $(cat VNAME)"; fi ) >> $GITHUB_OUTPUT
-        # Changelog filenames use the base version without any suffix (e.g. 5.1.1089.txt,
-        # not 5.1.1089-beta.txt). Strip optional -beta / -alpha / -rc1 etc. suffix.
-        BASE_VNAME=$(cat VNAME | sed 's/-[a-zA-Z][a-zA-Z0-9]*$//')
-        echo "./fastlane/metadata/android/en-US/changelogs/${BASE_VNAME}.txt" > CLPATH
+        # Changelog filenames use the versionCode (fastlane/F-Droid convention),
+        # e.g. 1099.txt, not the versionName 5.1.1099.txt.
+        VCODE=$(grep versionCode ./app/src/main/AndroidManifest.xml | grep -o '[0-9]*')
+        echo "./fastlane/metadata/android/en-US/changelogs/${VCODE}.txt" > CLPATH
         if [[ -f $(cat CLPATH) ]]; then cp $(cat CLPATH) RELEASENOTES.txt; else cat > ./RELEASENOTES.txt; fi
 
     - name: Build with Gradle

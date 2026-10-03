@@ -121,7 +121,11 @@ type TranslatedStrings = {
     removeFromTargets: string
     viewReadingProgress: string
     viewReadingProgressSettings: string
+    readingProgressPercent: string
+    readingProgressPage: string
+    readingProgressChapter: string
     listenInLoop: string
+    viewHelp: string
     verseNoteLong: string
     verseParagraphBreakLong: string
     addBookmark: string

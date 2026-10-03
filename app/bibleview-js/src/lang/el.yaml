@@ -75,7 +75,11 @@ markedAsMemorized: Απομνημονεύτηκε
 removeFromTargets: Στόχος -
 viewReadingProgress: Πρόοδος Ανάγνωσης/Απομνημόνευσης
 viewReadingProgressSettings: Ρυθμίσεις Ανάγνωσης/Απομνημόνευσης
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · κεφ %s/%s"
 listenInLoop: Ακρόαση σε βρόχο
+viewHelp: Προβολή βοήθειας
 verseNoteLong: Γράψε μία σημείωση
 verseParagraphBreakLong: Νέα παράγραφος
 addBookmark: Σελιδοδείκτης

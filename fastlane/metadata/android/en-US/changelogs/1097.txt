@@ -1,0 +1,16 @@
+AndBible 5.1 stable release!
+
+"What's new" video: https://youtu.be/EKnyBIti9Fk
+
+Highlights since 5.0:
+- AI assistant (Claude, Grok, OpenRouter, ...) with tool calling
+- Reading & memorization progress tracking
+- My Documents: editable, syncable pages
+- Multi-translation search across Bibles (#1411)
+- 3-level text display settings inheritance
+- Strong's tab view & compact display
+- E-ink/monochrome improvements
+- Many bug fixes
+
+See https://andbible.org
+Support: https://shop.andbible.org/

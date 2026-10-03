@@ -15,25 +15,20 @@ paragraph_1_3: >
 subtitle_2: Krachtige functies voor bijbelstudie
 paragraph_2_1: >
   De applicatie heeft veel handige, originele functies die complexe en grondige bijbelstudie makkelijker maken dan ooit. De meest opmerkelijke zijn de volgende:
-feature_01: >
-  Gesplitste vensters maken het mogelijk om vertalingen te vergelijken en commentaren te raadplegen
-feature_02: >
-  Werkbladen maken meerdere bijbelstudieconfiguraties met hun eigen instellingen mogelijk
-feature_03: >
-  Geïntegreerde Strong's codes vergemakkelijken de analyse van het Griekse en Hebreeuwse woorden
+feature_01: "Gesplitste vensters maken het mogelijk om vertalingen te vergelijken en commentaren te raadplegen\n"
+feature_02: "Werkbladen maken meerdere bijbelstudieconfiguraties met hun eigen instellingen mogelijk\n"
+feature_03: "Geïntegreerde Strong's codes vergemakkelijken de analyse van het Griekse en Hebreeuwse woorden\n"
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Tik op een willekeurige link om gekoppelde kruisverwijzingen, voetnoten en commentaren ({{commentary_examples}}) of verzamelingen van kruisverwijzingen ({{cross_reference_examples}}) te volgen.
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry, enz.
+commentary_examples: "Gill, Matthew Henry, enz."
 # Examples of cross-reference collections.
-cross_reference_examples: Treasure of Scripture Knowledge, TSKe
-feature_05: >
-  Geavanceerde tekst-naar-spraak met bladwijzers maken het eenvoudig om de bijbel te beluisteren
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Geavanceerde tekst-naar-spraak met bladwijzers maken het eenvoudig om de bijbel te beluisteren\n"
 feature_06: Flexibel zoeken op volledige tekst in één of meerdere Bijbelvertalingen tegelijk
-feature_07: >
-  Geavanceerde functies voor het maken van bladwijzers en het markeren van tekst met persoonlijke studieaantekeningen
+feature_07: "Geavanceerde functies voor het maken van bladwijzers en het markeren van tekst met persoonlijke studieaantekeningen\n"
 feature_08: >
   Synchronisatie tussen apparaten: houd je werkbladen, bladwijzers, notities en leesvoortgang gesynchroniseerd op al je apparaten
 feature_09: >
@@ -47,30 +42,36 @@ feature_11: >
   Optionele AI-studieassistent (alleen op verzoek — vereist je eigen API-sleutel voor een externe dienst): verken je geïnstalleerde commentaren en woordenboeken met AI-ondersteuning in de taal van je keuze, plus andere creatieve studiewerkwijzen. Een ingebouwd machtigingensysteem houdt jou volledig in controle over wat de assistent mag doen.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV en NKJV
-feature_12: "Offline: Internet is enkel nodig om de documenten te downloaden."
+unavailable_documents: "ESV, NIV en NKJV"
+feature_12: >-
+  Offline: Internet is enkel nodig om de documenten te downloaden.
 # UNUSED
 feature_13: >
   Studiemappen om aantekeningen en bijbelverwijzingen te organiseren tijdens het luisteren van preken.
 subtitle_3: Help mee dit de beste bijbelapp te maken!
 paragraph_3_1: >
   And Bible is een open-source project. Dat betekent in de praktijk dat iedereen met passende vaardigheden kan en mag bijdragen (graag zelfs!) aan het project door:
-contr_1: nieuwe functionaliteit te ontwikkelen,
-contr_2: nog uit-te-komen functionaliteit te testen,
-contr_3: de vertalingen up-to-date te houden voor de user interface, en
-contr_4: >
-  te helpen de bibliotheek uit te breiden door toestemming te vragen aan eigenaren van copyright, of door documenten te converteren naar het SWORD formaat.
+contr_1: "nieuwe functionaliteit te ontwikkelen,"
+contr_2: "nog uit-te-komen functionaliteit te testen,"
+contr_3: "de vertalingen up-to-date te houden voor de user interface, en"
+contr_4: "te helpen de bibliotheek uit te breiden door toestemming te vragen aan eigenaren van copyright, of door documenten te converteren naar het SWORD formaat.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  Als je een professionele software-ontwikkelaar bent, of -tester, overweeg dan aan het project bij te dragen. Zie {{how_to_contribute_url}} voor meer informatie.
+paragraph_4_1: "Als je een professionele software-ontwikkelaar bent, of -tester, overweeg dan aan het project bij te dragen. Zie {{how_to_contribute_url}} voor meer informatie.\n"
 subtitle_4: Links
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "Homepagina: {{homepage_url}}"
-link_2: "Vind And Bible leuk op Facebook: {{facebook_url}}"
-link_3: "Ons Youtube-kanaal: {{youtube_url}}"
-link_4: "Meest gestelde vragen: {{faq_url}}"
-link_5: "Project pagina op Github: {{github_url}}"
-buy_title: Ondersteuning met het kopen van ontwikkelingstijd!
+link_1: >-
+  Homepagina: {{homepage_url}}
+link_2: >-
+  Vind And Bible leuk op Facebook: {{facebook_url}}
+link_3: >-
+  Ons Youtube-kanaal: {{youtube_url}}
+link_4: >-
+  Meest gestelde vragen: {{faq_url}}
+link_5: >-
+  Project pagina op Github: {{github_url}}
+buy_title: >-
+  Ondersteuning met het kopen van ontwikkelingstijd!
 buy_1: >
   Als je niet de tijd of de vaardigheden hebt voor dit project, kun je ook ondersteuning geven door tijd te kopen voor de ontwikkeling.
-buy_2: Zie de opties
+buy_2: >-
+  Zie de opties

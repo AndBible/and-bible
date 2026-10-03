@@ -25,6 +25,7 @@ import android.text.SpannableString
 import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.text.style.ImageSpan
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
@@ -152,6 +153,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.SCROLL_HELPER_LINES -> ScrollHelperLinesPreference(settings)
         Types.SCROLL_HELPER_LINE_STYLE -> ScrollHelperLineStylePreference(settings)
         Types.PAGE_BUTTONS -> PageButtonsPreference(settings)
+        Types.SHOW_READING_PROGRESS -> ItemPreference(settings, Types.SHOW_READING_PROGRESS)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
@@ -323,6 +325,15 @@ class TextDisplaySettingsActivity: ActivityBase() {
             .setPositiveButton(R.string.yes) {_, _ ->
                 reset = true
                 requiresReload = true
+                if (settingsBundle.level == SettingsLevel.GLOBAL) {
+                    // GLOBAL settings are launched without a result handler, so the reset cannot be
+                    // applied by MainBibleActivity.workspaceSettingsChanged like WINDOW/WORKSPACE.
+                    // Clear all global overrides in-place and commit here, mirroring the empty-object
+                    // reset used for the other levels (commitDirtyToInMemoryState handles GLOBAL).
+                    settingsBundle = settingsBundle.copy(globalSettings = TextDisplaySettings())
+                    dirtyTypes.addAll(Types.values())
+                    commitDirtyToInMemoryState()
+                }
                 setResult()
                 finish()
             }
@@ -400,26 +411,75 @@ class TextDisplaySettingsActivity: ActivityBase() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         val newBundleJson = intent?.getStringExtra("settingsBundle") ?: return
-        // Save current state to stack before switching to the new level
+        // Commit current-level dirty changes to in-memory state before navigating up the stack,
+        // so they aren't lost when this bundle later pops back.
+        commitDirtyToInMemoryState()
         bundleStack.addLast(settingsBundle)
         loadSettingsBundle(SettingsBundle.fromJson(newBundleJson))
     }
 
     override fun onBackPressed() {
-        if (settingsBundle.level == SettingsLevel.GLOBAL && dirtyTypes.isNotEmpty()) {
-            CommonUtils.globalTextDisplaySettings = settingsBundle.globalSettings
-            CommonUtils.windowControl.windowRepository.propagateGlobalTextDisplaySettingsChange(
-                dirtyTypes, settingsBundle.globalSettings
-            )
-            CommonUtils.windowControl.windowRepository.updateAllWindowsTextDisplaySettings()
+        // Commit current-level dirty changes. GLOBAL must commit even when exiting (the activity
+        // may have been launched without a result handler). WORKSPACE/WINDOW commit only when
+        // popping back to a stacked level; on full exit they propagate via onActivityResult.
+        val popping = bundleStack.isNotEmpty()
+        if (dirtyTypes.isNotEmpty() &&
+            (settingsBundle.level == SettingsLevel.GLOBAL || popping)
+        ) {
+            commitDirtyToInMemoryState()
         }
-        if (bundleStack.isNotEmpty()) {
-            // Return to previous level, refreshing global settings from DB
+        if (popping) {
             val previous = bundleStack.removeLast()
-            loadSettingsBundle(previous.copy(globalSettings = CommonUtils.globalTextDisplaySettings))
+            // Refresh the popped bundle from now-current in-memory state so the popped view shows
+            // the changes the user just made deeper in the stack (e.g. window-level icons/values
+            // reflect workspace edits that were just committed above).
+            loadSettingsBundle(refreshFromInMemoryState(previous))
             return
         }
         finish()
+    }
+
+    /**
+     * Persist the currently-edited [settingsBundle]'s dirty changes into the in-memory
+     * `windowRepository`/`CommonUtils` state so that subsequent navigation and reads see them.
+     * Mirrors the per-level branches of `MainBibleActivity.workspaceSettingsChanged`.
+     */
+    private fun commitDirtyToInMemoryState() {
+        if (dirtyTypes.isEmpty()) return
+        val repo = windowControl.windowRepository
+        when (settingsBundle.level) {
+            SettingsLevel.GLOBAL -> {
+                CommonUtils.globalTextDisplaySettings = settingsBundle.globalSettings
+                repo.propagateGlobalTextDisplaySettingsChange(
+                    dirtyTypes, settingsBundle.globalSettings
+                )
+                repo.updateAllWindowsTextDisplaySettings()
+            }
+            SettingsLevel.WORKSPACE -> {
+                repo.textDisplaySettings = settingsBundle.workspaceSettings
+                repo.workspaceSettings.workspaceColor =
+                    settingsBundle.workspaceSettings.colors?.workspaceColor ?: defaultWorkspaceColor
+                repo.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
+                repo.updateAllWindowsTextDisplaySettings()
+            }
+            SettingsLevel.WINDOW -> {
+                val window = settingsBundle.windowId?.let { repo.getWindow(it) } ?: return
+                window.pageManager.textDisplaySettings = settingsBundle.pageManagerSettings!!
+                window.bibleView?.updateTextDisplaySettings()
+            }
+        }
+    }
+
+    /** Refresh inherited (and own-window) settings on a popped bundle from in-memory state. */
+    private fun refreshFromInMemoryState(bundle: SettingsBundle): SettingsBundle {
+        val repo = windowControl.windowRepository
+        val refreshedWindow = bundle.windowId?.let { repo.getWindow(it) }
+        return bundle.copy(
+            globalSettings = CommonUtils.globalTextDisplaySettings,
+            workspaceSettings = repo.textDisplaySettings,
+            pageManagerSettings = refreshedWindow?.pageManager?.textDisplaySettings
+                ?: bundle.pageManagerSettings,
+        )
     }
 
     private fun loadSettingsBundle(bundle: SettingsBundle) {
@@ -450,7 +510,16 @@ class TextDisplaySettingsActivity: ActivityBase() {
     @Inject lateinit var windowControl: WindowControl
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
+        val settingsBundleJson = intent.extras?.getString("settingsBundle")
+        if(settingsBundleJson == null) {
+            // Same as in ColorSettingsActivity: without a bundle there is nothing to edit, so
+            // finish rather than throwing out of onCreate (#3867).
+            Log.e(TAG, "No settingsBundle in intent, finishing")
+            super.onCreate(savedInstanceState)
+            finish()
+            return
+        }
+        settingsBundle = SettingsBundle.fromJson(settingsBundleJson)
         super.onCreate(savedInstanceState)
 
         binding = SettingsDialogBinding.inflate(layoutInflater)

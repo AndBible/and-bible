@@ -75,7 +75,11 @@ markedAsMemorized: Memorizálva
 removeFromTargets: Cél -
 viewReadingProgress: Olvasási/memorizálási haladás
 viewReadingProgressSettings: Olvasási/memorizálási beállítások
+readingProgressPercent: "%s%%"
+readingProgressPage: "%s%% · %s/%s"
+readingProgressChapter: "%s%% · fej. %s/%s"
 listenInLoop: Ismételt lejátszás
+viewHelp: Súgó megnyitása
 verseNoteLong: Jegyzet hozzáadása
 verseParagraphBreakLong: Bekezdéstörés
 addBookmark: Könyvjelző

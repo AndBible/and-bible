@@ -42,9 +42,12 @@ import net.bible.android.view.activity.search.searchresultsactionbar.SearchResul
 import net.bible.android.control.search.GroupedSearchResult
 import net.bible.android.control.search.MultiSearchResultsDto
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.common.CommonUtils
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.Key
 import javax.inject.Inject
 
@@ -57,6 +60,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     override val integrateWithHistoryManager: Boolean = true
 
     private var selectedTranslations: List<String> = emptyList()
+    private var isStrongsSearch = false
+    private var documentSelectorMenuItem: MenuItem? = null
 
     @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
     @Inject lateinit var searchControl: SearchControl
@@ -79,6 +84,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             ?: intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?.let { listOf(it) }
             ?: emptyList()
 
+        isStrongsSearch = intent.getBooleanExtra(SearchControl.IS_STRONGS_SEARCH, false)
+
         binding.closeButton.setOnClickListener {
             finish()
         }
@@ -89,6 +96,8 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search_results_actionbar_menu, menu)
+        documentSelectorMenuItem = menu.findItem(R.id.changeSearchDocuments)
+        updateDocumentSelectorTitle()
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -100,6 +109,10 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             }
             R.id.openResultsInWindow -> {
                 openResultsInAWindow()
+                true
+            }
+            R.id.changeSearchDocuments -> {
+                lifecycleScope.launch { showDocumentSelector() }
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -115,6 +128,69 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         }
         linkControl.showLink(FakeBookFactory.multiDocument, lst)
         finish()
+    }
+
+    private fun allBibles(): List<SwordBook> =
+        SwordDocumentFacade.bibles.filterIsInstance<SwordBook>().sortedBy { it.abbreviation }
+
+    private fun updateDocumentSelectorTitle() {
+        val byInitials = allBibles().associateBy { it.initials }
+        val label = selectedTranslations
+            .mapNotNull { byInitials[it]?.abbreviation }
+            .joinToString(", ")
+            .ifEmpty { getString(R.string.choose_translations) }
+        documentSelectorMenuItem?.title = label
+    }
+
+    private suspend fun showDocumentSelector() {
+        val candidates = candidateSearchDocuments(isStrongsSearch, allBibles())
+        if (candidates.isEmpty()) return
+
+        val selected = Dialogs.multiselect(
+            context = this,
+            title = getString(R.string.choose_translations),
+            items = candidates,
+            itemToString = { book ->
+                if (book.indexStatus == IndexStatus.DONE) "${book.abbreviation} - ${book.name}"
+                else "${book.abbreviation} - ${book.name} (${getString(R.string.search_index_not_created)})"
+            },
+            preSelected = { selectedTranslations.contains(it.initials) }
+        )
+        // Empty result = cancelled / dismissed / nothing checked -> no change.
+        if (selected.isEmpty()) return
+
+        selectedTranslations = selected.map { it.initials }
+        updateDocumentSelectorTitle()
+        persistSelection()
+
+        // An unindexed selected document must be indexed before it can be searched. Carry the full
+        // search context to SearchIndex so that after indexing the flow returns to SearchResults
+        // (SEARCH_TEXT present) and re-runs with the chosen documents. Without SEARCH_TEXT,
+        // SearchIndexProgressStatus falls through to the Search entry screen, which shows
+        // "An error has occurred" when the current window's document is itself unindexed.
+        val unindexed = selected.filter { it.indexStatus != IndexStatus.DONE }
+        if (unindexed.isNotEmpty()) {
+            startActivity(Intent(this, SearchIndex::class.java).apply {
+                putExtra(SearchControl.SEARCH_DOCUMENT, unindexed.first().initials)
+                putExtra(SearchControl.SEARCH_TEXT, intent.getStringExtra(SearchControl.SEARCH_TEXT))
+                putExtra(SearchControl.IS_STRONGS_SEARCH, isStrongsSearch)
+                putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, ArrayList(selectedTranslations))
+            })
+            return
+        }
+
+        prepareResults()
+    }
+
+    /**
+     * Remembers the chosen documents so the next search restores them. Strong's find-all uses its
+     * own key (a Strong's-enabled subset); normal Bible searches share the manual search screen's
+     * key, so the two stay in sync.
+     */
+    private fun persistSelection() {
+        val key = if (isStrongsSearch) SearchControl.STRONGS_SEARCH_TRANSLATIONS_PREF
+        else SearchControl.SEARCH_TRANSLATIONS_PREF
+        CommonUtils.settings.setString(key, selectedTranslations.joinToString(","))
     }
 
     private suspend fun prepareResults() {
@@ -171,6 +247,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             withContext(Dispatchers.Main) {
                 val resultCount = mSearchResultsHolder?.size ?: 0
                 supportActionBar?.title = getString(R.string.multi_search_results, resultCount, selectedTranslations.size)
+                updateDocumentSelectorTitle()
                 Toast.makeText(
                     this@SearchResults,
                     getString(R.string.search_result_count, resultCount),
