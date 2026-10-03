@@ -45,7 +45,6 @@ output to a file if it died. Both need `uv`.
 **Never.** Push from the container; re-run `sitegen/migrate/` scripts; edit `website/_site` or `_build`;
 do the DNS/Pages cutover (`website/CUTOVER.md` are the user's host steps).
 
-**Tests.** `make site-check` must be green. Playwright scripts (not CI; need site on :8000, `NODE_PATH`,
-`CHROME`; see their headers): `screens.mjs` (overflow + screenshots), `docs-header.mjs` (header, theme
+**Tests.** `make site-check` must be green. Playwright scripts (not CI; need site on :8000; setup in `website/README.md` "Browser checks"): `screens.mjs` (overflow + screenshots), `docs-header.mjs` (header, theme
 persistence), `docs-layout.mjs` (sidebar/TOC/overflow), `docs-badges.mjs` (install badges),
 `hero-layout.mjs` (hero above the fold), `reviews-carousel.mjs`, `video-card-link.mjs` (YouTube link hidden with JS).
