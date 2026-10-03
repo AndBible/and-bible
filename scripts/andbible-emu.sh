@@ -11,7 +11,8 @@
 #   scripts/andbible-emu.sh wipe [pkg]          pm clear (data + granted state) -> true first run
 #   scripts/andbible-emu.sh push-module <zip> [pkg]
 #                                               push a Sword module zip (mods.d/ + modules/) into
-#                                               the app's module dir, chmod the dirs, force-stop
+#                                               the app's module dir (external files dir for standard;
+#                                               internal files/modules via run-as for discrete), force-stop
 #   scripts/andbible-emu.sh start [pkg]         force-stop + launch the launcher activity
 #   scripts/andbible-emu.sh top                 the resumed activity + task summary
 #   scripts/andbible-emu.sh dump [file]         uiautomator XML (stdout, or to file)
@@ -85,27 +86,49 @@ wipe)
     ;;
 push-module)
     zip="${1:?module zip}"; pkg="${2:-$PKG_DEFAULT}"
-    base="/sdcard/Android/data/$pkg/files"
     tmp="$(mktemp -d)"; trap 'rm -r "$tmp"' EXIT
-    unzip -q "$zip" -d "$tmp"
+    # python3, not unzip: the container has no unzip.
+    python3 -c 'import sys, zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])' "$zip" "$tmp"
     [ -d "$tmp/mods.d" ] || die "$zip has no mods.d/"
-    # Pre-create every dir, then push FILE BY FILE: `adb push dir existing/` flattens.
-    (cd "$tmp" && find mods.d modules -type d) | while read -r d; do
-        adb shell mkdir -p "'$base/$d'" </dev/null
-    done
-    (cd "$tmp" && find mods.d modules -type f) | while read -r f; do
-        adb push "$tmp/$f" "$base/$f" >/dev/null </dev/null
-    done
-    # Dirs made by `adb shell mkdir` are SHELL-owned 0770 and the app cannot enter them.
-    # Dirs the app created itself are app-owned and refuse the chmod — that is fine, the
-    # app can already enter those, so the failure is ignored.
-    (cd "$tmp" && find mods.d modules -type d) | while read -r d; do
-        adb shell chmod 777 "'$base/$d'" 2>/dev/null </dev/null || true
-    done
-    adb shell chmod 777 "$base" 2>/dev/null || true
+    case "$pkg" in
+    com.app.calculator*)
+        # Discrete keeps modules in INTERNAL storage (SharedConstants.modulesDir, #2521):
+        # stage under /data/local/tmp, then copy in as the app via run-as.
+        stage="/data/local/tmp/andbible-stage-$$"
+        adb shell rm -rf "$stage" </dev/null
+        (cd "$tmp" && find mods.d modules -type d) | while read -r d; do
+            adb shell mkdir -p "'$stage/$d'" </dev/null
+        done
+        (cd "$tmp" && find mods.d modules -type f) | while read -r f; do
+            adb push "$tmp/$f" "$stage/$f" >/dev/null </dev/null
+        done
+        adb shell chmod -R a+rX "$stage" </dev/null
+        adb shell run-as "$pkg" sh -c "'mkdir -p files/modules && cp -R $stage/mods.d $stage/modules files/modules/'" </dev/null \
+            || die "run-as copy failed (debug build? staging readable?)"
+        adb shell rm -rf "$stage" </dev/null
+        base="(internal) files/modules"
+        ;;
+    *)
+        base="/sdcard/Android/data/$pkg/files"
+        # Pre-create every dir, then push FILE BY FILE: `adb push dir existing/` flattens.
+        (cd "$tmp" && find mods.d modules -type d) | while read -r d; do
+            adb shell mkdir -p "'$base/$d'" </dev/null
+        done
+        (cd "$tmp" && find mods.d modules -type f) | while read -r f; do
+            adb push "$tmp/$f" "$base/$f" >/dev/null </dev/null
+        done
+        # Dirs made by `adb shell mkdir` are SHELL-owned 0770 and the app cannot enter them.
+        # Dirs the app created itself are app-owned and refuse the chmod — that is fine, the
+        # app can already enter those, so the failure is ignored.
+        (cd "$tmp" && find mods.d modules -type d) | while read -r d; do
+            adb shell chmod 777 "'$base/$d'" 2>/dev/null </dev/null || true
+        done
+        adb shell chmod 777 "$base" 2>/dev/null || true
+        ;;
+    esac
     # JSword scans mods.d at startup only.
     adb shell am force-stop "$pkg"
-    echo "pushed $(basename "$zip") -> $base (app force-stopped)"
+    echo "pushed $(basename "$zip") -> $pkg:$base (app force-stopped)"
     ;;
 start)
     pkg="${1:-$PKG_DEFAULT}"
