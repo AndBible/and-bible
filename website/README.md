@@ -8,6 +8,10 @@ Static site generator for the AndBible website, built with Python and Jinja2.
 - `make site-check` — Run checks and tests
 - `make site-serve` — Serve the built site at http://localhost:8000/
 
+## Go-live
+
+See [CUTOVER.md](CUTOVER.md) for the cutover runbook.
+
 ## Content structure
 
 See [content/README.md](content/README.md) for guidance on organizing content.
