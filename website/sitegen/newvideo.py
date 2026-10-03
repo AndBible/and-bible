@@ -24,6 +24,8 @@ from sitegen.youtube import parse as parse_url
 
 _BARE_ID = re.compile(r"[A-Za-z0-9_-]{11}")
 _OEMBED = "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={id}&format=json"
+_WATCH = "https://www.youtube.com/watch?v={id}"
+_PUBLISH_DATE = re.compile(r'"publishDate":"(\d{4}-\d{2}-\d{2})')
 
 
 class NewVideoError(Exception):
@@ -58,6 +60,19 @@ def fetch_title(video_id: str, fetcher: Callable[[str], bytes] = _http_get) -> s
     return title
 
 
+def fetch_published(video_id: str, fetcher: Callable[[str], bytes] = _http_get) -> date:
+    """The publication date from the watch page's `"publishDate":"2025-08-21T02:12:48-07:00"` field."""
+    try:
+        page = fetcher(_WATCH.format(id=video_id)).decode("utf-8", "replace")
+        found = _PUBLISH_DATE.search(page)
+        if found is None:
+            raise ValueError("no publishDate on the watch page")
+        return date.fromisoformat(found.group(1))
+    except (OSError, ValueError) as exc:
+        raise NewVideoError(f"could not read the publication date of YouTube video {video_id} ({exc}); "
+                            "pass --published YYYY-MM-DD") from exc
+
+
 def slugify(title: str) -> str:
     ascii_title = unicodedata.normalize("NFKD", title).encode("ascii", "ignore").decode()
     slug = re.sub(r"[^a-z0-9]+", "-", ascii_title.lower()).strip("-")
@@ -66,7 +81,7 @@ def slugify(title: str) -> str:
     return slug
 
 
-def catalog_line(video_id: str, title: str, topic: str, docs: str | None, short: bool) -> str:
+def catalog_line(video_id: str, title: str, topic: str, docs: str | None, short: bool, published: date) -> str:
     """One flow-style line in the layout of data/videos.yaml."""
     parts = [f"id: {json.dumps(video_id)}", f"title: {json.dumps(title, ensure_ascii=False)}",
              f"topic: {json.dumps(topic)}"]
@@ -74,6 +89,7 @@ def catalog_line(video_id: str, title: str, topic: str, docs: str | None, short:
         parts.append(f"docs: {json.dumps(docs)}")
     if short:
         parts.append("short: true")
+    parts.append(f"published: {json.dumps(published.isoformat())}")
     return "- {" + ", ".join(parts) + "}\n"
 
 
@@ -106,7 +122,11 @@ def run(args: argparse.Namespace, *, fetcher: Callable[[str], bytes] = _http_get
     if video_id in {v.id for v in videos.load(catalog, docs_pages)}:
         raise NewVideoError(f"video {video_id} is already in {catalog.name}")
     title = args.title or fetch_title(video_id, fetcher)
-    line = catalog_line(video_id, title, args.topic, args.docs, short)
+    try:
+        published = date.fromisoformat(args.published) if args.published else fetch_published(video_id, fetcher)
+    except ValueError as exc:
+        raise NewVideoError(f"--published must be YYYY-MM-DD ({exc})") from exc
+    line = catalog_line(video_id, title, args.topic, args.docs, short, published)
     with tempfile.TemporaryDirectory() as tmp:  # validate with the build's own rules
         probe = Path(tmp) / "videos.yaml"
         probe.write_text(probe_text(existing) + line, encoding="utf-8")
@@ -149,6 +169,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--title", help="default: the YouTube title")
     p.add_argument("--slug", help="default: kebab-case of the title")
     p.add_argument("--date", help="YYYY-MM-DD, default today")
+    p.add_argument("--published", help="YYYY-MM-DD, default: read from the YouTube watch page")
     p.add_argument("--docs", help="published docs page stem the video belongs to")
     p.add_argument("--short", action="store_true", help="a YouTube Short (implied by a /shorts/ URL)")
     p.add_argument("--category", action="append", default=[])

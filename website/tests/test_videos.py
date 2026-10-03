@@ -10,8 +10,8 @@ def write(tmp_path, text):
 
 
 GOOD = """\
-- {id: abcDEF12345, title: Bookmarks intro, topic: Bookmarks & StudyPads, docs: bookmarks}
-- {id: shortID1234, title: Quick tip, topic: Getting started, short: true}
+- {id: abcDEF12345, title: Bookmarks intro, topic: Bookmarks & StudyPads, docs: bookmarks, published: 2025-01-02}
+- {id: shortID1234, title: Quick tip, topic: Getting started, short: true, published: "2025-03-04"}
 """
 
 
@@ -38,13 +38,39 @@ def test_invalid_catalog_rejected(tmp_path, bad, message):
 
 
 
+@pytest.mark.parametrize("bad", [
+    GOOD.replace(", published: 2025-01-02", ""),
+    GOOD.replace("published: 2025-01-02", "published: yesterday"),
+    GOOD.replace("published: 2025-01-02", "published: 2025-13-40"),
+    GOOD.replace("published: 2025-01-02", 'published: "20250102"'),
+    GOOD.replace("published: 2025-01-02", "published: 2999-01-01"),
+])
+def test_missing_invalid_or_future_published_rejected(tmp_path, bad):
+    with pytest.raises(ValueError, match="published"):
+        load(write(tmp_path, bad), {"bookmarks"})
+
+
+def test_published_parsed_from_yaml_date_and_quoted_string(tmp_path):
+    vids = load(write(tmp_path, GOOD), {"bookmarks"})
+    assert [v.published.isoformat() for v in vids] == ["2025-01-02", "2025-03-04"]
+
+
+def test_newest_orders_by_date_and_keeps_catalog_order_on_ties(tmp_path):
+    from sitegen.videos import newest
+    text = "".join(f"- {{id: vid{i:08d}, title: T{i}, topic: Getting started, published: {d}}}\n"
+                   for i, d in enumerate(["2024-01-01", "2025-06-01", "2025-06-01", "2023-01-01", "2025-07-01"]))
+    vids = load(write(tmp_path, text), set())
+    assert [v.title for v in newest(vids)] == ["T4", "T1", "T2"]
+    assert len(newest(vids, 10)) == 5 and newest([]) == []
+
+
 def test_page_renders_sections_in_topic_order(tmp_path):
     from sitegen import home
     from sitegen.i18n import strings
     from sitegen.paths import CONTENT
     from sitegen.videos import render_videos
 
-    vids = load(write(tmp_path, GOOD + "- {id: devDIARY123, title: Diary, topic: Developer diaries}\n"), {"bookmarks"})
+    vids = load(write(tmp_path, GOOD + "- {id: devDIARY123, title: Diary, topic: Developer diaries, published: 2024-05-06}\n"), {"bookmarks"})
     written = render_videos(home.environment(), strings(CONTENT, "en"), vids, tmp_path)
     html = (tmp_path / "videos" / "index.html").read_text()
     assert written == ["/videos/"]
@@ -99,7 +125,7 @@ def test_yt_seed_parses_channel_page_shapes():
 
 
 def test_docs_link_on_a_short_is_rejected(tmp_path):
-    bad = "- {id: shortID1234, title: S, topic: Getting started, docs: bookmarks, short: true}\n"
+    bad = "- {id: shortID1234, title: S, topic: Getting started, docs: bookmarks, short: true, published: 2025-01-01}\n"
     with pytest.raises(ValueError, match="short"):
         load(write(tmp_path, bad), {"bookmarks"})
 
@@ -134,9 +160,9 @@ def test_clip_and_short_share_one_grid_in_catalog_order(tmp_path):
     from sitegen.paths import CONTENT
     from sitegen.videos import render_videos
 
-    text = ("- {id: shortFIRST1, title: S1, topic: Getting started, short: true}\n"
-            "- {id: clipMIDDLE1, title: C1, topic: Getting started}\n"
-            "- {id: shortLAST12, title: S2, topic: Getting started, short: true}\n")
+    text = ("- {id: shortFIRST1, title: S1, topic: Getting started, short: true, published: 2025-01-01}\n"
+            "- {id: clipMIDDLE1, title: C1, topic: Getting started, published: 2025-01-01}\n"
+            "- {id: shortLAST12, title: S2, topic: Getting started, short: true, published: 2025-01-01}\n")
     render_videos(home.environment(), strings(CONTENT, "en"), load(write(tmp_path, text), set()), tmp_path)
     html = (tmp_path / "videos" / "index.html").read_text()
     assert "video-grid--shorts" not in html and html.count('class="video-grid"') == 1

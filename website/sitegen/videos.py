@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 import yaml
@@ -23,15 +24,39 @@ class Video:
     id: str
     title: str
     topic: str
+    published: date
     docs: str | None = None
     short: bool = False
 
 
-def load(path: Path, docs_pages: set[str]) -> list[Video]:
+class _Loader(yaml.SafeLoader):
+    """SafeLoader that leaves dates as text, so a bad one is reported by `_published`, not by YAML."""
+
+
+_Loader.yaml_implicit_resolvers = {
+    key: [(tag, rx) for tag, rx in resolvers if tag != "tag:yaml.org,2002:timestamp"]
+    for key, resolvers in yaml.SafeLoader.yaml_implicit_resolvers.items()}
+
+
+def _published(path: Path, vid: str, raw: object, today: date) -> date:
+    """The `published` field: a YYYY-MM-DD date, not in the future."""
+    text = str(raw)
+    try:
+        day = date.fromisoformat(text) if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text) else None
+    except ValueError:
+        day = None
+    if day is None:
+        raise ValueError(f"{path}: video {vid} needs published: YYYY-MM-DD (got {raw!r})")
+    if day > today:
+        raise ValueError(f"{path}: video {vid} is published in the future ({day})")
+    return day
+
+
+def load(path: Path, docs_pages: set[str], today: date | None = None) -> list[Video]:
     """Read and validate the catalog; a missing file is an empty catalog. Raises ValueError."""
     if not path.is_file():
         return []
-    entries = yaml.safe_load(path.read_text(encoding="utf-8")) or []
+    entries = yaml.load(path.read_text(encoding="utf-8"), _Loader) or []
     if not isinstance(entries, list):
         raise ValueError(f"{path}: the catalog must be a list of videos")
     videos: list[Video] = []
@@ -55,8 +80,19 @@ def load(path: Path, docs_pages: set[str]) -> list[Video]:
         short = bool(entry.get("short", False))
         if docs and short:
             raise ValueError(f"{path}: video {vid} is a short, which cannot be linked to a docs page")
-        videos.append(Video(vid, title, entry["topic"], docs, short))
+        published = _published(path, vid, entry.get("published"), today or date.today())
+        videos.append(Video(vid, title, entry["topic"], published, docs, short))
     return videos
+
+
+def newest(videos: list[Video], n: int = 3) -> list[Video]:
+    """The n most recently published videos; ties keep catalog order (sorted() is stable)."""
+    return sorted(videos, key=lambda v: v.published, reverse=True)[:n]
+
+
+def card(video: Video) -> Markup:
+    """The click-to-load card shared by /videos/ and the landing page."""
+    return Markup(embed_html(video.id, "short" if video.short else "video", video.title, card=True))
 
 
 def related(videos: list[Video]) -> dict[str, list[tuple[str, str]]]:
@@ -71,8 +107,7 @@ def related(videos: list[Video]) -> dict[str, list[tuple[str, str]]]:
 def render_videos(env: Environment, strings: dict, videos: list[Video], out: Path) -> list[str]:
     def embeds(topic: str) -> list[Markup]:
         """One ordered list per topic: clips and shorts together, in catalog order."""
-        return [Markup(embed_html(v.id, "short" if v.short else "video", v.title, card=True))
-                for v in videos if v.topic == topic]
+        return [card(v) for v in videos if v.topic == topic]
 
     sections = [(topic, embeds(topic)) for topic in TOPICS]
     page = strings["videos"]

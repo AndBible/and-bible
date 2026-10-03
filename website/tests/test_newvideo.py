@@ -11,7 +11,7 @@ from sitegen.newvideo import NewVideoError, build_parser, run
 
 ID = "abcDEF12345"
 HEADER = "# comment header\n"
-EXISTING = HEADER + '- {id: "old00000001", title: "Old one", topic: "Getting started"}\n'
+EXISTING = HEADER + '- {id: "old00000001", title: "Old one", topic: "Getting started", published: "2025-01-01"}\n'
 
 
 def png() -> bytes:
@@ -30,7 +30,12 @@ def env(tmp_path):
 
 def call(env, *argv, title_json=None, **kw):
     args = build_parser().parse_args(list(argv))
-    fetcher = kw.pop("fetcher", lambda url: json.dumps(title_json or {"title": "Hello World: A Tip"}).encode())
+    def default_fetcher(url):
+        if "oembed" in url:
+            return json.dumps(title_json or {"title": "Hello World: A Tip"}).encode()
+        return b'x"publishDate":"2026-09-20T02:12:48-07:00","y"'
+
+    fetcher = kw.pop("fetcher", default_fetcher)
     return run(args, fetcher=fetcher, opener=lambda url: png(), data=env / "data", content=env / "content",
                media=env / "media", docs_pages={"windows"}, today=date(2026, 10, 3), **kw)
 
@@ -69,7 +74,7 @@ def test_catalog_append_keeps_file_loadable_and_old_lines(env):
     text = (env / "data" / "videos.yaml").read_text()
     assert text.startswith(EXISTING) and text.endswith("\n")
     assert text.splitlines()[-1] == ('- {id: "abcDEF12345", title: "Hello World: A Tip", '
-                                     'topic: "Getting started", docs: "windows"}')
+                                     'topic: "Getting started", docs: "windows", published: "2026-09-20"}')
     vids = videos.load(env / "data" / "videos.yaml", {"windows"})
     assert [(v.id, v.title, v.docs, v.short) for v in vids][-1] == (ID, "Hello World: A Tip", "windows", False)
 
@@ -158,13 +163,47 @@ def test_explicit_title_skips_oembed(env):
     def boom(url):
         raise AssertionError("network used")
 
-    call(env, *base(), "--title", "Given", "--no-post", fetcher=boom)
+    call(env, *base(), "--title", "Given", "--published", "2026-01-02", "--no-post", fetcher=boom)
     assert videos.load(env / "data" / "videos.yaml", set())[-1].title == "Given"
 
 
 def test_main_reports_errors_with_exit_code(capsys):
     assert newvideo.main(["bogus", "--topic", "Getting started", "--summary", "S."]) == 1
     assert "cannot find" in capsys.readouterr().err
+
+
+def test_published_scraped_from_watch_page_and_written_to_catalog(env):
+    call(env, *base(), "--no-post")
+    (vid,) = [v for v in videos.load(env / "data" / "videos.yaml", set()) if v.id == ID]
+    assert vid.published == date(2026, 9, 20)
+
+
+def test_published_flag_overrides_scraping(env):
+    def only_title(url):
+        assert "oembed" in url, "watch page must not be fetched"
+        return b'{"title": "T"}'
+
+    call(env, *base(), "--published", "2026-01-02", "--no-post", fetcher=only_title)
+    assert videos.load(env / "data" / "videos.yaml", set())[-1].published == date(2026, 1, 2)
+
+
+@pytest.mark.parametrize("page", [b"<html>no date here</html>", None])
+def test_published_scrape_failure_names_the_flag_and_writes_nothing(env, page):
+    def fetcher(url):
+        if "oembed" in url:
+            return b'{"title": "T"}'
+        if page is None:
+            raise OSError("offline")
+        return page
+
+    with pytest.raises(NewVideoError, match="--published"):
+        call(env, *base(), fetcher=fetcher)
+    assert (env / "data" / "videos.yaml").read_text() == EXISTING
+
+
+def test_bad_published_flag_refused(env):
+    with pytest.raises(NewVideoError, match="--published"):
+        call(env, *base(), "--published", "yesterday")
 
 
 def test_failed_thumbnail_leaves_catalog_untouched(tmp_path):
@@ -177,7 +216,7 @@ def test_failed_thumbnail_leaves_catalog_untouched(tmp_path):
     data.mkdir()
     (data / "videos.yaml").write_text("# header\n", encoding="utf-8")
     args = argparse.Namespace(video="n8Y8N27uFzY", topic="Getting started", summary="s", title="T", slug=None,
-                              date=None, docs=None, short=False, category=[], tag=[], no_post=True)
+                              date=None, published="2026-01-01", docs=None, short=False, category=[], tag=[], no_post=True)
 
     def boom(url):
         raise OSError("offline")
