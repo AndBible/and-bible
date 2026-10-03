@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 import pytest
@@ -111,3 +112,25 @@ def test_home_title_and_description_come_from_meta(content, tmp_path):
     assert "<title>AndBible: Free &amp; open source Bible study</title>" in html
     assert "Android and iOS, no ads, no tracking." in html  # meta description
     assert "Open source · No ads · No tracking" in html  # new eyebrow
+
+
+def _luminance(hex_colour: str) -> float:
+    channels = [int(hex_colour[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    r, g, b = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def _contrast(a: str, b: str) -> float:
+    hi, lo = sorted((_luminance(a), _luminance(b)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def test_current_page_marker_meets_wcag_aa_in_both_themes():
+    css = (Path(__file__).resolve().parents[1] / "assets" / "css" / "site.css").read_text()
+    rule = re.search(r"\.pager__num\[aria-current\]\s*\{([^}]*)\}", css).group(1)
+    background = re.search(r"background:\s*var\(--([\w-]+)\)", rule).group(1)
+    foreground = re.search(r"(?<![-\w])color:\s*var\(--([\w-]+)\)", rule).group(1)
+    for block in (re.search(r':root, :root\[data-theme="light"\] \{(.*?)\n\}', css, re.S).group(1),
+                  re.search(r':root\[data-theme="dark"\] \{(.*?)\n\}', css, re.S).group(1)):
+        token = lambda name: re.search(rf"--{name}:\s*(#[0-9a-fA-F]{{6}})", block).group(1)
+        assert _contrast(token(background), token(foreground)) >= 4.5

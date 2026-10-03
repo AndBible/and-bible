@@ -13,7 +13,7 @@
 {% if page_links|length > 1 %}
 <nav class="pager" aria-label="Pagination">
   {% if previous %}<a class="pager__step" rel="prev" href="{{ previous }}" aria-label="{{ strings.blog.previous_page }}">&lsaquo;</a>
-  {% else %}<span class="pager__step pager__step--off" aria-disabled="true" aria-label="{{ strings.blog.previous_page }}">&lsaquo;</span>{% endif %}
+  {% else %}<span class="pager__step pager__step--off" aria-hidden="true">&lsaquo;</span>{% endif %}
   <ol class="pager__pages">
     {% for number, url in page_links %}
       {% if number is none %}<li class="pager__gap" aria-hidden="true">&hellip;</li>
@@ -22,7 +22,7 @@
     {% endfor %}
   </ol>
   {% if next %}<a class="pager__step" rel="next" href="{{ next }}" aria-label="{{ strings.blog.next_page }}">&rsaquo;</a>
-  {% else %}<span class="pager__step pager__step--off" aria-disabled="true" aria-label="{{ strings.blog.next_page }}">&rsaquo;</span>{% endif %}
+  {% else %}<span class="pager__step pager__step--off" aria-hidden="true">&rsaquo;</span>{% endif %}
 </nav>
 {% endif %}
 {% endmacro %}

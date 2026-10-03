@@ -68,7 +68,8 @@ def test_blog_pagination(site):
     assert 'aria-current="page">1<' in first
     assert 'href="/blog/"' not in first.split('aria-label="Pagination"')[1]  # page 1 is not a link
     assert 'rel="prev"' not in first and 'rel="next" href="/blog/page/2/" aria-label="Next page"' in first
-    assert 'aria-disabled="true" aria-label="Previous page"' in first
+    assert 'pager__step--off" aria-hidden="true">&lsaquo;<' in first
+    assert 'aria-label="Previous page"' not in first
     assert "Older posts" not in first and "Newer posts" not in first
     second = (site / "blog/page/2/index.html").read_text()
     assert "Post 9" in second and 'rel="prev" href="/blog/" aria-label="Previous page"' in second
@@ -76,7 +77,8 @@ def test_blog_pagination(site):
     assert 'href="/blog/page/3/"' in second
     last = (site / "blog/page/3/index.html").read_text()
     assert 'aria-current="page">3<' in last and 'rel="next"' not in last
-    assert 'aria-disabled="true" aria-label="Next page"' in last
+    assert 'pager__step--off" aria-hidden="true">&rsaquo;<' in last
+    assert 'aria-label="Next page"' not in last
 
 
 def test_pagination_in_archives(site):

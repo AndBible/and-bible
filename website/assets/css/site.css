@@ -169,14 +169,14 @@ section.block { padding: 48px 0 0; }
 .pager__step { border: 1px solid var(--border); background: var(--surface); }
 a.pager__num:hover, a.pager__step:hover { color: var(--accent-ink); border-color: var(--accent); }
 .pager__step--off { color: var(--faint); background: transparent; }
-.pager__num[aria-current] { background: var(--accent); color: var(--ground); font-weight: 600; }
+.pager__num[aria-current] { background: var(--button-bg); color: var(--button-ink); font-weight: 600; }
+.pager__gap { display: inline-flex; align-items: center; min-height: 40px; color: var(--faint); }
 @media (max-width: 479px) {
   .pager { flex-wrap: nowrap; gap: 4px; }
   .pager__pages { gap: 2px; flex-wrap: nowrap; }
   .pager__num { min-width: 32px; padding: 0 2px; }
   .pager__step { min-width: 34px; padding: 0 6px; }
 }
-.pager__gap { display: inline-flex; align-items: center; min-height: 40px; color: var(--faint); }
 
 /* ---- Footer ---- */
 .footer { margin-top: 64px; padding: 32px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
