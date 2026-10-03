@@ -63,7 +63,7 @@ media repo first, bump the gitlink, and run `make site site-check`. The `video-b
 
 ## Landing page reviews
 
-The "What readers say" block on the home page comes from `data/reviews.yaml`, a hand-curated list
+The "What users say" carousel on the home page comes from `data/reviews.yaml`, a hand-curated list
 of `{year, text}` entries (validated by `sitegen/reviews.py`; the English strings are in `site.yaml`).
 
 - Rules: only 5-star Google Play reviews, text verbatim (typos included), **no reviewer names**
@@ -73,7 +73,11 @@ of `{year, text}` entries (validated by `sitegen/reviews.py`; the English string
   only). Copy the year and text of the ones you pick into `data/reviews.yaml`; the tool never writes
   the catalog and the build never calls it (it uses an undocumented Google Play endpoint and fails
   with a clear message if that changes).
-- Keep an even number of entries that fills the 3-column grid (6 today).
+- It is a one-at-a-time carousel (`assets/js/reviews-carousel.js`): auto-advance every 10 s, pausing on
+  hover, keyboard focus and a hidden tab, and stopping for good after prev/next; none under reduced
+  motion. Without JS the cards are a plain list. **Display order = file order**, so interleave years
+  and topics and put a short, strong one first. Aim for about 15-25 entries (20 today).
+- After touching it run `node tests/reviews-carousel.mjs` (see its header; needs the site served).
 
 ## Galleries
 

@@ -108,5 +108,7 @@
   root.classList.add("is-carousel");
   renderToggle();
   show(0, false);
+  void root.offsetWidth; // flush styles so the first state change is not animated
+  root.classList.add("is-ready");
   schedule();
 })();
