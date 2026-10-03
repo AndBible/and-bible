@@ -24,6 +24,7 @@ import android.content.pm.ApplicationInfo
 import android.net.Uri
 import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -290,7 +291,14 @@ object BackupControl {
         return ok
     }
 
-    private suspend fun restoreOldMonolithicDatabaseFromInputStream(uri: Uri): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun restoreOldMonolithicDatabaseFromInputStream(uri: Uri): Boolean {
+        val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
+        return restoreOldMonolithicDatabase(inputStream)
+    }
+
+    /** The old (pre-split, version <= [OLD_DATABASE_VERSION]) single-file database, gzipped or not. */
+    @VisibleForTesting
+    internal suspend fun restoreOldMonolithicDatabase(inputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
         val fileName = OLD_MONOLITHIC_DATABASE_NAME
         internalDbBackupDir.mkdirs()
         val tmpFile = File(internalDbBackupDir, fileName)
@@ -298,7 +306,6 @@ object BackupControl {
         val header = ByteArray(2)
         val gzHeaderBytes = byteArrayOf(0x1f.toByte(), 0x8b.toByte())
 
-        val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
         val bufferedInputStream = BufferedInputStream(inputStream)
         bufferedInputStream.mark(2)
         bufferedInputStream.read(header)
@@ -333,7 +340,7 @@ object BackupControl {
                                 DatabaseContainer.reset()
                                 // When restoring old style db, we need to remove all databases first
                                 deleteAllDatabases()
-                                ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
+                                ok = copyStagedDatabase(File(internalDbBackupDir, fileName), File(internalDbDir, fileName))
                                 if(DatabaseContainer.ready) {
                                     DatabaseContainer.instance // initialize (migrate etc)
                                     afterRestore()
@@ -348,6 +355,10 @@ object BackupControl {
 
         return@withContext ok
     }
+
+    /** Test seam (F120): the copy of the validated file into the database directory. */
+    @VisibleForTesting
+    internal var copyStagedDatabase: (File, File) -> Boolean = { from, to -> FileManager.copyFile(from, to) }
 
     fun deleteAllDatabases() {
         application.databaseList().forEach { name ->
