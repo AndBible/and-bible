@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.write
 
+import androidx.annotation.VisibleForTesting
 import org.koin.core.context.GlobalContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -111,6 +112,10 @@ object CreateBookmarkTool : Tool {
             description: "Character offset from the start of the verse text where the bookmark ends. Offsets are specific to the bookInitials translation. Both startOffset and endOffset must be provided together for a sub-verse bookmark."
         required: [verseRef]
     """)
+
+    /** Test seam (F121): how the saved range is described (OSIS reference, localized name). */
+    @VisibleForTesting
+    internal var describeRange: (VerseRange) -> Pair<String, String> = { it.osisRef to it.name }
 
     override val requiresPermission = true
     override val displayNameResId = R.string.tool_create_bookmark
@@ -218,10 +223,11 @@ object CreateBookmarkTool : Tool {
                 updateNotes = true
             )
 
+            val (osisRef, verseName) = describeRange(verseRange)
             typedSuccess(Result(
                 id = savedBookmark.id,
-                verseRef = verseRange.osisRef,
-                verseName = verseRange.name,
+                verseRef = osisRef,
+                verseName = verseName,
                 hasNote = note != null,
                 labelCount = labelIds.size
             ))
