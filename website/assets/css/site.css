@@ -19,6 +19,7 @@
   --serif: "Source Serif 4", Georgia, "Iowan Old Style", serif;
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius: 12px;
+  --star: #feba2a; --star-edge: color-mix(in srgb, var(--accent-ink) 85%, var(--ink));
   --video-bg: #000;
   --video-fg: #fff;
 }
@@ -29,6 +30,7 @@
     --ink: #efe9dd; --muted: #a59f93; --faint: #7e786d;
     --accent: #FEBA2A; --accent-ink: #FEBA2A;
     --button-bg: #efe9dd; --button-ink: #161616;
+    --star: color-mix(in srgb, var(--accent-ink) 70%, var(--ink)); --star-edge: transparent;
     --glow-a: #feba2a33; --glow-b: #d97e3514;
     --panel-base: linear-gradient(150deg, #22211f, #1a1a19 55%, #141414);
     --shadow: none;
@@ -40,6 +42,7 @@
   --ink: #efe9dd; --muted: #a59f93; --faint: #7e786d;
   --accent: #FEBA2A; --accent-ink: #FEBA2A;
   --button-bg: #efe9dd; --button-ink: #161616;
+  --star: color-mix(in srgb, var(--accent-ink) 70%, var(--ink)); --star-edge: transparent;
   --glow-a: #feba2a33; --glow-b: #d97e3514;
   --panel-base: linear-gradient(150deg, #22211f, #1a1a19 55%, #141414);
   --shadow: none;
@@ -198,7 +201,7 @@ section.block { padding: 48px 0 0; }
 .is-carousel .review blockquote { display: flex; align-items: center; }
 .is-carousel .review blockquote p { font-size: 1.1rem; line-height: 1.55; }
 .is-carousel .review figcaption { color: var(--ink); }
-.is-carousel .review__stars { color: color-mix(in srgb, var(--accent-ink) 70%, var(--ink)); font-size: 1.25rem; margin-bottom: .75rem; }
+.is-carousel .review__stars { color: var(--star); -webkit-text-stroke: .6px var(--star-edge); font-size: 1.25rem; margin-bottom: .75rem; }
 @media (min-width: 700px) {
   .review-carousel.is-carousel { padding: 36px 44px 24px; }
   .is-carousel .review blockquote p { font-size: 1.3rem; line-height: 1.6; }
