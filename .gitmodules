@@ -4,7 +4,9 @@
 [submodule "app/src/test/roborazzi"]
 	path = app/src/test/roborazzi
 	url = https://github.com/AndBible/and-bible-goldens.git
+	branch = main
 [submodule "docs/superpowers"]
 	path = docs/superpowers
 	url = git@github.com:AndBible/and-bible-superpowers.git
 	update = none
+	branch = main
