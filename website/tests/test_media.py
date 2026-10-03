@@ -138,7 +138,7 @@ def test_fetch_downloads_and_skips_existing(tmp_path):
     (tmp_path / "videos" / "have_it_000.webp").write_bytes(b"x")
     got = thumbnails.fetch(["dQw4w9WgXcQ", "have_it_000"], tmp_path, opener=opener)
     assert got == ["dQw4w9WgXcQ"]
-    assert calls == ["https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"]
+    assert calls == ["https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg"]
     with Image.open(tmp_path / "videos" / "dQw4w9WgXcQ.webp") as img:
         assert img.size[0] == 480
 
@@ -148,7 +148,7 @@ def test_fetch_falls_back_to_mqdefault_on_404(tmp_path):
 
     def opener(url):
         calls.append(url)
-        if "hqdefault" in url:
+        if "maxresdefault" in url or "hqdefault" in url:
             raise urllib.error.HTTPError(url, 404, "nf", {}, None)
         return _jpeg_bytes()
 
