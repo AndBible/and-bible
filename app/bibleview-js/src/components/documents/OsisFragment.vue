@@ -100,6 +100,21 @@ const {config} = useCommon();
 
 .mydoc-markdown {
     @include md.markdown-content;
+
+    ul > li.mydoc-task-item {
+        list-style-type: none;
+    }
+
+    .mydoc-task-checkbox {
+        width: 1.2em;
+        height: 1.2em;
+        min-width: 20px;
+        min-height: 20px;
+        margin-inline-end: 0.5em;
+        vertical-align: middle;
+        accent-color: var(--text-color);
+        cursor: pointer;
+    }
 }
 
 .night .mydoc-markdown {

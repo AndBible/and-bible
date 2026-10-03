@@ -3,11 +3,6 @@
 # Gradle reaches a fairly broad set of Google/Maven mirrors during builds.
 # See https://jailbee.gisgro.com (and docs/config.md) for the full reference.
 
-# Chrome is not needed for this repo — turn it off regardless of what
-# ~/.config/jailbee/global.yaml says.
-chrome:
-  enabled: true
-
 new:
   clone_from: local
 
