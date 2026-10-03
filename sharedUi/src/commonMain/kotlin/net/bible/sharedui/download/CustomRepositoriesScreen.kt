@@ -16,6 +16,7 @@
  */
 package net.bible.sharedui.download
 
+import net.bible.sharedcore.docs.DocsLinks
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -52,7 +53,7 @@ import net.bible.sharedui.components.volumeScrollTarget
  * `net.bible.android.view.activity.download` are the same string, and `internal` is scoped to the
  * compilation module.
  */
-const val customRepositoriesHelpUrl = "https://docs.andbible.org/en/latest/custom_repositories.html"
+val customRepositoriesHelpUrl: String = DocsLinks.page("custom_repositories")
 
 /**
  * Stateless port of classic `CustomRepositories`: a list of user-added custom Sword/MyBible

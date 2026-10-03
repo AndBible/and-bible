@@ -1,5 +1,6 @@
 package net.bible.android.view.compose.golden
 
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.AiDocGroupVd
 import net.bible.sharedcore.ai.AiDocVd
@@ -54,7 +55,7 @@ class AiDocumentFilterGoldenTest {
                 onResetAll = {},
                 onSave = {},
                 helpBody = "Choose which installed documents the AI can read from when answering questions.",
-                helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-data-and-documents",
+                helpReadMoreUrl = DocsLinks.page("ai", "available-data-and-documents"),
                 initiallyHelpDialogOpen = initiallyHelpDialogOpen,
             )
         }

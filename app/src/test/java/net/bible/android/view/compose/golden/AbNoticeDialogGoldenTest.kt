@@ -78,7 +78,7 @@ class AbNoticeDialogGoldenTest {
             "<b>Navigating around</b><br>Swipe left/right to change chapters, or tap the arrows.<br>" +
                 "<br><b>Context menus</b><br>Long-press any word for a context menu.<br>",
         ),
-        AppDialogRequest.NoticeBlock.Html("<a href=\"https://docs.andbible.org/en/latest/\">Full documentation</a>"),
+        AppDialogRequest.NoticeBlock.Html("<a href=\"https://andbible.org/docs/\">Full documentation</a>"),
         AppDialogRequest.NoticeBlock.IconLine(
             AppDialogRequest.NoticeIcon.Money,
             "&nbsp;<b>Support AndBible</b>: <a href=\"https://example.com\">Buy me a coffee</a>",

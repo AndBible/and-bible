@@ -290,7 +290,7 @@ class CommonUtilsDialogsTest {
         assertTrue(helpItems.html.contains(application.getString(R.string.help_workspaces_text)))
 
         val fullDocs = request.blocks[1] as AppDialogRequest.NoticeBlock.Html
-        assertTrue(fullDocs.html.contains("docs.andbible.org"))
+        assertTrue(fullDocs.html.contains("https://andbible.org/docs/"))
 
         val sponsor = request.blocks[2] as AppDialogRequest.NoticeBlock.IconLine
         assertEquals(AppDialogRequest.NoticeIcon.Money, sponsor.icon)

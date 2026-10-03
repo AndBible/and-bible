@@ -1,5 +1,6 @@
 package net.bible.android.view.compose.golden
 
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.ProviderEditState
 import net.bible.sharedcore.ai.ProviderTypeVd
@@ -98,7 +99,7 @@ class AiProvidersGoldenTest {
             onDelete = {},
             onDismiss = {},
             helpBody = "AI Providers is where you connect the app to an AI service such as OpenAI or Anthropic.",
-            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#choosing-a-provider",
+            helpReadMoreUrl = DocsLinks.page("ai", "choosing-a-provider"),
             initiallyHelpDialogOpen = initiallyHelpDialogOpen,
             showAcceptDisclaimerDialog = showAcceptDisclaimerDialog,
             onAcceptDisclaimer = {},

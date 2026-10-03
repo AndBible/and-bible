@@ -1,5 +1,6 @@
 package net.bible.android.view.compose.golden
 
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptEditData
@@ -119,7 +120,7 @@ class PromptEditGoldenTest {
             onViewTools = {},
             onBack = {},
             helpBody = "Custom prompts let you define reusable AI instructions, including which tools they may use.",
-            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#custom-prompts",
+            helpReadMoreUrl = DocsLinks.page("ai", "custom-prompts"),
             initiallyHelpDialogOpen = initiallyHelpDialogOpen,
         )
     }

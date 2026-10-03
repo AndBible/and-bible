@@ -1,5 +1,6 @@
 package net.bible.android.view.compose.golden
 
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.RawLogSummaryVd
 import net.bible.sharedui.ai.RawLogHistoryScreen
@@ -51,7 +52,7 @@ class RawLogHistoryGoldenTest {
             onDeleteAll = {},
             onNavigateUp = {},
             helpBody = "Raw connection logs record the full request/response for each AI call, for troubleshooting.",
-            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
+            helpReadMoreUrl = DocsLinks.page("ai"),
             initiallyHelpDialogOpen = initiallyHelpDialogOpen,
         )
     }

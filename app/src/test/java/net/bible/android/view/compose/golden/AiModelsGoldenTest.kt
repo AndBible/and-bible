@@ -1,5 +1,6 @@
 package net.bible.android.view.compose.golden
 
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.AiModelsController
 import net.bible.sharedcore.ai.AvailableModelVd
@@ -88,7 +89,7 @@ class AiModelsGoldenTest {
             onSetShowUnsupported = {},
             onDismiss = {},
             helpBody = "AI Models lets you add and configure the specific models available from your providers.",
-            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-models",
+            helpReadMoreUrl = DocsLinks.page("ai", "available-models"),
             initiallyHelpDialogOpen = initiallyHelpDialogOpen,
         )
     }

@@ -1,5 +1,6 @@
 package net.bible.android.view.compose.golden
 
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptGroupVd
@@ -55,7 +56,7 @@ class AiPromptsGoldenTest {
                 onMovePromptToCategory = { _, _ -> },
                 categoriesProvider = { categories },
                 helpBody = "AI Settings is where you manage your prompts and categories.",
-                helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
+                helpReadMoreUrl = DocsLinks.page("ai"),
                 initiallyHelpDialogOpen = initiallyHelpDialogOpen,
                 initiallyOverflowMenuOpen = initiallyOverflowMenuOpen,
                 initiallySearchOpen = initiallySearchOpen,

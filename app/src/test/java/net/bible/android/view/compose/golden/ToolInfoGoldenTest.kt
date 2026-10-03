@@ -1,5 +1,6 @@
 package net.bible.android.view.compose.golden
 
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.ToolVd
 import net.bible.sharedui.ai.ToolInfoScreen
@@ -37,7 +38,7 @@ class ToolInfoGoldenTest {
                 writeTools = writeTools,
                 onUp = {},
                 helpBody = "This screen lists the tools an AI prompt may use, split into read-only and write-capable tools.",
-                helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#ai-tools",
+                helpReadMoreUrl = DocsLinks.page("ai", "ai-tools"),
                 initiallyHelpDialogOpen = initiallyHelpDialogOpen,
             )
         }

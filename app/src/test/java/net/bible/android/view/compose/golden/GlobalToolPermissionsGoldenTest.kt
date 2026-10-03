@@ -1,5 +1,6 @@
 package net.bible.android.view.compose.golden
 
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermGroupVd
@@ -68,7 +69,7 @@ class GlobalToolPermissionsGoldenTest {
             onResetAll = {},
             onSave = {},
             helpBody = "Set default read/write permissions for AI tools across all prompts.",
-            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#setting-permissions",
+            helpReadMoreUrl = DocsLinks.page("ai", "setting-permissions"),
             initiallyHelpDialogOpen = initiallyHelpDialogOpen,
         )
     }
