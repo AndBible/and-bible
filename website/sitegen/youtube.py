@@ -37,11 +37,14 @@ def parse(url: str) -> tuple[str, str] | None:
     return None
 
 
-def embed_html(video_id: str, kind: str, title: str | None = None, card: bool = False) -> str:
+def embed_html(video_id: str, kind: str, title: str | None = None, card: bool = False, meta: str = "") -> str:
     """Click-to-load embed. `card=True` is for listings: every card is 16:9, and a short's
-    portrait thumbnail is centred over a blurred copy of itself (the `yt__backdrop` image)."""
+    portrait thumbnail is centred over a blurred copy of itself (the `yt__backdrop` image).
+    `meta` is trusted HTML for the muted line under the title (a card's date and version)."""
     label = escape(f"Play video: {title}" if title else "Play video")
     caption = f'<span class="yt__title">{escape(title)}</span>' if title else ""
+    if meta:
+        caption += f'<span class="yt__meta">{meta}</span>'
     src = f"/media/videos/{video_id}.webp"
     backdrop = (f'<img class="yt__backdrop" src="{src}" alt="" aria-hidden="true" loading="lazy" decoding="async">'
                 if card and kind == "short" else "")

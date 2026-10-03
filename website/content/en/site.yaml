@@ -76,6 +76,9 @@ blog:
   posted_in: Posted in
 videos:
   title: Tutorial videos
+  months: [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+  date_format: "{d} {month} {y}"
+  version_label: "v{version}"
   description: >-
     Short video tutorials for AndBible: windows and workspaces, bookmarks and
     StudyPads, search, sync and customisation.

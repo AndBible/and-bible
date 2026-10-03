@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from collections.abc import Sequence
 from datetime import date
 from pathlib import Path
 
 import yaml
 from jinja2 import Environment
-from markupsafe import Markup
+from markupsafe import Markup, escape
 
 from sitegen.paths import BASE_URL
 from sitegen.youtube import embed_html
@@ -95,9 +96,27 @@ def newest(videos: list[Video], n: int = 3) -> list[Video]:
     return sorted(videos, key=lambda v: v.published, reverse=True)[:n]
 
 
-def card(video: Video) -> Markup:
-    """The click-to-load card shared by /videos/ and the landing page."""
-    return Markup(embed_html(video.id, "short" if video.short else "video", video.title, card=True))
+ENGLISH_MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+
+def format_date(day: date, months: Sequence[str] = ENGLISH_MONTHS, pattern: str = "{d} {month} {y}") -> str:
+    """"5 Jul 2026": built from the month names and pattern of the UI strings, never from the machine locale."""
+    return pattern.format(d=day.day, month=months[day.month - 1], y=day.year)
+
+
+def card(video: Video, strings: dict | None = None, show_version: bool = False) -> Markup:
+    """The click-to-load card shared by /videos/ and the landing page.
+
+    Under the title sits a muted line with the publication date and, when `show_version` (the /videos/
+    page only) and the catalog has one, the AndBible version first: `v5.1 · 5 Jul 2026`."""
+    labels = (strings or {}).get("videos", {})
+    when = format_date(video.published, labels.get("months", ENGLISH_MONTHS), labels.get("date_format", "{d} {month} {y}"))
+    parts = []
+    if show_version and video.version:
+        parts.append(escape(labels.get("version_label", "v{version}").format(version=video.version)))
+    parts.append(f'<time datetime="{video.published.isoformat()}">{escape(when)}</time>')
+    return Markup(embed_html(video.id, "short" if video.short else "video", video.title, card=True,
+                             meta=" · ".join(parts)))
 
 
 def related(videos: list[Video]) -> dict[str, list[tuple[str, str]]]:
@@ -112,7 +131,7 @@ def related(videos: list[Video]) -> dict[str, list[tuple[str, str]]]:
 def render_videos(env: Environment, strings: dict, videos: list[Video], out: Path) -> list[str]:
     def embeds(topic: str) -> list[Markup]:
         """One ordered list per topic: clips and shorts together, in catalog order."""
-        return [card(v) for v in videos if v.topic == topic]
+        return [card(v, strings, show_version=True) for v in videos if v.topic == topic]
 
     sections = [(topic, embeds(topic)) for topic in TOPICS]
     page = strings["videos"]

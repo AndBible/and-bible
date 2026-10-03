@@ -201,3 +201,16 @@ def test_home_without_videos_has_no_empty_grid(content, tmp_path):
     build(content, out, data=tmp_path / "data", docs=False)
     html = (out / "index.html").read_text()
     assert "video-grid" not in html and 'href="/videos/"' in html
+
+
+def test_home_teaser_shows_the_date_but_never_the_version(content, tmp_path):
+    _catalog(tmp_path / "data", [("newest00005", "2026-09-01", True), ("second00002", "2026-02-01", False)])
+    cat = tmp_path / "data" / "videos.yaml"
+    cat.write_text(cat.read_text().replace('"2026-09-01"', '"2026-09-01", version: "5.1"'))
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    teaser = (out / "index.html").read_text().split('<div class="video-grid">')[1].split("</section>")[0]
+    assert '<time datetime="2026-09-01">1 Sep 2026</time>' in teaser
+    assert '<time datetime="2026-02-01">1 Feb 2026</time>' in teaser
+    assert "v5.1" not in teaser and "·" not in teaser
+    assert "yt__meta" in (out / "videos" / "index.html").read_text() and "v5.1 · " in (out / "videos" / "index.html").read_text()

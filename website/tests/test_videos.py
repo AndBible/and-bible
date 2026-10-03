@@ -193,3 +193,43 @@ def test_catalog_versions_never_precede_their_release_or_decrease_with_date():
     ordered = sorted(vids, key=lambda v: v.published)
     assert all(key(a) <= key(b) for a, b in zip(ordered, ordered[1:]))
     assert min(v.published for v in vids) >= date(2018, 1, 1)
+
+
+def test_format_date_uses_english_months_without_a_leading_zero(monkeypatch):
+    import locale
+    from datetime import date
+    from sitegen.videos import ENGLISH_MONTHS, format_date
+    monkeypatch.setenv("LC_ALL", "fi_FI.UTF-8")
+    try:
+        locale.setlocale(locale.LC_ALL, "")
+    except locale.Error:
+        pass
+    assert format_date(date(2026, 7, 5)) == "5 Jul 2026"
+    assert format_date(date(2023, 12, 20)) == "20 Dec 2023"
+    assert [format_date(date(2025, m, 1)).split()[1] for m in range(1, 13)] == list(ENGLISH_MONTHS)
+    assert format_date(date(2026, 3, 9), ["a"] * 2 + ["maalis"] + ["a"] * 9, "{d}. {month}ta {y}") == "9. maalista 2026"
+
+
+def _videos_page(tmp_path, text):
+    from sitegen import home
+    from sitegen.i18n import strings
+    from sitegen.paths import CONTENT
+    from sitegen.videos import render_videos
+    render_videos(home.environment(), strings(CONTENT, "en"), load(write(tmp_path, text), {"bookmarks"}), tmp_path)
+    return (tmp_path / "videos" / "index.html").read_text()
+
+
+def test_videos_page_card_shows_version_then_date_and_omits_a_missing_version(tmp_path):
+    text = GOOD.replace("published: 2025-01-02", 'published: 2025-01-02, version: "5.1"')
+    html = _videos_page(tmp_path, text)
+    first = html.split('data-yt-id="abcDEF12345"')[1].split('data-yt-id="shortID1234"')[0]
+    second = html.split('data-yt-id="shortID1234"')[1]
+    assert '<span class="yt__meta">v5.1 · <time datetime="2025-01-02">2 Jan 2025</time></span>' in first
+    assert '<span class="yt__meta"><time datetime="2025-03-04">4 Mar 2025</time></span>' in second
+    assert "v5" not in second.split("yt__meta")[1].split("</span>")[0]
+
+
+def test_docs_related_videos_have_no_meta_line():
+    from sitegen.youtube import embed_html
+    assert "yt__meta" not in embed_html("abcDEF12345", "video", "Title")
+    assert "yt__meta" in embed_html("abcDEF12345", "video", "Title", card=True, meta="x")
