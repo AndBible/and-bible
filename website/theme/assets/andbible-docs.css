@@ -19,7 +19,9 @@
 }
 .md-typeset h1, .md-typeset h2, .md-typeset h3 { font-family: "Source Serif 4", Georgia, serif; font-weight: 600; }
 
-/* ---- Header: same look as the landing topbar (assets/css/site.css) ---- */
+/* ---- Header: same look as the landing topbar (assets/css/site.css) ----
+   The --ab-* values below are site.css's tokens: --ab-border = --border, --ab-surface = --surface,
+   --ab-surface-2 = --surface-2, --ab-muted = --muted (light and dark blocks). Keep them in step. */
 [data-md-color-scheme="default"] { --ab-border: #e3d8c0; --ab-surface: #fffaf0; --ab-surface-2: #f3ead7; --ab-muted: #5d5546; }
 [data-md-color-scheme="slate"] { --ab-border: #2c2a26; --ab-surface: #1c1c1b; --ab-surface-2: #121212; --ab-muted: #a59f93; }
 .md-header { background: var(--md-default-bg-color); border-bottom: 1px solid var(--ab-border); box-shadow: none;
@@ -30,7 +32,7 @@
 .ab-brand img { width: 32px; height: 32px; }
 .ab-nav { display: none; align-items: center; gap: 4px; }
 .ab-nav a, .ab-drawer-links a { padding: 8px 12px; border-radius: 8px; color: var(--ab-muted); text-decoration: none; font-size: 15.2px; }
-.ab-nav a:hover, .ab-nav a:focus-visible, .ab-drawer-links a:hover { color: var(--md-default-fg-color); background: var(--ab-surface-2); }
+.ab-nav a:hover, .ab-nav a:focus-visible, .ab-drawer-links a:hover, .ab-drawer-links a:focus-visible { color: var(--md-default-fg-color); background: var(--ab-surface-2); }
 .ab-icon-button { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 40px; height: 40px;
   padding: 0; border: 1px solid var(--ab-border); border-radius: 10px; background: var(--ab-surface);
   color: var(--md-default-fg-color); cursor: pointer; }
@@ -38,6 +40,8 @@
 .ab-icon-button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2;
   stroke-linecap: round; stroke-linejoin: round; }
 .md-header .md-search { margin: 0; }
+.ab-nav a:focus-visible, .ab-drawer-links a:focus-visible, .ab-icon-button:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color); outline-offset: 2px; }
 @media (min-width: 720px) { .ab-nav { display: flex; } .ab-drawer-links { display: none !important; } }
 .ab-drawer-links { display: flex; flex-direction: column; padding: 0 .6rem .6rem; border-bottom: 1px solid var(--ab-border); }
 

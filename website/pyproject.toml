@@ -6,7 +6,7 @@ dependencies = []
 
 [dependency-groups]
 site = [
-  "zensical==0.0.67",
+  "zensical==0.0.67",  # on upgrade: tests/test_theme_partials.py must pass; re-diff theme/partials/{nav,header}.html against the shipped ones
   "jinja2>=3.1",
   "markdown>=3.7",
   "pymdown-extensions>=10.12",

@@ -2,7 +2,7 @@
 # bare `zensical build`: sitegen.docs stages exactly the nav pages per language
 # and writes a per-language copy of this file with absolute paths.
 [project]
-site_name = "AndBible Documentation"
+site_name = "AndBible"
 site_description = "User documentation for AndBible: Bible Study."
 site_url = "https://andbible.org/docs/"
 docs_dir = "_build/en/docs"
