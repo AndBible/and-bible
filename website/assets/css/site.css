@@ -223,13 +223,13 @@ section.block { padding: 48px 0 0; }
 .teaser { padding: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 .teaser h2 { margin-top: 0; }
 .teaser p { color: var(--muted); max-width: 40rem; }
-/* Support card: text and button beside a decorative illustration; on narrow screens the art goes first, smaller. */
-.support { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 170px); align-items: center; gap: 32px; }
+/* Support card: text and button beside a decorative illustration; art on the left, on narrow screens above the text and smaller. */
+.support { display: grid; grid-template-columns: minmax(0, 170px) minmax(0, 1fr); align-items: center; gap: 32px; }
 .support__text { min-width: 0; }
-.support__art { display: block; width: 100%; max-width: 170px; height: auto; justify-self: center; }
+.support__art { order: -1; display: block; width: 100%; max-width: 170px; height: auto; justify-self: center; }
 @media (max-width: 639px) {
   .support { grid-template-columns: minmax(0, 1fr); }
-  .support__art { order: -1; max-width: 150px; }
+  .support__art { max-width: 150px; }
 }
 
 .pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 16px; margin-top: 32px; }
