@@ -132,6 +132,38 @@ for (const [width, scheme] of [[360, 'light'], [360, 'dark'], [1280, 'dark'], [1
   await page.context().close();
 }
 
+// 6. stable box: identical card height and control position on every slide at several widths
+for (const width of [1280, 768, 360]) {
+  page = await open({viewport: {width, height: 900}});
+  const seen = new Set();
+  let longest = [0, 0], shortest = [1e9, 0];
+  for (let i = 0; i < 20; i++) {
+    const m = await page.evaluate(() => {
+      const r = e => e.getBoundingClientRect();
+      const card = document.querySelector('.review.is-active');
+      return [Math.round(r(card).height * 10) / 10, Math.round(r(card).y + scrollY),
+        Math.round(r(document.querySelector('[aria-label="Next review"]')).y + scrollY), card.querySelector('p:not(.review__stars)').getBoundingClientRect().height];
+    });
+    seen.add(m.slice(0, 3).join(','));
+    if (m[3] > longest[0]) longest = [m[3], i];
+    if (m[3] < shortest[0]) shortest = [m[3], i];
+    await page.click('[aria-label="Next review"]');
+  }
+  check(`card height, y and button y identical on all 20 slides at ${width}px`, seen.size === 1, [...seen].join(' | '));
+  if (out && width !== 768) {
+    for (const [kind, [, idx]] of [['longest', longest], ['shortest', shortest]]) {
+      while (parseInt((await label(page)).split(' ')[0]) - 1 !== idx) await page.click('[aria-label="Next review"]');
+      for (const scheme of width === 1280 ? ['light', 'dark'] : ['light']) {
+        await page.emulateMedia({colorScheme: scheme});
+        await page.addStyleTag({content: '.topbar { position: static !important; }'});
+        await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished)));
+        await page.screenshot({path: `${out}/reviews-v2-${width}-${scheme}-${kind}.png`, fullPage: true, clip: await clipOf(page)});
+      }
+    }
+  }
+  await page.context().close();
+}
+
 check('no console errors', errors.length === 0, errors.join('; '));
 await browser.close();
 process.exit(failures ? 1 : 0);

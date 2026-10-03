@@ -176,11 +176,20 @@ section.block { padding: 48px 0 0; }
 .review-carousel { max-width: 46rem; margin: 0 auto; }
 .review-carousel:focus-visible { outline-offset: 6px; border-radius: var(--radius); }
 .is-carousel .review-list { gap: 0; }
-.is-carousel .review { grid-area: 1 / 1; opacity: 0; visibility: hidden; padding: 24px 28px; }
+.is-carousel .review { position: relative; grid-area: 1 / 1; opacity: 0; visibility: hidden; padding: 28px 24px 24px 28px;
+  border-left: 5px solid var(--accent); box-shadow: var(--shadow); background: var(--surface-2); }
+.is-carousel .review::before { content: "\201C"; position: absolute; top: 4px; right: 18px; color: var(--accent);
+  font: 700 5rem/1 var(--serif); opacity: .45; pointer-events: none; }
+.is-carousel .review figcaption { color: var(--muted); }
+.is-carousel .review__stars { font-size: 1.25rem; margin-bottom: .75rem; }
 .is-ready .review { transition: opacity .3s, visibility 0s .3s; }
 .is-carousel .review.is-active { opacity: 1; visibility: visible; transition-delay: 0s; }
 .is-carousel .review blockquote { display: flex; align-items: center; }
-.is-carousel .review blockquote p { font-size: 1.05rem; }
+.is-carousel .review blockquote p { font-size: 1.1rem; line-height: 1.55; }
+@media (min-width: 700px) {
+  .is-carousel .review { padding: 36px 40px 28px 40px; }
+  .is-carousel .review blockquote p { font-size: 1.3rem; line-height: 1.6; }
+}
 .review-controls { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 16px; }
 .review-controls .icon-button { width: 44px; height: 44px; font-size: 1.5rem; line-height: 1; }
 .review-controls .review-toggle { font-size: .8rem; letter-spacing: -.1em; }
