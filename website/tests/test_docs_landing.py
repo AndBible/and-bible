@@ -4,8 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from sitegen import paths
+from sitegen import home, paths
 from sitegen.docs import build_docs, published_pages
+from sitegen.i18n import strings
+from sitegen.videos import load as load_videos, render_videos
 
 INDEX = paths.CONTENT / "en" / "docs" / "index.md"
 # Nav pages deliberately absent from the landing page (the contributor style guide and the
@@ -50,6 +52,9 @@ def test_legacy_anchors_survive():
 def landing_html(tmp_path_factory):
     out = tmp_path_factory.mktemp("landing")
     build_docs(paths.CONTENT, out, {})
+    # /videos/ belongs to the landing site, not the docs build: render the real catalog page beside the docs.
+    pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
+    render_videos(home.environment(), strings(paths.CONTENT, "en"), load_videos(paths.DATA / "videos.yaml", pages), out)
     return out, (out / "docs" / "index.html").read_text()
 
 
@@ -59,9 +64,7 @@ def test_built_landing_links_resolve(landing_html):
     hrefs = re.findall(r'href="([^"#]+)(?:#[^"]*)?"', body)
     assert len(hrefs) > 30
     for href in hrefs:
-        # TODO: replace this skip with a real check once the video catalog exists in the build;
-        # /videos/ belongs to the landing site, not the docs build, so it cannot resolve here.
-        if href.startswith(("http://", "https://", "mailto:")) or href == "/videos/":
+        if href.startswith(("http://", "https://", "mailto:")):
             continue
         target = (out / "docs" / href).resolve() if not href.startswith("/") else out / href.lstrip("/")
         assert (target / "index.html").is_file() or target.is_file(), f"dead landing link {href}"

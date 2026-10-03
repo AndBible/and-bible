@@ -49,7 +49,6 @@ def test_repository_redirects_load():
     assert mapping["/privacy.html"] == "/privacy/"
 
 
-@pytest.mark.xfail(strict=True, reason="Tasks 12 and 18 resolve the pending redirects")
 def test_no_pending_redirects():
     import yaml
     from sitegen.paths import DATA

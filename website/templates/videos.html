@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="videos">
+  <h1>{{ strings.videos.title }}</h1>
+  <p class="videos__intro">{{ strings.videos.intro }}</p>
+  {% for topic, clips, shorts in sections %}
+  <section class="videos__topic" aria-labelledby="topic-{{ loop.index }}">
+    <h2 id="topic-{{ loop.index }}">{{ topic }}</h2>
+    {% if clips %}<div class="video-grid">
+      {% for embed in clips %}<div>{{ embed }}</div>{% endfor %}
+    </div>{% endif %}
+    {% if shorts %}<div class="video-grid video-grid--shorts">
+      {% for embed in shorts %}<div>{{ embed }}</div>{% endfor %}
+    </div>{% endif %}
+  </section>
+  {% endfor %}
+</section>
+{% endblock %}

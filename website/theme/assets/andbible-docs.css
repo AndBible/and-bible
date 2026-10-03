@@ -22,6 +22,8 @@
 /* ---- Header: same look as the landing topbar (assets/css/site.css) ----
    The --ab-* values below are site.css's tokens: --ab-border = --border, --ab-surface = --surface,
    --ab-surface-2 = --surface-2, --ab-muted = --muted (light and dark blocks). Keep them in step. */
+/* Tokens that assets/css/embeds.css (the click-to-load video embeds) reads; site.css defines them for the landing site. */
+[data-md-color-scheme="default"], [data-md-color-scheme="slate"] { --radius: 12px; --video-bg: #000; --video-fg: #fff; }
 [data-md-color-scheme="default"] { --ab-border: #e3d8c0; --ab-surface: #fffaf0; --ab-surface-2: #f3ead7; --ab-muted: #5d5546; }
 [data-md-color-scheme="slate"] { --ab-border: #2c2a26; --ab-surface: #1c1c1b; --ab-surface-2: #121212; --ab-muted: #a59f93; }
 .md-header { background: var(--md-default-bg-color); border-bottom: 1px solid var(--ab-border); box-shadow: none;

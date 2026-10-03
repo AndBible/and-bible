@@ -107,3 +107,13 @@ def test_badge_css_keeps_one_row_with_equal_heights():
     assert "min-width: 0" in link and re.search(r"flex:\s*0 1 auto", link)
     img = _rule(css, ".md-typeset .ab-badges img")
     assert "height: auto" in img and "max-height: 50px" in img and "max-width: 100%" in img
+
+
+def test_docs_theme_defines_every_token_the_embeds_use():
+    css = (paths.WEBSITE / "theme" / "assets" / "andbible-docs.css").read_text()
+    used = set(re.findall(r"var\(--([\w-]+)\)", (paths.ASSETS / "css" / "embeds.css").read_text()))
+    assert used == {"radius", "video-bg", "video-fg"}
+    block = re.search(r'\[data-md-color-scheme="default"\],\s*\[data-md-color-scheme="slate"\]\s*\{([^}]*)\}', css)
+    assert block, "tokens must be defined for both colour schemes"
+    for token in used:
+        assert f"--{token}:" in block.group(1)

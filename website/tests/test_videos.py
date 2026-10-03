@@ -1,0 +1,104 @@
+import pytest
+
+from sitegen.videos import load, related
+
+
+def write(tmp_path, text):
+    p = tmp_path / "videos.yaml"
+    p.write_text(text)
+    return p
+
+
+GOOD = """\
+- {id: abcDEF12345, title: Bookmarks intro, topic: Bookmarks & StudyPads, docs: bookmarks}
+- {id: shortID1234, title: Quick tip, topic: Getting started, short: true}
+"""
+
+
+def test_load_and_related(tmp_path):
+    vids = load(write(tmp_path, GOOD), {"bookmarks"})
+    assert [v.id for v in vids] == ["abcDEF12345", "shortID1234"]
+    assert vids[1].short
+    assert related(vids) == {"bookmarks": [("abcDEF12345", "Bookmarks intro")]}
+
+
+def test_missing_file_gives_empty_catalog(tmp_path):
+    assert load(tmp_path / "nope.yaml", set()) == []
+
+
+@pytest.mark.parametrize("bad, message", [
+    (GOOD.replace("shortID1234", "abcDEF12345"), "duplicate"),
+    (GOOD.replace("Getting started", "Misc"), "topic"),
+    (GOOD.replace("docs: bookmarks", "docs: nosuchpage"), "nosuchpage"),
+    (GOOD.replace("abcDEF12345", "short"), "id"),
+])
+def test_invalid_catalog_rejected(tmp_path, bad, message):
+    with pytest.raises(ValueError, match=message):
+        load(write(tmp_path, bad), {"bookmarks"})
+
+
+def test_shorts_are_not_related_to_docs(tmp_path):
+    # docs embeds are 16:9 and a short would be letterboxed
+    vids = load(write(tmp_path, GOOD + "- {id: shortDOC123, title: S, topic: Getting started, docs: bookmarks, short: true}\n"),
+                {"bookmarks"})
+    assert [t for _, t in related(vids)["bookmarks"]] == ["Bookmarks intro"]
+
+
+def test_page_renders_sections_in_topic_order(tmp_path):
+    from sitegen import home
+    from sitegen.i18n import strings
+    from sitegen.paths import CONTENT
+    from sitegen.videos import render_videos
+
+    vids = load(write(tmp_path, GOOD + "- {id: devDIARY123, title: Diary, topic: Developer diaries}\n"), {"bookmarks"})
+    written = render_videos(home.environment(), strings(CONTENT, "en"), vids, tmp_path)
+    html = (tmp_path / "videos" / "index.html").read_text()
+    assert written == ["/videos/"]
+    assert html.index("Getting started") < html.index("Bookmarks &amp; StudyPads") < html.index("Developer diaries")
+    assert "Customisation" not in html.split("<main")[1]  # empty topics are skipped
+    assert 'data-yt-id="shortID1234"' in html and "yt--short" in html
+
+
+def test_built_videos_page_groups_by_topic():
+    from sitegen import paths
+    html = (paths.SITE / "videos" / "index.html").read_text()
+    assert html.index("Getting started") < html.index("Developer diaries")
+    assert 'data-yt-id="' in html
+
+
+def test_catalog_ids_have_thumbnails_and_docs_links_resolve():
+    from sitegen import paths
+    from sitegen.docs import published_pages
+
+    pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
+    vids = load(paths.DATA / "videos.yaml", pages)
+    assert vids, "catalog is empty"
+    if paths.MEDIA.is_dir():
+        missing = [v.id for v in vids if not (paths.MEDIA / "videos" / f"{v.id}.webp").is_file()]
+        assert not missing, f"run `make site-thumbs`: {missing}"
+
+
+def test_catalog_ids_are_in_thumbnail_references(tmp_path):
+    from sitegen import paths
+    from sitegen.thumbnails import referenced_ids
+
+    ids = referenced_ids(paths.CONTENT, write(tmp_path, GOOD))
+    assert {"abcDEF12345", "shortID1234"} <= ids
+
+
+def test_yt_seed_parses_channel_page_shapes():
+    from sitegen.migrate.yt_seed import continuations, initial_data, videos_in
+
+    data = {"a": [
+        {"videoId": "aaaaaaaaaaa", "title": {"runs": [{"text": "Old "}, {"text": "style"}]}},
+        {"contentType": "LOCKUP_CONTENT_TYPE_VIDEO", "contentId": "bbbbbbbbbbb",
+         "metadata": {"lockupMetadataViewModel": {"title": {"content": "Lockup"}}}},
+        {"onTap": {"innertubeCommand": {"reelWatchEndpoint": {"videoId": "ccccccccccc"}}},
+         "overlayMetadata": {"primaryText": {"content": "A short"}}},
+        {"videoId": "ddddddddddd", "thumbnail": {}},  # no title: not a video entry
+        {"continuationCommand": {"token": "TOK"}},
+    ]}
+    assert videos_in(data) == [("aaaaaaaaaaa", "Old style"), ("bbbbbbbbbbb", "Lockup"), ("ccccccccccc", "A short")]
+    assert continuations(data) == ["TOK"]
+    page = 'x var ytInitialData = {"k": {"v": 1}};</script>"INNERTUBE_API_KEY":"KEY"'
+    assert initial_data(page)[:2] == ({"k": {"v": 1}}, "KEY")
