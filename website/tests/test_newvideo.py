@@ -165,3 +165,24 @@ def test_explicit_title_skips_oembed(env):
 def test_main_reports_errors_with_exit_code(capsys):
     assert newvideo.main(["bogus", "--topic", "Getting started", "--summary", "S."]) == 1
     assert "cannot find" in capsys.readouterr().err
+
+
+def test_failed_thumbnail_leaves_catalog_untouched(tmp_path):
+    import argparse
+    from datetime import date
+
+    from sitegen import newvideo
+
+    data = tmp_path / "data"
+    data.mkdir()
+    (data / "videos.yaml").write_text("# header\n", encoding="utf-8")
+    args = argparse.Namespace(video="n8Y8N27uFzY", topic="Getting started", summary="s", title="T", slug=None,
+                              date=None, docs=None, short=False, category=[], tag=[], no_post=True)
+
+    def boom(url):
+        raise OSError("offline")
+
+    with pytest.raises(RuntimeError):
+        newvideo.run(args, opener=boom, data=data, content=tmp_path / "c", media=tmp_path / "m",
+                     docs_pages=set(), today=date(2026, 1, 1))
+    assert (data / "videos.yaml").read_text(encoding="utf-8") == "# header\n"

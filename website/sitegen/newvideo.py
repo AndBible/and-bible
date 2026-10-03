@@ -121,9 +121,9 @@ def run(args: argparse.Namespace, *, fetcher: Callable[[str], bytes] = _http_get
         post = content / "en" / "blog" / f"{day.isoformat()}-{slug}.md"
         if post.exists():
             raise NewVideoError(f"{post} already exists")
+    thumbnails.fetch([video_id], media, opener)  # first: a failure must not leave a catalog line behind
     catalog.parent.mkdir(parents=True, exist_ok=True)
     catalog.write_text(probe_text(existing) + line, encoding="utf-8")
-    thumbnails.fetch([video_id], media, opener)
     out = [f"added {video_id} ({title}) to {catalog.name}", f"thumbnail: {media / 'videos' / (video_id + '.webp')}"]
     if post is not None:
         post.parent.mkdir(parents=True, exist_ok=True)
