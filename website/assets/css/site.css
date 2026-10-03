@@ -174,3 +174,18 @@ section.block { padding: 48px 0 0; }
 .footer ul { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0; padding: 0; list-style: none; }
 .footer a { color: var(--muted); }
 .footer a:hover { color: var(--accent-ink); }
+
+/* ---- Articles and archives ---- */
+.archive, .post { padding-top: 32px; }
+.archive h1 { margin: 0 0 1.25rem; font-size: clamp(1.75rem, 4vw, 2.5rem); }
+.archive .post-list { margin-bottom: 8px; }
+.post { max-width: 46rem; margin: 0 auto; overflow-wrap: anywhere; }
+.post__head h1 { margin: 0 0 .25rem; font-size: clamp(1.75rem, 4.5vw, 2.75rem); }
+.post__head time { color: var(--faint); font-size: .9rem; }
+.post__image { display: block; width: 100%; margin: 1.25rem 0; border-radius: var(--radius); }
+.post__body { font-family: var(--serif); font-size: 1.1rem; }
+.post__body pre { overflow-x: auto; padding: 12px; background: var(--surface-2); border-radius: 8px; }
+.post__body blockquote { margin: 1rem 0; padding-left: 1rem; border-left: 3px solid var(--accent); color: var(--muted); }
+.post__body table { border-collapse: collapse; }
+.post__body th, .post__body td { padding: 6px 10px; border: 1px solid var(--border); }
+.post__foot { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .95rem; }

@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 
 from sitegen import home, paths
+from sitegen.blog import render_blog, write_sitemap
 from sitegen.content import load_posts
 from sitegen.home import render_home
 from sitegen.i18n import languages, strings
@@ -30,6 +31,9 @@ def build(content: Path, out: Path) -> None:
     posts = load_posts(content / DEFAULT_LANG / "blog", paths.MEDIA)
     for lang in languages(content):
         render_home(env, strings(content, lang), lang, posts, out)
+    sitemap = ["/"]
+    sitemap += render_blog(env, strings(content, DEFAULT_LANG), posts, out, paths.MEDIA)
+    write_sitemap(sitemap, out)
 
 
 def main(argv: list[str] | None = None) -> int:

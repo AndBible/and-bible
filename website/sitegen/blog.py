@@ -1,0 +1,103 @@
+"""Blog articles, WordPress-compatible archives, RSS and the sitemap."""
+
+from __future__ import annotations
+
+import xml.etree.ElementTree as ET
+from datetime import UTC, datetime, time
+from email.utils import format_datetime
+from pathlib import Path
+
+from jinja2 import Environment
+
+from sitegen.content import Post, taxonomy_slug
+from sitegen.paths import BASE_URL
+from sitegen.render import markdown_to_html
+
+PAGE_SIZE = 10
+FEED_SIZE = 20
+_CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
+
+
+def archives(posts: list[Post], strings: dict) -> dict[str, tuple[str, list[Post]]]:
+    result: dict[str, tuple[str, list[Post]]] = {"/blog/": (strings["blog"]["title"], list(posts))}
+    for post in posts:
+        d = post.url_date
+        keys = [(f"/{d:%Y}/", f"{d:%Y}"), (f"/{d:%Y/%m}/", f"{d:%B %Y}"),
+                (f"/{d:%Y/%m/%d}/", f"{d.day} {d:%B %Y}")]
+        keys += [(f"/category/{taxonomy_slug(c)}/", strings["blog"]["category"].format(name=c))
+                 for c in post.categories]
+        keys += [(f"/tag/{taxonomy_slug(t)}/", strings["blog"]["tag"].format(name=t)) for t in post.tags]
+        for base, heading in keys:
+            result.setdefault(base, (heading, []))[1].append(post)
+    return result
+
+
+def _page_url(base: str, number: int) -> str:
+    return base if number == 1 else f"{base}page/{number}/"
+
+
+def _write(out: Path, url: str, html: str) -> None:
+    target = out / url.lstrip("/") / "index.html"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(html, encoding="utf-8")
+
+
+def _feed(posts: list[Post], bodies: dict[str, str], strings: dict, out: Path) -> None:
+    ET.register_namespace("content", _CONTENT_NS)
+    rss = ET.Element("rss", version="2.0")
+    channel = ET.SubElement(rss, "channel")
+    for tag, value in (("title", f"{strings['site_name']} – {strings['blog']['title']}"),
+                       ("link", f"{BASE_URL}/blog/"), ("description", strings["hero"]["eyebrow"]),
+                       ("language", "en")):
+        ET.SubElement(channel, tag).text = value
+    for post in posts[:FEED_SIZE]:
+        item = ET.SubElement(channel, "item")
+        link = f"{BASE_URL}{post.path}"
+        for tag, value in (("title", post.title), ("link", link), ("guid", link),
+                           ("description", post.summary),
+                           ("pubDate", format_datetime(datetime.combine(post.date, time.min, UTC), usegmt=True))):
+            ET.SubElement(item, tag).text = value
+        for category in post.categories:
+            ET.SubElement(item, "category").text = category
+        ET.SubElement(item, f"{{{_CONTENT_NS}}}encoded").text = bodies[post.path]
+    (out / "feed").mkdir(parents=True, exist_ok=True)
+    ET.ElementTree(rss).write(out / "feed" / "index.xml", encoding="utf-8", xml_declaration=True)
+    (out / "feed" / "index.html").write_bytes((out / "feed" / "index.xml").read_bytes())
+
+
+def render_blog(env: Environment, strings: dict, posts: list[Post], out: Path, media_dir: Path) -> list[str]:
+    written: list[str] = []
+    bodies = {p.path: markdown_to_html(p.body_md, p.source, media_dir) for p in posts}
+    common = {"lang": "en", "prefix": "", "strings": strings}
+    for post in posts:
+        _write(out, post.path, env.get_template("article.html").render(
+            post=post, body_html=bodies[post.path], title=f"{post.title} – AndBible",
+            description=post.summary, canonical=f"{BASE_URL}{post.path}", og_type="article",
+            og_image=f"{BASE_URL}{post.image_url or '/assets/img/og-default.png'}",
+            category_links=[(c, f"/category/{taxonomy_slug(c)}/") for c in post.categories],
+            tag_links=[(t, f"/tag/{taxonomy_slug(t)}/") for t in post.tags], **common))
+        written.append(post.path)
+    for base, (heading, entries) in archives(posts, strings).items():
+        chunks = [entries[i:i + PAGE_SIZE] for i in range(0, len(entries), PAGE_SIZE)] or [[]]
+        for number, chunk in enumerate(chunks, 1):
+            url = _page_url(base, number)
+            _write(out, url, env.get_template("archive.html").render(
+                heading=heading, posts=chunk,
+                newer=_page_url(base, number - 1) if number > 1 else None,
+                older=_page_url(base, number + 1) if number < len(chunks) else None,
+                title=f"{heading} – AndBible" + (f" (page {number})" if number > 1 else ""),
+                description=strings["hero"]["eyebrow"], canonical=f"{BASE_URL}{url}",
+                og_type="website", og_image=f"{BASE_URL}/assets/img/og-default.png", **common))
+            if base == "/blog/":
+                written.append(url)
+    _feed(posts, bodies, strings, out)
+    return written
+
+
+def write_sitemap(paths_: list[str], out: Path) -> None:
+    ns = "http://www.sitemaps.org/schemas/sitemap/0.9"
+    ET.register_namespace("", ns)
+    root = ET.Element(f"{{{ns}}}urlset")
+    for path in sorted(set(paths_)):
+        ET.SubElement(ET.SubElement(root, f"{{{ns}}}url"), f"{{{ns}}}loc").text = f"{BASE_URL}{path}"
+    ET.ElementTree(root).write(out / "sitemap.xml", encoding="utf-8", xml_declaration=True)
