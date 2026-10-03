@@ -2,7 +2,7 @@
 title: Financial report for Q4 / 2025
 date: '2026-01-01'
 slug: financial-report-for-q4-2025
-summary: Tuomas Airaksinen Consulting , company of the lead developer, provides a way to sponsor AndBible development. You can support the ongoing development of AndBible financially via the webshop . See…
+summary: 'Tuomas Airaksinen Consulting, company of the lead developer, provides a way to sponsor AndBible development. You can support the ongoing development of AndBible financially via the webshop. See also: financial…'
 categories:
 - Sponsoring AndBible
 tags:

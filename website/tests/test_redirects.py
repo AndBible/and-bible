@@ -55,3 +55,23 @@ def test_no_pending_redirects():
     from sitegen.paths import DATA
 
     assert not yaml.safe_load((DATA / "redirects.yaml").read_text()).get("pending")
+
+
+def test_build_writes_upload_stubs_and_copies_media(tmp_path, monkeypatch):
+    from sitegen import build, paths
+
+    media = tmp_path / "media"
+    (media / "blog").mkdir(parents=True)
+    (media / "blog" / "a.webp").write_bytes(b"x")
+    (media / ".git").mkdir()
+    data = tmp_path / "data"
+    data.mkdir()
+    (data / "wp-uploads-redirects.yaml").write_text("/wp-content/uploads/2024/01/A.png/: /media/blog/a.webp\n")
+    monkeypatch.setattr(paths, "MEDIA", media)
+    out = tmp_path / "out"
+    content = tmp_path / "content" / "en"
+    content.mkdir(parents=True)
+    (content / "site.yaml").write_text((paths.CONTENT / "en" / "site.yaml").read_text())
+    build.build(tmp_path / "content", out, data, docs=False)
+    assert (out / "wp-content/uploads/2024/01/A.png/index.html").is_file()
+    assert (out / "media/blog/a.webp").is_file() and not (out / "media/.git").exists()

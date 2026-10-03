@@ -39,8 +39,13 @@ def build(content: Path, out: Path, data: Path = paths.DATA, docs: bool = True) 
                             load_pages(content / DEFAULT_LANG / "pages"), out, paths.MEDIA)
     if docs:
         sitemap += build_docs(content, out, related={})
-    if (data / "redirects.yaml").is_file():
-        write_stubs(env, redirects.load(data / "redirects.yaml"), out)
+    if paths.MEDIA.is_dir():
+        shutil.copytree(paths.MEDIA, out / "media", ignore=shutil.ignore_patterns(".git"))
+    stubs: dict[str, str] = {}
+    for name in ("redirects.yaml", "wp-uploads-redirects.yaml"):  # the second is generated
+        if (data / name).is_file():
+            stubs |= redirects.load(data / name)
+    write_stubs(env, stubs, out)
     write_sitemap(sitemap, out)
 
 

@@ -37,6 +37,7 @@ SITE_HOSTS = {"andbible.org", "www.andbible.org", "andbibleorg.wordpress.com"}
 # Page slug -> output page name. Pages not listed are covered by redirects or generated pages.
 PAGES = {"privacy": "privacy", "terms": "terms", "gpl": "gpl", "tracking": "tracking",
          "printable-promotional-material": "flyers"}
+UPLOAD_REDIRECTS = "wp-uploads-redirects.yaml"
 SKIPPED_PAGES = {"about", "blog", "tutorial-videos", "sponsor-andbible-financially", "failed-orders"}
 SUMMARY_WORDS = 30
 _UPLOAD = re.compile(r"/wp-content/uploads/(\d{4}/\d{2}/[^/?#]+)")
@@ -86,7 +87,10 @@ def summary_of(html_text: str, excerpt: str) -> str:
     soup = BeautifulSoup(html_text, "html.parser")
     for junk in soup.find_all(["table", "figure", "iframe", "ol", "sup"]):
         junk.decompose()
-    words = " ".join(p.get_text(" ") for p in soup.find_all(["p", "li"])).split()
+    for nested in soup.select("li ul"):  # their text would otherwise repeat inside the parent li
+        nested.decompose()
+    # No separator inside a block (`<a>x</a>,` must stay "x,"); a space between blocks.
+    words = " ".join(b.get_text() for b in soup.find_all(["p", "li"])).split()
     words = [w for w in words if not youtube.parse(w)]
     text = " ".join(words[:SUMMARY_WORDS])
     return text + ("…" if len(words) > SUMMARY_WORDS else "")
@@ -107,6 +111,7 @@ class MediaResolver:
     media_dir: Path
     used: dict[str, Path] = field(default_factory=dict)  # tar key -> written file
     missing: list[str] = field(default_factory=list)
+    redirects: dict[str, str] = field(default_factory=dict)  # old /wp-content/... path/ -> new URL
 
     def key_for(self, url: str) -> str | None:
         match = _UPLOAD.search(urlparse(url).path)
@@ -131,7 +136,12 @@ class MediaResolver:
             if clash:
                 raise ValueError(f"media name clash: {key} and {clash[0]} both become {out}")
             self.used[key] = out
-        return "/media/" + self.used[key].relative_to(self.media_dir).as_posix()
+        new = "/media/" + self.used[key].relative_to(self.media_dir).as_posix()
+        # Directory-style stubs: GitHub Pages serves a file by extension, so an HTML stub named
+        # image.png would be sent as image/png. `image.png/index.html` is a page.
+        self.redirects[f"/wp-content/uploads/{key}/"] = new
+        self.redirects[f"/wp-content/uploads/{_UPLOAD.search(urlparse(url).path)[1]}/"] = new
+        return new
 
     def image_map(self, src: str) -> str:
         found = self.resolve(src)
@@ -208,7 +218,7 @@ def _url_path(link: str) -> str:
 
 
 def run(wxr: Path, media_tar: Path, content: Path, media_dir: Path, fixture: Path, report_path: Path,
-        fetch_thumbnails: bool = True) -> int:
+        fetch_thumbnails: bool = True, data: Path = paths.DATA) -> int:
     root = ET.parse(wxr).getroot()
     items = root.findall("channel/item")
     attachments = {_text(i, "wp:post_id"): i for i in items if _text(i, "wp:post_type") == "attachment"}
@@ -216,14 +226,13 @@ def run(wxr: Path, media_tar: Path, content: Path, media_dir: Path, fixture: Pat
     report = Report()
     internal: list[tuple[str, str]] = []
     known: set[str] = {"/", "/blog/"}
-    fixture_paths: set[str] = {"/blog/", "/feed/", "/privacy.html", "/terms.html"}
+    fixture_paths: set[str] = {"/blog/", "/feed/", "/about/", "/privacy.html", "/terms.html"}
 
     posts = [i for i in items if _text(i, "wp:post_type") == "post" and _text(i, "wp:status") == "publish"]
     blog_dir = content / "en" / "blog"
     for stale in blog_dir.glob("*.md"):
         stale.unlink()
-    categories: dict[str, int] = {}
-    tags: dict[str, int] = {}
+    taxonomy: dict[str, int] = {}  # archive base URL -> post count
     for item in posts:
         slug = _text(item, "wp:post_name")
         date = _text(item, "wp:post_date")[:10]
@@ -234,9 +243,11 @@ def run(wxr: Path, media_tar: Path, content: Path, media_dir: Path, fixture: Pat
         url_date = "-".join(match.groups())
         title = html.unescape(_text(item, "title")).strip()
         md, cleaned, counts = _convert(item, resolver, f"post:{slug}", report, internal)
-        cats = [html.unescape(c.text or "") for c in item.findall("category") if c.get("domain") == "category"]
-        tagl = [html.unescape(c.text or "") for c in item.findall("category") if c.get("domain") == "post_tag"]
-        cats = [c for c in cats if c != "Uncategorized"]
+        terms = [(c.get("domain"), html.unescape(c.text or ""), c.get("nicename") or taxonomy_slug(c.text or ""))
+                 for c in item.findall("category")]
+        terms = [t for t in terms if t[1] != "Uncategorized"]
+        cats = [n for d, n, _ in terms if d == "category"]
+        tagl = [n for d, n, _ in terms if d == "post_tag"]
         front: dict[str, object] = {"title": title, "date": date, "slug": slug}
         if url_date != date:
             front["url_date"] = url_date
@@ -257,10 +268,11 @@ def run(wxr: Path, media_tar: Path, content: Path, media_dir: Path, fixture: Pat
         report.rows.append({"name": f"{date}-{slug}", **counts})
         known.add(link_path)
         fixture_paths.add(link_path)
-        for c in cats:
-            categories[c] = categories.get(c, 0) + 1
-        for t in tagl:
-            tags[t] = tags.get(t, 0) + 1
+        for d, _, nicename in terms:
+            base = f"/{'tag' if d == 'post_tag' else 'category'}/{nicename}/"
+            taxonomy[base] = taxonomy.get(base, 0) + 1
+        year, month, day = match.groups()
+        fixture_paths.update({f"/{year}/", f"/{year}/{month}/", f"/{year}/{month}/{day}/"})
 
     n_pages = 0
     pages_dir = content / "en" / "pages"
@@ -281,15 +293,14 @@ def run(wxr: Path, media_tar: Path, content: Path, media_dir: Path, fixture: Pat
         known.add(f"/{PAGES[slug]}/")
         n_pages += 1
 
-    for base, count in [(f"/category/{taxonomy_slug(c)}/", n) for c, n in categories.items()] + [
-            (f"/tag/{taxonomy_slug(t)}/", n) for t, n in tags.items()]:
-        known.add(base)
+    for base, count in taxonomy.items():
         fixture_paths.add(base)
         fixture_paths.update(f"{base}page/{n_}/" for n_ in range(2, math.ceil(count / PAGE_SIZE) + 1))
     fixture_paths.update(f"/blog/page/{n}/" for n in range(2, math.ceil(len(posts) / PAGE_SIZE) + 1))
-    known |= {p for p in fixture_paths}
-    redirects = yaml.safe_load((paths.DATA / "redirects.yaml").read_text(encoding="utf-8")) or {}
+    known |= fixture_paths
+    redirects = yaml.safe_load((data / "redirects.yaml").read_text(encoding="utf-8")) or {}
     known |= {k for k in redirects if k != "pending"}
+
     def is_known(path: str) -> bool:
         bare = path.split("#")[0].split("?")[0]
         return bare in known or bare.rstrip("/") + "/" in known  # GitHub Pages adds the slash
@@ -297,20 +308,23 @@ def run(wxr: Path, media_tar: Path, content: Path, media_dir: Path, fixture: Pat
     report.unmapped_links = sorted({(who, p) for who, p in internal if not is_known(p)})
 
     _write(fixture, "\n".join(sorted(fixture_paths)) + "\n")
-    thumbs: list[str] = []
+    _write(data / UPLOAD_REDIRECTS, "# Generated by sitegen.migrate.wxr: old WordPress upload URLs -> media repo files.\n"
+           + yaml.safe_dump(dict(sorted(resolver.redirects.items())), width=10_000))
+    thumbs = (0, 0)
     if fetch_thumbnails:
-        ids = thumbnails.referenced_ids(content, paths.DATA / "videos.yaml")
-        thumbs = thumbnails.fetch(sorted(ids), media_dir)
+        ids = thumbnails.referenced_ids(content, data / "videos.yaml")
+        thumbnails.fetch(sorted(ids), media_dir)
+        thumbs = (len(ids), sum((media_dir / "videos" / f"{i}.webp").is_file() for i in ids))
     _write(report_path, render_report(report, len(posts), n_pages, len(resolver.used), thumbs))
     print(f"{len(posts)} posts, {n_pages} pages, {len(resolver.used)} media files, "
           f"{report.mismatches} count mismatches, {len(report.unmapped_links)} unmapped links")
     return 1 if report.mismatches else 0
 
 
-def render_report(report: Report, posts: int, pages: int, media_files: int, thumbs: list[str]) -> str:
+def render_report(report: Report, posts: int, pages: int, media_files: int, thumbs: tuple[int, int]) -> str:
     out = ["# WordPress migration report", "",
-           f"{posts} posts, {pages} pages, {media_files} media files written, "
-           f"{len(thumbs)} thumbnails fetched, {report.mismatches} count mismatches.", "",
+           f"{posts} posts, {pages} pages, {media_files} media files written. "
+           f"Thumbnails: referenced {thumbs[0]}, present {thumbs[1]}. {report.mismatches} count mismatches.", "",
            "| Item | Images (source/converted) | Embeds (source/converted) | Unmapped images |",
            "|---|---|---|---|"]
     for r in report.rows:

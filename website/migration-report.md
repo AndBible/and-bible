@@ -1,6 +1,6 @@
 # WordPress migration report
 
-52 posts, 5 pages, 75 media files written, 0 thumbnails fetched, 0 count mismatches.
+52 posts, 5 pages, 75 media files written. Thumbnails: referenced 40, present 40. 0 count mismatches.
 
 | Item | Images (source/converted) | Embeds (source/converted) | Unmapped images |
 |---|---|---|---|

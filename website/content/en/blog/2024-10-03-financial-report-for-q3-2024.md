@@ -2,7 +2,7 @@
 title: Financial report for Q3 / 2024
 date: '2024-10-03'
 slug: financial-report-for-q3-2024
-summary: Go-through of this article in video format. Tuomas Airaksinen Consulting , company of the lead developer, is providing a way to sponsor AndBible development. You can support AndBible development financially…
+summary: Go-through of this article in video format. Tuomas Airaksinen Consulting, company of the lead developer, is providing a way to sponsor AndBible development. You can support AndBible development financially via…
 categories:
 - Sponsoring AndBible
 tags:
