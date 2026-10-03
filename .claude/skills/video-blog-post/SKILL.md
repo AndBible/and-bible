@@ -17,9 +17,9 @@ Never push.
    StudyPads, Search & study tools, Sync & backup, Customisation, Developer diaries). Add
    `--docs <page>` only when the video covers a published page in `website/content/en/docs/`
    (never for shorts). Ask only if truly ambiguous.
-3. **Run the helper** (from `website/`; needs network for the title and thumbnail):
+3. **Run the helper** (from `website/`; needs network for the title, publication date and thumbnail):
    `uv run python -m sitegen.newvideo <url> --topic "<T>" --summary "<text>" [--docs P] [--category "New features"]`.
-   A `/shorts/` URL implies a short. It refuses duplicates, bad topics and existing posts.
+   A `/shorts/` URL implies a short. If the date scrape fails, rerun with `--published YYYY-MM-DD`. It refuses duplicates, bad topics and existing posts.
 4. **Flesh out the post.** Read two recent posts in `website/content/en/blog/` first and match the
    plain, friendly voice. Keep the summary paragraph and the bare video URL line; add 1-3 short
    paragraphs, optionally linking `/docs/<page>/`. No `image` (the thumbnail would duplicate it).

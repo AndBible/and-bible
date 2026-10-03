@@ -49,13 +49,15 @@ thumbnail into the media repo.
 ```bash
 cd website && uv run python -m sitegen.newvideo <url-or-id> --topic "Getting started" \
   --summary "One or two sentences." [--title T] [--slug S] [--date YYYY-MM-DD] [--docs PAGE] \
-  [--short] [--category C] [--tag T] [--no-post]
+  [--published YYYY-MM-DD] [--short] [--category C] [--tag T] [--no-post]
 ```
 
-It reads the title from YouTube (unless `--title`), appends a line to `data/videos.yaml`, fetches
+It reads the title from YouTube (unless `--title`) and the publication date from the watch page
+(unless `--published`; if the scrape fails the tool says so and asks for the flag), appends a line to `data/videos.yaml`, fetches
 the thumbnail into the media repo and writes `content/en/blog/<date>-<slug>.md` (no feature image:
 the thumbnail would duplicate it). It refuses a known id, an unknown topic, a `--docs` page that is
-not published, `--docs` on a short, and an existing post. Then extend the post body, commit in the
+not published, `--docs` on a short, and an existing post. `published` is a required catalog field
+(`YYYY-MM-DD`, not in the future); the landing page teases the 3 newest videos by it. Then extend the post body, commit in the
 media repo first, bump the gitlink, and run `make site site-check`. The `video-blog-post` skill
 (`.claude/skills/`) drives this end to end.
 
