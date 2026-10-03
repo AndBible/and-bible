@@ -216,4 +216,3 @@ a.pager__num:hover, a.pager__step:hover { color: var(--accent-ink); border-color
 .video-grid .yt__title { display: block; margin-top: .5rem; font-weight: 600; line-height: 1.3; }
 @media (min-width: 600px) { .video-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 900px) { .video-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.video-grid--shorts { margin-top: 8px; }

@@ -126,3 +126,19 @@ def test_listing_cards_share_one_shape(tmp_path):
     short = html.split('data-yt-id="shortID1234"')[1]
     regular = html.split('data-yt-id="abcDEF12345"')[1].split('data-yt-id="shortID1234"')[0]
     assert 'class="yt__backdrop"' in short and "yt__backdrop" not in regular
+
+
+def test_clip_and_short_share_one_grid_in_catalog_order(tmp_path):
+    from sitegen import home
+    from sitegen.i18n import strings
+    from sitegen.paths import CONTENT
+    from sitegen.videos import render_videos
+
+    text = ("- {id: shortFIRST1, title: S1, topic: Getting started, short: true}\n"
+            "- {id: clipMIDDLE1, title: C1, topic: Getting started}\n"
+            "- {id: shortLAST12, title: S2, topic: Getting started, short: true}\n")
+    render_videos(home.environment(), strings(CONTENT, "en"), load(write(tmp_path, text), set()), tmp_path)
+    html = (tmp_path / "videos" / "index.html").read_text()
+    assert "video-grid--shorts" not in html and html.count('class="video-grid"') == 1
+    grid = html.split('class="video-grid"')[1].split("</section>")[0]
+    assert grid.index("shortFIRST1") < grid.index("clipMIDDLE1") < grid.index("shortLAST12")

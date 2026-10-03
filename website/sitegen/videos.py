@@ -69,16 +69,17 @@ def related(videos: list[Video]) -> dict[str, list[tuple[str, str]]]:
 
 
 def render_videos(env: Environment, strings: dict, videos: list[Video], out: Path) -> list[str]:
-    def embeds(topic: str, short: bool) -> list[Markup]:
-        return [Markup(embed_html(v.id, "short" if short else "video", v.title, card=True))
-                for v in videos if v.topic == topic and v.short == short]
+    def embeds(topic: str) -> list[Markup]:
+        """One ordered list per topic: clips and shorts together, in catalog order."""
+        return [Markup(embed_html(v.id, "short" if v.short else "video", v.title, card=True))
+                for v in videos if v.topic == topic]
 
-    sections = [(topic, embeds(topic, False), embeds(topic, True)) for topic in TOPICS]
+    sections = [(topic, embeds(topic)) for topic in TOPICS]
     page = strings["videos"]
     target = out / "videos" / "index.html"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(env.get_template("videos.html").render(
-        lang="en", prefix="", strings=strings, sections=[s for s in sections if s[1] or s[2]],
+        lang="en", prefix="", strings=strings, sections=[s for s in sections if s[1]],
         title=page["title"], description=page["description"], canonical=f"{BASE_URL}/videos/",
         og_image=f"{BASE_URL}/assets/img/og-default.png", og_type="website"), encoding="utf-8")
     return ["/videos/"]
