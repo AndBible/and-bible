@@ -82,6 +82,8 @@ import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchImeRequest
 import net.bible.sharedui.components.AbTopBarSearchCallbacks
 import net.bible.sharedui.components.AbTopBarSearchState
+import net.bible.sharedui.components.selectionStateSemantics
+import net.bible.sharedui.components.toggleStateSemantics
 import net.bible.sharedui.search.styledTextToAnnotatedString
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
@@ -378,7 +380,7 @@ private fun LabelItemRow(
                 // Filled vs HOLLOW, not filled vs Material's "outlined" bolt -- Icons.Outlined.Bolt
                 // is the same solid silhouette, so the off state was a tint change and read as no
                 // state at all (AbIcons.BoltOutline exists for exactly this).
-                IconButton(onClick = { onToggleAutoAssign(label.id) }, modifier = Modifier.size(TrailingSlotSize)) {
+                IconButton(onClick = { onToggleAutoAssign(label.id) }, modifier = Modifier.size(TrailingSlotSize).toggleStateSemantics(row.isAutoAssign)) {
                     Icon(
                         if (row.isAutoAssign) Icons.Filled.Bolt else AbIcons.BoltOutline,
                         contentDescription = strings.autoAssignLabelSwitchLabel,
@@ -390,7 +392,7 @@ private fun LabelItemRow(
                         modifier = Modifier.size(TrailingIconSize),
                     )
                 }
-                IconButton(onClick = { onToggleFavourite(label.id) }, modifier = Modifier.size(TrailingSlotSize)) {
+                IconButton(onClick = { onToggleFavourite(label.id) }, modifier = Modifier.size(TrailingSlotSize).toggleStateSemantics(label.favourite)) {
                     Icon(
                         if (label.favourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = strings.favouriteLabelSwitchLabel,
@@ -407,7 +409,7 @@ private fun LabelItemRow(
 
         if (mode.primaryShown) {
             if (row.checked) {
-                IconButton(onClick = { onSetPrimary(label.id) }, modifier = Modifier.size(TrailingSlotSize)) {
+                IconButton(onClick = { onSetPrimary(label.id) }, modifier = Modifier.size(TrailingSlotSize).selectionStateSemantics(row.isPrimary)) {
                     Icon(
                         if (row.isPrimary) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
                         contentDescription = strings.primaryLabelSwitchLabel,

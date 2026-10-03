@@ -59,6 +59,7 @@ import net.bible.sharedui.components.AbExpandableSection
 import net.bible.sharedui.components.AbIcons
 import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSwitchRow
+import net.bible.sharedui.components.toggleStateSemantics
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.strings.Strings
 import net.bible.sharedui.theme.LocalDisplayColorMode
@@ -182,7 +183,7 @@ fun LabelEditScreen(
                     // The heart's own click toggles favourite; only the rest of the row opens the
                     // sheet. A single combined target would make "mark as favourite" and "edit the
                     // name" the same gesture.
-                    IconButton(onClick = onToggleFavourite) {
+                    IconButton(onClick = onToggleFavourite, modifier = Modifier.toggleStateSemantics(state.favourite)) {
                         Icon(
                             if (state.favourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                             contentDescription = strings.favouriteLabelSwitchLabel,

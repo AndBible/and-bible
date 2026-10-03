@@ -67,6 +67,7 @@ import net.bible.sharedui.components.AbScaffold
 import net.bible.sharedui.components.AbSearchablePicker
 import net.bible.sharedui.components.AbSwitchRow
 import net.bible.sharedui.components.TwoLineListItem
+import net.bible.sharedui.components.selectionStateSemantics
 import net.bible.sharedui.strings.LocalStrings
 import androidx.compose.foundation.lazy.rememberLazyListState
 import net.bible.sharedui.components.volumeScrollTarget
@@ -208,7 +209,7 @@ private fun ModelRow(
 ) {
     val strings = LocalStrings.current
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = onSetDefault, enabled = !model.isDefault) {
+        IconButton(onClick = onSetDefault, enabled = !model.isDefault, modifier = Modifier.selectionStateSemantics(model.isDefault)) {
             Icon(
                 Icons.Filled.Star,
                 contentDescription = strings.modelSetDefault,

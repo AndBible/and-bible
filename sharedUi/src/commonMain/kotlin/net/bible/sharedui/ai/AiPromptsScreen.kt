@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import net.bible.sharedui.components.toggleStateSemantics
 import net.bible.sharedui.components.volumeScrollTarget
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
@@ -456,7 +457,7 @@ fun AiPromptsScreen(
  *  a constraint the user cannot see is indistinguishable from missing data. */
 @Composable
 private fun FilterAction(active: Boolean, contentDescription: String, onClick: () -> Unit) {
-    IconButton(onClick = onClick) {
+    IconButton(onClick = onClick, modifier = Modifier.toggleStateSemantics(active)) {
         Icon(
             if (active) Icons.Filled.FilterAlt else Icons.Filled.FilterAltOff,
             contentDescription = contentDescription,
@@ -709,7 +710,7 @@ private fun PromptRow(
         listOfNotNull(type, targets).joinToString(" · ")
     }
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = onToggleFavorite) {
+        IconButton(onClick = onToggleFavorite, modifier = Modifier.toggleStateSemantics(prompt.isFavorite)) {
             Icon(
                 if (prompt.isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,
                 contentDescription = if (prompt.isFavorite) strings.promptFavoriteRemove else strings.promptFavoriteAdd,

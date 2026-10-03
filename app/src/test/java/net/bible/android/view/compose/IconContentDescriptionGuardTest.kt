@@ -42,6 +42,19 @@ class IconContentDescriptionGuardTest {
             if (nonNull && !call.contains("contentDescription")) "$path:${lineOf(src, m.range.first)}" else null
         }.toList()
 
+    /**
+     * F98: an `IconButton` whose glyph or tint follows a state (`if (…) Icons.… else …`, `tint = if (…)`)
+     * but exposes no state semantics: TalkBack reads its label and never "on"/"off".
+     */
+    internal fun stateOnlyIconButtons(path: String, src: String): List<String> =
+        Regex("""IconButton\s*\(""").findAll(src).mapNotNull { m ->
+            val body = blockAfter(src, m.range.last) ?: return@mapNotNull null
+            val swaps = Regex("""\bif\s*\([^)]*\)\s*(Ab)?Icons\.""").containsMatchIn(body) ||
+                Regex("""tint\s*=\s*if\s*\(""").containsMatchIn(body)
+            val stated = Regex("""toggleStateSemantics|selectionStateSemantics|toggleableState|stateDescription|\bselected\s*=|\.toggleable\(|\.selectable\(""").containsMatchIn(body)
+            if (swaps && !stated) "$path:${lineOf(src, m.range.first)}" else null
+        }.toList()
+
     /** Index of the bracket closing the one at [open] (same kind), or -1. */
     private fun matching(src: String, open: Int): Int {
         val o = src[open]; val c = if (o == '(') ')' else '}'
@@ -70,7 +83,7 @@ class IconContentDescriptionGuardTest {
 
     private fun offenders(files: List<File>) = files.filter { it.extension == "kt" }.flatMap { f ->
         val src = f.readText(); val rel = f.path.substringAfter("kotlin/").substringAfter("java/")
-        (unlabelledIconButtons(rel, src) + doubleToggleNodes(rel, src))
+        (unlabelledIconButtons(rel, src) + doubleToggleNodes(rel, src) + stateOnlyIconButtons(rel, src))
     }.filter { o -> allow.none { o.startsWith(it.substringBefore(':')) && o.endsWith(":" + it.substringAfter(':')) } }
 
     @Test fun everyIconOnlyControlIsLabelled() = assertEquals(emptyList<String>(), offenders(roots.flatMap { it.walkTopDown().toList() }))
@@ -80,6 +93,9 @@ class IconContentDescriptionGuardTest {
     @Test fun aLabelledIconIsAccepted() = assertEquals(0, unlabelledIconButtons("p", "IconButton(onClick = {}) { Icon(if (a) X else Y, contentDescription = s.menu) }").size)
     @Test fun theDoubleToggleProbeCanFail() = assertEquals(1, doubleToggleNodes("p", "Row(Modifier.clickable {}) { Checkbox(checked = v, onCheckedChange = { x() }) }").size)
     @Test fun theDoubleToggleProbeAcceptsTheMergedForm() = assertEquals(0, doubleToggleNodes("p", "Row(Modifier.toggleable(v, onValueChange = {})) { Checkbox(checked = v, onCheckedChange = null) }").size)
+    @Test fun theStateProbeCanFail() = assertEquals(1, stateOnlyIconButtons("p", "IconButton(onClick = {}) { Icon(if (on) Icons.Filled.Bolt else AbIcons.BoltOutline, contentDescription = s.x) }").size)
+    @Test fun theStateProbeSeesATintSwap() = assertEquals(1, stateOnlyIconButtons("p", "IconButton(onClick = {}) { Icon(Icons.Filled.Star, contentDescription = s.x, tint = if (on) a else b) }").size)
+    @Test fun theStateProbeAcceptsStateSemantics() = assertEquals(0, stateOnlyIconButtons("p", "IconButton(onClick = {}, modifier = Modifier.toggleStateSemantics(on)) { Icon(if (on) Icons.Filled.Bolt else AbIcons.BoltOutline, contentDescription = s.x) }").size)
 
     /** F116: a user-facing label must come from Strings, never a string literal (interpolations are allowed). */
     internal fun literalLabels(path: String, src: String): List<String> {
