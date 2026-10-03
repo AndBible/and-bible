@@ -12,13 +12,13 @@ Static site generator for the AndBible website, built with Python and Jinja2.
 
 The `website/tests/*.mjs` scripts drive a headless Chromium against the built site served on
 http://localhost:8000/ (`make site` then `python3 -m http.server 8000 --directory website/_site`). In a jailbee container the golden image has it
-pre-installed (`.jailbee/install.d/97-playwright.sh`: `NODE_PATH` and `CHROME` are exported in login shells), so
+pre-installed (`.jailbee/install.d/97-playwright.sh`: `NODE_PATH` and `CHROME` are exported in login shells; `CHROME` is the container's Google Chrome, `/opt/google/chrome/chrome`, when present), so
 skip the setup. Otherwise, once per
 checkout (`.local/` is git-ignored and shared between host and container):
 
 ```bash
 mkdir -p .local/playwright && (cd .local/playwright && npm install playwright@1.60)
-npx playwright install chromium-headless-shell   # browser lands in ~/.cache/ms-playwright
+npx playwright install chromium-headless-shell   # browser lands in ~/.cache/ms-playwright (skip if /opt/google/chrome/chrome exists)
 ```
 
 Run a script:
