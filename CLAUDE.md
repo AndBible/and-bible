@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-@./ai-local/CLAUDE.md
+@docs/superpowers/CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -55,7 +55,6 @@ npm run build-production # Production build
 
 **Android Gradle Build**
 ```bash
-# IMPORTANT: All Gradle commands require dangerouslyDisableSandbox: true (Gradle daemon does not work in sandbox)
 ./gradlew assembleStandardGithubDebug     # Debug build
 ./gradlew assembleStandardGithubRelease   # Release build
 ./gradlew testStandardGoogleplayDebug     # Unit tests
