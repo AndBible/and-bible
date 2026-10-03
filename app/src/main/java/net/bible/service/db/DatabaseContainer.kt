@@ -402,8 +402,9 @@ class DatabaseContainer {
          * Failure-path variant of [reset]: closes only an instance that already exists. [reset] goes through
          * the `instance` getter, which BUILDS a container (open, migrate, backup) when `_instance` is null,
          * just to close it; a restore whose migration threw would then throw again from its own cleanup.
+         * Also the old monolithic restore's close before its snapshot (F120).
          */
-        private fun dropInstanceWithoutOpening() {
+        internal fun dropInstanceWithoutOpening() {
             synchronized(this) {
                 try {
                     _instance?.closeAll()

@@ -299,59 +299,14 @@ object BackupControl {
     /** The old (pre-split, version <= [OLD_DATABASE_VERSION]) single-file database, gzipped or not. */
     @VisibleForTesting
     internal suspend fun restoreOldMonolithicDatabase(inputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
-        val fileName = OLD_MONOLITHIC_DATABASE_NAME
         internalDbBackupDir.mkdirs()
-        val tmpFile = File(internalDbBackupDir, fileName)
-        var ok = false
-        val header = ByteArray(2)
-        val gzHeaderBytes = byteArrayOf(0x1f.toByte(), 0x8b.toByte())
-
-        val bufferedInputStream = BufferedInputStream(inputStream)
-        bufferedInputStream.mark(2)
-        bufferedInputStream.read(header)
-        bufferedInputStream.reset()
-
-        val input = if(header.contentEquals(gzHeaderBytes)) {
-            GZIPInputStream(bufferedInputStream)
-        } else {
-            bufferedInputStream
+        val tmpFile = File(internalDbBackupDir, OLD_MONOLITHIC_DATABASE_NAME)
+        try {
+            if (!unpackOldMonolithicDatabase(inputStream, tmpFile)) return@withContext false
+            reloadingAfterReplace { DatabaseContainer.replacingDatabases { swapInOldMonolithicDatabase(tmpFile) } }
+        } finally {
+            tmpFile.delete()
         }
-
-        input.use {inputStream ->
-            val dbHeader = ByteArray(16)
-            inputStream.read(dbHeader)
-            if(String(dbHeader) == "SQLite format 3\u0000") {
-                val out = FileOutputStream(tmpFile)
-                withContext(Dispatchers.IO) {
-                    out.use {
-                        out.write(dbHeader)
-                        inputStream.copyTo(out)
-                    }
-                    val version = readDatabaseVersion(tmpFile)
-                    if(version <= OLD_DATABASE_VERSION) {
-                        Log.i(TAG, "Loading from backup database with version $version")
-                        reloadingAfterReplace {
-                            DatabaseContainer.replacingDatabases {
-                                for (def in SyncableDatabaseDefinition.ALL) {
-                                    beforeRestore(def)
-                                }
-                                DatabaseContainer.reset()
-                                // When restoring old style db, we need to remove all databases first
-                                deleteAllDatabases()
-                                ok = copyStagedDatabase(File(internalDbBackupDir, fileName), File(internalDbDir, fileName))
-                                if(DatabaseContainer.ready) {
-                                    DatabaseContainer.instance // initialize (migrate etc)
-                                    afterRestore()
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        tmpFile.delete()
-
-        return@withContext ok
     }
 
     /**
@@ -367,9 +322,92 @@ object BackupControl {
     @VisibleForTesting
     internal var copyStagedDatabase: (File, File) -> Boolean = { from, to -> FileManager.copyFile(from, to) }
 
-    fun deleteAllDatabases() {
-        application.databaseList().forEach { name ->
-            application.deleteDatabase(name)
+    /** Unpacks [inputStream] (gunzipping it if needed) into [target]; true only for SQLite of version <= [OLD_DATABASE_VERSION]. */
+    private fun unpackOldMonolithicDatabase(inputStream: InputStream, target: File): Boolean {
+        val buffered = BufferedInputStream(inputStream)
+        val header = ByteArray(2)
+        buffered.mark(2); buffered.read(header); buffered.reset()
+        val input = if (header.contentEquals(byteArrayOf(0x1f.toByte(), 0x8b.toByte()))) GZIPInputStream(buffered) else buffered
+        input.use { stream ->
+            val dbHeader = ByteArray(16)
+            stream.read(dbHeader)
+            if (String(dbHeader) != "SQLite format 3\u0000") return false
+            FileOutputStream(target).use { out -> out.write(dbHeader); stream.copyTo(out) }
+        }
+        val version = readDatabaseVersion(target)
+        Log.i(TAG, "Old monolithic backup database, version $version")
+        return version <= OLD_DATABASE_VERSION
+    }
+
+    /** F120's snapshot: a SIBLING of [internalDbDir], because `Context.databaseList()` lists subdirectories too. */
+    private val restoreRollbackDir: File get() = File(internalDbDir.parentFile, "db-restore-rollback")
+
+    /**
+     * F120. Puts the validated old database [validated] in place of the current databases. Those are moved
+     * aside first and moved back if the copy, the rename or the migration fails, so a failure returns false
+     * with the user's data untouched. Runs inside [DatabaseContainer.replacingDatabases].
+     */
+    private suspend fun swapInOldMonolithicDatabase(validated: File): Boolean {
+        for (def in SyncableDatabaseDefinition.ALL) beforeRestore(def)
+        // Not reset(): with no open instance, reset() BUILDS a container (open, migrate) just to close it,
+        // which touches the files about to be snapshotted and runs containerFactory too early.
+        DatabaseContainer.dropInstanceWithoutOpening()
+        val rollbackDir = restoreRollbackDir
+        if (rollbackDir.exists()) {
+            // An earlier restore died before cleaning up; its snapshot may be the user's only copy.
+            val aside = File(rollbackDir.parentFile, "${rollbackDir.name}-${System.currentTimeMillis()}")
+            if (!rollbackDir.renameTo(aside)) {
+                Log.e(TAG, "F120: cannot move the leftover $rollbackDir aside; restore aborted")
+                return false
+            }
+        }
+        if (!moveAllFiles(internalDbDir, rollbackDir)) {
+            Log.e(TAG, "F120: could not move the current databases aside; nothing changed")
+            rollbackDir.delete()
+            return false
+        }
+        val ok = try {
+            val staged = File(internalDbDir, "$OLD_MONOLITHIC_DATABASE_NAME.staging")
+            val placed = copyStagedDatabase(validated, staged) &&
+                staged.length() == validated.length() &&
+                staged.renameTo(File(internalDbDir, OLD_MONOLITHIC_DATABASE_NAME))
+            if (placed && DatabaseContainer.ready) DatabaseContainer.instance // opens, and migrates the old file
+            placed
+        } catch (e: Exception) {
+            Log.e(TAG, "F120: old monolithic restore failed", e)
+            false
+        }
+        if (!ok) {
+            rollBackOldMonolithicRestore(rollbackDir)
+            return false
+        }
+        rollbackDir.deleteRecursively()
+        if (DatabaseContainer.ready) afterRestore()
+        return true
+    }
+
+    /** Moves every file of [from] into [to]. On a failed move, puts back the ones already moved and returns false. */
+    private fun moveAllFiles(from: File, to: File): Boolean {
+        to.mkdirs()
+        val moved = mutableListOf<File>()
+        for (f in from.listFiles().orEmpty().filter { it.isFile }) {
+            val target = File(to, f.name)
+            if (!f.renameTo(target)) {
+                moved.forEach { it.renameTo(File(from, it.name)) }
+                return false
+            }
+            moved += target
+        }
+        return true
+    }
+
+    /** Deletes whatever the failed attempt created and moves the snapshot back; keeps the snapshot if that fails. */
+    private fun rollBackOldMonolithicRestore(rollbackDir: File) {
+        internalDbDir.listFiles().orEmpty().filter { it.isFile }.forEach { it.delete() }
+        if (moveAllFiles(rollbackDir, internalDbDir)) {
+            rollbackDir.deleteRecursively()
+        } else {
+            Log.e(TAG, "F120: could not move the pre-restore databases back; they are kept in $rollbackDir")
         }
     }
 
