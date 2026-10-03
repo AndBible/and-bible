@@ -24,6 +24,13 @@ with a `Check:` line; do not continue until it holds. Commands run from the repo
    committed gitlink. For each one, check for unpushed commits, for example
    `git -C docs/superpowers log --oneline @{u}..` (if no upstream is configured, compare with
    `git -C docs/superpowers ls-remote origin`).
+   Remote note: `and-bible` itself pushes over SSH (`git@github.com:AndBible/and-bible.git`), but all
+   three submodules (goldens, `docs/superpowers`, `website/media`) have https `origin` URLs, and
+   `make push` pushes to whatever `origin` is. If an https push asks for credentials or fails, either
+   switch the push URL to SSH (YubiKey touch), e.g.
+   `git -C website/media remote set-url --push origin git@github.com:AndBible/andbible-website-media.git`
+   (same for the other two), or run `gh auth setup-git`. The `ls-remote` checks below work
+   unauthenticated for public repos (`docs/superpowers` is private and needs auth).
 2. **First push of the media repo only**, before anything else:
    `git -C website/media push origin HEAD:master`
    Without this, `make push` would push the submodule to a branch named `homepage`, which would
@@ -40,6 +47,9 @@ at the same SHA as `git -C website/media rev-parse HEAD`, and `git ls-remote ori
 matches `git rev-parse HEAD`.
 
 ## 2. Merge to `current-stable`
+
+Tip: do the Pages setting of step 3 (Source = "GitHub Actions") before merging; it is a repo setting
+independent of the merge, and it avoids one red `deploy` run.
 
 Open a PR from `homepage` to `current-stable` and merge it. The `Website` workflow
 (`.github/workflows/website.yml`) runs on the PR (job `check`); on the push to `current-stable` it
@@ -82,6 +92,8 @@ and-bible.
 1. Generate (or refresh) the stubs. The container already produced them in
    `.local/docs-redirect-site/` (shared with the host). To regenerate:
    `cd website && uv run python -m sitegen.migrate.docs_stubs --out <checkout of AndBible/docs>`.
+   **Warning:** the generator deletes everything in `--out` except `.git`. On `main` this removes the RST
+   sources, which is safe only after the `rtd-final` tag (step 2 below) is pushed.
    The generator rewrites the stubs, `404.html`, `index.html`, `README.md` (points readers to
    andbible.org/docs and the monorepo) and `CNAME` (`docs.andbible.org`), and keeps the `.git`
    directory of the target.
@@ -111,7 +123,7 @@ Include at least:
 - a `/category/...` and a `/tag/...` URL from the list
 - `/feed/` (RSS)
 - `/privacy.html`
-- `/tutorial-videos/` (redirects to `/videos/`)
+- `/tutorial-videos/` (redirects to `/videos/`; it comes from `data/redirects.yaml`, not `wp_urls.txt`)
 - `/printable-promotional-material/`
 - `/sponsor-andbible-financially/`, and the bare no-slash form `/sponsor-andbible-financially`:
   only the directory stub exists, so the no-slash form relies on GitHub Pages' automatic redirect
@@ -121,7 +133,9 @@ Include at least:
 - `/blog/page/2/`
 - docs deep links: `https://docs.andbible.org/en/latest/ai.html#setting-permissions`,
   `https://docs.andbible.org/en/latest/releases/release_5_0.html`,
-  `https://docs.andbible.org/en/stable/windows.html`
+  `https://docs.andbible.org/en/stable/windows.html` (no stub exists for it: it is served by
+  `404.html`, so GitHub Pages returns HTTP 404 and `curl -I` shows 404, but the browser lands on
+  `/docs/windows/` with the hash)
 
 Check: all open without a 404 and with the expected target (anchors preserved for the docs links).
 Then do step 0's app release.
