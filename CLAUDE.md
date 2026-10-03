@@ -129,6 +129,15 @@ Only run Android builds when testing Android-specific integration.
 - `app/bibleview-js/vite.config.mts`: Vue.js build configuration using Vite
 - `app/bibleview-js/package.json`: Vue.js dependencies and build scripts
 
+## Golden screenshots and process docs (submodules)
+
+- Roborazzi goldens live in `AndBible/and-bible-goldens`, checked out at
+  `app/src/test/roborazzi` (`git submodule update --init`). Blessing goldens is two commits:
+  record, commit the PNGs **inside** the submodule, then commit the gitlink bump here.
+- Specs, plans and history live in the private `AndBible/and-bible-superpowers`, mounted at
+  `docs/superpowers` with `update = none` (CI and contributors skip it). Fetch it with
+  `git submodule update --init --checkout docs/superpowers`.
+
 ## Code Documentation
 
 Add KDoc/Javadoc-style documentation to new classes, functions, and methods when it provides value beyond what the name already conveys. If the name is self-explanatory, documentation is unnecessary. However, explanatory documentation is valuable and expected for complex logic, non-obvious behavior, and larger components.
