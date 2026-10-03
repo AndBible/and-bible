@@ -95,6 +95,17 @@ accrescent-debug:
 # refuses the final push if any gitlink (jsword included) is unpushed.
 PUSH_SUBMODULES := app/src/test/roborazzi docs/superpowers
 
+# andbible.org (website/): build into website/_site, then check it. CI runs both.
+site:
+	cd website && uv run python -m sitegen.build
+
+site-check:
+	cd website && uv run python -m sitegen.check && uv run pytest
+
+# Preview the built site at http://localhost:8000/
+site-serve:
+	cd website/_site && python3 -m http.server 8000
+
 push:
 	@set -e; \
 	branch=$$(git symbolic-ref --short HEAD) || { echo "push: detached HEAD" >&2; exit 1; }; \
@@ -109,4 +120,4 @@ push:
 	echo "push: and-bible ($$branch)"; \
 	git push --recurse-submodules=check -u origin "$$branch"
 
-.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug push
+.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-serve push
