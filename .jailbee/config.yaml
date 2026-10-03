@@ -183,21 +183,17 @@ golden:
 # Autostart
 # ---------------------------------------------------------------------------
 
-# Point Claude Code's per-project memory at docs/superpowers/memory (private
-# submodule). Skips harmlessly when the submodule is not checked out; the
-# checkout itself is jailbee's own submodule support, not an autostart step.
+# No autostart steps. The docs/superpowers checkout is jailbee's own submodule
+# support, and its memory index reaches Claude through an @import in
+# docs/superpowers/CLAUDE.md, so no per-project memory symlink is needed.
 #
-# Further steps you could add, e.g. a one-time Vue.js install:
-#   - stage: bibleview-install
-#     network: loose
-#     steps:
-#       - name: npm-install
-#         run: "npm install"
-#         working_dir: app/bibleview-js
-autostart:
-  step_timeout: 600
-  on_create:
-    - stage: memory
-      steps:
-        - name: link-memory
-          run: ".jailbee/link-memory.sh || true"
+# Steps you could add, e.g. a one-time Vue.js install:
+# autostart:
+#   step_timeout: 600
+#   on_create:
+#     - stage: bibleview-install
+#       network: loose
+#       steps:
+#         - name: npm-install
+#           run: "npm install"
+#           working_dir: app/bibleview-js
