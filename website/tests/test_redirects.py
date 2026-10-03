@@ -74,3 +74,9 @@ def test_build_writes_upload_stubs_and_copies_media(tmp_path, monkeypatch):
     build.build(tmp_path / "content", out, data, docs=False)
     assert (out / "wp-content/uploads/2024/01/A.png/index.html").is_file()
     assert (out / "media/blog/a.webp").is_file() and not (out / "media/.git").exists()
+
+
+def test_noindex_can_be_disabled():
+    from sitegen.redirects import stub_html
+    assert "noindex" not in stub_html(environment(), "https://andbible.org/docs/", noindex=False)
+    assert "noindex" in stub_html(environment(), "https://andbible.org/docs/")

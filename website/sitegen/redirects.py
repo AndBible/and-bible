@@ -24,8 +24,8 @@ def _file_for(out: Path, path: str) -> Path:
     return out / rel / "index.html" if path.endswith("/") else out / rel
 
 
-def stub_html(env: Environment, target: str) -> str:
-    return env.get_template("redirect.html").render(target=target)
+def stub_html(env: Environment, target: str, noindex: bool = True) -> str:
+    return env.get_template("redirect.html").render(target=target, noindex=noindex)
 
 
 def write_stubs(env: Environment, mapping: dict[str, str], out: Path) -> None:

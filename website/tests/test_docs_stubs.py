@@ -65,22 +65,59 @@ def test_old_app_deep_links_resolve(tmp_path):
     assert 'id="setting-permissions"' in (paths.SITE / "docs" / "ai" / "index.html").read_text()
 
 
-@pytest.mark.skipif(shutil.which("node") is None, reason="node not installed")
-@pytest.mark.parametrize("path, hash_, expected", [
-    ("/en/stable/ai.html", "#setting-permissions", "https://andbible.org/docs/ai/#setting-permissions"),
-    ("/en/latest/ai.html", "", "https://andbible.org/docs/ai/"),
-    ("/en/v5.0/customisation/custom_css.html", "", "https://andbible.org/docs/customisation/custom_css/"),
-    ("/en/stable/customisation/index.html", "", "https://andbible.org/docs/customisation/"),
-    ("/en/stable/releases/release_5_0.html", "#x", "https://andbible.org/docs/releases/release_5_0/#x"),
-    ("/en/stable/index.html", "", "https://andbible.org/docs/"),
-    ("/en/stable/unknown.html", "#x", "https://andbible.org/docs/#x"),
-    ("/en/stable/", "", "https://andbible.org/docs/"),
-    ("/something/else", "", "https://andbible.org/docs/"),
-])
-def test_404_script_matches_python_mapping(tmp_path, path, hash_, expected):
-    run(tmp_path)
-    script = re.search(r"<script>(.*?)</script>", (tmp_path / "404.html").read_text(), re.DOTALL).group(1)
+@pytest.fixture(scope="module")
+def stub_site(tmp_path_factory):
+    out = tmp_path_factory.mktemp("stubs")
+    run(out)
+    return out
+
+
+def js_target(site, path, hash_=""):
+    script = re.search(r"<script>(.*?)</script>", (site / "404.html").read_text(), re.DOTALL).group(1)
     driver = (f"var location={{pathname:{json.dumps(path)},hash:{json.dumps(hash_)},"
               "replace:function(u){console.log(u)}};") + script
-    out = subprocess.run(["node", "-e", driver], check=True, capture_output=True, text=True).stdout.strip()
-    assert out == expected
+    return subprocess.run(["node", "-e", driver], check=True, capture_output=True, text=True).stdout.strip()
+
+
+EXTRA = ["en/stable/releases/", "en/stable/releases", "en/latest/releases/", "en/stable/customisation/",
+         "en/stable/customisation/custom_css/", "en/stable/customisation/index.html", "en/v5.0/ai.html",
+         "en/latest/AI.html", "en/latest/ai/", "en/latest/Customisation/Custom_CSS.html", "en/stable/unknown.html",
+         "en/stable/nodir/index.html", "en/stable/", "en/latest/index.html"]
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node not installed")
+@pytest.mark.parametrize("line", FIXTURE.read_text().split() + EXTRA)
+def test_404_script_matches_python_mapping(stub_site, line):
+    old = re.sub(r"^en/[^/]+/", "", line)
+    expected = "https://andbible.org" + new_path(old, legacy_pages())
+    assert js_target(stub_site, "/" + line, "#x") == expected + "#x"
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node not installed")
+def test_404_non_docs_path_goes_to_root(stub_site):
+    assert js_target(stub_site, "/something/else") == "https://andbible.org/docs/"
+
+
+@pytest.mark.parametrize("old, new", [("releases/", "/docs/releases/"), ("AI.html", "/docs/ai/"),
+                                      ("ai/", "/docs/ai/"), ("customisation/", "/docs/customisation/")])
+def test_new_path_tolerates_case_and_trailing_slash(old, new):
+    assert new_path(old, legacy_pages()) == new
+
+
+def test_generate_keeps_git_and_removes_stale_files(tmp_path):
+    (tmp_path / ".git").mkdir()
+    (tmp_path / ".git" / "config").write_text("[core]\n")
+    (tmp_path / "stale.html").write_text("old")
+    (tmp_path / "en" / "old").mkdir(parents=True)
+    (tmp_path / "en" / "old" / "x.html").write_text("old")
+    run(tmp_path)
+    assert (tmp_path / ".git" / "config").read_text() == "[core]\n"
+    assert not (tmp_path / "stale.html").exists()
+    assert not (tmp_path / "en" / "old").exists()
+    assert (tmp_path / "CNAME").is_file()
+
+
+def test_noindex_only_on_404_not_on_stubs(stub_site):
+    assert "noindex" not in (stub_site / "en/latest/ai.html").read_text()
+    assert "noindex" not in (stub_site / "index.html").read_text()
+    assert 'content="noindex"' in (stub_site / "404.html").read_text()

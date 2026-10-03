@@ -37,12 +37,15 @@ NOT_FOUND = """<!doctype html>
 <meta http-equiv="refresh" content="0; url=https://andbible.org/docs/">
 <script>
   var known = __PAGES__;
-  var m = location.pathname.match(/^\\/en\\/[^/]+\\/(.+?)(?:\\.html)?$/);
+  var m = location.pathname.match(/^\\/en\\/[^/]+\\/(.+?)(?:\\.html)?\\/?$/);
   var page = "";
-  if (m && m[1] !== "index") {
-    var stem = m[1].replace(/\\/index$/, "/");
-    var key = stem.endsWith("/") ? stem + "index" : stem;
-    if (known.indexOf(key) >= 0) page = stem.endsWith("/") ? stem : stem + "/";
+  if (m) {
+    var stem = m[1].toLowerCase();
+    if (stem !== "index") {
+      if (known.indexOf(stem) < 0 && known.indexOf(stem + "/index") >= 0) stem += "/index";
+      if (known.indexOf(stem) >= 0) page = stem.replace(/(^|\\/)index$/, "");
+      if (page !== "") page += "/";
+    }
   }
   location.replace("https://andbible.org/docs/" + page + location.hash);
 </script>
@@ -63,21 +66,26 @@ def legacy_pages() -> set[str]:
 def new_path(old: str, pages: set[str]) -> str:
     """Site path of the new page for a legacy path relative to ``en/<version>/``.
 
-    ``x.html`` -> ``/docs/x/``; ``d/y.html`` keeps the sub-path; ``d/index.html`` -> ``/docs/d/``;
-    ``index.html`` or an empty path -> ``/docs/``. An unknown page falls back to the docs root.
+    Case-insensitive; ``.html`` and a trailing ``/`` are optional. ``x.html`` -> ``/docs/x/``;
+    ``d/y.html`` keeps the sub-path; ``d/index.html`` and ``d/`` -> ``/docs/d/``; ``index.html`` or an
+    empty path -> ``/docs/``. An unknown page falls back to the docs root.
     """
-    stem = old.removesuffix(".html")
-    if stem in ("", "index") or stem not in pages:
+    stem = old.lower().removesuffix("/").removesuffix(".html").removesuffix("/")
+    if stem == "index":
         return "/docs/"
-    if stem.endswith("/index"):
-        return f"/docs/{stem.removesuffix('index')}"
-    return f"/docs/{stem}/"
+    if stem not in pages and f"{stem}/index" in pages:
+        stem += "/index"
+    if not stem or stem not in pages:
+        return "/docs/"
+    return "/docs/" + stem.removesuffix("index") if stem.endswith("/index") else f"/docs/{stem}/"
 
 
 def generate(out: Path) -> int:
-    """Write the stub site into ``out`` (replacing its contents); returns the number of files written."""
+    """Write the stub site into ``out`` (replacing its contents except ``.git``); returns the number of files written."""
     if out.exists():
         for child in out.iterdir():
+            if child.name == ".git":  # out may be a checkout of the redirect repo
+                continue
             shutil.rmtree(child) if child.is_dir() else child.unlink()
     out.mkdir(parents=True, exist_ok=True)
     env = home.environment()
@@ -90,9 +98,9 @@ def generate(out: Path) -> int:
 
     for line in FIXTURE.read_text().split():
         rel = line + "index.html" if line.endswith("/") else line
-        write(rel, redirects.stub_html(env, paths.BASE_URL + new_path(line.removeprefix(PREFIX), pages)))
+        write(rel, redirects.stub_html(env, paths.BASE_URL + new_path(line.removeprefix(PREFIX), pages), noindex=False))
     for rel in ("index.html", "en/index.html", "en/latest/index.html"):
-        write(rel, redirects.stub_html(env, NEW_ROOT))
+        write(rel, redirects.stub_html(env, NEW_ROOT, noindex=False))
     write("404.html", NOT_FOUND.replace("__PAGES__", json.dumps(sorted(pages))))
     write("CNAME", "docs.andbible.org\n")
     write("README.md", README)
