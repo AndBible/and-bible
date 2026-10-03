@@ -59,6 +59,20 @@ not published, `--docs` on a short, and an existing post. Then extend the post b
 media repo first, bump the gitlink, and run `make site site-check`. The `video-blog-post` skill
 (`.claude/skills/`) drives this end to end.
 
+## Landing page reviews
+
+The "What readers say" block on the home page comes from `data/reviews.yaml`, a hand-curated list
+of `{year, text}` entries (validated by `sitegen/reviews.py`; the English strings are in `site.yaml`).
+
+- Rules: only 5-star Google Play reviews, text verbatim (typos included), **no reviewer names**
+  anywhere in the data or the built site, and any cut marked with `…`. Never reword.
+- To refresh: `cd website && uv run python -m sitegen.play_reviews [--min-len 60 --max-len 420 --limit 30]`
+  lists the most helpful 5-star reviews on the console (names shown there are for your reference
+  only). Copy the year and text of the ones you pick into `data/reviews.yaml`; the tool never writes
+  the catalog and the build never calls it (it uses an undocumented Google Play endpoint and fails
+  with a clear message if that changes).
+- Keep an even number of entries that fills the 3-column grid (6 today).
+
 ## Galleries
 
 ```html
