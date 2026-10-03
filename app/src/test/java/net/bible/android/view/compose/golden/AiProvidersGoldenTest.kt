@@ -1,10 +1,10 @@
 package net.bible.android.view.compose.golden
 
-import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.ProviderEditState
 import net.bible.sharedcore.ai.ProviderTypeVd
 import net.bible.sharedcore.ai.ProviderVd
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedui.ai.AiProvidersScreen
 import org.junit.Test
 import org.junit.runner.RunWith

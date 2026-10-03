@@ -17,7 +17,6 @@
 
 package net.bible.service.common
 
-import net.bible.sharedcore.docs.DocsLinks
 import android.Manifest
 import android.app.Activity
 import android.app.Application
@@ -103,6 +102,7 @@ import net.bible.android.database.json
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest

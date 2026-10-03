@@ -37,6 +37,7 @@ import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.android.view.activity.page.buyDevelopmentLink
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
@@ -255,12 +256,12 @@ class CommonUtilsDialogsTest {
     @Test
     fun showHelpDialogPostsACancellableMessage() {
         val activity = activity()
-        CommonUtils.showHelpDialog(activity, R.string.help, R.string.help_search_text2, "search.html")
+        CommonUtils.showHelpDialog(activity, R.string.help, R.string.help_search_text2, DocsLinks.page("search"))
         idle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Message
         assertEquals(application.getString(R.string.help), head.title)
         assertTrue(head.message.startsWith(application.getString(R.string.help_search_text2)))
-        assertTrue(head.message.contains("search.html"))
+        assertTrue(head.message.contains("href=\"https://andbible.org/docs/search/\""))
         assertEquals(application.getString(R.string.okay), head.confirmText)
         assertTrue(head.cancellable)
     }

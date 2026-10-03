@@ -1,9 +1,9 @@
 package net.bible.android.view.compose.golden
 
-import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.AiDocGroupVd
 import net.bible.sharedcore.ai.AiDocVd
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedui.ai.AiDocumentFilterScreen
 import org.junit.Test
 import org.junit.runner.RunWith

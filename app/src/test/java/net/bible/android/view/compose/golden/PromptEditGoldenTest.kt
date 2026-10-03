@@ -1,6 +1,5 @@
 package net.bible.android.view.compose.golden
 
-import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptEditData
@@ -8,6 +7,7 @@ import net.bible.sharedcore.ai.PromptEditTab
 import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.ai.MaxIterationsSheetContent
 import net.bible.sharedui.ai.PromptEditScreen

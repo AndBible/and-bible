@@ -17,7 +17,6 @@
 
 package net.bible.android.view.activity.page
 
-import net.bible.sharedcore.docs.DocsLinks
 import android.content.ClipData
 import android.content.Intent
 import android.util.Log
@@ -62,6 +61,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.common.CommonUtils

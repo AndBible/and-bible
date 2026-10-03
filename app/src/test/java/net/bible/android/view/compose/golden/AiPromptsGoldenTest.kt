@@ -1,11 +1,11 @@
 package net.bible.android.view.compose.golden
 
-import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptGroupVd
 import net.bible.sharedcore.ai.PromptListFilter
 import net.bible.sharedcore.ai.PromptVd
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedui.ai.AiPromptsScreen
 import net.bible.sharedui.ai.PromptFilterSheetContent
 import org.junit.Test

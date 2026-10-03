@@ -16,7 +16,6 @@
  */
 package net.bible.android.view.activity.nav
 
-import net.bible.sharedcore.docs.DocsLinks
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -266,6 +265,7 @@ import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.backup.BackupController
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedui.backup.nav.BackupNavDeps
 import net.bible.sharedui.backup.nav.backupNavGraph
 import android.Manifest

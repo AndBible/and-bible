@@ -1,12 +1,12 @@
 package net.bible.android.view.compose.golden
 
-import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.AiModelsController
 import net.bible.sharedcore.ai.AvailableModelVd
 import net.bible.sharedcore.ai.ModelEditState
 import net.bible.sharedcore.ai.ModelVd
 import net.bible.sharedcore.ai.ProviderVd
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedui.ai.AiModelsScreen
 import org.junit.Test
 import org.junit.runner.RunWith

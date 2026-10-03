@@ -1,11 +1,11 @@
 package net.bible.android.view.compose.golden
 
-import net.bible.sharedcore.docs.DocsLinks
 import net.bible.android.TEST_SDK
 import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermGroupVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedui.ai.GlobalToolPermissionsScreen
 import net.bible.sharedui.ai.ToolPermissionList
 import org.junit.Test

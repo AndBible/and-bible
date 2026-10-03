@@ -20,13 +20,26 @@ def scan(roots):
     return found
 
 
+def unscannable(roots):
+    """Every `DocsLinks.page(` occurrence that `scan` cannot check (multi-line, named or computed args)."""
+    problems = []
+    for root in roots:
+        for kt in sorted(root.rglob("*.kt")):
+            if kt.name == "DocsLinks.kt":
+                continue
+            for number, line in enumerate(kt.read_text(encoding="utf-8").splitlines(), 1):
+                if line.count("DocsLinks.page(") != len(CALL.findall(line)):
+                    problems.append(f"{kt}:{number}: DocsLinks.page call is not a literal one-line call; cannot be checked")
+    return problems
+
+
 def missing(site, links):
     problems = []
     for kt, number, page, anchor in links:
         html = site / "docs" / page / "index.html"
         if not html.is_file():
             problems.append(f"{kt}:{number}: no docs page {page!r}")
-        elif anchor and f'id="{anchor}"' not in html.read_text():
+        elif anchor and f'id="{anchor}"' not in html.read_text(encoding="utf-8"):
             problems.append(f"{kt}:{number}: /docs/{page}/ has no #{anchor}")
     return problems
 
@@ -53,3 +66,20 @@ def test_a_bad_anchor_is_reported(tmp_path):
     kt.write_text('val u = DocsLinks.page("getting_started", "no-such-heading")\n')
     problems = missing(paths.SITE, scan([tmp_path]))
     assert problems == [f"{kt}:1: /docs/getting_started/ has no #no-such-heading"]
+
+
+def test_every_docs_link_call_is_scannable():
+    assert unscannable(ROOTS) == []
+
+
+@pytest.mark.parametrize("source", [
+    'val u = DocsLinks.page(\n    "ai", "no-such")\n',
+    'val u = DocsLinks.page(page = "ai", anchor = "no-such")\n',
+    'val u = DocsLinks.page(name, "no-such")\n',
+    'val u = DocsLinks.page("ai", "x$y")\n',
+])
+def test_an_unscannable_call_is_reported(tmp_path, source):
+    kt = tmp_path / "X.kt"
+    kt.write_text(source)
+    assert len(unscannable([tmp_path])) >= 1
+    assert unscannable([tmp_path])[0].startswith(f"{kt}:1:")
