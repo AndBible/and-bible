@@ -46,3 +46,6 @@ hooks
 objects
 refs
 /.kotlin/
+
+# Local scratch (screenshots etc.), never committed
+.local/

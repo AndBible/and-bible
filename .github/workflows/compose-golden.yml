@@ -10,11 +10,13 @@ on:
       - '**/*.kt'
       - '**/*.kts'
       - 'app/src/test/roborazzi/**'
+      - 'app/src/test/roborazzi'
   pull_request:
     paths:
       - '**/*.kt'
       - '**/*.kts'
       - 'app/src/test/roborazzi/**'
+      - 'app/src/test/roborazzi'
   workflow_dispatch:
 
 permissions:
