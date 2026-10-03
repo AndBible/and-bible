@@ -50,7 +50,7 @@ private fun stripComments(text: String): String {
  * is active, back closes search instead of leaving the screen. The realistic failure mode is not a
  * wrong branch -- each host's branch was reviewed individually -- it is a host that silently has NO
  * routing at all, which is exactly the shape of finding F43 in
- * `docs/compose-ondevice-findings.md`: a feature that shipped because no test exercised its entry
+ * `docs/superpowers/status/compose-ondevice-findings.md`: a feature that shipped because no test exercised its entry
  * point.
  *
  * **Two lists, because a host is no longer always an Activity.** [SEARCH_HOST_FILES] holds the

@@ -23,7 +23,7 @@ import org.junit.Test
 private const val ORANGE = 0xFFFF8000.toInt()
 
 /**
- * The workspace-colour theme is always on (2026-09-18 decision, `docs/compose-port-status.md`
+ * The workspace-colour theme is always on (2026-09-18 decision, `docs/superpowers/status/compose-port-status.md`
  * "Queued -- retire the workspace_color_theme experimental flag"): there is no more master switch,
  * so these cases are no longer on/off pairs. [TOOLBAR_LITERAL_COLOR_FEATURE] is the one flag left --
  * a separate opt-out back to the literal toolbar colour, not decided by this removal.

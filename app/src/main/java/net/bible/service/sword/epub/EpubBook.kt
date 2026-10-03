@@ -182,7 +182,7 @@ fun addEpubBook(epubDir: File) {
     // throwaway lazily-built `SwordBookMetaData` that is then discarded when the real sbmd arrives.
     // A repo-installed EPUB therefore still reads UNDONE regardless of its FTS5 index. That is a
     // real, still-OPEN defect (initialization ORDER, not this hunk); fixing it means reordering that
-    // constructor, which is its own round — see `docs/compose-port-status.md`.
+    // constructor, which is its own round — see `docs/superpowers/status/compose-port-status.md`.
 
     Books.installed().addBook(book)
 }

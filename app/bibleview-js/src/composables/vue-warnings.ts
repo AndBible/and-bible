@@ -46,7 +46,7 @@ export function shouldSuppressVueWarning(msg: string): boolean {
  *
  * Non-suppressed warnings are re-emitted in Vue's own default format so they keep reaching Android
  * logcat unchanged as `bibleview-js: WARNING [Vue warn]: ...` -- that is the only JS diagnostic
- * channel available on-device (see docs/compose-ondevice-findings.md F42).
+ * channel available on-device (see docs/superpowers/status/compose-ondevice-findings.md F42).
  */
 export function installVueWarningFilter(app: App): void {
     const previous = app.config.warnHandler;

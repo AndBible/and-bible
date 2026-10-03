@@ -268,7 +268,7 @@ All entities use `IdType` (UUID-based) for primary keys.
      `AndroidBookmarkDatabaseContract.swift`) — it pins a specific schema version's DDL/identity hash
      byte-exactly and has no migrator for every database, so a schema change on the Android side can
      silently stop cross-platform sync for that table's category until iOS is updated to match (see
-     `docs/history/compose-port-03-rounds-8-17.md`'s "Round 9b — Label style schema migration"
+     `docs/superpowers/history/compose-port-03-rounds-8-17.md`'s "Round 9b — Label style schema migration"
      entry for a worked example of this gate).
 
 ## Troubleshooting

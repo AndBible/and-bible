@@ -70,7 +70,7 @@ private fun strippedSource(path: String): String = stripComments(File(path).read
  * inherently a source scan, not a render test, regardless of what harness is available. The sheet's
  * own chrome (header/back-arrow/close button/title truncation/RTL) and the page-routing wiring have
  * NOT been proven by any test yet -- that is a real, currently-open gap, not an impossible one; see
- * `docs/compose-ondevice-verification-checklist.md`'s "Settings editor bottom sheets" round entry.
+ * `docs/superpowers/status/compose-ondevice-verification-checklist.md`'s "Settings editor bottom sheets" round entry.
  * What remains permanently off-limits, for every harness, is capturing an OPEN `ModalBottomSheet` in
  * Roborazzi -- that hangs the whole `:app` suite -- which is exactly what
  * [noGoldenTestCapturesSettingsEditorSheet] polices.

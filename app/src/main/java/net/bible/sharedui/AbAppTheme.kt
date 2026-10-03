@@ -36,7 +36,7 @@ import org.koin.core.context.GlobalContext
  * The experimental switch that keeps the reading toolbar's LITERAL workspace colour instead of
  * the theme-derived one (§6). Derived is the default (maintainer decision, batch 4b feedback
  * 2026-08-01; made unconditional 2026-09-18 when the former master switch,
- * `workspace_color_theme`, was retired -- see `docs/compose-port-status.md`); this is the opt-out
+ * `workspace_color_theme`, was retired -- see `docs/superpowers/status/compose-port-status.md`); this is the opt-out
  * back to the literal colour, not an opt-in to deriving it.
  */
 const val TOOLBAR_LITERAL_COLOR_FEATURE = "toolbar_literal_color"

@@ -231,7 +231,7 @@ android {
             // TODO(compose-port, REVERT BEFORE MERGE): temporarily ".compose" so this
             //   Compose-port branch's debug build installs alongside a normal ".debug"
             //   build for on-device A/B. Restore to ".debug" before merging. Tracked in
-            //   docs/compose-port-status.md.
+            //   docs/superpowers/status/compose-port-status.md.
             var appSuffix = ".compose"
             val propsFile = rootProject.file("local.properties")
             if (propsFile.exists()) {
