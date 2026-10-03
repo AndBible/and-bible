@@ -8,5 +8,5 @@
 [submodule "docs/superpowers"]
 	path = docs/superpowers
 	url = https://github.com/AndBible/and-bible-superpowers.git
-	update = none
+#	update = none
 	branch = master
