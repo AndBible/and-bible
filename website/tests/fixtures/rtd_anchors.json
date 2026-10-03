@@ -138,6 +138,19 @@
   ],
   "faq": [
     "frequently-asked-questions",
+    "contents",
+    "id9",
+    "id10",
+    "id11",
+    "id12",
+    "id13",
+    "id14",
+    "id15",
+    "id16",
+    "id17",
+    "id18",
+    "id19",
+    "id20",
     "i-can-t-find-esv-any-more-in-downloads-what-s-wrong",
     "please-add-module-x-to-andbible",
     "i-found-a-text-issue-in-a-bible-commentary-module",
@@ -190,6 +203,8 @@
     "id7",
     "workspace-text-options",
     "id2",
+    "formatting-options",
+    "text-appearance-options",
     "window-text-options",
     "id3",
     "module"
@@ -268,6 +283,15 @@
   ],
   "reading_progress": [
     "reading-progress",
+    "on-this-page",
+    "id1",
+    "id2",
+    "id3",
+    "id4",
+    "id5",
+    "id6",
+    "id7",
+    "id8",
     "reading-tracking",
     "mark-as-read-button",
     "automatic-reading-tracking",
@@ -292,7 +316,10 @@
     "release-5-0",
     "major-new-features-and-improvements"
   ],
-  "search": [],
+  "search": [
+    "fallback",
+    "search-results"
+  ],
   "share": [
     "sharing",
     "sharing-a-verse",
@@ -350,6 +377,9 @@
   ],
   "windows": [
     "windows",
+    "table-of-contents",
+    "id1",
+    "id2",
     "creating-and-configuring-windows"
   ],
   "workspaces": [

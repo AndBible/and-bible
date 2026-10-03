@@ -18,13 +18,17 @@ FIXTURES = Path(__file__).resolve().parents[2] / "tests" / "fixtures"
 
 
 def extract_ids(html: str) -> list[str]:
-    """Anchor ids in document order, deduplicated: sections, headings, explicit target spans, dt terms."""
+    """Every `id` inside the main content area, in document order, deduplicated.
+
+    All tags count (section, headings, explicit-target span/ul/figure/table, `.. contents::` nav, dt,
+    toc back-reference anchors such as `id9`), because an old deep link can target any of them.
+    Not collected: ids outside `[role="main"]` (sidebar, toctree, theme chrome). The search page's UI
+    ids (`fallback`, `search-results`) are inside main and are kept; they are harmless.
+    """
     soup = BeautifulSoup(html, "html.parser")
     root = soup.select_one('[role="main"]') or soup
     ids: list[str] = []
-    for el in root.find_all(["section", "div", "h1", "h2", "h3", "h4", "h5", "h6", "span", "dt"], id=True):
-        if el.name == "div" and "section" not in (el.get("class") or []):
-            continue
+    for el in root.find_all(id=True):
         if el["id"] not in ids:
             ids.append(el["id"])
     return ids
