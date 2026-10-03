@@ -182,8 +182,8 @@ section.block { padding: 48px 0 0; }
     radial-gradient(55% 70% at 0% 100%, var(--glow-b), transparent), var(--panel-base); }
 .is-carousel .review::before { content: "\201C"; position: absolute; top: 4px; right: 18px; color: var(--accent);
   font: 700 5rem/1 var(--serif); opacity: .35; pointer-events: none; }
-.is-carousel .review figcaption { color: var(--muted); }
-.is-carousel .review__stars { font-size: 1.25rem; margin-bottom: .75rem; }
+.is-carousel .review figcaption { color: var(--ink); }
+.is-carousel .review__stars { color: color-mix(in srgb, var(--accent-ink) 70%, var(--ink)); font-size: 1.25rem; margin-bottom: .75rem; }
 .is-ready .review { transition: opacity .3s, visibility 0s .3s; }
 .is-carousel .review.is-active { opacity: 1; visibility: visible; transition-delay: 0s; }
 .is-carousel .review blockquote { display: flex; align-items: center; }
