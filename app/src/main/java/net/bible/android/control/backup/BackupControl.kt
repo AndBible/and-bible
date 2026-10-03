@@ -126,6 +126,20 @@ const val ZIP_MIMETYPE = "application/zip"
 
 enum class SaveOrShare {SAVE, SHARE}
 
+/** What to do with the result of the save/share picker (F125). */
+internal enum class PickerOutcome { COPY, CANCELLED, FAILED, DONE }
+
+/** Interprets the picker result: a cancelled save picker is neither an error nor a success. */
+internal fun pickerOutcome(saveOrShare: SaveOrShare, resultCode: Int, hasUri: Boolean): PickerOutcome =
+    if (saveOrShare == SaveOrShare.SAVE) {
+        when {
+            hasUri -> PickerOutcome.COPY
+            resultCode == Activity.RESULT_CANCELED -> PickerOutcome.CANCELLED
+            else -> PickerOutcome.FAILED
+        }
+    } else if (resultCode == Activity.RESULT_OK || resultCode == Activity.RESULT_CANCELED) PickerOutcome.DONE
+    else PickerOutcome.FAILED
+
 /**
  * Which destination dialog to run. Branches on whether a chooser was SUPPLIED, never on what it
  * returned: a chooser returning null means the user cancelled, and must abort the export rather
@@ -253,30 +267,32 @@ object BackupControl {
         }
         val chooserIntent = Intent.createChooser(intent, chooserTitle)
         val result = activity.awaitIntent(chooserIntent)
-        val ok = if (saveOrShare == SaveOrShare.SAVE) {
-            result.data?.data?.let { destinationUri ->
-                withContext(Dispatchers.IO) {
-                    val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
-                    try {
-                        val out = BibleApplication.application.contentResolver.openOutputStream(destinationUri)!!
-                        val inputStream = FileInputStream(file)
+        val destinationUri = result.data?.data
+        val outcome = pickerOutcome(saveOrShare, result.resultCode, destinationUri != null)
+        // F125: a cancelled picker is neither an error nor a success; stay silent.
+        if (outcome == PickerOutcome.CANCELLED) return false
+        val ok = if (outcome == PickerOutcome.COPY && destinationUri != null) {
+            withContext(Dispatchers.IO) {
+                val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
+                try {
+                    val out = BibleApplication.application.contentResolver.openOutputStream(destinationUri)!!
+                    val inputStream = FileInputStream(file)
 
-                        var ok = true
-                        try {
-                            out.use {
-                                inputStream.copyTo(out)
-                            }
-                        } catch (ex: IOException) {
-                            Log.e(TAG, ex.message ?: "Error occurred in backuping db")
-                            ok = false
+                    var ok = true
+                    try {
+                        out.use {
+                            inputStream.copyTo(out)
                         }
-                        ok
-                    } finally {
-                        dialogs.dismiss(progressId)
+                    } catch (ex: IOException) {
+                        Log.e(TAG, ex.message ?: "Error occurred in backuping db")
+                        ok = false
                     }
+                    ok
+                } finally {
+                    dialogs.dismiss(progressId)
                 }
-            } ?: false
-        } else result.resultCode == Activity.RESULT_OK || result.resultCode == Activity.RESULT_CANCELED
+            }
+        } else outcome == PickerOutcome.DONE
 
         withContext(Dispatchers.Main) {
             if (ok) {
