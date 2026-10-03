@@ -49,11 +49,13 @@ thumbnail into the media repo.
 ```bash
 cd website && uv run python -m sitegen.newvideo <url-or-id> --topic "Getting started" \
   --summary "One or two sentences." [--title T] [--slug S] [--date YYYY-MM-DD] [--docs PAGE] \
-  [--published YYYY-MM-DD] [--short] [--category C] [--tag T] [--no-post]
+  [--published YYYY-MM-DD] [--version X.Y] [--short] [--category C] [--tag T] [--no-post]
 ```
 
 It reads the title from YouTube (unless `--title`) and the publication date from the watch page
-(unless `--published`; if the scrape fails the tool says so and asks for the flag), appends a line to `data/videos.yaml`, fetches
+(unless `--published`; if the scrape fails the tool says so and asks for the flag), looks up the AndBible
+version current on that date in the GitHub releases (`version:`, shown on /videos/ only; `--version` overrides, a failed lookup
+only prints a note and leaves it out), appends a line to `data/videos.yaml`, fetches
 the thumbnail into the media repo and writes `content/en/blog/<date>-<slug>.md` (no feature image:
 the thumbnail would duplicate it). It refuses a known id, an unknown topic, a `--docs` page that is
 not published, `--docs` on a short, and an existing post. `published` is a required catalog field

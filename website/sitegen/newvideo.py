@@ -18,7 +18,7 @@ from pathlib import Path
 
 import yaml
 
-from sitegen import paths, thumbnails, videos
+from sitegen import paths, releases, thumbnails, videos
 from sitegen.docs import published_pages
 from sitegen.youtube import parse as parse_url
 
@@ -81,7 +81,8 @@ def slugify(title: str) -> str:
     return slug
 
 
-def catalog_line(video_id: str, title: str, topic: str, docs: str | None, short: bool, published: date) -> str:
+def catalog_line(video_id: str, title: str, topic: str, docs: str | None, short: bool, published: date,
+                 version: str | None = None) -> str:
     """One flow-style line in the layout of data/videos.yaml."""
     parts = [f"id: {json.dumps(video_id)}", f"title: {json.dumps(title, ensure_ascii=False)}",
              f"topic: {json.dumps(topic)}"]
@@ -90,6 +91,8 @@ def catalog_line(video_id: str, title: str, topic: str, docs: str | None, short:
     if short:
         parts.append("short: true")
     parts.append(f"published: {json.dumps(published.isoformat())}")
+    if version:
+        parts.append(f"version: {json.dumps(version)}")
     return "- {" + ", ".join(parts) + "}\n"
 
 
@@ -126,7 +129,18 @@ def run(args: argparse.Namespace, *, fetcher: Callable[[str], bytes] = _http_get
         published = date.fromisoformat(args.published) if args.published else fetch_published(video_id, fetcher)
     except ValueError as exc:
         raise NewVideoError(f"--published must be YYYY-MM-DD ({exc})") from exc
-    line = catalog_line(video_id, title, args.topic, args.docs, short, published)
+    notes: list[str] = []
+    version = args.version
+    if version is None:
+        try:
+            version = releases.fetch_version(published, fetcher)
+        except (OSError, ValueError) as exc:
+            notes.append(f"note: no version recorded, could not read the AndBible releases ({exc}); "
+                         "add version: \"X.Y\" to the catalog line by hand if wanted")
+        else:
+            if version is None:
+                notes.append(f"note: no version recorded, no AndBible release on or before {published}")
+    line = catalog_line(video_id, title, args.topic, args.docs, short, published, version)
     with tempfile.TemporaryDirectory() as tmp:  # validate with the build's own rules
         probe = Path(tmp) / "videos.yaml"
         probe.write_text(probe_text(existing) + line, encoding="utf-8")
@@ -144,7 +158,8 @@ def run(args: argparse.Namespace, *, fetcher: Callable[[str], bytes] = _http_get
     thumbnails.fetch([video_id], media, opener)  # first: a failure must not leave a catalog line behind
     catalog.parent.mkdir(parents=True, exist_ok=True)
     catalog.write_text(probe_text(existing) + line, encoding="utf-8")
-    out = [f"added {video_id} ({title}) to {catalog.name}", f"thumbnail: {media / 'videos' / (video_id + '.webp')}"]
+    out = [f"added {video_id} ({title}) to {catalog.name}" + (f" (AndBible {version})" if version else ""), *notes,
+           f"thumbnail: {media / 'videos' / (video_id + '.webp')}"]
     if post is not None:
         post.parent.mkdir(parents=True, exist_ok=True)
         post.write_text(post_text(title, day, slug, args.summary, video_id, short,
@@ -170,6 +185,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--slug", help="default: kebab-case of the title")
     p.add_argument("--date", help="YYYY-MM-DD, default today")
     p.add_argument("--published", help="YYYY-MM-DD, default: read from the YouTube watch page")
+    p.add_argument("--version", help="AndBible X.Y current when published, default: latest GitHub release on or before it")
     p.add_argument("--docs", help="published docs page stem the video belongs to")
     p.add_argument("--short", action="store_true", help="a YouTube Short (implied by a /shorts/ URL)")
     p.add_argument("--category", action="append", default=[])

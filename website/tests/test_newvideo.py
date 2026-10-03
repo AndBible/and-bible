@@ -163,7 +163,8 @@ def test_explicit_title_skips_oembed(env):
     def boom(url):
         raise AssertionError("network used")
 
-    call(env, *base(), "--title", "Given", "--published", "2026-01-02", "--no-post", fetcher=boom)
+    call(env, *base(), "--title", "Given", "--published", "2026-01-02", "--version", "5.1", "--no-post",
+         fetcher=boom)
     assert videos.load(env / "data" / "videos.yaml", set())[-1].title == "Given"
 
 
@@ -183,7 +184,7 @@ def test_published_flag_overrides_scraping(env):
         assert "oembed" in url, "watch page must not be fetched"
         return b'{"title": "T"}'
 
-    call(env, *base(), "--published", "2026-01-02", "--no-post", fetcher=only_title)
+    call(env, *base(), "--published", "2026-01-02", "--version", "5.1", "--no-post", fetcher=only_title)
     assert videos.load(env / "data" / "videos.yaml", set())[-1].published == date(2026, 1, 2)
 
 
@@ -216,7 +217,7 @@ def test_failed_thumbnail_leaves_catalog_untouched(tmp_path):
     data.mkdir()
     (data / "videos.yaml").write_text("# header\n", encoding="utf-8")
     args = argparse.Namespace(video="n8Y8N27uFzY", topic="Getting started", summary="s", title="T", slug=None,
-                              date=None, published="2026-01-01", docs=None, short=False, category=[], tag=[], no_post=True)
+                              date=None, published="2026-01-01", version="5.1", docs=None, short=False, category=[], tag=[], no_post=True)
 
     def boom(url):
         raise OSError("offline")
@@ -225,3 +226,54 @@ def test_failed_thumbnail_leaves_catalog_untouched(tmp_path):
         newvideo.run(args, opener=boom, data=data, content=tmp_path / "c", media=tmp_path / "m",
                      docs_pages=set(), today=date(2026, 1, 1))
     assert (data / "videos.yaml").read_text(encoding="utf-8") == "# header\n"
+
+
+def _releases_fetcher(answer):
+    def fetch(url):
+        if "oembed" in url:
+            return json.dumps({"title": "Hello World: A Tip"}).encode()
+        if "api.github.com" in url:
+            return answer(url)
+        return b'x"publishDate":"2026-09-20T02:12:48-07:00","y"'
+    return fetch
+
+
+RELEASES = json.dumps([
+    {"tag_name": "production-1117", "name": "Release 5.1.1117", "published_at": "2026-08-29T10:00:00Z"},
+    {"tag_name": "production-741", "name": "Release 5.0.741", "published_at": "2023-11-01T10:00:00Z"},
+]).encode()
+
+
+def test_version_comes_from_the_latest_release_on_or_before_published(env):
+    out = call(env, *base(), fetcher=_releases_fetcher(lambda url: RELEASES))
+    assert (env / "data" / "videos.yaml").read_text().splitlines()[-1].endswith('published: "2026-09-20", version: "5.1"}')
+    assert videos.load(env / "data" / "videos.yaml", set())[-1].version == "5.1"
+    assert "(AndBible 5.1)" in out[0]
+    call(env, *base("zzzDEF12345"), "--published", "2024-01-01", "--no-post",
+         fetcher=_releases_fetcher(lambda url: RELEASES))
+    assert videos.load(env / "data" / "videos.yaml", set())[-1].version == "5.0"
+
+
+def test_version_flag_overrides_the_lookup(env):
+    def boom(url):
+        raise AssertionError("must not ask GitHub")
+    call(env, *base(), "--version", "5.2", fetcher=_releases_fetcher(boom))
+    assert videos.load(env / "data" / "videos.yaml", set())[-1].version == "5.2"
+
+
+def test_malformed_version_flag_refused_and_nothing_written(env):
+    with pytest.raises(NewVideoError, match="version"):
+        call(env, *base(), "--version", "5")
+    assert (env / "data" / "videos.yaml").read_text() == EXISTING
+
+
+@pytest.mark.parametrize("answer", [
+    lambda url: (_ for _ in ()).throw(OSError("rate limit exceeded")),
+    lambda url: b'{"message": "API rate limit exceeded"}',
+    lambda url: b"[]",
+])
+def test_failed_or_empty_lookup_omits_version_with_a_note_and_still_succeeds(env, answer):
+    out = call(env, *base(), fetcher=_releases_fetcher(answer))
+    assert "version" not in (env / "data" / "videos.yaml").read_text().splitlines()[-1]
+    assert any(line.startswith("note: no version recorded") for line in out)
+    assert videos.load(env / "data" / "videos.yaml", set())[-1].version is None
