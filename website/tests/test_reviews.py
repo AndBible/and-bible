@@ -3,6 +3,7 @@ from html import unescape
 from pathlib import Path
 
 import pytest
+import yaml
 
 from sitegen import paths
 from sitegen.build import build
@@ -55,7 +56,7 @@ def test_home_renders_every_review(tmp_path):
     reviews = load(paths.DATA / "reviews.yaml")
     for r in reviews:
         assert r.text in html
-    figures = re.findall(r"<figure class=\"review\">.*?</figure>", raw, re.S)
+    figures = re.findall(r"<figure class=\"review\" [^>]*>.*?</figure>", raw, re.S)
     assert len(figures) == len(reviews)
     for fig in figures:
         assert fig.count("★") == 5
@@ -65,3 +66,43 @@ def test_home_renders_every_review(tmp_path):
         assert name not in html
     assert all(f"Google Play review, {r.year}</figcaption>" in raw for r in reviews)
     assert "showAllReviews=true" in html
+
+
+def _built_home(tmp_path: Path) -> tuple[str, list]:
+    content = tmp_path / "content"
+    (content / "en").mkdir(parents=True)
+    (content / "en" / "site.yaml").write_text(SITE_YAML.read_text())
+    data = tmp_path / "data"
+    data.mkdir()
+    (data / "reviews.yaml").write_text((paths.DATA / "reviews.yaml").read_text(encoding="utf-8"), encoding="utf-8")
+    out = tmp_path / "out"
+    build(content, out, data=data, docs=False)
+    return (out / "index.html").read_text(), load(paths.DATA / "reviews.yaml")
+
+
+def test_carousel_markup_and_strings(tmp_path):
+    raw, reviews = _built_home(tmp_path)
+    strings = yaml.safe_load(SITE_YAML.read_text())["sections"]
+    assert strings["reviews"] == "What users say"
+    assert f"<h2>{strings['reviews']}</h2>" in raw
+    container = re.search(r"<div class=\"review-carousel\"[^>]*>", raw).group(0)
+    assert 'role="region"' in container and f'aria-label="{strings["reviews_region"]}"' in container
+    for key in ("prev", "next", "pause", "play", "position"):
+        assert f'data-{key}="{strings["reviews_" + key]}"' in container
+    total = len(reviews)
+    for n in range(1, total + 1):
+        label = strings["reviews_slide"].format(n=n, total=total)
+        assert (f'<figure class="review" role="group" aria-roledescription="slide" aria-label="{label}">') in raw
+    assert "20 of 20" in raw
+
+
+def test_no_js_list_structure_and_script_hook(tmp_path):
+    raw, reviews = _built_home(tmp_path)
+    block = re.search(r'<div class="review-carousel".*?</div>\s*</div>', raw, re.S).group(0)
+    assert block.count('<figure class="review"') == len(reviews)
+    # the enhancement hook and every JS-only element come from the script, never from the static HTML
+    for token in ("is-carousel", "is-active", "review-controls", "aria-hidden=\"true\" inert", "tabindex"):
+        assert token not in raw
+    assert 'src="/assets/js/reviews-carousel.js?v=' in raw
+    js = (paths.ASSETS / "js" / "reviews-carousel.js").read_text()
+    assert 'classList.add("is-carousel")' in js

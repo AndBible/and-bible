@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "_macros.html" import post_card %}
+{% block head_extra %}<script src="{{ asset_url('js/reviews-carousel.js') }}" defer></script>{% endblock %}
 {% block content %}
 <section class="hero">
   <div class="hero__panel">
@@ -36,14 +37,20 @@
 {% if reviews %}
 <section class="block">
   <h2>{{ strings.sections.reviews }}</h2>
-  <div class="review-list">
-    {% for r in reviews %}
-    <figure class="review">
-      <p class="review__stars" role="img" aria-label="{{ strings.sections.reviews_stars }}"><span aria-hidden="true">★★★★★</span></p>
-      <blockquote><p>{{ r.text }}</p></blockquote>
-      <figcaption>{{ strings.sections.reviews_caption }}, {{ r.year }}</figcaption>
-    </figure>
-    {% endfor %}
+  {% set total = reviews | length %}
+  <div class="review-carousel" data-reviews-carousel role="region" aria-label="{{ strings.sections.reviews_region }}"
+       data-prev="{{ strings.sections.reviews_prev }}" data-next="{{ strings.sections.reviews_next }}"
+       data-pause="{{ strings.sections.reviews_pause }}" data-play="{{ strings.sections.reviews_play }}"
+       data-position="{{ strings.sections.reviews_position }}">
+    <div class="review-list">
+      {% for r in reviews %}
+      <figure class="review" role="group" aria-roledescription="slide" aria-label="{{ strings.sections.reviews_slide | replace('{n}', loop.index | string) | replace('{total}', total | string) }}">
+        <p class="review__stars" role="img" aria-label="{{ strings.sections.reviews_stars }}"><span aria-hidden="true">★★★★★</span></p>
+        <blockquote><p>{{ r.text }}</p></blockquote>
+        <figcaption>{{ strings.sections.reviews_caption }}, {{ r.year }}</figcaption>
+      </figure>
+      {% endfor %}
+    </div>
   </div>
   <p class="review-more"><a href="{{ strings.sections.reviews_all_url }}">{{ strings.sections.reviews_all }}</a></p>
 </section>
