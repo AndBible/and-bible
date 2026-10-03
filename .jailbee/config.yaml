@@ -135,6 +135,7 @@ egress_allow:
   - youtube.com:443
   - www.youtube.com:443
   - i.ytimg.com:443
+  - play.google.com:443
   - shop.andbible.org:443
   # AndBible module repositories (catalogue refresh and module downloads,
   # e.g. in the in-container emulator)
