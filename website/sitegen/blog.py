@@ -13,7 +13,7 @@ from sitegen.content import Page, Post, taxonomy_slug
 from sitegen.paths import BASE_URL
 from sitegen.render import markdown_to_html
 
-PAGE_SIZE = 10
+PAGE_SIZE = 9  # a 3x3 card grid
 FEED_SIZE = 20
 _CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
 
@@ -32,6 +32,27 @@ def archives(posts: list[Post], strings: dict) -> dict[str, tuple[str, list[Post
     return result
 
 
+def page_window(current: int, total: int) -> list[int | None]:
+    """Page numbers to show in the pager; None marks an ellipsis gap.
+
+    Up to 7 pages are all shown. Otherwise: first, last, the current page and its neighbours,
+    where a gap of a single page is filled in rather than replaced by an ellipsis.
+    """
+    if total <= 7:
+        return list(range(1, total + 1))
+    shown = sorted({1, total} | {n for n in (current - 1, current, current + 1) if 1 <= n <= total})
+    result: list[int | None] = []
+    for n in shown:
+        if result:
+            last = result[-1]
+            if n - last == 2:
+                result.append(last + 1)
+            elif n - last > 2:
+                result.append(None)
+        result.append(n)
+    return result
+
+
 def _page_url(base: str, number: int) -> str:
     return base if number == 1 else f"{base}page/{number}/"
 
@@ -47,7 +68,7 @@ def _feed(posts: list[Post], bodies: dict[str, str], strings: dict, out: Path) -
     rss = ET.Element("rss", version="2.0")
     channel = ET.SubElement(rss, "channel")
     for tag, value in (("title", f"{strings['site_name']} – {strings['blog']['title']}"),
-                       ("link", f"{BASE_URL}/blog/"), ("description", strings["hero"]["eyebrow"]),
+                       ("link", f"{BASE_URL}/blog/"), ("description", strings["meta"]["description"]),
                        ("language", "en")):
         ET.SubElement(channel, tag).text = value
     for post in posts[:FEED_SIZE]:
@@ -85,8 +106,10 @@ def render_blog(env: Environment, strings: dict, posts: list[Post], out: Path, m
                 heading=heading, posts=chunk,
                 newer=_page_url(base, number - 1) if number > 1 else None,
                 older=_page_url(base, number + 1) if number < len(chunks) else None,
+                page_links=[(n, _page_url(base, n) if n else None) for n in page_window(number, len(chunks))],
+                current_page=number, page_count=len(chunks),
                 title=f"{heading} – AndBible" + (f" (page {number})" if number > 1 else ""),
-                description=strings["hero"]["eyebrow"], canonical=f"{BASE_URL}{url}",
+                description=strings["meta"]["description"], canonical=f"{BASE_URL}{url}",
                 og_type="website", og_image=f"{BASE_URL}/assets/img/og-default.png", **common))
             if base == "/blog/":
                 written.append(url)
@@ -99,7 +122,7 @@ def render_pages(env: Environment, strings: dict, pages: list[Page], out: Path, 
     for page in pages:
         _write(out, page.path, env.get_template("page.html").render(
             page=page, body_html=markdown_to_html(page.body_md, page.source, media_dir),
-            title=f"{page.title} – AndBible", description=strings["hero"]["eyebrow"],
+            title=f"{page.title} – AndBible", description=strings["meta"]["description"],
             canonical=f"{BASE_URL}{page.path}", og_type="website",
             og_image=f"{BASE_URL}/assets/img/og-default.png",
             lang="en", prefix="", strings=strings))

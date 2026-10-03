@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from sitegen.blog import PAGE_SIZE, page_window
 from sitegen.build import build
 
 SITE_YAML = Path(__file__).resolve().parents[1] / "content" / "en" / "site.yaml"
@@ -19,7 +20,7 @@ def site(tmp_path, monkeypatch):
     blog = content / "en" / "blog"
     blog.mkdir(parents=True)
     (content / "en" / "site.yaml").write_text(SITE_YAML.read_text())
-    for n in range(1, 13):  # 12 posts -> /blog/ has 2 pages
+    for n in range(1, 19):  # 18 posts + 1 moved = 19 -> /blog/ has 3 pages (9, 9, 1)
         day = f"2025-01-{n:02d}"
         (blog / f"{day}-post-{n}.md").write_text(post(n, day))
     (blog / "2023-12-22-moved.md").write_text(
@@ -38,18 +39,61 @@ def test_article_and_legacy_url_date(site):
     assert not (site / "2023/12/22/moved").exists()
 
 
+def test_page_size_is_nine():
+    assert PAGE_SIZE == 9
+
+
+@pytest.mark.parametrize("current,total,expected", [
+    (1, 1, [1]),
+    (1, 2, [1, 2]),
+    (2, 2, [1, 2]),
+    (4, 7, [1, 2, 3, 4, 5, 6, 7]),
+    (1, 8, [1, 2, None, 8]),
+    (2, 8, [1, 2, 3, None, 8]),
+    (4, 8, [1, 2, 3, 4, 5, None, 8]),
+    (5, 8, [1, None, 4, 5, 6, 7, 8]),
+    (8, 8, [1, None, 7, 8]),
+    (10, 20, [1, None, 9, 10, 11, None, 20]),
+    (3, 20, [1, 2, 3, 4, None, 20]),
+    (19, 20, [1, None, 18, 19, 20]),
+])
+def test_page_window(current, total, expected):
+    assert page_window(current, total) == expected
+
+
 def test_blog_pagination(site):
     first = (site / "blog/index.html").read_text()
-    assert "Post 12" in first and "Post 3" in first and "Post 2" not in first
+    assert "Post 18" in first and "Post 10" in first and "Post 9" not in first
     assert 'href="/blog/page/2/"' in first
+    assert 'aria-current="page">1<' in first
+    assert 'href="/blog/"' not in first.split('aria-label="Pagination"')[1]  # page 1 is not a link
+    assert 'rel="prev"' not in first and 'rel="next" href="/blog/page/2/" aria-label="Next page"' in first
+    assert 'aria-disabled="true" aria-label="Previous page"' in first
+    assert "Older posts" not in first and "Newer posts" not in first
     second = (site / "blog/page/2/index.html").read_text()
-    assert "Post 2" in second and 'href="/blog/"' in second
+    assert "Post 9" in second and 'rel="prev" href="/blog/" aria-label="Previous page"' in second
+    assert 'aria-current="page">2<' in second
+    assert 'href="/blog/page/3/"' in second
+    last = (site / "blog/page/3/index.html").read_text()
+    assert 'aria-current="page">3<' in last and 'rel="next"' not in last
+    assert 'aria-disabled="true" aria-label="Next page"' in last
+
+
+def test_pagination_in_archives(site):
+    html = (site / "category/new-features/page/2/index.html").read_text()
+    assert 'href="/category/new-features/"' in html
+    assert 'aria-current="page">2<' in html
+    assert '<nav class="pager" aria-label="Pagination">' in html
+
+
+def test_single_page_archive_has_no_pager(site):
+    assert 'aria-label="Pagination"' not in (site / "category/tips-tricks/index.html").read_text()
 
 
 def test_taxonomy_and_date_archives(site):
-    assert "Post 5" in (site / "category/new-features/index.html").read_text()
+    assert "Post 15" in (site / "category/new-features/index.html").read_text()
     assert "Post 99" in (site / "category/tips-tricks/index.html").read_text()
-    assert "Post 5" in (site / "tag/tips/index.html").read_text()
+    assert "Post 15" in (site / "tag/tips/index.html").read_text()
     assert "Post 5" in (site / "2025/01/05/index.html").read_text()
     assert (site / "2025/01/index.html").is_file() and (site / "2025/index.html").is_file()
     assert "Post 99" in (site / "2023/12/23/index.html").read_text()
@@ -58,10 +102,10 @@ def test_taxonomy_and_date_archives(site):
 def test_feed_is_rss_with_full_content(site):
     root = ET.parse(site / "feed/index.xml").getroot()
     items = root.findall("./channel/item")
-    assert len(items) == 13  # fewer than FEED_SIZE
-    assert items[0].findtext("link") == "https://andbible.org/2025/01/12/post-12/"
+    assert len(items) == 19  # fewer than FEED_SIZE
+    assert items[0].findtext("link") == "https://andbible.org/2025/01/18/post-18/"
     ns = {"content": "http://purl.org/rss/1.0/modules/content/"}
-    assert "<strong>12</strong>" in items[0].find("content:encoded", ns).text
+    assert "<strong>18</strong>" in items[0].find("content:encoded", ns).text
     assert (site / "feed/index.html").read_bytes() == (site / "feed/index.xml").read_bytes()
 
 

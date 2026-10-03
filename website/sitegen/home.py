@@ -48,8 +48,7 @@ def render_home(env: Environment, strings: dict, lang: str, latest: list[Post], 
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(env.get_template("home.html").render(
         lang=lang, prefix=prefix(lang), strings=strings, latest=latest[:3],
-        title=f"{strings['site_name']}: {strings['hero']['eyebrow']}",
-        description=strings["hero"]["lead"],
+        title=strings["meta"]["title"], description=strings["meta"]["description"],
         canonical=f"{paths.BASE_URL}{prefix(lang)}/",
         og_image=f"{paths.BASE_URL}/assets/img/og-default.png", og_type="website",
     ), encoding="utf-8")

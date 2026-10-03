@@ -9,9 +9,20 @@
 </article>
 {% endmacro %}
 
-{% macro pager(previous, next, strings) %}
+{% macro pager(previous, next, page_links, current, strings) %}
+{% if page_links|length > 1 %}
 <nav class="pager" aria-label="Pagination">
-  {% if previous %}<a href="{{ previous }}" rel="prev">&larr; {{ strings.blog.newer }}</a>{% else %}<span></span>{% endif %}
-  {% if next %}<a href="{{ next }}" rel="next">{{ strings.blog.older }} &rarr;</a>{% endif %}
+  {% if previous %}<a class="pager__step" rel="prev" href="{{ previous }}" aria-label="{{ strings.blog.previous_page }}">&lsaquo;</a>
+  {% else %}<span class="pager__step pager__step--off" aria-disabled="true" aria-label="{{ strings.blog.previous_page }}">&lsaquo;</span>{% endif %}
+  <ol class="pager__pages">
+    {% for number, url in page_links %}
+      {% if number is none %}<li class="pager__gap" aria-hidden="true">&hellip;</li>
+      {% elif number == current %}<li><span class="pager__num" aria-current="page">{{ number }}</span></li>
+      {% else %}<li><a class="pager__num" href="{{ url }}">{{ number }}</a></li>{% endif %}
+    {% endfor %}
+  </ol>
+  {% if next %}<a class="pager__step" rel="next" href="{{ next }}" aria-label="{{ strings.blog.next_page }}">&rsaquo;</a>
+  {% else %}<span class="pager__step pager__step--off" aria-disabled="true" aria-label="{{ strings.blog.next_page }}">&rsaquo;</span>{% endif %}
 </nav>
+{% endif %}
 {% endmacro %}

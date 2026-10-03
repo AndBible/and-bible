@@ -102,3 +102,12 @@ def test_missing_asset_hash_fails_loudly():
     assert env.from_string("{{ asset_url('css/site.css') }}").render().startswith("/assets/css/site.css?v=")
     with pytest.raises(KeyError):
         env.from_string("{{ asset_url('css/nope.css') }}").render()
+
+
+def test_home_title_and_description_come_from_meta(content, tmp_path):
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    html = (out / "index.html").read_text()
+    assert "<title>AndBible: Free &amp; open source Bible study</title>" in html
+    assert "Android and iOS, no ads, no tracking." in html  # meta description
+    assert "Open source · No ads · No tracking" in html  # new eyebrow

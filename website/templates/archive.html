@@ -6,6 +6,6 @@
   <div class="post-list">
     {% for post in posts %}<div>{{ post_card(post) }}</div>{% endfor %}
   </div>
-  {{ pager(newer, older, strings) }}
+  {{ pager(newer, older, page_links, current_page, strings) }}
 </section>
 {% endblock %}

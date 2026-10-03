@@ -7,13 +7,18 @@ nav:
   github: GitHub
   theme_toggle: Toggle light/dark theme
   menu: Menu
-hero:
-  eyebrow: Free & open source Bible study
-  headline: "Powerful Bible study, *free* for everyone."
-  lead: >-
+meta:
+  title: "AndBible: Free & open source Bible study"
+  description: >-
     Thousands of Bibles, commentaries and dictionaries, offline. StudyPads,
     bookmarks and notes that sync across your devices. Android and iOS, no ads,
     no tracking.
+hero:
+  eyebrow: Open source · No ads · No tracking
+  headline: "Powerful Bible study, *free* for everyone."
+  lead: >-
+    Thousands of Bibles, commentaries and dictionaries, offline. StudyPads,
+    bookmarks and notes that sync across your devices. Android and iOS.
   docs_button: Read the docs
   videos_button: Tutorial videos
 getapp:
@@ -54,8 +59,8 @@ footer:
 blog:
   title: News & Blog
   read_more: Read more
-  older: Older posts
-  newer: Newer posts
+  previous_page: Previous page
+  next_page: Next page
   category: "Category: {name}"
   tag: "Tag: {name}"
   posted_in: Posted in
