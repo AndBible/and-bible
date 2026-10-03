@@ -5,6 +5,7 @@ import pytest
 
 from sitegen.blog import PAGE_SIZE, page_window
 from sitegen.build import build
+from sitegen.render import thumbnail_path
 
 SITE_YAML = Path(__file__).resolve().parents[1] / "content" / "en" / "site.yaml"
 
@@ -122,3 +123,39 @@ def test_article_has_social_metadata(site):
     assert 'property="og:type" content="article"' in html
     assert 'og:image" content="https://andbible.org/assets/img/og-default.png"' in html
     assert 'rel="canonical" href="https://andbible.org/2025/01/01/post-1/"' in html
+
+
+VIDEO = "https://www.youtube.com/watch?v=abcDEF12345"
+
+
+@pytest.mark.parametrize(
+    "body, hero",
+    [
+        (f"{VIDEO}\n\nText.\n", False),
+        (f"\n\n<{VIDEO}>\n\nText.\n", False),
+        ("Intro text.\n\n" + VIDEO + "\n", True),
+        (f"```\n{VIDEO}\n```\n\nText.\n", True),
+        ("Plain text.\n", True),
+    ],
+)
+def test_feature_image_hidden_only_above_a_leading_embed(tmp_path, monkeypatch, body, hero):
+    content = tmp_path / "content"
+    (content / "en" / "blog").mkdir(parents=True)
+    (content / "en" / "site.yaml").write_text(SITE_YAML.read_text())
+    media = tmp_path / "media"
+    (media / "blog").mkdir(parents=True)
+    (media / "blog" / "feature.png").write_bytes(b"png")
+    (media / thumbnail_path("abcDEF12345")).parent.mkdir(parents=True, exist_ok=True)
+    (media / thumbnail_path("abcDEF12345")).write_bytes(b"webp")
+    monkeypatch.setattr("sitegen.paths.MEDIA", media)
+    extra = "image: blog/feature.png\nimage_alt: Feature\n"
+    text = post(1, "2025-01-01", extra=extra).split("---\n")
+    (content / "en" / "blog" / "2025-01-01-post-1.md").write_text(f"---\n{text[1]}---\n{body}")
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+
+    article = (out / "2025/01/01/post-1/index.html").read_text()
+    assert ('class="post__image"' in article) is hero
+    assert 'og:image" content="https://andbible.org/media/blog/feature.png"' in article
+    assert 'src="/media/blog/feature.png"' in (out / "blog/index.html").read_text()
+    assert ('data-yt-id="abcDEF12345"' in article) is (VIDEO in body and "```" not in body)

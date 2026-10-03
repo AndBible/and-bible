@@ -71,3 +71,15 @@ def expand_lines(md: str) -> tuple[str, list[str]]:
         else:
             out.append(line)
     return "\n".join(out) + ("\n" if md.endswith("\n") else ""), ids
+
+
+def starts_with_embed(md: str) -> bool:
+    """True when the first non-blank line is a video embed (as `expand_lines` sees it)."""
+    for line in md.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith(("```", "~~~")):
+            return False
+        return " " not in stripped and parse(stripped.removeprefix("<").removesuffix(">")) is not None
+    return False

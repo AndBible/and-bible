@@ -12,6 +12,7 @@ from jinja2 import Environment
 from sitegen.content import Page, Post, taxonomy_slug
 from sitegen.paths import BASE_URL
 from sitegen.render import markdown_to_html
+from sitegen.youtube import starts_with_embed
 
 PAGE_SIZE = 9  # a 3x3 card grid
 FEED_SIZE = 20
@@ -92,7 +93,7 @@ def render_blog(env: Environment, strings: dict, posts: list[Post], out: Path, m
     common = {"lang": "en", "prefix": "", "strings": strings}
     for post in posts:
         _write(out, post.path, env.get_template("article.html").render(
-            post=post, body_html=bodies[post.path], title=f"{post.title} – AndBible",
+            post=post, body_html=bodies[post.path], show_hero=not starts_with_embed(post.body_md), title=f"{post.title} – AndBible",
             description=post.summary, canonical=f"{BASE_URL}{post.path}", og_type="article",
             og_image=f"{BASE_URL}{post.image_url or '/assets/img/og-default.png'}",
             category_links=[(c, f"/category/{taxonomy_slug(c)}/") for c in post.categories],
