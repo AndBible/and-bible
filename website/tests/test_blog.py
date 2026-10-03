@@ -28,7 +28,7 @@ def site(tmp_path, monkeypatch):
     media.mkdir()
     monkeypatch.setattr("sitegen.paths.MEDIA", media)
     out = tmp_path / "out"
-    build(content, out)
+    build(content, out, data=tmp_path / "data")
     return out
 
 

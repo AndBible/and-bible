@@ -9,7 +9,7 @@ from pathlib import Path
 
 from jinja2 import Environment
 
-from sitegen.content import Post, taxonomy_slug
+from sitegen.content import Page, Post, taxonomy_slug
 from sitegen.paths import BASE_URL
 from sitegen.render import markdown_to_html
 
@@ -91,6 +91,19 @@ def render_blog(env: Environment, strings: dict, posts: list[Post], out: Path, m
             if base == "/blog/":
                 written.append(url)
     _feed(posts, bodies, strings, out)
+    return written
+
+
+def render_pages(env: Environment, strings: dict, pages: list[Page], out: Path, media_dir: Path) -> list[str]:
+    written: list[str] = []
+    for page in pages:
+        _write(out, page.path, env.get_template("page.html").render(
+            page=page, body_html=markdown_to_html(page.body_md, page.source, media_dir),
+            title=f"{page.title} – AndBible", description=strings["hero"]["eyebrow"],
+            canonical=f"{BASE_URL}{page.path}", og_type="website",
+            og_image=f"{BASE_URL}/assets/img/og-default.png",
+            lang="en", prefix="", strings=strings))
+        written.append(page.path)
     return written
 
 
