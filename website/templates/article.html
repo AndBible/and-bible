@@ -7,11 +7,13 @@
   </header>
   {% if post.image_url and show_hero %}<img class="post__image" src="{{ post.image_url }}" alt="{{ post.image_alt or '' }}" width="1200" height="630">{% endif %}
   <div class="post__body">{{ body_html | safe }}</div>
+  {% if category_links or tag_links %}
   <footer class="post__foot">
     <p>{{ strings.blog.posted_in }}
       {% for name, url in category_links %}<a href="{{ url }}" rel="category">{{ name }}</a>{% if not loop.last or tag_links %}, {% endif %}{% endfor %}
       {% for name, url in tag_links %}<a href="{{ url }}" rel="tag">{{ name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
     </p>
   </footer>
+  {% endif %}
 </article>
 {% endblock %}

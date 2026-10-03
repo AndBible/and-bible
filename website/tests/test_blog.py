@@ -175,3 +175,22 @@ def test_feature_image_hidden_only_above_a_leading_embed(tmp_path, monkeypatch, 
     assert 'og:image" content="https://andbible.org/media/blog/feature.png"' in article
     assert 'src="/media/blog/feature.png"' in (out / "blog/index.html").read_text()
     assert ('data-yt-id="abcDEF12345"' in article) is (VIDEO in body and "```" not in body)
+
+
+
+def test_post_without_categories_or_tags_has_no_empty_posted_in_footer(tmp_path, monkeypatch):
+    content = tmp_path / "content"
+    blog = content / "en" / "blog"
+    blog.mkdir(parents=True)
+    (content / "en" / "site.yaml").write_text(SITE_YAML.read_text())
+    (blog / "2025-03-01-bare.md").write_text(
+        "---\ntitle: Bare\ndate: '2025-03-01'\nslug: bare\nsummary: No taxonomy.\n---\nBody.\n")
+    (blog / "2025-03-02-tagged.md").write_text(post(2, "2025-03-02").replace("slug: post-2", "slug: tagged"))
+    media = tmp_path / "media"
+    media.mkdir()
+    monkeypatch.setattr("sitegen.paths.MEDIA", media)
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    assert "post__foot" not in (out / "2025/03/01/bare/index.html").read_text()
+    tagged = (out / "2025/03/02/tagged/index.html").read_text()
+    assert "post__foot" in tagged and 'rel="category"' in tagged
