@@ -95,3 +95,21 @@ def test_round_trip_through_site_renderer(tmp_path: Path):
     assert '<div class="table-wrap"><table>' in out and "<th>A</th>" in out
     assert 'class="footnote-ref"' in out and "Source." in out
     assert '<div class="admonition note">' in out and "Back up first." in out
+
+
+def test_headerless_table_promotes_first_row_to_header(tmp_path: Path):
+    html = ("<table><tbody><tr><td><strong>Date</strong></td><td><strong>Event</strong></td></tr>"
+            "<tr><td>1</td><td>2</td></tr></tbody></table>")
+    md = convert(html, ident, ident)
+    assert md.strip().splitlines()[0] == "| Date | Event |"
+    out = markdown_to_html(md, tmp_path / "p.md", tmp_path)
+    assert "<thead>" in out and "<th>Date</th>" in out and "<th></th>" not in out
+    assert "<td>1</td>" in out
+
+
+def test_code_with_blank_line_inside_admonition_round_trips(tmp_path: Path):
+    html = ('<div class="admonition note"><p class="admonition-title">Note</p><p>Run:</p>'
+            "<pre>line1\n\nline3</pre><p>After.</p></div>")
+    out = markdown_to_html(convert(html, ident, ident), tmp_path / "p.md", tmp_path)
+    assert "<pre><code>line1\n\nline3\n</code></pre>" in out
+    assert "```" not in out and "<p>After.</p>" in out

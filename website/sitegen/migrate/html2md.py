@@ -16,7 +16,7 @@ from markdownify import MarkdownConverter
 
 from sitegen import youtube
 
-_ADMONITION_TYPES = {"note", "tip", "warning", "hint", "important"}
+_FENCE = re.compile(r"^```[^\n]*\n(.*?)\n```[ \t]*$", re.S | re.M)
 _HEADINGS = ("h1", "h2", "h3", "h4", "h5", "h6")
 _BACKLINK_TEXT = {"↩", "↩︎", "↑", "↵"}
 
@@ -27,6 +27,11 @@ def _flat(text: str) -> str:
 
 def _classes(el: Tag) -> list[str]:
     return el.get("class") or []
+
+
+def _unbold(cell: str) -> str:
+    match = re.fullmatch(r"\*\*([^*]+)\*\*", cell)
+    return match[1] if match else cell
 
 
 def _youtube_line(url: str, vertical: bool) -> str | None:
@@ -75,7 +80,9 @@ class _Converter(MarkdownConverter):
             head = f"!!! {kind}"
             if title and title.lower() != kind:
                 head += f' "{title.replace(chr(34), chr(39))}"'
-            body = "\n".join(f"    {line}" if line else "" for line in text.strip().splitlines())
+            # fenced_code only matches at column 0, so code inside the box becomes an indented block
+            text = _FENCE.sub(lambda m: "\n".join(f"    {l}" if l else "" for l in m[1].split("\n")), text)
+            body = "\n".join(f"    {line}" if line else "" for line in text.strip("\n").splitlines())
             return f"\n\n{head}\n\n{body}\n\n"
         return super().convert_div(el, text, parent_tags)
 
@@ -86,8 +93,9 @@ class _Converter(MarkdownConverter):
             return ""
         width = max(len(r) for r in rows)
         rows = [r + [""] * (width - len(r)) for r in rows]
-        has_header = el.find("tr").find("th") is not None
-        header, body = (rows[0], rows[1:]) if has_header else ([""] * width, rows)
+        header, body = rows[0], rows[1:]  # a headerless table promotes its first row
+        if el.find("tr").find("th") is None:
+            header = [_unbold(c) for c in header]
         fmt = lambda r: "| " + " | ".join(r) + " |"  # noqa: E731
         lines = [fmt(header), fmt(["---"] * width), *map(fmt, body)]
         return "\n\n" + "\n".join(lines) + "\n\n"
@@ -117,7 +125,10 @@ def _prepare(soup: BeautifulSoup) -> None:
     for a in soup.select("a.headerlink"):
         a.decompose()
     for span in soup.select("span[id]"):
-        span.decompose() if not span.get_text(strip=True) else span.unwrap()
+        if span.get_text(strip=True):
+            span.unwrap()
+        else:
+            span.decompose()
     for box in soup.select("div.admonition"):
         title = box.select_one("p.admonition-title")
         if title is not None:
