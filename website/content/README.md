@@ -68,7 +68,7 @@ media repo first, bump the gitlink, and run `make site site-check`. The `video-b
 The "What users say" carousel on the home page comes from `data/reviews.yaml`, a hand-curated list
 of `{year, text}` entries (validated by `sitegen/reviews.py`; the English strings are in `site.yaml`).
 
-- Rules: only 5-star Google Play reviews, text verbatim (typos included), **no reviewer names**
+- Rules: only 5-star Google Play reviews, wording unchanged (fix only obvious typos, capitalisation and punctuation; never rephrase), **no reviewer names**
   anywhere in the data or the built site, and any cut marked with `…`. Never reword.
 - To refresh: `cd website && uv run python -m sitegen.play_reviews [--min-len 60 --max-len 420 --limit 30]`
   lists the most helpful 5-star reviews on the console (names shown there are for your reference

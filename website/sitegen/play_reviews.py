@@ -89,7 +89,7 @@ def main(argv: list[str] | None = None, fetch: Fetcher = http_fetch) -> int:
         return 1
     for r in found:
         print(f"[{r.year}] helpful={r.thumbs} ({r.name}, console only)\n  {r.text}\n")
-    print(f"{len(found)} candidates; copy year and verbatim text only into data/reviews.yaml", file=sys.stderr)
+    print(f"{len(found)} candidates; copy year and text only (fix obvious typos, never reword) into data/reviews.yaml", file=sys.stderr)
     return 0
 
 
