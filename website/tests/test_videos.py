@@ -109,3 +109,20 @@ def test_yt_seed_explains_a_page_without_data():
 
     with pytest.raises(RuntimeError, match="ytInitialData"):
         initial_data("<html>consent.youtube.com</html>")
+
+
+def test_listing_cards_share_one_shape(tmp_path):
+    import re
+    from sitegen import home
+    from sitegen.i18n import strings
+    from sitegen.paths import CONTENT
+    from sitegen.videos import render_videos
+
+    vids = load(write(tmp_path, GOOD), {"bookmarks"})
+    render_videos(home.environment(), strings(CONTENT, "en"), vids, tmp_path)
+    html = (tmp_path / "videos" / "index.html").read_text()
+    cards = re.findall(r'<div class="(yt [^"]*)" data-yt-id="([^"]+)">', html)
+    assert len(cards) == 2 and all("yt--card" in c for c, _ in cards)
+    short = html.split('data-yt-id="shortID1234"')[1]
+    regular = html.split('data-yt-id="abcDEF12345"')[1].split('data-yt-id="shortID1234"')[0]
+    assert 'class="yt__backdrop"' in short and "yt__backdrop" not in regular

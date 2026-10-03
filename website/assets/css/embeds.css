@@ -6,6 +6,14 @@
 .yt__play img { width: 100%; height: 100%; object-fit: cover; }
 .yt__frame { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: var(--radius); }
 .yt--short .yt__frame { aspect-ratio: 9 / 16; max-width: 360px; }
+/* Listing cards: one 16:9 shape for videos and shorts. A short's portrait thumbnail is contained
+   in the card over a blurred, darkened copy of itself (only shorts carry the backdrop image). */
+.yt--card .yt__play { aspect-ratio: 16 / 9; max-width: none; }
+.yt--card .yt__frame { aspect-ratio: 16 / 9; max-width: none; }
+.yt--card .yt__fg { position: relative; }
+.yt--short.yt--card .yt__fg { object-fit: contain; }
+.yt__backdrop { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  transform: scale(1.15); filter: blur(14px) brightness(.55); }
 .yt__icon { position: absolute; top: 50%; left: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px;
   border-radius: 50%; background: var(--video-bg); opacity: .75; pointer-events: none; }
 .yt__icon::after { content: ""; position: absolute; top: 50%; left: 50%; margin: -12px 0 0 -8px;

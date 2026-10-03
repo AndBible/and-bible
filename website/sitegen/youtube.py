@@ -37,13 +37,19 @@ def parse(url: str) -> tuple[str, str] | None:
     return None
 
 
-def embed_html(video_id: str, kind: str, title: str | None = None) -> str:
+def embed_html(video_id: str, kind: str, title: str | None = None, card: bool = False) -> str:
+    """Click-to-load embed. `card=True` is for listings: every card is 16:9, and a short's
+    portrait thumbnail is centred over a blurred copy of itself (the `yt__backdrop` image)."""
     label = escape(f"Play video: {title}" if title else "Play video")
     caption = f'<span class="yt__title">{escape(title)}</span>' if title else ""
+    src = f"/media/videos/{video_id}.webp"
+    backdrop = (f'<img class="yt__backdrop" src="{src}" alt="" aria-hidden="true" loading="lazy" decoding="async">'
+                if card and kind == "short" else "")
+    thumb = f'<img class="yt__fg" src="{src}"' if card else f'<img src="{src}"'
     return (
-        f'<div class="yt yt--{kind}" data-yt-id="{video_id}">'
+        f'<div class="yt yt--{kind}{" yt--card" if card else ""}" data-yt-id="{video_id}">'
         f'<button type="button" class="yt__play" aria-label="{label}">'
-        f'<img src="/media/videos/{video_id}.webp" alt="" loading="lazy" decoding="async">'
+        f'{backdrop}{thumb} alt="" loading="lazy" decoding="async">'
         f'<span class="yt__icon" aria-hidden="true"></span></button>'
         f'{caption}'
         f'<a class="yt__link" href="https://www.youtube.com/watch?v={video_id}" rel="noopener">'

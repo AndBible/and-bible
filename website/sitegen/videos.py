@@ -70,7 +70,7 @@ def related(videos: list[Video]) -> dict[str, list[tuple[str, str]]]:
 
 def render_videos(env: Environment, strings: dict, videos: list[Video], out: Path) -> list[str]:
     def embeds(topic: str, short: bool) -> list[Markup]:
-        return [Markup(embed_html(v.id, "short" if short else "video", v.title))
+        return [Markup(embed_html(v.id, "short" if short else "video", v.title, card=True))
                 for v in videos if v.topic == topic and v.short == short]
 
     sections = [(topic, embeds(topic, False), embeds(topic, True)) for topic in TOPICS]
