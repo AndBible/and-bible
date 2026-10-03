@@ -128,6 +128,12 @@ Only run Android builds when testing Android-specific integration.
 - `app/bibleview-js/vite.config.mts`: Vue.js build configuration using Vite
 - `app/bibleview-js/package.json`: Vue.js dependencies and build scripts
 
+### Website (andbible.org and user docs)
+- `website/sitegen/build.py`: Site build entry point (`make site`)
+- `website/zensical.toml`: Docs build configuration and the docs nav (new pages must be listed here)
+- `website/content/README.md`: Authoring rules for blog posts, images, docs and translations
+- `sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/DocsLinks.kt`: `DocsLinks.page(...)`, the app's links into the docs
+
 ## Kotlin Multiplatform / Compose structure
 
 - `:sharedCore` holds the shared logic and models.
@@ -177,6 +183,9 @@ deployed to GitHub Pages from `current-stable`. Authoring rules: `website/conten
 - **User documentation lives in `website/content/en/docs/`.** A user-visible change (UI, setting,
   feature, behavior) updates the matching docs page in the same PR. A new page goes into the
   `website/zensical.toml` nav.
+- Docs are edited directly in `website/content/en/docs/*.md`; that Markdown is the source of truth.
+  The migration scripts in `website/sitegen/migrate/` were a one-shot RST-to-Markdown conversion kept
+  for reference only: do not re-run them. The old RST repository (`AndBible/docs`) is deprecated.
 - App links into the docs are built with `DocsLinks.page("<page>", "<anchor>")`
   (`sharedCore`, `net.bible.sharedcore.docs`); `website/tests/test_app_deep_links.py` checks every
   one against the built docs, so renaming a heading the app links to fails CI.

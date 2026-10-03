@@ -41,8 +41,8 @@ media repo first, then bump the gitlink here.
 ## YouTube
 
 Put the video URL alone on its own line. The build turns it into a thumbnail button (no embed, no
-third-party request until the visitor clicks). After adding one, run `make site-thumbs` (added with the video catalog) to fetch
-the thumbnail into the media repo.
+third-party request until the visitor clicks). After adding one, run `make site-thumbs` to fetch the
+thumbnail into the media repo.
 
 ## Galleries
 
@@ -55,8 +55,10 @@ the thumbnail into the media repo.
 
 ## User documentation
 
-- Pages are in `en/docs/`. Add each new page to the `nav` in `website/zensical.toml`; pages not in
-  the nav are not built.
+- Pages are in `en/docs/`. Edit the Markdown there directly: it is the source of truth. The
+  scripts in `website/sitegen/migrate/` were a one-shot RST-to-Markdown migration kept for
+  reference; do not re-run them. The old RST repository (`AndBible/docs`) is deprecated.
+- Add each new page to the `nav` in `website/zensical.toml`; pages not in the nav are not built.
 - Keep headings stable: the app links to their anchors as
   `https://andbible.org/docs/<page>/#<id>`. Renaming a heading the app links to fails the tests.
 - A user-visible app change updates the matching docs page in the same PR.
