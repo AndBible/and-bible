@@ -134,3 +134,11 @@ def test_current_page_marker_meets_wcag_aa_in_both_themes():
                   re.search(r':root\[data-theme="dark"\] \{(.*?)\n\}', css, re.S).group(1)):
         token = lambda name: re.search(rf"--{name}:\s*(#[0-9a-fA-F]{{6}})", block).group(1)
         assert _contrast(token(background), token(foreground)) >= 4.5
+
+
+def test_footer_has_no_translate_link(content, tmp_path):
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    html = (out / "index.html").read_text()
+    assert "Translating-User-Interface" not in html and "Help translate" not in html
+    assert not [k for k in strings(content, "en")["footer"] if "translate" in k]

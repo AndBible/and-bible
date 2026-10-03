@@ -176,7 +176,7 @@ its windows. These settings are synced across devices.
 
 <span id="text-appearance-options"></span>
 
-**Text appearance**
+**Text Appearance**
 
 - **Colors:** Adjust text color, background color, and background noise
     (a subtle texture overlay on the background).

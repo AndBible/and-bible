@@ -39,3 +39,35 @@ def test_build_docs_produces_directory_urls(tmp_path):
     html = (out / "docs" / "getting_started" / "index.html").read_text()
     anchor = json.loads((Path(__file__).parent / "fixtures" / "rtd_anchors.json").read_text())["getting_started"][1]
     assert f'id="{anchor}"' in html
+
+
+@pytest.fixture(scope="module")
+def built_docs(tmp_path_factory):
+    out = tmp_path_factory.mktemp("docs-out")
+    build_docs(paths.CONTENT, out, {})
+    return out
+
+
+def test_docs_header_matches_the_landing_topbar(built_docs):
+    import re
+
+    from sitegen.i18n import strings
+    site = strings(paths.CONTENT, "en")
+    html = (built_docs / "docs" / "ai" / "index.html").read_text()
+    header = html[html.index('<header'):html.index('</header>')]
+    assert re.search(r'class="ab-brand" href="/"[^>]*>.*?<span>AndBible</span>', header, re.S)
+    nav = header[header.index('class="ab-nav"'):]
+    links = re.findall(r'<a href="([^"]+)">([^<]+)</a>', nav)
+    n = site["nav"]
+    assert links[:5] == [("/blog/", n["blog"]), ("/docs/", n["docs"]), ("/videos/", n["videos"]),
+                         (site["sections"]["support_url"], n["support"]), (site["footer"]["source_url"], n["github"])]
+    assert "data-theme-toggle" in header and "data-md-component=\"search\"" in header
+    assert 'data-md-component="palette"' not in html and 'data-md-component="source"' not in html
+
+
+def test_docs_pages_apply_the_site_theme_before_first_paint(built_docs):
+    html = (built_docs / "docs" / "ai" / "index.html").read_text()
+    head = html[:html.index("</head>")]
+    assert "andbible-docs-theme.js" in head
+    assert (built_docs / "docs" / "assets" / "andbible-docs-theme.js").is_file()
+    assert "andbible-theme" in (built_docs / "docs" / "assets" / "andbible-docs-theme.js").read_text()

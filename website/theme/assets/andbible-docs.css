@@ -18,3 +18,29 @@
   --md-footer-bg-color: #121212;
 }
 .md-typeset h1, .md-typeset h2, .md-typeset h3 { font-family: "Source Serif 4", Georgia, serif; font-weight: 600; }
+
+/* ---- Header: same look as the landing topbar (assets/css/site.css) ---- */
+[data-md-color-scheme="default"] { --ab-border: #e3d8c0; --ab-surface: #fffaf0; --ab-surface-2: #f3ead7; --ab-muted: #5d5546; }
+[data-md-color-scheme="slate"] { --ab-border: #2c2a26; --ab-surface: #1c1c1b; --ab-surface-2: #121212; --ab-muted: #a59f93; }
+.md-header { background: var(--md-default-bg-color); border-bottom: 1px solid var(--ab-border); box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none; }
+.md-header__inner { max-width: 1120px; min-height: 60px; gap: 8px; padding: 0 16px; }
+.ab-brand { display: flex; align-items: center; gap: 10px; margin-right: auto; color: var(--md-default-fg-color);
+  text-decoration: none; font: 600 20px/1 "Source Serif 4", Georgia, serif; }
+.ab-brand img { width: 32px; height: 32px; }
+.ab-nav { display: none; align-items: center; gap: 4px; }
+.ab-nav a, .ab-drawer-links a { padding: 8px 12px; border-radius: 8px; color: var(--ab-muted); text-decoration: none; font-size: 15.2px; }
+.ab-nav a:hover, .ab-nav a:focus-visible, .ab-drawer-links a:hover { color: var(--md-default-fg-color); background: var(--ab-surface-2); }
+.ab-icon-button { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 40px; height: 40px;
+  padding: 0; border: 1px solid var(--ab-border); border-radius: 10px; background: var(--ab-surface);
+  color: var(--md-default-fg-color); cursor: pointer; }
+.ab-icon-button:hover { border-color: var(--md-accent-fg-color); }
+.ab-icon-button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; }
+.md-header .md-search { margin: 0; }
+@media (min-width: 720px) { .ab-nav { display: flex; } .ab-drawer-links { display: none !important; } }
+.ab-drawer-links { display: flex; flex-direction: column; padding: 0 .6rem .6rem; border-bottom: 1px solid var(--ab-border); }
+
+/* ---- Images aligned by the migrated `{ .align-* }` attribute lists ---- */
+.md-typeset img.align-center { display: block; margin-left: auto; margin-right: auto; }
+.md-typeset img.align-left { display: block; margin-right: auto; }

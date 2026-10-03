@@ -47,8 +47,6 @@ sections:
 footer:
   source: Source code
   source_url: "https://github.com/AndBible/and-bible"
-  translate: Help translate
-  translate_url: "https://github.com/AndBible/and-bible/wiki/Translating-User-Interface"
   issues: Report an issue
   issues_url: "https://github.com/AndBible/and-bible/issues"
   privacy: Privacy

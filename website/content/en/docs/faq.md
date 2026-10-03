@@ -2,6 +2,19 @@
 
 <span id="contents"></span><span id="id9"></span><span id="id10"></span><span id="id11"></span><span id="id12"></span><span id="id13"></span><span id="id14"></span><span id="id15"></span><span id="id16"></span><span id="id17"></span><span id="id18"></span><span id="id19"></span><span id="id20"></span>
 
+- [I can’t find ESV any more in Downloads. What’s wrong?](#i-can-t-find-esv-any-more-in-downloads-what-s-wrong)
+- [Please add module X to AndBible!](#please-add-module-x-to-andbible)
+- [I found a text issue in a Bible / Commentary module](#i-found-a-text-issue-in-a-bible-commentary-module)
+- [I have an older phone. Can I use AndBible?](#i-have-an-older-phone-can-i-use-andbible)
+- [How do I change the voice of the speech synthesis?](#how-do-i-change-the-voice-of-the-speech-synthesis)
+- [Is there a version for iOS (iPhone / iPad)?](#is-there-a-version-for-ios-iphone-ipad)
+- [How do I download more Bibles, commentaries, etc.?](#how-do-i-download-more-bibles-commentaries-etc)
+- [How do I copy my notes and bookmarks to a new phone?](#how-do-i-copy-my-notes-and-bookmarks-to-a-new-phone)
+- [Where do the Bible translations come from?](#where-do-the-bible-translations-come-from)
+- [How do I downgrade from 5.0 to 4.0 (or 4.0 to 3.3)?](#how-do-i-downgrade-from-5-0-to-4-0-or-4-0-to-3-3)
+- [How to get the paid NET module working?](#how-to-get-the-paid-net-module-working)
+- [Is there a way I can support the project?](#is-there-a-way-i-can-support-the-project)
+
 ## I can’t find ESV any more in Downloads. What’s wrong? {#i-can-t-find-esv-any-more-in-downloads-what-s-wrong}
 
 The publishers of the ESV have unfortunately decided it is no longer in their

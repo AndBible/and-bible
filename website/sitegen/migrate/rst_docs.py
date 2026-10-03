@@ -1,4 +1,7 @@
-"""One-shot migration of the legacy Read the Docs site (Sphinx/RST) to Markdown under content/en/docs/.
+"""HISTORICAL, ONE-SHOT: kept for reference only. Its output (content/en/docs/*.md) has since been edited by
+hand and is now the source of truth; do not re-run it.
+
+One-shot migration of the legacy Read the Docs site (Sphinx/RST) to Markdown under content/en/docs/.
 
 The Sphinx HTML (built by `rtd_capture`) is converted, not the RST, so roles, substitutions and
 directives are already resolved. The point of the migration is that every old

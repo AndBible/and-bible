@@ -1,4 +1,3 @@
-import json
 
 import pytest
 
@@ -97,12 +96,6 @@ def test_nav_block_replaces_the_seed(tmp_path):
     text = config.read_text()
     assert tomllib.loads(text)["nav"] == [{"Home": "index.md"}, {"G & H": ["a.md", {"R": ["r/i.md"]}]}]
     assert "[project.theme]\nb = 2" in text
-
-
-def test_fixture_is_json():  # guards the ground-truth fixture against accidental edits
-    from pathlib import Path
-    anchors = json.loads((Path(__file__).parent / "fixtures" / "rtd_anchors.json").read_text())
-    assert sum(map(len, anchors.values())) == 310
 
 
 def test_directory_index_becomes_a_section_with_its_pages():

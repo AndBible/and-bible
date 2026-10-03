@@ -19,7 +19,7 @@ from typing import Any
 import zensical
 
 from sitegen import paths
-from sitegen.i18n import languages, prefix, resolve
+from sitegen.i18n import languages, prefix, resolve, strings
 from sitegen.youtube import embed_html, expand_lines
 
 UNPUBLISHED: set[str] = set()  # every migrated page is published, so legacy URLs keep working
@@ -73,7 +73,33 @@ def theme_language(lang: str) -> str:
         else paths.DEFAULT_LANG
 
 
-def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path) -> str:
+def _toml(value: Any) -> str:
+    """Inline TOML for the strings, lists and string-keyed dicts of `site_extra`."""
+    if isinstance(value, dict):
+        return "{ " + ", ".join(f"{json.dumps(k)} = {_toml(v)}" for k, v in value.items()) + " }"
+    if isinstance(value, list):
+        return "[" + ", ".join(_toml(v) for v in value) + "]"
+    return json.dumps(value, ensure_ascii=False)  # a JSON string is a valid TOML basic string
+
+
+def site_extra(site: dict[str, Any], lang: str) -> dict[str, Any]:
+    """The landing topbar's brand and links, as theme data for the docs header (theme/partials/header.html)."""
+    nav = site["nav"]
+    return {
+        "brand": site["site_name"],
+        "home": f"{prefix(lang)}/",
+        "theme_toggle": nav["theme_toggle"],
+        "links": [
+            {"label": nav["blog"], "url": "/blog/"},
+            {"label": nav["docs"], "url": f"{prefix(lang)}/docs/"},
+            {"label": nav["videos"], "url": "/videos/"},
+            {"label": nav["support"], "url": site["sections"]["support_url"]},
+            {"label": nav["github"], "url": site["footer"]["source_url"]},
+        ],
+    }
+
+
+def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path, site: dict[str, Any]) -> str:
     # Zensical 0.0.67 panics on absolute docs_dir/site_dir and rejects a site_dir outside
     # the config's directory, so both are written relative to <config dir>.
     config_dir = paths.BUILD / lang
@@ -92,6 +118,8 @@ def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path) -> s
         lines.append(line)
         if line.strip() == "[project.theme]":
             lines.append(f"language = {json.dumps(theme_language(lang))}")
+        if line.strip() == "[project.extra]":
+            lines.append(f"site = {_toml(site_extra(site, lang))}")
     return "\n".join(lines) + "\n"
 
 
@@ -105,7 +133,7 @@ def build_docs(content: Path, out: Path, related: dict[str, list[tuple[str, str]
         # Build inside the config's directory, then copy to the real destination.
         built = paths.BUILD / lang / "site"
         config = paths.BUILD / lang / "zensical.toml"
-        config.write_text(_language_config(base.read_text(), lang, stage_dir, built))
+        config.write_text(_language_config(base.read_text(), lang, stage_dir, built, strings(content, lang)))
         # Run through this interpreter so the venv's zensical is used, not PATH's.
         subprocess.run([sys.executable, "-m", "zensical", "build", "--clean", "--strict",
                         "-f", str(config)], check=True, cwd=paths.WEBSITE)

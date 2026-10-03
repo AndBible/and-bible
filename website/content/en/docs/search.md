@@ -44,7 +44,7 @@ Some searches cannot be performed with other searches.
 Find words that are a within a specific distance. To do a proximity search use the tilde, "~", symbol at the end of a phrase.
 For example to search for a "God" and "light" within 10 words of each other in a document use the search:
 
-!!! admonition-example "Example"
+!!! example
 
     "God light"~10
 
@@ -58,7 +58,7 @@ Fuzzy searches find words that are similar in spelling to the search words.
 To do a fuzzy search use the tilde, "~", symbol at the end of a single word term followed by a number between 0 and 1.
 For example to search for a term similar in spelling to "believe" use the fuzzy search:
 
-!!! admonition-example "Example"
+!!! example
 
     believe~0.6
 
