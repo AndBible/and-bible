@@ -133,6 +133,8 @@ egress_allow:
   # e.g. in the in-container emulator)
   - andbible.org:443
   - support.andbible.org:443
+  # User documentation (Read the Docs)
+  - docs.andbible.org:443
   - crosswire.org:443
   - ebible.org:443
   - ibtrussia.org:443
