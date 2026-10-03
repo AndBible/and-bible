@@ -21,11 +21,12 @@ let failures = 0;
 const check = (name, ok, detail = '') => { console.log(ok ? 'PASS' : 'FAIL', name, detail); if (!ok) failures++; };
 
 const errors = [];
-async function open(options = {}) {
+async function open(options = {}, random = 0) {
   const context = await browser.newContext({viewport: {width: 1280, height: 900}, ...options});
   const page = await context.newPage();
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', e => errors.push(String(e)));
+  await page.addInitScript(r => { Math.random = () => r; }, random);
   await page.clock.install();
   await page.goto(`${base}/`);
   return page;
@@ -63,6 +64,15 @@ check('ArrowRight moves', await label(page) === '2 of 20');
 await page.keyboard.press('ArrowLeft');
 check('ArrowLeft moves back', await label(page) === '1 of 20');
 await page.context().close();
+
+// 1b. random start: the stubbed Math.random decides the first slide, order stays cyclic
+for (const [r, expected] of [[0, '1 of 20'], [0.5, '11 of 20'], [0.999, '20 of 20']]) {
+  page = await open({}, r);
+  check(`Math.random=${r} starts at ${expected}`, await label(page) === expected && (await page.textContent('.review-position')) === expected.replace(' of ', ' / '), await label(page));
+  await page.click('[aria-label="Next review"]');
+  check(`next after ${expected} follows cyclic order`, await label(page) === `${(parseInt(expected) % 20) + 1} of 20`, await label(page));
+  await page.context().close();
+}
 
 // 2. auto-advance, hover, user stop
 page = await open();

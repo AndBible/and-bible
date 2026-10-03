@@ -1,5 +1,6 @@
 // Home page reviews: turns the plain list of review cards into a one-at-a-time carousel.
 // Without this script (or when it fails) all cards stay visible as a list.
+// It starts at a random card and then follows the file order (the no-JS list stays in file order).
 // Auto-advance runs every 10 s unless the visitor prefers reduced motion; it pauses on mouse hover,
 // keyboard focus and a hidden tab, and stops for good once the visitor uses prev/next or the arrow keys.
 (function () {
@@ -14,7 +15,7 @@
     return pattern.replace("{n}", n).replace("{total}", slides.length);
   };
   var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var index = 0;
+  var index = Math.floor(Math.random() * slides.length); // random start, then file order
   var playing = !reduced; // the visitor's intent: auto-advance wanted
   var hovering = false;
   var focused = false;
@@ -107,7 +108,7 @@
   root.setAttribute("aria-roledescription", "carousel");
   root.classList.add("is-carousel");
   renderToggle();
-  show(0, false);
+  show(index, false); // before the enhancement class is added, so slide 1 never flashes
   void root.offsetWidth; // flush styles so the first state change is not animated
   root.classList.add("is-ready");
   schedule();
