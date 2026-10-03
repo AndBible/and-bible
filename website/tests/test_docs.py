@@ -1,3 +1,4 @@
+import re
 import json
 from pathlib import Path
 
@@ -71,3 +72,32 @@ def test_docs_pages_apply_the_site_theme_before_first_paint(built_docs):
     assert "andbible-docs-theme.js" in head
     assert (built_docs / "docs" / "assets" / "andbible-docs-theme.js").is_file()
     assert "andbible-theme" in (built_docs / "docs" / "assets" / "andbible-docs-theme.js").read_text()
+
+
+BADGES = ("google-play", "f-droid", "amazon", "obtainium")
+
+
+def test_install_badges_share_one_row_wrapper(built_docs):
+    import re
+
+    html = (built_docs / "docs" / "getting_started" / "index.html").read_text()
+    wrapper = re.search(r'<div class="ab-badges">(.*?)</div>', html, re.S)
+    assert wrapper, "install badges must sit in <div class=\"ab-badges\">"
+    for name in BADGES:
+        assert f"images/{name}-badge.png" in wrapper.group(1)
+    assert "height=" not in wrapper.group(1), "height comes from the stylesheet, not per-image attributes"
+
+
+def test_badge_images_have_one_aspect_ratio():
+    from PIL import Image
+
+    images = paths.CONTENT / "en" / "docs" / "images"
+    ratios = [Image.open(images / f"{n}-badge.png").size for n in BADGES]
+    assert max(w / h for w, h in ratios) - min(w / h for w, h in ratios) < 0.25, ratios
+    assert len({h for _, h in ratios}) == 1, ratios
+
+
+def test_badge_css_keeps_one_row_with_equal_heights():
+    css = (paths.WEBSITE / "theme" / "assets" / "andbible-docs.css").read_text()
+    assert re.search(r"\.ab-badges\s*\{[^}]*display:\s*flex[^}]*flex-wrap:\s*nowrap", css, re.S)
+    assert re.search(r"\.ab-badges\s+img\s*\{[^}]*height:\s*auto[^}]*\}", css, re.S) or "ab-badges img" in css

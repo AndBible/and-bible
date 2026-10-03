@@ -54,3 +54,9 @@
 .ab-docs-landing table { display: table; table-layout: fixed; width: 100%; }
 .ab-docs-landing th:first-child, .ab-docs-landing td:first-child { width: 38%; }
 @media (min-width: 720px) { .ab-docs-landing th:first-child, .ab-docs-landing td:first-child { width: 14rem; } }
+
+/* Install badges: one row, equal heights; the row shrinks every badge proportionally to fit. */
+.md-typeset .ab-badges { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; margin: 1em 0; }
+.md-typeset .ab-badges p { display: contents; }
+.md-typeset .ab-badges a { display: block; flex: 0 1 auto; min-width: 0; line-height: 0; }
+.md-typeset .ab-badges img { display: block; height: auto; width: auto; max-width: 100%; max-height: 50px; }

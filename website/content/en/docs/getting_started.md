@@ -10,10 +10,17 @@ the [Amazon App Store](http://www.amazon.com/Martin-Denham-And-Bible/dp/B004Z2KK
 or directly from the [Releases section of our GitHub](https://github.com/AndBible/and-bible/releases/latest)
 source code repository.
 
-[![Google play badge](images/google-play-badge.png){ height="50" }](https://play.google.com/store/apps/details?id=net.bible.android.activity)
-[![F droid badge](images/f-droid-badge.png){ height="50" }](https://f-droid.org/packages/net.bible.android.activity/)
-[![Amazon badge](images/amazon-badge.png){ height="50" }](http://www.amazon.com/Martin-Denham-And-Bible/dp/B004Z2KKYK)
-[![Obtainium badge](images/obtainium-badge.png){ height="50" }](https://obtainium.imranr.dev/)
+<div class="ab-badges" markdown>
+
+[![Google play badge](images/google-play-badge.png)](https://play.google.com/store/apps/details?id=net.bible.android.activity)
+
+[![F droid badge](images/f-droid-badge.png)](https://f-droid.org/packages/net.bible.android.activity/)
+
+[![Amazon badge](images/amazon-badge.png)](http://www.amazon.com/Martin-Denham-And-Bible/dp/B004Z2KKYK)
+
+[![Obtainium badge](images/obtainium-badge.png)](https://obtainium.imranr.dev/)
+
+</div>
 
 Note: An apk downloaded directly from the “Assets” sub-menu of the Github Releases
 will not automatically update. You can use a tool like [Obtainium](https://obtainium.imranr.dev/)
