@@ -26,7 +26,7 @@ Run a script:
 ```bash
 export NODE_PATH=$PWD/.local/playwright/node_modules
 export CHROME=$(ls ~/.cache/ms-playwright/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell | tail -1)
-node website/tests/reviews-carousel.mjs    # also docs-header, docs-layout, docs-badges, hero-layout, video-card-link, screens
+node website/tests/reviews-carousel.mjs    # also docs-header, docs-layout, docs-badges, hero-layout, video-card-link, appshots, screens
 ```
 
 Each script prints PASS/FAIL checks and exits 1 on failure; their headers say what they guard.
