@@ -38,7 +38,9 @@ class KeyItemAdapter(
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val item = getItem(position)!!
 
-        // Pick up the TwoLineListItem defined in the xml file
+        // `resource` is android.R.layout.simple_list_item_1 (ChooseKeyBase.kt), i.e. a bare
+        // TextView -- not a custom widget. The old comment here named TwoLineListItem, which
+        // this adapter never inflated; that widget and its only layout went in the Z-late epilogue.
         val view: TextView
         view = if (convertView == null) {
             val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater

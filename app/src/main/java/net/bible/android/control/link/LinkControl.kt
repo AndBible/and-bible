@@ -16,11 +16,8 @@
  */
 package net.bible.android.control.link
 
-import android.content.Intent
-import android.os.Bundle
 import android.util.Log
 import net.bible.android.activity.R
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.OrdinalRange
@@ -32,9 +29,10 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.search.SearchIndex
-import net.bible.android.view.activity.search.SearchResults
+import net.bible.android.view.activity.page.ReadingHostActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils.settings
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
@@ -64,7 +62,6 @@ import java.io.FileNotFoundException
 import java.net.URLDecoder
 import java.util.*
 import java.util.regex.Pattern
-import javax.inject.Inject
 
 
 /** Control traversal via links pressed by user in a browser e.g. to Strongs
@@ -80,8 +77,7 @@ enum class WindowMode {
 }
 
 
-@ApplicationScope
-class LinkControl @Inject constructor(
+class LinkControl constructor(
     private val windowControl: WindowControl,
 	private val bookmarkControl: BookmarkControl,
 	private val searchControl: SearchControl,
@@ -372,23 +368,68 @@ class LinkControl @Inject constructor(
         if (needToIndex) {
             Log.i(TAG, "Index status is NOT DONE")
         }
+
+        // F6 Task 8b entry point 8: retarget into the reading view's search when a Compose host is
+        // mounted AND the search document is already indexed. Classic's not-indexed branch is kept
+        // unconditionally below — prompting for an index of a document other than the active
+        // window's is Task 11's machinery, which does not exist yet.
+        //
+        // Recorded Plan-A gap (review item C): `checkStrongs(searchBible)` above checks the
+        // RESOLVED Strong's Bible (the remembered/auto-detected translation), but
+        // `ReadingSearchController.open` derives its `NeedsIndex`/`Results` phase from the ACTIVE
+        // WINDOW's document (`ComposeReadingViewHost.searchController`'s `resolveDoc`, which reads
+        // `activity.documentControl.currentDocument`). If the Bible being READ is unindexed while
+        // the remembered Strong's Bible is indexed (the case just above returns `true` and this
+        // branch is taken), the reading view can raise an "index this document?" prompt for the
+        // READ document — which is not the one this find-all is actually about — instead of running
+        // immediately. Not fixed here: the same "index a document other than the active window's"
+        // gap Task 11 exists for.
+        val activity = CurrentActivityHolder.currentActivity!!
+        if (!needToIndex &&
+            // T8b fix round 1 (I1): was `(activity as? MainBibleActivity)`, which is always null once
+            // NavHostComposeActivity hosts the reading view — so "find all occurrences" had silently
+            // stopped searching in place and left the reading view for the search cluster instead.
+            (activity as? ReadingHostActivity)?.readingCommands
+                ?.composeSearchStrongsIfHosted(ref, selection.map { it.initials }) == true
+        ) {
+            return
+        }
+
         // The below uses ANY_WORDS because that does not add anything to the search string
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
+        // Section-less decorated query for highlighting result previews (mirrors Search.kt); shows
+        // which word the Strong's number matched.
+        val highlightText = searchControl.highlightSearchString("strong:$ref", SearchType.ANY_WORDS)
         val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, bibleSection, null)
         Log.i(TAG, "Search text:$searchText")
-        val activity = CurrentActivityHolder.currentActivity!!
-        val searchParams = Bundle()
-        searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
-        searchParams.putString(SearchControl.SEARCH_DOCUMENT, searchBible.initials)
-        searchParams.putBoolean(SearchControl.IS_STRONGS_SEARCH, true)
-        val intent = if (needToIndex) {
-            Intent(activity, SearchIndex::class.java)
-        } else { //If an indexed Strong's module is in place then do the search - the normal situation
-            Intent(activity, SearchResults::class.java)
+        // nav-graph slice 5/Task 6: the search cluster lives in the graph, so every argument
+        // travels IN the route. This used to build a four-key Bundle plus a fifth
+        // putStringArrayListExtra and hang them on `ScreenLauncher.intentFor(..., Screen
+        // .SearchIndex/SearchResults)`; since Task 4 migrated `Screen.SearchIndex` that intent is
+        // the nav host with an ARGUMENT-FREE route and every one of those extras was silently
+        // dropped -- a Strong's link into an unindexed module indexed the CURRENT page's book
+        // instead of `searchBible` and then landed on an empty search form. `isStrongsSearch` is
+        // unconditionally true here (that is what this whole function is).
+        // (else branch = an indexed Strong's module is in place, so run the search directly --
+        // the normal situation.)
+        val route = if (needToIndex) {
+            NavRoutes.searchIndex(
+                searchText = searchText,
+                highlightText = highlightText,
+                searchDocument = searchBible.initials,
+                selectedTranslations = selection.map { it.initials },
+                isStrongsSearch = true,
+            )
+        } else {
+            NavRoutes.searchResults(
+                searchText = searchText,
+                highlightText = highlightText,
+                searchDocument = searchBible.initials,
+                selectedTranslations = selection.map { it.initials },
+                isStrongsSearch = true,
+            )
         }
-        intent.putExtras(searchParams)
-        intent.putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, ArrayList(selection.map { it.initials }))
-        activity.startActivity(intent)
+        activity.startActivity(NavHostComposeActivity.intentFor(activity, route))
     }
 
     /** ensure a book is indexed and the index contains typical Greek or Hebrew Strongs Numbers

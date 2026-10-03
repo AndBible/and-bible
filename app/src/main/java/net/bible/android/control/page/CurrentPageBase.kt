@@ -26,6 +26,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
 import net.bible.service.download.isRemoved
@@ -266,6 +267,10 @@ abstract class CurrentPageBase protected constructor(
 
     override fun setCurrentDocument(doc: Book?) {
         Log.i(TAG, "Set current doc to $doc")
+        // Round 15b: the ONE leaf every document switch funnels through — CurrentPageManager's
+        // setCurrentDocument (:162, both branches) and setCurrentDocumentAndKey (:208) both land
+        // here. Feeds the document quick sheet's Recent tab (spec §4.5).
+        RecentDocumentsStore.record(doc?.initials)
         val prevDoc = _currentDocument
         if (doc != _currentDocument && !isShareKeyBetweenDocs && key != null && !doc!!.contains(key)) {
             doSetKey(null)

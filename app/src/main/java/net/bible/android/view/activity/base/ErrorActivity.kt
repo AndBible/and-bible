@@ -26,6 +26,7 @@ class ErrorActivity: ActivityBase() {
     override val doNotInitializeApp: Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mountAppDialogOverlay()
         lifecycleScope.launch {
             BugReport.reportBug(this@ErrorActivity, source = "error notification")
             finish()

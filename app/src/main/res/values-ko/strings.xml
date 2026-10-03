@@ -411,10 +411,6 @@
   <string name="auto_assign_labels1">레이블을 새로운 북마크에 자동으로 지정</string>
   <string name="auto_assign_labels_primary">Primary로 자동 지정</string>
   <!--can be removed-->
-  <string name="marker_style">선택 북마크에는 마커만 표시</string>
-  <string name="marker_style_whole_verse">전체 구절 북마크에는 마커만 표시</string>
-  <string name="hide_style">선택 북마크에 대해 숨김</string>
-  <string name="hide_style_whole_verse">전체 구절 북마크에 대해 숨김</string>
   <string name="bookmark_warning">이 문서에 대한 북마크 및/또는 노트가 있습니다.</string>
   <string name="bookmark_warning2">
         문서 구조가 변경된 경우, 이 문서를 업데이트하면
@@ -942,8 +938,6 @@
   <string name="favourite_label">즐겨찾기 레이블</string>
   <string name="edit_label">레이블 편집</string>
   <string name="delete_label_confirmation">북마크 레이블 \"%s\"를 삭제하시겠습니까? 연결된 모든 스터디 패드 노트도 함께 삭제됩니다.</string>
-  <string name="bookmark_underline_style_arbitrary">선택 북마크의 밑줄 스타일</string>
-  <string name="bookmark_underline_style_whole_verse">전체 구절 북마크의 밑줄 스타일</string>
   <string name="active_labels">선택된 레이블</string>
   <string name="recent_labels">최근 레이블</string>
   <string name="other_labels">다른 레이블</string>

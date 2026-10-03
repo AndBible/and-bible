@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.write
 
+import org.koin.core.context.GlobalContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
@@ -71,7 +72,7 @@ object AddLabelToBookmarkTool : Tool {
     override val requiresPermission = true
     override val displayNameResId = R.string.tool_add_label_to_bookmark
 
-    private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
+    private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
     override suspend fun formatActionDescription(arguments: JSONObject): String? {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null

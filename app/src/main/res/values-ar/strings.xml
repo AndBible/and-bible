@@ -401,10 +401,6 @@
   <string name="auto_assign_labels1">عيّن ملصق تلقائياً لعلامة مرجعية جديدة</string>
   <string name="auto_assign_labels_primary">التعيين التلقائي كأساسي</string>
   <!--can be removed-->
-  <string name="marker_style">إظهار العلامة فقط للإشارات المرجعية للتحديد</string>
-  <string name="marker_style_whole_verse">إظهار العلامة فقط للإشارات المرجعية للآية كاملة</string>
-  <string name="hide_style">إخفاء للإشارات المرجعية للتحديد</string>
-  <string name="hide_style_whole_verse">إخفاء للإشارات المرجعية للآية كاملة</string>
   <string name="bookmark_warning">لا يوجد علامات مرجعية و/أو ملاحظات لهذا المستند</string>
   <string name="bookmark_warning2">
          اذا تغيرت بنية المستند، قد يؤدي تحديث هذا المستند الى
@@ -886,8 +882,6 @@
   <string name="favourite_label">ملصق مفضل</string>
   <string name="edit_label">تحرير ملصق</string>
   <string name="delete_label_confirmation">هل تريد إزالة تسمية الإشارة المرجعية \"%s\"؟ ستُزال أيضاً جميع ملاحظات لوحة الدراسة المرتبطة بها.</string>
-  <string name="bookmark_underline_style_arbitrary">نمط التسطير للإشارات المرجعية التحديدية</string>
-  <string name="bookmark_underline_style_whole_verse">نمط التسطير للإشارات المرجعية للآية كاملة</string>
   <string name="active_labels">التسميات المحددة</string>
   <string name="recent_labels">التسميات الأخيرة</string>
   <string name="other_labels">تسميات أخرى</string>

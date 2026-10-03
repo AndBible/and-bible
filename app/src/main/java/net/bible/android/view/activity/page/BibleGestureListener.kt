@@ -23,18 +23,39 @@ import android.view.MotionEvent
 import android.view.ViewConfiguration
 
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.view.util.TouchOwner
+import net.bible.android.control.event.on
 import net.bible.service.common.BibleViewSwipeMode
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.reading.AutoFullscreenTracking
+import net.bible.sharedcore.reading.FullscreenAction
+import net.bible.sharedcore.reading.autoFullscreenAction
+import net.bible.sharedcore.reading.reanchoredTracking
+import net.bible.sharedcore.reading.shouldReanchor
 import kotlin.math.abs
 
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
+ *
+ * R5 (reading-host re-typing): retyped off `MainBibleActivity` onto the narrow
+ * [ReadingHostActivity]. Seven of the nine accesses are `fullScreen`, which the interface exposes
+ * directly.
+ *
+ * R5 fix round 1 (review): `next()`/`previous()` are MainBibleActivity-only navigation methods
+ * (they reach `documentViewManager`); the first pass bridged them by casting the field back to the
+ * concrete Activity class, which review Important 5 flagged as an
+ * avoidable crash risk once `NavHostComposeActivity` builds a real `BibleView` -- a CHAPTER-mode
+ * swipe would hit it immediately. Per the review's preferred route, chapter navigation is now two
+ * plain callbacks the sole construction site (`BibleView.kt`) already has everything to satisfy
+ * without any body movement: `BibleView(...).next()`/`.previous()` on ITS OWN still-
+ * `MainBibleActivity`-typed `mainBibleActivity` field become `{ mainBibleActivity.next() }` /
+ * `{ mainBibleActivity.previous() }` lambdas passed in at construction.
  */
 class BibleGestureListener(
-    private val mainBibleActivity: MainBibleActivity,
-    val bibleView: BibleView
+    private val mainBibleActivity: ReadingHostActivity,
+    val bibleView: BibleView,
+    private val onNext: () -> Unit,
+    private val onPrevious: () -> Unit,
 ) : SimpleOnGestureListener() {
     private val scaledMinimumDistance: Int = CommonUtils.convertDipsToPx(DISTANCE_DIP)
     private val scaledMinimumFullScreenScrollDistance: Int = CommonUtils.convertDipsToPx(SCROLL_DIP)
@@ -43,15 +64,40 @@ class BibleGestureListener(
     private val autoFullScreen: Boolean get() = CommonUtils.settings.getBoolean("auto_fullscreen_pref", false)
     private var lastFullScreenByDoubleTap = false
 
-    private lateinit var scrollEv: MotionEvent
     private lateinit var flingEv: MotionEvent
-    private var lastDirection = false
+
+    /**
+     * Threshold/direction/gating state for the auto-fullscreen decision in [onScroll], carried
+     * between calls. Replaces the classic `scrollEv`/`lastDirection` fields (their sole purpose
+     * was this decision - see the shared [net.bible.sharedcore.reading.AutoFullscreenPolicy] KDoc
+     * for the full derivation against classic).
+     */
+    private var autoFullscreenTracking = AutoFullscreenTracking()
+
+    /**
+     * Event time of the last auto-fullscreen re-anchor point - mirrors classic `scrollEv.eventTime`
+     * (`BibleGestureListener.kt:121,124,132,139,145` at `b33072833`). [gestureAnchorInitialized]
+     * mirrors `!::scrollEv.isInitialized`. Used only to decide, via
+     * [net.bible.sharedcore.reading.shouldReanchor], WHEN to reset [autoFullscreenTracking] to a
+     * fresh accumulator before delegating to [autoFullscreenAction] in [onScroll] - restoring
+     * classic's gesture-boundary + ~1s rate-limit re-anchors that the Task 6 port dropped (both
+     * made fullscreen fire more eagerly than classic: two short same-direction swipes across a
+     * finger-lift would stack, and a slow multi-second scroll would accumulate unbounded).
+     */
+    private var gestureAnchorEventTime: Long = 0L
+    private var gestureAnchorInitialized = false
 
     init {
-        minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
+        minScaledVelocity = ViewConfiguration.get(mainBibleActivity.hostContext).scaledMinimumFlingVelocity
         // make it easier to swipe
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            on<FullScreenEvent> { event ->
+                if(!event.isFullScreen) {
+                    lastFullScreenByDoubleTap = false
+                }
+            }
+        }
     }
 
     fun destroy() {
@@ -73,77 +119,94 @@ class BibleGestureListener(
             return false
         }
 
-        // prevent interference with window separator drag - fast drags were causing a fling
-        if (!TouchOwner.isTouchOwned) {
-            // get distance between points of the fling
-            val vertical = abs(flingEv.y - e2.y).toDouble()
-            val horizontal = abs(flingEv.x - e2.x).toDouble()
+        // The `if (!TouchOwner.isTouchOwned)` guard that used to wrap this block is gone with
+        // TouchOwner itself: its only two callers, `setTouchOwner` and `releaseOwnership`, were
+        // the classic split reading area's separator drag, so after the epilogue the property
+        // was permanently false and this branch was taken unconditionally (spec 10.3).
+        // get distance between points of the fling
+        val vertical = abs(flingEv.y - e2.y).toDouble()
+        val horizontal = abs(flingEv.x - e2.x).toDouble()
 
-            Log.i(TAG, "onFling vertical:$vertical horizontal:$horizontal VelocityX$velocityX")
+        Log.i(TAG, "onFling vertical:$vertical horizontal:$horizontal VelocityX$velocityX")
 
-            // test vertical distance, make sure it's a swipe
-            if (vertical > scaledMinimumDistance) {
-                return false
-            } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
-                // right to left swipe - sometimes velocity seems to have wrong sign so use raw positions to determine direction
-                var goNext = flingEv.x > e2.x
-                if(CommonUtils.isRtl)
-                    goNext = !goNext
+        // test vertical distance, make sure it's a swipe
+        if (vertical > scaledMinimumDistance) {
+            return false
+        } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
+            // right to left swipe - sometimes velocity seems to have wrong sign so use raw positions to determine direction
+            var goNext = flingEv.x > e2.x
+            if(CommonUtils.isRtl)
+                goNext = !goNext
 
-                if (goNext) {
-                    when(CommonUtils.settings.bibleViewSwipeMode) {
-                        BibleViewSwipeMode.CHAPTER -> mainBibleActivity.next()
-                        BibleViewSwipeMode.PAGE -> bibleView.volumeDownPressed()
-                        BibleViewSwipeMode.NONE -> {}
-                    }
-                } else {
-                    when(CommonUtils.settings.bibleViewSwipeMode) {
-                        BibleViewSwipeMode.CHAPTER -> mainBibleActivity.previous()
-                        BibleViewSwipeMode.PAGE -> bibleView.volumeUpPressed()
-                        BibleViewSwipeMode.NONE -> {}
-                    }
+            if (goNext) {
+                when(CommonUtils.settings.bibleViewSwipeMode) {
+                    BibleViewSwipeMode.CHAPTER -> onNext()
+                    BibleViewSwipeMode.PAGE -> bibleView.volumeDownPressed()
+                    BibleViewSwipeMode.NONE -> {}
                 }
-                return true
+            } else {
+                when(CommonUtils.settings.bibleViewSwipeMode) {
+                    BibleViewSwipeMode.CHAPTER -> onPrevious()
+                    BibleViewSwipeMode.PAGE -> bibleView.volumeUpPressed()
+                    BibleViewSwipeMode.NONE -> {}
+                }
             }
+            return true
         }
         return false
     }
 
-	fun onEvent(event: MainBibleActivity.FullScreenEvent) {
-		if(!event.isFullScreen) {
-			lastFullScreenByDoubleTap = false
-		}
-	}
-
     override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
         e1 ?: return false
-        if (!::scrollEv.isInitialized  || e1.eventTime > scrollEv.eventTime) {
-            // New scroll event
-            scrollEv = MotionEvent.obtain(e1)
-        }
-        if (e2.eventTime - scrollEv.eventTime > 1000) {
-            // Too slow motion
-            scrollEv = MotionEvent.obtain(e2)
+
+        // Restore classic's gesture-boundary + ~1s rate-limit re-anchors (`:121,124` at
+        // `b33072833`), dropped by the Task 6 AutoFullscreenPolicy port. Reset the accumulator to
+        // fresh BEFORE delegating whenever a new physical gesture starts or too much time elapsed
+        // since the last anchor - without this, two short same-direction swipes across a
+        // finger-lift would stack, and a slow multi-second scroll would accumulate unbounded,
+        // both making fullscreen fire more eagerly than classic.
+        //
+        // reanchoredTracking zeroes ONLY the accumulator and PRESERVES lastDirectionUp - mirroring
+        // classic re-anchoring the `scrollEv` POSITION while leaving `lastDirection` (genuine
+        // persistent cross-gesture state, changed only on an observed flip) untouched. A full
+        // `AutoFullscreenTracking()` reset here (fix pass 1) hardcoded `lastDirectionUp = false`,
+        // which diverges from classic in the (prev=up, new=down) case - see reanchoredTracking's
+        // KDoc for the full trace.
+        if (shouldReanchor(gestureAnchorInitialized, e1.eventTime, e2.eventTime, gestureAnchorEventTime)) {
+            autoFullscreenTracking = reanchoredTracking(autoFullscreenTracking)
+            gestureAnchorEventTime = e2.eventTime
+            gestureAnchorInitialized = true
         }
 
-        val direction = distanceY > 0
-        if (lastDirection != direction) {
-            scrollEv = MotionEvent.obtain(e2)
-            lastDirection = direction
+        // Bridge note (Task 6): GestureDetector's distanceY is the NEGATION of the shared policy's
+        // "down = positive" deltaY convention - see AutoFullscreenPolicy KDoc.
+        val deltaY = -distanceY
+        val trackingBeforeCall = autoFullscreenTracking
+        val result = autoFullscreenAction(
+            deltaY = deltaY,
+            isEnabled = autoFullScreen,
+            isFullScreen = mainBibleActivity.fullScreen,
+            lockedByDoubleTap = lastFullScreenByDoubleTap,
+            thresholdPx = scaledMinimumFullScreenScrollDistance.toFloat(),
+            tracking = trackingBeforeCall,
+        )
+        autoFullscreenTracking = result.tracking
+
+        // Classic also re-anchors `scrollEv = e2` whenever it toggles fullscreen (threshold
+        // cross, `:139`/`:145` - unconditional regardless of the double-tap-lock/pref gating) or
+        // flips direction (`:132`). Both are already reproduced inside autoFullscreenAction's own
+        // accumulator math (accumulated resets to 0 in either case) - but the re-anchor TIME must
+        // still be tracked here so the next call's ~1s idle check in shouldReanchor restarts from
+        // the same points classic used.
+        val directionFlipped = (deltaY < 0) != trackingBeforeCall.lastDirectionUp
+        if (result.action != FullscreenAction.None || directionFlipped) {
+            gestureAnchorEventTime = e2.eventTime
         }
 
-        val dist = e2.y - scrollEv.y
-        if (!mainBibleActivity.fullScreen && dist < -scaledMinimumFullScreenScrollDistance) {
-            if (!lastFullScreenByDoubleTap && autoFullScreen) {
-                mainBibleActivity.fullScreen = true
-            }
-            scrollEv = MotionEvent.obtain(e2)
-        }
-        if (mainBibleActivity.fullScreen && dist > scaledMinimumFullScreenScrollDistance) {
-            if (!lastFullScreenByDoubleTap && autoFullScreen) {
-                mainBibleActivity.fullScreen = false
-            }
-            scrollEv = MotionEvent.obtain(e2)
+        when (result.action) {
+            FullscreenAction.Enter -> mainBibleActivity.fullScreen = true
+            FullscreenAction.Exit -> mainBibleActivity.fullScreen = false
+            FullscreenAction.None -> {}
         }
         return false
     }

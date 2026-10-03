@@ -17,15 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
-import android.app.AlertDialog
-import android.content.Context
 import android.net.Uri
-import android.util.Log
-import android.view.LayoutInflater
-import net.bible.android.activity.databinding.DialogCommentaryFilterBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
@@ -48,6 +40,10 @@ import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
@@ -55,9 +51,8 @@ import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import net.bible.android.control.page.renderCommentaryFragmentXml
 import org.json.JSONObject
+import org.koin.java.KoinJavaComponent
 import java.io.StringReader
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * Tool for getting commentary entries for a verse or verse range.
@@ -301,7 +296,7 @@ object GetCommentariesTool : Tool {
         val estimatedChars: Int
     )
 
-    private data class FilterResult(
+    internal data class FilterResult(
         val results: List<CommentaryResult>,
         val excludedCommentaries: List<String>
     )
@@ -333,8 +328,13 @@ object GetCommentariesTool : Tool {
      * If commentaryMaxResponseTokens is set and the total response exceeds it,
      * shows a selection dialog so the user can choose which commentaries to include.
      * Returns null if the user cancels (meaning: abort the tool call entirely).
+     *
+     * `internal`, not `private`, purely so `GetCommentariesToolFilterDialogTest` can exercise it
+     * directly with synthetic [CommentaryResult]s -- reconstructing the real Sword-commentary
+     * pipeline just to exceed a token threshold buys nothing (same rationale as
+     * `BackupControl.selectDatabaseSections`, spec-referenced there).
      */
-    private suspend fun filterByResponseSizeLimit(commentaryResults: List<CommentaryResult>, context: AgentContext): FilterResult? {
+    internal suspend fun filterByResponseSizeLimit(commentaryResults: List<CommentaryResult>, context: AgentContext): FilterResult? {
         val thresholdTokens = CommonUtils.aiSettings.commentaryMaxResponseTokens
         if (thresholdTokens <= 0 || commentaryResults.isEmpty()) {
             return FilterResult(commentaryResults, emptyList())
@@ -351,27 +351,25 @@ object GetCommentariesTool : Tool {
         val totalTokens = estimateTokens(infos.sumOf { it.estimatedChars })
         if (totalTokens <= thresholdTokens) return FilterResult(commentaryResults, emptyList())
 
-        var activity = CurrentActivityHolder.currentActivity
-        if (activity == null) {
-            Log.d("GetCommentariesTool", "No current activity for commentary filter dialog, waiting...")
-            val workspaceId = context.workspaceId
-            if (workspaceId != null) {
-                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true))
-            }
-            while (activity == null) {
-                delay(500)
-                activity = CurrentActivityHolder.currentActivity
-            }
-            if (workspaceId != null) {
-                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
-            }
-        }
-
         // Sort by size descending for display
         val sorted = infos.sortedByDescending { it.estimatedChars }
 
-        val selected = withContext(Dispatchers.Main) {
-            showFilterDialog(activity, sorted, thresholdTokens)
+        // Today's pre-port behaviour (d222d2ab9): while no Activity is current, the agent is
+        // running in the background and the queued dialog is invisible to the user, so tell
+        // AgentForegroundService to release the wakelock and show the "permission needed"
+        // notification. AppDialogController.await() below IS the wait now (no more 500 ms
+        // CurrentActivityHolder poll) -- only the waiting/not-waiting posts need restoring.
+        val workspaceId = context.workspaceId
+        val postedWaiting = workspaceId != null && CurrentActivityHolder.currentActivity == null
+        if (postedWaiting) {
+            ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true))
+        }
+        val selected = try {
+            showFilterDialog(sorted, thresholdTokens)
+        } finally {
+            if (postedWaiting) {
+                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
+            }
         } ?: return null  // User cancelled
 
         val selectedInitials = selected.map { it.initials }.toSet()
@@ -381,90 +379,66 @@ object GetCommentariesTool : Tool {
     }
 
     /**
-     * Shows a custom dialog for selecting commentaries with a live token total.
-     * Returns the selected items, or null if the user cancelled.
+     * Raises an [AppDialogRequest.MultiChoice] with a live token-total footer for selecting
+     * commentaries. Unlike the old `android.app.AlertDialog` this replaces, it does not need a
+     * `Context`/`Activity` at all -- `AppDialogController` queues the request until whatever host is
+     * current renders it, so the former 500 ms `CurrentActivityHolder` poll is gone; that queueing IS
+     * the wait.
+     *
+     * Returns the selected items, or null if the user cancelled -- same cancel value as before
+     * (`continuation.resume(null)`), and `commentaryDeselected` is persisted only on a real
+     * selection, exactly as the old `btnOk`-only write did.
      */
     private suspend fun showFilterDialog(
-        context: Context,
         items: List<CommentaryInfoForFilter>,
         thresholdTokens: Int
-    ): List<CommentaryInfoForFilter>? = suspendCoroutine { continuation ->
-        val binding = DialogCommentaryFilterBinding.inflate(LayoutInflater.from(context))
+    ): List<CommentaryInfoForFilter>? {
         val previouslyDeselected = CommonUtils.aiSettings.commentaryDeselected
-        val checkedItems = BooleanArray(items.size) { items[it].initials !in previouslyDeselected }
-        val itemTokens = items.map { estimateTokens(it.estimatedChars) }
+        val itemTokens = items.associate { it.initials to estimateTokens(it.estimatedChars) }
 
-        fun updateTotal() {
-            val selectedTokens = itemTokens.filterIndexed { i, _ -> checkedItems[i] }.sum()
-            binding.totalTokens.text = context.getString(
-                R.string.commentary_filter_total_tokens,
-                "%,d".format(selectedTokens),
-                "%,d".format(thresholdTokens)
+        val options = items.map { info ->
+            val tokens = itemTokens.getValue(info.initials)
+            val rangeStr = if (info.verseRanges.isNotEmpty()) " [${info.verseRanges}]" else ""
+            SettingsItem.Choice(
+                info.initials,
+                application.getString(R.string.commentary_filter_item, info.name, rangeStr, "%,d".format(tokens)),
             )
         }
+        val selectedIds = items.mapNotNull { if (it.initials !in previouslyDeselected) it.initials else null }
 
-        fun syncListView() {
-            for (i in items.indices) {
-                binding.commentaryList.setItemChecked(i, checkedItems[i])
-            }
-            updateTotal()
+        fun tokenTotalText(ids: List<String>): String {
+            val selectedTokens = ids.sumOf { itemTokens[it] ?: 0 }
+            val description = application.getString(R.string.commentary_filter_dialog_message, "%,d".format(thresholdTokens))
+            val total = application.getString(
+                R.string.commentary_filter_total_tokens,
+                "%,d".format(selectedTokens),
+                "%,d".format(thresholdTokens),
+            )
+            return "$description\n\n$total"
         }
 
-        binding.description.text = context.getString(
-            R.string.commentary_filter_dialog_message,
-            "%,d".format(thresholdTokens)
+        val dialogs = KoinJavaComponent.get<AppDialogController>(AppDialogController::class.java)
+        val result = dialogs.await(
+            AppDialogRequest.MultiChoice(
+                title = application.getString(R.string.commentary_filter_dialog_title),
+                options = options,
+                selectedIds = selectedIds,
+                confirmText = application.getString(R.string.okay),
+                dismissText = application.getString(R.string.cancel),
+                selectAllText = application.getString(R.string.select_all),
+                selectNoneText = application.getString(R.string.select_none),
+                footerFor = ::tokenTotalText,
+            ),
         )
+        val ids = (result as? AppDialogResult.SelectedMany)?.ids ?: return null
 
-        val itemNames = items.map { info ->
-            val tokens = estimateTokens(info.estimatedChars)
-            val rangeStr = if (info.verseRanges.isNotEmpty()) " [${info.verseRanges}]" else ""
-            context.getString(R.string.commentary_filter_item, info.name, rangeStr, "%,d".format(tokens))
-        }.toTypedArray()
+        val dialogInitials = items.map { it.initials }.toSet()
+        val newDeselected = items.filterNot { it.initials in ids }.map { it.initials }.toSet()
+        // Preserve deselections for commentaries not present on this device
+        val preserved = previouslyDeselected - dialogInitials
+        CommonUtils.aiSettings.commentaryDeselected = preserved + newDeselected
 
-        val adapter = android.widget.ArrayAdapter(
-            context, android.R.layout.simple_list_item_multiple_choice, itemNames
-        )
-        binding.commentaryList.adapter = adapter
-        binding.commentaryList.choiceMode = android.widget.AbsListView.CHOICE_MODE_MULTIPLE
-        syncListView()
-
-        binding.commentaryList.setOnItemClickListener { _, _, position, _ ->
-            checkedItems[position] = binding.commentaryList.isItemChecked(position)
-            updateTotal()
-        }
-
-        binding.btnSelectAll.setOnClickListener {
-            checkedItems.fill(true)
-            syncListView()
-        }
-        binding.btnSelectNone.setOnClickListener {
-            checkedItems.fill(false)
-            syncListView()
-        }
-
-        val dialog = AlertDialog.Builder(context)
-            .setTitle(R.string.commentary_filter_dialog_title)
-            .setView(binding.root)
-            .setCancelable(true)
-            .setOnCancelListener { continuation.resume(null) }
-            .create()
-
-        binding.btnOk.setOnClickListener {
-            dialog.dismiss()
-            val dialogInitials = items.map { it.initials }.toSet()
-            val newDeselected = items.filterIndexed { i, _ -> !checkedItems[i] }.map { it.initials }.toSet()
-            // Preserve deselections for commentaries not present on this device
-            val preserved = previouslyDeselected - dialogInitials
-            CommonUtils.aiSettings.commentaryDeselected = preserved + newDeselected
-            val selected = items.filterIndexed { index, _ -> checkedItems[index] }
-            continuation.resume(selected)
-        }
-        binding.btnCancel.setOnClickListener {
-            dialog.dismiss()
-            continuation.resume(null)
-        }
-
-        dialog.show()
+        return items.filter { it.initials in ids }
     }
 
     /** Collects individual [Verse] objects from a [Key], which may be a single verse or a range. */

@@ -407,10 +407,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="auto_assign_labels1">Auto-assign label to new bookmarks</string>
   <string name="auto_assign_labels_primary">প্রাথমিক হিসাবে স্বয়ংক্রিয়ভাবে বরাদ্দ করুন</string>
   <!--can be removed-->
-  <string name="marker_style">বুকমার্ক নির্বাচনের জন্য শুধুমাত্র মার্কার দেখান</string>
-  <string name="marker_style_whole_verse">পুরো পদ বুকমার্কের জন্য শুধুমাত্র মার্কার দেখান</string>
-  <string name="hide_style">বুকমার্ক নির্বাচনের জন্য লুকান</string>
-  <string name="hide_style_whole_verse">পুরো পদ বুকমার্কের জন্য লুকান</string>
   <string name="bookmark_warning">এই নথির জন্য বুকমার্ক এবং/অথবা নোট আছে।</string>
   <string name="bookmark_warning2">
 যদি নথির কাঠামো পরিবর্তিত হয়, তাহলে এই নথিটি আপডেট করা হতে পারে 
@@ -904,8 +900,6 @@ Google Play এ এগিয়ে যান</string>
   <string name="favourite_label">প্রিয় লেবেল</string>
   <string name="edit_label">লেবেল সম্পাদনা করুন</string>
   <string name="delete_label_confirmation">আপনি কি বুকমার্ক লেবেল \"%s\" সরাতে চান? এছাড়াও সমস্ত সম্পর্কিত স্টাডি প্যাড নোট মুছে ফেলা হবে।</string>
-  <string name="bookmark_underline_style_arbitrary">বুকমার্ক নির্বাচনের জন্য আন্ডারলাইন স্টাইল</string>
-  <string name="bookmark_underline_style_whole_verse">পুরো পদ বুকমার্কের জন্য আন্ডারলাইন শৈলী</string>
   <string name="active_labels">নির্বাচিত লেবেল</string>
   <string name="recent_labels">সাম্প্রতিক লেবেল</string>
   <string name="other_labels">অন্যান্য লেবেল</string>

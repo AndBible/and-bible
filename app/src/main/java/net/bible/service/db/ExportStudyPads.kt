@@ -23,6 +23,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
+import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.migrations.getColumnNames
@@ -139,7 +140,11 @@ private fun fixPrimaryLabels(db: SupportSQLiteDatabase) = db.run {
 
 fun sanitizeFilename(name: String): String = name.replace(Regex("[^a-zA-Z0-9._-]"), "_")
 
-suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntities.Label) = withContext(Dispatchers.IO) {
+suspend fun exportStudyPads(
+    activity: ActivityBase,
+    vararg labels: BookmarkEntities.Label,
+    chooseDestination: (suspend () -> SaveOrShare?)? = null,
+) = withContext(Dispatchers.IO) {
     val exportDbFile = CommonUtils.tmpFile
     val exportDb = DatabaseContainer.instance.getBookmarkDb(exportDbFile.absolutePath)
     exportDb.openHelper.writableDatabase.use {}
@@ -183,6 +188,9 @@ suspend fun exportStudyPads(activity: ActivityBase, vararg labels: BookmarkEntit
         fileName = filename,
         subject = subject,
         message = message,
-        chooserTitle = activity.getString(R.string.send_backup_file),
+        chooserTitle = activity.getString(R.string.send_export_file),
+        promptTitle = R.string.export_destination_title,
+        promptMessage = R.string.export_destination_message,
+        chooseDestination = chooseDestination,
     )
 }

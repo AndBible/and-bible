@@ -21,6 +21,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
+import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
@@ -312,6 +313,20 @@ class BookmarkControlTest {
         }
     }
 
+    /**
+     * `deduplicateSpecialLabels` belongs to the 11->12 migration, so its INSERT names the six style
+     * booleans that migration 12->13 replaced with `displayStyle`/`displayStyleWholeVerse`; in the
+     * app it only ever sees a v11-shaped `Label`. These tests run it against the CURRENT (v13)
+     * database, so put the legacy columns back first. What is under test is the reference remapping,
+     * not the style columns the dedup copies along.
+     */
+    private fun addLegacyLabelStyleColumns(db: SupportSQLiteDatabase) {
+        for (column in listOf("markerStyle", "markerStyleWholeVerse", "underlineStyle",
+                              "underlineStyleWholeVerse", "hideStyle", "hideStyleWholeVerse")) {
+            db.execSQL("ALTER TABLE Label ADD COLUMN $column INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
     @Test
     fun testDeduplicateRemapsAllEntities() {
         val bookmarkDb = DatabaseContainer.instance.bookmarkDb
@@ -353,6 +368,7 @@ class BookmarkControlTest {
         dao.insert(StudyPadTextEntryText(studyPadTextEntryId = studyPadEntry.id, text = "test"))
 
         // Run migration dedup logic
+        addLegacyLabelStyleColumns(bookmarkDb.openHelper.writableDatabase)
         deduplicateSpecialLabels(bookmarkDb.openHelper.writableDatabase)
 
         // Old label gone, canonical exists with inherited properties
@@ -404,6 +420,7 @@ class BookmarkControlTest {
         dao.insert(BibleBookmarkToLabel(bookmark2.id, oldId2))
 
         // Run migration dedup logic
+        addLegacyLabelStyleColumns(bookmarkDb.openHelper.writableDatabase)
         deduplicateSpecialLabels(bookmarkDb.openHelper.writableDatabase)
 
         // Both old labels should be gone

@@ -116,6 +116,25 @@ class ToolIntegrationTest {
         assertEquals(promptId, bookmark?.sourcePromptId)
     }
 
+    @Test
+    fun createBookmark_aFailureAfterTheSaveStillReportsSuccess() = runBlocking {
+        val before = bookmarksAt("Rom.8.28")
+        val real = CreateBookmarkTool.describeRange
+        val result = try {
+            CreateBookmarkTool.describeRange = { error("cannot name the range") }
+            CreateBookmarkTool.execute(JSONObject().apply { put("verseRef", "Rom.8.28") }, context)
+        } finally {
+            CreateBookmarkTool.describeRange = real
+        }
+        assertTrue("a saved bookmark must not read as a failure: $result", result is ToolResult.Success)
+        assertEquals(before + 1, bookmarksAt("Rom.8.28"))
+    }
+
+    private suspend fun bookmarksAt(ref: String): Int {
+        val r = GetBookmarksForVerseTool.execute(JSONObject().apply { put("verseRef", ref) }, context)
+        return ((r as ToolResult.Success).data as GetBookmarksForVerseTool.Result).bookmarkCount
+    }
+
     // === AddBookmarkNote ===
 
     @Test

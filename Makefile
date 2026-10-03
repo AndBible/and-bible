@@ -88,4 +88,43 @@ accrescent-debug:
 	@cp app/build/outputs/apkset/standardAccrescentDebug/app-standardAccrescentDebug.apks app/standardAccrescent/debug/
 	@echo "✓ APK set: app/standardAccrescent/debug/app-standardAccrescentDebug.apks"
 
-.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug
+# Push the current branch, pushing our own submodules (goldens, superpowers) first so the
+# gitlinks never point at unpublished commits. Each submodule pushes the commit the committed
+# gitlink names (not its checkout, which can lag behind) to the superproject's branch name,
+# fast-forward only. jsword is an upstream fork, pushed by hand; --recurse-submodules=check
+# refuses the final push if any gitlink (jsword included) is unpushed.
+PUSH_SUBMODULES := app/src/test/roborazzi docs/superpowers website/media
+
+# andbible.org (website/): build into website/_site, then check it. CI runs both.
+site:
+	cd website && uv run python -m sitegen.build
+
+site-check:
+	cd website && uv run python -m sitegen.check && uv run pytest
+
+# Fetch missing local YouTube thumbnails into website/media/videos/. Pass options with THUMBS_ARGS:
+#   make site-thumbs THUMBS_ARGS="--refresh <id-or-url> ..."   re-download after changing a thumbnail on YouTube
+#   make site-thumbs THUMBS_ARGS="--all"                       re-download every video
+#   make site-thumbs THUMBS_ARGS="--all --dry-run"             only list what would be fetched
+site-thumbs:
+	cd website && uv run python -m sitegen.thumbnails $(THUMBS_ARGS)
+
+# Preview the built site at http://localhost:8000/
+site-serve:
+	cd website/_site && python3 -m http.server 8000
+
+push:
+	@set -e; \
+	branch=$$(git symbolic-ref --short HEAD) || { echo "push: detached HEAD" >&2; exit 1; }; \
+	for sm in $(PUSH_SUBMODULES); do \
+		if [ ! -e "$$sm/.git" ]; then echo "push: $$sm not checked out, skipping"; continue; fi; \
+		sha=$$(git rev-parse "HEAD:$$sm"); \
+		[ "$$(git -C "$$sm" rev-parse HEAD)" = "$$sha" ] || \
+			echo "push: note: $$sm checkout differs from the committed gitlink; pushing the gitlink"; \
+		echo "push: $$sm ($$(git -C "$$sm" rev-parse --short "$$sha") -> $$branch)"; \
+		git -C "$$sm" push origin "$$sha:refs/heads/$$branch"; \
+	done; \
+	echo "push: and-bible ($$branch)"; \
+	git push --recurse-submodules=check -u origin "$$branch"
+
+.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-thumbs site-serve push

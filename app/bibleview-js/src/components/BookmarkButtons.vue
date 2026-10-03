@@ -226,7 +226,7 @@ async function configureBookmarkSettings() {
 .bookmark-button {
   cursor: pointer;
   font-size: 25px;
-  color: $button-grey;
+  color: $icon-grey;
   .monochrome & {
     color: black;
   }

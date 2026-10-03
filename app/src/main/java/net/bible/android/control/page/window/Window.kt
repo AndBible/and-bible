@@ -26,7 +26,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
+import net.bible.android.control.event.on
 import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
@@ -52,6 +52,14 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
 
+/**
+ * POSTED WITH NO SUBSCRIBERS since Batch Z-late phase 1 removed the classic reading view.
+ *
+ * Recorded rather than swept, deliberately and consistently across the whole batch: deleting an
+ * unreachable HANDLER is a local tidy-up, while deleting a posted EVENT changes what the app
+ * announces about itself, and any later subscriber -- Compose, iOS or a future feature -- would
+ * want it back. Whoever revisits this should decide the poster's fate first, not the class's.
+ */
 class WindowChangedEvent(val window: Window)
 
 class Window (
@@ -69,7 +77,7 @@ class Window (
             return ownTargetLinksWindow
                 ?: if (isLinksWindow) windowRepository.addNewLinksWindow().also {
                     targetLinksWindowId = it.id
-                    ABEventBus.post(NumberOfWindowsChangedEvent())
+                    windowRepository.notifyWindowsChanged()
                 } else windowRepository.primaryTargetLinksWindow
         }
 
@@ -107,7 +115,51 @@ class Window (
 
     init {
         pageManager.window = this
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            on<MyDocumentUpdatedEvent> { e ->
+                val doc = displayedBook ?: return@on
+                if (doc.isMyDocument && doc.initials == e.initials) {
+                    SwordContentFacade.evictBook(e.initials)
+                    loadText()
+                }
+            }
+            on<SpeakProgressEvent> { e ->
+                if(AdvancedSpeakSettings.synchronize || e.forceFollow) return@on // handled in SpeakControl
+                val speakKey = (e.key as? BookAndKey)?.key?: e.key
+                val bookInitials = e.book.initials
+                if (displayedBook != e.book) return@on
+
+                when(e.book.bookCategory) {
+                    BookCategory.COMMENTARY -> {
+                        if (e.key !is BookAndKey) return@on
+                        val curPage = pageManager.currentPage
+                        val commentaryRange = (curPage as? CurrentCommentaryPage)?.annotateKey
+                        val osisRef = (commentaryRange ?: speakKey).osisRef
+                        bibleView?.highlightOrdinalRange(
+                            bookInitials,
+                            osisRef,
+                            e.key.ordinal!!.start..(e.key.ordinal.end ?: e.key.ordinal.start)
+                        )
+                    }
+                    BookCategory.BIBLE -> {
+                        val loadedRange = bibleView?.verseRangeLoaded?: return@on
+                        if (!loadedRange.contains(speakKey)) return@on
+
+                        val range = e.key as? VerseRange ?: return@on
+                        bibleView?.highlightBibleOrdinalRange(range.start.ordinal .. range.end.ordinal)
+                    }
+                    else -> {
+                        if(e.key is BookAndKey) {
+                            bibleView?.highlightOrdinalRange(
+                                bookInitials,
+                                e.key.key.osisRef,
+                                e.key.ordinal!!.start .. (e.key.ordinal.end ?: e.key.ordinal.start)
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 
     val entity get () =
@@ -128,7 +180,7 @@ class Window (
     var isSynchronised = entity.isSynchronized
         set(value) {
             field = value
-            ABEventBus.post(WindowChangedEvent(this))
+            windowRepository.notifyWindowChanged(this)
         }
 
     var isPinMode: Boolean = entity.isPinMode
@@ -141,7 +193,7 @@ class Window (
         }
         set(value) {
             field = value
-            ABEventBus.post(WindowChangedEvent(this))
+            windowRepository.notifyWindowChanged(this)
         }
 
     val isMinimised: Boolean
@@ -259,51 +311,6 @@ class Window (
             if(time > timeout) {
                 Log.e(TAG, "waitForBibleView timed out")
                 return;
-            }
-        }
-    }
-
-    fun onEvent(e: MyDocumentUpdatedEvent) {
-        val doc = displayedBook ?: return
-        if (doc.isMyDocument && doc.initials == e.initials) {
-            SwordContentFacade.evictBook(e.initials)
-            loadText()
-        }
-    }
-
-    fun onEvent(e: SpeakProgressEvent) {
-        if(AdvancedSpeakSettings.synchronize || e.forceFollow) return // handled in SpeakControl
-        val speakKey = (e.key as? BookAndKey)?.key?: e.key
-        val bookInitials = e.book.initials
-        if (displayedBook != e.book) return
-
-        when(e.book.bookCategory) {
-            BookCategory.COMMENTARY -> {
-                if (e.key !is BookAndKey) return
-                val curPage = pageManager.currentPage
-                val commentaryRange = (curPage as? CurrentCommentaryPage)?.annotateKey
-                val osisRef = (commentaryRange ?: speakKey).osisRef
-                bibleView?.highlightOrdinalRange(
-                    bookInitials,
-                    osisRef,
-                    e.key.ordinal!!.start..(e.key.ordinal.end ?: e.key.ordinal.start)
-                )
-            }
-            BookCategory.BIBLE -> {
-                val loadedRange = bibleView?.verseRangeLoaded?: return
-                if (!loadedRange.contains(speakKey)) return
-
-                val range = e.key as? VerseRange ?: return
-                bibleView?.highlightBibleOrdinalRange(range.start.ordinal .. range.end.ordinal)
-            }
-            else -> {
-                if(e.key is BookAndKey) {
-                    bibleView?.highlightOrdinalRange(
-                        bookInitials,
-                        e.key.key.osisRef,
-                        e.key.ordinal!!.start .. (e.key.ordinal.end ?: e.key.ordinal.start)
-                    )
-                }
             }
         }
     }

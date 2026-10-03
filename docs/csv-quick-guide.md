@@ -59,4 +59,4 @@ John.3.16;John 3:16;Salvation;For God so loved the world
 | Characters display wrong | Save CSV file as UTF-8 encoding |
 | Can't open file | Verify file location and permissions |
 
-For detailed documentation, see: `/docs/csv-import-export.md`
+For detailed documentation, see: `csv-import-export.md`

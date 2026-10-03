@@ -383,10 +383,6 @@
   <string name="auto_assign_labels1">Assigna automàticament una etiqueta als marcadors nous</string>
   <string name="auto_assign_labels_primary">Assigna automàticament com a primària</string>
   <!--can be removed-->
-  <string name="marker_style">Mostra només el marcador per als marcadors de selecció</string>
-  <string name="marker_style_whole_verse">Mostra només el marcador per als marcadors de verset complet</string>
-  <string name="hide_style">Amaga per als marcadors de selecció</string>
-  <string name="hide_style_whole_verse">Amaga per als marcadors de verset complet</string>
   <string name="bookmark_warning">Hi ha marcadors i/o notes per a aquest document.</string>
   <string name="bookmark_warning2">Si l\'estructura del document ha canviat, actualitzar aquest document podria fer que les ubicacions d\'aquests marcadors/notes es moguin dins del document o desapareguin completament.</string>
   <string name="bookmark_warning3">Encara voleu actualitzar el mòdul?</string>
@@ -804,8 +800,6 @@
   <string name="favourite_label">Etiqueta preferida</string>
   <string name="edit_label">Edita l\'etiqueta</string>
   <string name="delete_label_confirmation">Vols eliminar l\'etiqueta de marcador «%s»? També s\'eliminaran totes les notes de bloc d\'estudi associades.</string>
-  <string name="bookmark_underline_style_arbitrary">Estil de subratllat per als marcadors de selecció</string>
-  <string name="bookmark_underline_style_whole_verse">Estil de subratllat per als marcadors de verset sencer</string>
   <string name="active_labels">Etiquetes seleccionades</string>
   <string name="recent_labels">Etiquetes recents</string>
   <string name="other_labels">Altres etiquetes</string>

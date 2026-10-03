@@ -405,10 +405,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="auto_assign_labels1">కొత్త బుక్‌మార్క్‌లకు లేబుల్‌ని స్వయంచాలకంగా కేటాయించండి</string>
   <string name="auto_assign_labels_primary">ప్రాథమికంగా స్వయంచాలకంగా కేటాయించండి</string>
   <!--can be removed-->
-  <string name="marker_style">ఎంపిక బుక్‌మార్క్‌ల కోసం మార్కర్‌ను మాత్రమే చూపు</string>
-  <string name="marker_style_whole_verse">పూర్తి పదాల  బుక్‌మార్క్‌ల కొరకు వున్న మార్కర్‌ను మాత్రమే చూపు</string>
-  <string name="hide_style">ఎంచుకోవడానికి బుక్మార్క్లను దాచండి</string>
-  <string name="hide_style_whole_verse">పూర్తి పదాల బుక్మార్క్లను దాచు</string>
   <string name="bookmark_warning">ఈ పత్రం కోసం బుక్‌మార్క్‌లు మరియు/లేదా గమనికలు ఉన్నాయి.</string>
   <string name="bookmark_warning2">
 పత్రం నిర్మాణం మారినట్లయితే, ఈ పత్రాన్ని నవీకరించడం సాధ్యమవుతుంది
@@ -909,8 +905,6 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="favourite_label">ఇష్టమైన లేబుల్</string>
   <string name="edit_label">లేబుల్‌ని సవరించండి</string>
   <string name="delete_label_confirmation">మీరు బుక్‌మార్క్ లేబుల్ \"%s\"ని తీసివేయాలనుకుంటున్నారా? అలాగే అన్ని అనుబంధిత స్టడీ ప్యాడ్ నోట్‌లు తీసివేయబడతాయి.</string>
-  <string name="bookmark_underline_style_arbitrary">ఎంపిక బుక్‌మార్క్‌ల కోసం అండర్‌లైన్ శైలి</string>
-  <string name="bookmark_underline_style_whole_verse">మొత్తం వచనాల బుక్‌మార్క్‌ల శైలిని అండర్‌లైన్ చేయండి</string>
   <string name="active_labels">ఎంచుకున్న లేబుల్‌లు</string>
   <string name="recent_labels">ఇటీవలి లేబుల్స్</string>
   <string name="other_labels">ఇతర లేబుల్‌లు</string>

@@ -17,7 +17,6 @@
 package net.bible.android.control.report
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -41,10 +40,14 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.applicationVersionName
 import net.bible.service.common.CommonUtils.megabytesFree
+import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
+import org.koin.java.KoinJavaComponent
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileInputStream
@@ -55,8 +58,6 @@ import java.io.StringWriter
 import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import androidx.core.content.edit
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -80,34 +81,47 @@ object ErrorReportControl {
     }
 
 
-    enum class ErrorDialogResult {CANCEL, OKAY, REPORT, BACKUP}
-    suspend fun showErrorDialog(context: ActivityBase, msg: String, isCancelable: Boolean = false, report: Boolean = true, exception: Throwable? = null) {
+    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+
+    // AppDialogRequest.Options ids for showErrorDialog's action sheet (Task 24 Step 4).
+    private const val REPORT_VALUE = "report"
+    private const val BACKUP_VALUE = "backup"
+
+    enum class ErrorDialogResult {CANCEL, REPORT, BACKUP}
+
+    /**
+     * The old `AlertDialog` always overrode its own `R.string.okay` positive button with
+     * `R.string.report_error` (two `setPositiveButton` calls on the same builder -- the second one
+     * wins), and its `isCancelable && !report` arm was dead: no caller ever passed `report = false`
+     * (re-grepped for Task 24 Step 4). So in practice this always showed exactly two actions --
+     * "Send Report" and "Backup & Restore" -- plus an isCancelable-gated cancel; the now-removed
+     * `report` parameter and `ErrorDialogResult.OKAY` never did anything a real caller could reach.
+     */
+    suspend fun showErrorDialog(context: ActivityBase, msg: String, isCancelable: Boolean = false, exception: Throwable? = null) {
         Log.i(TAG, "showErrorMesage message:$msg")
         withContext(Dispatchers.Main) {
             var askAgain = true
             while(askAgain) {
                 askAgain = false
-                val result = suspendCoroutine {
-                    val dlgBuilder = AlertDialog.Builder(context)
-                        .setMessage(msg)
-                        .setCancelable(isCancelable)
-                        .setOnCancelListener { _ -> it.resume(ErrorDialogResult.CANCEL) }
-                        .setPositiveButton(R.string.okay) { _, _ -> it.resume(ErrorDialogResult.OKAY) }
-
-                    if (isCancelable && !report) {
-                        dlgBuilder.setNegativeButton(R.string.cancel) { _, _ ->
-                            it.resume(ErrorDialogResult.CANCEL)
-                        }
-                    }
-                    if (report) {
-                        dlgBuilder.setNegativeButton(R.string.backup_and_restore) { _, _ -> it.resume(ErrorDialogResult.BACKUP) }
-                        dlgBuilder.setPositiveButton(R.string.report_error) { _, _ -> it.resume(ErrorDialogResult.REPORT) }
-                        dlgBuilder.setNeutralButton(R.string.error_skip) { _, _ -> it.resume(ErrorDialogResult.CANCEL) }
-                    }
-                    dlgBuilder.show()
+                val dialogResult = dialogs.await(
+                    AppDialogRequest.Options(
+                        title = null,
+                        message = msg,
+                        options = listOf(
+                            SettingsItem.Choice(REPORT_VALUE, context.getString(R.string.report_error)),
+                            SettingsItem.Choice(BACKUP_VALUE, context.getString(R.string.backup_and_restore)),
+                        ),
+                        dismissText = context.getString(R.string.error_skip),
+                        asActionSheet = true,
+                        cancellable = isCancelable,
+                    ),
+                )
+                val result = when ((dialogResult as? AppDialogResult.Selected)?.value) {
+                    REPORT_VALUE -> ErrorDialogResult.REPORT
+                    BACKUP_VALUE -> ErrorDialogResult.BACKUP
+                    else -> ErrorDialogResult.CANCEL // Skip, back, or scrim.
                 }
                 when(result) {
-                    ErrorDialogResult.OKAY -> null
                     ErrorDialogResult.REPORT -> BugReport.reportBug(context, exception=exception, useSaved = true, source = "after crash")
                     ErrorDialogResult.CANCEL -> null
                     ErrorDialogResult.BACKUP -> {
@@ -146,6 +160,8 @@ object ErrorReportControl {
 const val SCREENSHOT_FILE = "screenshot.webp"
 
 object BugReport {
+    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+
     private fun createErrorText(exception: Throwable? = null, stackTrace: String? = null) = try {
         StringBuilder().run {
             append("App id: ").append(BibleApplication.application.packageName).append("\n")
@@ -388,17 +404,18 @@ $crashAttachments
         }
         val stackTrace = if(stackTraceFile.canRead()) String(stackTraceFile.readBytes()) else null
 
-        val hourglass = Hourglass(activity)
-        hourglass.show()
-        withContext(Dispatchers.IO) {
-            if(!useSaved) {
-                delay(1000)
-                saveLogcat()
-                saveScreenshot()
+        val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = BibleApplication.application.getString(R.string.please_wait)))
+        try {
+            withContext(Dispatchers.IO) {
+                if(!useSaved) {
+                    delay(1000)
+                    saveLogcat()
+                    saveScreenshot()
+                }
             }
+        } finally {
+            dialogs.dismiss(progressId)
         }
-
-        hourglass.dismiss()
 
         withContext(Dispatchers.Main) {
             val result = Dialogs.simpleQuestion(

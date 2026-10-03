@@ -35,11 +35,11 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import io.requery.android.database.sqlite.SQLiteDatabase
 import net.bible.android.activity.R
+import net.bible.android.activity.SpeakWidgetManager
 
-import net.bible.android.control.ApplicationComponent
-import net.bible.android.control.DaggerApplicationComponent
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.BugReport
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -51,6 +51,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
 import net.bible.service.device.ProgressNotificationManager.Companion.PROGRESS_NOTIFICATION_CHANNEL
 import net.bible.service.device.speak.SPEAK_NOTIFICATIONS_CHANNEL
+import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.sword.epub.epubBookType
@@ -69,6 +70,9 @@ import org.crosswire.jsword.book.sword.BookType
 import org.crosswire.jsword.bridge.BookIndexer
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.startKoin
 import java.util.Locale
 
 object MyLocaleProvider: LocaleProvider {
@@ -101,11 +105,6 @@ open class BibleApplication : Application() {
         // save to a singleton to allow easy access from anywhere
         application = this
     }
-    lateinit var applicationComponent: ApplicationComponent
-        private set
-
-    var localeOverrideAtStartUp: String? = null
-        private set
 
     open val isRunningTests: Boolean = false
 
@@ -135,7 +134,58 @@ open class BibleApplication : Application() {
             }
             defaultExceptionHandler.uncaughtException(t, e)
         }
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<ToastEvent> { ev ->
+                val duration = ev.duration ?: Toast.LENGTH_SHORT
+                val message = if (ev.messageId != null) getString(ev.messageId) else ev.message
+                val context = ev.context ?: CurrentActivityHolder.currentActivity?: return@onMain
+                if ((context as? Activity)?.isFinishing == true) return@onMain
+                try {
+                    Toast.makeText(context, message, duration).show()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error in showing toast $message", e)
+                }
+            }
+            onMain<ErrorNotificationEvent> { ev ->
+                if(BuildVariant.Appearance.isDiscrete) return@onMain
+
+                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+                val intent = Intent(this@BibleApplication, ErrorActivity::class.java)
+                val pendingIntent = PendingIntent.getActivity(this@BibleApplication, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+                val action = NotificationCompat.Action.Builder(
+                    android.R.drawable.ic_dialog_alert,
+                    getString(R.string.report),
+                    pendingIntent
+                ).build()
+
+                val builder = NotificationCompat.Builder(this@BibleApplication, ERROR_NOTIFICATION_CHANNEL)
+                builder
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setSilent(false)
+                    .setContentTitle(getString(R.string.error_occurred))
+
+                if(ev.showReportButton) {
+                    builder.addAction(action)
+                }
+
+                if(ev.message != null) {
+                    builder
+                        .setContentText(ev.message)
+                        .setStyle(NotificationCompat.BigTextStyle().bigText(ev.message))
+                } else {
+                    val msg = getString(ev.messageId?: R.string.error_occurred)
+                    builder
+                        .setContentText(msg)
+                        .setStyle(NotificationCompat.BigTextStyle().bigText(msg))
+                }
+
+                builder.setSmallIcon(R.drawable.ic_ichtys)
+
+                val notification = builder.build()
+                notificationManager.notify(GENERIC_NOTIFICATION_ID, notification)
+            }
+        }
         InstallManager.installSiteMap(
             PropertyMap().apply {
                 resources.openRawResource(R.raw.repositories).use { load(it) }
@@ -156,10 +206,18 @@ open class BibleApplication : Application() {
         // This must be done before accessing JSword to prevent default folders being used
         SwordEnvironmentInitialisation.initialiseJSwordFolders()
 
-        // Initialize the Dagger injector ApplicationScope objects
-        applicationComponent = DaggerApplicationComponent.builder().build()
+        // Initialize the Koin container. Koin is the sole DI framework.
+        // Guard against a double-start: Robolectric reuses one JVM across test
+        // classes, so onCreate (hence startKoin) runs many times in the same
+        // process — start only if no Koin context exists yet.
+        if (GlobalContext.getOrNull() == null) {
+            startKoin {
+                androidContext(this@BibleApplication)
+                modules(net.bible.android.control.coreModule)
+            }
+        }
 
-        // ideally this would be installed before initialiseJSwordFolders but the listener depends on applicationComponent
+        // ideally this would be installed before initialiseJSwordFolders but the listener depends on Koin being started
         SwordEnvironmentInitialisation.installJSwordErrorReportListener()
 
         // some changes may be required for different versions
@@ -170,7 +228,7 @@ open class BibleApplication : Application() {
 
         // various initialisations required every time at app startup
 
-        localeOverrideAtStartUp = LocaleHelper.getOverrideLanguage(this)
+        CommonUtils.realSharedPreferences.registerOnSharedPreferenceChangeListener(localeListener)
         createChannels()
     }
 
@@ -191,11 +249,56 @@ open class BibleApplication : Application() {
         Log.i(TAG, "SQLite version: $sqliteVersion")
     }
 
+    /** Fix batch 5 §1.2: the Application's own Resources follow `locale_pref` live -- no process restart. */
+    @Volatile private var uiResources: Resources? = null
+
+    override fun getResources(): Resources = uiResources ?: super.getResources()
+
     /**
      * Override locale.  If user has selected a different ui language to the devices default language
      */
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LocaleHelper.onAttach(newBase))
+        super.attachBaseContext(newBase)
+        // C5: application.applicationContext is not usable yet; read the preference off newBase.
+        applyUiLocale(LocaleHelper.getOverrideLanguage(newBase), refresh = false)
+    }
+
+    /**
+     * The snapshot in [uiResources] carries the configuration (orientation, density, ...) it was built
+     * from, so a system configuration change rebuilds it -- otherwise it would go stale.
+     */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        applyUiLocale(LocaleHelper.getOverrideLanguage(baseContext), refresh = false)
+    }
+
+    /** Held in a field: SharedPreferences keeps listeners weakly. */
+    private val localeListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+        // key == null is what Editor.clear() reports on API 30+
+        if (key == "locale_pref" || key == null) applyUiLocale(prefs.getString("locale_pref", "") ?: "")
+    }
+
+    fun applyUiLocale(language: String, refresh: Boolean = true) {
+        val locale = LocaleHelper.uiLocaleFor(language)
+        Locale.setDefault(locale)
+        uiResources = if (language.isEmpty()) null else {
+            val c = Configuration(baseContext.resources.configuration).apply { setLocale(locale) }
+            val res = baseContext.createConfigurationContext(c).resources
+            // Self-heal: a cached Resources for an equal override can come back with a locale a configuration
+            // update clobbered (Robolectric does this; the platform merges overrides, so it never triggers there).
+            if (res.configuration.locales[0] != locale) {
+                @Suppress("DEPRECATION")
+                res.updateConfiguration(c, res.displayMetrics)
+            }
+            res
+        }
+        if (refresh) {
+            createChannels() // re-creating an existing channel id renames it
+            // The speak widget and the TTS notification resolve their reset title on demand (F114);
+            // re-draw what is showing.
+            SpeakWidgetManager.instance?.refreshTexts()
+            TextToSpeechNotificationManager.refreshInstanceForLocale()
+        }
     }
 
     private fun upgradeSharedPreferences() {
@@ -277,60 +380,9 @@ open class BibleApplication : Application() {
         return app.createConfigurationContext(newConf).resources
     }
 
-    fun onEventMainThread(ev: ToastEvent) {
-        val duration = ev.duration ?: Toast.LENGTH_SHORT
-        val message = if (ev.messageId != null) getString(ev.messageId) else ev.message
-        val context = ev.context ?: CurrentActivityHolder.currentActivity?: return
-        if ((context as? Activity)?.isFinishing == true) return
-        try {
-            Toast.makeText(context, message, duration).show()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in showing toast $message", e)
-        }
-    }
-
     class ErrorNotificationEvent(val message: String? = null, val messageId: Int?= null, val showReportButton: Boolean = true) {
         constructor(messageId: Int): this(null, messageId)
         constructor(message: String): this(message, null)
-    }
-    fun onEventMainThread(ev: ErrorNotificationEvent) {
-        if(BuildVariant.Appearance.isDiscrete) return
-
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        val intent = Intent(this, ErrorActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-        val action = NotificationCompat.Action.Builder(
-            android.R.drawable.ic_dialog_alert,
-            getString(R.string.report),
-            pendingIntent
-        ).build()
-
-        val builder = NotificationCompat.Builder(this, ERROR_NOTIFICATION_CHANNEL)
-        builder
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setSilent(false)
-            .setContentTitle(getString(R.string.error_occurred))
-
-        if(ev.showReportButton) {
-            builder.addAction(action)
-        }
-
-        if(ev.message != null) {
-            builder
-                .setContentText(ev.message)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(ev.message))
-        } else {
-            val msg = getString(ev.messageId?: R.string.error_occurred)
-            builder
-                .setContentText(msg)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(msg))
-        }
-
-        builder.setSmallIcon(R.drawable.ic_ichtys)
-
-        val notification = builder.build()
-        notificationManager.notify(GENERIC_NOTIFICATION_ID, notification)
     }
 
     private fun createChannels() {
@@ -383,7 +435,7 @@ open class BibleApplication : Application() {
     }
 
     companion object {
-        // this was moved from the MainBibleActivity and has always been called this
+        // The SharedPreferences FILE name this has always used (it was MainBibleActivity's). Renaming it would orphan every user's saved state.
         private const val saveStateTag = "MainBibleActivity"
 
         lateinit var application: BibleApplication

@@ -54,6 +54,7 @@ object DatabaseResetter {
 
         Thread.sleep(300)
         DatabaseContainer.reset()
+        DatabaseContainer.forgetReplacesForTest()
         //resetSingleton(DatabaseContainer::class.java, "instance")
     }
 

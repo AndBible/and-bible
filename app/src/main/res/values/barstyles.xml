@@ -28,6 +28,20 @@
     -->
 	<style name="AppTheme" parent="@style/BaseAppTheme"/>
 
+	<!-- Shared window theme for the Compose UI host Activities. Inherits every AppTheme
+	     window attribute (status/nav bar colours, cutout, text direction, edge-to-edge) but
+	     removes the native AppCompat ActionBar: Compose hosts draw their own Material3
+	     TopAppBar (via AbScaffold / AbSelectionScaffold), so the inherited DarkActionBar
+	     would render a second, redundant bar above it (confirmed by ComposeHostActionBarTest).
+	     Every theme-less Compose host is switched to this in AndroidManifest.xml. One exclusion
+	     remains: CalculatorComposeActivity (draws no Compose top bar — keeps the classic look).
+	     HistoryComposeActivity used to be the second, dialog-styled via Theme.AbComposeDialog;
+	     the Z-late epilogue deleted the activity and that style with it. -->
+	<style name="Theme.AbCompose" parent="@style/AppTheme">
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
 	<style name="BaseAppTheme" parent="BaseAppTheme1"/>
 
 	<style name="BaseAppTheme1" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
@@ -35,28 +49,14 @@
 		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
 		<!-- Prevent sub menu items (e.g. Admin sub-menu) appearing as 'white on white' on Android 2.3 -->
 		<item name="actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
-		<item name="transportButtonColor">#ffffff</item>
 
-		<item name="windowButtonActiveStrokeColor">@color/transparent</item>
-		<item name="windowButtonStrokeColor">#00FFFFFF</item>
 		<item name="windowButtonBackgroundColor">#118D8D8D</item>
-		<item name="windowButtonActiveBackgroundColor">#B7525252</item>
-		<item name="barWindowButtonActiveBorderWidth">4.0dip</item>
-		<item name="barWindowButtonActiveStrokeColor">@color/bar_window_button_active_stroke_color</item>
-		<item name="barWindowButtonStrokeColor">@color/bar_window_button_stroke_color</item>
-		<item name="barWindowButtonBackgroundColor">@color/bar_window_button_background_colour</item>
-		<item name="barWindowButtonActiveBackgroundColor">@color/bar_window_button_background_colour_visible</item>
 
-		<item name="bibleReferenceOverlayBackgroundColor">@color/bible_reference_overlay</item>
 
-		<item name="speakTransportBackground">#FFFFFF</item>
 		<item name="transportBarHeight">75dp</item>
 		<item name="windowButtonHeight">40dp</item>
 		<item name="toolbarTextColor">@color/white</item>
 
-		<item name="separatorBackgroundColor">#B1B1B1</item>
-		<item name="separatorActiveBackgroundColor">#FF6B6B6B</item>
-		<item name="separatorDragBackgroundColor">@color/yellow_500</item>
 		<item name="android:navigationBarColor" tools:targetApi="o_mr1">@color/navigation_bar</item>
 		<item name="android:textAlignment">gravity</item>
 		<item name="android:textDirection">locale</item>
@@ -71,21 +71,6 @@
 
 	<style name="OptionsButtonsStyle" parent="@style/Widget.AppCompat.ActionButton.Overflow" >
 		<item name="android:tint">?attr/toolbarTextColor</item>
-	</style>
-	<style name="MainBibleActionBar">
-		<item name="actionOverflowButtonStyle">@style/OptionsButtonsStyle</item>
-		<item name="android:background">@color/actionbar_background</item>
-	</style>
-	<style name="MainBibleActionBarButtons" parent="MainBibleActionBar">
-		<item name="android:textColorSecondary">@color/white</item>
-		<item name="android:textColorPrimary">@color/white</item>
-	</style>
-
-	<style name="MainBibleViewTheme" parent="BaseAppTheme">
-		<item name="windowActionBar">false</item>
-		<item name="windowNoTitle">true</item>
-		<item name="windowActionModeOverlay">true</item>
-		<item name="actionBarSize">@dimen/toolbar_height</item>
 	</style>
 
 	<style name="NavigationViewTextStyle" parent="BaseAppTheme">

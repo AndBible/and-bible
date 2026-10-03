@@ -144,7 +144,7 @@ class MyDocumentBookManagerTest {
         book.getKey("page_one")
 
         addPage("page_two", "Second page")
-        MyDocumentBookManager.onEventMainThread(syncEventForPages("page_two"))
+        MyDocumentBookManager.handleSyncEvent(syncEventForPages("page_two"))
 
         val refreshed = Books.installed().getBook("MyDoc_Test")!!
         assertEquals("page_two", refreshed.getKey("page_two").osisRef)
@@ -157,7 +157,7 @@ class MyDocumentBookManagerTest {
         book.getKey("page_one")
 
         addPage("page_two", "Second page")
-        MyDocumentBookManager.onEventMainThread(syncEventForPages("page_two"))
+        MyDocumentBookManager.handleSyncEvent(syncEventForPages("page_two"))
 
         assertSame(
             "windows and history hold this reference; replacing it strands them on a removed book",
@@ -184,7 +184,7 @@ class MyDocumentBookManagerTest {
             sourceDevice = "other-device",
         )
         dao.deletePageWithContent(dao.pageById(deleted.id)!!)
-        MyDocumentBookManager.onEventMainThread(MyDocumentsUpdatedViaSyncEvent(listOf(entry)))
+        MyDocumentBookManager.handleSyncEvent(MyDocumentsUpdatedViaSyncEvent(listOf(entry)))
 
         assertTrue(book.globalKeyList.none { it.osisRef == "page_two" })
         assertEquals("page_one", book.getKey("page_one").osisRef)
@@ -197,7 +197,7 @@ class MyDocumentBookManagerTest {
         addPage("page_other", "Other page", documentId = other.id)
         val page = dao.pageByKeyWithContent(other.id, "page_other")!!
 
-        MyDocumentBookManager.onEventMainThread(
+        MyDocumentBookManager.handleSyncEvent(
             MyDocumentsUpdatedViaSyncEvent(
                 listOf(
                     LogEntry(
@@ -221,7 +221,7 @@ class MyDocumentBookManagerTest {
     fun syncUpdateUnregistersDocumentsDeletedOnAnotherDevice() {
         dao.deleteDocumentWithPages(dao.documentById(document.id)!!)
 
-        MyDocumentBookManager.onEventMainThread(
+        MyDocumentBookManager.handleSyncEvent(
             MyDocumentsUpdatedViaSyncEvent(
                 listOf(
                     LogEntry(
@@ -247,7 +247,7 @@ class MyDocumentBookManagerTest {
 
         val renamed = dao.documentById(document.id)!!.apply { name = "Renamed document" }
         dao.update(renamed)
-        MyDocumentBookManager.onEventMainThread(
+        MyDocumentBookManager.handleSyncEvent(
             MyDocumentsUpdatedViaSyncEvent(
                 listOf(
                     LogEntry(

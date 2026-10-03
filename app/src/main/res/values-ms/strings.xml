@@ -383,10 +383,6 @@
   <string name="auto_assign_labels1">Auto-tugaskan label kepada penanda buku baharu</string>
   <string name="auto_assign_labels_primary">Auto-tugaskan sebagai utama</string>
   <!--can be removed-->
-  <string name="marker_style">Tunjukkan hanya penanda untuk penanda buku pilihan</string>
-  <string name="marker_style_whole_verse">Tunjukkan hanya penanda untuk penanda buku keseluruhan ayat</string>
-  <string name="hide_style">Sembunyikan untuk penanda buku pilihan</string>
-  <string name="hide_style_whole_verse">Sembunyikan untuk penanda buku keseluruhan ayat</string>
   <string name="bookmark_warning">Terdapat penanda buku dan/atau nota untuk dokumen ini.</string>
   <string name="bookmark_warning2">Jika struktur dokumen telah berubah, mengemas kini dokumen ini boleh menyebabkan lokasi penanda buku/nota ini berpindah dalam dokumen atau hilang sepenuhnya.</string>
   <string name="bookmark_warning3">Adakah anda masih ingin mengemas kini modul?</string>
@@ -804,8 +800,6 @@
   <string name="favourite_label">Label kegemaran</string>
   <string name="edit_label">Edit label</string>
   <string name="delete_label_confirmation">Adakah anda ingin membuang label penanda buku \"%s\"? Juga semua nota Pad Kajian yang berkaitan akan dibuang.</string>
-  <string name="bookmark_underline_style_arbitrary">Gaya garis bawah untuk penanda buku pilihan</string>
-  <string name="bookmark_underline_style_whole_verse">Gaya garis bawah untuk penanda buku keseluruhan ayat</string>
   <string name="active_labels">Label yang dipilih</string>
   <string name="recent_labels">Label terkini</string>
   <string name="other_labels">Label lain</string>

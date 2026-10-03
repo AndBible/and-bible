@@ -391,10 +391,6 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="auto_assign_labels1">Auto-assegna a nuovi segnalibri</string>
   <string name="auto_assign_labels_primary">Auto-assegna come principale</string>
   <!--can be removed-->
-  <string name="marker_style">Evidenzia solo i segnalibri di selezione</string>
-  <string name="marker_style_whole_verse">Evidenzia solo i segnalibri di versi interi</string>
-  <string name="hide_style">Nascondi per i segnalibri della selezione</string>
-  <string name="hide_style_whole_verse">Nascondi per i segnalibri del versetto</string>
   <string name="bookmark_warning">Sono presenti segnalibri e/o note per questo documento.</string>
   <string name="bookmark_warning2">
         Se la struttura del documento è cambiata, l\'aggiornamento di questo documento potrebbe
@@ -885,8 +881,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="favourite_label">Etichetta preferita</string>
   <string name="edit_label">Modifica etichetta</string>
   <string name="delete_label_confirmation">Vuoi rimuovere l\'etichetta di segnalibro \"%s\"? Anche tutti gli Appunti di studio ad essa associati verranno rimossi.</string>
-  <string name="bookmark_underline_style_arbitrary">Stile sottolineatura per la selezione segnalibri</string>
-  <string name="bookmark_underline_style_whole_verse">Stile di sottolineatura per i segnalibri del versetto</string>
   <string name="active_labels">Etichette selezionate</string>
   <string name="recent_labels">Etichette recenti</string>
   <string name="other_labels">Altre etichette</string>

@@ -1,0 +1,315 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+package net.bible.sharedui.navigation
+
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.Composable
+import net.bible.sharedcore.navigation.ChooserError
+import net.bible.sharedcore.navigation.DocArrangement
+import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.DocGroup
+import net.bible.sharedcore.navigation.DocGroupBy
+import net.bible.sharedcore.navigation.DocGroupKey
+import net.bible.sharedcore.navigation.DocRow
+import net.bible.sharedcore.navigation.DocSortKey
+import net.bible.sharedcore.navigation.DocTypeFilter
+import net.bible.sharedcore.navigation.DocumentSelectionDialog
+import net.bible.sharedcore.navigation.LangOption
+import net.bible.sharedcore.navigation.ProceedAnswer
+import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedui.components.AbActionIcon
+import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbDocumentListScaffold
+import net.bible.sharedui.components.AbErrorDialog
+import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbMessageDialog
+import net.bible.sharedui.components.AbOptionsDialog
+import net.bible.sharedui.components.AbSearchImeRequest
+import net.bible.sharedui.components.AbTopBarSearchCallbacks
+import net.bible.sharedui.components.AbTopBarSearchState
+import net.bible.sharedui.strings.LocalStrings
+import net.bible.sharedui.strings.Strings
+
+/**
+ * Shared, stateless document-selection screen. Used by both ChooseDocument (Plan A,
+ * `downloadMode = false`, `onRefresh = null`) and Download (Plan B, `downloadMode = true`,
+ * pull-to-refresh enabled). The host owns all state and supplies the callbacks.
+ */
+@Composable
+fun DocumentSelectionScreen(
+    title: String,
+    downloadMode: Boolean,
+    loading: Boolean,
+    isRefreshing: Boolean,
+    onRefresh: (() -> Unit)?,
+    grouped: List<DocGroup<DocRow>>,
+    languages: List<LangOption>,
+    selectedLanguage: LangOption?,
+    typeFilters: List<Pair<DocTypeFilter, String>>,
+    selectedTypeFilter: DocTypeFilter,
+    query: String,
+    resultCount: String,
+    selectionMode: Boolean,
+    selectedIds: Set<String>,
+    error: ChooserError?,
+    dialog: DocumentSelectionDialog,
+    topBarActions: @Composable RowScope.() -> Unit,
+    onQueryChange: (String) -> Unit,
+    searchModeActive: Boolean,
+    onOpenSearch: () -> Unit,
+    onCloseSearch: () -> Unit,
+    onLanguageChange: (LangOption?) -> Unit,
+    onTypeFilterChange: (DocTypeFilter) -> Unit,
+    arrangement: DocArrangement,
+    groupKeys: List<DocGroupBy>,
+    repositories: List<String>,
+    rememberArrangement: Boolean,
+    arrangementIsDefault: Boolean,
+    onMoveSort: (from: Int, to: Int) -> Unit,
+    onToggleSortDirection: (DocSortKey) -> Unit,
+    onGroupByChange: (DocGroupBy) -> Unit,
+    onRepositoryChange: (String?) -> Unit,
+    onRememberChange: (Boolean) -> Unit,
+    onResetArrangement: () -> Unit,
+    onRowClick: (DocRow) -> Unit,
+    onRowLongClick: (DocRow) -> Unit,
+    onDownload: (DocRow) -> Unit,
+    onCancel: (DocRow) -> Unit,
+    onSelectionAbout: () -> Unit,
+    onSelectionDelete: () -> Unit,
+    onSelectionDeleteIndex: () -> Unit,
+    onSelectionUnlock: () -> Unit,
+    unlockVisible: Boolean,
+    deleteVisible: Boolean,
+    onDismissError: () -> Unit,
+    onConfirmDialog: () -> Unit,
+    onDismissDialog: () -> Unit,
+    // Task 23: DocumentSelectionDialog.ProceedWithDownload is answered through the controller's own
+    // confirmProceed/dismissProceed, not the generic pair above -- see DocumentSelectionController
+    // .askProceed's KDoc for why (the AiPromptsController.chooseImportMode/confirmImportMode/
+    // dismissImportModeChoice shape). ChooseDocument's arm wires this to the same controller method
+    // even though its flow never produces this dialog state.
+    onConfirmProceed: (ProceedAnswer) -> Unit,
+    onDismissProceed: () -> Unit,
+    onNavigateUp: () -> Unit,
+    onExitSelection: () -> Unit,
+) {
+    val strings = LocalStrings.current
+
+    AbDocumentListScaffold(
+        title = title,
+        selectionMode = selectionMode,
+        selectedCount = selectedIds.size,
+        onNavigateUp = onNavigateUp,
+        // Tapping the selection-CAB Close (X) exits selection mode only; the host wires this to
+        // controller::clearSelection. onNavigateUp still leaves the whole screen (finish()).
+        onExitSelection = onExitSelection,
+        actions = {
+            AbActionIcon(Icons.Filled.Search, strings.search, onOpenSearch)
+            topBarActions()
+        },
+        search = if (searchModeActive) {
+            AbTopBarSearchState(query = query, imeRequest = AbSearchImeRequest.Focus)
+        } else null,
+        searchCallbacks = if (searchModeActive) {
+            AbTopBarSearchCallbacks(
+                onQueryChange = onQueryChange,
+                onClose = onCloseSearch,
+                onImeRequestHandled = {},
+            )
+        } else null,
+        selectionActions = {
+            IconButton(onClick = onSelectionAbout) {
+                Icon(Icons.Filled.Info, contentDescription = strings.aboutDoc)
+            }
+            if (deleteVisible) {
+                IconButton(onClick = onSelectionDelete) {
+                    Icon(Icons.Filled.Delete, contentDescription = strings.deleteLabel)
+                }
+            }
+            IconButton(onClick = onSelectionDeleteIndex) {
+                Icon(Icons.Filled.SearchOff, contentDescription = strings.deleteIndexLabel)
+            }
+            if (unlockVisible) {
+                IconButton(onClick = onSelectionUnlock) {
+                    Icon(Icons.Filled.LockOpen, contentDescription = strings.unlockModule)
+                }
+            }
+        },
+        filterBar = {
+            // Search lives in the top bar (round 7). DocumentFilterBar carries the language and type
+            // filters as chips that show their current value and open one bottom sheet at a time —
+            // which is why the controls are not hosted in a summary sheet: nesting bottom sheets is
+            // not an option, and AbSearchableOptionSheet is itself a ModalBottomSheet.
+            DocumentFilterBar(
+                languages = languages,
+                selectedLanguage = selectedLanguage,
+                onLanguageChange = onLanguageChange,
+                typeFilters = typeFilters,
+                selectedTypeFilter = selectedTypeFilter,
+                onTypeFilterChange = onTypeFilterChange,
+                resultCount = resultCount,
+                arrangement = arrangement,
+                groupKeys = groupKeys,
+                repositories = repositories,
+                rememberArrangement = rememberArrangement,
+                arrangementIsDefault = arrangementIsDefault,
+                onMoveSort = onMoveSort,
+                onToggleSortDirection = onToggleSortDirection,
+                onGroupByChange = onGroupByChange,
+                onRepositoryChange = onRepositoryChange,
+                onRememberChange = onRememberChange,
+                onResetArrangement = onResetArrangement,
+            )
+        },
+        loading = loading,
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        groups = grouped,
+        groupHeaderLabel = { key -> documentGroupHeaderLabel(key, strings) },
+        itemKey = { it.docId },
+        emptyText = null,
+    ) { row ->
+        DocumentRow(
+            row = row,
+            downloadMode = downloadMode,
+            selectionMode = selectionMode,
+            selected = row.docId in selectedIds,
+            onClick = { onRowClick(row) },
+            onLongClick = { onRowLongClick(row) },
+            onDownload = { onDownload(row) },
+            onCancel = { onCancel(row) },
+        )
+    }
+
+    if (error != null) {
+        AbErrorDialog(message = strings.errorOccurred, confirmText = strings.okay, onDismiss = onDismissError)
+    }
+
+    when (dialog) {
+        // manageDownload's confirm-before-download question (NH row 7954): classic's dialog was
+        // `setCancelable(false)` -- back/scrim do nothing -- but its Cancel BUTTON is a genuine no-op,
+        // which is exactly [onDismissDialog] here (state clears, nothing else runs).
+        is DocumentSelectionDialog.ConfirmDownload -> AbMessageDialog(
+            title = null,
+            html = dialog.message,
+            confirmText = strings.okay,
+            onConfirm = onConfirmDialog,
+            onDismissRequest = onDismissDialog,
+            dismissText = strings.cancel,
+            onDismiss = onDismissDialog,
+            cancellable = false,
+        )
+        // The bulk-delete question (NH rows 8004/9306); classic's own Yes/No wording.
+        is DocumentSelectionDialog.ConfirmDelete -> AbConfirmDialog(
+            title = null,
+            message = dialog.message,
+            confirmText = strings.yes,
+            dismissText = strings.no,
+            onConfirm = onConfirmDialog,
+            onDismiss = onDismissDialog,
+        )
+        // D8-3: one document at a time (NH rows 8034/9333); classic's own Okay/Cancel wording, "Cancel"
+        // skipping only THIS document (onDismissDialog advances the controller's queue by one).
+        is DocumentSelectionDialog.ConfirmDeleteIndex -> AbConfirmDialog(
+            title = null,
+            message = strings.deleteSearchIndexDoc(dialog.docName),
+            confirmText = strings.okay,
+            dismissText = strings.cancel,
+            onConfirm = onConfirmDialog,
+            onDismiss = onDismissDialog,
+        )
+        // The download-errors summary (NH row 8234), Download-only -- ChooseDocument never triggers it.
+        is DocumentSelectionDialog.Errors -> AbInfoDialog(
+            title = dialog.title,
+            body = dialog.message,
+            onDismiss = onDismissDialog,
+        )
+        // Classic askIfWantToProceed() (NH:7605-7623), Download-only: yes / don't-ask-again / cancel.
+        // "Cancel" is both the explicit dismissText button AND back/scrim (classic's setCancelable
+        // default plus its own setOnCancelListener resuming false) -- cancellable stays the default
+        // true, unlike ConfirmDownload's setCancelable(false).
+        DocumentSelectionDialog.ProceedWithDownload -> AbOptionsDialog(
+            title = strings.downloadQuestionTitle,
+            message = strings.downloadQuestionMessage,
+            options = listOf(
+                SettingsItem.Choice(value = "yes", label = strings.yes),
+                SettingsItem.Choice(value = "dont_ask_again", label = strings.doNotAskAgain),
+            ),
+            onSelect = { value ->
+                onConfirmProceed(if (value == "dont_ask_again") ProceedAnswer.DONT_ASK_AGAIN else ProceedAnswer.YES)
+            },
+            onDismissRequest = onDismissProceed,
+            dismissText = strings.cancel,
+        )
+        // Classic warnUserBooksNotDownloaded() (NH:8100-8114), Download-only: an inflated ListView
+        // summary with a single "OK" button (no negative/neutral, default cancelable), now a plain
+        // HTML message -- dialog.text is already escaped/joined by the host (D5).
+        is DocumentSelectionDialog.BooksNotDownloaded -> AbMessageDialog(
+            title = null,
+            html = dialog.text,
+            confirmText = strings.okay,
+            onConfirm = onDismissDialog,
+            onDismissRequest = onDismissDialog,
+        )
+        DocumentSelectionDialog.None -> {}
+    }
+}
+
+/**
+ * A group header's text. The category headers reuse the SAME strings the type filter's sheet
+ * shows, so "Bible" means one thing on this screen; a missing value renders the `all`
+ * placeholder rather than an empty header. [DocCategory.OTHER]/null is NOT the same as "no
+ * value" — CrossWire ships real documents (daily devotions, glossaries, essays, images, …) that
+ * map to OTHER, so it gets its own [Strings.docTypeOther] label rather than the `all` placeholder.
+ */
+private fun documentGroupHeaderLabel(key: DocGroupKey, strings: Strings): String = when (key) {
+    is DocGroupKey.Category -> when (key.category) {
+        DocCategory.BIBLE -> strings.docTypeBible
+        DocCategory.COMMENTARY -> strings.docTypeCommentary
+        DocCategory.DICTIONARY -> strings.docTypeDictionary
+        DocCategory.GENERAL_BOOK -> strings.docTypeGeneralBook
+        DocCategory.MAPS -> strings.docTypeMaps
+        DocCategory.AND_BIBLE -> strings.docTypeAddon
+        DocCategory.OTHER, null -> strings.docTypeOther
+    }
+    is DocGroupKey.Language -> key.language ?: strings.all
+    is DocGroupKey.Repository -> key.repository ?: strings.all
+    is DocGroupKey.Status -> documentGroupStatusLabel(key.rank, strings)
+    DocGroupKey.None -> ""
+}
+
+/**
+ * Per-status-VALUE label for a STATUS-grouped list's header, keyed by [DocRow.sortStatusRank]
+ * (see that property's KDoc). The engine deliberately stays ignorant of the status vocabulary —
+ * a rank, not an enum, because different screens rank different things — so the label mapping
+ * lives here, on the host side, specific to THIS screen's four DocInstallStatus-derived ranks.
+ */
+private fun documentGroupStatusLabel(rank: Int, strings: Strings): String = when (rank) {
+    0 -> strings.docGroupStatusDownloading      // DocInstallStatus.BEING_INSTALLED
+    1 -> strings.docGroupStatusUpdateAvailable  // DocInstallStatus.UPGRADE_AVAILABLE
+    2 -> strings.docGroupStatusInstalled        // INSTALLED / ERROR_DOWNLOADING / INSTALL_CANCELLED
+    else -> strings.docGroupStatusNotInstalled  // 3: DocInstallStatus.NOT_INSTALLED
+}

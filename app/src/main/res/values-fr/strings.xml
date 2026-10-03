@@ -403,10 +403,6 @@ Avec l\'aimable autorisation de Wholesome Words, http://www.wholesomewords.org/<
   <string name="auto_assign_labels1">Attribution automatique d’une étiquette aux nouveaux signets</string>
   <string name="auto_assign_labels_primary">Auto-assignation comme première</string>
   <!--can be removed-->
-  <string name="marker_style">Afficher uniquement le marqueur pour les signets de sélection</string>
-  <string name="marker_style_whole_verse">Afficher uniquement le marqueur pour les signets de versets entiers</string>
-  <string name="hide_style">Masquer les signets de sélection</string>
-  <string name="hide_style_whole_verse">Masquer les signets de versets entiers</string>
   <string name="bookmark_warning">Ce document comporte des signets et/ou des notes.</string>
   <string name="bookmark_warning2">
 Si la structure du document a été modifiée, la mise à jour de ce document peut entraîner le déplacement de ces signets/notes à l’intérieur du document ou leur disparition complète
@@ -909,8 +905,6 @@ Si un texte particulier n’est pas disponible dans l’application, %s.
   <string name="favourite_label">Étiquette favorite</string>
   <string name="edit_label">Éditer l’étiquette</string>
   <string name="delete_label_confirmation">Voulez-vous supprimer l’étiquette du signet « %s » ? Toutes les notes du bloc-notes associées seront également supprimées.</string>
-  <string name="bookmark_underline_style_arbitrary">Style de soulignement pour la sélection de signets</string>
-  <string name="bookmark_underline_style_whole_verse">Style de soulignement pour les signets de verset entier</string>
   <string name="active_labels">Étiquettes sélectionnées</string>
   <string name="recent_labels">Étiquettes récentes</string>
   <string name="other_labels">Autres étiquettes</string>

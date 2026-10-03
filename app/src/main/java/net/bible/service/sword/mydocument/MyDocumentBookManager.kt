@@ -20,6 +20,7 @@ package net.bible.service.sword.mydocument
 import android.util.Log
 import kotlinx.serialization.Serializable
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.mydocument.AiDocMarkerInfo
@@ -94,7 +95,9 @@ object MyDocumentBookManager {
         get() = registeredBooks.keys.toSet()
 
     init {
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<MyDocumentsUpdatedViaSyncEvent> { e -> handleSyncEvent(e) }
+        }
     }
 
     /**
@@ -102,13 +105,16 @@ object MyDocumentBookManager {
      * refresh only the BibleView windows that display documents affected by
      * the sync.
      *
-     * Must run on the main thread (onEventMainThread) because SwordGenBook
-     * and the JSword Activator are not thread-safe. Running the registration
-     * refresh on a background thread causes a race condition where the main
-     * thread sees a newly registered book whose internal key map hasn't been
-     * activated yet, leading to NPE in getKey().
+     * Must run on the main thread (it is subscribed with [onMain]) because
+     * SwordGenBook and the JSword Activator are not thread-safe. Running the
+     * registration refresh on a background thread causes a race condition where
+     * the main thread sees a newly registered book whose internal key map hasn't
+     * been activated yet, leading to NPE in getKey().
+     *
+     * Internal rather than a lambda body so tests can drive it directly instead
+     * of going through the (main-dispatcher) event bus.
      */
-    fun onEventMainThread(e: MyDocumentsUpdatedViaSyncEvent) {
+    internal fun handleSyncEvent(e: MyDocumentsUpdatedViaSyncEvent) {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val affectedInitials = mutableSetOf<String>()
         var refreshAll = false

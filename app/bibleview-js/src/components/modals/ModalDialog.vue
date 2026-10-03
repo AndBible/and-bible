@@ -208,14 +208,14 @@ $border-radius2: $border-radius - 1.5pt;
   padding-left: 0.5em;
   background-color: $modal-header-background-color;
   --header-backround: #{$modal-header-background-color};
-  color: white;
+  color: $modal-header-foreground-color;
   font-weight: bold;
   border-radius: $border-radius2 $border-radius2 0 0;
 
   .night & {
     background-color: $night-modal-header-background-color;
     --header-backround: #{$night-modal-header-background-color};
-    color: #e2e2e2;
+    color: $night-modal-header-foreground-color;
   }
   .monochrome.night & {
     color: white;
@@ -255,8 +255,8 @@ $border-radius2: $border-radius - 1.5pt;
   justify-content: space-around;
   padding-top: 2px;
   padding-bottom: 2px;
-  background-color: #acacac;
-  color: white;
+  background-color: var(--ab-secondary-container, #acacac);
+  color: var(--ab-on-secondary-container, white);
 
   .monochrome & {
     background-color: white;
@@ -264,8 +264,8 @@ $border-radius2: $border-radius - 1.5pt;
     border-top: 1px solid black;
   }
   .night & {
-    background-color: #454545;
-    color: #bdbdbd;
+    background-color: var(--ab-secondary-container, #454545);
+    color: var(--ab-on-secondary-container, #bdbdbd);
   }
   .monochrome.night & {
     background-color: black;

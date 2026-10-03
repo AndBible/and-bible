@@ -18,17 +18,14 @@ package net.bible.android.view.activity.speak.actionbarbuttons
 
 import android.view.MenuItem
 import net.bible.service.common.CommonUtils.getResourceString
-import net.bible.android.control.ApplicationScope
 import net.bible.android.activity.R
-import javax.inject.Inject
 
 /**
  * Stop Speaking
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-open class SpeakStopActionBarButton @Inject constructor() : SpeakActionBarButtonBase()
+open class SpeakStopActionBarButton constructor() : SpeakActionBarButtonBase()
 {
     override fun onMenuItemClick(menuItem: MenuItem): Boolean {
         speakControl.stop(false, false)

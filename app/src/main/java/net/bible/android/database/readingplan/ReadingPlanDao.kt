@@ -66,8 +66,10 @@ interface ReadingPlanDao {
     @Query("SELECT * FROM ReadingPlan WHERE PlanCode = :planCode")
     suspend fun getPlan(planCode: String): ReadingPlan?
 
+    // Columns named explicitly: positional VALUES once stored the day number as the start date (4bebe89ee).
     @Query("""
-        INSERT INTO ReadingPlan VALUES (:planCode, :planCurrentDay, :planCurrentDay, :id)
+        INSERT INTO ReadingPlan (planCode, planStartDate, planCurrentDay, id)
+        VALUES (:planCode, :planStartDate, :planCurrentDay, :id)
         ON CONFLICT DO UPDATE SET
         planCode=:planCode, 
         planStartDate=:planStartDate, 

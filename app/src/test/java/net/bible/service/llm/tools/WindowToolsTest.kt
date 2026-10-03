@@ -41,6 +41,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -54,8 +55,13 @@ class WindowToolsTest {
 
     @Before
     fun setUp() {
-        val app = BibleApplication.application as TestBibleApplication
-        windowControl = app.applicationComponent.windowControl()
+        // Resolve WindowControl from the live Koin container exactly as the tools do
+        // (GlobalContext.get().get<WindowControl>()). Do NOT use CommonUtils.windowControl:
+        // its `by inject()` delegate caches the first-resolved instance for the whole JVM, so
+        // if an earlier test class stopped+restarted Koin, that cache would be a stale
+        // WindowControl from a dead container while the tools use the current one — the
+        // windowRepository set here would then be invisible to the tools.
+        windowControl = GlobalContext.get().get<WindowControl>()
         windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl.windowRepository.initialize()
     }

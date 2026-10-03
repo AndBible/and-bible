@@ -19,8 +19,8 @@ package net.bible.android.control.readingplan
 
 import android.util.Log
 
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -42,7 +42,6 @@ import java.util.ArrayList
 import java.util.Calendar
 import java.util.Date
 
-import javax.inject.Inject
 import kotlin.math.roundToLong
 
 
@@ -50,23 +49,22 @@ import kotlin.math.roundToLong
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class ReadingPlanControl @Inject constructor(
+class ReadingPlanControl constructor(
 		private val speakControl: SpeakControl,
 		private val windowControl: WindowControl,
         private val readingPlanRepo: ReadingPlanRepository)
 {
 
     init {
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<ReadingPlansUpdatedViaSyncEvent> { e ->
+                // TODO: Reload readingStatus from db
+            }
+        }
     }
 
     fun destroy() {
         ABEventBus.unregister(this)
-    }
-
-    fun onEventMainThread(e: ReadingPlansUpdatedViaSyncEvent) {
-        // TODO: Reload readingStatus from db
     }
 
     private val readingPlanTextDao = ReadingPlanTextFileDao()

@@ -398,10 +398,6 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="auto_assign_labels1">Lisää kirjanmerkkiryhmä automaattisesti uusiin kirjanmerkkeihin</string>
   <string name="auto_assign_labels_primary">Lisää automaattisesti pääasiallisena</string>
   <!--can be removed-->
-  <string name="marker_style">Näytä vain merkki tekstivalinnan sisältäville kirjanmerkeille</string>
-  <string name="marker_style_whole_verse">Näytä vain merkki koko jakeen kirjanmerkeille</string>
-  <string name="hide_style">Piilota tekstivalinnan sisältävät kirjanmerkit</string>
-  <string name="hide_style_whole_verse">Piilota koko jakeen kirjanmerkit</string>
   <string name="bookmark_warning">Tässä dokumentissa on kirjanmerkkejä ja/tai merkintöjä.</string>
   <string name="bookmark_warning2">
 Jos dokumentin rakenne on muuttunut, dokumentin päivittäminen voi saada aikaan sen, että näiden kirjanmerkkit / merkinnöt siirtyvät dokumentin sisällä tai katoavat kokonaan.</string>
@@ -860,8 +856,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="favourite_label">Suosikkikirjanmerkkiryhmä</string>
   <string name="edit_label">Muokkaa kirjanmerkkiryhmää</string>
   <string name="delete_label_confirmation">Haluatko poistaa kirjanmerkkiryhmän \"%s\"? Myös kaikki liitännäiset opintoalustan merkinnät poistetaan.</string>
-  <string name="bookmark_underline_style_arbitrary">Alleviivaustyyli tekstivalinnan sisältäville kirjanmerkeille</string>
-  <string name="bookmark_underline_style_whole_verse">Alleviivaustyyli koko jakeen kirjanmerkeille</string>
   <string name="active_labels">Valitut kirjanmerkkiryhmät</string>
   <string name="recent_labels">Viimeaikaiset kirjanmerkkiryhmät</string>
   <string name="other_labels">Muut kirjanmerkkiryhmät</string>

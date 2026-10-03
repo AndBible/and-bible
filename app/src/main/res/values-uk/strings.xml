@@ -411,10 +411,6 @@
   <string name="auto_assign_labels1">Автоматично призначати мітку новим закладкам</string>
   <string name="auto_assign_labels_primary">Автоматично призначити як основну</string>
   <!--can be removed-->
-  <string name="marker_style">Показувати лише позначку для виділеного тексту</string>
-  <string name="marker_style_whole_verse">Показувати лише позначку для закладок цілих віршів</string>
-  <string name="hide_style">Приховати закладки виділеного тексту</string>
-  <string name="hide_style_whole_verse">Сховати для закладок цілих віршів</string>
   <string name="bookmark_warning">В цьому ресурсі є закладки та/або примітки.</string>
   <string name="bookmark_warning2">
         Якщо структура документа змінилася, оновлення цього ресурсу може спричинити
@@ -929,8 +925,6 @@
   <string name="favourite_label">Улюблена мітка</string>
   <string name="edit_label">Редагувати мітку</string>
   <string name="delete_label_confirmation">Видалити мітку закладки \"%s\"? Також будуть видалені всі блокнотні примітки пов’язані з цею міткою.</string>
-  <string name="bookmark_underline_style_arbitrary">Стиль підкреслення закладок для виділеного тексту</string>
-  <string name="bookmark_underline_style_whole_verse">Стиль підкреслення закладок для цілих віршів</string>
   <string name="active_labels">Вибрані мітки</string>
   <string name="recent_labels">Останні мітки</string>
   <string name="other_labels">Інші мітки</string>

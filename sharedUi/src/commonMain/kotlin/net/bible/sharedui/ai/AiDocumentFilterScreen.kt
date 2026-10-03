@@ -1,0 +1,190 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.sharedui.ai
+
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.ai.AiDocGroupVd
+import net.bible.sharedcore.ai.AiDocVd
+import net.bible.sharedui.components.AbActionIconSize
+import net.bible.sharedui.components.AbConfirmDialog
+import net.bible.sharedui.components.AbInfoDialog
+import net.bible.sharedui.components.AbOverflowMenu
+import net.bible.sharedui.components.AbScaffold
+import net.bible.sharedui.strings.LocalStrings
+import androidx.compose.foundation.lazy.rememberLazyListState
+import net.bible.sharedui.components.volumeScrollTarget
+
+/**
+ * The per-document AI access filter screen (mirrors classic
+ * [net.bible.android.view.activity.ai.AiDocumentFilterActivity]). Fully stateless: [groups] /
+ * [isDirty] come from [net.bible.sharedcore.ai.AiDocumentFilterController]'s `state`/`isDirty`
+ * flows, and every edit is forwarded straight back to the controller via [onToggle] /
+ * [onResetAll] / [onSave] — this screen owns no filter state itself, only the discard-confirm
+ * dialog's visibility (same shape as [GlobalToolPermissionsScreen]).
+ *
+ * **Blacklist semantics.** A document's checkbox reflects [AiDocVd.allowed]: checked = allowed
+ * (the default — nothing is excluded until the user unchecks it), unchecked = excluded. Tapping a
+ * row (or its checkbox) calls [onToggle] with that document's [AiDocVd.initials]; the controller
+ * flips its membership in the working excluded set.
+ *
+ * **Grouping.** [groups] is already ordered/filtered by the controller (one [AiDocGroupVd] per
+ * non-empty `BookCategory`, in Bible/Commentary/Dictionary/General-Book order — see
+ * [AiDocGroupVd]'s kdoc); this screen just renders each group's `categoryLabel` as a section
+ * header above its documents, with a divider between groups (mirrors [ToolPermissionList]'s
+ * category-divider layout).
+ *
+ * **Top bar.** Title: [net.bible.sharedui.strings.Strings.aiDocumentFilterTitle]. A save
+ * check-icon action (`enabled = isDirty`, mirrors [GlobalToolPermissionsScreen]'s save icon —
+ * shown but inert when there is nothing to save) plus an [AbOverflowMenu] with "Reset all"
+ * ([onResetAll] — clears the working excluded set, i.e. allows everything again; no confirmation,
+ * matches classic's `reset_all` menu item; nothing is persisted until [onSave] regardless) and
+ * "Help" — opens an [AbInfoDialog] owned by this screen (F30), fed the host-supplied
+ * [helpBody]/[helpReadMoreUrl] (Android resources / docs URL the shared layer can't own directly).
+ *
+ * **Up / back.** [onUp] is not called directly from the up-navigation icon: mirrors classic's
+ * `cancelOrConfirmDiscard()` — tapping it shows an [AbConfirmDialog] ("Discard unsaved changes?")
+ * whenever [isDirty], calling [onUp] only on confirm (or immediately, with no dialog, when not
+ * dirty).
+ *
+ * @param groups Document groups with their (already category-ordered) documents (`AiDocumentFilterController.state`).
+ * @param isDirty Whether the working excluded set differs from the loaded baseline (`AiDocumentFilterController.isDirty`).
+ * @param onUp Requested up-navigation, gated behind the discard-confirm dialog while [isDirty].
+ * @param onToggle Forwarded 1:1 to `AiDocumentFilterController.toggle`, given a document's `initials`.
+ * @param onResetAll Forwarded 1:1 to `AiDocumentFilterController.resetAll`.
+ * @param onSave Forwarded 1:1 to `AiDocumentFilterController.save`.
+ * @param helpBody Host-supplied (Android-resource-backed) help body text.
+ * @param helpReadMoreUrl Host-supplied full "Read more" docs URL.
+ */
+@Composable
+fun AiDocumentFilterScreen(
+    groups: List<AiDocGroupVd>,
+    isDirty: Boolean,
+    onUp: () -> Unit,
+    onToggle: (initials: String) -> Unit,
+    onResetAll: () -> Unit,
+    onSave: () -> Unit,
+    helpBody: String,
+    helpReadMoreUrl: String,
+    initiallyHelpDialogOpen: Boolean = false,
+) {
+    val strings = LocalStrings.current
+    var showDiscardConfirm by remember { mutableStateOf(false) }
+    var showHelp by remember { mutableStateOf(initiallyHelpDialogOpen) }
+    val requestUp: () -> Unit = { if (isDirty) showDiscardConfirm = true else onUp() }
+
+    AbScaffold(
+        title = strings.aiDocumentFilterTitle,
+        onNavigateUp = requestUp,
+        actions = {
+            IconButton(onClick = onSave, enabled = isDirty) {
+                Icon(Icons.Filled.Check, contentDescription = strings.okay, modifier = Modifier.size(AbActionIconSize))
+            }
+            AbOverflowMenu(contentDescription = null) { close ->
+                DropdownMenuItem(text = { Text(strings.resetToolPermissionsLabel) }, onClick = { close(); onResetAll() })
+                DropdownMenuItem(text = { Text(strings.helpLabel) }, onClick = { close(); showHelp = true })
+            }
+        },
+    ) { padding ->
+        val listState = rememberLazyListState()
+        LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(padding).volumeScrollTarget(listState)) {
+            groups.forEachIndexed { index, group ->
+                if (index > 0) {
+                    item(key = "divider-${group.categoryId}") { HorizontalDivider() }
+                }
+                item(key = "header-${group.categoryId}") { AiDocGroupHeader(group.categoryLabel) }
+                items(group.docs, key = { "${group.categoryId}:${it.initials}" }) { doc ->
+                    AiDocRow(doc = doc, onToggle = { onToggle(doc.initials) })
+                }
+            }
+        }
+    }
+
+    if (showDiscardConfirm) {
+        AbConfirmDialog(
+            title = null,
+            message = strings.discardChangesConfirmation,
+            confirmText = strings.yes,
+            dismissText = strings.no,
+            onConfirm = { showDiscardConfirm = false; onUp() },
+            onDismiss = { showDiscardConfirm = false },
+        )
+    }
+
+    if (showHelp) {
+        AbInfoDialog(
+            title = strings.helpLabel,
+            body = helpBody,
+            onDismiss = { showHelp = false },
+            readMoreLabel = strings.helpReadMoreLink,
+            readMoreUrl = helpReadMoreUrl,
+        )
+    }
+}
+
+@Composable
+private fun AiDocGroupHeader(label: String) {
+    Text(
+        label,
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+    )
+}
+
+@Composable
+private fun AiDocRow(doc: AiDocVd, onToggle: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .toggleable(value = doc.allowed, role = Role.Checkbox, onValueChange = { onToggle() })
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Checkbox(checked = doc.allowed, onCheckedChange = null)
+        Spacer(Modifier.width(8.dp))
+        Text("${doc.initials} — ${doc.name}")
+    }
+}

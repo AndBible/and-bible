@@ -1,0 +1,33 @@
+{#- Docs header unified with the landing topbar (templates/base.html): logo + wordmark, search, the same
+    links, the same theme button.
+    Search comes BEFORE the links: it grows on focus and, last in the row, would push the links left. Zensical's palette form is gone (partials/javascripts/palette.html
+    would restore its own __palette storage); assets/andbible-docs-theme.js owns the theme instead.
+    Brand and links come from the site strings (config.extra.site, written by sitegen.docs). -#}
+{% set site = config.extra.site %}
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="{{ lang.t('header') }}">
+    <label class="md-header__button md-icon" for="__drawer" aria-label="{{ lang.t('nav') }}">
+      {% set icon = config.theme.icon.menu or "material/menu" %}
+      {% include ".icons/" ~ icon ~ ".svg" %}
+    </label>
+    <a class="ab-brand" href="{{ site.home }}"><img src="{{ config.theme.logo }}" alt="" width="32" height="32"><span>{{ site.brand }}</span></a>
+    {% if "search" in config.plugins %}
+      {% set search = config.plugins["search"] | attr("config") %}
+      {% if search.enabled %}
+        <label class="md-header__button md-icon" for="__search" aria-label="{{ lang.t('search') }}">
+          {% set icon = config.theme.icon.search or "material/magnify" %}
+          {% include ".icons/" ~ icon ~ ".svg" %}
+        </label>
+        {% include "partials/search.html" %}
+      {% endif %}
+    {% endif %}
+    <div class="ab-nav">
+      {% for link in site.links %}
+      <a href="{{ link.url }}">{{ link.label }}</a>
+      {% endfor %}
+    </div>
+    <button class="ab-icon-button" type="button" data-theme-toggle aria-label="{{ site.theme_toggle }}">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>
+    </button>
+  </nav>
+</header>

@@ -22,10 +22,12 @@ import java.util.Locale
 import java.util.Properties
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.plugin.serialization")
-    id("com.google.devtools.ksp")
-    id("app.accrescent.tools.bundletool")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.accrescent.bundletool)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.roborazzi)
 }
 
 val jsDir = "bibleview-js"
@@ -226,7 +228,11 @@ android {
             // installed alongside the production app. local.properties is gitignored, so
             // relying on APP_SUFFIX there is not portable; APP_SUFFIX (when present) still
             // overrides this default for setups that need a different suffix.
-            var appSuffix = ".debug"
+            // TODO(compose-port, REVERT BEFORE MERGE): temporarily ".compose" so this
+            //   Compose-port branch's debug build installs alongside a normal ".debug"
+            //   build for on-device A/B. Restore to ".debug" before merging. Tracked in
+            //   docs/superpowers/status/compose-port-status.md.
+            var appSuffix = ".compose"
             val propsFile = rootProject.file("local.properties")
             if (propsFile.exists()) {
                 val props = Properties()
@@ -236,6 +242,20 @@ android {
             }
             println("App suffix: $appSuffix")
             applicationIdSuffix = appSuffix
+
+            // The debug source set used to hard-code "*Debug*" into these three names. That made
+            // every debug build installed side by side look identical — same label, same icon —
+            // in the launcher and, worse, in the system "open with" chooser, which is how a
+            // module/StudyPad file reaches the app. Derive the marker from applicationIdSuffix
+            // instead: a ".compose" build reads *Compose*, a plain ".debug" one reads *Debug*, so
+            // the label always names the applicationId that actually got installed. The matching
+            // icon override is src/debug/res/drawable/ic_launcher_background.xml.
+            val appLabelMarker = appSuffix.removePrefix(".")
+                .ifEmpty { "debug" }
+                .replaceFirstChar { it.uppercase() }
+            resValue("string", "app_name_short", "Bible Study *$appLabelMarker*")
+            resValue("string", "app_name_medium", "Bible Study (AndBible) *$appLabelMarker*")
+            resValue("string", "app_name_long", "AndBible: Bible Study *$appLabelMarker*")
 //			minifyEnabled true
 //			useProguard true
 //			proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -278,7 +298,10 @@ android {
 
         create("github") {
             dimension = dimDistributionChannelName
-            minSdk = 21
+            // Room 2.8.x requires minSdkVersion 23 (2.7.x allowed 21). Since the app uses
+            // Room pervasively, API 21-22 could not run it anyway; align github with the
+            // app default (23) rather than force the merge with tools:overrideLibrary.
+            minSdk = 23
         }
 
         create("accrescent") {
@@ -293,11 +316,8 @@ android {
     }
 
     compileOptions {
-        val sourceCompatibilityVersion: JavaVersion by rootProject.extra
-        val targetCompatibilityVersion: JavaVersion by rootProject.extra
-
-        sourceCompatibility = sourceCompatibilityVersion
-        targetCompatibility = targetCompatibilityVersion
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     testOptions {
@@ -307,6 +327,11 @@ android {
             isIncludeAndroidResources = true
             all {
                 test ->
+                  // The forked unit-test JVM has no explicit heap by default (independent of the
+                  // Gradle daemon's -Xmx4g and of container RAM). Running the whole Roborazzi golden
+                  // suite (hundreds of bitmaps loaded/compared) together with the full :app unit suite
+                  // in one fork can OOM near the edge. Give the fork a real heap; the container has 32 GiB.
+                  test.maxHeapSize = "4g"
                   test.testLogging {
                     events("passed", "skipped", "failed")
                     setExceptionFormat("full")
@@ -346,15 +371,17 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
+        // Needed by the debug buildType's resValue() calls, which derive the app's display name
+        // from applicationIdSuffix so two debug builds installed side by side are tellable apart.
+        resValues = true
     }
 
     namespace = "net.bible.android.activity"
 }
 
-val jvmToolChainVersion: Int by rootProject.extra
-
 kotlin {
-    jvmToolchain(jvmToolChainVersion)
+    jvmToolchain(17)
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
@@ -402,31 +429,26 @@ androidComponents {
 
 
 dependencies {
-    val commonsTextVersion: String by rootProject.extra
-    val jdomVersion: String by rootProject.extra
-    val kotlinVersion: String by rootProject.extra
-    val coroutinesVersion: String by rootProject.extra
-    val kotlinxSerializationVersion: String by rootProject.extra
-    val roomVersion: String by rootProject.extra
-    val coreKtxVersion: String by rootProject.extra
-    val sqliteAndroidVersion: String by rootProject.extra
+    ksp(libs.androidx.room.compiler)
 
-    ksp("androidx.room:room-compiler:$roomVersion")
-
-    implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("androidx.room:room-ktx:$roomVersion")
-    implementation("androidx.core:core-ktx:$coreKtxVersion")
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.core.ktx)
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.media:media:1.7.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.1")
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    // Kept deliberately: after the Z-late epilogue the whole tree's only androidx.preference use in
+    // CODE is CommonUtils.realSharedPreferences' PreferenceManager.getDefaultSharedPreferences.
+    // (Four res/xml files still carry androidx.preference element tags, but nothing inflates them --
+    // they are SettingsIconParityTest fixtures, parsed as raw XML. See that call site's comment.)
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.14.0")
     implementation("net.objecthunter:exp4j:0.4.8")
-    implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
+    implementation("com.github.requery:sqlite-android:3.49.0")
     implementation("org.yaml:snakeyaml:2.2")
 
     for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei", "accrescent").map { "${it}Implementation" }) {
@@ -443,39 +465,42 @@ dependencies {
     }
     //implementation("androidx.recyclerview:recyclerview-selection:1.0.0")
 
-    //implementation("com.jaredrummler:colorpicker:1.1.0")
-    implementation("com.github.AndBible:ColorPicker:ab-fix-1")
-
     implementation("com.google.android.material:material:1.12.0")
 
-    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation(libs.androidx.room.runtime)
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}")
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.atomicfu)
 
     implementation("com.madgag.spongycastle:core:1.58.0.0")
     //implementation("com.madgag.spongycastle:prov:1.58.0.0")
     //implementation("com.madgag.spongycastle:pkix:1.58.0.0")
     //implementation("com.madgag.spongycastle:pg:1.58.0.0")
 
-    val daggerVersion = "2.56.2"
-    implementation("com.google.dagger:dagger:$daggerVersion")
-    annotationProcessor("com.google.dagger:dagger-compiler:$daggerVersion")
-    ksp("com.google.dagger:dagger-compiler:$daggerVersion")
-
-    implementation("de.greenrobot:eventbus:2.4.1")
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
 
     implementation("org.apache.commons:commons-lang3:3.12.0") // make sure this is the same version that commons-text depends on
-    implementation("org.apache.commons:commons-text:$commonsTextVersion")
+    implementation("org.apache.commons:commons-text:1.9")
 
     implementation(project(":jsword")) {
         exclude("org.apache.httpcomponents")
     }
 
+    implementation(project(":sharedCore"))
+
+    implementation(project(":sharedUi"))
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material.icons.extended)  // Icons.Filled, Icons.AutoMirrored etc.
+    debugImplementation(libs.androidx.compose.ui.tooling)
+
     implementation("de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5")
 
-    implementation("org.jdom:jdom2:$jdomVersion")
+    implementation("org.jdom:jdom2:2.0.6.1")
     implementation("jaxen:jaxen:2.0.0")
 
     implementation("org.commonmark:commonmark:0.24.0")
@@ -493,12 +518,21 @@ dependencies {
 
     // TESTS
     //testImplementation("com.github.AndBible:robolectric:4.3.1-andbible3")
-    testImplementation("org.robolectric:robolectric:4.9")
+    testImplementation(libs.robolectric)
     //testImplementation("org.robolectric:shadows-multidex:4.3.1")
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.roborazzi.junit.rule)
+    testImplementation(libs.androidx.compose.material.icons.extended)  // DragHandle etc. in golden tests
+    testImplementation("androidx.compose.ui:ui-test-junit4")  // createComposeRule, for AbSearchableOptionSheetContentTest
+    debugImplementation("androidx.compose.ui:ui-test-manifest")  // registers the ComponentActivity createComposeRule() launches
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
     testImplementation("org.hamcrest:hamcrest-library:2.2")
     testImplementation("org.mockito:mockito-core:3.12.4")
     testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.koin.test)
+    testImplementation(libs.koin.test.junit4)
+    testImplementation(libs.kotlinx.coroutines.test)  // runTest, for InstallServiceController's async facade
 
     // Android instrumentation testing
 

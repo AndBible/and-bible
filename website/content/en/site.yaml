@@ -1,0 +1,87 @@
+site_name: AndBible
+nav:
+  blog: Blog
+  docs: Docs
+  videos: Videos
+  support: Support us
+  github: GitHub
+  theme_toggle: Toggle light/dark theme
+  menu: Menu
+meta:
+  title: "AndBible: Free & open source Bible study"
+  description: >-
+    Thousands of Bibles, commentaries and dictionaries, offline. StudyPads,
+    bookmarks and notes that sync across your devices. Android and iOS, no ads,
+    no tracking.
+hero:
+  eyebrow: Open source · No ads · No tracking
+  headline: "Powerful Bible study, *free* for everyone."
+  lead: >-
+    Thousands of Bibles, commentaries and dictionaries, offline. StudyPads,
+    bookmarks and notes that sync across your devices. Android and iOS.
+  docs_button: Read the docs
+  videos_button: Tutorial videos
+getapp:
+  title: Get the app
+  others: Also on GitHub, Amazon, Samsung, Huawei and Accrescent
+  stores:
+    - {name: Google Play, note: Android, url: "https://play.google.com/store/apps/details?id=net.bible.android.activity"}
+    - {name: F-Droid, note: "Android, FOSS store", url: "https://f-droid.org/packages/net.bible.android.activity/"}
+    - {name: App Store, note: iPhone & iPad, url: "https://apps.apple.com/us/app/andbible-bible-study/id6774904527"}
+  others_url: "https://github.com/AndBible/and-bible/releases"
+features:
+  - {title: Study tools, text: "Strong's numbers, morphology, cross-references and commentaries side by side."}
+  - {title: StudyPads, text: Notes and bookmarks woven into the Bible text, organised by labels.}
+  - {title: Sync, text: Bookmarks and workspaces synced through Google Drive or NextCloud.}
+  - {title: Workspaces, text: Split windows with synchronised scrolling and pinned documents.}
+sections:
+  latest: Latest from the blog
+  all_posts: All posts
+  reviews: What users say
+  reviews_region: User reviews
+  reviews_slide: "{n} of {total}"
+  reviews_position: "{n} / {total}"
+  reviews_prev: Previous review
+  reviews_next: Next review
+  reviews_pause: Pause automatic rotation
+  reviews_play: Start automatic rotation
+  reviews_stars: 5 out of 5 stars
+  reviews_caption: Google Play review
+  reviews_all: Read all reviews on Google Play
+  reviews_all_url: "https://play.google.com/store/apps/details?id=net.bible.android.activity&showAllReviews=true"
+  videos: Learn with videos
+  videos_link: Browse the video catalog
+  support_title: Support AndBible
+  support_text: >-
+    AndBible is free and has no ads. Sponsored development time keeps it moving.
+  support_button: Ways to support
+  support_url: "https://shop.andbible.org/page/info"
+footer:
+  source: Source code
+  source_url: "https://github.com/AndBible/and-bible"
+  issues: Report an issue
+  issues_url: "https://github.com/AndBible/and-bible/issues"
+  privacy: Privacy
+  terms: Terms
+  gpl: License (GPL)
+  flyers: Printable flyers
+  rss: RSS
+blog:
+  title: News & Blog
+  read_more: Read more
+  previous_page: Previous page
+  next_page: Next page
+  category: "Category: {name}"
+  tag: "Tag: {name}"
+  posted_in: Posted in
+videos:
+  title: Tutorial videos
+  months: [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+  date_format: "{d} {month} {y}"
+  version_label: "v{version}"
+  description: >-
+    Short video tutorials for AndBible: windows and workspaces, bookmarks and
+    StudyPads, search, sync and customisation.
+  intro: >-
+    Video tutorials from the AndBible YouTube channel, grouped by topic. Nothing
+    is loaded from YouTube until you press play.

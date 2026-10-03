@@ -17,11 +17,12 @@
 
 package net.bible.service.readingplan
 
+import org.koin.core.context.GlobalContext
 import android.util.Log
 
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
-import net.bible.android.view.activity.readingplan.DailyReading
+import net.bible.android.view.activity.readingplan.ReadingPlanCatalog
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndRuntimeException
 import net.bible.service.common.CommonUtils
@@ -49,7 +50,7 @@ import kotlin.math.max
 class ReadingPlanTextFileDao {
     private var cachedPlanProperties: ReadingPlanProperties? = null
     private var cachedReadingList: List<OneDaysReadingsDto>? = null
-    private val readingPlanRepo = BibleApplication.application.applicationComponent.readingPlanRepo()
+    private val readingPlanRepo = GlobalContext.get().get<net.bible.service.db.readingplan.ReadingPlanRepository>()
 
     val readingPlanList: List<ReadingPlanInfoDto>
         get() {
@@ -211,12 +212,12 @@ class ReadingPlanTextFileDao {
     }
 
     private fun getPlanName(planCode: String): String {
-        return DailyReading.ABDistributedPlanDetailArray.find { it.planCode == planCode }?.planName
+        return ReadingPlanCatalog.ABDistributedPlanDetailArray.find { it.planCode == planCode }?.planName
             ?: getPlanProperties(planCode).planName ?: planCode
     }
 
     private fun getPlanDescription(planCode: String): String {
-        return DailyReading.ABDistributedPlanDetailArray.find { it.planCode == planCode } ?.planDescription
+        return ReadingPlanCatalog.ABDistributedPlanDetailArray.find { it.planCode == planCode } ?.planDescription
             ?: getPlanProperties(planCode).planDescription ?: ""
     }
 

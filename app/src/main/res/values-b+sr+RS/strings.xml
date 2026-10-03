@@ -414,10 +414,6 @@
   <string name="auto_assign_labels1">Ауто-додели ознаку новим обележивачима</string>
   <string name="auto_assign_labels_primary">Ауто-додели као главну</string>
   <!--can be removed-->
-  <string name="marker_style">Прикажи само маркер за одабир обележивача</string>
-  <string name="marker_style_whole_verse">Прикажи само маркер за обележиваче целих стихова</string>
-  <string name="hide_style">Сакриј за одабир обележиваче</string>
-  <string name="hide_style_whole_verse">Сакриј за обележиваче целих стихова</string>
   <string name="bookmark_warning">Има обележивача, односно белешки за овај документ.</string>
   <string name="bookmark_warning2">
 Уколико је структура документа промењена, ажурирање истог би могло
@@ -928,8 +924,6 @@
   <string name="favourite_label">Омиљена ознака</string>
   <string name="edit_label">Уредите ознаку</string>
   <string name="delete_label_confirmation">Да ли желите да уклоните ознаку обележивача \"%s\"? Такође, све повезане белешке Радне Свеске биће укоњене.</string>
-  <string name="bookmark_underline_style_arbitrary">Стил Подвлачења за одабир обележиваче</string>
-  <string name="bookmark_underline_style_whole_verse">Стил подвлачења за обележиваче читавих стихова</string>
   <string name="active_labels">Изабране ознаке</string>
   <string name="recent_labels">Недавне ознаке</string>
   <string name="other_labels">Друге ознаке</string>

@@ -22,6 +22,7 @@ import {BibleJavascriptInterface, patchAndroidConsole} from "@/composables/andro
 import {createApp} from 'vue'
 
 import BibleView from "@/components/BibleView.vue";
+import {installVueWarningFilter} from "@/composables/vue-warnings";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 import LabelList from "@/components/LabelList.vue";
 import BookmarkLabelActions from "@/components/modals/BookmarkLabelActions.vue";
@@ -48,6 +49,7 @@ console.log("main.ts after patching console");
 console.log("main.ts After imports");
 
 const app = createApp(BibleView);
+installVueWarningFilter(app);
 app.component("AmbiguousSelection", AmbiguousSelection);
 app.component("LabelList", LabelList);
 app.component("BookmarkLabelActions", BookmarkLabelActions);

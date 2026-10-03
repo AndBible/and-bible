@@ -17,8 +17,6 @@
 package net.bible.android.control.navigation
 
 import androidx.collection.LruCache
-import net.bible.android.control.ApplicationScope
-import javax.inject.Inject
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import net.bible.service.common.Logger
 import org.crosswire.jsword.versification.BibleBook
@@ -31,8 +29,7 @@ import org.crosswire.jsword.book.BooksEvent
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-open class DocumentBibleBooksFactory @Inject constructor() {
+open class DocumentBibleBooksFactory constructor() {
     private val cache: LruCache<AbstractPassageBook, DocumentBibleBooks> = object : LruCache<AbstractPassageBook, DocumentBibleBooks>(CACHE_SIZE) {
         override fun create(document: AbstractPassageBook): DocumentBibleBooks {
             return DocumentBibleBooks(document)

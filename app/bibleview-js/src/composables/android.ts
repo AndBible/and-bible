@@ -124,7 +124,6 @@ export type BibleJavascriptInterface = {
     copyMyDocumentContent: (bookInitials: string, pageKey: string) => void,
     openPromptEditor: (promptId: string) => void,
     openAiDocPage: (documentInitials: string, pageKey: string) => void,
-    openAiDocPageChooser: (markersJson: string) => void,
 }
 
 export type UseAndroid = ReturnType<typeof useAndroid>

@@ -60,7 +60,14 @@ class EpubSearch(val file: File) {
     }
 
     fun search(text: String): List<EpubSearchResult> = db?.run {
-        query("SELECT frag_id, ordinal, highlight(SearchIndex, 0, '<b>', '</b>') FROM SearchIndex WHERE contentText MATCH ?", bindArgs = arrayOf(text)).let { c ->
+        // `snippet` (not `highlight`): highlight() returns the WHOLE indexed block, so one hit used
+        // to render as a screenful of text. 30 tokens around the best-matching window, with FTS5's
+        // own ellipsis marker, is what a result row should show. No schema change, no re-index.
+        query(
+            "SELECT frag_id, ordinal, snippet(SearchIndex, 0, '<b>', '</b>', '…', 30) " +
+                "FROM SearchIndex WHERE contentText MATCH ?",
+            bindArgs = arrayOf(text),
+        ).let { c ->
             c.moveToFirst()
             val list = mutableListOf<EpubSearchResult>()
             while (!c.isAfterLast){

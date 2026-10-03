@@ -20,7 +20,6 @@ package net.bible.android.control.document
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
@@ -40,7 +39,6 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 
-import javax.inject.Inject
 
 val Book.canDelete: Boolean get () {
     val lastBible = BookCategory.BIBLE == bookCategory && SwordDocumentFacade.bibles.size == 1
@@ -51,8 +49,7 @@ val Book.canDelete: Boolean get () {
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class DocumentControl @Inject constructor(
+class DocumentControl constructor(
     private val windowControl: WindowControl)
 {
     private val documentBackupDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()

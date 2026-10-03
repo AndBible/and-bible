@@ -401,10 +401,6 @@ Az év végéig az Ószövetséget egyszer az Újszövetséget és a Zsoltároka
   <string name="auto_assign_labels1">Címkék automatikus hozzárendelése új könyvjelzőkhöz</string>
   <string name="auto_assign_labels_primary">Automatikus hozzárendelés mint elsődleges címke</string>
   <!--can be removed-->
-  <string name="marker_style">Csak a kiválasztott szöveget tartalmazó könyvjelzőknél jelenjen meg jelzés.</string>
-  <string name="marker_style_whole_verse">Csak a teljes verset tartalmazó könyvjelzőknél jelenjen meg jelzés.</string>
-  <string name="hide_style">Elrejtés kiválasztott szöveget tartalmazó könyvjelzőknél</string>
-  <string name="hide_style_whole_verse">Elrejtés teljes verset tartalmazó könyvjelzőknél</string>
   <string name="bookmark_warning">Ehhez a dokumentumhoz könyvjelzők és/vagy jegyzetek tartoznak.</string>
   <string name="bookmark_warning2">
 Ha a dokumentum struktúrája változik, akkor az ilyen könyvjelzők/jegyzetek a dokumentum frissítése után rossz helyre mutathatnak vagy akár teljesen eltűnhetnek.</string>
@@ -898,8 +894,6 @@ jelentse be az észlelt problémát</string>
   <string name="favourite_label">Kedvenc címke</string>
   <string name="edit_label">Címke szerkesztás</string>
   <string name="delete_label_confirmation">Eltávolítja a \"%s\" könyvjelző címkét? A hozzátartozó jegyzetlap is törlésre kerül.</string>
-  <string name="bookmark_underline_style_arbitrary">Aláhúzás stílusa a kiválasztott szöveget tartalmazó könyvjelzőkhöz</string>
-  <string name="bookmark_underline_style_whole_verse">Aláhúzás stílusa teljes versre mutató könyvjelzőknél</string>
   <string name="active_labels">Kiválasztott címkék</string>
   <string name="recent_labels">Legutoljára használt címkék</string>
   <string name="other_labels">Egyéb címkék</string>

@@ -16,18 +16,18 @@
  */
 package net.bible.android.control.page
 
-import android.content.Intent
 import android.util.Log
 import net.bible.android.common.toV11n
 import net.bible.android.control.progress.ProgressControl
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.KJVA
-import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.common.shortName
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
@@ -63,7 +63,8 @@ open class CurrentCommentaryPage internal constructor(
     var sourceBookAndKey: BookAndKey? = null
 
     override fun startKeyChooser(context: ActivityBase) =
-        context.startActivityForResult(Intent(context, GridChoosePassageBook::class.java).apply { putExtra("isScripture", true) }, STD_REQUEST_CODE)
+        context.startActivityForResult(
+            NavHostComposeActivity.intentFor(context, NavRoutes.gridChoosePassage(isScripture = true)), STD_REQUEST_CODE)
 
     private val isSpecialDoc: Boolean get() = currentDocument?.isSpecial == true
 

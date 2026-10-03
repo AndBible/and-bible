@@ -6,6 +6,8 @@
 /build
 /captures
 /.idea
+__pycache__/
+*.pyc
 /app/huawei
 /app/samsung
 /app/amazon
@@ -46,3 +48,10 @@ hooks
 objects
 refs
 /.kotlin/
+
+# Local scratch (screenshots etc.), never committed
+.local/
+
+# Website build outputs
+/website/_site/
+/website/_build/

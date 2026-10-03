@@ -396,10 +396,6 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="auto_assign_labels1">Kategorie neuen Lesezeichen automatisch zuweisen</string>
   <string name="auto_assign_labels_primary">Automatisch als Primärgruppe zuweisen</string>
   <!--can be removed-->
-  <string name="marker_style">Zeige nur Markierung für Auswahl-Lesezeichen</string>
-  <string name="marker_style_whole_verse">Zeige nur Markierung für Lesezeichen ganzer Verse</string>
-  <string name="hide_style">Bei Auswahl-Lesezeichen verstecken</string>
-  <string name="hide_style_whole_verse">Bei Lesezeichen für ganze Verse verstecken</string>
   <string name="bookmark_warning">Es gibt Lesezeichen und/oder Notizen für dieses Dokument</string>
   <string name="bookmark_warning2">
         Wenn die Dokumentstruktur geändert wurde, kann die Aktualisierung dieses Dokuments dazu führen,
@@ -876,8 +872,6 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="favourite_label">Lieblingskategorie</string>
   <string name="edit_label">Kategorie bearbeiten</string>
   <string name="delete_label_confirmation">Möchtest du die Lesezeichenkategorie \"%s\" entfernen? Alle zugewiesenen Studienmappen werden ebenfalls entfernt.</string>
-  <string name="bookmark_underline_style_arbitrary">Unterstreichungsstil für Auswahl-Lesezeichen</string>
-  <string name="bookmark_underline_style_whole_verse">Unterstreichungsstil für Lesezeichen für ganze Verse</string>
   <string name="active_labels">Ausgewählte Kategorien</string>
   <string name="recent_labels">Kürzliche Kategorien</string>
   <string name="other_labels">Andere Kategorien</string>

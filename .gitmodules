@@ -1,3 +1,16 @@
 [submodule "jsword"]
 	path = jsword
 	url = https://github.com/AndBible/jsword.git
+[submodule "app/src/test/roborazzi"]
+	path = app/src/test/roborazzi
+	url = https://github.com/AndBible/and-bible-goldens.git
+	branch = master
+[submodule "docs/superpowers"]
+	path = docs/superpowers
+	url = https://github.com/AndBible/and-bible-superpowers.git
+#	update = none
+	branch = master
+[submodule "website/media"]
+	path = website/media
+	url = https://github.com/AndBible/andbible-website-media.git
+	branch = master

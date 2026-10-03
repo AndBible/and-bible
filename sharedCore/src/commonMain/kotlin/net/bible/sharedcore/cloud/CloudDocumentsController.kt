@@ -1,0 +1,303 @@
+package net.bible.sharedcore.cloud
+
+import net.bible.sharedcore.navigation.DocArrangement
+import net.bible.sharedcore.navigation.DocCategory
+import net.bible.sharedcore.navigation.DocGroup
+import net.bible.sharedcore.navigation.DocGroupBy
+import net.bible.sharedcore.navigation.DocSortKey
+import net.bible.sharedcore.navigation.decodeArrangement
+import net.bible.sharedcore.navigation.defaultArrangement
+import net.bible.sharedcore.navigation.encodeArrangement
+import net.bible.sharedcore.navigation.groupDocuments
+import net.bible.sharedcore.navigation.sortDocuments
+import net.bible.sharedcore.search.SearchModeController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+/** The multi-choice "Sync now" dialog's per-direction labels + pre-checked state (host-built). */
+data class SyncNowDialogState(val labels: List<String>, val checked: List<Boolean>)
+
+/**
+ * [CloudDocumentsController]'s one dialog slot (run-2 plan Task 17, appendix rows 8574/8586) --
+ * extends the pre-existing `syncNowDialog` (a lone nullable, effectively a one-variant sum type) into
+ * this one, rather than adding two MORE separate nullable/boolean fields beside it (the
+ * "never several booleans" rule the feature-dialog pattern states). [ConfirmRemove]/[ConfirmPurge]
+ * carry the [initials] they act on directly -- unlike a JSword `Book` (Task 16's `DocumentSelectionDialog`
+ * needed a host-side parking field for those), `initials` are plain strings this controller already
+ * traffics in, so there is nothing host-only to park. [message] is host-formatted (D5: needs
+ * `resources.getQuantityString`/a document name only the host has); [allDevices] is NOT resolved into
+ * a title string here -- the SCREEN picks between two ALREADY-EXISTING `Strings` entries
+ * (`cloudActionRemoveCloud`/`cloudActionRemoveAllDevices`, the same words the per-row action label
+ * uses) from this bare flag, exactly the "texts formatted in the SCREEN" half of the pattern.
+ */
+sealed interface CloudDocumentsDialog {
+    data object None : CloudDocumentsDialog
+    data class SyncNow(val state: SyncNowDialogState) : CloudDocumentsDialog
+    data class ConfirmRemove(val initials: List<String>, val message: String, val allDevices: Boolean) : CloudDocumentsDialog
+    data class ConfirmPurge(val initials: List<String>, val message: String) : CloudDocumentsDialog
+    data class ConfirmBlock(val initials: List<String>, val message: String) : CloudDocumentsDialog
+}
+
+/**
+ * How long [CloudDocumentsController.moveSortCriterion] waits after the LAST swap of a drag
+ * gesture before committing (persisting + refiltering) the reordered criteria — mirrors
+ * [net.bible.sharedcore.navigation.DocumentSelectionController]'s own debounce (round 17e-1
+ * final-review fix I3); see that function's KDoc there, and this one's below.
+ */
+private const val SORT_REORDER_COMMIT_DELAY_MS = 300L
+
+/**
+ * Framework-free controller for the cloud documents management view. The host flattens
+ * DocumentSync.DocumentStatusItem → [CloudDocItem] and pushes via [setItems]; all cloud/service side
+ * effects happen behind the injected seams. Optimistic updates use the ported pure functions so the
+ * list re-renders before the background transfer completes.
+ */
+class CloudDocumentsController(
+    val syncEnabled: () -> Boolean,
+    private val onAction: (CloudDocAction, String) -> Unit,
+    private val onBulkAction: (CloudDocAction, List<String>) -> Unit,
+    private val onSyncNow: (download: Boolean, upload: Boolean, delete: Boolean) -> Unit,
+    private val onRescan: () -> Unit,
+    private val onShowRemovedChange: (Boolean) -> Unit,
+    // Task 17: the actual remove/purge action, still a host callback (DocumentSyncService.start is
+    // Android-only) -- only the QUESTION moves here. Defaulted so pre-existing positional test
+    // construction keeps compiling unchanged.
+    private val onConfirmRemove: (initials: List<String>) -> Unit = {},
+    private val onConfirmPurge: (initials: List<String>) -> Unit = {},
+    // F75: bulk Block asks first (single-row Block stays immediate -- reversible from the same row).
+    private val onConfirmBlock: (initials: List<String>) -> Unit = {},
+    storedArrangement: String? = null,
+    rememberArrangementInitially: Boolean = true,
+    private val onArrangementChange: (encoded: String?, remember: Boolean) -> Unit = { _, _ -> },
+    // Round 17e-2 final-review fix wave. Null (the default, and every existing test's choice) makes
+    // moveSortCriterion commit synchronously, same as before this fix — a host that cares about the
+    // debounced behavior (i.e. the real cloud-documents screen) supplies its lifecycleScope.
+    private val scope: CoroutineScope? = null,
+) {
+    // No LANGUAGE or REPOSITORY: a cloud listing has neither. No RECOMMENDED: nothing marks a
+    // synced document as recommended.
+    private val applicableSortKeys: Set<DocSortKey> =
+        setOf(DocSortKey.STATUS, DocSortKey.TYPE, DocSortKey.NAME, DocSortKey.SIZE)
+    private val applicableGroupKeys: List<DocGroupBy> =
+        listOf(DocGroupBy.NONE, DocGroupBy.TYPE, DocGroupBy.STATUS)
+    private var sortReorderCommitJob: Job? = null
+    private val _items = MutableStateFlow<List<CloudDocItem>>(emptyList())
+    val items: StateFlow<List<CloudDocItem>> = _items.asStateFlow()
+    private val _displayed = MutableStateFlow<List<CloudDocItem>>(emptyList())
+    val displayed: StateFlow<List<CloudDocItem>> = _displayed.asStateFlow()
+    private val _statusFilter = MutableStateFlow(CloudDocFilter.ALL)
+    val statusFilter: StateFlow<CloudDocFilter> = _statusFilter.asStateFlow()
+    private val _categoryFilter = MutableStateFlow<DocCategory?>(null)
+    val categoryFilter: StateFlow<DocCategory?> = _categoryFilter.asStateFlow()
+    private val _query = MutableStateFlow("")
+    val query: StateFlow<String> = _query.asStateFlow()
+    private val searchMode = SearchModeController(onClearQuery = { setQuery("") })
+    val searchModeActive: StateFlow<Boolean> = searchMode.active
+    private val _selectionMode = MutableStateFlow(false)
+    val selectionMode: StateFlow<Boolean> = _selectionMode.asStateFlow()
+    private val _selectedIds = MutableStateFlow<Set<String>>(emptySet())
+    val selectedIds: StateFlow<Set<String>> = _selectedIds.asStateFlow()
+
+    // busy is a COUNTER-backed boolean: overlapping sources (rescan + a transfer + a per-item op)
+    // each push/pop the counter, so the loading indicator stays on until every source has balanced.
+    // Mirrors the classic busyCount.
+    private var busyCount = 0
+    private val _busy = MutableStateFlow(false)
+    val busy: StateFlow<Boolean> = _busy.asStateFlow()
+
+    private val _transferRunning = MutableStateFlow(false)
+    val transferRunning: StateFlow<Boolean> = _transferRunning.asStateFlow()
+    private val _showRemoved = MutableStateFlow(false)
+    val showRemoved: StateFlow<Boolean> = _showRemoved.asStateFlow()
+    private val _dialog = MutableStateFlow<CloudDocumentsDialog>(CloudDocumentsDialog.None)
+    val dialog: StateFlow<CloudDocumentsDialog> = _dialog.asStateFlow()
+
+    private val _arrangement = MutableStateFlow(
+        decodeArrangement(storedArrangement, applicableSortKeys, applicableGroupKeys.toSet())
+    )
+    val arrangement: StateFlow<DocArrangement> = _arrangement.asStateFlow()
+    private val _rememberArrangement = MutableStateFlow(rememberArrangementInitially)
+    val rememberArrangement: StateFlow<Boolean> = _rememberArrangement.asStateFlow()
+    private val _grouped = MutableStateFlow<List<DocGroup<CloudDocItem>>>(emptyList())
+    val grouped: StateFlow<List<DocGroup<CloudDocItem>>> = _grouped.asStateFlow()
+    private val _arrangementIsDefault = MutableStateFlow(
+        decodeArrangement(storedArrangement, applicableSortKeys, applicableGroupKeys.toSet()) ==
+            defaultArrangement(applicableSortKeys)
+    )
+    val arrangementIsDefault: StateFlow<Boolean> = _arrangementIsDefault.asStateFlow()
+
+    /** The group keys this screen offers, for the arrangement sheet's radio row. */
+    val groupKeys: List<DocGroupBy> get() = applicableGroupKeys
+
+    /**
+     * Reorder one sort criterion. [AbReorderableColumn] (in `:sharedUi`) calls this once PER ITEM
+     * SWAP during an active drag inside the cloud arrangement sheet — a modal with no visible
+     * document list behind it. Doing a full [applyArrangement] (a synchronous persistence write
+     * plus a re-sort/re-group of the whole, potentially large, document list) on every swap would
+     * be wasted main-thread work for a reorder the user cannot even see yet.
+     *
+     * [_arrangement] is still updated on every call, immediately, so the sheet's OWN UI (which
+     * reads the live order) reflects each swap right away. Only the expensive commit is deferred:
+     * with a [scope] supplied, it is debounced — cancelling any pending commit and rescheduling —
+     * so it fires once, [SORT_REORDER_COMMIT_DELAY_MS] after the LAST swap, i.e. once the drag
+     * settles. Without a [scope] it commits synchronously, matching the pre-fix behavior (the
+     * choice every test that does not itself exercise this debounce makes).
+     */
+    fun moveSortCriterion(from: Int, to: Int) {
+        val list = _arrangement.value.sort.toMutableList()
+        if (from !in list.indices || to !in list.indices) return
+        list.add(to, list.removeAt(from))
+        val next = _arrangement.value.copy(sort = list)
+        _arrangement.value = next
+        _arrangementIsDefault.value = next == defaultArrangement(applicableSortKeys)
+        val liveScope = scope
+        if (liveScope == null) {
+            applyArrangement(next)
+            return
+        }
+        sortReorderCommitJob?.cancel()
+        sortReorderCommitJob = liveScope.launch {
+            delay(SORT_REORDER_COMMIT_DELAY_MS)
+            applyArrangement(_arrangement.value)
+        }
+    }
+
+    fun toggleSortDirection(key: DocSortKey) {
+        applyArrangement(_arrangement.value.copy(
+            sort = _arrangement.value.sort.map { if (it.key == key) it.copy(descending = !it.descending) else it },
+        ))
+    }
+
+    fun setGroupBy(groupBy: DocGroupBy) = applyArrangement(_arrangement.value.copy(groupBy = groupBy))
+    fun resetArrangement() = applyArrangement(defaultArrangement(applicableSortKeys))
+
+    /**
+     * The user's "remember these settings" switch. Turning it OFF clears the stored value ONCE
+     * (so the next launch really does start from the default) and then stops writing; the live
+     * arrangement is untouched, because the switch is about persistence, not about this session.
+     */
+    fun setRememberArrangement(on: Boolean) {
+        _rememberArrangement.value = on
+        if (on) onArrangementChange(encodeArrangement(_arrangement.value), true)
+        else onArrangementChange(null, false)
+    }
+
+    /**
+     * Sort/group changes never hide a row (unlike a status/category/query change, which can), so
+     * unlike [refilter]'s other callers this does not reset the current selection.
+     */
+    private fun applyArrangement(next: DocArrangement) {
+        _arrangement.value = next
+        _arrangementIsDefault.value = next == defaultArrangement(applicableSortKeys)
+        if (_rememberArrangement.value) onArrangementChange(encodeArrangement(next), true)
+        refilter(resetSelection = false)
+    }
+
+    fun setItems(items: List<CloudDocItem>) {
+        _items.value = items
+        if (_selectionMode.value) {
+            val present = items.mapTo(mutableSetOf()) { it.initials }
+            _selectedIds.value = _selectedIds.value.intersect(present)
+        }
+        refilter(resetSelection = false)
+    }
+
+    fun setStatusFilter(f: CloudDocFilter) { _statusFilter.value = f; refilter(resetSelection = true) }
+    fun setCategoryFilter(c: DocCategory?) { _categoryFilter.value = c; refilter(resetSelection = true) }
+    fun setQuery(q: String) { _query.value = q; refilter(resetSelection = true) }
+    fun openSearch() = searchMode.open()
+    fun closeSearch() = searchMode.close()
+    fun setShowRemoved(show: Boolean) {
+        _showRemoved.value = show
+        // The REMOVED filter is only reachable while removed items are shown; hiding them again
+        // must not strand the view on the REMOVED list. When that flip happens the effective filter
+        // changed, so reset it to ALL and recompute `displayed` (and exit selection mode, like the
+        // other filter-changing setters) — otherwise `statusFilter` would report REMOVED with the
+        // filter no longer available. Tombstone *presence* is the host's job: onShowRemovedChange
+        // re-loads the list with the new includeDeleted value (classic parity), so this controller
+        // only owns which filter is selected, not whether tombstones are in `_items`.
+        if (!show && _statusFilter.value == CloudDocFilter.REMOVED) {
+            _statusFilter.value = CloudDocFilter.ALL
+            refilter(resetSelection = true)
+        }
+        onShowRemovedChange(show)
+    }
+
+    private fun refilter(resetSelection: Boolean) {
+        if (resetSelection) clearSelection()
+        // Run the pure filter over the current item list. Classic semantics: ALL keeps everything
+        // (tombstones included when present), REMOVED surfaces only tombstones. Tombstone presence
+        // in `_items` is gated by the host's scan (includeDeleted), not stripped here. Then apply
+        // the user's arrangement (round 17e-2): sort, then split into groups for the grouped view.
+        val filtered = filterCloudDocuments(_items.value, _statusFilter.value, _query.value, _categoryFilter.value)
+        val ordered = sortDocuments(filtered, _arrangement.value)
+        _displayed.value = ordered
+        _grouped.value = groupDocuments(ordered, _arrangement.value.groupBy)
+    }
+
+    fun enterSelection() { _selectionMode.value = true }
+    fun toggle(id: String) { _selectedIds.value = _selectedIds.value.toMutableSet().apply { if (!add(id)) remove(id) } }
+    fun clearSelection() { _selectionMode.value = false; _selectedIds.value = emptySet() }
+    fun selectedItems(): List<CloudDocItem> = _items.value.filter { it.initials in _selectedIds.value }
+
+    fun pushBusy(busy: Boolean) {
+        busyCount = (busyCount + if (busy) 1 else -1).coerceAtLeast(0)
+        _busy.value = busyCount > 0
+    }
+    fun setTransferRunning(running: Boolean) { _transferRunning.value = running }
+
+    fun performAction(item: CloudDocItem, action: CloudDocAction) = onAction(action, item.initials)
+    fun performBulk(action: CloudDocAction) {
+        val applicable = applicableInitials(action, selectedItems(), syncEnabled())
+        if (applicable.isNotEmpty()) onBulkAction(action, applicable)
+    }
+    fun rescan() = onRescan()
+
+    fun showSyncNow(labels: List<String>, checked: List<Boolean>) {
+        _dialog.value = CloudDocumentsDialog.SyncNow(SyncNowDialogState(labels, checked))
+    }
+    fun confirmSyncNow(selected: List<Boolean>) {
+        _dialog.value = CloudDocumentsDialog.None
+        onSyncNow(selected.getOrElse(0) { false }, selected.getOrElse(1) { false }, selected.getOrElse(2) { false })
+    }
+    fun dismissSyncNow() { _dialog.value = CloudDocumentsDialog.None }
+
+    /** The remove/purge question (NH rows 8574/8586), asked by the host once it has built the
+     *  singular-vs-plural message (needs `resources.getQuantityString`) and resolved [allDevices]
+     *  (`DocumentSyncSettings.enabled`) -- both host-only. */
+    fun requestConfirmRemove(initials: List<String>, message: String, allDevices: Boolean) {
+        _dialog.value = CloudDocumentsDialog.ConfirmRemove(initials, message, allDevices)
+    }
+    fun requestConfirmPurge(initials: List<String>, message: String) {
+        _dialog.value = CloudDocumentsDialog.ConfirmPurge(initials, message)
+    }
+    /** F75: the bulk-Block question; [message] is host-formatted (plurals), like [requestConfirmPurge]. */
+    fun requestConfirmBlock(initials: List<String>, message: String) {
+        _dialog.value = CloudDocumentsDialog.ConfirmBlock(initials, message)
+    }
+
+    /** Answers [ConfirmRemove]/[ConfirmPurge] only -- [SyncNow] answers through [confirmSyncNow],
+     *  which takes the multi-select RESULT, not a bare confirm. */
+    fun confirmDialog() {
+        when (val d = _dialog.value) {
+            is CloudDocumentsDialog.ConfirmRemove -> { _dialog.value = CloudDocumentsDialog.None; onConfirmRemove(d.initials) }
+            is CloudDocumentsDialog.ConfirmPurge -> { _dialog.value = CloudDocumentsDialog.None; onConfirmPurge(d.initials) }
+            is CloudDocumentsDialog.ConfirmBlock -> { _dialog.value = CloudDocumentsDialog.None; onConfirmBlock(d.initials) }
+            is CloudDocumentsDialog.SyncNow, CloudDocumentsDialog.None -> {}
+        }
+    }
+
+    fun dismissDialog() { _dialog.value = CloudDocumentsDialog.None }
+
+    fun applyRemoval(initials: String) { _items.value = applyOptimisticRemoval(_items.value, initials, syncEnabled()); refilter(false) }
+    fun applyPurge(initials: String) { _items.value = applyOptimisticPurge(_items.value, initials); refilter(false) }
+    fun setBlocked(initials: String, blocked: Boolean) {
+        _items.value = _items.value.map { if (it.initials == initials) it.copy(blocked = blocked) else it }
+        refilter(false)
+    }
+}

@@ -1,0 +1,70 @@
+# Curated video catalog (seeded by sitegen.migrate.yt_seed). Fields: id, title, topic (see
+# sitegen.videos.TOPICS), published (YYYY-MM-DD, required, not in the future; the landing page shows
+# the 3 newest), version (optional "major.minor": the latest public AndBible release on or before
+# `published`, shown on /videos/ only; sitegen.newvideo fills it in; omitted when the title names its own version), docs (published docs page
+# stem: shows under its Related videos), short.
+# Run `make site-thumbs` after adding a video.
+- {id: "Gm-JLot1uf4", title: "AndBible 5.1 new features", topic: "Getting started", published: "2026-05-31"}
+- {id: "SQhya_vCnCk", title: "How to setup custom document repositories in AndBible", topic: "Getting started", docs: "custom_repositories", published: "2023-12-20", version: "5.0"}
+- {id: "drE6bGncpvw", title: "Installing, Updating and Uninstalling documents in AndBible", topic: "Getting started", docs: "documents", published: "2023-11-30", version: "5.0"}
+- {id: "bf33j4tLbxQ", title: "New Features in our Bible Study App (AndBible v5.0)", topic: "Getting started", published: "2023-11-02"}
+- {id: "_r5Dz7xCy44", title: "Using AndBible on an old laptop with Ubuntu + Waydroid", topic: "Getting started", published: "2023-10-12", version: "4.0"}
+- {id: "mzra2q1_IHI", title: "Downloading free Pilgrim's Progress EPUB and read it in AndBible 5.0 (Beta)", topic: "Getting started", docs: "my_documents", published: "2023-09-26"}
+- {id: "f2cf6-7liMo", title: "New Features in our Bible Study App (And Bible v4.0)", topic: "Getting started", published: "2021-09-09"}
+- {id: "kD4ITmNRDdk", title: "AndBible 5.0 supports user-defined custom document repositories", topic: "Getting started", short: true, published: "2023-11-12"}
+- {id: "EnNWWg6RLb4", title: "AndBible 5.0 supports ebook (EPUB) files", topic: "Getting started", short: true, published: "2023-11-03"}
+- {id: "6MQzzGi1IlE", title: "How to use Tilt To Scroll feature in (supported) mobile devices", topic: "Navigation & windows", published: "2024-02-23", version: "5.0"}
+- {id: "96U4zD_w_Jw", title: "Using clipboard to navigate to copied reference within AndBible", topic: "Navigation & windows", published: "2024-02-10", version: "5.0"}
+- {id: "AXNQWAr8zcg", title: "How to use Window Sync Groups in AndBible", topic: "Navigation & windows", docs: "windows", published: "2023-12-30", version: "5.0"}
+- {id: "dzXQcCT2Pcc", title: "Using chained links windows with AndBible", topic: "Navigation & windows", docs: "windows", published: "2023-12-16", version: "5.0"}
+- {id: "AxgrI6ncXxo", title: "One more context menu trick in AndBible (part 2/2)", topic: "Navigation & windows", docs: "verse_action_dialog", published: "2023-12-09", version: "5.0"}
+- {id: "wPZoOospw2E", title: "Using AndBible's context menu (Compare, Copy/Share, Translate etc) (part 1/2)", topic: "Navigation & windows", docs: "verse_action_dialog", published: "2023-11-30", version: "5.0"}
+- {id: "bMyxmvYOr_Q", title: "How to use Fullscreen mode in AndBible", topic: "Navigation & windows", published: "2023-11-23", version: "5.0"}
+- {id: "pMyZS0YhbT4", title: "Deep dive to Windows and Workspaces (AndBible 5.0+)", topic: "Navigation & windows", docs: "windows", published: "2023-11-17"}
+- {id: "UvFgGM8Q1u8", title: "How to use AndBible Workspaces in Church's Bible readings (AndBible 5.0+)", topic: "Navigation & windows", docs: "workspaces", published: "2023-11-10"}
+- {id: "mKxEuQX-oX0", title: "Introduction to Document Windows (And Bible v4.0+)", topic: "Navigation & windows", docs: "windows", published: "2021-10-22"}
+- {id: "N7awlmZXFdQ", title: "Creating and Configuring Windows (And Bible v4.0+)", topic: "Navigation & windows", docs: "windows", published: "2021-10-08"}
+- {id: "_wWnS-pjv2A", title: "Tutorial: Listen to bible (And Bible 2.13+)", topic: "Navigation & windows", docs: "speak", published: "2018-12-11"}
+- {id: "27b1g-D3ibA", title: "Tutorial: Window button bar and Window Pinning (And Bible 3.3+)", topic: "Navigation & windows", docs: "windows", published: "2020-05-27"}
+- {id: "rz0zyEK9qBk", title: "Tutorial: Window / Workspace Text Options (And Bible 3.3+)", topic: "Navigation & windows", docs: "workspaces", published: "2020-05-27"}
+- {id: "3YB3_QH8zew", title: "Introduction to Workspaces (And Bible v4.0+)", topic: "Navigation & windows", docs: "workspaces", published: "2021-10-01"}
+- {id: "i2hl3ko-9-U", title: "Tutorial: Workspaces (And Bible 3.3+)", topic: "Navigation & windows", docs: "workspaces", published: "2020-05-27"}
+- {id: "xK5ri5jbrQE", title: "New feature: StudyPad edit position", topic: "Bookmarks & StudyPads", docs: "study_pads", published: "2025-11-27", version: "5.0"}
+- {id: "n8Y8N27uFzY", title: "New feature: Export & Import Bookmarks as CSV", topic: "Bookmarks & StudyPads", docs: "bookmarks", published: "2025-08-21", version: "5.0"}
+- {id: "XW8TMqFWNjY", title: "New feature: Custom Bookmark Icons", topic: "Bookmarks & StudyPads", docs: "bookmarks", published: "2025-08-07", version: "5.0"}
+- {id: "prhkcVo5mQQ", title: "Sharing StudyPads with other AndBible users", topic: "Bookmarks & StudyPads", docs: "study_pads", published: "2024-06-13", version: "5.0"}
+- {id: "HwKec8Zu7RM", title: "How to change how a bookmark is visualized with Main Label", topic: "Bookmarks & StudyPads", docs: "labels", published: "2024-02-01", version: "5.0"}
+- {id: "YocKse2ctmw", title: "Export StudyPad as HTML file", topic: "Bookmarks & StudyPads", docs: "study_pads", published: "2024-01-06", version: "5.0"}
+- {id: "Cwgs28TbwUE", title: "How to add Bible links to bookmark notes", topic: "Bookmarks & StudyPads", docs: "notes", published: "2024-01-04", version: "5.0"}
+- {id: "Eb0ZzEBxVws", title: "QA: How to use speak bookmarks when there's a lot of bookmarks already?", topic: "Bookmarks & StudyPads", docs: "speak", published: "2023-12-28", version: "5.0"}
+- {id: "NmK-DcSUxN4", title: "Using speak bookmarks with AndBible", topic: "Bookmarks & StudyPads", docs: "speak", published: "2023-11-24", version: "5.0"}
+- {id: "w6IqjORyG9E", title: "A deep dive to Bookmarks, Notes, Labels and StudyPad (AndBible 5.0+)", topic: "Bookmarks & StudyPads", docs: "bookmarks", published: "2023-11-12"}
+- {id: "--Hr5LqBfmg", title: "Introduction to Bible Notes (And Bible 4.0+)", topic: "Bookmarks & StudyPads", docs: "notes", published: "2021-10-21"}
+- {id: "PXdvFRLGcAA", title: "Introduction to Bookmarks (And Bible v4.0+)", topic: "Bookmarks & StudyPads", docs: "bookmarks", published: "2021-10-14"}
+- {id: "0AwBktLOup8", title: "Introduction to Labels (And Bible 4.0+)", topic: "Bookmarks & StudyPads", docs: "labels", published: "2021-10-11"}
+- {id: "rcQv6YNeMpQ", title: "Creating Bookmarks and Highlighting (And Bible 4.0+)", topic: "Bookmarks & StudyPads", docs: "bookmarks", published: "2021-09-27"}
+- {id: "4gLyW3P9Phs", title: "How to use Study Pads (And Bible 4.0+)", topic: "Bookmarks & StudyPads", docs: "study_pads", published: "2021-10-06"}
+- {id: "1HFXLeTERcs", title: "Tutorial: Automatic speak bookmarks (And Bible 2.13+)", topic: "Bookmarks & StudyPads", docs: "speak", published: "2018-12-11"}
+- {id: "kPKWAI5kMpE", title: "New feature: Search StudyPads that have certain content", topic: "Bookmarks & StudyPads", short: true, published: "2025-11-27", version: "5.0"}
+- {id: "VyN_x4cIbSw", title: "AndBible 5.0 can highlight and add notes in any document type", topic: "Bookmarks & StudyPads", short: true, published: "2023-11-05"}
+- {id: "OE4_gEo524U", title: "New feature: Memorize Bible verses", topic: "Search & study tools", docs: "memorize", published: "2025-08-18", version: "5.0"}
+- {id: "1HS1lCM89cM", title: "Strongs / \"Search all Occurrences\": How to change Bible Document?", topic: "Search & study tools", docs: "search", published: "2024-05-30", version: "5.0"}
+- {id: "6iZl-5Lb3nA", title: "Using Strongs dictionary definitions & morphology in AndBible", topic: "Search & study tools", published: "2024-03-21", version: "5.0"}
+- {id: "mFXKAfcB55M", title: "How to use Inline Cross References in AndBible?", topic: "Search & study tools", published: "2024-01-25", version: "5.0"}
+- {id: "PNAeNm6P8VM", title: "Search inside ePub e-book documents (new feature in today's release 5.0.792)", topic: "Search & study tools", docs: "search", published: "2023-12-17"}
+- {id: "mwngCkeZdpc", title: "Studying systematic theology with AndBible 5.0 (Beta) using EPUB", topic: "Search & study tools", published: "2023-09-29"}
+- {id: "wFG-vlSow6E", title: "Comparing verses (And Bible v4.0+)", topic: "Search & study tools", published: "2021-09-22"}
+- {id: "BHC2A7AwYBI", title: "Reading progress display for ePub documents", topic: "Search & study tools", short: true, published: "2026-07-05", version: "5.1"}
+- {id: "hhF_565fezM", title: "New feature: Document sync", topic: "Sync & backup", docs: "document_sync", published: "2026-07-03", version: "5.1"}
+- {id: "SpfOc6l0o08", title: "Using AndBible device synchronization with NextCloud", topic: "Sync & backup", docs: "cloud_sync", published: "2025-02-22", version: "5.0"}
+- {id: "8fbtIcnYzwA", title: "AndBible Device Synchronization: How save space in Google Drive storage", topic: "Sync & backup", docs: "cloud_sync", published: "2023-12-22", version: "5.0"}
+- {id: "2zcme61EajQ", title: "Tutorial: Backing up and restoring documents (And Bible 3.3+)", topic: "Sync & backup", docs: "backup_restore", published: "2020-05-27"}
+- {id: "2KUV6844gDE", title: "AndBible 5.0 can synchronize data between all of your devices", topic: "Sync & backup", short: true, published: "2023-11-02"}
+- {id: "iyJlISEdFYg", title: "Using AndBible with Android E-Ink devices (like Onyx Boox)", topic: "Customisation", published: "2025-02-09", version: "5.0"}
+- {id: "AmYLJxB_lFc", title: "Configuring one-tap dialog buttons in AndBible", topic: "Customisation", docs: "verse_action_dialog", published: "2023-12-14", version: "5.0"}
+- {id: "VuKy4moOt0Q", title: "Showing Red Letters of Christ in AndBible", topic: "Customisation", docs: "look_and_feel", published: "2023-11-16", version: "5.0"}
+- {id: "wGK5R_xgxv0", title: "AndBible 5.0 has a discrete mode for persecuted Christians", topic: "Customisation", short: true, published: "2023-11-11"}
+- {id: "YSx4xMgG8-Q", title: "Developer Diaries: Bug hunting session", topic: "Developer diaries", published: "2024-06-06", version: "5.0"}
+- {id: "gaLv6auNDHw", title: "Developer diaries: Maintaining library dependencies", topic: "Developer diaries", published: "2024-05-30", version: "5.0"}
+- {id: "m8QTYY8FSzE", title: "Developer diaries: Export & Import StudyPad(s)", topic: "Developer diaries", published: "2024-05-23", version: "5.0"}
+- {id: "Wy3nDUPfDGM", title: "Translators: Few tips on using Transifex", topic: "Developer diaries", published: "2021-05-04", version: "3.3"}

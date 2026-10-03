@@ -1,0 +1,25 @@
+net/bible/sharedui/ai/AgentPermissionDialog.kt # dialog
+net/bible/sharedui/ai/EasySetupWizard.kt # dialog
+net/bible/sharedui/components/AbColorPickerDialog.kt # dialog
+net/bible/sharedui/components/AbInfoDialog.kt # dialog
+net/bible/sharedui/components/AbListChoiceDialog.kt # dialog
+net/bible/sharedui/components/AbMessageDialog.kt # dialog
+net/bible/sharedui/components/AbMultiSelectDialog.kt # dialog
+net/bible/sharedui/components/AbNoticeDialog.kt # dialog
+net/bible/sharedui/components/Dialogs.kt # dialog
+net/bible/sharedui/ai/reading/ReadingLlmDialogs.kt # dialog
+net/bible/sharedui/ai/PromptFilterSheet.kt # sheet
+net/bible/sharedui/bookmark/LabelIdentitySheet.kt # sheet
+net/bible/sharedui/bookmark/ManageLabelsSearchOptionsSheet.kt # sheet
+net/bible/sharedui/components/AbArrangementSheet.kt # sheet
+net/bible/sharedui/progress/AbReadHistorySheet.kt # sheet
+net/bible/sharedui/reading/ShareVersesSheet.kt # sheet
+net/bible/sharedui/settings/SettingsEditorSheet.kt # sheet
+net/bible/sharedui/search/SearchSheetContent.kt # sheet
+net/bible/sharedui/navigation/DocumentQuickContent.kt # sheet
+net/bible/sharedui/workspaces/WorkspaceQuickContent.kt # sheet
+net/bible/sharedui/reading/ReadingDrawerContent.kt # reading-host panel
+net/bible/sharedui/speak/BibleSpeakScreen.kt # reading-host panel
+net/bible/sharedui/speak/AdvancedSpeakSettingsScreen.kt # reading-host panel
+net/bible/sharedui/ai/reading/AgentLogPanel.kt # reading-host panel
+net/bible/sharedui/components/AbSearchablePicker.kt # dialog

@@ -18,7 +18,6 @@ package net.bible.android.view.activity.base
 
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
-import net.bible.android.view.activity.page.MainBibleActivity
 
 /** Allow operations form middle tier that require a reference to the current Activity
  *
@@ -30,6 +29,18 @@ object CurrentActivityHolder {
 
     val currentActivity: ActivityBase? get() = try { activities.last() } catch (e: NoSuchElementException) {null}
 
+    /**
+     * The incoming Activity is unfrozen and every Activity underneath it is frozen — see
+     * [ActivityBase.freeze] for what that is and for why it is still here.
+     *
+     * The freeze/unfreeze hooks stay although no Activity overrides them since slice 8 deleted
+     * `MainBibleActivity`: `StartupActivity`'s `ACTION_VIEW` handoff (`FLAG_ACTIVITY_MULTIPLE_TASK`) can still make a
+     * SECOND live `NavHostComposeActivity`, and whether that host needs a real `freeze()` (two instances on
+     * `ABEventBus`) is an open question recorded in the slice 8 plan (Correction 11) -- not decided by deleting the hook.
+     *
+     * The FOREGROUND/BACKGROUND event pair is unrelated to any of this — it is about the app as a
+     * whole.
+     */
     fun activate(activity: ActivityBase) {
         if(activity == currentActivity) return
         val wasEmpty = activities.isEmpty()
@@ -44,8 +55,6 @@ object CurrentActivityHolder {
             }
         }
     }
-
-    val mainBibleActivities get() = activities.filterIsInstance<MainBibleActivity>().size
 
     fun deactivate(activity: ActivityBase) {
         activities.remove(activity)

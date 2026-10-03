@@ -414,10 +414,6 @@ http://www.heartlight.org 准予使用
   <string name="auto_assign_labels1">自动将标记至新书签</string>
   <string name="auto_assign_labels_primary">自动分配为主要</string>
   <!--can be removed-->
-  <string name="marker_style">仅显示选中部分的书签标识</string>
-  <string name="marker_style_whole_verse">仅显示整节的书签标识</string>
-  <string name="hide_style">隐藏选中部分的书签</string>
-  <string name="hide_style_whole_verse">隐藏整节的书签</string>
   <string name="bookmark_warning">此文档中有书签或笔记。</string>
   <string name="bookmark_warning2">
   如果文档结构被修改，更新此文档可能让
@@ -922,8 +918,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="favourite_label">最爱标签</string>
   <string name="edit_label">编辑标签</string>
   <string name="delete_label_confirmation">你希望移除书签「%s」吗？对应的个人笔记亦会被移除。</string>
-  <string name="bookmark_underline_style_arbitrary">选取书签的下划线样式</string>
-  <string name="bookmark_underline_style_whole_verse">为整节书签添加下划线</string>
   <string name="active_labels">选择标签</string>
   <string name="recent_labels">最近标签</string>
   <string name="other_labels">其他标签</string>

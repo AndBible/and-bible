@@ -413,10 +413,6 @@ Sva preuzimanja modula kroz riznice su šifrovana (HTTPS)</string>
   <string name="auto_assign_labels1">Auto-dodeli oznaku novim obeleživačima</string>
   <string name="auto_assign_labels_primary">Auto-dodeli kao glavnu</string>
   <!--can be removed-->
-  <string name="marker_style">Priakži samo marker za odabir obeleživača</string>
-  <string name="marker_style_whole_verse">Prikaži samo marker za obeleživače celih stihova</string>
-  <string name="hide_style">Sakrij za odabir obeleživača</string>
-  <string name="hide_style_whole_verse">Sakrij za obeleživače celih stihova</string>
   <string name="bookmark_warning">Ima obeleživača, odnosno beleški za ovaj dokument.</string>
   <string name="bookmark_warning2">
 Ukoliko je struktura dokumenta promenjena, ažuriranje istog bi moglo
@@ -926,8 +922,6 @@ molimo prijavite problem održavaocima tekstova</string>
   <string name="favourite_label">Omiljena oznaka</string>
   <string name="edit_label">Uredite oznaku</string>
   <string name="delete_label_confirmation">Da li želite da uklonite oznaku obeleživača \"%s\"? Takođe sve povezane beleške Radne sveske biće uklonjene.</string>
-  <string name="bookmark_underline_style_arbitrary">Stil Podvlačenja za odabir obeleživača</string>
-  <string name="bookmark_underline_style_whole_verse">Stil Podvlačenja za obeleživače čitavih stihova</string>
   <string name="active_labels">Izabrane oznake</string>
   <string name="recent_labels">Nedavne oznake</string>
   <string name="other_labels">Druge oznake</string>

@@ -26,7 +26,6 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.database.EpubDatabase
 import net.bible.android.database.epubMigrations
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -38,8 +37,6 @@ import org.crosswire.jsword.book.sword.Backend
 import org.crosswire.jsword.book.sword.BookType
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordGenBook
-import org.crosswire.jsword.index.IndexManagerFactory
-import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
 import org.jdom2.input.JDOMParseException
@@ -172,11 +169,20 @@ fun addEpubBook(epubDir: File) {
     val backend = EpubBackend(state, metadata)
     val book = SwordGenBook(metadata, backend)
 
-    if(IndexManagerFactory.getIndexManager().isIndexed(book)) {
-        metadata.indexStatus = IndexStatus.DONE
-    } else {
-        metadata.indexStatus = IndexStatus.UNDONE
-    }
+    // NO indexStatus re-derivation here. `EpubBackendState`'s init (:254-256) has already set it from
+    // the FTS5 table, which is the only index an EPUB ever has; the LUCENE check that used to run here
+    // can never be true for an EPUB, so it forced UNDONE onto every manually-installed EPUB and made
+    // its search silently unreachable (finding F43).
+    //
+    // This fixes the MANUALLY-INSTALLED path only. The SWORD-installed (repo-downloaded) path
+    // `epubBookType.getBackend` never had this overwrite, but is NOT therefore correct: it reaches
+    // `EpubBackendState`'s SECONDARY constructor (`EpubBackendState.kt:66-68`), whose body assigns
+    // `_metadata` only AFTER the primary constructor's initializers and both `init` blocks have run
+    // — so the FTS5-derived assignment at `EpubBackendState.kt:255` writes `indexStatus` onto a
+    // throwaway lazily-built `SwordBookMetaData` that is then discarded when the real sbmd arrives.
+    // A repo-installed EPUB therefore still reads UNDONE regardless of its FTS5 index. That is a
+    // real, still-OPEN defect (initialization ORDER, not this hunk); fixing it means reordering that
+    // constructor, which is its own round — see `docs/superpowers/status/compose-port-status.md`.
 
     Books.installed().addBook(book)
 }

@@ -18,7 +18,6 @@
 package net.bible.android.view.activity.base
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -26,12 +25,14 @@ import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.AttrRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -42,13 +43,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import net.bible.android.view.activity.StartupActivity
 import net.bible.android.view.activity.comingFromStartupActivity
-import net.bible.android.view.activity.discrete.CalculatorActivity
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.android.view.util.UiUtils.setActionBarColor
 import net.bible.android.view.util.VolumeButtonScroll
 import net.bible.android.view.util.locale.LocaleHelper
@@ -56,7 +61,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.history.HistoryTraversal
 import net.bible.service.history.HistoryTraversalFactory
-import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
 var firstTime = true
 
@@ -84,6 +89,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     @SuppressLint("MissingSuperCall")
     public override fun onCreate(savedInstanceState: Bundle?) {
         CurrentActivityHolder.activate(this)
+        setNewHistoryTraversal(historyTraversalFactory)
 
         if(!doNotInitializeApp) {
             CommonUtils.initializeApp()
@@ -99,10 +105,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
 
         if(!doNotInitializeApp) {
-            if(CommonUtils.showCalculator) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            }
-            refreshScreenKeepOn()
+            applyInitialisedWindowState()
         }
 
         Log.i(TAG, "onCreate")
@@ -119,6 +122,19 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
             returningFromCalculator = savedInstanceState.getBoolean("returningFromCalculator", false)
         }
         fixNightMode()
+    }
+
+    /**
+     * The window state an initialised app applies: FLAG_SECURE while the calculator disguise is on (Recents
+     * must not show content) and the keep-screen-on preference. Extracted in slice 8 (plan Correction 6) so a
+     * host that STARTED uninitialised -- `NavHostComposeActivity` on WELCOME or BACKUP -- can apply it when
+     * it initialises later (D1: entering InstallZip; E2: Welcome's gate (b)).
+     */
+    protected fun applyInitialisedWindowState() {
+        if(CommonUtils.showCalculator) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+        refreshScreenKeepOn()
     }
 
     private fun setupUi() {
@@ -183,8 +199,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         AppCompatDelegate.setDefaultNightMode(newNightMode)
     }
 
-    protected fun buildActivityComponent() = CommonUtils.buildActivityComponent()
-
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean("doNotMarkPaused", doNotMarkPaused)
         outState.putBoolean("wasPaused", wasPaused)
@@ -214,21 +228,48 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
      * Override locale.  If user has selected a different ui language to the devices default language
      */
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LocaleHelper.onAttach(newBase))
+        super.attachBaseContext(LocaleHelper.localized(newBase))
     }
 
     /**	This will be called automatically for you on 2.0 or later
      */
     override fun onBackPressed() {
-        if (::historyTraversal.isInitialized && historyTraversal.goBack()) {
+        if (goBackInHistory()) {
             return
         }
         super.onBackPressed()
     }
 
     /**
+     * Step one entry back in the reading history, if there is one.
+     *
+     * Public because [onBackPressed] is no longer the only caller: reading-host re-typing T8b moved
+     * `CurrentGeneralBookPage`'s three key-chooser arms onto [awaitIntent], which took them out of
+     * classic `MainBibleActivity.onActivityResult`'s reach — including its
+     * `STD_REQUEST_CODE` + `RESULT_CANCELED` guard, which goes back when a cancelled chooser has
+     * left the page with no key at all. That guard is now expressed at the awaiting call site, on
+     * whatever host it was opened from, and needs this.
+     *
+     * `open` since slice 8 B1: `NavHostComposeActivity` replays the reading history directly while
+     * its graph is on `reading`, because its host-global `isIntegrateWithHistoryManager` is off there
+     * and [HistoryTraversal.goBack] would refuse (classic `MainBibleActivity` had it on).
+     */
+    open fun goBackInHistory(): Boolean =
+        ::historyTraversal.isInitialized && historyTraversal.goBack()
+
+    /**
+     * Leave the screen the user is looking at (slice 8 spec §5.1 item 2). For a classic one-screen
+     * Activity that is finishing it; `NavHostComposeActivity` overrides it to pop its back stack, because
+     * there the "screen" is a destination and finishing would take every other destination -- the
+     * reading view included -- with it. `HistoryManager.goBack()` is the caller.
+     */
+    open fun leaveCurrentScreen() {
+        finish()
+    }
+
+    /**
      * Whether this activity should let the base class handle volume-key page scrolling.
-     * Screens that own the volume keys themselves (e.g. MainBibleActivity) override to false.
+     * Screens that own the volume keys themselves (e.g. the reading destination) override to false.
      */
     protected open val enableGenericVolumeScroll: Boolean get() = true
 
@@ -280,31 +321,6 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     /** allow activity to enhance intent to correctly restore state  */
     override val intentForHistoryList: Intent get() = intent
 
-    fun showErrorMsg(msgResId: Int) {
-        Dialogs.showErrorMsg(msgResId)
-    }
-
-    protected fun returnErrorToPreviousScreen() {
-        // just pass control back to the previous screen
-        val resultIntent = Intent(this, this.javaClass)
-        setResult(Activity.RESULT_CANCELED, resultIntent)
-        finish()
-    }
-
-    protected fun returnToPreviousScreen() {
-        // just pass control back to the previous screen
-        val resultIntent = Intent(this, this.javaClass)
-        setResult(Activity.RESULT_OK, resultIntent)
-        finish()
-    }
-
-    protected fun returnToTop() {
-        // just pass control back to the previous screen
-        val resultIntent = Intent(this, this.javaClass)
-        setResult(RESULT_RETURN_TO_TOP, resultIntent)
-        finish()
-    }
-
     override fun onResume() {
         CurrentActivityHolder.activate(this)
         super.onResume()
@@ -312,14 +328,14 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         val fromStartupActivity = comingFromStartupActivity
         comingFromStartupActivity = false
         if (
-            this !is CalculatorActivity
+            this !is CalculatorComposeActivity
             && !fromStartupActivity
             && this !is StartupActivity
             && CommonUtils.showCalculator
             && wasPaused
             && !returningFromCalculator
         ) {
-            val handlerIntent = Intent(this@ActivityBase, CalculatorActivity::class.java)
+            val handlerIntent = ScreenLauncher.intentFor(this@ActivityBase, Screen.Calculator)
             startActivityForResult(handlerIntent, CALCULATOR_REQUEST)
             returningFromCalculator = true
         } else {
@@ -398,9 +414,9 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         Log.i(TAG, "onStart")
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        Log.i(TAG, "onNewIntent $this ${intent?.action}")
+        Log.i(TAG, "onNewIntent $this ${intent.action}")
     }
 
     override fun onStop() {
@@ -413,7 +429,8 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
      * Each activity instance needs its own HistoryTraversal object
      * @param historyTraversalFactory
      */
-    @Inject
+    private val historyTraversalFactory: HistoryTraversalFactory by inject()
+
     fun setNewHistoryTraversal(historyTraversalFactory: HistoryTraversalFactory) {
         // Ensure we don't end up overwriting the initialised class
         if (!::historyTraversal.isInitialized) {
@@ -440,16 +457,21 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
     }
 
-    suspend fun awaitIntent(intent: Intent) : ActivityResult
-    {
+    /**
+     * Fix batch 1 §2.3 (F99): always on Main. Callers await from any dispatcher (BibleView's
+     * assignLabels ran on IO), but everything below is main-thread state: `resultByCode` and
+     * `currentCode` are plain fields, and since F53 (`aca478714`) a self-launch here is a
+     * `NavController.navigate`, which asserts the main thread.
+     */
+    suspend fun awaitIntent(intent: Intent): ActivityResult = withContext(Dispatchers.Main.immediate) {
         val activityResult = CompletableDeferred<ActivityResult>()
         val resultCode = currentCode++
         resultByCode[resultCode] = activityResult
         startActivityForResult(intent, resultCode + ASYNC_REQUEST_CODE_START)
-        return activityResult.await()
+        activityResult.await()
     }
 
-    val preferences get() = CommonUtils.settings
+    protected val preferences get() = CommonUtils.settings
 
     private var deferredActivityResult = CompletableDeferred<ActivityResult>()
     private val deferredActivityResultMutex = Mutex()
@@ -477,8 +499,16 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         }
     }
 
+    /**
+     * Swap this Activity's content view (and its `ABEventBus` subscriptions) out while ANOTHER Activity is on top,
+     * and back when it returns; [CurrentActivityHolder.activate]/[CurrentActivityHolder.deactivate] are the only
+     * callers. `MainBibleActivity` was the only override and was deleted in slice 8; the hooks are kept because a
+     * second live `NavHostComposeActivity` is still reachable through `StartupActivity`'s `ACTION_VIEW` handoff --
+     * see `CurrentActivityHolder.activate`. Pinned by `ReadingDestinationInGraphTest.freezeAndUnFreezeStayWhileASecondHostIsReachable`.
+     */
     open fun freeze() {}
 
+    /** @see freeze */
     open fun unFreeze() {}
 
     val TAG get() = "Base-${this::class.java.simpleName}"
@@ -490,9 +520,27 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         const val STD_REQUEST_CODE = 1
         const val CALCULATOR_REQUEST = 6000
         const val ASYNC_REQUEST_CODE_START = 1900
-
-        // Special result that requests all activities to exit until the main/top Activity is reached
-        const val RESULT_RETURN_TO_TOP = 900
-
     }
+}
+
+/**
+ * The pixel size of a dimension attribute on this Activity's theme, or `0` when the theme does not
+ * define it.
+ *
+ * Reading-host re-typing R6d fix round 1 (review Important). `MainBibleActivity.resolveVariables`
+ * spelled this out three times inline, and R6d then spelled a fourth copy into
+ * `NavHostComposeActivity` so its inset ledger could answer `transportBarHeight`/
+ * `windowButtonHeight`. Both hosts are live at once until slice 7 Task 13, so a copy in each is
+ * the divergence `ReadingChromePortDriftTest` was built for -- and this one is pure Android with
+ * no host state in it, so the honest fix is one implementation rather than a guard over four.
+ *
+ * `0` on an unresolved attribute is exactly what classic's `if (theme.resolveAttribute(...))`
+ * left behind: its three fields are initialised to `0` and `resolveVariables()` runs once, from
+ * `onCreate`.
+ */
+fun android.app.Activity.themePixelSize(@AttrRes attr: Int): Int {
+    val tv = TypedValue()
+    return if (theme.resolveAttribute(attr, tv, true)) {
+        TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+    } else 0
 }

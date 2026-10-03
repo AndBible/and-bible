@@ -29,18 +29,18 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
-import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.navigation.ChooseDocument
-import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
-import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.view.activity.page.KeyChooserResults
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
 import net.bible.service.common.firstBibleDoc
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
+import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordContentFacade
@@ -72,43 +72,149 @@ class CurrentGeneralBookPage internal constructor(
 
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
+    /**
+     * The workspace settings this page's key chooser seeds and writes back — **this page's own
+     * window's**, never the Activity's and never `windowControl`'s.
+     *
+     * Reading-host re-typing T8a item 1. The body of [startKeyChooser] used to read
+     * `context.workspaceSettings`, which only `MainBibleActivity` declares (`:400`), and guarded
+     * that read with `if(context !is MainBibleActivity) return` — added by `b718fe85c` (2022) in
+     * the same commit that widened the parameter from `MainBibleActivity` to [ActivityBase], i.e. a
+     * TYPE artefact, not a policy. On `NavHostComposeActivity` it made every general-book /
+     * StudyPad / multi-document key-chooser tap a silent no-op.
+     *
+     * A `WindowRepository` reached through the HOST (`ReadingHostActivity.hostWindowRepository`)
+     * would have worked for three of the four callers; this one is correct for all four and needs
+     * no host at all. `Window.windowRepository` is a constructor property and `Window`'s `init`
+     * sets `pageManager.window = this`, so the page a key chooser is opened FOR always knows the
+     * repository that owns it — which is the repository whose workspace the chooser must edit, even
+     * with two live reading hosts (the identity finding of R6c1/R6d). `CurrentPageManager`'s
+     * auto-open path in particular calls in with `CurrentActivityHolder.currentActivity`, which may
+     * be any Activity at all.
+     *
+     * A `get()`, not a captured value: `WindowRepository.workspaceSettings` is a `var` that
+     * `loadFromDb` replaces, and classic re-read `context.workspaceSettings` on both sides of the
+     * `awaitIntent` below. Same two reads, same instants.
+     */
+    private val workspaceSettings: WorkspaceEntities.WorkspaceSettings
+        get() = pageManager.window.windowRepository.workspaceSettings
+
+    /**
+     * Open the key chooser for this page's document.
+     *
+     * Runs on ANY [ActivityBase], exactly as [CurrentBiblePage], [CurrentDictionaryPage],
+     * [CurrentMapPage] and [CurrentCommentaryPage] always have — see [workspaceSettings] for the
+     * `!is MainBibleActivity` early return that used to stand here and why it is gone. There is no
+     * replacement check and no path that cannot proceed, so nothing here returns silently.
+     *
+     * **All four arms await their own answer** (reading-host re-typing T8b step 0). Three of them
+     * used to hand the result back through `startActivityForResult(…, STD_REQUEST_CODE)`, whose
+     * dispatcher lives only on `MainBibleActivity.onActivityResult`. Every caller of this function
+     * passes an [ActivityBase] — `BibleJavascriptInterface`'s `CtrlKeyB`, `ReadingCommands`'
+     * `composeStartKeyChooser` fallback, `CurrentPageManager.setCurrentDocument`'s
+     * auto-open-after-switch (which uses `CurrentActivityHolder.currentActivity`, i.e. whatever is
+     * resumed) and `MainBibleActivity` itself — so on every other host
+     * `ActivityBase.onActivityResult` found no `resultByCode[1 - ASYNC_REQUEST_CODE_START]`, fell
+     * through to `super` and DISCARDED the selection in silence. [ActivityBase.awaitIntent] is
+     * resolved by `ActivityBase` itself and therefore works on all of them; it is what the StudyPad
+     * arm below has always used, and the other three now match it. Since slice 8 B4 all four arms
+     * self-launch nav-graph routes; each is intercepted by `navigateInsteadOfSelfLaunch` (F53) and
+     * answered by the reading destination's collector, and backing out of a chooser is answered as
+     * a cancel (B1).
+     *
+     * The answer is applied through [KeyChooserResults], the single implementation
+     * `MainBibleActivity`'s surviving `STD_REQUEST_CODE` arms delegate to as well.
+     */
     override fun startKeyChooser(context: ActivityBase) {
-        if(context !is MainBibleActivity) return
         context.lifecycleScope.launch(Dispatchers.Main) {
             val doc = currentDocument
             when {
                 doc == FakeBookFactory.journalDocument -> {
-                    val result = context.awaitIntent(Intent(context, ManageLabels::class.java)
-                        .putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
-                            .applyFrom(context.workspaceSettings)
-                            .toJSON())
+                    // Screen.ManageLabels is deliberately not in ScreenLauncher.MIGRATED (its `data`
+                    // argument is required), and the classic ManageLabelsComposeActivity
+                    // ScreenLauncher.targetFor used to resolve it to is gone (nav-graph slices 2+4
+                    // Task 7), so this builds the nav-host Intent directly. The "data" extra on the
+                    // RESULT is unchanged -- NavResultIntents.forManageLabels still writes it under
+                    // that key.
+                    val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.STUDYPAD)
+                        .applyFrom(workspaceSettings)
+                        .toJSON()
+                    val result = context.awaitIntent(
+                        NavHostComposeActivity.intentFor(context, NavRoutes.manageLabels(data))
                     )
                     if(result.resultCode == Activity.RESULT_OK) {
-                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
-                        context.workspaceSettings.updateFrom(resultData)
+                        val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+                        workspaceSettings.updateFrom(resultData)
                     }
                 }
-                doc == FakeBookFactory.multiDocument -> {
-                    context.startActivityForResult(
-                        Intent(context, ChooseDocument::class.java),
-                        STD_REQUEST_CODE
-                    )
-                }
+                doc == FakeBookFactory.multiDocument ->
+                    awaitChosenKey(context, NavHostComposeActivity.intentFor(context, NavRoutes.chooseDocument()))
                 doc?.isMyDocument == true -> {
                     val docId = doc.myDocumentId
                     if (docId != null) {
-                        context.startActivityForResult(
-                            Intent(context, MyDocumentPagesActivity::class.java)
-                                .putExtra("documentId", docId.toString())
-                                .putExtra("documentInitials", doc.initials)
-                                .putExtra("documentName", doc.name),
-                            STD_REQUEST_CODE
+                        // Screen.MyDocumentPages is deliberately not in ScreenLauncher.MIGRATED (all
+                        // three of its route arguments are required), and its classic
+                        // MyDocumentPagesComposeActivity is gone (deleted nav-graph slice 4 Task 9)
+                        // -- so this builds the nav-host Intent directly rather than through
+                        // ScreenLauncher, the same shape the StudyPad branch above already uses for
+                        // ManageLabels.
+                        awaitChosenKey(
+                            context,
+                            NavHostComposeActivity.intentFor(
+                                context,
+                                NavRoutes.myDocumentPages(
+                                    documentId = docId.toString(),
+                                    documentInitials = doc.initials,
+                                    documentName = doc.name,
+                                ),
+                            ),
                         )
                     }
                 }
-                else -> context.startActivityForResult(Intent(context, ChooseGeneralBookKey::class.java), STD_REQUEST_CODE)
+                else -> awaitChosenKey(context, NavHostComposeActivity.intentFor(context, NavRoutes.CHOOSE_GENERAL_BOOK_KEY))
             }
         }
+    }
+
+    /**
+     * Launch one key chooser and apply what it hands back, on whatever [ActivityBase] opened it.
+     *
+     * **Why the result is applied to [pageManager] and not to `windowControl.activeWindowPageManager`
+     * as classic's dispatcher did**: the same reason [workspaceSettings] is read off
+     * `pageManager.window.windowRepository`. `windowControl`'s repository is whichever reading host
+     * RESUMED last, not necessarily the one this page's window belongs to (the identity finding of
+     * R6c1/R6d), while the page a chooser was opened FOR always knows its own manager. In the single
+     * -host case the two are the same object, so this is classic's behaviour everywhere classic ran.
+     *
+     * **The cancel guard is classic's**, ported rather than dropped: `MainBibleActivity
+     * .onActivityResult`'s first statement goes back in history when a cancelled `STD_REQUEST_CODE`
+     * chooser has left the page with no key at all (a general book switched to but never opened).
+     * [ActivityBase.awaitIntent] uses its own request codes, so that statement can no longer see
+     * these four arms; it still covers every chooser that has not moved. `key` here is this page's
+     * own, for the reason above; classic read `currentPage.key` off the active window.
+     *
+     * **When it resumes matters, and it is later than the dispatcher's was.** `awaitIntent`
+     * completes its `CompletableDeferred` from `onActivityResult`, but this coroutine runs on
+     * `Dispatchers.Main` (not `.immediate`), so the continuation is POSTED and runs after
+     * `ActivityThread` has finished the same looper message — i.e. after the host's `onResume`.
+     * On `NavHostComposeActivity` that is the difference between applying a key into a host that
+     * has not yet reclaimed `windowControl.windowRepository`, re-declared itself foreground or
+     * re-armed its bootstrap bridge, and one that has: the `AddHistoryItem` that
+     * `setCurrentDocumentAndKey` posts is read by `HistoryManager.createHistoryItem` through
+     * `ReadingViewVisibility.isVisible`, which is false until `ReadingHostPresence` says this host
+     * is foreground. Classic needed `CurrentActivityHolder.activate` +
+     * `ReadingHostPresence.setForeground` + `ReadingViewVisibility.setActivityVisible` in its
+     * dispatcher precisely because `onActivityResult` runs BEFORE `onResume`; awaiting needs none of
+     * them, and adds no pre-composition producer of history items — so
+     * [net.bible.sharedcore.reading.ReadingViewVisibility]'s bootstrap-bridge invariant is untouched.
+     */
+    private suspend fun awaitChosenKey(context: ActivityBase, intent: Intent) {
+        val result = context.awaitIntent(intent)
+        if (result.resultCode == Activity.RESULT_CANCELED) {
+            if (key == null) context.goBackInHistory()
+            return
+        }
+        KeyChooserResults.apply(pageManager, result.data?.extras)
     }
 
 
@@ -127,10 +233,22 @@ class CurrentGeneralBookPage internal constructor(
                     StudyPadDocument(key.label, entryId, bookmarks, genericBookmarks, bookmarkToLabels, genericBookmarkToLabels, journalTextEntries)
                 }
                 is BookAndKeyList -> {
-                    val frags = key.filterIsInstance<BookAndKey>().map {
-                        val doc = it.document ?: defaultBibleDoc
-                        var k = it.key
-                        try {
+                    // A multi-document key is ASSEMBLED, not asked for: a Strong's tap builds one
+                    // Robinson entry per installed morphology document (LinkControl.kt:329). A
+                    // document that is not installed therefore contributes an error card with its
+                    // own download link that the user never requested -- drop it instead.
+                    //
+                    // A key genuinely missing from an INSTALLED document is different: that is
+                    // information, not noise, and must still produce its card.
+                    //
+                    // Both cases throw the SAME exception class, DocumentNotFound
+                    // (SwordContentFacade.kt:170 for "not installed", :174 and :359 for "key not in
+                    // document") -- so the two cannot be told apart by catch-type alone. dropUninstalled
+                    // re-checks Books.installed() for the specific document inside the catch instead.
+                    fun fragmentFor(bookAndKey: BookAndKey, dropUninstalled: Boolean): OsisFragment? {
+                        val doc = bookAndKey.document ?: defaultBibleDoc
+                        var k = bookAndKey.key
+                        return try {
                             if(doc is SwordBook) {
                                 k = when(k) {
                                     is Passage -> k.toV11n(doc.versification)
@@ -141,11 +259,21 @@ class CurrentGeneralBookPage internal constructor(
                             }
                             OsisFragment(SwordContentFacade.readOsisFragment(doc, k), k, doc)
                         } catch (e: OsisError) {
-                            Log.e(TAG, "Fragment could not be read")
-                            OsisFragment(e.xml, k, doc)
+                            if(dropUninstalled && e is DocumentNotFound && Books.installed().getBook(doc.initials) == null) {
+                                Log.i(TAG, "Dropping an uninstalled document from an assembled key: ${doc.initials}")
+                                null
+                            } else {
+                                Log.e(TAG, "Fragment could not be read")
+                                OsisFragment(e.xml, k, doc)
+                            }
                         }
                     }
-                    MultiFragmentDocument(frags, state = pageManager.jsState)
+                    val bookAndKeys = key.filterIsInstance<BookAndKey>()
+                    val frags = bookAndKeys.mapNotNull { fragmentFor(it, dropUninstalled = true) }
+                    // If everything dropped (every document in the assembled key is uninstalled),
+                    // fall back to today's behaviour -- showing every card -- rather than an empty page.
+                    val shown = frags.ifEmpty { bookAndKeys.mapNotNull { fragmentFor(it, dropUninstalled = false) } }
+                    MultiFragmentDocument(shown, state = pageManager.jsState)
                 }
                 else -> super.currentPageContent
             }

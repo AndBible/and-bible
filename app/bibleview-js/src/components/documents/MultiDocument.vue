@@ -116,15 +116,17 @@ const {android, sprintf, strings} = useCommon();
   flex-wrap: wrap;
 }
 
+// Foreground marks, not backgrounds: they take the accent role, never the container role that
+// $modal-header-background-color carries.
 .hide-button {
   justify-self: end;
   font-size: 120%;
-  color: $modal-header-background-color;
+  color: $icon-grey;
 }
 
 .restore-button {
   justify-self: start;
   font-size: 120%;
-  color: $modal-header-background-color;
+  color: $icon-grey;
 }
 </style>

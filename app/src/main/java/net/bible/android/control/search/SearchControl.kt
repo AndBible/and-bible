@@ -21,16 +21,16 @@ import android.content.Intent
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.Scripture
-import net.bible.android.view.activity.search.EpubSearch
-import net.bible.android.view.activity.search.Search
-import net.bible.android.view.activity.search.SearchIndex
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
+import net.bible.sharedcore.nav.NavRoutes
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -42,7 +42,6 @@ import org.crosswire.jsword.index.lucene.LuceneIndex
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
-import javax.inject.Inject
 
 /** Data classes for multi-translation search results */
 data class TranslationMatch(
@@ -67,8 +66,7 @@ class MultiSearchResultsDto {
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class SearchControl @Inject constructor(
+class SearchControl constructor(
     private val documentBibleBooksFactory: DocumentBibleBooksFactory,
     private val windowControl: WindowControl,
     )
@@ -89,14 +87,26 @@ class SearchControl @Inject constructor(
         return if (indexStatus == IndexStatus.DONE) {
             Log.i(TAG, "Index status is DONE")
             if(document.isEpub) {
-                Intent(activity, EpubSearch::class.java)
+                ScreenLauncher.intentFor(activity, Screen.EpubSearch)
             } else
-                Intent(activity, Search::class.java)
+                ScreenLauncher.intentFor(activity, Screen.Search)
         } else if (document?.bookCategory == BookCategory.GENERAL_BOOK) {
             return null
         } else {
             Log.i(TAG, "Index status is NOT DONE")
-            Intent(activity, SearchIndex::class.java)
+            // nav-graph slice 5/Task 6: `Screen.SearchIndex`'s MIGRATED route is ARGUMENT-FREE,
+            // and an argument-free index route means "index the book I am reading"
+            // (NavHostComposeActivity falls back to the current page's document). Here we DO know
+            // which document needs indexing -- it is the one this call was asked about, which is
+            // not necessarily the active window's -- so the route has to name it. The two branches
+            // above stay correct through `ScreenLauncher`: both `Screen.EpubSearch` and
+            // `Screen.Search` have genuinely argument-free MIGRATED routes (an empty Find form,
+            // and an EPUB form that reads its document from the current page).
+            // `document` is NOT smart-cast non-null in this branch (only the DONE branch above is),
+            // and a null document here is a real state: classic built a bare `Screen.SearchIndex`
+            // intent with no SEARCH_DOCUMENT extra, i.e. exactly the argument-free route that
+            // `NavRoutes.searchIndex(searchDocument = null)` produces. Equivalent, not a fallback.
+            NavHostComposeActivity.intentFor(activity, NavRoutes.searchIndex(searchDocument = document?.initials))
         }
     }
 
@@ -127,12 +137,22 @@ class SearchControl @Inject constructor(
 
         // add search type (all/any/phrase) to search string
         var decorated: String = searchType.decorate(cleanSearchString)
-        originalSearchString = decorated
 
         // add bible section limitation to search text
         decorated = getBibleSectionTerm(bibleSection, currentBookName) + " " + decorated
         return decorated
     }
+
+    /**
+     * The searchType-decorated query WITHOUT the Bible-section term (e.g. `+[Gen-Mal]`). This is the
+     * string used purely to highlight matched words in result previews — it replaces the removed global
+     * mutable `originalSearchString` side-channel that the classic result adapter used to read. Callers
+     * pass this value explicitly (via intent extra to the classic path, directly to the Compose service).
+     * The section term is intentionally excluded because it would otherwise be split into stray
+     * single-character regex matches by the highlighter.
+     */
+    fun highlightSearchString(searchString: String, searchType: SearchType): String =
+        searchType.decorate(cleanSearchString(searchString))
 
     /** Search translations and group results by verse
      */
@@ -267,10 +287,11 @@ class SearchControl @Inject constructor(
         get() = isSearchShowingScripture || !currentDocumentContainsNonScripture()
 
     companion object {
-        var originalSearchString: String? = null
         private const val SEARCH_OLD_TESTAMENT = "+[Gen-Mal]"
         private const val SEARCH_NEW_TESTAMENT = "+[Mat-Rev]"
         const val SEARCH_TEXT = "SearchText"
+        /** Section-less decorated query passed to the classic result adapter for highlighting. */
+        const val SEARCH_HIGHLIGHT_TEXT = "SearchHighlightText"
         const val SEARCH_DOCUMENT = "SearchDocument"
         const val SELECTED_TRANSLATIONS = "SelectedTranslations"
         const val IS_STRONGS_SEARCH = "IsStrongsSearch"

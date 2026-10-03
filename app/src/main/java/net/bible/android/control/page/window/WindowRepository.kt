@@ -23,6 +23,8 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
+import net.bible.android.control.event.window.WorkspaceChanged
+import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.speak.SpeakControl
@@ -38,15 +40,15 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
 import org.crosswire.jsword.versification.BookName
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
+import org.koin.core.component.inject
 import java.util.concurrent.CopyOnWriteArrayList
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.math.min
 
-open class WindowRepository(val scope: CoroutineScope) {
-    @Inject lateinit var currentPageManagerProvider: Provider<CurrentPageManager>
-    @Inject lateinit var historyManagerProvider: Provider<HistoryManager>
-    @Inject lateinit var speakControl: SpeakControl
+open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
+    val speakControl: SpeakControl by inject()
+    private val windowStateService: WindowStateServiceImpl by inject()
 
     val windowSync: WindowSync = WindowSync(this)
     var unPinnedWeight: Float? = null
@@ -93,12 +95,29 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     val sortedWindows: List<Window> get() = windowList.sortedWith(compareBy({it.isLinksWindow}, { !it.isPinMode }))
 
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
+    /**
+     * True for the whole of [loadFromDb]. Load starts with [clear], which nulls `_activeWindow`, so
+     * [initialized] reads `false` until `setDefaultActiveWindow()` at the very end — and anything
+     * that touches [activeWindow] in between would make its lazy getter call [initialize], which
+     * calls [loadFromDb] again, RE-ENTRANTLY.
+     *
+     * That is not hypothetical: restoring a window's page posts `CurrentBibleVerseChanged`
+     * (`CurrentBibleVerse.setVerseSelected`, reached from `CurrentPageManager.restoreFrom`), which
+     * `ComposeReadingViewHost` handles synchronously by rebuilding the toolbar snapshot from
+     * `windowControl.activeWindowPageManager`. Measured on a workspace switch: 340 nested loads,
+     * ~4.7 s of blocked main thread (ANR), and a [windowList] with hundreds of DUPLICATE windows —
+     * each nesting level clears the list and the unwinding outer levels re-append their own. The
+     * duplicate ids then crash the Compose reading view, whose panes are keyed by window id: two
+     * panes resolve to the SAME cached `BibleView`, and the second `AndroidView` host throws
+     * `IllegalStateException: The specified child already has a parent`.
+     *
+     * See also the guard in `ToolbarStateServiceImpl.refresh()`, which keeps that observer from
+     * reading a repository that is mid-load at all.
+     */
+    private var loadingFromDb = false
 
     fun initialize() {
-        if(initialized) return
+        if(initialized || loadingFromDb) return
         if(id.isEmpty) {
             val newId = settings.getString("current_workspace_id")?.let{IdType(it)}?.apply { this@WindowRepository.id = this }
             if (newId == null || dao.workspace(newId) == null) {
@@ -128,7 +147,7 @@ open class WindowRepository(val scope: CoroutineScope) {
             if (!initialized || newActiveWindow != this._activeWindow) {
                 _activeWindow = newActiveWindow
                 Log.i(TAG, "Active window: $newActiveWindow")
-                ABEventBus.post(CurrentWindowChangedEvent(newActiveWindow))
+                notifyActiveWindowChanged(newActiveWindow)
             }
             _activeWindow?.bibleView?.requestFocus()
         }
@@ -243,7 +262,7 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     private fun createNewWindow(sourceWindow_: Window?, first: Boolean = false): Window {
         val sourceWindow = sourceWindow_?: if(initialized) activeWindow else null
-        val pageManager = currentPageManagerProvider.get()
+        val pageManager = get<CurrentPageManager>()
         val winEntity =
             (
                 sourceWindow?.entity?.copy()
@@ -278,19 +297,29 @@ open class WindowRepository(val scope: CoroutineScope) {
         synchronized(BookName::class.java) {
             val prevFullBookNameValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
-
-            for (it in windowList) {
-                keyTitle.add("${it.pageManager.currentPage.singleKey?.name} (${it.pageManager.currentPage.currentDocument?.abbreviation})")
+            try {
+                for (it in windowList) {
+                    keyTitle.add("${it.pageManager.currentPage.singleKey?.name} (${it.pageManager.currentPage.currentDocument?.abbreviation})")
+                }
+            } finally {
+                BookName.setFullBookName(prevFullBookNameValue)
             }
-
-            BookName.setFullBookName(prevFullBookNameValue)
         }
         return keyTitle.joinToString(", ")
     }
 
+    /** Restore epoch this repository's state was loaded at (fix batch 5 §1.1). */
+    private var loadedEpoch = DatabaseContainer.replaceEpoch
+
     fun saveIntoDb(stopSpeak: Boolean = true) {
         Log.i(TAG, "saveIntoDb")
         if(!CommonUtils.initialized || !DatabaseContainer.ready) return
+        // Fix batch 5 §1.1: mid-restore, or loaded before a restore and not reloaded since -- this
+        // repository's state is pre-restore and would overwrite what was just restored.
+        if (DatabaseContainer.replacing || loadedEpoch < DatabaseContainer.replaceEpoch) {
+            Log.i(TAG, "saveIntoDb skipped: database restore in progress or not yet reloaded")
+            return
+        }
         if(stopSpeak) speakControl.stop()
         workspaceSettings.speakSettings = SpeakSettings.currentSettings
         SpeakSettings.currentSettings?.save()
@@ -310,7 +339,7 @@ open class WindowRepository(val scope: CoroutineScope) {
             savedEntity = ws.deepCopy()
         }
 
-        val historyManager = historyManagerProvider.get()
+        val historyManager = get<HistoryManager>()
 
         val windowEntities = windowList.mapIndexed { i, it ->
             dao.updateHistoryItems(it.id, historyManager.getEntities(it.id))
@@ -337,7 +366,50 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     lateinit var savedEntity: WorkspaceEntities.Workspace
 
+    /**
+     * Window-domain change notifiers (Batch 12a). Each refreshes the reactive SSOT
+     * ([WindowStateServiceImpl.layout]) AND posts the legacy `ABEventBus` event, so both
+     * are updated at one site. `WindowControl`/`Window` route their mutations through these.
+     */
+    fun notifyWindowsChanged() {
+        windowStateService.refresh(this)
+        ABEventBus.post(NumberOfWindowsChangedEvent())
+    }
+    fun notifyActiveWindowChanged(window: Window) {
+        windowStateService.refresh(this)
+        ABEventBus.post(CurrentWindowChangedEvent(window))
+    }
+    fun notifyWindowChanged(window: Window) {
+        windowStateService.refresh(this)
+        ABEventBus.post(WindowChangedEvent(window))
+    }
+    /**
+     * Posts [RestoreButtonsVisibilityChanged], the sole remaining sender of it.
+     *
+     * Carry-over correction from Batch Z-late's epilogue (Task 4 review): this KDoc used to say the
+     * event class was shared with classic `SplitBibleArea`, which "posts" it, so that a toggle
+     * through the Compose command seam "still refreshes the classic view". Both halves are now
+     * false -- `SplitBibleArea` was deleted in Task 4 (the event class survived it only because it
+     * was split out into `RestoreButtonsEvents.kt` first), and there is no classic reading view
+     * left to refresh. The single consumer is `BibleView`, which re-reads its bottom offsets.
+     */
+    fun notifyRestoreButtonsChanged() {
+        windowStateService.refresh(this)
+        ABEventBus.post(RestoreButtonsVisibilityChanged())
+    }
+
+    /** Rebuilds this repository from the given (or first) workspace. Not re-entrant — see [loadingFromDb]. */
     fun loadFromDb(workspaceId: IdType?) {
+        loadingFromDb = true
+        try {
+            loadFromDbInner(workspaceId)
+        } finally {
+            loadingFromDb = false
+        }
+    }
+
+    private fun loadFromDbInner(workspaceId: IdType?) {
+        loadedEpoch = DatabaseContainer.replaceEpoch
         Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
         val entity = (if(workspaceId != null) dao.workspace(workspaceId) else null)?: dao.firstWorkspace()
             ?: WorkspaceEntities.Workspace("").apply{
@@ -357,16 +429,19 @@ open class WindowRepository(val scope: CoroutineScope) {
         workspaceSettings = entity.workspaceSettings?: WorkspaceEntities.WorkspaceSettings.default
         SpeakSettings.currentSettings = workspaceSettings.speakSettings
 
-        val historyManager = historyManagerProvider.get()
+        val historyManager = get<HistoryManager>()
         for (it in dao.windows(id)) {
-            val pageManager = currentPageManagerProvider.get()
+            val pageManager = get<CurrentPageManager>()
             pageManager.restoreFrom(dao.pageManager(it.id), textDisplaySettings)
             val window = Window(it, pageManager, this)
             windowList.add(window)
             historyManager.restoreFrom(window, dao.historyItems(it.id))
         }
         setDefaultActiveWindow()
-        ABEventBus.post(NumberOfWindowsChangedEvent())
+        notifyWindowsChanged()
+        // Everything workspace-scoped — colours included — has just been replaced wholesale. See
+        // WorkspaceChanged's kdoc for why this is not WorkspaceColorChanged.
+        ABEventBus.post(WorkspaceChanged())
     }
 
     fun clear(destroy: Boolean = false) {
@@ -384,7 +459,7 @@ open class WindowRepository(val scope: CoroutineScope) {
                 it.destroy()
         }
         windowList.clear()
-        historyManagerProvider.get().clear()
+        get<HistoryManager>().clear()
         name = ""
     }
 

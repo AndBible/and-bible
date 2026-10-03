@@ -1328,4 +1328,79 @@ class TextDisplaySettingsTest {
         )
         assertEquals(InheritedFrom.WORKSPACE, bundle.inheritedFrom(Types.VERSENUMBERS))
     }
+
+    // --- globalWithCopiedValues() tests ---
+
+    @Test
+    fun `globalWithCopiedValues copies only the dirty types`() {
+        val global = TextDisplaySettings().apply {
+            setValue(Types.FONTSIZE, 10)
+            setValue(Types.HYPHENATION, true)
+        }
+        val resolved = TextDisplaySettings().apply {
+            setValue(Types.FONTSIZE, 22)
+            setValue(Types.HYPHENATION, false)
+        }
+
+        val result = TextDisplaySettings.globalWithCopiedValues(global, resolved, setOf(Types.FONTSIZE))
+
+        assertEquals(22, result.getValue(Types.FONTSIZE))
+        assertEquals(true, result.getValue(Types.HYPHENATION))   // untouched
+    }
+
+    @Test
+    fun `globalWithCopiedValues leaves the global alone when the source value is null`() {
+        // An unresolved source: this workspace INHERITS its font size, so getValue is null.
+        // Writing that null into the global row would silently reset the global to the factory
+        // default. The guard must keep the global's own value instead.
+        val global = TextDisplaySettings().apply { setValue(Types.FONTSIZE, 10) }
+        val unresolvedSource = TextDisplaySettings()          // no font size of its own
+        assertNull(unresolvedSource.getValue(Types.FONTSIZE))  // the precondition this test rests on
+
+        val result = TextDisplaySettings.globalWithCopiedValues(global, unresolvedSource, setOf(Types.FONTSIZE))
+
+        assertEquals(10, result.getValue(Types.FONTSIZE))
+    }
+
+    @Test
+    fun `globalWithCopiedValues does not mutate the inputs`() {
+        val global = TextDisplaySettings().apply { setValue(Types.FONTSIZE, 10) }
+        val resolved = TextDisplaySettings().apply { setValue(Types.FONTSIZE, 22) }
+
+        TextDisplaySettings.globalWithCopiedValues(global, resolved, setOf(Types.FONTSIZE))
+
+        assertEquals(10, global.getValue(Types.FONTSIZE))
+        assertEquals(22, resolved.getValue(Types.FONTSIZE))
+    }
+
+    @Test
+    fun `globalWithCopiedValues with no dirty types returns an equal global`() {
+        val global = TextDisplaySettings().apply { setValue(Types.FONTSIZE, 10) }
+        val resolved = TextDisplaySettings().apply { setValue(Types.FONTSIZE, 22) }
+
+        val result = TextDisplaySettings.globalWithCopiedValues(global, resolved, emptySet())
+
+        assertEquals(10, result.getValue(Types.FONTSIZE))
+    }
+
+    @Test
+    fun `globalWithCopiedValues copies a sub-object without mutating the original global`() {
+        // MARGINSIZE/COLORS are the two sub-object types: getValue/setValue pass the whole
+        // object by reference, and the function's copy() is shallow, so this pins that copying
+        // one through does not alias back into the original `global`'s own sub-object.
+        val global = TextDisplaySettings(
+            marginSize = MarginSize(marginLeft = 3, marginRight = 3, maxWidth = 170)
+        )
+        val resolved = TextDisplaySettings(
+            marginSize = MarginSize(marginLeft = 9, marginRight = 9, maxWidth = 200)
+        )
+
+        val result = TextDisplaySettings.globalWithCopiedValues(global, resolved, setOf(Types.MARGINSIZE))
+
+        assertEquals(MarginSize(marginLeft = 9, marginRight = 9, maxWidth = 200), result.marginSize)
+        assertEquals(
+            "original global's own MarginSize must be untouched",
+            MarginSize(marginLeft = 3, marginRight = 3, maxWidth = 170), global.marginSize
+        )
+    }
 }

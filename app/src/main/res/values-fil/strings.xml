@@ -383,10 +383,6 @@
   <string name="auto_assign_labels1">Awtomatikong italaga ang label sa mga bagong bookmark</string>
   <string name="auto_assign_labels_primary">Awtomatikong italaga bilang pangunahin</string>
   <!--can be removed-->
-  <string name="marker_style">Ipakita lamang ang marker para sa mga selection bookmark</string>
-  <string name="marker_style_whole_verse">Ipakita lamang ang marker para sa mga buong talatang bookmark</string>
-  <string name="hide_style">Itago para sa mga selection bookmark</string>
-  <string name="hide_style_whole_verse">Itago para sa mga buong talatang bookmark</string>
   <string name="bookmark_warning">Mayroong mga bookmark at/o tala para sa dokumentong ito.</string>
   <string name="bookmark_warning2">Kung nagbago ang istraktura ng dokumento, ang pag-update ng dokumentong ito ay maaaring magpagalaw ng mga lokasyon ng mga bookmark/tala sa loob ng dokumento o mawala nang tuluyan.</string>
   <string name="bookmark_warning3">Gusto mo pa ring i-update ang module?</string>
@@ -804,8 +800,6 @@
   <string name="favourite_label">Paboritong label</string>
   <string name="edit_label">I-edit ang label</string>
   <string name="delete_label_confirmation">Gusto mo bang alisin ang bookmark label na \"%s\"? Maaalis din ang lahat ng kaugnay na tala sa Study Pad.</string>
-  <string name="bookmark_underline_style_arbitrary">Estilo ng salungguhit para sa mga bookmark ng seleksyon</string>
-  <string name="bookmark_underline_style_whole_verse">Estilo ng salungguhit para sa mga bookmark ng buong talata</string>
   <string name="active_labels">Mga napiling label</string>
   <string name="recent_labels">Mga kamakailang label</string>
   <string name="other_labels">Iba pang mga label</string>

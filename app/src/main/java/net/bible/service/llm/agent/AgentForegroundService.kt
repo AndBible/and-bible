@@ -37,9 +37,11 @@ import net.bible.android.AI_AGENT_NOTIFICATION_CHANNEL
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
@@ -133,7 +135,37 @@ class AgentForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            on<AgentLogUpdatedEvent> { event ->
+                if (event.workspaceId != currentWorkspaceId) return@on
+                updateProgressNotification(event.entry.message)
+                // Renew WakeLock on activity (progress means active processing)
+                wakeLock?.let {
+                    if (it.isHeld) {
+                        it.release()
+                    }
+                    it.acquire(WAKELOCK_TIMEOUT_MS)
+                }
+            }
+            on<AgentPermissionWaitingEvent> { event ->
+                if (event.workspaceId != currentWorkspaceId) return@on
+                if (event.waiting) {
+                    // Release WakeLock while waiting — agent can sleep
+                    releaseWakeLock()
+                    showPermissionNeededNotification(event.toolName)
+                } else {
+                    restoreProgressNotification()
+                    acquireWakeLock()
+                }
+            }
+            on<AgentSessionStatusChangedEvent> { event ->
+                if (event.workspaceId != currentWorkspaceId) return@on
+                if (!event.isRunning) {
+                    // Agent finished — stop service
+                    stopSelfSafe()
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -263,7 +295,9 @@ class AgentForegroundService : Service() {
         if (CommonUtils.isDiscrete) R.drawable.ic_calc_24 else R.drawable.ic_ichtys
 
     private fun buildMainActivityIntent(): PendingIntent {
-        val intent = Intent(this, MainBibleActivity::class.java).apply {
+        // reading-host re-typing T8b: same flags, same PendingIntent, the reading host instead of
+        // the classic Activity.
+        val intent = NavHostComposeActivity.intentFor(this, NavRoutes.READING).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         return PendingIntent.getActivity(
@@ -282,12 +316,13 @@ class AgentForegroundService : Service() {
         )
     }
 
+    /** Notification builders in this service: Text from the Application, whose Resources follow `locale_pref` live (F114); the Service's own context does not. */
     private fun startForegroundWithNotification() {
         val notification = NotificationCompat.Builder(this, notificationChannel())
             .setSmallIcon(notificationIcon())
-            .setContentTitle(getString(R.string.ai_agent_notification_running))
+            .setContentTitle(BibleApplication.application.getString(R.string.ai_agent_notification_running))
             .setContentIntent(buildMainActivityIntent())
-            .addAction(0, getString(R.string.ai_agent_notification_cancel), buildCancelIntent())
+            .addAction(0, BibleApplication.application.getString(R.string.ai_agent_notification_cancel), buildCancelIntent())
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSilent(true)
             .setOngoing(true)
@@ -299,10 +334,10 @@ class AgentForegroundService : Service() {
     private fun updateProgressNotification(text: String) {
         val notification = NotificationCompat.Builder(this, notificationChannel())
             .setSmallIcon(notificationIcon())
-            .setContentTitle(getString(R.string.ai_agent_notification_running))
+            .setContentTitle(BibleApplication.application.getString(R.string.ai_agent_notification_running))
             .setContentText(text.take(100))
             .setContentIntent(buildMainActivityIntent())
-            .addAction(0, getString(R.string.ai_agent_notification_cancel), buildCancelIntent())
+            .addAction(0, BibleApplication.application.getString(R.string.ai_agent_notification_cancel), buildCancelIntent())
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSilent(true)
             .setOngoing(true)
@@ -316,15 +351,15 @@ class AgentForegroundService : Service() {
         if (BuildVariant.Appearance.isDiscrete) CALC_NOTIFICATION_CHANNEL else "generic-notifications"
 
     private fun showPermissionNeededNotification(toolName: String?) {
-        val text = toolName?.let { "$it — ${getString(R.string.ai_agent_notification_permission_tap)}" }
-            ?: getString(R.string.ai_agent_notification_permission_tap)
+        val text = toolName?.let { "$it — ${BibleApplication.application.getString(R.string.ai_agent_notification_permission_tap)}" }
+            ?: BibleApplication.application.getString(R.string.ai_agent_notification_permission_tap)
 
         val notification = NotificationCompat.Builder(this, permissionNotificationChannel())
             .setSmallIcon(notificationIcon())
-            .setContentTitle(getString(R.string.ai_agent_notification_permission_needed))
+            .setContentTitle(BibleApplication.application.getString(R.string.ai_agent_notification_permission_needed))
             .setContentText(text)
             .setContentIntent(buildMainActivityIntent())
-            .addAction(0, getString(R.string.ai_agent_notification_cancel), buildCancelIntent())
+            .addAction(0, BibleApplication.application.getString(R.string.ai_agent_notification_cancel), buildCancelIntent())
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setOngoing(true)
             .build()
@@ -334,7 +369,7 @@ class AgentForegroundService : Service() {
     }
 
     private fun restoreProgressNotification() {
-        updateProgressNotification(getString(R.string.ai_agent_notification_running))
+        updateProgressNotification(BibleApplication.application.getString(R.string.ai_agent_notification_running))
     }
 
     private fun showCompletionNotification() {
@@ -345,15 +380,15 @@ class AgentForegroundService : Service() {
         val hasError = session?.logEntries?.any { it.type == LogEntryType.ERROR } == true
 
         val title = if (hasError) {
-            getString(R.string.ai_agent_notification_error)
+            BibleApplication.application.getString(R.string.ai_agent_notification_error)
         } else {
-            getString(R.string.ai_agent_notification_completed)
+            BibleApplication.application.getString(R.string.ai_agent_notification_completed)
         }
 
         val notification = NotificationCompat.Builder(this, permissionNotificationChannel())
             .setSmallIcon(notificationIcon())
             .setContentTitle(title)
-            .setContentText(getString(R.string.ai_agent_notification_completed_tap))
+            .setContentText(BibleApplication.application.getString(R.string.ai_agent_notification_completed_tap))
             .setContentIntent(buildMainActivityIntent())
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
@@ -375,40 +410,6 @@ class AgentForegroundService : Service() {
             if (it.isHeld) it.release()
         }
         wakeLock = null
-    }
-
-    // --- EventBus subscribers ---
-
-    fun onEvent(event: AgentLogUpdatedEvent) {
-        if (event.workspaceId != currentWorkspaceId) return
-        updateProgressNotification(event.entry.message)
-        // Renew WakeLock on activity (progress means active processing)
-        wakeLock?.let {
-            if (it.isHeld) {
-                it.release()
-            }
-            it.acquire(WAKELOCK_TIMEOUT_MS)
-        }
-    }
-
-    fun onEvent(event: AgentPermissionWaitingEvent) {
-        if (event.workspaceId != currentWorkspaceId) return
-        if (event.waiting) {
-            // Release WakeLock while waiting — agent can sleep
-            releaseWakeLock()
-            showPermissionNeededNotification(event.toolName)
-        } else {
-            restoreProgressNotification()
-            acquireWakeLock()
-        }
-    }
-
-    fun onEvent(event: AgentSessionStatusChangedEvent) {
-        if (event.workspaceId != currentWorkspaceId) return
-        if (!event.isRunning) {
-            // Agent finished — stop service
-            stopSelfSafe()
-        }
     }
 
     private fun stopSelfSafe() {

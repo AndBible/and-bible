@@ -31,30 +31,38 @@ import net.bible.service.common.CommonUtils
 import java.lang.ref.WeakReference
 import java.util.UUID
 
-import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /**
  * Build a new BibleView WebView for a Window
  *
  * @author Martin Denham [mjdenham at gmail dot com]
+ *
+ * Reading-host re-typing R6a. R5 had to leave this class `MainBibleActivity`-typed and EXCLUDED
+ * from [CollaboratorTypeGuardTest]'s scan: the only reason it holds the value at all is to hand the
+ * whole thing to [BibleView], and decomposing BibleView's dependency surface was out of R5's
+ * mechanical scope. R6a did that decomposition, so this class follows it mechanically — it still
+ * only passes the two values on, it just passes R4's narrow [ReadingHostActivity] and a
+ * [BibleViewHostCallbacks] bundle instead of the Activity.
  */
-class BibleViewFactory(val mainBibleActivity: MainBibleActivity) {
-    @Inject lateinit var pageControl: PageControl
-    @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var linkControl: LinkControl
-    @Inject lateinit var bookmarkControl: BookmarkControl
-    @Inject lateinit var downloadControl: DownloadControl
-    @Inject lateinit var searchControl: SearchControl
+class BibleViewFactory(
+    val host: ReadingHostActivity,
+    val hostCallbacks: BibleViewHostCallbacks,
+) : KoinComponent {
+    val pageControl: PageControl by inject()
+    val windowControl: WindowControl by inject()
+    val linkControl: LinkControl by inject()
+    val bookmarkControl: BookmarkControl by inject()
+    val downloadControl: DownloadControl by inject()
+    val searchControl: SearchControl by inject()
 
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
 
     private val windowPageTiltScrollControlMap: MutableMap<Window, PageTiltScrollControl> = java.util.HashMap()
     private fun getPageTiltScrollControl(window: Window): PageTiltScrollControl {
         return windowPageTiltScrollControlMap[window] ?: synchronized(windowPageTiltScrollControlMap) {
             synchronized(windowPageTiltScrollControlMap) {
-                windowPageTiltScrollControlMap[window] ?: PageTiltScrollControl(mainBibleActivity)
+                windowPageTiltScrollControlMap[window] ?: PageTiltScrollControl()
             }.also {
                 windowPageTiltScrollControlMap[window] = it
             }
@@ -76,7 +84,7 @@ class BibleViewFactory(val mainBibleActivity: MainBibleActivity) {
 
         if (bibleView == null) {
             val pageTiltScrollControl = getPageTiltScrollControl(window)
-            bibleView = BibleView(this.mainBibleActivity, WeakReference(window), windowControl,
+            bibleView = BibleView(this.host, this.hostCallbacks, WeakReference(window), windowControl,
                 pageControl, pageTiltScrollControl, linkControl, bookmarkControl, downloadControl, searchControl)
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
             Log.i(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")//  ${Log.getStackTraceString(Exception())}")

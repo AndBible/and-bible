@@ -18,21 +18,14 @@
 package net.bible.android.control.backup
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.net.Uri
 import io.requery.android.database.sqlite.SQLiteDatabase
-import android.os.Bundle
 import android.util.Log
-import android.view.MenuItem
-import android.view.View
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.TextView
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.FileProvider
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -40,11 +33,9 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
-import net.bible.android.activity.databinding.BackupViewBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
-import net.bible.android.control.report.LAST_CRASH_STACKTRACE_FILE
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.OLD_DATABASE_VERSION
@@ -57,10 +48,10 @@ import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.progress.ProgressDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.installzip.InstallZip
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.view.activity.page.MainBibleAfterRestore
+import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.page.application
-import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.windowControl
 import net.bible.service.common.FileManager
@@ -73,6 +64,7 @@ import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.ANDBIBLE_BACKUP_MANIFEST_FILENAME
+import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.common.CommonUtils.determineFileType
@@ -96,6 +88,11 @@ import net.bible.service.sword.mysword.isManuallyInstalledMySwordBook
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import net.bible.service.sword.ttf.isManuallyInstalledTtf
 import net.bible.service.sword.ttf.ttfFile
+import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
+import org.koin.java.KoinJavaComponent
 import org.crosswire.common.util.NetUtil
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -118,8 +115,6 @@ import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 const val DATABASE_BACKUP_SUFFIX = ".abdb.zip"
 const val MODULE_BACKUP_SUFFIX = ".abmd.zip"
@@ -130,6 +125,34 @@ const val MODULE_BACKUP_NAME = "AndBibleModulesBackup$MODULE_BACKUP_SUFFIX"
 const val ZIP_MIMETYPE = "application/zip"
 
 enum class SaveOrShare {SAVE, SHARE}
+
+/** What to do with the result of the save/share picker (F125). */
+internal enum class PickerOutcome { COPY, CANCELLED, FAILED, DONE }
+
+/** Interprets the picker result: a cancelled save picker is neither an error nor a success. */
+internal fun pickerOutcome(saveOrShare: SaveOrShare, resultCode: Int, hasUri: Boolean): PickerOutcome =
+    if (saveOrShare == SaveOrShare.SAVE) {
+        when {
+            hasUri -> PickerOutcome.COPY
+            resultCode == Activity.RESULT_CANCELED -> PickerOutcome.CANCELLED
+            else -> PickerOutcome.FAILED
+        }
+    } else if (resultCode == Activity.RESULT_OK || resultCode == Activity.RESULT_CANCELED) PickerOutcome.DONE
+    else PickerOutcome.FAILED
+
+/**
+ * Which destination dialog to run. Branches on whether a chooser was SUPPLIED, never on what it
+ * returned: a chooser returning null means the user cancelled, and must abort the export rather
+ * than fall through to the platform dialog asking the same question again (the C1 whole-branch
+ * review defect — an elvis on the chooser's RESULT cannot tell "no chooser" apart from "chooser
+ * ran and was cancelled", so Cancel on the Compose dialog re-opened the platform one). Internal so
+ * [net.bible.android.view.activity.backup.SaveOrShareDestinationTest] can pin this contract
+ * directly, without booting an Activity.
+ */
+internal suspend fun resolveDestination(
+    chooseDestination: (suspend () -> SaveOrShare?)?,
+    platformPrompt: suspend () -> SaveOrShare?,
+): SaveOrShare? = if (chooseDestination != null) chooseDestination() else platformPrompt()
 
 /**
  * Maps each backed-up database filename to its user-facing title resource.
@@ -152,6 +175,43 @@ val databaseTitleResIds: Map<String, Int> = mapOf(
 )
 
 object BackupControl {
+    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
+
+    // AppDialogRequest.Options ids for askIfRestoreOrImport (D8-1).
+    private const val RESTORE_VALUE = "restore"
+    private const val IMPORT_VALUE = "import"
+
+    // AppDialogRequest.Options ids for saveOrShare's platformPrompt fallback (Task 24 Step 2).
+    private const val SHARE_VALUE = "share"
+    private const val SAVE_VALUE = "save"
+
+    /**
+     * `saveOrShare`'s `platformPrompt` (Task 24 Step 2): an owner-less `AppDialogController` sheet
+     * in place of the old `android.app.AlertDialog`, for the callers that pass no `chooseDestination`
+     * (NavHostComposeActivity supplies its own for the rest, via `askDestination()`). `internal`, not
+     * private, so `BackupControlTest` can pin the mapping directly without driving the whole export
+     * flow (`activity.awaitIntent` etc.).
+     */
+    internal suspend fun classicDestinationPrompt(activity: ActivityBase, promptTitle: Int, promptMessage: Int): SaveOrShare? {
+        val result = dialogs.await(
+            AppDialogRequest.Options(
+                title = activity.getString(promptTitle),
+                message = activity.getString(promptMessage),
+                options = listOf(
+                    SettingsItem.Choice(SHARE_VALUE, activity.getString(R.string.share)),
+                    SettingsItem.Choice(SAVE_VALUE, activity.getString(R.string.backup_phone_storage)),
+                ),
+                dismissText = null,
+                asActionSheet = true,
+            ),
+        )
+        return when ((result as? AppDialogResult.Selected)?.value) {
+            SHARE_VALUE -> SaveOrShare.SHARE
+            SAVE_VALUE -> SaveOrShare.SAVE
+            else -> null // Cancel, back, or scrim.
+        }
+    }
+
     internal suspend fun saveDbBackupFileViaIntent(activity: ActivityBase, file: File) =
         saveOrShare(
             activity = activity,
@@ -175,20 +235,16 @@ object BackupControl {
         chooserTitle: String,
         successMsg: Int? = null,
         errorMsg: Int = R.string.error_occurred,
+        promptTitle: Int = R.string.backup_backup_title,
+        promptMessage: Int = R.string.backup_backup_message,
+        // A Compose host supplies its own destination dialog here (NavHostComposeActivity's
+        // askDestination()). Defaulted null so a caller with no host-owned chooser instead gets the
+        // owner-less AppDialogController fallback below.
+        chooseDestination: (suspend () -> SaveOrShare?)? = null,
     ): Boolean {
-        val saveOrShare =
-            withContext(Dispatchers.Main) {
-                suspendCoroutine<SaveOrShare?> {
-                    AlertDialog.Builder(activity)
-                        .setTitle(R.string.backup_backup_title)
-                        .setMessage(R.string.backup_backup_message)
-                        .setNegativeButton(R.string.backup_phone_storage) { _, _ -> it.resume(SaveOrShare.SAVE) }
-                        .setPositiveButton(R.string.share) { _, _ -> it.resume(SaveOrShare.SHARE) }
-                        .setNeutralButton(R.string.cancel) { _, _ -> it.resume(null) }
-                        .setOnCancelListener { _ -> it.resume(null) }
-                        .show()
-                }
-            } ?: return false
+        val saveOrShare = resolveDestination(chooseDestination) {
+            classicDestinationPrompt(activity, promptTitle, promptMessage)
+        } ?: return false
 
         val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", file)
         val intent = when(saveOrShare) {
@@ -211,12 +267,14 @@ object BackupControl {
         }
         val chooserIntent = Intent.createChooser(intent, chooserTitle)
         val result = activity.awaitIntent(chooserIntent)
-        val ok = if (saveOrShare == SaveOrShare.SAVE) {
-            result.data?.data?.let { destinationUri ->
-                withContext(Dispatchers.IO) {
-                    val hourglass = Hourglass(activity)
-                    hourglass.show()
-
+        val destinationUri = result.data?.data
+        val outcome = pickerOutcome(saveOrShare, result.resultCode, destinationUri != null)
+        // F125: a cancelled picker is neither an error nor a success; stay silent.
+        if (outcome == PickerOutcome.CANCELLED) return false
+        val ok = if (outcome == PickerOutcome.COPY && destinationUri != null) {
+            withContext(Dispatchers.IO) {
+                val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
+                try {
                     val out = BibleApplication.application.contentResolver.openOutputStream(destinationUri)!!
                     val inputStream = FileInputStream(file)
 
@@ -229,11 +287,12 @@ object BackupControl {
                         Log.e(TAG, ex.message ?: "Error occurred in backuping db")
                         ok = false
                     }
-                    hourglass.dismiss()
                     ok
+                } finally {
+                    dialogs.dismiss(progressId)
                 }
-            } ?: false
-        } else result.resultCode == Activity.RESULT_OK || result.resultCode == Activity.RESULT_CANCELED
+            }
+        } else outcome == PickerOutcome.DONE
 
         withContext(Dispatchers.Main) {
             if (ok) {
@@ -248,64 +307,132 @@ object BackupControl {
         return ok
     }
 
-    private suspend fun restoreOldMonolithicDatabaseFromInputStream(uri: Uri): Boolean = withContext(Dispatchers.IO) {
-        val fileName = OLD_MONOLITHIC_DATABASE_NAME
-        internalDbBackupDir.mkdirs()
-        val tmpFile = File(internalDbBackupDir, fileName)
-        var ok = false
-        val header = ByteArray(2)
-        val gzHeaderBytes = byteArrayOf(0x1f.toByte(), 0x8b.toByte())
-
+    private suspend fun restoreOldMonolithicDatabaseFromInputStream(uri: Uri): Boolean {
         val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
-        val bufferedInputStream = BufferedInputStream(inputStream)
-        bufferedInputStream.mark(2)
-        bufferedInputStream.read(header)
-        bufferedInputStream.reset()
-
-        val input = if(header.contentEquals(gzHeaderBytes)) {
-            GZIPInputStream(bufferedInputStream)
-        } else {
-            bufferedInputStream
-        }
-
-        input.use {inputStream ->
-            val dbHeader = ByteArray(16)
-            inputStream.read(dbHeader)
-            if(String(dbHeader) == "SQLite format 3\u0000") {
-                val out = FileOutputStream(tmpFile)
-                withContext(Dispatchers.IO) {
-                    out.use {
-                        out.write(dbHeader)
-                        inputStream.copyTo(out)
-                    }
-                    val version = SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READWRITE).use {
-                        it.version
-                    }
-                    if(version <= OLD_DATABASE_VERSION) {
-                        Log.i(TAG, "Loading from backup database with version $version")
-                        for (def in SyncableDatabaseDefinition.ALL) {
-                            beforeRestore(def)
-                        }
-                        DatabaseContainer.reset()
-                        // When restoring old style db, we need to remove all databases first
-                        deleteAllDatabases()
-                        ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
-                        if(DatabaseContainer.ready) {
-                            DatabaseContainer.instance // initialize (migrate etc)
-                            afterRestore()
-                        }
-                    }
-                }
-            }
-        }
-        tmpFile.delete()
-
-        return@withContext ok
+        return restoreOldMonolithicDatabase(inputStream)
     }
 
-    fun deleteAllDatabases() {
-        application.databaseList().forEach { name ->
-            application.deleteDatabase(name)
+    /** The old (pre-split, version <= [OLD_DATABASE_VERSION]) single-file database, gzipped or not. */
+    @VisibleForTesting
+    internal suspend fun restoreOldMonolithicDatabase(inputStream: InputStream): Boolean = withContext(Dispatchers.IO) {
+        internalDbBackupDir.mkdirs()
+        val tmpFile = File(internalDbBackupDir, OLD_MONOLITHIC_DATABASE_NAME)
+        try {
+            if (!unpackOldMonolithicDatabase(inputStream, tmpFile)) return@withContext false
+            reloadingAfterReplace { DatabaseContainer.replacingDatabases { swapInOldMonolithicDatabase(tmpFile) } }
+        } finally {
+            tmpFile.delete()
+        }
+    }
+
+    /**
+     * Test seam (F120): the `user_version` of a SQLite file. The default goes through requery's SQLite,
+     * which unit tests exclude from the classpath (`app/build.gradle.kts`), so tests swap in the framework one.
+     */
+    @VisibleForTesting
+    internal var readDatabaseVersion: (File) -> Int = { file ->
+        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
+    }
+
+    /** Test seam (F120): the copy of the validated file into the database directory. */
+    @VisibleForTesting
+    internal var copyStagedDatabase: (File, File) -> Boolean = { from, to -> FileManager.copyFile(from, to) }
+
+    /** Unpacks [inputStream] (gunzipping it if needed) into [target]; true only for SQLite of version <= [OLD_DATABASE_VERSION]. */
+    private fun unpackOldMonolithicDatabase(inputStream: InputStream, target: File): Boolean {
+        val buffered = BufferedInputStream(inputStream)
+        val header = ByteArray(2)
+        buffered.mark(2); buffered.read(header); buffered.reset()
+        val input = if (header.contentEquals(byteArrayOf(0x1f.toByte(), 0x8b.toByte()))) GZIPInputStream(buffered) else buffered
+        input.use { stream ->
+            val dbHeader = ByteArray(16)
+            stream.read(dbHeader)
+            if (String(dbHeader) != "SQLite format 3\u0000") return false
+            FileOutputStream(target).use { out -> out.write(dbHeader); stream.copyTo(out) }
+        }
+        val version = readDatabaseVersion(target)
+        Log.i(TAG, "Old monolithic backup database, version $version")
+        return version <= OLD_DATABASE_VERSION
+    }
+
+    /** F120's snapshot: a SIBLING of [internalDbDir], because `Context.databaseList()` lists subdirectories too. */
+    private val restoreRollbackDir: File get() = File(internalDbDir.parentFile, "db-restore-rollback")
+
+    /**
+     * F120. Puts the validated old database [validated] in place of the current databases. Those are moved
+     * aside first and moved back if the copy, the rename, opening and splitting, any Room migration (every
+     * database is opened) or [afterRestore] fails, so a failure returns false with the user's data untouched.
+     * The snapshot is deleted only after all of those. Runs inside [DatabaseContainer.replacingDatabases].
+     */
+    private suspend fun swapInOldMonolithicDatabase(validated: File): Boolean {
+        for (def in SyncableDatabaseDefinition.ALL) beforeRestore(def)
+        // Not reset(): with no open instance, reset() BUILDS a container (open, migrate) just to close it,
+        // which touches the files about to be snapshotted and runs containerFactory too early.
+        DatabaseContainer.dropInstanceWithoutOpening()
+        val rollbackDir = restoreRollbackDir
+        if (rollbackDir.exists()) {
+            // An earlier restore died before cleaning up; its snapshot may be the user's only copy.
+            val aside = File(rollbackDir.parentFile, "${rollbackDir.name}-${System.currentTimeMillis()}")
+            if (!rollbackDir.renameTo(aside)) {
+                Log.e(TAG, "F120: cannot move the leftover $rollbackDir aside; restore aborted")
+                return false
+            }
+        }
+        if (!moveAllFiles(internalDbDir, rollbackDir)) {
+            Log.e(TAG, "F120: could not move the current databases aside; nothing changed")
+            rollbackDir.delete()
+            return false
+        }
+        val ok = try {
+            val staged = File(internalDbDir, "$OLD_MONOLITHIC_DATABASE_NAME.staging")
+            val placed = copyStagedDatabase(validated, staged) &&
+                staged.length() == validated.length() &&
+                staged.renameTo(File(internalDbDir, OLD_MONOLITHIC_DATABASE_NAME))
+            if (placed && DatabaseContainer.ready) {
+                // Opening the container splits the old file, but the split databases are written at version 1 and
+                // Room migrates each one on its first access. sync() touches every database, and afterRestore()
+                // is the first real use; both run here so a throwing migration is still rolled back.
+                DatabaseContainer.sync()
+                afterRestore()
+            }
+            placed
+        } catch (e: Exception) {
+            Log.e(TAG, "F120: old monolithic restore failed", e)
+            false
+        }
+        if (!ok) {
+            // The instance may be fully open (or half built if `instance` threw after `_instance` was set); close it
+            // before the files are deleted and moved.
+            DatabaseContainer.dropInstanceWithoutOpening()
+            rollBackOldMonolithicRestore(rollbackDir)
+            return false
+        }
+        rollbackDir.deleteRecursively()
+        return true
+    }
+
+    /** Moves every file of [from] into [to]. On a failed move, puts back the ones already moved and returns false. */
+    private fun moveAllFiles(from: File, to: File): Boolean {
+        to.mkdirs()
+        val moved = mutableListOf<File>()
+        for (f in from.listFiles().orEmpty().filter { it.isFile }) {
+            val target = File(to, f.name)
+            if (!f.renameTo(target)) {
+                moved.forEach { it.renameTo(File(from, it.name)) }
+                return false
+            }
+            moved += target
+        }
+        return true
+    }
+
+    /** Deletes whatever the failed attempt created and moves the snapshot back; keeps the snapshot if that fails. */
+    private fun rollBackOldMonolithicRestore(rollbackDir: File) {
+        internalDbDir.listFiles().orEmpty().filter { it.isFile }.forEach { it.delete() }
+        if (moveAllFiles(rollbackDir, internalDbDir)) {
+            rollbackDir.deleteRecursively()
+        } else {
+            Log.e(TAG, "F120: could not move the pre-restore databases back; they are kept in $rollbackDir")
         }
     }
 
@@ -313,53 +440,27 @@ object BackupControl {
         return BibleApplication.application.getString(id)
     }
 
-    private suspend fun selectDatabaseSections(context: Context, available: List<String>): List<String> {
-        var result: List<String>
-        withContext(Dispatchers.Main) {
-            result = suspendCoroutine {
-                val backupNames = available.map {
-                    val titleResId = databaseTitleResIds[it]
-                        ?: throw IllegalStateException("Unknown database file: $it")
-                    context.getString(titleResId)
-                }.toTypedArray()
-
-                val checkedItems = backupNames.map { true }.toBooleanArray()
-                val dialog = AlertDialog.Builder(context)
-                    .setPositiveButton(R.string.okay) { d, _ ->
-                        val selectedBooks = available.filterIndexed { index, book -> checkedItems[index] }
-                        if (selectedBooks.isEmpty()) {
-                            it.resume(emptyList())
-                        } else {
-                            it.resume(selectedBooks)
-                        }
-                    }
-                    .setMultiChoiceItems(backupNames, checkedItems) { _, pos, value ->
-                        checkedItems[pos] = value
-                    }
-                    .setNeutralButton(R.string.select_all) { _, _ -> it.resume(emptyList()) }
-                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(emptyList()) }
-                    .setOnCancelListener { _ -> it.resume(emptyList())}
-                    .setTitle(getString(R.string.restore_backup_sections))
-                    .create()
-
-                dialog.setOnShowListener {
-                    dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                        val allSelected = checkedItems.find { !it } == null
-                        val newValue = !allSelected
-                        val v = dialog.listView
-                        for (i in 0 until v.count) {
-                            v.setItemChecked(i, newValue)
-                            checkedItems[i] = newValue
-                        }
-                        (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
-                    }
-                }
-                dialog.show()
-                CommonUtils.fixAlertDialogButtons(dialog)
-            }
-        }
-        return result
-    }
+    /**
+     * One of spec §3.2 finding 9's three hand-written select-all/none copies (Task 19). Cancel and
+     * "OK with nothing checked" already both resumed `emptyList()` in the old code (see the
+     * `setNegativeButton`/`setOnCancelListener`/select-none-then-OK arms above, all identical) — the
+     * one D site of the two this batch converts where [Dialogs.multiselect]'s own Cancel-is-empty
+     * behaviour is not a behaviour change at all, just the existing one.
+     *
+     * `internal`, not `private`: its only production caller is deep inside the restore flow (a real
+     * zip with 2+ valid database files), so `BackupControlSelectDatabaseSectionsTest` calls this
+     * directly rather than reconstructing that whole pipeline.
+     */
+    internal suspend fun selectDatabaseSections(context: Context, available: List<String>): List<String> =
+        Dialogs.multiselect(
+            context,
+            getString(R.string.restore_backup_sections),
+            available,
+            itemToString = { name ->
+                context.getString(databaseTitleResIds[name] ?: throw IllegalStateException("Unknown database file: $name"))
+            },
+            preSelected = { true },
+        )
 
     private fun relativeFileName(rootDir: File, file: File): String {
         val filePath = file.canonicalPath
@@ -508,10 +609,12 @@ object BackupControl {
 
         if (books.isEmpty()) return@withContext
 
-        val hourglass = Hourglass(callingActivity)
-        hourglass.show()
-        createModulesZip(books, zipFile)
-        hourglass.dismiss()
+        val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
+        try {
+            createModulesZip(books, zipFile)
+        } finally {
+            dialogs.dismiss(progressId)
+        }
 
         val modulesString = books.joinToString(", ") { it.abbreviation }
         val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
@@ -668,118 +771,161 @@ object BackupControl {
         }
     }
 
+    /**
+     * F115. Runs [body] and, however it ends (normally, by an exception, or cancelled), posts
+     * [MainBibleAfterRestore] iff a [DatabaseContainer.replacingDatabases] ran inside it. The epoch bump froze
+     * the live `WindowRepository`'s saving; only the reload this triggers releases it. The ONLY poster of
+     * [MainBibleAfterRestore] in this file (BackupControlReplaceGuardTest).
+     */
+    internal suspend fun <T> reloadingAfterReplace(body: suspend () -> T): T {
+        val epoch = DatabaseContainer.replaceEpoch
+        try {
+            return body()
+        } finally {
+            if (DatabaseContainer.replaceEpoch != epoch) ABEventBus.post(MainBibleAfterRestore())
+        }
+    }
+
     private suspend fun restoreDatabaseZipFileInputStreamWithUI(
         activity: ActivityBase,
         uri: Uri
     ): Boolean = withContext(Dispatchers.IO) {
-        val hourglass = Hourglass(activity)
-        ABEventBus.post(ToastEvent(getString(R.string.downloading_backup)))
-        hourglass.show()
-
-        val tmpFile = File(internalDbBackupDir, "database.zip")
-        val unzipFolder = File(internalDbBackupDir, "unzip")
-
-        unzipFolder.mkdirs()
-
+        // Task 30 Step 1: no more Hourglass -- progressId tracks whichever Progress (of the several
+        // shown across this function) is currently live, so the outer finally always dismisses
+        // whatever is still up on any exit path (return, exception, or cancellation), the same
+        // guarantee Hourglass's Job-completion hook gave for free.
+        var progressId: Long? = null
+        fun showProgress() {
+            progressId?.let { dialogs.dismiss(it) }
+            progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
+        }
+        fun dismissProgress() {
+            progressId?.let { dialogs.dismiss(it) }
+            progressId = null
+        }
         try {
-            val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
-            tmpFile.outputStream().use { inputStream.copyTo(it) }
-            CommonUtils.unzipFile(tmpFile, unzipFolder)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error processing backup file", e)
-            throw IOException("Failed to process backup file: ${e.message}")
-        }
+            ABEventBus.post(ToastEvent(getString(R.string.downloading_backup)))
+            showProgress()
 
-        val restoredSelection =
-            Closeable {
-                tmpFile.delete()
-                unzipFolder.deleteRecursively()
-                activity.lifecycleScope.launch(Dispatchers.Main) { hourglass.dismiss() }
-            }.use {
-                val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
-                    .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
-                    .map { file -> file.name }
+            val tmpFile = File(internalDbBackupDir, "database.zip")
+            val unzipFolder = File(internalDbBackupDir, "unzip")
 
-                hourglass.dismiss()
-                if (containedBackups.isEmpty()) {
-                    Dialogs.showMsg(R.string.restore_unsuccessfull)
-                    return@withContext false
-                }
-                val selection =
-                    if (containedBackups.size > 1)
-                        selectDatabaseSections(activity, containedBackups)
-                    else
-                        containedBackups
-                val restoredSelection = ArrayList<SyncableDatabaseDefinition>()
-                if (selection.isEmpty()) {
-                    return@withContext false
-                }
-                hourglass.show()
-                for (fileName in selection) {
-                    val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
-                    val f = File(unzipFolder, "db/${fileName}")
-                    val restore =
-                        if (category != null)
-                            askIfRestoreOrImport(category, f, activity)
-                        else true
-                    if (restore == null) continue
+            unzipFolder.mkdirs()
 
-                    if (restore) {
-                        if(category != null) {
-                            restoredSelection.add(category)
-                            beforeRestore(category)
-                        }
-
-                        val areYouSure = if (category != null) {
-                            Dialogs.simpleQuestion(
-                                activity,
-                                activity.getString(R.string.overwrite_something,
-                                    getString(category.contentDescription)
-                                )
-                            )
-                        } else true
-                        if (!areYouSure) continue
-                        Log.i(TAG, "Restoring $fileName")
-                        if (DatabaseContainer.ready) DatabaseContainer.instance.dbByFilename[fileName]?.close()
-                        val targetFilePath = activity.getDatabasePath(fileName).path
-                        val targetFile = File(targetFilePath)
-                        f.copyTo(targetFile, overwrite = true)
-                        File("$targetFilePath-journal").delete()
-                        File("$targetFilePath-shm").delete()
-                        File("$targetFilePath-wal").delete()
-                    } else {
-                        importDatabaseFile(category!!, f)
-                    }
-                }
-                DatabaseContainer.reset()
-                restoredSelection
+            try {
+                val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
+                tmpFile.outputStream().use { inputStream.copyTo(it) }
+                CommonUtils.unzipFile(tmpFile, unzipFolder)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error processing backup file", e)
+                throw IOException("Failed to process backup file: ${e.message}")
             }
-        hourglass.show()
-        if (DatabaseContainer.ready) {
-            DatabaseContainer.instance
-            afterRestore(restoredSelection)
+
+            val restored = reloadingAfterReplace {
+                val restoredSelection =
+                    Closeable {
+                        tmpFile.delete()
+                        unzipFolder.deleteRecursively()
+                        dismissProgress()
+                    }.use {
+                        val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
+                            .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
+                            .map { file -> file.name }
+
+                        dismissProgress()
+                        if (containedBackups.isEmpty()) {
+                            Dialogs.showMsg(R.string.restore_unsuccessfull)
+                            return@reloadingAfterReplace false
+                        }
+                        val selection =
+                            if (containedBackups.size > 1)
+                                selectDatabaseSections(activity, containedBackups)
+                            else
+                                containedBackups
+                        val restoredSelection = ArrayList<SyncableDatabaseDefinition>()
+                        if (selection.isEmpty()) {
+                            return@reloadingAfterReplace false
+                        }
+                        showProgress()
+                        DatabaseContainer.replacingDatabases {
+                            for (fileName in selection) {
+                                val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
+                                val f = File(unzipFolder, "db/${fileName}")
+                                val restore =
+                                    if (category != null)
+                                        askIfRestoreOrImport(category, f, activity)
+                                    else true
+                                if (restore == null) continue
+
+                                if (restore) {
+                                    if(category != null) {
+                                        restoredSelection.add(category)
+                                        beforeRestore(category)
+                                    }
+
+                                    val areYouSure = if (category != null) {
+                                        Dialogs.simpleQuestion(
+                                            activity,
+                                            activity.getString(R.string.overwrite_something,
+                                                getString(category.contentDescription)
+                                            )
+                                        )
+                                    } else true
+                                    if (!areYouSure) continue
+                                    Log.i(TAG, "Restoring $fileName")
+                                    if (DatabaseContainer.ready) DatabaseContainer.instance.dbByFilename[fileName]?.close()
+                                    val targetFilePath = activity.getDatabasePath(fileName).path
+                                    val targetFile = File(targetFilePath)
+                                    f.copyTo(targetFile, overwrite = true)
+                                    File("$targetFilePath-journal").delete()
+                                    File("$targetFilePath-shm").delete()
+                                    File("$targetFilePath-wal").delete()
+                                } else {
+                                    importDatabaseFile(category!!, f)
+                                }
+                            }
+                            DatabaseContainer.reset()
+                        }
+                        restoredSelection
+                    }
+                showProgress()
+                if (DatabaseContainer.ready) {
+                    DatabaseContainer.instance
+                    afterRestore(restoredSelection)
+                }
+                dismissProgress()
+                Log.i(TAG, "Restored database successfully")
+                true
+            }
+            if (!restored) return@withContext false
+            true
+        } finally {
+            progressId?.let { dialogs.dismiss(it) }
         }
-        hourglass.dismiss()
-        Log.i(TAG, "Restored database successfully")
-        ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
-        true
     }
 
     suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File, context: ActivityBase): Boolean?  = withContext(Dispatchers.Main) {
         val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS && DatabaseContainer.ready) {
             " (${bookmarksDbStats(category, backupFile)})"
         } else ""
-        suspendCoroutine {
-            val message =
-                context.getString(R.string.ask_restore_or_import, context.getString(category.contentDescription) + contents)
-            AlertDialog.Builder(context)
-                .setTitle(category.contentDescription)
-                .setMessage(message)
-                .setNeutralButton(R.string.cancel) {_, _ -> it.resume(null) }
-                .setPositiveButton(R.string.restore) { _, _ -> it.resume(true) }
-                .setNegativeButton(R.string.import2) { _, _ -> it.resume(false) }
-                .setOnCancelListener { _ -> it.resume(false) }
-                .show()
+        val message =
+            context.getString(R.string.ask_restore_or_import, context.getString(category.contentDescription) + contents)
+        val result = dialogs.await(
+            AppDialogRequest.Options(
+                title = context.getString(category.contentDescription),
+                message = message,
+                options = listOf(
+                    SettingsItem.Choice(RESTORE_VALUE, context.getString(R.string.restore)),
+                    SettingsItem.Choice(IMPORT_VALUE, context.getString(R.string.import2)),
+                ),
+                dismissText = context.getString(R.string.cancel),
+                asActionSheet = false,
+            ),
+        )
+        when ((result as? AppDialogResult.Selected)?.value) {
+            RESTORE_VALUE -> true
+            IMPORT_VALUE -> false
+            else -> null // Cancel button, back, or scrim -- D8-1: no longer aliased to Import.
         }
     }
 
@@ -791,39 +937,50 @@ object BackupControl {
         if(result2 != Dialogs.Result.OK) return false
         var result: Boolean
         ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
-        val hourglass = Hourglass(activity)
-        hourglass.show()
-        withContext(Dispatchers.IO) {
-            result = if (restoreOldMonolithicDatabaseFromInputStream(uri)) {
-                Log.i(TAG, "Restored database successfully")
-                ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
-                Dialogs.showMsg(R.string.restore_success)
-                true
-            } else {
-                Dialogs.showMsg(R.string.restore_unsuccessfull)
-                false
+        val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
+        try {
+            withContext(Dispatchers.IO) {
+                result = if (restoreOldMonolithicDatabaseFromInputStream(uri)) {
+                    Log.i(TAG, "Restored database successfully")
+                    Dialogs.showMsg(R.string.restore_success)
+                    true
+                } else {
+                    Dialogs.showMsg(R.string.restore_unsuccessfull)
+                    false
+                }
             }
+        } finally {
+            dialogs.dismiss(progressId)
         }
-        hourglass.dismiss()
         return result
     }
 
-    suspend fun restoreModulesViaIntent(activity: ActivityBase) {
-        val intent = Intent(activity, InstallZip::class.java)
-        val result = activity.awaitIntent(intent)
-        if(result.data?.data == null) return
-
-        ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+    /**
+     * "Restore documents" from the Backup destination: open InstallZip (slice 8 D2). In-graph on the nav
+     * host. The old `awaitIntent` + `if (result.data?.data == null) return` + post was dead (finding M6):
+     * InstallZip attaches no result data, and `DocumentInstallService.postTerminalEvents` already posts
+     * `UpdateMainBibleActivityDocuments` when an install finishes.
+     */
+    fun restoreModulesViaIntent(activity: ActivityBase) {
+        if (activity is NavHostComposeActivity) {
+            activity.openInstallZip()
+        } else {
+            activity.startActivity(NavHostComposeActivity.intentFor(activity, NavRoutes.installZip()))
+        }
     }
 
     /**
      * Extract a module zip archive into the SWORD download directory and register the
      * resulting books with JSword, without any Activity UI.
      *
-     * This is the shared, headless core of module installation. The Activity-based
-     * [InstallZip] flow delegates here (passing a progress callback), and the cloud
-     * document-sync layer ([net.bible.service.cloudsync.documents.DocumentArchiver]) also
-     * delegates here so that the install path is not duplicated.
+     * This is the shared, headless core of module installation. The interactive install flow
+     * behind [net.bible.android.view.activity.installzip.InstallZipComposeActivity] delegates
+     * here (via `DocumentInstallService`/[net.bible.service.installzip.InstallCommitter], passing
+     * a progress callback), and the cloud document-sync layer
+     * ([net.bible.service.cloudsync.documents.DocumentArchiver]) also delegates here so that the
+     * install path is not duplicated. The link named the classic `InstallZip` Activity until
+     * slice S16 deleted it; the import that resolved that link had to go with it, since an
+     * unresolved import is a compile error rather than a mere Dokka warning.
      *
      * The archive may contain an [ANDBIBLE_BACKUP_MANIFEST_FILENAME] manifest entry
      * (which is skipped) plus module files at modulesDir-relative paths: SWORD conf files
@@ -934,14 +1091,33 @@ object BackupControl {
                 installed.books.size > countBefore
             }
             if (ok) {
-                ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                ABEventBus.post(UpdateMainBibleActivityDocuments())
             }
             ok
         }
 
+    /**
+     * Open Backup & restore and suspend until the user leaves it (slice 8 C3, plan Correction 4).
+     *
+     * On the nav host it is an in-graph destination: `awaitBackupDestination` navigates and waits for the
+     * entry to leave the back stack. An `awaitIntent` there would be an F53-shaped self-launch that the
+     * platform answers with an immediate synthetic cancel, returning at once -- and
+     * `ErrorReportControl.showErrorDialog`'s loop would put its dialog straight back over Backup.
+     * From any other Activity (`StartupActivity`'s crash check, before DB init) it is a real
+     * cross-Activity launch of the host on `BACKUP`, which starts uninitialised (spec §3.1 rule 2).
+     */
     suspend fun backupPopup(activity: ActivityBase) {
-        val intent = Intent(activity, BackupActivity::class.java)
-        activity.awaitIntent(intent)
+        if (activity is NavHostComposeActivity) {
+            activity.awaitBackupDestination()
+        } else {
+            awaitBackupFromAnotherActivity(activity)
+        }
+    }
+
+    /** See [backupPopup]. The `check` is what `SelfLaunchRouteKindGuardTest` reads to exempt this await. */
+    private suspend fun awaitBackupFromAnotherActivity(activity: ActivityBase) {
+        check(activity !is NavHostComposeActivity) { "the nav host opens Backup in-graph (awaitBackupDestination)" }
+        activity.awaitIntent(NavHostComposeActivity.intentFor(activity, NavRoutes.BACKUP))
     }
 
     // Tracks SharedConstants.modulesDir live rather than capturing it once at object load, so
@@ -977,30 +1153,33 @@ object BackupControl {
         if (!confirmed) return
 
         withContext(Dispatchers.IO) {
-            if (syncCategory != null) {
-                beforeRestore(syncCategory)
-            }
+            reloadingAfterReplace {
+                DatabaseContainer.replacingDatabases {
+                    if (syncCategory != null) {
+                        beforeRestore(syncCategory)
+                    }
 
-            if (DatabaseContainer.ready) {
-                DatabaseContainer.instance.dbByFilename[dbFileName]?.close()
-            }
+                    if (DatabaseContainer.ready) {
+                        DatabaseContainer.instance.dbByFilename[dbFileName]?.close()
+                    }
 
-            val dbPath = activity.getDatabasePath(dbFileName).path
-            File(dbPath).delete()
-            File("$dbPath-journal").delete()
-            File("$dbPath-shm").delete()
-            File("$dbPath-wal").delete()
+                    val dbPath = activity.getDatabasePath(dbFileName).path
+                    File(dbPath).delete()
+                    File("$dbPath-journal").delete()
+                    File("$dbPath-shm").delete()
+                    File("$dbPath-wal").delete()
 
-            DatabaseContainer.reset()
-            if (DatabaseContainer.ready) {
-                DatabaseContainer.instance
-                if (syncCategory != null) {
-                    afterRestore(listOf(syncCategory))
+                    DatabaseContainer.reset()
+                    if (DatabaseContainer.ready) {
+                        DatabaseContainer.instance
+                        if (syncCategory != null) {
+                            afterRestore(listOf(syncCategory))
+                        }
+                    }
                 }
             }
-        }
+            }
 
-        ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
         Dialogs.showMsg(R.string.reset_database_success)
     }
 
@@ -1031,133 +1210,4 @@ object BackupControl {
     }
 
     private const val TAG = "BackupControl"
-}
-
-class BackupActivity: ActivityBase() {
-    lateinit var binding: BackupViewBinding
-    override val doNotInitializeApp: Boolean = true
-
-    override fun onBackPressed() {
-        updateSelectionOptions()
-        super.onBackPressed()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId){
-            android.R.id.home -> {
-                updateSelectionOptions()
-                finish()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        buildActivityComponent().inject(this)
-        binding = BackupViewBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        binding.apply {
-            toggleBackupApplication.isChecked = CommonUtils.settings.getBoolean("backup_application", false)
-            toggleBackupDatabase.isChecked = CommonUtils.settings.getBoolean("backup_database", true)
-            toggleBackupDocuments.isChecked = CommonUtils.settings.getBoolean("backup_documents", false)
-            toggleRestoreDatabase.isChecked = CommonUtils.settings.getBoolean("restore_database", true)
-            toggleRestoreDocuments.isChecked = CommonUtils.settings.getBoolean("restore_documents", false)
-
-            buttonBackup.setOnClickListener {
-                updateSelectionOptions()
-                when {
-                    toggleBackupApplication.isChecked -> lifecycleScope.launch { BackupControl.backupApp(this@BackupActivity) }
-                    toggleBackupDatabase.isChecked -> lifecycleScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) }
-                    toggleBackupDocuments.isChecked -> lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) }
-                }
-            }
-            buttonRestore.setOnClickListener {
-                updateSelectionOptions()
-                when {
-                    toggleRestoreDatabase.isChecked -> lifecycleScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) }
-                    toggleRestoreDocuments.isChecked -> lifecycleScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
-                }
-            }
-            val backupFiles = CommonUtils.dbBackupPath.listFiles()
-                ?.sortedByDescending { it.name }
-                ?: emptyList()
-
-            if (backupFiles.isEmpty()) {
-                importExportTitle.visibility = View.GONE
-            } else {
-                val parsedFiles = BackupControl.parseBackupFiles(backupFiles)
-                for (info in parsedFiles) {
-                    val itemView = layoutInflater.inflate(R.layout.backup_file_list_item, backupDbButtons, false)
-                    itemView.findViewById<TextView>(R.id.backupTitle).text = info.displayDate
-                    val sizeKb = info.file.length() / 1024
-                    val sizeStr = if (sizeKb > 1024) "${sizeKb / 1024} MB" else "$sizeKb KB"
-                    val detailText = if (info.appVersion != null)
-                        getString(R.string.backup_file_info, info.appVersion, sizeStr)
-                    else sizeStr
-                    itemView.findViewById<TextView>(R.id.backupDetails).text = detailText
-                    itemView.findViewById<ImageButton>(R.id.exportButton).setOnClickListener {
-                        lifecycleScope.launch { BackupControl.saveDbBackupFileViaIntent(this@BackupActivity, info.file) }
-                    }
-                    itemView.findViewById<ImageButton>(R.id.restoreButton).setOnClickListener {
-                        lifecycleScope.launch { BackupControl.restoreFromLocalBackupFile(this@BackupActivity, info.file) }
-                    }
-                    backupDbButtons.addView(itemView)
-                }
-            }
-
-            // Database reset section. Titles come from the shared databaseTitleResIds map.
-            data class ResettableDb(val dbFileName: String, val syncCategory: SyncableDatabaseDefinition?)
-            val resettableDbs = listOf(
-                ResettableDb(BookmarkDatabase.dbFileName, SyncableDatabaseDefinition.BOOKMARKS),
-                ResettableDb(WorkspaceDatabase.dbFileName, SyncableDatabaseDefinition.WORKSPACES),
-                ResettableDb(ReadingPlanDatabase.dbFileName, SyncableDatabaseDefinition.READINGPLANS),
-                ResettableDb(RepoDatabase.dbFileName, null),
-                ResettableDb(SettingsDatabase.dbFileName, null),
-                ResettableDb(MyDocumentDatabase.dbFileName, SyncableDatabaseDefinition.MYDOCUMENTS),
-                ResettableDb(AiSettingsDatabase.dbFileName, SyncableDatabaseDefinition.AI_SETTINGS),
-                ResettableDb(ProgressDatabase.dbFileName, SyncableDatabaseDefinition.PROGRESS),
-            )
-            for (db in resettableDbs) {
-                val nameResId = databaseTitleResIds.getValue(db.dbFileName)
-                val btn = Button(this@BackupActivity)
-                btn.text = getString(R.string.reset_something, getString(nameResId))
-                btn.setOnClickListener {
-                    lifecycleScope.launch { BackupControl.resetDatabase(this@BackupActivity, db.dbFileName, nameResId, db.syncCategory) }
-                }
-                resetButtons.addView(btn)
-            }
-
-            // Show last crash stack trace if available
-            val crashFile = File(SharedConstants.internalFilesDir, "log/$LAST_CRASH_STACKTRACE_FILE")
-            val crashTime = CommonUtils.realSharedPreferences.getLong("app-crashed-time", 0L)
-            if (crashFile.exists() && crashTime > 0) {
-                try {
-                    val stackTrace = crashFile.readText()
-                    if (stackTrace.isNotBlank()) {
-                        val timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                            .format(Date(crashTime))
-                        crashInfoTitle.visibility = View.VISIBLE
-                        crashInfoText.visibility = View.VISIBLE
-                        crashInfoText.text = "$timeStr\n\n$stackTrace"
-                    }
-                } catch (e: Exception) {
-                    Log.e("BackupActivity", "Error reading crash info", e)
-                }
-            }
-        }
-    }
-
-    private fun updateSelectionOptions() {
-        if(!CommonUtils.initialized) return
-        // update widget share option settings
-        CommonUtils.settings.apply {
-            setBoolean("backup_application", binding.toggleBackupApplication.isChecked)
-            setBoolean("backup_database", binding.toggleBackupDatabase.isChecked)
-            setBoolean("backup_documents", binding.toggleBackupDocuments.isChecked)
-            setBoolean("restore_database", binding.toggleRestoreDatabase.isChecked)
-            setBoolean("restore_documents", binding.toggleRestoreDocuments.isChecked)
-        }
-    }
 }

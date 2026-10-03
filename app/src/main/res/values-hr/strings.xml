@@ -406,10 +406,6 @@ Ljubaznošću Heartlight internet magazina,
   <string name="auto_assign_labels1">Automatski dodijeli oznaku novim straničnicima</string>
   <string name="auto_assign_labels_primary">Automatski dodijeli kao glavnu</string>
   <!--can be removed-->
-  <string name="marker_style">Prikaži samo marker za odabir straničnika</string>
-  <string name="marker_style_whole_verse">Prikaži samo marker za straničnike cijelih redaka</string>
-  <string name="hide_style">Sakrij za odabir straničnika</string>
-  <string name="hide_style_whole_verse">Sakrij za straničnike cijelih redaka</string>
   <string name="bookmark_warning">Ima straničnika, odnosno bilješki za ovaj dokument</string>
   <string name="bookmark_warning2">
 Ukoliko je struktura dokumenta promijenjena, ažuriranje istog bi moglo
@@ -910,8 +906,6 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="favourite_label">Omiljena oznaka</string>
   <string name="edit_label">Uredi oznaku</string>
   <string name="delete_label_confirmation">Želite li ukloniti oznaku straničnika %s? Također, sve povezane bilješke radne bilježnice bit će uklonjene.</string>
-  <string name="bookmark_underline_style_arbitrary">Stil Podcrtavanja za odabir straničnika</string>
-  <string name="bookmark_underline_style_whole_verse">Stil Podcrtavanja za straničnike cijelih redaka</string>
   <string name="active_labels">Odabrane oznake</string>
   <string name="recent_labels">Nedavne oznake</string>
   <string name="other_labels">Ostale oznake</string>

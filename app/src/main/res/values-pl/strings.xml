@@ -393,10 +393,6 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="auto_assign_labels1">Automatycznie przypisuj etykietę do nowych zakładek</string>
   <string name="auto_assign_labels_primary">Przypisuj jako główną</string>
   <!--can be removed-->
-  <string name="marker_style">Tylko wyświetl znacznik dla zakładek typu „fragment”</string>
-  <string name="marker_style_whole_verse">Tylko wyświetl znacznik dla zakładek typu „całe wersety”</string>
-  <string name="hide_style">Ukryj zakładki typu „fragment”</string>
-  <string name="hide_style_whole_verse">Ukryj zakładki typu „całe wersety”</string>
   <string name="bookmark_warning">Ten dokument zawiera zakładki lub notatki.</string>
   <string name="bookmark_warning2">
 Jeżeli struktura dokumentu uległa zmianie, jego aktualizacja może spowodować zmianę położenia lub całkowite usunięcie zawartych w nim zakładek i notatek.</string>
@@ -859,8 +855,6 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="favourite_label">Ulubiona etykieta</string>
   <string name="edit_label">Edytuj etykietę</string>
   <string name="delete_label_confirmation">Czy usunąć etykietę zakładek „%s”? Wszystkie powiązane notatki w bloczku notatek zostaną usunięte.</string>
-  <string name="bookmark_underline_style_arbitrary">Podkreśl zakładki typu „fragment”</string>
-  <string name="bookmark_underline_style_whole_verse">Podkreśl zakładki typu „całe wersety”</string>
   <string name="active_labels">Wybrane etykiety</string>
   <string name="recent_labels">Ostatnie etykiety</string>
   <string name="other_labels">Inne etykiety</string>

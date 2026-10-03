@@ -404,10 +404,6 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="auto_assign_labels1">Määra automaatselt uutele järjehoidjatele</string>
   <string name="auto_assign_labels_primary">Määra automaatselt peamise sildina</string>
   <!--can be removed-->
-  <string name="marker_style">Näita ainult markerit valikujärjehoidjatele</string>
-  <string name="marker_style_whole_verse">Näita ainult markerit terve salmi järjehoidjatele</string>
-  <string name="hide_style">Peida valikujärjehoidjad</string>
-  <string name="hide_style_whole_verse">Peida kogu salmi järjehoidjad</string>
   <string name="bookmark_warning">Dokumendi järjehoidjad ja märkmed.</string>
   <string name="bookmark_warning2">Kui dokumendi struktuur on muutunud, võib selle dokumendi uuendamine põhjustada järjehoidjate/märkmete asukohtade nihkumise dokumendis või nende kadumise.</string>
   <string name="bookmark_warning3">Kas soovid uuendada moodulit?</string>
@@ -882,8 +878,6 @@ Positiivsed ja põhjalikud arvustused aitavad väga palju AndBibel\'i avatud lä
   <string name="favourite_label">Lemmik silt</string>
   <string name="edit_label">Muuda silti</string>
   <string name="delete_label_confirmation">Kas sa soovid kustutada järjehoidja silti \"%s\"? Sellega seotud õppetüki sissekanded kustutatakse samuti.</string>
-  <string name="bookmark_underline_style_arbitrary">Jooni alla valitud teksti järjehoidja</string>
-  <string name="bookmark_underline_style_whole_verse">Jooni alla terve salmi järjehoidja</string>
   <string name="active_labels">Valitud sildid</string>
   <string name="recent_labels">Hiljutised sildid</string>
   <string name="other_labels">Ülejäänud sildid</string>

@@ -23,9 +23,10 @@ import android.widget.Toast
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
+import net.bible.android.control.event.onMain
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -48,9 +49,7 @@ import org.crosswire.jsword.passage.VerseRange
 
 import java.util.*
 
-import javax.inject.Inject
 
-import dagger.Lazy
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.control.page.CurrentCommentaryPage
@@ -62,17 +61,18 @@ import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.MediaButtonHandler
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class SpeakControl @Inject constructor(
+class SpeakControl constructor(
     private val textToSpeechServiceManager: Lazy<TextToSpeechServiceManager>,
     private val windowControl: WindowControl,
-) {
+) : KoinComponent {
 
-    @Inject lateinit var bookmarkControl: BookmarkControl
+    val bookmarkControl: BookmarkControl by inject()
     private var sleepTimer = lazy { Timer("TTS sleep timer") }
     private var timerTask: TimerTask? = null
     private var _speakPageManager: CurrentPageManager? = null
@@ -82,7 +82,7 @@ class SpeakControl @Inject constructor(
     private val ttsServiceManager: TextToSpeechServiceManager get () {
         if(!ttsInitialized)
             ttsInitialized = true
-        return textToSpeechServiceManager.get()
+        return textToSpeechServiceManager.value
     }
     
 
@@ -136,7 +136,32 @@ class SpeakControl @Inject constructor(
         get() = if (!booksAvailable || !ttsInitialized) null else ttsServiceManager.currentlyPlayingKey
 
     init {
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<SpeakProgressEvent> { event ->
+                speakKey = event.key
+                speakBook = event.book
+                // Don't synchronize page during memorization loop — stay in memorize view
+                if (!isMemorizationLoop && (AdvancedSpeakSettings.synchronize || event.forceFollow)) {
+                    val book = speakPageManager.currentPage.currentDocument
+                    speakPageManager.setCurrentDocumentAndKey(book, event.key,false)
+                }
+            }
+            on<SpeakSettingsChangedEvent> { ev ->
+                ttsServiceManager.updateSettings(ev)
+                if (!isPaused && !isSpeaking) {
+                    // if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
+                    if (ev.updateBookmark) {
+                        bookmarkControl.updateBookmarkPlaybackSettings(ev.speakSettings.playbackSettings)
+                    }
+                } else if (isSpeaking) {
+                    pause(true)
+                    if (ev.sleepTimerChanged) {
+                        enableSleepTimer(ev.speakSettings.sleepTimer)
+                    }
+                    continueAfterPause(true)
+                }
+            }
+        }
         MediaButtonHandler.initialize(this)
     }
 
@@ -153,15 +178,6 @@ class SpeakControl @Inject constructor(
     private var speakKey: Key? = null
     val speakBookAndKey: BookAndKey? get() = speakKey?.let {BookAndKey(it, speakBook) }
 
-    fun onEventMainThread(event: SpeakProgressEvent) {
-        speakKey = event.key
-        speakBook = event.book
-        // Don't synchronize page during memorization loop — stay in memorize view
-        if (!isMemorizationLoop && (AdvancedSpeakSettings.synchronize || event.forceFollow)) {
-            val book = speakPageManager.currentPage.currentDocument
-            speakPageManager.setCurrentDocumentAndKey(book, event.key,false)
-        }
-    }
 
     /** return a list of prompt ids for the speak screen associated with the current document type
      */
@@ -509,21 +525,6 @@ class SpeakControl @Inject constructor(
     }
 
 
-    fun onEvent(ev: SpeakSettingsChangedEvent) {
-        ttsServiceManager.updateSettings(ev)
-        if (!isPaused && !isSpeaking) {
-            // if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
-            if (ev.updateBookmark) {
-                bookmarkControl.updateBookmarkPlaybackSettings(ev.speakSettings.playbackSettings)
-            }
-        } else if (isSpeaking) {
-            pause(true)
-            if (ev.sleepTimerChanged) {
-                enableSleepTimer(ev.speakSettings.sleepTimer)
-            }
-            continueAfterPause(true)
-        }
-    }
 
     fun getStatusText(showFlag: Int): String {
         return if (!isSpeaking && !isPaused) {

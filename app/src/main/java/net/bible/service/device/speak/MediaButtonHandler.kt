@@ -29,6 +29,8 @@ import androidx.media.session.MediaButtonReceiver
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
+import net.bible.android.control.event.onMain
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
@@ -123,7 +125,30 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
     }
 
     init {
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<SpeakEvent> { event ->
+                Log.i(TAG, "playback state ${event.speakState}")
+                when {
+                    event.isPaused -> setState(PlaybackStateCompat.STATE_PAUSED)
+                    event.isStopped -> setState(PlaybackStateCompat.STATE_STOPPED)
+                    event.isSpeaking -> setState(PlaybackStateCompat.STATE_PLAYING)
+                }
+                makeTriggerSound()
+            }
+            on<AppToBackgroundEvent> { event ->
+                if(event.newPosition == AppToBackgroundEvent.Position.FOREGROUND && speakControl.isSpeaking) {
+                    makeTriggerSound()
+                }
+            }
+            onMain<SpeakProgressEvent> { ev ->
+                ms.setMetadata(
+                    MediaMetadataCompat.Builder(nothingPlaying)
+                        .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, ev.book.name)
+                        .putString(MediaMetadataCompat.METADATA_KEY_TITLE, ev.key.name)
+                        .build()
+                )
+            }
+        }
     }
 
     private fun makeTriggerSound() {
@@ -138,31 +163,6 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
 
     fun setState(s: Int) {
         return ms.setPlaybackState(PlaybackStateCompat.Builder(state).setState(s, 0, 1f).build())
-    }
-
-    fun onEventMainThread(event: SpeakEvent) {
-        Log.i(TAG, "playback state ${event.speakState}")
-        when {
-            event.isPaused -> setState(PlaybackStateCompat.STATE_PAUSED)
-            event.isStopped -> setState(PlaybackStateCompat.STATE_STOPPED)
-            event.isSpeaking -> setState(PlaybackStateCompat.STATE_PLAYING)
-        }
-        makeTriggerSound()
-    }
-
-    fun onEvent(event: AppToBackgroundEvent) {
-        if(event.newPosition == AppToBackgroundEvent.Position.FOREGROUND && speakControl.isSpeaking) {
-            makeTriggerSound()
-        }
-    }
-
-    fun onEventMainThread(ev: SpeakProgressEvent) {
-        ms.setMetadata(
-            MediaMetadataCompat.Builder(nothingPlaying)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, ev.book.name)
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, ev.key.name)
-                .build()
-        )
     }
 
     fun release() {

@@ -20,16 +20,16 @@ package net.bible.service.history
 import android.content.Intent
 import android.util.Log
 
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.AndBibleActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.database.WorkspaceEntities
+import net.bible.sharedcore.reading.ReadingViewVisibility
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
@@ -40,7 +40,6 @@ import java.util.ArrayList
 import java.util.HashMap
 import java.util.Stack
 
-import javax.inject.Inject
 
 /**
  * Application managed History List.
@@ -51,8 +50,7 @@ import javax.inject.Inject
 
 class AddHistoryItem(val window: Window? = null)
 
-@ApplicationScope
-class HistoryManager @Inject constructor(private val windowControl: WindowControl) {
+class HistoryManager constructor(private val windowControl: WindowControl) {
 
     private val windowHistoryStackMap = HashMap<IdType, Stack<HistoryItem>>()
 
@@ -122,13 +120,10 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
     init {
         // register for BeforePageChangeEvent
         Log.i(TAG, "Registering HistoryManager with EventBus")
-        ABEventBus.safelyRegister(this)
-    }
-
-    /** allow current page to save any settings or data before being changed
-     */
-    fun onEvent(event: AddHistoryItem) {
-        addHistoryItem(event.window)
+        ABEventBus.safelyRegister(this) {
+            // allow current page to save any settings or data before being changed
+            on<AddHistoryItem> { event -> addHistoryItem(event.window) }
+        }
     }
 
     fun canGoBack(): Boolean {
@@ -158,7 +153,11 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
         if (intent != null) {
             val title = intent.getStringExtra("description")?: "-"
             historyItem = IntentHistoryItem(title, intent, window)
-        } else if (currentActivity is MainBibleActivity) {
+        } else if (ReadingViewVisibility.isVisible) {
+            // Slice 7 / spec §5.1: was `currentActivity is MainBibleActivity`. This is the ONLY
+            // branch that produces a KeyHistoryItem — the verse back-stack and the only item type
+            // getEntities()/restoreFrom() persist — so it must be anchored on "the reading view is
+            // what the user is looking at" rather than on which Activity class is on top.
             val currentPage = window.pageManager.currentPage
             val doc = currentPage.currentDocument
             if (currentPage.key == null) {
@@ -197,10 +196,16 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                     Log.i(TAG, "Going back to:$previousItem")
                     previousItem.revertTo()
 
-                    // finish current activity if not the Main screen
+                    // Leave the screen on top when it is not the reading view. Since slice 8 this is
+                    // a HOST operation (ActivityBase.leaveCurrentScreen): a classic Activity finishes,
+                    // NavHostComposeActivity pops its back stack -- finishing it would close the app,
+                    // because the reading view is a destination of the same host (finding M4).
+                    // `ReadingViewVisibility.isVisible` is the predicate createHistoryItem also records
+                    // on, keyed by host and gated on ReadingHostPresence (R7b), so a destination
+                    // composed under a backgrounded host does not count.
                     val currentActivity = CurrentActivityHolder.currentActivity
-                    if (currentActivity !is MainBibleActivity) {
-                        currentActivity?.finish()
+                    if (!ReadingViewVisibility.isVisible) {
+                        currentActivity?.leaveCurrentScreen()
                     }
                 }
             } finally {

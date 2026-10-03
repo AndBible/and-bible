@@ -25,6 +25,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 
 /**
  * Unified facade for accessing both built-in and user-created prompts.
@@ -46,13 +47,10 @@ object PromptRepository {
     private var addonPromptsCache: List<AgentPrompt>? = null
 
     init {
-        ABEventBus.register(this)
-    }
-
-    /** Called by EventBus when add-on modules are reloaded. */
-    @Suppress("unused")
-    fun onEvent(event: ReloadAddonsEvent) {
-        addonPromptsCache = null
+        ABEventBus.register(this) {
+            // Called by EventBus when add-on modules are reloaded.
+            on<ReloadAddonsEvent> { addonPromptsCache = null }
+        }
     }
 
     fun clearAddonCache() {

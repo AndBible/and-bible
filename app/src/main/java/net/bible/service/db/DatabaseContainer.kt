@@ -16,6 +16,7 @@
  */
 package net.bible.service.db
 
+import androidx.annotation.VisibleForTesting
 import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.room.Room
@@ -315,9 +316,7 @@ class DatabaseContainer {
         val needBackup = maxVersions != versions
 
         if(needBackup) {
-            ready = false
-            val backupZipFile = BackupControl.makeDatabaseBackupFile()
-            ready = true
+            val backupZipFile = withReadyCleared { BackupControl.makeDatabaseBackupFile() }
             backupZipFile ?: return
             val versionString = versions.joinToString("-")
             Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")
@@ -354,11 +353,94 @@ class DatabaseContainer {
 
     companion object {
         var ready: Boolean = false
+
+        /**
+         * Fix batch 5 §1.1. True while a restore has database files closed or overwritten. A save in
+         * that window writes into a closed or replaced file.
+         */
+        private val replaceDepth = java.util.concurrent.atomic.AtomicInteger(0)
+        /** Backs [replaceEpoch]; atomic because CloudSync categories replace concurrently. */
+        private val replaceEpochCounter = java.util.concurrent.atomic.AtomicLong(0L)
+
+        /** Batch 6 §1.2: true while ANY replace is running; replaces can nest and overlap. */
+        val replacing: Boolean get() = replaceDepth.get() > 0
+
+        /**
+         * Bumped by every [replacingDatabases]. A repository loaded before the bump holds pre-restore
+         * state and must not save it over the restored database ([WindowRepository.saveIntoDb]) until
+         * it has reloaded. Deliberately NOT bumped by [reset]: tests reset between classes (C1).
+         */
+        val replaceEpoch: Long get() = replaceEpochCounter.get()
+
+        /** Every BackupControl path that closes, copies over or deletes database files runs inside this. */
+        suspend fun <T> replacingDatabases(block: suspend () -> T): T {
+            replaceDepth.incrementAndGet()
+            replaceEpochCounter.incrementAndGet()
+            var completed = false
+            try {
+                return block().also { completed = true }
+            } finally {
+                // F115: a block that throws or is cancelled mid-copy may leave `_instance` holding a database it
+                // closed. Drop it before the depth falls, so the reload reopens from disk.
+                try {
+                    if (!completed) dropInstanceWithoutOpening()
+                } finally {
+                    replaceDepth.decrementAndGet()
+                }
+            }
+        }
+
+        /** Tests share one JVM: `DatabaseResetter.resetDatabase()` calls this so no epoch leaks into the next class (C1). */
+        @VisibleForTesting
+        internal fun forgetReplacesForTest() { replaceDepth.set(0); replaceEpochCounter.set(0L); containerFactory = { DatabaseContainer() } }
+
+        /** Test seam: lets a test make opening the container throw (a migration failing after a restore). */
+        @VisibleForTesting
+        internal var containerFactory: () -> DatabaseContainer = { DatabaseContainer() }
+
+        /**
+         * Failure-path variant of [reset]: closes only an instance that already exists. [reset] goes through
+         * the `instance` getter, which BUILDS a container (open, migrate, backup) when `_instance` is null,
+         * just to close it; a restore whose migration threw would then throw again from its own cleanup.
+         * Also the old monolithic restore's close before its snapshot (F120).
+         */
+        internal fun dropInstanceWithoutOpening() {
+            synchronized(this) {
+                try {
+                    _instance?.closeAll()
+                } finally {
+                    _instance = null
+                }
+            }
+        }
+
+        /**
+         * Runs [block] with [ready] cleared, and restores it however [block] ends. The clearing makes
+         * `makeDatabaseBackupFile` skip vacuum/sync, which would otherwise re-enter [instance] mid-
+         * construction; without the `finally`, a throwing backup left `ready = false` forever and
+         * every later settings read silently answered its default (fix batch 1 §2.7). The failure
+         * itself propagates: no migration without the safety-net backup (maintainer decision).
+         */
+        internal inline fun <T> withReadyCleared(block: () -> T): T {
+            ready = false
+            try { return block() } finally { ready = true }
+        }
+
+        /**
+         * Opens the databases for use: what `StartupActivity.initializeDatabase` has always done
+         * inline. Also the Welcome flow's entry when its host was restored after process death and
+         * never passed through StartupActivity (fix batch 1 §2.6). Opening the DB is not
+         * `initializeApp`, so a Welcome host stays "uninitialised" in slice 8's sense.
+         */
+        fun openForUse(): DatabaseContainer {
+            ready = true
+            return instance
+        }
         private var _instance: DatabaseContainer? = null
         val instance: DatabaseContainer get() {
             if(!ready && !application.isRunningTests) throw DataBaseNotReady()
             return _instance ?: synchronized(this) {
-                _instance ?: try { DatabaseContainer() } catch (e: Exception) {
+                _instance ?: try { containerFactory() } catch (e: Exception) {
                     Log.e(TAG, "Can't open database", e)
                     throw e
                 }

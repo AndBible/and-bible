@@ -17,6 +17,7 @@
 
 package net.bible.service.device.speak
 
+import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.BibleApplication
@@ -24,26 +25,26 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.speak.BibleSpeakActivity
-import net.bible.android.view.activity.speak.SpeakSettingsActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.speak.SpeakSettingsService
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.stopKoin
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.RangedPassage
@@ -70,63 +71,86 @@ open class SpeakIntegrationTestBase {
     lateinit var book: SwordBook
     lateinit var windowControl: WindowControl
 
-    lateinit var bibleSpeakActivityController: ActivityController<BibleSpeakActivity>
-    lateinit var bibleSpeakSettingsActivityController: ActivityController<SpeakSettingsActivity>
+    lateinit var speakSettingsService: SpeakSettingsService
 
     @Before
     fun setUp() {
         ShadowLog.stream = System.out
         app = BibleApplication.application as TestBibleApplication
-        val appComponent = app.applicationComponent
-        bookmarkControl = appComponent.bookmarkControl()
-        speakControl = appComponent.speakControl()
-        windowControl = appComponent.windowControl()
+        // Resolve from Koin, matching production: after the Dagger->Koin field-injection
+        // flip (Phase 0, B.2) every production SpeakControl consumer uses `by inject()`
+        // (Koin), so production has a single Koin SpeakControl. Fetching the Dagger
+        // instance here (appComponent.speakControl()) created a SECOND SpeakControl that
+        // co-existed with the Koin one (created via TextToSpeechNotificationManager) —
+        // both register on the shared ABEventBus and double-handle speak events, which
+        // corrupted the autobookmark playback-settings assertions. Driving the same single
+        // Koin instance production uses restores correct behaviour.
+        val koin = GlobalContext.get()
+        bookmarkControl = koin.get()
+        speakControl = koin.get()
+        windowControl = koin.get()
+        speakSettingsService = koin.get()
         windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl.windowRepository.initialize()
         speakControl.setupMockedTts()
         book = Books.installed().getBook("FinRK") as SwordBook
-        bibleSpeakActivityController = Robolectric.buildActivity(BibleSpeakActivity::class.java)
-        bibleSpeakSettingsActivityController = Robolectric.buildActivity(SpeakSettingsActivity::class.java)
     }
 
     @After
     fun tearDown() {
         DatabaseResetter.resetDatabase()
+        // Stop the Koin container so the next test method starts fresh. Koin's global
+        // container is started once (guarded on GlobalContext.getOrNull() in
+        // BibleApplication.onCreate) and reused across Robolectric test methods, so its
+        // singletons (e.g. SpeakControl._speakPageManager / ABEventBus registration)
+        // would otherwise leak state between tests. The old Dagger appComponent was
+        // re-created per app instance, so per-test freshness matches previous behaviour.
+        if (GlobalContext.getOrNull() != null) {
+            stopKoin()
+        }
     }
 }
 
 @RunWith(RobolectricTestRunner::class)
 class SpeakActivityTests : SpeakIntegrationTestBase() {
     @Test
-    fun testSpeakActivityIsUpdatedWhenSettingsAreChanged() {
-        AdvancedSpeakSettings.synchronize = true
-        val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
-        assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(true))
-        AdvancedSpeakSettings.synchronize = false
-        ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
-        assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(false))
+    fun testPlaybackSettingsAreRefreshedWhenSettingsChangeExternally() {
+        // Was testSpeakActivityIsUpdatedWhenSettingsAreChanged, which asserted that the classic
+        // Activity's view refreshed when a SpeakSettingsChangedEvent was posted behind its back.
+        // The observable state that carries that contract now is SpeakSettingsService.playback,
+        // which re-reads on exactly that event (SpeakSettingsServiceImpl.kt:53-55).
+        val before = speakSettingsService.playback.value.speedPercent
+        val s = SpeakSettings.load()
+        s.playbackSettings = s.playbackSettings.copy(speed = before + 10)
+        // save() itself broadcasts SpeakSettingsChangedEvent whenever the settings differ from
+        // currentSettings (SpeakSettings.kt:35), which they do here (speed changed by 10) — no
+        // extra post needed; this line still exercises the event->listener path this test is for.
+        s.save()
+        assertThat(speakSettingsService.playback.value.speedPercent, equalTo(before + 10))
     }
 
     @Test
-    fun testSpeakActivityUpdatesSettings() {
+    fun testTogglingSynchronizeWritesTheSetting() {
+        // Was testSpeakActivityUpdatesSettings: the checkbox click wrote AdvancedSpeakSettings and
+        // the view reflected it. The service's setter is what the Compose Advanced page calls.
         AdvancedSpeakSettings.synchronize = true
-        val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
-        assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(true))
-        settingsActivity.binding.synchronize.performClick()
-
-        assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(false))
+        speakSettingsService.setSynchronize(false)
         assertThat(AdvancedSpeakSettings.synchronize, equalTo(false))
+        assertThat(speakSettingsService.advanced.value.synchronize, equalTo(false))
     }
 }
 
 @RunWith(RobolectricTestRunner::class)
 class SpeakIntegrationTests : SpeakIntegrationTestBase() {
-    lateinit var mainActivityController: ActivityController<MainBibleActivity>
+    lateinit var mainActivityController: ActivityController<NavHostComposeActivity>
 
 
     @Before
     fun setup() {
-        mainActivityController = Robolectric.buildActivity(MainBibleActivity::class.java)
+        mainActivityController = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        )
         bookmarkControl.speakLabel
         AdvancedSpeakSettings.reset()
         AdvancedSpeakSettings.autoBookmark = true
@@ -134,7 +158,6 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         AdvancedSpeakSettings.restoreSettingsFromBookmarks = true
         SpeakSettings().save()
 
-        bibleSpeakActivityController.create()
         mainActivityController.create()
     }
 
@@ -156,9 +179,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
     }
 
     private fun changeSpeed(speed: Int) {
-        val settingsActivity = bibleSpeakActivityController.visible().get()
-        settingsActivity.binding.speakSpeed.setProgress(speed)
-        settingsActivity.updateSettings()
+        speakSettingsService.setSpeed(speed)
     }
 
     private fun setSleepTimer(time: Int) {

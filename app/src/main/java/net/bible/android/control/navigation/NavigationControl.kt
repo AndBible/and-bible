@@ -19,8 +19,6 @@ package net.bible.android.control.navigation
 import net.bible.service.common.CommonUtils.getSharedPreference
 import net.bible.service.common.CommonUtils.saveSharedPreference
 import net.bible.service.common.CommonUtils.getResourceString
-import net.bible.android.control.ApplicationScope
-import javax.inject.Inject
 import net.bible.android.control.page.PageControl
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.book.basic.AbstractPassageBook
@@ -37,8 +35,7 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class NavigationControl @Inject constructor(
+class NavigationControl constructor(
     private val pageControl: PageControl,
     private val documentBibleBooksFactory: DocumentBibleBooksFactory)
 {

@@ -45,12 +45,11 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Provider
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class WindowTest {
-    private lateinit var mockCurrentPageManagerProvider: Provider<CurrentPageManager>
+    private lateinit var mockCurrentPageManagerProvider: () -> CurrentPageManager
     private var windowControl: WindowControl? = null
     private val windowRepository: WindowRepository get() = windowControl!!.windowRepository
 
@@ -60,7 +59,7 @@ class WindowTest {
         val bibleTraverser = mock(BibleTraverser::class.java)
 
         val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
-        mockCurrentPageManagerProvider = Provider {
+        mockCurrentPageManagerProvider = {
             CurrentPageManager(bibleTraverser, bookmarkControl, windowControl!!)
         }
         windowControl = CommonUtils.windowControl
@@ -79,7 +78,7 @@ class WindowTest {
     @Throws(Exception::class)
     fun testGetRestoreStateJson() {
         // initialise Window
-        val pageManager = mockCurrentPageManagerProvider.get()
+        val pageManager = mockCurrentPageManagerProvider()
         var window = Window(
             WorkspaceEntities.Window(
                 workspaceId = IdType(),
@@ -102,7 +101,7 @@ class WindowTest {
         val entity = window.entity
         println(entity)
 
-        val newPm = mockCurrentPageManagerProvider.get()
+        val newPm = mockCurrentPageManagerProvider()
         // recreate window from saved state
         window = Window(entity, newPm, windowRepository)
         assertThat(window.windowState, equalTo(WindowState.MINIMISED))
