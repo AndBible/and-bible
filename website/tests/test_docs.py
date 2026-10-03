@@ -50,8 +50,6 @@ def built_docs(tmp_path_factory):
 
 
 def test_docs_header_matches_the_landing_topbar(built_docs):
-    import re
-
     from sitegen.i18n import strings
     site = strings(paths.CONTENT, "en")
     html = (built_docs / "docs" / "ai" / "index.html").read_text()
@@ -78,8 +76,6 @@ BADGES = ("google-play", "f-droid", "amazon", "obtainium")
 
 
 def test_install_badges_share_one_row_wrapper(built_docs):
-    import re
-
     html = (built_docs / "docs" / "getting_started" / "index.html").read_text()
     wrapper = re.search(r'<div class="ab-badges">(.*?)</div>', html, re.S)
     assert wrapper, "install badges must sit in <div class=\"ab-badges\">"
@@ -93,11 +89,21 @@ def test_badge_images_have_one_aspect_ratio():
 
     images = paths.CONTENT / "en" / "docs" / "images"
     ratios = [Image.open(images / f"{n}-badge.png").size for n in BADGES]
-    assert max(w / h for w, h in ratios) - min(w / h for w, h in ratios) < 0.25, ratios
+    assert max(w / h for w, h in ratios) - min(w / h for w, h in ratios) < 0.2, ratios
     assert len({h for _, h in ratios}) == 1, ratios
+
+
+def _rule(css: str, selector: str) -> str:
+    match = re.search(re.escape(selector) + r"\s*\{([^}]*)\}", css)
+    assert match, f"no CSS rule for {selector}"
+    return match.group(1)
 
 
 def test_badge_css_keeps_one_row_with_equal_heights():
     css = (paths.WEBSITE / "theme" / "assets" / "andbible-docs.css").read_text()
-    assert re.search(r"\.ab-badges\s*\{[^}]*display:\s*flex[^}]*flex-wrap:\s*nowrap", css, re.S)
-    assert re.search(r"\.ab-badges\s+img\s*\{[^}]*height:\s*auto[^}]*\}", css, re.S) or "ab-badges img" in css
+    row = _rule(css, ".md-typeset .ab-badges")
+    assert "display: flex" in row and "flex-wrap: nowrap" in row
+    link = _rule(css, ".md-typeset .ab-badges a")
+    assert "min-width: 0" in link and re.search(r"flex:\s*0 1 auto", link)
+    img = _rule(css, ".md-typeset .ab-badges img")
+    assert "height: auto" in img and "max-height: 50px" in img and "max-width: 100%" in img
