@@ -89,8 +89,10 @@ accrescent-debug:
 	@echo "✓ APK set: app/standardAccrescent/debug/app-standardAccrescentDebug.apks"
 
 # Push the current branch, pushing our own submodules (goldens, superpowers) first so the
-# gitlinks never point at unpublished commits. jsword is an upstream fork, pushed by hand;
-# --recurse-submodules=check refuses the final push if any gitlink (jsword included) is unpushed.
+# gitlinks never point at unpublished commits. Each submodule pushes the commit the committed
+# gitlink names (not its checkout, which can lag behind) to the superproject's branch name,
+# fast-forward only. jsword is an upstream fork, pushed by hand; --recurse-submodules=check
+# refuses the final push if any gitlink (jsword included) is unpushed.
 PUSH_SUBMODULES := app/src/test/roborazzi docs/superpowers
 
 push:
@@ -98,9 +100,11 @@ push:
 	branch=$$(git symbolic-ref --short HEAD) || { echo "push: detached HEAD" >&2; exit 1; }; \
 	for sm in $(PUSH_SUBMODULES); do \
 		if [ ! -e "$$sm/.git" ]; then echo "push: $$sm not checked out, skipping"; continue; fi; \
-		smb=$$(git -C "$$sm" symbolic-ref -q --short HEAD) || { echo "push: $$sm is on a detached HEAD" >&2; exit 1; }; \
-		echo "push: $$sm ($$smb)"; \
-		git -C "$$sm" push -u origin "$$smb"; \
+		sha=$$(git rev-parse "HEAD:$$sm"); \
+		[ "$$(git -C "$$sm" rev-parse HEAD)" = "$$sha" ] || \
+			echo "push: note: $$sm checkout differs from the committed gitlink; pushing the gitlink"; \
+		echo "push: $$sm ($$(git -C "$$sm" rev-parse --short "$$sha") -> $$branch)"; \
+		git -C "$$sm" push origin "$$sha:refs/heads/$$branch"; \
 	done; \
 	echo "push: and-bible ($$branch)"; \
 	git push --recurse-submodules=check -u origin "$$branch"
