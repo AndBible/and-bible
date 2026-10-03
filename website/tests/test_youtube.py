@@ -71,3 +71,14 @@ def test_card_css_is_16_9_for_every_listing_card():
     for rule in (".yt--card .yt__play", ".yt--card .yt__frame"):
         block = css.split(rule + " {", 1)[1].split("}", 1)[0]
         assert "aspect-ratio: 16 / 9" in block and "max-width: none" in block
+
+
+def test_card_keeps_fallback_link_and_css_hides_it_only_with_js():
+    from sitegen import paths
+    card = embed_html("abcDEF12345", "video", "T", card=True, meta="2026")
+    assert 'class="yt__link"' in card and "Watch on YouTube" in card  # no-JS fallback and crawlers
+    css = (paths.ASSETS / "css" / "embeds.css").read_text()
+    assert ".js-yt .yt--card .yt__link { display: none; }" in css
+    assert "\n.yt--card .yt__link" not in css  # never hidden without the JS hook
+    js = (paths.ASSETS / "js" / "lite-yt.js").read_text()
+    assert 'classList.add("js-yt")' in js
