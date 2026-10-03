@@ -62,3 +62,44 @@
 .md-typeset .ab-badges p { display: contents; }
 .md-typeset .ab-badges a { display: block; flex: 0 1 auto; min-width: 0; line-height: 0; }
 .md-typeset .ab-badges img { display: block; height: auto; width: auto; max-width: 100%; max-height: 50px; }
+
+/* ---- Docs layout: narrower text column, left navigation from 60em ----
+   Material shows the primary (left) sidebar only from 76.25em and a drawer below it; here the sidebar is permanent from
+   60em (960px). The right-hand "on this page" TOC keeps its 76.25em start (Material shows it from 60em, so it is
+   hidden in between). The block below re-applies, for 60em..76.234em, what the theme's 76.25em rules do to the
+   primary sidebar, nav tree and header button; the theme is not forked. */
+.md-content { display: flex; justify-content: center; }
+.md-content__inner { width: 100%; max-width: 31rem; }
+@media screen and (min-width: 60em) and (max-width: 76.234375em) {
+  .md-header__button[for=__drawer], .md-overlay, .md-sidebar--secondary, .md-sidebar--secondary:not([hidden]) { display: none; }
+  .md-main__inner { padding-left: .8rem; }
+  .md-sidebar { height: 0; }
+  .md-sidebar--primary, [data-md-toggle=drawer]:checked ~ .md-container .md-sidebar--primary {
+    position: sticky; top: 2.4rem; left: auto; z-index: auto; width: 12.1rem; height: 0; background: none;
+    -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: 0; box-shadow: none; transform: none; transition: none; }
+  .md-sidebar--primary .md-sidebar__scrollwrap { position: static; overflow-y: auto; }
+  .md-sidebar__inner { padding-right: 0; }
+  [dir=ltr] .md-sidebar--primary:not([hidden]) ~ .md-content > .md-content__inner { margin-left: 1.2rem; }
+  .md-nav--primary { margin: .1rem .2rem; }
+  .md-nav__source { display: none; }
+  .md-nav__item--nested.md-nav__item--section > .md-nav__link .md-nav__icon:after { display: none; }
+  .md-nav__item--section > .md-nav__container > :nth-child(2) { display: none; }
+  [dir=ltr] .md-nav__list .md-nav__item--section > .md-nav > .md-nav__list { margin-left: 0; }
+  .md-nav__item--section > .md-nav__link--active, .md-nav__item--section > .md-nav__link > .md-nav__link--active,
+  .md-nav__item--section > .md-nav__link { font-weight: 700; }
+  .md-nav__item--section { margin-top: .4rem; }
+  .md-nav__item--section:first-child { margin-top: 0; }
+  .md-nav__item--section:last-child { margin-bottom: 0; }
+  .md-nav__item--section > .md-nav__link:not(.md-nav__container) { pointer-events: none; }
+  .md-nav__item--section > .md-nav { display: block; visibility: visible; opacity: 1; }
+  .md-nav__item--section > .md-nav > .md-nav__list > .md-nav__item { padding: 0; }
+  .md-nav--lifted { margin-top: 0; }
+  .md-nav--lifted > .md-nav__list > .md-nav__item { display: none; }
+  .md-nav--lifted > .md-nav__list > .md-nav__item--active { display: block; }
+  .md-nav--lifted > .md-nav__list > .md-nav__item--active > .md-nav { margin-top: .1rem; }
+  .md-nav--lifted > .md-nav__list > .md-nav__item--active > .md-nav > .md-nav__list:before,
+  .md-nav--lifted > .md-nav__list > .md-nav__item--active > .md-nav__link { display: none; }
+  .md-nav--lifted > .md-nav__list > .md-nav__item--active.md-nav__item--section { margin: 0; }
+  .md-nav--lifted .md-nav[data-md-level="1"] { grid-template-rows: minmax(.4rem, 1fr); visibility: visible; opacity: 1; }
+  .md-nav--primary .md-nav__title[for=__drawer] { display: none; }
+}
