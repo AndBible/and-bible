@@ -93,6 +93,11 @@ img { max-width: 100%; height: auto; }
   .topbar nav { display: none; order: 3; flex-basis: 100%; flex-direction: column; align-items: stretch; padding-bottom: 12px; }
   .topbar nav[data-open] { display: flex; }
 }
+/* Without JS nothing can open the phone menu: show the links as a wrapping row and drop the dead button. */
+@media (max-width: 719px) and (scripting: none) {
+  [data-menu-toggle] { display: none; }
+  .topbar nav { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; }
+}
 
 /* ---- Hero ---- */
 .hero { padding: 24px 0 8px; }

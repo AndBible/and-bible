@@ -106,6 +106,8 @@ def check(site: Path = paths.SITE) -> list[str]:
             rel_tokens = set((rel or "").lower().split())
             if tag == "link" and rel_tokens and rel_tokens <= _DESCRIPTIVE_RELS:
                 continue
+            if tag == "atom:link" and rel_tokens == {"self"}:  # the feed's own address, never fetched
+                continue
             problems.append(f"{where}: <{tag} {attribute}={value!r}> leaves the site")
         if "source" in collector.components:
             problems.append(f'{where}: data-md-component="source" makes the page call api.github.com')

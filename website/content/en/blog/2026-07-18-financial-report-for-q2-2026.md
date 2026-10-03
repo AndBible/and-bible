@@ -34,7 +34,7 @@ This shows plainly in the time data: **maintenance was by far the largest catego
 
 **Support and issue triage.** User support remained the weakest area, at just 0.82 hours for the whole quarter — the major release and the synchronisation work absorbed most of my available time, and catching up on support and issue triage carries over as an ongoing priority.
 
-# Sponsorship Flow
+## Sponsorship Flow
 
 The sponsorship flow tables show how development hours are funded. Sponsors purchase development hours through orders. Each pool tracks available hours vs. hours worked. Transfers between pools are configured explicitly and may use a conversion ratio (e.g., feature hours are worth more generic hours due to different rates).
 

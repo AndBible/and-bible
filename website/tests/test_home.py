@@ -153,3 +153,23 @@ def test_embeds_css_is_linked_with_its_own_content_hash_not_imported(content, tm
     assert f'href="/assets/css/embeds.css?v={asset_hashes()["css/embeds.css"]}"' in html
     assert f'src="/assets/js/lite-yt.js?v={asset_hashes()["js/lite-yt.js"]}"' in html
     assert "@import" not in (paths.ASSETS / "css" / "site.css").read_text()
+
+
+def test_phone_nav_is_visible_without_javascript():
+    css = (paths.ASSETS / "css" / "site.css").read_text()
+    block = re.search(r"@media \(max-width: 719px\) and \(scripting: none\) \{(.*?)\n\}", css, re.S)
+    assert block, "no `scripting: none` rule: the phone menu stays hidden when JS is off"
+    assert ".topbar nav { display: flex;" in block.group(1) and "[data-menu-toggle] { display: none; }" in block.group(1)
+
+
+def test_store_entries_have_no_unused_icon_key(content):
+    for lang in languages(content):
+        for store in strings(content, lang)["getapp"]["stores"]:
+            assert "icon" not in store, store
+
+
+def test_font_licence_names_the_real_copyright_holders():
+    notice = (paths.ASSETS / "fonts" / "OFL.txt").read_text(encoding="utf-8")
+    serif = notice.split("== Inter ==")[0]
+    assert "Adobe" in serif and "Reserved Font Name" in serif and "Google Inc." not in serif
+    assert "The Inter Project Authors" in notice.split("== Inter ==")[1]

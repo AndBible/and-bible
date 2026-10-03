@@ -94,3 +94,31 @@ def test_pages_load_with_slug_from_filename(tmp_path):
 )
 def test_taxonomy_slug_matches_wordpress_nicename(name, slug):
     assert taxonomy_slug(name) == slug
+
+
+def _level_one_headings(markdown_text: str) -> list[str]:
+    """ATX `# ` headings outside fenced code."""
+    found, fence = [], None
+    for line in markdown_text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith(("```", "~~~")):
+            fence = None if fence == stripped[:3] else (fence or stripped[:3])
+        elif not fence and line.startswith("# "):
+            found.append(line)
+    return found
+
+
+def test_level_one_heading_detector_ignores_fences_and_deeper_levels():
+    text = "# Top\n\n## Two\n\n```\n# comment\n```\n\n~~~\n# also code\n~~~\n#hashtag\n"
+    assert _level_one_headings(text) == ["# Top"]
+
+
+def test_blog_posts_have_no_level_one_heading_in_the_body():
+    """The post title is the page's only <h1> (a body `# Heading` would make a second one)."""
+    from sitegen import paths
+    offenders = {}
+    for post in sorted((paths.CONTENT / "en" / "blog").glob("*.md")):
+        headings = _level_one_headings(post.read_text(encoding="utf-8").split("\n---\n", 1)[1])
+        if headings:
+            offenders[post.name] = headings
+    assert not offenders

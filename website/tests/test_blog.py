@@ -112,6 +112,22 @@ def test_feed_is_rss_with_full_content(site):
     assert (site / "feed/index.html").read_bytes() == (site / "feed/index.xml").read_bytes()
 
 
+def test_feed_has_atom_self_link(site):
+    root = ET.parse(site / "feed/index.xml").getroot()
+    link = root.find("./channel/{http://www.w3.org/2005/Atom}link")
+    assert link is not None and link.attrib == {
+        "href": "https://andbible.org/feed/", "rel": "self", "type": "application/rss+xml"}
+
+
+def test_absolute_urls_only_rewrites_site_relative_href_and_src():
+    from sitegen.blog import absolute_urls
+    html = ('<a href="/blog/">x</a><img src="/media/a.webp"> <a href="//cdn.x/y">c</a> '
+            '<a href="https://z/">z</a> <a href="#n">n</a> <p>src="/not-an-attr"</p>')
+    out = absolute_urls(html)
+    assert 'href="https://andbible.org/blog/"' in out and 'src="https://andbible.org/media/a.webp"' in out
+    assert 'href="//cdn.x/y"' in out and 'href="https://z/"' in out and 'href="#n"' in out
+
+
 def test_sitemap_lists_posts(site):
     text = (site / "sitemap.xml").read_text()
     assert "https://andbible.org/2025/01/01/post-1/" in text

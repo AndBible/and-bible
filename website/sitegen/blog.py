@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import xml.etree.ElementTree as ET
 from datetime import UTC, datetime, time
 from email.utils import format_datetime
@@ -17,6 +18,13 @@ from sitegen.youtube import starts_with_embed
 PAGE_SIZE = 9  # a 3x3 card grid
 FEED_SIZE = 20
 _CONTENT_NS = "http://purl.org/rss/1.0/modules/content/"
+_ATOM_NS = "http://www.w3.org/2005/Atom"
+_LOCAL_URL = re.compile(r'\b(href|src)="/(?!/)')
+
+
+def absolute_urls(html: str) -> str:
+    """Make site-relative href/src URLs absolute: feed readers have no base URL for `/media/...`."""
+    return _LOCAL_URL.sub(lambda m: f'{m.group(1)}="{BASE_URL}/', html)
 
 
 def archives(posts: list[Post], strings: dict) -> dict[str, tuple[str, list[Post]]]:
@@ -66,12 +74,14 @@ def _write(out: Path, url: str, html: str) -> None:
 
 def _feed(posts: list[Post], bodies: dict[str, str], strings: dict, out: Path) -> None:
     ET.register_namespace("content", _CONTENT_NS)
+    ET.register_namespace("atom", _ATOM_NS)
     rss = ET.Element("rss", version="2.0")
     channel = ET.SubElement(rss, "channel")
     for tag, value in (("title", f"{strings['site_name']} – {strings['blog']['title']}"),
                        ("link", f"{BASE_URL}/blog/"), ("description", strings["meta"]["description"]),
                        ("language", "en")):
         ET.SubElement(channel, tag).text = value
+    ET.SubElement(channel, f"{{{_ATOM_NS}}}link", href=f"{BASE_URL}/feed/", rel="self", type="application/rss+xml")
     for post in posts[:FEED_SIZE]:
         item = ET.SubElement(channel, "item")
         link = f"{BASE_URL}{post.path}"
@@ -81,7 +91,7 @@ def _feed(posts: list[Post], bodies: dict[str, str], strings: dict, out: Path) -
             ET.SubElement(item, tag).text = value
         for category in post.categories:
             ET.SubElement(item, "category").text = category
-        ET.SubElement(item, f"{{{_CONTENT_NS}}}encoded").text = bodies[post.path]
+        ET.SubElement(item, f"{{{_CONTENT_NS}}}encoded").text = absolute_urls(bodies[post.path])
     (out / "feed").mkdir(parents=True, exist_ok=True)
     ET.ElementTree(rss).write(out / "feed" / "index.xml", encoding="utf-8", xml_declaration=True)
     (out / "feed" / "index.html").write_bytes((out / "feed" / "index.xml").read_bytes())

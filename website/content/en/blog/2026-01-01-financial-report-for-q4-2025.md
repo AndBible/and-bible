@@ -14,7 +14,7 @@ image_alt: Financial report for Q4 / 2025
 
 https://www.youtube.com/watch?v=sKjNBfiU5V4
 
-# Background
+## Background
 
 [Tuomas Airaksinen Consulting](https://tuomasairaksinen.fi/consulting/), company of the lead developer, provides a way to sponsor AndBible development. You can support the ongoing development of AndBible financially via [the webshop](https://shop.andbible.org).
 

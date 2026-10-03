@@ -64,3 +64,10 @@ def test_external_url_in_standalone_css_fails(tmp_path):
 def test_theme_language_falls_back():
     assert theme_language("fi") == "fi"
     assert theme_language("xx") == "en"
+
+
+def test_feed_self_link_allowed_but_other_atom_links_are_not(tmp_path):
+    ok = '<channel><atom:link href="https://andbible.org/feed/" rel="self" type="application/rss+xml"/></channel>'
+    assert check(page(tmp_path, ok)) == []
+    bad = '<channel><atom:link href="https://evil.example/x" rel="hub"/></channel>'
+    assert len(check(page(tmp_path, bad, "feed.html"))) == 1

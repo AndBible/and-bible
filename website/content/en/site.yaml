@@ -25,9 +25,9 @@ getapp:
   title: Get the app
   others: Also on GitHub, Amazon, Samsung, Huawei and Accrescent
   stores:
-    - {name: Google Play, note: Android, url: "https://play.google.com/store/apps/details?id=net.bible.android.activity", icon: gp}
-    - {name: F-Droid, note: "Android, FOSS store", url: "https://f-droid.org/packages/net.bible.android.activity/", icon: fd}
-    - {name: App Store, note: iPhone & iPad, url: "https://apps.apple.com/us/app/andbible-bible-study/id6774904527", icon: as}
+    - {name: Google Play, note: Android, url: "https://play.google.com/store/apps/details?id=net.bible.android.activity"}
+    - {name: F-Droid, note: "Android, FOSS store", url: "https://f-droid.org/packages/net.bible.android.activity/"}
+    - {name: App Store, note: iPhone & iPad, url: "https://apps.apple.com/us/app/andbible-bible-study/id6774904527"}
   others_url: "https://github.com/AndBible/and-bible/releases"
 features:
   - {title: Study tools, text: "Strong's numbers, morphology, cross-references and commentaries side by side."}

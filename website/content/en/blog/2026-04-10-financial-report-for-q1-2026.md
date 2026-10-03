@@ -36,7 +36,7 @@ Additionally, the new company’s Wise business account now enables recurring sp
 
 Starting with this quarter, the sponsorship flow tables have switched back to an hour-based format. The motivation is clarity: orders purchase hours, tracked work consumes hours, and transfers between pools are straightforward hour-to-hour operations (with a conversion ratio when rates differ). The previous euro-based format made pool transfers and carryovers harder to follow. A “Free Work” column has been added to clearly show unsponsored hours — when a pool’s balance goes negative, the deficit is absorbed as free work and the carryover resets to zero instead of propagating a negative balance to the next month. The old “Sponsored %” column has been removed, and inter-pool transfers are now shown in a dedicated Transfers table. The hours comparison chart now also includes a “Free Work” bar alongside the existing “Total Hours Worked” and “Sponsored Hours” bars, making the unsponsored portion visible at a glance.
 
-# Sponsorship Flow
+## Sponsorship Flow
 
 The sponsorship flow tables show how development hours are funded. Sponsors purchase development hours through orders. Each pool tracks available hours vs. hours worked. Transfers between pools are configured explicitly and may use a conversion ratio (e.g., feature hours are worth more generic hours due to different rates).
 
