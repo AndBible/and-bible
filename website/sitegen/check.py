@@ -17,7 +17,7 @@ from sitegen import paths
 # the one place a reader's click is what leaves the site; everything else here
 # is a request the browser makes on its own.
 _ABSOLUTE = re.compile(r"^(?:https?:)?//", re.IGNORECASE)
-_FETCHED_ATTRS = ("src", "href", "poster", "srcset", "data")
+_FETCHED_ATTRS = ("src", "href", "xlink:href", "poster", "srcset", "data")
 # url(...) in a stylesheet or an inline <style>, and @import of one.
 _CSS_URL = re.compile(r"""(?:url\(|@import\s+)\s*['"]?((?:https?:)?//[^)'"\s]+)""", re.IGNORECASE)
 # <link rel=...> values that merely describe the page and are never fetched.
@@ -103,7 +103,8 @@ def check(site: Path = paths.SITE) -> list[str]:
                 continue
             if tag == "a" and attribute == "href":
                 continue
-            if tag == "link" and _DESCRIPTIVE_RELS.intersection((rel or "").lower().split()):
+            rel_tokens = set((rel or "").lower().split())
+            if tag == "link" and rel_tokens and rel_tokens <= _DESCRIPTIVE_RELS:
                 continue
             problems.append(f"{where}: <{tag} {attribute}={value!r}> leaves the site")
         if "source" in collector.components:

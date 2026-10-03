@@ -31,3 +31,36 @@ def test_canonical_and_rss_alternate_allowed(tmp_path):
 
 def test_empty_site_is_a_problem(tmp_path):
     assert check(tmp_path) != []
+
+
+import pytest
+
+from sitegen.docs import theme_language
+
+
+@pytest.mark.parametrize("html,needle", [
+    ('<a data-md-component="source" href="x">r</a>', "data-md-component"),
+    ('<div class="a glightbox"></div>', "glightbox"),
+    ('<div class="pyodide"></div>', "pyodide"),
+    ('<p style="background:url(//x/y.png)">x</p>', "stylesheet fetches"),
+    ('<style>@import url(//x/y.css)</style>', "stylesheet fetches"),
+    ('<img srcset="a.png 1x, https://x/b.png 2x">', "srcset"),
+    ('<video poster="https://x/p.jpg"></video>', "poster"),
+    ('<object data="//x/o.swf"></object>', "data="),
+    ('<link rel="alternate stylesheet" href="https://x/s.css">', "href="),
+    ('<svg><use xlink:href="https://x/s.svg#i"/></svg>', "xlink:href"),
+])
+def test_detection_paths(tmp_path, html, needle):
+    problems = check(page(tmp_path, html))
+    assert problems and any(needle in p for p in problems)
+
+
+def test_external_url_in_standalone_css_fails(tmp_path):
+    (tmp_path / "s.css").write_text("a{background:url(https://x/y.png)}")
+    page(tmp_path, "<p>ok</p>")
+    assert any("s.css" in p and "stylesheet fetches" in p for p in check(tmp_path))
+
+
+def test_theme_language_falls_back():
+    assert theme_language("fi") == "fi"
+    assert theme_language("xx") == "en"

@@ -1,6 +1,6 @@
 {#- Repository link without data-md-component="source": the stock partial makes the theme bundle
     fetch GitHub stars/forks from api.github.com on every page. A plain link keeps the repo
-    visible and the "edit this page" link (edit_uri) untouched. -#}
+    visible. (The "edit this page" link is a separate feature, content.action.edit, not enabled.) -#}
 <a href="{{ config.repo_url }}" title="{{ lang.t('source') }}" class="md-source">
   <div class="md-source__icon md-icon">
     {% set icon = config.theme.icon.repo or "fontawesome/brands/git-alt" %}
