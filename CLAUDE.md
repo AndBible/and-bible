@@ -29,7 +29,7 @@ AndBible is a powerful offline Bible study app for Android built with Kotlin, fe
 ## Build System
 
 ### Prerequisites
-- Java 17 (OpenJDK 17.0.16+8 or higher)
+- Java toolchain 17 (Gradle `jvmToolchain(17)`; a JDK 17 must be installed even if the default JDK is newer)
 - Node.js 24.x (tested with v24.20.0)
 - npm 11.x (tested with v11.19.0)
 - Android SDK 23+ (API levels 23-36)
@@ -127,6 +127,24 @@ Only run Android builds when testing Android-specific integration.
 - `app/build.gradle.kts`: Android app-specific build configuration with Vue.js integration
 - `app/bibleview-js/vite.config.mts`: Vue.js build configuration using Vite
 - `app/bibleview-js/package.json`: Vue.js dependencies and build scripts
+
+## Kotlin Multiplatform / Compose structure
+
+- `:sharedCore` holds the shared logic and models.
+- `:sharedUi` holds the Compose Multiplatform screens; they read user-facing text through the `Strings` interface (`LocalStrings`).
+- `:strings-gen` does not write that interface. `Strings.kt` (`:sharedUi`) and `AndroidStrings.kt` (`:app`) are hand-maintained; `:strings-gen` (task `generateIosStrings`, wired into `:sharedUi`) only derives the iOS string holder from them and the resources. A new string is therefore: the resource in `strings.xml`, a member in `Strings.kt`, and the override in `AndroidStrings.kt`. Check the generator's "N interface members, N mapped overrides" line to see both sides agree.
+- Debug builds get an `applicationIdSuffix` so they install beside a release build: currently `.compose` by default, overridable with `APP_SUFFIX` in `local.properties` (see `app/build.gradle.kts`).
+- Golden screenshots are in the submodule described below.
+
+## Test infrastructure traps
+
+- `TEST_SDK` (`app/src/test/java/net/bible/android/TestBibleApplication.kt`) is 33, so code behind API 35+ checks is not exercised by default. A test for such a branch needs `@Config(sdk = [35])`, and should be seen failing before the fix.
+- The `:app` unit suite runs in a single JVM (no `maxParallelForks`). A green `--tests` run can miss global-state pollution (Koin overrides, library globals); only the full suite catches it. Restore any global you swap, in `finally`.
+- Many unit tests need real Sword modules in `~/.sword`. Extract your copy of the test modules there first (`mkdir -p ~/.sword && unzip -o -d ~/.sword <testmods.zip>`); without them hundreds of tests fail with "no module installed" symptoms such as `IndexOutOfBoundsException` from an empty book list. CI downloads them from an encrypted secret.
+
+## Emulator and WebView debugging
+
+See `docs/emulator-and-webview-debugging.md` (adb model, AVD, `scripts/andbible-emu.sh`, `scripts/webview-cdp.sh`).
 
 ## Golden screenshots and process docs (submodules)
 
@@ -322,7 +340,7 @@ echo $ANDROID_SDK_ROOT
 
 ## Notes
 
-- Current stable branch that where most development is also done currently: `current-stable`
+- `current-stable` is the stable release branch; feature work happens on topic branches
 - Never cancel long-running Gradle builds - they can take 10-45 minutes on first run
 - Prefer Vue.js tests for rapid development feedback (5-6 seconds vs minutes for Android tests)
 - Always use the repository's standard testing tools (`npm run test:ci`, `./gradlew check`)
