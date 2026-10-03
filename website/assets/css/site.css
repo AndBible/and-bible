@@ -20,6 +20,7 @@
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius: 12px;
   --star: #feba2a; --star-edge: color-mix(in srgb, var(--accent-ink) 85%, var(--ink));
+  --bezel: #16171a;
   --video-bg: #000;
   --video-fg: #fff;
 }
@@ -133,21 +134,21 @@ img { max-width: 100%; height: auto; }
 .store:hover { border-color: var(--accent); }
 .getapp__hint { margin: 0; font-size: .85rem; color: var(--faint); }
 .getapp__hint a { color: var(--muted); }
-.getapp__phone { display: block; width: min(240px, 70%); aspect-ratio: 540 / 500; height: auto; object-fit: cover; object-position: top;
-  margin: 0 auto; align-self: center;
-  border-radius: 22px 22px 0 0; border: 1px solid var(--border); border-bottom: 0; }
-/* Only the top half of the phone shows; the card clips it and a fade to the card surface softens the cut. */
+/* Phone: a fixed bezel with the app screens inside. Only the top of the phone shows (the card clips it and a
+   fade to the card surface softens the cut). Without the script the first screen stays; appshots.js stacks
+   the screens, crossfades them and slowly scrolls each one up. */
+.phone { position: relative; width: min(240px, 70%); height: 222px; margin: 0 auto; padding: 8px 8px 0; align-self: center;
+  background: var(--bezel); border-radius: 26px 26px 0 0; box-shadow: 0 0 0 1px var(--border); }
+.phone__screen { position: relative; height: 100%; margin: 0; padding: 0; list-style: none; overflow: hidden;
+  background: var(--surface); border-radius: 18px 18px 0 0; }
+.phone__shot { margin: 0; }
+.phone__shot img { display: block; width: 100%; height: auto; }
+.phone:not(.is-animated) .phone__shot:not(:first-child) { display: none; }
+.phone.is-animated .phone__shot { position: absolute; inset: 0; opacity: 0; transition: opacity .7s ease; }
+.phone.is-animated .phone__shot.is-active { opacity: 1; }
 .getapp::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 64px; pointer-events: none;
   background: linear-gradient(to bottom, transparent, var(--surface-2)); }
-/* One screenshot per effective theme: mirrors the token blocks above. */
-.getapp__phone--dark { display: none; }
-:root[data-theme="dark"] .getapp__phone--dark { display: block; }
-:root[data-theme="dark"] .getapp__phone--light { display: none; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .getapp__phone--dark { display: block; }
-  :root:not([data-theme="light"]) .getapp__phone--light { display: none; }
-}
-@media (max-width: 359px) { .getapp__phone, .getapp::after { display: none !important; } .getapp { padding-bottom: 20px; } }
+@media (max-width: 359px) { .phone, .getapp::after { display: none !important; } .getapp { padding-bottom: 20px; } }
 
 /* ---- Sections, features, cards ---- */
 section.block { padding: 48px 0 0; }

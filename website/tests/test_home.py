@@ -66,19 +66,32 @@ def test_css_defines_both_themes():
 CSS = (Path(__file__).resolve().parents[1] / "assets" / "css").glob("*.css")
 
 
-def test_phone_images_follow_effective_theme(content, tmp_path):
+def test_phone_shows_app_screens_in_order(content, tmp_path):
     out = tmp_path / "out"
     build(content, out, data=tmp_path / "data", docs=False)
     html = (out / "index.html").read_text()
-    assert "<picture" not in html
-    assert 'class="getapp__phone getapp__phone--light"' in html
-    assert 'class="getapp__phone getapp__phone--dark"' in html
-    css = (Path(__file__).resolve().parents[1] / "assets" / "css" / "site.css").read_text()
-    assert ".getapp__phone--dark { display: none; }" in css
-    assert ':root[data-theme="dark"] .getapp__phone--dark { display: block; }' in css
-    assert ':root[data-theme="dark"] .getapp__phone--light { display: none; }' in css
-    assert ':root:not([data-theme="light"]) .getapp__phone--dark { display: block; }' in css
-    assert ':root:not([data-theme="light"]) .getapp__phone--light { display: none; }' in css
+    shots = re.findall(r'<li class="phone__shot"><img src="(/assets/img/appshots/\d\d\.webp)\?v=', html)
+    assert shots == [f"/assets/img/appshots/{n:02d}.webp" for n in range(1, len(shots) + 1)] and len(shots) >= 2
+    assert 'data-appshots aria-hidden="true"' in html
+    assert html.count('loading="lazy"') >= len(shots) - 1  # only the first screen is eager
+    assert "js/appshots.js" in html
+    for path in shots:
+        assert (out / path.lstrip("/")).exists()
+
+
+def test_appshots_crop_to_the_display(tmp_path):
+    from PIL import Image
+
+    from sitegen import appshots
+
+    source = tmp_path / "src"
+    source.mkdir()
+    for number in appshots.SHOTS:
+        Image.new("RGB", (900, 1600), (250, 140, 0)).save(source / f"{number}_en-US.jpeg")
+    written = appshots.build(source, tmp_path / "out")
+    assert [p.name for p in written] == [f"{n:02d}.webp" for n in range(1, len(appshots.SHOTS) + 1)]
+    with Image.open(written[0]) as image:
+        assert image.size == (appshots.WIDTH, round(1455 * appshots.WIDTH / 700))
 
 
 def test_no_literal_colours_outside_token_blocks():

@@ -31,6 +31,7 @@ output to a file if it died. Both need `uv`.
 | Landing-page reviews | `update-website-reviews` |
 
 **Other operations**
+- Phone screens in the hero: cropped from the Play screenshots by `cd website && uv run python -m sitegen.appshots` (list and order in `sitegen/appshots.py`), written to `assets/img/appshots/`; animation in `assets/js/appshots.js`.
 - Video in catalog without a post: `cd website && uv run python -m sitegen.newvideo <url> --topic "<T>" --summary "<s>" --no-post`
   (or edit `data/videos.yaml`: `id, title, topic, published` required; then `make site-thumbs`).
 - UI strings / hero text: `content/en/site.yaml`. Other languages merge over English per key.
@@ -47,4 +48,4 @@ do the DNS/Pages cutover (`website/CUTOVER.md` are the user's host steps).
 
 **Tests.** `make site-check` must be green. Playwright scripts (not CI; need site on :8000; setup in `website/README.md` "Browser checks"): `screens.mjs` (overflow + screenshots), `docs-header.mjs` (header, theme
 persistence), `docs-layout.mjs` (sidebar/TOC/overflow), `docs-badges.mjs` (install badges),
-`hero-layout.mjs` (hero above the fold), `reviews-carousel.mjs`, `video-card-link.mjs` (YouTube link hidden with JS).
+`hero-layout.mjs` (hero above the fold), `reviews-carousel.mjs`, `appshots.mjs` (animated phone), `video-card-link.mjs` (YouTube link hidden with JS).

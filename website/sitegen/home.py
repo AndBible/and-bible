@@ -40,6 +40,7 @@ def environment() -> Environment:
         """Cache-busted URL of a file under assets/; an unknown name raises KeyError."""
         return f"/assets/{name}?v={hashes[name]}"
 
+    env.globals["appshots"] = sorted(name for name in hashes if name.startswith("img/appshots/"))
     env.globals["asset_hash"] = hashes
     env.globals["asset_url"] = asset_url
     env.globals["base_url"] = paths.BASE_URL
