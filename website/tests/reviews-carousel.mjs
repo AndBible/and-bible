@@ -21,6 +21,7 @@ let failures = 0;
 const check = (name, ok, detail = '') => { console.log(ok ? 'PASS' : 'FAIL', name, detail); if (!ok) failures++; };
 
 const errors = [];
+const SEL = '[data-reviews-carousel]';
 async function open(options = {}, random = 0) {
   const context = await browser.newContext({viewport: {width: 1280, height: 900}, ...options});
   const page = await context.newPage();
@@ -31,7 +32,6 @@ async function open(options = {}, random = 0) {
   await page.goto(`${base}/`);
   return page;
 }
-const SEL = '[data-reviews-carousel]';
 const active = page => page.$$eval(`${SEL} .review.is-active`, els => els.map(e => e.getAttribute('aria-label')));
 const label = async page => (await active(page)).join('|');
 const visibleCount = page => page.$$eval(`${SEL} .review`, els => els.filter(e => getComputedStyle(e).visibility !== 'hidden').length);
@@ -148,18 +148,20 @@ for (const width of [1280, 768, 360]) {
   const seen = new Set();
   let longest = [0, 0], shortest = [1e9, 0];
   for (let i = 0; i < 20; i++) {
-    const m = await page.evaluate(() => {
+    const m = await page.evaluate(SEL => {
       const r = e => e.getBoundingClientRect();
       const card = document.querySelector('.review.is-active');
-      return [Math.round(r(card).height * 10) / 10, Math.round(r(card).y + scrollY),
-        Math.round(r(document.querySelector('[aria-label="Next review"]')).y + scrollY), card.querySelector('p:not(.review__stars)').getBoundingClientRect().height];
-    });
-    seen.add(m.slice(0, 3).join(','));
+      const frame = r(document.querySelector(SEL)), next = r(document.querySelector('[aria-label="Next review"]'));
+      const inside = next.top >= frame.top && next.bottom <= frame.bottom && r(document.querySelector('.review-more a')).bottom <= frame.bottom;
+      return [Math.round(frame.height * 10) / 10, Math.round(frame.y + scrollY), Math.round(next.y + scrollY), card.querySelector('p:not(.review__stars)').getBoundingClientRect().height,
+        Math.round(r(card).height * 10) / 10, inside];
+    }, SEL);
+    seen.add([...m.slice(0, 3), m[4], m[5]].join(','));
     if (m[3] > longest[0]) longest = [m[3], i];
     if (m[3] < shortest[0]) shortest = [m[3], i];
     await page.click('[aria-label="Next review"]');
   }
-  check(`card height, y and button y identical on all 20 slides at ${width}px`, seen.size === 1, [...seen].join(' | '));
+  check(`frame height/y, controls y and slide height identical on all 20 slides, controls inside the frame at ${width}px`, seen.size === 1 && [...seen][0].endsWith('true'), [...seen].join(' | '));
   if (out && width !== 768) {
     for (const [kind, [, idx]] of [['longest', longest], ['shortest', shortest]]) {
       while (parseInt((await label(page)).split(' ')[0]) - 1 !== idx) await page.click('[aria-label="Next review"]');

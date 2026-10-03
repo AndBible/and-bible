@@ -98,8 +98,9 @@ def test_carousel_markup_and_strings(tmp_path):
 
 def test_no_js_list_structure_and_script_hook(tmp_path):
     raw, reviews = _built_home(tmp_path)
-    block = re.search(r'<div class="review-carousel".*?</div>\s*</div>', raw, re.S).group(0)
+    block = re.search(r'<div class="review-carousel".*?</section>', raw, re.S).group(0)
     assert block.count('<figure class="review"') == len(reviews)
+    assert block.rindex("showAllReviews=true") > block.rindex("</figure>")  # the link works without JS, below the list
     # the enhancement hook and every JS-only element come from the script, never from the static HTML
     for token in ("is-carousel", "is-active", "review-controls", "aria-hidden=\"true\" inert", "tabindex"):
         assert token not in raw

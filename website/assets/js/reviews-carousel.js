@@ -42,7 +42,12 @@
   controls.className = "review-controls";
   controls.append(prev, position, next);
   if (!reduced) controls.append(toggle);
-  root.append(controls, announcer);
+  var footer = document.createElement("div");
+  footer.className = "review-footer";
+  var more = root.querySelector(".review-more"); // the Read-all link moves into the stationary footer
+  if (more) footer.append(more);
+  footer.append(controls);
+  root.append(footer, announcer);
 
   function show(i, announce) {
     index = (i + slides.length) % slides.length;
