@@ -121,9 +121,10 @@ class AgentSession(val workspaceId: IdType) {
     var rawLlmLog: RawLlmLog? = null
         private set
 
-    @Volatile
-    var isRunning: Boolean = false
-        private set
+    private val running = AtomicBoolean(false)
+
+    /** True between a successful [tryStart] and [stop]. */
+    val isRunning: Boolean get() = running.get()
 
     /** Cumulative session cost in USD, updated on each API call. */
     @Volatile
@@ -139,14 +140,19 @@ class AgentSession(val workspaceId: IdType) {
     @Volatile
     var pendingResult: PendingAgentResult? = null
 
-    fun start(context: AgentContext) {
+    /**
+     * F122: starts the session unless it is already running, atomically. Two `executePrompt` coroutines
+     * run on IO threads; a separate check and start let both through.
+     */
+    fun tryStart(context: AgentContext): Boolean {
+        if (!running.compareAndSet(false, true)) return false
         this.context = context
-        this.isRunning = true
         this.sessionCostUsd = 0.0
         _logEntries.clear()
         rawLlmLog = RawLlmLog()
         addLogEntry(AgentLogEntry.info("Agent started"))
         ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, true))
+        return true
     }
 
     fun stop(message: String? = null, reason: AgentStopReason = AgentStopReason.CANCELLED) {
@@ -154,7 +160,7 @@ class AgentSession(val workspaceId: IdType) {
             val hasRawLog = rawLlmLog?.isEmpty() == false
             addLogEntry(AgentLogEntry.info(message, showRawLogLink = hasRawLog))
         }
-        this.isRunning = false
+        running.set(false)
         this.job?.cancel()
         this.job = null
         ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, false, reason))
@@ -294,9 +300,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
             }
         }
 
-        // Start session (prevent concurrent runs)
+        // Start session (prevent concurrent runs; F122: atomically)
         val session = getOrCreateSession(workspaceId)
-        if (session.isRunning) {
+        if (!session.tryStart(context)) {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     BibleApplication.application,
@@ -306,7 +312,6 @@ object AgentSessionManager : AgentSessionManagerBase() {
             }
             return
         }
-        session.start(context)
 
         // Track write tools usage
         val usedWriteToolsTracker = AtomicBoolean(false)
