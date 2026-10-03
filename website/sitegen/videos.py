@@ -17,6 +17,7 @@ from sitegen.youtube import embed_html
 TOPICS = ("Getting started", "Navigation & windows", "Bookmarks & StudyPads", "Search & study tools",
           "Sync & backup", "Customisation", "Developer diaries")
 _ID = re.compile(r"[A-Za-z0-9_-]{11}")
+_VERSION = re.compile(r"\d+\.\d+")
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,7 @@ class Video:
     published: date
     docs: str | None = None
     short: bool = False
+    version: str | None = None
 
 
 class _Loader(yaml.SafeLoader):
@@ -81,7 +83,10 @@ def load(path: Path, docs_pages: set[str], today: date | None = None) -> list[Vi
         if docs and short:
             raise ValueError(f"{path}: video {vid} is a short, which cannot be linked to a docs page")
         published = _published(path, vid, entry.get("published"), today or date.today())
-        videos.append(Video(vid, title, entry["topic"], published, docs, short))
+        version = entry.get("version")
+        if version is not None and not (isinstance(version, str) and _VERSION.fullmatch(version)):
+            raise ValueError(f"{path}: video {vid} needs version: \"major.minor\" such as \"5.1\" (got {version!r})")
+        videos.append(Video(vid, title, entry["topic"], published, docs, short, version))
     return videos
 
 

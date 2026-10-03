@@ -168,3 +168,28 @@ def test_clip_and_short_share_one_grid_in_catalog_order(tmp_path):
     assert "video-grid--shorts" not in html and html.count('class="video-grid"') == 1
     grid = html.split('class="video-grid"')[1].split("</section>")[0]
     assert grid.index("shortFIRST1") < grid.index("clipMIDDLE1") < grid.index("shortLAST12")
+
+
+def test_version_is_optional_and_kept_as_text(tmp_path):
+    text = GOOD.replace("published: 2025-01-02", 'published: 2025-01-02, version: "5.1"')
+    vids = load(write(tmp_path, text), {"bookmarks"})
+    assert [v.version for v in vids] == ["5.1", None]
+
+
+@pytest.mark.parametrize("bad", ['"5"', '"5.1.1117"', '"v5.1"', "5.1", '""', '"5.x"'])
+def test_malformed_version_rejected(tmp_path, bad):
+    text = GOOD.replace("published: 2025-01-02", f"published: 2025-01-02, version: {bad}")
+    with pytest.raises(ValueError, match="version"):
+        load(write(tmp_path, text), {"bookmarks"})
+
+
+def test_catalog_versions_never_precede_their_release_or_decrease_with_date():
+    from datetime import date
+    from sitegen import paths
+    vids = [v for v in load(paths.DATA / "videos.yaml", set(
+        p.removesuffix(".md") for p in __import__("sitegen.docs", fromlist=["x"]).published_pages(
+            paths.WEBSITE / "zensical.toml"))) if v.version]
+    key = lambda v: tuple(int(x) for x in v.version.split("."))  # noqa: E731
+    ordered = sorted(vids, key=lambda v: v.published)
+    assert all(key(a) <= key(b) for a, b in zip(ordered, ordered[1:]))
+    assert min(v.published for v in vids) >= date(2018, 1, 1)
