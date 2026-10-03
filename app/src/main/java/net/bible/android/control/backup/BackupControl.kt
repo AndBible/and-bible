@@ -344,8 +344,9 @@ object BackupControl {
 
     /**
      * F120. Puts the validated old database [validated] in place of the current databases. Those are moved
-     * aside first and moved back if the copy, the rename or the migration fails, so a failure returns false
-     * with the user's data untouched. Runs inside [DatabaseContainer.replacingDatabases].
+     * aside first and moved back if the copy, the rename, opening and splitting, any Room migration (every
+     * database is opened) or [afterRestore] fails, so a failure returns false with the user's data untouched.
+     * The snapshot is deleted only after all of those. Runs inside [DatabaseContainer.replacingDatabases].
      */
     private suspend fun swapInOldMonolithicDatabase(validated: File): Boolean {
         for (def in SyncableDatabaseDefinition.ALL) beforeRestore(def)
@@ -371,18 +372,26 @@ object BackupControl {
             val placed = copyStagedDatabase(validated, staged) &&
                 staged.length() == validated.length() &&
                 staged.renameTo(File(internalDbDir, OLD_MONOLITHIC_DATABASE_NAME))
-            if (placed && DatabaseContainer.ready) DatabaseContainer.instance // opens, and migrates the old file
+            if (placed && DatabaseContainer.ready) {
+                // Opening the container splits the old file, but the split databases are written at version 1 and
+                // Room migrates each one on its first access. sync() touches every database, and afterRestore()
+                // is the first real use; both run here so a throwing migration is still rolled back.
+                DatabaseContainer.sync()
+                afterRestore()
+            }
             placed
         } catch (e: Exception) {
             Log.e(TAG, "F120: old monolithic restore failed", e)
             false
         }
         if (!ok) {
+            // The instance may be fully open (or half built if `instance` threw after `_instance` was set); close it
+            // before the files are deleted and moved.
+            DatabaseContainer.dropInstanceWithoutOpening()
             rollBackOldMonolithicRestore(rollbackDir)
             return false
         }
         rollbackDir.deleteRecursively()
-        if (DatabaseContainer.ready) afterRestore()
         return true
     }
 

@@ -116,8 +116,6 @@ class ToolIntegrationTest {
         assertEquals(promptId, bookmark?.sourcePromptId)
     }
 
-    // === AddBookmarkNote ===
-
     @Test
     fun createBookmark_aFailureAfterTheSaveStillReportsSuccess() = runBlocking {
         val before = bookmarksAt("Rom.8.28")
@@ -136,6 +134,8 @@ class ToolIntegrationTest {
         val r = GetBookmarksForVerseTool.execute(JSONObject().apply { put("verseRef", ref) }, context)
         return ((r as ToolResult.Success).data as GetBookmarksForVerseTool.Result).bookmarkCount
     }
+
+    // === AddBookmarkNote ===
 
     @Test
     fun addBookmarkNote_success() = runBlocking {

@@ -8,6 +8,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.database.BookmarkDatabase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
@@ -105,6 +106,30 @@ class OldMonolithicRestoreRollbackTest {
         assertFalse(rollbackDir.exists())
     }
 
+    /**
+     * The split databases are written at version 1 and Room migrates each one on its first access, which
+     * is after the container opens. Here the container opens fine but one database cannot be opened at its
+     * first access (stands in for a throwing Room migration): the restore must roll back, not lose the data.
+     */
+    @Test fun aMigrationThatFailsOnFirstAccessAfterTheContainerOpensRollsBackToo() {
+        val before = fingerprint()
+        val real = DatabaseContainer.containerFactory
+        val ok = try {
+            DatabaseContainer.containerFactory = {
+                File(dbDir, OLD_MONOLITHIC_DATABASE_NAME).delete() // stands in for DatabaseSplitMigrations
+                val container = real()
+                container.closeAll() // Room reopens, and so migrates or fails, on the next access
+                File(dbDir, BookmarkDatabase.dbFileName).writeText("this is not a database")
+                container
+            }
+            runCatching { restore() }.getOrElse { throw AssertionError("must return false, not throw", it) }
+        } finally { DatabaseContainer.containerFactory = real }
+        assertFalse(ok)
+        assertEquals(before, fingerprint())
+        assertFalse(rollbackDir.exists())
+        assertEquals("Before restore", DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id)?.name)
+    }
+
     /** C1: the containerFactory stands in for DatabaseSplitMigrations, which consumes the old file. */
     @Test fun aGoodRestoreSwapsTheFileInAndLeavesNoStagingOrRollback() {
         val f = fixture()
@@ -125,12 +150,15 @@ class OldMonolithicRestoreRollbackTest {
 
     /** Review Focus 1. */
     @Test fun aLeftoverRollbackFromAnEarlierCrashIsKeptAside() {
+        val before = fingerprint()
         rollbackDir.mkdirs(); File(rollbackDir, "workspaces.sqlite3").writeText("old")
         BackupControl.copyStagedDatabase = { _, _ -> false }
         restore()
         val kept = rollbackParent.listFiles()!!.filter { it.name.startsWith("db-restore-rollback-") }
         assertEquals(1, kept.size)
         assertEquals("old", File(kept.single(), "workspaces.sqlite3").readText())
+        assertEquals("the pre-restore databases are back", before, fingerprint())
+        assertFalse(rollbackDir.exists())
     }
 
     /** Review Focus 2. */
