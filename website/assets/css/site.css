@@ -223,6 +223,14 @@ section.block { padding: 48px 0 0; }
 .teaser { padding: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 .teaser h2 { margin-top: 0; }
 .teaser p { color: var(--muted); max-width: 40rem; }
+/* Support card: text and button beside a decorative illustration; on narrow screens the art goes first, smaller. */
+.support { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 260px); align-items: center; gap: 24px; }
+.support__text { min-width: 0; }
+.support__art { display: block; width: 100%; max-width: 260px; height: auto; justify-self: center; }
+@media (max-width: 639px) {
+  .support { grid-template-columns: minmax(0, 1fr); }
+  .support__art { order: -1; max-width: 180px; }
+}
 
 .pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 16px; margin-top: 32px; }
 .pager__pages { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin: 0; padding: 0; list-style: none; }

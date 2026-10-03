@@ -227,3 +227,11 @@ def test_home_teaser_shows_the_date_but_never_the_version(content, tmp_path):
     assert '<time datetime="2026-02-01">1 Feb 2026</time>' in teaser
     assert "v5.1" not in teaser and "·" not in teaser
     assert "yt__meta" in (out / "videos" / "index.html").read_text() and "v5.1 · " in (out / "videos" / "index.html").read_text()
+
+
+def test_support_card_has_decorative_art(content, tmp_path):
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    html = (out / "index.html").read_text()
+    assert re.search(r'<img class="support__art" src="/assets/img/support-tree\.webp\?v=\w+" alt=""', html)
+    assert (out / "assets/img/support-tree.webp").exists()

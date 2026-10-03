@@ -82,10 +82,13 @@
 </section>
 
 <section class="block">
-  <div class="teaser">
-    <h2>{{ strings.sections.support_title }}</h2>
-    <p>{{ strings.sections.support_text }}</p>
-    <a class="button button--primary" href="{{ strings.sections.support_url }}">{{ strings.sections.support_button }}</a>
+  <div class="teaser support">
+    <div class="support__text">
+      <h2>{{ strings.sections.support_title }}</h2>
+      <p>{{ strings.sections.support_text }}</p>
+      <a class="button button--primary" href="{{ strings.sections.support_url }}">{{ strings.sections.support_button }}</a>
+    </div>
+    <img class="support__art" src="{{ asset_url('img/support-tree.webp') }}" alt="" width="640" height="655" loading="lazy">
   </div>
 </section>
 {% endblock %}
