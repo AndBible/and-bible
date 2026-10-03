@@ -1,4 +1,6 @@
-"""Capture the legacy Read the Docs site: build the Sphinx HTML and record every anchor id per page.
+"""HISTORICAL one-shot tool: the legacy Read the Docs site is deprecated; its captured ids live in the fixtures. Do not re-run.
+
+Capture the legacy Read the Docs site: build the Sphinx HTML and record every anchor id per page.
 
 Task 15 converts the RST to Markdown and must keep every ``docs.andbible.org/en/latest/<page>.html#<id>``
 deep link working, so the ids Sphinx emitted are the ground truth stored in the fixtures.

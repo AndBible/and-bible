@@ -1,4 +1,6 @@
-"""One-shot WordPress (WXR) import: posts, pages, media, legacy-URL fixture and a report.
+"""HISTORICAL one-shot tool: do not re-run (it would overwrite hand-edited content/curated data).
+
+One-shot WordPress (WXR) import: posts, pages, media, legacy-URL fixture and a report.
 
     uv run --group migrate python -m sitegen.migrate.wxr --wxr EXPORT.xml --media-tar UPLOADS.tar
 

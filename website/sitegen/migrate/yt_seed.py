@@ -1,4 +1,6 @@
-"""One-shot: seed data/videos.yaml from the AndBible YouTube channel and the app's help playlists.
+"""HISTORICAL one-shot tool: do not re-run (it would overwrite hand-edited content/curated data).
+
+One-shot: seed data/videos.yaml from the AndBible YouTube channel and the app's help playlists.
 
     uv run python -m sitegen.migrate.yt_seed > data/videos.yaml
 

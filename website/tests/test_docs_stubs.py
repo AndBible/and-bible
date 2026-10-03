@@ -12,8 +12,8 @@ from sitegen.migrate.docs_stubs import legacy_pages, new_path
 FIXTURE = Path(__file__).parent / "fixtures" / "rtd_urls.txt"
 
 
-def run(out):
-    subprocess.run([sys.executable, "-m", "sitegen.migrate.docs_stubs", "--out", str(out)], check=True,
+def run(out, *extra):
+    subprocess.run([sys.executable, "-m", "sitegen.migrate.docs_stubs", "--out", str(out), *extra], check=True,
                    cwd=Path(__file__).resolve().parents[1])
 
 
@@ -110,7 +110,7 @@ def test_generate_keeps_git_and_removes_stale_files(tmp_path):
     (tmp_path / "stale.html").write_text("old")
     (tmp_path / "en" / "old").mkdir(parents=True)
     (tmp_path / "en" / "old" / "x.html").write_text("old")
-    run(tmp_path)
+    run(tmp_path, "--force")
     assert (tmp_path / ".git" / "config").read_text() == "[core]\n"
     assert not (tmp_path / "stale.html").exists()
     assert not (tmp_path / "en" / "old").exists()
@@ -121,3 +121,42 @@ def test_noindex_only_on_404_not_on_stubs(stub_site):
     assert "noindex" not in (stub_site / "en/latest/ai.html").read_text()
     assert "noindex" not in (stub_site / "index.html").read_text()
     assert 'content="noindex"' in (stub_site / "404.html").read_text()
+
+
+def run_cli(out, *extra):
+    return subprocess.run([sys.executable, "-m", "sitegen.migrate.docs_stubs", "--out", str(out), *extra],
+                          capture_output=True, text=True, cwd=Path(__file__).resolve().parents[1])
+
+
+def test_generate_refuses_an_unrelated_non_empty_dir(tmp_path):
+    (tmp_path / "precious.txt").write_text("keep me")
+    result = run_cli(tmp_path)
+    assert result.returncode != 0
+    assert "--force" in result.stderr
+    assert (tmp_path / "precious.txt").read_text() == "keep me"
+
+
+def test_generate_refuses_git_checkout_with_old_sources(tmp_path):
+    (tmp_path / ".git").mkdir()
+    (tmp_path / "ai.rst").write_text("old")
+    assert run_cli(tmp_path).returncode != 0
+    assert (tmp_path / "ai.rst").exists()
+
+
+def test_generate_accepts_empty_dir_missing_dir_git_only_and_previous_site(tmp_path):
+    assert run_cli(tmp_path / "new").returncode == 0
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    assert run_cli(empty).returncode == 0
+    git_only = tmp_path / "gitonly"
+    (git_only / ".git").mkdir(parents=True)
+    assert run_cli(git_only).returncode == 0
+    assert run_cli(empty).returncode == 0  # a previous generation (CNAME = docs.andbible.org)
+
+
+def test_generate_force_overrides_the_guard(tmp_path):
+    (tmp_path / ".git").mkdir()
+    (tmp_path / "ai.rst").write_text("old")
+    assert run_cli(tmp_path, "--force").returncode == 0
+    assert not (tmp_path / "ai.rst").exists()
+    assert (tmp_path / ".git").is_dir()

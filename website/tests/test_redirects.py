@@ -80,3 +80,13 @@ def test_noindex_can_be_disabled():
     from sitegen.redirects import stub_html
     assert "noindex" not in stub_html(environment(), "https://andbible.org/docs/", noindex=False)
     assert "noindex" in stub_html(environment(), "https://andbible.org/docs/")
+
+
+def test_target_with_fragment_does_not_get_the_incoming_hash_appended(tmp_path):
+    (tmp_path / "docs" / "ai").mkdir(parents=True)
+    (tmp_path / "docs" / "ai" / "index.html").write_text("ok")
+    write_stubs(environment(), {"/old-ai/": "/docs/ai/#setting-permissions"}, tmp_path)
+    html = (tmp_path / "old-ai" / "index.html").read_text()
+    assert 'location.replace("/docs/ai/#setting-permissions");' in html
+    assert "+ location.hash" not in html
+    assert 'url=/docs/ai/#setting-permissions"' in html

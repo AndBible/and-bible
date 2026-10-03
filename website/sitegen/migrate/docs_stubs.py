@@ -19,6 +19,7 @@ from sitegen import home, paths, redirects
 FIXTURE = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "rtd_urls.txt"
 NEW_ROOT = f"{paths.BASE_URL}/docs/"
 PREFIX = "en/latest/"
+CNAME = "docs.andbible.org"
 
 README = """# docs.andbible.org (redirects only)
 
@@ -80,8 +81,35 @@ def new_path(old: str, pages: set[str]) -> str:
     return "/docs/" + stem.removesuffix("index") if stem.endswith("/index") else f"/docs/{stem}/"
 
 
-def generate(out: Path) -> int:
-    """Write the stub site into ``out`` (replacing its contents except ``.git``); returns the number of files written."""
+def check_out_dir(out: Path) -> None:
+    """Refuse to wipe a directory that is not obviously a (previous) docs redirect site.
+
+    ``generate`` deletes every child of ``out`` except ``.git``, so a mistyped ``--out`` could destroy
+    unrelated files. Accepted: a missing or empty directory, one holding only ``.git``, or one whose
+    ``CNAME`` is ``docs.andbible.org`` (a previous generation).
+    """
+    if not out.exists():
+        return
+    if not out.is_dir():
+        raise ValueError(f"{out} is not a directory")
+    if {child.name for child in out.iterdir()} <= {".git"}:
+        return
+    cname = out / "CNAME"
+    if cname.is_file() and cname.read_text(encoding="utf-8").strip() == CNAME:
+        return
+    raise ValueError(
+        f"refusing to clear {out}: it is not empty and has no CNAME of {CNAME} (not a previous generation). "
+        "Everything in it except .git would be deleted. Pass --force if that is really intended."
+    )
+
+
+def generate(out: Path, force: bool = False) -> int:
+    """Write the stub site into ``out`` (replacing its contents except ``.git``); returns the number of files written.
+
+    Raises ``ValueError`` for a directory that is not a previous generation unless ``force`` (see ``check_out_dir``).
+    """
+    if not force:
+        check_out_dir(out)
     if out.exists():
         for child in out.iterdir():
             if child.name == ".git":  # out may be a checkout of the redirect repo
@@ -102,7 +130,7 @@ def generate(out: Path) -> int:
     for rel in ("index.html", "en/index.html", "en/latest/index.html"):
         write(rel, redirects.stub_html(env, NEW_ROOT, noindex=False))
     write("404.html", NOT_FOUND.replace("__PAGES__", json.dumps(sorted(pages))))
-    write("CNAME", "docs.andbible.org\n")
+    write("CNAME", CNAME + "\n")
     write("README.md", README)
     return sum(1 for p in out.rglob("*") if p.is_file())
 
@@ -110,8 +138,14 @@ def generate(out: Path) -> int:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--force", action="store_true",
+                        help="clear --out even if it is not empty or a previous generation (keeps .git)")
     args = parser.parse_args()
-    print(f"{generate(args.out)} files written to {args.out}")
+    try:
+        count = generate(args.out, force=args.force)
+    except ValueError as exc:
+        parser.exit(1, f"error: {exc}\n")
+    print(f"{count} files written to {args.out}")
 
 
 if __name__ == "__main__":

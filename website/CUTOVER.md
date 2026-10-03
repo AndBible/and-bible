@@ -63,6 +63,12 @@ In the and-bible repo, Settings, Pages: Source = "GitHub Actions"; Custom domain
 (the site's own `CNAME` file also carries it). Then re-run the push run of the `Website` workflow on
 `current-stable` (Actions, Website, Re-run all jobs); `deploy` only runs for a push to `current-stable`.
 
+Also allow the deploy branch: with Source = "GitHub Actions", GitHub creates the `github-pages`
+environment restricted to the repo's **default branch**. If the default branch is not `current-stable`,
+the `deploy` job fails with `Branch "current-stable" is not allowed to deploy to github-pages due to
+environment protection rules`. Fix: Settings, Environments, `github-pages`, Deployment branches and
+tags, add `current-stable` (or change the default branch), then re-run the job.
+
 Check: the `deploy` job is green and `https://andbible.github.io/and-bible/` shows the site
 (it may redirect to the custom domain once DNS is set).
 
@@ -89,16 +95,20 @@ redirects to https.
 GitHub Pages serves one custom domain per repo, so this lives in the `AndBible/docs` repo, not in
 and-bible.
 
-1. Generate (or refresh) the stubs. The container already produced them in
+1. In a checkout of `AndBible/docs`, first tag the last RST commit so the history stays reachable:
+   `git tag rtd-final && git push origin rtd-final`. Do this BEFORE generating: the generator removes
+   the RST sources from the working tree.
+2. Generate (or refresh) the stubs. The container already produced them in
    `.local/docs-redirect-site/` (shared with the host). To regenerate:
    `cd website && uv run python -m sitegen.migrate.docs_stubs --out <checkout of AndBible/docs>`.
-   **Warning:** the generator deletes everything in `--out` except `.git`. On `main` this removes the RST
-   sources, which is safe only after the `rtd-final` tag (step 2 below) is pushed.
+   The generator deletes everything in `--out` except `.git`, so it refuses a non-empty `--out` unless
+   that is a previous generation (a `CNAME` of `docs.andbible.org`) or holds only `.git`. **A fresh
+   checkout of `AndBible/docs` on `main` holds `.git` plus the old RST sources, so the first run needs
+   `--force`**; only pass it once the `rtd-final` tag from the previous step is pushed (the RST
+   sources stay reachable through that tag).
    The generator rewrites the stubs, `404.html`, `index.html`, `README.md` (points readers to
    andbible.org/docs and the monorepo) and `CNAME` (`docs.andbible.org`), and keeps the `.git`
    directory of the target.
-2. In a checkout of `AndBible/docs`, first tag the last RST commit so the history stays reachable:
-   `git tag rtd-final && git push origin rtd-final`.
 3. Put the stubs on either a new branch `gh-pages` (`git switch --orphan gh-pages`, copy the stubs
    in, or generate straight into the checkout) or on `main` after the tag. Commit and push.
 4. In AndBible/docs, Settings, Pages: deploy from that branch (root), Custom domain
@@ -142,6 +152,11 @@ Then do step 0's app release.
 
 ## 7. WordPress.com
 
+Before closing anything, check where the `andbible.org` domain registration and DNS zone live. If
+they are at WordPress.com, keep the plan or first move the zone (and transfer the registration) to a
+registrar that carries the `support.` and `shop.` records and the MX records; closing the plan would
+otherwise take mail, the module repository host and the shop down.
+
 Leave `andbibleorg.wordpress.com` up for a month, then close the WordPress.com plan. Comments are
 not migrated (decision 2026-10-03).
 
@@ -165,6 +180,6 @@ Before or soon after go-live:
 - The landing hero card has no "current version" line (spec section 3 lists it; there is no
   version source for it).
 - Unreferenced WordPress attachments have no `/wp-content/uploads/...` stubs (only referenced ones).
-- `actionlint` and the first CI run of `website.yml` have not been executed. The action versions
-  follow the working jailbee repo (`checkout@v7`, `setup-uv@v7`, `upload-pages-artifact@v5`,
-  `deploy-pages@v5`); verify the first run in step 2/3.
+- `actionlint` (1.7.12) ran clean on `website.yml`, but the first real CI run of it has not been
+  executed. The action versions follow the working jailbee repo (`checkout@v7`, `setup-uv@v7`,
+  `upload-pages-artifact@v5`, `deploy-pages@v5`); verify the first run in step 2/3.
