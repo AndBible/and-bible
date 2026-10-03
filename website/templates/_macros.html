@@ -1,0 +1,17 @@
+{% macro post_card(post) %}
+<article class="post-card">
+  {% if post.image_url %}<a href="{{ post.path }}" tabindex="-1" aria-hidden="true"><img src="{{ post.image_url }}" alt="{{ post.image_alt or '' }}" loading="lazy" width="1200" height="630"></a>{% endif %}
+  <div class="post-card__body">
+    <time datetime="{{ post.date.isoformat() }}">{{ post.date.isoformat() }}</time>
+    <h3><a href="{{ post.path }}">{{ post.title }}</a></h3>
+    <p>{{ post.summary }}</p>
+  </div>
+</article>
+{% endmacro %}
+
+{% macro pager(previous, next, strings) %}
+<nav class="pager" aria-label="Pagination">
+  {% if previous %}<a href="{{ previous }}" rel="prev">&larr; {{ strings.blog.newer }}</a>{% else %}<span></span>{% endif %}
+  {% if next %}<a href="{{ next }}" rel="next">{{ strings.blog.older }} &rarr;</a>{% endif %}
+</nav>
+{% endmacro %}

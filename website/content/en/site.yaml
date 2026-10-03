@@ -1,0 +1,61 @@
+site_name: AndBible
+nav:
+  blog: Blog
+  docs: Docs
+  videos: Videos
+  support: Support us
+  github: GitHub
+  theme_toggle: Toggle light/dark theme
+  menu: Menu
+hero:
+  eyebrow: Free & open source Bible study
+  headline: "Powerful Bible study, *free* for everyone."
+  lead: >-
+    Thousands of Bibles, commentaries and dictionaries, offline. StudyPads,
+    bookmarks and notes that sync across your devices. Android and iOS, no ads,
+    no tracking.
+  docs_button: Read the docs
+  videos_button: Tutorial videos
+getapp:
+  title: Get the app
+  others: Also on GitHub, Amazon, Samsung, Huawei and Accrescent
+  stores:
+    - {name: Google Play, note: Android, url: "https://play.google.com/store/apps/details?id=net.bible.android.activity", icon: gp}
+    - {name: F-Droid, note: "Android, FOSS store", url: "https://f-droid.org/packages/net.bible.android.activity/", icon: fd}
+    - {name: App Store, note: iPhone & iPad, url: "https://apps.apple.com/us/app/andbible-bible-study/id6774904527", icon: as}
+  others_url: "https://github.com/AndBible/and-bible/releases"
+features:
+  - {title: Study tools, text: "Strong's numbers, morphology, cross-references and commentaries side by side."}
+  - {title: StudyPads, text: Notes and bookmarks woven into the Bible text, organised by labels.}
+  - {title: Sync, text: Bookmarks and workspaces synced through Google Drive or NextCloud.}
+  - {title: Workspaces, text: Split windows with synchronised scrolling and pinned documents.}
+sections:
+  latest: Latest from the blog
+  all_posts: All posts
+  videos: Learn with videos
+  videos_link: Browse the video catalog
+  support_title: Support AndBible
+  support_text: >-
+    AndBible is free and has no ads. Sponsored development time keeps it moving.
+  support_button: Ways to support
+  support_url: "https://shop.andbible.org/page/info"
+footer:
+  source: Source code
+  source_url: "https://github.com/AndBible/and-bible"
+  translate: Help translate
+  translate_url: "https://github.com/AndBible/and-bible/wiki/Translating-User-Interface"
+  issues: Report an issue
+  issues_url: "https://github.com/AndBible/and-bible/issues"
+  privacy: Privacy
+  terms: Terms
+  gpl: License (GPL)
+  flyers: Printable flyers
+  rss: RSS
+blog:
+  title: News & Blog
+  read_more: Read more
+  older: Older posts
+  newer: Newer posts
+  category: "Category: {name}"
+  tag: "Tag: {name}"
+  posted_in: Posted in

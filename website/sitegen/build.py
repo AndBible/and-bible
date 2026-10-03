@@ -13,7 +13,11 @@ import shutil
 import sys
 from pathlib import Path
 
-from sitegen import paths
+from sitegen import home, paths
+from sitegen.content import load_posts
+from sitegen.home import render_home
+from sitegen.i18n import languages, strings
+from sitegen.paths import DEFAULT_LANG
 
 
 def build(content: Path, out: Path) -> None:
@@ -21,6 +25,11 @@ def build(content: Path, out: Path) -> None:
         shutil.rmtree(out)
     out.mkdir(parents=True)
     (out / "CNAME").write_text("andbible.org\n")
+    shutil.copytree(paths.ASSETS, out / "assets")
+    env = home.environment()
+    posts = load_posts(content / DEFAULT_LANG / "blog", paths.MEDIA)
+    for lang in languages(content):
+        render_home(env, strings(content, lang), lang, posts, out)
 
 
 def main(argv: list[str] | None = None) -> int:

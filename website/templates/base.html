@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}">
+  <link rel="canonical" href="{{ canonical }}">
+  <meta property="og:site_name" content="{{ strings.site_name }}">
+  <meta property="og:type" content="{{ og_type }}">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{{ description }}">
+  <meta property="og:url" content="{{ canonical }}">
+  <meta property="og:image" content="{{ og_image }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="alternate" type="application/rss+xml" title="{{ strings.site_name }}" href="/feed/">
+  <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg">
+  <link rel="stylesheet" href="/assets/css/site.css?v={{ asset_hash['css/site.css'] }}">
+  <script src="/assets/js/theme.js?v={{ asset_hash['js/theme.js'] }}"></script>
+  <script src="/assets/js/lite-yt.js?v={{ asset_hash['js/lite-yt.js'] }}" defer></script>
+  {% block head_extra %}{% endblock %}
+</head>
+<body class="{{ body_class }}">
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="{{ prefix }}/"><img src="/assets/img/logo.svg" alt="" width="32" height="32"><span>{{ strings.site_name }}</span></a>
+    <nav id="site-nav" aria-label="Main">
+      <a href="/blog/">{{ strings.nav.blog }}</a>
+      <a href="{{ prefix }}/docs/">{{ strings.nav.docs }}</a>
+      <a href="/videos/">{{ strings.nav.videos }}</a>
+      <a href="{{ strings.sections.support_url }}">{{ strings.nav.support }}</a>
+      <a href="{{ strings.footer.source_url }}">{{ strings.nav.github }}</a>
+    </nav>
+    <button class="icon-button" type="button" data-theme-toggle aria-label="{{ strings.nav.theme_toggle }}">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>
+    </button>
+    <button class="icon-button" type="button" data-menu-toggle aria-expanded="false" aria-controls="site-nav" aria-label="{{ strings.nav.menu }}">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+</header>
+<main class="wrap">
+{% block content %}{% endblock %}
+</main>
+<footer class="footer">
+  <div class="wrap">
+    <ul>
+      <li><a href="{{ strings.footer.source_url }}">{{ strings.footer.source }}</a></li>
+      <li><a href="{{ strings.footer.translate_url }}">{{ strings.footer.translate }}</a></li>
+      <li><a href="{{ strings.footer.issues_url }}">{{ strings.footer.issues }}</a></li>
+      <li><a href="/privacy/">{{ strings.footer.privacy }}</a></li>
+      <li><a href="/terms/">{{ strings.footer.terms }}</a></li>
+      <li><a href="/gpl/">{{ strings.footer.gpl }}</a></li>
+      <li><a href="/flyers/">{{ strings.footer.flyers }}</a></li>
+      <li><a href="/feed/">{{ strings.footer.rss }}</a></li>
+    </ul>
+  </div>
+</footer>
+</body>
+</html>
