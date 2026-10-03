@@ -1,4 +1,5 @@
 import re
+import tomllib
 import json
 from pathlib import Path
 
@@ -17,6 +18,35 @@ def test_nav_whitelist_covers_every_docs_page():
     assert pages - on_disk == set(), "nav names a page that does not exist"
 
 
+def _media(tmp_path, *ids):
+    """A media dir holding a thumbnail for each video id."""
+    media = tmp_path / "media"
+    (media / "videos").mkdir(parents=True, exist_ok=True)
+    for vid in ids:
+        (media / "videos" / f"{vid}.webp").write_bytes(b"x")
+    return media
+
+
+def _one_page(tmp_path, text):
+    content = tmp_path / "content"
+    (content / "en" / "docs").mkdir(parents=True, exist_ok=True)
+    (content / "en" / "docs" / "a.md").write_text(text)
+    return content
+
+
+def test_stage_fails_on_a_missing_embed_thumbnail(tmp_path):
+    content = _one_page(tmp_path, "# A\n\nhttps://youtu.be/missingVID1\n")
+    with pytest.raises(ValueError, match=r"a\.md.*missingVID1"):
+        stage(content, "en", tmp_path / "stage", ["a.md"], {}, media_dir=_media(tmp_path))
+
+
+def test_stage_fails_on_a_missing_related_video_thumbnail(tmp_path):
+    content = _one_page(tmp_path, "# A\n")
+    with pytest.raises(ValueError, match=r"a\.md.*relatedVID12"):
+        stage(content, "en", tmp_path / "stage", ["a.md"], {"a": [("relatedVID12", "T")]},
+              media_dir=_media(tmp_path))
+
+
 def test_stage_falls_back_to_english_and_adds_related_videos(tmp_path):
     content = tmp_path / "content"
     (content / "en" / "docs").mkdir(parents=True)
@@ -25,7 +55,7 @@ def test_stage_falls_back_to_english_and_adds_related_videos(tmp_path):
     (content / "fi" / "docs").mkdir(parents=True)
     (content / "fi" / "docs" / "a.md").write_text("# A\n\nSuomi\n")
     stage(content, "fi", tmp_path / "stage", ["a.md", "b.md"],
-          {"a": [("zzzzzzzzzzz", "Intro video")]})
+          {"a": [("zzzzzzzzzzz", "Intro video")]}, media_dir=_media(tmp_path, "zzzzzzzzzzz", "abcDEF12345"))
     a = (tmp_path / "stage" / "a.md").read_text()
     assert "Suomi" in a and "## Related videos" in a and 'data-yt-id="zzzzzzzzzzz"' in a
     b = (tmp_path / "stage" / "b.md").read_text()
@@ -125,7 +155,8 @@ def test_related_videos_skip_ids_the_page_already_embeds(tmp_path):
     (content / "en" / "docs" / "a.md").write_text("# A\n\nhttps://youtu.be/abcDEF12345\n")
     (content / "en" / "docs" / "b.md").write_text("# B\n\nhttps://youtu.be/abcDEF12345\n\ntext\n")
     stage(content, "en", tmp_path / "stage", ["a.md", "b.md"],
-          {"a": [("abcDEF12345", "Same"), ("otherVID1234", "Other")], "b": [("abcDEF12345", "Same")]})
+          {"a": [("abcDEF12345", "Same"), ("otherVID1234", "Other")], "b": [("abcDEF12345", "Same")]},
+          media_dir=_media(tmp_path, "abcDEF12345", "otherVID1234"))
     a = (tmp_path / "stage" / "a.md").read_text()
     assert a.count('data-yt-id="abcDEF12345"') == 1 and 'data-yt-id="otherVID1234"' in a
     b = (tmp_path / "stage" / "b.md").read_text()
@@ -139,3 +170,45 @@ def test_built_docs_never_embed_a_video_twice_on_one_page():
     for page in site.rglob("index.html"):
         ids = re.findall(r'data-yt-id="([^"]+)"', page.read_text(encoding="utf-8"))
         assert len(ids) == len(set(ids)), f"{page.relative_to(site)} embeds a video twice"
+
+
+def _config(base=None):
+    from sitegen.docs import _language_config
+    base = base if base is not None else (paths.WEBSITE / "zensical.toml").read_text()
+    config_dir = paths.BUILD / "en"
+    return _language_config(base, "en", config_dir / "docs", config_dir / "site", {
+        "site_name": "AndBible",
+        "nav": {"theme_toggle": "t", "blog": "b", "docs": "d", "videos": "v", "support": "s", "github": "g"},
+        "sections": {"support_url": "https://x"}, "footer": {"source_url": "https://y"}})
+
+
+def test_language_config_applies_every_override():
+    config = tomllib.loads(_config())
+    assert config["project"]["docs_dir"] == "docs" and config["project"]["site_dir"] == "site"
+    assert config["project"]["site_url"] == "https://andbible.org/docs/"
+    assert config["project"]["theme"]["language"] == "en"
+    assert config["project"]["extra"]["site"]["brand"] == "AndBible"
+
+
+def test_language_config_carries_asset_hashes_for_the_theme():
+    from sitegen.home import asset_hashes
+    assets = tomllib.loads(_config())["project"]["extra"]["assets"]
+    assert assets == {"embeds_css": asset_hashes()["css/embeds.css"], "lite_yt_js": asset_hashes()["js/lite-yt.js"]}
+
+
+@pytest.mark.parametrize("drop, missing", [
+    ("docs_dir", "docs_dir"), ("site_dir", "site_dir"), ("site_url", "site_url"),
+    ("[project.theme]", r"\[project\.theme\]"), ("[project.extra]", r"\[project\.extra\]"),
+])
+def test_language_config_fails_when_an_override_cannot_be_applied(drop, missing):
+    base = (paths.WEBSITE / "zensical.toml").read_text()
+    broken = "\n".join(line for line in base.splitlines() if not line.strip().startswith(drop))
+    with pytest.raises(ValueError, match=missing):
+        _config(broken)
+
+
+def test_docs_pages_load_embed_assets_with_content_hashes(built_docs):
+    from sitegen.home import asset_hashes
+    html = (built_docs / "docs" / "ai" / "index.html").read_text()
+    assert f'/assets/css/embeds.css?v={asset_hashes()["css/embeds.css"]}"' in html
+    assert f'/assets/js/lite-yt.js?v={asset_hashes()["js/lite-yt.js"]}"' in html

@@ -45,7 +45,10 @@ def markdown_to_html(md: str, source: Path, media_dir: Path) -> str:
         if src.startswith(("http://", "https://", "//")):
             raise ValueError(f"{source}: external image {src}; copy it into media/")
         if src.startswith("/media/videos/"):
-            continue  # embed thumbnails: checked below with a clearer message
+            # Embed thumbnails; one that belongs to an embed is also checked below with a clearer message.
+            if not (media_dir / src.removeprefix("/media/")).is_file():
+                raise ValueError(f"{source}: missing thumbnail {src}; run `make site-thumbs`")
+            continue
         if not src.startswith("/media/"):
             raise ValueError(f"{source}: image {src} must be a /media/... path")
         try:

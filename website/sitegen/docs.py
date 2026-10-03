@@ -19,6 +19,8 @@ from typing import Any
 import zensical
 
 from sitegen import paths
+from sitegen.home import asset_hashes
+from sitegen.render import thumbnail_path
 from sitegen.i18n import languages, prefix, resolve, strings
 from sitegen.youtube import embed_html, expand_lines
 
@@ -43,7 +45,11 @@ def published_pages(config: Path) -> list[str]:
 
 
 def stage(content: Path, lang: str, stage_dir: Path, pages: list[str],
-          related: dict[str, list[tuple[str, str]]]) -> None:
+          related: dict[str, list[tuple[str, str]]], media_dir: Path = paths.MEDIA) -> None:
+    """Stage `pages` for Zensical; a video id (embedded or related) without a local thumbnail raises ValueError.
+
+    Zensical's strict mode does not check raw `<img>` tags, so the check lives here (spec section 8).
+    """
     if stage_dir.exists():
         shutil.rmtree(stage_dir)
     stage_dir.mkdir(parents=True)
@@ -51,6 +57,9 @@ def stage(content: Path, lang: str, stage_dir: Path, pages: list[str],
         text, embedded = expand_lines(resolve(content, lang, f"docs/{page}").read_text(encoding="utf-8"))
         videos = [(vid, title) for vid, title in related.get(Path(page).with_suffix("").as_posix(), [])
                   if vid not in embedded]  # never repeat a video the page already embeds
+        for vid in [*embedded, *(vid for vid, _ in videos)]:
+            if not (media_dir / thumbnail_path(vid)).is_file():
+                raise ValueError(f"docs page {page}: missing thumbnail for {vid}; run `make site-thumbs`")
         if videos:
             text = text.rstrip() + "\n\n## Related videos\n\n" + "\n\n".join(
                 embed_html(vid, "video", title) for vid, title in videos) + "\n"
@@ -109,7 +118,10 @@ def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path, site
         "site_dir": site_dir.relative_to(config_dir).as_posix(),
         "site_url": f"{paths.BASE_URL}{prefix(lang)}/docs/",
     }
+    hashes = asset_hashes()
+    asset_extra = {"embeds_css": hashes["css/embeds.css"], "lite_yt_js": hashes["js/lite-yt.js"]}
     lines = []
+    seen_theme = seen_extra = False
     for line in base.splitlines():
         key = line.split("=", 1)[0].strip()
         if key in overrides:
@@ -119,8 +131,15 @@ def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path, site
         lines.append(line)
         if line.strip() == "[project.theme]":
             lines.append(f"language = {json.dumps(theme_language(lang))}")
+            seen_theme = True
         if line.strip() == "[project.extra]":
             lines.append(f"site = {_toml(site_extra(site, lang))}")
+            lines.append(f"assets = {_toml(asset_extra)}")  # content hashes for the theme's ?v= cache busting
+            seen_extra = True
+    missing = [*overrides, *(name for name, seen in (("[project.theme]", seen_theme), ("[project.extra]", seen_extra))
+                             if not seen), *([] if "custom_dir" in base else ["custom_dir"])]
+    if missing:
+        raise ValueError(f"zensical.toml: could not apply the generated overrides, missing {', '.join(missing)}")
     return "\n".join(lines) + "\n"
 
 

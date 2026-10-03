@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block extrahead %}
   {{ super() }}
-  <link rel="stylesheet" href="/assets/css/embeds.css">
+  <link rel="stylesheet" href="/assets/css/embeds.css?v={{ config.extra.assets.embeds_css }}">
   <script src="{{ 'assets/andbible-docs-theme.js' | url }}"></script>
 {% endblock %}
 {% block scripts %}
   {{ super() }}
-  <script src="/assets/js/lite-yt.js" defer></script>
+  <script src="/assets/js/lite-yt.js?v={{ config.extra.assets.lite_yt_js }}" defer></script>
 {% endblock %}

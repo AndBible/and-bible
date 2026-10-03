@@ -41,6 +41,13 @@ def test_missing_thumbnail_fails(media):
         markdown_to_html("https://youtu.be/zzzzzzzzzzz\n", SRC, media)
 
 
+def test_hand_written_video_thumbnail_img_must_exist(media):
+    html = markdown_to_html('<img src="/media/videos/abcDEF12345.webp" alt="">', SRC, media)
+    assert "abcDEF12345" in html
+    with pytest.raises(ValueError, match="missing thumbnail.*nopeNOPE123"):
+        markdown_to_html('<img src="/media/videos/nopeNOPE123.webp" alt="">', SRC, media)
+
+
 def test_youtube_line_renders_embed(media):
     html = markdown_to_html("https://youtu.be/abcDEF12345\n", SRC, media)
     assert 'data-yt-id="abcDEF12345"' in html

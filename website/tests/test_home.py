@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from sitegen import paths
 from sitegen.build import build
 from sitegen.i18n import languages, prefix, resolve, strings
 
@@ -142,3 +143,13 @@ def test_footer_has_no_translate_link(content, tmp_path):
     html = (out / "index.html").read_text()
     assert "Translating-User-Interface" not in html and "Help translate" not in html
     assert not [k for k in strings(content, "en")["footer"] if "translate" in k]
+
+
+def test_embeds_css_is_linked_with_its_own_content_hash_not_imported(content, tmp_path):
+    from sitegen.home import asset_hashes
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    html = (out / "index.html").read_text()
+    assert f'href="/assets/css/embeds.css?v={asset_hashes()["css/embeds.css"]}"' in html
+    assert f'src="/assets/js/lite-yt.js?v={asset_hashes()["js/lite-yt.js"]}"' in html
+    assert "@import" not in (paths.ASSETS / "css" / "site.css").read_text()
