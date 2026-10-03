@@ -38,7 +38,7 @@ def test_resolve_falls_back_to_english(content):
 
 def test_home_page_structure(content, tmp_path):
     out = tmp_path / "out"
-    build(content, out, data=tmp_path / "data")
+    build(content, out, data=tmp_path / "data", docs=False)
     html = (out / "index.html").read_text()
     assert '<html lang="en"' in html
     assert 'class="hero__panel"' in html
@@ -66,7 +66,7 @@ CSS = (Path(__file__).resolve().parents[1] / "assets" / "css").glob("*.css")
 
 def test_phone_images_follow_effective_theme(content, tmp_path):
     out = tmp_path / "out"
-    build(content, out, data=tmp_path / "data")
+    build(content, out, data=tmp_path / "data", docs=False)
     html = (out / "index.html").read_text()
     assert "<picture" not in html
     assert 'class="getapp__phone getapp__phone--light"' in html

@@ -1,0 +1,20 @@
+@font-face { font-family: "Source Serif 4"; font-weight: 600; font-display: swap;
+  src: url("/assets/fonts/source-serif-4-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 400; font-display: swap;
+  src: url("/assets/fonts/inter-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 600; font-display: swap;
+  src: url("/assets/fonts/inter-latin-600-normal.woff2") format("woff2"); }
+:root { --md-text-font: "Inter"; --md-code-font: ui-monospace, monospace; }
+[data-md-color-scheme="default"] {
+  --md-default-bg-color: #f7f1e3; --md-default-fg-color: #2a2620;
+  --md-primary-fg-color: #fffaf0; --md-primary-bg-color: #2a2620;
+  --md-accent-fg-color: #9a5b10; --md-typeset-a-color: #9a5b10;
+  --md-footer-bg-color: #2a2620;
+}
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #161616; --md-default-fg-color: #efe9dd;
+  --md-primary-fg-color: #1c1c1b; --md-primary-bg-color: #efe9dd;
+  --md-accent-fg-color: #FEBA2A; --md-typeset-a-color: #FEBA2A;
+  --md-footer-bg-color: #121212;
+}
+.md-typeset h1, .md-typeset h2, .md-typeset h3 { font-family: "Source Serif 4", Georgia, serif; font-weight: 600; }

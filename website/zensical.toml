@@ -1,0 +1,54 @@
+# Configuration for https://andbible.org/docs/. Build with `make site`, never a
+# bare `zensical build`: sitegen.docs stages exactly the nav pages per language
+# and writes a per-language copy of this file with absolute paths.
+[project]
+site_name = "AndBible Documentation"
+site_description = "User documentation for AndBible: Bible Study."
+site_url = "https://andbible.org/docs/"
+docs_dir = "_build/en/docs"
+site_dir = "_site/docs"
+repo_url = "https://github.com/AndBible/and-bible"
+repo_name = "AndBible/and-bible"
+edit_uri = "blob/current-stable/website/content/en/docs/"
+extra_css = ["assets/andbible-docs.css"]
+nav = [
+  { "Home" = "index.md" },
+  { "Getting Started" = ["getting_started.md"] },
+]
+
+[project.theme]
+font = false
+custom_dir = "theme"
+logo = "/assets/img/logo.svg"
+favicon = "/assets/img/logo.svg"
+features = ["navigation.sections", "navigation.footer", "navigation.top",
+            "navigation.tracking", "search.highlight", "content.code.copy"]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "custom"
+accent = "custom"
+toggle = { icon = "material/weather-night", name = "Dark theme" }
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "custom"
+accent = "custom"
+toggle = { icon = "material/weather-sunny", name = "Light theme" }
+
+[project.extra]
+homepage = "https://andbible.org/"
+
+[project.markdown_extensions]
+admonition = {}
+attr_list = {}
+def_list = {}
+md_in_html = {}
+tables = {}
+footnotes = {}
+toc.permalink = true
+pymdownx.details = {}
+pymdownx.superfences = {}
+pymdownx.highlight.pygments_lang_class = true

@@ -1,3 +1,4 @@
+@import "embeds.css";
 @font-face { font-family: "Source Serif 4"; font-weight: 600; font-style: normal; font-display: swap;
   src: url("../fonts/source-serif-4-latin-600-normal.woff2") format("woff2"); }
 @font-face { font-family: "Source Serif 4"; font-weight: 600; font-style: italic; font-display: swap;
@@ -64,13 +65,6 @@ a { color: var(--accent-ink); }
 
 .table-wrap { overflow-x: auto; }
 img { max-width: 100%; height: auto; }
-.yt { margin: 1.5rem 0; }
-.yt__play { position: relative; display: block; width: 100%; padding: 0; border: 0; cursor: pointer;
-  aspect-ratio: 16 / 9; background: var(--video-bg); border-radius: var(--radius); overflow: hidden; }
-.yt--short .yt__play { aspect-ratio: 9 / 16; max-width: 360px; }
-.yt__play img { width: 100%; height: 100%; object-fit: cover; }
-.yt__frame { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: var(--radius); }
-.yt--short .yt__frame { aspect-ratio: 9 / 16; max-width: 360px; }
 
 @media (prefers-reduced-motion: no-preference) {
   a, .button, .store { transition: background-color .15s, border-color .15s, color .15s; }
