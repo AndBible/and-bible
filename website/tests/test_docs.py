@@ -117,3 +117,25 @@ def test_docs_theme_defines_every_token_the_embeds_use():
     assert block, "tokens must be defined for both colour schemes"
     for token in used:
         assert f"--{token}:" in block.group(1)
+
+
+def test_related_videos_skip_ids_the_page_already_embeds(tmp_path):
+    content = tmp_path / "content"
+    (content / "en" / "docs").mkdir(parents=True)
+    (content / "en" / "docs" / "a.md").write_text("# A\n\nhttps://youtu.be/abcDEF12345\n")
+    (content / "en" / "docs" / "b.md").write_text("# B\n\nhttps://youtu.be/abcDEF12345\n\ntext\n")
+    stage(content, "en", tmp_path / "stage", ["a.md", "b.md"],
+          {"a": [("abcDEF12345", "Same"), ("otherVID1234", "Other")], "b": [("abcDEF12345", "Same")]})
+    a = (tmp_path / "stage" / "a.md").read_text()
+    assert a.count('data-yt-id="abcDEF12345"') == 1 and 'data-yt-id="otherVID1234"' in a
+    b = (tmp_path / "stage" / "b.md").read_text()
+    assert "Related videos" not in b and b.count("data-yt-id") == 1
+
+
+def test_built_docs_never_embed_a_video_twice_on_one_page():
+    site = paths.SITE / "docs"
+    if not site.is_dir():
+        pytest.skip("run `make site` first")
+    for page in site.rglob("index.html"):
+        ids = re.findall(r'data-yt-id="([^"]+)"', page.read_text(encoding="utf-8"))
+        assert len(ids) == len(set(ids)), f"{page.relative_to(site)} embeds a video twice"

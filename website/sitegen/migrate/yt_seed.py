@@ -47,8 +47,11 @@ def _request(url: str, body: bytes | None = None) -> str:
 
 def initial_data(html: str) -> tuple[dict, str, str]:
     """(ytInitialData, INNERTUBE_API_KEY, client version) from a YouTube page."""
-    start = html.index("ytInitialData") + len("ytInitialData")
-    start = html.index("{", start)
+    marker = html.find("ytInitialData")
+    start = html.find("{", marker) if marker >= 0 else -1
+    if start < 0:
+        raise RuntimeError("no ytInitialData in the page (consent or bot-check page?); open the URL in a browser "
+                           "and retry from a network that YouTube serves normally")
     data, _ = json.JSONDecoder().raw_decode(html[start:])
     key = re.search(r'"INNERTUBE_API_KEY":"([^"]+)"', html)
     version = re.search(r'"INNERTUBE_CONTEXT_CLIENT_VERSION":"([^"]+)"', html)

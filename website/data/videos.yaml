@@ -60,7 +60,7 @@
 - {id: "iyJlISEdFYg", title: "Using AndBible with Android E-Ink devices (like Onyx Boox)", topic: "Customisation"}
 - {id: "AmYLJxB_lFc", title: "Configuring one-tap dialog buttons in AndBible", topic: "Customisation", docs: "verse_action_dialog"}
 - {id: "VuKy4moOt0Q", title: "Showing Red Letters of Christ in AndBible", topic: "Customisation", docs: "look_and_feel"}
-- {id: "wGK5R_xgxv0", title: "AndBible 5.0 has a discrete mode for persecuted Christians", topic: "Customisation", docs: "discrete_build", short: true}
+- {id: "wGK5R_xgxv0", title: "AndBible 5.0 has a discrete mode for persecuted Christians", topic: "Customisation", short: true}
 - {id: "YSx4xMgG8-Q", title: "Developer Diaries: Bug hunting session", topic: "Developer diaries"}
 - {id: "gaLv6auNDHw", title: "Developer diaries: Maintaining library dependencies", topic: "Developer diaries"}
 - {id: "m8QTYY8FSzE", title: "Developer diaries: Export & Import StudyPad(s)", topic: "Developer diaries"}

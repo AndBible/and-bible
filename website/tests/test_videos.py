@@ -37,12 +37,6 @@ def test_invalid_catalog_rejected(tmp_path, bad, message):
         load(write(tmp_path, bad), {"bookmarks"})
 
 
-def test_shorts_are_not_related_to_docs(tmp_path):
-    # docs embeds are 16:9 and a short would be letterboxed
-    vids = load(write(tmp_path, GOOD + "- {id: shortDOC123, title: S, topic: Getting started, docs: bookmarks, short: true}\n"),
-                {"bookmarks"})
-    assert [t for _, t in related(vids)["bookmarks"]] == ["Bookmarks intro"]
-
 
 def test_page_renders_sections_in_topic_order(tmp_path):
     from sitegen import home
@@ -102,3 +96,16 @@ def test_yt_seed_parses_channel_page_shapes():
     assert continuations(data) == ["TOK"]
     page = 'x var ytInitialData = {"k": {"v": 1}};</script>"INNERTUBE_API_KEY":"KEY"'
     assert initial_data(page)[:2] == ({"k": {"v": 1}}, "KEY")
+
+
+def test_docs_link_on_a_short_is_rejected(tmp_path):
+    bad = "- {id: shortID1234, title: S, topic: Getting started, docs: bookmarks, short: true}\n"
+    with pytest.raises(ValueError, match="short"):
+        load(write(tmp_path, bad), {"bookmarks"})
+
+
+def test_yt_seed_explains_a_page_without_data():
+    from sitegen.migrate.yt_seed import initial_data
+
+    with pytest.raises(RuntimeError, match="ytInitialData"):
+        initial_data("<html>consent.youtube.com</html>")

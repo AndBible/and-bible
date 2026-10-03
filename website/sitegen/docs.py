@@ -48,8 +48,9 @@ def stage(content: Path, lang: str, stage_dir: Path, pages: list[str],
         shutil.rmtree(stage_dir)
     stage_dir.mkdir(parents=True)
     for page in pages:
-        text, _ = expand_lines(resolve(content, lang, f"docs/{page}").read_text(encoding="utf-8"))
-        videos = related.get(Path(page).with_suffix("").as_posix(), [])
+        text, embedded = expand_lines(resolve(content, lang, f"docs/{page}").read_text(encoding="utf-8"))
+        videos = [(vid, title) for vid, title in related.get(Path(page).with_suffix("").as_posix(), [])
+                  if vid not in embedded]  # never repeat a video the page already embeds
         if videos:
             text = text.rstrip() + "\n\n## Related videos\n\n" + "\n\n".join(
                 embed_html(vid, "video", title) for vid, title in videos) + "\n"

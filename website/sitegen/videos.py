@@ -52,7 +52,10 @@ def load(path: Path, docs_pages: set[str]) -> list[Video]:
         docs = entry.get("docs")
         if docs is not None and docs not in docs_pages:
             raise ValueError(f"{path}: video {vid} links to unpublished docs page {docs!r}")
-        videos.append(Video(vid, title, entry["topic"], docs, bool(entry.get("short", False))))
+        short = bool(entry.get("short", False))
+        if docs and short:
+            raise ValueError(f"{path}: video {vid} is a short, which cannot be linked to a docs page")
+        videos.append(Video(vid, title, entry["topic"], docs, short))
     return videos
 
 
