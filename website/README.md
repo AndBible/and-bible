@@ -11,7 +11,9 @@ Static site generator for the AndBible website, built with Python and Jinja2.
 ## Browser checks (Playwright, not part of CI)
 
 The `website/tests/*.mjs` scripts drive a headless Chromium against the built site served on
-http://localhost:8000/ (`make site` then `python3 -m http.server 8000 --directory website/_site`). Setup, once per
+http://localhost:8000/ (`make site` then `python3 -m http.server 8000 --directory website/_site`). In a jailbee container the golden image has it
+pre-installed (`.jailbee/install.d/97-playwright.sh`: `NODE_PATH` and `CHROME` are exported in login shells), so
+skip the setup. Otherwise, once per
 checkout (`.local/` is git-ignored and shared between host and container):
 
 ```bash
