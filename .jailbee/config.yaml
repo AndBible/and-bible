@@ -1,5 +1,5 @@
 # jailbee configuration for AndBible.
-# Android (Kotlin) + Vue.js hybrid app. Java 17 + Node 20 are required;
+# Android (Kotlin) + Vue.js hybrid app. JDK 17 toolchain (default JDK 25) + Node 24;
 # Gradle reaches a fairly broad set of Google/Maven mirrors during builds.
 # See https://jailbee.gisgro.com (and docs/config.md) for the full reference.
 
@@ -48,13 +48,6 @@ jetbrains:
 # ~/.config/jailbee/global.yaml.
 host_mounts:
   - { host: ~/Android/Sdk,       container: /home/dev/Android/Sdk, readonly: true  }
-  # Sibling git repos that are gitignored in the main repo but live
-  # under the working tree (ai-local, wiki, readthedocs). All three are
-  # mounted RW so edits/commits made inside the container are reflected
-  # on the host. jailbee clones the main repo at /home/dev/<repo-root.name>.
-  - { host: ai-local,    container: /home/dev/and-bible/ai-local,    readonly: false }
-  - { host: wiki,        container: /home/dev/and-bible/wiki,        readonly: false }
-  - { host: readthedocs, container: /home/dev/and-bible/readthedocs, readonly: false }
 
 # Forward the host adb-server into the container (see the adb model above).
 # Container 127.0.0.1:5037 -> host 127.0.0.1:5037. Attached by `jailbee new`
@@ -80,7 +73,7 @@ host_devices:
   - { path: /dev/kvm, mode: "0666" }
 
 # Persistent shared caches (bind-mounted from <shared_dir>/<host_subpath>).
-# The ai-local ostickethelper / playwright tools install Chromium (~150 MB)
+# Playwright-based tools install Chromium (~150 MB)
 # into ~/.cache/ms-playwright, which is NOT bind-mounted by default and lives
 # on the container's ephemeral overlay — so it vanishes on every `jailbee new`
 # and re-downloads each session. Persisting just ms-playwright (not all of
@@ -95,11 +88,11 @@ shared_caches:
   # fails with INSTALL_FAILED_UPDATE_INCOMPATIBLE against a previous session's
   # install. A stable key lets debug builds upgrade in place.
   - { name: android-home, host_subpath: android-home, container_path: ~/.android }
+  - { name: konan, host_subpath: konan, container_path: ~/.konan }
 
 # Egress allowlist applied in strict mode. These cover Android Gradle
-# builds, npm/Vue.js dependencies, and apt updates. adb-server traffic
-# goes over the bind-mounted Unix socket, not the network, so no egress
-# rule is needed for it.
+# builds, npm/Vue.js dependencies, and apt updates. adb uses the `host_ports`
+# TCP forward, not the network, so no egress rule is needed for it.
 # Add github.com only when you actually need to push (or switch to
 # `jailbee net loose <name>` for that session).
 egress_allow:
@@ -130,6 +123,8 @@ egress_allow:
   - ebible.org:443
   - ibtrussia.org:443
   - public.modules.stepbible.org:443
+  # Kotlin/Native toolchain + dependencies (iOS targets)
+  - download.jetbrains.com:443
 
 # Container resource defaults. Android Gradle builds are memory-hungry:
 # the JVM + Gradle daemon + Kotlin compiler easily eats 8–12 GiB on a full
@@ -196,5 +191,9 @@ container:
 
 autostart:
   step_timeout: 600
-  on_create: []
+  on_create:
+    - name: superpowers-checkout
+      run: "git submodule update --init --checkout docs/superpowers || echo 'docs/superpowers not available (private); skipping'"
+    - name: link-memory
+      run: ".jailbee/link-memory.sh || true"
   on_start: []
