@@ -159,10 +159,12 @@ def _footnote_trailer(soup: BeautifulSoup, conv: _Converter) -> list[str]:
     return lines
 
 
-def convert(html: str, link_map: Callable[[str], str], image_map: Callable[[str], str]) -> str:
+def convert(html: str, link_map: Callable[[str], str], image_map: Callable[[str], str],
+            converter: type[_Converter] = _Converter) -> str:
+    """HTML to Markdown. `converter` lets a migration subclass `_Converter` for its own markup."""
     soup = BeautifulSoup(html, "html.parser")
     _prepare(soup)
-    conv = _Converter(link_map, image_map)
+    conv = converter(link_map, image_map)
     trailer = _footnote_trailer(soup, conv)
     md = re.sub(r"\n{3,}", "\n\n", conv.convert_soup(soup)).strip()
     if trailer:

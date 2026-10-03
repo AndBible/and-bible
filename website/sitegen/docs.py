@@ -22,7 +22,7 @@ from sitegen import paths
 from sitegen.i18n import languages, prefix, resolve
 from sitegen.youtube import embed_html, expand_lines
 
-UNPUBLISHED: set[str] = {"style_guide.md"}
+UNPUBLISHED: set[str] = set()  # every migrated page is published, so legacy URLs keep working
 
 
 def published_pages(config: Path) -> list[str]:

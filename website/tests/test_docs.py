@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -36,4 +37,5 @@ def test_build_docs_produces_directory_urls(tmp_path):
     assert (out / "docs" / "index.html").is_file()
     assert (out / "docs" / "getting_started" / "index.html").is_file()
     html = (out / "docs" / "getting_started" / "index.html").read_text()
-    assert 'id="first-steps"' in html
+    anchor = json.loads((Path(__file__).parent / "fixtures" / "rtd_anchors.json").read_text())["getting_started"][1]
+    assert f'id="{anchor}"' in html

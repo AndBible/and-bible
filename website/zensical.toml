@@ -16,7 +16,14 @@ edit_uri = "blob/current-stable/website/content/en/docs/"
 extra_css = ["assets/andbible-docs.css"]
 nav = [
   { "Home" = "index.md" },
-  { "Getting Started" = ["getting_started.md"] },
+  { "Getting Started" = ["getting_started.md", "navigation.md", "usage.md"] },
+  { "Bible Documents" = ["documents.md", "my_documents.md", "custom_repositories.md"] },
+  { "Reading & Workspace" = ["workspaces.md", "windows.md", "verse_action_dialog.md", "look_and_feel.md", "bible_links.md", "speak.md"] },
+  { "Study Tools" = ["bookmarks.md", "labels.md", "notes.md", "study_pads.md", "search.md", "reading_plans.md", "reading_progress.md", "memorize.md", "ai.md", "share.md"] },
+  { "Backup & Sync" = ["backup_restore.md", "cloud_sync.md", "document_sync.md"] },
+  { "Customisation & Advanced" = [{ "Customisation" = ["customisation/index.md", "customisation/custom_css.md", "customisation/module_creation.md"] }, "discrete_build.md"] },
+  { "Help & Reference" = ["faq.md", "support.md", { "Releases" = ["releases/index.md", "releases/release_5_0.md", "releases/release_4_1.md", "releases/release_4_0.md"] }] },
+  { "More" = ["style_guide.md", "videos/note_add_to_existing_bookmark.md"] },
 ]
 
 [project.theme]
