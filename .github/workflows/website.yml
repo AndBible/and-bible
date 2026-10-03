@@ -9,6 +9,7 @@ on:
       - "sharedCore/src/**"
       - "Makefile"
       - ".github/workflows/website.yml"
+      - ".gitmodules"
   push:
     branches: [develop, current-stable, "release/*"]
     paths:
@@ -18,6 +19,7 @@ on:
       - "sharedCore/src/**"
       - "Makefile"
       - ".github/workflows/website.yml"
+      - ".gitmodules"
   workflow_dispatch:
 
 permissions:
@@ -29,10 +31,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       # Only the media submodule: docs/superpowers is private, goldens are not needed.
-      # Task 12 adds website/media; until then the path does not exist, hence `|| true`.
+      # website/media is not a submodule yet, so tolerate its absence with `|| true`; the
+      # media-submodule task replaces this line with an unconditional update.
       - run: git submodule update --init --depth 1 website/media || true
-        if: hashFiles('.gitmodules') != ''
-      - uses: astral-sh/setup-uv@v10.2.0
+      # v7 is the newest floating major tag: setup-uv stopped publishing them after v7.
+      - uses: astral-sh/setup-uv@v7
         with:
           version: "0.12.22"
           python-version: "3.13"

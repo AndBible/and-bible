@@ -41,7 +41,7 @@ media repo first, then bump the gitlink here.
 ## YouTube
 
 Put the video URL alone on its own line. The build turns it into a thumbnail button (no embed, no
-third-party request until the visitor clicks). After adding one, run `make site-thumbs` to fetch
+third-party request until the visitor clicks). After adding one, run `make site-thumbs` (added with the video catalog) to fetch
 the thumbnail into the media repo.
 
 ## Galleries
