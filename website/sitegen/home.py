@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections.abc import Sequence
 from pathlib import Path
 
 import markdown
@@ -13,6 +14,7 @@ from markupsafe import Markup
 from sitegen import paths
 from sitegen.content import Post
 from sitegen.i18n import prefix
+from sitegen.reviews import Review
 
 
 def _md_inline(text: str) -> Markup:
@@ -43,11 +45,12 @@ def environment() -> Environment:
     return env
 
 
-def render_home(env: Environment, strings: dict, lang: str, latest: list[Post], out: Path) -> None:
+def render_home(env: Environment, strings: dict, lang: str, latest: list[Post], out: Path,
+                reviews: Sequence[Review] = ()) -> None:
     target = out / prefix(lang).lstrip("/") / "index.html"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(env.get_template("home.html").render(
-        lang=lang, prefix=prefix(lang), strings=strings, latest=latest[:3],
+        lang=lang, prefix=prefix(lang), strings=strings, latest=latest[:3], reviews=reviews,
         title=strings["meta"]["title"], description=strings["meta"]["description"],
         canonical=f"{paths.BASE_URL}{prefix(lang)}/",
         og_image=f"{paths.BASE_URL}/assets/img/og-default.png", og_type="website",

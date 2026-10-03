@@ -162,6 +162,16 @@ section.block { padding: 48px 0 0; }
 .post-card h3 a:hover { color: var(--accent-ink); }
 .post-card p { margin: 0; color: var(--muted); font-size: .95rem; }
 
+.review-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 899px) { .review-list { grid-template-columns: minmax(0, 1fr); } }
+.review { display: flex; flex-direction: column; margin: 0; padding: 18px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); }
+.review__stars { margin: 0 0 .5rem; color: var(--accent-ink); letter-spacing: .1em; line-height: 1; }
+.review blockquote { margin: 0 0 1rem; flex: 1; }
+.review blockquote p { margin: 0; color: var(--ink); font-size: .95rem; overflow-wrap: anywhere; }
+.review figcaption { color: var(--faint); font-size: .85rem; }
+.review-more { margin: 1rem 0 0; }
+
 .teaser { padding: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 .teaser h2 { margin-top: 0; }
 .teaser p { color: var(--muted); max-width: 40rem; }

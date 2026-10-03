@@ -1,0 +1,16 @@
+# Curated 5-star Google Play reviews shown on the landing page.
+# Source: Google Play listing net.bible.android.activity, fetched 2026-10-03; hand-curated.
+# Text is verbatim and carries no reviewer names; a cut is marked with "…".
+# Refresh candidates with: uv run python -m sitegen.play_reviews   (see content/README.md)
+- year: 2021
+  text: "This Bible study app is so good that when I'm studying the Bible and I use desktop software I often find myself going back to my Android device because of ease of use and the many features that it has. It helps me to easily organize my thoughts with labels and study pads. The best Bible app for mobile and tablets, bar none!"
+- year: 2022
+  text: "Simply phenomenal. This app contains multiple resources that can be used for simple or in-depth studying. It has features and capabilities you'd expect from an expensive, high-end software program. Except this one is free of charge to everyone. It's even add free. Absolutely amazing! Kudos to the developers."
+- year: 2021
+  text: "I really enjoy the simplicity of this app. It is bug free, easy to navigate through, share verses, search for words, jump translations, visit the original languages and even access external resources. … Have been using it now for years as my favourite Bible app."
+- year: 2020
+  text: "This app was the best (small footprint, fast/responsive, useful features) I could find several years ago and it gets better and better … A keeper I've grown to rely on and use every day."
+- year: 2024
+  text: "Far and away the most capable application for displaying and searching through Judeo-Christian religious texts in multiple languages. … Thank you to the devs for keeping it clean and FOSS."
+- year: 2026
+  text: "What's not to love? Totally free as in no ads whatsoever. It's fast, responsive, laid out nicely, and has tons of great features. … it just keeps getting better."

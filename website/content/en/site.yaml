@@ -37,6 +37,11 @@ features:
 sections:
   latest: Latest from the blog
   all_posts: All posts
+  reviews: What readers say
+  reviews_stars: 5 out of 5 stars
+  reviews_caption: Google Play review
+  reviews_all: Read all reviews on Google Play
+  reviews_all_url: "https://play.google.com/store/apps/details?id=net.bible.android.activity&showAllReviews=true"
   videos: Learn with videos
   videos_link: Browse the video catalog
   support_title: Support AndBible

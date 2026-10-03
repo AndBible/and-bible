@@ -21,6 +21,7 @@ from sitegen.home import render_home
 from sitegen.i18n import languages, strings
 from sitegen.paths import DEFAULT_LANG
 from sitegen.redirects import write_stubs
+from sitegen.reviews import load as load_reviews
 from sitegen.videos import load as load_videos, related, render_videos
 
 
@@ -32,8 +33,9 @@ def build(content: Path, out: Path, data: Path = paths.DATA, docs: bool = True) 
     shutil.copytree(paths.ASSETS, out / "assets")
     env = home.environment()
     posts = load_posts(content / DEFAULT_LANG / "blog", paths.MEDIA)
+    reviews = load_reviews(data / "reviews.yaml")
     for lang in languages(content):
-        render_home(env, strings(content, lang), lang, posts, out)
+        render_home(env, strings(content, lang), lang, posts, out, reviews)
     docs_pages = {p.removesuffix(".md") for p in published_pages(paths.WEBSITE / "zensical.toml")}
     videos = load_videos(data / "videos.yaml", docs_pages)
     sitemap = ["/"]

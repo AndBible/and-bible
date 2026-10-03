@@ -33,6 +33,22 @@
   </ul>
 </section>
 
+{% if reviews %}
+<section class="block">
+  <h2>{{ strings.sections.reviews }}</h2>
+  <div class="review-list">
+    {% for r in reviews %}
+    <figure class="review">
+      <p class="review__stars" role="img" aria-label="{{ strings.sections.reviews_stars }}"><span aria-hidden="true">★★★★★</span></p>
+      <blockquote><p>{{ r.text }}</p></blockquote>
+      <figcaption>{{ strings.sections.reviews_caption }}, {{ r.year }}</figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+  <p class="review-more"><a href="{{ strings.sections.reviews_all_url }}">{{ strings.sections.reviews_all }}</a></p>
+</section>
+{% endif %}
+
 {% if latest %}
 <section class="block">
   <div class="block__head"><h2>{{ strings.sections.latest }}</h2><a href="/blog/">{{ strings.sections.all_posts }}</a></div>
