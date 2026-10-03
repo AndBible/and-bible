@@ -170,8 +170,9 @@ golden:
     # xz-utils provides the `xz` decompressor that snippet's `tar -xJf` needs.
     - xz-utils
 
-# Autostart: check out the private docs/superpowers submodule and link Claude
-# memory into it (both skip harmlessly when the submodule is unavailable).
+# Autostart: link Claude's per-project memory into the docs/superpowers
+# submodule (skips harmlessly when the submodule is unavailable). Submodule
+# checkout itself is jailbee's own submodule support, not an autostart step.
 # Useful starting points if you want to fill this in later:
 #   on_create:
 #     - name: bibleview-install
@@ -193,8 +194,6 @@ container:
 autostart:
   step_timeout: 600
   on_create:
-    - name: superpowers-checkout
-      run: "git submodule update --init --checkout docs/superpowers || echo 'docs/superpowers not available (private); skipping'"
     - name: link-memory
       run: ".jailbee/link-memory.sh || true"
   on_start: []
