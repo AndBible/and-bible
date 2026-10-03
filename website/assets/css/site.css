@@ -224,11 +224,11 @@ section.block { padding: 48px 0 0; }
 .teaser h2 { margin-top: 0; }
 .teaser p { color: var(--muted); max-width: 40rem; }
 /* Support card: text and button beside a decorative illustration; art on the left, on narrow screens above the text and smaller. */
-.support { display: grid; grid-template-columns: minmax(0, 170px) minmax(0, 1fr); align-items: center; gap: 32px; }
+.support { display: grid; grid-template-columns: minmax(0, 170px) minmax(0, 1fr); align-items: center; gap: 56px; }
 .support__text { min-width: 0; }
 .support__art { order: -1; display: block; width: 100%; max-width: 170px; height: auto; justify-self: center; }
 @media (max-width: 639px) {
-  .support { grid-template-columns: minmax(0, 1fr); }
+  .support { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .support__art { max-width: 150px; }
 }
 
