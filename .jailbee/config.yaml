@@ -67,6 +67,23 @@ host_mounts:
 host_ports:
   - { name: adb, port: 5037 }
 
+# Expose the host KVM device so the Android emulator (AVD x86/x86_64 system
+# images) can run hardware-accelerated INSIDE the container — for self-contained
+# instrumented test/debug runs that don't depend on a host-side emulator.
+#
+# SECURITY: this widens the host-kernel attack surface reachable from inside the
+# (unprivileged) container — a KVM bug could in principle be exploited past the
+# userns isolation. It does NOT grant container escape or host root on its own.
+# mode:0666 because raw.idmap maps the dev user's UID but not its `kvm`
+# supplementary GID, so the node would otherwise land root:root 0660 and the
+# emulator couldn't open it.
+#
+# A host without /dev/kvm is fine — the device is skipped at profile build
+# (validate_runtime emits an advisory). The in-container emulator's adb-server
+# runs on 5038 (see the adb CAVEAT above); 5037 stays the host server.
+host_devices:
+  - { path: /dev/kvm, mode: "0666" }
+
 # Persistent shared caches (bind-mounted from <shared_dir>/<host_subpath>).
 # The ai-local ostickethelper / playwright tools install Chromium (~150 MB)
 # into ~/.cache/ms-playwright, which is NOT bind-mounted by default and lives
@@ -111,12 +128,19 @@ egress_allow:
   - github.com:443
   - release-assets.githubusercontent.com:443
   - support.andbible.org:443
+  # AndBible module repositories (catalogue refresh / module downloads, e.g. in
+  # the in-container emulator)
+  - andbible.org:443
+  - crosswire.org:443
+  - ebible.org:443
+  - ibtrussia.org:443
+  - public.modules.stepbible.org:443
 
-# Container resource defaults. Android Gradle builds are memory-hungry;
-# the Vue.js side is light, but the JVM + Gradle daemon + Kotlin compiler
-# easily eats 8–12 GiB on a full build.
+# Container resource defaults. Android Gradle builds are memory-hungry:
+# the JVM + Gradle daemon + Kotlin compiler easily eats 8–12 GiB on a full
+# build, and an in-container emulator on top of that needs the rest.
 defaults:
-  memory: 16GiB
+  memory: 32GiB
   cpu: 8
   network: strict
   storage_pool: default
