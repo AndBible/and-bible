@@ -193,6 +193,7 @@ deployed to GitHub Pages from `current-stable`. Authoring rules: `website/conten
   `website/media` submodule (`AndBible/andbible-website-media`); commit there, then bump the gitlink.
 - Validate any `website/` change with `make site site-check` (needs `uv`).
 - `docs/` at the repo root is developer documentation, not user documentation.
+- A new YouTube video or short that needs a blog post: use the `video-blog-post` skill (`.claude/skills/video-blog-post/`).
 
 ## Theme and Display Modes
 
