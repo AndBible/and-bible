@@ -223,3 +223,8 @@ def test_dry_run_writes_and_downloads_nothing(env, capsys):
     assert calls == [] and not env.exists()
     out = capsys.readouterr().out
     assert f"would refresh {ID_A}" in out and f"would refresh {ID_B}" in out
+
+
+def test_bars_of_a_non_16_9_upload_are_cropped():
+    # n8Y8N27uFzY's hqdefault: a 3:2 custom thumbnail, 20 black rows (5.6%) on each side
+    assert thumbnails.crop_letterbox(letterboxed(bar=20)).size == (480, 320)

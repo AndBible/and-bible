@@ -23,7 +23,7 @@ QUALITY = 80
 TIMEOUT = 30
 BAR_MAX_MEAN = 12  # a letterbox row is nearly flat black: low mean and low peak luminance
 BAR_MAX_PEAK = 40
-BAR_MIN_FRACTION = 0.08  # each bar must cover at least this share of the height
+BAR_MIN_FRACTION = 0.04  # each bar must cover at least this share of the height (real uploads: 20 of 360 rows)
 _VARIANTS = ("maxresdefault", "hqdefault", "mqdefault")
 _URL = "https://i.ytimg.com/vi/{id}/{name}.jpg"
 
