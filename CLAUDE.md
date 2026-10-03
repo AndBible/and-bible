@@ -194,6 +194,9 @@ deployed to GitHub Pages from `current-stable`. Authoring rules: `website/conten
 - Validate any `website/` change with `make site site-check` (needs `uv`).
 - `docs/` at the repo root is developer documentation, not user documentation.
 - A new YouTube video or short that needs a blog post: use the `video-blog-post` skill (`.claude/skills/video-blog-post/`).
+- The video catalog is `website/data/videos.yaml` (new entries come from the `video-blog-post` skill).
+- Thumbnail changed on YouTube: use the `refresh-video-thumbnails` skill (`.claude/skills/refresh-video-thumbnails/`), i.e. `make site-thumbs THUMBS_ARGS="--refresh <id>"`.
+- Landing-page reviews: see "Landing page reviews" in `website/content/README.md` (`uv run python -m sitegen.play_reviews`, curated in `website/data/reviews.yaml`).
 
 ## Theme and Display Modes
 
