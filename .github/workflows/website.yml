@@ -31,9 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       # Only the media submodule: docs/superpowers is private, goldens are not needed.
-      # website/media is not a submodule yet, so tolerate its absence with `|| true`; the
-      # media-submodule task replaces this line with an unconditional update.
-      - run: git submodule update --init --depth 1 website/media || true
+      - run: git submodule update --init --depth 1 website/media
       # v7 is the newest floating major tag: setup-uv stopped publishing them after v7.
       - uses: astral-sh/setup-uv@v7
         with:

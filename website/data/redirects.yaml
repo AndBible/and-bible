@@ -8,9 +8,9 @@
 /about/: /
 /sponsor-andbible-financially/: https://shop.andbible.org/page/info
 /buy/: https://shop.andbible.org/page/info
+/shop/: https://shop.andbible.org/page/info
+/printable-promotional-material/: /flyers/
 
-# Targets that do not exist yet: /flyers/ arrives in Task 12, /videos/ in Task
-# 18. load() ignores this key; each task moves its entry up when its target exists.
+# Targets that do not exist yet: /videos/ arrives in Task 18. load() ignores this key; each task moves its entry up when its target exists.
 pending:
   /tutorial-videos/: /videos/
-  /printable-promotional-material/: /flyers/

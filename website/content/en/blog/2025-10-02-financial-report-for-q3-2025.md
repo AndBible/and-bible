@@ -1,0 +1,132 @@
+---
+title: Financial report for Q3 / 2025
+date: '2025-10-02'
+slug: financial-report-for-q3-2025
+summary: Tuomas Airaksinen Consulting , company of the lead developer, provides a way to sponsor AndBible development. You can support the ongoing development of AndBible financially via the webshop . See…
+categories:
+- Sponsoring AndBible
+tags:
+- financial support
+- transparency
+image: blog/2025/10/screenshot-from-2025-10-02-16-51-45.webp
+image_alt: Financial report for Q3 / 2025
+---
+
+https://www.youtube.com/watch?v=g6cPFR_nFxQ
+
+#### Background
+
+[Tuomas Airaksinen Consulting](https://tuomasairaksinen.fi/consulting/), company of the lead developer, provides a way to sponsor AndBible development. You can support the ongoing development of AndBible financially via [the webshop](https://shop.andbible.org).
+
+See also: financial report for [Q4/2023](/2024/01/04/financial-report-for-q4-2024/), [Q1/2024](/2024/04/04/financial-report-for-q1-2024/), [Q2/2024](/2024/07/09/financial-report-for-q2-2024/), [Q3/2024](/2024/10/03/financial-report-for-q3-2024/), [Q4/2024](/2025/01/06/financial-report-for-q4-2024-2/), [Q1/2025](/2025/04/03/financial-report-for-q1-2025/) and [Q2/2025](/2025/07/08/financial-report-for-q2-2025/).
+
+#### Sponsorship Flow
+
+The sponsorship flow tables show how funding for AndBible development works. When users sponsor specific features, their money is allocated to pay for the development work on those features. If a feature receives more sponsorship than needed, the excess helps fund general development. If a feature needs more work than its sponsorship covers, the shortfall is covered by general development funding when possible, or becomes volunteer work when no funding is available.
+
+Each feature table shows month-by-month how sponsorship money was used: **Revenue** is money received from sponsors, **Cost** is what the development work actually cost, and **Remaining** shows leftover sponsorship money that carries forward to next month or gets transferred to general development when the feature is completed.
+
+## Sponsorship Flow - Feature [#3330 (Separate shared verses with newline characters for better readability)](https://github.com/AndBible/and-bible/issues/3330)
+
+| Month | Orders | Revenue | Hours Spent | Rate | Cost | Remaining | To Generic |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| July | 0 | 0.00 € | 0.00 h | - | 0.00 € | 0.00 € | - |
+| August | 1 | 70.00 € | 2.72 h | 70.00 €/h | 190.17 € | 0.00 € | 1.72 h |
+| September | 0 | 0.00 € | 0.00 h | - | 0.00 € | 0.00 € | - |
+
+## Sponsorship Flow - Feature [#189 (Import / Export bookmarks)](https://github.com/AndBible/and-bible/issues/189), see [video & blog post](/2025/08/21/new-feature-export-import-bookmarks-as-csv/)!
+
+| Month | Orders | Revenue | Hours Spent | Rate | Cost | Remaining | To Generic |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| July | 2 | 420.00 € | 6.02 h | 70.00 €/h | 421.17 € | 0.00 € | 0.02 h |
+| August | 0 | 0.00 € | 0.00 h | - | 0.00 € | 0.00 € | - |
+| September | 0 | 0.00 € | 0.00 h | - | 0.00 € | 0.00 € | - |
+
+**Column Explanations:**
+
+- **Month**: Calendar month name
+- **Orders**: Count of sponsorship orders for this feature
+- **Revenue**: Total sponsorship money received
+- **Hours Spent**: Total hours worked on this feature
+- **Rate**: Average hourly rate used
+- **Cost**: Actual cost of work done (uses actual hourly rates)
+- **Remaining**: Sponsorship balance after paying for work
+- **To Generic**: Hours (insufficient payment) or € (completed feature transfer) moved to generic funding
+
+**Note:** When a feature is completed, remaining sponsorship funds are transferred to generic development (shown as € in 'To Generic' column).
+
+## Sponsorship Flow - Generic Development
+
+| Month | Orders | Revenue | From Features | Available | Hours Spent | Rate | Cost | Remaining | Free Work |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **Leftover from Previous Period** | - | 1061.71 € | - | - | - | - | - | 1061.71 € | - |
+| July | 6 | 174.52 € | -1.00 € | 1235.23 € | 21.82 h | 60.00 €/h | 1309.00 € | 0.00 € | 73.77 € |
+| August | 5 | 344.20 € | -103.00 € | 241.20 € | 9.32 h | 60.00 €/h | 559.00 € | 0.00 € | 317.80 € |
+| September | 3 | 444.00 € | 0.00 € | 444.00 € | 8.28 h | 60.00 €/h | 497.00 € | 0.00 € | 53.00 € |
+
+**Column Explanations:**
+
+- **Month**: Calendar month name
+- **Orders**: Count of generic development orders
+- **Revenue**: Total generic development funding received
+- **From Features**: Net funding flow from features (positive: transfers from completed features, negative: feature overflow costs)
+- **Available**: Total funding available after feature flows
+- **Hours Spent**: Total hours worked on generic development
+- **Rate**: Average hourly rate used for generic work
+- **Cost**: Actual cost of generic work done
+- **Remaining**: Generic funding balance after paying for generic work
+- **Free Work**: Generic work not covered by available funding
+
+<div class="gallery" markdown>
+![](/media/blog/2025/10/2025-q3-hours-comparison.webp)
+</div>
+
+Note: the new reporting system is lacking data from 2024. Please see data in previous financial report ([Q1/2025](/2025/04/03/financial-report-for-q1-2025/)) if you want to compare.
+
+#### Time Tracking Summary
+
+This section shows how development time was actually spent during the reporting period. **By Category** groups work into broad areas like feature development, bug fixes, and maintenance. **By Task** provides detailed breakdown of specific tasks, showing exactly what was worked on and for how long. This transparency helps sponsors and users understand how their contributions are being used to improve AndBible.
+
+AndBible development is much more than just writing code implementing new features. Below is a description of how my time is distributed across different tasks:
+
+**Code Review**: This task involves reviewing contributions and changes submitted by other developers. It's a crucial process that ensures high-quality code, consistent coding standards, and reduces potential issues before they reach production.
+
+**Maintenance**: Maintenance includes tasks necessary for keeping the AndBible application stable and up-to-date. This covers bug fixes, dependency updates, refactoring code, and optimizing performance to ensure the app continues to function smoothly.
+
+**Support**: Support tasks involve actively engaging with users and developers through email and GitHub. This includes reading and responding to user inquiries, addressing bug reports, participating in discussions, and providing guidance to help resolve issues quickly.
+
+**Feature Development**: This involves developing new functionalities and improvements based on user needs and sponsor requests. Feature development is essential for the ongoing enhancement and expansion of AndBible capabilities.
+
+### By Category
+
+| Category | Total Hours | Tasks |
+| --- | --- | --- |
+| Generic | 39.42 h | ab maintenance (ID=11), ab support (ID=10) |
+| Feature | 8.73 h | ab 3330 shared verses readability (ID=28), ab 189 export bmarks (ID=26) |
+
+![](/media/blog/2025/10/2025-q3-category-distribution.webp)
+
+### By Task
+
+| Task | Hours | Category | Ticket |
+| --- | --- | --- | --- |
+| ab 189 export bmarks (ID=26) | 6.02 h | Feature | [#189](https://github.com/AndBible/and-bible/issues/189) |
+| ab 3330 shared verses readability (ID=28) | 2.72 h | Feature | [#3330](https://github.com/AndBible/and-bible/issues/3330) |
+| ab maintenance (ID=11) | 34.48 h | Generic | N/A |
+| ab support (ID=10) | 4.93 h | Generic | N/A |
+
+![](/media/blog/2025/10/2025-q3-task-distribution.webp)
+
+#### Final observations
+
+- 👍New cool features that sponsorship has enabled me to do during the quartal: [Import / Export bookmarks (CSV)](https://github.com/AndBible/and-bible/pull/3445).
+- 👍Also a lot of essential maintenance work during the period.
+- 👎Support has dropped in this quartal to some extent (~40 % less than in Q2 or Q1).
+
+#### Closing words
+
+I want to express my heartfelt gratitude to every AndBible sponsor for making it possible to maintain, support, and continually develop the app. It brings me great joy and encouragement to see others sharing the financial burden and joining me in supporting the ongoing development of AndBible.
+
+Best regards & blessings,  
+Tuomas Airaksinen  
+Lead developer of AndBible Open Source Project

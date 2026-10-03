@@ -113,3 +113,10 @@ def test_code_with_blank_line_inside_admonition_round_trips(tmp_path: Path):
     out = markdown_to_html(convert(html, ident, ident), tmp_path / "p.md", tmp_path)
     assert "<pre><code>line1\n\nline3\n</code></pre>" in out
     assert "```" not in out and "<p>After.</p>" in out
+
+
+def test_literal_backticks_in_text_are_escaped_but_code_is_untouched():
+    md = convert("<p>Type `show w' and `show c' now, or <code>ls -a</code>.</p>", ident, ident)
+    assert md.strip() == "Type \\`show w' and \\`show c' now, or `ls -a`."
+    html = markdown_to_html(md, Path("x.md"), Path("."))
+    assert "<code>show" not in html and "<code>ls -a</code>" in html

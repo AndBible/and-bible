@@ -50,6 +50,11 @@ class _Converter(MarkdownConverter):
         self._link_map = link_map
         self._image_map = image_map
 
+    def escape(self, text, parent_tags):
+        text = super().escape(text, parent_tags)
+        # markdownify leaves backticks alone, so a stray pair in prose would open a code span
+        return text if parent_tags & {"code", "pre"} else text.replace("`", "\\`")
+
     def convert_iframe(self, el, text, parent_tags):
         line = _youtube_line(el.get("src") or "", "wp-embed-aspect-9-16" in _classes(el))
         return f"\n\n{line}\n\n" if line else ""

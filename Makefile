@@ -93,7 +93,7 @@ accrescent-debug:
 # gitlink names (not its checkout, which can lag behind) to the superproject's branch name,
 # fast-forward only. jsword is an upstream fork, pushed by hand; --recurse-submodules=check
 # refuses the final push if any gitlink (jsword included) is unpushed.
-PUSH_SUBMODULES := app/src/test/roborazzi docs/superpowers
+PUSH_SUBMODULES := app/src/test/roborazzi docs/superpowers website/media
 
 # andbible.org (website/): build into website/_site, then check it. CI runs both.
 site:
