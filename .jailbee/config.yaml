@@ -136,8 +136,8 @@ defaults:
   storage_pool: default
 
 # Golden image config. Node is bumped to 24 (repo docs still say 20.x, but
-# 24 gets the built-in WebSocket global that ai-local/tools/webview-cdp
-# originally needed). Java: default JDK is 25 (latest LTS), but AndBible's
+# 24 gets the built-in WebSocket global that the WebView CDP debugging
+# script originally needed). Java: default JDK is 25 (latest LTS), but AndBible's
 # build.gradle.kts pins Gradle's toolchain to `jvmToolchain(17)` — Gradle's
 # toolchain resolution needs an *exact* major-version match and won't accept
 # a newer JDK in its place (unlike a plain `javac --release 17` compile,
@@ -170,7 +170,8 @@ golden:
     # xz-utils provides the `xz` decompressor that snippet's `tar -xJf` needs.
     - xz-utils
 
-# Autostart left empty — leaving setup decisions to the user.
+# Autostart: check out the private docs/superpowers submodule and link Claude
+# memory into it (both skip harmlessly when the submodule is unavailable).
 # Useful starting points if you want to fill this in later:
 #   on_create:
 #     - name: bibleview-install
