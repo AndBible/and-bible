@@ -1,0 +1,388 @@
+{
+  "ai": [
+    "ai-bible-study-assistant",
+    "getting-started",
+    "choosing-a-provider",
+    "getting-an-api-key",
+    "adding-a-provider",
+    "multiple-providers",
+    "available-models",
+    "using-ai-prompts",
+    "built-in-prompts",
+    "study-prompts",
+    "notes-prompts",
+    "general-prompts",
+    "prompt-categories",
+    "special-prompt-behaviors",
+    "where-prompts-appear",
+    "running-a-prompt",
+    "the-agent-log",
+    "ai-tools",
+    "read-tools",
+    "write-tools",
+    "available-data-and-documents",
+    "installed-bible-modules",
+    "cross-referencing-capabilities",
+    "your-personal-data",
+    "writing-effective-prompts",
+    "permissions",
+    "permission-modes",
+    "setting-permissions",
+    "custom-prompts",
+    "creating-a-custom-prompt",
+    "editing-built-in-prompts",
+    "prompt-template-tips",
+    "sharing-prompts-csv",
+    "add-on-prompt-packs",
+    "cost-tracking",
+    "cloud-sync",
+    "tips-and-troubleshooting",
+    "recommended-setup-for-beginners",
+    "reducing-costs",
+    "common-issues"
+  ],
+  "backup_restore": [
+    "backup-and-restore",
+    "overview",
+    "how-to-backup-your-data",
+    "how-to-restore-your-data"
+  ],
+  "bible_links": [
+    "bible-links-deep-linking",
+    "query-parameters",
+    "copying-links",
+    "examples",
+    "alternative-link-formats-non-google-builds-only",
+    "enabling-the-feature"
+  ],
+  "bookmarks": [
+    "bookmarks",
+    "overview",
+    "creating-a-bookmark",
+    "deleting-a-bookmark",
+    "changing-a-bookmark-s-icon",
+    "labels"
+  ],
+  "cloud_sync": [
+    "cloud-sync",
+    "requirements",
+    "setting-up-sync",
+    "setting-up-nextcloud",
+    "what-gets-synced",
+    "how-sync-works",
+    "multi-device-usage",
+    "resetting-sync",
+    "tips",
+    "compacting-cloud-storage",
+    "privacy-and-security"
+  ],
+  "custom_repositories": [
+    "custom-repositories",
+    "repository-manifest-file",
+    "usage",
+    "non-manifest-repositories",
+    "mybible-repositories",
+    "some-custom-repositories"
+  ],
+  "customisation/custom_css": [
+    "custom-css",
+    "custom-css-for-individual-modules-or-globally-andbible-4-0",
+    "id1",
+    "global-styling",
+    "debugging-css",
+    "examples",
+    "want-a-ready-made-custom-css-module"
+  ],
+  "customisation/index": [
+    "customisation"
+  ],
+  "customisation/module_creation": [
+    "module-creation",
+    "custom-font-modules"
+  ],
+  "discrete_build": [
+    "discrete-build",
+    "usage",
+    "download"
+  ],
+  "document_sync": [
+    "document-sync",
+    "how-it-differs-from-data-sync",
+    "requirements",
+    "enabling-document-sync",
+    "per-device-settings",
+    "managing-synced-documents",
+    "filtering",
+    "per-document-actions",
+    "selecting-multiple-documents",
+    "sync-now",
+    "removed-documents",
+    "re-scan-from-cloud",
+    "cloud-storage-used",
+    "signing-out"
+  ],
+  "documents": [
+    "documents",
+    "overview",
+    "document-library",
+    "bibles",
+    "cross-references",
+    "id1",
+    "commentaries",
+    "dictionaries",
+    "books",
+    "maps",
+    "download-documents",
+    "load-documents",
+    "deleting-modules"
+  ],
+  "faq": [
+    "frequently-asked-questions",
+    "contents",
+    "id9",
+    "id10",
+    "id11",
+    "id12",
+    "id13",
+    "id14",
+    "id15",
+    "id16",
+    "id17",
+    "id18",
+    "id19",
+    "id20",
+    "i-can-t-find-esv-any-more-in-downloads-what-s-wrong",
+    "please-add-module-x-to-andbible",
+    "i-found-a-text-issue-in-a-bible-commentary-module",
+    "i-have-an-older-phone-can-i-use-andbible",
+    "how-do-i-change-the-voice-of-the-speech-synthesis",
+    "is-there-a-version-for-ios-iphone-ipad",
+    "how-do-i-download-more-bibles-commentaries-etc",
+    "how-do-i-copy-my-notes-and-bookmarks-to-a-new-phone",
+    "where-do-the-bible-translations-come-from",
+    "how-do-i-downgrade-from-5-0-to-4-0-or-4-0-to-3-3",
+    "how-to-get-the-paid-net-module-working",
+    "is-there-a-way-i-can-support-the-project"
+  ],
+  "getting_started": [
+    "getting-started",
+    "installation",
+    "linux-setup",
+    "windows-11-setup",
+    "mirroring-and-using-app-on-any-computer"
+  ],
+  "index": [
+    "welcome-to-the-andbible-bible-study-s-documentation",
+    "contents"
+  ],
+  "labels": [
+    "labels",
+    "overview",
+    "open-label-settings",
+    "searching-for-a-label",
+    "create-a-label",
+    "delete-a-label",
+    "change-label-settings",
+    "override-label-style-per-workspace",
+    "video"
+  ],
+  "look_and_feel": [
+    "look-and-feel",
+    "text-display-settings-hierarchy",
+    "settings-hierarchy",
+    "application-settings",
+    "general",
+    "e-ink-displays",
+    "font-and-text",
+    "fullscreen-and-window-display",
+    "one-tap-actions",
+    "study-pad",
+    "global-text-options",
+    "id1",
+    "id5",
+    "id7",
+    "workspace-text-options",
+    "id2",
+    "formatting-options",
+    "text-appearance-options",
+    "window-text-options",
+    "id3",
+    "module"
+  ],
+  "memorize": [
+    "memorize",
+    "opening-the-memorize-view",
+    "study-modes",
+    "word-blur",
+    "word-scramble",
+    "word-type",
+    "word-order",
+    "menu-actions",
+    "memorized-state",
+    "saving-progress",
+    "cloud-sync"
+  ],
+  "my_documents": [
+    "my-documents",
+    "creating-a-document",
+    "managing-documents",
+    "managing-pages",
+    "content-formats",
+    "opening-documents",
+    "cloud-sync"
+  ],
+  "navigation": [
+    "navigation",
+    "opening-bible-references",
+    "book-chooser-customizations",
+    "opening-deuterocanonical-books",
+    "navigating-directly-to-verse",
+    "moving-between-documents",
+    "opening-documents",
+    "closing-documents",
+    "maximizing-minimizing-document-windows",
+    "moving-between-workspaces",
+    "open-the-workspaces-dialog",
+    "go-to-the-next-workspace",
+    "gestures-and-shortcuts",
+    "swipe-left-right-on-bible-text",
+    "double-tap-to-fullscreen",
+    "fullscreen-by-scrolling",
+    "volume-keys-scrolling",
+    "long-press-actions"
+  ],
+  "notes": [
+    "notes",
+    "creating-notes",
+    "add-a-note-from-the-verse-action-dialog",
+    "add-a-note-to-an-existing-bookmark",
+    "add-a-note-to-a-new-bookmark",
+    "add-a-note-to-a-study-pad",
+    "viewing-notes",
+    "viewing-an-individual-note",
+    "viewing-notes-as-a-commentary",
+    "viewing-all-notes",
+    "editing-a-note",
+    "choosing-the-editor-format",
+    "notes-editor-setting",
+    "html-editor",
+    "markdown-editor"
+  ],
+  "reading_plans": [
+    "reading-plans",
+    "abandon-reading-plan",
+    "switch-between-reading-plans",
+    "preview-reading-plans-or-go-to-specific-day",
+    "changing-reading-plan-start-date",
+    "set-specific-reading-plan-day-to-today-s-date",
+    "custom-reading-plans",
+    "the-zip-reading-plan-format",
+    "the-conf-file",
+    "the-properties-file",
+    "cloud-sync"
+  ],
+  "reading_progress": [
+    "reading-progress",
+    "on-this-page",
+    "id1",
+    "id2",
+    "id3",
+    "id4",
+    "id5",
+    "id6",
+    "id7",
+    "id8",
+    "reading-tracking",
+    "mark-as-read-button",
+    "automatic-reading-tracking",
+    "memorization-tracking",
+    "progress-indicators",
+    "reading-progress-view",
+    "reading-cycles",
+    "cloud-sync"
+  ],
+  "releases/index": [
+    "release-information"
+  ],
+  "releases/release_4_0": [
+    "release-4-0",
+    "major-new-features-and-improvements"
+  ],
+  "releases/release_4_1": [
+    "release-4-1",
+    "major-new-features-and-improvements"
+  ],
+  "releases/release_5_0": [
+    "release-5-0",
+    "major-new-features-and-improvements"
+  ],
+  "search": [
+    "fallback",
+    "search-results"
+  ],
+  "share": [
+    "sharing",
+    "sharing-a-verse",
+    "sharing-a-study-pad",
+    "sharing-bibles-documents",
+    "sharing-bible-links"
+  ],
+  "speak": [
+    "speak",
+    "voice-used-for-speaking",
+    "speak-settings",
+    "how-to-speak-a-range-of-verses",
+    "earcon-sounds",
+    "sleep-timer",
+    "bluetooth-media-buttons"
+  ],
+  "study_pads": [
+    "study-pads"
+  ],
+  "style_guide": [
+    "style-guide-for-documentation-contributions",
+    "inline-formatting",
+    "heading-1"
+  ],
+  "support": [
+    "support",
+    "general-questions",
+    "reporting-issues",
+    "feature-requests",
+    "tutorial-videos",
+    "tips-tricks"
+  ],
+  "usage": [
+    "usage",
+    "overview",
+    "bible-study",
+    "topical-study",
+    "word-study",
+    "personal-devotions",
+    "sermon-notes",
+    "original-language-study"
+  ],
+  "verse_action_dialog": [
+    "verse-action-dialog",
+    "bookmark",
+    "note",
+    "my-notes",
+    "share",
+    "memorize",
+    "comparing-verses"
+  ],
+  "videos/note_add_to_existing_bookmark": [
+    "add-a-note-to-an-existing-bookmark",
+    "id1"
+  ],
+  "windows": [
+    "windows",
+    "table-of-contents",
+    "id1",
+    "id2",
+    "creating-and-configuring-windows"
+  ],
+  "workspaces": [
+    "workspaces"
+  ]
+}

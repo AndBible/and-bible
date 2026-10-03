@@ -5,6 +5,7 @@ import net.bible.sharedcore.ai.PromptCategoryVd
 import net.bible.sharedcore.ai.PromptGroupVd
 import net.bible.sharedcore.ai.PromptListFilter
 import net.bible.sharedcore.ai.PromptVd
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedui.ai.AiPromptsScreen
 import net.bible.sharedui.ai.PromptFilterSheetContent
 import org.junit.Test
@@ -55,7 +56,7 @@ class AiPromptsGoldenTest {
                 onMovePromptToCategory = { _, _ -> },
                 categoriesProvider = { categories },
                 helpBody = "AI Settings is where you manage your prompts and categories.",
-                helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
+                helpReadMoreUrl = DocsLinks.page("ai"),
                 initiallyHelpDialogOpen = initiallyHelpDialogOpen,
                 initiallyOverflowMenuOpen = initiallyOverflowMenuOpen,
                 initiallySearchOpen = initiallySearchOpen,

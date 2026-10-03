@@ -93,7 +93,25 @@ accrescent-debug:
 # gitlink names (not its checkout, which can lag behind) to the superproject's branch name,
 # fast-forward only. jsword is an upstream fork, pushed by hand; --recurse-submodules=check
 # refuses the final push if any gitlink (jsword included) is unpushed.
-PUSH_SUBMODULES := app/src/test/roborazzi docs/superpowers
+PUSH_SUBMODULES := app/src/test/roborazzi docs/superpowers website/media
+
+# andbible.org (website/): build into website/_site, then check it. CI runs both.
+site:
+	cd website && uv run python -m sitegen.build
+
+site-check:
+	cd website && uv run python -m sitegen.check && uv run pytest
+
+# Fetch missing local YouTube thumbnails into website/media/videos/. Pass options with THUMBS_ARGS:
+#   make site-thumbs THUMBS_ARGS="--refresh <id-or-url> ..."   re-download after changing a thumbnail on YouTube
+#   make site-thumbs THUMBS_ARGS="--all"                       re-download every video
+#   make site-thumbs THUMBS_ARGS="--all --dry-run"             only list what would be fetched
+site-thumbs:
+	cd website && uv run python -m sitegen.thumbnails $(THUMBS_ARGS)
+
+# Preview the built site at http://localhost:8000/
+site-serve:
+	cd website/_site && python3 -m http.server 8000
 
 push:
 	@set -e; \
@@ -109,4 +127,4 @@ push:
 	echo "push: and-bible ($$branch)"; \
 	git push --recurse-submodules=check -u origin "$$branch"
 
-.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug push
+.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests install-debug install-prod fdroid-release bundle accrescent accrescent-debug site site-check site-thumbs site-serve push

@@ -1,0 +1,45 @@
+# Curated 5-star Google Play reviews shown on the landing page, as a carousel, in file order (20 entries).
+# Source: Google Play listing net.bible.android.activity, fetched 2026-10-03; hand-curated.
+# Wording is the reviewer's own and carries no reviewer names; only obvious typos, capitalisation and punctuation are fixed; a cut is marked with "…".
+# Order = display order: years and topics alternate, the first is a short strong one.
+# Refresh candidates with: uv run python -m sitegen.play_reviews   (see content/README.md)
+- year: 2026
+  text: "What's not to love? Totally free as in no ads whatsoever. It's fast, responsive, laid out nicely, and has tons of great features. … it just keeps getting better."
+- year: 2025
+  text: "Hands down, my favourite! Easy, quick, no loading, no need for Internet connection, no ads, great customization, sync scrolling of commentary or other versions/languages, a single tap to open or close other documents."
+- year: 2021
+  text: "This Bible study app is so good that when I'm studying the Bible and I use desktop software I often find myself going back to my Android device because of ease of use and the many features that it has. It helps me to easily organize my thoughts with labels and study pads. The best Bible app for mobile and tablets, bar none!"
+- year: 2024
+  text: "Excellent and highly functional interface. Good resources for Bible study. I keep discovering more things I can do with this app."
+- year: 2026
+  text: "This is just what I was looking for. You can change the font size to your liking, you can get perfect dark mode, and go fullscreen. All Bibles available to use offline and there's no active telemetry."
+- year: 2020
+  text: "This app was the best (small footprint, fast/responsive, useful features) I could find several years ago and it gets better and better … A keeper I've grown to rely on and use every day."
+- year: 2025
+  text: "Having Strong's Hebrew and Greek dictionaries is HUGE! … I can check definitions on the fly during preaching and Bible study. Excellent app."
+- year: 2026
+  text: "Amazing app! Amazing responsive dev team. Have reported bug in past and BOOM the devs respond and fix!"
+- year: 2022
+  text: "Simply phenomenal. This app contains multiple resources that can be used for simple or in-depth studying. It has features and capabilities you'd expect from an expensive, high-end software program. Except this one is free of charge to everyone. … Absolutely amazing! Kudos to the developers."
+- year: 2025
+  text: "I have used this app for several years and even though I search for others now and then, I have never found one that I like better. It is the main reason I stay with an Android device."
+- year: 2024
+  text: "Far and away the most capable application for displaying and searching through Judeo-Christian religious texts in multiple languages. … Thank you to the devs for keeping it clean and FOSS."
+- year: 2026
+  text: "I rate this app 5/5! It is one of the best free Bible apps available. It's very easy to use, has a great search function, and I am really enjoying the memory tool."
+- year: 2025
+  text: "Very lean on memory. Quick and easy to use. Many Bible translations and documents. Well equipped with search and research material like Strong's. I have 10 Bible apps. This one is my most used app on my phone."
+- year: 2021
+  text: "I really enjoy the simplicity of this app. It is bug free, easy to navigate through, share verses, search for words, jump translations, visit the original languages and even access external resources. … Have been using it now for years as my favourite Bible app."
+- year: 2026
+  text: "Don't let anything about the \"feel\" or behavior of the app deter you, because you can literally customize this however you want it and it has tons of Bible translations, even if you like some that are more rare. I don't think I could have conceptualized anything better. THANK YOU!"
+- year: 2025
+  text: "It's a great app for daily Bible reading or even studying some passage. Lots of translations! I love the most that it has my own language - Lithuanian. The choice of yearly reading plans is great as well!"
+- year: 2020
+  text: "I have used many different apps over the years but this one has to be my overall favorite. I use this at work with my headphones in. I turn on the TTS option and let it read. There are other apps out there but none work as well as this one."
+- year: 2024
+  text: "Hands down my favorite Bible app. Has LOADS of features, and without needing an internet connection (after a resource has been downloaded), or taking up a lot of space. At first it can seem a little odd, but once you get to know it, you won't want any other Bible app (at the very least I didn't). Highly recommend."
+- year: 2025
+  text: "This is by far the best open source mobile Bible app available - and it's free - as the Bible should be! It is feature packed and can even be run on a desktop machine via Waydroid (requires a bit of technical experience)."
+- year: 2026
+  text: "This app is a gargantuan labor of love. It's obvious that the developer not only has great love for God and his Word, but also has his heart in the right place by creating a completely free, feature-packed app that has everything the student of God's Word needs. The verse memory feature is an especially great little touch. :) I can't praise or recommend this work enough."

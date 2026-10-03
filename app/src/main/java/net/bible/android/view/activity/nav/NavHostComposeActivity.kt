@@ -265,6 +265,7 @@ import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.backup.BackupController
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedui.backup.nav.BackupNavDeps
 import net.bible.sharedui.backup.nav.backupNavGraph
 import android.Manifest
@@ -3456,7 +3457,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             readTools = { aiReadTools },
                             writeTools = { aiWriteTools },
                             helpBody = { getString(R.string.help_tool_info_text) },
-                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#ai-tools",
+                            helpReadMoreUrl = DocsLinks.page("ai", "ai-tools"),
                         ),
                         aiDocumentFilter = AiDocumentFilterDeps(
                             // A fresh instance per back-stack entry -- see AiDocumentFilterDeps'
@@ -3464,19 +3465,19 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             // why "Discard changes?" did not actually discard anything).
                             controllerFor = { AiDocumentFilterController(service = documentFilterService, scope = lifecycleScope) },
                             helpBody = { getString(R.string.help_ai_document_filter_text) },
-                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-data-and-documents",
+                            helpReadMoreUrl = DocsLinks.page("ai", "available-data-and-documents"),
                         ),
                         globalToolPermissions = GlobalToolPermissionsDeps(
                             // Same fix, same reason -- see AiDocumentFilterDeps' kdoc (C1).
                             controllerFor = { GlobalToolPermissionsController(service = toolPermissionService, scope = lifecycleScope) },
                             helpBody = { getString(R.string.help_global_tool_permissions_text) },
-                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#setting-permissions",
+                            helpReadMoreUrl = DocsLinks.page("ai", "setting-permissions"),
                         ),
                         aiModels = AiModelsDeps(
                             controller = { aiModelsController },
                             providersForPicker = { llmModelService.providersForPicker() },
                             helpBody = { getString(R.string.help_ai_models_text) },
-                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#available-models",
+                            helpReadMoreUrl = DocsLinks.page("ai", "available-models"),
                             onResume = { llmModelService.refresh() },
                         ),
                         aiConnectionSettings = AiConnectionSettingsDeps(
@@ -3491,7 +3492,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         aiProviders = AiProvidersDeps(
                             controller = { aiProvidersController },
                             helpBody = { getString(R.string.help_ai_providers_text) },
-                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#choosing-a-provider",
+                            helpReadMoreUrl = DocsLinks.page("ai", "choosing-a-provider"),
                             unknownErrorMessage = { getString(R.string.unknown_error) },
                             onResume = { llmProviderService.refresh() },
                         ),
@@ -3506,7 +3507,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                                 )
                             },
                             helpBody = { getString(R.string.help_ai_settings_text) },
-                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
+                            helpReadMoreUrl = DocsLinks.page("ai"),
                             // Launched on THIS host's lifecycleScope, not a scope owned by the
                             // graph's composable arm -- see AiPromptsDeps' kdoc for why: a
                             // rememberCoroutineScope() in that arm would be cancelled the instant
@@ -3546,7 +3547,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                                 else globalMaxIterations.toString()
                             },
                             helpBody = { getString(R.string.help_prompt_edit_text) },
-                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#custom-prompts",
+                            helpReadMoreUrl = DocsLinks.page("ai", "custom-prompts"),
                             onPromptCopied = {
                                 Toast.makeText(this@NavHostComposeActivity, R.string.prompt_copied, Toast.LENGTH_SHORT).show()
                             },
@@ -3565,7 +3566,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                                 RawLogHistoryController(service = rawLogService, scope = lifecycleScope, onOpenLog = onOpenLog)
                             },
                             helpBody = { getString(R.string.help_ai_connection_text) },
-                            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html",
+                            helpReadMoreUrl = DocsLinks.page("ai"),
                             onResume = { rawLogService.refresh() },
                         ),
                     )
@@ -5360,7 +5361,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     activity = this@NavHostComposeActivity,
                     titleResId = R.string.help,
                     messageResId = R.string.help_ai_connection_text,
-                    helpPath = "ai.html#getting-started",
+                    helpUrl = DocsLinks.page("ai", "getting-started"),
                 )
             })
         }
@@ -7499,7 +7500,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             activity = this,
             titleResId = R.string.help,
             messageResId = R.string.help_reading_progress_text,
-            helpPath = "reading_progress.html",
+            helpUrl = DocsLinks.page("reading_progress"),
         )
     }
 
@@ -8750,7 +8751,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         activity = this@NavHostComposeActivity,
                         titleResId = R.string.help,
                         messageResId = R.string.help_document_sync_text,
-                        helpPath = "document_sync.html",
+                        helpUrl = DocsLinks.page("document_sync"),
                     )
                 },
                 icon = { Icon(painterResource(R.drawable.ic_help_white_24dp), contentDescription = null) },

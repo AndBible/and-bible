@@ -102,6 +102,7 @@ import net.bible.android.database.json
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -1041,16 +1042,16 @@ object CommonUtils : CommonUtilsBase() {
         val app = application
         val versionMsg = app.getString(R.string.version_text, applicationVersionName)
 
-        data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null, val docPath: String? = null)
+        data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null, val docUrl: String? = null)
 
         val help = listOf(
-            HelpItem(R.string.help_nav_title, R.string.help_nav_text, docPath = "navigation.html"),
+            HelpItem(R.string.help_nav_title, R.string.help_nav_text, docUrl = DocsLinks.page("navigation")),
             HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text),
-            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, windowPinningVideo, docPath = "windows.html"),
-            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesPlaylist, docPath = "bookmarks.html"), // beta video
-            HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo, docPath = "study_pads.html"), // beta video
-            HelpItem(R.string.help_search_title, R.string.help_search_text2, docPath = "search.html"),
-            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo, docPath = "workspaces.html"),
+            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, windowPinningVideo, docUrl = DocsLinks.page("windows")),
+            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesPlaylist, docUrl = DocsLinks.page("bookmarks")), // beta video
+            HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo, docUrl = DocsLinks.page("study_pads")), // beta video
+            HelpItem(R.string.help_search_title, R.string.help_search_text2, docUrl = DocsLinks.page("search")),
+            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo, docUrl = DocsLinks.page("workspaces")),
             HelpItem(R.string.help_hidden_features_title, R.string.help_hidden_features_text)
         ).run {
             if(filterItems != null) {
@@ -1071,8 +1072,8 @@ object CommonUtils : CommonUtilsBase() {
             if(helpItem.videoLink != null) {
                 links.add("&bull;&nbsp;<i><a href=\"${helpItem.videoLink}\">${app.getString(R.string.watch_tutorial_video)}</a></i>")
             }
-            if(helpItem.docPath != null) {
-                links.add("&bull;&nbsp;<i><a href=\"$DOCS_URL_PREFIX${helpItem.docPath}\">${app.getString(R.string.help_read_more_link)}</a></i>")
+            if(helpItem.docUrl != null) {
+                links.add("&bull;&nbsp;<i><a href=\"${helpItem.docUrl}\">${app.getString(R.string.help_read_more_link)}</a></i>")
             }
             val linksHtml = if(links.isNotEmpty()) "<br>${links.joinToString("<br>")}<br>" else ""
 
@@ -1080,7 +1081,7 @@ object CommonUtils : CommonUtilsBase() {
         }
 
         val fullDocsLink = app.getString(R.string.help_full_documentation_link)
-        val fullDocsMessage = "<a href=\"$DOCS_URL_PREFIX\">$fullDocsLink</a>"
+        val fullDocsMessage = "<a href=\"${DocsLinks.BASE_URL}\">$fullDocsLink</a>"
 
         dialogs.post(
             AppDialogRequest.Notice(
@@ -1100,22 +1101,22 @@ object CommonUtils : CommonUtilsBase() {
     /**
      * Show a help dialog with a short blurb and a clickable "Read more in the manual" link.
      *
-     * The link opens [helpPath] resolved against the docs.andbible.org URL prefix.
+     * The link opens [helpUrl], normally built with [DocsLinks.page].
      *
      * @param activity Activity used to launch the dialog.
      * @param titleResId String resource for the dialog title.
      * @param messageResId String resource for the short blurb shown above the link.
-     * @param helpPath Path under https://docs.andbible.org/en/latest/, e.g. "ai.html#permissions".
+     * @param helpUrl Full docs URL, e.g. `DocsLinks.page("ai", "setting-permissions")`.
      */
     fun showHelpDialog(
         activity: Activity,
         titleResId: Int,
         messageResId: Int,
-        helpPath: String,
+        helpUrl: String,
     ) {
         val readMore = activity.getString(R.string.help_read_more_link)
         val messageHtml = activity.getString(messageResId) +
-            "<br><br><i><a href=\"$DOCS_URL_PREFIX$helpPath\">$readMore</a></i>"
+            "<br><br><i><a href=\"$helpUrl\">$readMore</a></i>"
         dialogs.post(
             AppDialogRequest.Message(
                 title = activity.getString(titleResId),
@@ -1125,9 +1126,6 @@ object CommonUtils : CommonUtilsBase() {
             ),
         )
     }
-
-    /** Base URL for AndBible's user documentation. Help dialog links resolve their paths against this. */
-    private const val DOCS_URL_PREFIX = "https://docs.andbible.org/en/latest/"
 
     /**
      * Opens [link] in a browser immediately, no question asked -- classic `openLink`'s own `else`

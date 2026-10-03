@@ -122,6 +122,9 @@ egress_allow:
   # Node / npm (app/bibleview-js)
   - registry.npmjs.org
   - registry.yarnpkg.com
+  # Playwright browser download (website browser checks, .jailbee/install.d/97-playwright.sh)
+  - cdn.playwright.dev:443
+  - playwright.download.prss.microsoft.com:443
   # Ubuntu apt
   - archive.ubuntu.com:443
   - security.ubuntu.com:443
@@ -129,11 +132,19 @@ egress_allow:
   # GitHub: HTTPS submodules (jsword, goldens) and release downloads
   - github.com:443
   - release-assets.githubusercontent.com:443
+  # Website (website/): Python packages for uv, YouTube catalog + thumbnails, shop link check
+  - pypi.org:443
+  - files.pythonhosted.org:443
+  - youtube.com:443
+  - www.youtube.com:443
+  - i.ytimg.com:443
+  - play.google.com:443
+  - shop.andbible.org:443
   # AndBible module repositories (catalogue refresh and module downloads,
   # e.g. in the in-container emulator)
   - andbible.org:443
   - support.andbible.org:443
-  # User documentation (Read the Docs)
+  # Legacy user documentation (Read the Docs, until the cutover)
   - docs.andbible.org:443
   - crosswire.org:443
   - ebible.org:443
@@ -180,6 +191,25 @@ golden:
     - openjdk-17-jdk      # satisfies jvmToolchain(17), see above
     - android-tools-adb   # adb client; the server runs on the host
     - xz-utils            # `xz` for .jailbee/install.d/95-typst.sh (tar -xJf)
+    # Shared libraries of Playwright's headless Chromium (.jailbee/install.d/97-playwright.sh)
+    - libasound2t64
+    - libatk-bridge2.0-0t64
+    - libatk1.0-0t64
+    - libatspi2.0-0t64
+    - libdbus-1-3
+    - libdrm2
+    - libgbm1
+    - libglib2.0-0t64
+    - libnspr4
+    - libnss3
+    - libx11-6
+    - libxcb1
+    - libxcomposite1
+    - libxdamage1
+    - libxext6
+    - libxfixes3
+    - libxkbcommon0
+    - libxrandr2
 
 # ---------------------------------------------------------------------------
 # Autostart

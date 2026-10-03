@@ -48,9 +48,8 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData
  * since S9 and are deliberately retained (`ClassicBookmarkRemovalGuardTest.survivingCollaborators`).
  * So "referenceless and in `view/util/widget/`" does not license a deletion; a named decision does.
  *
- * [customRepositoriesHelpUrl] is also kept here rather than deleted: it is pinned against the
- * `:sharedUi` copy ([net.bible.sharedui.download.customRepositoriesHelpUrl]) by
- * `CustomRepositoryHelpUrlTest` to catch the two copies drifting apart.
+ * The custom-repository help URL no longer has a copy here: `:app` depends on `:sharedUi`, so
+ * everything reads [net.bible.sharedui.download.customRepositoriesHelpUrl].
  *
  * The package is deliberately unchanged (`net.bible.android.view.activity.download`): classic
  * `DownloadComposeActivity` used to read four of these by bare name with no import, because it sat
@@ -140,5 +139,3 @@ fun Book.isBadDocument(badDocuments: DocumentConfiguration?, actionForDocument: 
     } != null
 
 val Book.isInstalled: Boolean get() = Books.installed().getBook(initials) != null
-
-const val customRepositoriesHelpUrl = "https://docs.andbible.org/en/latest/custom_repositories.html"

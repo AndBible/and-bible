@@ -1,0 +1,13 @@
+# Old path -> new path or absolute URL. Paths ending in "/" are directories
+# (written as <path>index.html); others are files (e.g. /privacy.html).
+# A bare "/x" entry cannot coexist with a "/x/" entry (file vs directory);
+# GitHub Pages redirects /x to /x/ itself when the directory exists.
+# A site-path target must exist in the built site, or the build fails.
+/privacy.html: /privacy/
+/terms.html: /terms/
+/about/: /
+/sponsor-andbible-financially/: https://shop.andbible.org/page/info
+/buy/: https://shop.andbible.org/page/info
+/shop/: https://shop.andbible.org/page/info
+/printable-promotional-material/: /flyers/
+/tutorial-videos/: /videos/

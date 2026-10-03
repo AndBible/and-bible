@@ -61,6 +61,7 @@ import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.common.CommonUtils
@@ -626,20 +627,20 @@ class BibleJavascriptInterface(
 
     /**
      * Show a help dialog for a Vue-side view. The [scopeKey] string is
-     * resolved server-side to a (title, message, helpPath) triple so
+     * resolved server-side to a (title, message, helpUrl) triple so
      * that the JS side cannot inject arbitrary URLs.
      */
     @JavascriptInterface
     fun showHelpDialog(scopeKey: String) {
-        val (titleRes, messageRes, helpPath) = when (scopeKey) {
-            "memorize" -> Triple(R.string.help, R.string.help_memorize_text, "memorize.html")
+        val (titleRes, messageRes, helpUrl) = when (scopeKey) {
+            "memorize" -> Triple(R.string.help, R.string.help_memorize_text, DocsLinks.page("memorize"))
             else -> {
                 Log.w(TAG, "Unknown help scope: $scopeKey")
                 return
             }
         }
         scope.launch(Dispatchers.Main) {
-            CommonUtils.showHelpDialog(hostActivity, titleRes, messageRes, helpPath)
+            CommonUtils.showHelpDialog(hostActivity, titleRes, messageRes, helpUrl)
         }
     }
 

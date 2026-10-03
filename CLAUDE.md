@@ -128,6 +128,12 @@ Only run Android builds when testing Android-specific integration.
 - `app/bibleview-js/vite.config.mts`: Vue.js build configuration using Vite
 - `app/bibleview-js/package.json`: Vue.js dependencies and build scripts
 
+### Website (andbible.org and user docs)
+- `website/sitegen/build.py`: Site build entry point (`make site`)
+- `website/zensical.toml`: Docs build configuration and the docs nav (new pages must be listed here)
+- `website/content/README.md`: Authoring rules for blog posts, images, docs and translations
+- `sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/DocsLinks.kt`: `DocsLinks.page(...)`, the app's links into the docs
+
 ## Kotlin Multiplatform / Compose structure
 
 - `:sharedCore` holds the shared logic and models.
@@ -168,6 +174,30 @@ However, **all user-facing strings must go through the translation system**:
 - **Vue.js/BibleView**: Add strings to `app/bibleview-js/src/lang/default.yaml`
 
 Never hardcode user-visible text directly in code.
+
+## Website and user documentation (`website/`)
+
+andbible.org (landing page, blog, docs at `/docs/`, video catalog) is built from `website/` and
+deployed to GitHub Pages from `current-stable`. Authoring rules: `website/content/README.md`.
+
+- **User documentation lives in `website/content/en/docs/`.** A user-visible change (UI, setting,
+  feature, behavior) updates the matching docs page in the same PR. A new page goes into the
+  `website/zensical.toml` nav.
+- Docs are edited directly in `website/content/en/docs/*.md`; that Markdown is the source of truth.
+  The migration scripts in `website/sitegen/migrate/` were a one-shot RST-to-Markdown conversion kept
+  for reference only: do not re-run them. The old RST repository (`AndBible/docs`) is deprecated.
+- App links into the docs are built with `DocsLinks.page("<page>", "<anchor>")`
+  (`sharedCore`, `net.bible.sharedcore.docs`); `website/tests/test_app_deep_links.py` checks every
+  one against the built docs, so renaming a heading the app links to fails CI.
+- Before writing a blog post, read `website/content/README.md`. Blog media goes to the
+  `website/media` submodule (`AndBible/andbible-website-media`); commit there, then bump the gitlink.
+- Validate any `website/` change with `make site site-check` (needs `uv`).
+- `docs/` at the repo root is developer documentation, not user documentation.
+- A new YouTube video or short that needs a blog post: use the `video-blog-post` skill (`.claude/skills/video-blog-post/`).
+- The video catalog is `website/data/videos.yaml` (new entries come from the `video-blog-post` skill).
+- Thumbnail changed on YouTube: use the `refresh-video-thumbnails` skill (`.claude/skills/refresh-video-thumbnails/`), i.e. `make site-thumbs THUMBS_ARGS="--refresh <id>"`.
+- Any other blog article: `write-blog-post`. Docs pages and app deep links: `update-user-docs`. Landing-page reviews: `update-website-reviews`. Anything else on the site (catalog, UI strings, languages, redirects, theme): `website-maintenance` (also the index of these skills).
+- Landing-page reviews: see "Landing page reviews" in `website/content/README.md` (`uv run python -m sitegen.play_reviews`, curated in `website/data/reviews.yaml`).
 
 ## Theme and Display Modes
 

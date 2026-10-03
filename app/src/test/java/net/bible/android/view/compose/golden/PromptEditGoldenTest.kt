@@ -7,6 +7,7 @@ import net.bible.sharedcore.ai.PromptEditTab
 import net.bible.sharedcore.ai.ToolCategoryVd
 import net.bible.sharedcore.ai.ToolPermission
 import net.bible.sharedcore.ai.ToolVd
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.ai.MaxIterationsSheetContent
 import net.bible.sharedui.ai.PromptEditScreen
@@ -119,7 +120,7 @@ class PromptEditGoldenTest {
             onViewTools = {},
             onBack = {},
             helpBody = "Custom prompts let you define reusable AI instructions, including which tools they may use.",
-            helpReadMoreUrl = "https://docs.andbible.org/en/latest/ai.html#custom-prompts",
+            helpReadMoreUrl = DocsLinks.page("ai", "custom-prompts"),
             initiallyHelpDialogOpen = initiallyHelpDialogOpen,
         )
     }

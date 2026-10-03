@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import net.bible.sharedcore.docs.DocsLinks
 import net.bible.sharedcore.download.CustomRepoListState
 import net.bible.sharedui.components.AbActionIcon
 import net.bible.sharedui.components.AbInfoDialog
@@ -48,11 +49,10 @@ import net.bible.sharedui.components.volumeScrollTarget
  * The manual page documenting the custom-repository manifest format. Moved off the GitHub wiki
  * 2026-08-29 (round 17e): the wiki page no longer exists and the content lives in the manual.
  *
- * Public, not internal: `:app`'s CustomRepositoryHelpUrlTest asserts this and the classic copy in
- * `net.bible.android.view.activity.download` are the same string, and `internal` is scoped to the
+ * Public, not internal: `:app` reads it (the only definition) and `internal` is scoped to the
  * compilation module.
  */
-const val customRepositoriesHelpUrl = "https://docs.andbible.org/en/latest/custom_repositories.html"
+val customRepositoriesHelpUrl: String = DocsLinks.page("custom_repositories")
 
 /**
  * Stateless port of classic `CustomRepositories`: a list of user-added custom Sword/MyBible

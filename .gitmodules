@@ -10,3 +10,7 @@
 	url = https://github.com/AndBible/and-bible-superpowers.git
 #	update = none
 	branch = master
+[submodule "website/media"]
+	path = website/media
+	url = https://github.com/AndBible/andbible-website-media.git
+	branch = master
