@@ -79,8 +79,8 @@ def test_old_app_deep_links_resolve(tmp_path):
 ])
 def test_404_script_matches_python_mapping(tmp_path, path, hash_, expected):
     run(tmp_path)
-    script = re.search(r"<script>(.*?)</script>", (tmp_path / "404.html").read_text(), re.S).group(1)
-    driver = ("var location={pathname:%s,hash:%s,replace:function(u){console.log(u)}};" % (
-        json.dumps(path), json.dumps(hash_))) + script
+    script = re.search(r"<script>(.*?)</script>", (tmp_path / "404.html").read_text(), re.DOTALL).group(1)
+    driver = (f"var location={{pathname:{json.dumps(path)},hash:{json.dumps(hash_)},"
+              "replace:function(u){console.log(u)}};") + script
     out = subprocess.run(["node", "-e", driver], check=True, capture_output=True, text=True).stdout.strip()
     assert out == expected
