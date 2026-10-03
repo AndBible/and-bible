@@ -21,10 +21,8 @@
         {% endfor %}
         <p class="getapp__hint"><a href="{{ strings.getapp.others_url }}">{{ strings.getapp.others }}</a></p>
       </div>
-      <picture class="getapp__phone">
-        <source srcset="/assets/img/phone-dark.webp?v={{ asset_hash['img/phone-dark.webp'] }}" media="(prefers-color-scheme: dark)">
-        <img src="/assets/img/phone-light.webp?v={{ asset_hash['img/phone-light.webp'] }}" alt="" width="540" height="960">
-      </picture>
+      <img class="getapp__phone getapp__phone--light" src="{{ asset_url('img/phone-light.webp') }}" alt="" width="540" height="960" loading="lazy">
+      <img class="getapp__phone getapp__phone--dark" src="{{ asset_url('img/phone-dark.webp') }}" alt="" width="540" height="960" loading="lazy" aria-hidden="true">
     </div>
   </div>
 </section>

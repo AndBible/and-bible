@@ -128,10 +128,17 @@ img { max-width: 100%; height: auto; }
 .store:hover { border-color: var(--accent); }
 .getapp__hint { margin: 0; font-size: .85rem; color: var(--faint); }
 .getapp__hint a { color: var(--muted); }
-.getapp__phone { display: block; width: min(240px, 70%); margin: 8px auto 0; align-self: center; }
-.getapp__phone img { display: block; width: 100%; border-radius: 22px 22px 0 0;
-  border: 1px solid var(--border); border-bottom: 0; }
-@media (max-width: 359px) { .getapp__phone { display: none; } .getapp { padding-bottom: 20px; } }
+.getapp__phone { display: block; width: min(240px, 70%); height: auto; margin: 8px auto 0; align-self: center;
+  border-radius: 22px 22px 0 0; border: 1px solid var(--border); border-bottom: 0; }
+/* One screenshot per effective theme: mirrors the token blocks above. */
+.getapp__phone--dark { display: none; }
+:root[data-theme="dark"] .getapp__phone--dark { display: block; }
+:root[data-theme="dark"] .getapp__phone--light { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .getapp__phone--dark { display: block; }
+  :root:not([data-theme="light"]) .getapp__phone--light { display: none; }
+}
+@media (max-width: 359px) { .getapp__phone { display: none !important; } .getapp { padding-bottom: 20px; } }
 
 /* ---- Sections, features, cards ---- */
 section.block { padding: 48px 0 0; }

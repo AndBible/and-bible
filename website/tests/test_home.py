@@ -59,3 +59,46 @@ def test_css_defines_both_themes():
     assert "prefers-color-scheme: dark" in css
     assert ':root[data-theme="dark"]' in css and ':root[data-theme="light"]' in css
     assert "prefers-reduced-motion" in css
+
+
+CSS = (Path(__file__).resolve().parents[1] / "assets" / "css").glob("*.css")
+
+
+def test_phone_images_follow_effective_theme(content, tmp_path):
+    out = tmp_path / "out"
+    build(content, out)
+    html = (out / "index.html").read_text()
+    assert "<picture" not in html
+    assert 'class="getapp__phone getapp__phone--light"' in html
+    assert 'class="getapp__phone getapp__phone--dark"' in html
+    css = (Path(__file__).resolve().parents[1] / "assets" / "css" / "site.css").read_text()
+    assert ".getapp__phone--dark { display: none; }" in css
+    assert ':root[data-theme="dark"] .getapp__phone--dark { display: block; }' in css
+    assert ':root[data-theme="dark"] .getapp__phone--light { display: none; }' in css
+    assert ':root:not([data-theme="light"]) .getapp__phone--dark { display: block; }' in css
+    assert ':root:not([data-theme="light"]) .getapp__phone--light { display: none; }' in css
+
+
+def test_no_literal_colours_outside_token_blocks():
+    import re
+
+    literal = re.compile(r"#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(")
+    for path in CSS:
+        depth_root = False
+        for n, line in enumerate(path.read_text().splitlines(), 1):
+            stripped = line.strip()
+            if re.match(r":root|@media \(prefers-color-scheme: dark\)", stripped):
+                depth_root = True
+            if not depth_root:
+                assert not literal.search(line), f"{path.name}:{n}: literal colour {line!r}"
+            if stripped == "}" and not line.startswith(" "):
+                depth_root = False
+
+
+def test_missing_asset_hash_fails_loudly():
+    from sitegen.home import environment
+
+    env = environment()
+    assert env.from_string("{{ asset_url('css/site.css') }}").render().startswith("/assets/css/site.css?v=")
+    with pytest.raises(KeyError):
+        env.from_string("{{ asset_url('css/nope.css') }}").render()

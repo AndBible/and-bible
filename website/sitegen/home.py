@@ -28,10 +28,16 @@ def asset_hashes() -> dict[str, str]:
     }
 
 
+def asset_url(name: str) -> str:
+    """Cache-busted URL of a file under assets/; an unknown name raises KeyError."""
+    return f"/assets/{name}?v={asset_hashes()[name]}"
+
+
 def environment() -> Environment:
     env = Environment(loader=FileSystemLoader(paths.TEMPLATES), autoescape=select_autoescape(["html", "xml"]))
     env.filters["md_inline"] = _md_inline
     env.globals["asset_hash"] = asset_hashes()
+    env.globals["asset_url"] = asset_url
     env.globals["base_url"] = paths.BASE_URL
     return env
 

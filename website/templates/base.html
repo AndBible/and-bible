@@ -15,9 +15,9 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="alternate" type="application/rss+xml" title="{{ strings.site_name }}" href="/feed/">
   <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg">
-  <link rel="stylesheet" href="/assets/css/site.css?v={{ asset_hash['css/site.css'] }}">
-  <script src="/assets/js/theme.js?v={{ asset_hash['js/theme.js'] }}"></script>
-  <script src="/assets/js/lite-yt.js?v={{ asset_hash['js/lite-yt.js'] }}" defer></script>
+  <link rel="stylesheet" href="{{ asset_url('css/site.css') }}">
+  <script src="{{ asset_url('js/theme.js') }}"></script>
+  <script src="{{ asset_url('js/lite-yt.js') }}" defer></script>
   {% block head_extra %}{% endblock %}
 </head>
 <body class="{{ body_class }}">
