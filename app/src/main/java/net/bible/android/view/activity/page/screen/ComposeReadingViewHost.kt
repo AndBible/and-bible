@@ -4734,9 +4734,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                                     tabBar = if (hideTabBarInFullScreen) null else {
                                         { applyNavBarInset ->
                                             WindowTabBar(
-                                                // Fix batch 2 (F66/F67): the strip pads the nav bar's
-                                                // bottom inset only when it is the bottom-most surface,
-                                                // unless the column is IME-padded (ReadingViewScreen decides). See `readingRailInsetPadding`.
+                                                // Fix batch 2 (F66/F67): ReadingViewScreen passes true only when the
+                                                // strip is the bottom-most surface and the column has no IME padding.
                                                 modifier = Modifier.readingRailInsetPadding(applyNavBarInset),
                                                 model = tabBarModel,
                                                 onRestore = controller::onRestore,

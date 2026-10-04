@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -24,6 +25,8 @@ import net.bible.sharedcore.window.WindowStateValue
 import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.components.AbSelectionScaffold
 import net.bible.sharedui.components.AbTopAppBar
+import net.bible.sharedui.components.AbTopBarSearchCallbacks
+import net.bible.sharedui.components.AbTopBarSearchState
 import net.bible.sharedui.components.HostSystemBars
 import net.bible.sharedui.components.LocalHostSystemBars
 import net.bible.sharedui.reading.ReadingToolbarCallbacks
@@ -92,6 +95,20 @@ class TopBarCutoutInsetTest {
     private fun top(tag: String) = compose.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot.top
     private fun left(tag: String) = compose.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot.left
 
+    private fun searchState() = AbTopBarSearchState(query = "", placeholder = "ph")
+
+    private fun searchCallbacks() = AbTopBarSearchCallbacks(onQueryChange = {}, onClose = {}, onImeRequestHandled = {})
+
+    private fun topOfText(text: String) = compose.onNodeWithText(text).fetchSemanticsNode().boundsInRoot.top
+
+    /** Like [shift], for a node found by its text (the search field's placeholder). */
+    private fun shiftText(text: String, statusTop: Int, cutoutTop: Int): Float {
+        dispatch(0, 0)
+        val before = topOfText(text)
+        dispatch(statusTop, cutoutTop)
+        return topOfText(text) - before
+    }
+
     private fun withHost(statusVisible: Boolean, content: @Composable () -> Unit) = compose.setContent {
         ProvideAppLocals {
             CompositionLocalProvider(LocalHostSystemBars provides HostSystemBars(statusVisible, navVisible = true)) {
@@ -121,7 +138,8 @@ class TopBarCutoutInsetTest {
         return top(tag) - before
     }
 
-    @Test fun readingToolbarPadsACutoutWhenTheStatusBarIsHidden() {
+    // No LocalHostSystemBars (previews, goldens): the cutout is kept even though statusTop is 0 here.
+    @Test fun readingToolbarPadsACutoutWithNoHostState() {
         mountReading()
         assertEquals(60f, shift("pane", statusTop = 0, cutoutTop = 60), 1f)
     }
@@ -132,7 +150,8 @@ class TopBarCutoutInsetTest {
         assertEquals(24f, shift("pane", statusTop = 24, cutoutTop = 10), 1f)
     }
 
-    @Test fun abTopAppBarPadsACutoutWhenTheStatusBarIsHidden() {
+    // No LocalHostSystemBars (previews, goldens): the cutout is kept even though statusTop is 0 here.
+    @Test fun abTopAppBarPadsACutoutWithNoHostState() {
         compose.setContent {
             ProvideAppLocals { AbTopAppBar(title = { Text("T", Modifier.testTag("title")) }) }
         }
@@ -146,7 +165,8 @@ class TopBarCutoutInsetTest {
         assertEquals(60f, shift("title", statusTop = 24, cutoutTop = 60), 1f)
     }
 
-    @Test fun selectionBarPadsACutoutWhenTheStatusBarIsHidden() {
+    // No LocalHostSystemBars (previews, goldens): the cutout is kept even though statusTop is 0 here.
+    @Test fun selectionBarPadsACutoutWithNoHostState() {
         compose.setContent {
             ProvideAppLocals {
                 AbSelectionScaffold(
@@ -196,12 +216,24 @@ class TopBarCutoutInsetTest {
         assertEquals(0f, shift("title", statusTop = 0, cutoutTop = 60), 1f)
     }
 
+    // A guard, not a red-first test: it also passes on the pre-fix code, which never dropped horizontal sides.
     @Test fun abTopAppBarKeepsAHorizontalCutoutWhenTheHostHidesTheStatusBar() {
         withHost(statusVisible = false) { AbTopAppBar(title = { Text("T", Modifier.testTag("title")) }) }
         dispatch(0, 0)
         val before = left("title")
         dispatch(0, 60, cutoutLeft = 40)
         assertEquals(40f, left("title") - before, 1f)
+    }
+
+    // The inline search mode replaces the whole bar (AbSearchTopAppBar), which has its own insets call site.
+    @Test fun abSearchBarDoesNotPadATopCutoutWhenTheHostHidesTheStatusBar() {
+        withHost(statusVisible = false) { AbTopAppBar(title = {}, search = searchState(), searchCallbacks = searchCallbacks()) }
+        assertEquals(0f, shiftText("ph", statusTop = 0, cutoutTop = 60), 1f)
+    }
+
+    @Test fun abSearchBarStillPadsTheCutoutWhenTheHostShowsTheStatusBar() {
+        withHost(statusVisible = true) { AbTopAppBar(title = {}, search = searchState(), searchCallbacks = searchCallbacks()) }
+        assertEquals(60f, shiftText("ph", statusTop = 24, cutoutTop = 60), 1f)
     }
 
     @Test fun selectionBarDoesNotPadATopCutoutWhenTheHostHidesTheStatusBar() {

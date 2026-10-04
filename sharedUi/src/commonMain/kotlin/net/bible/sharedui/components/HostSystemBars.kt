@@ -50,8 +50,10 @@ fun topBarWindowInsets(): WindowInsets {
         .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
 }
 
+private val NoInsets = WindowInsets(0, 0, 0, 0)
+
 /** The top display cutout, or nothing while the host hides the status bar (see [topBarWindowInsets]). */
 @Composable
 fun topBarCutoutTop(): WindowInsets =
-    if (LocalHostSystemBars.current?.statusVisible == false) WindowInsets(0, 0, 0, 0)
+    if (LocalHostSystemBars.current?.statusVisible == false) NoInsets
     else WindowInsets.displayCutout.only(WindowInsetsSides.Top)

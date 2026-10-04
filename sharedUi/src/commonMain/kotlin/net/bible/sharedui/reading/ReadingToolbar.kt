@@ -110,12 +110,12 @@ import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.fitToolbarButtons
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.reading.readingToolbarContainerArgb
-import net.bible.sharedui.components.topBarCutoutTop
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbMenuItem
 import net.bible.sharedui.components.AbSearchField
+import net.bible.sharedui.components.topBarCutoutTop
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.sharedui.theme.LocalIsDarkTheme
@@ -392,9 +392,9 @@ fun ReadingToolbar(
                     // a background covers the padding applied after it, so the container colour
                     // extends under the status bar instead of stopping below it.
                     .background(container)
-                    // Union (max), not sum: with the status bar hidden (hide_status_bar, fullscreen) the
-                    // top display cutout is the only thing left to clear -- edge-to-edge no longer gets
-                    // it from the legacy decor-fits insets.
+                    // Union (max), not sum, of the status bar and the top cutout. The cutout is cleared
+                    // only while the status bar is visible: with it hidden (hide_status_bar) the bar
+                    // draws up into the cutout, like the legacy app (see topBarCutoutTop).
                     .windowInsetsPadding(WindowInsets.statusBars.union(topBarCutoutTop()))
                     // The normal row does the same below: without it the field slides under a display
                     // cutout in landscape.

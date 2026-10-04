@@ -26,18 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 /**
- * The window-buttons strip's inset padding (fix batch 2, F66/F67). Only the nav bar's BOTTOM inset,
- * only when the strip is the bottom-most surface ([applyNavBarInset] =
- * `railOwnsNavBarInset(...)`) and the reading column carries no IME padding. The caller
- * (`ReadingViewScreen`) folds that second condition into [applyNavBarInset]: it follows the same
- * decision as the column's padding (the reading-insets ledger's `imePaddingApplied`), NOT Compose's
- * own `WindowInsets.ime`. Excluding `ime` here used to shrink the padding to `navBar - ime` whenever
- * an older-Android landscape device reported 0 < ime <= navBar without the ledger applying IME
- * padding, sinking the strip behind the nav bar while the WebView still reserved its margin. Side
- * insets belong to the split, which the strip sits inside. Shared by the host and
- * `ReadingInsetOwnershipTest` so the tested padding is the shipped one.
- *
- * `@Composable` because `WindowInsets.navigationBars` is a composable getter.
+ * The nav bar's BOTTOM inset as padding, for whichever bottom surface owns it (the rail, the Speak
+ * bar, the agent panel). [applyNavBarInset] is decided by `ReadingViewScreen`: the surface is the
+ * bottom-most one and the reading column carries no IME padding. It follows that decision, not
+ * Compose's own `WindowInsets.ime`, which can be non-zero while the column applies no IME padding.
+ * Shared by the shipped bars and `ReadingInsetOwnershipTest`.
  */
 @Composable
 fun Modifier.readingRailInsetPadding(applyNavBarInset: Boolean): Modifier =
