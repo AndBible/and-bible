@@ -41,12 +41,13 @@ jobs:
       - run: make site
       - run: make site-check
       - uses: actions/upload-pages-artifact@v5
-        if: github.event_name == 'push' && github.ref == 'refs/heads/current-stable'
+        # TEMPORARY: develop also deploys; revert to current-stable only.
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/current-stable' || github.ref == 'refs/heads/develop')
         with:
           path: website/_site
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/current-stable'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/current-stable' || github.ref == 'refs/heads/develop')
     needs: check
     runs-on: ubuntu-latest
     permissions:
