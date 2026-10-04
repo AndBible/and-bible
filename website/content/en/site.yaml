@@ -26,12 +26,18 @@ hero:
   videos_button: Tutorial videos
 getapp:
   title: Get the app
-  others: Also on GitHub, Amazon, Samsung, Huawei and Accrescent
+  others_intro: Also on
+  others_and: and
   stores:
     - {name: Google Play, note: Android, url: "https://play.google.com/store/apps/details?id=net.bible.android.activity"}
     - {name: F-Droid, note: "Android, FOSS store", url: "https://f-droid.org/packages/net.bible.android.activity/"}
     - {name: App Store, note: iPhone & iPad, url: "https://apps.apple.com/us/app/andbible-bible-study/id6774904527"}
-  others_url: "https://github.com/AndBible/and-bible/releases"
+  others:
+    - {name: GitHub, url: "https://github.com/AndBible/and-bible/releases/latest"}
+    - {name: Amazon, url: "https://www.amazon.com/Martin-Denham-And-Bible/dp/B004Z2KKYK"}
+    - {name: Samsung}
+    - {name: Huawei}
+    - {name: Accrescent, url: "https://accrescent.app/app/org.andbible.andbible"}
 features:
   - {title: Study tools, text: "Strong's numbers, morphology, cross-references and commentaries side by side."}
   - {title: StudyPads, text: Notes and bookmarks woven into the Bible text, organised by labels.}
