@@ -63,6 +63,7 @@ import net.bible.sharedui.components.AbSheetHeader
 import net.bible.sharedui.components.AbSheetScrollBound
 import net.bible.sharedui.components.AbTextInputDialog
 import net.bible.sharedui.components.TwoLineListItem
+import net.bible.sharedui.components.toggleStateSemantics
 import net.bible.sharedui.strings.LocalStrings
 
 /** Bounded height for the scrollable list bodies (prompt selector / model chooser). Kept at 480dp
@@ -264,7 +265,7 @@ private fun PromptRow(
             onClick = onClick,
             modifier = Modifier.weight(1f),
         )
-        IconButton(onClick = onToggleFavorite) {
+        IconButton(onClick = onToggleFavorite, modifier = Modifier.toggleStateSemantics(isFavorite)) {
             Icon(
                 imageVector = if (isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,
                 contentDescription = if (isFavorite) strings.promptFavoriteRemove else strings.promptFavoriteAdd,

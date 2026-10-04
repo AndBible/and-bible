@@ -162,9 +162,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if(!checkWebView()) return@withContext
 
-        // When I mess up database, I can re-create database like this.
-        //BackupControl.deleteAllDatabases()
-
         initializeDatabase()
 
         // When enabled, go to the calculator first,
