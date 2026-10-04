@@ -18,7 +18,7 @@ from typing import Any
 
 import zensical
 
-from sitegen import paths
+from sitegen import github, home, paths
 from sitegen.home import asset_hashes
 from sitegen.render import thumbnail_path
 from sitegen.i18n import languages, prefix, resolve, strings
@@ -95,16 +95,22 @@ def _toml(value: Any) -> str:
 def site_extra(site: dict[str, Any], lang: str) -> dict[str, Any]:
     """The landing topbar's brand and links, as theme data for the docs header (theme/partials/header.html)."""
     nav = site["nav"]
+    icon = home.environment().get_template("_macros.html").module.nav_icon
+    facts = github.load()
+    github_link = {"label": nav["github"], "url": site["footer"]["source_url"], "icon": str(icon("github")),
+                   "facts": [{"icon": str(icon(name)), "text": facts[key], "title": nav[title]}
+                             for name, key, title in (("star", "stars", "github_stars"),
+                                                      ("license", "license", "github_license"))] if facts else []}
     return {
         "brand": site["site_name"],
         "home": f"{prefix(lang)}/",
         "theme_toggle": nav["theme_toggle"],
         "links": [
-            {"label": nav["blog"], "url": "/blog/"},
-            {"label": nav["docs"], "url": f"{prefix(lang)}/docs/"},
-            {"label": nav["videos"], "url": "/videos/"},
-            {"label": nav["support"], "url": site["sections"]["support_url"]},
-            {"label": nav["github"], "url": site["footer"]["source_url"]},
+            {"label": nav["blog"], "url": "/blog/", "icon": str(icon("blog"))},
+            {"label": nav["docs"], "url": f"{prefix(lang)}/docs/", "icon": str(icon("docs"))},
+            {"label": nav["videos"], "url": "/videos/", "icon": str(icon("videos"))},
+            {"label": nav["support"], "url": site["sections"]["support_url"], "icon": str(icon("support"))},
+            github_link,
         ],
     }
 

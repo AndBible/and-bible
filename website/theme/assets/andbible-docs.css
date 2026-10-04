@@ -33,7 +33,7 @@
   text-decoration: none; font: 600 20px/1 "Source Serif 4", Georgia, serif; }
 .ab-brand img { width: 32px; height: 32px; }
 .ab-nav { display: none; align-items: center; gap: 4px; }
-.ab-nav a, .ab-drawer-links a { padding: 8px 12px; border-radius: 8px; color: var(--ab-muted); text-decoration: none; font-size: 15.2px; }
+.ab-nav a, .ab-drawer-links a { display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border-radius: 8px; color: var(--ab-muted); text-decoration: none; font-size: 15.2px; }
 .ab-nav a:hover, .ab-nav a:focus-visible, .ab-drawer-links a:hover, .ab-drawer-links a:focus-visible { color: var(--md-default-fg-color); background: var(--ab-surface-2); }
 .ab-icon-button { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 40px; height: 40px;
   padding: 0; border: 1px solid var(--ab-border); border-radius: 10px; background: var(--ab-surface);
@@ -44,7 +44,16 @@
 .md-header .md-search { margin: 0; }
 .ab-nav a:focus-visible, .ab-drawer-links a:focus-visible, .ab-icon-button:focus-visible {
   outline: 2px solid var(--md-accent-fg-color); outline-offset: 2px; }
-@media (min-width: 720px) { .ab-nav { display: flex; } .ab-drawer-links { display: none !important; } }
+.ab-nav svg, .ab-drawer-links svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; }
+.ab-nav .nav-icon__fill, .ab-drawer-links .nav-icon__fill { fill: currentColor; stroke: none; }
+.ab-github-facts { display: inline-flex; gap: 6px; margin-left: 4px; }
+.ab-github-fact { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border: 1px solid var(--ab-border);
+  border-radius: 999px; background: var(--ab-surface); font-size: 12.8px; line-height: 1.5; }
+.ab-github-fact svg { width: 13px; height: 13px; }
+/* Same breakpoints as the landing topbar (assets/css/site.css). */
+@media (min-width: 900px) and (max-width: 1099px) { .ab-github-fact:nth-child(2) { display: none; } }
+@media (min-width: 900px) { .ab-nav { display: flex; } .ab-drawer-links { display: none !important; } }
 .ab-drawer-links { display: flex; flex-direction: column; padding: 0 .6rem .6rem; border-bottom: 1px solid var(--ab-border); }
 
 /* ---- Images aligned by the migrated `{ .align-* }` attribute lists ---- */

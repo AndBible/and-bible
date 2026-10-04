@@ -23,7 +23,7 @@
     {% endif %}
     <div class="ab-nav">
       {% for link in site.links %}
-      <a href="{{ link.url }}">{{ link.label }}</a>
+      {% include "partials/navlink.html" %}
       {% endfor %}
     </div>
     <button class="ab-icon-button" type="button" data-theme-toggle aria-label="{{ site.theme_toggle }}">

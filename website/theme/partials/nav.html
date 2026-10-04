@@ -20,7 +20,7 @@
     </div>
   {% endif %}
   <div class="ab-drawer-links">
-    {% for link in config.extra.site.links %}<a href="{{ link.url }}">{{ link.label }}</a>{% endfor %}
+    {% for link in config.extra.site.links %}{% include "partials/navlink.html" %}{% endfor %}
   </div>
   <ul class="md-nav__list" data-md-scrollfix>
     {% for nav_item in nav.items %}

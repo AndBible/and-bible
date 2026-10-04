@@ -1,0 +1,7 @@
+{#- One landing-topbar link (icon, label, optional GitHub facts); data from sitegen.docs.site_extra. Icons are
+    rendered by templates/_macros.html, so the landing page and the docs share one set. -#}
+<a href="{{ link.url }}">{{ link.icon | safe }}{{ link.label }}
+  {%- if link.facts %}<span class="ab-github-facts">
+    {%- for fact in link.facts %}<span class="ab-github-fact" title="{{ fact.title }}">{{ fact.icon | safe }}{{ fact.text }}</span>{% endfor -%}
+  </span>{% endif -%}
+</a>
