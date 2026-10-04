@@ -1,0 +1,668 @@
+package net.bible.sharedcore.nav
+
+/**
+ * Routes for the Compose navigation graph (`:sharedUi`'s `NavHost`), and the typed builders that
+ * are the ONLY sanctioned way to construct one.
+ *
+ * **Strings, deliberately (plan D1).** Type-safe `@Serializable` routes would require the
+ * serialization plugin in `:sharedCore`, and this module is deliberately dependency-light — see
+ * `download/CustomRepositoryModel.kt`, which declines `@Serializable` for the same reason. Every
+ * live argument in the first migrated cluster is an id or a boolean, so the wire format costs
+ * nothing. The typing is not lost, only moved: nothing should hand-concatenate a route, and
+ * [encodeArg]/[decodeArg] exist so a free-text argument cannot corrupt one.
+ *
+ * Lives in `:sharedCore` rather than `:sharedUi` because it is pure data and this module already
+ * has a `jvm()` target and a `commonTest` source set, so routes are testable on Linux in seconds.
+ */
+object NavRoutes {
+
+    // Argument names. Each appears twice — in a PATTERN and in the read site — so both use these.
+    const val ARG_PROMPT_ID: String = "promptId"
+    const val ARG_PROMPT_TEMPLATE: String = "template"
+    const val ARG_DEFAULT_CONTEXT: String = "defaultContext"
+    const val ARG_EXECUTE_AFTER_SAVE: String = "executeAfterSave"
+    const val ARG_START_EASY_SETUP: String = "startEasySetup"
+    const val ARG_LOG_RECORD_ID: String = "logRecordId"
+    const val ARG_WORKSPACE_ID: String = "workspaceId"
+
+    // Argument-free routes: pattern and instance are the same string.
+    const val AI_PROMPTS: String = "ai/prompts"
+    const val AI_CONNECTION_SETTINGS: String = "ai/connectionSettings"
+    const val AI_MODELS: String = "ai/models"
+    const val AI_DOCUMENT_FILTER: String = "ai/documentFilter"
+    const val AI_GLOBAL_TOOL_PERMISSIONS: String = "ai/globalToolPermissions"
+    const val AI_TOOL_INFO: String = "ai/toolInfo"
+    const val AI_RAW_LOG_HISTORY: String = "ai/rawLogHistory"
+
+    // Parameterised routes: the PATTERN is what `composable(route = …)` registers; the builder
+    // below is what a caller navigates to.
+    const val AI_PROVIDERS_PATTERN: String =
+        "ai/providers?$ARG_START_EASY_SETUP={$ARG_START_EASY_SETUP}"
+    const val PROMPT_EDIT_PATTERN: String =
+        "ai/promptEdit?$ARG_PROMPT_ID={$ARG_PROMPT_ID}" +
+            "&$ARG_PROMPT_TEMPLATE={$ARG_PROMPT_TEMPLATE}" +
+            "&$ARG_DEFAULT_CONTEXT={$ARG_DEFAULT_CONTEXT}" +
+            "&$ARG_EXECUTE_AFTER_SAVE={$ARG_EXECUTE_AFTER_SAVE}"
+    const val RAW_LLM_LOG_PATTERN: String =
+        "ai/rawLlmLog?$ARG_LOG_RECORD_ID={$ARG_LOG_RECORD_ID}&$ARG_WORKSPACE_ID={$ARG_WORKSPACE_ID}"
+
+    fun aiProviders(startEasySetup: Boolean = false): String =
+        "ai/providers?$ARG_START_EASY_SETUP=$startEasySetup"
+
+    fun promptEdit(
+        promptId: String? = null,
+        template: String? = null,
+        defaultContext: String? = null,
+        executeAfterSave: Boolean = false,
+    ): String = buildRoute("ai/promptEdit") {
+        optional(ARG_PROMPT_ID, promptId)
+        optional(ARG_PROMPT_TEMPLATE, template)
+        optional(ARG_DEFAULT_CONTEXT, defaultContext)
+        required(ARG_EXECUTE_AFTER_SAVE, executeAfterSave.toString())
+    }
+
+    fun rawLlmLog(logRecordId: String? = null, workspaceId: String? = null): String =
+        buildRoute("ai/rawLlmLog") {
+            optional(ARG_LOG_RECORD_ID, logRecordId)
+            optional(ARG_WORKSPACE_ID, workspaceId)
+        }
+
+    // ——— slice 3: Reading plan ———
+    const val ARG_PLAN: String = "plan"
+    const val ARG_DAY: String = "day"
+
+    const val READING_PLAN_SELECTOR: String = "readingPlan/selector"
+    const val READING_PLAN_DAY_LIST: String = "readingPlan/dayList"
+    const val DAILY_READING_PATTERN: String =
+        "readingPlan/day?$ARG_PLAN={$ARG_PLAN}&$ARG_DAY={$ARG_DAY}"
+
+    /**
+     * Both arguments are OPTIONAL and their ABSENCE is meaningful: the classic host branched on
+     * `extras.containsKey(...)`, not on null, and fell through to `readingPlanControl.currentPlanDay`
+     * when neither key was present. Emitting `plan=` for a null plan would make the destination call
+     * `setReadingPlan("")`, so a null argument is omitted from the route entirely.
+     */
+    fun dailyReading(plan: String? = null, day: Int? = null): String =
+        buildRoute("readingPlan/day") {
+            optional(ARG_PLAN, plan)
+            optional(ARG_DAY, day?.toString())
+        }
+
+    /**
+     * The INVERSE of [dailyReading]: [ARG_PLAN] and [ARG_DAY] read back off a route string this
+     * object built. Its one caller is `NavHostComposeActivity.onNewIntent`, which has to reach
+     * those values BEFORE the destination that would normally read them off its `NavBackStackEntry`
+     * exists (or, when the re-navigation is a no-op, without it ever re-reading them).
+     *
+     * It lives HERE, next to the builder, rather than as a private helper on that Activity, because
+     * emit and parse are one contract and only a pair that sits together can be tested as one — the
+     * whole-branch review's M5. The hand-written parse produced a defect that needed four fix rounds
+     * before it matched what the navigation library does; both of the things it got wrong are
+     * asserted by `NavRoutesSlices356Test`'s round-trip cases now:
+     *
+     * - **[ARG_PLAN] must be [decodeArg]-ed**, and that is not a redundant belt on top of the
+     *   destination's own read — it is the step this parser is missing and the destination gets for
+     *   free. [dailyReading] percent-encodes every value (`RouteBuilder.optional` -> [encodeArg]),
+     *   and the destination reaches its copy through the navigation library, whose
+     *   `NavDeepLink.getMatchingQueryArguments` reads query values with `Uri.getQueryParameters` —
+     *   which returns them ALREADY `Uri.decode`-ed. So the destination sees `My Plan` where a plain
+     *   string split sees `My%20Plan`. Feeding the encoded form to `ReadingPlanControl.setReadingPlan`
+     *   would write a non-existent plan code into the `READING_PLAN` preference and then throw — and
+     *   plan codes are filenames (`ReadingPlanTextFileDao.userPlanCodes`,
+     *   `AndBibleAddons.providedReadingPlans`), so a space or a non-ASCII character in one is
+     *   ordinary, not exotic. [decodeArg]'s malformed-escape `require` cannot fire for a route this
+     *   object built.
+     * - **An EMPTY value counts as ABSENT**, matching the library: its query-parameter regex is
+     *   `(.+?)`, so `plan=` does not match and the argument falls back to its `null` default —
+     *   whereas `""` here would reach `setReadingPlan("")` and wipe the preference.
+     *
+     * [ARG_DAY] is digits, so it needs no decode; a non-numeric value reads as absent rather than
+     * throwing, which is the same thing the library's `NavType.IntType` parse failure ends up doing
+     * for a route nothing in this app can emit.
+     */
+    fun readDailyReading(route: String): Pair<String?, Int?> {
+        val arguments = routeArguments(route)
+        val plan = arguments[ARG_PLAN]?.takeIf { it.isNotEmpty() }?.let(::decodeArg)
+        return plan to arguments[ARG_DAY]?.toIntOrNull()
+    }
+
+    // ——— slice 5: Search ———
+    const val ARG_SEARCH_TEXT: String = "searchText"
+    const val ARG_SEARCH_HIGHLIGHT_TEXT: String = "highlightText"
+    const val ARG_SEARCH_DOCUMENT: String = "searchDocument"
+    const val ARG_SELECTED_TRANSLATIONS: String = "selectedTranslations"
+    const val ARG_IS_STRONGS_SEARCH: String = "isStrongsSearch"
+    const val ARG_SEARCH_TYPE: String = "searchType"
+    const val ARG_SEARCH_SECTION: String = "searchSection"
+    const val ARG_BIBLE_BOOK: String = "bibleBook"
+    const val ARG_EPUB_SEARCH_MODE: String = "epubMode"
+
+    const val EPUB_SEARCH: String = "search/epub"
+    const val SEARCH_FORM_PATTERN: String =
+        "search/form?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
+            "&$ARG_SEARCH_TYPE={$ARG_SEARCH_TYPE}" +
+            "&$ARG_SEARCH_SECTION={$ARG_SEARCH_SECTION}" +
+            "&$ARG_BIBLE_BOOK={$ARG_BIBLE_BOOK}"
+    const val SEARCH_RESULTS_PATTERN: String =
+        "search/results?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
+            "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
+            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
+            "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
+            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}"
+    const val SEARCH_INDEX_PATTERN: String =
+        "search/index?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
+            "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
+            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
+            "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
+            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}"
+    const val SEARCH_INDEX_PROGRESS_PATTERN: String =
+        "search/indexProgress?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
+            "&$ARG_SEARCH_HIGHLIGHT_TEXT={$ARG_SEARCH_HIGHLIGHT_TEXT}" +
+            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}" +
+            "&$ARG_SELECTED_TRANSLATIONS={$ARG_SELECTED_TRANSLATIONS}" +
+            "&$ARG_IS_STRONGS_SEARCH={$ARG_IS_STRONGS_SEARCH}"
+    const val EPUB_SEARCH_RESULTS_PATTERN: String =
+        "search/epubResults?$ARG_SEARCH_TEXT={$ARG_SEARCH_TEXT}" +
+            "&$ARG_EPUB_SEARCH_MODE={$ARG_EPUB_SEARCH_MODE}" +
+            "&$ARG_SEARCH_DOCUMENT={$ARG_SEARCH_DOCUMENT}"
+
+    fun searchForm(
+        searchText: String? = null,
+        searchType: String? = null,
+        searchSection: String? = null,
+        bibleBook: String? = null,
+    ): String = buildRoute("search/form") {
+        optional(ARG_SEARCH_TEXT, searchText)
+        optional(ARG_SEARCH_TYPE, searchType)
+        optional(ARG_SEARCH_SECTION, searchSection)
+        optional(ARG_BIBLE_BOOK, bibleBook)
+    }
+
+    fun searchResults(
+        searchText: String,
+        highlightText: String? = null,
+        searchDocument: String? = null,
+        selectedTranslations: List<String> = emptyList(),
+        isStrongsSearch: Boolean = false,
+    ): String = searchChainRoute("search/results", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch)
+
+    fun searchIndex(
+        searchText: String? = null,
+        highlightText: String? = null,
+        searchDocument: String? = null,
+        selectedTranslations: List<String> = emptyList(),
+        isStrongsSearch: Boolean = false,
+    ): String = searchChainRoute("search/index", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch)
+
+    fun searchIndexProgress(
+        searchText: String? = null,
+        highlightText: String? = null,
+        searchDocument: String? = null,
+        selectedTranslations: List<String> = emptyList(),
+        isStrongsSearch: Boolean = false,
+    ): String = searchChainRoute("search/indexProgress", searchText, highlightText, searchDocument, selectedTranslations, isStrongsSearch)
+
+    fun epubSearchResults(searchText: String, epubMode: String? = null, searchDocument: String? = null): String =
+        buildRoute("search/epubResults") {
+            required(ARG_SEARCH_TEXT, searchText)
+            optional(ARG_EPUB_SEARCH_MODE, epubMode)
+            optional(ARG_SEARCH_DOCUMENT, searchDocument)
+        }
+
+    /**
+     * The five arguments the classic `SearchIndex -> SearchIndexProgress -> SearchResults` chain
+     * forwarded as an opaque `putExtras(intent)` bundle (plan D3). Naming them here is what makes
+     * the chain's third hop keep the scope the first hop was given: a route has no bundle, so an
+     * argument nobody names is an argument silently lost.
+     */
+    private fun searchChainRoute(
+        base: String,
+        searchText: String?,
+        highlightText: String?,
+        searchDocument: String?,
+        selectedTranslations: List<String>,
+        isStrongsSearch: Boolean,
+    ): String = buildRoute(base) {
+        optional(ARG_SEARCH_TEXT, searchText)
+        optional(ARG_SEARCH_HIGHLIGHT_TEXT, highlightText)
+        optional(ARG_SEARCH_DOCUMENT, searchDocument)
+        optional(ARG_SELECTED_TRANSLATIONS, selectedTranslations.takeIf { it.isNotEmpty() }?.let(::encodeList))
+        required(ARG_IS_STRONGS_SEARCH, isStrongsSearch.toString())
+    }
+
+    // ——— slice 2: Bookmarks + labels ———
+    const val ARG_LABEL_NO: String = "labelNo"
+    const val ARG_MANAGE_LABELS_DATA: String = "data"
+    const val ARG_LABEL_DATA: String = "data"
+
+    const val BOOKMARKS_PATTERN: String = "bookmarks/list?$ARG_LABEL_NO={$ARG_LABEL_NO}"
+    const val MANAGE_LABELS_PATTERN: String =
+        "bookmarks/manageLabels?$ARG_MANAGE_LABELS_DATA={$ARG_MANAGE_LABELS_DATA}"
+    const val LABEL_EDIT_PATTERN: String = "bookmarks/labelEdit?$ARG_LABEL_DATA={$ARG_LABEL_DATA}"
+
+    /**
+     * [labelNo] is OPTIONAL and its ABSENCE is meaningful, same discipline as [dailyReading]:
+     * classic `BookmarksComposeActivity.initialFilterIndex` (`BookmarksComposeActivity.kt:73-77`)
+     * branches on `intent.extras?.containsKey(BookmarkControl.LABEL_NO_EXTRA)`, not on a default
+     * value, so "no filter argument at all" must stay distinguishable from "filter present but
+     * empty" — a null [labelNo] is omitted from the route rather than emitted as `labelNo=`.
+     *
+     * The host also CLAMPS a negative [labelNo] to 0 before using it as a filter index. That clamp
+     * is deliberately NOT applied here: it is destination BEHAVIOUR, not route DATA, and belongs in
+     * the arm that reads this route back (a later task), not in the builder that constructs it.
+     */
+    fun bookmarks(labelNo: Int? = null): String =
+        buildRoute("bookmarks/list") { optional(ARG_LABEL_NO, labelNo?.toString()) }
+
+    /**
+     * [data] is the `ManageLabelsData` JSON string (`ManageLabelsContract.kt:43`) — that contract
+     * type embeds Room entities (`BookmarkEntities.Label`) and cannot cross into this `commonMain`
+     * module, so the route carries its JSON as an opaque, percent-encoded string instead.
+     */
+    fun manageLabels(data: String): String =
+        buildRoute("bookmarks/manageLabels") { required(ARG_MANAGE_LABELS_DATA, data) }
+
+    /**
+     * [data] is the `LabelData` JSON string (`LabelEditContract.kt:31`), same shape and same reason
+     * as [manageLabels].
+     */
+    fun labelEdit(data: String): String =
+        buildRoute("bookmarks/labelEdit") { required(ARG_LABEL_DATA, data) }
+
+    // ——— slice 6: Settings ———
+    const val ARG_TAB: String = "tab"
+
+    const val SETTINGS: String = "settings/app"
+    const val SYNC_SETTINGS: String = "settings/sync"
+    const val READING_PROGRESS_SETTINGS: String = "settings/readingProgress"
+    const val READING_PROGRESS_PATTERN: String = "progress/reading?$ARG_TAB={$ARG_TAB}"
+
+    fun readingProgress(tab: Int? = null): String =
+        buildRoute("progress/reading") { optional(ARG_TAB, tab?.toString()) }
+
+    // ——— slice 4: Documents + downloads ———
+    const val ARG_DOCUMENT_ID: String = "documentId"
+    const val ARG_DOCUMENT_INITIALS: String = "documentInitials"
+    const val ARG_DOCUMENT_NAME: String = "documentName"
+    const val ARG_FIRST_DOWNLOAD: String = "firstDownload"
+    const val ARG_DOWNLOAD_RECOMMENDED: String = "downloadRecommended"
+    const val ARG_DOWNLOAD_SEARCH: String = "search"
+    const val ARG_DOWNLOAD_ADDONS: String = "addons"
+    const val ARG_DOCUMENT_IDS: String = "documentIds"
+
+    /**
+     * NOT `"data"`. Slice 2 already has two `"data"`-valued constants — [ARG_MANAGE_LABELS_DATA]
+     * and [ARG_LABEL_DATA] — because each carries its own destination's whole payload blob. This
+     * one carries an id (plan D9), so it gets its own name. Do not "de-duplicate" the two above:
+     * they are separate arguments of separate routes that happen to share a wire name.
+     */
+    const val ARG_REPOSITORY_ID: String = "repositoryId"
+
+    const val MY_DOCUMENTS_PATTERN: String = "documents/list"
+    const val MY_DOCUMENT_PAGES_PATTERN: String =
+        "documents/pages?$ARG_DOCUMENT_ID={$ARG_DOCUMENT_ID}" +
+            "&$ARG_DOCUMENT_INITIALS={$ARG_DOCUMENT_INITIALS}" +
+            "&$ARG_DOCUMENT_NAME={$ARG_DOCUMENT_NAME}"
+    const val DOWNLOAD_PATTERN: String =
+        "documents/download?$ARG_FIRST_DOWNLOAD={$ARG_FIRST_DOWNLOAD}" +
+            "&$ARG_DOWNLOAD_RECOMMENDED={$ARG_DOWNLOAD_RECOMMENDED}" +
+            "&$ARG_DOWNLOAD_SEARCH={$ARG_DOWNLOAD_SEARCH}" +
+            "&$ARG_DOWNLOAD_ADDONS={$ARG_DOWNLOAD_ADDONS}" +
+            "&$ARG_DOCUMENT_IDS={$ARG_DOCUMENT_IDS}"
+    const val CUSTOM_REPOSITORIES_PATTERN: String = "documents/repositories"
+    const val CUSTOM_REPOSITORY_EDITOR_PATTERN: String =
+        "documents/repositories/edit?$ARG_REPOSITORY_ID={$ARG_REPOSITORY_ID}"
+    const val PROGRESS_STATUS_PATTERN: String = "documents/progress"
+    const val CLOUD_DOCUMENTS_PATTERN: String = "documents/cloud"
+
+    fun myDocuments(): String = MY_DOCUMENTS_PATTERN
+
+    fun myDocumentPages(documentId: String, documentInitials: String, documentName: String): String =
+        buildRoute("documents/pages") {
+            required(ARG_DOCUMENT_ID, documentId)
+            required(ARG_DOCUMENT_INITIALS, documentInitials)
+            required(ARG_DOCUMENT_NAME, documentName)
+        }
+
+    /**
+     * The download screen, with every argument its eight classic launch sites used to attach as an
+     * Intent extra. A flag is emitted ONLY when true (plan D2): `download()` is the bare route, and
+     * an arm reads a flag as `getStringOrNull(ARG_X) == "true"`.
+     *
+     * [firstDownload] is what `Screen.FirstDownload` used to mean — the enum value is gone, because
+     * a route with arguments has no use for an alias (design §5).
+     */
+    fun download(
+        firstDownload: Boolean = false,
+        downloadRecommended: Boolean = false,
+        search: String? = null,
+        addons: Boolean = false,
+        documentIds: String? = null,
+    ): String = buildRoute("documents/download") {
+        optional(ARG_FIRST_DOWNLOAD, if (firstDownload) "true" else null)
+        optional(ARG_DOWNLOAD_RECOMMENDED, if (downloadRecommended) "true" else null)
+        optional(ARG_DOWNLOAD_SEARCH, search)
+        optional(ARG_DOWNLOAD_ADDONS, if (addons) "true" else null)
+        optional(ARG_DOCUMENT_IDS, documentIds)
+    }
+
+    fun customRepositories(): String = CUSTOM_REPOSITORIES_PATTERN
+
+    /**
+     * [id] is `null` for a NEW repository, and the argument is then omitted entirely (plan D9) —
+     * absent, not present-and-empty, so the arm never has to guess what the fork does with `=`.
+     */
+    fun customRepositoryEditor(id: Long?): String =
+        buildRoute("documents/repositories/edit") { optional(ARG_REPOSITORY_ID, id?.toString()) }
+
+    fun progressStatus(): String = PROGRESS_STATUS_PATTERN
+
+    fun cloudDocuments(): String = CLOUD_DOCUMENTS_PATTERN
+
+    // ——— slice 7: reading view, choosers, workspace ———
+    // ARG_WORKSPACE_ID is declared with the AI arguments above and reused here.
+    const val ARG_IS_SCRIPTURE: String = "isScripture"
+    const val ARG_DOCUMENT_TYPE: String = "type"
+    const val ARG_SCOPE_LEVEL: String = "scopeLevel"
+    const val ARG_WINDOW_ID: String = "windowId"
+    const val ARG_START_AT_COLORS: String = "startAtColors"
+    const val ARG_SETTINGS_BUNDLE: String = "settingsBundle"
+
+    /** The reading view itself — the graph's start destination once slice 7 lands. */
+    const val READING: String = "reading"
+    const val CHOOSE_GENERAL_BOOK_KEY: String = "navigation/chooseGeneralBookKey"
+    const val CHOOSE_MAP_KEY: String = "navigation/chooseMapKey"
+    const val CHOOSE_DICTIONARY_WORD: String = "navigation/chooseDictionaryWord"
+    const val WORKSPACE_SELECTOR: String = "workspaces/selector"
+
+    /**
+     * Design §6.1.1: `isScripture` is the ONLY argument this route carries. The classic activity
+     * also took a `navigateToVerse` extra, but its single producer moves to the ref-chooser sheet
+     * this slice, so an argument with no producer would be dead weight a later reader mistakes for
+     * a live contract.
+     */
+    const val GRID_CHOOSE_PASSAGE_PATTERN: String =
+        "navigation/gridChoosePassage?$ARG_IS_SCRIPTURE={$ARG_IS_SCRIPTURE}"
+    const val CHOOSE_DOCUMENT_PATTERN: String =
+        "navigation/chooseDocument?$ARG_DOCUMENT_TYPE={$ARG_DOCUMENT_TYPE}"
+    const val TEXT_DISPLAY_SETTINGS_PATTERN: String =
+        "settings/textDisplay?$ARG_SCOPE_LEVEL={$ARG_SCOPE_LEVEL}" +
+            "&$ARG_WINDOW_ID={$ARG_WINDOW_ID}" +
+            "&$ARG_WORKSPACE_ID={$ARG_WORKSPACE_ID}" +
+            "&$ARG_START_AT_COLORS={$ARG_START_AT_COLORS}" +
+            "&$ARG_SETTINGS_BUNDLE={$ARG_SETTINGS_BUNDLE}"
+
+    /**
+     * A boolean needs no percent-encoding, so this builds its string directly rather than through
+     * [buildRoute] — and it emits the argument even when false, so the route always matches
+     * [GRID_CHOOSE_PASSAGE_PATTERN]'s single-argument shape.
+     */
+    fun gridChoosePassage(isScripture: Boolean = false): String =
+        "navigation/gridChoosePassage?$ARG_IS_SCRIPTURE=$isScripture"
+
+    /**
+     * Anything but a literal `true` reads as false — including the unsubstituted pattern.
+     *
+     * **No production caller today**, by design and not by oversight. This parser takes a route
+     * STRING, which only the HOST ever holds — an inbound route handed to `onNewIntent` or to a
+     * deep link. A graph ARM never has one (`destination.route` is the unsubstituted PATTERN), so
+     * the `gridChoosePassage` arm reads `ARG_IS_SCRIPTURE` off the back-stack entry's already
+     * parsed-and-decoded argument bundle instead, and says so at that line. It is kept, tested and
+     * documented as the host-side half of the same contract, exactly like [readTextDisplaySettings]
+     * — which is uncalled for the identical reason. Do not read its lack of callers as dead code;
+     * do not add one from inside a graph arm either.
+     */
+    fun readGridChoosePassage(route: String): Boolean =
+        routeArguments(route)[ARG_IS_SCRIPTURE] == "true"
+
+    fun chooseDocument(type: String? = null): String =
+        buildRoute("navigation/chooseDocument") { optional(ARG_DOCUMENT_TYPE, type) }
+
+    /**
+     * `null` means "no document type was requested" — and, as in [readDailyReading], an EMPTY
+     * value counts as absent, because the navigation library's query-parameter regex does not
+     * match `type=` either.
+     *
+     * **No production caller today**, for [readGridChoosePassage]'s reason and not through
+     * oversight: it is the host-side parser for an inbound route STRING (`onNewIntent`, deep
+     * links), while the `chooseDocument` arm reads the argument bundle the navigation library has
+     * already parsed and decoded. [readDailyReading] is the sibling that IS called — from
+     * `NavHostComposeActivity`'s `onNewIntent` — and it is called through exactly this path.
+     */
+    fun readChooseDocument(route: String): String? =
+        routeArguments(route)[ARG_DOCUMENT_TYPE]?.takeIf { it.isNotEmpty() }?.let(::decodeArg)
+
+    /**
+     * [settingsBundle] is serialized JSON, i.e. free text full of `/`, `"`, `{` and spaces — every
+     * one of which would split or corrupt a route. [buildRoute]'s `optional` runs it through
+     * [encodeArg], so it must NOT be encoded again here.
+     *
+     * [startAtColors] is `required` rather than `optional` so the flag is always present and a
+     * reader never has to distinguish "absent" from "false".
+     */
+    fun textDisplaySettings(
+        scopeLevel: String? = null,
+        windowId: String? = null,
+        workspaceId: String? = null,
+        startAtColors: Boolean = false,
+        settingsBundle: String? = null,
+    ): String = buildRoute("settings/textDisplay") {
+        optional(ARG_SCOPE_LEVEL, scopeLevel)
+        optional(ARG_WINDOW_ID, windowId)
+        optional(ARG_WORKSPACE_ID, workspaceId)
+        required(ARG_START_AT_COLORS, startAtColors.toString())
+        optional(ARG_SETTINGS_BUNDLE, settingsBundle)
+    }
+
+    /**
+     * The inverse of [textDisplaySettings], as one value rather than five reads — this route has
+     * more arguments than any other in this object, and four of the five decide the same thing (the
+     * scope the destination opens at), so handing them around as a group keeps the host's scope
+     * resolution a single function of a single input.
+     *
+     * [readDailyReading]'s two rules apply unchanged and for its reasons: an EMPTY value counts as
+     * ABSENT (the navigation library's query-parameter regex is `(.+?)`, so `scopeLevel=` does not
+     * match and the argument falls back to its `null` default), and every text-valued argument is
+     * [decodeArg]ed exactly once — [ARG_SETTINGS_BUNDLE] most of all, since it is serialized JSON
+     * and every `{`, `"` and space in it was percent-encoded on the way out.
+     *
+     * [ARG_START_AT_COLORS] is written by [textDisplaySettings] as a `required` argument, so it is
+     * always present on a route this object built; "anything but a literal `true` is false" is the
+     * same rule [readGridChoosePassage] applies, and it makes the UNSUBSTITUTED pattern read as
+     * false rather than throw.
+     */
+    fun readTextDisplaySettings(route: String): TextDisplaySettingsArgs {
+        val arguments = routeArguments(route)
+        fun text(name: String): String? =
+            arguments[name]?.takeIf { it.isNotEmpty() }?.let(::decodeArg)
+        return TextDisplaySettingsArgs(
+            scopeLevel = text(ARG_SCOPE_LEVEL),
+            windowId = text(ARG_WINDOW_ID),
+            workspaceId = text(ARG_WORKSPACE_ID),
+            startAtColors = arguments[ARG_START_AT_COLORS] == "true",
+            settingsBundleJson = text(ARG_SETTINGS_BUNDLE),
+        )
+    }
+
+    // ——— slice 8: the entry-point ring ———
+    // The three routes that can be the nav host's START destination (spec §3.1): each is entered from
+    // OUTSIDE the host as well as in-graph, so each has a real exit, and WELCOME/BACKUP start the app
+    // uninitialised (NavHostComposeActivity.doNotInitializeApp).
+
+    /** The first-run welcome (formerly `StartupComposeActivity`). */
+    const val WELCOME: String = "startup/welcome"
+
+    /** Backup & restore (formerly `BackupComposeActivity`). */
+    const val BACKUP: String = "backup/restore"
+
+    const val ARG_INSTALL_ACTION: String = "installAction"
+    const val ARG_INSTALL_URIS: String = "installUris"
+
+    /** InstallZip (formerly the `InstallZipComposeActivity` screen; that class is now an exported redirect). */
+    const val INSTALL_ZIP_PATTERN: String =
+        "documents/installZip?$ARG_INSTALL_ACTION={$ARG_INSTALL_ACTION}&$ARG_INSTALL_URIS={$ARG_INSTALL_URIS}"
+
+    /**
+     * [action] is the external Intent's action (`ACTION_VIEW`/`SEND`/`SEND_MULTIPLE`), or null for an
+     * in-app entry, which shows the file picker. [uris] travel as ONE argument: each is [encodeArg]ed
+     * BEFORE the join, so a `,` inside a URI is `%2C` and cannot split the list, and the joined string is
+     * encoded again by [buildRoute]. The arm reads the library-decoded value and hands it to
+     * [decodeInstallZipUris].
+     */
+    fun installZip(action: String? = null, uris: List<String> = emptyList()): String =
+        buildRoute("documents/installZip") {
+            optional(ARG_INSTALL_ACTION, action)
+            optional(ARG_INSTALL_URIS, if (uris.isEmpty()) null else uris.joinToString(",") { encodeArg(it) })
+        }
+
+    /** The inverse of [installZip]'s list encoding, applied to the ALREADY library-decoded argument. */
+    fun decodeInstallZipUris(argument: String?): List<String> =
+        argument?.split(',')?.filter { it.isNotEmpty() }?.map(::decodeArg) ?: emptyList()
+
+    /**
+     * Joins a list into ONE route argument (plan D4). The join happens before [encodeArg] runs over
+     * the whole string, so a member containing a comma would still round-trip as two members — that
+     * is acceptable because every live caller passes document initials, which cannot contain one.
+     */
+    fun encodeList(values: List<String>): String = values.joinToString(",")
+
+    /** Inverse of [encodeList]. Blanks are dropped so a stray separator cannot yield an empty id. */
+    fun decodeList(encoded: String?): List<String> =
+        encoded?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
+
+    /**
+     * Percent-encodes everything that is not an unreserved URI character. Hand-rolled rather than
+     * pulled from a library because this must compile for iOS and JS as well as the JVM, and
+     * `java.net.URLEncoder` is JVM-only.
+     */
+    fun encodeArg(raw: String): String {
+        val sb = StringBuilder(raw.length)
+        for (byte in raw.encodeToByteArray()) {
+            // A UTF-8 continuation/lead byte is always >= 0x80, i.e. negative as a signed Byte.
+            // `byte.toInt()` sign-extends it (e.g. 0x80.toByte().toInt() == -128, not 128), so the
+            // Char this produces is in 0xFF80..0xFFFF — nowhere near any range isUnreserved() tests
+            // (all of which sit below 0x7F) — so every non-ASCII byte always falls to the escape
+            // branch below. This is deliberate, not incidental: a future edit to isUnreserved() must
+            // not add a range up there, or a raw high byte could start passing through unescaped.
+            val c = byte.toInt().toChar()
+            if (c.isUnreserved()) sb.append(c)
+            else sb.append('%').append(HEX[(byte.toInt() shr 4) and 0xF]).append(HEX[byte.toInt() and 0xF])
+        }
+        return sb.toString()
+    }
+
+    /**
+     * Inverse of [encodeArg]. Every route reaching this function was built by [encodeArg], so a
+     * `%` that is not followed by exactly two hex digits — whether malformed or merely truncated
+     * at the end of the string — means the input is corrupt or hand-crafted. Both deserve to fail
+     * loudly: silently decoding a bad escape (or silently treating a truncated one as literal text)
+     * would produce a plausible-looking but wrong string with nothing to catch it before it
+     * navigates to a subtly wrong screen.
+     */
+    fun decodeArg(encoded: String): String {
+        val out = ArrayList<Byte>(encoded.length)
+        var i = 0
+        while (i < encoded.length) {
+            val c = encoded[i]
+            if (c == '%') {
+                require(i + 2 < encoded.length) {
+                    "Malformed percent-encoding in \"$encoded\" at index $i: " +
+                        "\"${encoded.substring(i)}\" is truncated (a % must be followed by two hex digits)"
+                }
+                val hi = encoded[i + 1]
+                val lo = encoded[i + 2]
+                require(hi.isHexDigit() && lo.isHexDigit()) {
+                    "Malformed percent-encoding in \"$encoded\" at index $i: " +
+                        "\"%$hi$lo\" is not a valid hex escape"
+                }
+                out.add(((hexVal(hi) shl 4) or hexVal(lo)).toByte())
+                i += 3
+            } else {
+                for (b in c.toString().encodeToByteArray()) out.add(b)
+                i += 1
+            }
+        }
+        return out.toByteArray().decodeToString()
+    }
+
+    /**
+     * Splits a built route's query string into its raw (still-encoded) values, keyed by argument
+     * name. Shared by every `read*Route` parser in this object — parsing by NAME rather than by
+     * `substringAfter("name=")` so an argument can never be read out of a different one whose name
+     * merely ends with the same characters (`searchType=` vs `type=`).
+     *
+     * Callers own the two steps this does NOT do, because they differ per argument: [decodeArg] for
+     * a value that was percent-encoded on the way in, and the `takeIf { it.isNotEmpty() }` that
+     * makes an EMPTY value count as ABSENT (matching the navigation library, whose query-parameter
+     * regex `(.+?)` does not match `name=`).
+     *
+     * A repeated name keeps the LAST occurrence, which is what `associate` does. Nothing this object
+     * builds can repeat a name, so the choice is arbitrary rather than load-bearing — but it is
+     * written down so a future caller does not assume "first wins".
+     */
+    private fun routeArguments(route: String): Map<String, String> {
+        val query = route.substringAfter('?', "")
+        if (query.isEmpty()) return emptyMap()
+        return query.split("&")
+            .filter { it.contains('=') }
+            .associate { it.substringBefore('=') to it.substringAfter('=') }
+    }
+
+    private const val HEX = "0123456789ABCDEF"
+
+    private fun Char.isUnreserved(): Boolean =
+        this in 'A'..'Z' || this in 'a'..'z' || this in '0'..'9' || this == '-' ||
+            this == '_' || this == '.' || this == '~'
+
+    private fun Char.isHexDigit(): Boolean =
+        this in '0'..'9' || this in 'a'..'f' || this in 'A'..'F'
+
+    private fun hexVal(c: Char): Int = when (c) {
+        in '0'..'9' -> c - '0'
+        in 'a'..'f' -> c - 'a' + 10
+        in 'A'..'F' -> c - 'A' + 10
+        // Unreachable: every caller validates with isHexDigit() first. Throwing rather than
+        // returning a sentinel keeps this function honest if that guarantee is ever broken.
+        else -> throw IllegalArgumentException("Not a hex digit: '$c'")
+    }
+
+    private class RouteBuilder(private val base: String) {
+        private val parts = mutableListOf<String>()
+        fun optional(name: String, value: String?) {
+            if (value != null) parts.add("$name=${encodeArg(value)}")
+        }
+        fun required(name: String, value: String) {
+            parts.add("$name=${encodeArg(value)}")
+        }
+        fun build(): String = if (parts.isEmpty()) base else base + "?" + parts.joinToString("&")
+    }
+
+    private fun buildRoute(base: String, block: RouteBuilder.() -> Unit): String =
+        RouteBuilder(base).apply(block).build()
+}
+
+/**
+ * The five arguments of [NavRoutes.TEXT_DISPLAY_SETTINGS_PATTERN], already decoded — produced by
+ * [NavRoutes.readTextDisplaySettings] from an inbound route STRING, and assembled directly from the
+ * arguments bundle by the destination's own arm (a graph arm never has a route string: its
+ * `destination.route` is the unsubstituted pattern).
+ *
+ * A named group rather than five loose parameters because the four text fields are read together,
+ * by one function, to answer one question — which `SettingsScope` the screen opens at — and because
+ * `scopeLevel` and `settingsBundleJson` being SEPARATE, NAMED arguments is exactly what makes the
+ * defect design §3.2 item 2 records unrepeatable. Under the classic Intent both were extras and one
+ * of them silently won; here the caller says which it means, and a caller that means "global" says
+ * so and carries no bundle.
+ *
+ * Deliberately NOT a `SettingsScope`: that type lives in `:sharedCore`'s settings package and has no
+ * detached variant, and resolving [settingsBundleJson] into a workspace id means parsing the app's
+ * own `SettingsBundle` JSON, which is `:app` work. This is the transport shape; the resolution is
+ * the host's.
+ */
+data class TextDisplaySettingsArgs(
+    val scopeLevel: String? = null,
+    val windowId: String? = null,
+    val workspaceId: String? = null,
+    val startAtColors: Boolean = false,
+    val settingsBundleJson: String? = null,
+)

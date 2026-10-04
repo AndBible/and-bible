@@ -40,7 +40,15 @@
 			android:summary="@string/choose_strongs_greek_morphology_summary"
 			android:icon="@drawable/ic_morphology_24dp"
 			/>
-		<net.bible.android.view.widget.InverseMultiSelectListPreference android:key="disabled_word_lookup_dictionaries"
+		<!-- These three rows used to be tagged
+		     net.bible.android.view.widget.InverseMultiSelectListPreference, until the Z-late
+		     epilogue deleted that widget (referenceless in Kotlin once the classic settings
+		     screen went). This file is no longer inflated at runtime; it is
+		     SettingsIconParityTest's fixture, the classic reference the Compose icon table is
+		     pinned to. So the tag name only has to be a real class AAPT accepts and the parity
+		     parser can read android:key and android:icon from. The rows themselves must NOT be
+		     deleted: that would silently drop three settings from the parity check. -->
+		<MultiSelectListPreference android:key="disabled_word_lookup_dictionaries"
 			android:title="@string/choose_word_lookup_dictionary_title"
 			android:summary="@string/choose_word_lookup_dictionary_summary"
 			android:icon="@drawable/ic_dictionary_24dp"
@@ -181,14 +189,15 @@
             android:icon="@drawable/ic_active_window_24dp"
             android:defaultValue="true"
             />
-        <net.bible.android.view.widget.InverseMultiSelectListPreference android:key="disable_bible_bookmark_modal_buttons"
+        <!-- Retagged with the rest, see the note on disabled_word_lookup_dictionaries above. -->
+        <MultiSelectListPreference android:key="disable_bible_bookmark_modal_buttons"
             android:title="@string/prefs_in_window_bible_bookmark_modal_buttons_title"
             android:summary="@string/prefs_in_window_bookmark_modal_buttons_description"
             android:icon="@drawable/ic_one_tap_bible_24"
             android:entries="@array/prefs_bible_bookmark_modal_action_names"
             android:entryValues="@array/prefs_bible_bookmark_modal_action_ids"
             />
-        <net.bible.android.view.widget.InverseMultiSelectListPreference android:key="disable_gen_bookmark_modal_buttons"
+        <MultiSelectListPreference android:key="disable_gen_bookmark_modal_buttons"
             android:title="@string/prefs_in_window_gen_bookmark_modal_buttons_title"
             android:summary="@string/prefs_in_window_bookmark_modal_buttons_description"
             android:icon="@drawable/ic_one_tap_other_24"

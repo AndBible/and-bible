@@ -383,10 +383,6 @@
   <string name="auto_assign_labels1">Tự động gán nhãn cho đánh dấu mới</string>
   <string name="auto_assign_labels_primary">Tự động gán làm nhãn chính</string>
   <!--can be removed-->
-  <string name="marker_style">Chỉ hiển thị dấu cho đánh dấu lựa chọn</string>
-  <string name="marker_style_whole_verse">Chỉ hiển thị dấu cho đánh dấu toàn câu</string>
-  <string name="hide_style">Ẩn cho đánh dấu lựa chọn</string>
-  <string name="hide_style_whole_verse">Ẩn cho đánh dấu toàn câu</string>
   <string name="bookmark_warning">Có các đánh dấu và/hoặc ghi chú cho tài liệu này.</string>
   <string name="bookmark_warning2">Nếu cấu trúc tài liệu đã thay đổi, việc cập nhật tài liệu này có thể làm vị trí của các đánh dấu/ghi chú bị di chuyển bên trong tài liệu hoặc biến mất hoàn toàn.</string>
   <string name="bookmark_warning3">Bạn vẫn muốn cập nhật mô-đun không?</string>
@@ -804,8 +800,6 @@
   <string name="favourite_label">Nhãn yêu thích</string>
   <string name="edit_label">Chỉnh sửa nhãn</string>
   <string name="delete_label_confirmation">Bạn có muốn xóa nhãn đánh dấu \"%s\"? Tất cả ghi chú Sổ tay nghiên cứu liên quan cũng sẽ bị xóa.</string>
-  <string name="bookmark_underline_style_arbitrary">Kiểu gạch chân cho đánh dấu theo vùng chọn</string>
-  <string name="bookmark_underline_style_whole_verse">Kiểu gạch chân cho đánh dấu toàn câu</string>
   <string name="active_labels">Nhãn đã chọn</string>
   <string name="recent_labels">Nhãn gần đây</string>
   <string name="other_labels">Nhãn khác</string>

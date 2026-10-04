@@ -126,13 +126,13 @@ function handleTabClick(tabId: string) {
   display: flex;
   overflow-x: auto;
   &::-webkit-scrollbar { display: none; }
-  border-bottom: 2px solid #eee;
+  border-bottom: 2px solid var(--ab-secondary-container, #eee);
 
   .monochrome & {
     border-bottom-color: black;
   }
   .night & {
-    border-bottom-color: #444;
+    border-bottom-color: var(--ab-secondary-container, #444);
   }
   .monochrome.night & {
     border-bottom-color: white;
@@ -168,8 +168,8 @@ function handleTabClick(tabId: string) {
   }
 
   &:hover:not(:disabled) {
-    color: #007bff;
-    background: #f8f9fa;
+    color: var(--ab-on-secondary-container, #007bff);
+    background: var(--ab-secondary-container, #f8f9fa);
 
     .monochrome & {
       color: black;
@@ -177,8 +177,8 @@ function handleTabClick(tabId: string) {
       font-weight: 700;
     }
     .night & {
-      color: #1e90ff;
-      background: #333;
+      color: var(--ab-on-secondary-container, #1e90ff);
+      background: var(--ab-secondary-container, #333);
     }
     .monochrome.night & {
       color: white;
@@ -187,17 +187,22 @@ function handleTabClick(tabId: string) {
     }
   }
 
+  // Unlike :hover above — where the container IS a background and the on- role is its text — the
+  // selected tab draws no background at all: the label and the 2px underline are both foreground
+  // marks on the plain strip, so both take the accent role. A container role here would be a
+  // tone-90 underline on a white strip (invisible) and a near-black label barely different from
+  // the inactive #666.
   &.active {
-    color: #007bff;
-    border-bottom-color: #007bff;
+    color: var(--ab-primary, #007bff);
+    border-bottom-color: var(--ab-primary, #007bff);
 
     .monochrome & {
       color: black;
       border-bottom-color: black;
     }
     .night & {
-      color: #1e90ff;
-      border-bottom-color: #1e90ff;
+      color: var(--ab-primary, #1e90ff);
+      border-bottom-color: var(--ab-primary, #1e90ff);
     }
     .monochrome.night & {
       color: white;

@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.agent
 
+import org.koin.core.context.GlobalContext
 import android.app.Activity
 import android.util.Log
 import kotlinx.coroutines.CancellationException
@@ -960,7 +961,7 @@ class AgentExecutor(
      */
     private fun saveNoteContent(context: AgentContext, content: String) {
         val entityId = context.noteEditorEntityId ?: return
-        val bookmarkControl = application.applicationComponent.bookmarkControl()
+        val bookmarkControl = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
         when (context.noteEditorEntityType) {
             NoteEditorEntityType.BOOKMARK_NOTE -> {

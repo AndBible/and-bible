@@ -17,17 +17,14 @@
 
 package net.bible.service.history
 
-import net.bible.android.control.ApplicationScope
 
-import javax.inject.Inject
 
 /**
  * Each Activity must have its own HistoryTraversal instance, and to get it they use this factory.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class HistoryTraversalFactory @Inject
+class HistoryTraversalFactory
 constructor(private val historyManager: HistoryManager) {
 
     fun createHistoryTraversal(integrateWithHistoryManager: Boolean): HistoryTraversal {

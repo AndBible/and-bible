@@ -21,11 +21,8 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.MenuItem
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
@@ -37,26 +34,24 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.BugReport
 import net.bible.android.control.search.SearchControl
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
+import net.bible.sharedcore.nav.NavRoutes
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.base.IntentHelper
-import net.bible.android.view.activity.bookmark.Bookmarks
-import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.download.DownloadActivity
-import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
-import net.bible.android.view.activity.navigation.ChooseDocument
-import net.bible.android.view.activity.navigation.History
-import net.bible.android.view.activity.readingplan.DailyReading
-import net.bible.android.view.activity.progress.ReadingProgressActivity
-import net.bible.android.view.activity.ai.AiSettingsActivity
-import net.bible.android.view.activity.settings.SettingsActivity
-import net.bible.android.view.activity.settings.SyncSettingsActivity
-import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.BuildVariant
-import net.bible.service.common.htmlToSpan
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
 
-import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 const val contributeLink = "https://github.com/AndBible/and-bible/wiki/How-to-contribute"
 const val needHelpLink = "https://github.com/AndBible/and-bible/wiki/Support"
@@ -68,22 +63,50 @@ const val homepageLink = "https://andbible.org"
 /** Handle requests from the main menu
  *
  * @author Martin Denham [mjdenham at gmail dot com]
+ *
+ * Reading-host re-typing R6c2: no `MainBibleActivity` in any type position. Everything this handler
+ * asks its host for is either the plain Android Activity surface ([hostActivity] -- an
+ * `ActivityBase`, which both reading hosts really are; see [ReadingCommandsHostCallbacks]'s kdoc for
+ * why that is not a cast in disguise) or one of the two late-bound suppliers below, which
+ * [ReadingCommands] binds when it constructs the one handler per host.
+ *
+ * Constructed with named arguments from [ReadingCommands]; `MainBibleActivity.kt` also declares a
+ * one-argument adapter of the same name for the Robolectric net, which builds a handler straight
+ * from the Activity at four call sites and is not edited in this batch.
  */
-class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
-    @Inject lateinit var searchControl: SearchControl
-    @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var downloadControl: DownloadControl
+class MenuCommandHandler(
+    private val hostActivity: ActivityBase,
+    /** The mounted reading-view host, or `null` before one is installed. Read at call time: the
+     *  History and Speak rows below both depend on whether one is up RIGHT NOW. */
+    private val composeReadingViewHost: () -> ComposeReadingViewHost?,
+    /** [ReadingCommands.composeSearchIfHosted] -- the search row's retarget into the reading view's
+     *  own search; `false` means "not hosted, use the classic Intent". */
+    private val composeSearchIfHosted: () -> Boolean,
+) : KoinComponent {
+    val searchControl: SearchControl by inject()
+    val windowControl: WindowControl by inject()
+    val downloadControl: DownloadControl by inject()
+    private val appDialogs: AppDialogController by inject()
 
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
 
     private inline val isSamsung get() = BuildVariant.DistributionChannel.isSamsung
 
     /**
      * on Click handlers
      */
-    fun handleMenuRequest(menuItem: MenuItem): Boolean {
+    /**
+     * Kept for the classic call sites (options menu, classic `NavigationView` listener). Reads only
+     * `itemId`, so it is a pure delegate to [handleMenuRequest] — do not add `MenuItem`-dependent
+     * logic here without also giving the Compose path an equivalent.
+     */
+    fun handleMenuRequest(menuItem: MenuItem): Boolean = handleMenuRequest(menuItem.itemId)
+
+    /**
+     * The id-based entry point. The Compose reading-view drawer dispatches here via
+     * `DrawerMenuStateBuilder.resIdFor(id)`; the classic `MenuItem` overload above delegates to it.
+     * Body is the former `handleMenuRequest(MenuItem)` verbatim, with `menuItem.itemId` → [itemId].
+     */
+    fun handleMenuRequest(itemId: Int): Boolean {
         var isHandled = false
 
         // Activities
@@ -92,13 +115,13 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
             var requestCode = STD_REQUEST_CODE
             // Handle item selection
             val currentPage = windowControl.activeWindowPageManager.currentPage
-            when (menuItem.itemId) {
+            when (itemId) {
                 R.id.chooseDocumentButton -> {
-                    val intent = Intent(mainBibleActivity, ChooseDocument::class.java)
-                    mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
+                    val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.chooseDocument())
+                    hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
                 }
                 R.id.rateButton -> {
-                    val htmlMessage = mainBibleActivity.run {
+                    val htmlMessage = hostActivity.run {
                         val email = "help.andbible@gmail.com"
                         val bugReport = getString(R.string.bug_report)
 
@@ -125,124 +148,168 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                             $msg2 <br><br>
                             $msg3 $msg4""".trimIndent()
                     }
-                    val spanned = htmlToSpan(htmlMessage)
-
-                    val d = AlertDialog.Builder(mainBibleActivity)
-                        .setTitle(R.string.rate_title)
-                        .setMessage(spanned)
-                        .setPositiveButton(if(isSamsung) R.string.okay else R.string.proceed_google_play) {_, _ ->
-                            val samsungUri = Uri.parse("samsungapps://AppRating/"+mainBibleActivity.packageName)
-                            val uri = Uri.parse("market://details?id=" + mainBibleActivity.packageName)
-                            val intent = Intent(Intent.ACTION_VIEW, if(isSamsung) samsungUri else uri).apply{
-                                // To count with Play market backstack, After pressing back button,
-                                // to taken back to our application, we need to add following flags to intent.
-                                addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
-                            }
-                            try {
-                                mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
-                            } catch (e: ActivityNotFoundException) {
-                                val httpSamsungUri = Uri.parse("https://apps.samsung.com/appquery/AppRating.as?appId=" +mainBibleActivity.packageName)
-                                val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + mainBibleActivity.packageName)
-                                mainBibleActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, if(isSamsung) httpSamsungUri else httpUri), STD_REQUEST_CODE)
-                            }
+                    appDialogs.post(
+                        AppDialogRequest.Message(
+                            title = hostActivity.getString(R.string.rate_title),
+                            message = htmlMessage,
+                            confirmText = hostActivity.getString(if (isSamsung) R.string.okay else R.string.proceed_google_play),
+                            dismissText = hostActivity.getString(R.string.cancel),
+                            cancellable = true,
+                        ),
+                    ) { result ->
+                        if (result != AppDialogResult.Ok) return@post
+                        val samsungUri = Uri.parse("samsungapps://AppRating/"+BibleApplication.application.packageName)
+                        val uri = Uri.parse("market://details?id=" + BibleApplication.application.packageName)
+                        val intent = Intent(Intent.ACTION_VIEW, if(isSamsung) samsungUri else uri).apply{
+                            // To count with Play market backstack, After pressing back button,
+                            // to taken back to our application, we need to add following flags to intent.
+                            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
                         }
-                        .setNegativeButton(R.string.cancel, null)
-                        .create()
-                    d.show()
-                    d.findViewById<TextView>(android.R.id.message)?.run {
-                        movementMethod = LinkMovementMethod.getInstance()
+                        try {
+                            hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
+                        } catch (e: ActivityNotFoundException) {
+                            val httpSamsungUri = Uri.parse("https://apps.samsung.com/appquery/AppRating.as?appId=" +BibleApplication.application.packageName)
+                            val httpUri = Uri.parse("https://play.google.com/store/apps/details?id=" + BibleApplication.application.packageName)
+                            hostActivity.startActivityForResult(Intent(Intent.ACTION_VIEW, if(isSamsung) httpSamsungUri else httpUri), STD_REQUEST_CODE)
+                        }
                     }
-
                 }
                 R.id.backupMainMenu -> {
-                    mainBibleActivity.lifecycleScope.launch(Dispatchers.Main) {
-                        BackupControl.backupPopup(mainBibleActivity)
+                    hostActivity.lifecycleScope.launch(Dispatchers.Main) {
+                        BackupControl.backupPopup(hostActivity)
                     }
                     isHandled = true
                 }
                 R.id.searchButton -> {
-                    if(currentPage.isSearchable) {
-                        handlerIntent = searchControl.getSearchIntent(currentPage.currentDocument, mainBibleActivity)
+                    // F6 Task 8b entry point 4: retarget into the reading view's search when a
+                    // Compose host is mounted; classic behaviour unchanged otherwise. Review
+                    // Important 2: `isSearchable` gates BOTH branches, not just the classic one —
+                    // `composeSearchIfHosted` (since F43 Task 6) admits every document type, so
+                    // without this gate a hosted search became reachable from My Notes/dictionary/
+                    // map/non-EPUB-general-book pages that classic always refused (entry point 6
+                    // already keeps this same gate around its own retarget,
+                    // `MainBibleActivity.onKeyUp`).
+                    if (currentPage.isSearchable) {
+                        if (composeSearchIfHosted()) {
+                            isHandled = true
+                        } else {
+                            handlerIntent = searchControl.getSearchIntent(currentPage.currentDocument, hostActivity)
+                        }
                     }
                 }
                 R.id.settingsButton -> {
-                    handlerIntent = Intent(mainBibleActivity, SettingsActivity::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(hostActivity, Screen.Settings)
                     // force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
                     requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
                 }
                 R.id.managePrompts -> {
-                    handlerIntent = Intent(mainBibleActivity, AiSettingsActivity::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(hostActivity, Screen.AiPrompts)
                 }
-                R.id.historyButton -> handlerIntent = Intent(mainBibleActivity, History::class.java)
-                R.id.bookmarksButton -> handlerIntent = Intent(mainBibleActivity, Bookmarks::class.java)
+                R.id.historyButton -> {
+                    // Round 15b T4: History opens as a quick sheet over the reading view. The
+                    // epilogue deleted the classic Activity, HistoryComposeActivity and the
+                    // `Screen.History` enum entry, so there is no Intent route left to fall back
+                    // to. `composeReadingViewHost` is declared nullable, so SOME null handling is
+                    // compiler-mandated; this takes the same shape `speakButton` below does --
+                    // fall through with `isHandled` still false, leaving the menu row an unhandled
+                    // no-op. The host is installed in `setupUi` before any menu can be opened, so
+                    // the null arm is unreachable in practice.
+                    val host = composeReadingViewHost()
+                    if (host != null) {
+                        host.showHistorySheet()
+                        isHandled = true
+                    }
+                }
+                R.id.bookmarksButton -> handlerIntent = ScreenLauncher.intentFor(hostActivity, Screen.Bookmarks)
                 R.id.studyPadsButton -> {
-                    val intent = Intent(mainBibleActivity, ManageLabels::class.java)
-                    intent.putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
+                    // Screen.ManageLabels is deliberately not in ScreenLauncher.MIGRATED (its `data`
+                    // argument is required -- see ScreenLauncher.kt's MIGRATED-map comment), and the
+                    // classic ManageLabelsComposeActivity that ScreenLauncher.targetFor used to
+                    // resolve it to is gone (nav-graph slices 2+4 Task 7), so this builds the nav-host
+                    // Intent directly, the same way SearchControl/LinkControl reach argument-carrying
+                    // routes outside the graph. The "data" extra on the RESULT is unchanged --
+                    // NavResultIntents.forManageLabels still writes it under that key.
+                    val data = ManageLabelsContract.ManageLabelsData(mode = ManageLabelsContract.Mode.STUDYPAD)
                         .applyFrom(windowControl.windowRepository.workspaceSettings)
-                        .toJSON())
-                    mainBibleActivity.lifecycleScope.launch (Dispatchers.Main) {
-                        val result = mainBibleActivity.awaitIntent(intent)
+                        .toJSON()
+                    val intent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.manageLabels(data))
+                    hostActivity.lifecycleScope.launch (Dispatchers.Main) {
+                        val result = hostActivity.awaitIntent(intent)
                         if(result.resultCode == Activity.RESULT_OK) {
-                            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+                            val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                         }
                     }
                 }
                 R.id.myDocumentsButton -> {
-                    handlerIntent = Intent(mainBibleActivity, MyDocumentsActivity::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(hostActivity, Screen.MyDocuments)
                 }
                 R.id.speakButton -> {
+                    // Round 13a retargeted this into the reading view; round 14b §8 changed WHAT it
+                    // opens: the transport BAR, not the settings sheet. From a menu row the settings
+                    // sheet was a dead end — it carries no play control, and bar visibility is a
+                    // separate state this path never touched, so the user reached the settings with
+                    // no idea how to start playback. Idempotent by design (spec D3): a menu row is a
+                    // one-way action and must never hide the bar again.
+                    //
+                    // `handlerIntent` stays null so the shared dispatch below does not also start an
+                    // activity (mirrors the `searchButton` case right above). `composeReadingViewHost`
+                    // is declared nullable, so SOME null handling is compiler-mandated; what this
+                    // shape chooses is to fall through with `isHandled` still false, leaving the
+                    // menu row an unhandled no-op rather than opening anything.
                     if(currentPage.isSpeakable) {
-                        handlerIntent = Intent(mainBibleActivity, BibleSpeakActivity::class.java)
+                        val host = composeReadingViewHost()
+                        if (host != null) {
+                            host.showSpeakTransport()
+                            isHandled = true
+                        }
                     }
                 }
                 R.id.dailyReadingPlanButton -> {
-                    handlerIntent = Intent(mainBibleActivity, DailyReading::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(hostActivity, Screen.ReadingPlan)
                     isHandled = true
                 }
                 R.id.readingProgressButton -> {
-                    handlerIntent = Intent(mainBibleActivity, ReadingProgressActivity::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(hostActivity, Screen.ReadingProgress)
                     isHandled = true
                 }
                 R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {
-                    handlerIntent = Intent(mainBibleActivity, DownloadActivity::class.java)
+                    handlerIntent = NavHostComposeActivity.intentFor(hostActivity, NavRoutes.download())
                     requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
                 }
                 R.id.helpButton -> {
-                    CommonUtils.showHelp(mainBibleActivity, showVersion = true)
+                    CommonUtils.showHelp(hostActivity, showVersion = true)
                     isHandled = true
                 }
                 R.id.appLicence -> {
-                    val messageHtml = mainBibleActivity.resources.openRawResource(R.raw.license).readBytes().decodeToString()
+                    val messageHtml = BibleApplication.application.resources.openRawResource(R.raw.license).readBytes().decodeToString()
 
-                    val spanned = htmlToSpan(messageHtml)
-
-                    val d = AlertDialog.Builder(mainBibleActivity)
-                        .setTitle(R.string.app_licence_title)
-                        .setMessage(spanned)
-                        .setPositiveButton(android.R.string.ok) { _, _ ->  }
-                        .create()
-
-                    d.show()
-                    d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+                    appDialogs.post(
+                        AppDialogRequest.Message(
+                            title = hostActivity.getString(R.string.app_licence_title),
+                            message = messageHtml,
+                            confirmText = hostActivity.getString(android.R.string.ok),
+                            cancellable = true,
+                        ),
+                    )
                     isHandled = true
                 }
                 R.id.bugReport -> {
-                    mainBibleActivity.lifecycleScope.launch {
-                        BugReport.reportBug(mainBibleActivity, source = "manual")
+                    hostActivity.lifecycleScope.launch {
+                        BugReport.reportBug(hostActivity, source = "manual")
                     }
                     isHandled = true
                 }
                 R.id.tellFriend -> {
                     val homepage = Uri.parse(homepageLink)
-                    val playstore = Uri.parse("https://play.google.com/store/apps/details?id=" + mainBibleActivity.packageName)
+                    val playstore = Uri.parse("https://play.google.com/store/apps/details?id=" + BibleApplication.application.packageName)
 
-                    val appName = mainBibleActivity.getString(R.string.app_name_long)
-                    val message1 = mainBibleActivity.getString(R.string.tell_friend_message1, appName)
-                    val message2 = mainBibleActivity.getString(R.string.tell_friend_message2)
-                    val playStoreLink = mainBibleActivity.getString(R.string.tell_friend_message3, playstore)
-                    val message4 = mainBibleActivity.getString(R.string.tell_friend_message4, homepage)
+                    val appName = hostActivity.getString(R.string.app_name_long)
+                    val message1 = hostActivity.getString(R.string.tell_friend_message1, appName)
+                    val message2 = hostActivity.getString(R.string.tell_friend_message2)
+                    val playStoreLink = hostActivity.getString(R.string.tell_friend_message3, playstore)
+                    val message4 = hostActivity.getString(R.string.tell_friend_message4, homepage)
 
                     val message = if(isSamsung)
                         """
@@ -263,8 +330,8 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                         putExtra(Intent.EXTRA_TEXT, message)
                         type = "text/plain"
                     }
-                    val chooserIntent = Intent.createChooser(emailIntent, mainBibleActivity.getString(R.string.tell_friend_title))
-                    mainBibleActivity.startActivityForResult(chooserIntent, STD_REQUEST_CODE)
+                    val chooserIntent = Intent.createChooser(emailIntent, hostActivity.getString(R.string.tell_friend_title))
+                    hostActivity.startActivityForResult(chooserIntent, STD_REQUEST_CODE)
                     isHandled = true
                 }
                 R.id.howToContribute -> {
@@ -280,13 +347,13 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                     isHandled = true
                 }
                 R.id.googleDriveSync -> {
-                    handlerIntent = Intent(mainBibleActivity, SyncSettingsActivity::class.java)
+                    handlerIntent = ScreenLauncher.intentFor(hostActivity, Screen.SyncSettings)
                     isHandled = true
                 }
             }
 
             if (handlerIntent != null) {
-                mainBibleActivity.startActivityForResult(handlerIntent, requestCode)
+                hostActivity.startActivityForResult(handlerIntent, requestCode)
                 isHandled = true
             }
         }
@@ -294,20 +361,6 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
         return isHandled
     }
 
-    fun restartIfRequiredOnReturn(requestCode: Int): Boolean {
-        if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
-            Log.i(TAG, "Refresh on finish")
-            if (!equals(CommonUtils.localePref ?: "", BibleApplication.application.localeOverrideAtStartUp)) {
-                // must restart to change locale
-                CommonUtils.restartApp(mainBibleActivity)
-            }
-        }
-        return false
-    }
-
-    fun isDisplayRefreshRequired(requestCode: Int): Boolean {
-        return requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH
-    }
 
 
     companion object {

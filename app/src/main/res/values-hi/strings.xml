@@ -412,10 +412,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="auto_assign_labels1">नए बुकमार्क के लिए लेबल को ऑटो-असाइन करें</string>
   <string name="auto_assign_labels_primary">प्राथमिक रूप में ऑटो-असाइन करें</string>
   <!--can be removed-->
-  <string name="marker_style">चयन बुकमार्क के लिए केवल मार्कर दिखाएं</string>
-  <string name="marker_style_whole_verse">पूर्ण छंद बुकमार्क के लिए केवल मार्कर दिखाएं</string>
-  <string name="hide_style">चयन बुकमार्क के लिए छुपाएं</string>
-  <string name="hide_style_whole_verse">पूर्ण छंद बुकमार्क के लिए छुपाएं</string>
   <string name="bookmark_warning">इस दस्तावेज़ के लिए बुकमार्क और/या नोट्स हैं।</string>
   <string name="bookmark_warning2">यदि दस्तावेज़ संरचना बदल गई है, तो इस दस्तावेज़ को अपडेट करने से इन बुकमार्क/नोट्स की स्थिति दस्तावेज़ के भीतर बदल सकती है या वे पूरी तरह गायब हो सकते हैं।</string>
   <string name="bookmark_warning3">क्या आप फिर भी मॉड्यूल अपडेट करना चाहते हैं?</string>
@@ -933,8 +929,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="favourite_label">पसंदीदा लेबल</string>
   <string name="edit_label">लेबल संपादित करें</string>
   <string name="delete_label_confirmation">क्या आप बुकमार्क लेबल \"%s\" हटाना चाहते हैं? साथ ही सभी संबद्ध स्टडी पैड नोट हटा दिए जाएंगे।</string>
-  <string name="bookmark_underline_style_arbitrary">बुकमार्क के चयन के लिए रेखांकन शैली</string>
-  <string name="bookmark_underline_style_whole_verse">संपूर्ण छंद बुकमार्क के लिए रेखांकन शैली</string>
   <string name="active_labels">चयनित लेबल</string>
   <string name="recent_labels">हाल के लेबल</string>
   <string name="other_labels">अन्य लेबल</string>

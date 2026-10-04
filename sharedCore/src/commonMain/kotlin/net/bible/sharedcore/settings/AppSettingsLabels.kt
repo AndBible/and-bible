@@ -1,0 +1,227 @@
+package net.bible.sharedcore.settings
+
+/**
+ * Host-resolved strings for the main app settings screen (category titles + row
+ * titles/summaries), kept out of the controller so tests can supply stubs and translated strings
+ * stay on the Android side (`strings.xml`). Mirrors `AiConnectionLabels`
+ * (`net.bible.sharedcore.ai.AiConnectionSettingsController`).
+ */
+data class AppSettingsLabels(
+    val screenTitle: String,
+    val fontSizePercentFormat: String, // e.g. "%d %%"; %d filled with the percentage
+
+    // Task 15 — platform-dialog removal: the "reset to defaults" confirmation
+    val resetConfirmMessage: String,
+
+    // Category titles
+    val dictionariesCat: String,
+    val behaviorCat: String,
+    val displayCat: String,
+    val einkCat: String,
+    val persecutionCat: String,
+    val featuresCat: String,
+    val advancedCat: String,
+
+    // Dictionaries
+    val strongsGreekDictionaryTitle: String,
+    val strongsGreekDictionarySummary: String,
+    val strongsHebrewDictionaryTitle: String,
+    val strongsHebrewDictionarySummary: String,
+    val robinsonGreekMorphologyTitle: String,
+    val robinsonGreekMorphologySummary: String,
+    val disabledWordLookupDictionariesTitle: String,
+    val disabledWordLookupDictionariesSummary: String,
+
+    // Behavior
+    val navigateToVerseTitle: String,
+    val navigateToVerseSummary: String,
+    val openLinksInSpecialWindowTitle: String,
+    val openLinksInSpecialWindowSummary: String,
+    val screenKeepOnTitle: String,
+    val screenKeepOnSummary: String,
+    val doubleTapToFullscreenTitle: String,
+    val doubleTapToFullscreenSummary: String,
+    val autoFullscreenTitle: String,
+    val autoFullscreenSummary: String,
+    val toolbarButtonActionsTitle: String,
+    val toolbarButtonActionsSummary: String,
+    val bibleViewSwipeModeTitle: String,
+    val bibleViewSwipeModeSummary: String,
+    val disableTwoStepBookmarkingTitle: String,
+    val disableTwoStepBookmarkingSummary: String,
+    val volumeKeysScrollTitle: String,
+    val volumeKeysScrollSummary: String,
+    val nightModeTitle: String,
+    val nightModeSummary: String,
+
+    // Display
+    val localeTitle: String,
+    val localeSummary: String,
+    val disableClickToEditTitle: String,
+    val disableClickToEditSummary: String,
+    val notesContentTypeTitle: String,
+    val notesContentTypeSummary: String,
+    val fontSizeMultiplierTitle: String,
+    val hideStatusBarTitle: String,
+    val hideStatusBarSummary: String,
+    val fullScreenHideButtonsTitle: String,
+    val fullScreenHideButtonsSummary: String,
+    val hideWindowButtonsTitle: String,
+    val hideWindowButtonsSummary: String,
+    val hideBibleReferenceOverlayTitle: String,
+    val hideBibleReferenceOverlaySummary: String,
+    val showActiveWindowIndicatorTitle: String,
+    val showActiveWindowIndicatorSummary: String,
+    val disableBibleBookmarkModalButtonsTitle: String,
+    val disableBibleBookmarkModalButtonsSummary: String,
+    val disableGenBookmarkModalButtonsTitle: String,
+    val disableGenBookmarkModalButtonsSummary: String,
+
+    // E-ink
+    val displayColorModeTitle: String,
+    val displayColorModeSummary: String,
+    val einkModeTitle: String,
+    val einkModeSummary: String,
+    val disableAnimationsTitle: String,
+    val disableAnimationsSummary: String,
+
+    // Persecution
+    val discreteHelpTitle: String,
+    val discreteHelpSummary: String,
+    val discreteModeTitle: String,
+    val discreteModeSummary: String,
+    val showCalculatorTitle: String,
+    val calculatorPinTitle: String,
+    val calculatorPinSummary: String,
+
+    // Features / advanced / developer
+    val experimentalFeaturesTitle: String,
+    val experimentalFeaturesSummary: String,
+    val enableBluetoothTitle: String,
+    val enableBluetoothSummary: String,
+    val requestSdcardPermissionTitle: String,
+    val requestSdcardPermissionSummary: String,
+    val showErrorboxTitle: String,
+    val showErrorboxSummary: String,
+    val openLinksTitle: String,
+    val openLinksSummary: String,
+    val crashAppTitle: String,
+    val crashAppSummary: String,
+
+    // Nav-shortcut labels (rows that navigate to another settings screen)
+    val syncShortcutTitle: String,
+    val syncShortcutSummary: String,
+    val aiShortcutTitle: String,
+    val aiShortcutSummary: String,
+    val readingProgressShortcutTitle: String,
+    val readingProgressShortcutSummary: String,
+    val textDisplayShortcutTitle: String,
+    val textDisplayShortcutSummary: String,
+) {
+    companion object {
+        fun forTest() = AppSettingsLabels(
+            screenTitle = "Settings",
+            fontSizePercentFormat = "%d %%",
+
+            resetConfirmMessage = "Do you want to reset all global application preferences that are " +
+                "displayed on this screen to their default values?",
+
+            dictionariesCat = "Dictionaries",
+            behaviorCat = "Behavior",
+            displayCat = "Display",
+            einkCat = "E-ink settings",
+            persecutionCat = "Persecution resistant settings",
+            featuresCat = "Features",
+            advancedCat = "Advanced",
+
+            strongsGreekDictionaryTitle = "Strong's Greek dictionary",
+            strongsGreekDictionarySummary = "Dictionary used for Greek Strong's numbers",
+            strongsHebrewDictionaryTitle = "Strong's Hebrew dictionary",
+            strongsHebrewDictionarySummary = "Dictionary used for Hebrew Strong's numbers",
+            robinsonGreekMorphologyTitle = "Robinson Greek morphology",
+            robinsonGreekMorphologySummary = "Dictionary used for Greek morphology codes",
+            disabledWordLookupDictionariesTitle = "Word lookup dictionaries",
+            disabledWordLookupDictionariesSummary = "Dictionaries used for word lookups",
+
+            navigateToVerseTitle = "Navigate to verse",
+            navigateToVerseSummary = "Show verse selection when navigating",
+            openLinksInSpecialWindowTitle = "Open links in special window",
+            openLinksInSpecialWindowSummary = "Open cross-references in a separate window",
+            screenKeepOnTitle = "Keep screen on",
+            screenKeepOnSummary = "Prevent the screen from turning off",
+            doubleTapToFullscreenTitle = "Double tap for fullscreen",
+            doubleTapToFullscreenSummary = "Double tap the text to toggle fullscreen",
+            autoFullscreenTitle = "Auto fullscreen",
+            autoFullscreenSummary = "Automatically enter fullscreen on scroll",
+            toolbarButtonActionsTitle = "Toolbar button actions",
+            toolbarButtonActionsSummary = "Choose what the toolbar buttons do",
+            bibleViewSwipeModeTitle = "Swipe mode",
+            bibleViewSwipeModeSummary = "Choose what swiping the text does",
+            disableTwoStepBookmarkingTitle = "Disable two-step bookmarking",
+            disableTwoStepBookmarkingSummary = "Bookmark immediately without confirmation",
+            volumeKeysScrollTitle = "Volume keys scroll",
+            volumeKeysScrollSummary = "Use volume keys to scroll the text",
+            nightModeTitle = "Night mode",
+            nightModeSummary = "Choose when the dark theme is used",
+
+            localeTitle = "Language",
+            localeSummary = "App display language",
+            disableClickToEditTitle = "Disable click to edit notes",
+            disableClickToEditSummary = "Require a long press to edit a note",
+            notesContentTypeTitle = "Notes content type",
+            notesContentTypeSummary = "Choose the format used for notes",
+            fontSizeMultiplierTitle = "Font size",
+            hideStatusBarTitle = "Hide status bar",
+            hideStatusBarSummary = "Hide the system status bar",
+            fullScreenHideButtonsTitle = "Hide buttons in fullscreen",
+            fullScreenHideButtonsSummary = "Hide navigation buttons in fullscreen",
+            hideWindowButtonsTitle = "Hide window buttons",
+            hideWindowButtonsSummary = "Hide the split-window button bar",
+            hideBibleReferenceOverlayTitle = "Hide reference overlay",
+            hideBibleReferenceOverlaySummary = "Hide the floating verse reference overlay",
+            showActiveWindowIndicatorTitle = "Show active window indicator",
+            showActiveWindowIndicatorSummary = "Highlight the currently active window",
+            disableBibleBookmarkModalButtonsTitle = "Bible bookmark modal buttons",
+            disableBibleBookmarkModalButtonsSummary = "Buttons shown on the Bible bookmark dialog",
+            disableGenBookmarkModalButtonsTitle = "Generic bookmark modal buttons",
+            disableGenBookmarkModalButtonsSummary = "Buttons shown on the generic bookmark dialog",
+
+            displayColorModeTitle = "Color mode",
+            displayColorModeSummary = "Choose the display color mode",
+            einkModeTitle = "E-ink mode",
+            einkModeSummary = "Optimize display for e-ink screens",
+            disableAnimationsTitle = "Disable animations",
+            disableAnimationsSummary = "Turn off UI animations",
+
+            discreteHelpTitle = "About discrete mode",
+            discreteHelpSummary = "Learn how the calculator disguise works",
+            discreteModeTitle = "Discrete mode",
+            discreteModeSummary = "Disguise the app as a calculator",
+            showCalculatorTitle = "Show calculator",
+            calculatorPinTitle = "Calculator PIN",
+            calculatorPinSummary = "PIN used to unlock the app from the calculator",
+
+            experimentalFeaturesTitle = "Experimental features",
+            experimentalFeaturesSummary = "Enable features still under development",
+            enableBluetoothTitle = "Enable Bluetooth",
+            enableBluetoothSummary = "Allow Bluetooth page-turner support",
+            requestSdcardPermissionTitle = "SD card permission",
+            requestSdcardPermissionSummary = "Request permission to access the SD card",
+            showErrorboxTitle = "Show error box",
+            showErrorboxSummary = "Show a debug error box on crash",
+            openLinksTitle = "Open links",
+            openLinksSummary = "Choose how external links are opened",
+            crashAppTitle = "Crash app",
+            crashAppSummary = "Trigger a test crash",
+
+            syncShortcutTitle = "Cloud sync",
+            syncShortcutSummary = "Configure cloud synchronization",
+            aiShortcutTitle = "AI settings",
+            aiShortcutSummary = "Configure AI connection settings",
+            readingProgressShortcutTitle = "Reading progress",
+            readingProgressShortcutSummary = "Configure reading progress tracking",
+            textDisplayShortcutTitle = "Text display settings",
+            textDisplayShortcutSummary = "Configure global text display settings",
+        )
+    }
+}

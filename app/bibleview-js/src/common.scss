@@ -38,12 +38,12 @@
 .journal-button {
   cursor: pointer;
   z-index: 1;
-  color: rgba(0, 0, 0, 0.5);
+  color: rgba(var(--accent-rgb), 0.5);
   .monochrome & {
     color: black;
   }
   .night & {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(var(--accent-rgb), 0.6);
   }
   .night.monochrome & {
     color: white;
@@ -123,19 +123,51 @@
 
 $button-border-radius: 8px;
 $button-padding: 6px;
+// The three faces of the old single `--modal-grey` (see the `:root` block further down for why
+// they had to be split): a container BACKGROUND, the TEXT drawn on that container, and the same
+// grey where it is used as a FOREGROUND mark (icon, spinner ring).
 $button-grey: var(--modal-grey);
+$button-grey-text: var(--modal-grey-text);
+$icon-grey: var(--icon-grey);
 
 :root {
-  --primary-color: #bdbdbd;
+  // Round 17c: an accent used as a FOREGROUND mark (memorize punctuation, the dashed preview
+  // borders, the type buffer). Consumed only by the four memorize components.
+  --primary-color: var(--ab-primary, #bdbdbd);
   --link-color: #1a73e8;
+
+  // Round 17c. Three tokens carry the theme to the files that are NOT allowed to name an --ab-*
+  // role directly (see __tests__/themeColors.spec.js). Each keeps its consumers' pre-round literal
+  // as the fallback, so an unthemed page is unchanged.
+  //
+  // Accent CHANNELS, for values that are alpha-composited rather than opaque: a consumer writes
+  // `rgba(var(--accent-rgb), <the alpha that site already had>)`. `color-mix()` would be the modern
+  // way and is unavailable — StartupActivity enforces a Chromium 83 floor, `color-mix()` needs 111.
+  --accent-rgb: var(--ab-primary-rgb, 0, 0, 0);
+  // The opaque accent an interactive ICON is drawn in: .icon-button, and the gear/⋯ triggers that
+  // are styled in place rather than through that class.
+  --accent-mark: var(--ab-primary, #666);
+  // The opaque tone a memorize mask is painted in (WordBlur's covered word).
+  --memorize-mask: var(--ab-secondary-container, #ccc);
+
   .night {
     --link-color: #8ab4f8;
+    --accent-rgb: var(--ab-primary-rgb, 255, 255, 255);
+    --accent-mark: var(--ab-primary, #999);
+    --memorize-mask: var(--ab-secondary-container, #555);
   }
   .monochrome {
     --link-color: black;
+    --primary-color: #bdbdbd;
+    --accent-rgb: 0, 0, 0;
+    --accent-mark: black;
+    --memorize-mask: white;
   }
   .monochrome.night {
     --link-color: white;
+    --accent-rgb: 255, 255, 255;
+    --accent-mark: white;
+    --memorize-mask: black;
   }
 }
 
@@ -143,7 +175,7 @@ $button-grey: var(--modal-grey);
   font-size: 90%;
   background-color: $button-grey;
   border: none;
-  color: white;
+  color: $button-grey-text;
   padding: $button-padding;
   border-radius: $button-border-radius;
   margin: 2pt 2pt;
@@ -164,6 +196,12 @@ $button-grey: var(--modal-grey);
 
   &.toggled {
     background-color: #474747;
+    // Latent: nothing currently applies `.toggled` to a `.button` (dead CSS), but batch 4b
+    // changed what this rule would inherit for `color` from `.button` (now the themed
+    // on-primary-container token, fallback white, instead of the old literal `white` alone),
+    // which could land a dark tone on this dark grey if that token is ever actually themed.
+    // Pin it explicitly so a future revival of this class can't surprise anyone.
+    color: white;
     .monochrome & {
       background-color: black;
       color: white;
@@ -191,14 +229,15 @@ $button-grey: var(--modal-grey);
     }
   }
   &.light {
-    background-color: #bdbdbd;
-    color: black;
+    background-color: var(--ab-secondary-container, #bdbdbd);
+    color: var(--ab-on-secondary-container, black);
     .monochrome & {
       background-color: white;
+      color: black;
     }
     .night & {
-      background-color: #616161;
-      color: #bdbdbd;
+      background-color: var(--ab-secondary-container, #616161);
+      color: var(--ab-on-secondary-container, #bdbdbd);
     }
     .night.monochrome & {
       background-color: black;
@@ -234,14 +273,11 @@ $button-grey: var(--modal-grey);
   height: 40px;
   border-radius: $button-border-radius;
   border: none;
-  color: #666;
+  color: var(--accent-mark);
   font-size: 1.2em;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
-  .night & {
-    color: #999;
-  }
   .monochrome & {
     color: black;
   }
@@ -306,14 +342,36 @@ $button-grey: var(--modal-grey);
 }
 
 :root {
-  --modal-grey:  rgb(172,172,172);
+  // A/B batch 4b: the workspace theme sets --ab-* on the document root. Every declaration keeps
+  // its previous literal as the var() fallback, so no payload == today's appearance, by
+  // construction rather than by a code path.
+  //
+  // `--modal-grey` used to be ONE token consumed both as a background (modal header, .button) and
+  // as a foreground (verse-action icons, the spinner ring, MultiDocument's hide/restore buttons).
+  // That is fine while the value is a mid grey, but not once it becomes an M3 role: a *Container*
+  // role is a background tone (tone-90 in a light scheme), so using it as an icon colour on a white
+  // page paints near-white on white, and leaving the text that sits ON it hardcoded `white` paints
+  // white on near-white. So the token is split by ROLE OF USE, and each face takes the M3 role that
+  // matches how the value is actually consumed.
+  --modal-grey: var(--ab-primary-container, rgb(172,172,172));
+  // Text/icons drawn ON --modal-grey. Only the container's matching `on-` role is guaranteed to
+  // contrast with it.
+  --modal-grey-text: var(--ab-on-primary-container, white);
+  // The same grey used as a FOREGROUND mark. An accent role, never a container role.
+  --icon-grey: var(--ab-primary, rgb(172,172,172));
   .monochrome {
+    // Unchanged monochrome doctrine: the split tokens mirror what the single token resolved to
+    // before (black background, white text on it, black foreground marks), so BW/e-ink is untouched.
     --modal-grey: black;
+    --modal-grey-text: white;
+    --icon-grey: black;
   }
 }
 
 $modal-header-background-color: var(--modal-grey);
-$night-modal-header-background-color: rgba(69,69,69,1);
+$modal-header-foreground-color: var(--modal-grey-text);
+$night-modal-header-background-color: var(--ab-primary-container, rgba(69,69,69,1));
+$night-modal-header-foreground-color: var(--ab-on-primary-container, #e2e2e2);
 
 $modal-content-background-color: #fefefe;
 $modal-content-background-color-night: rgb(33, 33, 33);
@@ -326,14 +384,14 @@ $modal-content-background-color-night: rgb(33, 33, 33);
 }
 
 .isHighlighted {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(var(--accent-rgb), 0.1);
   .monochrome & {
     background-color: transparent;
     outline: 2px solid black;
     outline-offset: 1px;
   }
   .night & {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(var(--accent-rgb), 0.3);
   }
 }
 
@@ -499,7 +557,7 @@ table {
   .fa-layers, .svg-inline--fa {
     //    padding-inline-end: 14px;  // Causes non-alignment of the icons in the verse action dialog.
     .horizontal & {
-      color: $button-grey;
+      color: $icon-grey;
       .monochrome.night & {
         color: white;
       }

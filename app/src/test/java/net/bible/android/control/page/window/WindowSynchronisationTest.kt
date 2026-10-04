@@ -37,8 +37,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-import javax.inject.Provider
-
 
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not

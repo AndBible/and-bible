@@ -410,10 +410,6 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="auto_assign_labels1">Automaticky přidávat k novým záložkám</string>
   <string name="auto_assign_labels_primary">Automaticky značit jako primární</string>
   <!--can be removed-->
-  <string name="marker_style">Zobrazit pouze značku záložky výběru</string>
-  <string name="marker_style_whole_verse">Zobrazit pouze značku záložky pro celý verš</string>
-  <string name="hide_style">Skrýt záložku výběru</string>
-  <string name="hide_style_whole_verse">Skrýt záložku pro celý verš</string>
   <string name="bookmark_warning">Pro tento dokument existují záložky/poznámky</string>
   <string name="bookmark_warning2">
         Jestliže se struktura dokumentu změní, aktualizace dokumentu může způsobit,
@@ -935,8 +931,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="favourite_label">Oblíbený štítek</string>
   <string name="edit_label">Upravit štítek</string>
   <string name="delete_label_confirmation">Opravdu smazat štítek \"%s\"? Přidružené studijní složky budou také odstraněny.</string>
-  <string name="bookmark_underline_style_arbitrary">Podtrhnout vybraný text</string>
-  <string name="bookmark_underline_style_whole_verse">Podtrhnout celý verš</string>
   <string name="active_labels">Vybrané štítky</string>
   <string name="recent_labels">Poslední štíky</string>
   <string name="other_labels">Ostatní štítky</string>

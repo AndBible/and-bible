@@ -1,0 +1,105 @@
+@font-face { font-family: "Source Serif 4"; font-weight: 600; font-display: swap;
+  src: url("/assets/fonts/source-serif-4-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 400; font-display: swap;
+  src: url("/assets/fonts/inter-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 600; font-display: swap;
+  src: url("/assets/fonts/inter-latin-600-normal.woff2") format("woff2"); }
+:root { --md-text-font: "Inter"; --md-code-font: ui-monospace, monospace; }
+[data-md-color-scheme="default"] {
+  --md-default-bg-color: #f7f1e3; --md-default-fg-color: #2a2620;
+  --md-primary-fg-color: #fffaf0; --md-primary-bg-color: #2a2620;
+  --md-accent-fg-color: #9a5b10; --md-typeset-a-color: #9a5b10;
+  --md-footer-bg-color: #2a2620;
+}
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #161616; --md-default-fg-color: #efe9dd;
+  --md-primary-fg-color: #1c1c1b; --md-primary-bg-color: #efe9dd;
+  --md-accent-fg-color: #FEBA2A; --md-typeset-a-color: #FEBA2A;
+  --md-footer-bg-color: #121212;
+}
+.md-typeset h1, .md-typeset h2, .md-typeset h3 { font-family: "Source Serif 4", Georgia, serif; font-weight: 600; }
+
+/* ---- Header: same look as the landing topbar (assets/css/site.css) ----
+   The --ab-* values below are site.css's tokens: --ab-border = --border, --ab-surface = --surface,
+   --ab-surface-2 = --surface-2, --ab-muted = --muted (light and dark blocks). Keep them in step. */
+/* Tokens that assets/css/embeds.css (the click-to-load video embeds) reads; site.css defines them for the landing site. */
+[data-md-color-scheme="default"], [data-md-color-scheme="slate"] { --radius: 12px; --video-bg: #000; --video-fg: #fff; }
+[data-md-color-scheme="default"] { --ab-border: #e3d8c0; --ab-surface: #fffaf0; --ab-surface-2: #f3ead7; --ab-muted: #5d5546; }
+[data-md-color-scheme="slate"] { --ab-border: #2c2a26; --ab-surface: #1c1c1b; --ab-surface-2: #121212; --ab-muted: #a59f93; }
+.md-header { background: var(--md-default-bg-color); border-bottom: 1px solid var(--ab-border); box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none; }
+.md-header__inner { max-width: 1120px; min-height: 60px; gap: 8px; padding: 0 16px; }
+.ab-brand { display: flex; align-items: center; gap: 10px; margin-right: auto; color: var(--md-default-fg-color);
+  text-decoration: none; font: 600 20px/1 "Source Serif 4", Georgia, serif; }
+.ab-brand img { width: 32px; height: 32px; }
+.ab-nav { display: none; align-items: center; gap: 4px; }
+.ab-nav a, .ab-drawer-links a { padding: 8px 12px; border-radius: 8px; color: var(--ab-muted); text-decoration: none; font-size: 15.2px; }
+.ab-nav a:hover, .ab-nav a:focus-visible, .ab-drawer-links a:hover, .ab-drawer-links a:focus-visible { color: var(--md-default-fg-color); background: var(--ab-surface-2); }
+.ab-icon-button { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 40px; height: 40px;
+  padding: 0; border: 1px solid var(--ab-border); border-radius: 10px; background: var(--ab-surface);
+  color: var(--md-default-fg-color); cursor: pointer; }
+.ab-icon-button:hover { border-color: var(--md-accent-fg-color); }
+.ab-icon-button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; }
+.md-header .md-search { margin: 0; }
+.ab-nav a:focus-visible, .ab-drawer-links a:focus-visible, .ab-icon-button:focus-visible {
+  outline: 2px solid var(--md-accent-fg-color); outline-offset: 2px; }
+@media (min-width: 720px) { .ab-nav { display: flex; } .ab-drawer-links { display: none !important; } }
+.ab-drawer-links { display: flex; flex-direction: column; padding: 0 .6rem .6rem; border-bottom: 1px solid var(--ab-border); }
+
+/* ---- Images aligned by the migrated `{ .align-* }` attribute lists ---- */
+.md-typeset img.align-center { display: block; margin-left: auto; margin-right: auto; }
+.md-typeset img.align-left { display: block; margin-right: auto; }
+
+/* ---- Docs landing (index.md): the section tables sit in .ab-docs-landing and share one full width
+   and one first-column width so the sections line up. ---- */
+.ab-docs-landing table { display: table; table-layout: fixed; width: 100%; }
+.ab-docs-landing th:first-child, .ab-docs-landing td:first-child { width: 38%; }
+@media (min-width: 720px) { .ab-docs-landing th:first-child, .ab-docs-landing td:first-child { width: 14rem; } }
+
+/* Install badges: one row, equal heights; the row shrinks every badge proportionally to fit. */
+.md-typeset .ab-badges { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; margin: 1em 0; }
+.md-typeset .ab-badges p { display: contents; }
+.md-typeset .ab-badges a { display: block; flex: 0 1 auto; min-width: 0; line-height: 0; }
+.md-typeset .ab-badges img { display: block; height: auto; width: auto; max-width: 100%; max-height: 50px; }
+
+/* ---- Docs layout: narrower text column, left navigation from 60em ----
+   Material shows the primary (left) sidebar only from 76.25em and a drawer below it; here the sidebar is permanent from
+   60em (960px). The right-hand "on this page" TOC keeps its 76.25em start (Material shows it from 60em, so it is
+   hidden in between). The block below re-applies, for 60em..76.234em, what the theme's 76.25em rules do to the
+   primary sidebar, nav tree and header button; the theme is not forked. */
+.md-content { display: flex; justify-content: center; }
+.md-content__inner { width: 100%; max-width: 31rem; }
+@media screen and (min-width: 60em) and (max-width: 76.234375em) {
+  .md-header__button[for=__drawer], .md-overlay, .md-sidebar--secondary, .md-sidebar--secondary:not([hidden]) { display: none; }
+  .md-main__inner { padding-left: .8rem; }
+  .md-sidebar { height: 0; }
+  .md-sidebar--primary, [data-md-toggle=drawer]:checked ~ .md-container .md-sidebar--primary {
+    position: sticky; top: 2.4rem; left: auto; z-index: auto; width: 12.1rem; height: 0; background: none;
+    -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: 0; box-shadow: none; transform: none; transition: none; }
+  .md-sidebar--primary .md-sidebar__scrollwrap { position: static; overflow-y: auto; }
+  .md-sidebar__inner { padding-right: 0; }
+  [dir=ltr] .md-sidebar--primary:not([hidden]) ~ .md-content > .md-content__inner { margin-left: 1.2rem; }
+  .md-nav--primary { margin: .1rem .2rem; }
+  .md-nav__source { display: none; }
+  .md-nav__item--nested.md-nav__item--section > .md-nav__link .md-nav__icon:after { display: none; }
+  .md-nav__item--section > .md-nav__container > :nth-child(2) { display: none; }
+  [dir=ltr] .md-nav__list .md-nav__item--section > .md-nav > .md-nav__list { margin-left: 0; }
+  .md-nav__item--section > .md-nav__link--active, .md-nav__item--section > .md-nav__link > .md-nav__link--active,
+  .md-nav__item--section > .md-nav__link { font-weight: 700; }
+  .md-nav__item--section { margin-top: .4rem; }
+  .md-nav__item--section:first-child { margin-top: 0; }
+  .md-nav__item--section:last-child { margin-bottom: 0; }
+  .md-nav__item--section > .md-nav__link:not(.md-nav__container) { pointer-events: none; }
+  .md-nav__item--section > .md-nav { display: block; visibility: visible; opacity: 1; }
+  .md-nav__item--section > .md-nav > .md-nav__list > .md-nav__item { padding: 0; }
+  .md-nav--lifted { margin-top: 0; }
+  .md-nav--lifted > .md-nav__list > .md-nav__item { display: none; }
+  .md-nav--lifted > .md-nav__list > .md-nav__item--active { display: block; }
+  .md-nav--lifted > .md-nav__list > .md-nav__item--active > .md-nav { margin-top: .1rem; }
+  .md-nav--lifted > .md-nav__list > .md-nav__item--active > .md-nav > .md-nav__list:before,
+  .md-nav--lifted > .md-nav__list > .md-nav__item--active > .md-nav__link { display: none; }
+  .md-nav--lifted > .md-nav__list > .md-nav__item--active.md-nav__item--section { margin: 0; }
+  .md-nav--lifted .md-nav[data-md-level="1"] { grid-template-rows: minmax(.4rem, 1fr); visibility: visible; opacity: 1; }
+  .md-nav--primary .md-nav__title[for=__drawer] { display: none; }
+}

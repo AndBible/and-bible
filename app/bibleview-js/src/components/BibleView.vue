@@ -718,7 +718,18 @@ a {
   cursor: pointer;
   background-color: inherit;
   border: none;
-  color: white;
+  // A/B batch 4b residual fix: this button renders inside .modal-header (ModalDialog's close
+  // button, plus the buttons/extra-buttons slots used by several modal components). Batch 4b
+  // themed the header's background/foreground pair (day: pale tone-90 container / matching dark
+  // on- text; night: dark container / light on- text), but this hardcoded `white` ignored that
+  // and stayed unreadable against the pale day-mode header (~1.3:1 contrast). Follow the header's
+  // foreground instead — `background-color: inherit` right above already establishes that buttons
+  // DO pick up inherited paint here, so `inherit` is the natural fix, not a new themed CSS custom
+  // property (see themeColors.spec.js EXPECTED_FALLBACKS, which enumerates every such consumer;
+  // this file does not need to join it). Night mode is unaffected in practice: modal-header's
+  // night rule resolves its themed foreground token to a #e2e2e2 fallback, effectively the same
+  // near-white this hardcoded value used to be.
+  color: inherit;
   border-radius: 5pt;
   padding: 5pt 5pt;
   margin: 2pt 2pt;

@@ -32,6 +32,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkEvent
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
@@ -39,7 +40,6 @@ import net.bible.android.control.speak.save
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.AdvancedSpeakSettings
@@ -49,7 +49,8 @@ import net.bible.service.device.speak.TextCommand
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import java.lang.Exception
-import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 
 /**
@@ -57,64 +58,72 @@ import javax.inject.Inject
  * - takes care of updating widgets when they need to change (via EventBus)
  * - receives events from widgets and acts accordingly
  */
-class SpeakWidgetManager {
+class SpeakWidgetManager : KoinComponent {
     companion object {
         var instance: SpeakWidgetManager? = null
         const val TAG = "SpeakWidget"
     }
 
-    @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var bookmarkControl: BookmarkControl
+    val speakControl: SpeakControl by inject()
+    val bookmarkControl: BookmarkControl by inject()
 
     private val app = BibleApplication.application
-    private val resetTitle = app.getString(R.string.app_name_medium)
-    private var currentTitle = resetTitle
+    private val resetTitle get() = app.getString(R.string.app_name_medium)
+    /** null = the reset title, resolved live so a language change shows (F114). */
+    private var currentTitle: String? = null
     private var currentText = ""
+
+    @androidx.annotation.VisibleForTesting
+    internal fun titleForTest() = currentTitle ?: resetTitle
+
+    /** Re-draws the widget texts from the current resources (called when the app language changes). */
+    fun refreshTexts() = updateWidgetTexts()
 
     init {
         if(instance != null) {
             throw IllegalStateException("This is singleton!")
         }
         instance = this
-        DaggerActivityComponent.builder()
-                .applicationComponent(BibleApplication.application.applicationComponent)
-                .build().inject(this)
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            on<SpeakProgressEvent> { ev ->
+                if (ev.speakCommand is TextCommand) {
+                    if (ev.speakCommand.type == TextCommand.TextType.TITLE) {
+                        currentTitle = ev.speakCommand.text
+                        if (currentTitle.isNullOrEmpty()) {
+                            currentTitle = null
+                        }
+                    } else {
+                        currentText = ev.speakCommand.text
+                    }
+
+                    updateWidgetTexts()
+                }
+            }
+            on<SpeakEvent> { ev ->
+                if (ev.isSpeaking) {
+                    currentTitle = null
+                } else if (!ev.isSpeaking && !ev.isPaused) {
+                    currentTitle = null
+                    currentText = ""
+                }
+                updateWidgetTexts()
+                updateWidgetSpeakButton(ev.isSpeaking)
+            }
+            on<SpeakSettingsChangedEvent> { ev ->
+                updateSleepTimerButtonIcon(ev.speakSettings)
+            }
+            on<BookmarkEvent> {
+                val manager = AppWidgetManager.getInstance(app)
+                for (widgetId in manager.getAppWidgetIds(ComponentName(app, SpeakBookmarkWidget::class.java))) {
+                    updateBookmarkWidget(app, manager, widgetId)
+                }
+            }
+        }
     }
 
     fun destroy() {
         ABEventBus.unregister(this)
         instance = null
-    }
-
-    fun onEvent(ev: SpeakProgressEvent) {
-        if (ev.speakCommand is TextCommand) {
-            if (ev.speakCommand.type == TextCommand.TextType.TITLE) {
-                currentTitle = ev.speakCommand.text
-                if (currentTitle.isEmpty()) {
-                    currentTitle = resetTitle
-                }
-            } else {
-                currentText = ev.speakCommand.text
-            }
-
-            updateWidgetTexts()
-        }
-    }
-
-    fun onEvent(ev: SpeakEvent) {
-        if (ev.isSpeaking) {
-            currentTitle = resetTitle
-        } else if (!ev.isSpeaking && !ev.isPaused) {
-            currentTitle = resetTitle
-            currentText = ""
-        }
-        updateWidgetTexts()
-        updateWidgetSpeakButton(ev.isSpeaking)
-    }
-
-    fun onEvent(ev: SpeakSettingsChangedEvent) {
-        updateSleepTimerButtonIcon(ev.speakSettings)
     }
 
     private fun updateWidgetSpeakButton(speaking: Boolean) {
@@ -129,7 +138,7 @@ class SpeakWidgetManager {
         Log.i(TAG, "updateWidgetTexts")
         val views = RemoteViews(app.packageName, R.layout.speak_widget)
         Log.i(TAG, "updating status")
-        views.setTextViewText(R.id.titleText, currentTitle)
+        views.setTextViewText(R.id.titleText, currentTitle ?: resetTitle)
 
         val manager = AppWidgetManager.getInstance(app.applicationContext)
         for((cls, wOptions) in widgetOptions) {
@@ -158,13 +167,6 @@ class SpeakWidgetManager {
             for (id in manager.getAppWidgetIds(ComponentName(app, cls.java))) {
                 manager.partiallyUpdateAppWidget(id, views)
             }
-        }
-    }
-
-    fun onEvent(ev: BookmarkEvent) {
-        val manager = AppWidgetManager.getInstance(app)
-        for (widgetId in manager.getAppWidgetIds(ComponentName(app, SpeakBookmarkWidget::class.java))) {
-            updateBookmarkWidget(app, manager, widgetId)
         }
     }
 

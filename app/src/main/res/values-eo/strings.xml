@@ -399,10 +399,6 @@ laŭ ilia permeso.</string>
   <string name="auto_assign_labels1">Aŭtomate atribui la etikedon al novaj legosignoj</string>
   <string name="auto_assign_labels_primary">Atribui kiel ĉefan</string>
   <!--can be removed-->
-  <string name="marker_style">Montri nur markilon por legosignoj de speco “fragmento”</string>
-  <string name="marker_style_whole_verse">Montri nur markilon por legosignoj de speco “tutaj versoj”</string>
-  <string name="hide_style">Kaŝi legosignojn de speco “fragmento”</string>
-  <string name="hide_style_whole_verse">Kaŝi legosignojn de speco “tutaj versoj”</string>
   <string name="bookmark_warning">Estas legosignoj aŭ notoj por tiu ĉi dokumento.</string>
   <string name="bookmark_warning2">Se strukturo de dokumento ŝanĝiĝos, ĝisdatigo de la dokumento povos movi legosignojn/notojn ene la dokumento aŭ eĉ tute malaperigi ilin.</string>
   <string name="bookmark_warning3">Ĉu vi certe volas ĝisdatigi la modulon?</string>
@@ -867,8 +863,6 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="favourite_label">Ŝatata etikedo</string>
   <string name="edit_label">Redakti etikedon</string>
   <string name="delete_label_confirmation">Ĉu vi volas forigi la legosignan etikedon “%s”? Ĉiuj rilataj notblokoj perdiĝos.</string>
-  <string name="bookmark_underline_style_arbitrary">Substreki legosignojn de speco “fragmento”</string>
-  <string name="bookmark_underline_style_whole_verse">Substreki legosignojn de speco “tutaj versoj”</string>
   <string name="active_labels">Elektitaj etikedoj</string>
   <string name="recent_labels">Antaŭaj etikedoj</string>
   <string name="other_labels">Aliaj etikedoj</string>

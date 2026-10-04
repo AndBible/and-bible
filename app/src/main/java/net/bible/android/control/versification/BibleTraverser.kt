@@ -16,22 +16,19 @@
  */
 package net.bible.android.control.versification
 
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
-import javax.inject.Inject
 
 /**
  * Enable separation of Scripture books
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-open class BibleTraverser @Inject constructor(private val documentBibleBooksFactory: DocumentBibleBooksFactory) {
+open class BibleTraverser constructor(private val documentBibleBooksFactory: DocumentBibleBooksFactory) {
 
     /** Get next Scriptural Verse with same scriptural status
      */

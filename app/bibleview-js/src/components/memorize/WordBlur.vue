@@ -201,7 +201,7 @@ function revealWord(textKey: string, wordIndex: number) {
   border: 1px solid transparent;
 
   &.blurred {
-    background-color: #ccc;
+    background-color: var(--memorize-mask);
     color: transparent;
     user-select: none;
     -webkit-user-select: none;
@@ -209,8 +209,9 @@ function revealWord(textKey: string, wordIndex: number) {
     -ms-user-select: none;
 
     .night & {
-      background-color: #555;
+      background-color: var(--memorize-mask);
     }
+
     .monochrome & {
       background-color: white;
       border-color: black;

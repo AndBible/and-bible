@@ -16,91 +16,50 @@
  */
 package net.bible.android.view.activity.page.screen
 
-import android.view.View
-import android.view.ViewGroup
-import android.widget.LinearLayout
-import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.PassageChangeStartedEvent
-import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
-import net.bible.android.control.page.window.WindowControl
 import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.service.common.CommonUtils
-import javax.inject.Inject
-
-class WebViewsBuiltEvent
-class AfterRemoveWebViewEvent
 
 /**
  * Create Views for displaying documents
  *
  * @author Martin Denham [mjdenham at gmail dot com]
+ *
+ * R5 fix round 1 (reading-host re-typing review): the first R5 pass retyped this class onto the
+ * narrow `ReadingHostActivity` but bridged the two accesses the interface deliberately excludes
+ * (`composeReadingViewHost`, `bibleViewFactory`) by casting the field back to the concrete Activity
+ * class at each call site -- review Critical 1 correctly called that a re-label, not a re-type,
+ * since this class still needed 100% of the `MainBibleActivity` surface it needed before. Per the review's
+ * preferred route, this class now takes exactly what it uses: the [BibleViewFactory] it forwards
+ * document lookups to, and a `rebuildHost` callback for the one Compose-host rebuild call. Neither
+ * needs any Activity/interface reference at all -- `windowControl` was already routed through the
+ * genuine `WindowControl` Koin singleton via [CommonUtils]. The one call site
+ * (`MainBibleActivity.kt`'s `documentViewManager = DocumentViewManager(this)`) is a pure
+ * constructor-argument change: `DocumentViewManager(bibleViewFactory) { composeReadingViewHost
+ * ?.rebuild() }`, made after `bibleViewFactory`/`readingCommands` are already initialised.
  */
-class DocumentViewManager (val mainBibleActivity: MainBibleActivity) {
-    @Inject lateinit var windowControl: WindowControl
-    private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)
-    private var lastView: View? = null
-    var splitBibleArea: SplitBibleArea? = null
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
+class DocumentViewManager(
+    private val bibleViewFactory: BibleViewFactory,
+    private val rebuildHost: () -> Unit,
+) {
+    private val windowControl get() = CommonUtils.windowControl
 
-	fun destroy() {
-        removeView()
-        ABEventBus.unregister(this)
-        splitBibleArea?.destroy()
-    }
-
-    fun onEventMainThread(event: NumberOfWindowsChangedEvent) {
-        buildView()
-    }
-
-	/**
-	 * called just before starting work to change the current passage
-	 */
-	fun onEventMainThread(event: PassageChangeStartedEvent) {
-		buildView()
-	}
-
-    fun removeView() {
-        parent.removeAllViews()
-        lastView = null
-        ABEventBus.post(AfterRemoveWebViewEvent())
-    }
-
-    private fun buildWebViews(forceUpdate: Boolean): SplitBibleArea {
-        val topView = splitBibleArea?: SplitBibleArea(mainBibleActivity).also {
-            splitBibleArea = it
-        }
-        topView.update(forceUpdate)
-        return topView
-    }
-
-    @Synchronized
+    /**
+     * Batch Z-late epilogue (spec 10.3): with the classic split gone, the only rebuild this class
+     * still performs is forwarding a forced update to the Compose host. `documentView` survives
+     * because six unguarded Compose-path callers read it.
+     */
     fun buildView(forceUpdate: Boolean = false) {
-        val view = buildWebViews(forceUpdate)
-        if(lastView != view) {
-            removeView()
-            lastView = view
-            parent.addView(view,
-                LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT)
-            )
-        }
-        ABEventBus.post(WebViewsBuiltEvent())
+        if (forceUpdate) rebuildHost()
     }
 
     val documentView: BibleView get() = getDocumentView(windowControl.activeWindow)
 
-    private fun getDocumentView(window: Window): BibleView {
-        // a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
-        return mainBibleActivity.bibleViewFactory.getOrCreateBibleView(window)
-    }
-
-    init {
-		ABEventBus.register(this)
-    }
+    /**
+     * Takes an explicit `window` rather than reading the active one itself: a specific screen is
+     * specified to prevent content going to the wrong screen if the active screen is changed fast.
+     */
+    private fun getDocumentView(window: Window): BibleView =
+        bibleViewFactory.getOrCreateBibleView(window)
 }

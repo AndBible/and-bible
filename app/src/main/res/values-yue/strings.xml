@@ -332,10 +332,6 @@ http://www.heartlight.org 准予使用
   <string name="auto_assign_labels1">自動將標記至新書籤</string>
   <string name="auto_assign_labels_primary">自動分配為主要</string>
   <!--can be removed-->
-  <string name="marker_style">只顯示選中書籤的標記</string>
-  <string name="marker_style_whole_verse">只顯示整節書籤的標記</string>
-  <string name="hide_style">隱藏選中書籤的標記</string>
-  <string name="hide_style_whole_verse">隱藏整節書籤的標記</string>
   <string name="bookmark_warning">此文件中有書籤及/或筆記。</string>
   <string name="bookmark_warning2">
 如果文件結構被修改，更新此文件可能會讓
@@ -774,8 +770,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="favourite_label">最愛標籤</string>
   <string name="edit_label">編輯標籤</string>
   <string name="delete_label_confirmation">你希望移除書籤「%s」嗎？對應的研習筆記亦會被移除。</string>
-  <string name="bookmark_underline_style_arbitrary">選取書籤的底線樣式</string>
-  <string name="bookmark_underline_style_whole_verse">將整節書籤底線</string>
   <string name="active_labels">選擇標籤</string>
   <string name="recent_labels">最近標籤</string>
   <string name="other_labels">其他標籤</string>

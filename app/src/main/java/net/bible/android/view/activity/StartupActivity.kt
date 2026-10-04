@@ -18,118 +18,58 @@
 package net.bible.android.view.activity
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
-import android.text.method.LinkMovementMethod
 import android.util.Log
-import android.view.View
-import android.widget.Button
-import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.serializer
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
-import net.bible.android.BibleApplication
-import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpinnerBinding
-import net.bible.android.activity.databinding.StartupViewBinding
-import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.report.ErrorReportControl
-import net.bible.android.database.SwordDocumentInfo
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.base.mountAppDialogOverlay
 import net.bible.android.view.activity.base.firstTime
-import net.bible.android.view.activity.discrete.CalculatorActivity
-import net.bible.android.view.activity.download.DownloadActivity
-import net.bible.android.view.activity.download.FirstDownload
-import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.installzip.InstallZipEvent
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
-import net.bible.service.common.CommonUtils.json
-import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.SwordDocumentFacade
-
-import org.apache.commons.lang3.StringUtils
-import java.util.*
+import net.bible.service.sword.hasUsableBible
+import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
+import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
+import org.koin.java.KoinJavaComponent
 
 
 var comingFromStartupActivity = false
 
-/** Called first to show download screen if no documents exist
+/**
+ * Boot only (slice 8 approach A): splash, checks, DB init, crash check, calculator, poor
+ * translations, unlock attempt, then [handOff].
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 open class StartupActivity : CustomTitlebarActivityBase() {
     private lateinit var spinnerBinding: SpinnerBinding
-    private lateinit var startupViewBinding: StartupViewBinding
+    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
-    private val docsDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
-    private val previousInstallDetected: Boolean get() = docsDao.getKnownInstalled().isNotEmpty();
     override val doNotInitializeApp = true
-
-    private suspend fun getListOfBooksUserWantsToRedownload(context: Context) : List<SwordDocumentInfo>? {
-        var result: List<SwordDocumentInfo>?;
-        withContext(Dispatchers.Main) {
-            result = suspendCoroutine {
-                val books = docsDao.getKnownInstalled().sortedBy { it.language }
-                val bookNames = books.map {
-                    context.getString(R.string.something_with_parenthesis, it.name, it.language)
-                }.toTypedArray()
-
-                val checkedItems = bookNames.map { true }.toBooleanArray()
-                val dialog = AlertDialog.Builder(context)
-                    .setPositiveButton(R.string.okay) { d, _ ->
-                        val selectedBooks = books.filterIndexed { index, book -> checkedItems[index] }
-                        if(selectedBooks.isEmpty()) {
-                            it.resume(null)
-                        } else {
-                            it.resume(selectedBooks)
-                        }
-                    }
-                    .setMultiChoiceItems(bookNames, checkedItems) { _, pos, value ->
-                        checkedItems[pos] = value
-                    }
-                    .setNeutralButton(R.string.select_none) { _, _ -> it.resume(null) }
-                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
-                    .setOnCancelListener {_ -> it.resume(null)}
-                    .setTitle(getString(R.string.redownload))
-                    .create()
-
-                dialog.setOnShowListener {
-                    dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                        val allSelected = checkedItems.find { !it } == null
-                        val newValue = !allSelected
-                        val v = dialog.listView
-                        for (i in 0 until v.count) {
-                            v.setItemChecked(i, newValue)
-                            checkedItems[i] = newValue
-                        }
-                        (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
-                    }
-                }
-                dialog.show()
-                CommonUtils.fixAlertDialogButtons(dialog)
-            }
-        }
-        return result;
-    }
 
     private suspend fun checkForExternalStorage(): Boolean {
         var time = 0L
@@ -152,37 +92,23 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         return success
     }
 
+    /**
+     * Task 29 (Startup:112): the WebView-too-old warning, raised through [AppDialogController]
+     * instead of an `AlertDialog.Builder`. `Ok` -> proceed; `Cancel` (the "Close" button; back/scrim
+     * are disabled via `cancellable = false`, same as the old `setCancelable(false)`) -> close the app.
+     */
     private suspend fun checkWebView(): Boolean {
         val info = WebViewCompat.getCurrentWebViewPackage(applicationContext)
         Log.i(TAG, "checkWebView: WebView version ${info?.packageName} ${info?.versionName}")
 
-        if(info?.packageName == "com.huawei.webview") return true // We won't check huawei version number as it does not follow Chromium version numbering.
-
-        val versionNum = info?.versionName?.split(".")?.first()?.split(" ")?.first()?.toIntOrNull() ?: return true // null -> can't check
-        val minimumVersion = 83 // tested with Android Emulator API 30 and looks to function OK
-        if(versionNum < minimumVersion) {
-            val playUrl = "https://play.google.com/store/apps/details?id=${info.packageName}"
-            val playLink = "<a href=\"$playUrl\">${getString(R.string.play)}</a>"
-
-            val msg = getString(R.string.old_webview, info.versionName, minimumVersion.toString(), getString(R.string.app_name_medium), playLink)
-
-            val spanned = htmlToSpan(msg)
-
-            return suspendCoroutine {
-                val dlgBuilder = AlertDialog.Builder(this)
-                    .setMessage(spanned)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.proceed_anyway) { _, _ -> it.resume(true) }
-                    .setNeutralButton(R.string.close) { _, _ ->
-                        it.resume(false)
-                        finish()
-                    }
-
-                val d = dlgBuilder.show()
-                d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        val request = webViewTooOldRequest(this, info?.packageName, info?.versionName) ?: return true
+        return when (dialogs.await(request)) {
+            AppDialogResult.Ok -> true
+            else -> {
+                finish()
+                false
             }
         }
-        return true
     }
 
     /** Called when the activity is first created.  */
@@ -190,7 +116,11 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "StartupActivity.onCreate")
         super.onCreate(savedInstanceState)
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<InstallZipEvent> { e ->
+                spinnerBinding.progressText.text = e.message
+            }
+        }
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
         if(CommonUtils.isDiscrete) {
             spinnerBinding.imageView.setImageResource(
@@ -198,9 +128,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             )
             spinnerBinding.splashTitleText.text = getString(R.string.app_name_calculator)
         }
-        startupViewBinding = StartupViewBinding.inflate(layoutInflater)
         setContentView(spinnerBinding.root)
-        buildActivityComponent().inject(this)
+        mountAppDialogOverlay()
         supportActionBar!!.hide()
 
         lifecycleScope.launch {
@@ -227,17 +156,11 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     private suspend fun initializeDatabase() {
-        withContext(Dispatchers.IO) {
-            DatabaseContainer.ready = true
-            DatabaseContainer.instance
-        }
+        withContext(Dispatchers.IO) { DatabaseContainer.openForUse() }
     }
 
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if(!checkWebView()) return@withContext
-
-        // When I mess up database, I can re-create database like this.
-        //BackupControl.deleteAllDatabases()
 
         initializeDatabase()
 
@@ -248,145 +171,38 @@ open class StartupActivity : CustomTitlebarActivityBase() {
             ErrorReportControl.checkCrash(this@StartupActivity)
         }
         if (SwordDocumentFacade.bibles.isEmpty()) {
-            Log.i(TAG, "Invoking download activity because no bibles exist")
+            Log.i(TAG, "No bibles: the handoff opens the first-run welcome")
             // only show the splash screen if user has no bibles
             if(!checkPoorTranslations(this@StartupActivity)) return@withContext
-            showFirstLayout()
-
         } else {
-            Log.i(TAG, "Going to main bible view")
-            spinnerBinding.progressText.text =getString(R.string.initializing_app)
-            gotoMainBibleActivity()
+            spinnerBinding.progressText.text = getString(R.string.initializing_app)
         }
-    }
-
-    private fun showFirstLayout() {
-        setContentView(startupViewBinding.root)
-
-        val versionMsg = BibleApplication.application.getString(R.string.version_text, CommonUtils.applicationVersionName)
-
-        startupViewBinding.run {
-            val welcome = getString(R.string.welcome_message, getString(R.string.app_name_long))
-            val zip = getString(R.string.format_zip, getString(R.string.app_name_andbible))
-            val myBible = getString(R.string.format_mybible)
-            val mySword = getString(R.string.format_mysword)
-            val epub = getString(R.string.format_epub)
-            val fromFiles = getString(R.string.install_zip)
-            val formats = getString(R.string.supported_formats, "$zip, $myBible, $mySword, $epub")
-            fromFilesMessage.text = htmlToSpan("<b>$fromFiles</b><br/><br/>$formats")
-            welcomeMessage.text = welcome
-            versionText.text = versionMsg
-            downloadButton.setOnClickListener { doGotoDownloadActivity() }
-            importButton.setOnClickListener { onLoadFromZip() }
-            if (previousInstallDetected) {
-                Log.i(TAG, "A previous install was detected")
-                redownloadMessage.visibility = View.VISIBLE
-                redownloadButton.visibility = View.VISIBLE
-                restoreDatabaseButton.visibility = View.GONE
-                redownloadButton.setOnClickListener {
-                    lifecycleScope.launch(Dispatchers.Main) {
-                        val books = getListOfBooksUserWantsToRedownload(this@StartupActivity);
-                        if (books != null) {
-                            val intent = Intent(this@StartupActivity, FirstDownload::class.java)
-                            intent.putExtra(DownloadActivity.DOCUMENT_IDS_EXTRA, json.encodeToString(serializer(), books))
-                            lifecycleScope.launch {
-                                awaitIntent(intent)
-                                afterDownload()
-                            }
-                        }
-                    }
-                }
-            } else {
-                Log.i(TAG, "Showing restore button because nothing to redownload")
-                restoreDatabaseButton.visibility = View.VISIBLE
-                restoreDatabaseButton.setOnClickListener { restoreDatabase() }
-            }
-            // Enabling this for english only in 4.0. Later we may enable this for other languages.
-            if(Locale.getDefault().language == "en") {
-                easyStartMessage.visibility = View.VISIBLE
-                easyStartButton.visibility = View.VISIBLE
-                easyStartButton.setOnClickListener { easyStart() }
-            }
-        }
-
-    }
-
-    private fun easyStart() {
-        val intent = Intent(this@StartupActivity, FirstDownload::class.java)
-        intent.putExtra("download-recommended", true)
-        lifecycleScope.launch {
-            awaitIntent(intent)
-            afterDownload()
-        }
-    }
-
-    private fun afterDownload() {
-        Log.i(TAG, "Returned from Download")
-        if (SwordDocumentFacade.bibles.isNotEmpty()) {
-            Log.i(TAG, "Bibles now exist so go to main bible view")
-            // select appropriate default verse e.g. John 3.16 if NT only
-            lifecycleScope.launch(Dispatchers.Main) {
-                gotoMainBibleActivity()
-            }
-
-        } else {
-            Log.i(TAG, "No Bibles exist so start again")
-            lifecycleScope.launch(Dispatchers.Main) {
-                postBasicInitialisationControl()
-            }
-        }
-    }
-
-    private fun restoreDatabase() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "application/*"
-        lifecycleScope.launch {
-            val result = awaitIntent(intent)
-            CurrentActivityHolder.activate(this@StartupActivity)
-            if (result.resultCode == RESULT_OK) {
-                val uri = result.data?.data ?: return@launch
-                if (BackupControl.restoreAppDatabaseFromUriWithUI(this@StartupActivity, uri)) {
-                    Log.i(TAG, "Restored database successfully")
-                    postBasicInitialisationControl()
-                }
-            }
-        }
-    }
-
-    private fun doGotoDownloadActivity() {
-        var errorMessage: String? = null
-
-        if (CommonUtils.megabytesFree < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
-            errorMessage = getString(R.string.storage_space_warning)
-        }
-
-        if (StringUtils.isBlank(errorMessage)) {
-            val handlerIntent = Intent(this, FirstDownload::class.java)
-            lifecycleScope.launch {
-                awaitIntent(handlerIntent)
-                afterDownload()
-            }
-        } else {
-            Dialogs.showErrorMsg(errorMessage) { finish() }
-        }
+        handOff()
     }
 
     /**
-     * Load from Zip link on first_time_dialog has been clicked
+     * The boot handoff (slice 8 §2, §4 gate a). The unlock attempt `gotoMainBibleActivity` made, then the
+     * ONE predicate chooses the start route -- READING, or WELCOME (the Compose first-run welcome, which
+     * the every-Bible-locked path now joins instead of the deleted classic XML one, M1). Initialising the
+     * app belongs to READING only: WELCOME starts uninitialised (spec §3.1 rule 2). `comingFromStartupActivity`
+     * is set for both, exactly as before: the host's first `onResume` must not raise the calculator the user
+     * has just passed here.
      */
-    private fun onLoadFromZip() {
-        Log.i(TAG, "Load from Zip clicked")
-        val handlerIntent = Intent(this, InstallZip::class.java).apply { putExtra("doNotInitializeApp", true) }
-        lifecycleScope.launch {
-            awaitIntent(handlerIntent)
-            afterDownload()
+    private fun handOff() {
+        lifecycleScope.launch(Dispatchers.Main) {
+            unlockLockedBiblesIfNoneUsable(this@StartupActivity)
+            val route = startRouteForBoot(hasUsableBible())
+            if (route == NavRoutes.READING) CommonUtils.initializeAppCoroutine()
+            comingFromStartupActivity = true
+            startActivity(bootHandoffIntent(this@StartupActivity, intent, route))
+            finish()
         }
     }
 
     private suspend fun checkCalculator(): Boolean {
         if(CommonUtils.showCalculator) {
             Log.i(TAG, "Going to Calculator")
-            val handlerIntent = Intent(this, CalculatorActivity::class.java)
+            val handlerIntent = ScreenLauncher.intentFor(this, Screen.Calculator)
             while(true) {
                 when(awaitIntent(handlerIntent).resultCode) {
                     RESULT_OK -> break
@@ -400,37 +216,58 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         return true
     }
 
-    private fun gotoMainBibleActivity() {
-        Log.i(TAG, "Going to MainBibleActivity")
-        val handlerIntent = Intent(this, MainBibleActivity::class.java)
-        if(intent?.action == Intent.ACTION_VIEW) {
-            handlerIntent.putExtra("openLink", intent.dataString)
-            handlerIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
-        } else {
-            handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
-        lifecycleScope.launch(Dispatchers.Main) {
-            if(SwordDocumentFacade.bibles.none { !it.isLocked }) {
-                for (it in SwordDocumentFacade.bibles.filter { it.isLocked }) {
-                    CommonUtils.unlockDocument(this@StartupActivity, it)
-                }
-                if (SwordDocumentFacade.bibles.none { !it.isLocked }) {
-                    showFirstLayout()
-                    return@launch
-                }
-            }
-            CommonUtils.initializeAppCoroutine()
-            comingFromStartupActivity = true
-            startActivity(handlerIntent)
-            finish()
-        }
-    }
-
-    fun onEventMainThread(e: InstallZipEvent) {
-        spinnerBinding.progressText.text = e.message
-    }
-
     companion object {
         private val TAG = "StartupActivity"
     }
+}
+
+/** Slice 8 §4 gate (a): the start route, from the one predicate. */
+internal fun startRouteForBoot(usable: Boolean): String = if (usable) NavRoutes.READING else NavRoutes.WELCOME
+
+/**
+ * The handoff Intent `gotoMainBibleActivity` built (T8b), for either start route. `openLink` and both flag
+ * sets are unchanged: `FLAG_ACTIVITY_MULTIPLE_TASK` stays on the `ACTION_VIEW` arm (a second live host is
+ * what R7b's per-host tokens exist for). A WELCOME host keeps the `openLink`, and gate (b)'s
+ * `bootstrapIfNeeded()` dispatches it (Review Focus 2).
+ */
+internal fun bootHandoffIntent(context: Context, launching: Intent?, route: String): Intent {
+    val handlerIntent = NavHostComposeActivity.intentFor(context, route)
+    if (launching?.action == Intent.ACTION_VIEW) {
+        handlerIntent.putExtra("openLink", launching.dataString)
+        handlerIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+    } else {
+        handlerIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+    }
+    return handlerIntent
+}
+
+/** Task 29: the lowest WebView major version `checkWebView` accepts without warning. */
+internal const val MINIMUM_WEBVIEW_MAJOR_VERSION = 83 // tested with Android Emulator API 30 and looks to function OK
+
+/**
+ * Task 29: `checkWebView`'s branch-mapping, extracted so it is testable without a `StartupActivity`
+ * (run-1 note: `StartupActivity` could not be built under Robolectric) -- pure given [packageName] /
+ * [versionName] (as read from `WebViewCompat.getCurrentWebViewPackage`) and a [context] to resolve
+ * strings. `null` means "proceed silently": Huawei's WebView does not follow Chromium version
+ * numbering, and an unparseable [versionName] can't be checked -- both matched the old code's early
+ * `return true`. Otherwise, the same [R.string.old_webview] HTML message (rendered by `AbHtmlText`,
+ * so no `htmlToSpan` conversion is needed here) as a non-cancellable `Confirm`.
+ */
+internal fun webViewTooOldRequest(context: Context, packageName: String?, versionName: String?): AppDialogRequest.Confirm? {
+    if (packageName == "com.huawei.webview") return null
+    val versionNum = versionName?.split(".")?.first()?.split(" ")?.first()?.toIntOrNull() ?: return null
+    if (versionNum >= MINIMUM_WEBVIEW_MAJOR_VERSION) return null
+
+    val playUrl = "https://play.google.com/store/apps/details?id=$packageName"
+    val playLink = "<a href=\"$playUrl\">${context.getString(R.string.play)}</a>"
+    val msg = context.getString(
+        R.string.old_webview, versionName, MINIMUM_WEBVIEW_MAJOR_VERSION.toString(), context.getString(if (CommonUtils.isDiscrete) R.string.app_name_calculator else R.string.app_name_medium), playLink,
+    )
+    return AppDialogRequest.Confirm(
+        title = null,
+        message = msg,
+        confirmText = context.getString(R.string.proceed_anyway),
+        dismissText = context.getString(R.string.close),
+        cancellable = false,
+    )
 }

@@ -44,7 +44,6 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseKey
 import java.lang.IllegalArgumentException
 
-import javax.inject.Inject
 
 /** Control instances of the different current document page types
  * Each Window has its own instance of CurrentPageManager, so it is not a singleton.
@@ -72,7 +71,7 @@ val BookCategory.documentCategory: DocumentCategory get() {
     }
 }
 
-open class CurrentPageManager @Inject constructor(
+open class CurrentPageManager constructor(
     bibleTraverser: BibleTraverser,
     val bookmarkControl: BookmarkControl,
     val windowControl: WindowControl,
@@ -184,8 +183,15 @@ open class CurrentPageManager @Inject constructor(
                 if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || (nextDocument.bookCategory != BookCategory.GENERAL_BOOK && nextDocument.contains(nextPage.key)))) {
                     PassageChangeMediator.onCurrentPageChanged(window)
                 } else {
-                    // pop up a key selection screen
-                    nextPage.startKeyChooser(CurrentActivityHolder.currentActivity!!)
+                    // pop up a key selection screen on whatever Activity is in front. Slice 8 F5 (slice 7 Task 12):
+                    // no `!!` -- with no Activity in front (a background sync or agent switching documents) there is
+                    // nothing to show a chooser on, and not asking beats crashing.
+                    val activity = CurrentActivityHolder.currentActivity
+                    if (activity != null) {
+                        nextPage.startKeyChooser(activity)
+                    } else {
+                        Log.w(TAG, "No Activity in front to show the key chooser for ${nextDocument.initials}; not shown.")
+                    }
                 }
             }
         } else {

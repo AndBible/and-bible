@@ -412,10 +412,6 @@
   <string name="auto_assign_labels1">Automatiškai priskirti etiketę naujoms žymėms</string>
   <string name="auto_assign_labels_primary">Automatiškai priskirti kaip pirminę</string>
   <!--can be removed-->
-  <string name="marker_style">Rodyti tik žymeklį pažymimoms nuorodoms</string>
-  <string name="marker_style_whole_verse">Rodyti tik žymeklį visos eilutės žymėms</string>
-  <string name="hide_style">Paslėpti pažymimoms žymėms</string>
-  <string name="hide_style_whole_verse">Paslėpti visų eilučių žymėms</string>
   <string name="bookmark_warning">Šis dokumentas turi žymių ir/arba pastabų</string>
   <string name="bookmark_warning2">
         Jei dokumento struktūra pasikeitė, dokumento atnaujinimas gali
@@ -932,8 +928,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="favourite_label">Mėgstama etiketė</string>
   <string name="edit_label">Taisyti etiketę</string>
   <string name="delete_label_confirmation">Ar norite pašalinti žymės etiketę „%s“? Tuo pačiu bus pašalintos ir visos susietos bloknoto pastabos.</string>
-  <string name="bookmark_underline_style_arbitrary">Žymėjimo žymių pabraukimo stilius</string>
-  <string name="bookmark_underline_style_whole_verse">Visos eilutės žymių pabraukimo stilius</string>
   <string name="active_labels">Pasirinktos etiketės</string>
   <string name="recent_labels">Paskiausios etiketės</string>
   <string name="other_labels">Kitos etiketės</string>

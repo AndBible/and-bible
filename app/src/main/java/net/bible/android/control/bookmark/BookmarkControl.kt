@@ -17,7 +17,6 @@
 package net.bible.android.control.bookmark
 
 import android.app.Activity.RESULT_OK
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -29,8 +28,8 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.common.toV11n
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
@@ -70,6 +69,9 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
@@ -77,11 +79,12 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.koin.java.KoinJavaComponent
 import java.lang.IllegalArgumentException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import javax.inject.Inject
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 
 abstract class BookmarkEvent
 
@@ -104,13 +107,96 @@ class StudyPadTextEntryDeleted(val studyPadTextEntryId: IdType)
 
 val LABEL_ALL_ID = IdType.empty()
 
-@ApplicationScope
-open class BookmarkControl @Inject constructor(
+open class BookmarkControl constructor(
     val windowControl: WindowControl,
     resourceProvider: ResourceProvider,
 ) {
     init {
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            on<BookmarksUpdatedViaSyncEvent> { e ->
+                val labelUpserts = e.updated.filter { it.type == LogEntryTypes.UPSERT && it.tableName == "Label" }.map { it.entityId1 }
+                val labels = dao.labelsById(labelUpserts)
+                for(l in labels) {
+                    ABEventBus.post(LabelAddedOrUpdatedEvent(l))
+                }
+
+                val bookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "BibleBookmark" }.map { it.entityId1 }
+                ABEventBus.post(BookmarksDeletedEvent(bookmarksDeletes))
+
+                val bookmarkUpserts = e.updated.filter {
+                    (it.type == LogEntryTypes.UPSERT && it.tableName == "BibleBookmark") || it.tableName == "BibleBookmarkNotes"
+                }.map { it.entityId1 }.toMutableSet()
+
+                val genericBookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "GenericBookmark" }.map { it.entityId1 }
+                ABEventBus.post(BookmarksDeletedEvent(genericBookmarksDeletes))
+
+                val genericBookmarkUpserts = e.updated.filter {
+                    (it.type == LogEntryTypes.UPSERT && it.tableName == "GenericBookmark") || it.tableName == "GenericBookmarkNotes"
+                }.map { it.entityId1 }.toMutableSet()
+
+                val studyPadTextEntryDeletes = e.updated.filter {
+                    (it.type == LogEntryTypes.DELETE && it.tableName == "StudyPadTextEntry")
+                }.map { it.entityId1 }
+
+                for (studyPadTextEntryId in studyPadTextEntryDeletes) {
+                    ABEventBus.post(StudyPadTextEntryDeleted(studyPadTextEntryId))
+                }
+
+                val studyPadTextEntryTextUpserts = e.updated.filter {
+                    it.type == LogEntryTypes.UPSERT && it.tableName == "StudyPadTextEntryText"
+                }.map { it.entityId1 }
+
+                for(studyPadTextEntryId in studyPadTextEntryTextUpserts) {
+                    val withText = dao.studyPadTextEntryById(studyPadTextEntryId)!!
+                    ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
+                }
+
+                val studyPadTextEntryUpserts = e.updated.filter {
+                    it.type == LogEntryTypes.UPSERT && it.tableName == "StudyPadTextEntry"
+                }.map { it.entityId1 }
+
+                val labelIds = mutableSetOf<IdType>()
+
+                for(studyPadTextEntryId in studyPadTextEntryUpserts) {
+                    val withText = dao.studyPadTextEntryById(studyPadTextEntryId) ?: continue
+                    ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
+                    labelIds.add(withText.labelId)
+                }
+
+                val bookmarkToLabelUpserts = e.updated.filter {
+                    it.type == LogEntryTypes.UPSERT && it.tableName == "BibleBookmarkToLabel"
+                }.map { Pair(it.entityId1, it.entityId2) }
+
+                for(ids in bookmarkToLabelUpserts) {
+                    labelIds.add(ids.second)
+                    bookmarkUpserts.add(ids.first)
+                }
+
+                val genericBookmarkToLabelUpserts = e.updated.filter {
+                    it.type == LogEntryTypes.UPSERT && it.tableName == "GenericBookmarkToLabel"
+                }.map { Pair(it.entityId1, it.entityId2) }
+
+                for(ids in genericBookmarkToLabelUpserts) {
+                    labelIds.add(ids.second)
+                    genericBookmarkUpserts.add(ids.first)
+                }
+
+                for(labelId in labelIds) {
+                    sanitizeStudyPadOrder(labelId, true)
+                }
+
+                for(b in dao.bibleBookmarksByIds(bookmarkUpserts.toList())) {
+                    addLabels(b)
+                    addText(b)
+                    ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
+                }
+                for(b in dao.genericBookmarksByIds(genericBookmarkUpserts.toList())) {
+                    addLabels(b)
+                    addText(b)
+                    ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
+                }
+            }
+        }
     }
 
     val favouriteLabels: List<Label> get() = dao.favouriteLabels()
@@ -450,12 +536,28 @@ open class BookmarkControl @Inject constructor(
 
     val assignableLabels: List<Label> get() = dao.allLabelsSortedByName()
 
+    /**
+     * Backs [speakLabel], [labelUnlabelled], [paragraphBreakLabel] and [aiLabel]. Takes
+     * [SPECIAL_LABEL_LOCK], so **never call those getters inside a database transaction**: another
+     * thread may hold the lock while waiting for that transaction's write lock.
+     */
     private fun getOrCreateSpecialLabel(
         canonicalId: IdType,
         create: () -> Label
-    ): Label = dao.labelById(canonicalId) ?: create().also {
-        dao.insert(it)
-        ABEventBus.post(LabelAddedOrUpdatedEvent(it))
+    ): Label {
+        // The check and the insert must be one step: every caller (BibleView.loadDocument runs for
+        // several windows at once, on Dispatchers.IO) would otherwise both see "no label" on a fresh
+        // database and the loser's insert dies with UNIQUE constraint failed: Label.id. The lock is
+        // process-wide (not per instance) because the database is. The event is posted outside it.
+        var created: Label? = null
+        val label = synchronized(SPECIAL_LABEL_LOCK) {
+            dao.labelById(canonicalId) ?: create().also {
+                dao.insert(it)
+                created = it
+            }
+        }
+        created?.let { ABEventBus.post(LabelAddedOrUpdatedEvent(it)) }
+        return label
     }
 
     val speakLabel: Label get() = getOrCreateSpecialLabel(SPEAK_LABEL_ID) {
@@ -467,7 +569,7 @@ open class BookmarkControl @Inject constructor(
     }
 
     val paragraphBreakLabel: Label get() = getOrCreateSpecialLabel(PARAGRAPH_BREAK_LABEL_ID) {
-        Label(id = PARAGRAPH_BREAK_LABEL_ID, name = PARAGRAH_BREAK_LABEL_NAME, hideStyle = true, hideStyleWholeVerse = true)
+        Label(id = PARAGRAPH_BREAK_LABEL_ID, name = PARAGRAH_BREAK_LABEL_NAME, displayStyle = BookmarkDisplayStyle.HIDDEN, displayStyleWholeVerse = null)
     }
 
     val aiLabel: Label get() = getOrCreateSpecialLabel(AI_LABEL_ID) {
@@ -475,8 +577,8 @@ open class BookmarkControl @Inject constructor(
             id = AI_LABEL_ID,
             name = AI_LABEL_NAME,
             color = Color.argb(255, 100, 100, 255),
-            markerStyle = true,
-            markerStyleWholeVerse = true,
+            displayStyle = BookmarkDisplayStyle.MARKER,
+            displayStyleWholeVerse = null,
             customIcon = "robot"
         )
     }
@@ -492,6 +594,20 @@ open class BookmarkControl @Inject constructor(
             is BibleBookmarkWithNotes -> dao.insertBookmarkToLabels(labelIds.map { BibleBookmarkToLabel(bookmark.id, it)})
             is GenericBookmarkWithNotes -> dao.insertGenericBookmarkToLabels(labelIds.map { GenericBookmarkToLabel(bookmark.id, it)})
         }
+    }
+
+    /**
+     * F54: [changeLabelsForBookmark] is a bare DAO write and never touches the in-memory
+     * [BaseBookmarkWithNotes] it was given -- `labelIds`/`bookmarkToLabels`/`text` stay whatever they
+     * were when the object was loaded (often unset, `addData = false`). A caller that posts
+     * [BookmarksAddedOrUpdatedEvent] with that same object afterwards (so an open reading view's
+     * `ClientBibleBookmark`/`ClientGenericBookmark` serialisation can pick up the new labels) must
+     * refresh it first. Mirrors the `addText`/`addLabels` pair [addOrUpdateBookmark] runs on its own
+     * bookmark right before its own post.
+     */
+    fun refreshTextAndLabels(bookmark: BaseBookmarkWithNotes) {
+        addText(bookmark)
+        addLabels(bookmark)
     }
 
     fun saveBibleBookmarkNote(bookmarkId: IdType, note: String?) {
@@ -519,90 +635,6 @@ open class BookmarkControl @Inject constructor(
         addLabels(bookmark)
         addText(bookmark)
         ABEventBus.post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
-    }
-
-    fun onEvent(e: BookmarksUpdatedViaSyncEvent) {
-        val labelUpserts = e.updated.filter { it.type == LogEntryTypes.UPSERT && it.tableName == "Label" }.map { it.entityId1 }
-        val labels = dao.labelsById(labelUpserts)
-        for(l in labels) {
-            ABEventBus.post(LabelAddedOrUpdatedEvent(l))
-        }
-
-        val bookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "BibleBookmark" }.map { it.entityId1 }
-        ABEventBus.post(BookmarksDeletedEvent(bookmarksDeletes))
-
-        val bookmarkUpserts = e.updated.filter {
-            (it.type == LogEntryTypes.UPSERT && it.tableName == "BibleBookmark") || it.tableName == "BibleBookmarkNotes"
-        }.map { it.entityId1 }.toMutableSet()
-
-        val genericBookmarksDeletes = e.updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "GenericBookmark" }.map { it.entityId1 }
-        ABEventBus.post(BookmarksDeletedEvent(genericBookmarksDeletes))
-
-        val genericBookmarkUpserts = e.updated.filter {
-            (it.type == LogEntryTypes.UPSERT && it.tableName == "GenericBookmark") || it.tableName == "GenericBookmarkNotes"
-        }.map { it.entityId1 }.toMutableSet()
-
-        val studyPadTextEntryDeletes = e.updated.filter {
-            (it.type == LogEntryTypes.DELETE && it.tableName == "StudyPadTextEntry")
-        }.map { it.entityId1 }
-
-        for (studyPadTextEntryId in studyPadTextEntryDeletes) {
-            ABEventBus.post(StudyPadTextEntryDeleted(studyPadTextEntryId))
-        }
-
-        val studyPadTextEntryTextUpserts = e.updated.filter {
-            it.type == LogEntryTypes.UPSERT && it.tableName == "StudyPadTextEntryText"
-        }.map { it.entityId1 }
-
-        for(studyPadTextEntryId in studyPadTextEntryTextUpserts) {
-            val withText = dao.studyPadTextEntryById(studyPadTextEntryId)!!
-            ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
-        }
-
-        val studyPadTextEntryUpserts = e.updated.filter {
-            it.type == LogEntryTypes.UPSERT && it.tableName == "StudyPadTextEntry"
-        }.map { it.entityId1 }
-
-        val labelIds = mutableSetOf<IdType>()
-
-        for(studyPadTextEntryId in studyPadTextEntryUpserts) {
-            val withText = dao.studyPadTextEntryById(studyPadTextEntryId) ?: continue
-            ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
-            labelIds.add(withText.labelId)
-        }
-
-        val bookmarkToLabelUpserts = e.updated.filter {
-            it.type == LogEntryTypes.UPSERT && it.tableName == "BibleBookmarkToLabel"
-        }.map { Pair(it.entityId1, it.entityId2) }
-
-        for(ids in bookmarkToLabelUpserts) {
-            labelIds.add(ids.second)
-            bookmarkUpserts.add(ids.first)
-        }
-
-        val genericBookmarkToLabelUpserts = e.updated.filter {
-            it.type == LogEntryTypes.UPSERT && it.tableName == "GenericBookmarkToLabel"
-        }.map { Pair(it.entityId1, it.entityId2) }
-
-        for(ids in genericBookmarkToLabelUpserts) {
-            labelIds.add(ids.second)
-            genericBookmarkUpserts.add(ids.first)
-        }
-
-        for(labelId in labelIds) {
-            sanitizeStudyPadOrder(labelId, true)
-        }
-
-        for(b in dao.bibleBookmarksByIds(bookmarkUpserts.toList())) {
-            addLabels(b)
-            addText(b)
-            ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
-        }
-        for(b in dao.genericBookmarksByIds(genericBookmarkUpserts.toList())) {
-            addLabels(b)
-            addText(b)
-            ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
-        }
     }
 
     /**
@@ -1073,24 +1105,34 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
-    private suspend fun importFromUri(context: Context, uri: Uri) = context.run {
+    /**
+     * `internal`, not `private`: exercised directly by `BookmarkControlImportFromUriDialogTest` (Task
+     * 19 Step 5's error dialog) rather than through the full `importBookmarksFromCSV` SAF round trip.
+     */
+    internal suspend fun importFromUri(context: Context, uri: Uri) = context.run {
         withContext(Dispatchers.IO) {
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, this@BookmarkControl)
 
                 withContext(Dispatchers.Main) {
                     if (result.errors > 0) {
-                        // Show detailed error dialog
-                        val message =
+                        // Show detailed error dialog. I2 fix: AppDialogRequest.Message is always
+                        // parsed as HTML (parseHtmlRuns) -- a plain "\n"-joined summary collapses
+                        // onto one line, and any "<...>" an exception's own message happens to
+                        // contain is silently dropped as an unknown tag. plainTextToHtml keeps both.
+                        val plainMessage =
                             getString(R.string.csv_import_errors, result.created, result.updated, result.errors) +
                                 "\n\n" + result.errorMessages.take(5).joinToString("\n") +
                                 if (result.errorMessages.size > 5) "\n..." else ""
 
-                        AlertDialog.Builder(context)
-                            .setTitle(getString(R.string.import_items, "CSV"))
-                            .setMessage(message)
-                            .setPositiveButton(R.string.okay, null)
-                            .show()
+                        KoinJavaComponent.get<AppDialogController>(AppDialogController::class.java).post(
+                            AppDialogRequest.Message(
+                                title = getString(R.string.import_items, "CSV"),
+                                message = plainTextToHtml(plainMessage),
+                                confirmText = getString(R.string.okay),
+                                cancellable = true,
+                            ),
+                        )
                     } else {
                         Toast.makeText(
                             context,
@@ -1106,6 +1148,7 @@ open class BookmarkControl @Inject constructor(
     companion object {
         const val LABEL_NO_EXTRA = "labelNo"
         private const val TAG = "BookmarkControl"
+        private val SPECIAL_LABEL_LOCK = Any()
     }
 
 }

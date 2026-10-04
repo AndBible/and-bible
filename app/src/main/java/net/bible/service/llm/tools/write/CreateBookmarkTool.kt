@@ -17,6 +17,9 @@
 
 package net.bible.service.llm.tools.write
 
+import android.util.Log
+import androidx.annotation.VisibleForTesting
+import org.koin.core.context.GlobalContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
@@ -49,6 +52,8 @@ import org.json.JSONObject
  * The sourcePromptId is automatically set to link the bookmark to the AI prompt.
  */
 object CreateBookmarkTool : Tool {
+    private const val TAG = "CreateBookmarkTool"
+
     @Serializable
     data class Args(
         val verseRef: String = "",
@@ -111,10 +116,14 @@ object CreateBookmarkTool : Tool {
         required: [verseRef]
     """)
 
+    /** Test seam (F121): how the saved range is described (OSIS reference, localized name). */
+    @VisibleForTesting
+    internal var describeRange: (VerseRange) -> Pair<String, String> = { it.osisRef to it.name }
+
     override val requiresPermission = true
     override val displayNameResId = R.string.tool_create_bookmark
 
-    private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
+    private val bookmarkControl get() = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
     override suspend fun formatActionDescription(arguments: JSONObject): String? {
         val app = BibleApplication.application
@@ -217,15 +226,20 @@ object CreateBookmarkTool : Tool {
                 updateNotes = true
             )
 
-            typedSuccess(Result(
-                id = savedBookmark.id,
-                verseRef = verseRange.osisRef,
-                verseName = verseRange.name,
-                hasNote = note != null,
-                labelCount = labelIds.size
-            ))
+            savedResult(savedBookmark.id, verseRange, verseRef, hasNote = note != null, labelCount = labelIds.size)
         } catch (e: Exception) {
             ToolResult.error("Failed to create bookmark: ${e.message}", "CREATE_ERROR")
         }
+    }
+
+    /** F121: the bookmark is saved, so the call succeeded; a failure to describe it is logged, not reported as "not created". */
+    private fun savedResult(id: IdType, range: VerseRange, requestedRef: String, hasNote: Boolean, labelCount: Int): ToolResult {
+        val (osisRef, verseName) = try {
+            describeRange(range)
+        } catch (e: Exception) {
+            Log.w(TAG, "Bookmark $id saved; could not describe $requestedRef", e)
+            requestedRef to requestedRef
+        }
+        return typedSuccess(Result(id = id, verseRef = osisRef, verseName = verseName, hasNote = hasNote, labelCount = labelCount))
     }
 }

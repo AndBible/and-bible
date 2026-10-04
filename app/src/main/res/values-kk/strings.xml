@@ -323,10 +323,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="auto_assign_labels1">Жаңа бетбелгілерге автоматты түрде белгі тағайындау</string>
   <string name="auto_assign_labels_primary">Автоматты тағайындауды негізгі ету</string>
   <!--can be removed-->
-  <string name="marker_style">Таңдау бетбелгілері үшін тек маркерді көрсету</string>
-  <string name="marker_style_whole_verse">Бүкіл аят бетбелгілері үшін тек маркерді көрсетіңіз</string>
-  <string name="hide_style">Таңдау бетбелгілері үшін жасыру</string>
-  <string name="hide_style_whole_verse">Бүкіл аят бетбелгілері үшін жасыру</string>
   <string name="bookmark_warning">Бұл бетбелгілер және/немесе ескертпелер бар құжат үшін .</string>
   <string name="bookmark_warning2">
 Құжат құрылымы өзгерсе, бұл құжатты жаңартуға болады.
@@ -740,8 +736,6 @@ Google Play -ге өтіңіз
   <string name="favourite_label">Таңдаулы белгі</string>
   <string name="edit_label">Белгіні өңдеу</string>
   <string name="delete_label_confirmation">«%s» Бетбелгі белгісін алып тастағыңыз келе ме? Сонымен қатар Study Pad -пен байланысты барлық жазбалар жойылады.</string>
-  <string name="bookmark_underline_style_arbitrary">Бетбелгілерді таңдау стилінің астын сызыңыз</string>
-  <string name="bookmark_underline_style_whole_verse">Толық аят бетбелгілерінің стилін сызыңыз</string>
   <string name="active_labels">Таңдалған белгілер</string>
   <string name="recent_labels">Соңғы белгілер</string>
   <string name="other_labels">Басқа белгілер</string>

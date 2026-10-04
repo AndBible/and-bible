@@ -383,10 +383,6 @@
   <string name="auto_assign_labels1">Автоматично присвояване на етикет към нови отметки</string>
   <string name="auto_assign_labels_primary">Автоматично присвояване като основен</string>
   <!--can be removed-->
-  <string name="marker_style">Показвай само маркер за отметки на избор</string>
-  <string name="marker_style_whole_verse">Показвай само маркер за отметки на цял стих</string>
-  <string name="hide_style">Скрий за отметки на избор</string>
-  <string name="hide_style_whole_verse">Скрий за отметки на цял стих</string>
   <string name="bookmark_warning">За този ресурс има отметки и/или бележки.</string>
   <string name="bookmark_warning2">Ако структурата на документа се е променила, актуализирането на този документ може да доведе до преместване на местоположенията на тези отметки/бележки в документа или до пълното им изчезване.</string>
   <string name="bookmark_warning3">Искате ли да актуализирате модула?</string>
@@ -804,8 +800,6 @@
   <string name="favourite_label">Любим етикет</string>
   <string name="edit_label">Редактирай етикета</string>
   <string name="delete_label_confirmation">Искате ли да премахнете етикета за отметка „%s\"? Всички свързани бележки от бележника също ще бъдат премахнати.</string>
-  <string name="bookmark_underline_style_arbitrary">Стил на подчертаване за отметки на избор</string>
-  <string name="bookmark_underline_style_whole_verse">Стил на подчертаване за отметки на целия стих</string>
   <string name="active_labels">Избрани етикети</string>
   <string name="recent_labels">Скорошни етикети</string>
   <string name="other_labels">Други етикети</string>

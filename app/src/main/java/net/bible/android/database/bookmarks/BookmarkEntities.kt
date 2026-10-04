@@ -37,6 +37,7 @@ import kotlinx.serialization.Serializable
 import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.android.misc.OsisFragment
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
@@ -715,12 +716,14 @@ class BookmarkEntities {
         @PrimaryKey var id: IdType = IdType(),
         var name: String = "",
         @ColumnInfo(defaultValue = "0") var color: Int = defaultLabelColor,
-        @ColumnInfo(defaultValue = "0") var markerStyle: Boolean = false,
-        @ColumnInfo(defaultValue = "0") var markerStyleWholeVerse: Boolean = false,
-        @ColumnInfo(defaultValue = "0") var underlineStyle: Boolean = false,
-        @ColumnInfo(defaultValue = "0") var underlineStyleWholeVerse: Boolean = true,
-        @ColumnInfo(defaultValue = "0") var hideStyle: Boolean = false,
-        @ColumnInfo(defaultValue = "0") var hideStyleWholeVerse: Boolean = false,
+        @ColumnInfo(defaultValue = "0") var displayStyle: BookmarkDisplayStyle = BookmarkDisplayStyle.HIGHLIGHT,
+        // The SQL default stays 1 (UNDERLINE) deliberately: changing it would alter the table's
+        // identity hash and force a schema bump plus an iOS contract update, and it is unreachable
+        // anyway -- Room names every column on insert, and ExportStudyPads / cloud sync derive their
+        // column lists from the live schema. The KOTLIN default is what a newly created label gets,
+        // and a new label now inherits (which is what the first-run sample labels already do
+        // explicitly, CommonUtils.kt:1341-1344).
+        @ColumnInfo(defaultValue = "1") var displayStyleWholeVerse: BookmarkDisplayStyle? = null,
         @ColumnInfo(defaultValue = "0") var favourite: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var type: LabelType? = null,
         @ColumnInfo(defaultValue = "NULL") var customIcon: String? = null,
@@ -734,31 +737,19 @@ class BookmarkEntities {
         val isAiLabel get() = name == AI_LABEL_NAME
         val isSpecialLabel get() = isSpeakLabel || isUnlabeledLabel || isParagraphBreakLabel || isAiLabel
 
+        /** The whole-verse style actually drawn: `null` in the column means "inherit the selection style". */
+        val effectiveWholeVerseStyle: BookmarkDisplayStyle get() = displayStyleWholeVerse ?: displayStyle
+
         fun withStyleOverrides(override: WorkspaceEntities.WorkspaceLabelOverride?): Label {
-            if (override?.overrideMode == null) return this
-            return when (override.overrideMode) {
-                WorkspaceEntities.WorkspaceLabelOverride.MODE_HIGHLIGHT -> this.copy(
-                    markerStyle = false, markerStyleWholeVerse = false,
-                    underlineStyle = false, underlineStyleWholeVerse = false,
-                    hideStyle = false, hideStyleWholeVerse = false,
-                )
-                WorkspaceEntities.WorkspaceLabelOverride.MODE_UNDERLINE -> this.copy(
-                    markerStyle = false, markerStyleWholeVerse = false,
-                    underlineStyle = true, underlineStyleWholeVerse = true,
-                    hideStyle = false, hideStyleWholeVerse = false,
-                )
-                WorkspaceEntities.WorkspaceLabelOverride.MODE_MARKER -> this.copy(
-                    markerStyle = true, markerStyleWholeVerse = true,
-                    underlineStyle = false, underlineStyleWholeVerse = false,
-                    hideStyle = false, hideStyleWholeVerse = false,
-                )
-                WorkspaceEntities.WorkspaceLabelOverride.MODE_HIDDEN -> this.copy(
-                    markerStyle = false, markerStyleWholeVerse = false,
-                    underlineStyle = false, underlineStyleWholeVerse = false,
-                    hideStyle = true, hideStyleWholeVerse = true,
-                )
-                else -> this
+            val style = when (override?.overrideMode) {
+                WorkspaceEntities.WorkspaceLabelOverride.MODE_HIGHLIGHT -> BookmarkDisplayStyle.HIGHLIGHT
+                WorkspaceEntities.WorkspaceLabelOverride.MODE_UNDERLINE -> BookmarkDisplayStyle.UNDERLINE
+                WorkspaceEntities.WorkspaceLabelOverride.MODE_MARKER -> BookmarkDisplayStyle.MARKER
+                WorkspaceEntities.WorkspaceLabelOverride.MODE_HIDDEN -> BookmarkDisplayStyle.HIDDEN
+                else -> return this
             }
+            // Both axes take the override; null whole-verse means "inherit", which is exactly that.
+            return copy(displayStyle = style, displayStyleWholeVerse = null)
         }
     }
 }

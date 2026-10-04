@@ -30,9 +30,9 @@ import androidx.annotation.RequiresApi
 
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
 import net.bible.android.control.event.phonecall.PhoneCallMonitor
 import net.bible.android.control.event.phonecall.PhoneCallEvent
 import net.bible.android.control.page.window.WindowControl
@@ -59,7 +59,6 @@ import org.crosswire.jsword.passage.Verse
 import java.util.ArrayList
 import java.util.Locale
 
-import javax.inject.Inject
 
 
 /**
@@ -81,8 +80,7 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@ApplicationScope
-class TextToSpeechServiceManager @Inject constructor(
+class TextToSpeechServiceManager constructor(
     bibleTraverser: BibleTraverser,
     windowControl: WindowControl,
     bookmarkControl: BookmarkControl,
@@ -136,7 +134,9 @@ class TextToSpeechServiceManager @Inject constructor(
         mSpeakTextProvider = bibleSpeakTextProvider
 
         mSpeakTiming = SpeakTiming()
-        ABEventBus.safelyRegister(this)
+        ABEventBus.safelyRegister(this) {
+            on<PhoneCallEvent> { event -> callStateChanged(event.callActivating) }
+        }
         restorePauseState()
     }
 
@@ -708,10 +708,6 @@ class TextToSpeechServiceManager @Inject constructor(
                 continueAfterPause()
             }
         }
-    }
-
-    fun onEvent(event: PhoneCallEvent) {
-        callStateChanged(event.callActivating)
     }
 
     /** persist and restore pause state to allow pauses to continue over an app exit

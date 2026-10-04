@@ -53,8 +53,10 @@ import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import java.util.*
 import java.util.UUID.randomUUID
-import javax.inject.Inject
 import kotlin.math.abs
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 
 /*
  * Serializable classes and utils that are used when transferring stuff to JS side
@@ -67,12 +69,13 @@ fun mapToJson(map: Map<String, String>?): String =
 fun listToJson(list: List<String>) = list.joinToString(",", "[", "]")
 val VerseRange.onlyNumber: String get() = if(cardinality > 1) "${start.verse}-${end.verse}" else "${start.verse}"
 val VerseRange.abbreviated: String get() = synchronized(BookName::class.java) {
-    Log.i("VerseRange", "BookName::class ${System.identityHashCode(BookName::class.java)}")
     val wasFullBookName = BookName.isFullBookName()
     BookName.setFullBookName(false)
-    val shorter = name
-    BookName.setFullBookName(wasFullBookName)
-    return shorter
+    try {
+        return name
+    } finally {
+        BookName.setFullBookName(wasFullBookName)
+    }
 }
 
 interface Document {
@@ -322,12 +325,9 @@ class StudyPadDocument(
         }
 }
 
-class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes, val v11n: Versification? = null): Document {
-    @Inject lateinit var bookmarkControl: BookmarkControl
+class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes, val v11n: Versification? = null): Document, KoinComponent {
+    val bookmarkControl: BookmarkControl by inject()
 
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
 
     override val asHashMap: Map<String, String> get() {
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes)
@@ -366,12 +366,9 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
     }
 }
 
-class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNotes): Document {
-    @Inject lateinit var bookmarkControl: BookmarkControl
+class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNotes): Document, KoinComponent {
+    val bookmarkControl: BookmarkControl by inject()
 
-    init {
-        CommonUtils.buildActivityComponent().inject(this)
-    }
 
     override val asHashMap: Map<String, String> get() {
         val notes = if(bookmark.notes?.trim()?.isEmpty() == true) "null" else wrapString(bookmark.notes)
@@ -412,12 +409,9 @@ data class ClientBookmarkStyle(
     val color: Int,
     val isSpeak: Boolean,
     val isParagraphBreak: Boolean,
-    val underline: Boolean,
-    val underlineWholeVerse: Boolean,
-    val markerStyle: Boolean,
-    val markerStyleWholeVerse: Boolean,
-    val hideStyle: Boolean,
-    val hideStyleWholeVerse: Boolean,
+    val displayStyle: BookmarkDisplayStyle,
+    /** Already resolved: the reader is never told that a style was inherited. */
+    val displayStyleWholeVerse: BookmarkDisplayStyle,
     val customIcon: String?
 )
 
@@ -434,12 +428,8 @@ data class ClientBookmarkLabel(
         ClientBookmarkStyle(
             color = label.color,
             isSpeak = label.isSpeakLabel,
-            underline = label.underlineStyle,
-            underlineWholeVerse = label.underlineStyleWholeVerse,
-            markerStyle = label.markerStyle,
-            markerStyleWholeVerse = label.markerStyleWholeVerse,
-            hideStyle = label.hideStyle,
-            hideStyleWholeVerse = label.hideStyleWholeVerse,
+            displayStyle = label.displayStyle,
+            displayStyleWholeVerse = label.effectiveWholeVerseStyle,
             customIcon = label.customIcon,
             isParagraphBreak = label.isParagraphBreakLabel,
         ),

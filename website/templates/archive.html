@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% from "_macros.html" import post_card, pager %}
+{% block content %}
+<section class="archive">
+  <h1>{{ heading }}</h1>
+  <div class="post-list">
+    {% for post in posts %}<div>{{ post_card(post) }}</div>{% endfor %}
+  </div>
+  {{ pager(newer, older, page_links, current_page, strings) }}
+</section>
+{% endblock %}

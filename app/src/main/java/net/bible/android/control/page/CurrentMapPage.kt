@@ -16,11 +16,11 @@
  */
 package net.bible.android.control.page
 
-import android.content.Intent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
-import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
+import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.nav.NavRoutes
 import org.crosswire.jsword.passage.Key
 
 /** Reference to current Map shown by viewer
@@ -35,7 +35,7 @@ class CurrentMapPage internal constructor(
 
     override val documentCategory = DocumentCategory.MAPS
 
-    override fun startKeyChooser(context: ActivityBase) = context.startActivityForResult(Intent(context, ChooseMapKey::class.java), STD_REQUEST_CODE)
+    override fun startKeyChooser(context: ActivityBase) = context.startActivityForResult(NavHostComposeActivity.intentFor(context, NavRoutes.CHOOSE_MAP_KEY), STD_REQUEST_CODE)
 
     /** set key without notification
      *

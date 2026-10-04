@@ -393,10 +393,6 @@
   <string name="auto_assign_labels1">Tetapkan label otomatis ke penanda buku baru</string>
   <string name="auto_assign_labels_primary">Tetapkan otomatis sebagai primer</string>
   <!--can be removed-->
-  <string name="marker_style">Tampilkan hanya penanda untuk penanda buku pilihan</string>
-  <string name="marker_style_whole_verse">Tampilkan hanya penanda untuk penanda buku seluruh ayat</string>
-  <string name="hide_style">Sembunyikan untuk penanda buku pilihan</string>
-  <string name="hide_style_whole_verse">Sembunyikan untuk penanda buku seluruh ayat</string>
   <string name="bookmark_warning">Ada penanda buku dan/atau catatan untuk dokumen ini.</string>
   <string name="bookmark_warning2">Jika struktur dokumen telah berubah, memperbarui dokumen ini dapat menyebabkan lokasi penanda buku/catatan ini berpindah di dalam dokumen atau hilang sepenuhnya.</string>
   <string name="bookmark_warning3">Apakah Anda tetap ingin memperbarui modul?</string>
@@ -854,8 +850,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="favourite_label">Label favorit</string>
   <string name="edit_label">Edit label</string>
   <string name="delete_label_confirmation">Apakah Anda ingin menghapus label penanda buku \"%s\"? Semua catatan Lembar Studi yang terkait juga akan dihapus.</string>
-  <string name="bookmark_underline_style_arbitrary">Gaya garis bawah untuk penanda buku pilihan</string>
-  <string name="bookmark_underline_style_whole_verse">Gaya garis bawah untuk penanda buku seluruh ayat</string>
   <string name="active_labels">Label yang dipilih</string>
   <string name="recent_labels">Label terbaru</string>
   <string name="other_labels">Label lainnya</string>

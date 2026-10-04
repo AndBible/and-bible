@@ -19,13 +19,10 @@ package net.bible.service.common
 
 import android.Manifest
 import android.app.Activity
-import android.app.AlarmManager
-import android.app.AlertDialog
 import android.app.Application
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ComponentName
@@ -50,29 +47,16 @@ import android.os.StatFs
 import android.provider.Settings
 import android.text.Html
 import android.text.SpannableString
-import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
-import android.text.method.LinkMovementMethod
-import android.text.style.ImageSpan
 import android.text.style.URLSpan
 import android.util.LayoutDirection
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
-import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceManager
-import androidx.preference.PreferenceScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -115,17 +99,21 @@ import net.bible.android.database.bookmarks.BookmarkType
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.json
-import net.bible.android.view.activity.ActivityComponent
-import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.settings.SettingsItem
+import net.bible.sharedcore.ui.dialog.AppDialogController
+import net.bible.sharedcore.ui.dialog.AppDialogRequest
+import net.bible.sharedcore.ui.dialog.AppDialogResult
+import org.koin.java.KoinJavaComponent
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.DataBaseNotReady
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
 import net.bible.service.sword.BookAndKey
@@ -188,12 +176,11 @@ import java.util.zip.GZIPOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import javax.inject.Inject
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
 import kotlin.system.exitProcess
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 
 @Suppress("DEPRECATION")
 fun htmlToSpan(html: String?): Spanned {
@@ -220,21 +207,6 @@ fun htmlToSpan(html: String?): Spanned {
     return spanned
 }
 
-fun PreferenceFragmentCompat.getPreferenceList(p_: Preference? = null, list_: ArrayList<Preference>? = null): ArrayList<Preference> {
-    val p = p_?: preferenceScreen
-    val list = list_?: ArrayList()
-    if (p is PreferenceCategory || p is PreferenceScreen) {
-        val pGroup: PreferenceGroup = p as PreferenceGroup
-        val pCount: Int = pGroup.preferenceCount
-        for (i in 0 until pCount) {
-            getPreferenceList(pGroup.getPreference(i), list) // recursive call
-        }
-    } else {
-        list.add(p)
-    }
-    return list
-}
-
 const val promoAndNewFeaturesPlaylistAutostart = "https://www.youtube.com/watch?v=f2cf6-7liMo&list=PLD-W_Iw-N2MlOXgRTLQqoXZpQxkqf119a&index=1"
 // "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MlOXgRTLQqoXZpQxkqf119a" // What's new 4.0 playlist
 
@@ -244,7 +216,6 @@ const val bookmarksMyNotesPlaylist = "https://www.youtube.com/playlist?list=PLD-
 const val notesAndStudyPadsPlayList= "https://www.youtube.com/playlist?list=PLD-W_Iw-N2MkMiGz7cjGASOYjElr1Q76m" // 4.0 (playlist for notes & study pads)
 const val speakPlayList = "https://www.youtube.com/playlist?list=PLD-W_Iw-N2Ml4arSb_fDBYqgiYtVPmjFo" // playlist for speak related tutorials
 
-const val textDisplaySettingsVideo = windowsAndWorkspacesPlaylist
 const val windowPinningVideo = windowsAndWorkspacesPlaylist
 const val studyPadsVideo = notesAndStudyPadsPlayList
 const val workspacesVideo = windowsAndWorkspacesPlaylist
@@ -265,10 +236,10 @@ val BookmarkEntities.Label.displayName get() =
     }
 
 
-open class CommonUtilsBase {
-    @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var bibleTraverser: BibleTraverser
+open class CommonUtilsBase : KoinComponent {
+    val windowControl: WindowControl by inject()
+    val speakControl: SpeakControl by inject()
+    val bibleTraverser: BibleTraverser by inject()
 }
 
 enum class BibleViewSwipeMode {CHAPTER, PAGE, NONE}
@@ -312,7 +283,25 @@ object AdvancedSpeakSettings {
     }
 }
 
+/**
+ * Fix batch 1 2.5b: the explicit state [CommonUtils.changeAppIconAndName] must write for one launcher
+ * component, or null when the current state already matches. `COMPONENT_ENABLED_STATE_DEFAULT`
+ * means "whatever the manifest says" -- a fresh install reports it for both aliases, and reading it
+ * as a mismatch force-stopped every fresh install on its first Settings visit.
+ */
+internal fun componentStateToWrite(current: Int, manifestEnabled: Boolean, wantEnabled: Boolean): Int? {
+    val effective = when (current) {
+        PackageManager.COMPONENT_ENABLED_STATE_DEFAULT -> manifestEnabled
+        PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> true
+        else -> false
+    }
+    if (effective == wantEnabled) return null
+    return if (wantEnabled) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+    else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+}
+
 object CommonUtils : CommonUtilsBase() {
+    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
     private const val COLON = ":"
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
     private const val ELLIPSIS = "..."
@@ -412,12 +401,31 @@ object CommonUtils : CommonUtilsBase() {
     val doubleSettings get() = DatabaseContainer.instance.settingsDb.doubleSettingDao()
 
     class AndBibleSettings {
-        fun getString(key: String, default: String? = null) = stringSettings.get(key, default)
-        fun getLong(key: String, default: Long) = longSettings.get(key, default)
-        fun getInt(key: String, default: Int) = longSettings.get(key, default.toLong()).toInt()
+        fun getString(key: String, default: String? = null) = orDefaultIfDbNotReady(default) { stringSettings.get(key, default) }
+        fun getLong(key: String, default: Long) = orDefaultIfDbNotReady(default) { longSettings.get(key, default) }
+        fun getInt(key: String, default: Int) = orDefaultIfDbNotReady(default) { longSettings.get(key, default.toLong()).toInt() }
         fun getBoolean(key: String, default: Boolean) = if(initialized) booleanSettings.get(key, default) else default
-        fun getDouble(key: String, default: Double) = doubleSettings.get(key, default)
-        fun getFloat(key: String, default: Float): Float = doubleSettings.get(key, default.toDouble()).toFloat()
+        fun getDouble(key: String, default: Double) = orDefaultIfDbNotReady(default) { doubleSettings.get(key, default) }
+        fun getFloat(key: String, default: Float): Float = orDefaultIfDbNotReady(default) { doubleSettings.get(key, default.toDouble()).toFloat() }
+
+        /**
+         * Nav-graph slice 8 C3 (Review Focus #1): a read before the database exists answers [default]
+         * instead of crashing. "Backup & restore" from `ErrorReportControl.checkCrash` runs before
+         * `StartupActivity.initializeDatabase()`, and its host's theme reads `getDisplayColorMode`
+         * through [getString]; `DatabaseContainer.instance` throws [DataBaseNotReady] there.
+         *
+         * The guard is on exactly that throw, NOT on [initialized] like [getBoolean]: the database is
+         * already readable while `initialized` is still false, and those reads must keep their stored values.
+         *  - [migrateOldSettingsKeys] runs inside the first `DatabaseContainer.instance`, before
+         *    `initializeApp` sets `initialized`. Its secret migration reads [getString]; an
+         *    `initialized` guard would return null and never migrate the old cloud-sync credentials.
+         *  - `StartupActivity` sets `DatabaseContainer.ready` in `initializeDatabase()` long before
+         *    `initializeAppCoroutine()`. The calculator, Welcome and crash-check screens in between
+         *    read real settings, such as the theme's colour mode.
+         * Setters stay unguarded: writing before the database exists is still a crash.
+         */
+        private inline fun <T> orDefaultIfDbNotReady(default: T, read: () -> T): T =
+            try { read() } catch (e: DataBaseNotReady) { default }
 
         fun setString(key: String, value: String?) = stringSettings.set(key, value)
         fun setLong(key: String, value: Long?) = longSettings.set(key, value)
@@ -504,6 +512,21 @@ object CommonUtils : CommonUtilsBase() {
         get() = realSharedPreferences.getString("locale_pref", null)
 
     // Note: use AndBibleSettings always if possible to save preferences. They are persisted in DB.
+    //
+    // This `PreferenceManager` call is, since the Z-late epilogue, the only androidx.preference
+    // reference left in CODE anywhere in the tree -- so it alone is what keeps the two
+    // `androidx.preference` gradle dependencies (app/build.gradle.kts) earning their place. It is
+    // not dead weight: the default SharedPreferences file it names is the one every pre-DB setting
+    // was written to.
+    //
+    // Stated as "in code" on purpose, because the wider claim is false: four res/xml files
+    // (settings, sync_settings, reading_progress_settings, prompt_advanced_settings) still use
+    // androidx.preference element names as tags -- including three `MultiSelectListPreference`
+    // tags the epilogue itself introduced, retagging the rows of the deleted
+    // `InverseMultiSelectListPreference`. They are not runtime uses: nothing inflates those files
+    // any more, and `SettingsIconParityTest` reads them with a raw `XmlResourceParser`, so no
+    // androidx.preference class is ever loaded from them (spec 10.5, S12 decision D6). Deleting the
+    // dependency would still not be safe, and not because of them -- because of the call below.
     val realSharedPreferences: SharedPreferences
         get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 
@@ -536,12 +559,6 @@ object CommonUtils : CommonUtilsBase() {
         }
 
         println("isAndroid:$isAndroid")
-    }
-
-    fun buildActivityComponent(): ActivityComponent {
-        return DaggerActivityComponent.builder()
-                .applicationComponent(application.applicationComponent)
-                .build()
     }
 
     fun getShareableDocumentText(selection: Selection): String = SwordContentFacade.getSelectionText(
@@ -824,18 +841,6 @@ object CommonUtils : CommonUtilsBase() {
 
     private val scope = CoroutineScope(Dispatchers.Default)
 
-    fun restartApp(callingActivity: Activity) {
-        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
-        val pendingIntent = PendingIntent.getActivity(callingActivity, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-
-        val mgr = callingActivity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        scope.launch {
-            CloudSync.waitUntilFinished()
-            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent)
-            exitProcess(2)
-        }
-    }
-
     private fun forceStopApp() {
         Log.i(TAG, "forceStopApp!")
         scope.launch {
@@ -872,30 +877,27 @@ object CommonUtils : CommonUtilsBase() {
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     suspend fun unlockDocument(context: AppCompatActivity, book: Book): Boolean {
-        class ShowAgain: Exception()
         var repeat = true
-        while(repeat) {
-            val passphrase: String? = try {suspendCoroutine {
-                val name = EditText(context)
-                name.text = SpannableStringBuilder(book.unlockKey ?: "")
-                name.selectAll()
-                name.requestFocus()
-                AlertDialog.Builder(context)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.okay) { d, _ ->
-                        it.resume(name.text.toString())
-                    }
-                    .setView(name)
-                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
-                    .setNeutralButton(R.string.show_unlock_info) { _, _ -> context.lifecycleScope.launch(Dispatchers.Main) {
-                        showAbout(context, book)
-                        it.resumeWithException(ShowAgain())
-                    } }
-                    .setTitle(application.getString(R.string.give_passphrase_for_module, book.initials))
-                    .create()
-                    .show()
-            } } catch (e: ShowAgain) {
-                continue
+        while (repeat) {
+            val answer = dialogs.await(
+                AppDialogRequest.TextInput(
+                    title = application.getString(R.string.give_passphrase_for_module, book.initials),
+                    message = null,
+                    initial = book.unlockKey ?: "",
+                    confirmText = application.getString(R.string.okay),
+                    dismissText = application.getString(R.string.cancel),
+                    neutralText = application.getString(R.string.show_unlock_info),
+                    cancellable = false,
+                    draftKey = "unlock:${book.initials}",
+                ),
+            )
+            val passphrase: String? = when (answer) {
+                is AppDialogResult.Text -> answer.value
+                AppDialogResult.Neutral -> {
+                    showAbout(context, book)
+                    continue
+                }
+                else -> null
             }
             if (passphrase != null) {
                 val success = book.unlock(passphrase)
@@ -907,17 +909,15 @@ object CommonUtils : CommonUtilsBase() {
                     return true
                 }
             }
-            repeat = suspendCoroutine {
-                AlertDialog.Builder(context)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.yes) { d, _ ->
-                        it.resume(true)
-                    }
-                    .setNegativeButton(R.string.no) { _, _ -> it.resume(false) }
-                    .setTitle(application.getString(R.string.try_again_passphrase))
-                    .create()
-                    .show()
-            }
+            repeat = dialogs.await(
+                AppDialogRequest.Confirm(
+                    title = application.getString(R.string.try_again_passphrase),
+                    message = null,
+                    confirmText = application.getString(R.string.yes),
+                    dismissText = application.getString(R.string.no),
+                    cancellable = false,
+                ),
+            ) == AppDialogResult.Ok
         }
         return false
     }
@@ -968,8 +968,6 @@ object CommonUtils : CommonUtilsBase() {
         val existingVersion = existingDocument?.bookMetaData?.getProperty("Version")
         val existingVersionDate = existingDocument?.bookMetaData?.getProperty("SwordVersionDate") ?: "-"
 
-        val inDownloadScreen = context is DownloadActivity
-
         val versionLatest = document.bookMetaData.getProperty("Version")
         val versionLatestDate = document.bookMetaData.getProperty("SwordVersionDate") ?: "-"
 
@@ -994,8 +992,6 @@ object CommonUtils : CommonUtilsBase() {
 
         if(versionMessageLatest != null) {
             about += "\n\n" + versionMessageLatest
-            if(versionMessageInstalled != null && inDownloadScreen)
-                about += "\n" + versionMessageInstalled
         }
 
         val history = document.bookMetaData.getValues("History")
@@ -1025,34 +1021,37 @@ object CommonUtils : CommonUtilsBase() {
                 """.trimIndent()
         }
         about = about.replace("\n", "<br>")
-        val spanned = htmlToSpan(about)
-        suspendCoroutine<Any?> {
-            val d = AlertDialog.Builder(context)
-                .setMessage(spanned)
-                .setCancelable(false)
-                .setPositiveButton(R.string.okay) { dialog, buttonId ->
-                    it.resume(null)
-                }.create()
-            d.show()
-            val textView = d.findViewById<TextView>(android.R.id.message)!!
-            textView.movementMethod = LinkMovementMethod.getInstance()
-        }
+        dialogs.await(
+            AppDialogRequest.Message(
+                title = null,
+                message = about,
+                confirmText = application.getString(R.string.okay),
+                cancellable = false,
+            ),
+        )
     }
 
+    /**
+     * Ported from a platform `AlertDialog.Builder` to [AppDialogController.post] (Task 28) -- a
+     * fire-and-forget notice (no caller waits on its single OK button), same texts/links, now
+     * structured as [AppDialogRequest.Notice] blocks: the per-item help text (`Html`), the full-docs
+     * link (`Html`), the sponsor line (`IconLine`, the money icon that used to be an `ImageSpan`),
+     * and the version line (`Html`, only when [showVersion]) -- matching the brief's block order.
+     */
     fun showHelp(callingActivity: ActivityBase, filterItems: List<Int>? = null, showVersion: Boolean = false) {
         val app = application
         val versionMsg = app.getString(R.string.version_text, applicationVersionName)
 
-        data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null, val docPath: String? = null)
+        data class HelpItem(val title: Int, val text: Int, val videoLink: String? = null, val docUrl: String? = null)
 
         val help = listOf(
-            HelpItem(R.string.help_nav_title, R.string.help_nav_text, docPath = "navigation.html"),
+            HelpItem(R.string.help_nav_title, R.string.help_nav_text, docUrl = DocsLinks.page("navigation")),
             HelpItem(R.string.help_contextmenus_title, R.string.help_contextmenus_text),
-            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, windowPinningVideo, docPath = "windows.html"),
-            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesPlaylist, docPath = "bookmarks.html"), // beta video
-            HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo, docPath = "study_pads.html"), // beta video
-            HelpItem(R.string.help_search_title, R.string.help_search_text2, docPath = "search.html"),
-            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo, docPath = "workspaces.html"),
+            HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, windowPinningVideo, docUrl = DocsLinks.page("windows")),
+            HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesPlaylist, docUrl = DocsLinks.page("bookmarks")), // beta video
+            HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo, docUrl = DocsLinks.page("study_pads")), // beta video
+            HelpItem(R.string.help_search_title, R.string.help_search_text2, docUrl = DocsLinks.page("search")),
+            HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo, docUrl = DocsLinks.page("workspaces")),
             HelpItem(R.string.help_hidden_features_title, R.string.help_hidden_features_text)
         ).run {
             if(filterItems != null) {
@@ -1062,11 +1061,7 @@ object CommonUtils : CommonUtilsBase() {
 
         val buy = app.getString(R.string.buy_development)
         val support = app.getString(R.string.buy_development2)
-        val heartIcon = ImageSpan(getTintedDrawable(R.drawable.baseline_attach_money_24))
         val buyMessage = "<b>$support</b>: <a href=\"$buyDevelopmentLink\">$buy</a>"
-        val iconStr = SpannableString("* ")
-        iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-        val spannedBuy = TextUtils.concat(iconStr, htmlToSpan(buyMessage))
 
         var htmlMessage = ""
 
@@ -1077,8 +1072,8 @@ object CommonUtils : CommonUtilsBase() {
             if(helpItem.videoLink != null) {
                 links.add("&bull;&nbsp;<i><a href=\"${helpItem.videoLink}\">${app.getString(R.string.watch_tutorial_video)}</a></i>")
             }
-            if(helpItem.docPath != null) {
-                links.add("&bull;&nbsp;<i><a href=\"$DOCS_URL_PREFIX${helpItem.docPath}\">${app.getString(R.string.help_read_more_link)}</a></i>")
+            if(helpItem.docUrl != null) {
+                links.add("&bull;&nbsp;<i><a href=\"${helpItem.docUrl}\">${app.getString(R.string.help_read_more_link)}</a></i>")
             }
             val linksHtml = if(links.isNotEmpty()) "<br>${links.joinToString("<br>")}<br>" else ""
 
@@ -1086,53 +1081,74 @@ object CommonUtils : CommonUtilsBase() {
         }
 
         val fullDocsLink = app.getString(R.string.help_full_documentation_link)
-        val fullDocsMessage = "<a href=\"$DOCS_URL_PREFIX\">$fullDocsLink</a><br><br>"
+        val fullDocsMessage = "<a href=\"${DocsLinks.BASE_URL}\">$fullDocsLink</a>"
 
-        val spanned = TextUtils.concat(htmlToSpan(htmlMessage), htmlToSpan(fullDocsMessage), spannedBuy, if(showVersion) htmlToSpan("<br><br><i>$versionMsg</i>") else "")
-
-        val d = AlertDialog.Builder(callingActivity)
-            .setTitle(R.string.help)
-            .setIcon(R.drawable.ic_logo)
-            .setMessage(spanned)
-            .setPositiveButton(android.R.string.ok) { _, _ ->  }
-            .create()
-
-        d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        dialogs.post(
+            AppDialogRequest.Notice(
+                title = app.getString(R.string.help),
+                showTitleLogo = true,
+                blocks = listOfNotNull(
+                    AppDialogRequest.NoticeBlock.Html(htmlMessage),
+                    AppDialogRequest.NoticeBlock.Html(fullDocsMessage),
+                    AppDialogRequest.NoticeBlock.IconLine(AppDialogRequest.NoticeIcon.Money, "&nbsp;$buyMessage"),
+                    if (showVersion) AppDialogRequest.NoticeBlock.Html("<i>$versionMsg</i>") else null,
+                ),
+                confirmText = app.getString(android.R.string.ok),
+            ),
+        )
     }
 
     /**
      * Show a help dialog with a short blurb and a clickable "Read more in the manual" link.
      *
-     * The link opens [helpPath] resolved against the docs.andbible.org URL prefix.
+     * The link opens [helpUrl], normally built with [DocsLinks.page].
      *
      * @param activity Activity used to launch the dialog.
      * @param titleResId String resource for the dialog title.
      * @param messageResId String resource for the short blurb shown above the link.
-     * @param helpPath Path under https://docs.andbible.org/en/latest/, e.g. "ai.html#permissions".
+     * @param helpUrl Full docs URL, e.g. `DocsLinks.page("ai", "setting-permissions")`.
      */
     fun showHelpDialog(
         activity: Activity,
         titleResId: Int,
         messageResId: Int,
-        helpPath: String,
+        helpUrl: String,
     ) {
         val readMore = activity.getString(R.string.help_read_more_link)
         val messageHtml = activity.getString(messageResId) +
-            "<br><br><i><a href=\"$DOCS_URL_PREFIX$helpPath\">$readMore</a></i>"
-        val spanned = htmlToSpan(messageHtml)
-        val dialog = AlertDialog.Builder(activity)
-            .setTitle(titleResId)
-            .setMessage(spanned)
-            .setPositiveButton(R.string.okay, null)
-            .show()
-        dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
-            LinkMovementMethod.getInstance()
+            "<br><br><i><a href=\"$helpUrl\">$readMore</a></i>"
+        dialogs.post(
+            AppDialogRequest.Message(
+                title = activity.getString(titleResId),
+                message = messageHtml,
+                confirmText = activity.getString(R.string.okay),
+                cancellable = true,
+            ),
+        )
     }
 
-    /** Base URL for AndBible's user documentation. Help dialog links resolve their paths against this. */
-    private const val DOCS_URL_PREFIX = "https://docs.andbible.org/en/latest/"
+    /**
+     * Opens [link] in a browser immediately, no question asked -- classic `openLink`'s own `else`
+     * branch, extracted (C1 fix) so a Compose caller that has ALREADY asked its own "open external
+     * link?" question (`AbLinkRouting`, driven by [isDiscrete]) does not ask a SECOND time through
+     * [openLink]'s `Dialogs.simpleQuestion` FIFO -- which would also queue behind, and so be hidden
+     * by, whatever dialog contains the link.
+     */
+    fun openLinkNow(link: String) {
+        val activity = CurrentActivityHolder.currentActivity!!
+        try {
+            activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
+                ActivityBase.STD_REQUEST_CODE
+            )
+        } catch (e: android.content.ActivityNotFoundException) {
+            Log.e(TAG, "No activity found to handle link: $link", e)
+            ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
+        }
+    }
 
+    /** Non-Compose callers only (a WebView link, …): asks first in discrete mode through the
+     *  platform `Dialogs.simpleQuestion` FIFO, same as before C1. A Compose dialog body's link goes
+     *  through `AbLinkRouting`/[openLinkNow] instead -- see [openLinkNow]'s kdoc for why. */
     fun openLink(link: String, forceAsk: Boolean = false) {
         val activity = CurrentActivityHolder.currentActivity!!
         if (isDiscrete || forceAsk) {
@@ -1142,25 +1158,11 @@ object CommonUtils : CommonUtilsBase() {
                         title = net.bible.android.view.activity.page.application.getString(R.string.external_link),
                     )
                 ) {
-                    try {
-                        activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
-                            ActivityBase.STD_REQUEST_CODE
-                        )
-                    } catch (e: android.content.ActivityNotFoundException) {
-                        Log.e(TAG, "No activity found to handle link: $link", e)
-                        ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
-                    }
+                    openLinkNow(link)
                 }
             }
         } else {
-            try {
-                activity.startActivityForResult(Intent(Intent.ACTION_VIEW, Uri.parse(link)),
-                    ActivityBase.STD_REQUEST_CODE
-                )
-            } catch (e: android.content.ActivityNotFoundException) {
-                Log.e(TAG, "No activity found to handle link: $link", e)
-                ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
-            }
+            openLinkNow(link)
         }
     }
 
@@ -1206,7 +1208,6 @@ object CommonUtils : CommonUtilsBase() {
 
             DatabaseContainer.ready = true
             DatabaseContainer.instance
-            buildActivityComponent().inject(this@CommonUtils)
             if (ttsNotificationManager == null) {
                 ttsNotificationManager = TextToSpeechNotificationManager()
             }
@@ -1254,7 +1255,6 @@ object CommonUtils : CommonUtilsBase() {
             DatabaseContainer.ready = true
             DatabaseContainer.instance
             withContext(Dispatchers.Main) {
-                buildActivityComponent().inject(this@CommonUtils)
                 if (ttsNotificationManager == null) {
                     ttsNotificationManager = TextToSpeechNotificationManager()
                 }
@@ -1346,10 +1346,10 @@ object CommonUtils : CommonUtilsBase() {
         var highlightLabels = emptyList<BookmarkEntities.Label>()
 
         if(bookmarkDao.allLabelsSortedByName().none { !it.name.startsWith("__") && it.name != migratedNotesName }) {
-            val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), underlineStyleWholeVerse = false, favourite = true)
-            val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), underlineStyleWholeVerse = false, favourite = true)
-            val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), underlineStyleWholeVerse = false, favourite = true)
-            val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), underlineStyle = true, underlineStyleWholeVerse = true, favourite = true)
+            val redLabel = BookmarkEntities.Label(name = application.getString(R.string.label_red), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 0), displayStyleWholeVerse = null, favourite = true)
+            val greenLabel = BookmarkEntities.Label(name = application.getString(R.string.label_green), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 255, 0), displayStyleWholeVerse = null, favourite = true)
+            val blueLabel = BookmarkEntities.Label(name = application.getString(R.string.label_blue), type = LabelType.HIGHLIGHT, color = Color.argb(255, 0, 0, 255), displayStyleWholeVerse = null, favourite = true)
+            val underlineLabel = BookmarkEntities.Label(name = application.getString(R.string.label_underline), type = LabelType.HIGHLIGHT, color = Color.argb(255, 255, 0, 255), displayStyle = BookmarkDisplayStyle.UNDERLINE, displayStyleWholeVerse = null, favourite = true)
 
             highlightLabels = listOf(
                 redLabel,
@@ -1509,44 +1509,6 @@ object CommonUtils : CommonUtilsBase() {
         }
     }
 
-    fun fixAlertDialogButtons(dialog: AlertDialog) {
-        val positiveButton = dialog.findViewById<Button>(android.R.id.button1)
-        val negativeButton = dialog.findViewById<Button>(android.R.id.button2)
-        val neutralButton = dialog.findViewById<Button>(android.R.id.button3)
-        
-        val container = positiveButton?.parent
-        if(container is FrameLayout) {
-            container.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM)
-        } else if(container is LinearLayout) {
-            // For LinearLayout (older Android versions), ensure proper orientation and layout
-            container.orientation = LinearLayout.HORIZONTAL
-            val layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
-            layoutParams.setMargins(convertDipsToPx(4), 0, convertDipsToPx(4), 0)
-            
-            // Apply equal weight to all visible buttons for even distribution
-            positiveButton.layoutParams = layoutParams
-            negativeButton?.layoutParams = layoutParams
-            neutralButton?.layoutParams = layoutParams
-        }
-        
-        // Ensure buttons have appropriate text size and padding to prevent overflow
-        listOfNotNull(positiveButton, negativeButton, neutralButton).forEach { button ->
-            button.setPadding(convertDipsToPx(8), convertDipsToPx(4), convertDipsToPx(8), convertDipsToPx(4))
-            button.minHeight = convertDipsToPx(36)
-            
-            // Ensure proper text alignment and baseline alignment
-            button.gravity = Gravity.CENTER
-            button.includeFontPadding = false
-            button.setSingleLine(false)
-            button.maxLines = 2
-            
-            // Reduce text size slightly if there are 3 buttons to ensure they fit
-            if (listOfNotNull(positiveButton, negativeButton, neutralButton).size >= 3) {
-                button.textSize = 14f
-            }
-        }
-    }
-
     suspend fun checkPoorTranslations(activity: ActivityBase): Boolean {
         val languageTag = Locale.getDefault().toLanguageTag()
         val languageCode = Locale.getDefault().language
@@ -1583,48 +1545,64 @@ object CommonUtils : CommonUtilsBase() {
             return true
         }
 
-        return suspendCoroutine {
-            val lang = Locale.getDefault().displayLanguage
-            val instr = application.getString(R.string.instructions_for_translators)
-            val instructionsUrl = "https://github.com/AndBible/and-bible/wiki/Translating-User-Interface"
-            val instructionsLink = "<a href=\"$instructionsUrl\">$instr</a>"
-            val msg = htmlToSpan(application.getString(R.string.incomplete_translation, lang, application.getString(R.string.app_name_long), instructionsLink))
-            val dlgBuilder = AlertDialog.Builder(activity)
-                .setMessage(msg)
-                .setCancelable(false)
-                .setPositiveButton(R.string.proceed_anyway) { _, _ -> it.resume(true) }
-                .setNegativeButton(R.string.beta_notice_dismiss_until_update) { _, _ ->
-                    settings.setString("poor-translations-dismissed-version", mainVersion)
-                    settings.setString("poor-translations-dismissed", languageTag)
-                    it.resume(true)
-                }
-                .setNeutralButton(R.string.close) { _, _ ->
-                    it.resume(false)
-                    activity.finish()
-                }
+        val lang = Locale.getDefault().displayLanguage
+        val instr = application.getString(R.string.instructions_for_translators)
+        val instructionsUrl = "https://github.com/AndBible/and-bible/wiki/Translating-User-Interface"
+        val instructionsLink = "<a href=\"$instructionsUrl\">$instr</a>"
+        val msg = application.getString(R.string.incomplete_translation, lang, application.getString(incompleteTranslationAppName(isDiscrete)), instructionsLink)
 
-            val d = dlgBuilder.show()
-            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        val proceedValue = "proceed"
+        val dismissValue = "dismiss"
+        val closeValue = "close"
+        val result = dialogs.await(
+            AppDialogRequest.Options(
+                title = null,
+                message = msg,
+                options = listOf(
+                    SettingsItem.Choice(proceedValue, application.getString(R.string.proceed_anyway)),
+                    SettingsItem.Choice(dismissValue, application.getString(R.string.beta_notice_dismiss_until_update)),
+                    SettingsItem.Choice(closeValue, application.getString(R.string.close)),
+                ),
+                dismissText = null,
+                asActionSheet = false,
+                cancellable = false,
+            ),
+        )
+        val selected = (result as? AppDialogResult.Selected)?.value
+        return when (selected) {
+            proceedValue -> true
+            dismissValue -> {
+                settings.setString("poor-translations-dismissed-version", mainVersion)
+                settings.setString("poor-translations-dismissed", languageTag)
+                true
+            }
+            closeValue -> {
+                activity.finish()
+                false
+            }
+            else -> false
         }
     }
 
     suspend fun requestNotificationPermission(activity_: ActivityBase? = null) = withContext(Dispatchers.Main) {
-        val activity = activity_?:CurrentActivityHolder.currentActivity?: return@withContext
+        val activity = activity_ ?: CurrentActivityHolder.currentActivity ?: return@withContext
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
                 var request = true
                 if (activity.shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                    val answer = suspendCoroutine {
-                        AlertDialog.Builder(activity)
-                            .setTitle(R.string.permission_required)
-                            .setIcon(R.drawable.ic_logo)
-                            .setMessage(R.string.progress_status_permission)
-                            .setPositiveButton(R.string.okay) { _, _ -> it.resume(true) }
-                            .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }
-                            .setOnCancelListener { _ -> it.resume(null) }
-                            .show()
-                    }
-                    request = answer == true
+                    // dialogs.await(...) is thread-safe on its own, but this whole function runs on
+                    // Main (below) because checkSelfPermission/shouldShowRequestPermissionRationale/
+                    // requestPermissions are Activity calls that must not run off the main thread --
+                    // GlobalScope.launch(Dispatchers.Default) callers exist (SpeakControl.prepareForSpeaking).
+                    val answer = dialogs.await(
+                        AppDialogRequest.Confirm(
+                            title = activity.getString(R.string.permission_required),
+                            message = activity.getString(R.string.progress_status_permission),
+                            confirmText = activity.getString(R.string.okay),
+                            dismissText = activity.getString(R.string.cancel),
+                        ),
+                    )
+                    request = answer == AppDialogResult.Ok
                 }
                 if(request) {
                     activity.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 999)
@@ -1651,19 +1629,22 @@ object CommonUtils : CommonUtilsBase() {
             val value = name == activeName
             Log.d(TAG, "changing $name to $value")
             val component = ComponentName(packageName, name)
-            val currentSettings = application.packageManager.getComponentEnabledSetting(component)
-            val newSetting =
-                if(value) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-
-            if(currentSettings != newSetting) {
-                application.packageManager.setComponentEnabledSetting(
-                    component,
-                    newSetting,
-                    PackageManager.DONT_KILL_APP
-                )
-                settingsChanged = true
-            }
+            // minSdk is 23 (and this function returns early on <= 22), so use the API-23 flag; it has the
+            // same value (512) as MATCH_DISABLED_COMPONENTS (API 24+).
+            @Suppress("DEPRECATION")
+            val manifestEnabled = application.packageManager
+                .getActivityInfo(component, PackageManager.GET_DISABLED_COMPONENTS).enabled
+            val toWrite = componentStateToWrite(
+                current = application.packageManager.getComponentEnabledSetting(component),
+                manifestEnabled = manifestEnabled,
+                wantEnabled = value,
+            ) ?: continue
+            application.packageManager.setComponentEnabledSetting(
+                component,
+                toWrite,
+                PackageManager.DONT_KILL_APP
+            )
+            settingsChanged = true
         }
         if(settingsChanged) {
             forceStopApp()
@@ -1901,17 +1882,16 @@ object CommonUtils : CommonUtilsBase() {
         val warningMessage = getString(R.string.bookmark_warning2)
         val warningRecommendation = getString(R.string.bookmark_warning4)
         val warningQuestion = getString(R.string.bookmark_warning3)
-        val warningMsg = "$warningMessage\n\n$warningRecommendation\n\n$warningQuestion"
-        withContext(Dispatchers.Main) {
-            suspendCoroutine {
-                AlertDialog.Builder(this@run)
-                    .setTitle(warningTitle)
-                    .setMessage(warningMsg)
-                    .setCancelable(false)
-                    .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
-                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(false) }.create().show()
-            }
-        }
+        val warningMsg = "$warningMessage<br><br>$warningRecommendation<br><br>$warningQuestion"
+        dialogs.await(
+            AppDialogRequest.Confirm(
+                title = warningTitle,
+                message = warningMsg,
+                confirmText = getString(R.string.yes),
+                dismissText = getString(R.string.cancel),
+                cancellable = false,
+            ),
+        ) == AppDialogResult.Ok
     }
     fun prependDictionaryKeyWithZeros(keyStr: String): String {
         val lengthDiff = 5 - keyStr.length
@@ -2125,14 +2105,17 @@ val Key.tinyName: String get() =
     if(this is VerseKey<*>)
         synchronized(BookName::class.java) {
             val prevTruncateLength = BookName.getTruncateShortName()
-            var length = 5
-            var name: String
-            do {
-                BookName.setTruncateShortName(length--)
-                name = this.name
-            } while(length > 0 && name.length > 7)
-            BookName.setTruncateShortName(prevTruncateLength)
-            name
+            try {
+                var length = 5
+                var name: String
+                do {
+                    BookName.setTruncateShortName(length--)
+                    name = this.name
+                } while(length > 0 && name.length > 7)
+                name
+            } finally {
+                BookName.setTruncateShortName(prevTruncateLength)
+            }
         }
     else name
 
@@ -2142,9 +2125,11 @@ val Key.shortName: String get() =
         synchronized(BookName::class.java) {
             val oldValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
-            val text = name
-            BookName.setFullBookName(oldValue)
-            return text
+            try {
+                return name
+            } finally {
+                BookName.setFullBookName(oldValue)
+            }
         }
     else name
 
@@ -2207,3 +2192,7 @@ data class AndBibleBackupManifest(
     }
 }
 
+/** Fix batch 6 A6 (surface 8): the app name the incomplete-translation dialog uses. */
+@androidx.annotation.StringRes
+internal fun incompleteTranslationAppName(discrete: Boolean): Int =
+    if (discrete) R.string.app_name_calculator else R.string.app_name_long

@@ -1,0 +1,64 @@
+# Configuration for https://andbible.org/docs/. Build with `make site`, never a
+# bare `zensical build`: sitegen.docs stages exactly the nav pages per language
+# and writes a per-language copy of this file with absolute paths.
+[project]
+site_name = "AndBible"
+site_description = "User documentation for AndBible: Bible Study."
+site_url = "https://andbible.org/docs/"
+docs_dir = "_build/en/docs"
+site_dir = "_site/docs"
+# repo_url feeds the header link and the edit-page link. The stock header partial would add the
+# data-md-component="source" widget (GitHub API calls from every page), so theme/partials/source.html
+# renders a plain link instead; sitegen.check fails the build if the widget ever comes back.
+repo_url = "https://github.com/AndBible/and-bible"
+repo_name = "AndBible/and-bible"
+edit_uri = "blob/current-stable/website/content/en/docs/"
+extra_css = ["assets/andbible-docs.css"]
+nav = [
+  { "Home" = "index.md" },
+  { "Getting Started" = ["getting_started.md", "navigation.md", "usage.md"] },
+  { "Bible Documents" = ["documents.md", "my_documents.md", "custom_repositories.md"] },
+  { "Reading & Workspace" = ["workspaces.md", "windows.md", "verse_action_dialog.md", "look_and_feel.md", "bible_links.md", "speak.md"] },
+  { "Study Tools" = ["bookmarks.md", "labels.md", "notes.md", "study_pads.md", "search.md", "reading_plans.md", "reading_progress.md", "memorize.md", "ai.md", "share.md"] },
+  { "Backup & Sync" = ["backup_restore.md", "cloud_sync.md", "document_sync.md"] },
+  { "Customisation & Advanced" = [{ "Customisation" = ["customisation/index.md", "customisation/custom_css.md", "customisation/module_creation.md"] }, "discrete_build.md"] },
+  { "Help & Reference" = ["faq.md", "support.md", { "Releases" = ["releases/index.md", "releases/release_5_0.md", "releases/release_4_1.md", "releases/release_4_0.md"] }] },
+  { "More" = ["style_guide.md", "videos/note_add_to_existing_bookmark.md"] },
+]
+
+[project.theme]
+font = false
+custom_dir = "theme"
+logo = "/assets/img/logo.svg"
+favicon = "/assets/img/logo.svg"
+features = ["navigation.sections", "navigation.footer", "navigation.top",
+            "navigation.tracking", "search.highlight", "content.code.copy"]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "custom"
+accent = "custom"
+toggle = { icon = "material/weather-night", name = "Dark theme" }
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "custom"
+accent = "custom"
+toggle = { icon = "material/weather-sunny", name = "Light theme" }
+
+[project.extra]
+homepage = "https://andbible.org/"
+
+[project.markdown_extensions]
+admonition = {}
+attr_list = {}
+def_list = {}
+md_in_html = {}
+tables = {}
+footnotes = {}
+toc.permalink = true
+pymdownx.details = {}
+pymdownx.superfences = {}
+pymdownx.highlight.pygments_lang_class = true

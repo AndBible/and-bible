@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% from "_macros.html" import post_card %}
+{% block head_extra %}<script src="{{ asset_url('js/reviews-carousel.js') }}" defer></script><script src="{{ asset_url('js/appshots.js') }}" defer></script>{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero__panel">
+    <div class="hero__text">
+      <div class="lockup"><img src="/assets/img/logo.svg" alt="" width="44" height="44"><span class="lockup__word">{{ strings.site_name }}</span></div>
+      <p class="eyebrow">{{ strings.hero.eyebrow }}</p>
+      <h1>{{ strings.hero.headline | md_inline }}</h1>
+      <p class="lead">{{ strings.hero.lead }}</p>
+      <div class="actions">
+        <a class="button button--primary" href="{{ prefix }}/docs/">{{ strings.hero.docs_button }}</a>
+        <a class="button button--secondary" href="/videos/">{{ strings.hero.videos_button }}</a>
+      </div>
+    </div>
+    <div class="getapp">
+      <div class="getapp__bar">
+        <h2>{{ strings.getapp.title }}</h2>
+        {% for store in strings.getapp.stores %}
+        <a class="store" href="{{ store.url }}">{{ store.name }} <small>{{ store.note }}</small></a>
+        {% endfor %}
+        <p class="getapp__hint"><a href="{{ strings.getapp.others_url }}">{{ strings.getapp.others }}</a></p>
+      </div>
+      <div class="phone" data-appshots aria-hidden="true">
+        <ol class="phone__screen">
+          {% for shot in appshots %}<li class="phone__shot"><img src="{{ asset_url(shot) }}" alt="" width="448" height="931"{% if not loop.first %} loading="lazy"{% endif %}></li>
+          {% endfor %}
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <ul class="features">
+    {% for f in strings.features %}<li><h3>{{ f.title }}</h3><p>{{ f.text }}</p></li>{% endfor %}
+  </ul>
+</section>
+
+{% if reviews %}
+<section class="block">
+  <h2>{{ strings.sections.reviews }}</h2>
+  {% set total = reviews | length %}
+  <div class="review-carousel" data-reviews-carousel role="region" aria-label="{{ strings.sections.reviews_region }}"
+       data-prev="{{ strings.sections.reviews_prev }}" data-next="{{ strings.sections.reviews_next }}"
+       data-pause="{{ strings.sections.reviews_pause }}" data-play="{{ strings.sections.reviews_play }}"
+       data-position="{{ strings.sections.reviews_position }}">
+    <div class="review-list">
+      {% for r in reviews %}
+      <figure class="review" role="group" aria-roledescription="slide" aria-label="{{ strings.sections.reviews_slide | replace('{n}', loop.index | string) | replace('{total}', total | string) }}">
+        <p class="review__stars" role="img" aria-label="{{ strings.sections.reviews_stars }}"><span aria-hidden="true">★★★★★</span></p>
+        <blockquote><p>{{ r.text }}</p></blockquote>
+        <figcaption>{{ strings.sections.reviews_caption }}, {{ r.year }}</figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+    <p class="review-more"><a href="{{ strings.sections.reviews_all_url }}">{{ strings.sections.reviews_all }}</a></p>
+  </div>
+</section>
+{% endif %}
+
+{% if latest %}
+<section class="block">
+  <div class="block__head"><h2>{{ strings.sections.latest }}</h2><a href="/blog/">{{ strings.sections.all_posts }}</a></div>
+  <div class="post-list">
+    {% for post in latest %}{{ post_card(post) }}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="block">
+  <div class="teaser">
+    <h2>{{ strings.sections.videos }}</h2>
+    {% if video_cards %}
+    <div class="video-grid">
+      {% for card in video_cards %}<div>{{ card }}</div>{% endfor %}
+    </div>
+    {% endif %}
+    <p><a href="/videos/">{{ strings.sections.videos_link }}</a></p>
+  </div>
+</section>
+
+<section class="block">
+  <div class="teaser support">
+    <div class="support__text">
+      <h2>{{ strings.sections.support_title }}</h2>
+      <p>{{ strings.sections.support_text }}</p>
+      <a class="button button--primary" href="{{ strings.sections.support_url }}">{{ strings.sections.support_button }}</a>
+    </div>
+    <img class="support__art" src="{{ asset_url('img/support-tree.webp') }}" alt="" width="640" height="655" loading="lazy">
+  </div>
+</section>
+{% endblock %}

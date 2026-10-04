@@ -22,6 +22,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.misc.elementToString
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.sword.SwordContentFacade.bibleRefSplit
+import net.bible.sharedcore.reading.ShareVersesOptions
 import net.bible.test.DatabaseResetter
 
 import org.crosswire.jsword.book.Book
@@ -723,4 +724,174 @@ Psa 83:1, ESV2011"""
             separateVersesWithNewlines = true,
             compareText = """“O God, do not keep silence; do not hold your peace or be still, O God!”"""
         )
+}
+
+/**
+ * Task 26 (platform-dialog removal, run 3): the share sheet's new path
+ * (`SwordContentFacade.buildShareVersesInput` + `ShareVersesOptions.buildText`, `:sharedCore`)
+ * against fixed expected strings.
+ *
+ * Step 1 wrote these cases comparing the new path's output to the classic `ShareWidget`'s
+ * text-building code (`SwordContentFacade.getSelectionText`, still exercised directly by
+ * [TestShare] above) LIVE, case by case — every one passed, and one was proven able to fail by a
+ * temporary mutation of `SwordContentFacade.buildShareVersesInput` (reverted; see that step's
+ * commit for the red output line). Step 3 deleted `ShareWidget` and froze each case's
+ * then-passing OLD-path output as the literal [equalTo] below, so this suite no longer depends on
+ * `getSelectionText` at all — only [TestShare] (covering `getSelectionText`'s one remaining
+ * caller, `Selection.copyToClipboard`) still calls it.
+ *
+ * Three distinct selections (one verse, two verses, three verses across a chapter break) times
+ * several option combinations each — chosen to also cover every `abbreviateReference`/
+ * `showReferenceAtFront`/`separateVersesWithNewlines`/`showSelectionOnly` branch
+ * [ShareVersesOptions.buildText] has, not just [TestShare]'s existing default combination.
+ */
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
+class ShareVersesInputCharacterizationTest {
+    private fun assertBuildTextEquals(
+        expected: String,
+        initials: String,
+        verseRangeStr: String,
+        offsetRange: IntRange,
+        showVerseNumbers: Boolean,
+        showWholeVerse: Boolean,
+        advertiseApp: Boolean = false,
+        showReference: Boolean = true,
+        showReferenceAtFront: Boolean = false,
+        abbreviateReference: Boolean = true,
+        showNotes: Boolean = true,
+        showVersion: Boolean = true,
+        showEllipsis: Boolean = true,
+        showQuotes: Boolean = true,
+        separateVersesWithNewlines: Boolean = false,
+        notes: String? = null,
+    ) {
+        val book = Books.installed().getBook(initials) as SwordBook
+        val v11n = book.versification
+        val verseRange = VerseRangeFactory.fromString(v11n, verseRangeStr)
+
+        val sel = Selection(
+            bookInitials = initials,
+            startOrdinal = verseRange.start.ordinal,
+            startOffset = offsetRange.first,
+            endOrdinal = verseRange.end.ordinal,
+            endOffset = offsetRange.last,
+            bookmarks = emptyList(),
+            notes = notes,
+        )
+
+        val input = SwordContentFacade.buildShareVersesInput(sel)
+        val options = ShareVersesOptions(
+            showVerseNumbers = showVerseNumbers,
+            advertiseApp = advertiseApp,
+            showReference = showReference,
+            abbreviateReference = abbreviateReference,
+            showVersion = showVersion,
+            showNotes = showNotes,
+            showSelectionOnly = !showWholeVerse,
+            showEllipsis = showEllipsis,
+            showReferenceAtFront = showReferenceAtFront,
+            showQuotes = showQuotes,
+            separateVersesWithNewlines = separateVersesWithNewlines,
+        )
+        val newText = options.buildText(input)
+
+        assertThat(newText, equalTo(expected))
+    }
+
+    // Input 1: a single verse (Psa 83:1), partial + whole selection (mirrors TestShare1a-4a/9-12).
+    @Test fun singleVerseDefault() = assertBuildTextEquals(
+        "“...do not keep silence; do...” (Psa 83:1, ESV2011)",
+        "ESV2011", "Ps.83.1", 7..30, true, false,
+    )
+
+    @Test fun singleVerseWholeVerse() = assertBuildTextEquals(
+        "“O God, do not keep silence; do not hold your peace or be still, O God!” (Psa 83:1, ESV2011)",
+        "ESV2011", "Ps.83.1", 7..30, true, true,
+    )
+
+    @Test fun singleVerseNoReferenceNoQuotesNoVersion() = assertBuildTextEquals(
+        "Judge me, O God, and plead my cause against an ungodly nation: O deliver me from the deceitful and unjust man.",
+        "KJV", "Ps.43.1", 0..100, showVerseNumbers = false, showWholeVerse = true,
+        showReference = false, showVersion = false, showQuotes = false,
+    )
+
+    @Test fun singleVerseReferenceAtFrontUnabbreviated() = assertBuildTextEquals(
+        "Psalms 43:1 KJV Judge",
+        "KJV", "Ps.43.1", 0..5, showVerseNumbers = false, showWholeVerse = false,
+        showReferenceAtFront = true, abbreviateReference = false, showQuotes = false, showEllipsis = false,
+    )
+
+    @Test fun singleVersePartialNoEllipsisWithNotes() = assertBuildTextEquals(
+        "Judge (Psa 43:1, KJV)\n\na note on this verse",
+        "KJV", "Ps.43.1", 0..5, showVerseNumbers = false, showWholeVerse = false,
+        showQuotes = false, showEllipsis = false, showVersion = true, notes = "a note on this verse",
+    )
+
+    // Input 2: a two-verse selection (Psa 83:1-2, mirrors TestShare1-4).
+    @Test fun twoVersesDefault() = assertBuildTextEquals(
+        "“1. ...do not keep silence; do not hold your peace or be still, O God! 2. For behold, your " +
+            "enemies make ...” (Psa 83:1-2, ESV2011)",
+        "ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, false,
+    )
+
+    @Test fun twoVersesWholeVerse() = assertBuildTextEquals(
+        "“1. O God, do not keep silence; do not hold your peace or be still, O God! 2. For behold, your " +
+            "enemies make an uproar; those who hate you have raised their heads.” (Psa 83:1-2, ESV2011)",
+        "ESV2011", "Ps.83.1-Ps.83.2", 7..30, true, true,
+    )
+
+    @Test fun twoVersesNoVerseNumbers() = assertBuildTextEquals(
+        "“O God, do not keep silence; do not hold your peace or be still, O God! For behold, your " +
+            "enemies make an uproar; those who hate you have raised their heads.” (Psa 83:1-2, ESV2011)",
+        "ESV2011", "Ps.83.1-Ps.83.2", 7..30, false, true,
+    )
+
+    @Test fun twoVersesSeparateWithNewlines() = assertBuildTextEquals(
+        "“1. O God, do not keep silence; do not hold your peace or be still, O God!\n\n" +
+            "2. For behold, your enemies make an uproar; those who hate you have raised their heads.”" +
+            "\n\nPsa 83:1-2, ESV2011",
+        "ESV2011", "Ps.83.1-Ps.83.2", 7..30, showVerseNumbers = true, showWholeVerse = true,
+        separateVersesWithNewlines = true,
+    )
+
+    @Test fun singleVerseSeparateWithNewlinesReferenceAtFront() = assertBuildTextEquals(
+        "Psa 83:1 ESV2011\n\n“O God, do not keep silence; do not hold your peace or be still, O God!”",
+        "ESV2011", "Ps.83.1", 7..30, showVerseNumbers = true, showWholeVerse = true,
+        showReferenceAtFront = true, separateVersesWithNewlines = true,
+    )
+
+    // Input 3: a three-verse, cross-chapter selection (Matt 2:23-3:2, mirrors TestShare5-7 /
+    // testShareWithNewlines_ThreeVerses).
+    @Test fun threeVersesCrossChapterDefault() = assertBuildTextEquals(
+        "“23. And he went and lived in a city called Nazareth, so that what was spoken by the prophets " +
+            "might be fulfilled, that he would be called a Nazarene. 1. In those days John the Baptist came " +
+            "preaching in the wilderness of Judea, 2. “Repent, for the kingdom of heaven is at hand.”” " +
+            "(Mat 2:23-3:2, ESV2011)",
+        "ESV2011", "Matt.2.23-Matt.3.2", 7..11, true, true,
+    )
+
+    @Test fun threeVersesCrossChapterPartial() = assertBuildTextEquals(
+        "“23. ...went and lived in a city called Nazareth, so that what was spoken by the prophets might " +
+            "be fulfilled, that he would be called a Nazarene. 1. In those days John the Baptist came preaching " +
+            "in the wilderness of Judea, 2. “Repent, for...” (Mat 2:23-3:2, ESV2011)",
+        "ESV2011", "Matt.2.23-Matt.3.2", 7..12, true, false,
+    )
+
+    @Test fun threeVersesCrossChapterSeparateWithNewlines() = assertBuildTextEquals(
+        "“23. And he went and lived in a city called Nazareth, so that what was spoken by the prophets " +
+            "might be fulfilled, that he would be called a Nazarene.\n\n" +
+            "1. In those days John the Baptist came preaching in the wilderness of Judea,\n\n" +
+            "2. “Repent, for the kingdom of heaven is at hand.””\n\nMat 2:23-3:2, ESV2011",
+        "ESV2011", "Matt.2.23-Matt.3.2", 7..11, showVerseNumbers = true, showWholeVerse = true,
+        separateVersesWithNewlines = true,
+    )
+
+    @Test fun threeVerseRangeWithinOneChapter() = assertBuildTextEquals(
+        "“1. Vindicate me, O God, and defend my cause against an ungodly people, from the deceitful and " +
+            "unjust man deliver me! 2. For you are the God in whom I take refuge; why have you rejected me? " +
+            "Why do I go about mourning because of the oppression of the enemy? 3. Send out your light and " +
+            "your truth; let them lead me; let them bring me to your holy hill and to you...” (Psa 43:1-3, ESV2011)",
+        "ESV2011", "Ps.43.1-Ps.43.3", 0..100, true, false,
+    )
 }

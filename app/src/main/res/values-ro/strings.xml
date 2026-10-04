@@ -414,10 +414,6 @@
   <string name="auto_assign_labels1">Pune automat etichete la noile semne de carte</string>
   <string name="auto_assign_labels_primary">Pune automat ca principală</string>
   <!--can be removed-->
-  <string name="marker_style">Evidențiază numai semnele de carte ale textului ales</string>
-  <string name="marker_style_whole_verse">Evidențiază numai semnele de carte ale versetului</string>
-  <string name="hide_style">Ascunde pentru semnele de carte ale textului ales</string>
-  <string name="hide_style_whole_verse">Ascunde pentru semnele de carte ale versetului</string>
   <string name="bookmark_warning">Există semne de carte și/sau notițe pentru acest document.</string>
   <string name="bookmark_warning2">
         Dacă structura documentului s-a modificat, actualizarea acestui document ar putea face ca
@@ -946,8 +942,6 @@
   <string name="favourite_label">Etichetă preferată</string>
   <string name="edit_label">Modifică eticheta</string>
   <string name="delete_label_confirmation">Vrei să elimini eticheta semnului de carte „%s”? Vor fi eliminate toate notițele asociate notițelor de studiu.</string>
-  <string name="bookmark_underline_style_arbitrary">Tipul de subliniere pentru semnele de carte ale textului ales</string>
-  <string name="bookmark_underline_style_whole_verse">Tipul de subliniere pentru semnele de carte ale versetului</string>
   <string name="active_labels">Etichete alese</string>
   <string name="recent_labels">Etichete recente</string>
   <string name="other_labels">Alte etichete</string>

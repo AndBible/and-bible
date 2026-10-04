@@ -19,7 +19,6 @@ package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.SearchManager
 import android.content.ClipData
 import android.content.Context
@@ -29,7 +28,6 @@ import android.content.pm.ResolveInfo
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.os.Looper
 import android.text.TextUtils
 import android.util.LayoutDirection
@@ -79,6 +77,7 @@ import net.bible.android.control.progress.MemorizationDataChangedEvent
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.progress.ReadingProgressSettingsChangedEvent
 import net.bible.service.common.ReadingProgressSettings
+import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.NoteEditorEntityType
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
@@ -87,10 +86,11 @@ import net.bible.android.control.bookmark.StudyPadOrderEvent
 import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.on
+import net.bible.android.control.event.onMain
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
-import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument
@@ -123,27 +123,26 @@ import net.bible.android.misc.wrapString
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.android.view.activity.bookmark.ManageLabels
+import net.bible.android.view.activity.bookmark.ManageLabelsContract
 import net.bible.android.view.activity.bookmark.updateFrom
-import net.bible.android.view.activity.download.DownloadActivity
-import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
-import net.bible.android.view.activity.page.screen.BibleFrame
+import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.android.view.Screen
+import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
-import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.activity.page.screen.clipboardKey
-import net.bible.android.view.activity.search.SearchIndex
-import net.bible.android.view.activity.search.SearchResults
 import net.bible.android.view.util.UiUtils
-import net.bible.android.view.util.widget.ShareWidget
+import net.bible.service.sword.SwordContentFacade
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
+import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.currentWorkspaceThemeSeedArgb
+import net.bible.sharedui.theme.themeColorsJson
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
 import net.bible.service.sword.SwordDocumentFacade
@@ -171,10 +170,19 @@ import java.io.IOException
 import java.lang.ref.WeakReference
 import java.net.URLConnection
 import java.util.*
-import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.min
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
+/**
+ * POSTED WITH NO SUBSCRIBERS since Batch Z-late phase 1 removed the classic reading view.
+ *
+ * Recorded rather than swept, deliberately and consistently across the whole batch: deleting an
+ * unreachable HANDLER is a local tidy-up, while deleting a posted EVENT changes what the app
+ * announces about itself, and any later subscriber -- Compose, iOS or a future feature -- would
+ * want it back. Whoever revisits this should decide the poster's fate first, not the class's.
+ */
 class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
 
@@ -183,6 +191,27 @@ private val notFound = WebResourceResponse(null, null, null)
 
 const val white = -1
 const val black = -16777216
+
+/**
+ * Resolves the reader background colour for [window] — day/night, per-window/workspace/global
+ * colour-scheme, and monochrome aware. Extracted from [BibleView.backgroundColor] (which now
+ * delegates here) so [net.bible.android.view.activity.page.screen.ComposeReadingViewHost.paneBackgroundArgbFor]
+ * can resolve the SAME colour for a [Window] that has no live [BibleView] yet — a brand-new window
+ * created via [net.bible.android.control.page.window.WindowControl.restoreWindow] doesn't get one
+ * until its pane's `AndroidView` factory runs, which happens strictly AFTER the pane `Box`'s
+ * background modifier is evaluated (A/B batch 4a whole-batch review C1: `paneBackgroundArgbFor`
+ * previously read `Window.bibleView?.backgroundColor`, which is exactly `null` in that window —
+ * the one case F5 exists to paint).
+ *
+ * Only depends on [window] (never on `this@BibleView`), so it needs no [BibleView] instance at all.
+ */
+fun bibleViewBackgroundColorFor(window: Window): Int {
+    val colors = window.pageManager.actualTextDisplaySettings.colors
+    val monochromeMode = CommonUtils.settings.monochromeMode
+    val nightBackground = if (monochromeMode) black else colors?.nightBackground
+    val dayBackground = if (monochromeMode) white else colors?.dayBackground
+    return (if (ScreenSettings.nightMode) nightBackground else dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
+}
 
 @Serializable
 class Selection(
@@ -202,7 +231,7 @@ class Selection(
     val noteEditorContent: String? = null,
     /** Content type of the editor: "MARKDOWN" or "HTML" */
     val noteEditorContentType: String? = null,
-)
+) : KoinComponent
 {
     constructor(bookmark: BookmarkEntities.BibleBookmarkWithNotes):
         this(
@@ -237,11 +266,8 @@ class Selection(
             text = text,
         )
 
-    @Transient @Inject lateinit var windowControl: WindowControl
+    @Transient val windowControl: WindowControl by inject()
 
-    init {
-        buildActivityComponent().inject(this)
-    }
 
     val hasRange get() = startOffset != null && endOffset != null
 
@@ -265,7 +291,16 @@ class Selection(
 
 /** The WebView component that shows the bible and other documents */
 @SuppressLint("ViewConstructor")
-class BibleView(val mainBibleActivity: MainBibleActivity,
+class BibleView(
+                /**
+                 * R6a: R4's narrow reading-host interface, not the Activity. The
+                 * `MainBibleActivity`-only members this class used to reach through it are in
+                 * [hostCallbacks]; everything else here is chrome the interface owns, a plain
+                 * `Context` ([ReadingHostActivity.hostContext]) or `LifecycleOwner`.
+                 */
+                val host: ReadingHostActivity,
+                /** See [BibleViewHostCallbacks]. Also read by this view's [BibleJavascriptInterface]. */
+                val hostCallbacks: BibleViewHostCallbacks,
                 internal var windowRef: WeakReference<Window>,
                 internal val windowControl: WindowControl,
                 private val pageControl: PageControl,
@@ -274,7 +309,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 internal val bookmarkControl: BookmarkControl,
                 internal val downloadControl: DownloadControl,
                 private val searchControl: SearchControl
-) : WebView(mainBibleActivity.applicationContext), DocumentView
+) : WebView(host.hostContext.applicationContext), DocumentView
 {
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
 
@@ -299,7 +334,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private val maxHorizontalScroll: Int
         get() = computeHorizontalScrollRange() - computeHorizontalScrollExtent()
 
-    private val gestureListener  = BibleGestureListener(mainBibleActivity, this)
+    private val gestureListener  = BibleGestureListener(host, this,
+        onNext = { hostCallbacks.onNext() }, onPrevious = { hostCallbacks.onPrevious() })
 
     private var toBeDestroyed = false
 
@@ -377,7 +413,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
             R.id.share_verses -> {
                 val sel = currentSelection ?: return true
-                ShareWidget.dialog(mainBibleActivity, sel)
+                hostCallbacks.composeReadingViewHost()?.showShareSheet(SwordContentFacade.buildShareVersesInput(sel))
                 return true
             }
             R.id.open_ref -> {
@@ -391,7 +427,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return true
             }
             R.id.web_search -> {
-                if (currentSelectionText != null) { openWebSearch(mainBibleActivity, currentSelectionText!!) }
+                if (currentSelectionText != null) { openWebSearch(host.hostContext, currentSelectionText!!) }
                 return true
             }
             R.id.lookup_dictionary -> {
@@ -404,7 +440,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             R.id.llm_action -> {
                 val sel = currentSelection
                 if (sel != null) {
-                    mainBibleActivity.showLlmPromptSelector(sel)
+                    hostCallbacks.showLlmPromptSelector(sel, PromptContext.VERSE_SELECTION)
                 }
                 mode.finish()
                 return true
@@ -414,24 +450,46 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 val sel = currentSelection
                 val selText = sel?.text?:text?:return true
                 val currentBible = currentPageManager.currentBible.currentDocument ?: return true
+                // Section-less decorated query for highlighting result previews (mirrors Search.kt).
+                val highlightText = searchControl.highlightSearchString(selText, SearchType.PHRASE)
                 val searchText = searchControl.decorateSearchString(
                     selText,
                     SearchType.PHRASE,
                     SearchControl.SearchBibleSection.ALL,
                     ""
                 )
-                val searchParams = Bundle().apply {
-                    putString(SearchControl.SEARCH_TEXT, searchText)
-                    putString(SearchControl.SEARCH_DOCUMENT, currentBible.initials)
+
+                // F6 Task 8b entry point 7: retarget into the reading view's search when a Compose
+                // host is mounted. `searchText` is ALREADY decorated (PHRASE + no section term) —
+                // `preDecorated = true` tells the host to re-decorate with identity decorators
+                // instead of the live settings-sheet word-mode/section, reproducing this exact
+                // string rather than decorating it twice (see
+                // `ComposeReadingViewHost.openSearch`'s kdoc). Classic behaviour unchanged otherwise.
+                if (hostCallbacks.composeSearchIfHosted(searchText, /* preDecorated = */ true)) {
+                    return true
                 }
 
-                val intent = Intent(
-                    mainBibleActivity,
-                    if (currentBible.indexStatus != IndexStatus.DONE) SearchIndex::class.java else SearchResults::class.java
-                ).apply {
-                    putExtras(searchParams)
+                // nav-graph slice 5/Task 6: the search cluster lives in the graph now, so the
+                // screen's arguments travel IN the route. `ScreenLauncher.intentFor(..., Screen
+                // .SearchIndex)` resolves to the nav host with an ARGUMENT-FREE route, and the
+                // three-key bundle this used to putExtras() would land nowhere (the host reads
+                // only EXTRA_ROUTE) -- see NavHostRoutingGuardTest
+                // .migratedScreenArgumentIsNeverDroppedByAPutExtra. No SELECTED_TRANSLATIONS and
+                // no IS_STRONGS_SEARCH here, exactly as the classic bundle carried neither.
+                val route = if (currentBible.indexStatus != IndexStatus.DONE) {
+                    NavRoutes.searchIndex(
+                        searchText = searchText,
+                        highlightText = highlightText,
+                        searchDocument = currentBible.initials,
+                    )
+                } else {
+                    NavRoutes.searchResults(
+                        searchText = searchText,
+                        highlightText = highlightText,
+                        searchDocument = currentBible.initials,
+                    )
                 }
-                mainBibleActivity.startActivity(intent)
+                host.hostContext.startActivity(NavHostComposeActivity.intentFor(host.hostContext, route))
 
                 return true
             }
@@ -563,22 +621,27 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         linkControl.openMemorize(BookAndKey(verseRange, selection.book))
     }
 
-    val scope get() = mainBibleActivity.lifecycleScope
+    val scope get() = host.lifecycleScope
 
-    internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.IO) {
-        val labels = bookmarkControl.labelsForBookmark(bookmark).map { it.id }
-        val intent = Intent(mainBibleActivity, ManageLabels::class.java)
-        intent.putExtra("data", ManageLabels.ManageLabelsData(
-            mode = ManageLabels.Mode.ASSIGN,
+    internal fun assignLabels(bookmark: BookmarkEntities.BaseBookmarkWithNotes) = scope.launch(Dispatchers.Main) {
+        val labels = withContext(Dispatchers.IO) { bookmarkControl.labelsForBookmark(bookmark).map { it.id } }
+        // Screen.ManageLabels is deliberately not in ScreenLauncher.MIGRATED (its `data` argument is
+        // required), and the classic ManageLabelsComposeActivity ScreenLauncher.targetFor used to
+        // resolve it to is gone (nav-graph slices 2+4 Task 7), so this builds the nav-host Intent
+        // directly. The "data" extra on the RESULT is unchanged -- NavResultIntents.forManageLabels
+        // still writes it under that key.
+        val data = ManageLabelsContract.ManageLabelsData(
+            mode = ManageLabelsContract.Mode.ASSIGN,
             selectedLabels = labels.toMutableSet(),
             bookmarkPrimaryLabel = bookmark.primaryLabelId
-        ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
-        val result = mainBibleActivity.awaitIntent(intent)
+        ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON()
+        val intent = NavHostComposeActivity.intentFor(host.hostContext, NavRoutes.manageLabels(data))
+        val result = hostCallbacks.hostActivity.awaitIntent(intent)
 
         if(result.resultCode == Activity.RESULT_OK) {
-            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
+            val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
             bookmark.primaryLabelId = resultData.bookmarkPrimaryLabel
-            bookmarkControl.addOrUpdateBookmark(bookmark, resultData.selectedLabels)
+            withContext(Dispatchers.IO) { bookmarkControl.addOrUpdateBookmark(bookmark, resultData.selectedLabels) }
             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
         }
     }
@@ -598,11 +661,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     @RequiresApi(Build.VERSION_CODES.M)
     private fun getSupportedActivities(): List<ResolveInfo> {
         val packageManager: PackageManager = context.packageManager
+        // No filter: AndBible stopped registering itself as a PROCESS_TEXT handler when the
+        // SearchResults <activity-alias> was removed (837515385690, 2025-08-21), so there is no
+        // longer an own entry to strip out of this list. See spec §9.2 / Appendix F.2.
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             packageManager.queryIntentActivities(createProcessTextIntent(), PackageManager.ResolveInfoFlags.of(0))
         } else {
             packageManager.queryIntentActivities(createProcessTextIntent(), 0)
-        }.filter { it.activityInfo.name != SearchResults::class.qualifiedName }
+        }
     }
 
     private fun getLabel(resolveInfo: ResolveInfo): CharSequence {
@@ -664,8 +730,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 synchronized(BookName::class.java) {
                     val wasFullBookName = BookName.isFullBookName()
                     BookName.setFullBookName(false)
-                    item.title = context.getString(R.string.go_to_ref, ref.name)
-                    BookName.setFullBookName(wasFullBookName)
+                    try {
+                        item.title = context.getString(R.string.go_to_ref, ref.name)
+                    } finally {
+                        BookName.setFullBookName(wasFullBookName)
+                    }
                 }
             }
             if(ref == null && currentSelectionText != null) {
@@ -920,12 +989,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             "?lang=$lang&fontModuleNames=$fontModuleNames&styleModuleNames=$styleModuleNames&featureModuleNames=$featureModuleNames&rtl=$isRtl&night=$nightMode")
     }
 
-     fun onEvent(e: ReloadAddonsEvent) {
-        val fontModuleNames = json.encodeToString(serializer(), AndBibleAddons.fontModuleNames)
-        val featureModuleNames = json.encodeToString(serializer(), AndBibleAddons.featureModuleNames)
-        val styleModuleNames = json.encodeToString(serializer(), AndBibleAddons.styleModuleNames)
-        executeJavascriptOnUiThread("bibleView.emit('reload_addons', {fontModuleNames: $fontModuleNames, featureModuleNames: $featureModuleNames, styleModuleNames: $styleModuleNames});")
-    }
 
     override fun destroy() {
         toBeDestroyed = true
@@ -938,7 +1001,213 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         set(value) {
             if(value == field) return
             if(value) {
-                ABEventBus.register(this)
+                ABEventBus.register(this) {
+                    on<ReloadAddonsEvent> { e ->
+                        val fontModuleNames = json.encodeToString(serializer(), AndBibleAddons.fontModuleNames)
+                        val featureModuleNames = json.encodeToString(serializer(), AndBibleAddons.featureModuleNames)
+                        val styleModuleNames = json.encodeToString(serializer(), AndBibleAddons.styleModuleNames)
+                        executeJavascriptOnUiThread("bibleView.emit('reload_addons', {fontModuleNames: $fontModuleNames, featureModuleNames: $featureModuleNames, styleModuleNames: $styleModuleNames});")
+                    }
+                    on<AppSettingsUpdated> { event ->
+                        updateConfig()
+                    }
+                    on<BookmarksAddedOrUpdatedEvent> { event ->
+                        val document = firstDocument
+
+                        val clientBookmarks = event.bookmarks.map {
+                            when (it) {
+                                is BookmarkEntities.BibleBookmarkWithNotes ->
+                                    ClientBibleBookmark(
+                                        it,
+                                        when (document) {
+                                            is BibleDocument -> document.swordBook.versification
+                                            is MyNotesDocument -> KJVA
+                                            else -> null
+                                        }
+                                    )
+
+                                is BookmarkEntities.GenericBookmarkWithNotes -> ClientGenericBookmark(it)
+                                else -> throw RuntimeException("Invalid type")
+                            }
+                        }.map { it.asJson }
+
+                        val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
+                        executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
+                    }
+                    on<MemorizationDataChangedEvent> { event ->
+                        val doc = firstDocument
+                        if (doc !is BibleDocument && doc !is MemorizeDocument) return@on
+
+                        // Convert KJV ordinals to document versification
+                        val v11n = when (doc) {
+                            is BibleDocument -> doc.swordBook.versification
+                            is MemorizeDocument -> doc.bookInitials?.let {
+                                (SwordDocumentFacade.getDocumentByInitials(it) as? SwordBook)?.versification
+                            }
+                            else -> null
+                        }
+                        fun convertOrdinals(kjvOrdinals: List<Int>): String {
+                            val converted = if (v11n != null) {
+                                kjvOrdinals.map { Verse(KJVA, it).toV11n(v11n).ordinal }
+                            } else {
+                                kjvOrdinals
+                            }
+                            return json.encodeToString(serializer(), converted)
+                        }
+
+                        val addedMemorized = convertOrdinals(event.addedMemorized)
+                        val removedMemorized = convertOrdinals(event.removedMemorized)
+                        val addedTargets = convertOrdinals(event.addedTargets)
+                        val removedTargets = convertOrdinals(event.removedTargets)
+                        executeJavascriptOnUiThread("""bibleView.emit("update_memorization_data", {
+                            addedMemorized: $addedMemorized, removedMemorized: $removedMemorized,
+                            addedTargets: $addedTargets, removedTargets: $removedTargets
+                        });""")
+                    }
+                    on<ChapterReadStatusChangedEvent> { event ->
+                        val doc = firstDocument
+                        if (doc !is BibleDocument) return@on
+                        // Different windows may show the same chapter number across different books, so
+                        // filter by KJV book ordinal here — the Vue-side tracker only checks chapter number.
+                        val docKjvBookOrdinal = doc.verseRange.toV11n(KJVA).start.book.ordinal
+                        if (docKjvBookOrdinal != event.kjvBookOrdinal) return@on
+                        executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
+                            chapter: ${event.chapter}, count: ${event.count}
+                        });""")
+                    }
+                    on<ActiveCycleChangedEvent> { event ->
+                        val doc = firstDocument
+                        if (doc !is BibleDocument) return@on
+                        if (minChapter < 0 || maxChapter < 0) return@on
+                        val v11n = doc.swordBook.versification
+                        val book = doc.verseRange.start.book
+                        for (chapter in minChapter..maxChapter) {
+                            val count = ProgressControl.getChapterReadCount(v11n, book, chapter)
+                            executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
+                                chapter: $chapter, count: $count
+                            });""")
+                        }
+                    }
+                    on<ReadingProgressSettingsChangedEvent> { event ->
+                        val settingsJson = ReadingProgressSettings.getBundleAsJson()
+                        executeJavascriptOnUiThread("""bibleView.emit("update_reading_progress_settings", $settingsJson);""")
+                        updateConfig()
+                    }
+                    on<AiDocPagesChangedEvent> { event ->
+                        // For Bible documents, convert ordinals to target versification.
+                        // For all other documents, pass markers as-is — Vue.js filters by sourceBookInitials/Key.
+                        val v11n = (firstDocument as? BibleDocument)?.swordBook?.versification
+
+                        if (event.markers.isNotEmpty()) {
+                            val markerStr = event.markers.map { ClientAiDocMarker(it, v11n).asJson }.joinToString(",", "[", "]")
+                            executeJavascriptOnUiThread("""bibleView.emit("add_or_update_ai_doc_markers", $markerStr);""")
+                        }
+                        if (event.deletedPageIds.isNotEmpty()) {
+                            val idsStr = json.encodeToString(serializer(), event.deletedPageIds.map { it.toString() })
+                            executeJavascriptOnUiThread("""bibleView.emit("delete_ai_doc_markers", $idsStr);""")
+                        }
+                    }
+                    on<BookmarkNoteModifiedEvent> { event ->
+                        executeJavascriptOnUiThread("""
+                            bibleView.emit("bookmark_note_modified", {id: "${event.bookmarkId}", lastUpdatedOn: ${event.lastUpdatedOn}, notes: ${json.encodeToString(serializer(), event.notes)}});
+                        """)
+                    }
+                    on<StudyPadOrderEvent> { event ->
+                        val doc = firstDocument
+                        if(doc !is StudyPadDocument || doc.label.id != event.labelId) return@on
+                        val studyPadTextEntryJson = json.encodeToString(serializer(), event.newStudyPadTextEntry)
+                        val bookmarkToLabels = json.encodeToString(serializer(), event.bookmarkToLabelsOrderChanged)
+                        val genericBookmarkToLabels = json.encodeToString(serializer(), event.genericBookmarkToLabelsOrderChanged)
+                        val studyPadItems = json.encodeToString(serializer(), event.studyPadOrderChanged)
+                        executeJavascriptOnUiThread("""
+                            bibleView.emit("add_or_update_study_pad",  {
+                                studyPadTextEntry: $studyPadTextEntryJson,
+                                bookmarkToLabelsOrdered: $bookmarkToLabels,
+                                genericBookmarkToLabelsOrdered: $genericBookmarkToLabels,
+                                studyPadItemsOrdered: $studyPadItems
+                                });
+                        """)
+                    }
+                    on<BookmarkToLabelAddedOrUpdatedEvent> { event ->
+                        val doc = firstDocument
+                        if(doc !is StudyPadDocument || doc.label.id != event.bookmarkToLabel.labelId) return@on
+                        val bookmarkToLabelStr = when(event.bookmarkToLabel) {
+                            is BookmarkEntities.BibleBookmarkToLabel ->json.encodeToString(serializer(), event.bookmarkToLabel)
+                            is BookmarkEntities.GenericBookmarkToLabel -> json.encodeToString(serializer(), event.bookmarkToLabel)
+                            else -> throw RuntimeException("Illegal type")
+                        }
+                        executeJavascriptOnUiThread("""
+                            bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabelStr);
+                        """)
+                    }
+                    on<StudyPadTextEntryDeleted> { event ->
+                        if(firstDocument !is StudyPadDocument) return@on
+                        executeJavascriptOnUiThread("""
+                            bibleView.emit("delete_study_pad_text_entry", "${event.studyPadTextEntryId}");
+                        """)
+                    }
+                    on<LabelAddedOrUpdatedEvent> { event ->
+                        val workspaceId = windowControl.windowRepository.id
+                        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+                        labelOverridesMap = dao.labelOverrides(workspaceId).associateBy { it.labelId }
+                        val overriddenLabel = event.label.withStyleOverrides(labelOverridesMap[event.label.id])
+                        val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(overriddenLabel))
+                        executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
+                    }
+                    on<BookmarksDeletedEvent> { event ->
+                        val bookmarkIds = json.encodeToString(serializer(), event.bookmarkIds)
+                        executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
+                    }
+                    on<LabelsDeletedEvent> { event ->
+                        val labelIds = json.encodeToString(serializer(), event.labelIds)
+                        executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
+                    }
+                    on<CurrentWindowChangedEvent> { event ->
+                        if (window == event.activeWindow) {
+                            bibleJavascriptInterface.notificationsEnabled = true
+                            resumeTiltScroll()
+                        } else {
+                            bibleJavascriptInterface.notificationsEnabled = false
+                            pauseTiltScroll()
+                        }
+                        updateActive()
+                    }
+                    on<ScrollSecondaryWindowEvent> { event ->
+                        if (window == event.window) {
+                            scrollOrJumpToVerse(event.verse)
+                        }
+                    }
+                    on<ConfigurationChanged> { event ->
+                        checkWindows = true
+                    }
+                    on<NumberOfWindowsChangedEvent> { event ->
+                        if(window.isVisible) {
+                            updateOffsets(true)
+                            updateConfig()
+                        }
+                    }
+                    on<FullScreenEvent> { event -> updateOffsets() }
+                    on<SystemInsetsChangedEvent> { event -> updateOffsets() }
+                    on<RestoreButtonsVisibilityChanged> { event -> updateOffsets() }
+                    on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
+                    on<AgentLogOffsetsUpdated> { event ->
+                        Log.i(TAG, "BibleView received AgentLogOffsetsUpdated")
+                        updateOffsets(true)
+                    }
+                    // F6 Task 8b Step 3: the search sheet's own visible/height pair changed — see
+                    // MainBibleActivity.updateSearchSheetOffsets.
+                    on<SearchSheetOffsetsUpdated> { event ->
+                        updateOffsets(true)
+                    }
+                    on<ImePaddingChanged> { event ->
+                        updateOffsets(true)
+                    }
+                    // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here
+                    // and finish a deferred teardown. Both events were posted only by the classic
+                    // split reading area, so they became unpostable when it went; the live teardown
+                    // route is `BibleViewFactory.clear()`, which calls `doDestroy()` directly and
+                    // is not event-driven. Removed in Batch Z-late's epilogue (spec 10.3).
+                }
             } else {
                 ABEventBus.unregister(this)
             }
@@ -1225,9 +1494,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         UriConstants.SCHEME_DOWNLOAD -> {
             val initials = uri.getQueryParameter("initials")
 
-            val intent = Intent(mainBibleActivity, DownloadActivity::class.java)
-            intent.putExtra("search", initials)
-            mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+            val intent = NavHostComposeActivity.intentFor(host.hostContext, NavRoutes.download(search = initials))
+            hostCallbacks.hostActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
             true
         }
         UriConstants.SCHEME_SWORD -> {
@@ -1294,12 +1562,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
             Log.i(TAG, "onRenderProcessGone")
-            val bf = view.parent as? BibleFrame
-            if (bf != null) {
-                bf.recreate()
-            } else {
-                Log.w(TAG, "WebView parent is null in onRenderProcessGone, cannot recreate")
-            }
+            // Renderer-crash RECOVERY is RETIRED, not ported: this used to cast `view.parent` to
+            // classic `BibleFrame` and call `bf.recreate()`, which rebuilt the frame -- and with it
+            // this BibleView -- after the WebView renderer process died. On the Compose path the
+            // parent is the `AndroidView` container, so the cast has been null and the recovery a
+            // silent no-op ever since the host was introduced; the frame it reached for is deleted
+            // in Batch Z-late's epilogue (spec 10.3). What is no longer recovered: after a renderer
+            // death the pane is left showing a blank WebView until something else rebuilds it
+            // (a window/workspace change, or the user reopening the app). Returning `true` still
+            // keeps the crash from taking the whole process down, exactly as before.
+            Log.w(TAG, "WebView renderer gone; no recreate on the compose path")
             return true
         }
     }
@@ -1377,13 +1649,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    val backgroundColor: Int get() {
-        val colors = window.pageManager.actualTextDisplaySettings.colors
-        val monochromeMode = CommonUtils.settings.monochromeMode
-        val nightBackground = if(monochromeMode) black else colors?.nightBackground
-        val dayBackground = if(monochromeMode) white else colors?.dayBackground
-        return (if(ScreenSettings.nightMode) nightBackground else dayBackground) ?: UiUtils.bibleViewDefaultBackgroundColor
-    }
+    // A/B batch 4a whole-batch review C1: delegates to the top-level bibleViewBackgroundColorFor
+    // (declared above, next to the `white`/`black` consts it uses) so ComposeReadingViewHost can
+    // resolve the SAME colour for a window with no BibleView yet. Behaviour-preserving: identical
+    // body, just extracted.
+    val backgroundColor: Int get() = bibleViewBackgroundColorFor(window)
 
     var lastUpdated = 0L
     var bookmarkLabels: List<BookmarkEntities.Label> = emptyList()
@@ -1443,7 +1713,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             // Our BibleView.js will freeze and eventually OOM-crash with ridiculously large documents.
             if(docStr.length > MAX_DOC_STR_LENGTH) {
                 Log.e(TAG, "Page is too large to be shown, showing error instead, ${docStr.length}")
-                val errorDoc = ErrorDocument(mainBibleActivity.getString(R.string.error_page_too_large), ErrorSeverity.NORMAL)
+                val errorDoc = ErrorDocument(host.getString(R.string.error_page_too_large), ErrorSeverity.NORMAL)
                 docStr = errorDoc.asJson
                 firstDocument = errorDoc
             }
@@ -1521,6 +1791,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
+        val themeColors = themeColorsJson(
+            seedArgb = currentWorkspaceThemeSeedArgb(),
+            dark = nightMode,
+            colorMode = CommonUtils.settings.displayColorMode,
+        )
         return """
                 bibleView.emit('set_config', {
                     config: ${displaySettings.toJson()},
@@ -1545,6 +1820,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,
+                        themeColors: $themeColors,
                         disableClickToEdit:  $disableClickToEdit,
                         llmConfigured: ${CommonUtils.settings.llmConfigured},
                         notesContentType: "${CommonUtils.settings.notesContentType}",
@@ -1552,10 +1828,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     initial: $initial,
                     });
                 """
-    }
-
-    fun onEvent(event: AppSettingsUpdated) {
-        updateConfig()
     }
 
     private fun updateConfig(initial: Boolean = false) {
@@ -1567,7 +1839,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         setBackgroundColor(backgroundColor)
     }
 
-    private val nightMode get() = mainBibleActivity.currentNightMode
+    private val nightMode get() = hostCallbacks.currentNightMode()
 
     private var labelsUploaded = false
 
@@ -1763,256 +2035,57 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         return this
     }
 
-    fun onEvent(event: BookmarksAddedOrUpdatedEvent) {
-        val document = firstDocument
-
-        val clientBookmarks = event.bookmarks.map {
-            when (it) {
-                is BookmarkEntities.BibleBookmarkWithNotes ->
-                    ClientBibleBookmark(
-                        it,
-                        when (document) {
-                            is BibleDocument -> document.swordBook.versification
-                            is MyNotesDocument -> KJVA
-                            else -> null
-                        }
-                    )
-
-                is BookmarkEntities.GenericBookmarkWithNotes -> ClientGenericBookmark(it)
-                else -> throw RuntimeException("Invalid type")
-            }
-        }.map { it.asJson }
-
-        val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
-        executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
-    }
-
-    fun onEvent(event: MemorizationDataChangedEvent) {
-        val doc = firstDocument
-        if (doc !is BibleDocument && doc !is MemorizeDocument) return
-
-        // Convert KJV ordinals to document versification
-        val v11n = when (doc) {
-            is BibleDocument -> doc.swordBook.versification
-            is MemorizeDocument -> doc.bookInitials?.let {
-                (SwordDocumentFacade.getDocumentByInitials(it) as? SwordBook)?.versification
-            }
-            else -> null
-        }
-        fun convertOrdinals(kjvOrdinals: List<Int>): String {
-            val converted = if (v11n != null) {
-                kjvOrdinals.map { Verse(KJVA, it).toV11n(v11n).ordinal }
-            } else {
-                kjvOrdinals
-            }
-            return json.encodeToString(serializer(), converted)
-        }
-
-        val addedMemorized = convertOrdinals(event.addedMemorized)
-        val removedMemorized = convertOrdinals(event.removedMemorized)
-        val addedTargets = convertOrdinals(event.addedTargets)
-        val removedTargets = convertOrdinals(event.removedTargets)
-        executeJavascriptOnUiThread("""bibleView.emit("update_memorization_data", {
-            addedMemorized: $addedMemorized, removedMemorized: $removedMemorized,
-            addedTargets: $addedTargets, removedTargets: $removedTargets
-        });""")
-    }
-
-    fun onEvent(event: ChapterReadStatusChangedEvent) {
-        val doc = firstDocument
-        if (doc !is BibleDocument) return
-        // Different windows may show the same chapter number across different books, so
-        // filter by KJV book ordinal here — the Vue-side tracker only checks chapter number.
-        val docKjvBookOrdinal = doc.verseRange.toV11n(KJVA).start.book.ordinal
-        if (docKjvBookOrdinal != event.kjvBookOrdinal) return
-        executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-            chapter: ${event.chapter}, count: ${event.count}
-        });""")
-    }
-
-    fun onEvent(event: ActiveCycleChangedEvent) {
-        val doc = firstDocument
-        if (doc !is BibleDocument) return
-        if (minChapter < 0 || maxChapter < 0) return
-        val v11n = doc.swordBook.versification
-        val book = doc.verseRange.start.book
-        for (chapter in minChapter..maxChapter) {
-            val count = ProgressControl.getChapterReadCount(v11n, book, chapter)
-            executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-                chapter: $chapter, count: $count
-            });""")
-        }
-    }
-
-    fun onEvent(event: ReadingProgressSettingsChangedEvent) {
-        val settingsJson = ReadingProgressSettings.getBundleAsJson()
-        executeJavascriptOnUiThread("""bibleView.emit("update_reading_progress_settings", $settingsJson);""")
-        updateConfig()
-    }
-
-    fun onEvent(event: AiDocPagesChangedEvent) {
-        // For Bible documents, convert ordinals to target versification.
-        // For all other documents, pass markers as-is — Vue.js filters by sourceBookInitials/Key.
-        val v11n = (firstDocument as? BibleDocument)?.swordBook?.versification
-
-        if (event.markers.isNotEmpty()) {
-            val markerStr = event.markers.map { ClientAiDocMarker(it, v11n).asJson }.joinToString(",", "[", "]")
-            executeJavascriptOnUiThread("""bibleView.emit("add_or_update_ai_doc_markers", $markerStr);""")
-        }
-        if (event.deletedPageIds.isNotEmpty()) {
-            val idsStr = json.encodeToString(serializer(), event.deletedPageIds.map { it.toString() })
-            executeJavascriptOnUiThread("""bibleView.emit("delete_ai_doc_markers", $idsStr);""")
-        }
-    }
-
-    fun onEvent(event: BookmarkNoteModifiedEvent) {
-        executeJavascriptOnUiThread("""
-            bibleView.emit("bookmark_note_modified", {id: "${event.bookmarkId}", lastUpdatedOn: ${event.lastUpdatedOn}, notes: ${json.encodeToString(serializer(), event.notes)}});
-        """)
-    }
-
-    fun onEvent(event: StudyPadOrderEvent) {
-        val doc = firstDocument
-        if(doc !is StudyPadDocument || doc.label.id != event.labelId) return
-        val studyPadTextEntryJson = json.encodeToString(serializer(), event.newStudyPadTextEntry)
-        val bookmarkToLabels = json.encodeToString(serializer(), event.bookmarkToLabelsOrderChanged)
-        val genericBookmarkToLabels = json.encodeToString(serializer(), event.genericBookmarkToLabelsOrderChanged)
-        val studyPadItems = json.encodeToString(serializer(), event.studyPadOrderChanged)
-        executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_study_pad",  {
-                studyPadTextEntry: $studyPadTextEntryJson, 
-                bookmarkToLabelsOrdered: $bookmarkToLabels, 
-                genericBookmarkToLabelsOrdered: $genericBookmarkToLabels, 
-                studyPadItemsOrdered: $studyPadItems
-                });
-        """)
-    }
-
-    fun onEvent(event: BookmarkToLabelAddedOrUpdatedEvent) {
-        val doc = firstDocument
-        if(doc !is StudyPadDocument || doc.label.id != event.bookmarkToLabel.labelId) return
-        val bookmarkToLabelStr = when(event.bookmarkToLabel) {
-            is BookmarkEntities.BibleBookmarkToLabel ->json.encodeToString(serializer(), event.bookmarkToLabel)
-            is BookmarkEntities.GenericBookmarkToLabel -> json.encodeToString(serializer(), event.bookmarkToLabel)
-            else -> throw RuntimeException("Illegal type")
-        }
-        executeJavascriptOnUiThread("""
-            bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabelStr);
-        """)
-    }
-
-    fun onEvent(event: StudyPadTextEntryDeleted) {
-        if(firstDocument !is StudyPadDocument) return
-        executeJavascriptOnUiThread("""
-            bibleView.emit("delete_study_pad_text_entry", "${event.studyPadTextEntryId}");
-        """)
-    }
-
-    fun onEvent(event: LabelAddedOrUpdatedEvent) {
-        val workspaceId = windowControl.windowRepository.id
-        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        labelOverridesMap = dao.labelOverrides(workspaceId).associateBy { it.labelId }
-        val overriddenLabel = event.label.withStyleOverrides(labelOverridesMap[event.label.id])
-        val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(overriddenLabel))
-        executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
-    }
-
-    fun onEvent(event: BookmarksDeletedEvent) {
-        val bookmarkIds = json.encodeToString(serializer(), event.bookmarkIds)
-        executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
-    }
-
-    fun onEvent(event: LabelsDeletedEvent) {
-        val labelIds = json.encodeToString(serializer(), event.labelIds)
-        executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
-    }
-
-    fun onEvent(event: CurrentWindowChangedEvent) {
-        if (window == event.activeWindow) {
-            bibleJavascriptInterface.notificationsEnabled = true
-            resumeTiltScroll()
-        } else {
-            bibleJavascriptInterface.notificationsEnabled = false
-            pauseTiltScroll()
-        }
-        updateActive()
-    }
-
-    fun onEvent(event: ScrollSecondaryWindowEvent) {
-        if (window == event.window) {
-            scrollOrJumpToVerse(event.verse)
-        }
-    }
-
     private var checkWindows = false
-
-    fun onEvent(event: MainBibleActivity.ConfigurationChanged) {
-        checkWindows = true
-    }
-
-    fun onEvent(event: NumberOfWindowsChangedEvent) {
-        if(window.isVisible) {
-            updateOffsets(true)
-            updateConfig()
-        }
-    }
-
-    fun onEvent(event: MainBibleActivity.FullScreenEvent) = updateOffsets()
-
-    fun onEvent(event: MainBibleActivity.SystemInsetsChangedEvent) = updateOffsets()
-
-    fun onEvent(event: RestoreButtonsVisibilityChanged) = updateOffsets()
-
-    fun onEvent(event: SpeakTransportVisibilityChanged) = updateOffsets(true)
-
-    fun onEvent(event: MainBibleActivity.AgentLogOffsetsUpdated) {
-        Log.i(TAG, "BibleView received AgentLogOffsetsUpdated")
-        updateOffsets(true)
-    }
 
     private fun updateOffsets(immediate: Boolean = false) {
         if(isTopWindow || isBottomWindow && contentVisible && window.isVisible)
-            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: $immediate, imeOpen: ${mainBibleActivity.imeHeight > 0}});")
+            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: $immediate, imeOpen: ${hostCallbacks.imeHeight() > 0}});")
     }
 
-    fun onEvent(event: WebViewsBuiltEvent) {
-        checkWindows = true
-    }
+    /**
+     * R6a: `MainBibleActivity.isSplitVertically` DERIVED rather than bundled as a lambda. Its body
+     * is `if (workspaceSettings.enableReverseSplitMode) !CommonUtils.isPortrait else
+     * CommonUtils.isPortrait`, and both halves are already in reach here: the settings come off the
+     * very `windowControl.windowRepository` the two properties below read on the same line (that IS
+     * the Activity's `windowRepository` — `ReadingAppBootstrap` assigns
+     * `windowControl.windowRepository = windowRepository` when it creates it), and
+     * `CommonUtils.isPortrait` is a global reading the current Activity's configuration. A derived
+     * value beats a lambda: there is no host left that could supply a different answer, and nothing
+     * to keep in sync.
+     */
+    private val isSplitVertically: Boolean
+        get() {
+            val reverse = windowControl.windowRepository.workspaceSettings.enableReverseSplitMode
+            return if (reverse) !CommonUtils.isPortrait else CommonUtils.isPortrait
+        }
 
     private val isTopWindow
-        get() = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
+        get() = !isSplitVertically || windowControl.windowRepository.firstVisibleWindow == window
 
     private val isBottomWindow
-        get() = !mainBibleActivity.isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
+        get() = !isSplitVertically || windowControl.windowRepository.lastVisibleWindow == window
 
     val topOffset
         get() =
             if(isTopWindow && !SharedActivityState.instance.isFullScreen)
-                (mainBibleActivity.topOffset2
-                    / mainBibleActivity.resources.displayMetrics.density)
+                (hostCallbacks.topOffset2()
+                    / host.hostContext.resources.displayMetrics.density)
             else 0F
     
     val bottomOffset
         get() =
             if(isBottomWindow)
-                (mainBibleActivity.bottomOffsetForWebView
-                    / mainBibleActivity.resources.displayMetrics.density)
+                (hostCallbacks.bottomOffsetForWebView()
+                    / host.hostContext.resources.displayMetrics.density)
             else 0F
-
-    private var separatorMoving = false
-
-    fun onEvent(event: WindowSizeChangedEvent) {
-        Log.i(TAG, "window size changed")
-        separatorMoving = !event.isFinished
-        if(!separatorMoving && !mainBibleActivity.isSplitVertically) {
-            checkWindows = true
-            doCheckWindows()
-        }
-    }
 
     override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {
         super.onSizeChanged(w, h, ow, oh)
-        if(lastUpdated != 0L && !separatorMoving && w != ow) {
+        // `separatorMoving` used to gate this: the classic split reading area suppressed the check
+        // while a separator was being dragged. Its only writer was the `WindowSizeChangedEvent`
+        // handler, whose only poster was that separator, so the epilogue removed the whole chain
+        // (spec 10.3) and the check is unconditional again.
+        if(lastUpdated != 0L && w != ow) {
             doCheckWindows()
         }
     }
@@ -2033,16 +2106,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         // prevent random verse changes while layout is being rebuild because of window changes
         bibleJavascriptInterface.notificationsEnabled = false
         pauseTiltScroll()
-    }
-
-    fun onEventMainThread(event: WebViewsBuiltEvent) {
-        if(toBeDestroyed)
-            doDestroy()
-    }
-
-    fun onEventMainThread(event: AfterRemoveWebViewEvent) {
-        if(toBeDestroyed)
-            doDestroy()
     }
 
     override fun onAttachedToWindow() {

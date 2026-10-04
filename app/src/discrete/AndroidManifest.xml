@@ -32,7 +32,7 @@
             tools:replace="android:enabled"
             />
         <activity
-            android:name="net.bible.android.view.activity.installzip.InstallZip"
+            android:name="net.bible.android.view.activity.installzip.InstallZipComposeActivity"
             android:label="@string/install_zip_module_discrete"
             tools:replace="android:label"
             />

@@ -95,6 +95,8 @@
     <string name="search_result_count">%d matches found</string>
     <string name="search_showing_first">Too many matches.  Showing first %d</string>
     <string name="search_bible_section_group_prompt">Search Where</string>
+    <string name="search_type_prompt">Search type</string>
+    <string name="search_show_results">Show search results</string>
     <string name="search_all_bible">Whole Bible</string>
     <string name="search_new_testament">New Testament</string>
     <string name="search_old_testament">Old Testament</string>
@@ -107,6 +109,25 @@
     <string name="search_what">Find \"%s\"</string>
     <!-- Multi-translation search -->
     <string name="search_translations">Translations</string>
+    <string name="recent_searches">Recent searches</string>
+    <!-- F6: the reading toolbar's search mode. NB search_options, not search_settings: the latter
+         already exists (line ~819) as the Settings screen's "search within settings" hint, a
+         different meaning that happens to share the English wording. -->
+    <string name="search_close">Close search</string>
+    <string name="search_options">Search settings</string>
+    <string name="search_submit">Search</string>
+    <string name="search_clear">Clear search text</string>
+    <!-- F6: shown while indexing runs inside the reading view's search sheet. Distinct from
+         indexing_wait_msg, which says the user will be taken to the search screen — true of the
+         classic Activity chain, false here, where the search runs in place. -->
+    <string name="search_indexing_then_search">When indexing finishes, the search will run automatically.</string>
+    <!-- F6 Task 10: shown as a snackbar when the reading view's search finds the active document
+         unsearchable at all — a dictionary or SWORD general book. Replaces two prior silent
+         no-ops (a zero-result search, and an unindexed EPUB that did nothing). -->
+    <string name="search_not_available_for_document">%1$s cannot be searched</string>
+    <!-- Same message when the document has no name to show — reachable when the reading view has no
+         current document at all (e.g. an error page), which is itself one of the unsearchable cases. -->
+    <string name="search_not_available">This document cannot be searched</string>
     <string name="choose_translations">Choose translations…</string>
     <string name="multi_search_results">%1$d verses in %2$d translations</string>
     <string name="search_index_not_created">no index</string>
@@ -247,6 +268,8 @@
     <string name="workspace_text_options_link_summary">Edit text display settings for this workspace</string>
     <string name="global_text_options_link">Global text options</string>
     <string name="global_text_options_link_summary">Edit default text display settings for all workspaces</string>
+    <string name="text_options_inherited_workspace">Workspace</string>
+    <string name="text_options_inherited_global">Global</string>
     <string name="prefs_font_and_colors_title">Font &amp; Colors</string>
     <string name="prefs_text_layout_title">Text Layout</string>
     <string name="prefs_strongs_and_morphology_title">Strong\'s &amp; Morphology</string>
@@ -335,6 +358,9 @@
     <string name="copy_settings_to_workspace">Workspace</string>
     <string name="copy_settings_to_window">Window %1$d (%2$s: %3$s)</string>
     <string name="copy_settings_to_global">Global defaults</string>
+    <string name="copy_settings_to_workspaces">To other workspaces…</string>
+    <string name="copy_settings_to_global_defaults">To global defaults…</string>
+    <string name="menu_back">Back</string>
     <string name="change_to_normal">Change to normal window</string>
     <string name="window_pin_mode">Pin</string>
 
@@ -375,6 +401,7 @@
     <string name="failed_repositories_message">Could not connect to the following document server: \n\n%s\n\n</string>
     <string name="failed_downloads_message">The following files could not be downloaded:\n\n%s\n\n</string>
     <string name="cant_delete_document">This document can not be deleted.</string>
+    <string name="bad_document_warning">This document has known problems.</string>
 
     <!--  Install zip file -->
     <string name="install_zip">Load Documents From Files</string>
@@ -446,6 +473,7 @@
     <string name="delete_index">Delete search index</string>
     <string name="about">About</string>
     <string name="delete_doc">Delete %s?</string>
+    <string name="delete_docs_confirm">Delete these documents?</string>
     <string name="delete_search_index_doc">Delete index of %s?</string>
 
     <!-- Verse context menu -->
@@ -469,6 +497,7 @@
     <string name="assign_labels">Assign labels</string>
     <string name="new_item">New</string>
     <string name="label_name_prompt">Name</string>
+    <string name="new_label_default_name">Label %d</string>
     <string name="label_unlabelled">Unlabelled</string>
     <string name="add_bookmark1">Bookmark</string>
     <string name="add_bookmark3">Selection</string>
@@ -484,10 +513,6 @@
     <string name="auto_assign_labels1">Auto-assign label to new bookmarks</string>
     <string name="auto_assign_labels_primary">Auto-assign as primary</string>
   <!-- can be removed -->
-    <string name="marker_style">Show only marker for selection bookmarks</string>
-    <string name="marker_style_whole_verse">Show only marker for whole verse bookmarks</string>
-    <string name="hide_style">Hide for selection bookmarks</string>
-    <string name="hide_style_whole_verse">Hide for whole verse bookmarks</string>
     <string name="bookmark_warning">There are bookmarks and/or notes for this document.</string>
     <string name="bookmark_warning2">
         If document structure has changed, updating this document could make
@@ -536,6 +561,10 @@
     <string name="speak_bookmarks_menu_title">Speak from bookmark</string>
     <string name="speak_advanced_settings">Advanced settings</string>
     <string name="speak_sleep_timer_title">Sleep timer</string>
+    <string name="speak_sleep_timer_minutes">%d min</string>
+    <string name="speak_sleep_timer_custom">Custom…</string>
+    <string name="speak_sleep_timer_off">Off</string>
+    <string name="speak_other_settings">Other</string>
 
     <string name="speak_no_books_available">No books available to speak</string>
     <string name="speak_general_error">Speak could not be started for this book</string>
@@ -570,6 +599,11 @@
     <string name="system_speak_settings">Open system TTS settings</string>
 
     <string name="auto_assing_labels_help1">Here you can adjust which labels are assigned automatically to bookmarks that you create. </string>
+    <!-- Round 17b: WORKSPACE-only help intro, replacing the stale values-en/strings.xml copy of
+         auto_assing_labels_help1 that still described the "Selected labels" section this round
+         removed from WORKSPACE. New English string rather than editing the old one, so the ~54
+         existing translations of auto_assing_labels_help1 (still used by ASSIGN) stay intact. -->
+    <string name="auto_assign_labels_help_intro_workspace">Here you can add, edit and remove labels, and adjust which are assigned automatically to bookmarks that you create.\n\nRecent labels: recently used labels.\nOther labels: all other labels.\n\nUse the search bar\'s filter options to see only auto-assigned or favourite labels.</string>
 
     <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
     <string name="setting_scope">This setting applies to %s.</string>
@@ -708,6 +742,9 @@
     <string name="exported_studypads_message">Your %s database containing Bookmarks and Notes related to selected StudyPads is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
     <string name="send_backup_file">Send a backup file</string>
+    <string name="export_destination_title">Export to where?</string>
+    <string name="export_destination_message">Save the export to this phone, or send it elsewhere with Share.</string>
+    <string name="send_export_file">Send an export file</string>
     <string name="backup_modules_title">Select which modules to backup</string>
     <string name="install_zip_canceled">Module install cancelled</string>
     <string name="ask_restore_or_import">Database for %s can be either restored (i.e. existing database is removed and selected database is loaded) or imported (selected database is imported into existing database). What do you want to do?</string>
@@ -754,13 +791,22 @@
     <string name="doc_type_book">Book</string>
     <string name="doc_type_map">Map</string>
     <string name="doc_type_addons">Add-ons</string>
-    
+    <!-- Round 17e-1: header for a TYPE-grouped list's category that has no dedicated bucket
+         (CrossWire DAILY_DEVOTIONS/GLOSSARY/QUESTIONABLE/ESSAYS/IMAGES etc.), distinct from "All"
+         which means "no specific value / could be any" in a filter context. -->
+    <string name="doc_type_other">Other</string>
+    <string name="document_type_label">Document type</string>
+
     <!-- Languages -->
     <string name="lang_default">Default</string>
 
     <!-- General -->
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
+    <!-- Settings editor sheets T5 — SettingsEditorSheet header -->
+    <string name="settings_editor_back">Back</string>
+    <string name="settings_editor_close">Close</string>
+    <string name="settings_editor_apply">Apply</string>
     <string name="discard_changes_confirmation">Discard unsaved changes?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
@@ -809,6 +855,7 @@
     <string name="search_settings">Search settings</string>
     <string name="dismiss">Dismiss</string>
     <string name="workspace_listing_with_current">%s (current)</string>
+    <string name="workspace_manage_workspaces">Manage workspaces…</string>
 
     <!-- Beta notice -->
     <string name="beta_notice_title">This is beta version!</string>
@@ -870,6 +917,8 @@
     <string name="help_search_title">Search</string>
     <!-- TODO: to be removed -->
     <string name="help_search_text2">Search text can include special characters like *, AND, OR, NOT</string>
+    <string name="help_search_bible">Choose how the words are matched: All words finds verses containing every word, Any word finds verses containing at least one, and Phrase finds the words next to each other in that order.\n\nWithin a search you can also use * and ? as wildcards (for example bless* matches blessed and blessing), combine terms with AND, OR and NOT, and search Strong\'s numbers directly (for example strong:h0430).</string>
+    <string name="help_search_epub">Choose how the words are matched: All words finds passages containing every word, Any word finds passages containing at least one, and Phrase finds the words next to each other in that order.\n\nRaw query syntax passes your text to the search engine unchanged, so you can write your own query: grace AND faith, grace OR faith, grace NOT faith, \"hope of glory\" for an exact phrase, bless* to match any word starting with bless, and grace NEAR faith to find them close together.</string>
     <string name="help_search_details">Please see %s for more details.</string>
     <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
     <string name="help_fts5">FTS5 Full-text Query Syntax</string>
@@ -924,9 +973,8 @@
 
     <!-- Uncategorized -->
     <string name="close">Close</string>
+    <string name="reading_toolbar_options">More options</string>
     <string name="something_with_parenthesis">%1$s (%2$s)</string>
-    <string name="first_time_help_do_not_show_again">I understand</string>
-    <string name="first_time_help_show_next_time">Show again next time</string>
 
     <string name="strongs_mode_title">Choose strongs mode</string>
 
@@ -954,6 +1002,7 @@
     <string name="prefs_experimental_features_summary">Select which experimental features to enable. These features are still in development and may change or be removed</string>
     <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
     <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
+    <string name="experimental_feature_toolbar_literal_color">Use the literal workspace colour for the reading toolbar (instead of the theme colour)</string>
 <string name="raw_llm_log_title">Raw LLM Log</string>
     <string name="raw_llm_log_empty">No raw log data available</string>
     <string name="raw_llm_log_copied">Log copied to clipboard</string>
@@ -1065,13 +1114,12 @@
     <string name="display_mode_underline">Underline</string>
     <string name="display_mode_marker">Marker only</string>
     <string name="display_mode_hidden">Hidden</string>
+    <string name="display_mode_inherit">Same as selection</string>
     <string name="workspace_override_indicator">This label has workspace-specific display mode</string>
     <string name="primary_label">Primary label</string>
     <string name="favourite_label">Favourite label</string>
     <string name="edit_label">Edit label</string>
     <string name="delete_label_confirmation">Do you want to remove bookmark label "%s"? Also all associated Study Pad notes will be removed.</string>
-    <string name="bookmark_underline_style_arbitrary">Underline style for selection bookmarks</string>
-    <string name="bookmark_underline_style_whole_verse">Underline style for whole verse bookmarks</string>
     <string name="active_labels">Selected labels</string>
     <string name="recent_labels">Recent labels</string>
     <string name="other_labels">Other labels</string>
@@ -1080,6 +1128,8 @@
     <string name="book_menu_show_long_book_name">Show long book name</string>
     <string name="book_menu_show_progress_bars">Show progress bars</string>
     <string name="reset_workspace_labels">Do you want to reset auto-assign and favorite settings for this workspace?</string>
+    <string name="clear_auto_assign_labels">Clear auto-assign labels</string>
+    <string name="reset_workspace_auto_assign_labels">Do you want to remove all auto-assign labels from this workspace?</string>
     <string name="reset_hide_labels">Do you want to reset setting for hiding specified labels settings?</string>
     <string name="reorder">Re-order</string>
     <string name="system_items">System actions</string>
@@ -1154,6 +1204,27 @@
     <string name="instructions_for_translators">instructions for translators</string>
     <string name="questions_title">Questions?</string>
     <string name="bookmark_style">Bookmark style</string>
+    <string name="bookmark_style_preview_sample">For God so loved the world</string>
+    <string name="bookmark_style_selection">Text selection bookmarks</string>
+    <string name="bookmark_style_whole_verse">Whole verse bookmarks</string>
+    <!-- Switch in the label editor: reveals a separate style picker for whole-verse bookmarks. -->
+    <string name="bookmark_style_whole_verse_custom">Use a different style for whole-verse bookmarks</string>
+    <!-- Round 15a: the label-list style tags name the AXIS; the decoration itself shows the style. -->
+    <string name="bookmark_style_tag_selection">Selection</string>
+    <string name="bookmark_style_tag_whole_verse">Whole verse</string>
+    <string name="bookmark_style_tag_workspace">Workspace</string>
+    <string name="show_style_examples">Show style examples</string>
+    <string name="labels_search_section">Search</string>
+    <string name="labels_filter_section">Show</string>
+    <string name="labels_filter_auto_assign">Auto-assign labels only</string>
+    <string name="labels_filter_favourite">Favourite labels only</string>
+    <!-- Round 15a: the labels help legend. No %s placeholders — the icon is its own column. -->
+    <string name="manage_labels_help_checkbox">Tick a label to assign it to this bookmark.</string>
+    <string name="manage_labels_help_primary">The primary label. Its colour and style are what the bookmark shows.</string>
+    <string name="manage_labels_help_autoassign">Assign this label automatically to every new bookmark. A hollow bolt means off.</string>
+    <string name="manage_labels_help_favourite">Keep the label in your favourites for quick access.</string>
+    <string name="manage_labels_help_styles">Under the name a small example shows the label\'s look: Selection for a text-selection bookmark, Whole verse for a whole-verse one, and a Workspace tag for a style this workspace overrides. A greyed example with no decoration means the label\'s bookmarks are not drawn. Hide the examples from the ⋮ menu.</string>
+    <string name="manage_labels_help_reorder">Re-order the list from the ⋮ menu.</string>
     <string name="added_to_bookmark">Assigned to this bookmark</string>
     <string name="strongs_links">Links</string>
     <string name="strongs_text_and_links">Text and Links</string>
@@ -1222,7 +1293,6 @@
     <string name="delete_custom_repository">Do you want to remove custom repository %s?</string>
     <string name="custom_repositories_help1">To add a new custom repository, type or copy &amp; paste custom repository URL here.</string>
     <string name="custom_repositories_help2">You can read more information about custom repositories in %s.</string>
-    <string name="wiki_page">WIKI page</string>
     <string name="custom_repositories_help0">You can install documents from external custom repositories by installing custom repositories.</string>
     <string name="duplicate_custom_repository">Repository with name %s already exists, can\'t add another.</string>
 
@@ -1334,6 +1404,7 @@
     <string name="pref_font_size_multiplier_title">Font size multiplier</string>
     <string name="pref_font_size_multiplier_summary_1">Multiply text font sizes by this number.</string>
     <string name="pref_font_size_multiplier_summary_2">Useful if you have a synchronized device that is used with larger font.</string>
+    <string name="pref_font_size_multiplier_percent_format">%d %%</string>
     <string name="current_value">Current value: %s</string>
     <string name="prefs_bible_view_swipe_mode_title">Action for swipe left / right gesture</string>
     <string name="prefs_bible_view_swipe_mode_summary">Swipe left / right gesture can be used to go to next page / chapter.</string>
@@ -1457,6 +1528,7 @@
     <string name="prompt_max_iterations_unlimited">Unlimited</string>
     <string name="prompt_max_iterations_global_default">Global default (%d)</string>
     <string name="prompt_max_iterations_summary_with_value">Override the global max iterations for this prompt. 0 = unlimited.\nCurrent: %s</string>
+    <string name="prompt_max_iterations_use_global">Use the global setting (%s)</string>
 
     <!-- Prompt Manager -->
     <string name="manage_prompts">Manage AI Prompts</string>
@@ -1812,6 +1884,8 @@
     <string name="tool_option_default_disabled">Default (disabled)</string>
     <string name="tool_option_default_allowed">Default (allowed)</string>
     <string name="tool_option_default_denied">Default (denied)</string>
+    <string name="tool_description_info">Show tool description</string>
+    <string name="tool_permission_mixed">Mixed</string>
 
     <!-- Per-Prompt Model Override -->
     <string name="prompt_model_override">Model</string>
@@ -1863,6 +1937,8 @@
     <string name="my_document_pages_empty">No pages in this document.</string>
     <string name="my_document_page_rename_title">Rename page</string>
     <string name="my_document_page_delete_confirmation">Delete page \"%s\"?</string>
+    <string name="my_document_pages_delete_confirmation">Delete these pages?</string>
+    <string name="my_documents_switch_document">Switch document</string>
     <string name="my_document_new_page_name">Page %1$d</string>
     <string name="my_document_create_page_title">New page</string>
     <string name="my_document_content_type_label">Content type</string>
@@ -1975,6 +2051,10 @@
         <item quantity="one">Permanently remove %1$d document from the cloud history?</item>
         <item quantity="other">Permanently remove %1$d documents from the cloud history?</item>
     </plurals>
+    <plurals name="cloud_doc_bulk_block_confirm">
+        <item quantity="one">Stop syncing %1$d document to the cloud?</item>
+        <item quantity="other">Stop syncing %1$d documents to the cloud?</item>
+    </plurals>
     <string name="document_sync_notification_title">Syncing documents</string>
     <string name="document_sync_downloading">Downloading %1$s (%2$d/%3$d)</string>
     <string name="document_sync_uploading">Uploading %1$s (%2$d/%3$d)</string>
@@ -1987,8 +2067,55 @@
     <string name="background_image_none">No background</string>
     <string name="background_image_import">Import from gallery…</string>
     <string name="background_image_empty">No imported images yet. Tap \"Import from gallery…\" to add one.</string>
+    <string name="background_image_importing">Importing…</string>
+    <string name="background_image_delete_title">Delete image?</string>
+    <string name="background_image_delete_confirm">Delete this background image? Workspaces still using it will fall back to no image.</string>
     <string name="background_image_day">Background image (day)</string>
     <string name="background_image_night">Background image (night)</string>
     <string name="background_image_opacity_day">Background image opacity (day)</string>
     <string name="background_image_opacity_night">Background image opacity (night)</string>
+    <string name="background_image_change">Change</string>
+    <string name="color_picker_title">Select a Color</string>
+    <string name="color_picker_presets">Presets</string>
+    <string name="color_picker_custom">Custom</string>
+    <string name="bookmark_expand_row">Show full text</string>
+    <string name="bookmark_collapse_row">Show less</string>
+    <string name="bookmark_label_filter">Filter by label</string>
+    <string name="document_quick_all_documents">All documents…</string>
+    <string name="document_quick_tab_recent">Recent</string>
+    <string name="document_quick_tab_for_verse">This verse</string>
+    <string name="document_quick_tab_last_filter">Last filter</string>
+    <!-- Round 17e: document list filter/sort/group sheet -->
+    <string name="doc_arrange_title">Filter and sort</string>
+    <string name="doc_arrange_repository">Repository</string>
+    <string name="doc_arrange_all_repositories">All repositories</string>
+    <string name="doc_arrange_sort">Sort order</string>
+    <string name="doc_arrange_group_by">Group by</string>
+    <string name="doc_arrange_remember">Remember these settings</string>
+    <string name="doc_arrange_reset">Reset to defaults</string>
+    <string name="doc_arrange_more_filters">More filters</string>
+    <string name="doc_arrange_reorder">Reorder</string>
+    <string name="doc_sort_ascending">Ascending</string>
+    <string name="doc_sort_descending">Descending</string>
+    <string name="doc_sort_status">Status</string>
+    <string name="doc_sort_recommended">Recommended first</string>
+    <string name="doc_sort_name">Name</string>
+    <string name="doc_sort_size">Size</string>
+    <string name="doc_group_none">No grouping</string>
+    <!-- Round 17e-1: per-value labels for a STATUS-grouped list's headers (documentGroupHeaderLabel
+         in DocumentSelectionScreen.kt), one per DocRow.sortStatusRank value. Distinct from the
+         "doc_sort_status" dimension name ("Status") used in the sort-order sheet. -->
+    <string name="doc_group_status_downloading">Downloading</string>
+    <string name="doc_group_status_update_available">Update available</string>
+    <string name="doc_group_status_installed">Installed</string>
+    <string name="doc_group_status_not_installed">Not installed</string>
+    <string name="prompt_filter_title">Filter prompts</string>
+    <string name="prompt_filter_type">Type</string>
+    <string name="prompt_type_addon">Add-on</string>
+    <string name="prompt_type_user">Custom</string>
+    <string name="prompt_filter_clear">Clear filters</string>
+    <string name="prompt_favorite_add">Add to favourites</string>
+    <string name="prompt_favorite_remove">Remove from favourites</string>
+    <string name="window_unmaximise">Restore all windows</string>
+    <string name="paste_from_clipboard">Paste</string>
 </resources>

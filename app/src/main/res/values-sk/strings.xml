@@ -414,10 +414,6 @@
   <string name="auto_assign_labels1">Automaticky priradiť štítok k novým záložkám</string>
   <string name="auto_assign_labels_primary">Automaticky priradiť ako primárny</string>
   <!--can be removed-->
-  <string name="marker_style">Zobraziť iba značku pre výberové záložky</string>
-  <string name="marker_style_whole_verse">Zobraziť iba značku pre záložky s celým veršom</string>
-  <string name="hide_style">Skryť označené záložky</string>
-  <string name="hide_style_whole_verse">Skryť pre záložky celého verša</string>
   <string name="bookmark_warning">Tento dokument obsahuje záložky a/alebo poznámky.</string>
   <string name="bookmark_warning2">
         Ak sa zmenila štruktúra dokumentu, jeho aktualizácia môže spôsobiť 
@@ -941,8 +937,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="favourite_label">Obľúbený štítok</string>
   <string name="edit_label">Upraviť štítok</string>
   <string name="delete_label_confirmation">Chcete odstrániť štítok záložky „%s“? Tiež budú odstránené všetky súvisiace poznámky v Študijnej zložke. </string>
-  <string name="bookmark_underline_style_arbitrary">Štýl podčiarknutia záložiek výberu</string>
-  <string name="bookmark_underline_style_whole_verse">Štýl podčiarknutia záložiek pre celý verš</string>
   <string name="active_labels">Označené štítky</string>
   <string name="recent_labels">Posledné štítky</string>
   <string name="other_labels">Ostatné štítky</string>

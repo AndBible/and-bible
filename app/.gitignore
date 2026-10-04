@@ -3,3 +3,7 @@
 /standard/
 /discrete/
 /standardGoogleplay/
+
+# Written by FileManagerTest (shouldCopyFile / shouldOverwriteOnCopyIfTargetFileExists);
+# deleteOnExit() normally removes it, but don't let it be committed if that fails.
+/src/test/resources/net/bible/service/common/copiedFile

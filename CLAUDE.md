@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-@./ai-local/CLAUDE.md
+@docs/superpowers/CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -29,7 +29,7 @@ AndBible is a powerful offline Bible study app for Android built with Kotlin, fe
 ## Build System
 
 ### Prerequisites
-- Java 17 (OpenJDK 17.0.16+8 or higher)
+- Java toolchain 17 (Gradle `jvmToolchain(17)`; a JDK 17 must be installed even if the default JDK is newer)
 - Node.js 24.x (tested with v24.20.0)
 - npm 11.x (tested with v11.19.0)
 - Android SDK 23+ (API levels 23-36)
@@ -55,7 +55,6 @@ npm run build-production # Production build
 
 **Android Gradle Build**
 ```bash
-# IMPORTANT: All Gradle commands require dangerouslyDisableSandbox: true (Gradle daemon does not work in sandbox)
 ./gradlew assembleStandardGithubDebug     # Debug build
 ./gradlew assembleStandardGithubRelease   # Release build
 ./gradlew testStandardGoogleplayDebug     # Unit tests
@@ -129,6 +128,39 @@ Only run Android builds when testing Android-specific integration.
 - `app/bibleview-js/vite.config.mts`: Vue.js build configuration using Vite
 - `app/bibleview-js/package.json`: Vue.js dependencies and build scripts
 
+### Website (andbible.org and user docs)
+- `website/sitegen/build.py`: Site build entry point (`make site`)
+- `website/zensical.toml`: Docs build configuration and the docs nav (new pages must be listed here)
+- `website/content/README.md`: Authoring rules for blog posts, images, docs and translations
+- `sharedCore/src/commonMain/kotlin/net/bible/sharedcore/docs/DocsLinks.kt`: `DocsLinks.page(...)`, the app's links into the docs
+
+## Kotlin Multiplatform / Compose structure
+
+- `:sharedCore` holds the shared logic and models.
+- `:sharedUi` holds the Compose Multiplatform screens; they read user-facing text through the `Strings` interface (`LocalStrings`).
+- `:strings-gen` does not write that interface. `Strings.kt` (`:sharedUi`) and `AndroidStrings.kt` (`:app`) are hand-maintained; `:strings-gen` (task `generateIosStrings`, wired into `:sharedUi`) only derives the iOS string holder from them and the resources. A new string is therefore: the resource in `strings.xml`, a member in `Strings.kt`, and the override in `AndroidStrings.kt`. Check the generator's "N interface members, N mapped overrides" line to see both sides agree.
+- Debug builds get an `applicationIdSuffix` so they install beside a release build: currently `.compose` by default, overridable with `APP_SUFFIX` in `local.properties` (see `app/build.gradle.kts`).
+- Golden screenshots are in the submodule described below.
+
+## Test infrastructure traps
+
+- `TEST_SDK` (`app/src/test/java/net/bible/android/TestBibleApplication.kt`) is 33, so code behind API 35+ checks is not exercised by default. A test for such a branch needs `@Config(sdk = [35])`, and should be seen failing before the fix.
+- The `:app` unit suite runs in a single JVM (no `maxParallelForks`). A green `--tests` run can miss global-state pollution (Koin overrides, library globals); only the full suite catches it. Restore any global you swap, in `finally`.
+- Many unit tests need real Sword modules in `~/.sword`. Extract your copy of the test modules there first (`mkdir -p ~/.sword && unzip -o -d ~/.sword <testmods.zip>`); without them hundreds of tests fail with "no module installed" symptoms such as `IndexOutOfBoundsException` from an empty book list. CI downloads them from an encrypted secret.
+
+## Emulator and WebView debugging
+
+See `docs/emulator-and-webview-debugging.md` (adb model, AVD, `scripts/andbible-emu.sh`, `scripts/webview-cdp.sh`).
+
+## Golden screenshots and process docs (submodules)
+
+- Roborazzi goldens live in `AndBible/and-bible-goldens`, checked out at
+  `app/src/test/roborazzi` (`git submodule update --init`). Blessing goldens is two commits:
+  record, commit the PNGs **inside** the submodule, then commit the gitlink bump here.
+- Specs, plans and history live in the private `AndBible/and-bible-superpowers`, mounted at
+  `docs/superpowers` with `update = none` (CI and contributors skip it). Fetch it with
+  `git submodule update --init --checkout docs/superpowers`.
+
 ## Code Documentation
 
 Add KDoc/Javadoc-style documentation to new classes, functions, and methods when it provides value beyond what the name already conveys. If the name is self-explanatory, documentation is unnecessary. However, explanatory documentation is valuable and expected for complex logic, non-obvious behavior, and larger components.
@@ -142,6 +174,30 @@ However, **all user-facing strings must go through the translation system**:
 - **Vue.js/BibleView**: Add strings to `app/bibleview-js/src/lang/default.yaml`
 
 Never hardcode user-visible text directly in code.
+
+## Website and user documentation (`website/`)
+
+andbible.org (landing page, blog, docs at `/docs/`, video catalog) is built from `website/` and
+deployed to GitHub Pages from `current-stable`. Authoring rules: `website/content/README.md`.
+
+- **User documentation lives in `website/content/en/docs/`.** A user-visible change (UI, setting,
+  feature, behavior) updates the matching docs page in the same PR. A new page goes into the
+  `website/zensical.toml` nav.
+- Docs are edited directly in `website/content/en/docs/*.md`; that Markdown is the source of truth.
+  The migration scripts in `website/sitegen/migrate/` were a one-shot RST-to-Markdown conversion kept
+  for reference only: do not re-run them. The old RST repository (`AndBible/docs`) is deprecated.
+- App links into the docs are built with `DocsLinks.page("<page>", "<anchor>")`
+  (`sharedCore`, `net.bible.sharedcore.docs`); `website/tests/test_app_deep_links.py` checks every
+  one against the built docs, so renaming a heading the app links to fails CI.
+- Before writing a blog post, read `website/content/README.md`. Blog media goes to the
+  `website/media` submodule (`AndBible/andbible-website-media`); commit there, then bump the gitlink.
+- Validate any `website/` change with `make site site-check` (needs `uv`).
+- `docs/` at the repo root is developer documentation, not user documentation.
+- A new YouTube video or short that needs a blog post: use the `video-blog-post` skill (`.claude/skills/video-blog-post/`).
+- The video catalog is `website/data/videos.yaml` (new entries come from the `video-blog-post` skill).
+- Thumbnail changed on YouTube: use the `refresh-video-thumbnails` skill (`.claude/skills/refresh-video-thumbnails/`), i.e. `make site-thumbs THUMBS_ARGS="--refresh <id>"`.
+- Any other blog article: `write-blog-post`. Docs pages and app deep links: `update-user-docs`. Landing-page reviews: `update-website-reviews`. Anything else on the site (catalog, UI strings, languages, redirects, theme): `website-maintenance` (also the index of these skills).
+- Landing-page reviews: see "Landing page reviews" in `website/content/README.md` (`uv run python -m sitegen.play_reviews`, curated in `website/data/reviews.yaml`).
 
 ## Theme and Display Modes
 
@@ -247,7 +303,29 @@ All entities use `IdType` (UUID-based) for primary keys.
 1. Update entity classes in `WorkspaceEntities.kt` or `BookmarkEntities.kt`
 2. Increment database version constant (e.g., `WORKSPACE_DATABASE_VERSION`)
 3. Create migration class in `app/src/main/java/net/bible/android/database/migrations/`
-4. Register migration in `DatabaseContainer.kt`
+4. Add the migration to its database's own migrations array (e.g. `bookmarkMigrations` in
+   `BookmarkMigrations.kt`, `workspacesMigrations` in `WorkspacesMigrations.kt`) — that array
+   is the actual registration point; `DatabaseContainer.kt` just spreads it
+   (`.addMigrations(*bookmarkMigrations)`) and needs no edit of its own.
+5. Commit the KSP-generated schema export it produces at `app/schemas/<Database class>/<new
+   version>.json` (e.g. `app/schemas/net.bible.android.database.BookmarkDatabase/13.json`). It is
+   generated on build (`room.schemaLocation`, `app/build.gradle.kts`) but is not auto-staged by git —
+   forgetting it leaves the new version's schema unfrozen, and any test that reads a schema export by
+   path (the migration-test pattern below) or a future migration test spanning this version will not
+   find it.
+6. Check whether the table you're changing is **pinned somewhere that names its columns
+   explicitly**, not just referenced generically:
+   - An **older migration with an explicit column list** — e.g. `deduplicateSpecialLabels` in
+     `BookmarkMigrations.kt` names six now-retired `Label` style columns by hand. It stays correct
+     unmodified only because it belongs to an earlier version range and runs before your new
+     migration in sequence — but any test that exercises it against a *later*-version database (as
+     `BookmarkControlTest` does) needs to re-add the columns it expects first.
+   - **`and-bible-ios`'s transcription of the Android schema** (e.g.
+     `AndroidBookmarkDatabaseContract.swift`) — it pins a specific schema version's DDL/identity hash
+     byte-exactly and has no migrator for every database, so a schema change on the Android side can
+     silently stop cross-platform sync for that table's category until iOS is updated to match (see
+     `docs/superpowers/history/compose-port-03-rounds-8-17.md`'s "Round 9b — Label style schema migration"
+     entry for a worked example of this gate).
 
 ## Troubleshooting
 
@@ -292,7 +370,7 @@ echo $ANDROID_SDK_ROOT
 
 ## Notes
 
-- Current stable branch that where most development is also done currently: `current-stable`
+- `current-stable` is the stable release branch; feature work happens on topic branches
 - Never cancel long-running Gradle builds - they can take 10-45 minutes on first run
 - Prefer Vue.js tests for rapid development feedback (5-6 seconds vs minutes for Android tests)
 - Always use the repository's standard testing tools (`npm run test:ci`, `./gradlew check`)

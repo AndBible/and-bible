@@ -383,10 +383,6 @@
   <string name="auto_assign_labels1">Tildel automatisk etiket til nye bogmærker</string>
   <string name="auto_assign_labels_primary">Tildel automatisk som primær</string>
   <!--can be removed-->
-  <string name="marker_style">Vis kun markering for markeringsbogmærker</string>
-  <string name="marker_style_whole_verse">Vis kun markering for helvers-bogmærker</string>
-  <string name="hide_style">Skjul for markeringsbogmærker</string>
-  <string name="hide_style_whole_verse">Skjul for helvers-bogmærker</string>
   <string name="bookmark_warning">Der er bogmærker og/eller noter for dette dokument.</string>
   <string name="bookmark_warning2">Hvis dokumentstrukturen er ændret, kan en opdatering af dette dokument flytte placeringen af disse bogmærker/noter i dokumentet eller få dem til at forsvinde helt.</string>
   <string name="bookmark_warning3">Vil du stadig opdatere modulet?</string>
@@ -804,8 +800,6 @@
   <string name="favourite_label">Favoritetetiket</string>
   <string name="edit_label">Redigér etiket</string>
   <string name="delete_label_confirmation">Vil du fjerne bogmærkeetiketten \"%s\"? Alle tilknyttede Studieblok-noter vil også blive fjernet.</string>
-  <string name="bookmark_underline_style_arbitrary">Understregningsstil for markeringsbogmærker</string>
-  <string name="bookmark_underline_style_whole_verse">Understregningsstil for hele-vers-bogmærker</string>
   <string name="active_labels">Valgte etiketter</string>
   <string name="recent_labels">Seneste etiketter</string>
   <string name="other_labels">Andre etiketter</string>

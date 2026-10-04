@@ -18,7 +18,10 @@
 package net.bible.service.device.speak
 
 import android.annotation.SuppressLint
-import android.app.*
+import android.app.Notification
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -34,10 +37,9 @@ import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.onMain
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
-import net.bible.android.view.activity.ActivityScope
-import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
@@ -45,12 +47,12 @@ import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import java.util.*
-import javax.inject.Inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 const val SPEAK_NOTIFICATIONS_CHANNEL="speak-notifications"
 
-@ActivityScope
-class TextToSpeechNotificationManager {
+class TextToSpeechNotificationManager : KoinComponent {
     companion object {
         private const val ACTION_UPDATE_NOTIFICATION = "update_notification"
         private const val ACTION_SPEAK_OR_PAUSE="action_speak_or_pause"
@@ -70,6 +72,9 @@ class TextToSpeechNotificationManager {
 
         private var instance: TextToSpeechNotificationManager? = null
         private var serviceRunning = false
+
+        /** [refreshForLocale] on the live instance, if one exists (F114). */
+        fun refreshInstanceForLocale() { instance?.refreshForLocale() }
     }
 
     class ForegroundService: Service() {
@@ -139,7 +144,7 @@ class TextToSpeechNotificationManager {
         }
     }
 
-    @Inject lateinit var speakControl: SpeakControl
+    val speakControl: SpeakControl by inject()
 
     class NotificationReceiver: BroadcastReceiver() {
         val speakControl: SpeakControl by lazy { instance!!.speakControl }
@@ -166,7 +171,8 @@ class TextToSpeechNotificationManager {
 
 
     private val app get() = BibleApplication.application
-    private var currentTitle = getString(R.string.app_name_medium)
+    /** null = the reset title, resolved live so a language change shows (F114). */
+    private var currentTitle: String? = null
     private var notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private var headsetReceiver  = object: BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -192,16 +198,48 @@ class TextToSpeechNotificationManager {
         }
 
         instance = this
-        DaggerActivityComponent.builder()
-                .applicationComponent(app.applicationComponent)
-                .build().inject(this)
 
         val powerManager = app.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
 
         app.registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
 
-        ABEventBus.register(this)
+        ABEventBus.register(this) {
+            onMain<SpeakEvent> { ev ->
+                Log.i(TAG, "SpeakEvent ${ev.speakState}")
+                if(!ev.isSpeaking && ev.isPaused) {
+                    Log.i(TAG, "Stop foreground (pause)")
+                    buildNotification(false)
+                    stopForeground()
+                }
+                else if (ev.isSpeaking) {
+                    buildNotification(true)
+                    startForeground()
+                }
+                else {
+                    shutdown()
+                }
+            }
+            onMain<SpeakProgressEvent> { ev ->
+                if(ev.speakCommand is TextCommand) {
+                    if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
+                        currentTitle = ev.speakCommand.text
+                        if(currentTitle.isNullOrEmpty()) {
+                            currentTitle = null
+                        }
+                    }
+                    else {
+                        currentText = ev.speakCommand.text
+                    }
+                }
+                buildNotification(speakControl.isSpeaking)
+            }
+        }
+    }
+
+    /** Re-posts the notification in the current language, only while it is showing (F114). */
+    fun refreshForLocale() {
+        if (serviceRunning) buildNotification(speakControl.isSpeaking)
     }
 
     fun destroy() {
@@ -212,7 +250,7 @@ class TextToSpeechNotificationManager {
 
     private fun shutdown() {
         Log.i(TAG, "Shutdown")
-        currentTitle = getString(R.string.app_name_medium)
+        currentTitle = null
         currentText = ""
 
         // In case service was no longer foreground, we need do this here.
@@ -224,37 +262,6 @@ class TextToSpeechNotificationManager {
         }
     }
 
-    fun onEventMainThread(ev: SpeakEvent) {
-        Log.i(TAG, "SpeakEvent ${ev.speakState}")
-        if(!ev.isSpeaking && ev.isPaused) {
-            Log.i(TAG, "Stop foreground (pause)")
-            buildNotification(false)
-            stopForeground()
-        }
-        else if (ev.isSpeaking) {
-            buildNotification(true)
-            startForeground()
-        }
-        else {
-            shutdown()
-        }
-    }
-
-    fun onEventMainThread(ev: SpeakProgressEvent) {
-        if(ev.speakCommand is TextCommand) {
-            if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
-                currentTitle = ev.speakCommand.text
-                if(currentTitle.isEmpty()) {
-                    currentTitle = getString(R.string.app_name_medium)
-                }
-            }
-            else {
-                currentText = ev.speakCommand.text
-            }
-        }
-        buildNotification(speakControl.isSpeaking)
-    }
-
     private fun generateAction(icon: Int, title: String, command: String): NotificationCompat.Action {
         val intent = Intent(app, NotificationReceiver::class.java).apply {
             action = command
@@ -263,18 +270,18 @@ class TextToSpeechNotificationManager {
         return NotificationCompat.Action.Builder(icon, title, pendingIntent).build()
     }
 
-    private val rewindAction = generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND)
-    private val prevAction = generateAction(android.R.drawable.ic_media_previous, getString(R.string.previous), ACTION_PREVIOUS)
-    private val pauseAction = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_SPEAK_OR_PAUSE)
-    private val playAction = run {
+    private val rewindAction get() = generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND)
+    private val prevAction get() = generateAction(android.R.drawable.ic_media_previous, getString(R.string.previous), ACTION_PREVIOUS)
+    private val pauseAction get() = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_SPEAK_OR_PAUSE)
+    private val playAction get() = run {
         val intent = Intent(app, NotificationReceiver::class.java).apply {
             action = ACTION_SPEAK_OR_PAUSE
         }
         val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         NotificationCompat.Action.Builder(android.R.drawable.ic_media_play, getString(R.string.speak), pendingIntent).build()
     }
-    private val nextAction = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
-    private val forwardAction = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
+    private val nextAction get() = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
+    private val forwardAction get() = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
     private val bibleBitmap = BitmapFactory.decodeResource(app.resources, R.drawable.bible)
 
     private fun buildNotification(isSpeaking: Boolean) {
@@ -315,7 +322,7 @@ class TextToSpeechNotificationManager {
             builder
                 .setSmallIcon(R.drawable.ic_ichtys)
                 .setLargeIcon(bibleBitmap)
-                .setContentTitle(currentTitle)
+                .setContentTitle(currentTitle ?: getString(R.string.app_name_medium))
                 .setSubText(speakControl.getStatusText(FLAG_SHOW_ALL))
         }
 

@@ -661,8 +661,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="favourite_label">အနှစ်သက်ဆုံး လေဘယ်လ်</string>
   <string name="edit_label">လေဘယ်လ်ကို တည်းဖြတ်ပါ</string>
   <string name="delete_label_confirmation">စာညှပ်လေဘယ်လ်ကို ဖျက်လိုပါသလား \"%s\" Study Pad နှင့်သက်ဆိုင်သည့် မှတ်စုများအားလုံးသည်လည်း ပျက်သွားပါမည်။</string>
-  <string name="bookmark_underline_style_arbitrary">စာညှပ်ရွေးချယ်မှုများအတွက် မျဉ်းတားပုံစံ</string>
-  <string name="bookmark_underline_style_whole_verse">အခန်းငယ်တစ်ခုလုံး၏စာညှပ်များအတွက် မျဉ်းတားပုံစံ</string>
   <string name="active_labels">ရွေးချယ်ထားသည့် လေဘယ်လ်များ</string>
   <string name="recent_labels">မကြာမီက လေဘယ်လ်များ</string>
   <string name="other_labels">အခြား လေဘယ်လ်များ</string>

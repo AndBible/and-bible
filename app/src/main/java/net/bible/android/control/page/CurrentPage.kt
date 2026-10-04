@@ -18,7 +18,6 @@ package net.bible.android.control.page
 
 import kotlinx.serialization.Serializable
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.sword.BookAndKey
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key

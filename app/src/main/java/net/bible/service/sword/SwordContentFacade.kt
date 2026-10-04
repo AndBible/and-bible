@@ -16,6 +16,7 @@
  */
 package net.bible.service.sword
 
+import net.bible.service.common.CommonUtils
 import android.text.TextUtils
 import android.util.LayoutDirection
 import android.util.Log
@@ -29,6 +30,8 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.Logger
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.useSaxBuilder
+import net.bible.sharedcore.reading.ShareVersesEntry
+import net.bible.sharedcore.reading.ShareVersesInput
 import net.bible.service.device.speak.SpeakCommand
 import net.bible.service.device.speak.SpeakCommandArray
 import net.bible.service.device.speak.TextCommand
@@ -554,9 +557,12 @@ object SwordContentFacade {
                 synchronized(BookName::class.java) {
                     val oldValue = BookName.isFullBookName()
                     BookName.setFullBookName(false)
-                    val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
-                    BookName.setFullBookName(oldValue)
-                    "$verseRangeName"
+                    try {
+                        val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
+                        "$verseRangeName"
+                    } finally {
+                        BookName.setFullBookName(oldValue)
+                    }
                 }
             } else {
                 val verseRangeName = selection.verseRange?.getNameInLocale(null, bookLocale)
@@ -565,7 +571,7 @@ object SwordContentFacade {
         } else
             ""
 
-        val advertise = if (advertiseApp) "\n\n${
+        val advertise = if (shareAdvertAllowed(advertiseApp, CommonUtils.isDiscrete)) "\n\n${
             application.getString(
                 R.string.verse_share_advertise,
                 application.getString(R.string.app_name_long)
@@ -651,6 +657,81 @@ object SwordContentFacade {
         } else {
             "$verseText$notes$advertise"
         }
+    }
+
+    /**
+     * Resolves everything [ShareVersesOptions.buildText] needs from JSword/Android for
+     * [selection], without baking in any of the ten toggle-controlled formatting choices from
+     * [getSelectionText] — those move to [ShareVersesOptions.buildText] (Task 26, share sheet),
+     * which has no JSword dependency and lives in `:sharedCore` so the sheet's preview can be
+     * rebuilt on every switch toggle without a fresh JSword lookup.
+     *
+     * This is a SIBLING of [getSelectionText], not a replacement — that function is untouched and
+     * still serves its one other caller, [net.bible.android.view.activity.page.Selection
+     * .copyToClipboard]. [referenceAbbreviated]/[referenceFull] are both resolved here (mirroring
+     * [getSelectionText]'s two `abbreviateReference` branches) so the sheet never needs to re-ask
+     * JSword when the user flips that switch.
+     */
+    fun buildShareVersesInput(selection: Selection): ShareVersesInput {
+        val book = selection.swordBook
+        val verseRange = selection.verseRange
+        val bookLocale = selection.book?.language?.code?.let { Locale(it) }
+
+        // Batch 6 A6: empty when discrete -- ShareVersesOptions.buildText appends no advert for a blank line.
+        val advertiseText = if (CommonUtils.isDiscrete) "" else "${
+            application.getString(R.string.verse_share_advertise, application.getString(R.string.app_name_long))
+        } (https://andbible.github.io)"
+        val notesOrig = selection.notes
+        val notesText = if (notesOrig != null) htmlToSpan(notesOrig).toString() else null
+
+        if (book == null || verseRange == null) {
+            return ShareVersesInput(
+                verses = emptyList(),
+                startOffset = selection.startOffset,
+                endOffset = selection.endOffset,
+                referenceAbbreviated = "",
+                referenceFull = "",
+                versionAbbreviation = "",
+                notesText = notesText,
+                advertiseText = advertiseText,
+                hasRange = selection.hasRange,
+            )
+        }
+
+        val verses = verseRange.map {
+            val rawText = getCanonicalText(book, it, true).trimEnd()
+            ShareVersesEntry((it as Verse).verse, rawText)
+        }
+
+        // Mirrors getSelectionText's abbreviateReference=true branch: forces non-full book names
+        // for the duration of the call, under the same lock, then restores whatever the app-wide
+        // setting was.
+        val referenceAbbreviated = synchronized(BookName::class.java) {
+            val oldValue = BookName.isFullBookName()
+            BookName.setFullBookName(false)
+            try {
+                "${verseRange.getNameInLocale(null, bookLocale)}"
+            } finally {
+                BookName.setFullBookName(oldValue)
+            }
+        }
+        // Mirrors getSelectionText's abbreviateReference=false branch: no forcing, just whatever
+        // the app-wide BookName.isFullBookName() setting already is. Evaluated right after the
+        // synchronized block above (no intervening suspension), so it sees the SAME ambient value
+        // getSelectionText would have used had it taken this branch instead.
+        val referenceFull = "${verseRange.getNameInLocale(null, bookLocale)}"
+
+        return ShareVersesInput(
+            verses = verses,
+            startOffset = selection.startOffset,
+            endOffset = selection.endOffset,
+            referenceAbbreviated = referenceAbbreviated,
+            referenceFull = referenceFull,
+            versionAbbreviation = selection.book?.abbreviation ?: "",
+            notesText = notesText,
+            advertiseText = advertiseText,
+            hasRange = selection.hasRange,
+        )
     }
 
     private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): ArrayList<SpeakCommand> = try {
@@ -769,3 +850,9 @@ object SwordContentFacade {
         this.isAndroid = isAndroid
     }
 }
+
+/**
+ * Fix batch 6 A6 (surface 7): the "Shared using AndBible" advert is never appended when [discrete],
+ * whatever the `share_show_add` preference (default true) says.
+ */
+internal fun shareAdvertAllowed(userWantsAdvert: Boolean, discrete: Boolean): Boolean = userWantsAdvert && !discrete

@@ -398,10 +398,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="auto_assign_labels1">Auto-tilordne gruppe til nye bokmerker</string>
   <string name="auto_assign_labels_primary">Auto-tilordne som primær</string>
   <!--can be removed-->
-  <string name="marker_style">Vis kun markør for utvalgs-bokmerker</string>
-  <string name="marker_style_whole_verse">Vis kun markør for hele-vers-bokmerker</string>
-  <string name="hide_style">Skjul for utvalgs-bokmerker</string>
-  <string name="hide_style_whole_verse">Skjul for hele-vers-bokmerker</string>
   <string name="bookmark_warning">Det eksisterer bokmerker og/eller notater for dette dokumentet</string>
   <string name="bookmark_warning2">Hvis dokumentstrukturen har endret seg, kan oppdatering av dette dokumentet gjøre at plasseringen av disse bokmerkene/notatene flyttes inne i dokumentet eller forsvinner helt.</string>
   <string name="bookmark_warning3">Ønsker du fortsatt å oppdatere modulen?</string>
@@ -868,8 +864,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="favourite_label">Favorittgruppe</string>
   <string name="edit_label">Rediger gruppe</string>
   <string name="delete_label_confirmation">Ønsker du å slette bokmerket \"%s\"? Alle notater i tilknyttede studiebrett vil også slettes.</string>
-  <string name="bookmark_underline_style_arbitrary">Understrekingsstil for bokmerker av utvalg</string>
-  <string name="bookmark_underline_style_whole_verse">Understrekingsstil for bokmerker på hele vers</string>
   <string name="active_labels">Valgte grupper</string>
   <string name="recent_labels">Nylige grupper</string>
   <string name="other_labels">Andre grupper</string>

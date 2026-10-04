@@ -29,6 +29,7 @@ import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.android.database.progress.ReadingSource
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ApiFormat
@@ -74,6 +75,20 @@ class Converters {
 
     @TypeConverter
     fun fromBookmarkStyle(value: BookmarkStyle?) = value?.name
+
+    /**
+     * `Label.displayStyle` / `displayStyleWholeVerse`, stored as the enum's ordinal so the label's
+     * own style and `WorkspaceLabelOverride.overrideMode` share one encoding (0..3). Unlike the
+     * name-string converters above, this one is deliberately numeric — see
+     * `docs/superpowers/specs/2026-08-19-label-style-schema-migration-design.md` §4.
+     * `null` means "inherit the selection style" and is preserved as `null`.
+     */
+    @TypeConverter
+    fun fromBookmarkDisplayStyle(value: BookmarkDisplayStyle?): Int? = value?.ordinal
+
+    @TypeConverter
+    fun toBookmarkDisplayStyle(value: Int?): BookmarkDisplayStyle? =
+        if (value == null) null else BookmarkDisplayStyle.entries.getOrNull(value) ?: BookmarkDisplayStyle.HIGHLIGHT
 
     @TypeConverter
     fun toTextContentType(value: String?) = if(value==null) null else TextContentType.valueOf(value)

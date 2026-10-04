@@ -411,10 +411,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="auto_assign_labels1">Автоматически назначать ярлык новым закладкам</string>
   <string name="auto_assign_labels_primary">Автоматически назначать основным</string>
   <!--can be removed-->
-  <string name="marker_style">Показывать только маркер для выделенных закладок</string>
-  <string name="marker_style_whole_verse">Показывать только маркер для закладок всего стиха</string>
-  <string name="hide_style">Скрыть для закладок выделения</string>
-  <string name="hide_style_whole_verse">Скрыть для закладок всего стиха</string>
   <string name="bookmark_warning">В этом ресурсе есть закладки и/или примечания.</string>
   <string name="bookmark_warning2">
         Если структура ресурса изменилась, обновление этого ресурса может привести к
@@ -931,8 +927,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="favourite_label">Любимый ярлык</string>
   <string name="edit_label">Изменить ярлык</string>
   <string name="delete_label_confirmation">Вы хотите удалить ярлык закладки \"%s\"? Также будут удалены все связанные записи в блокноте.</string>
-  <string name="bookmark_underline_style_arbitrary">Стиль подчеркивания для выделения закладок</string>
-  <string name="bookmark_underline_style_whole_verse">Стиль подчеркивания для закладок всего стиха</string>
   <string name="active_labels">Выбранные ярлыки</string>
   <string name="recent_labels">Недавние ярлыки</string>
   <string name="other_labels">Другие ярлыки</string>

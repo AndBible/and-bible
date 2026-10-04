@@ -22,6 +22,7 @@ import {isEqual} from "lodash";
 import {Deferred, setupWindowEventListener} from "@/utils";
 import {BibleViewDocumentType} from "@/types/documents";
 import {TextContentType} from "@/types/client-objects";
+import Color from "color";
 
 export type StrongsMode = 0 | 1 | 2
 export const strongsModes: Record<string, StrongsMode> = {hidden: 0, inline: 1, links: 2}
@@ -113,6 +114,60 @@ export type ModalButtonId = BibleModalButtonId | GenericModalButtonId
 
 export type Feature = "add_paragraph_break" | "bookmark_edit_actions"
 
+export type ThemeColors = {
+    primary: string,
+    onPrimary: string,
+    primaryContainer: string,
+    onPrimaryContainer: string,
+    secondaryContainer: string,
+    onSecondaryContainer: string,
+};
+
+const THEME_COLOR_PROPERTIES: [keyof ThemeColors, string][] = [
+    ["primary", "--ab-primary"],
+    ["onPrimary", "--ab-on-primary"],
+    ["primaryContainer", "--ab-primary-container"],
+    ["onPrimaryContainer", "--ab-on-primary-container"],
+    ["secondaryContainer", "--ab-secondary-container"],
+    ["onSecondaryContainer", "--ab-on-secondary-container"],
+];
+
+/**
+ * The accent's channels, published as `--ab-primary-rgb` alongside the hex roles so that
+ * common.scss's `--accent-rgb` token can forward them to any rule that needs a TINTED TRANSLUCENT
+ * value — such a rule wraps the token in an `rgba(…)` call with the alpha it already had. See
+ * common.scss's token block. `color-mix()` would be the modern way to do this and is unavailable:
+ * StartupActivity enforces a Chromium 83 floor and `color-mix()` needs 111.
+ */
+const ACCENT_CHANNELS_PROPERTY = "--ab-primary-rgb";
+
+function accentChannels(primary: string): string | null {
+    try {
+        return Color(primary).rgb().round().array().join(", ");
+    } catch {
+        // An unparseable value must leave the property UNSET rather than set to junk: an invalid
+        // custom property makes every declaration substituting it invalid at computed-value time,
+        // which paints nothing at all instead of falling back to the grey.
+        return null;
+    }
+}
+
+/**
+ * Applies the workspace theme (A/B batch 4b) as CSS custom properties on the document root.
+ * Removing them — which is what a null payload does — restores today's appearance, because every
+ * consumer declares `var(--ab-…, <the previous literal>)`.
+ */
+export function applyThemeColors(colors: ThemeColors | null): void {
+    const style = document.documentElement.style;
+    for (const [key, property] of THEME_COLOR_PROPERTIES) {
+        if (colors) style.setProperty(property, colors[key]);
+        else style.removeProperty(property);
+    }
+    const channels = colors && accentChannels(colors.primary);
+    if (channels) style.setProperty(ACCENT_CHANNELS_PROPERTY, channels);
+    else style.removeProperty(ACCENT_CHANNELS_PROPERTY);
+}
+
 export type AppSettings = {
     isBottomWindow: boolean,
     topOffset: number,
@@ -144,6 +199,7 @@ export type AppSettings = {
     enabledExperimentalFeatures: Feature[],
     llmConfigured: boolean,
     notesContentType: TextContentType,
+    themeColors: ThemeColors | null,
 }
 
 export type CalculatedConfig = Ref<{
@@ -254,6 +310,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         enabledExperimentalFeatures: [],
         llmConfigured: false,
         notesContentType: "HTML",
+        themeColors: null,
     });
 
     function calcMmInPx() {
@@ -391,6 +448,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
                     console.error("Unknown setting", j, appSettings[j]);
                 }
             }
+            if ("themeColors" in newAppSettings) applyThemeColors(newAppSettings.themeColors ?? null);
 
             errorBox = appSettings.errorBox;
             if (isBible && needBookmarkRefresh) {
