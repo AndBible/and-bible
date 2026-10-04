@@ -243,15 +243,19 @@ class ReadingSearchController(
         if (_phase.value == ReadingSearchPhase.Closed) return
         val q = queries.query.value.trim()
         if (q.isEmpty()) return
-        if (keepIndexingInFlight()) return
         val kind = searchKindFor(resolveDoc())
         val bibleSearch = kind is SearchKind.Bible || (kind is SearchKind.NeedsIndex && !kind.forEpub)
-        // Before the index gates: a reference needs no index.
+        // Before the index gates, including an index build in flight: a reference needs no index.
         if (bibleSearch && tryOpenReference(q)) {
             queries.recordRecentTerm(q)
+            // A build still running is left to finish in the background (the host only detaches its
+            // progress feed). The query is cleared so that, should the session still be in
+            // `Indexing` when it finishes, onIndexingFinished does not text-search the reference.
+            if (_phase.value is ReadingSearchPhase.Indexing) queries.setQuery("")
             onReferenceOpened()
             return
         }
+        if (keepIndexingInFlight()) return
         when (kind) {
             SearchKind.Unavailable -> onUnavailable()
             is SearchKind.NeedsIndex -> {
