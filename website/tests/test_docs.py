@@ -86,11 +86,14 @@ def test_docs_header_matches_the_landing_topbar(built_docs):
     header = html[html.index('<header'):html.index('</header>')]
     assert re.search(r'class="ab-brand" href="/"[^>]*>.*?<span>AndBible</span>', header, re.S)
     nav = header[header.index('class="ab-nav"'):]
-    links = re.findall(r'<a href="([^"]+)">([^<]+)</a>', nav)
+    plain = re.sub(r'<span class="ab-github-facts">.*?</span></span>', "", nav, flags=re.S)  # badges are asserted below
+    links = [(href, re.sub(r"<[^>]+>", "", label).strip())
+             for href, label in re.findall(r'<a href="([^"]+)">(.*?)</a>', plain, re.S)]
     n = site["nav"]
     assert links[:5] == [("/blog/", n["blog"]), ("/docs/", n["docs"]), ("/videos/", n["videos"]),
                          (site["sections"]["support_url"], n["support"]), (site["footer"]["source_url"], n["github"])]
     assert "data-theme-toggle" in header and "data-md-component=\"search\"" in header
+    assert nav.count("<svg") >= 5 and "ab-github-fact" in nav  # icons and the stars/licence badges
     assert 'data-md-component="palette"' not in html and 'data-md-component="source"' not in html
 
 
@@ -178,7 +181,8 @@ def _config(base=None):
     config_dir = paths.BUILD / "en"
     return _language_config(base, "en", config_dir / "docs", config_dir / "site", {
         "site_name": "AndBible",
-        "nav": {"theme_toggle": "t", "blog": "b", "docs": "d", "videos": "v", "support": "s", "github": "g"},
+        "nav": {"theme_toggle": "t", "blog": "b", "docs": "d", "videos": "v", "support": "s", "github": "g",
+                "github_stars": "gs", "github_license": "gl"},
         "sections": {"support_url": "https://x"}, "footer": {"source_url": "https://y"}})
 
 
