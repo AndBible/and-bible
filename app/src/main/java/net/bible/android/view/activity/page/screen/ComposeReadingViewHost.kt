@@ -357,6 +357,29 @@ class ComposeReadingViewGeneration {
 }
 
 /**
+ * Makes the rail's plain (non-observable) per-window labels recompose when they may have changed.
+ *
+ * `windowLabelFor`/`windowTopLabelFor` read `pageManager` directly, so Compose has nothing to
+ * observe and skips the rail while its inputs (layout model + stable lambdas) are unchanged.
+ * Routing each label read through [observed] subscribes the calling composition scope to one
+ * shared tick; [invalidate] (driven by the host's passage/verse events) bumps it, so exactly the
+ * label sites that read it recompose, for every window, synchronised ones included.
+ *
+ * Framework-free like [ComposeReadingViewGeneration], so it is unit-testable without a composition.
+ */
+class WindowLabelFreshness {
+    private val tick = mutableIntStateOf(0)
+
+    /** Reads [read] after subscribing the current composition scope to [invalidate]. */
+    fun <T> observed(read: () -> T): T {
+        tick.intValue
+        return read()
+    }
+
+    fun invalidate() { tick.intValue++ }
+}
+
+/**
  * Fans a "classic said this may have changed" signal out to the Compose reading view's state
  * (pre-A/B state-freshness spec §1 P3).
  *
@@ -2747,6 +2770,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
 
     private val generation = ComposeReadingViewGeneration()
 
+    /** Invalidation source for the rail's per-window labels; see [WindowLabelFreshness]. */
+    internal val windowLabelFreshness = WindowLabelFreshness()
+
     /**
      * Test-only read of THIS host's generation counter — same convention as
      * [searchSelectorPendingIdsForTest]. Exposed for review finding I4: the guard for the batch's
@@ -3017,6 +3043,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // booleans, kept as host-owned Compose `State` and gated by the pure `bibleReferenceOverlayVisible`
             // (`:sharedCore`) fn at render time — no separate service/controller class, per the plan.
             onMain<CurrentVerseChangedEvent> {
+                // Fires for every window (synchronised ones included), unlike the active-window-only
+                // `refreshHostedState()` path, so the rail's labels for ALL windows are covered.
+                windowLabelFreshness.invalidate()
                 overlayText.value = readOverlayText()
                 activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
                 // F44/B3b: this is the event a document swap WITHIN one window reliably fires
@@ -3041,11 +3070,12 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // Task 4 (F2b): classic's per-window rail top label (`WindowButtonWidget.kt:148`,
             // `pageManager.titleText`) is refreshed on this SAME event
             // (`WindowButtonWidget.kt:232-234`). `windowTopLabel`/`windowLabel`/`windowIcon` are
-            // plain, non-`@Composable` lambdas re-read fresh on the next recomposition rather than
-            // Compose `State` (see `MainBibleActivity.windowTopLabelFor`'s kdoc for why), so there is
-            // no dedicated state field to push into here — this reuses the SAME `refreshHostedState()`
-            // push `updateActions()`'s callers already use for the analogous `windowLabelFor`
-            // (document-abbreviation) refresh, rather than adding a second refresh path.
+            // plain, non-`@Composable` lambdas (see `MainBibleActivity.windowTopLabelFor`'s kdoc for
+            // why), so Compose cannot observe them: the label lambdas read [windowLabelFreshness]
+            // and this handler bumps it, which is what recomposes the rail. `refreshHostedState()`
+            // below only refreshes the toolbar (active window) and does NOT recompose the rail.
+            // `CurrentBiblePage.doSetKey` posts this event alone (no `CurrentVerseChangedEvent`),
+            // so the bump is needed here as well as above.
             //
             // KNOWN COST (whole-batch review Minor #3, not coalesced this batch): on the dominant
             // scroll path, `CurrentBiblePage.setCurrentVerseOrdinal` posts THIS event via
@@ -3061,7 +3091,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // so no `CurrentVerseChangedEvent`), and would go stale without this subscription. See
             // `compose-port-status.md`'s F2b section and the on-device checklist's F2b performance
             // item (scrolling verse-by-verse in a multi-window split is where it would show).
-            onMain<CurrentBibleVerseChanged> { refreshHostedState() }
+            onMain<CurrentBibleVerseChanged> {
+                windowLabelFreshness.invalidate()
+                refreshHostedState()
+            }
         }
 
         // F6-B1: the activity's IME padding is keyed on this field's focus, and NO inset changes when
@@ -3449,11 +3482,15 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 }
             },
             paneBackground = { windowId -> paneBackgroundArgbFor(windowId)?.let { Color(it) } },
-            windowLabel = { snapshot -> activity.readingCommands.windowLabelFor(snapshot.id) },
+            windowLabel = { snapshot ->
+                windowLabelFreshness.observed { activity.readingCommands.windowLabelFor(snapshot.id) }
+            },
             windowIcon = { snapshot -> activity.readingCommands.windowIconFor(snapshot.id) },
             // Task 4 (F2b): the rail's tiny top row (classic `topButtonText`) — see
             // `MainBibleActivity.windowTopLabelFor`'s kdoc.
-            windowTopLabel = { snapshot -> activity.readingCommands.windowTopLabelFor(snapshot.id) },
+            windowTopLabel = { snapshot ->
+                windowLabelFreshness.observed { activity.readingCommands.windowTopLabelFor(snapshot.id) }
+            },
             controller = controller,
             windowButtonsVisibleState = windowButtonsVisibility.visible,
             touchTickState = windowButtonsVisibility.touchTick,

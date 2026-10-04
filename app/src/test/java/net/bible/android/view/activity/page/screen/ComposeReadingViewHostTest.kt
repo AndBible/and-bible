@@ -3,6 +3,7 @@ package net.bible.android.view.activity.page.screen
 import android.widget.FrameLayout
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +16,7 @@ import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
@@ -772,6 +774,37 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
                 "must not leak the fake ToolbarStateService binding into later tests",
             )
         }
+    }
+
+    /**
+     * Regression: scrolling a Bible window never updated the rail's per-window labels, because
+     * `windowLabelFor`/`windowTopLabelFor` are plain reads and nothing told Compose to re-run them.
+     * A label read through the host's [WindowLabelFreshness] must be invalidated (i.e. the rail
+     * recomposes) when a window's verse changes — for ANY window, not just the active one.
+     */
+    private fun assertPostingInvalidatesLabelReads(event: Any) {
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        val host = activity.composeReadingViewHost!!
+        val reads = mutableSetOf<Any>()
+        Snapshot.observe(readObserver = { reads += it }) { host.windowLabelFreshness.observed { "label" } }
+        assertTrue(reads.isNotEmpty(), "sanity: the label read must subscribe to some state")
+        val written = mutableSetOf<Any>()
+        val handle = Snapshot.registerApplyObserver { changed, _ -> written.addAll(changed) }
+        try {
+            ABEventBus.post(event)
+            Snapshot.sendApplyNotifications()
+        } finally {
+            handle.dispose()
+        }
+        assertTrue(reads.any { it in written }, "${event::class.simpleName} must invalidate composition scopes that read a window label")
+    }
+
+    @Test fun currentVerseChangedEventInvalidatesRailLabels() {
+        assertPostingInvalidatesLabelReads(CurrentVerseChangedEvent(windowRepository.activeWindow))
+    }
+
+    @Test fun currentBibleVerseChangedInvalidatesRailLabels() {
+        assertPostingInvalidatesLabelReads(CurrentBibleVerseChanged())
     }
 }
 
