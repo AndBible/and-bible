@@ -177,8 +177,34 @@ class DocumentQuickGoldenTest {
                 footer = { AbQuickSheetFooterRow(text = LocalStrings.current.allDocuments, onClick = {}) },
             ) {
                 DocumentQuickContent(
-                    rows = sampleRows().filter { it.category == DocCategory.BIBLE },
+                    rows = sampleRows().filter { it.category == DocCategory.BIBLE }
+                        .sortedWith(compareBy({ it.language.code }, { it.abbreviation })),
                     currentDocId = "KJV",
+                    onSelect = {},
+                )
+            }
+        }
+    }
+
+    /** The Commentary toolbar button's scoped sheet: Recent / This verse / All, commentaries, books and dictionaries. */
+    @Test fun documentQuick_inSheet_commentaryScope() = captureMatrix("DocumentQuick", "inSheet_commentaryScope", heightDp = 650) {
+        SheetSurface {
+            AbQuickSheetContent(
+                title = "Commentary",
+                onClose = {},
+                tabs = listOf(
+                    AbQuickSheetTab("RECENT", LocalStrings.current.documentTabRecent),
+                    AbQuickSheetTab("FOR_VERSE", LocalStrings.current.documentTabForVerse),
+                    AbQuickSheetTab("ALL", LocalStrings.current.documentTabAll),
+                ),
+                selectedTabId = "ALL",
+                canScrollForward = { false },
+                footer = { AbQuickSheetFooterRow(text = LocalStrings.current.allDocuments, onClick = {}) },
+            ) {
+                DocumentQuickContent(
+                    rows = sampleRows().filter { it.category in setOf(DocCategory.COMMENTARY, DocCategory.GENERAL_BOOK, DocCategory.DICTIONARY) }
+                        .sortedWith(compareBy({ it.language.code }, { it.abbreviation })),
+                    currentDocId = "MHC",
                     onSelect = {},
                 )
             }

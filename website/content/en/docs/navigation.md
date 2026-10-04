@@ -69,11 +69,12 @@ To open a document, click on either the Bible or Books icons in the top navigati
 > - Clicking on the Books icon will show a list of other installed documents you can open (
 >     i.e. Commentaries, Dictionaries, Generic books, etc).
 
-By default each button opens a sheet. The Bible sheet lists your Bibles and the
-Books sheet lists commentaries, general books and dictionaries. The tabs are
-*Recent*, *This verse* and *All*, and *All documents…* at the bottom opens the
-full document list. If you have exactly two documents of that kind, pressing the
-button switches directly to the other one instead.
+By default each button opens a sheet. The Bible button lists your Bibles. The
+other button is titled *Commentary* and lists commentaries, general books and
+dictionaries. The tabs are *Recent*, *This verse* and *All*, and *All
+documents…* at the bottom opens the full document list. If only two Bibles (or
+books) are available for the current verse, the button switches directly to the
+other one instead; if none are, it opens the full document list.
 
 Note: This will open the document in the currently active window. To open a
 document in a new window, see [Windows](windows.md).
@@ -84,7 +85,7 @@ Preferences*. Click *Action for toolbar button press* to configure the custom
 button actions:
 
 > - Press to open menu, long press for documents screen (default)
-> - Press to open next document, long press to open document menu (list of documents)
+> - Press to open next document, long press to open the document sheet (list of documents)
 > - Press to open next document, long press to open documents screen
 
 ### Closing Documents

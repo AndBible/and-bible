@@ -79,8 +79,8 @@ data class DocumentQuickTabs(
  * @param installed every installed document, as the host already models them; rows the sheet cannot
  *   action (locked, [DocCategory.AND_BIBLE]) are dropped here rather than by the caller
  * @param recentInitials the MRU, most-recent-first; entries no longer installed are dropped
- * @param forVerseIds documents that contain the current verse (the host's `biblesForVerse` +
- *   `commentariesForVerse`, which the toolbar's quick pickers already compute)
+ * @param forVerseIds documents that contain the current verse; the caller passes the verse's Bibles for
+ *   the Bible scope, its commentaries for the Commentary scope, and both for [DocumentSheetScope.ALL]
  * @param lastLanguage / @param lastTypeFilter what `ChooseDocument` persisted last
  * @param scope restricts every tab to the scope's categories; a scoped sheet offers [DocumentQuickTab.ALL] in place
  *   of [DocumentQuickTab.LAST_FILTER], whose own type filter would fight the scope

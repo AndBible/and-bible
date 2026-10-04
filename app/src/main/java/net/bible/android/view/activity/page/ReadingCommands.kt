@@ -132,7 +132,7 @@ import kotlin.coroutines.resume
  * edited in R1--R6.
  *
  * What deliberately did NOT move: the privates the command surface shares with the CLASSIC toolbar
- * and `updateActions()` (`menuForDocs`, `setCurrentDocument`, `startDocumentChooser`,
+ * and `updateActions()` (`setCurrentDocument`, `startDocumentChooser`,
  * `cycleWorkspace`, `dummyStrongsPrefOption`, `updateStrongsButton`, `updateBottomBars`,
  * `currentDocument`). `pageTitleText` was on that list until R6d fix round 1 and is NOT any more:
  * it is host-independent arithmetic, and leaving it on the Activity is what let R6d copy it into
@@ -818,10 +818,10 @@ class ReadingCommands(
     internal fun openScopedDocumentSheet(scope: DocumentSheetScope, books: List<Book>) {
         val rows = books.map { QuickDocRow(it.initials, it.language.code, it.abbreviation) }
         when (val a = QuickDocPicker.action(rows, currentDocument?.initials ?: "")) {
-            is QuickDocAction.None -> startDocumentChooser(scope.chooserType ?: "")
+            is QuickDocAction.None -> startDocumentChooser(scope.chooserType)
             is QuickDocAction.SwitchDirectly -> setCurrentDocument(books.first { it.initials == a.id })
             is QuickDocAction.ShowPicker -> composeReadingViewHost?.showQuickSheet(ReadingQuickSheet.Documents(scope))
-                ?: startDocumentChooser(scope.chooserType ?: "")
+                ?: startDocumentChooser(scope.chooserType)
         }
     }
 
@@ -1299,8 +1299,8 @@ class ReadingCommands(
                 windowId = windowControl.activeWindow.id
             ))
 
-    /** @param type can be BIBLE or COMMENTARY */
-    internal fun startDocumentChooser(type: String) {
+    /** @param type can be BIBLE or COMMENTARY; null opens the chooser untyped */
+    internal fun startDocumentChooser(type: String?) {
         val intent = NavHostComposeActivity.intentFor(readingHost.hostContext, NavRoutes.chooseDocument(type))
         hostActivity.startActivityForResult(intent, STD_REQUEST_CODE)
     }

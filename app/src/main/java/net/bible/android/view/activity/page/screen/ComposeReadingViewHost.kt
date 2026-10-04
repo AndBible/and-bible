@@ -1777,6 +1777,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 // would stall the first frame of the sheet (Plan A's whole-branch review flagged
                 // exactly this for this task).
                 val tabsState by produceState<DocumentQuickTabs?>(initialValue = null, sheet) {
+                    // Clear first: a direct scope change (BIBLE -> COMMENTARY) re-runs this producer
+                    // and must not show the previous scope's tabs under the new title meanwhile.
+                    value = null
                     value = withContext(Dispatchers.Default) { buildDocumentQuickTabsForHost(scope) }
                 }
                 // `null` means STILL LOADING, and is deliberately distinguished from "loaded, and
@@ -1801,7 +1804,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 // settings (Room) read, and computing it in the composition body would run it on the
                 // main thread on EVERY recomposition of this branch until the user taps a tab —
                 // the same objection that moved the tab build itself off the composition pass.
-                val restoredTabId = remember(tabs) { tabs?.let { restoreQuickDocTab(scope, it.visible) } }
+                val restoredTabId = remember(scope, tabs) { tabs?.let { restoreQuickDocTab(scope, it.visible) } }
                 if (tabs != null && tabs.visible.isEmpty()) {
                     // Nothing to offer — go straight to the full screen rather than showing an
                     // empty sheet with only a footer row.

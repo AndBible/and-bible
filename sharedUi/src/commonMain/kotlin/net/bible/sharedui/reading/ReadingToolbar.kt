@@ -576,8 +576,7 @@ private fun QuickToolbarButton(
     val strings = LocalStrings.current
     when (button) {
         ToolbarButton.BIBLE -> ToolbarIconButton(icons.bible, strings.bible, callbacks.onBible, callbacks.onBibleLong)
-        ToolbarButton.COMMENTARY ->
-            ToolbarIconButton(icons.commentary, strings.docTypeCommentary, callbacks.onCommentary, callbacks.onCommentaryLong)
+        ToolbarButton.COMMENTARY -> ToolbarIconButton(icons.commentary, strings.docTypeCommentary, callbacks.onCommentary, callbacks.onCommentaryLong)
         ToolbarButton.STRONGS -> ToolbarIconButton(
             icon = icons.strongs,
             contentDescription = strings.prefsShowStrongsTitle,
