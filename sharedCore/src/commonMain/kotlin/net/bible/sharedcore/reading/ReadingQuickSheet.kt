@@ -16,6 +16,8 @@
  */
 package net.bible.sharedcore.reading
 
+import net.bible.sharedcore.navigation.DocumentSheetScope
+
 /** Which of the three sheet-hosted key choosers is showing (spec §4.6). */
 enum class KeyChooserKind { Grid, Map, GeneralBook }
 
@@ -35,8 +37,11 @@ sealed interface ReadingQuickSheet {
     /** Round 15b: switch workspace; the full selector is one footer row away. */
     object Workspaces : ReadingQuickSheet
 
-    /** Round 15b Plan B: switch document; `ChooseDocument` is one footer row away. */
-    object Documents : ReadingQuickSheet
+    /**
+     * Round 15b Plan B: switch document; `ChooseDocument` is one footer row away. [scope] is ALL
+     * for the title row's long press, BIBLE/COMMENTARY for the toolbar buttons.
+     */
+    data class Documents(val scope: DocumentSheetScope = DocumentSheetScope.ALL) : ReadingQuickSheet
 
     /**
      * Round 15b Plan B: the three key choosers simple enough for a sheet.

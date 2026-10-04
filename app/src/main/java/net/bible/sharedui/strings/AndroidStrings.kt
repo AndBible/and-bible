@@ -671,6 +671,7 @@ class AndroidStrings(private val context: Context) : Strings {
     override val documentTabRecent: String get() = context.getString(R.string.document_quick_tab_recent)
     override val documentTabForVerse: String get() = context.getString(R.string.document_quick_tab_for_verse)
     override val documentTabLastFilter: String get() = context.getString(R.string.document_quick_tab_last_filter)
+    override val documentTabAll: String get() = context.getString(R.string.document_quick_tab_all)
 
     // Round 17e — document list arrangement
     override val docArrangeTitle: String get() = context.getString(R.string.doc_arrange_title)

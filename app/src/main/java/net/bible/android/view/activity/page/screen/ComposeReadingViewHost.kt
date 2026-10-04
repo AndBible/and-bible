@@ -770,7 +770,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val downloadControl: DownloadControl by inject()
 
     /** Round 15b: the document QUICK switch (spec §4.5). ChooseDocument is the footer row. */
-    internal fun showDocumentSheet() = showQuickSheet(ReadingQuickSheet.Documents)
+    internal fun showDocumentSheet() = showQuickSheet(ReadingQuickSheet.Documents())
 
     /**
      * Task 26 (platform-dialog removal, run 3): the verse-share sheet's toggle state, loaded once
@@ -896,6 +896,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         DocumentQuickTab.RECENT -> LocalStrings.current.documentTabRecent
         DocumentQuickTab.FOR_VERSE -> LocalStrings.current.documentTabForVerse
         DocumentQuickTab.LAST_FILTER -> LocalStrings.current.documentTabLastFilter
+        DocumentQuickTab.ALL -> LocalStrings.current.documentTabAll
     }
 
     /**
@@ -1762,7 +1763,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     WorkspaceQuickContent(rows = rows, onSelect = { controller.select(it) }, listState = listState)
                 }
             }
-            ReadingQuickSheet.Documents -> {
+            is ReadingQuickSheet.Documents -> {
                 // Built OFF the composition pass, unlike History and Workspaces above: enumerating
                 // every installed book, asking `downloadControl` for each one's status and sorting
                 // the result is a hundreds-of-rows job, and doing it synchronously in composition

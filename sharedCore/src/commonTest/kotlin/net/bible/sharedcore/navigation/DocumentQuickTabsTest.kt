@@ -128,4 +128,89 @@ class DocumentQuickTabsTest {
         assertFalse(DocumentQuickTab.FOR_VERSE in tabs.visible, "For-verse held only a locked document")
         assertTrue(tabs.visible.isEmpty(), "no offerable recents, no offerable verse docs, no maps installed")
     }
+
+    // --- Scoped sheets (toolbar Bible/Commentary buttons) -----------------------------------
+
+    private val mixed = listOf(
+        row("KJV"), row("FIN", lang = "fi"), row("ESV"),
+        row("MHC", DocCategory.COMMENTARY), row("TSK", DocCategory.COMMENTARY),
+        row("STRONG", DocCategory.DICTIONARY), row("PILGRIM", DocCategory.GENERAL_BOOK),
+        row("MAP", DocCategory.MAPS),
+    )
+
+    private fun ids(tabs: DocumentQuickTabs, tab: DocumentQuickTab) = tabs.rowsByTab.getValue(tab).map { it.docId }
+
+    @Test fun bibleScopeOffersOnlyBiblesInEveryTab() {
+        val tabs = buildDocumentQuickTabs(
+            mixed, listOf("MHC", "KJV", "STRONG"), setOf("KJV", "MHC"), null, DocTypeFilter.ALL,
+            DocumentSheetScope.BIBLE,
+        )
+        DocumentQuickTab.entries.forEach { tab ->
+            assertTrue(
+                tabs.rowsByTab.getValue(tab).all { it.category == DocCategory.BIBLE },
+                "$tab offers a non-Bible in the Bible sheet: ${ids(tabs, tab)}",
+            )
+        }
+        assertEquals(listOf("KJV"), ids(tabs, DocumentQuickTab.RECENT), "out-of-scope MRU entries are dropped, order kept")
+        assertEquals(listOf("KJV"), ids(tabs, DocumentQuickTab.FOR_VERSE))
+    }
+
+    @Test fun commentaryScopeKeepsGeneralBooksAndDictionariesButNoBiblesOrMaps() {
+        val tabs = buildDocumentQuickTabs(
+            mixed, emptyList(), setOf("MHC"), null, DocTypeFilter.ALL, DocumentSheetScope.COMMENTARY,
+        )
+        assertEquals(
+            setOf("MHC", "TSK", "STRONG", "PILGRIM"),
+            ids(tabs, DocumentQuickTab.ALL).toSet(),
+        )
+    }
+
+    @Test fun aScopedSheetShowsAllInsteadOfLastFilter() {
+        val tabs = buildDocumentQuickTabs(
+            mixed, listOf("KJV"), setOf("KJV"),
+            LangOption("en", "English", "en"), DocTypeFilter.BIBLE, DocumentSheetScope.BIBLE,
+        )
+        assertEquals(
+            listOf(DocumentQuickTab.RECENT, DocumentQuickTab.FOR_VERSE, DocumentQuickTab.ALL),
+            tabs.visible,
+        )
+        assertTrue(ids(tabs, DocumentQuickTab.LAST_FILTER).isEmpty(), "LAST_FILTER must stay empty in a scoped sheet")
+    }
+
+    @Test fun theUnscopedSheetNeverShowsTheAllTab() {
+        val tabs = buildDocumentQuickTabs(mixed, listOf("KJV"), setOf("KJV"), null, DocTypeFilter.ALL)
+        assertFalse(DocumentQuickTab.ALL in tabs.visible)
+        assertTrue(DocumentQuickTab.LAST_FILTER in tabs.visible, "regression: the title-row sheet keeps Last filter")
+    }
+
+    @Test fun theAllTabIsSortedByLanguageThenAbbreviation() {
+        val tabs = buildDocumentQuickTabs(
+            mixed, emptyList(), emptySet(), null, DocTypeFilter.ALL, DocumentSheetScope.BIBLE,
+        )
+        assertEquals(listOf("ESV", "KJV", "FIN"), ids(tabs, DocumentQuickTab.ALL)) // en:ESV, en:KJV, fi:FIN
+    }
+
+    @Test fun aLockedDocumentIsNeverOfferedByAScopedSheet() {
+        val tabs = buildDocumentQuickTabs(
+            mixed + row("SECRET", locked = true), listOf("SECRET"), setOf("SECRET"), null,
+            DocTypeFilter.ALL, DocumentSheetScope.BIBLE,
+        )
+        DocumentQuickTab.entries.forEach { tab -> assertFalse("SECRET" in ids(tabs, tab), "$tab offers a locked doc") }
+    }
+
+    @Test fun aScopeWithNothingInstalledHasNoVisibleTabs() {
+        val onlyBibles = listOf(row("KJV"), row("ESV"))
+        val tabs = buildDocumentQuickTabs(
+            onlyBibles, listOf("KJV"), setOf("KJV"), null, DocTypeFilter.ALL, DocumentSheetScope.COMMENTARY,
+        )
+        assertTrue(tabs.visible.isEmpty(), "the host routes an empty sheet to the full chooser")
+    }
+
+    @Test fun eachScopePersistsItsTabUnderItsOwnKeyAndTheTitleSheetKeepsTheOldOne() {
+        assertEquals("document_quick_tab", DocumentSheetScope.ALL.tabSettingKey, "existing users' saved tab must survive")
+        assertEquals(3, DocumentSheetScope.entries.map { it.tabSettingKey }.toSet().size)
+        assertEquals(null, DocumentSheetScope.ALL.chooserType)
+        assertEquals("BIBLE", DocumentSheetScope.BIBLE.chooserType)
+        assertEquals("COMMENTARY", DocumentSheetScope.COMMENTARY.chooserType)
+    }
 }

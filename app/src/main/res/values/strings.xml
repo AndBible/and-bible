@@ -2085,6 +2085,7 @@
     <string name="document_quick_tab_recent">Recent</string>
     <string name="document_quick_tab_for_verse">This verse</string>
     <string name="document_quick_tab_last_filter">Last filter</string>
+    <string name="document_quick_tab_all">All</string>
     <!-- Round 17e: document list filter/sort/group sheet -->
     <string name="doc_arrange_title">Filter and sort</string>
     <string name="doc_arrange_repository">Repository</string>

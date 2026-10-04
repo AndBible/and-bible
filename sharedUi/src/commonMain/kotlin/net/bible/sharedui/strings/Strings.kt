@@ -748,6 +748,7 @@ interface Strings {
     val documentTabRecent: String            // R.string.document_quick_tab_recent
     val documentTabForVerse: String          // R.string.document_quick_tab_for_verse
     val documentTabLastFilter: String        // R.string.document_quick_tab_last_filter
+    val documentTabAll: String               // R.string.document_quick_tab_all
 
     // Round 17e — document list arrangement (filter / sort / group sheet)
     val docArrangeTitle: String                      // R.string.doc_arrange_title

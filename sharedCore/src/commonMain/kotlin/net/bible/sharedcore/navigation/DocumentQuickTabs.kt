@@ -16,8 +16,35 @@
  */
 package net.bible.sharedcore.navigation
 
-/** The document quick sheet's three tabs (spec §4.5), in display order. */
-enum class DocumentQuickTab { RECENT, FOR_VERSE, LAST_FILTER }
+/** The document quick sheet's tabs, in display order. A sheet shows LAST_FILTER or ALL, never both (see [DocumentSheetScope]). */
+enum class DocumentQuickTab { RECENT, FOR_VERSE, LAST_FILTER, ALL }
+
+/**
+ * Which documents a document quick sheet offers. [ALL] is the title row's long-press sheet;
+ * [BIBLE] and [COMMENTARY] are the toolbar buttons' sheets. The Commentary button has always also
+ * listed general books and dictionaries (classic `menuForDocs` parity), so its scope does too.
+ *
+ * @property categories the categories admitted, `null` = no restriction
+ * @property chooserType the `ChooseDocument` type argument the sheet's footer and its empty-scope
+ *   fallback open (`NavRoutes.chooseDocument(type)`), `null` = untyped
+ * @property tabSettingKey the setting holding this sheet's last-picked tab id; [ALL]'s is the key
+ *   the title-row sheet has always used, so existing users keep their saved tab
+ */
+enum class DocumentSheetScope(
+    val categories: Set<DocCategory>?,
+    val chooserType: String?,
+    val tabSettingKey: String,
+) {
+    ALL(null, null, "document_quick_tab"),
+    BIBLE(setOf(DocCategory.BIBLE), "BIBLE", "document_quick_tab_bible"),
+    COMMENTARY(
+        setOf(DocCategory.COMMENTARY, DocCategory.GENERAL_BOOK, DocCategory.DICTIONARY),
+        "COMMENTARY",
+        "document_quick_tab_commentary",
+    );
+
+    fun admits(row: DocRow): Boolean = categories == null || row.category in categories
+}
 
 /** [visible] is the tabs that have rows, in enum order; [rowsByTab] holds every tab's rows. */
 data class DocumentQuickTabs(
@@ -55,6 +82,8 @@ data class DocumentQuickTabs(
  * @param forVerseIds documents that contain the current verse (the host's `biblesForVerse` +
  *   `commentariesForVerse`, which the toolbar's quick pickers already compute)
  * @param lastLanguage / @param lastTypeFilter what `ChooseDocument` persisted last
+ * @param scope restricts every tab to the scope's categories; a scoped sheet offers [DocumentQuickTab.ALL] in place
+ *   of [DocumentQuickTab.LAST_FILTER], whose own type filter would fight the scope
  */
 fun buildDocumentQuickTabs(
     installed: List<DocRow>,
@@ -62,16 +91,24 @@ fun buildDocumentQuickTabs(
     forVerseIds: Set<String>,
     lastLanguage: LangOption?,
     lastTypeFilter: DocTypeFilter,
+    scope: DocumentSheetScope = DocumentSheetScope.ALL,
 ): DocumentQuickTabs {
-    val offerable = installed.filterNot { it.locked || it.category == DocCategory.AND_BIBLE }
+    val offerable = installed
+        .filterNot { it.locked || it.category == DocCategory.AND_BIBLE }
+        .filter(scope::admits)
     val byId = offerable.associateBy { it.docId }
     val recent = recentInitials.mapNotNull { byId[it] }
     val forVerse = offerable.filter { it.docId in forVerseIds }
-    val lastFilter = computeDisplayedDocuments(offerable, lastLanguage, lastTypeFilter, query = "")
+    val scoped = scope != DocumentSheetScope.ALL
+    val lastFilter = if (scoped) emptyList()
+        else computeDisplayedDocuments(offerable, lastLanguage, lastTypeFilter, query = "")
+    val all = if (scoped) offerable.sortedWith(compareBy({ it.language.code }, { it.abbreviation }))
+        else emptyList()
     val rows = mapOf(
         DocumentQuickTab.RECENT to recent,
         DocumentQuickTab.FOR_VERSE to forVerse,
         DocumentQuickTab.LAST_FILTER to lastFilter,
+        DocumentQuickTab.ALL to all,
     )
     return DocumentQuickTabs(
         visible = DocumentQuickTab.entries.filter { rows.getValue(it).isNotEmpty() },

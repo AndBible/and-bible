@@ -3,13 +3,14 @@ package net.bible.sharedcore.reading
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+import net.bible.sharedcore.navigation.DocumentSheetScope
 
 class ReadingQuickSheetTest {
     @Test fun theSixQuickSheetsAreDistinct() {
         val all = listOf(
             ReadingQuickSheet.History,
             ReadingQuickSheet.Workspaces,
-            ReadingQuickSheet.Documents,
+            ReadingQuickSheet.Documents(),
             ReadingQuickSheet.KeyChooser(KeyChooserKind.Grid),
             ReadingQuickSheet.Share(ShareVersesInput(
                 verses = emptyList(), startOffset = null, endOffset = null,
@@ -38,5 +39,13 @@ class ReadingQuickSheetTest {
             ReadingQuickSheet.KeyChooser(KeyChooserKind.Map),
         )
         assertEquals(3, KeyChooserKind.entries.size, "Grid, Map, GeneralBook — spec §4.6")
+    }
+
+    @Test fun documentSheetsAreDistinctByScope() {
+        assertNotEquals<ReadingQuickSheet>(
+            ReadingQuickSheet.Documents(DocumentSheetScope.BIBLE),
+            ReadingQuickSheet.Documents(DocumentSheetScope.COMMENTARY),
+        )
+        assertEquals<ReadingQuickSheet>(ReadingQuickSheet.Documents(), ReadingQuickSheet.Documents(DocumentSheetScope.ALL))
     }
 }
