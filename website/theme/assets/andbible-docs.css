@@ -73,11 +73,13 @@
 @media screen and (min-width: 60em) and (max-width: 76.234375em) {
   .md-header__button[for=__drawer], .md-overlay, .md-sidebar--secondary, .md-sidebar--secondary:not([hidden]) { display: none; }
   .md-main__inner { padding-left: .8rem; }
-  .md-sidebar { height: 0; }
+  /* Material's JS sizes the scrollwrap only from 76.25em; here the sidebar gets the viewport height in CSS, so the
+     sticky box stays inside .md-main and the nav scrolls within it instead of running over the footer. */
   .md-sidebar--primary, [data-md-toggle=drawer]:checked ~ .md-container .md-sidebar--primary {
-    position: sticky; top: 2.4rem; left: auto; z-index: auto; width: 12.1rem; height: 0; background: none;
+    position: sticky; top: 2.4rem; left: auto; z-index: auto; width: 12.1rem; box-sizing: border-box;
+    height: calc(100vh - 2.4rem); height: calc(100dvh - 2.4rem); background: none;
     -webkit-backdrop-filter: none; backdrop-filter: none; border-radius: 0; box-shadow: none; transform: none; transition: none; }
-  .md-sidebar--primary .md-sidebar__scrollwrap { position: static; overflow-y: auto; }
+  .md-sidebar--primary .md-sidebar__scrollwrap { position: static; height: 100%; overflow-y: auto; }
   .md-sidebar__inner { padding-right: 0; }
   [dir=ltr] .md-sidebar--primary:not([hidden]) ~ .md-content > .md-content__inner { margin-left: 1.2rem; }
   .md-nav--primary { margin: .1rem .2rem; }
