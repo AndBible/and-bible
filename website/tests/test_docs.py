@@ -197,7 +197,9 @@ def test_language_config_applies_every_override():
 def test_language_config_carries_asset_hashes_for_the_theme():
     from sitegen.home import asset_hashes
     assets = tomllib.loads(_config())["project"]["extra"]["assets"]
-    assert assets == {"embeds_css": asset_hashes()["css/embeds.css"], "lite_yt_js": asset_hashes()["js/lite-yt.js"]}
+    assert {k: assets[k] for k in ("embeds_css", "lite_yt_js")} == {
+        "embeds_css": asset_hashes()["css/embeds.css"], "lite_yt_js": asset_hashes()["js/lite-yt.js"]}
+    assert re.fullmatch(r"[0-9a-f]{8}", assets["docs_css"])
 
 
 @pytest.mark.parametrize("drop, missing", [

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block extrahead %}
   {{ super() }}
+  <link rel="stylesheet" href="{{ 'assets/andbible-docs.css' | url }}?v={{ config.extra.assets.docs_css }}">
   <link rel="stylesheet" href="/assets/css/embeds.css?v={{ config.extra.assets.embeds_css }}">
   <script src="{{ 'assets/andbible-docs-theme.js' | url }}"></script>
 {% endblock %}

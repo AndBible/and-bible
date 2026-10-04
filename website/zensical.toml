@@ -13,7 +13,6 @@ site_dir = "_site/docs"
 repo_url = "https://github.com/AndBible/and-bible"
 repo_name = "AndBible/and-bible"
 edit_uri = "blob/current-stable/website/content/en/docs/"
-extra_css = ["assets/andbible-docs.css"]
 nav = [
   { "Home" = "index.md" },
   { "Getting Started" = ["getting_started.md", "navigation.md", "usage.md"] },

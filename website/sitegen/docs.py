@@ -8,6 +8,7 @@ absolute paths, built into <out>/<prefix>/docs/.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import subprocess
@@ -125,7 +126,8 @@ def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path, site
         "site_url": f"{paths.BASE_URL}{prefix(lang)}/docs/",
     }
     hashes = asset_hashes()
-    asset_extra = {"embeds_css": hashes["css/embeds.css"], "lite_yt_js": hashes["js/lite-yt.js"]}
+    docs_css = hashlib.sha256((paths.THEME / "assets" / "andbible-docs.css").read_bytes()).hexdigest()[:8]
+    asset_extra = {"embeds_css": hashes["css/embeds.css"], "lite_yt_js": hashes["js/lite-yt.js"], "docs_css": docs_css}
     lines = []
     seen_theme = seen_extra = False
     for line in base.splitlines():
