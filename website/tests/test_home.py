@@ -235,3 +235,25 @@ def test_support_card_has_decorative_art(content, tmp_path):
     html = (out / "index.html").read_text()
     assert re.search(r'<img class="support__art" src="/assets/img/support-tree\.webp\?v=\w+" alt=""', html)
     assert (out / "assets/img/support-tree.webp").exists()
+
+
+def test_home_share_card_metadata(content, tmp_path):
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    html = (out / "index.html").read_text()
+    assert '<meta property="og:image" content="https://andbible.org/assets/img/og-default.jpg">' in html
+    assert '<meta property="og:image:alt" content="AndBible logo and the headline' in html
+    assert '<meta name="twitter:card" content="summary_large_image">' in html
+    assert '<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">' in html
+
+
+def test_share_images_fit_link_preview_limits():
+    from PIL import Image
+
+    from sitegen.ogimage import OG, TOUCH_ICON
+
+    with Image.open(OG) as card:
+        assert (card.format, card.size) == ("JPEG", (1200, 630))  # matches og:image:type/width/height in base.html
+    assert OG.stat().st_size < 300_000  # WhatsApp drops previews above ~300 kB
+    with Image.open(TOUCH_ICON) as icon:
+        assert icon.size == (180, 180) and icon.mode == "RGB"  # opaque: iOS fills transparency with black

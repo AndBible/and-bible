@@ -140,5 +140,5 @@ def render_videos(env: Environment, strings: dict, videos: list[Video], out: Pat
     target.write_text(env.get_template("videos.html").render(
         lang="en", prefix="", strings=strings, sections=[s for s in sections if s[1]],
         title=page["title"], description=page["description"], canonical=f"{BASE_URL}/videos/",
-        og_image=f"{BASE_URL}/assets/img/og-default.png", og_type="website"), encoding="utf-8")
+        og_type="website"), encoding="utf-8")
     return ["/videos/"]

@@ -105,7 +105,7 @@ def render_blog(env: Environment, strings: dict, posts: list[Post], out: Path, m
         _write(out, post.path, env.get_template("article.html").render(
             post=post, body_html=bodies[post.path], show_hero=not starts_with_embed(post.body_md), title=f"{post.title} – AndBible",
             description=post.summary, canonical=f"{BASE_URL}{post.path}", og_type="article",
-            og_image=f"{BASE_URL}{post.image_url or '/assets/img/og-default.png'}",
+            og_image=f"{BASE_URL}{post.image_url}" if post.image_url else None,
             category_links=[(c, f"/category/{taxonomy_slug(c)}/") for c in post.categories],
             tag_links=[(t, f"/tag/{taxonomy_slug(t)}/") for t in post.tags], **common))
         written.append(post.path)
@@ -121,7 +121,7 @@ def render_blog(env: Environment, strings: dict, posts: list[Post], out: Path, m
                 current_page=number, page_count=len(chunks),
                 title=f"{heading} – AndBible" + (f" (page {number})" if number > 1 else ""),
                 description=strings["meta"]["description"], canonical=f"{BASE_URL}{url}",
-                og_type="website", og_image=f"{BASE_URL}/assets/img/og-default.png", **common))
+                og_type="website", **common))
             if base == "/blog/":
                 written.append(url)
     _feed(posts, bodies, strings, out)
@@ -135,7 +135,6 @@ def render_pages(env: Environment, strings: dict, pages: list[Page], out: Path, 
             page=page, body_html=markdown_to_html(page.body_md, page.source, media_dir),
             title=f"{page.title} – AndBible", description=strings["meta"]["description"],
             canonical=f"{BASE_URL}{page.path}", og_type="website",
-            og_image=f"{BASE_URL}/assets/img/og-default.png",
             lang="en", prefix="", strings=strings))
         written.append(page.path)
     return written
