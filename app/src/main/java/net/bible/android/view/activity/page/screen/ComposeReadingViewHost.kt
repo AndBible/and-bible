@@ -186,6 +186,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.navigation.DocTypeFilter
 import net.bible.sharedcore.navigation.DocumentQuickTab
 import net.bible.sharedcore.navigation.DocumentQuickTabs
+import net.bible.sharedcore.navigation.DocumentSheetScope
 import net.bible.sharedcore.navigation.buildDocumentQuickTabs
 import net.bible.sharedcore.navigation.GridChoosePassageController
 import net.bible.sharedcore.navigation.GridStep
@@ -855,7 +856,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * through the shared [DocRowMapper], so a document's language grouping and category are
      * identical in the sheet and in the full screen.
      */
-    private fun buildDocumentQuickTabsForHost(): DocumentQuickTabs {
+    internal fun buildDocumentQuickTabsForHost(scope: DocumentSheetScope): DocumentQuickTabs {
         val books = SwordDocumentFacade.documents +
             FakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
         val mapper = DocRowMapper(downloadControl, books)
@@ -863,8 +864,14 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // `initials`, NOT `osisID`: DocRow.docId is the book's initials and so is the MRU's key —
         // only the document SEARCH path keys on osisId. The two collapse to the same value for most
         // real modules, so getting this wrong would show up only for the modules where they differ.
-        val forVerseIds = (documentControl.biblesForVerse +
-            documentControl.commentariesForVerse).map { it.initials }.toSet()
+        // The This-verse tab follows the sheet's scope: Bibles for the Bible sheet, commentaries for
+        // the Commentary sheet, both for the title sheet.
+        val forVerseBooks = when (scope) {
+            DocumentSheetScope.BIBLE -> documentControl.biblesForVerse
+            DocumentSheetScope.COMMENTARY -> documentControl.commentariesForVerse
+            DocumentSheetScope.ALL -> documentControl.biblesForVerse + documentControl.commentariesForVerse
+        }
+        val forVerseIds = forVerseBooks.map { it.initials }.toSet()
         // The two keys ChooseDocument itself persists (its sticky-language seam and its type-filter
         // spinner), read here so the "Last filter" tab reproduces what the user last looked at.
         // KNOWN: `selected_document_filter_no` is written by the Download destination too
@@ -888,6 +895,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             forVerseIds = forVerseIds,
             lastLanguage = lastLanguage,
             lastTypeFilter = lastTypeFilter,
+            scope = scope,
         )
     }
 
@@ -903,14 +911,16 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * The last tab the user picked, as a tab ID — never an index. An empty tab is HIDDEN, so
      * `visible`'s shape differs between openings (no MRU yet, no commentary for this verse, …) and a
      * stored index would restore a different tab the first time that happened. A stored id that
-     * names no currently-visible tab simply falls back to the first visible one.
+     * names no currently-visible tab simply falls back to the first visible one. Each [scope] keeps
+     * its own saved tab ([DocumentSheetScope.tabSettingKey]).
      */
-    private fun restoreQuickDocTab(visible: List<DocumentQuickTab>): String? {
-        val saved = CommonUtils.settings.getString(QUICK_DOC_TAB_KEY, null)
+    internal fun restoreQuickDocTab(scope: DocumentSheetScope, visible: List<DocumentQuickTab>): String? {
+        val saved = CommonUtils.settings.getString(scope.tabSettingKey, null)
         return visible.firstOrNull { it.name == saved }?.name ?: visible.firstOrNull()?.name
     }
 
-    private fun persistQuickDocTab(tabId: String) = CommonUtils.settings.setString(QUICK_DOC_TAB_KEY, tabId)
+    internal fun persistQuickDocTab(scope: DocumentSheetScope, tabId: String) =
+        CommonUtils.settings.setString(scope.tabSettingKey, tabId)
 
     /** The document shown in the active window — the row the sheet draws bold and inert. */
     private fun currentDocumentInitials(): String? = documentControl.currentDocument?.initials
@@ -955,9 +965,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * repeated rather than delegated because that method now routes BACK here (it is the title
      * long-press's reroute point), so calling it would recurse.
      */
-    private fun openChooseDocument() {
+    private fun openChooseDocument(type: String? = null) {
         activity.hostActivity.startActivityForResult(
-            NavHostComposeActivity.intentFor(activity.hostContext, NavRoutes.chooseDocument()),
+            NavHostComposeActivity.intentFor(activity.hostContext, NavRoutes.chooseDocument(type)),
             ActivityBase.STD_REQUEST_CODE,
         )
     }
@@ -1764,13 +1774,14 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 }
             }
             is ReadingQuickSheet.Documents -> {
+                val scope = sheet.scope
                 // Built OFF the composition pass, unlike History and Workspaces above: enumerating
                 // every installed book, asking `downloadControl` for each one's status and sorting
                 // the result is a hundreds-of-rows job, and doing it synchronously in composition
                 // would stall the first frame of the sheet (Plan A's whole-branch review flagged
                 // exactly this for this task).
                 val tabsState by produceState<DocumentQuickTabs?>(initialValue = null, sheet) {
-                    value = withContext(Dispatchers.Default) { buildDocumentQuickTabsForHost() }
+                    value = withContext(Dispatchers.Default) { buildDocumentQuickTabsForHost(scope) }
                 }
                 // `null` means STILL LOADING, and is deliberately distinguished from "loaded, and
                 // there is nothing to offer" below: routing away on a not-yet-loaded list would send
@@ -1794,29 +1805,35 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 // settings (Room) read, and computing it in the composition body would run it on the
                 // main thread on EVERY recomposition of this branch until the user taps a tab —
                 // the same objection that moved the tab build itself off the composition pass.
-                val restoredTabId = remember(tabs) { tabs?.let { restoreQuickDocTab(it.visible) } }
+                val restoredTabId = remember(tabs) { tabs?.let { restoreQuickDocTab(scope, it.visible) } }
                 if (tabs != null && tabs.visible.isEmpty()) {
                     // Nothing to offer — go straight to the full screen rather than showing an
                     // empty sheet with only a footer row.
-                    LaunchedEffect(Unit) { closeQuickSheet(); openChooseDocument() }
+                    LaunchedEffect(Unit) { closeQuickSheet(); openChooseDocument(scope.chooserType) }
                 } else {
                     val selectedTabId = tabs?.let { loaded ->
                         pickedTabId?.takeIf { id -> loaded.visible.any { it.name == id } } ?: restoredTabId
                     }
                     AbQuickSheet(
                         open = true,
-                        title = activity.getString(R.string.chooseBook),
+                        title = activity.getString(
+                            when (scope) {
+                                DocumentSheetScope.ALL -> R.string.chooseBook
+                                DocumentSheetScope.BIBLE -> R.string.doc_type_bible
+                                DocumentSheetScope.COMMENTARY -> R.string.doc_type_commentary
+                            },
+                        ),
                         onDismiss = { closeQuickSheet() },
                         // Identity-keyed tabs: the enum's own `name` is the stable id, which is what
                         // lets a hidden tab and an async tab list coexist with a persisted selection.
                         tabs = tabs?.visible.orEmpty().map { AbQuickSheetTab(it.name, quickDocTabLabel(it)) },
                         selectedTabId = selectedTabId,
-                        onTabSelected = { id -> pickedTabId = id; persistQuickDocTab(id) },
+                        onTabSelected = { id -> pickedTabId = id; persistQuickDocTab(scope, id) },
                         canScrollForward = { listState.canScrollForward },
                         footer = {
                             AbQuickSheetFooterRow(text = LocalStrings.current.allDocuments) {
                                 closeQuickSheet()
-                                openChooseDocument()
+                                openChooseDocument(scope.chooserType)
                             }
                         },
                     ) {
@@ -3906,9 +3923,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         internal fun buildTabBarModel(layout: WindowLayoutState): WindowTabBarModel = buildWindowTabBar(layout)
 
         private const val TAG = "ComposeReadingViewHost"
-
-        /** Round 15b: the document quick sheet's last-used TAB ID (never an index — see [restoreQuickDocTab]). */
-        private const val QUICK_DOC_TAB_KEY = "document_quick_tab"
 
         /** Task 26: the verse-share sheet's toggle pref keys — verbatim from the classic
          *  `ShareWidget`, so an existing user's saved choices carry over unchanged. */
