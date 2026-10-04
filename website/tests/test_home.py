@@ -170,7 +170,7 @@ def test_embeds_css_is_linked_with_its_own_content_hash_not_imported(content, tm
 
 def test_phone_nav_is_visible_without_javascript():
     css = (paths.ASSETS / "css" / "site.css").read_text()
-    block = re.search(r"@media \(max-width: 719px\) and \(scripting: none\) \{(.*?)\n\}", css, re.S)
+    block = re.search(r"@media \(max-width: 899px\) and \(scripting: none\) \{(.*?)\n\}", css, re.S)
     assert block, "no `scripting: none` rule: the phone menu stays hidden when JS is off"
     assert ".topbar nav { display: flex;" in block.group(1) and "[data-menu-toggle] { display: none; }" in block.group(1)
 

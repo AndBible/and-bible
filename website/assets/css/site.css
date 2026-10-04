@@ -99,14 +99,18 @@ img { max-width: 100%; height: auto; }
   stroke-linecap: round; stroke-linejoin: round; }
 [data-menu-toggle] { display: none; }
 :focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
-@media (max-width: 719px) {
+/* Tight desktop widths: keep the stars, drop the licence badge. */
+@media (min-width: 900px) and (max-width: 1099px) {
+  .nav-github__fact:nth-child(2) { display: none; }
+}
+@media (max-width: 899px) {
   [data-menu-toggle] { display: inline-flex; }
   .topbar .wrap { flex-wrap: wrap; }
   .topbar nav { display: none; order: 3; flex-basis: 100%; flex-direction: column; align-items: stretch; padding-bottom: 12px; }
   .topbar nav[data-open] { display: flex; }
 }
 /* Without JS nothing can open the phone menu: show the links as a wrapping row and drop the dead button. */
-@media (max-width: 719px) and (scripting: none) {
+@media (max-width: 899px) and (scripting: none) {
   [data-menu-toggle] { display: none; }
   .topbar nav { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; }
 }
