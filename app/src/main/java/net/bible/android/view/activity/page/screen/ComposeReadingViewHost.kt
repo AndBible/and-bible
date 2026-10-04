@@ -20,7 +20,6 @@ import android.content.ClipData
 import android.content.Intent
 import android.text.format.DateFormat.format
 import android.util.Log
-import android.view.View
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -198,7 +197,6 @@ import net.bible.sharedcore.reading.DrawerMenuState
 import net.bible.sharedcore.reading.KeyChooserKind
 import net.bible.sharedcore.reading.KeyChooserPage
 import net.bible.sharedcore.reading.OptionsMenuItem
-import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.PaneButtonAction
 import net.bible.sharedcore.reading.ReadingOverlay
 import net.bible.sharedcore.reading.ReadingOverlayExclusion
@@ -279,7 +277,6 @@ import net.bible.sharedui.navigation.GridChoosePassageContent
 import net.bible.sharedui.navigation.GridOptionsOverflow
 import net.bible.sharedui.navigation.KeyListBody
 import net.bible.sharedui.reading.ChooseSpeakBookmarkDialog
-import net.bible.sharedui.reading.QuickDocMenuState
 import net.bible.sharedui.reading.ReadingDrawerContent
 import net.bible.sharedui.reading.ReadingDrawerWidth
 import net.bible.sharedui.reading.ReadingSearchBarCallbacks
@@ -319,7 +316,6 @@ import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
@@ -2881,19 +2877,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val overflowExpanded = mutableStateOf(false)
 
     /**
-     * Host-owned state for the Bible/Commentary quick-document picker menus (Batch 12g Task 8) —
-     * the compose-path replacement for the native `menuForDocs` `PopupMenu` on the non-swap
-     * short-press branch of [ReadingToolbarCallbacks.onBible]/`onCommentary` (see [install]) and,
-     * since nav-graph slice 7 Task 2, on the `swap-menu` long press too (via [openBibleQuickDoc]/
-     * [openCommentaryQuickDoc]). Mirrors [overflowItems]/[overflowExpanded] above: built fresh from
-     * [MainBibleActivity.composeQuickDocItems] on each tap, cleared by `onQuickDocSelect`/
-     * `onQuickDocDismiss`. Only one of the two is ever expanded at a time (the toolbar only lets
-     * one menu be open), so a single [MainBibleActivity.composeQuickDocSelect] can resolve either.
-     */
-    private val bibleQuickDoc = mutableStateOf(QuickDocMenuState())
-    private val commentaryQuickDoc = mutableStateOf(QuickDocMenuState())
-
-    /**
      * Opens the Compose overflow ("3-dot") options menu: exactly what
      * [ReadingToolbarCallbacks.onOverflow] does (that callback delegates here), exposed publicly so
      * the OTHER entry point to the reading view's options menu — the `"AltKeyO"` keyboard shortcut
@@ -2924,28 +2907,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         overflowExpanded.value = true
     }
 
-    /**
-     * Opens the Bible toolbar button's Compose quick-document menu with [items] (built by
-     * [MainBibleActivity.composeQuickDocItems], which decides the "exactly 2 docs -> switch
-     * directly" shortcut itself and returns an empty list in that case — hence `expanded` is gated
-     * on the list being non-empty). Both the short-press ([ReadingToolbarCallbacks.onBible]'s
-     * non-swap branch) and the `swap-menu` long press ([MainBibleActivity.composeBibleLongClick])
-     * go through here, so there is one mechanism rather than two.
-     */
-    fun openBibleQuickDoc(items: List<QuickDocMenuItem>) {
-        bibleQuickDoc.value = QuickDocMenuState(expanded = items.isNotEmpty(), items = items)
-    }
-
-    /** [openBibleQuickDoc]'s counterpart for the Commentary toolbar button. */
-    fun openCommentaryQuickDoc(items: List<QuickDocMenuItem>) {
-        commentaryQuickDoc.value = QuickDocMenuState(expanded = items.isNotEmpty(), items = items)
-    }
-
-    /** Test-only reads of the three menu states above — same convention as [paneMenuWindowIdForTest]. */
+    /** Test-only reads of the overflow menu state above — same convention as [paneMenuWindowIdForTest]. */
     internal val overflowExpandedForTest: Boolean get() = overflowExpanded.value
     internal val overflowItemsForTest: List<OptionsMenuItem> get() = overflowItems.value
-    internal val bibleQuickDocForTest: QuickDocMenuState get() = bibleQuickDoc.value
-    internal val commentaryQuickDocForTest: QuickDocMenuState get() = commentaryQuickDoc.value
 
     /**
      * The Compose navigation drawer's item list (Batch Z-early A6) — the compose-path replacement
@@ -3237,14 +3201,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // them NPE, so it stays inflated and merely GONE until Task 11/13 delete the writes, the XML
         // and the Activity together.
         //
-        // What is NO LONGER true (this comment said it until slice 7 Task 2's fix round): none of
-        // these children anchors a native popup for the Compose path any more. `optionsMenu` has no
-        // click listener at all now (`showOptionsMenu` is deleted), and the Compose path's
-        // Bible/Commentary presses go through `openBibleQuickDoc`/`openCommentaryQuickDoc` rather
-        // than anchoring `menuForDocs` on `bibleButton`/`commentaryButton`. Those two buttons DO
-        // still carry `menuForDocs` listeners from `setupToolbarButtons`, but a GONE view is not
-        // clickable, so they are dead code that Task 11 removes with the XML -- not a reason to
-        // keep the row.
         // R6d: spelled as the INTENTION, not as the two `binding` writes. `binding` never enters
         // `ReadingHostActivity` (spec §3.1); `MainBibleActivity` answers this with exactly the two
         // lines that used to sit here, and a host with no classic toolbar row answers with the
@@ -3260,10 +3216,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             // R8: the argument block that used to sit here is [ReadingView], so that the `reading`
-            // nav destination composes the SAME arguments instead of a second copy of them. The
-            // anchor stays `container` on this path, byte-for-byte what the two `menuForDocs`
-            // call sites were given before the move.
-            setContent { ReadingView(anchor = container) }
+            // nav destination composes the SAME arguments instead of a second copy of them.
+            setContent { ReadingView() }
         }
         container.addView(composeView)
     }
@@ -3285,15 +3239,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * explicit forwards to [ReadingViewContent] stay the compile-time check that the test seam and
      * the content cannot drift apart. This function is the PRODUCTION binding of the same
      * parameters, and both are checked by the same compiler for the same reason.
-     *
-     * @param anchor the [View] the two `menuForDocs` `PopupMenu` call sites hang off (classic's
-     *   `bibleButton`/`commentaryButton` live inside the now-GONE `toolbarLayout`). [install]
-     *   passes its `container`; the nav destination passes `LocalView.current`, which is the
-     *   window's own content view -- the same full-bleed rectangle, since the reading view fills it.
      */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun ReadingView(anchor: View) {
+    fun ReadingView() {
         // Ensure the SSOT reflects the freshly-loaded workspace before first render (repo
         // mutations after this point already route through the 12a notifiers, which keep
         // windowState.layout current, but the very first mount needs an explicit kick).
@@ -3314,38 +3263,12 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 onTitleLongPress = { activity.readingCommands.composeChooseDocument() },
                 onTitleFlingVertical = { showWorkspaceSheet() },
                 onTitleFlingHorizontal = { forward -> activity.readingCommands.composeCycleWorkspace(forward) },
-                // Batch 12g Task 8: the non-swap short-press branch drives the real Compose
-                // quick-doc menu (`bibleQuickDoc`/`commentaryQuickDoc` above) instead of bridging to
-                // the classic native `menuForDocs` `PopupMenu`. Nav-graph slice 7 Task 2 finished
-                // the job: the `swap-menu` LONG press now goes through the same
-                // `openBibleQuickDoc`/`openCommentaryQuickDoc` seam, so no native popup is anchored
-                // on [anchor] any more — the classic anchors (bibleButton/
-                // commentaryButton) live inside the now-GONE toolbarLayout and would have positioned
-                // a native popup at a stale/zero location. The long press's OTHER branch still opens
-                // `ChooseDocument` (a full-screen chooser, no anchoring problem; slice 7 Task 9's
-                // business). The short-press swap-doc shortcut (`toolbarButtonSetting` = "swap-*")
-                // sets the document directly and opens no menu at all.
-                // The overflow options menu is NOT bridged this way either (Batch 12b-C Task 3
-                // replaced that native PopupMenu bridge with the real Compose `ReadingOverflowMenu`
-                // below — see `onOverflow`/`openOverflowMenu`).
-                onBible = {
-                    if (CommonUtils.settings.getString("toolbar_button_actions", "default")?.startsWith("swap-") == true) {
-                        activity.readingCommands.composeBibleClick(anchor)
-                    } else {
-                        openBibleQuickDoc(activity.readingCommands.composeQuickDocItems(documentControl.biblesForVerse))
-                    }
-                },
+                // Short press: swap-* switches documents, otherwise the scoped document quick sheet;
+                // see `ReadingCommands.composeBibleClick`. (The overflow options menu is the real
+                // Compose `ReadingOverflowMenu` below, see `onOverflow`/`openOverflowMenu`.)
+                onBible = { activity.readingCommands.composeBibleClick() },
                 onBibleLong = { activity.readingCommands.composeBibleLongClick() },
-                onCommentary = {
-                    if (CommonUtils.settings.getString("toolbar_button_actions", "default")?.startsWith("swap-") == true) {
-                        activity.readingCommands.composeCommentaryClick(anchor)
-                    } else {
-                        val books = documentControl.commentariesForVerse +
-                            SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK) +
-                            SwordDocumentFacade.getBooks(BookCategory.DICTIONARY)
-                        openCommentaryQuickDoc(activity.readingCommands.composeQuickDocItems(books))
-                    }
-                },
+                onCommentary = { activity.readingCommands.composeCommentaryClick() },
                 onCommentaryLong = { activity.readingCommands.composeCommentaryLongClick() },
                 // The Strongs refresh now lives inside `composeCycleStrongs`/`composeStrongsLong`,
                 // next to their `updateStrongsButton()` call — `StrongsPreference.handle()` posts
@@ -3374,17 +3297,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 }
             },
             onOverflowDismiss = { overflowExpanded.value = false },
-            bibleQuickDocState = bibleQuickDoc,
-            commentaryQuickDocState = commentaryQuickDoc,
-            onQuickDocSelect = { id ->
-                activity.readingCommands.composeQuickDocSelect(id)
-                bibleQuickDoc.value = QuickDocMenuState()
-                commentaryQuickDoc.value = QuickDocMenuState()
-            },
-            onQuickDocDismiss = {
-                bibleQuickDoc.value = QuickDocMenuState()
-                commentaryQuickDoc.value = QuickDocMenuState()
-            },
             // Batch Z-early A6: the navigation drawer. Icons are resolved from the `iconKey` the
             // `:sharedCore` model carries (mirroring the menu XML's `android:icon`) through
             // [drawerIconResIdFor] — the same "host resolves, `:sharedUi` stays Android-free" shape
@@ -4001,17 +3913,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             overflowExpandedState: State<Boolean> = mutableStateOf(false),
             onOverflowItemClick: (id: String) -> Unit = {},
             onOverflowDismiss: () -> Unit = {},
-            // Batch 12g Task 8 additions: the Bible/Commentary quick-document picker menus,
-            // `State`s for the same reason as `overflowItemsState`/`overflowExpandedState` above —
-            // [ComposeReadingViewHost] owns mutable backing state (`bibleQuickDoc`/
-            // `commentaryQuickDoc`) that its `ReadingToolbarCallbacks.onBible`/`onCommentary`
-            // (non-swap branch) mutate, and `onQuickDocSelect`/`onQuickDocDismiss` clear. Defaulted
-            // (collapsed/empty/no-op) so `ComposeReadingViewHostTest` (which never opens either
-            // menu) is unaffected.
-            bibleQuickDocState: State<QuickDocMenuState> = mutableStateOf(QuickDocMenuState()),
-            commentaryQuickDocState: State<QuickDocMenuState> = mutableStateOf(QuickDocMenuState()),
-            onQuickDocSelect: (id: String) -> Unit = {},
-            onQuickDocDismiss: () -> Unit = {},
             // Batch Z-early A6: the navigation drawer. The host owns the item list and the
             // open/closed request as `State`s (same reactivity reason as `overflowExpandedState`);
             // `ModalNavigationDrawer`'s own `DrawerState` is created inside `setContent` and kept in
@@ -4209,10 +4110,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                         overflowExpandedState = overflowExpandedState,
                         onOverflowItemClick = onOverflowItemClick,
                         onOverflowDismiss = onOverflowDismiss,
-                        bibleQuickDocState = bibleQuickDocState,
-                        commentaryQuickDocState = commentaryQuickDocState,
-                        onQuickDocSelect = onQuickDocSelect,
-                        onQuickDocDismiss = onQuickDocDismiss,
                         drawerState = drawerState,
                         drawerOpenState = drawerOpenState,
                         drawerIcon = drawerIcon,
@@ -4309,10 +4206,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             overflowExpandedState: State<Boolean>,
             onOverflowItemClick: (id: String) -> Unit,
             onOverflowDismiss: () -> Unit,
-            bibleQuickDocState: State<QuickDocMenuState>,
-            commentaryQuickDocState: State<QuickDocMenuState>,
-            onQuickDocSelect: (id: String) -> Unit,
-            onQuickDocDismiss: () -> Unit,
             drawerState: State<DrawerMenuState>,
             drawerOpenState: MutableState<Boolean>,
             drawerIcon: @Composable (iconKey: String) -> Painter?,
@@ -4387,8 +4280,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                     val imeBottomPaddingPx by imeBottomPaddingPxState
                     val overflowItems by overflowItemsState
                     val overflowExpanded by overflowExpandedState
-                    val bibleQuickDoc by bibleQuickDocState
-                    val commentaryQuickDoc by commentaryQuickDocState
                     val tabBarModel = buildTabBarModel(layout)
                     val touchTick by touchTickState
                     val paneMenuWindowId by paneMenuWindowIdState
@@ -4663,10 +4554,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                                     onOverflowItemClick = onOverflowItemClick,
                                     onOverflowDismiss = onOverflowDismiss,
                                     overflowIcon = menuIcon,
-                                    bibleQuickDoc = bibleQuickDoc,
-                                    commentaryQuickDoc = commentaryQuickDoc,
-                                    onQuickDocSelect = onQuickDocSelect,
-                                    onQuickDocDismiss = onQuickDocDismiss,
                                     paneOverlay = { windowId ->
                                         val window = layout.windows.firstOrNull { it.id == windowId }
                                         PaneWindowButtonOverlay(

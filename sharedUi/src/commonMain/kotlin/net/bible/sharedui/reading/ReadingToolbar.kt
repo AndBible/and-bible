@@ -101,7 +101,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.sharedcore.reading.OptionsMenuItem
-import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.ReadingSearchBarState
 import net.bible.sharedcore.reading.SearchFieldImeRequest
 import net.bible.sharedcore.reading.SearchFieldLeadingAction
@@ -162,9 +161,6 @@ data class ReadingToolbarCallbacks(
     val onOverflow: () -> Unit,
 )
 
-/** Host-owned quick-document picker state for one toolbar doc button (Bible or Commentary). */
-data class QuickDocMenuState(val expanded: Boolean = false, val items: List<QuickDocMenuItem> = emptyList())
-
 /**
  * The interactions [ReadingToolbar]'s search mode can invoke (F6 Task 4). Paired with a non-null
  * [ReadingSearchBarState]; Task 8 wires both to `ReadingSearchController`.
@@ -219,12 +215,6 @@ private const val FTS5_QUERY_SYNTAX_URL = "https://www.sqlite.org/fts5.html#full
  * the button still only calls [ReadingToolbarCallbacks.onOverflow]; it's the host's job to build
  * the item list and flip [overflowExpanded] to `true` in response. All four are defaulted
  * (empty list / collapsed / no-ops) so existing call sites and their goldens are unaffected.
- *
- * The Bible and Commentary quick buttons each anchor their own [QuickDocMenu] (Batch 12g) the same
- * way — [bibleQuickDoc]/[commentaryQuickDoc] are host-owned [QuickDocMenuState]s, and
- * [onQuickDocSelect]/[onQuickDocDismiss] are shared by both menus (only one can be open at a
- * time). All four default to collapsed/empty/no-op so existing call sites and their goldens are
- * unaffected.
  *
  * [overflowIcon] is forwarded verbatim to [ReadingOverflowMenu]'s `icon` parameter — the host
  * lambda resolving each row's [OptionsMenuItem.iconKey] to a `Painter`. Defaulted to always-`null`
@@ -301,10 +291,6 @@ fun ReadingToolbar(
     overflowExpanded: Boolean = false,
     onOverflowItemClick: (id: String) -> Unit = {},
     onOverflowDismiss: () -> Unit = {},
-    bibleQuickDoc: QuickDocMenuState = QuickDocMenuState(),
-    commentaryQuickDoc: QuickDocMenuState = QuickDocMenuState(),
-    onQuickDocSelect: (id: String) -> Unit = {},
-    onQuickDocDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
     overflowIcon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
@@ -559,10 +545,6 @@ fun ReadingToolbar(
                         state = state,
                         icons = icons,
                         callbacks = callbacks,
-                        bibleQuickDoc = bibleQuickDoc,
-                        commentaryQuickDoc = commentaryQuickDoc,
-                        onQuickDocSelect = onQuickDocSelect,
-                        onQuickDocDismiss = onQuickDocDismiss,
                     )
                 }
                 Box {
@@ -590,21 +572,12 @@ private fun QuickToolbarButton(
     state: ToolbarState,
     icons: ReadingToolbarIcons,
     callbacks: ReadingToolbarCallbacks,
-    bibleQuickDoc: QuickDocMenuState = QuickDocMenuState(),
-    commentaryQuickDoc: QuickDocMenuState = QuickDocMenuState(),
-    onQuickDocSelect: (id: String) -> Unit = {},
-    onQuickDocDismiss: () -> Unit = {},
 ) {
     val strings = LocalStrings.current
     when (button) {
-        ToolbarButton.BIBLE -> Box {
-            ToolbarIconButton(icons.bible, strings.bible, callbacks.onBible, callbacks.onBibleLong)
-            QuickDocMenu(bibleQuickDoc.expanded, bibleQuickDoc.items, onQuickDocSelect, onQuickDocDismiss)
-        }
-        ToolbarButton.COMMENTARY -> Box {
+        ToolbarButton.BIBLE -> ToolbarIconButton(icons.bible, strings.bible, callbacks.onBible, callbacks.onBibleLong)
+        ToolbarButton.COMMENTARY ->
             ToolbarIconButton(icons.commentary, strings.docTypeCommentary, callbacks.onCommentary, callbacks.onCommentaryLong)
-            QuickDocMenu(commentaryQuickDoc.expanded, commentaryQuickDoc.items, onQuickDocSelect, onQuickDocDismiss)
-        }
         ToolbarButton.STRONGS -> ToolbarIconButton(
             icon = icons.strongs,
             contentDescription = strings.prefsShowStrongsTitle,

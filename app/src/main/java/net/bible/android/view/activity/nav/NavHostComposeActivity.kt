@@ -71,7 +71,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
@@ -1630,7 +1629,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         requestSdcardPermission = { readingAppBootstrap.requestSdcardPermission() },
         // Classic toolbar chrome this host does not draw.
         updateStrongsButton = { },
-        menuForDocs = { _, _ -> },
         // No `DrawerLayout` on this host: the Compose drawer is a modal sheet that takes input
         // while open, so the pre-Compose native fallbacks have nothing to fall back to.
         toggleNativeDrawer = { },
@@ -4155,12 +4153,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             // this destination bind the identical arguments, and two copies of a
                             // 71-parameter list is two things to keep true where only one would ever
                             // be edited. R8 extracted it from `install` for exactly that reason.
-                            //
-                            // `LocalView.current` is the anchor the two `menuForDocs` `PopupMenu`
-                            // call sites need -- classic anchored them on `binding.mainBibleView`,
-                            // which is the same full-bleed rectangle the reading view fills here.
                             val host = remember { readingViewHost() }
-                            host.ReadingView(anchor = LocalView.current)
+                            host.ReadingView()
                         },
                         onKey = { key -> readingViewKeyPressed(key) },
                         onScreenTurnedOn = { readingViewScreenTurnedOn() },

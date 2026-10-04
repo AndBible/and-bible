@@ -17,39 +17,28 @@
 
 package net.bible.sharedcore.reading
 
-import net.bible.sharedcore.navigation.DocCategory
-
-/**
- * One selectable document in the quick-switch picker. `id` = the SWORD `Book.initials` (stable).
- * [category] drives the row's leading icon: the Commentary button's menu deliberately also lists
- * general books and dictionaries (classic parity), so the icon is what makes the mixture legible.
- */
+/** One candidate document for the quick-switch decision. `id` = the SWORD `Book.initials` (stable). */
 data class QuickDocRow(
     val id: String,
-    val label: String,
     val language: String,
     val abbreviation: String,
-    val category: DocCategory,
 )
 
-/** A rendered popup row: [enabled] is false for the current document (visible-but-disabled, classic parity). */
-data class QuickDocMenuItem(val id: String, val label: String, val enabled: Boolean, val category: DocCategory)
-
 sealed interface QuickDocAction {
-    /** No documents to offer — show nothing (classic would show an empty popup; None is the clean equivalent). */
+    /** No documents to offer: the caller opens the full chooser typed to the button's scope. */
     object None : QuickDocAction
-    /** Exactly two docs: switch straight to the non-active one, no menu (classic `menuForDocs` :1915-1916). */
+    /** Exactly two docs: switch straight to the non-active one, no sheet (classic `menuForDocs` :1915-1916). */
     data class SwitchDirectly(val id: String) : QuickDocAction
-    /** Show the anchored dropdown with these rows (already sorted; current disabled). */
-    data class ShowPopup(val items: List<QuickDocMenuItem>) : QuickDocAction
+    /** 1, or 3+ documents: show the scoped document sheet. */
+    object ShowPicker : QuickDocAction
 }
 
 /**
- * Pure decision for the reading-view quick-document picker — the port of classic
+ * Pure decision for the reading-view quick-document picker, the port of classic
  * `MainBibleActivity.menuForDocs` (`page/MainBibleActivity.kt:1905-1924`) and iOS's
  * `BibleReaderQuickModuleSelectorPresentation.action`. Sorts by language then abbreviation
- * (classic `compareBy({language.code},{abbreviation})`), applies the 2-doc direct-switch shortcut,
- * and marks the current document disabled-but-visible.
+ * (classic `compareBy({language.code},{abbreviation})`) and applies the 2-doc direct-switch
+ * shortcut. The sheet's `DocumentQuickContent` draws the current row bold and inert.
  */
 object QuickDocPicker {
     fun action(rows: List<QuickDocRow>, activeId: String): QuickDocAction {
@@ -57,9 +46,7 @@ object QuickDocPicker {
         return when (sorted.size) {
             0 -> QuickDocAction.None
             2 -> QuickDocAction.SwitchDirectly((sorted.firstOrNull { it.id != activeId } ?: sorted.first()).id)
-            else -> QuickDocAction.ShowPopup(
-                sorted.map { QuickDocMenuItem(it.id, it.label, enabled = it.id != activeId, category = it.category) },
-            )
+            else -> QuickDocAction.ShowPicker
         }
     }
 }

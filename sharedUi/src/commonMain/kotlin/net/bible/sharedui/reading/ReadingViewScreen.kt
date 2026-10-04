@@ -101,11 +101,6 @@ import net.bible.sharedcore.window.WindowLayoutState
  * overlay), composed as a sibling of the panes rather than inside any one of them. `null` by
  * default, in which case nothing extra is drawn.
  *
- * [bibleQuickDoc]/[commentaryQuickDoc]/[onQuickDocSelect]/[onQuickDocDismiss] are forwarded
- * verbatim to [ReadingToolbar] — host-owned state for the Bible/Commentary quick-document picker
- * menus (Batch 12g). All four default to collapsed/empty/no-op so existing call sites and their
- * goldens are unaffected.
- *
  * [overflowIcon] is forwarded verbatim to [ReadingToolbar]'s `overflowIcon` parameter — the host
  * lambda resolving each overflow-menu row's [OptionsMenuItem.iconKey] to a `Painter`. Defaulted to
  * always-`null` so existing call sites and their goldens are unaffected.
@@ -137,10 +132,6 @@ fun ReadingViewScreen(
     overflowExpanded: Boolean = false,
     onOverflowItemClick: (id: String) -> Unit = {},
     onOverflowDismiss: () -> Unit = {},
-    bibleQuickDoc: QuickDocMenuState = QuickDocMenuState(),
-    commentaryQuickDoc: QuickDocMenuState = QuickDocMenuState(),
-    onQuickDocSelect: (id: String) -> Unit = {},
-    onQuickDocDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
     tabBar: (@Composable (applyNavBarInset: Boolean) -> Unit)? = null,
     /**
@@ -231,10 +222,6 @@ fun ReadingViewScreen(
                     overflowExpanded = overflowExpanded,
                     onOverflowItemClick = onOverflowItemClick,
                     onOverflowDismiss = onOverflowDismiss,
-                    bibleQuickDoc = bibleQuickDoc,
-                    commentaryQuickDoc = commentaryQuickDoc,
-                    onQuickDocSelect = onQuickDocSelect,
-                    onQuickDocDismiss = onQuickDocDismiss,
                     overflowIcon = overflowIcon,
                 )
             }

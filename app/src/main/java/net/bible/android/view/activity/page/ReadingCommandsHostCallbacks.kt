@@ -17,12 +17,10 @@
 
 package net.bible.android.view.activity.page
 
-import android.view.View
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.android.view.activity.page.screen.DocumentViewManager
-import org.crosswire.jsword.book.Book
 
 /**
  * What [ReadingCommands] (and the [MenuCommandHandler] it owns) need from their host beyond R4's
@@ -186,10 +184,6 @@ class ReadingCommandsHostCallbacks(
 
     /** Classic toolbar: `binding.strongsButton`'s icon and alpha. Honest no-op, same reason. */
     val updateStrongsButton: () -> Unit,
-
-    /** Classic toolbar: the native `PopupMenu` of documents. Honest no-op for a Compose host, which
-     *  reaches the same choice through `composeQuickDocItems`' own menu instead. */
-    val menuForDocs: (anchor: View, documents: List<Book>) -> Unit,
 
     /**
      * Classic `binding.drawerLayout` toggle — the defensive fallback of [ReadingCommands]'s

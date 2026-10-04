@@ -21,7 +21,6 @@ import android.app.Activity
 import android.content.ClipData
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.graphics.asImageBitmap
@@ -76,16 +75,16 @@ import net.bible.service.llm.PromptContext
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.navigation.DocumentSheetScope
 import net.bible.sharedcore.reading.KeyChooserRoute
 import net.bible.sharedcore.reading.OptionsMenuItem
 import net.bible.sharedcore.reading.QuickDocAction
-import net.bible.sharedcore.reading.QuickDocMenuItem
 import net.bible.sharedcore.reading.QuickDocPicker
 import net.bible.sharedcore.reading.QuickDocRow
+import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedcore.settings.SettingsScope
 import net.bible.sharedcore.settings.textSettingEditorPageFor
 import net.bible.sharedcore.window.ReadingViewController
-import net.bible.sharedui.docCategoryOf
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -770,79 +769,61 @@ class ReadingCommands(
         host.showTextSettingEditor(prefOptions.settings.toScope(), page) { apply() }
     }
 
-    /** @param anchor the Compose toolbar's ComposeView (classic `bibleButton` is inside the now-GONE `toolbarLayout` on this path). */
-    internal fun composeBibleClick(anchor: View) {
+    /** Bible toolbar button, short press. */
+    internal fun composeBibleClick() {
         if (toolbarButtonSetting?.startsWith("swap-") == true) {
             setCurrentDocument(documentControl.suggestedBible)
         } else {
-            hostCallbacks.menuForDocs(anchor, documentControl.biblesForVerse)
+            openScopedDocumentSheet(DocumentSheetScope.BIBLE, documentControl.biblesForVerse)
         }
     }
 
-    /**
-     * Nav-graph slice 7 Task 2: the `swap-menu` branch opens the Compose quick-doc menu (the same
-     * `openBibleQuickDoc` seam the non-swap SHORT press already used), not the native `menuForDocs`
-     * `PopupMenu` — so this no longer needs a `View` to anchor on.
-     */
     internal fun composeBibleLongClick() {
         if (toolbarButtonSetting == "swap-menu") {
-            composeReadingViewHost?.openBibleQuickDoc(composeQuickDocItems(documentControl.biblesForVerse))
+            openScopedDocumentSheet(DocumentSheetScope.BIBLE, documentControl.biblesForVerse)
         } else {
             startDocumentChooser("BIBLE")
         }
     }
 
-    /** @param anchor the Compose toolbar's ComposeView (classic `commentaryButton` is inside the now-GONE `toolbarLayout` on this path). */
-    internal fun composeCommentaryClick(anchor: View) {
+    /** Commentary toolbar button, short press. Lists general books and dictionaries too (classic parity). */
+    internal fun composeCommentaryClick() {
         if (toolbarButtonSetting?.startsWith("swap-") == true) {
             setCurrentDocument(documentControl.suggestedCommentary)
         } else {
-            hostCallbacks.menuForDocs(
-                anchor,
+            openScopedDocumentSheet(
+                DocumentSheetScope.COMMENTARY,
                 documentControl.commentariesForVerse
                     + SwordDocumentFacade.getBooks(BookCategory.GENERAL_BOOK)
-                    + SwordDocumentFacade.getBooks(BookCategory.DICTIONARY)
+                    + SwordDocumentFacade.getBooks(BookCategory.DICTIONARY),
             )
         }
     }
 
-    /** [composeBibleLongClick]'s counterpart; same slice 7 Task 2 change. */
     internal fun composeCommentaryLongClick() {
         if (toolbarButtonSetting == "swap-menu") {
-            // Mirrors classic `commentaryLongPress` exactly: unlike `commentaryClick`/
-            // `composeCommentaryClick`, the long-press menu does NOT append
-            // GENERAL_BOOK/DICTIONARY books.
-            composeReadingViewHost?.openCommentaryQuickDoc(composeQuickDocItems(documentControl.commentariesForVerse))
+            // Mirrors classic `commentaryLongPress` exactly: unlike `composeCommentaryClick`, the
+            // long press does NOT append GENERAL_BOOK/DICTIONARY books to the 2-document check.
+            openScopedDocumentSheet(DocumentSheetScope.COMMENTARY, documentControl.commentariesForVerse)
         } else {
             startDocumentChooser("COMMENTARY")
         }
     }
 
-    /** Compose-path quick-doc dispatch: returns the popup items to show (or empty if it switched
-     *  directly / had nothing). Mirrors classic `menuForDocs` (:1905-1924) via `QuickDocPicker`. */
-    internal fun composeQuickDocItems(books: List<Book>): List<QuickDocMenuItem> {
-        val byId = books.associateBy { it.initials }
-        val rows = books.map {
-            QuickDocRow(
-                it.initials,
-                hostActivity.getString(R.string.something_with_parenthesis, it.abbreviation, it.language.code),
-                it.language.code,
-                it.abbreviation,
-                category = docCategoryOf(it.bookCategory),
-            )
-        }
-        return when (val a = QuickDocPicker.action(rows, currentDocument?.initials ?: "")) {
-            is QuickDocAction.None -> emptyList()
-            is QuickDocAction.SwitchDirectly -> { setCurrentDocument(byId[a.id]); emptyList() }
-            is QuickDocAction.ShowPopup -> { composeQuickDocBooksById = byId; a.items }
+    /**
+     * A toolbar document button's picker. [books] is the set classic `menuForDocs` offered; it
+     * decides only [QuickDocPicker]'s shortcuts — exactly 2 switches directly, none opens the full
+     * chooser typed to [scope] — and the sheet then builds its own tabs for [scope].
+     */
+    internal fun openScopedDocumentSheet(scope: DocumentSheetScope, books: List<Book>) {
+        val rows = books.map { QuickDocRow(it.initials, it.language.code, it.abbreviation) }
+        when (val a = QuickDocPicker.action(rows, currentDocument?.initials ?: "")) {
+            is QuickDocAction.None -> startDocumentChooser(scope.chooserType ?: "")
+            is QuickDocAction.SwitchDirectly -> setCurrentDocument(books.first { it.initials == a.id })
+            is QuickDocAction.ShowPicker -> composeReadingViewHost?.showQuickSheet(ReadingQuickSheet.Documents(scope))
+                ?: startDocumentChooser(scope.chooserType ?: "")
         }
     }
-
-    /** id -> Book for the currently-open compose quick-doc menu (resolves `onSelect`). */
-    private var composeQuickDocBooksById: Map<String, Book> = emptyMap()
-
-    /** Compose quick-doc menu selection -> set the doc (mirrors classic `menuForDocs`' click listener). */
-    internal fun composeQuickDocSelect(id: String) { setCurrentDocument(composeQuickDocBooksById[id]) }
 
     // ---- Compose window-tab rail bridge (Batch 12b follow-on, Plan A Task 7) ----
     // `windowLabelFor`/`windowTopLabelFor`/`windowIconFor` resolve a `ComposeReadingViewHost`-supplied

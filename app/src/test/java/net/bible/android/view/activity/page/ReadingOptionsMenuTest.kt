@@ -29,6 +29,8 @@ import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.navigation.DocumentSheetScope
+import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.BookCategory
 import org.junit.After
@@ -38,6 +40,7 @@ import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.io.File
 import kotlin.test.assertEquals
@@ -100,6 +103,7 @@ class ReadingOptionsMenuTest {
         CommonUtils.settings.setString("lastDisplaySettings", null)
         // `setCurrentDocument` persists this; the commentary long-press test really does switch.
         CommonUtils.settings.setString("default-COMMENTARY", null)
+        CommonUtils.settings.setString("default-DICTIONARY", null)
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
@@ -287,22 +291,19 @@ class ReadingOptionsMenuTest {
     // ---------------------------------------------------------------- swap-menu long press
 
     @Test
-    fun bibleLongPressInSwapMenuModeOpensTheComposeQuickDocMenu() {
+    fun bibleLongPressInSwapMenuModeOpensTheBibleDocumentSheet() {
         CommonUtils.settings.setString("toolbar_button_actions", "swap-menu")
-        val bibles = documentControl.biblesForVerse
         assertTrue(
-            bibles.size > 2,
+            documentControl.biblesForVerse.size > 2,
             "sanity: the test Sword modules must offer more than the 2 that QuickDocPicker would " +
-                "switch between directly without opening a menu; found ${bibles.size}",
+                "switch between directly; found ${documentControl.biblesForVerse.size}",
         )
         val host = ComposeReadingViewHost(activity)
         activity.composeReadingViewHost = host
 
         activity.readingCommands.composeBibleLongClick()
 
-        assertTrue(host.bibleQuickDocForTest.expanded, "the Compose quick-doc menu must open")
-        assertEquals(bibles.size, host.bibleQuickDocForTest.items.size, "one row per offered Bible")
-        assertFalse(host.commentaryQuickDocForTest.expanded, "only the Bible menu opens")
+        assertEquals<ReadingQuickSheet?>(ReadingQuickSheet.Documents(DocumentSheetScope.BIBLE), host.quickSheet.value)
     }
 
     /**
@@ -310,14 +311,14 @@ class ReadingOptionsMenuTest {
      * pinned **behaviourally** rather than only by the source scan below.
      *
      * What makes the difference observable is `QuickDocPicker`'s "exactly 2 documents -> switch
-     * directly, show no menu" rule and the measured fixture:
+     * directly, open no sheet" rule and the measured fixture:
      * - `commentariesForVerse` is exactly 2 here. NOT zero: no commentary SWORD module is
      *   installed, but [net.bible.service.download.FakeBookFactory]'s two
      *   pseudo-commentaries (`MyNote`, `Compare`) are always appended, so the bare list is 2 ->
      *   `SwitchDirectly` -> no menu, and the current document becomes one of those two.
      * - the extras the SHORT press appends are at least the two Strong's lexicons
      *   (`strongsgreek`, `strongshebrew`), so appending them takes the list past 2 ->
-     *   `ShowPopup` -> a menu and no switch.
+     *   `ShowPicker` -> a sheet and no switch.
      *
      * The extras count is asserted as "at least one", NOT as an exact number: in the FULL `:app`
      * suite (one JVM, shared JSword state) an earlier test registers a third GENERAL_BOOK,
@@ -351,10 +352,11 @@ class ReadingOptionsMenuTest {
 
         activity.readingCommands.composeCommentaryLongClick()
 
-        assertFalse(
-            host.commentaryQuickDocForTest.expanded,
-            "with exactly 2 documents the picker switches directly and shows no menu — a menu here " +
-                "means the GENERAL_BOOK/DICTIONARY extras were appended (4 rows)",
+        assertEquals(
+            null,
+            host.quickSheet.value,
+            "with exactly 2 documents the picker switches directly and opens no sheet — a sheet here " +
+                "means the GENERAL_BOOK/DICTIONARY extras were appended",
         )
         val after = documentControl.currentDocument?.initials
         assertTrue(after != before, "…and the direct switch really happened; still on $before")
@@ -373,7 +375,7 @@ class ReadingOptionsMenuTest {
      * the source, which is the faster diagnosis when it is made again.
      */
     @Test
-    fun theTwoLongPressBranchesUseTheComposeQuickDocMenuWithTheirOwnBookLists() {
+    fun theTwoLongPressBranchesUseTheScopedDocumentSheetWithTheirOwnBookLists() {
         // Reading-host re-typing R3 (design spec §3.2): both long-press bodies moved off
         // `MainBibleActivity` into `ReadingCommands`, so the collaborator is where the needles below
         // live. (The behavioural tests above drive `ReadingCommands` on the reading-route nav host
@@ -384,8 +386,14 @@ class ReadingOptionsMenuTest {
 
         assertFalse("menuForDocs" in bibleBody, "the Bible long press must not open the native popup:\n$bibleBody")
         assertFalse("menuForDocs" in commentaryBody, "the commentary long press must not open the native popup:\n$commentaryBody")
-        assertTrue("openBibleQuickDoc" in bibleBody, "…it opens the Compose quick-doc menu instead:\n$bibleBody")
-        assertTrue("openCommentaryQuickDoc" in commentaryBody, "…it opens the Compose quick-doc menu instead:\n$commentaryBody")
+        assertTrue(
+            "openScopedDocumentSheet(DocumentSheetScope.BIBLE" in bibleBody,
+            "…it opens the scoped document sheet instead:\n$bibleBody",
+        )
+        assertTrue(
+            "openScopedDocumentSheet(DocumentSheetScope.COMMENTARY" in commentaryBody,
+            "…it opens the scoped document sheet instead:\n$commentaryBody",
+        )
 
         assertTrue(
             "documentControl.commentariesForVerse" in commentaryBody,
@@ -399,6 +407,45 @@ class ReadingOptionsMenuTest {
         assertTrue(
             "documentControl.biblesForVerse" in bibleBody,
             "the Bible long press keeps its own book list:\n$bibleBody",
+        )
+    }
+
+    @Test
+    fun bibleShortPressOpensTheBibleSheetEvenWhileReadingAnotherCategory() {
+        val host = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = host
+        // Review Focus 4: the current document is outside the scope.
+        activity.readingCommands.setCurrentDocument(SwordDocumentFacade.getBooks(BookCategory.DICTIONARY).first())
+        host.showQuickSheet(ReadingQuickSheet.History) // Review Focus 5: another sheet is open
+
+        activity.readingCommands.composeBibleClick()
+
+        assertEquals<ReadingQuickSheet?>(ReadingQuickSheet.Documents(DocumentSheetScope.BIBLE), host.quickSheet.value)
+    }
+
+    @Test
+    fun commentaryShortPressOpensTheCommentarySheet() {
+        val host = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = host
+
+        activity.readingCommands.composeCommentaryClick()
+
+        assertEquals<ReadingQuickSheet?>(ReadingQuickSheet.Documents(DocumentSheetScope.COMMENTARY), host.quickSheet.value)
+    }
+
+    @Test
+    fun aScopeWithNoDocumentsOpensTheTypedChooserInsteadOfNothing() {
+        val host = ComposeReadingViewHost(activity)
+        activity.composeReadingViewHost = host
+
+        activity.readingCommands.openScopedDocumentSheet(DocumentSheetScope.COMMENTARY, emptyList())
+
+        assertEquals(null, host.quickSheet.value, "no sheet for an empty book list")
+        val started = shadowOf(activity).nextStartedActivityForResult
+        assertTrue(started != null, "the full chooser must open")
+        assertEquals(
+            NavRoutes.chooseDocument("COMMENTARY"),
+            started.intent.getStringExtra(NavHostComposeActivity.EXTRA_ROUTE),
         )
     }
 

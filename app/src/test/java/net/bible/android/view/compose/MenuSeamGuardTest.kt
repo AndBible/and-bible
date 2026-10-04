@@ -39,7 +39,6 @@ class MenuSeamGuardTest {
     private val migratedFiles = listOf(
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/ReadingOverflowMenu.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/WindowPaneMenu.kt",
-        "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/QuickDocMenu.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/ReadingToolbar.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/bookmark/BookmarksScreen.kt",
         "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/bookmark/ManageLabelsScreen.kt",

@@ -19,11 +19,9 @@ package net.bible.sharedcore.reading
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import net.bible.sharedcore.navigation.DocCategory
 
 class QuickDocPickerTest {
-    private fun row(id: String, lang: String, abbr: String) = QuickDocRow(id, "$abbr ($lang)", lang, abbr, DocCategory.BIBLE)
+    private fun row(id: String, lang: String, abbr: String) = QuickDocRow(id, lang, abbr)
 
     @Test fun emptyListYieldsNone() {
         assertEquals(QuickDocAction.None, QuickDocPicker.action(emptyList(), "x"))
@@ -32,31 +30,15 @@ class QuickDocPickerTest {
         val rows = listOf(row("kjv", "en", "KJV"), row("esv", "en", "ESV"))
         assertEquals(QuickDocAction.SwitchDirectly("kjv"), QuickDocPicker.action(rows, "esv"))
     }
-    @Test fun threeOrMoreShowsPopupSortedByLanguageThenAbbreviation() {
+    @Test fun exactlyTwoWithNeitherActiveSwitchesToTheFirstInLanguageThenAbbreviationOrder() {
+        val rows = listOf(row("b", "fi", "B"), row("a", "en", "Z"))
+        assertEquals(QuickDocAction.SwitchDirectly("a"), QuickDocPicker.action(rows, "other"))
+    }
+    @Test fun oneDocumentShowsThePicker() {
+        assertEquals(QuickDocAction.ShowPicker, QuickDocPicker.action(listOf(row("a", "en", "A")), "a"))
+    }
+    @Test fun threeOrMoreShowsThePicker() {
         val rows = listOf(row("b", "fi", "B"), row("a", "en", "A"), row("c", "en", "C"))
-        val action = QuickDocPicker.action(rows, "a")
-        assertTrue(action is QuickDocAction.ShowPopup)
-        val items = (action as QuickDocAction.ShowPopup).items
-        assertEquals(listOf("a", "c", "b"), items.map { it.id }) // en:A, en:C, fi:B
-    }
-    @Test fun currentDocIsDisabledButVisibleInPopup() {
-        val rows = listOf(row("a", "en", "A"), row("b", "en", "B"), row("c", "en", "C"))
-        val items = (QuickDocPicker.action(rows, "b") as QuickDocAction.ShowPopup).items
-        assertEquals(false, items.first { it.id == "b" }.enabled)
-        assertTrue(items.filter { it.id != "b" }.all { it.enabled })
-    }
-    @Test
-    fun `the popup carries each row's category through the sort`() {
-        val rows = listOf(
-            QuickDocRow("ESV", "English Standard Version", "en", "ESV", DocCategory.BIBLE),
-            QuickDocRow("MHC", "Matthew Henry", "en", "MHC", DocCategory.COMMENTARY),
-            QuickDocRow("EAST", "Easton", "en", "EAST", DocCategory.DICTIONARY),
-        )
-        val action = QuickDocPicker.action(rows, activeId = "ESV")
-        val items = (action as QuickDocAction.ShowPopup).items
-        assertEquals(
-            listOf(DocCategory.DICTIONARY, DocCategory.BIBLE, DocCategory.COMMENTARY),
-            items.map { it.category },
-        )
+        assertEquals(QuickDocAction.ShowPicker, QuickDocPicker.action(rows, "a"))
     }
 }

@@ -37,7 +37,7 @@ import org.robolectric.annotation.GraphicsMode
  * Captured inside a plain `Column`, NOT inside a real `DropdownMenu`: force-opening a Compose
  * `DropdownMenu` under Robolectric/Roborazzi has repeatedly, intermittently HUNG this repo's golden
  * capture, and two open popups on one page hang it reliably. Every menu golden here follows the
- * same rule (see `QuickDocMenuGoldenTest` and `ReadingOverflowMenuGoldenTest`).
+ * same rule (see `ReadingOverflowMenuGoldenTest`).
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
