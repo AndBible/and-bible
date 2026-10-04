@@ -137,7 +137,8 @@ def test_sitemap_lists_posts(site):
 def test_article_has_social_metadata(site):
     html = (site / "2025/01/01/post-1/index.html").read_text()
     assert 'property="og:type" content="article"' in html
-    assert 'og:image" content="https://andbible.org/assets/img/og-default.png"' in html
+    assert 'og:image" content="https://andbible.org/assets/img/og-default.jpg"' in html
+    assert 'og:image:width" content="1200"' in html and 'og:image:height" content="630"' in html
     assert 'rel="canonical" href="https://andbible.org/2025/01/01/post-1/"' in html
 
 
@@ -173,6 +174,7 @@ def test_feature_image_hidden_only_above_a_leading_embed(tmp_path, monkeypatch, 
     article = (out / "2025/01/01/post-1/index.html").read_text()
     assert ('class="post__image"' in article) is hero
     assert 'og:image" content="https://andbible.org/media/blog/feature.png"' in article
+    assert "og:image:width" not in article and "og-default" not in article  # the default card's size is not this image's
     assert 'src="/media/blog/feature.png"' in (out / "blog/index.html").read_text()
     assert ('data-yt-id="abcDEF12345"' in article) is (VIDEO in body and "```" not in body)
 

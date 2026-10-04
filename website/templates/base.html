@@ -11,10 +11,20 @@
   <meta property="og:title" content="{{ title }}">
   <meta property="og:description" content="{{ description }}">
   <meta property="og:url" content="{{ canonical }}">
+  {%- if og_image %}
   <meta property="og:image" content="{{ og_image }}">
+  {%- else %}
+  <meta property="og:image" content="{{ base_url }}/assets/img/og-default.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{{ strings.meta.image_alt }}">
+  <meta name="twitter:image:alt" content="{{ strings.meta.image_alt }}">
+  {%- endif %}
   <meta name="twitter:card" content="summary_large_image">
   <link rel="alternate" type="application/rss+xml" title="{{ strings.site_name }}" href="/feed/">
   <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg">
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
   <link rel="stylesheet" href="{{ asset_url('css/site.css') }}">
   <link rel="stylesheet" href="{{ asset_url('css/embeds.css') }}">
   <script src="{{ asset_url('js/theme.js') }}"></script>
