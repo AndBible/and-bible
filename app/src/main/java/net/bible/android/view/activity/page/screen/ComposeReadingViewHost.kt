@@ -363,7 +363,14 @@ class ComposeReadingViewGeneration {
  * observe and skips the rail while its inputs (layout model + stable lambdas) are unchanged.
  * Routing each label read through [observed] subscribes the calling composition scope to one
  * shared tick; [invalidate] (driven by the host's passage/verse events) bumps it, so exactly the
- * label sites that read it recompose, for every window, synchronised ones included.
+ * label sites that read it recompose, for every window, synchronised ones included. The window
+ * icon (`windowIconFor`) is not wrapped: it is read in the same rail composition scope as the
+ * labels, so it is re-evaluated whenever they are.
+ *
+ * The bump relies on the host's `CurrentVerseChangedEvent` / `CurrentBibleVerseChanged` handlers
+ * being reached: a document or key change reaches the rail only because `CurrentPageManager` /
+ * `PassageChangeMediator` post one of them. A mutation that posts neither leaves the labels stale;
+ * `railLabelsFollowARealDocumentChange` pins the document-swap path.
  *
  * Framework-free like [ComposeReadingViewGeneration], so it is unit-testable without a composition.
  */
@@ -2773,6 +2780,14 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     /** Invalidation source for the rail's per-window labels; see [WindowLabelFreshness]. */
     internal val windowLabelFreshness = WindowLabelFreshness()
 
+    /** The rail button's label for [snapshot], read through [windowLabelFreshness] so it recomposes. */
+    internal fun railWindowLabel(snapshot: WindowSnapshot): String =
+        windowLabelFreshness.observed { activity.readingCommands.windowLabelFor(snapshot.id) }
+
+    /** The rail button's top row for [snapshot], read through [windowLabelFreshness] so it recomposes. */
+    internal fun railWindowTopLabel(snapshot: WindowSnapshot): String? =
+        windowLabelFreshness.observed { activity.readingCommands.windowTopLabelFor(snapshot.id) }
+
     /**
      * Test-only read of THIS host's generation counter — same convention as
      * [searchSelectorPendingIdsForTest]. Exposed for review finding I4: the guard for the batch's
@@ -3077,7 +3092,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // `CurrentBiblePage.doSetKey` posts this event alone (no `CurrentVerseChangedEvent`),
             // so the bump is needed here as well as above.
             //
-            // KNOWN COST (whole-batch review Minor #3, not coalesced this batch): on the dominant
+            // KNOWN COST (whole-batch review Minor #3, not coalesced this batch; this handler also
+            // drives the rail tick above, besides `refreshHostedState()`): on the dominant
             // scroll path, `CurrentBiblePage.setCurrentVerseOrdinal` posts THIS event via
             // `CurrentBibleVerse.setVerseSelected` and then posts `CurrentVerseChangedEvent` right
             // after (`VersePage.onVerseChange` -> `PassageChangeMediator.onCurrentVerseChanged`) —
@@ -3482,15 +3498,11 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 }
             },
             paneBackground = { windowId -> paneBackgroundArgbFor(windowId)?.let { Color(it) } },
-            windowLabel = { snapshot ->
-                windowLabelFreshness.observed { activity.readingCommands.windowLabelFor(snapshot.id) }
-            },
+            windowLabel = ::railWindowLabel,
             windowIcon = { snapshot -> activity.readingCommands.windowIconFor(snapshot.id) },
             // Task 4 (F2b): the rail's tiny top row (classic `topButtonText`) — see
             // `MainBibleActivity.windowTopLabelFor`'s kdoc.
-            windowTopLabel = { snapshot ->
-                windowLabelFreshness.observed { activity.readingCommands.windowTopLabelFor(snapshot.id) }
-            },
+            windowTopLabel = ::railWindowTopLabel,
             controller = controller,
             windowButtonsVisibleState = windowButtonsVisibility.visible,
             touchTickState = windowButtonsVisibility.touchTick,

@@ -4,6 +4,7 @@ import android.widget.FrameLayout
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
+import org.crosswire.jsword.book.Books
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CoroutineScope
@@ -786,8 +787,13 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
         activity.composeReadingViewHost = ComposeReadingViewHost(activity)
         val host = activity.composeReadingViewHost!!
         val reads = mutableSetOf<Any>()
-        Snapshot.observe(readObserver = { reads += it }) { host.windowLabelFreshness.observed { "label" } }
-        assertTrue(reads.isNotEmpty(), "sanity: the label read must subscribe to some state")
+        val snapshot = win(windowRepository.activeWindow.id.toString())
+        // The REAL rail lambdas' bodies (what WindowTabBar is wired to), not a hand-rolled `observed`.
+        Snapshot.observe(readObserver = { reads += it }) { host.railWindowLabel(snapshot) }
+        assertTrue(reads.isNotEmpty(), "sanity: the rail label read must subscribe to some state")
+        val topReads = mutableSetOf<Any>()
+        Snapshot.observe(readObserver = { topReads += it }) { host.railWindowTopLabel(snapshot) }
+        assertTrue(topReads.isNotEmpty(), "sanity: the rail top-label read must subscribe to some state")
         val written = mutableSetOf<Any>()
         val handle = Snapshot.registerApplyObserver { changed, _ -> written.addAll(changed) }
         try {
@@ -797,6 +803,38 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
             handle.dispose()
         }
         assertTrue(reads.any { it in written }, "${event::class.simpleName} must invalidate composition scopes that read a window label")
+        assertTrue(topReads.any { it in written }, "${event::class.simpleName} must invalidate composition scopes that read a window top label")
+    }
+
+    /**
+     * Pins the implicit dependency of [WindowLabelFreshness]: a REAL document swap on a window's
+     * page manager reaches the rail only because it posts `CurrentVerseChangedEvent`. Nothing here
+     * posts an event by hand.
+     */
+    @Test fun railLabelsFollowARealDocumentChange() {
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        val host = activity.composeReadingViewHost!!
+        val window = windowRepository.activeWindow
+        val snapshot = win(window.id.toString())
+        val kjv = Books.installed().getBook("KJV")
+        val esv = Books.installed().getBook("ESV2011")
+        assertTrue(kjv != null && esv != null, "sanity: test Sword modules must be installed")
+        window.pageManager.setCurrentDocument(kjv)
+        Snapshot.sendApplyNotifications()
+
+        val reads = mutableSetOf<Any>()
+        val before = Snapshot.observe(readObserver = { reads += it }) { host.railWindowLabel(snapshot) }
+        val written = mutableSetOf<Any>()
+        val handle = Snapshot.registerApplyObserver { changed, _ -> written.addAll(changed) }
+        try {
+            window.pageManager.setCurrentDocument(esv)
+            Snapshot.sendApplyNotifications()
+        } finally {
+            handle.dispose()
+        }
+        assertEquals(kjv!!.abbreviation, before)
+        assertEquals(esv!!.abbreviation, host.railWindowLabel(snapshot))
+        assertTrue(reads.any { it in written }, "a real document swap must invalidate scopes that read the rail label")
     }
 
     @Test fun currentVerseChangedEventInvalidatesRailLabels() {
