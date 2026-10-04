@@ -2,8 +2,10 @@
 
 # Version increment script for AndBible
 # This script increments version, creates changelog, commits, tags, and pushes to GitHub
-# Usage: ./scripts/increment-version.sh [--build]
-#   --build: Create a test release tag (test-X) instead of production tag (production-X)
+# Usage: ./scripts/increment-version.sh [--build] [--step N]
+#   --build:  Create a test release tag (test-X) instead of production tag (production-X)
+#   --step N: Increase versionCode by N instead of 1, e.g. to leave a gap of
+#             version codes free for current-stable bug-fix releases
 
 set -e  # Exit on any error
 
@@ -36,8 +38,17 @@ retry_command() {
 
 # Parse arguments
 BUILD_MODE=false
-if [[ "$1" == "--build" ]]; then
-    BUILD_MODE=true
+STEP=1
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --build) BUILD_MODE=true; shift ;;
+        --step) STEP="$2"; shift 2 ;;
+        *) echo -e "${RED}Error: Unknown argument: $1${NC}"; exit 1 ;;
+    esac
+done
+if ! [[ "$STEP" =~ ^[1-9][0-9]*$ ]]; then
+    echo -e "${RED}Error: --step must be a positive integer, got '$STEP'${NC}"
+    exit 1
 fi
 
 # Configuration
@@ -85,7 +96,7 @@ VERSION_SUFFIX=$(echo "$CURRENT_VERSION_NAME" | grep -oE -- '-[a-zA-Z][a-zA-Z0-9
 BASE_VERSION_NAME="${CURRENT_VERSION_NAME%"$VERSION_SUFFIX"}"
 
 # Calculate new version
-NEW_VERSION_CODE=$((CURRENT_VERSION_CODE + 1))
+NEW_VERSION_CODE=$((CURRENT_VERSION_CODE + STEP))
 # Extract major.minor from base version name and append new version code
 VERSION_PREFIX=$(echo "$BASE_VERSION_NAME" | sed 's/\.[0-9]*$//')
 NEW_BASE_VERSION_NAME="${VERSION_PREFIX}.${NEW_VERSION_CODE}"

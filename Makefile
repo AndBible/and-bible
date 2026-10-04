@@ -1,9 +1,12 @@
 TMP:=$(shell mktemp -d)
 
+# Version code step; e.g. `make increment-test-version STEP=100` leaves a gap
+# of version codes free for current-stable bug-fix releases.
+STEP ?= 1
 increment-version:
-	./scripts/increment-version.sh
+	./scripts/increment-version.sh --step $(STEP)
 increment-test-version:
-	./scripts/increment-version.sh --build
+	./scripts/increment-version.sh --build --step $(STEP)
 
 tx-push-sources:
 	tx push -s -r andbible.play-store-main-description
