@@ -120,8 +120,9 @@ fun ReadingViewScreen(
     /**
      * The keyboard shrink, supplied by the host (F59). Applied as a plain bottom padding on the
      * reading column -- never `Modifier.imePadding()`: that would lift the column a second time on
-     * top of this padding and consume `ime`, so the bars' `navigationBars.exclude(ime)` (the strip,
-     * Speak bar, agent panel) could no longer see the keyboard. `0.dp` on hosts that pad their own container.
+     * top of this padding and consume `ime`. While it is positive the column already clears the nav bar,
+     * so the strip, Speak bar and agent panel are told not to pad it again (`applyNavBarInset` false).
+     * `0.dp` on hosts that pad their own container.
      */
     imeBottomPadding: Dp = 0.dp,
     onWindowActivated: (String) -> Unit,
@@ -199,6 +200,11 @@ fun ReadingViewScreen(
     edgeBackground: Color? = null,
 ) {
     val density = LocalDensity.current
+    // Whether the column carries IME padding is this screen's own decision (not Compose's `ime`
+    // inset), so the bars drop their nav-bar inset exactly when the column already clears it.
+    val columnPadsIme = imeBottomPadding > 0.dp
+    val railNavInset = railOwnsNavBarInset(agentLogVisible, speakBarVisible) && !columnPadsIme
+    val agentNavInset = agentLogOwnsNavBarInset(agentLogVisible, speakBarVisible) && !columnPadsIme
     // Round 12b §4: the agent panel overlays the content when expanded instead of shrinking the
     // panes, so it lives in layer 2 of a Box while layer 1 reserves only its COLLAPSED height.
     // Collapsed, the reservation equals the panel and nothing is covered; expanded, the panel grows
@@ -244,7 +250,7 @@ fun ReadingViewScreen(
                     .onSizeChanged { splitHeightDp = with(density) { it.height.toDp() }.value },
                 paneOverlay = paneOverlay,
                 bottomOverlay = bottomOverlay,
-                railOverlay = tabBar?.let { bar -> { Box(Modifier.align(Alignment.BottomEnd)) { bar(railOwnsNavBarInset(agentLogVisible, speakBarVisible)) } } },
+                railOverlay = tabBar?.let { bar -> { Box(Modifier.align(Alignment.BottomEnd)) { bar(railNavInset) } } },
                 paneBackground = paneBackground,
             )
             // The overlay's footprint. Zero when the panel is hidden.
@@ -263,7 +269,7 @@ fun ReadingViewScreen(
                 // whenever `speakBarVisible` is true). Add a THIRD bottom bar below the speak bar and
                 // this line becomes wrong while still compiling: go through the shared predicate then,
                 // as the agent-log call site three lines down already does.
-                speakBar?.invoke(speakBarVisible)
+                speakBar?.invoke(speakBarVisible && !columnPadsIme)
             }
         }
         if (agentLog != null && agentLogVisible) {
@@ -276,7 +282,7 @@ fun ReadingViewScreen(
                 // inside its own painted surface. The speak bar is below the panel, so it wins
                 // whenever it is up.
                 agentLog(
-                    agentLogOwnsNavBarInset(agentLogVisible, speakBarVisible),
+                    agentNavInset,
                     agentPanelDragCeiling(splitHeightDp, collapsedAgentHeightDp),
                     collapsedAgentHeightDp,
                 ) { measured -> collapsedAgentHeightDp = measured }

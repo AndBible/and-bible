@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
@@ -110,7 +109,7 @@ class ReadingInsetOwnershipTest {
                         speakBar = { apply ->
                             if (speakBarVisible) Box(
                                 Modifier.fillMaxWidth()
-                                    .then(if (apply) Modifier.windowInsetsPadding(WindowInsets.navigationBars) else Modifier)
+                                    .readingRailInsetPadding(apply)
                                     .height(40.dp).testTag("speak")
                             )
                         },
@@ -124,7 +123,7 @@ class ReadingInsetOwnershipTest {
                                     // Outermost, so the reported height includes the nav-bar padding.
                                     .onSizeChanged { onMeasured(with(d) { it.height.toDp() }.value) }
                                     .testTag("agent")
-                                    .then(if (apply) Modifier.windowInsetsPadding(WindowInsets.navigationBars) else Modifier)
+                                    .readingRailInsetPadding(apply)
                                     .height(40.dp)
                             )
                         },
@@ -186,6 +185,71 @@ class ReadingInsetOwnershipTest {
         assertEquals("the nav dispatch must reach Compose", navPx, seenNavBottom.intValue)
         assertEquals("the IME dispatch must reach Compose", imePx, seenImeBottom.intValue)
         assertEquals(bounds("root").bottom - imePx, bounds("strip").bottom, 1f)
+    }
+
+    // Older-Android landscape (Waydroid): an input mode reports an IME inset no larger than the nav
+    // bar, but the ledger applies no IME padding (imeBottomPadding = 0), so the WebView still reserves
+    // the rail's nav-bar margin. The rail must keep that nav-bar inset, not shrink to navBar - ime.
+    @Test fun withAnImeInsetEqualToTheNavBarTheStripStillSitsOneNavBarAboveTheScreenBottom() {
+        mount(speakBarVisible = false)
+        dispatch(0, 0, navPx, imeBottom = navPx)
+        assertEquals("the nav dispatch must reach Compose", navPx, seenNavBottom.intValue)
+        assertEquals("the IME dispatch must reach Compose", navPx, seenImeBottom.intValue)
+        assertEquals(bounds("root").bottom - navPx, bounds("strip").bottom, 1f)
+    }
+
+    @Test fun withAnImeInsetSmallerThanTheNavBarTheStripStillSitsOneNavBarAboveTheScreenBottom() {
+        val imePx = navPx / 2
+        mount(speakBarVisible = false)
+        dispatch(0, 0, navPx, imeBottom = imePx)
+        assertEquals("the IME dispatch must reach Compose", imePx, seenImeBottom.intValue)
+        assertEquals(bounds("root").bottom - navPx, bounds("strip").bottom, 1f)
+    }
+
+    // The Speak bar pads with the shipped `readingRailInsetPadding`, so the 0 < ime <= navBar case
+    // (no column IME padding) must still clear the nav bar: the old `navigationBars.exclude(ime)` left
+    // it `ime` px behind the nav bar.
+    @Test fun withAnImeInsetEqualToTheNavBarTheSpeakBarStillClearsTheNavBar() {
+        mount(speakBarVisible = true)
+        dispatch(0, 0, navPx, imeBottom = navPx)
+        assertEquals("the IME dispatch must reach Compose", navPx, seenImeBottom.intValue)
+        assertEquals(bounds("root").bottom - navPx, bounds("speak").bottom, 1f)
+    }
+
+    @Test fun withAnImeInsetSmallerThanTheNavBarTheSpeakBarStillClearsTheNavBar() {
+        mount(speakBarVisible = true)
+        dispatch(0, 0, navPx, imeBottom = navPx / 2)
+        assertEquals("the IME dispatch must reach Compose", navPx / 2, seenImeBottom.intValue)
+        assertEquals(bounds("root").bottom - navPx, bounds("speak").bottom, 1f)
+    }
+
+    // Keyboard up with column IME padding: the Speak bar sits on the column bottom, no second nav bar.
+    @Test fun withTheKeyboardUpTheSpeakBarSitsOnTheColumnBottom() {
+        val imePx = 300
+        mount(speakBarVisible = true, imeBottomPx = imePx)
+        dispatch(0, 0, navPx, imeBottom = imePx)
+        assertEquals("the IME dispatch must reach Compose", imePx, seenImeBottom.intValue)
+        assertEquals(bounds("root").bottom - imePx, bounds("speak").bottom, 1f)
+    }
+
+    // The agent panel's measured height includes the nav-bar padding it owns (outermost tag), so an
+    // `ime`-shrunk padding shows as a shorter panel.
+    @Test fun withAnImeInsetEqualToTheNavBarTheAgentPanelStillPadsTheFullNavBar() {
+        mount(speakBarVisible = false, agentLogVisible = true)
+        dispatch(0, 0, navPx, imeBottom = navPx)
+        assertEquals("the IME dispatch must reach Compose", navPx, seenImeBottom.intValue)
+        val contentPx = with(compose.density) { 40.dp.roundToPx() }
+        val b = bounds("agent")
+        assertEquals((contentPx + navPx).toFloat(), b.bottom - b.top, 1f)
+    }
+
+    @Test fun withTheKeyboardUpTheAgentPanelDoesNotPadTheNavBarAgain() {
+        val imePx = 300
+        mount(speakBarVisible = false, agentLogVisible = true, imeBottomPx = imePx)
+        dispatch(0, 0, navPx, imeBottom = imePx)
+        val contentPx = with(compose.density) { 40.dp.roundToPx() }
+        val b = bounds("agent")
+        assertEquals(contentPx.toFloat(), b.bottom - b.top, 1f)
     }
 
     // F67: the agent panel is up. It owns the nav bar inside its own surface, so the strip sits on

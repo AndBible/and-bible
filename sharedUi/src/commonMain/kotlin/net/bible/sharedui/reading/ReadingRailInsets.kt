@@ -19,8 +19,6 @@ package net.bible.sharedui.reading
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.exclude
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -28,19 +26,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 /**
- * The window-buttons strip's inset padding (fix batch 2, F66/F67). Only the nav bar's BOTTOM inset,
- * only when the strip is the bottom-most surface ([applyNavBarInset] =
- * `railOwnsNavBarInset(...)`), and never the part the IME already covers (the reading column is
- * padded by `max(bars, ime)` while the keyboard is up). Side insets belong to the split, which the
- * strip sits inside. Shared by the host and `ReadingInsetOwnershipTest` so the tested padding is the
- * shipped one.
- *
- * `@Composable` because `WindowInsets.navigationBars`/`ime` are composable getters.
+ * The nav bar's BOTTOM inset as padding, for whichever bottom surface owns it (the rail, the Speak
+ * bar, the agent panel). [applyNavBarInset] is decided by `ReadingViewScreen`: the surface is the
+ * bottom-most one and the reading column carries no IME padding. It follows that decision, not
+ * Compose's own `WindowInsets.ime`, which can be non-zero while the column applies no IME padding.
+ * Shared by the shipped bars and `ReadingInsetOwnershipTest`.
  */
 @Composable
 fun Modifier.readingRailInsetPadding(applyNavBarInset: Boolean): Modifier =
     if (applyNavBarInset) {
-        windowInsetsPadding(WindowInsets.navigationBars.exclude(WindowInsets.ime).only(WindowInsetsSides.Bottom))
+        windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
     } else {
         this
     }

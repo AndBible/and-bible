@@ -149,6 +149,7 @@ fun AbTopAppBar(
     }
 
     TopAppBar(
+        windowInsets = topBarWindowInsets(),
         title = title,
         navigationIcon = {
             if (onNavigateUp != null) {
@@ -237,6 +238,7 @@ private fun AbSearchTopAppBar(
 
     CompositionLocalProvider(LocalContentColor provides onContainer) {
         TopAppBar(
+            windowInsets = topBarWindowInsets(),
             title = {
                 BasicTextField(
                     value = fieldValue,

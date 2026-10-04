@@ -31,16 +31,11 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -82,6 +77,7 @@ import net.bible.sharedcore.ai.reading.LogEntryKind
 import net.bible.sharedcore.ai.reading.LogEntryStatus
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbListChoiceDialog
+import net.bible.sharedui.reading.readingRailInsetPadding
 import net.bible.sharedui.strings.LocalStrings
 
 /**
@@ -117,8 +113,8 @@ fun AgentLogPanel(
      * Round 12b §3: consume the bottom navigation-bar inset because this panel is the bottom-most
      * visible bar (`agentLogOwnsNavBarInset`). Applied to the inner `Column`, not the `Surface`, so
      * the panel's own `surfaceColorAtElevation(3.dp)` and its rounded top corners extend flat into
-     * the navigation-bar strip while the content clears it. `ime` is excluded for the same reason
-     * documented on `SpeakTransportBar.applyNavBarInset`.
+     * the navigation-bar strip while the content clears it. The caller passes `false` while the reading
+     * column carries IME padding, as documented on `SpeakTransportBar.applyNavBarInset`.
      */
     applyNavBarInset: Boolean = false,
     /**
@@ -188,11 +184,7 @@ fun AgentLogPanel(
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
-                .then(
-                    if (applyNavBarInset) {
-                        Modifier.windowInsetsPadding(WindowInsets.navigationBars.exclude(WindowInsets.ime))
-                    } else Modifier
-                )
+                .readingRailInsetPadding(applyNavBarInset)
         ) {
             if (state.expanded) {
                 AgentLogDragHandle(

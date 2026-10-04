@@ -354,6 +354,36 @@ class ComposeReadingViewGeneration {
 }
 
 /**
+ * Makes the rail's plain (non-observable) per-window labels recompose when they may have changed.
+ *
+ * `windowLabelFor`/`windowTopLabelFor` read `pageManager` directly, so Compose has nothing to
+ * observe and skips the rail while its inputs (layout model + stable lambdas) are unchanged.
+ * Routing each label read through [observed] subscribes the calling composition scope to one
+ * shared tick; [invalidate] (driven by the host's passage/verse events) bumps it, so exactly the
+ * label sites that read it recompose, for every window, synchronised ones included. The window
+ * icon (`windowIconFor`) is not wrapped: it is read in the same rail composition scope as the
+ * labels, so it is re-evaluated whenever they are.
+ *
+ * The bump relies on the host's `CurrentVerseChangedEvent` / `CurrentBibleVerseChanged` handlers
+ * being reached: a document or key change reaches the rail only because `CurrentPageManager` /
+ * `PassageChangeMediator` post one of them. A mutation that posts neither leaves the labels stale;
+ * `railLabelsFollowARealDocumentChange` pins the document-swap path.
+ *
+ * Framework-free like [ComposeReadingViewGeneration], so it is unit-testable without a composition.
+ */
+class WindowLabelFreshness {
+    private val tick = mutableIntStateOf(0)
+
+    /** Reads [read] after subscribing the current composition scope to [invalidate]. */
+    fun <T> observed(read: () -> T): T {
+        tick.intValue
+        return read()
+    }
+
+    fun invalidate() { tick.intValue++ }
+}
+
+/**
  * Fans a "classic said this may have changed" signal out to the Compose reading view's state
  * (pre-A/B state-freshness spec §1 P3).
  *
@@ -2236,6 +2266,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // Review M1: an F100 prompt that was abandoned (BACK, a pane switch, a new search) must not leave
         // its chain armed for an unrelated later build.
         onSelectionPromptDropped = { searchSelectorPendingIds = null },
+        // Typing a reference ("1 joh 3 16") jumps there in the active window, as the classic search
+        // screen and the full-screen route do. In-window navigation: no history pop.
+        tryOpenReference = { query -> linkControl.tryToOpenRef(query) },
+        onReferenceOpened = { leaveSearch() },
         queries = searchQueries,
     )
 
@@ -2760,6 +2794,17 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
 
     private val generation = ComposeReadingViewGeneration()
 
+    /** Invalidation source for the rail's per-window labels; see [WindowLabelFreshness]. */
+    internal val windowLabelFreshness = WindowLabelFreshness()
+
+    /** The rail button's label for [snapshot], read through [windowLabelFreshness] so it recomposes. */
+    internal fun railWindowLabel(snapshot: WindowSnapshot): String =
+        windowLabelFreshness.observed { activity.readingCommands.windowLabelFor(snapshot.id) }
+
+    /** The rail button's top row for [snapshot], read through [windowLabelFreshness] so it recomposes. */
+    internal fun railWindowTopLabel(snapshot: WindowSnapshot): String? =
+        windowLabelFreshness.observed { activity.readingCommands.windowTopLabelFor(snapshot.id) }
+
     /**
      * Test-only read of THIS host's generation counter — same convention as
      * [searchSelectorPendingIdsForTest]. Exposed for review finding I4: the guard for the batch's
@@ -2998,6 +3043,9 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // booleans, kept as host-owned Compose `State` and gated by the pure `bibleReferenceOverlayVisible`
             // (`:sharedCore`) fn at render time — no separate service/controller class, per the plan.
             onMain<CurrentVerseChangedEvent> {
+                // Fires for every window (synchronised ones included), unlike the active-window-only
+                // `refreshHostedState()` path, so the rail's labels for ALL windows are covered.
+                windowLabelFreshness.invalidate()
                 overlayText.value = readOverlayText()
                 activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
                 // F44/B3b: this is the event a document swap WITHIN one window reliably fires
@@ -3022,13 +3070,15 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // Task 4 (F2b): classic's per-window rail top label (`WindowButtonWidget.kt:148`,
             // `pageManager.titleText`) is refreshed on this SAME event
             // (`WindowButtonWidget.kt:232-234`). `windowTopLabel`/`windowLabel`/`windowIcon` are
-            // plain, non-`@Composable` lambdas re-read fresh on the next recomposition rather than
-            // Compose `State` (see `MainBibleActivity.windowTopLabelFor`'s kdoc for why), so there is
-            // no dedicated state field to push into here — this reuses the SAME `refreshHostedState()`
-            // push `updateActions()`'s callers already use for the analogous `windowLabelFor`
-            // (document-abbreviation) refresh, rather than adding a second refresh path.
+            // plain, non-`@Composable` lambdas (see `MainBibleActivity.windowTopLabelFor`'s kdoc for
+            // why), so Compose cannot observe them: the label lambdas read [windowLabelFreshness]
+            // and this handler bumps it, which is what recomposes the rail. `refreshHostedState()`
+            // below only refreshes the toolbar (active window) and does NOT recompose the rail.
+            // `CurrentBiblePage.doSetKey` posts this event alone (no `CurrentVerseChangedEvent`),
+            // so the bump is needed here as well as above.
             //
-            // KNOWN COST (whole-batch review Minor #3, not coalesced this batch): on the dominant
+            // KNOWN COST (whole-batch review Minor #3, not coalesced this batch; this handler also
+            // drives the rail tick above, besides `refreshHostedState()`): on the dominant
             // scroll path, `CurrentBiblePage.setCurrentVerseOrdinal` posts THIS event via
             // `CurrentBibleVerse.setVerseSelected` and then posts `CurrentVerseChangedEvent` right
             // after (`VersePage.onVerseChange` -> `PassageChangeMediator.onCurrentVerseChanged`) —
@@ -3042,7 +3092,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // so no `CurrentVerseChangedEvent`), and would go stale without this subscription. See
             // `compose-port-status.md`'s F2b section and the on-device checklist's F2b performance
             // item (scrolling verse-by-verse in a multi-window split is where it would show).
-            onMain<CurrentBibleVerseChanged> { refreshHostedState() }
+            onMain<CurrentBibleVerseChanged> {
+                windowLabelFreshness.invalidate()
+                refreshHostedState()
+            }
         }
 
         // F6-B1: the activity's IME padding is keyed on this field's focus, and NO inset changes when
@@ -3378,11 +3431,11 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 }
             },
             paneBackground = { windowId -> paneBackgroundArgbFor(windowId)?.let { Color(it) } },
-            windowLabel = { snapshot -> activity.readingCommands.windowLabelFor(snapshot.id) },
+            windowLabel = ::railWindowLabel,
             windowIcon = { snapshot -> activity.readingCommands.windowIconFor(snapshot.id) },
             // Task 4 (F2b): the rail's tiny top row (classic `topButtonText`) — see
             // `MainBibleActivity.windowTopLabelFor`'s kdoc.
-            windowTopLabel = { snapshot -> activity.readingCommands.windowTopLabelFor(snapshot.id) },
+            windowTopLabel = ::railWindowTopLabel,
             controller = controller,
             windowButtonsVisibleState = windowButtonsVisibility.visible,
             touchTickState = windowButtonsVisibility.touchTick,
@@ -4598,9 +4651,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                                     tabBar = if (hideTabBarInFullScreen) null else {
                                         { applyNavBarInset ->
                                             WindowTabBar(
-                                                // Fix batch 2 (F66/F67): the strip pads the nav bar's
-                                                // bottom inset only when it is the bottom-most surface,
-                                                // minus the IME. See `readingRailInsetPadding`.
+                                                // Fix batch 2 (F66/F67): ReadingViewScreen passes true only when the
+                                                // strip is the bottom-most surface and the column has no IME padding.
                                                 modifier = Modifier.readingRailInsetPadding(applyNavBarInset),
                                                 model = tabBarModel,
                                                 onRestore = controller::onRestore,

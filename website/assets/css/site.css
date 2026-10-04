@@ -149,6 +149,14 @@ img { max-width: 100%; height: auto; }
 .getapp::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 64px; pointer-events: none;
   background: linear-gradient(to bottom, transparent, var(--surface-2)); }
 @media (max-width: 359px) { .phone, .getapp::after { display: none !important; } .getapp { padding-bottom: 20px; } }
+/* Mid widths, where the card wraps below the hero text: the stores stack in a column beside the phone instead
+   of a row above it, so the card is no taller than the phone. The fade covers only the phone's column. */
+@media (min-width: 560px) and (max-width: 899px) {
+  .getapp { flex-direction: row; align-items: flex-end; gap: 20px; }
+  .getapp__bar { flex: 1 1 0; grid-template-columns: minmax(0, 1fr); align-self: center; padding-bottom: 16px; }
+  .phone { flex: 0 0 auto; width: clamp(180px, 45%, 240px); margin: 0; }
+  .getapp::after { left: auto; width: calc(clamp(180px, 45%, 240px) + 20px); }
+}
 
 /* ---- Sections, features, cards ---- */
 section.block { padding: 48px 0 0; }

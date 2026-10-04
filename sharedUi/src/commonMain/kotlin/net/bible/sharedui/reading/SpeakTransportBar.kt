@@ -57,11 +57,11 @@ fun SpeakTransportBar(
      * Round 12b §3: consume the bottom navigation-bar inset. `true` only when this bar is the
      * bottom-most one in the reading view (`agentLogOwnsNavBarInset`'s complement).
      *
-     * `ime` is excluded because the nav host's IME padding (`ReadingInsets`) already pads the container
-     * this whole Compose tree is installed into by `max(systemBars.bottom, ime.bottom)` whenever the
-     * keyboard is up, and `windowInsetsPadding` is not consumption-aware — without the exclusion a
-     * bar visible over an open keyboard would double-reserve and float a navigation-bar height above
-     * it.
+     * The caller (`ReadingViewScreen`) passes `false` while the reading column carries IME padding
+     * (`imeBottomPadding > 0`): that padding already clears the nav bar, and `windowInsetsPadding` is not
+     * consumption-aware, so padding it again would float the bar a navigation-bar height above the
+     * keyboard. The bar does not consult Compose's own `ime` inset: with 0 < ime <= navBar and no column
+     * IME padding, excluding it would sink the bar behind the nav bar by `ime`.
      */
     applyNavBarInset: Boolean = false,
     /**
@@ -96,15 +96,10 @@ fun SpeakTransportBar(
         shadowElevation = if (ownsTopEdge) 8.dp else 0.dp,
     ) {
         // The nav-bar inset goes on the INNER Column, not the Surface: the tinted surface and its
-        // corners then bleed into the nav-bar strip while the content clears it. `ime` is excluded
-        // because the nav host's IME padding (`ReadingInsets`) already pads this container when the keyboard
-        // is up, and windowInsetsPadding is not consumption-aware.
+        // corners then bleed into the nav-bar strip while the content clears it. Only the bottom
+        // edge: side nav bars belong to the split.
         Column(
-            Modifier.then(
-                if (applyNavBarInset) {
-                    Modifier.windowInsetsPadding(WindowInsets.navigationBars.exclude(WindowInsets.ime))
-                } else Modifier
-            )
+            Modifier.readingRailInsetPadding(applyNavBarInset)
         ) {
             // Rendered unconditionally (even when statusText is blank), NOT gated by isNotBlank(): classic's
             // statusText is android:lines="1" (speak_transport_widget.xml:27-40, with a placeholder

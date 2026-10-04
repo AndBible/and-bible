@@ -14,20 +14,136 @@ class ReadingSearchControllerTest {
         var leftFullScreen = 0
         val indexingStarted = mutableListOf<String>()
         val searchesRun = mutableListOf<Triple<String, String, Boolean>>()
+        val referencesTried = mutableListOf<String>()
+        var referenceOpened = 0
     }
 
     private fun controller(
         doc: SearchDocumentInfo? = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, true),
         r: Recorder = Recorder(),
         unindexedInSelection: String? = null,
+        references: Set<String> = emptySet(),
+        liveDoc: (() -> SearchDocumentInfo?)? = null,
     ) = r to ReadingSearchController(
-        resolveDoc = { doc },
+        resolveDoc = { liveDoc?.invoke() ?: doc },
         onUnavailable = { r.unavailable++ },
         onLeaveFullScreen = { r.leftFullScreen++ },
         onStartIndexing = { r.indexingStarted.add(it) },
         onRunSearch = { id, q, epub -> r.searchesRun.add(Triple(id, q, epub)) },
         firstUnindexedInSelection = { unindexedInSelection },
+        tryOpenReference = { q -> r.referencesTried.add(q); q in references },
+        onReferenceOpened = { r.referenceOpened++ },
     )
+
+    @Test
+    fun submittingABibleReferenceJumpsInsteadOfSearching() {
+        val (r, c) = controller(references = setOf("1 joh 3 16"))
+        c.open()
+        c.queries.setQuery("  1 joh 3 16 ")
+        c.submit()
+        assertEquals(listOf("1 joh 3 16"), r.referencesTried)
+        assertEquals(1, r.referenceOpened)
+        assertEquals(emptyList(), r.searchesRun)
+        assertFalse(c.sheetVisible.value)
+        assertEquals(listOf("1 joh 3 16"), c.queries.recentTerms.value)
+    }
+
+    @Test
+    fun submittingANonReferenceStillSearches() {
+        val (r, c) = controller(references = setOf("1 joh 3 16"))
+        c.open()
+        c.queries.setQuery("light")
+        c.submit()
+        assertEquals(listOf("light"), r.referencesTried)
+        assertEquals(0, r.referenceOpened)
+        assertEquals(listOf(Triple("KJV", "light", false)), r.searchesRun)
+    }
+
+    @Test
+    fun epubSubmitNeverTriesAReference() {
+        val (r, c) = controller(
+            doc = SearchDocumentInfo("EP", SearchDocumentCategory.GENERAL_BOOK, isEpub = true, indexDone = true),
+            references = setOf("john 3 16"),
+        )
+        c.open()
+        c.queries.setQuery("john 3 16")
+        c.submit()
+        assertEquals(emptyList(), r.referencesTried)
+        assertEquals(0, r.referenceOpened)
+        assertEquals(listOf(Triple("EP", "john 3 16", true)), r.searchesRun)
+    }
+
+    @Test
+    fun referenceOnAnUnindexedBibleJumpsWithoutTheIndexPrompt() {
+        val (r, c) = controller(
+            doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false),
+            references = setOf("john 3:16"),
+        )
+        c.open()
+        c.queries.setQuery("john 3:16")
+        c.submit()
+        assertEquals(1, r.referenceOpened)
+        assertEquals(emptyList(), r.searchesRun)
+        assertEquals(emptyList(), r.indexingStarted)
+    }
+
+    @Test
+    fun referenceBeatsTheUnindexedSelectionPrompt() {
+        val (r, c) = controller(unindexedInSelection = "ESV", references = setOf("john 3:16"))
+        c.open()
+        c.queries.setQuery("john 3:16")
+        c.submit()
+        assertEquals(1, r.referenceOpened)
+        assertEquals(emptyList(), r.indexingStarted)
+        assertEquals(emptyList(), r.searchesRun)
+    }
+
+    @Test
+    fun referenceSubmittedWhileIndexingJumpsAndArmsNoSearchForWhenTheBuildFinishes() {
+        val (r, c) = controller(
+            doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false),
+            references = setOf("john 3:16"),
+        )
+        c.open()
+        c.acceptIndexing()
+        assertEquals(ReadingSearchPhase.Indexing("KJV", forEpub = false), c.phase.value)
+        c.queries.setQuery("john 3:16")
+        c.submit()
+        assertEquals(1, r.referenceOpened)
+        // The build is left running (no second start); finishing it must not text-search the reference.
+        assertEquals(listOf("KJV"), r.indexingStarted)
+        c.onIndexingFinished(true)
+        assertEquals(emptyList(), r.searchesRun)
+        assertEquals(ReadingSearchPhase.Form("KJV", forEpub = false), c.phase.value)
+    }
+
+    @Test
+    fun nonReferenceSubmittedWhileIndexingStillWaitsForTheBuild() {
+        val (r, c) = controller(
+            doc = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, indexDone = false),
+            references = setOf("john 3:16"),
+        )
+        c.open()
+        c.acceptIndexing()
+        c.queries.setQuery("light")
+        c.submit()
+        assertEquals(0, r.referenceOpened)
+        c.onIndexingFinished(true)
+        assertEquals(listOf(Triple("KJV", "light", false)), r.searchesRun)
+    }
+
+    @Test
+    fun submitAfterTheActiveWindowBecameUnavailableNeverTriesAReference() {
+        var current: SearchDocumentInfo? = SearchDocumentInfo("KJV", SearchDocumentCategory.BIBLE, false, true)
+        val (r, c) = controller(references = setOf("john 3:16"), liveDoc = { current })
+        c.open()
+        current = SearchDocumentInfo("D", SearchDocumentCategory.DICTIONARY, false, true)
+        c.queries.setQuery("john 3:16")
+        c.submit()
+        assertEquals(emptyList(), r.referencesTried)
+        assertEquals(0, r.referenceOpened)
+        assertEquals(1, r.unavailable)
+    }
 
     @Test
     fun openOnAnIndexedBibleEntersTheFormAndLeavesFullScreen() {

@@ -66,6 +66,15 @@ class ReadingSearchController(
      * results selector arms its own chain just before calling it.
      */
     private val onSelectionPromptDropped: () -> Unit = {},
+    /**
+     * Typing a Bible reference ("1 joh 3 16") into the field and submitting jumps to that passage
+     * instead of searching, as the classic search screen did. Given the trimmed query; returns true when
+     * it was a reference and the host navigated (the controller then runs no search and calls
+     * [onReferenceOpened]). Consulted only by [submit], and only for Bible documents — never EPUBs.
+     */
+    private val tryOpenReference: (query: String) -> Boolean = { false },
+    /** A submitted query was opened as a reference: the host leaves search entirely. */
+    private val onReferenceOpened: () -> Unit = {},
     val queries: SearchQueryController = SearchQueryController(),
 ) {
     private val _phase = MutableStateFlow<ReadingSearchPhase>(ReadingSearchPhase.Closed)
@@ -234,8 +243,20 @@ class ReadingSearchController(
         if (_phase.value == ReadingSearchPhase.Closed) return
         val q = queries.query.value.trim()
         if (q.isEmpty()) return
+        val kind = searchKindFor(resolveDoc())
+        val bibleSearch = kind is SearchKind.Bible || (kind is SearchKind.NeedsIndex && !kind.forEpub)
+        // Before the index gates, including an index build in flight: a reference needs no index.
+        if (bibleSearch && tryOpenReference(q)) {
+            queries.recordRecentTerm(q)
+            // A build still running is left to finish in the background (the host only detaches its
+            // progress feed). The query is cleared so that, should the session still be in
+            // `Indexing` when it finishes, onIndexingFinished does not text-search the reference.
+            if (_phase.value is ReadingSearchPhase.Indexing) queries.setQuery("")
+            onReferenceOpened()
+            return
+        }
         if (keepIndexingInFlight()) return
-        when (val kind = searchKindFor(resolveDoc())) {
+        when (kind) {
             SearchKind.Unavailable -> onUnavailable()
             is SearchKind.NeedsIndex -> {
                 queries.recordRecentTerm(q)
