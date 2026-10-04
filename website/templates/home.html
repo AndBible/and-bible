@@ -20,7 +20,10 @@
         {% for store in strings.getapp.stores %}
         <a class="store" href="{{ store.url }}">{{ store.name }} <small>{{ store.note }}</small></a>
         {% endfor %}
-        <p class="getapp__hint"><a href="{{ strings.getapp.others_url }}">{{ strings.getapp.others }}</a></p>
+        <p class="getapp__hint">{{ strings.getapp.others_intro }}
+          {%- for store in strings.getapp.others %}{% if not loop.first %}{% if loop.last %} {{ strings.getapp.others_and }}{% else %},{% endif %}{% endif %}
+          {% if store.url %}<a href="{{ store.url }}">{{ store.name }}</a>{% else %}{{ store.name }}{% endif %}
+          {%- endfor %}</p>
       </div>
       <div class="phone" data-appshots aria-hidden="true">
         <ol class="phone__screen">

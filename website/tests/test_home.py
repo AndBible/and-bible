@@ -175,6 +175,20 @@ def test_phone_nav_is_visible_without_javascript():
     assert ".topbar nav { display: flex;" in block.group(1) and "[data-menu-toggle] { display: none; }" in block.group(1)
 
 
+def test_other_stores_each_link_to_their_own_page(content, tmp_path):
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    hint = re.search(r'<p class="getapp__hint">(.*?)</p>', (out / "index.html").read_text(), re.S).group(1)
+    for store in strings(content, "en")["getapp"]["others"]:
+        if "url" in store:
+            assert f'<a href="{store["url"]}">{store["name"]}</a>' in hint, store
+        else:
+            assert store["name"] in hint and f'>{store["name"]}<' not in hint, store
+    assert "github.com/AndBible/and-bible/releases/latest" in hint
+    assert "amazon.com" in hint and "accrescent.app" in hint
+    assert hint.count("<a ") == len([s for s in strings(content, "en")["getapp"]["others"] if "url" in s])
+
+
 def test_store_entries_have_no_unused_icon_key(content):
     for lang in languages(content):
         for store in strings(content, lang)["getapp"]["stores"]:
