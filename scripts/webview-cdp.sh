@@ -10,9 +10,9 @@
 #                                          [--eval '<js>'] [--seconds N] [--hold]
 #   scripts/webview-cdp.sh <package> screenshot <out.png>
 #
-# e.g.  scripts/webview-cdp.sh net.bible.android.activity.compose \
+# e.g.  scripts/webview-cdp.sh net.bible.android.activity.debug \
 #           eval 'JSON.stringify(bibleViewDebug.config)'
-#       scripts/webview-cdp.sh net.bible.android.activity.compose tail --exceptions --seconds 20
+#       scripts/webview-cdp.sh net.bible.android.activity.debug tail --exceptions --seconds 20
 #
 # WHICH DEVICE: this follows adb's own ANDROID_ADB_SERVER_PORT, so it agrees with the
 # `adb` CLI and with scripts/with-container-adb.sh —

@@ -32,7 +32,7 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-pkg=net.bible.android.activity.compose      # the compose-port debug suffix
+pkg=net.bible.android.activity.debug      # the debug applicationIdSuffix
 apk_glob="app/build/outputs/apk/standardGithub/debug/*.apk"
 export ANDROID_ADB_SERVER_PORT=5038         # container-local server: 5037 is the host phone
 unset ADB_SERVER_SOCKET

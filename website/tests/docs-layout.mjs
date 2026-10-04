@@ -6,6 +6,7 @@
 // 1. Left sidebar permanently visible (hamburger hidden) from 60em (960 px); drawer + hamburger below it.
 // 2. Right-hand TOC only from 76.25em; the text column is at most 640 px (and over 560 px) at 1280 px.
 // 3. No horizontal overflow at 360, 800, 1000 px (docs page and landing).
+// 4. The left nav stays between the header and the footer / viewport bottom, at the top and the end of the page.
 // Exits 1 on any failure.
 import {createRequire} from 'node:module';
 import {mkdirSync} from 'node:fs';
@@ -22,8 +23,8 @@ if (out) mkdirSync(out, {recursive: true});
 const browser = await chromium.launch(process.env.CHROME ? {executablePath: process.env.CHROME} : {});
 let failures = 0;
 const check = (name, ok, detail = '') => { console.log(ok ? 'PASS' : 'FAIL', name, detail); if (!ok) failures++; };
-const open = async (width, path, colorScheme = 'light') => {
-  const page = await (await browser.newContext({viewport: {width, height: 800}, colorScheme})).newPage();
+const open = async (width, path, colorScheme = 'light', height = 800) => {
+  const page = await (await browser.newContext({viewport: {width, height}, colorScheme})).newPage();
   await page.goto(`${base}${path}`);
   return page;
 };
@@ -53,6 +54,23 @@ for (const width of [1280, 1440, 1920]) {
   const w = await page.evaluate(() => Math.round(document.querySelector('.md-typeset p').getBoundingClientRect().width));
   check(`${width}px: text column 560 < ${w} <= 700`, w > 560 && w <= 700);
   if (width === 1280) check('1280px: text column <= 640', w <= 640, String(w));
+}
+
+// 4. left nav inside header..footer (it ran over the footer between 60em and 76.25em at the end of the page)
+for (const [width, height] of [[1000, 700], [1100, 1500], [1280, 700]]) {
+  for (const path of ['/docs/', '/docs/support/']) {
+    const page = await open(width, path, 'light', height);
+    for (const where of ['top', 'end']) {
+      if (where === 'end') { await page.evaluate(() => scrollTo(0, document.body.scrollHeight)); await page.waitForTimeout(300); }
+      const r = await page.evaluate(() => {
+        const nav = document.querySelector('.md-sidebar--primary .md-sidebar__scrollwrap').getBoundingClientRect();
+        return {top: Math.round(nav.top), bottom: Math.round(nav.bottom), header: Math.round(document.querySelector('.md-header').getBoundingClientRect().bottom),
+                footer: Math.round(document.querySelector('.md-footer').getBoundingClientRect().top), vh: innerHeight};
+      });
+      check(`${width}x${height} ${path} ${where}: left nav between header and footer`,
+            r.top >= r.header && r.bottom <= Math.min(r.footer, r.vh), JSON.stringify(r));
+    }
+  }
 }
 
 // 3. overflow, including a wide table, code block and the landing page

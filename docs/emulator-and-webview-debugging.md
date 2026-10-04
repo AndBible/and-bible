@@ -57,7 +57,7 @@ Small helpers, all against the 5038 server:
 | `shot <name>` | screenshot to `.local/emu-verify/shots/<name>.png` |
 | `crashes [pkg]`, `logmark` | FATAL/ANR lines since the last mark; clear logcat |
 
-The default package is the debug build, `net.bible.android.activity.compose`. If the emulator
+The default package is the debug build, `net.bible.android.activity.debug`. If the emulator
 vanishes mid-session with no OOM, boot it again and redo the current step. Note that `start`
 force-stops the app, so any in-app position is lost.
 

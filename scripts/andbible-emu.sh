@@ -23,15 +23,15 @@
 #   scripts/andbible-emu.sh crashes [pkg]       FATAL/ANR lines from logcat since last `logmark`
 #   scripts/andbible-emu.sh logmark             clear logcat (start of a box)
 #
-# Package defaults to the standard debug build, net.bible.android.activity.compose.
-# The discrete debug build is com.app.calculator.compose.
+# Package defaults to the standard debug build, net.bible.android.activity.debug.
+# The discrete debug build is com.app.calculator.debug.
 set -euo pipefail
 
 export ANDROID_ADB_SERVER_PORT=5038
 unset ADB_SERVER_SOCKET
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 kit="$repo/.local/emu-verify"
-PKG_DEFAULT=net.bible.android.activity.compose
+PKG_DEFAULT=net.bible.android.activity.debug
 
 die() { echo "andbible-emu: $*" >&2; exit 1; }
 
