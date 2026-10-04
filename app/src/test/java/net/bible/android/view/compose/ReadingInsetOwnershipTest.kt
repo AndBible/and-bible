@@ -188,6 +188,25 @@ class ReadingInsetOwnershipTest {
         assertEquals(bounds("root").bottom - imePx, bounds("strip").bottom, 1f)
     }
 
+    // Older-Android landscape (Waydroid): an input mode reports an IME inset no larger than the nav
+    // bar, but the ledger applies no IME padding (imeBottomPadding = 0), so the WebView still reserves
+    // the rail's nav-bar margin. The rail must keep that nav-bar inset, not shrink to navBar - ime.
+    @Test fun withAnImeInsetEqualToTheNavBarTheStripStillSitsOneNavBarAboveTheScreenBottom() {
+        mount(speakBarVisible = false)
+        dispatch(0, 0, navPx, imeBottom = navPx)
+        assertEquals("the nav dispatch must reach Compose", navPx, seenNavBottom.intValue)
+        assertEquals("the IME dispatch must reach Compose", navPx, seenImeBottom.intValue)
+        assertEquals(bounds("root").bottom - navPx, bounds("strip").bottom, 1f)
+    }
+
+    @Test fun withAnImeInsetSmallerThanTheNavBarTheStripStillSitsOneNavBarAboveTheScreenBottom() {
+        val imePx = navPx / 2
+        mount(speakBarVisible = false)
+        dispatch(0, 0, navPx, imeBottom = imePx)
+        assertEquals("the IME dispatch must reach Compose", imePx, seenImeBottom.intValue)
+        assertEquals(bounds("root").bottom - navPx, bounds("strip").bottom, 1f)
+    }
+
     // F67: the agent panel is up. It owns the nav bar inside its own surface, so the strip sits on
     // the panel's reservation rather than one nav bar above it.
     @Test fun withTheAgentPanelUpTheStripSitsOnThePanel() {

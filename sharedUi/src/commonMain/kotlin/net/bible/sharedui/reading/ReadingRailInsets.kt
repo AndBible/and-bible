@@ -19,8 +19,6 @@ package net.bible.sharedui.reading
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.exclude
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -30,17 +28,21 @@ import androidx.compose.ui.Modifier
 /**
  * The window-buttons strip's inset padding (fix batch 2, F66/F67). Only the nav bar's BOTTOM inset,
  * only when the strip is the bottom-most surface ([applyNavBarInset] =
- * `railOwnsNavBarInset(...)`), and never the part the IME already covers (the reading column is
- * padded by `max(bars, ime)` while the keyboard is up). Side insets belong to the split, which the
- * strip sits inside. Shared by the host and `ReadingInsetOwnershipTest` so the tested padding is the
- * shipped one.
+ * `railOwnsNavBarInset(...)`) and the reading column carries no IME padding. The caller
+ * (`ReadingViewScreen`) folds that second condition into [applyNavBarInset]: it follows the same
+ * decision as the column's padding (the reading-insets ledger's `imePaddingApplied`), NOT Compose's
+ * own `WindowInsets.ime`. Excluding `ime` here used to shrink the padding to `navBar - ime` whenever
+ * an older-Android landscape device reported 0 < ime <= navBar without the ledger applying IME
+ * padding, sinking the strip behind the nav bar while the WebView still reserved its margin. Side
+ * insets belong to the split, which the strip sits inside. Shared by the host and
+ * `ReadingInsetOwnershipTest` so the tested padding is the shipped one.
  *
- * `@Composable` because `WindowInsets.navigationBars`/`ime` are composable getters.
+ * `@Composable` because `WindowInsets.navigationBars` is a composable getter.
  */
 @Composable
 fun Modifier.readingRailInsetPadding(applyNavBarInset: Boolean): Modifier =
     if (applyNavBarInset) {
-        windowInsetsPadding(WindowInsets.navigationBars.exclude(WindowInsets.ime).only(WindowInsetsSides.Bottom))
+        windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
     } else {
         this
     }

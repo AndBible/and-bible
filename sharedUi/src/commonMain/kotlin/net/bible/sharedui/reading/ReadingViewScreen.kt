@@ -257,7 +257,7 @@ fun ReadingViewScreen(
                     .onSizeChanged { splitHeightDp = with(density) { it.height.toDp() }.value },
                 paneOverlay = paneOverlay,
                 bottomOverlay = bottomOverlay,
-                railOverlay = tabBar?.let { bar -> { Box(Modifier.align(Alignment.BottomEnd)) { bar(railOwnsNavBarInset(agentLogVisible, speakBarVisible)) } } },
+                railOverlay = tabBar?.let { bar -> { Box(Modifier.align(Alignment.BottomEnd)) { bar(railOwnsNavBarInset(agentLogVisible, speakBarVisible) && imeBottomPadding <= 0.dp) } } },
                 paneBackground = paneBackground,
             )
             // The overlay's footprint. Zero when the panel is hidden.

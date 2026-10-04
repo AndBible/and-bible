@@ -4695,7 +4695,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                                             WindowTabBar(
                                                 // Fix batch 2 (F66/F67): the strip pads the nav bar's
                                                 // bottom inset only when it is the bottom-most surface,
-                                                // minus the IME. See `readingRailInsetPadding`.
+                                                // unless the column is IME-padded (ReadingViewScreen decides). See `readingRailInsetPadding`.
                                                 modifier = Modifier.readingRailInsetPadding(applyNavBarInset),
                                                 model = tabBarModel,
                                                 onRestore = controller::onRestore,
