@@ -12,6 +12,8 @@ To search for a specific word in any Bible module tap on the burger menu located
 Optionally you can limit your search to only the OT, NT, or the book you are currently viewing.
 If you enter multiple words, optionally you can also look for an exact match, as a phrase, or for any of the words appearing any where within a verse.
 
+If what you enter is a Bible reference (for example "John 3:16" or "1 joh 3 16"), Find does not search: it takes you straight to that passage in the current window.
+
 For Bible modules that contain Strong's numbers, you can enter the following to find any verses where that number appears:
 
 Note: the word strong must be in lower case.

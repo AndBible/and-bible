@@ -2219,6 +2219,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         // Review M1: an F100 prompt that was abandoned (BACK, a pane switch, a new search) must not leave
         // its chain armed for an unrelated later build.
         onSelectionPromptDropped = { searchSelectorPendingIds = null },
+        // Typing a reference ("1 joh 3 16") jumps there in the active window, as the classic search
+        // screen and the full-screen route do. In-window navigation: no history pop.
+        tryOpenReference = { query -> linkControl.tryToOpenRef(query) },
+        onReferenceOpened = { leaveSearch() },
         queries = searchQueries,
     )
 
