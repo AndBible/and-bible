@@ -5,6 +5,8 @@ nav:
   videos: Videos
   support: Support us
   github: GitHub
+  github_stars: Stars on GitHub
+  github_license: Open source licence
   theme_toggle: Toggle light/dark theme
   menu: Menu
 meta:

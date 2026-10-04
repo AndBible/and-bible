@@ -11,7 +11,7 @@ import markdown
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup
 
-from sitegen import paths
+from sitegen import github, paths
 from sitegen.content import Post
 from sitegen.i18n import prefix
 from sitegen.reviews import Review
@@ -44,6 +44,7 @@ def environment() -> Environment:
     env.globals["asset_hash"] = hashes
     env.globals["asset_url"] = asset_url
     env.globals["base_url"] = paths.BASE_URL
+    env.globals["github"] = github.load()
     return env
 
 

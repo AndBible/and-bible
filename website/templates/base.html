@@ -1,4 +1,4 @@
-<!doctype html>
+{% from "_macros.html" import nav_icon %}<!doctype html>
 <html lang="{{ lang }}">
 <head>
   <meta charset="utf-8">
@@ -36,11 +36,16 @@
   <div class="wrap">
     <a class="brand" href="{{ prefix }}/"><img src="/assets/img/logo.svg" alt="" width="32" height="32"><span>{{ strings.site_name }}</span></a>
     <nav id="site-nav" aria-label="Main">
-      <a href="/blog/">{{ strings.nav.blog }}</a>
-      <a href="{{ prefix }}/docs/">{{ strings.nav.docs }}</a>
-      <a href="/videos/">{{ strings.nav.videos }}</a>
-      <a href="{{ strings.sections.support_url }}">{{ strings.nav.support }}</a>
-      <a href="{{ strings.footer.source_url }}">{{ strings.nav.github }}</a>
+      <a href="/blog/">{{ nav_icon("blog") }}{{ strings.nav.blog }}</a>
+      <a href="{{ prefix }}/docs/">{{ nav_icon("docs") }}{{ strings.nav.docs }}</a>
+      <a href="/videos/">{{ nav_icon("videos") }}{{ strings.nav.videos }}</a>
+      <a href="{{ strings.sections.support_url }}">{{ nav_icon("support") }}{{ strings.nav.support }}</a>
+      <a class="nav-github" href="{{ strings.footer.source_url }}">{{ nav_icon("github") }}{{ strings.nav.github }}
+        {%- if github %}<span class="nav-github__facts">
+          <span class="nav-github__fact" title="{{ strings.nav.github_stars }}">{{ nav_icon("star") }}{{ github.stars }}</span>
+          <span class="nav-github__fact" title="{{ strings.nav.github_license }}">{{ nav_icon("license") }}{{ github.license }}</span>
+        </span>{% endif -%}
+      </a>
     </nav>
     <button class="icon-button" type="button" data-theme-toggle aria-label="{{ strings.nav.theme_toggle }}">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>

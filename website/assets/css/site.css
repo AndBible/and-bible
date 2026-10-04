@@ -83,6 +83,14 @@ img { max-width: 100%; height: auto; }
 .topbar nav { display: flex; align-items: center; gap: 4px; }
 .topbar nav a { padding: 8px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: .95rem; }
 .topbar nav a:hover, .topbar nav a:focus-visible { color: var(--ink); background: var(--surface-2); }
+.topbar nav a { display: inline-flex; align-items: center; gap: 7px; }
+.nav-icon { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; }
+.nav-icon__fill { fill: currentColor; stroke: none; }
+.nav-github__facts { display: inline-flex; gap: 6px; margin-left: 4px; }
+.nav-github__fact { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border: 1px solid var(--border);
+  border-radius: 999px; background: var(--surface); font-size: .8rem; line-height: 1.5; }
+.nav-github__fact .nav-icon { width: 13px; height: 13px; }
 .icon-button { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px;
   padding: 0; border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
   color: var(--ink); font: inherit; cursor: pointer; }
