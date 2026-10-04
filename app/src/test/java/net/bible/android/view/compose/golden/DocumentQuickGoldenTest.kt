@@ -160,4 +160,28 @@ class DocumentQuickGoldenTest {
             }
         }
     }
+
+    /** The Bible toolbar button's scoped sheet: Recent / This verse / All, Bibles only. */
+    @Test fun documentQuick_inSheet_bibleScope() = captureMatrix("DocumentQuick", "inSheet_bibleScope", heightDp = 650) {
+        SheetSurface {
+            AbQuickSheetContent(
+                title = "Bible",
+                onClose = {},
+                tabs = listOf(
+                    AbQuickSheetTab("RECENT", LocalStrings.current.documentTabRecent),
+                    AbQuickSheetTab("FOR_VERSE", LocalStrings.current.documentTabForVerse),
+                    AbQuickSheetTab("ALL", LocalStrings.current.documentTabAll),
+                ),
+                selectedTabId = "ALL",
+                canScrollForward = { false },
+                footer = { AbQuickSheetFooterRow(text = LocalStrings.current.allDocuments, onClick = {}) },
+            ) {
+                DocumentQuickContent(
+                    rows = sampleRows().filter { it.category == DocCategory.BIBLE },
+                    currentDocId = "KJV",
+                    onSelect = {},
+                )
+            }
+        }
+    }
 }
