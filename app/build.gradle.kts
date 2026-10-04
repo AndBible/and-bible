@@ -228,11 +228,7 @@ android {
             // installed alongside the production app. local.properties is gitignored, so
             // relying on APP_SUFFIX there is not portable; APP_SUFFIX (when present) still
             // overrides this default for setups that need a different suffix.
-            // TODO(compose-port, REVERT BEFORE MERGE): temporarily ".compose" so this
-            //   Compose-port branch's debug build installs alongside a normal ".debug"
-            //   build for on-device A/B. Restore to ".debug" before merging. Tracked in
-            //   docs/superpowers/status/compose-port-status.md.
-            var appSuffix = ".compose"
+            var appSuffix = ".debug"
             val propsFile = rootProject.file("local.properties")
             if (propsFile.exists()) {
                 val props = Properties()
@@ -247,7 +243,7 @@ android {
             // every debug build installed side by side look identical — same label, same icon —
             // in the launcher and, worse, in the system "open with" chooser, which is how a
             // module/StudyPad file reaches the app. Derive the marker from applicationIdSuffix
-            // instead: a ".compose" build reads *Compose*, a plain ".debug" one reads *Debug*, so
+            // instead: a ".debug" build reads *Debug*, an APP_SUFFIX=".foo" one reads *Foo*, so
             // the label always names the applicationId that actually got installed. The matching
             // icon override is src/debug/res/drawable/ic_launcher_background.xml.
             val appLabelMarker = appSuffix.removePrefix(".")
