@@ -49,6 +49,14 @@
   .md-header .md-search { display: block; }
   .md-header__button[for=__search] { display: none; }
 }
+/* Material styles the field as a pill only from 45em (720px); repeat that for the 600-719px range. */
+@media screen and (min-width: 600px) and (max-width: 719px) {
+  .md-header .md-search { padding: .2rem 0; }
+  .md-header .md-search__button { width: 8.9rem; height: 1.6rem; border-radius: .4rem;
+    background-color: var(--md-default-fg-color--lightest); transition: background-color .4s, color .4s; }
+  .md-header .md-search__button:focus, .md-header .md-search__button:hover {
+    color: var(--md-default-fg-color); background-color: var(--md-default-fg-color--lighter); }
+}
 .ab-nav a:focus-visible, .ab-drawer-links a:focus-visible, .ab-icon-button:focus-visible {
   outline: 2px solid var(--md-accent-fg-color); outline-offset: 2px; }
 .ab-nav svg, .ab-drawer-links svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2;
