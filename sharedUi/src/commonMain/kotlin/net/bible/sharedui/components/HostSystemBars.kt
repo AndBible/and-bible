@@ -1,5 +1,11 @@
 package net.bible.sharedui.components
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 
@@ -23,3 +29,29 @@ fun barWrites(bars: HostSystemBars?): List<BarWrite> = if (bars == null) emptyLi
 /** Applies [LocalHostSystemBars] to the enclosing dialog window. Call inside a sheet's content. */
 @Composable
 expect fun MirrorHostSystemBars()
+
+/**
+ * The insets a top bar pads itself by: Material's default (system bars union display cutout, top and
+ * horizontal), except that while the host hides the status bar ([HostSystemBars.statusVisible] false,
+ * `hide_status_bar`) the cutout contributes only its horizontal sides. The point of that preference is
+ * to win back the status-bar strip, and the legacy app drew content up into the cutout there
+ * (ActivityBase padded `systemBars()`, which excludes `displayCutout`). With no host state (goldens,
+ * previews) the cutout is kept.
+ */
+@Composable
+fun topBarWindowInsets(): WindowInsets {
+    val cutout = WindowInsets.displayCutout
+    val cutoutSides = if (LocalHostSystemBars.current?.statusVisible == false) {
+        WindowInsetsSides.Horizontal
+    } else {
+        WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+    }
+    return WindowInsets.systemBars.union(cutout.only(cutoutSides))
+        .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+}
+
+/** The top display cutout, or nothing while the host hides the status bar (see [topBarWindowInsets]). */
+@Composable
+fun topBarCutoutTop(): WindowInsets =
+    if (LocalHostSystemBars.current?.statusVisible == false) WindowInsets(0, 0, 0, 0)
+    else WindowInsets.displayCutout.only(WindowInsetsSides.Top)

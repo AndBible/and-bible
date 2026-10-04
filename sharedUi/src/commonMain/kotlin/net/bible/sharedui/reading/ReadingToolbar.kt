@@ -110,6 +110,7 @@ import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.fitToolbarButtons
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.reading.readingToolbarContainerArgb
+import net.bible.sharedui.components.topBarCutoutTop
 import net.bible.sharedui.components.AbActionIconSize
 import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
@@ -394,7 +395,7 @@ fun ReadingToolbar(
                     // Union (max), not sum: with the status bar hidden (hide_status_bar, fullscreen) the
                     // top display cutout is the only thing left to clear -- edge-to-edge no longer gets
                     // it from the legacy decor-fits insets.
-                    .windowInsetsPadding(WindowInsets.statusBars.union(WindowInsets.displayCutout.only(WindowInsetsSides.Top)))
+                    .windowInsetsPadding(WindowInsets.statusBars.union(topBarCutoutTop()))
                     // The normal row does the same below: without it the field slides under a display
                     // cutout in landscape.
                     .windowInsetsPadding(
@@ -537,7 +538,7 @@ fun ReadingToolbar(
             // padding applied after it, so the container colour extends under the status bar
             // instead of stopping below it (the reported "light strip, white clock" bug).
             .background(container)
-            .windowInsetsPadding(WindowInsets.statusBars.union(WindowInsets.displayCutout.only(WindowInsetsSides.Top)))
+            .windowInsetsPadding(WindowInsets.statusBars.union(topBarCutoutTop()))
             .windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal))
             .height(ToolbarHeight),
     ) {

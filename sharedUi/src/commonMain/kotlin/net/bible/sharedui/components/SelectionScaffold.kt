@@ -75,6 +75,7 @@ fun AbSelectionScaffold(
                     fillWindowBackground = true,
                 )
                 TopAppBar(
+                    windowInsets = topBarWindowInsets(),
                     title = { Text("$selectedCount") },
                     navigationIcon = {
                         IconButton(onClick = onExitSelection) {
