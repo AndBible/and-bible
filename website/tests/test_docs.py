@@ -183,7 +183,8 @@ def _config(base=None):
         "site_name": "AndBible",
         "nav": {"theme_toggle": "t", "blog": "b", "docs": "d", "videos": "v", "support": "s", "github": "g",
                 "github_stars": "gs", "github_license": "gl"},
-        "sections": {"support_url": "https://x"}, "footer": {"source_url": "https://y"}})
+        "sections": {"support_url": "https://x"}, "footer": {"source_url": "https://y", "privacy": "p"},
+        "consent": {"text": "c", "accept": "a", "decline": "d"}})
 
 
 def test_language_config_applies_every_override():

@@ -46,7 +46,8 @@ def _topbar(**github_facts):
                "nav": {"blog": "Blog", "docs": "Docs", "videos": "Videos", "support": "Support", "github": "GitHub",
                        "github_stars": "Stars", "github_license": "Licence", "theme_toggle": "t", "menu": "m"},
                "sections": {"support_url": "/s"}, "footer": {"source_url": "https://github.com/x", "source": "s",
-                                                             "issues_url": "i", "issues": "i"}}
+                                                             "issues_url": "i", "issues": "i"},
+               "consent": {"text": "c", "accept": "a", "decline": "d"}}
     return env.get_template("base.html").render(strings=strings, lang="en", prefix="", title="t", description="d",
                                                 canonical="c", og_type="website", body_class="")
 

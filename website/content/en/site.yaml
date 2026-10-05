@@ -67,6 +67,10 @@ sections:
     AndBible is free and has no ads. Sponsored development time keeps it moving.
   support_button: Help keep it alive
   support_url: "https://shop.andbible.org/page/info"
+consent:
+  text: We use Google Analytics to see which pages are useful. It sets cookies only if you accept.
+  accept: Accept
+  decline: Decline
 footer:
   source: Source code
   source_url: "https://github.com/AndBible/and-bible"

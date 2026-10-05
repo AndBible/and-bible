@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="{{ asset_url('css/embeds.css') }}">
   <script src="{{ asset_url('js/theme.js') }}"></script>
   <script src="{{ asset_url('js/lite-yt.js') }}" defer></script>
-  <script src="{{ asset_url('js/analytics.js') }}" defer></script>
+  <script src="{{ asset_url('js/analytics.js') }}" data-text="{{ strings.consent.text }}" data-accept="{{ strings.consent.accept }}" data-decline="{{ strings.consent.decline }}" data-privacy="{{ strings.footer.privacy }}"></script>
   {% block head_extra %}{% endblock %}
 </head>
 <body class="{{ body_class }}">
