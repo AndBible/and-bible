@@ -165,6 +165,7 @@ def test_embeds_css_is_linked_with_its_own_content_hash_not_imported(content, tm
     html = (out / "index.html").read_text()
     assert f'href="/assets/css/embeds.css?v={asset_hashes()["css/embeds.css"]}"' in html
     assert f'src="/assets/js/lite-yt.js?v={asset_hashes()["js/lite-yt.js"]}"' in html
+    assert f'src="/assets/js/analytics.js?v={asset_hashes()["js/analytics.js"]}"' in html
     assert "@import" not in (paths.ASSETS / "css" / "site.css").read_text()
 
 

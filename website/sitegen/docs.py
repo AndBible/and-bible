@@ -127,7 +127,8 @@ def _language_config(base: str, lang: str, stage_dir: Path, site_dir: Path, site
     }
     hashes = asset_hashes()
     docs_css = hashlib.sha256((paths.THEME / "assets" / "andbible-docs.css").read_bytes()).hexdigest()[:8]
-    asset_extra = {"embeds_css": hashes["css/embeds.css"], "lite_yt_js": hashes["js/lite-yt.js"], "docs_css": docs_css}
+    asset_extra = {"embeds_css": hashes["css/embeds.css"], "lite_yt_js": hashes["js/lite-yt.js"],
+                   "analytics_js": hashes["js/analytics.js"], "docs_css": docs_css}
     lines = []
     seen_theme = seen_extra = False
     for line in base.splitlines():

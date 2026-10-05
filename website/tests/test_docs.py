@@ -197,8 +197,9 @@ def test_language_config_applies_every_override():
 def test_language_config_carries_asset_hashes_for_the_theme():
     from sitegen.home import asset_hashes
     assets = tomllib.loads(_config())["project"]["extra"]["assets"]
-    assert {k: assets[k] for k in ("embeds_css", "lite_yt_js")} == {
-        "embeds_css": asset_hashes()["css/embeds.css"], "lite_yt_js": asset_hashes()["js/lite-yt.js"]}
+    assert {k: assets[k] for k in ("embeds_css", "lite_yt_js", "analytics_js")} == {
+        "embeds_css": asset_hashes()["css/embeds.css"], "lite_yt_js": asset_hashes()["js/lite-yt.js"],
+        "analytics_js": asset_hashes()["js/analytics.js"]}
     assert re.fullmatch(r"[0-9a-f]{8}", assets["docs_css"])
 
 
@@ -218,3 +219,4 @@ def test_docs_pages_load_embed_assets_with_content_hashes(built_docs):
     html = (built_docs / "docs" / "ai" / "index.html").read_text()
     assert f'/assets/css/embeds.css?v={asset_hashes()["css/embeds.css"]}"' in html
     assert f'/assets/js/lite-yt.js?v={asset_hashes()["js/lite-yt.js"]}"' in html
+    assert f'/assets/js/analytics.js?v={asset_hashes()["js/analytics.js"]}"' in html
