@@ -105,7 +105,10 @@ img { max-width: 100%; height: auto; }
 }
 @media (max-width: 899px) {
   [data-menu-toggle] { display: inline-flex; }
-  .topbar .wrap { flex-wrap: wrap; }
+  /* The open menu adds a second flex line. With min-height the first line is stretched to fill 60px
+     while closed and shrinks to 40px once the menu opens, so brand and buttons jump up. Padding gives
+     the same 60px closed height (40px buttons + 2x10px) without that slack to redistribute. */
+  .topbar .wrap { flex-wrap: wrap; min-height: 0; padding-block: 10px; }
   .topbar nav { display: none; order: 3; flex-basis: 100%; flex-direction: column; align-items: stretch; padding-bottom: 12px; }
   .topbar nav[data-open] { display: flex; }
 }
