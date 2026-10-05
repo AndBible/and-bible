@@ -46,12 +46,7 @@
       "padding:12px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;justify-content:center;" +
       "background:Canvas;color:CanvasText;border-top:1px solid #d99a2b;font:400 .9rem/1.4 system-ui,sans-serif;";
     var text = document.createElement("span");
-    text.textContent = data.text + " ";
-    var more = document.createElement("a");
-    more.href = "/privacy/";
-    more.textContent = data.privacy;
-    more.style.color = "inherit";
-    text.appendChild(more);
+    text.textContent = data.text;
     root.appendChild(text);
     [["accept", true], ["decline", false]].forEach(function (entry) {
       var button = document.createElement("button");

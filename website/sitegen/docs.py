@@ -106,7 +106,7 @@ def site_extra(site: dict[str, Any], lang: str) -> dict[str, Any]:
         "brand": site["site_name"],
         "home": f"{prefix(lang)}/",
         "theme_toggle": nav["theme_toggle"],
-        "consent": {**site["consent"], "privacy": site["footer"]["privacy"]},
+        "consent": site["consent"],
         "links": [
             {"label": nav["blog"], "url": "/blog/", "icon": str(icon("blog"))},
             {"label": nav["docs"], "url": f"{prefix(lang)}/docs/", "icon": str(icon("docs"))},
