@@ -119,6 +119,7 @@ class WorkspaceThemeGoldenTest {
         commentary = painterResource(R.drawable.ic_commentary),
         workspace = painterResource(R.drawable.ic_workspace_solid_24dp),
         overflow = painterResource(R.drawable.ic_more_vert_black_24dp),
+        sync = painterResource(R.drawable.ic_syncdb_24dp),
     )
 
     private val noopCallbacks = ReadingToolbarCallbacks(

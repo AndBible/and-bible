@@ -94,9 +94,18 @@ class Window (
     val id = entity.id
     val displayId = id.toString().substring(0, 5)
 
+    /**
+     * Unpinned regular windows share one size slot (`WindowRepository.unPinnedWeight`): only one
+     * of them is visible at a time (`WindowControl.restoreWindow` minimises the others), and the
+     * one shown inherits the slot's size. A links window is shown BESIDE that slot, never instead
+     * of it, so it keeps its own weight even when unpinned (always, with autoPin off) -- sharing
+     * the slot made a separator drag between the two write it twice and snap back on release.
+     */
+    private val usesUnpinnedSlot get() = !isPinMode && !isLinksWindow
+
     var weight: Float
         get() =
-            if(!isPinMode) {
+            if(usesUnpinnedSlot) {
                 if(windowRepository.unPinnedWeight == null) {
                     windowRepository.unPinnedWeight = windowLayout.weight
                 }
@@ -104,7 +113,7 @@ class Window (
             }
             else windowLayout.weight
         set(value) {
-            if(!isPinMode)
+            if(usesUnpinnedSlot)
                 windowRepository.unPinnedWeight = value
             else
                 windowLayout.weight = value
