@@ -21,15 +21,15 @@ import android.content.res.Resources
 import android.os.Build
 import android.util.Log
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.speak.event.SpeakProgressEvent
+import net.bible.android.control.speak.SpeakChange
+import net.bible.android.control.speak.SpeakChanges
 import net.bible.service.sword.SwordContentFacade
 import net.bible.android.activity.R
 import org.crosswire.jsword.book.Books
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.OrdinalRange
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
@@ -92,16 +92,16 @@ class GeneralSpeakTextProvider(
 
     private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startKey, endKey, currentKey)
 
-    override fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {
-        this.settings = speakSettingsChangedEvent.speakSettings
-        Log.i(TAG, "SpeakSettings updated: $speakSettingsChangedEvent")
+    override fun updateSettings(change: SpeakSettingsChange) {
+        this.settings = change.speakSettings
+        Log.i(TAG, "SpeakSettings updated: $change")
         val bookmark = bookmark
-        if(speakSettingsChangedEvent.updateBookmark && bookmark != null) {
+        if(change.updateBookmark && bookmark != null) {
             // If playback is paused or we are speaking, we need to update bookmark that is upon startVerse
             // (of which we will continue playback if unpaused)
 
             val oldPlaybackSettings = bookmark.playbackSettings
-            val newPlaybackSettings = speakSettingsChangedEvent.speakSettings.playbackSettings
+            val newPlaybackSettings = change.speakSettings.playbackSettings
             // Let's retain bookId and bookmarkWasCreated
 
             if (oldPlaybackSettings != null) {
@@ -392,15 +392,15 @@ class GeneralSpeakTextProvider(
         startKey = currentKey
         endKey = currentKey
 
-        ABEventBus.post(SpeakProgressEvent(book, currentKey, null))
+        SpeakChanges.notifyProgress(SpeakChange.Progress(book, currentKey, null))
     }
 
     private fun clearNotificationAndWidgetTitles() {
         // Clear title and text from widget and notification.
-        ABEventBus.post(SpeakProgressEvent(book, startKey,
-                TextCommand("", type=TextCommand.TextType.TITLE)))
-        ABEventBus.post(SpeakProgressEvent(book, startKey,
-                TextCommand("", type=TextCommand.TextType.NORMAL)))
+        val titleCommand = TextCommand("", type=TextCommand.TextType.TITLE)
+        SpeakChanges.notifyProgress(SpeakChange.Progress(book, startKey, titleCommand))
+        val normalCommand = TextCommand("", type=TextCommand.TextType.NORMAL)
+        SpeakChanges.notifyProgress(SpeakChange.Progress(book, startKey, normalCommand))
     }
 
     override fun forward(amount: SpeakSettings.RewindAmount?) {
@@ -419,7 +419,7 @@ class GeneralSpeakTextProvider(
         startKey = currentKey
         endKey = currentKey
         clearNotificationAndWidgetTitles()
-        ABEventBus.post(SpeakProgressEvent(book, currentKey, null))
+        SpeakChanges.notifyProgress(SpeakChange.Progress(book, currentKey, null))
     }
 
     override fun finishedUtterance(utteranceId: String) {}
@@ -432,16 +432,14 @@ class GeneralSpeakTextProvider(
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastVerseWithTitle = state.startKey
             }
-            ABEventBus.post(SpeakProgressEvent(
-                book = state.book,
-                key = BookAndKey(
-                    state.startKey.key,
-                    state.book,
-                    OrdinalRange(state.startKey.ordinal!!.start, state.endKey.ordinal!!.start),
-                ),
-                speakCommand = state.command!!,
-                forceFollow = stopOrdinal != null
-            ))
+            val key = BookAndKey(
+                state.startKey.key,
+                state.book,
+                OrdinalRange(state.startKey.ordinal!!.start, state.endKey.ordinal!!.start),
+            )
+            val command = state.command!!
+            val forceFollow = stopOrdinal != null
+            SpeakChanges.notifyProgress(SpeakChange.Progress(state.book, key, command, forceFollow))
         }
     }
 

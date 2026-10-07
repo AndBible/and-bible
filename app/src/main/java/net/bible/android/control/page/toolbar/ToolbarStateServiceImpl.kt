@@ -33,7 +33,8 @@ import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.speak.event.SpeakEvent
+import net.bible.android.control.speak.SpeakChange
+import net.bible.android.control.speak.SpeakChanges
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.sharedcore.reading.ToolbarStateService
 import net.bible.sharedui.deriveToolbarFromTheme
@@ -48,11 +49,11 @@ import org.crosswire.jsword.passage.Verse
  * [ABEventBus.register] + [onMain] (not `ABEventBus.register(this)` + `fun onEvent(e: X)` —
  * that greenrobot-style idiom does not exist on this repo's KMP [ABEventBus], whose real
  * subscription surface is the `Subscriptions { onMain<X> { ... } }` DSL). `onMain` keeps every
- * mutation of [_toolbar] on the main looper even though some source events (e.g. [SpeakEvent]
+ * mutation of [_toolbar] on the main looper even though some source events (e.g. [SpeakChanges] state
  * from the TTS engine, [CurrentVerseChangedEvent] from the WebView JS bridge thread) may be
  * posted off it.
  *
- * [WindowChange.ActiveWindowChanged]/[PassageChangedEvent]/[CurrentVerseChangedEvent]/[SpeakEvent] each
+ * [WindowChange.ActiveWindowChanged]/[PassageChangedEvent]/[CurrentVerseChangedEvent]/[SpeakChanges] state each
  * rebuild the full snapshot from the active window's current page; [CloudSync.runningChanged] only flips
  * [ToolbarState.syncRunning], preserving every other field (a sync can run concurrently with the
  * reading view, so it must not clobber title/document/capability state computed from the page).
@@ -75,7 +76,6 @@ class ToolbarStateServiceImpl(
         ABEventBus.register(this) {
             onMain<PassageChangedEvent> { refresh() }
             onMain<CurrentVerseChangedEvent> { refresh() }
-            onMain<SpeakEvent> { refresh() }
         }
         // Process lifetime, like the bus registration above: never cancelled.
         windowStateService.windowChanges.subscribeOnMain { change ->
@@ -85,6 +85,8 @@ class ToolbarStateServiceImpl(
         // ToolbarState.workspaceColorArgb, and no other trigger fires when it is written.
         WorkspaceChanges.changes.subscribeOnMain { if (it == WorkspaceChange.ColorEdited) refresh() }
         CloudSync.runningChanged.subscribeOnMain { running -> _toolbar.value = _toolbar.value.copy(syncRunning = running) }
+        // Process lifetime: never cancelled.
+        SpeakChanges.changes.subscribeOnMain { if (it is SpeakChange.State) refresh() }
     }
 
     /**

@@ -31,21 +31,18 @@ import androidx.annotation.RequiresApi
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
 import net.bible.android.control.event.phonecall.PhoneCallMonitor
-import net.bible.android.control.event.phonecall.PhoneCallEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.SpeakChanges
+import net.bible.android.control.speak.SpeakPlaybackState
+import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.control.speak.load
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.device.speak.event.SpeakEvent
-import net.bible.service.device.speak.event.SpeakEvent.SpeakState
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
@@ -134,9 +131,6 @@ class TextToSpeechServiceManager constructor(
         mSpeakTextProvider = bibleSpeakTextProvider
 
         mSpeakTiming = SpeakTiming()
-        ABEventBus.safelyRegister(this) {
-            on<PhoneCallEvent> { event -> callStateChanged(event.callActivating) }
-        }
         restorePauseState()
     }
 
@@ -441,7 +435,7 @@ class TextToSpeechServiceManager constructor(
      * Add event listener to stop on call
      */
     private fun stopIfPhoneCall() {
-        PhoneCallMonitor.ensureMonitoringStarted()
+        PhoneCallMonitor.ensureMonitoringStarted(::callStateChanged)
     }
 
     @Synchronized
@@ -676,13 +670,16 @@ class TextToSpeechServiceManager constructor(
 		when {
 			isPaused -> {
 				temporary = false
-				ABEventBus.post(SpeakEvent(SpeakState.PAUSED))
+				SpeakChanges.notifyState(SpeakPlaybackState.PAUSED)
 			}
 			isSpeaking -> {
 				temporary = false
-				ABEventBus.post(SpeakEvent(SpeakState.SPEAKING))
+				SpeakChanges.notifyState(SpeakPlaybackState.SPEAKING)
 			}
-			else -> ABEventBus.post(SpeakEvent(if (temporary) SpeakState.TEMPORARY_STOP else SpeakState.SILENT))
+			else -> {
+				val state = if (temporary) SpeakPlaybackState.TEMPORARY_STOP else SpeakPlaybackState.SILENT
+				SpeakChanges.notifyState(state)
+			}
 		}
 
     }
@@ -760,9 +757,9 @@ class TextToSpeechServiceManager constructor(
         return mSpeakTextProvider.getStatusText(showFlag)
     }
 
-    fun updateSettings(ev: SpeakSettingsChangedEvent) {
-        mSpeakTextProvider.updateSettings(ev)
-        setRate(ev.speakSettings.playbackSettings.speed)
+    fun updateSettings(change: SpeakSettingsChange) {
+        mSpeakTextProvider.updateSettings(change)
+        setRate(change.speakSettings.playbackSettings.speed)
 
     }
 

@@ -21,9 +21,10 @@ import android.content.res.Resources
 import android.os.Build
 import android.util.Log
 import android.util.LruCache
+import net.bible.android.control.speak.SpeakChange
+import net.bible.android.control.speak.SpeakChanges
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.speak.event.SpeakProgressEvent
 import net.bible.service.sword.SwordContentFacade
 import net.bible.android.activity.R
 import org.crosswire.jsword.book.Books
@@ -31,8 +32,7 @@ import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
@@ -104,16 +104,16 @@ class BibleSpeakTextProvider(
 
     private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startVerse, endVerse, currentVerse)
 
-    override fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {
-        this.settings = speakSettingsChangedEvent.speakSettings
-        Log.i(TAG, "SpeakSettings updated: $speakSettingsChangedEvent")
+    override fun updateSettings(change: SpeakSettingsChange) {
+        this.settings = change.speakSettings
+        Log.i(TAG, "SpeakSettings updated: $change")
         val bookmark = bookmark
-        if(speakSettingsChangedEvent.updateBookmark && bookmark != null) {
+        if(change.updateBookmark && bookmark != null) {
             // If playback is paused or we are speaking, we need to update bookmark that is upon startVerse
             // (of which we will continue playback if unpaused)
 
             val oldPlaybackSettings = bookmark.playbackSettings
-            val newPlaybackSettings = speakSettingsChangedEvent.speakSettings.playbackSettings
+            val newPlaybackSettings = change.speakSettings.playbackSettings
             // Let's retain bookId and bookmarkWasCreated
 
             if (oldPlaybackSettings != null) {
@@ -441,15 +441,16 @@ class BibleSpeakTextProvider(
         startVerse = currentVerse
         endVerse = currentVerse
 
-        ABEventBus.post(SpeakProgressEvent(book, verseRange, null))
+        val key = verseRange
+        SpeakChanges.notifyProgress(SpeakChange.Progress(book, key, null))
     }
 
     private fun clearNotificationAndWidgetTitles() {
         // Clear title and text from widget and notification.
-        ABEventBus.post(SpeakProgressEvent(book, startVerse,
-                TextCommand("", type=TextCommand.TextType.TITLE)))
-        ABEventBus.post(SpeakProgressEvent(book, startVerse,
-                TextCommand("", type=TextCommand.TextType.NORMAL)))
+        val titleCommand = TextCommand("", type=TextCommand.TextType.TITLE)
+        SpeakChanges.notifyProgress(SpeakChange.Progress(book, startVerse, titleCommand))
+        val normalCommand = TextCommand("", type=TextCommand.TextType.NORMAL)
+        SpeakChanges.notifyProgress(SpeakChange.Progress(book, startVerse, normalCommand))
     }
 
     override fun forward(amount: SpeakSettings.RewindAmount?) {
@@ -467,7 +468,8 @@ class BibleSpeakTextProvider(
         startVerse = currentVerse
         endVerse = currentVerse
         clearNotificationAndWidgetTitles()
-        ABEventBus.post(SpeakProgressEvent(book, verseRange, null))
+        val key = verseRange
+        SpeakChanges.notifyProgress(SpeakChange.Progress(book, key, null))
     }
 
     override fun finishedUtterance(utteranceId: String) {}
@@ -480,7 +482,9 @@ class BibleSpeakTextProvider(
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastVerseWithTitle = state.startVerse
             }
-            ABEventBus.post(SpeakProgressEvent(state.book, VerseRange(state.book.versification, state.startVerse, state.endVerse), state.command!!))
+            val key = VerseRange(state.book.versification, state.startVerse, state.endVerse)
+            val command = state.command!!
+            SpeakChanges.notifyProgress(SpeakChange.Progress(state.book, key, command))
         }
     }
 

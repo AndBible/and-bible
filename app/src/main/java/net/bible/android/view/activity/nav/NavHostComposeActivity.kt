@@ -137,6 +137,9 @@ import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.report.AiBugReport
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.control.speak.SpeakChange
+import net.bible.android.control.speak.SpeakChanges
+import net.bible.android.control.speak.SpeakTransportServiceImpl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
@@ -187,7 +190,6 @@ import net.bible.android.view.activity.page.ReadingCommandsHostCallbacks
 import net.bible.android.view.activity.page.ReadingInsets
 import net.bible.android.view.activity.page.ReadingInsetsHostCallbacks
 import net.bible.android.view.activity.page.SDCARD_READ_REQUEST
-import net.bible.android.view.activity.page.SpeakTransportVisibilityChanged
 import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.syncScope
@@ -240,7 +242,6 @@ import net.bible.service.backup.BackupServiceImpl
 import net.bible.service.db.exportStudyPads
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
-import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
 import net.bible.service.llm.PromptRepository
@@ -529,6 +530,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val rawLogService: RawLogService by inject()
     private val readingPlanControl: ReadingPlanControl by inject()
     private val speakControl: SpeakControl by inject()
+    private val speakTransportServiceImpl: SpeakTransportServiceImpl by inject()
     private val windowStateService: WindowStateServiceImpl by inject()
     private val searchControl: SearchControl by inject()
     private val bibleSearchService: BibleSearchService by inject()
@@ -1784,17 +1786,18 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /**
      * Classic's `transportBarVisible`. The classic setter's first act is `binding.speakButton.alpha`
-     * -- chrome this host does not have -- but its second is the `SpeakTransportVisibilityChanged`
-     * post that the COMPOSE side treats as the single source of truth, which is why
+     * -- chrome this host does not have -- but its second is the transport visibility update
+     * that the COMPOSE side treats as the single source of truth, which is why
      * [ReadingCommandsHostCallbacks.transportBarVisible] is not one of the honest no-ops. This host
-     * keeps the flag and makes the post.
+     * keeps the flag and tells the transport service and the inset ledger.
      */
     private var transportBarVisible = false
         get() = if (fullScreen) false else field
         set(value) {
             if (field == value) return
             field = value
-            ABEventBus.post(SpeakTransportVisibilityChanged(value))
+            speakTransportServiceImpl.setTransportVisible(value)
+            readingInsets.onTransportVisibilityChanged()
         }
 
     // R6d fix round 1 (review Important): this host's own 11-line copy of classic's `pageTitleText`
@@ -6511,27 +6514,23 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (dto.isDateBasedPlan && dto.readingDate != null) dto.readingDateString else dto.dayDesc
 
     /**
-     * Classic `DailyReadingComposeActivity`'s `ABEventBus.register(this) { ... }` pair (now the `SpeakEvent` bus listener plus `DatabaseContainer.readingPlansSynced`), registered
-     * per DESTINATION rather than per host (see [DailyReadingDeps.subscribeEvents]): the token is a
-     * fresh object per subscription, so an unsubscribe can never take another cluster's listeners
-     * down with it. `recreate()` is classic's own reaction to a plan sync — it now recreates the
+     * Classic `DailyReadingComposeActivity`'s `ABEventBus.register(this) { ... }` pair (now the `SpeakChanges` state subscription plus `DatabaseContainer.readingPlansSynced`), registered
+     * per DESTINATION rather than per host (see [DailyReadingDeps.subscribeEvents]).
+     * `recreate()` is classic's own reaction to a plan sync — it now recreates the
      * whole host, which is the documented consequence (plan D5).
      */
     private fun subscribeDailyReadingEvents(): () -> Unit {
-        val token = Any()
-        ABEventBus.register(token) {
-            onMain<SpeakEvent> { pushReadingPlanSpeakState() }
-        }
+        val speak = SpeakChanges.changes.subscribeOnMain { if (it is SpeakChange.State) pushReadingPlanSpeakState() }
         val unsubscribePlans = subscribeToReadingPlanSync { recreate() }
         // Seed the fresh controller with the CURRENT speak state. Classic never needed this: its
         // Activity (and its controller) merely paused behind the selector / day list, so the state
-        // pushed by the last SpeakEvent was still there on return. Here the arm's composition is
+        // pushed by the last SpeakChanges notification was still there on return. Here the arm's composition is
         // disposed and the controller rebuilt, so without this seed the screen would sit at
         // SpeakState.NONE — and DailyReadingScreen.kt:90 gates the pause/play and stop buttons on
         // `speakState != NONE`, so a user who changed day or plan mid-speech would lose the
-        // transport controls until the next SpeakEvent happened to fire.
+        // transport controls until the next SpeakChanges notification.
         pushReadingPlanSpeakState()
-        return { ABEventBus.unregister(token); unsubscribePlans() }
+        return { speak.cancel(); unsubscribePlans() }
     }
 
     /** The day list's / selector's reaction to `DatabaseContainer.readingPlansSynced` (`controller.load()`). */

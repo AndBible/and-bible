@@ -41,7 +41,9 @@ import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.page.windowControl
 import net.bible.service.common.AdvancedSpeakSettings
-import net.bible.service.device.speak.event.SpeakProgressEvent
+import net.bible.android.control.speak.SpeakChange
+import net.bible.android.control.speak.SpeakChanges
+import net.bible.sharedcore.event.Subscription
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.isEpub
@@ -111,6 +113,7 @@ class Window (
 
     private val windowLayout: WindowLayout = WindowLayout(entity.windowLayout)
     private var workspaceId = entity.workspaceId
+    private val speakSubscription: Subscription
 
     init {
         pageManager.window = this
@@ -122,39 +125,40 @@ class Window (
                     loadText()
                 }
             }
-            on<SpeakProgressEvent> { e ->
-                if(AdvancedSpeakSettings.synchronize || e.forceFollow) return@on // handled in SpeakControl
-                val speakKey = (e.key as? BookAndKey)?.key?: e.key
-                val bookInitials = e.book.initials
-                if (displayedBook != e.book) return@on
+        }
+        speakSubscription = SpeakChanges.changes.subscribe { change ->
+            val e = change as? SpeakChange.Progress ?: return@subscribe
+            if(AdvancedSpeakSettings.synchronize || e.forceFollow) return@subscribe // handled in SpeakControl
+            val speakKey = (e.key as? BookAndKey)?.key?: e.key
+            val bookInitials = e.book.initials
+            if (displayedBook != e.book) return@subscribe
 
-                when(e.book.bookCategory) {
-                    BookCategory.COMMENTARY -> {
-                        if (e.key !is BookAndKey) return@on
-                        val curPage = pageManager.currentPage
-                        val commentaryRange = (curPage as? CurrentCommentaryPage)?.annotateKey
-                        val osisRef = (commentaryRange ?: speakKey).osisRef
+            when(e.book.bookCategory) {
+                BookCategory.COMMENTARY -> {
+                    if (e.key !is BookAndKey) return@subscribe
+                    val curPage = pageManager.currentPage
+                    val commentaryRange = (curPage as? CurrentCommentaryPage)?.annotateKey
+                    val osisRef = (commentaryRange ?: speakKey).osisRef
+                    bibleView?.highlightOrdinalRange(
+                        bookInitials,
+                        osisRef,
+                        e.key.ordinal!!.start..(e.key.ordinal.end ?: e.key.ordinal.start)
+                    )
+                }
+                BookCategory.BIBLE -> {
+                    val loadedRange = bibleView?.verseRangeLoaded?: return@subscribe
+                    if (!loadedRange.contains(speakKey)) return@subscribe
+
+                    val range = e.key as? VerseRange ?: return@subscribe
+                    bibleView?.highlightBibleOrdinalRange(range.start.ordinal .. range.end.ordinal)
+                }
+                else -> {
+                    if(e.key is BookAndKey) {
                         bibleView?.highlightOrdinalRange(
                             bookInitials,
-                            osisRef,
-                            e.key.ordinal!!.start..(e.key.ordinal.end ?: e.key.ordinal.start)
+                            e.key.key.osisRef,
+                            e.key.ordinal!!.start .. (e.key.ordinal.end ?: e.key.ordinal.start)
                         )
-                    }
-                    BookCategory.BIBLE -> {
-                        val loadedRange = bibleView?.verseRangeLoaded?: return@on
-                        if (!loadedRange.contains(speakKey)) return@on
-
-                        val range = e.key as? VerseRange ?: return@on
-                        bibleView?.highlightBibleOrdinalRange(range.start.ordinal .. range.end.ordinal)
-                    }
-                    else -> {
-                        if(e.key is BookAndKey) {
-                            bibleView?.highlightOrdinalRange(
-                                bookInitials,
-                                e.key.key.osisRef,
-                                e.key.ordinal!!.start .. (e.key.ordinal.end ?: e.key.ordinal.start)
-                            )
-                        }
                     }
                 }
             }
@@ -217,6 +221,7 @@ class Window (
     var bibleView: BibleView? = null
 
     fun destroy() {
+        speakSubscription.cancel()
         ABEventBus.unregister(this)
         bibleView?.destroy()
     }

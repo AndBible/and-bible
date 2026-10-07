@@ -17,7 +17,7 @@
 
 package net.bible.service.device.speak
 
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.database.bookmarks.SpeakSettings
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
@@ -43,7 +43,7 @@ interface SpeakTextProvider {
     fun clearPersistedState()
     fun prepareForStartSpeaking()
     fun savePosition(fractionCompleted: Double)
-    fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {}
+    fun updateSettings(change: SpeakSettingsChange) {}
     fun getCurrentlyPlayingKey(): Key? = null
     fun getCurrentlyPlayingBook(): Book? = null
 }

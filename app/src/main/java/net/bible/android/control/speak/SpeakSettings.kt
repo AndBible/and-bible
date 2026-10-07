@@ -16,15 +16,31 @@
  */
 
 package net.bible.android.control.speak
+
 import android.util.Log
-import net.bible.android.control.event.ABEventBus
+import androidx.annotation.VisibleForTesting
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 import net.bible.android.database.bookmarks.TAG
 import net.bible.service.common.CommonUtils
 
 const val PERSIST_SETTINGS = "SpeakSettings"
 
-data class SpeakSettingsChangedEvent(val speakSettings: SpeakSettings, val updateBookmark: Boolean = false, val sleepTimerChanged: Boolean = false)
+/** A saved change emitted by [SpeakSettingsChanges]. */
+data class SpeakSettingsChange(val speakSettings: SpeakSettings, val updateBookmark: Boolean = false, val sleepTimerChanged: Boolean = false)
+
+/** Synchronous change stream owned by the persisted global speak settings. */
+object SpeakSettingsChanges {
+    private var source = EventSource<SpeakSettingsChange>()
+
+    val changes: Events<SpeakSettingsChange> get() = source
+
+    internal fun emit(change: SpeakSettingsChange) = source.emit(change)
+
+    @VisibleForTesting
+    fun resetSubscribersForTest() { source = EventSource() }
+}
 
 fun SpeakSettings.save(updateBookmark: Boolean = false) {
     if(SpeakSettings.Companion.currentSettings?.equals(this) != true) {
@@ -32,9 +48,9 @@ fun SpeakSettings.save(updateBookmark: Boolean = false) {
         Log.i(TAG, "SpeakSettings saved! $this")
         val oldSettings = SpeakSettings.Companion.currentSettings
         SpeakSettings.Companion.currentSettings = this.makeCopy()
-        ABEventBus.post(SpeakSettingsChangedEvent(this,
-                updateBookmark && oldSettings?.playbackSettings?.equals(this.playbackSettings) != true,
-                 oldSettings?.sleepTimer != this.sleepTimer))
+        val updateBookmarkNow = updateBookmark && oldSettings?.playbackSettings?.equals(this.playbackSettings) != true
+        val sleepTimerChanged = oldSettings?.sleepTimer != this.sleepTimer
+        SpeakSettingsChanges.emit(SpeakSettingsChange(this, updateBookmarkNow, sleepTimerChanged))
     }
 }
 

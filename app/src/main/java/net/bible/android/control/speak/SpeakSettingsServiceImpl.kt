@@ -19,8 +19,6 @@ package net.bible.android.control.speak
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.onMain
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.AdvancedSpeakSettings
@@ -36,7 +34,7 @@ import org.koin.core.component.inject
 /**
  * Android impl of [SpeakSettingsService]. Reads/writes the classic DB-backed [SpeakSettings] and the
  * global [AdvancedSpeakSettings]; every playback mutation saves through the classic
- * `SpeakSettings.save(updateBookmark = true)` path so the [SpeakSettingsChangedEvent] broadcast is
+ * `SpeakSettings.save(updateBookmark = true)` path so the [SpeakSettingsChanges] broadcast is
  * unchanged, and re-emits [playback] when that event fires. Advanced settings don't broadcast, so
  * their setters refresh [advanced] directly. Registered as a Koin single (lives for the process).
  */
@@ -50,9 +48,8 @@ class SpeakSettingsServiceImpl : SpeakSettingsService, KoinComponent {
     override val advanced: StateFlow<AdvancedSpeakVd> = _advanced.asStateFlow()
 
     init {
-        ABEventBus.register(this) {
-            onMain<SpeakSettingsChangedEvent> { _playback.value = readPlayback() }
-        }
+        // Process lifetime: never cancelled.
+        SpeakSettingsChanges.changes.subscribeOnMain { _playback.value = readPlayback() }
     }
 
     private fun readPlayback(): SpeakPlaybackVd {
@@ -79,7 +76,7 @@ class SpeakSettingsServiceImpl : SpeakSettingsService, KoinComponent {
         restoreSettingsFromBookmarks = AdvancedSpeakSettings.restoreSettingsFromBookmarks,
     )
 
-    /** Load → mutate the one field → save; the save posts SpeakSettingsChangedEvent → _playback refresh. */
+    /** Load → mutate the one field → save; the save emits SpeakSettingsChanges → _playback refresh. */
     private inline fun mutatePlayback(block: (SpeakSettings) -> Unit) {
         val s = SpeakSettings.load()
         block(s)

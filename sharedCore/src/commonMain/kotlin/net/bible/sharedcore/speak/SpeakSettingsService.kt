@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.StateFlow
 /**
  * Host seam over the DB-backed SpeakSettings + global AdvancedSpeakSettings. Keeps the shared layer
  * free of the Android/Room settings types. The impl saves through the classic
- * SpeakSettings.save(updateBookmark=true) path (so the SpeakSettingsChangedEvent broadcast is
- * unchanged) and re-emits [playback]/[advanced] when the settings change. Round 13a: the sleep timer
+ * SpeakSettings.save(updateBookmark=true) path (so SpeakSettingsChanges emits at the same
+ * program point) and re-emits [playback]/[advanced] when the settings change. Round 13a: the sleep timer
  * and the repeat verse-range are now written straight through this seam (from shared UI), not by an
  * Android-owned dialog.
  */

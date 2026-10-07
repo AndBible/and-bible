@@ -59,7 +59,7 @@ class ClassicSpeakRemovalGuardTest {
         // Batch Z-late epilogue, Task 5 (spec 10.4 / decision D1): the classic transport bar was
         // the last of the classic bottom chrome. It could not simply be left GONE -- a GONE view is
         // still ATTACHED, so it kept three ABEventBus subscriptions and ran getStatusText on every
-        // SpeakProgressEvent beside the Compose SpeakTransportController that replaced it.
+        // progress tick beside the Compose SpeakTransportController that replaced it.
         "src/main/java/net/bible/android/view/util/widget/SpeakTransportWidget.kt",
         "src/main/res/layout/speak_transport_widget.xml",
     )
@@ -121,25 +121,20 @@ class ClassicSpeakRemovalGuardTest {
      * Task 5 removed that embedding, and with it the widget and its layout -- both are now in
      * [doomedPaths] above, which is why this assertion is the inverse of the one it replaces.
      *
-     * [HideTransportEvent] is the anti-vacuity half and the substantive half at once: it was a
-     * NESTED class of the deleted widget and is still posted and consumed on the Compose path, so
-     * the deletion is only correct because it was promoted to its own file first. A guard that only
-     * asserted the widget gone would pass just as well if the event had been deleted with it, which
-     * would silently break the Compose Speak bar's hide path.
+     * The promoted hide event's path now survives as a direct write in the transport service,
+     * pinned below so removing the widget cannot silently break the Compose Speak bar's hide path.
+     *
+     * The hide path that `HideTransportEvent` carried after the classic widget went is now a direct
+     * write in [SpeakTransportServiceImpl.stop] (ABEventBus removal phase 6). Pins it: without it,
+     * Stop on a stopped transport would no longer hide the Compose Speak bar.
      */
-    @Test fun theTransportWidgetsLiveEventOutlivedIt() {
-        ClassicRemovalScan.assertPathsPresent(
-            listOf("src/main/java/net/bible/android/view/util/widget/SpeakTransportEvents.kt"),
-            "HideTransportEvent had to be split out of SpeakTransportWidget before Task 5 could " +
-                "delete the widget",
-        )
+    @Test fun theTransportBarsHidePathOutlivedTheWidget() {
         val code = ClassicRemovalScan.codeLinesOf(
             "src/main/java/net/bible/android/control/speak/SpeakTransportServiceImpl.kt",
         )
         assertTrue(
-            "the Compose Speak transport bridge no longer posts HideTransportEvent — the promoted " +
-                "event has lost the very consumer that justified promoting it",
-            code.contains("ABEventBus.post(HideTransportEvent())"),
+            "SpeakTransportServiceImpl.stop() no longer hides the bar when speech is already stopped",
+            code.contains("_state.value = _state.value.copy(visible = false)"),
         )
     }
 }

@@ -34,7 +34,9 @@ import net.bible.android.control.bookmark.BookmarkEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.SpeakChange
+import net.bible.android.control.speak.SpeakChanges
+import net.bible.android.control.speak.SpeakSettingsChanges
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.database.IdType
@@ -46,8 +48,7 @@ import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_PERCENT
 import net.bible.service.device.speak.TextCommand
-import net.bible.service.device.speak.event.SpeakEvent
-import net.bible.service.device.speak.event.SpeakProgressEvent
+import net.bible.sharedcore.event.Subscriptions
 import java.lang.Exception
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -67,6 +68,7 @@ class SpeakWidgetManager : KoinComponent {
     val speakControl: SpeakControl by inject()
     val bookmarkControl: BookmarkControl by inject()
 
+    private val subscriptions = Subscriptions()
     private val app = BibleApplication.application
     private val resetTitle get() = app.getString(R.string.app_name_medium)
     /** null = the reset title, resolved live so a language change shows (F114). */
@@ -85,33 +87,6 @@ class SpeakWidgetManager : KoinComponent {
         }
         instance = this
         ABEventBus.register(this) {
-            on<SpeakProgressEvent> { ev ->
-                if (ev.speakCommand is TextCommand) {
-                    if (ev.speakCommand.type == TextCommand.TextType.TITLE) {
-                        currentTitle = ev.speakCommand.text
-                        if (currentTitle.isNullOrEmpty()) {
-                            currentTitle = null
-                        }
-                    } else {
-                        currentText = ev.speakCommand.text
-                    }
-
-                    updateWidgetTexts()
-                }
-            }
-            on<SpeakEvent> { ev ->
-                if (ev.isSpeaking) {
-                    currentTitle = null
-                } else if (!ev.isSpeaking && !ev.isPaused) {
-                    currentTitle = null
-                    currentText = ""
-                }
-                updateWidgetTexts()
-                updateWidgetSpeakButton(ev.isSpeaking)
-            }
-            on<SpeakSettingsChangedEvent> { ev ->
-                updateSleepTimerButtonIcon(ev.speakSettings)
-            }
             on<BookmarkEvent> {
                 val manager = AppWidgetManager.getInstance(app)
                 for (widgetId in manager.getAppWidgetIds(ComponentName(app, SpeakBookmarkWidget::class.java))) {
@@ -119,10 +94,44 @@ class SpeakWidgetManager : KoinComponent {
                 }
             }
         }
+        subscriptions.add(SpeakChanges.changes.subscribe { change ->
+            when (change) {
+                is SpeakChange.Progress -> {
+                    val ev = change
+                    if (ev.speakCommand is TextCommand) {
+                        if (ev.speakCommand.type == TextCommand.TextType.TITLE) {
+                            currentTitle = ev.speakCommand.text
+                            if (currentTitle.isNullOrEmpty()) {
+                                currentTitle = null
+                            }
+                        } else {
+                            currentText = ev.speakCommand.text
+                        }
+
+                        updateWidgetTexts()
+                    }
+                }
+                is SpeakChange.State -> {
+                    val ev = change
+                    if (ev.isSpeaking) {
+                        currentTitle = null
+                    } else if (!ev.isSpeaking && !ev.isPaused) {
+                        currentTitle = null
+                        currentText = ""
+                    }
+                    updateWidgetTexts()
+                    updateWidgetSpeakButton(ev.isSpeaking)
+                }
+            }
+        })
+        subscriptions.add(SpeakSettingsChanges.changes.subscribe { ev ->
+            updateSleepTimerButtonIcon(ev.speakSettings)
+        })
     }
 
     fun destroy() {
         ABEventBus.unregister(this)
+        subscriptions.cancelAll()
         instance = null
     }
 

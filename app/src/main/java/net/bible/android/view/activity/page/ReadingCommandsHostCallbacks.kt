@@ -122,9 +122,9 @@ class ReadingCommandsHostCallbacks(
 
     /**
      * Speak transport bar visibility. **Deliberately NOT one of the honest no-ops below**, even
-     * though the setter's first act on `MainBibleActivity` is classic chrome
-     * (`binding.speakButton.alpha`): its second is `ABEventBus.post(SpeakTransportVisibilityChanged)`,
-     * which is the single source of truth the COMPOSE side observes, and the main menu's Speak row
+     * though the setter once also updated classic chrome: the reading host now calls
+     * `SpeakTransportServiceImpl.setTransportVisible`,
+     * which updates the single source of truth the COMPOSE side observes, and the main menu's Speak row
      * and the Compose toolbar's Speak button both drive it. A host that answered this with a no-op
      * would leave the Speak transport bar unreachable with nothing to report it — Ruling D's hazard,
      * in a different member.

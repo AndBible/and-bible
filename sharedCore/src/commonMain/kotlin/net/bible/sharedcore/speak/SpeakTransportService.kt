@@ -4,8 +4,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Host seam over the Android SpeakControl transport + the reading-view visibility SSOT. The impl
- * bridges SpeakEvent / SpeakProgressEvent / SpeakSettingsChangedEvent / HideTransportEvent /
- * SpeakTransportVisibilityChanged into [state]. Granular play/pause/continue so the branch is
+ * bridges SpeakChanges / SpeakSettingsChanges and setTransportVisible into [state].
+ * Granular play/pause/continue so the branch is
  * decided (and tested) in the controller.
  */
 interface SpeakTransportService {
@@ -13,7 +13,7 @@ interface SpeakTransportService {
     fun speakAny()              // else-branch: start speaking (+ classic AdvancedSpeakSettings.synchronize side-effect)
     fun pause()
     fun continueAfterPause()
-    fun stop()                  // isStopped ⇒ post HideTransportEvent (hide) else SpeakControl.stop()
+    fun stop()                  // isStopped ⇒ direct state.copy(visible = false) (hide) else SpeakControl.stop()
     fun rewind()
     fun forward()
     fun prevVerse()             // rewind(ONE_VERSE)

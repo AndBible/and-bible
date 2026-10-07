@@ -17,12 +17,12 @@
 package net.bible.service.device.speak
 
 import android.util.Log
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.database.bookmarks.SpeakSettings.RewindAmount
 import net.bible.service.common.AndRuntimeException
 import net.bible.service.common.CommonUtils.settings
-import net.bible.service.device.speak.event.SpeakProgressEvent
+import net.bible.android.control.speak.SpeakChange
+import net.bible.android.control.speak.SpeakChanges
 import net.bible.service.sword.SwordContentFacade.getTextToSpeak
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
@@ -45,10 +45,12 @@ class LegacySpeakTextProvider : SpeakTextProvider {
     private var keyList: List<Key>? = null
     override fun startUtterance(utteranceId: String) {
         if (keyList != null && keyList!!.size > 0) {
-            ABEventBus.post(SpeakProgressEvent(book!!, keyList!![0],
-                TextCommand(currentText, TextCommand.TextType.NORMAL)))
-            ABEventBus.post(SpeakProgressEvent(book!!, keyList!![0],
-                TextCommand(book!!.name, TextCommand.TextType.TITLE)))
+            val book = book!!
+            val key = keyList!![0]
+            val normalCommand = TextCommand(currentText, TextCommand.TextType.NORMAL)
+            SpeakChanges.notifyProgress(SpeakChange.Progress(book, key, normalCommand))
+            val titleCommand = TextCommand(book.name, TextCommand.TextType.TITLE)
+            SpeakChanges.notifyProgress(SpeakChange.Progress(book, key, titleCommand))
         }
     }
 
@@ -63,7 +65,7 @@ class LegacySpeakTextProvider : SpeakTextProvider {
         }
     }
 
-    override fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {}
+    override fun updateSettings(change: SpeakSettingsChange) {}
 
     override var isSpeaking: Boolean
         get() = false

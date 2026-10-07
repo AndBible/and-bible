@@ -104,8 +104,8 @@ enum class DailyReadingLoad {
  *   composition so a day chosen through the day list is not silently reverted to the route's
  *   original (usually argument-free) day. Host-owned, because it must outlive this destination's
  *   composition for exactly the reason given under [controllerFor].
- * - [subscribeEvents] wires classic's `ABEventBus.register(this) { onMain<ReadingPlansUpdatedViaSyncEvent> (now `DatabaseContainer.readingPlansSynced`)
- *   { recreate() }; onMain<SpeakEvent> { pushSpeakState() } }` and returns the unsubscribe.
+ * - [subscribeEvents] subscribes to `DatabaseContainer.readingPlansSynced` to recreate the host
+ *   and `SpeakChanges.changes.subscribeOnMain` to push speak state, and returns the unsubscribe.
  *   Route-scoped (a `DisposableEffect` in this destination's arm), not host-wide, following
  *   [net.bible.sharedui.ai.nav.AiModelsDeps.onResume]'s established convention: one host now serves
  *   several clusters, and a plan sync must not `recreate()` the host while an unrelated cluster's

@@ -22,6 +22,8 @@ import android.util.Log
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.page.window.WorkspaceChanges
+import net.bible.android.control.speak.SpeakChanges
+import net.bible.android.control.speak.SpeakSettingsChanges
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
@@ -65,5 +67,7 @@ class TestBibleApplication : BibleApplication() {
         DocumentSync.resetSubscribersForTest()
         CloudSync.resetSubscribersForTest()
         InstallZipProgress.resetSubscribersForTest()
+        SpeakChanges.resetSubscribersForTest()
+        SpeakSettingsChanges.resetSubscribersForTest()
     }
 }

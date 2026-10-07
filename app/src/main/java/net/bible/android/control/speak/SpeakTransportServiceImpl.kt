@@ -22,19 +22,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.onMain
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.android.view.activity.page.SpeakTransportVisibilityChanged
-import net.bible.android.view.util.widget.HideTransportEvent
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
-import net.bible.service.device.speak.event.SpeakEvent
-import net.bible.service.device.speak.event.SpeakProgressEvent
 import net.bible.sharedcore.speak.SpeakBookmarkRowVd
 import net.bible.sharedcore.speak.SpeakTransportService
 import net.bible.sharedcore.speak.SpeakTransportStateVd
@@ -54,8 +48,8 @@ internal fun labelOf(b: BookmarkEntities.BaseBookmarkWithNotes): String = when (
 
 /**
  * Android impl of [SpeakTransportService]. Bridges the events the classic `SpeakTransportWidget`
- * listens to (plus the [SpeakTransportVisibilityChanged] visibility SSOT posted from
- * [MainBibleActivity]) into a [StateFlow], and reproduces the widget's button dispatch
+ * listens to, now [SpeakChanges] and [SpeakSettingsChanges], plus the visibility SSOT set from
+ * [NavHostComposeActivity] into a [StateFlow], and reproduces the widget's button dispatch
  * (`onButtonClick` :143-177, `onBookmarkButtonClick` :186-214). Koin single (process-lived); the
  * reading-view classic code is unchanged.
  */
@@ -68,9 +62,9 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
 
     /**
      * Cached bookmark-button visibility. Classic `SpeakTransportWidget` only recomputes this on
-     * attach + [SpeakSettingsChangedEvent] (`resetView`, :216-227) — never on the plain
-     * [SpeakEvent]/[SpeakProgressEvent] handlers that fire on every verse transition. Mirror that:
-     * recompute only here (init) and in the [SpeakSettingsChangedEvent] handler below, not in [build].
+     * attach + [SpeakSettingsChanges] (`resetView`, :216-227) — never on the plain
+     * [SpeakChanges] handlers that fire on every verse transition. Mirror that:
+     * recompute only here (init) and in the [SpeakSettingsChanges] handler below, not in [build].
      */
     private var bookmarkVisible: Boolean = rawSpeakBookmarks().isNotEmpty()
 
@@ -78,18 +72,17 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
     override val state: StateFlow<SpeakTransportStateVd> = _state.asStateFlow()
 
     init {
-        ABEventBus.register(this) {
-            onMain<SpeakEvent> { refresh() }
-            onMain<SpeakProgressEvent> { refresh() }
-            onMain<SpeakSettingsChangedEvent> {
-                bookmarkVisible = rawSpeakBookmarks().isNotEmpty()
-                refresh()
-            }
-            onMain<HideTransportEvent> { _state.value = _state.value.copy(visible = false) }
-            onMain<SpeakTransportVisibilityChanged> { ev ->
-                _state.value = build(visible = ev.value)
-            }
+        // Process lifetime (Koin single): never cancelled.
+        SpeakChanges.changes.subscribeOnMain { refresh() }
+        SpeakSettingsChanges.changes.subscribeOnMain {
+            bookmarkVisible = rawSpeakBookmarks().isNotEmpty()
+            refresh()
         }
+    }
+
+    /** The reading host calls [setTransportVisible] when its `transportBarVisible` changes. */
+    fun setTransportVisible(visible: Boolean) {
+        _state.value = build(visible = visible)
     }
 
     private fun refresh() { _state.value = build(visible = _state.value.visible) }
@@ -133,7 +126,7 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
     override fun continueAfterPause() = speakControl.continueAfterPause()
 
     override fun stop() {
-        if (speakControl.isStopped) ABEventBus.post(HideTransportEvent())
+        if (speakControl.isStopped) _state.value = _state.value.copy(visible = false)
         else speakControl.stop()
     }
 

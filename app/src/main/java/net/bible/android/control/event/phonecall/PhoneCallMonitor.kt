@@ -22,7 +22,6 @@ import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.control.event.ABEventBus
 
 const val TAG = "PhoneCallMonitor"
 
@@ -32,8 +31,9 @@ const val TAG = "PhoneCallMonitor"
 
 object PhoneCallMonitor {
     private var isMonitoring = false
+    private var onCallStateChanged: ((Boolean) -> Unit)? = null
 
-    /** If phone rings then notify all PhoneCallEvent listeners.
+    /** If phone rings then tell the TTS manager.
      * This was attempted in CurrentActivityHolder but failed if device was on
      * stand-by and speaking and Android 4.4 (I think it worked on earlier versions of Android)
      */
@@ -42,11 +42,7 @@ object PhoneCallMonitor {
         phoneStateListener = object : PhoneStateListener() {
             override fun onCallStateChanged(state: Int, incomingNumber: String) {
                 Log.i("PhoneCallMonitor", "State changed $state")
-                if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
-                    ABEventBus.post(PhoneCallEvent(true))
-                } else if (state == TelephonyManager.CALL_STATE_IDLE) {
-                    ABEventBus.post(PhoneCallEvent(false))
-                }
+                callActivating(state)?.let { onCallStateChanged?.invoke(it) }
             }
         }
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE)
@@ -59,7 +55,8 @@ object PhoneCallMonitor {
     // https://stackoverflow.com/questions/42213250/android-nougat-phonestatelistener-is-not-triggered
     private var phoneStateListener: PhoneStateListener? = null
 
-    fun ensureMonitoringStarted() {
+    fun ensureMonitoringStarted(onCallStateChanged: (Boolean) -> Unit) {
+        this.onCallStateChanged = onCallStateChanged
         Log.i(TAG, "ensureMonitoringStarted ${Build.VERSION.SDK_INT}")
         if (!isMonitoring) {
             // From API 26 onwards, we use audio focus change listening (see startSpeaking)
@@ -68,5 +65,12 @@ object PhoneCallMonitor {
                 startMonitoringLegacy()
             }
         }
+    }
+
+    /** Ringing or off-hook → true, idle → false, anything else → null (ignored). */
+    internal fun callActivating(state: Int): Boolean? = when (state) {
+        TelephonyManager.CALL_STATE_RINGING, TelephonyManager.CALL_STATE_OFFHOOK -> true
+        TelephonyManager.CALL_STATE_IDLE -> false
+        else -> null
     }
 }
