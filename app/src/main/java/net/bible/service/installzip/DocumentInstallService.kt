@@ -41,7 +41,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.UserMessages
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.nav.NavHostComposeActivity
@@ -82,7 +82,7 @@ private const val GENERIC_NOTIFICATION_CHANNEL = "generic-notifications"
  * platform-agnostic install state machine built in A1-A4): owns the app-scoped [controller]
  * instance, wires its [InstallServiceController.JobDeps] to real `contentResolver`/`BackupControl`/
  * `SwordBookPath` collaborators, surfaces progress/action-required notifications, and posts the
- * terminal events (`ToastEvent` / [UpdateMainBibleActivityDocuments] /
+ * terminal events (`UserMessages.toast` / [UpdateMainBibleActivityDocuments] /
  * [InstallZipProgress]) classic `InstallZip` posted directly from its Activity.
  *
  * Every job the [controller] runs is driven by data forwarded from THIS Service's own
@@ -160,12 +160,12 @@ class DocumentInstallService : Service() {
         private fun postTerminalEvents(phase: InstallPhase) {
             ABEventBus.post(UpdateMainBibleActivityDocuments())
             when (phase) {
-                is InstallPhase.Done -> ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
-                is InstallPhase.Cancelled -> ABEventBus.post(ToastEvent(R.string.install_zip_canceled))
+                is InstallPhase.Done -> UserMessages.toast(R.string.install_zip_successfull)
+                is InstallPhase.Cancelled -> UserMessages.toast(R.string.install_zip_canceled)
                 is InstallPhase.Error -> {
                     val toastRes = if (phase.messageKey == R.string.sqlite_invalid_file) R.string.invalid_module
                     else R.string.error_occurred
-                    ABEventBus.post(ToastEvent(toastRes))
+                    UserMessages.toast(toastRes)
                 }
                 else -> {}
             }

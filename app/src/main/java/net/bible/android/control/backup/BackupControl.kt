@@ -34,7 +34,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.UserMessages
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.AiSettingsDatabase
@@ -747,7 +747,7 @@ object BackupControl {
     private suspend fun beforeRestore(category: SyncableDatabaseDefinition) {
         if(DatabaseContainer.ready && CloudSync.signedIn) {
             category.syncEnabled = false
-            ABEventBus.post(ToastEvent(R.string.disabling_sync))
+            UserMessages.toast(R.string.disabling_sync)
             CloudSync.waitUntilFinished()
         }
     }
@@ -804,7 +804,7 @@ object BackupControl {
             progressId = null
         }
         try {
-            ABEventBus.post(ToastEvent(getString(R.string.downloading_backup)))
+            UserMessages.toast(getString(R.string.downloading_backup))
             showProgress()
 
             val tmpFile = File(internalDbBackupDir, "database.zip")
@@ -936,7 +936,7 @@ object BackupControl {
         val result2 = Dialogs.showMsg2(activity, R.string.restore_confirmation, true)
         if(result2 != Dialogs.Result.OK) return false
         var result: Boolean
-        ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
+        UserMessages.toast(getString(R.string.loading_backup))
         val progressId = dialogs.show(AppDialogRequest.Progress(title = null, message = application.getString(R.string.please_wait)))
         try {
             withContext(Dispatchers.IO) {

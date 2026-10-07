@@ -32,7 +32,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.UserMessages
 import net.bible.service.cloudsync.SYNC_NOTIFICATION_CHANNEL
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
@@ -205,7 +205,7 @@ class DocumentSyncService : Service() {
                     Log.w(TAG, "Document sync op failed (network); will retry next sync: ${op.initials}", e)
                 } else {
                     Log.e(TAG, "Document sync op failed: ${op.initials}", e)
-                    ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
+                    UserMessages.errorNotification(R.string.sync_error)
                 }
             }
             done.incrementAndGet()

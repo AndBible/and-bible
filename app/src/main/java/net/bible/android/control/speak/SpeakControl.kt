@@ -19,7 +19,6 @@ package net.bible.android.control.speak
 
 import android.media.AudioManager
 import android.util.Log
-import android.widget.Toast
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -27,7 +26,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.control.event.onMain
-import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.AndRuntimeException
@@ -198,10 +197,7 @@ class SpeakControl constructor(
                 && range.end.ordinal >= currentVerse.ordinal)) {
             settings.playbackSettings.verseRange = null
             settings.save()
-            ABEventBus.post(ToastEvent(
-                messageId = R.string.verse_range_mode_disabled,
-                duration = Toast.LENGTH_LONG
-            ))
+            UserMessages.toast(R.string.verse_range_mode_disabled, long = true)
         }
 
     }
@@ -232,13 +228,13 @@ class SpeakControl constructor(
     private fun startSpeakingFromDefault() {
         Log.i(TAG, "startSpeakingFromDefault")
         if (!booksAvailable) {
-            ABEventBus.post(ToastEvent(R.string.speak_no_books_available))
+            UserMessages.toast(R.string.speak_no_books_available)
             return
         }
         try {
             val page = windowControl.activeWindowPageManager.currentPage
             if(!page.isSpeakable) {
-                ABEventBus.post(ToastEvent(R.string.speak_no_books_available))
+                UserMessages.toast(R.string.speak_no_books_available)
                 return
             }
             val fromBook = page.currentDocument
@@ -251,7 +247,7 @@ class SpeakControl constructor(
 
         } catch (e: Exception) {
             Log.e(TAG, "Error getting chapters to speak", e)
-            ABEventBus.post(ToastEvent(R.string.speak_general_error))
+            UserMessages.toast(R.string.speak_general_error)
             return
         }
     }
@@ -351,13 +347,13 @@ class SpeakControl constructor(
     private fun speakBible() {
         val page = speakPageManager.currentPage
         if(!page.isSpeakable) {
-            ABEventBus.post(ToastEvent(R.string.speak_no_books_available))
+            UserMessages.toast(R.string.speak_no_books_available)
             return
         }
         val verse = page.singleKey as? Verse
         if (verse == null) {
             Log.e(TAG, "Cannot speak Bible - no valid verse key available")
-            ABEventBus.post(ToastEvent(R.string.speak_general_error))
+            UserMessages.toast(R.string.speak_general_error)
             return
         }
         speakBible(verse)
@@ -399,7 +395,7 @@ class SpeakControl constructor(
         if (isSpeaking || isPaused) {
             Log.i(TAG, "Rewind TTS speaking")
             ttsServiceManager.rewind(amount)
-            ABEventBus.post(ToastEvent(R.string.rewind))
+            UserMessages.toast(R.string.rewind)
         }
     }
 
@@ -407,7 +403,7 @@ class SpeakControl constructor(
         if (isSpeaking || isPaused) {
             Log.i(TAG, "Forward TTS speaking")
             ttsServiceManager.forward(amount)
-            ABEventBus.post(ToastEvent(R.string.forward))
+            UserMessages.toast(R.string.forward)
         }
     }
 
@@ -438,7 +434,7 @@ class SpeakControl constructor(
             }
 
             if (!willContinueAfterThis && toast) {
-                ABEventBus.post(ToastEvent(pauseToastText))
+                UserMessages.toast(pauseToastText)
             }
             saveCurrentPosition()
         }
@@ -503,7 +499,7 @@ class SpeakControl constructor(
             originalSettingsBeforeMemLoop = null
         }
         if(!force) {
-            ABEventBus.post(ToastEvent(R.string.stop))
+            UserMessages.toast(R.string.stop)
         }
     }
 
@@ -539,7 +535,7 @@ class SpeakControl constructor(
         if (sleepTimerAmount > 0) {
             Log.i(TAG, "Activating sleep timer")
             val app = BibleApplication.application
-            ABEventBus.post(ToastEvent(app.getString(R.string.sleep_timer_started, sleepTimerAmount)))
+            UserMessages.toast(app.getString(R.string.sleep_timer_started, sleepTimerAmount))
             timerTask = object : TimerTask() {
                 override fun run() {
                     pause(false, false)

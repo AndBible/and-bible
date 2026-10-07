@@ -83,8 +83,7 @@ import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -1142,7 +1141,7 @@ object CommonUtils : CommonUtilsBase() {
             )
         } catch (e: android.content.ActivityNotFoundException) {
             Log.e(TAG, "No activity found to handle link: $link", e)
-            ABEventBus.post(ToastEvent(application.getString(R.string.error_opening_link, link)))
+            UserMessages.toast(application.getString(R.string.error_opening_link, link))
         }
     }
 
@@ -1864,7 +1863,7 @@ object CommonUtils : CommonUtilsBase() {
     fun copyToClipboard(clip: ClipData, toastMessage: Int = R.string.text_copied_to_clicpboard) {
         val clipboard = application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(clip)
-        ABEventBus.post(ToastEvent(application.getString(toastMessage)))
+        UserMessages.toast(application.getString(toastMessage))
     }
 
     private val calcPinRegex = Regex("""^(0+)(\d+)$""")

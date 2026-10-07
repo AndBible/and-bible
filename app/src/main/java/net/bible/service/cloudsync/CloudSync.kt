@@ -30,6 +30,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.UserMessages
 import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -464,7 +465,7 @@ object CloudSync {
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "Some other exception happened in initializeSync!", e)
-                    ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
+                    UserMessages.errorNotification(R.string.sync_error)
                     return@asyncMap
                 }
                 try {
@@ -474,7 +475,7 @@ object CloudSync {
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "createAndUploadNewPatch failed due to error", e)
-                    ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
+                    UserMessages.errorNotification(R.string.sync_error)
                 }
                 try {
                     try {
@@ -487,12 +488,12 @@ object CloudSync {
                 } catch (e: IOException) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to IOException", e)
                 } catch (e: IncompatiblePatchVersion) {
-                    ABEventBus.post(BibleApplication.ErrorNotificationEvent(cantFetchString(dbDef.category.contentDescription), showReportButton = false))
+                    UserMessages.errorNotification(cantFetchString(dbDef.category.contentDescription), showReportButton = false)
                     dbDef.dao.setConfig("disabledForVersion", dbDef.version.toLong())
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
-                    ABEventBus.post(BibleApplication.ErrorNotificationEvent(R.string.sync_error))
+                    UserMessages.errorNotification(R.string.sync_error)
                 }
             }
             try {

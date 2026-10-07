@@ -38,8 +38,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.report.ErrorReportControl
@@ -235,7 +234,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
             showStableNotice()
             showNewSyncTargetsNotice()
             if(!CommonUtils.isDiscrete) {
-                ABEventBus.post(ToastEvent(windowRepository.name))
+                UserMessages.toast(windowRepository.name)
             }
             checkDocBackupDBInSync()
         }

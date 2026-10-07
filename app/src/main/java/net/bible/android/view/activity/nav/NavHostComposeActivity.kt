@@ -107,14 +107,13 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.serializer
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.android.control.event.on
 import net.bible.android.control.event.onMain
-import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.UserMessages
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.SaveOrShare
@@ -1486,7 +1485,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         sharedActivityState.toggleFullScreen()
         applyIdleSystemUi()
         if(sharedActivityState.isFullScreen) {
-            ABEventBus.post(ToastEvent(R.string.exit_fullscreen))
+            UserMessages.toast(R.string.exit_fullscreen)
         }
     }
 
@@ -3852,7 +3851,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             },
                             title = getString(R.string.custom_repositories),
                             onDuplicate = { name ->
-                                ABEventBus.post(ToastEvent(getString(R.string.duplicate_custom_repository, name)))
+                                UserMessages.toast(getString(R.string.duplicate_custom_repository, name))
                             },
                         ),
                         customRepositoryEditor = CustomRepositoryEditorDeps(
@@ -7078,7 +7077,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private fun crashApp() {
         CoroutineScope(Dispatchers.Main).launch {
-            ABEventBus.post(BibleApplication.ErrorNotificationEvent("Crashing app in 10 seconds!"))
+            UserMessages.errorNotification("Crashing app in 10 seconds!")
             delay(10000)
             throw RuntimeException("Crash app!")
         }
@@ -8002,7 +8001,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val session = downloadSession ?: return
         val selected = ids.mapNotNull { session.booksById[it] }
         val (deletable, rest) = selected.partition { documentControl.canDelete(it.installedDocument) }
-        if (rest.isNotEmpty()) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
+        if (rest.isNotEmpty()) UserMessages.toast(R.string.cant_delete_document)
         if (deletable.isEmpty()) return
         val msg: String = if (deletable.size == 1) {
             getString(R.string.delete_doc, deletable.single().name)
@@ -8034,7 +8033,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 Dialogs.showErrorMsg(R.string.error_occurred, e)
             }
         }
-        if (skipped) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
+        if (skipped) UserMessages.toast(R.string.cant_delete_document)
         lifecycleScope.launch { loadDownloadDocuments(session, false) }
         ABEventBus.post(UpdateMainBibleActivityDocuments())
     }
@@ -8880,7 +8879,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         installZipNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
                 },
-                noFileManager = { ABEventBus.post(ToastEvent(getString(R.string.no_file_manager))) },
+                noFileManager = { UserMessages.toast(getString(R.string.no_file_manager)) },
             ),
             onFinished = onFinished,
         )
@@ -9307,7 +9306,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val session = chooseDocumentSession ?: return
         val selected = ids.mapNotNull { session.booksById[it] }
         val (deletable, rest) = selected.partition { documentControl.canDelete(it.installedDocument) }
-        if (rest.isNotEmpty()) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
+        if (rest.isNotEmpty()) UserMessages.toast(R.string.cant_delete_document)
         if (deletable.isEmpty()) return
         val msg: String = if (deletable.size == 1) {
             getString(R.string.delete_doc, deletable.single().name)
@@ -9333,7 +9332,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 Dialogs.showErrorMsg(R.string.error_occurred, e)
             }
         }
-        if (skipped) ABEventBus.post(ToastEvent(R.string.cant_delete_document))
+        if (skipped) UserMessages.toast(R.string.cant_delete_document)
         lifecycleScope.launch { loadChooseDocuments() }
         ABEventBus.post(UpdateMainBibleActivityDocuments())
     }

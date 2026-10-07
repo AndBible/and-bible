@@ -36,7 +36,7 @@ import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.UserMessages
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentCommentaryPage
@@ -453,7 +453,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun toast(text: String) {
-        ABEventBus.post(ToastEvent(text))
+        UserMessages.toast(text)
     }
 
     @JavascriptInterface
@@ -806,26 +806,26 @@ class BibleJavascriptInterface(
     fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
         val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId))!!
         if(!value && bookmark.textRange == null) {
-            ABEventBus.post(ToastEvent(R.string.cant_change_wholeverse))
+            UserMessages.toast(R.string.cant_change_wholeverse)
             return
         }
         bookmark.wholeVerse = value
 
         bookmarkControl.addOrUpdateBibleBookmark(bookmark)
-        if(value) ABEventBus.post(ToastEvent(R.string.whole_verse_turned_on))
+        if(value) UserMessages.toast(R.string.whole_verse_turned_on)
     }
 
     @JavascriptInterface
     fun setGenericBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
         val bookmark = bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
         if(!value && bookmark.textRange == null) {
-            ABEventBus.post(ToastEvent(R.string.cant_change_wholeverse))
+            UserMessages.toast(R.string.cant_change_wholeverse)
             return
         }
         bookmark.wholeVerse = value
 
         bookmarkControl.addOrUpdateGenericBookmark(bookmark)
-        if(value) ABEventBus.post(ToastEvent(R.string.whole_verse_turned_on))
+        if(value) UserMessages.toast(R.string.whole_verse_turned_on)
     }
 
     @JavascriptInterface

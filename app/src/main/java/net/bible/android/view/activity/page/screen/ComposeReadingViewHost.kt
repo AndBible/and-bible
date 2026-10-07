@@ -100,7 +100,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.UserMessages
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.document.DocumentControl
@@ -1187,13 +1187,13 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * counterpart of classic `AgentLogWidget`. Not `private`, mirroring [readingLlmDialogs]/
      * [controller] below, so `AgentLogHostTest`-style tests can assert against it directly.
      * [onCompletedToast]/[onOpenRawLog] are verbatim mirrors of classic `AgentLogWidget`'s
-     * `ABEventBus.post(ToastEvent(R.string.ai_task_completed))` / `openRawLog()`. Rendered by
+     * `UserMessages.toast(R.string.ai_task_completed)` / `openRawLog()`. Rendered by
      * [mountComposeView] (see [install]) as `ReadingViewScreen`'s `agentLog` slot (Task 5).
      */
     val agentLog = AgentLogController(
         agentSessionService,
         hostScope,
-        onCompletedToast = { ABEventBus.post(ToastEvent(R.string.ai_task_completed)) },
+        onCompletedToast = { UserMessages.toast(R.string.ai_task_completed) },
         onOpenRawLog = {
             val intent = NavHostComposeActivity.intentFor(
                 activity.hostContext,

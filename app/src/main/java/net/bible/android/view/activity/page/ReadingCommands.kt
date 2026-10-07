@@ -38,7 +38,7 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.UserMessages
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
@@ -594,7 +594,7 @@ class ReadingCommands(
         val verse = try {
             VerseFactory.fromString(navigationControl.versification, verseStr)
         } catch (e: NoSuchVerseException) {
-            ABEventBus.post(ToastEvent(readingHost.getString(R.string.verse_not_found)))
+            UserMessages.toast(readingHost.getString(R.string.verse_not_found))
             return
         }
         val pageManager = windowControl.activeWindowPageManager
@@ -1501,7 +1501,7 @@ class ReadingCommands(
             windowControl.windowSync.reloadAllWindows()
             windowRepository().updateAllWindowsTextDisplaySettings()
 
-            ABEventBus.post(ToastEvent(windowRepository().name))
+            UserMessages.toast(windowRepository().name)
 
             hostCallbacks.updateBottomBars()
             hostCallbacks.updateTitle()
