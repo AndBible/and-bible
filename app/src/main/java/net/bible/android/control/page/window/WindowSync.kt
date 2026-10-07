@@ -19,8 +19,6 @@ package net.bible.android.control.page.window
 
 import android.util.Log
 import debounce
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.page.CurrentPage
 import net.bible.android.control.page.DocumentCategory
 import net.bible.service.device.ScreenSettings
@@ -155,8 +153,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
             } else {
                 if ((isBible||isMyNotes) && currentVerse != null && targetVerse != null) {
                     if(targetVerse.book == currentVerse.book && inactiveWindow.hasChapterLoaded(targetVerse.chapter)) {
-                        ABEventBus
-                            .post(ScrollSecondaryWindowEvent(inactiveWindow, targetVerse))
+                        inactiveWindow.bibleView?.let { view -> scrollSecondaryWindow(view.listenEvents, targetVerse, view::scrollOrJumpToVerse) }
                     } else if(targetVerse != currentVerse) {
                         inactiveWindow.loadText()
                     }
@@ -190,4 +187,12 @@ class WindowSync(private val windowRepository: WindowRepository) {
     companion object {
         const val TAG = "WindowSync"
     }
+}
+
+/**
+ * The secondary-window scroll that used to travel as `ScrollSecondaryWindowEvent`. A view that is
+ * not listening is skipped, as the bus skipped it (its registration lived in `listenEvents`).
+ */
+internal fun scrollSecondaryWindow(listening: Boolean, verse: Verse, scroll: (Verse) -> Unit) {
+    if (listening) scroll(verse)
 }

@@ -30,7 +30,6 @@ NightModeChanged
 PassageChangedEvent
 PhoneCallEvent
 ReloadAddonsEvent
-ScrollSecondaryWindowEvent
 SpeakEvent
 SpeakProgressEvent
 SpeakSettingsChangedEvent

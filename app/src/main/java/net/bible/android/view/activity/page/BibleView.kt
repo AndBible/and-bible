@@ -85,7 +85,6 @@ import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.control.event.onMain
-import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument
@@ -1111,11 +1110,6 @@ class BibleView(
                     on<LabelsDeletedEvent> { event ->
                         val labelIds = json.encodeToString(serializer(), event.labelIds)
                         executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
-                    }
-                    on<ScrollSecondaryWindowEvent> { event ->
-                        if (window == event.window) {
-                            scrollOrJumpToVerse(event.verse)
-                        }
                     }
                     on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
                     // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here
