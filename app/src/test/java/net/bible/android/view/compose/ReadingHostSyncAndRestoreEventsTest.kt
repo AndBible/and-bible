@@ -25,18 +25,20 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessage
 import net.bible.android.control.event.UserMessages
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.page.window.WindowSync
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntry
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.page.MainBibleAfterRestore
+import net.bible.android.view.activity.base.AppPosition
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.nav.SystemBarSettingChanges
+import net.bible.service.device.ScreenSettings
 import net.bible.android.view.activity.page.ReadingAppBootstrap
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
-import net.bible.service.cloudsync.WorkspaceRefreshRequired
+import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
+import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.event.Subscription
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
@@ -81,7 +83,7 @@ import kotlin.test.assertTrue
  *
  * The second half is the gate: a host that has NOT run the reading bootstrap (here one started on
  * a light non-reading route) owns no window repository, so every handler would reach `hostWindowRepository` and
- * throw — an exception `ABEventBus` swallows and prints. Those tests assert both that nothing
+ * throw — an exception `EventSource` catches and prints. Those tests assert both that nothing
  * observable happened and that no handler threw.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -144,13 +146,13 @@ class ReadingHostSyncAndRestoreEventsTest {
 
     private val lastForceSyncAllField = WindowSync::class.java.getDeclaredField("lastForceSyncAll").apply { isAccessible = true }
 
-    /** Posts [event] and returns what `ABEventBus` printed for a handler that threw. */
-    private fun postCapturingErrors(event: Any): String {
+    /** Runs [notify] and returns what `EventSource` printed for a handler that threw. */
+    private fun notifyCapturingErrors(notify: () -> Unit): String {
         val captured = ByteArrayOutputStream()
         val original = System.err
         System.setErr(PrintStream(captured, true))
         try {
-            ABEventBus.post(event)
+            notify()
             idleMain()
         } finally {
             System.setErr(original)
@@ -176,7 +178,7 @@ class ReadingHostSyncAndRestoreEventsTest {
         lastForceSyncAllField.setLong(windowSync, 0L)
         countToasts()
 
-        ABEventBus.post(MainBibleAfterRestore())
+        DatabaseContainer.notifyDatabaseRestored()
         idleMain()
 
         assertTrue(toasts > 0, "MainBibleAfterRestore must reload the workspace (its setter posts a toast)")
@@ -190,7 +192,7 @@ class ReadingHostSyncAndRestoreEventsTest {
     fun aWorkspaceRefreshRequiredReloadsTheFirstWorkspace() {
         readingHost()
         countToasts()
-        ABEventBus.post(WorkspaceRefreshRequired())
+        CloudSync.notifyWorkspaceRefreshRequired()
         idleMain()
         assertTrue(toasts > 0, "WorkspaceRefreshRequired must switch to the first workspace, as classic's did")
     }
@@ -199,7 +201,7 @@ class ReadingHostSyncAndRestoreEventsTest {
     fun aSyncUpsertOfTheCurrentWorkspaceReloadsIt() {
         val activity = readingHost().get()
         countToasts()
-        ABEventBus.post(WorkspacesUpdatedViaSyncEvent(listOf(logEntry("Workspace", activity.hostWindowRepository.id))))
+        DatabaseContainer.emitWorkspacesSyncedForTest(listOf(logEntry("Workspace", activity.hostWindowRepository.id)))
         idleMain()
         assertEquals(1, toasts, "a synced change to the current workspace must reload it")
     }
@@ -209,7 +211,7 @@ class ReadingHostSyncAndRestoreEventsTest {
         val activity = readingHost().get()
         countToasts()
         val windowId = activity.hostWindowRepository.windowList.first().id
-        ABEventBus.post(WorkspacesUpdatedViaSyncEvent(listOf(logEntry("Window", windowId))))
+        DatabaseContainer.emitWorkspacesSyncedForTest(listOf(logEntry("Window", windowId)))
         idleMain()
         assertEquals(1, toasts, "a synced change to one of the current workspace's windows must reload it")
     }
@@ -218,9 +220,7 @@ class ReadingHostSyncAndRestoreEventsTest {
     fun aSyncDeleteOfTheCurrentWorkspaceSwitchesToTheFirstOne() {
         val activity = readingHost().get()
         countToasts()
-        ABEventBus.post(
-            WorkspacesUpdatedViaSyncEvent(listOf(logEntry("Workspace", activity.hostWindowRepository.id, LogEntryTypes.DELETE)))
-        )
+        DatabaseContainer.emitWorkspacesSyncedForTest(listOf(logEntry("Workspace", activity.hostWindowRepository.id, LogEntryTypes.DELETE)))
         idleMain()
         assertEquals(1, toasts, "deleting the current workspace elsewhere must switch this host to the first workspace")
     }
@@ -229,7 +229,7 @@ class ReadingHostSyncAndRestoreEventsTest {
     fun anUnrelatedSyncChangeReloadsNothing() {
         readingHost()
         countToasts()
-        ABEventBus.post(WorkspacesUpdatedViaSyncEvent(listOf(logEntry("Workspace", IdType()), logEntry("Window", IdType()))))
+        DatabaseContainer.emitWorkspacesSyncedForTest(listOf(logEntry("Workspace", IdType()), logEntry("Window", IdType())))
         idleMain()
         assertEquals(0, toasts, "a synced change to some other workspace must not reload this one")
     }
@@ -242,7 +242,7 @@ class ReadingHostSyncAndRestoreEventsTest {
         val seeded = Job()
         syncJobField.set(activity.readingAppBootstrap, seeded)
 
-        ABEventBus.post(AppToBackgroundEvent(AppToBackgroundEvent.Position.BACKGROUND))
+        CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
 
         assertTrue(seeded.isCancelled, "going to background must cancel the periodic sync job")
         assertNull(syncJobOf(activity), "…and forget it, so the return to foreground can start a new one")
@@ -254,7 +254,7 @@ class ReadingHostSyncAndRestoreEventsTest {
         SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = true
         assertNull(syncJobOf(activity), "sanity: no periodic sync before the event")
 
-        ABEventBus.post(AppToBackgroundEvent(AppToBackgroundEvent.Position.FOREGROUND))
+        CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND)
 
         // startSync runs on syncScope (Dispatchers.IO); bounded wait for its synchronous prefix.
         val deadline = System.currentTimeMillis() + 5_000
@@ -276,7 +276,7 @@ class ReadingHostSyncAndRestoreEventsTest {
     @Test
     fun aRestartAfterTheAppWasInBackgroundRefreshesTheNightMode() {
         val controller = restartFixture()
-        ABEventBus.post(AppToBackgroundEvent(AppToBackgroundEvent.Position.BACKGROUND))
+        CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
         controller.pause().stop()
         CommonUtils.realSharedPreferences.edit().putBoolean("night_mode_pref", true).commit()
         controller.restart().start().resume()
@@ -305,13 +305,13 @@ class ReadingHostSyncAndRestoreEventsTest {
         lastForceSyncAllField.setLong(windowSync, 0L)
         countToasts()
 
-        val errors = listOf(
-            MainBibleAfterRestore(),
-            WorkspaceRefreshRequired(),
-            WorkspacesUpdatedViaSyncEvent(listOf(logEntry("Workspace", IdType()))),
-            AppToBackgroundEvent(AppToBackgroundEvent.Position.BACKGROUND),
-            AppToBackgroundEvent(AppToBackgroundEvent.Position.FOREGROUND),
-        ).joinToString("") { postCapturingErrors(it) }
+        val errors = listOf<() -> Unit>(
+            { DatabaseContainer.notifyDatabaseRestored() },
+            { CloudSync.notifyWorkspaceRefreshRequired() },
+            { DatabaseContainer.emitWorkspacesSyncedForTest(listOf(logEntry("Workspace", IdType()))) },
+            { CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND) },
+            { CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND) },
+        ).joinToString("") { notifyCapturingErrors(it) }
         Thread.sleep(200) // let anything syncScope was handed run
         idleMain()
 
@@ -323,5 +323,35 @@ class ReadingHostSyncAndRestoreEventsTest {
         assertEquals(0L, lastSynchronized, "no globalLastSynchronized write on a host without a reading bootstrap")
         assertEquals(0L, lastForceSyncAllField.getLong(windowSync), "no forced resync on a host without a reading bootstrap")
         assertNull(syncJobOf(activity), "no cloud-sync loop on a host without a reading bootstrap")
+    }
+
+    /** Review Focus 1: onDestroy must cancel every host subscription. */
+    @Test
+    fun aDestroyedHostReactsToNothing() {
+        val controller = readingHost()
+        val activity = controller.get()
+        idleMain()
+        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = true
+        controller.pause().stop().destroy()
+        controllers.remove(controller)
+        lastSynchronized = 0L
+        countToasts()
+
+        val errors = listOf<() -> Unit>(
+            { DatabaseContainer.notifyDatabaseRestored() },
+            { CloudSync.notifyWorkspaceRefreshRequired() },
+            { DatabaseContainer.emitWorkspacesSyncedForTest(listOf(logEntry("Workspace", IdType()))) },
+            { CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND) },
+            { CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND) },
+            { ScreenSettings.notifyNightModeChanged() },
+            { SystemBarSettingChanges.notifyChanged() },
+        ).joinToString("") { notifyCapturingErrors(it) }
+        Thread.sleep(200)
+        idleMain()
+
+        assertFalse(errors.contains("Exception"), "a destroyed host must not run its handlers:\n$errors")
+        assertEquals(0, toasts)
+        assertEquals(0L, lastSynchronized)
+        assertNull(syncJobOf(activity))
     }
 }

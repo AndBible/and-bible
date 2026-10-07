@@ -4,10 +4,9 @@ import android.os.Looper
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.nav.SystemBarSettingChangedEvent
+import net.bible.android.view.activity.nav.SystemBarSettingChanges
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.nav.NavRoutes
 import org.junit.After
@@ -91,7 +90,7 @@ class SystemBarPolicyHostTest {
         val a = host(NavRoutes.AI_TOOL_INFO)
         assertTrue("precondition: the status bar starts hidden", statusHidden(a))
         CommonUtils.settings.setBoolean("hide_status_bar", false)
-        ABEventBus.post(SystemBarSettingChangedEvent()); idle()
+        SystemBarSettingChanges.notifyChanged(); idle()
         assertEquals(false, statusHidden(a))
     }
 }

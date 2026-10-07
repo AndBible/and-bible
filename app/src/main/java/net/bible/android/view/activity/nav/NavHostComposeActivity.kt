@@ -16,7 +16,6 @@
  */
 package net.bible.android.view.activity.nav
 
-import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.control.document.DocumentChanges
 import android.app.Activity
 import android.content.ClipData
@@ -111,12 +110,10 @@ import kotlinx.serialization.serializer
 import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
 import net.bible.android.control.event.on
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.UserMessages
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.control.bookmark.BookmarkControl
@@ -160,6 +157,7 @@ import net.bible.android.view.activity.base.FailClosedLinkRouting
 import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.themePixelSize
+import net.bible.android.view.activity.base.AppPosition
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DocumentConfiguration
@@ -184,7 +182,6 @@ import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.KeyChooserResults
 import net.bible.android.view.activity.page.ReadingAppBootstrap
 import net.bible.android.view.activity.page.ReadingHostActivity
-import net.bible.android.view.activity.page.MainBibleAfterRestore
 import net.bible.android.view.activity.page.ReadingCommands
 import net.bible.android.view.activity.page.ReadingCommandsHostCallbacks
 import net.bible.android.view.activity.page.ReadingInsets
@@ -214,7 +211,6 @@ import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.cloudsync.CloudSync
-import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
@@ -239,7 +235,6 @@ import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.backup.BackupServiceImpl
 import net.bible.service.db.exportStudyPads
-import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
 import net.bible.service.llm.PromptRepository
@@ -2894,7 +2889,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      *     TAKES PRECEDENCE over the document refresh, `else if` included, and classic does not clear
      *     the pending flag on this path either -- so an update that arrived is consumed by the next
      *     resume instead of being dropped.
-     *  2. [updateDocumentsPending], set by the subscription in [readingHostSubscriptions].
+     *  2. [updateDocumentsPending], set by the subscription in [subscribeReadingHost].
      *  3. the tilt-scroll resume. Classic calls `documentViewManager.documentView.asView()
      *     .requestFocus()` unconditionally because its reading view is built in `onCreate`; this
      *     host's is composed by the destination, so the call is gated on the composed view existing.
@@ -2922,7 +2917,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /**
      * Classic's `updateDocumentsPending` (`MainBibleActivity.kt:1704`), fed by the subscription in
-     * [readingHostSubscriptions] and consumed by [reconcileReadingStateOnResume].
+     * [subscribeReadingHost] and consumed by [reconcileReadingStateOnResume].
      *
      * Set on EVERY route, like classic's, and read only when this host owns a reading workspace: an
      * event that arrives while this host is showing its Download destination is exactly the event
@@ -2961,7 +2956,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // classic -- the tilt-scroll focus is gated on the destination having composed -- is stated at
     // its own line rather than left for the next reader to discover.
 
-    /** The Welcome screen's install-progress subscription (see [readingHostSubscriptions]). */
+    /** The Welcome screen's install-progress subscription (see [subscribeReadingHost]). */
     private val installProgress = Subscriptions()
 
     /**
@@ -2980,26 +2975,29 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * refresh their theme on every night-mode change -- the background one pointlessly, and (worse)
      * it re-applies a theme to an Activity whose window is not the one the user is looking at.
      */
-    private val readingHostSubscriptions: ABEventBus.Subscriptions.() -> Unit = {
+    private val hostSubscriptions = Subscriptions()
+
+    /** Registers this host's owner-stream subscriptions; called from onCreate, cancelled in onDestroy. */
+    private fun subscribeReadingHost() {
         // T8a item 2: classic `MainBibleActivity.kt:498-500`. This host posts
         // `UpdateMainBibleActivityDocuments` from six of its own destinations and, until T8a,
         // listened to none of them. UNGUARDED, exactly like classic's: the flag records that an
         // update arrived, and [reconcileReadingStateOnResume] decides whether this host has a
         // reading workspace to apply it to.
-        on<UpdateMainBibleActivityDocuments> {
+        hostSubscriptions.add(DocumentChanges.installedChanged.subscribe {
             updateDocumentsPending = true
-        }
-        on<ScreenSettings.NightModeChanged> { event ->
-            if(paused) return@on
+        })
+        hostSubscriptions.add(ScreenSettings.nightModeChanges.subscribe {
+            if(paused) return@subscribe
             if(CurrentActivityHolder.currentActivity == this@NavHostComposeActivity) {
                 refreshIfNightModeChange()
                 // The light-sensor night flip does not recreate (`AbAppTheme.kt`), and the fullscreen
                 // page colour changes with it.
                 refreshSystemBars()
             }
-        }
+        })
         // Fix batch 2 (F77): the setting applies on every destination, immediately.
-        onMain<SystemBarSettingChangedEvent> { refreshSystemBars() }
+        hostSubscriptions.add(SystemBarSettingChanges.changes.subscribeOnMain { refreshSystemBars() })
 
         // Slice 8 final review, Important 1: the rest of classic `MainBibleActivity.eventSubscriptions`
         // (at 7ac0b64fa), lost when F4 deleted the class. Every one of them is about THIS host's reading
@@ -3008,9 +3006,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // ([hostWindowRepository] throws), and a bootstrapped host is the one that owns the sync loop
         // ([ReadingAppBootstrap.startSync]) -- so the gate is exactly "the handler has something to act on".
         // The workspace bodies live on [ReadingCommands], next to the workspace switch they drive.
-        on<AppToBackgroundEvent> { event ->
-            if (!readingAppBootstrapped) return@on
-            if (event.isMovedToBackground) {
+        hostSubscriptions.add(CurrentActivityHolder.appPositionChanges.subscribe { position ->
+            if (!readingAppBootstrapped) return@subscribe
+            if (position == AppPosition.BACKGROUND) {
                 wholeAppWasInBackground = true
                 readingAppBootstrap.stopPeriodicSync()
                 syncScope.launch { readingAppBootstrap.synchronize(true) }
@@ -3018,24 +3016,24 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 onToolbarStateMayHaveChanged() // classic's updateActions()
                 syncScope.launch { readingAppBootstrap.startSync() }
             }
-        }
-        onMain<WorkspacesUpdatedViaSyncEvent> { event ->
-            if (!readingAppBootstrapped) return@onMain
-            readingCommands.applyWorkspacesUpdatedViaSync(event.updated)
-        }
-        onMain<WorkspaceRefreshRequired> {
-            if (!readingAppBootstrapped) return@onMain
+        })
+        hostSubscriptions.add(DatabaseContainer.workspacesSynced.subscribeOnMain { updated ->
+            if (!readingAppBootstrapped) return@subscribeOnMain
+            readingCommands.applyWorkspacesUpdatedViaSync(updated)
+        })
+        hostSubscriptions.add(CloudSync.workspaceRefreshRequired.subscribeOnMain {
+            if (!readingAppBootstrapped) return@subscribeOnMain
             readingCommands.applyWorkspaceRefreshRequired()
-        }
-        onMain<MainBibleAfterRestore> {
-            if (!readingAppBootstrapped) return@onMain
+        })
+        hostSubscriptions.add(DatabaseContainer.databaseRestored.subscribeOnMain {
+            if (!readingAppBootstrapped) return@subscribeOnMain
             readingCommands.applyRestoredDatabase()
-        }
+        })
     }
 
     /**
-     * Classic `MainBibleActivity.mWholeAppWasInBackground`: set by the [AppToBackgroundEvent]
-     * subscription in [readingHostSubscriptions], consumed by [onRestart].
+     * Classic `MainBibleActivity.mWholeAppWasInBackground`: set by the [CurrentActivityHolder.appPositionChanges]
+     * subscription in [subscribeReadingHost], consumed by [onRestart].
      */
     private var wholeAppWasInBackground = false
 
@@ -3349,7 +3347,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 windowInsets
             }
         }
-        ABEventBus.register(this, readingHostSubscriptions)
+        subscribeReadingHost()
         // Slice 8 E2: StartupComposeActivity's progress line on its welcome card.
         installProgress.add(InstallZipProgress.messages.subscribeOnMain { welcomeFlowOrNull?.controllerIfCreated?.setProgress(it) })
         val startRoute = resolveStartRoute(savedInstanceState)
@@ -9536,9 +9534,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     override fun onDestroy() {
         workspaceSelectorController?.discardCreated()
         workspaceSelectorController = null
-        // R4: the host's own NightModeChanged subscription, so an Activity recreation (e.g. a
+        // R4: the host's own subscriptions, so an Activity recreation (e.g. a
         // config change) does not leak one registration per rotation.
-        ABEventBus.unregister(this)
+        hostSubscriptions.cancelAll()
         installProgress.cancelAll()
         // R8, and classic's `MainBibleActivity.onDestroy` (`:1594`) line for line: the reading view
         // has its OWN ABEventBus registration and its own coroutine scope, so without this an

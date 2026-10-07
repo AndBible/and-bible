@@ -26,7 +26,7 @@ import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
+import net.bible.android.control.document.DocumentChanges
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.event.Subscription
 import net.bible.sharedcore.nav.NavRoutes
@@ -148,7 +148,7 @@ class ReadingHostResumeReconciliationTest {
         clearDisplayedKey(window)
 
         controller.pause()
-        ABEventBus.post(UpdateMainBibleActivityDocuments())
+        DocumentChanges.notifyInstalledChanged()
         controller.resume()
 
         assertNotNull(
@@ -230,7 +230,7 @@ class ReadingHostResumeReconciliationTest {
 
         controller.pause()
         CommonUtils.windowControl.windowRepository = foreign
-        ABEventBus.post(UpdateMainBibleActivityDocuments())
+        DocumentChanges.notifyInstalledChanged()
         countToasts()
         controller.resume()
 
@@ -264,7 +264,7 @@ class ReadingHostResumeReconciliationTest {
         clearDisplayedKey(activity.hostWindowRepository.activeWindow)
 
         controller.pause()
-        ABEventBus.post(UpdateMainBibleActivityDocuments())
+        DocumentChanges.notifyInstalledChanged()
         countToasts()
         controller.resume()
 
