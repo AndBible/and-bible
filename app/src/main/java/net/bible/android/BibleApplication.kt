@@ -39,7 +39,10 @@ import net.bible.android.activity.SpeakWidgetManager
 
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.onMain
+import net.bible.android.control.event.on
+import net.bible.android.control.event.UserMessage
+import net.bible.android.control.event.UserMessages
+import net.bible.sharedcore.event.Subscription
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.BugReport
 import net.bible.android.view.activity.base.CurrentActivityHolder
@@ -106,6 +109,8 @@ open class BibleApplication : Application() {
         application = this
     }
 
+    private var userMessagesSubscription: Subscription? = null
+
     open val isRunningTests: Boolean = false
 
     private val appStateSharedPreferences: SharedPreferences
@@ -134,56 +139,21 @@ open class BibleApplication : Application() {
             }
             defaultExceptionHandler.uncaughtException(t, e)
         }
-        ABEventBus.register(this) {
-            onMain<ToastEvent> { ev ->
-                val duration = ev.duration ?: Toast.LENGTH_SHORT
-                val message = if (ev.messageId != null) getString(ev.messageId) else ev.message
-                val context = ev.context ?: CurrentActivityHolder.currentActivity?: return@onMain
-                if ((context as? Activity)?.isFinishing == true) return@onMain
-                try {
-                    Toast.makeText(context, message, duration).show()
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error in showing toast $message", e)
-                }
+        userMessagesSubscription = UserMessages.messages.subscribeOnMain { message ->
+            when (message) {
+                is UserMessage.Toast -> showToast(message)
+                is UserMessage.ErrorNotification -> showErrorNotification(message)
             }
-            onMain<ErrorNotificationEvent> { ev ->
-                if(BuildVariant.Appearance.isDiscrete) return@onMain
-
-                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-                val intent = Intent(this@BibleApplication, ErrorActivity::class.java)
-                val pendingIntent = PendingIntent.getActivity(this@BibleApplication, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
-                val action = NotificationCompat.Action.Builder(
-                    android.R.drawable.ic_dialog_alert,
-                    getString(R.string.report),
-                    pendingIntent
-                ).build()
-
-                val builder = NotificationCompat.Builder(this@BibleApplication, ERROR_NOTIFICATION_CHANNEL)
-                builder
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    .setSilent(false)
-                    .setContentTitle(getString(R.string.error_occurred))
-
-                if(ev.showReportButton) {
-                    builder.addAction(action)
-                }
-
-                if(ev.message != null) {
-                    builder
-                        .setContentText(ev.message)
-                        .setStyle(NotificationCompat.BigTextStyle().bigText(ev.message))
-                } else {
-                    val msg = getString(ev.messageId?: R.string.error_occurred)
-                    builder
-                        .setContentText(msg)
-                        .setStyle(NotificationCompat.BigTextStyle().bigText(msg))
-                }
-
-                builder.setSmallIcon(R.drawable.ic_ichtys)
-
-                val notification = builder.build()
-                notificationManager.notify(GENERIC_NOTIFICATION_ID, notification)
+        }
+        // Transition (phase 9 plan Task 2-4): unmigrated posts still reach the presenter.
+        ABEventBus.register(this) {
+            on<ToastEvent> { ev ->
+                if (ev.messageId != null) UserMessages.toast(ev.messageId, long = ev.duration == Toast.LENGTH_LONG)
+                else UserMessages.toast(ev.message)
+            }
+            on<ErrorNotificationEvent> { ev ->
+                if (ev.message != null) UserMessages.errorNotification(ev.message, ev.showReportButton)
+                else UserMessages.errorNotification(ev.messageId ?: R.string.error_occurred)
             }
         }
         InstallManager.installSiteMap(
@@ -230,6 +200,68 @@ open class BibleApplication : Application() {
 
         CommonUtils.realSharedPreferences.registerOnSharedPreferenceChangeListener(localeListener)
         createChannels()
+    }
+
+    /**
+     * Never called on a device; Robolectric calls it after each test. Cancel this application's
+     * presenter so the process-global [UserMessages] stream cannot keep it alive and presenting.
+     */
+    override fun onTerminate() {
+        userMessagesSubscription?.cancel()
+        userMessagesSubscription = null
+        super.onTerminate()
+    }
+
+    private fun showToast(message: UserMessage.Toast) {
+        val duration = if (message.long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
+        val text = if (message.textId != null) getString(message.textId) else message.text ?: ""
+        val context = CurrentActivityHolder.currentActivity ?: return
+        if ((context as? Activity)?.isFinishing == true) return
+        try {
+            Toast.makeText(context, text, duration).show()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in showing toast $text", e)
+        }
+    }
+
+    private fun showErrorNotification(message: UserMessage.ErrorNotification) {
+        if(BuildVariant.Appearance.isDiscrete) return
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val intent = Intent(this@BibleApplication, ErrorActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this@BibleApplication, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        val action = NotificationCompat.Action.Builder(
+            android.R.drawable.ic_dialog_alert,
+            getString(R.string.report),
+            pendingIntent
+        ).build()
+
+        val builder = NotificationCompat.Builder(this@BibleApplication, ERROR_NOTIFICATION_CHANNEL)
+        builder
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setSilent(false)
+            .setContentTitle(getString(R.string.error_occurred))
+
+        if(message.showReportButton) {
+            builder.addAction(action)
+        }
+
+        if(message.text != null) {
+            builder
+                .setContentText(message.text)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(message.text))
+        } else {
+            val msg = getString(message.textId?: R.string.error_occurred)
+            builder
+                .setContentText(msg)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(msg))
+        }
+
+        builder.setSmallIcon(R.drawable.ic_ichtys)
+
+        val notification = builder.build()
+        notificationManager.notify(GENERIC_NOTIFICATION_ID, notification)
     }
 
     var sqliteVersion = ""
