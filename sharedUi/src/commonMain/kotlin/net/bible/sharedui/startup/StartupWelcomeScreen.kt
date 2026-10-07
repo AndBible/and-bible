@@ -31,8 +31,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.CloudDownload
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.FolderOpen
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.SettingsBackupRestore
 import androidx.compose.material3.Button
@@ -47,6 +49,8 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -150,10 +154,12 @@ fun StartupWelcomeScreen(
         }
 
         Text(state.versionText, style = MaterialTheme.typography.labelSmall)
-        // Batch 6 A6: both open AndBible URLs (the labels are the URLs), so discrete mode hides them.
+        // Batch 6 A6: both open AndBible URLs, so discrete mode hides them.
         if (state.homepageButtonsVisible) {
-            TextButton(onClick = onOpenHomepage) { Text(strings.welcomeHomepageLabel) }
-            TextButton(onClick = onOpenGithub) { Text(strings.welcomeGithubLabel) }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FooterLink(Icons.Outlined.Language, strings.welcomeHomepageLabel, onOpenHomepage)
+                FooterLink(Icons.Outlined.Code, strings.welcomeGithubLabel, onOpenGithub)
+            }
         }
     }
 }
@@ -234,3 +240,13 @@ private fun AdvancedList(
 }
 
 private class WelcomeRow(val icon: ImageVector, val title: String, val hint: String, val onClick: () -> Unit)
+
+/** A compact icon + name link chip for the footer; the full URL stays out of the layout. */
+@Composable
+private fun FooterLink(icon: ImageVector, label: String, onClick: () -> Unit) {
+    AssistChip(
+        onClick = onClick,
+        label = { Text(label) },
+        leadingIcon = { Icon(icon, contentDescription = null, modifier = Modifier.size(AssistChipDefaults.IconSize)) },
+    )
+}
