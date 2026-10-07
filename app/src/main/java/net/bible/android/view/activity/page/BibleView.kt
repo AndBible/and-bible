@@ -68,19 +68,12 @@ import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
-import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
-import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
+import net.bible.android.control.bookmark.BookmarkChange
 import net.bible.android.control.progress.ProgressChange
 import net.bible.android.control.progress.ProgressControl
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.NoteEditorEntityType
-import net.bible.android.control.bookmark.BookmarksDeletedEvent
-import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
-import net.bible.android.control.bookmark.LabelsDeletedEvent
-import net.bible.android.control.bookmark.StudyPadOrderEvent
-import net.bible.android.control.bookmark.StudyPadTextEntryDeleted
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
@@ -1019,29 +1012,6 @@ class BibleView(
                     on<AppSettingsUpdated> { event ->
                         updateConfig()
                     }
-                    on<BookmarksAddedOrUpdatedEvent> { event ->
-                        val document = firstDocument
-
-                        val clientBookmarks = event.bookmarks.map {
-                            when (it) {
-                                is BookmarkEntities.BibleBookmarkWithNotes ->
-                                    ClientBibleBookmark(
-                                        it,
-                                        when (document) {
-                                            is BibleDocument -> document.swordBook.versification
-                                            is MyNotesDocument -> KJVA
-                                            else -> null
-                                        }
-                                    )
-
-                                is BookmarkEntities.GenericBookmarkWithNotes -> ClientGenericBookmark(it)
-                                else -> throw RuntimeException("Invalid type")
-                            }
-                        }.map { it.asJson }
-
-                        val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
-                        executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
-                    }
                     on<AiDocPagesChangedEvent> { event ->
                         // For Bible documents, convert ordinals to target versification.
                         // For all other documents, pass markers as-is — Vue.js filters by sourceBookInitials/Key.
@@ -1055,61 +1025,6 @@ class BibleView(
                             val idsStr = json.encodeToString(serializer(), event.deletedPageIds.map { it.toString() })
                             executeJavascriptOnUiThread("""bibleView.emit("delete_ai_doc_markers", $idsStr);""")
                         }
-                    }
-                    on<BookmarkNoteModifiedEvent> { event ->
-                        executeJavascriptOnUiThread("""
-                            bibleView.emit("bookmark_note_modified", {id: "${event.bookmarkId}", lastUpdatedOn: ${event.lastUpdatedOn}, notes: ${json.encodeToString(serializer(), event.notes)}});
-                        """)
-                    }
-                    on<StudyPadOrderEvent> { event ->
-                        val doc = firstDocument
-                        if(doc !is StudyPadDocument || doc.label.id != event.labelId) return@on
-                        val studyPadTextEntryJson = json.encodeToString(serializer(), event.newStudyPadTextEntry)
-                        val bookmarkToLabels = json.encodeToString(serializer(), event.bookmarkToLabelsOrderChanged)
-                        val genericBookmarkToLabels = json.encodeToString(serializer(), event.genericBookmarkToLabelsOrderChanged)
-                        val studyPadItems = json.encodeToString(serializer(), event.studyPadOrderChanged)
-                        executeJavascriptOnUiThread("""
-                            bibleView.emit("add_or_update_study_pad",  {
-                                studyPadTextEntry: $studyPadTextEntryJson,
-                                bookmarkToLabelsOrdered: $bookmarkToLabels,
-                                genericBookmarkToLabelsOrdered: $genericBookmarkToLabels,
-                                studyPadItemsOrdered: $studyPadItems
-                                });
-                        """)
-                    }
-                    on<BookmarkToLabelAddedOrUpdatedEvent> { event ->
-                        val doc = firstDocument
-                        if(doc !is StudyPadDocument || doc.label.id != event.bookmarkToLabel.labelId) return@on
-                        val bookmarkToLabelStr = when(event.bookmarkToLabel) {
-                            is BookmarkEntities.BibleBookmarkToLabel ->json.encodeToString(serializer(), event.bookmarkToLabel)
-                            is BookmarkEntities.GenericBookmarkToLabel -> json.encodeToString(serializer(), event.bookmarkToLabel)
-                            else -> throw RuntimeException("Illegal type")
-                        }
-                        executeJavascriptOnUiThread("""
-                            bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabelStr);
-                        """)
-                    }
-                    on<StudyPadTextEntryDeleted> { event ->
-                        if(firstDocument !is StudyPadDocument) return@on
-                        executeJavascriptOnUiThread("""
-                            bibleView.emit("delete_study_pad_text_entry", "${event.studyPadTextEntryId}");
-                        """)
-                    }
-                    on<LabelAddedOrUpdatedEvent> { event ->
-                        val workspaceId = windowControl.windowRepository.id
-                        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-                        labelOverridesMap = dao.labelOverrides(workspaceId).associateBy { it.labelId }
-                        val overriddenLabel = event.label.withStyleOverrides(labelOverridesMap[event.label.id])
-                        val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(overriddenLabel))
-                        executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
-                    }
-                    on<BookmarksDeletedEvent> { event ->
-                        val bookmarkIds = json.encodeToString(serializer(), event.bookmarkIds)
-                        executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
-                    }
-                    on<LabelsDeletedEvent> { event ->
-                        val labelIds = json.encodeToString(serializer(), event.labelIds)
-                        executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
                     }
                     on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
                     // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here
@@ -1136,12 +1051,97 @@ class BibleView(
                     }
                 })
                 subscriptions.add(ReadingProgressSettings.changed.subscribe { onReadingProgressSettingsChanged() })
+                subscriptions.add(bookmarkControl.changes.subscribe { onBookmarkChange(it) })
             } else {
                 ABEventBus.unregister(this)
                 subscriptions.cancelAll()
             }
             field = value
         }
+
+    /** The reading view's reaction to [BookmarkControl.changes]; runs on the emitter's thread. */
+    private fun onBookmarkChange(change: BookmarkChange) {
+        when (change) {
+            is BookmarkChange.BookmarksUpserted -> {
+                val document = firstDocument
+
+                val clientBookmarks = change.bookmarks.map {
+                    when (it) {
+                        is BookmarkEntities.BibleBookmarkWithNotes ->
+                            ClientBibleBookmark(
+                                it,
+                                when (document) {
+                                    is BibleDocument -> document.swordBook.versification
+                                    is MyNotesDocument -> KJVA
+                                    else -> null
+                                }
+                            )
+
+                        is BookmarkEntities.GenericBookmarkWithNotes -> ClientGenericBookmark(it)
+                        else -> throw RuntimeException("Invalid type")
+                    }
+                }.map { it.asJson }
+
+                val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
+                executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
+            }
+            is BookmarkChange.NoteModified -> {
+                executeJavascriptOnUiThread("""
+                    bibleView.emit("bookmark_note_modified", {id: "${change.bookmarkId}", lastUpdatedOn: ${change.lastUpdatedOn}, notes: ${json.encodeToString(serializer(), change.notes)}});
+                """)
+            }
+            is BookmarkChange.StudyPadOrder -> {
+                val doc = firstDocument
+                if(doc !is StudyPadDocument || doc.label.id != change.labelId) return
+                val studyPadTextEntryJson = json.encodeToString(serializer(), change.newStudyPadTextEntry)
+                val bookmarkToLabels = json.encodeToString(serializer(), change.bookmarkToLabelsOrderChanged)
+                val genericBookmarkToLabels = json.encodeToString(serializer(), change.genericBookmarkToLabelsOrderChanged)
+                val studyPadItems = json.encodeToString(serializer(), change.studyPadOrderChanged)
+                executeJavascriptOnUiThread("""
+                    bibleView.emit("add_or_update_study_pad",  {
+                        studyPadTextEntry: $studyPadTextEntryJson,
+                        bookmarkToLabelsOrdered: $bookmarkToLabels,
+                        genericBookmarkToLabelsOrdered: $genericBookmarkToLabels,
+                        studyPadItemsOrdered: $studyPadItems
+                        });
+                """)
+            }
+            is BookmarkChange.BookmarkToLabelUpserted -> {
+                val doc = firstDocument
+                if(doc !is StudyPadDocument || doc.label.id != change.bookmarkToLabel.labelId) return
+                val bookmarkToLabelStr = when(change.bookmarkToLabel) {
+                    is BookmarkEntities.BibleBookmarkToLabel ->json.encodeToString(serializer(), change.bookmarkToLabel)
+                    is BookmarkEntities.GenericBookmarkToLabel -> json.encodeToString(serializer(), change.bookmarkToLabel)
+                    else -> throw RuntimeException("Illegal type")
+                }
+                executeJavascriptOnUiThread("""
+                    bibleView.emit("add_or_update_bookmark_to_label", $bookmarkToLabelStr);
+                """)
+            }
+            is BookmarkChange.StudyPadTextEntryDeleted -> {
+                if(firstDocument !is StudyPadDocument) return
+                executeJavascriptOnUiThread("""
+                    bibleView.emit("delete_study_pad_text_entry", "${change.studyPadTextEntryId}");
+                """)
+            }
+            is BookmarkChange.LabelUpserted -> {
+                val workspaceId = windowControl.windowRepository.id
+                val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+                labelOverridesMap = dao.labelOverrides(workspaceId).associateBy { it.labelId }
+                val overriddenLabel = change.label.withStyleOverrides(labelOverridesMap[change.label.id])
+                val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(overriddenLabel))
+                executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
+            }
+            is BookmarkChange.BookmarksDeleted -> {
+                val bookmarkIds = json.encodeToString(serializer(), change.bookmarkIds)
+                executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
+            }
+            is BookmarkChange.LabelsDeleted -> {
+                val labelIds = json.encodeToString(serializer(), change.labelIds)
+                executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
+            }
+        }
+    }
 
     private fun onReadingProgressSettingsChanged() {
         val settingsJson = ReadingProgressSettings.getBundleAsJson()
