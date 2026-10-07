@@ -49,12 +49,31 @@ class EventBusAllowlistGuardTest {
                 fun c(e: Any) { ABEventBus.post(e) }
                 // ABEventBus.post(CommentedEvent())
                 init { ABEventBus.register(this) { on<OtherNewEvent> { }; onMain<MainEvent> { } } }
+                fun d() {
+                    ABEventBus.post(
+                        MultiLineEvent(1))
+                }
+                fun e() {
+                    ABEventBus
+                        .post(SplitEvent())
+                }
+                // ABEventBus.post(
+                //     CommentedMultiLineEvent())
             }
         """.trimIndent()
         val found = EventBusUsageScanner.scan("X.kt", src).map { it.eventClass }.toSet()
         assertEquals(
-            setOf("BrandNewEvent", "NestedEvent", EventBusUsageScanner.VARIABLE_POST, "OtherNewEvent", "MainEvent"),
+            setOf(
+                "BrandNewEvent", "NestedEvent", EventBusUsageScanner.VARIABLE_POST, "OtherNewEvent", "MainEvent",
+                "MultiLineEvent", "SplitEvent",
+            ),
             found,
         )
+    }
+
+    @Test
+    fun multiLinePostsReportTheLineOfTheBusReceiver() {
+        val src = "class X {\n    fun a() {\n        ABEventBus\n            .post(\n                SplitEvent())\n    }\n}"
+        assertEquals(listOf("X.kt:3"), EventBusUsageScanner.scan("X.kt", src).map { it.location })
     }
 }

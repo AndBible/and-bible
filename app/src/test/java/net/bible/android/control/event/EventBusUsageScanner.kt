@@ -9,7 +9,7 @@ internal object EventBusUsageScanner {
     /** Marker for `ABEventBus.post(someVariable)`: the class cannot be read from source, so it is never allowed. */
     const val VARIABLE_POST = "<variable post>"
 
-    private val post = Regex("""ABEventBus\.post\(\s*([A-Za-z_][A-Za-z0-9_.]*)""")
+    private val post = Regex("""ABEventBus\s*\.\s*post\(\s*([A-Za-z_][A-Za-z0-9_.]*)""")
     private val subscription = Regex("""\b(?:on|onMain|eventsOf|stateFromEvents)<\s*([A-Za-z_][A-Za-z0-9_.]*)""")
     private val subscribingFile = Regex("""ABEventBus\.(?:register|safelyRegister)\(|\beventsOf<|\bstateFromEvents<""")
 
@@ -18,24 +18,22 @@ internal object EventBusUsageScanner {
 
     fun scan(fileName: String, source: String): List<Usage> {
         if (fileName.substringAfterLast('/') in excludedFiles) return emptyList()
-        val code = source.lines().withIndex().filterNot { (_, line) ->
+        // Comment lines become empty lines so line numbers stay true while the regexes run over the whole text.
+        val code = source.lines().map { line ->
             val t = line.trimStart()
-            t.startsWith("//") || t.startsWith("*") || t.startsWith("/*")
+            if (t.startsWith("//") || t.startsWith("*") || t.startsWith("/*")) "" else line
         }
-        val subscribes = code.any { subscribingFile.containsMatchIn(it.value) }
-        return code.flatMap { (i, line) ->
-            val loc = "$fileName:${i + 1}"
-            val posts = post.findAll(line).map { m ->
-                val name = m.groupValues[1]
-                Usage(if (name.first().isLowerCase()) VARIABLE_POST else name.substringAfterLast('.'), loc)
-            }
-            val subs = if (subscribes) {
-                subscription.findAll(line).map { Usage(it.groupValues[1].substringAfterLast('.'), loc) }
-            } else {
-                emptySequence()
-            }
-            (posts + subs).toList()
+        val text = code.joinToString("\n")
+        fun lineOf(index: Int) = text.take(index).count { it == '\n' } + 1
+        val posts = post.findAll(text).map { m ->
+            val name = m.groupValues[1]
+            Usage(if (name.first().isLowerCase()) VARIABLE_POST else name.substringAfterLast('.'), "$fileName:${lineOf(m.range.first)}")
+        }.toList()
+        if (!subscribingFile.containsMatchIn(text)) return posts
+        val subs = code.withIndex().flatMap { (i, line) ->
+            subscription.findAll(line).map { Usage(it.groupValues[1].substringAfterLast('.'), "$fileName:${i + 1}") }.toList()
         }
+        return posts + subs
     }
 
     fun repoRoot(): File = File("..").canonicalFile.also {
