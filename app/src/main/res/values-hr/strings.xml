@@ -756,7 +756,6 @@ komentare i karte itd. kao neistaknute prozore. Tada ćete sa lakoćom imati
 biblijske dokumente uvijek otvorene i brzo se prebacivati sa komentara i
  ostalog dodatnog materijala kada proučavate Bibliju.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Brzo ponovno preuzimanje</string>
   <string name="welcome_message">Hvala Vam na preuzimanju %s. Trenutno nema instaliranih Biblija ili dokumenata. Da biste nastavili, molimo instalirajte
 barem jedan dokument preuzimanjem sa interneta ili učitavanjem rezervnih kopija
 iz zip datoteke.</string>
@@ -773,8 +772,6 @@ iz zip datoteke.</string>
   <string name="format_ttf">TTF fontovi (*.ttf)</string>
   <string name="format_csv_prompts">AI dodaci upita (*.csv)</string>
   <string name="format_studypads">Radne bilježnice iz AndBible baze podataka (*.abdb)</string>
-  <string name="redownload_message">
-Spisak prethodnih knjiga/dokumenata je pronađen. Dodirnite ispod kako biste ih ponovno lako preuzeli.</string>
   <!--Uncategorized-->
   <string name="close">Zatvori</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

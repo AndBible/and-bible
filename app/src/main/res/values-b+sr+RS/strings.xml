@@ -774,7 +774,6 @@
         осталог додатног материјала када проучавате Библију.
     </string>
   <!--Welcome text-->
-  <string name="redownload_documents">Брзо поновно преузимање</string>
   <string name="welcome_message">Хвала Вам на преузимању %s. Тренутно нема инсталираних Библија или докумената. Да бисте наставили, молимо инсталирајте
 макар један документ преузимањем са интернета или учитавањем резервних копија 
 из zip фајла</string>
@@ -791,8 +790,6 @@
   <string name="format_ttf">TTF фонтови (*.ttf)</string>
   <string name="format_csv_prompts">AI додаци са упитима (*.csv)</string>
   <string name="format_studypads">Радне свеске из AndBible база података (*.abdb)</string>
-  <string name="redownload_message">
-Списак претходних књига/докумената је пронађена. Притисните испод како бисте их поново лако преузели.</string>
   <!--Uncategorized-->
   <string name="close">Затвори</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

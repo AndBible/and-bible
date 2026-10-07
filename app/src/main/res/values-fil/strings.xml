@@ -664,7 +664,6 @@
   <string name="help_window_pinning_title">Pag-pin ng window</string>
   <string name="help_window_pinning_text">Maaari mong paganahin ang pag-pin ng window mula sa options menu (tatlong tuldok, kanang sulok sa itaas). Kung pinagana ang pag-pin ng window, maaari kang magpakita ng maraming naka-pin na window sa Bible view, ngunit isang hindi naka-pin na window lamang. Ang mga naka-pin na window ay unang ipinapakita, at pagkatapos ay ang mga hindi naka-pin na window. Maaaring gusto mong buksan ang mga dokumento ng Bibliya bilang mga naka-pin na window, at mga komentaryo at mapa atbp. bilang mga hindi naka-pin na window. Pagkatapos ay madali mong maaaring palaging buksan ang mga dokumento ng Bibliya, at mabilis na lumipat sa pagitan ng mga komentaryo at iba pang dagdag na materyal habang nag-aaral ng Bibliya.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Mabilis na I-redownload</string>
   <string name="welcome_message">Salamat sa pag-download ng %s. Kasalukuyang walang mga Bibliya o dokumento na naka-install. Para magpatuloy, mangyaring mag-install ng hindi bababa sa 1 dokumento sa pamamagitan ng pag-download mula sa internet, o sa pamamagitan ng pag-load mula sa isang zip file na backup ng dokumento.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -679,7 +678,6 @@
   <string name="format_ttf">Mga TTF font (*.ttf)</string>
   <string name="format_csv_prompts">Mga AI prompt add-on (*.csv)</string>
   <string name="format_studypads">Mga StudyPad mula sa mga database ng AndBible (*.abdb)</string>
-  <string name="redownload_message">Nahanap ang listahan ng mga nakaraang aklat/dokumento. Mag-click sa ibaba para madaling i-download muli ang mga ito.</string>
   <!--Uncategorized-->
   <string name="close">Isara</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

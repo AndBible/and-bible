@@ -771,7 +771,6 @@ Además de los marcadores, puede haber entradas de texto personalizadas en un pi
         otro material extra cuando estudias la Biblia.
 </string>
   <!--Welcome text-->
-  <string name="redownload_documents">Descargar de nuevo rápidamente</string>
   <string name="welcome_message">Gracias por descargar %s. Actualmente no hay Biblias ni documentos instalados. Para continuar, instale
 al menos 1 documento descargándolo de Internet o cargándolo desde un documento de archivo zip
 respaldo.
@@ -789,9 +788,6 @@ respaldo.
   <string name="format_ttf">Fuentes TTF (*.ttf)</string>
   <string name="format_csv_prompts">Complementos de indicaciones de IA (*.csv)</string>
   <string name="format_studypads">Pizarras de estudio de la base de datos AndBible (*.abdb)</string>
-  <string name="redownload_message">
-Se encontró una lista de libros / documentos anteriores. Haga clic a continuación para volver a descargarlos fácilmente.
-</string>
   <!--Uncategorized-->
   <string name="close">Cerrar</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

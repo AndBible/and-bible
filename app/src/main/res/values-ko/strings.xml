@@ -775,7 +775,6 @@
         주석과 기타 추가 자료 사이를 빠르게 전환할 수 있습니다.
     </string>
   <!--Welcome text-->
-  <string name="redownload_documents">빠른 재다운로드</string>
   <string name="welcome_message">%s을(를) 다운로드해 주셔서 감사합니다. 설치된 역본이나 문서가 하나도 없는 상태입니다. 계속 이용하시려면
         최소한 1개의 문서를 인터넷으로 다운로드하여 설치하거나, zip 파일 백업으로부터 문서를 복구하시기
         바랍니다.
@@ -793,9 +792,6 @@
   <string name="format_ttf">TTF 글꼴(*.ttf)</string>
   <string name="format_csv_prompts">AI 프롬프트 애드온(*.csv)</string>
   <string name="format_studypads">AndBible 데이터베이스의 StudyPad(*.abdb)</string>
-  <string name="redownload_message">
-        이전 책/문서 목록이 발견되었습니다. 아래를 클릭하여 쉽게 다시 다운로드하세요.
-    </string>
   <!--Uncategorized-->
   <string name="close">닫기</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

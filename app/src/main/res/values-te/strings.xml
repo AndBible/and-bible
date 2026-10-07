@@ -754,7 +754,6 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
 బైబిల్ పత్రాలను ఎల్లప్పుడూ తెరవండి మరియు వ్యాఖ్యానాల మధ్య త్వరగా మారండి మరియు
 మీరు బైబిల్ అధ్యయనం చేసినప్పుడు ఇతర అదనపు విషయాలు.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">త్వరిత రీడౌన్‌లోడ్</string>
   <string name="welcome_message">%s ను డౌన్‌లోడ్ చేసినందుకు ధన్యవాదాలు. ప్రస్తుతం బైబిళ్లు లేదా పత్రాలు ఏవీ ఇన్‌స్టాల్ చేయబడలేదు. కొనసాగించడానికి, 
 ఇంటర్నెట్ నుండి డౌన్‌లోడ్ చేయడం ద్వారా లేదా జిప్ ఫైల్ పత్రం బ్యాకప్ నుండి లోడ్ చేయడం ద్వారా కనీసం 1 పత్రంమైన
 దయచేసి ఇన్‌స్టాల్ చేయండి.</string>
@@ -771,8 +770,6 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="format_ttf">TTF ఫాంట్లు (*.ttf)</string>
   <string name="format_csv_prompts">AI ప్రాంప్ట్ యాడ్-ఆన్‌లు (*.csv)</string>
   <string name="format_studypads">AndBible డేటాబేస్‌ల నుండి స్టడీప్యాడ్‌లు (*.abdb)</string>
-  <string name="redownload_message">
-మునుపటి పుస్తకాలు/పత్రాల జాబితా కనుగొనబడింది. వాటిని మళ్లీ సులభంగా డౌన్‌లోడ్ చేయడానికి దిగువ క్లిక్ చేయండి.</string>
   <!--Uncategorized-->
   <string name="close">మూసివేయండి</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

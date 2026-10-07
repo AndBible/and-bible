@@ -746,7 +746,6 @@ majd azután nem rögzített ablakok. A Biblia dokumentumokat rögzített ablakk
 Így a Biblia tanulmányozása közben a Bibliák mindig
  nyitva vannak, és egyszerűen lehet a különböző egyéb anyagok között navigálni. </string>
   <!--Welcome text-->
-  <string name="redownload_documents">Gyors újraletöltés</string>
   <string name="welcome_message">Köszönjük hogy letöltötte a %s alkalmazást. Jelenleg egyetlen Bibiia vagy más dokumentum sincs telepítve. A folytatáshoz telepítsen legalább egy dokumentumot az internetről vagy zip fájlból.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -761,8 +760,6 @@ majd azután nem rögzített ablakok. A Biblia dokumentumokat rögzített ablakk
   <string name="format_ttf">TTF betűtípusok (*.ttf)</string>
   <string name="format_csv_prompts">AI prompt bővítmények (*.csv)</string>
   <string name="format_studypads">Jegyzetlapok AndBible adatbázisokból (*.abdb)</string>
-  <string name="redownload_message">
-A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson az egyszerű újratelepítéshez.</string>
   <!--Uncategorized-->
   <string name="close">Bezárás</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

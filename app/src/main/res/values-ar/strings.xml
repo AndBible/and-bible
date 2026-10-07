@@ -725,7 +725,6 @@
   <string name="help_window_pinning_title">تثبيت النافذة</string>
   <string name="help_window_pinning_text">يمكنك تفعيل تثبيت النافذة من قائمة الخيارات (ثلاث نقاط، الزاوية العلوية اليمنى). إذا تم تفعيل تثبيت النافذة، يمكنك عرض نوافذ مثبّتة متعددة في مشهد الكتاب المقدس، لكن نافذة واحدة فقط غير مثبّتة. تُعرض النوافذ المثبّتة أولاً ثم النوافذ غير المثبّتة. قد ترغب في فتح مستندات الكتاب المقدس في نوافذ مثبّتة، و التعليقات والخرائط وما شابهها في نوافذ غير مثبّتة. بهذه الطريقة يمكنك الاحتفاظ بمستندات الكتاب المقدس مفتوحة دائماً، والتبديل بسرعة بين التعليقات و المواد الإضافية الأخرى أثناء الدراسة.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">إعادة تنزيل سريعة</string>
   <string name="welcome_message">شكراً لتنزيل %s. لا توجد حالياً أي أسفار أو مستندات مثبّتة. للمتابعة، يرجى تثبيت مستند واحد على الأقل عن طريق التنزيل من الإنترنت، أو التحميل من ملف نسخة احتياطية مضغوط.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -740,9 +739,6 @@
   <string name="format_ttf">خطوط TTF (*.ttf)</string>
   <string name="format_csv_prompts">إضافات موجهات الذكاء الاصطناعي (*.csv)</string>
   <string name="format_studypads">لوحات الدراسة من قواعد بيانات AndBible (*.abdb)</string>
-  <string name="redownload_message">
-        قائمة بالكتب/المستندات السابقة قد تم إيجادها. اضغط بالأسفل لتحميلها مجدداً بسهولة.
-    </string>
   <!--Uncategorized-->
   <string name="close">إغلاق</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

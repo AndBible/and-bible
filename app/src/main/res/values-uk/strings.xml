@@ -763,7 +763,6 @@
 мати відкритими біблійні ресурси та швидко перемикатися між коментарями та
 іншим додатковим матеріалом під час вивчення Біблії.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Швидке перезавантаження</string>
   <string name="welcome_message">Дякуємо за завантаження %s. На даний момент біблії та інші ресурси не встановлені. Щоб продовжити, будь ласка, встановіть
 принаймні 1 ресурс, завантаживши з Інтернету, або завантаживши із zip-файлу
 резервного копіювання.</string>
@@ -780,9 +779,6 @@
   <string name="format_ttf">Шрифти TTF (*.ttf)</string>
   <string name="format_csv_prompts">Доповнення до промптів ШІ (*.csv)</string>
   <string name="format_studypads">Блокноти з баз даних AndBible (*.abdb)</string>
-  <string name="redownload_message">
-        Знайдено список попередніх книг / ресурсів. Клацніть нижче, щоб легко завантажити їх знову.
-    </string>
   <!--Uncategorized-->
   <string name="close">Закрити</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

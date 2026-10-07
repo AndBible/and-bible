@@ -766,7 +766,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
      lengvai persijungsite prie komentarų ir kitos papildomos medžiagos.
 </string>
   <!--Welcome text-->
-  <string name="redownload_documents">Greitas atsisiuntimas iš naujo</string>
   <string name="welcome_message">Dėkojame, kad atsisiuntėte %s. Šiuo metu nėra įdiegta jokių dokumentų ar Biblijų. Norėdami tęsti, įsidiekite
         bent 1 dokumentą, atsisiųsdami jį iš interneto arba įkeldami iš zip failo dokumento atsarginės kopijos.
     </string>
@@ -783,9 +782,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="format_ttf">TTF šriftai (*.ttf)</string>
   <string name="format_csv_prompts">DI užklausų priedai (*.csv)</string>
   <string name="format_studypads">Bloknotai iš AndBible duomenų bazių (*.abdb)</string>
-  <string name="redownload_message">
-        Buvo rastas ankstesnių knygų/dokumentų sąrašas. Spustelėkite žemiau, norėdami vėl juos lengvai atsisiųsti.
-    </string>
   <!--Uncategorized-->
   <string name="close">Užverti</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

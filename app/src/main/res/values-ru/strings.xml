@@ -767,7 +767,6 @@ http://www.heartlight.org, разрешение предоставлено
 всегда открывать библейские ресурсы и быстро переключаться между комментариями и
 другим дополнительным материалом при изучении Библии.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Быстрая повторная загрузка</string>
   <string name="welcome_message">Спасибо за скачивание проложения %s. В настоящее время Библии, ресурсы не установлены. Чтобы продолжить, установите хотя бы 1 ресурс, загрузив его из Интернета или загрузив из резервной копии документа в zip-архиве.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -782,9 +781,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="format_ttf">Шрифты TTF (*.ttf)</string>
   <string name="format_csv_prompts">Дополнения к подсказкам AI (*.csv)</string>
   <string name="format_studypads">Блокноты из баз данных AndBible (*.abdb)</string>
-  <string name="redownload_message">
-        Был найден список предыдущих книг / ресурсов. Нажмите ниже, чтобы легко загрузить их снова.
-    </string>
   <!--Uncategorized-->
   <string name="close">Закрыть</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

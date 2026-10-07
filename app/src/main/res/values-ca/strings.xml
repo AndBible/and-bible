@@ -664,7 +664,6 @@
   <string name="help_window_pinning_title">Fixació de finestres</string>
   <string name="help_window_pinning_text">Pots activar la fixació de finestres des del menú d\'opcions (tres punts, cantonada superior dreta). Si la fixació de finestres està activada, pots mostrar moltes finestres fixes a la vista de la Bíblia, però només una finestra no fixada. Les finestres fixes es mostren primer i després les no fixades. Potser voldràs obrir documents de la Bíblia com a finestres fixes i comentaris, mapes, etc. com a finestres no fixades. Així podràs tenir els documents de la Bíblia sempre oberts i canviar ràpidament entre comentaris i altres materials complementaris mentre estudies la Bíblia.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Baixada ràpida</string>
   <string name="welcome_message">Gràcies per baixar %s. Ara mateix no hi ha cap Bíblia ni document instal·lat. Per continuar, instal·la almenys 1 document baixant-lo d\'Internet o carregant-lo des d\'un fitxer zip de còpia de seguretat de documents.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -679,7 +678,6 @@
   <string name="format_ttf">Tipus de lletra TTF (*.ttf)</string>
   <string name="format_csv_prompts">Complements de missatges d\'IA (*.csv)</string>
   <string name="format_studypads">Blocs d\'estudi de bases de dades d\'AndBible (*.abdb)</string>
-  <string name="redownload_message">S\'ha trobat una llista de llibres/documents anteriors. Fes clic a continuació per tornar-los a baixar fàcilment.</string>
   <!--Uncategorized-->
   <string name="close">Tanca</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

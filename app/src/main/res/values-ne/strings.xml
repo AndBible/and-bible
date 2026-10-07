@@ -664,7 +664,6 @@
   <string name="help_window_pinning_title">विन्डो पिनिङ</string>
   <string name="help_window_pinning_text">विकल्प मेनु (तीन बिन्दुहरू, माथिल्लो दायाँ कुना) बाट विन्डो पिनिङ सक्षम गर्न सकिन्छ। यदि विन्डो पिनिङ सक्षम छ भने, बाइबल दृश्यमा धेरै पिन गरिएका विन्डोहरू देखाउन सकिन्छ, तर केवल एउटा गैर-पिन गरिएको विन्डो। पिन गरिएका विन्डोहरू पहिले देखिन्छन्, त्यसपछि अनपिन गरिएका विन्डोहरू। बाइबल कागजातहरू पिन गरिएका विन्डोहरूको रूपमा खोल्न, र टिप्पणीहरू र नक्साहरू आदि गैर-पिन गरिएका विन्डोहरूको रूपमा खोल्न सक्नुहुन्छ। त्यसपछि बाइबल कागजातहरू सधैं खुला राख्न र बाइबल अध्ययन गर्दा टिप्पणीहरू र अन्य अतिरिक्त सामग्री बीच छिटो स्विच गर्न सक्नुहुन्छ।</string>
   <!--Welcome text-->
-  <string name="redownload_documents">छिटो पुनः डाउनलोड</string>
   <string name="welcome_message">%s डाउनलोड गर्नुभएकोमा धन्यवाद। हाल कुनै बाइबल वा कागजातहरू स्थापित छैनन्। जारी राख्न, कृपया इन्टरनेटबाट डाउनलोड गरेर वा zip फाइल कागजात ब्याकअपबाट लोड गरेर कम्तिमा १ वटा कागजात स्थापना गर्नुहोस्।</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -679,7 +678,6 @@
   <string name="format_ttf">TTF फन्टहरू (*.ttf)</string>
   <string name="format_csv_prompts">AI prompt add-ons (*.csv)</string>
   <string name="format_studypads">AndBible डेटाबेसबाट अध्ययन प्याडहरू (*.abdb)</string>
-  <string name="redownload_message">अघिल्ला पुस्तकहरू/कागजातहरूको सूची फेला पर्‍यो। तिनीहरू सजिलै फेरि डाउनलोड गर्न तलको बटन थिच्नुहोस्।</string>
   <!--Uncategorized-->
   <string name="close">बन्द गर्नुहोस्</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

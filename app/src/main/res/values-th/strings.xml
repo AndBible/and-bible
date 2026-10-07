@@ -664,7 +664,6 @@
   <string name="help_window_pinning_title">การตรึงหน้าต่าง</string>
   <string name="help_window_pinning_text">คุณสามารถเปิดใช้การตรึงหน้าต่างจากเมนูตัวเลือก (สามจุด มุมขวาบน) หากเปิดใช้การตรึงหน้าต่าง คุณสามารถแสดงหน้าต่างที่ตรึงหลายหน้าต่างในมุมมองพระคัมภีร์ได้ แต่มีเพียงหน้าต่างที่ไม่ตรึงเพียงหน้าต่างเดียว หน้าต่างที่ตรึงจะแสดงก่อน จากนั้น หน้าต่างที่ไม่ตรึง คุณอาจต้องการเปิดเอกสารพระคัมภีร์เป็นหน้าต่างที่ตรึง และ คำอธิบายและแผนที่ ฯลฯ เป็นหน้าต่างที่ไม่ตรึง จากนั้นคุณสามารถ เปิดเอกสารพระคัมภีร์ไว้เสมอ และสลับระหว่างคำอธิบายและ เนื้อหาเสริมอื่นๆ ได้อย่างรวดเร็วเมื่อศึกษาพระคัมภีร์</string>
   <!--Welcome text-->
-  <string name="redownload_documents">ดาวน์โหลดซ้ำอย่างรวดเร็ว</string>
   <string name="welcome_message">ขอบคุณที่ดาวน์โหลด %s ขณะนี้ยังไม่ได้ติดตั้งพระคัมภีร์หรือเอกสารใด หากต้องการดำเนินการต่อ กรุณาติดตั้ง อย่างน้อย 1 เอกสารโดยการดาวน์โหลดจากอินเทอร์เน็ต หรือโหลดจากไฟล์สำรองข้อมูลเอกสารแบบ zip</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -679,7 +678,6 @@
   <string name="format_ttf">แบบอักษร TTF (*.ttf)</string>
   <string name="format_csv_prompts">ส่วนเสริมคำสั่ง AI (*.csv)</string>
   <string name="format_studypads">แผ่นบันทึกการศึกษาจากฐานข้อมูล AndBible (*.abdb)</string>
-  <string name="redownload_message">พบรายการหนังสือ/เอกสารก่อนหน้า คลิกด้านล่างเพื่อดาวน์โหลดอีกครั้งได้ง่ายๆ</string>
   <!--Uncategorized-->
   <string name="close">ปิด</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

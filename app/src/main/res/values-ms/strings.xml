@@ -664,7 +664,6 @@
   <string name="help_window_pinning_title">Penepatan tetingkap</string>
   <string name="help_window_pinning_text">Anda boleh mengaktifkan penepatan tetingkap dari menu opsyen (tiga titik, sudut kanan atas). Jika penepatan tetingkap diaktifkan, anda boleh menunjukkan banyak tetingkap tetap pada paparan Alkitab, tetapi hanya satu tetingkap tidak tetap. Tetingkap tetap dipaparkan dahulu, kemudian tetingkap tidak tetap. Anda mungkin ingin membuka dokumen Alkitab sebagai tetingkap tetap, dan ulasan dan peta dll. sebagai tetingkap tidak tetap. Kemudian anda boleh dengan mudah sentiasa membuka dokumen Alkitab, dan beralih dengan cepat antara ulasan dan bahan tambahan lain semasa anda mengkaji Alkitab.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Muat Turun Semula Pantas</string>
   <string name="welcome_message">Terima kasih kerana memuat turun %s. Kini tiada Alkitab atau dokumen yang dipasang. Untuk meneruskan, sila pasang sekurang-kurangnya 1 dokumen dengan memuat turun dari internet, atau dengan memuatkan dari fail zip sandaran dokumen.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -679,7 +678,6 @@
   <string name="format_ttf">Fon TTF (*.ttf)</string>
   <string name="format_csv_prompts">Add-on prompt AI (*.csv)</string>
   <string name="format_studypads">Pad Kajian dari pangkalan data AndBible (*.abdb)</string>
-  <string name="redownload_message">Senarai buku/dokumen sebelumnya ditemui. Klik di bawah untuk memuat turunnya semula dengan mudah.</string>
   <!--Uncategorized-->
   <string name="close">Tutup</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

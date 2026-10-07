@@ -708,7 +708,6 @@ Przeciągnij palcem w dół z paska narzędzi, aby wyświetlić wybierak obszar�
   <string name="help_window_pinning_text">
 Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym górnym rogu). Gdy przypinanie okien jest aktywne, można wyświetlać kilka przypiętych okien w widoku Biblii, ale tylko jedno okno nieprzypięte. Najpierw są wyświetlane okna przypięte, następnie nieprzypięte. Możesz przykładowo otworzyć dokumenty Biblii w przypiętych oknach, i komentarze i mapy w oknach nieprzypiętych. W ten sposób będzie można mieć dokumenty Biblii zawsze otwarte i móc szybko przeskakiwać między komentarzami i innymi materiałami.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Szybkie ponowne pobieranie</string>
   <string name="welcome_message">Dziękujemy za instalację aplikacji %s. Obecnie nie jest zainstalowana żadna wersja Biblii lub inny dokument. Aby kontynuować, pobierz co najmniej 1 dokument z internetu bądź załaduj go z pliku .zip.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -723,8 +722,6 @@ Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym g�
   <string name="format_ttf">kroje pisma TTF (*.ttf)</string>
   <string name="format_csv_prompts">Dodatki promptów AI (*.csv)</string>
   <string name="format_studypads">bloczki notatek z baz danych AndBible (*.abdb)</string>
-  <string name="redownload_message">
-Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby pobrać je ponownie.</string>
   <!--Uncategorized-->
   <string name="close">Zamknij</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

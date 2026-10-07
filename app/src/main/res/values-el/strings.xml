@@ -739,7 +739,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 να έχετε βιβλικά έγγραφα πάντοτε ανοιχτά και να μετακινήστε γρήγορα μεταξύ των σχολίων και του
 υπολοίπου επιπλέον υλικού όταν μελετάτε τη Βίβλο.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Γρήγορη επανάληψη μεταφόρτωσης</string>
   <string name="welcome_message">Ευχαριστούμε που κατεβάσατε το %s. Δεν υπάρχουν αυτή τη στιγμή εγκατεστημένα Βιβλικά κείμενα ή έγγραφα. Για να συνεχίσετε, παρακαλούμε εγκαταστήστε
 τουλάχιστον 1 έγγραφο κατεβάζοντάς το από το ίντερνετ, ή φορτώνοντάς το από ένα συμπιεσμένο αρχείο zip αντιγράφου
 ασφαλείας</string>
@@ -756,8 +755,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="format_ttf">Γραμματοσειρές TTF (*.ttf)</string>
   <string name="format_csv_prompts">Πρόσθετα εντολών AI (*.csv)</string>
   <string name="format_studypads">Μπλοκ μελέτης από βάσεις δεδομένων του AndBible (*.abdb)</string>
-  <string name="redownload_message">
-Βρέθηκε μία λίστα προηγουμένων βιβλίων/εγγράφων. Πατήστε εδώ για να μεταφορτωθούν εύκολα πάλι.</string>
   <!--Uncategorized-->
   <string name="close">Κλείσιμο</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

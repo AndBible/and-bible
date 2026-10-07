@@ -758,7 +758,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
 已钉选的视窗会优先显示，之后到未钉选的视窗。
 例如你可以将圣经文件钉选，再以未钉选的方法开启注解或地图等，在查经时方便同时阅读其他参考文件。</string>
   <!--Welcome text-->
-  <string name="redownload_documents">快速重新下载</string>
   <string name="welcome_message">感谢你下载 %s。目前尚未下载圣经或文件。请下载至少一份文件，或从Zip备份文件导入。</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -773,9 +772,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="format_ttf">TTF 字体（*.ttf）</string>
   <string name="format_csv_prompts">AI 提示词插件（*.csv）</string>
   <string name="format_studypads">来自 AndBible 数据库的学习笔记（*.abdb）</string>
-  <string name="redownload_message">
-找到书本及文件列表。点选下方下载。
-</string>
   <!--Uncategorized-->
   <string name="close">关闭</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

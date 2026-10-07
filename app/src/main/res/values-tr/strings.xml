@@ -779,7 +779,6 @@ katkıda bulunmayı düşünün. :-)</string>
     diğer ekstra materyaller arasında hızlıca geçiş yapabilirsiniz.
   </string>
   <!--Welcome text-->
-  <string name="redownload_documents">Hızlı Yeniden İndirme</string>
   <string name="welcome_message">%s’yi indirdiğiniz için teşekkür ederiz. Şu anda yüklü Kutsal Kitap
     veya belge yok. Devam etmek için lütfen internetten indirerek veya bir zip dosyası belge
     yedeğinden yükleyerek en az 1 belge yükleyin.
@@ -797,9 +796,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="format_ttf">TTF yazı tipleri (*.ttf)</string>
   <string name="format_csv_prompts">AI istem eklentileri (*.csv)</string>
   <string name="format_studypads">AndBible veritabanlarından Çalışma Defterleri (*.abdb)</string>
-  <string name="redownload_message">
-    Önceki kitapların/belgelerin bir listesi bulundu. Bunları kolayca tekrar indirmek için aşağıya tıklayın.
-  </string>
   <!--Uncategorized-->
   <string name="close">Kapat</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

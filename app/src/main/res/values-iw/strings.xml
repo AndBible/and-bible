@@ -729,7 +729,6 @@
 אם נעיצת חלון מופעלת, ניתן להציג כמה חלונות נעוצים, ורק חלון אחד לא-נעוץ. חלונות נעוצים מופיעים תחילה, ואז חלונות לא-נעוצים.
 אפשר, למשל, לפתוח מסמכי תנ\"ך כחלונות נעוצים, ופרושים/מפות/וכו\' כחלונות לא-נעוצים. אז, חלונות התנ\"ך ישארו פתוחים כל הזמן, ואפשר לעבור במהירות בין שאר החלונות.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">הורדה מהירה</string>
   <string name="welcome_message">תודה על הורדת %s. לא מותקנים כרגע תנ\"כים או מסמכים אחרים. כדי להמשיך, נא להתקין לפחות מסמך אחד, ע\"י הורדה מהאינטרנט, או טעינה מקובץ ZIP/גיבוי מסמכים.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -744,7 +743,6 @@
   <string name="format_ttf">גופני TTF (*.ttf)</string>
   <string name="format_csv_prompts">תוספי הנחיות AI (*.csv)</string>
   <string name="format_studypads">פנקסי לימוד ממסדי נתונים של AndBible (*.abdb)</string>
-  <string name="redownload_message">נמצאה רשימה קודמת של ספרים/מסמכים. נא ללחוץ למטה כדי לטעון אותם מחדש בקלות.</string>
   <!--Uncategorized-->
   <string name="close">סגירה</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

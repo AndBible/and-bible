@@ -750,7 +750,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
 বাইবেলের নথিগুলি সর্বদা খোলা রাখুন এবং ভাষ্যগুলির মধ্যে দ্রুত স্যুইচ করুন
 আপনি বাইবেল অধ্যয়ন যখন অন্যান্য অতিরিক্ত উপাদান.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">দ্রুত পুনরায় ডাউনলোড করুন</string>
   <string name="welcome_message">%sডাউনলোড করার জন্য আপনাকে ধন্যবাদ. বর্তমানে কোন বাইবেল বা নথি ইনস্টল করা নেই. চালিয়ে যেতে, অনুগ্রহ করে ইনস্টল করুন
 ইন্টারনেট থেকে ডাউনলোড করে বা জিপ ফাইল ডকুমেন্ট থেকে লোড করে কমপক্ষে 1টি ডকুমেন্ট
 ব্যাকআপ</string>
@@ -767,8 +766,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="format_ttf">TTF হরফ (*.ttf)</string>
   <string name="format_csv_prompts">AI প্রম্পট অ্যাড-অন (*.csv)</string>
   <string name="format_studypads">AndBible ডাটাবেস থেকে স্টাডিপ্যাড (*.abdb)</string>
-  <string name="redownload_message">
-আগের বই/নথিপত্রের তালিকা পাওয়া গেছে। সহজে আবার ডাউনলোড করতে নিচে ক্লিক করুন.</string>
   <!--Uncategorized-->
   <string name="close">বন্ধ করুন </string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

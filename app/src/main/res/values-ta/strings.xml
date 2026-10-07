@@ -775,7 +775,6 @@
         போன்றவற்றை விரைவாக மாற்றலாம்.
     </string>
   <!--Welcome text-->
-  <string name="redownload_documents">விரைவு மீள் தரவிறக்கம்</string>
   <string name="welcome_message">%sஐ தரவிறக்கம் செய்வதற்கு நன்றி. தற்போது எந்த விவிலியமோ அல்லது ஆவணங்களோ நிறுவப்படவில்லை. ஆகவே 
         1 ஆவணத்தையாவது இணையத்தில் இருந்தோ அல்லது zip வடிவ காப்பு நகலில் இருந்தோ நிறுவவும்
         நிறுவவும்
@@ -793,9 +792,6 @@
   <string name="format_ttf">TTF எழுத்துருக்கள் (*.ttf)</string>
   <string name="format_csv_prompts">AI வரைவு துணை நிரல்கள் (*.csv)</string>
   <string name="format_studypads">AndBible தரவுதளங்களிலிருந்து ஸ்டடி பேடுகள் (*.abdb)</string>
-  <string name="redownload_message">
-        முந்தைய புத்தகங்கள்/ஆவணங்களின் பட்டியல் கண்டறியப்பட்டது. அவற்றை மீண்டும் எளிதாக பதிவிறக்கம் செய்ய கீழே கிளிக் செய்யவும்.
-    </string>
   <!--Uncategorized-->
   <string name="close">மூடு</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

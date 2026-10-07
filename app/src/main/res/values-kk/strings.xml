@@ -629,7 +629,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
 бірақ бекітілмеген терезелерден біреуін ғана көрсете аласыз. Бекітілген терезелер алдымен көрсетіледі, содан кейін
 бекітілмеген терезелер. Сіз Киелі Кітаптық құжаттарды бекітілген терезелер түрінде және пікірлер, карталар т.б. бекітілмеген терезелер түрінде ашқыңыз келуі мүмкін. Содан кейін, сіз Киелі Кітап құжаттарын, және пікір түсініктемелер арасында жеңіл ауысып, әрі Киелі Кітапты зерттегенде басқада қосымша материалдарды әр-қашанда ашық ұстай аласыз.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Жылдам қайта жүктеуі</string>
   <string name="welcome_message">Жүктегеніңіз үшін рахмет%s. Қазіргі уақытта Киелі Кітаптар немесе құжаттар орнатылмаған. Жалғастыру үшін интернеттен жүктеу арқылы немесе zip құжат файлынан жүктеу арқылы кем дегенде бір резервтік құжат орнатыңыз.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -640,8 +639,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="format_mysword">MySword құжаттары (*.mybible)</string>
   <string name="format_mybible">MyBible құжаттары (*.SQLite3)</string>
   <string name="format_epub">EPUB құжаттары (*.epub)</string>
-  <string name="redownload_message">
-Алдыңғы кітаптар/құжаттар тізімі табылды. Оларды оңай жүктеу үшін төменге басыңыз.</string>
   <!--Uncategorized-->
   <string name="close">Жабу</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

@@ -652,7 +652,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
 已釘選的視窗會優先顯示，之後到未釘選的視窗。
 例如你可以將聖經文件釘選，再以未釘選的方法開啟註解或地圖等，在查經時方便同時閱讀其他參考文件。</string>
   <!--Welcome text-->
-  <string name="redownload_documents">快速重新下載</string>
   <string name="welcome_message">感謝你下載 %s。現時並未有下載聖經或文件。請下載至少一份文件，或從Zip備份檔案匯入。</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -663,9 +662,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="format_mysword">MySword 文件 (*.mybible)</string>
   <string name="format_mybible">MyBible 文件 (*.SQLite3)</string>
   <string name="format_epub">EPUB 文件 (*.epub)</string>
-  <string name="redownload_message">
-找到書本及文件列表。點選下方下載。
-</string>
   <!--Uncategorized-->
   <string name="close">關閉</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

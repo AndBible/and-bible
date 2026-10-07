@@ -721,7 +721,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="help_window_pinning_title">Penyematan jendela</string>
   <string name="help_window_pinning_text">Anda dapat mengaktifkan penyematan jendela dari menu opsi (tiga titik, sudut kanan atas). Jika penyematan jendela diaktifkan, Anda dapat menampilkan banyak jendela yang disematkan di tampilan Alkitab, tetapi hanya satu jendela yang tidak disematkan. Jendela yang disematkan ditampilkan terlebih dahulu, kemudian jendela yang tidak disematkan. Anda mungkin ingin membuka dokumen Alkitab sebagai jendela yang disematkan, dan tafsiran dan peta dll. sebagai jendela yang tidak disematkan. Maka Anda dapat dengan mudah selalu membuka dokumen Alkitab, dan beralih dengan cepat antara tafsiran dan materi tambahan lainnya saat belajar Alkitab.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Unduh Ulang Cepat</string>
   <string name="welcome_message">Terima kasih telah mengunduh %s. Saat ini tidak ada Alkitab atau dokumen yang terpasang. Untuk melanjutkan, silakan pasang setidaknya 1 dokumen dengan mengunduh dari internet, atau dengan memuat dari file cadangan dokumen zip.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -736,7 +735,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="format_ttf">Font TTF (*.ttf)</string>
   <string name="format_csv_prompts">Add-on prompt AI (*.csv)</string>
   <string name="format_studypads">Lembar Studi dari database AndBible (*.abdb)</string>
-  <string name="redownload_message">Daftar kitab/dokumen sebelumnya ditemukan. Klik di bawah untuk mengunduhnya kembali dengan mudah.</string>
   <!--Uncategorized-->
   <string name="close">Tutup</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

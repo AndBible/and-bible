@@ -757,7 +757,6 @@ on-gespende vensters. Jy wil miskienbBybel dokumente oopmaak as vasgespelde vens
 bybel dokumente altyd oop laat wees, en wissel vinnig tussen kommentaar en
 ander ekstra materiaal as jy die bybel bestudeer.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Vinnige Herlaai</string>
   <string name="welcome_message">Dankie vir die aflaai %s. Daar is tans geen Bybels of dokumente geïnstalleer nie. Om voort te gaan, installeer asseblief
 Ten minste 1 dokument deur van die internet af te laai, of deur \'n zip lêer dokument te laai
 Rugsteun.</string>
@@ -774,8 +773,6 @@ Rugsteun.</string>
   <string name="format_ttf">TTF lettertipes (*.ttf)</string>
   <string name="format_csv_prompts">KI-aanwysingsinvoegings (*.csv)</string>
   <string name="format_studypads">Studie blokke van AndBible-databasisse (*.abdb)</string>
-  <string name="redownload_message">
-n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af te laai. </string>
   <!--Uncategorized-->
   <string name="close">Eindig</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

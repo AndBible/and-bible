@@ -744,7 +744,6 @@ commentaires, les cartes, etc. en tant que fenêtres non épinglées. Ainsi, vou
 avoir les documents bibliques toujours ouverts, et passer rapidement des commentaires et autres
 documents supplémentaires lorsque vous étudiez la Bible.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Rapide retéléchargement</string>
   <string name="welcome_message">Merci d’avoir téléchargé %s. Il n’y a actuellement aucune bible ou document installé. Pour continuer, veuillez installer
   au moins 1 document en le téléchargeant depuis l’internet, ou en le chargeant depuis un fichier zip de document
         sauvegardé.
@@ -762,9 +761,6 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="format_ttf">Polices TTF (*.ttf)</string>
   <string name="format_csv_prompts">Compléments de prompts AI (*.csv)</string>
   <string name="format_studypads">Bloc-notes des bases de données Andbible (*.abdb)</string>
-  <string name="redownload_message">
-        Une liste de livres/documents précédents a été trouvée. Cliquez ci-dessous pour les télécharger à nouveau facilement.
-    </string>
   <!--Uncategorized-->
   <string name="close">Fermer</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

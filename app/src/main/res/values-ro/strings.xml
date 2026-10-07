@@ -779,7 +779,6 @@
         suplimentare atunci cînd studiezi Biblia.
     </string>
   <!--Welcome text-->
-  <string name="redownload_documents">Redescarcă rapid</string>
   <string name="welcome_message">Mulțumim că ai descărcat %s. În prezent, nu există Biblii sau documente instalate. Pentru a continua, instalează
         cel puțin 1 document descărcîndu-l de pe internet sau încărcîndu-l dintr-un fișier
         Zip de rezervă.
@@ -797,9 +796,6 @@
   <string name="format_ttf">Caractere TTF (*.ttf)</string>
   <string name="format_csv_prompts">Completări de prompt AI (*.csv)</string>
   <string name="format_studypads">Notițe de studiu din bazele de date AndBible (*.abdb)</string>
-  <string name="redownload_message">
-        A fost găsită o listă de cărți/documente anterioare. Apasă mai jos pentru a le descărca din nou.
-    </string>
   <!--Uncategorized-->
   <string name="close">Închide</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

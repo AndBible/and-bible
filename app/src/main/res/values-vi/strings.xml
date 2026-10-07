@@ -664,7 +664,6 @@
   <string name="help_window_pinning_title">Ghim cửa sổ</string>
   <string name="help_window_pinning_text">Bạn có thể bật ghim cửa sổ từ menu tùy chọn (ba chấm, góc trên bên phải). Nếu ghim cửa sổ được bật, bạn có thể hiển thị nhiều cửa sổ được ghim trong chế độ xem Kinh Thánh, nhưng chỉ một cửa sổ không được ghim. Các cửa sổ được ghim hiển thị trước, sau đó là các cửa sổ không được ghim. Bạn có thể muốn mở các tài liệu Kinh Thánh dưới dạng cửa sổ được ghim, và chú giải, bản đồ, v.v. dưới dạng cửa sổ không được ghim. Khi đó bạn có thể luôn mở sẵn các tài liệu Kinh Thánh, và dễ dàng chuyển đổi giữa chú giải và các tài liệu bổ sung khác khi nghiên cứu Kinh Thánh.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Tải xuống nhanh</string>
   <string name="welcome_message">Cảm ơn bạn đã tải xuống %s. Hiện tại chưa có Kinh Thánh hoặc tài liệu nào được cài đặt. Để tiếp tục, vui lòng cài đặt ít nhất 1 tài liệu bằng cách tải xuống từ internet, hoặc tải từ tệp sao lưu tài liệu zip.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -679,7 +678,6 @@
   <string name="format_ttf">Phông chữ TTF (*.ttf)</string>
   <string name="format_csv_prompts">Tiện ích bổ sung lệnh AI (*.csv)</string>
   <string name="format_studypads">Sổ tay nghiên cứu từ cơ sở dữ liệu AndBible (*.abdb)</string>
-  <string name="redownload_message">Đã tìm thấy danh sách sách/tài liệu trước đây. Nhấn bên dưới để dễ dàng tải xuống lại chúng.</string>
   <!--Uncategorized-->
   <string name="close">Đóng</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

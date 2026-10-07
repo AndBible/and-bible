@@ -770,7 +770,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
        dalšími materiály.
 </string>
   <!--Welcome text-->
-  <string name="redownload_documents">Rychle stáhnout</string>
   <string name="welcome_message">Děkujeme, že jste si stáhli náš produkt %s. Aktuálně nemáte nainstalovanou žádnou Bibli či jiný dokument. Pokračujte instalací alespoň jednoho dokumentu z Internetu nebo instalací zálohy ZIP souboru.
     </string>
   <!--Supported file formats for documents-->
@@ -786,9 +785,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="format_ttf">TTF fonty (*.ttf)</string>
   <string name="format_csv_prompts">Doplňky AI promptů (*.csv)</string>
   <string name="format_studypads">Studijní složky z databází AndBible (*.abdb)</string>
-  <string name="redownload_message">
-       Nalezen seznam předchozích knih/dokumentů. Pro snadné znovustažení klikněte níže.
-</string>
   <!--Uncategorized-->
   <string name="close">Zavřít</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

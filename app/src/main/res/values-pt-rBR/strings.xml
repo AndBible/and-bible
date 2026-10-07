@@ -754,7 +754,6 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
  ter os Módulos bíblicos sempre abertos e
  alternar rapidamente entre comentários e outro material extra ao estudar a Bíblia.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Baixar novamente os documentos</string>
   <string name="welcome_message">Obrigado por baixar %s. Atualmente não há Bíblias ou documentos instalados. Para continuar, instale pelo menos 1 documento baixando da Internet ou carregando a partir de um arquivo em formato zip de um documento de cópia de segurança</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -769,8 +768,6 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <string name="format_ttf">Fontes TTF (*.ttf)</string>
   <string name="format_csv_prompts">Complementos de prompt de IA (*.csv)</string>
   <string name="format_studypads">Bloco de estudos dos banco de dados AndBible (*.abdb)</string>
-  <string name="redownload_message">
-Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para baixá-los facilmente novamente.</string>
   <!--Uncategorized-->
   <string name="close">Fechar</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

@@ -723,7 +723,6 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
   <string name="help_window_pinning_title">Akna kinnitamine</string>
   <string name="help_window_pinning_text">Akna kinnitamise saad lubada valikumenüüst (kolm punkti, paremal ülanurgas). Kui akna kinnitamine on lubatud, võid piiblivaates kuvada mitu kinnitatud akent, kuid ainult ühe kinnitamata akna. Kinnitatud aknad kuvatakse esmalt ja seejärel kinnitamata aknad. Soovitav on avada piiblidokumendid kinnitatud akendena ja kommentaarid ning kaardid jne. kinnitamata akendena. Siis saad piiblidokumendid alati avatuna hoida ja kiiresti kommentaaride ja muu lisamaterjali vahel lülituda piibli uurimisel.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Kiire uuesti allalaadimine</string>
   <string name="welcome_message">Täname, et laadisite alla %s. Praegu ei ole paigaldatud ühtegi piiblit ega dokumenti. Jätkamiseks palun paigalda vähemalt 1 dokument, laadides selle internetist alla või laadides zip-faili dokumendi varukoopia.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -738,7 +737,6 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
   <string name="format_ttf">TTF fondid (*.ttf)</string>
   <string name="format_csv_prompts">AI käskude lisandmoodulid (*.csv)</string>
   <string name="format_studypads">Uurimismärkmikud AndBible andmebaasidest (*.abdb)</string>
-  <string name="redownload_message">Leiti eelnevate raamatute/dokumentide nimekiri. Klõpsa allpool nende uuesti allalaadimiseks.</string>
   <!--Uncategorized-->
   <string name="close">Sulge</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

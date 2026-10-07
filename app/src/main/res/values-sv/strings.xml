@@ -777,7 +777,6 @@ i GT och NT varje dag.
         annat extramaterial när du studerar Bibeln.
     </string>
   <!--Welcome text-->
-  <string name="redownload_documents">Snabb Åternerladdning</string>
   <string name="welcome_message">Tack för att du laddar ned %s. Just nu är inga biblar eller dokument installerade. För att fortsätta, installera
         åtminstone 1 dokument genom att ladda ned det från internet, eller genom att läsa in en säkerhetskopia av dokument i
         en zip-fil.
@@ -795,9 +794,6 @@ i GT och NT varje dag.
   <string name="format_ttf">TTF-typsnitt (*.ttf)</string>
   <string name="format_csv_prompts">AI-prompttillägg (*.csv)</string>
   <string name="format_studypads">Studieblock från AndBible-databaser (*.abdb)</string>
-  <string name="redownload_message">
-        En lista över tidigare böcker/dokument hittades. Tryck här nedanför för att enkelt ladda ned dem igen.
-    </string>
   <!--Uncategorized-->
   <string name="close">Stäng</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

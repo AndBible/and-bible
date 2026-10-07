@@ -664,7 +664,6 @@
   <string name="help_window_pinning_title">Fastgørelse af vinduer</string>
   <string name="help_window_pinning_text">Du kan aktivere fastgørelse af vinduer fra indstillingsmenuen (tre prikker, øverste højre hjørne). Hvis fastgørelse af vinduer er aktiveret, kan du vise mange fastgjorte vinduer i Bibel-visningen, men kun ét ikke-fastgjort vindue. Fastgjorte vinduer vises først og derefter ikke-fastgjorte vinduer. Du vil måske åbne Bibeldokumenter som fastgjorte vinduer og kommentarer og kort osv. som ikke-fastgjorte vinduer. Så kan du nemt have Bibeldokumenter altid åbne og hurtigt skifte mellem kommentarer og andet ekstramateriale, når du studerer Bibelen.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Hurtig gendownload</string>
   <string name="welcome_message">Tak for at du hentede %s. Der er i øjeblikket ingen Bibler eller dokumenter installeret. For at fortsætte skal du installere mindst ét dokument ved at hente fra internettet eller ved at indlæse fra en zip-fil-dokumentsikkerhedskopi.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -679,7 +678,6 @@
   <string name="format_ttf">TTF-skrifttyper (*.ttf)</string>
   <string name="format_csv_prompts">AI-prompt-tilføjelser (*.csv)</string>
   <string name="format_studypads">Studieblokkе fra AndBible-databaser (*.abdb)</string>
-  <string name="redownload_message">Der blev fundet en liste over tidligere bøger/dokumenter. Klik nedenfor for nemt at hente dem igen.</string>
   <!--Uncategorized-->
   <string name="close">Luk</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

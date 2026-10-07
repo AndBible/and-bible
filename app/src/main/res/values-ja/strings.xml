@@ -664,7 +664,6 @@
   <string name="help_window_pinning_title">ウィンドウのピン留め</string>
   <string name="help_window_pinning_text">オプションメニュー（右上隅の三点ボタン）からウィンドウのピン留めを有効にできます。 ピン留めを有効にすると、聖書ビューに複数のピン留めされたウィンドウを表示できますが、ピン留めされていないウィンドウは1つだけ表示できます。ピン留めされたウィンドウが先に表示され、その後にピン留めされていないウィンドウが表示されます。聖書文書をピン留めウィンドウとして開き、注解や地図などをピン留めなしのウィンドウとして開くと便利です。これにより、聖書文書を常に表示したまま、注解やその他の参考資料をすばやく切り替えながら聖書研究ができます。</string>
   <!--Welcome text-->
-  <string name="redownload_documents">クイック再ダウンロード</string>
   <string name="welcome_message">%s をダウンロードいただきありがとうございます。現在、聖書や文書がインストールされていません。続けるには、インターネットからダウンロードするか、ZIPファイルの文書バックアップから読み込んで、少なくとも1つの文書をインストールしてください。</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -679,7 +678,6 @@
   <string name="format_ttf">TTFフォント（*.ttf）</string>
   <string name="format_csv_prompts">AIプロンプトアドオン（*.csv）</string>
   <string name="format_studypads">AndBibleデータベースのスタディパッド（*.abdb）</string>
-  <string name="redownload_message">以前の書籍/文書のリストが見つかりました。下のボタンをタップして簡単に再ダウンロードできます。</string>
   <!--Uncategorized-->
   <string name="close">閉じる</string>
   <string name="something_with_parenthesis">%1$s（%2$s）</string>

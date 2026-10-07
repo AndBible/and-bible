@@ -761,7 +761,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
          biblije vedno odprte biblijske dokumente in hitro preklapljajte med komentarji in
          drugim dodatnim gradivom.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Hitro ponovno nalaganje</string>
   <string name="welcome_message">Hvala za prenos %s.  Trenutno ni nameščene nobene Biblije ali dokumentov. Za nadaljevanje namestite
         vsaj 1 dokument s prenosom iz interneta ali z nalaganjem iz arhivske zip datoteke</string>
   <!--Supported file formats for documents-->
@@ -777,9 +776,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="format_ttf">TTF fonti (*.ttf)</string>
   <string name="format_csv_prompts">Dodatki za AI-napotke (*.csv)</string>
   <string name="format_studypads">Beležke iz AndBible baze podatkov (*.abdb)</string>
-  <string name="redownload_message">
-        Najden je bil seznam prejšnjih knjig / dokumentov. Kliknite spodaj, da jih znova prenesete
-    </string>
   <!--Uncategorized-->
   <string name="close">Zapri</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

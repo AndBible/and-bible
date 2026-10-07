@@ -949,7 +949,6 @@
     </string>
 
     <!-- Welcome text -->
-    <string name="redownload_documents">Quick Redownload</string>
     <string name="welcome_intro">There are no documents in your library yet. Add some to get started.</string>
     <string name="welcome_redownload_row_hint">Pick from documents installed before</string>
     <string name="welcome_download_row_hint">Browse the online catalog</string>
@@ -971,9 +970,6 @@
     <string name="format_ttf">TTF fonts (*.ttf)</string>
     <string name="format_csv_prompts">AI prompt add-ons (*.csv)</string>
     <string name="format_studypads">StudyPads from AndBible databases (*.abdb)</string>
-    <string name="redownload_message">
-        A list of previous books/documents was found. Click below to easily download them again.
-    </string>
 
     <!-- Uncategorized -->
     <string name="close">Close</string>

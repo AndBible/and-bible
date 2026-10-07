@@ -775,7 +775,6 @@ Režim opakovania bol vypnutý, pretože
         ďalším materiálom pri štúdiu Biblie.
     </string>
   <!--Welcome text-->
-  <string name="redownload_documents">Rýchle znovu stiahnutie</string>
   <string name="welcome_message">Ďakujeme za stiahnutie %s. V súčasnosti nie sú nainštalované žiadne Biblie alebo dokumenty. Ak chcete pokračovať, nainštalujte si
         aspoň 1 dokument stiahnutím z internetu alebo načítaním dokumentu zo súboru zip
         zálohy.
@@ -793,9 +792,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="format_ttf">Písma TTF (*.ttf)</string>
   <string name="format_csv_prompts">Doplnky výziev AI (*.csv)</string>
   <string name="format_studypads">Študijné zložky z databáz AndBible (*.abdb)</string>
-  <string name="redownload_message">
-        Bol nájdený zoznam predchádzajúcich kníh/dokumentov. Kliknutím nižšie ich jednoducho stiahnete znova.
-    </string>
   <!--Uncategorized-->
   <string name="close">Zatvoriť</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

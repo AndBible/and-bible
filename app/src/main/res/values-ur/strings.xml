@@ -664,7 +664,6 @@
   <string name="help_window_pinning_title">ونڈو پننگ</string>
   <string name="help_window_pinning_text">آپ آپشنز مینو (تین نقطے، اوپری دائیں کونہ) سے ونڈو پننگ فعال کر سکتے ہیں۔ اگر ونڈو پننگ فعال ہو تو آپ بائبل ویو پر کئی پن شدہ ونڈوز دکھا سکتے ہیں، لیکن صرف ایک غیر پن شدہ ونڈو۔ پن شدہ ونڈوز پہلے دکھائی جاتی ہیں، پھر غیر پن شدہ۔ آپ بائبل دستاویزات پن شدہ ونڈوز میں اور تفسیریں اور نقشے وغیرہ غیر پن شدہ ونڈوز میں کھول سکتے ہیں۔ پھر بائبل دستاویزات ہمیشہ کھلی رہیں گی اور آپ بائبل مطالعہ کرتے وقت تفسیروں اور دیگر اضافی مواد کے درمیان آسانی سے سوئچ کر سکتے ہیں۔</string>
   <!--Welcome text-->
-  <string name="redownload_documents">فوری دوبارہ ڈاؤنلوڈ</string>
   <string name="welcome_message">%s ڈاؤنلوڈ کرنے کا شکریہ۔ فی الحال کوئی بائبل یا دستاویزات نصب نہیں ہیں۔ جاری رکھنے کے لیے براہ کرم انٹرنیٹ سے ڈاؤنلوڈ کر کے یا زپ فائل دستاویز بیک اپ سے لوڈ کر کے کم از کم 1 دستاویز انسٹال کریں۔</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -679,7 +678,6 @@
   <string name="format_ttf">TTF فونٹس (*.ttf)</string>
   <string name="format_csv_prompts">AI پرامپٹ ایڈ-آنز (*.csv)</string>
   <string name="format_studypads">AndBible ڈیٹابیسز سے مطالعہ پیڈز (*.abdb)</string>
-  <string name="redownload_message">پچھلی کتابوں/دستاویزات کی فہرست ملی۔ انہیں آسانی سے دوبارہ ڈاؤنلوڈ کرنے کے لیے نیچے کلک کریں۔</string>
   <!--Uncategorized-->
   <string name="close">بند کریں</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

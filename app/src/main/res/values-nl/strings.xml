@@ -743,7 +743,6 @@ Je kunt venster vastmaken aanzetten vanuit menu Opties (drie stippen, rechter bo
 Wanneer venster vastmaken is ingeschakeld, kun je meerdere vastgemaakte vensters laten zien in Bijbel weergave, maar slechts één niet-vast venster. Vastgemaakte vensters worden als eerste getoond, daarna de niet-vaste vensters.
 Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebruiken, en commentaren en mappen als niet-vastgemaakte vensters. Dan kun je eenvoudig wisselen tussen commentaren en ander extra materiaal, terwijl Bijbel documenten geopend blijven.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Snel opnieuw downloaden</string>
   <string name="welcome_message">Bedankt voor het downloaden van %s. Er zijn momenteel geen Bijbels of documenten geïnstalleerd. Om verder te gaan, installeer dan minstens 1 document van internet, of door het laden van een zip document backup bestand.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
@@ -758,8 +757,6 @@ Hiermee is het bv mogelijk de Bijbel documenten als vastgemaakt venster te gebru
   <string name="format_ttf">TTF-lettertypen (*.ttf)</string>
   <string name="format_csv_prompts">AI-promptinvoegtoepassingen (*.csv)</string>
   <string name="format_studypads">Studiemappen uit AndBible-databases (*.abdb)</string>
-  <string name="redownload_message">
-Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om ze makkelijk nogmaals te downloaden.</string>
   <!--Uncategorized-->
   <string name="close">Sluiten</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

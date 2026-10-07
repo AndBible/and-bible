@@ -720,7 +720,6 @@ quello di scorrere verso il basso dalla barra degli strumenti. Puoi anche usare 
 Puoi fissare le finestre dal menù opzioni (icona con tre punti, angolo in alto a destra).
 Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vista Bibbia, ma solo una finestra non fissa. Le finestre fisse vengono mostrate per prime, e dopo quelle non fisse. Potresti trovare utile aprire i documenti della Bibbia come finestre fisse, mentre i commentari, mappe, ecc. come finestre non fisse. In questo modo puoi facilmente avere i documenti biblici sempre aperti, e passare rapidamente ai commentari e ad altro materiale extra durante lo studio della Bibbia.</string>
   <!--Welcome text-->
-  <string name="redownload_documents">Riscarica rapidamente</string>
   <string name="welcome_message">Grazie per aver scaricato %s. Al momento non hai Bibbie o documenti installati. Per continuare, per favore installa almeno 1 documento scaricandolo da internet, oppure caricandolo da un backup su file zip.
     </string>
   <!--Supported file formats for documents-->
@@ -736,9 +735,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="format_ttf">Caratteri TTF (*.ttf)</string>
   <string name="format_csv_prompts">Componenti aggiuntivi prompt IA (*.csv)</string>
   <string name="format_studypads">Appunti di studio da database AndBible (*.abdb)</string>
-  <string name="redownload_message">
-        E\' stato trovato un elenco di libri/documenti precedenti. Tocca qui sotto per riscaricarli facilmente.
-    </string>
   <!--Uncategorized-->
   <string name="close">Chiudi</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>

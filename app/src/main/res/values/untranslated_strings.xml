@@ -111,11 +111,6 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
     <string name="match_content">📄</string>
 
 	<!-- English-only feature -->
-	<string name="easy_start_title">Easy start</string>
-	<string name="easy_start_message">
-		To easily get started, click below to automatically download recommended default documents.
-		Recommended for first time users! You can change these settings later on.
-	</string>
 	<string name="welcome_tab_easy">Easy</string>
 	<string name="welcome_tab_advanced">Advanced</string>
 	<string name="welcome_quick_start_title">Quick start</string>
