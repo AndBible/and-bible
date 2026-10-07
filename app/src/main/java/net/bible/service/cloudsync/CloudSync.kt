@@ -29,7 +29,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
 import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
@@ -64,7 +63,6 @@ const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 const val TAG = "DeviceSync"
 
 class CancelStartedSync: Exception()
-class WorkspaceRefreshRequired {}
 
 val app get() = BibleApplication.application
 
@@ -118,7 +116,6 @@ object CloudSync {
     val workspaceRefreshRequired: Events<Unit> get() = refreshSource
 
     @VisibleForTesting internal fun notifyWorkspaceRefreshRequired() {
-        ABEventBus.post(WorkspaceRefreshRequired())              // removed in Task 5
         refreshSource.emit(Unit)
     }
 

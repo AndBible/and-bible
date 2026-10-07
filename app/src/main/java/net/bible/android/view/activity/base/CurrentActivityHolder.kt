@@ -17,12 +17,10 @@
 package net.bible.android.view.activity.base
 
 import androidx.annotation.VisibleForTesting
-import net.bible.android.control.event.ABEventBus
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 
-/** Whether the app as a whole is on screen. Replaces AppToBackgroundEvent.Position. */
+/** Whether the app as a whole is on screen. */
 enum class AppPosition { FOREGROUND, BACKGROUND }
 
 /** Allow operations form middle tier that require a reference to the current Activity
@@ -38,9 +36,6 @@ object CurrentActivityHolder {
     val appPositionChanges: Events<AppPosition> get() = positionSource
 
     @VisibleForTesting internal fun notifyAppPosition(position: AppPosition) {
-        ABEventBus.post(AppToBackgroundEvent(                    // removed in Task 5
-            if (position == AppPosition.FOREGROUND) AppToBackgroundEvent.Position.FOREGROUND
-            else AppToBackgroundEvent.Position.BACKGROUND))
         positionSource.emit(position)
     }
 

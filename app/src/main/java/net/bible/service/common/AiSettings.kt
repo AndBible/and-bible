@@ -18,9 +18,7 @@
 package net.bible.service.common
 
 import androidx.annotation.VisibleForTesting
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.GlobalAiSettings
@@ -52,7 +50,6 @@ object AiSettings {
     val configChanged: Events<Unit> get() = configSource
 
     fun notifyConfigChanged() {
-        ABEventBus.post(AppSettingsUpdated())                    // removed in Task 5
         configSource.emit(Unit)
     }
 

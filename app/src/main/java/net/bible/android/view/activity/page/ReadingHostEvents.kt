@@ -22,7 +22,3 @@ package net.bible.android.view.activity.page
  * every poster and subscriber reads the same; renaming them is left to the tail sweep (spec §2).
  */
 class KeyIsNull: Exception()
-
-class MainBibleAfterRestore
-
-class UpdateMainBibleActivityDocuments

@@ -18,7 +18,6 @@ package net.bible.android.view.activity.settings
 
 import net.bible.android.view.activity.nav.SystemBarSettingChanges
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.view.activity.nav.SystemBarSettingChangedEvent
 import android.os.Build
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

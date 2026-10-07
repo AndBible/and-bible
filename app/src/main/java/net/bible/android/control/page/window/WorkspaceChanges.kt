@@ -17,8 +17,6 @@
 package net.bible.android.control.page.window
 
 import androidx.annotation.VisibleForTesting
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 
@@ -99,7 +97,6 @@ object WorkspaceChanges {
     fun notifyColorEdited() = source.emit(WorkspaceChange.ColorEdited)
 
     fun notifySettingsEdited() {
-        ABEventBus.post(AppSettingsUpdated())                    // removed in Task 5
         source.emit(WorkspaceChange.SettingsEdited)
     }
 

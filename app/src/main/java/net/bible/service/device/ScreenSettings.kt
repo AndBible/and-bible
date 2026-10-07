@@ -24,7 +24,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.PowerManager
 import androidx.annotation.VisibleForTesting
-import net.bible.android.control.event.ABEventBus
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 
@@ -47,14 +46,11 @@ object ScreenSettings {
         }
     }
 
-    class NightModeChanged()
-
     private var nightModeSource = EventSource<Unit>()
-    /** The light sensor flipped night mode; subscribers re-read [nightMode]. Replaces NightModeChanged. */
+    /** The light sensor flipped night mode; subscribers re-read [nightMode]. */
     val nightModeChanges: Events<Unit> get() = nightModeSource
 
     @VisibleForTesting internal fun notifyNightModeChanged() {
-        ABEventBus.post(NightModeChanged())   // removed in Task 5
         nightModeSource.emit(Unit)
     }
 

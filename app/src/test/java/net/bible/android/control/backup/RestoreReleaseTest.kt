@@ -5,10 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
 import net.bible.android.control.page.window.WindowRepository
-import net.bible.android.view.activity.page.MainBibleAfterRestore
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter
@@ -74,12 +71,8 @@ class RestoreReleaseTest {
 
     private fun countReloads(block: () -> Unit): Int {
         var n = 0
-        var streamed = 0
-        val sub = Any()
-        val streamSub = DatabaseContainer.databaseRestored.subscribe { streamed++ }
-        ABEventBus.register(sub) { on<MainBibleAfterRestore> { n++ } }
-        try { block() } finally { ABEventBus.unregister(sub); streamSub.cancel() }
-        assertEquals("bus and stream agree", n, streamed)
+        val streamSub = DatabaseContainer.databaseRestored.subscribe { n++ }
+        try { block() } finally { streamSub.cancel() }
         return n
     }
 
@@ -97,7 +90,7 @@ class RestoreReleaseTest {
 
     @Test fun afterAThrowingRestoreAndItsReloadSavingWorksAgain() {
         runCatching { runBlocking { BackupControl.reloadingAfterReplace { DatabaseContainer.replacingDatabases { error("boom") } } } }
-        repo.loadFromDb(repo.id) // what MainBibleAfterRestore triggers on the host
+        repo.loadFromDb(repo.id) // what databaseRestored triggers on the host
         repo.name = "D"; repo.saveIntoDb(false)
         assertEquals("D", dao.workspace(repo.id)!!.name)
     }

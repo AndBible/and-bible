@@ -16,7 +16,6 @@
  */
 package net.bible.service.db
 
-import net.bible.android.view.activity.page.MainBibleAfterRestore
 import androidx.annotation.VisibleForTesting
 import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
@@ -26,7 +25,6 @@ import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.DocumentSyncDatabase
 import net.bible.android.database.LogEntry
@@ -375,7 +373,6 @@ class DatabaseContainer {
         /** A restore or a sync sign-in replaced the databases; the reading host reloads (replaces MainBibleAfterRestore). */
         val databaseRestored: Events<Unit> get() = _databaseRestored
         fun notifyDatabaseRestored() {
-            ABEventBus.post(MainBibleAfterRestore())              // removed in Task 5
             _databaseRestored.emit(Unit)
         }
         @VisibleForTesting internal fun emitWorkspacesSyncedForTest(entries: List<LogEntry>) = _workspacesSynced.emit(entries)
@@ -533,7 +530,6 @@ class DatabaseContainer {
                     localDbFile = application.getDatabasePath(WorkspaceDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.WORKSPACES,
                     _reactToUpdates = {
-                        ABEventBus.post(WorkspacesUpdatedViaSyncEvent(it))   // removed in Task 5
                         _workspacesSynced.emit(it)
                     },
                 ) },
@@ -574,4 +570,3 @@ class DatabaseContainer {
     }
 }
 
-class WorkspacesUpdatedViaSyncEvent(val updated: List<LogEntry>)

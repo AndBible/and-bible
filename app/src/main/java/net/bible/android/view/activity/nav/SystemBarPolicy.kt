@@ -2,7 +2,6 @@ package net.bible.android.view.activity.nav
 
 import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.event.EventSource
-import net.bible.android.control.event.ABEventBus
 import androidx.annotation.VisibleForTesting
 import android.view.Window
 import androidx.compose.ui.graphics.Color
@@ -70,15 +69,11 @@ class SystemBarController(private val window: Window) {
     }
 }
 
-/** Posted when `hide_status_bar` is written, so the host re-decides on the current destination. */
-class SystemBarSettingChangedEvent
-
-/** `hide_status_bar` was written, so hosts re-decide their system bars. Replaces SystemBarSettingChangedEvent. */
+/** `hide_status_bar` was written, so hosts re-decide their system bars. */
 object SystemBarSettingChanges {
     private var source = EventSource<Unit>()
     val changes: Events<Unit> get() = source
     fun notifyChanged() {
-        ABEventBus.post(SystemBarSettingChangedEvent())         // removed in Task 5
         source.emit(Unit)
     }
     @VisibleForTesting fun resetSubscribersForTest() { source = EventSource() }

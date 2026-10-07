@@ -17,9 +17,7 @@
 package net.bible.android.view.activity.settings
 
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
-import net.bible.android.view.activity.nav.SystemBarSettingChangedEvent
+import net.bible.android.view.activity.nav.SystemBarSettingChanges
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.settings.DictOption
 import net.bible.test.DatabaseResetter
@@ -71,15 +69,14 @@ class AppSettingsServiceImplTest {
 
     @Test fun writingHideStatusBarAnnouncesIt() {
         var seen = 0
-        val subscriber = Any()
-        ABEventBus.register(subscriber) { on<SystemBarSettingChangedEvent> { seen++ } }
+        val subscription = SystemBarSettingChanges.changes.subscribe { seen++ }
         try {
             AppSettingsServiceImpl().setBool("hide_status_bar", true)
             assertEquals(1, seen)
             AppSettingsServiceImpl().setBool("volume_keys_scroll", true)
             assertEquals("other keys do not announce it", 1, seen)
         } finally {
-            ABEventBus.unregister(subscriber)
+            subscription.cancel()
             CommonUtils.settings.setBoolean("hide_status_bar", false)
         }
     }
