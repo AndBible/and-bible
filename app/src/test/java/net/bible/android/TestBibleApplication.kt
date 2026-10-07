@@ -21,6 +21,7 @@ import android.content.res.Resources
 import android.util.Log
 import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.CommonUtils
+import net.bible.service.llm.agent.AgentSessionManager
 
 /**
  * Override settings if required
@@ -48,5 +49,6 @@ class TestBibleApplication : BibleApplication() {
         CommonUtils.destroy()
         super.onTerminate()
         ABEventBus.unregisterAll()
+        AgentSessionManager.resetSubscribersForTest()
     }
 }

@@ -22,7 +22,10 @@ import kotlinx.serialization.json.Json.Default.decodeFromString
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
+import androidx.annotation.VisibleForTesting
 import net.bible.android.control.event.ABEventBus
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -75,12 +78,35 @@ open class AgentSessionManagerBase : KoinComponent {
     val linkControl: LinkControl by inject()
 }
 
+@Deprecated("ABEventBus phase 4: use AgentSessionManager.changes")
 class AgentLogUpdatedEvent(
     val workspaceId: IdType,
     val entry: AgentLogEntry
 )
 
-/** Terminal outcome of an agent session, carried on [AgentSessionStatusChangedEvent]. */
+/** One agent-session change, in the order it happened (replaces three bus events). */
+sealed interface AgentSessionChange {
+    val workspaceId: IdType
+
+    /** [entry] was added or mutated in place. */
+    data class LogUpdated(override val workspaceId: IdType, val entry: AgentLogEntry) : AgentSessionChange
+
+    /** A run started ([isRunning] true, [stopReason] null) or stopped. */
+    data class StatusChanged(
+        override val workspaceId: IdType,
+        val isRunning: Boolean,
+        val stopReason: AgentStopReason? = null,
+    ) : AgentSessionChange
+
+    /** The agent waits for an Activity to ask the user, or stopped waiting. */
+    data class PermissionWaiting(
+        override val workspaceId: IdType,
+        val waiting: Boolean,
+        val toolName: String? = null,
+    ) : AgentSessionChange
+}
+
+/** Terminal outcome of an agent session, carried on [AgentSessionChange.StatusChanged]. */
 enum class AgentStopReason { COMPLETED, ERROR, CANCELLED }
 
 /**
@@ -92,6 +118,7 @@ enum class AgentStopReason { COMPLETED, ERROR, CANCELLED }
 fun shouldAutoHideAgentLog(settingEnabled: Boolean, reason: AgentStopReason?): Boolean =
     settingEnabled && reason != null && reason != AgentStopReason.ERROR
 
+@Deprecated("ABEventBus phase 4: use AgentSessionManager.changes")
 class AgentSessionStatusChangedEvent(
     val workspaceId: IdType,
     val isRunning: Boolean,
@@ -100,6 +127,7 @@ class AgentSessionStatusChangedEvent(
 )
 
 /** Posted when the agent is waiting for user to return to grant permission. */
+@Deprecated("ABEventBus phase 4: use AgentSessionManager.changes")
 class AgentPermissionWaitingEvent(
     val workspaceId: IdType,
     val waiting: Boolean,
@@ -113,7 +141,10 @@ sealed class PendingAgentResult {
 }
 
 /** One active session per workspace, maintaining log entries and execution state. */
-class AgentSession(val workspaceId: IdType) {
+class AgentSession(
+    val workspaceId: IdType,
+    private val emit: (AgentSessionChange) -> Unit = { AgentSessionManager.emitChange(it) },
+) {
     private val _logEntries = CopyOnWriteArrayList<AgentLogEntry>()
     val logEntries: List<AgentLogEntry> get() = _logEntries
 
@@ -151,7 +182,7 @@ class AgentSession(val workspaceId: IdType) {
         _logEntries.clear()
         rawLlmLog = RawLlmLog()
         addLogEntry(AgentLogEntry.info("Agent started"))
-        ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, true))
+        emit(AgentSessionChange.StatusChanged(workspaceId, true))
         return true
     }
 
@@ -163,19 +194,19 @@ class AgentSession(val workspaceId: IdType) {
         running.set(false)
         this.job?.cancel()
         this.job = null
-        ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, false, reason))
+        emit(AgentSessionChange.StatusChanged(workspaceId, false, reason))
     }
 
     fun addLogEntry(entry: AgentLogEntry) {
         _logEntries.add(entry)
-        ABEventBus.post(AgentLogUpdatedEvent(workspaceId, entry))
+        emit(AgentSessionChange.LogUpdated(workspaceId, entry))
     }
 
     fun updateEntryStatus(entryId: IdType, newStatus: EntryStatus) {
         val entry = _logEntries.find { it.id == entryId }
         if (entry != null) {
             entry.status = newStatus
-            ABEventBus.post(AgentLogUpdatedEvent(workspaceId, entry))
+            emit(AgentSessionChange.LogUpdated(workspaceId, entry))
         }
     }
 
@@ -190,7 +221,7 @@ class AgentSession(val workspaceId: IdType) {
         entry.message = message
         entry.details = details
         entry.status = status
-        ABEventBus.post(AgentLogUpdatedEvent(workspaceId, entry))
+        emit(AgentSessionChange.LogUpdated(workspaceId, entry))
         return true
     }
 
@@ -202,7 +233,7 @@ class AgentSession(val workspaceId: IdType) {
         val entry = _logEntries.lastOrNull() ?: return
         entry.costInfo = costInfo
         entry.isTotalCost = isTotalCost
-        ABEventBus.post(AgentLogUpdatedEvent(workspaceId, entry))
+        emit(AgentSessionChange.LogUpdated(workspaceId, entry))
     }
 
     fun clearLog() {
@@ -213,6 +244,24 @@ class AgentSession(val workspaceId: IdType) {
 
 /** One session per workspace, lazily created. */
 object AgentSessionManager : AgentSessionManagerBase() {
+    private var changeSource = EventSource<AgentSessionChange>()
+
+    /**
+     * Every agent-session change, in program order: log entries, run start/stop, permission waits.
+     * One stream, so `stop(message)`'s entry still precedes its status (replaces three bus events).
+     */
+    val changes: Events<AgentSessionChange> get() = changeSource
+
+    internal fun emitChange(change: AgentSessionChange) = changeSource.emit(change)
+
+    /** The agent waits for (or stopped waiting for) an Activity to ask the user. */
+    fun notifyPermissionWaiting(workspaceId: IdType, waiting: Boolean, toolName: String? = null) =
+        emitChange(AgentSessionChange.PermissionWaiting(workspaceId, waiting, toolName))
+
+    /** Test teardown: process-global, so leaked subscribers would outlive their test. */
+    @VisibleForTesting
+    fun resetSubscribersForTest() { changeSource = EventSource() }
+
     private val activeSessions = ConcurrentHashMap<IdType, AgentSession>()
     private var initialized = false
 
