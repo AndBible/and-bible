@@ -32,9 +32,8 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.agent.AgentLogEntry
-import net.bible.service.llm.agent.AgentLogUpdatedEvent
+import net.bible.service.llm.agent.AgentSessionChange
 import net.bible.service.llm.agent.AgentSessionManager
-import net.bible.service.llm.agent.AgentSessionStatusChangedEvent
 import net.bible.service.llm.agent.AgentStopReason
 import net.bible.service.llm.agent.LogEntryType
 import net.bible.sharedcore.ai.reading.AgentLogEntryVd
@@ -67,14 +66,9 @@ internal fun mapEntry(e: AgentLogEntry): AgentLogEntryVd = AgentLogEntryVd(
 internal fun AgentStopReason.toVd(): AgentStopReasonVd = AgentStopReasonVd.valueOf(name)
 
 /**
- * Android impl of [AgentSessionService], bridging three [ABEventBus] events
- * ([AgentLogUpdatedEvent], [AgentSessionStatusChangedEvent], [DefaultModelChangedEvent]) into a
- * [StateFlow] of an immutable [AgentLogSnapshot], scoped to the current workspace. All three are
- * still posted by live code, and each has other subscribers besides this one
- * (`AgentForegroundService`, `AiSettingsServiceImpl`, `LlmModelServiceImpl`). What is gone is the
- * classic `AgentLogWidget`, which used to subscribe to all three directly and which the Z-late
- * epilogue deleted (Task 5, decision D1); the `windowControl.windowRepository.id` lookup below was
- * taken from it.
+ * Android impl of [AgentSessionService], bridging [AgentSessionManager.changes] into a [StateFlow]
+ * of an immutable [AgentLogSnapshot], scoped to the current workspace. The
+ * `windowControl.windowRepository.id` lookup below was taken from the classic `AgentLogWidget`.
  *
  * Registered as a Koin single (lives for the process); the host calls [refresh] on workspace switch.
  */
@@ -84,7 +78,7 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
     /** Always reads the current workspace ID so it stays correct after workspace switches. */
     private fun wsId(): IdType = windowControl.windowRepository.id
 
-    /** Terminal stop reason from the most recent [AgentSessionStatusChangedEvent]; cleared on start. */
+    /** Terminal stop reason from the most recent [AgentSessionChange.StatusChanged]; cleared on start. */
     private var lastStop: AgentStopReasonVd? = null
 
     private val _snapshot = MutableStateFlow(build())
@@ -92,16 +86,19 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
 
     init {
         ABEventBus.register(this) {
-            onMain<AgentLogUpdatedEvent> { event ->
-                if (event.workspaceId == wsId()) refresh()
-            }
-            onMain<AgentSessionStatusChangedEvent> { event ->
-                if (event.workspaceId == wsId()) {
-                    lastStop = event.stopReason?.toVd()
+            onMain<DefaultModelChangedEvent> { refresh() }
+        }
+        // Process lifetime (Koin single): never cancelled. onMain before, so subscribeOnMain now.
+        AgentSessionManager.changes.subscribeOnMain { change ->
+            if (change.workspaceId != wsId()) return@subscribeOnMain
+            when (change) {
+                is AgentSessionChange.LogUpdated -> refresh()
+                is AgentSessionChange.StatusChanged -> {
+                    lastStop = change.stopReason?.toVd()
                     refresh()
                 }
+                is AgentSessionChange.PermissionWaiting -> Unit // the panel never showed it
             }
-            onMain<DefaultModelChangedEvent> { refresh() }
         }
     }
 

@@ -16,12 +16,16 @@
  */
 package net.bible.android.view.activity.ai
 
+import android.os.Looper
+import net.bible.android.database.IdType
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentPermission
+import net.bible.service.llm.agent.AgentSessionChange
+import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.agent.AgentStopReason
 import net.bible.service.llm.agent.EntryStatus
 import net.bible.sharedcore.ai.reading.AgentStopReasonVd
@@ -36,16 +40,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 /**
- * Covers the PURE parts of [AgentSessionServiceImpl]: the [mapEntry] entry mapping, the
- * [AgentStopReason.toVd] enum bridge, and the two settings-key round trips. The event-bridge
- * (ABEventBus subscriptions rebuilding [AgentSessionServiceImpl.snapshot] on
- * AgentLogUpdatedEvent/AgentSessionStatusChangedEvent/DefaultModelChangedEvent) and the
- * DB-backed [AgentSessionServiceImpl.configuredModels] (same mapping as
- * `ReadingLlmServiceImplTest.configuredModels_*`, already covered there) are left to device A/B —
- * they need a live agent session / DB fixtures beyond what this pure-mapping test aims to assert.
+ * Covers the [mapEntry] entry mapping, the [AgentStopReason.toVd] enum bridge, settings-key
+ * round trips, and workspace-filtered session status changes rebuilding the snapshot.
+ * DB-backed [AgentSessionServiceImpl.configuredModels] uses the same mapping as
+ * `ReadingLlmServiceImplTest.configuredModels_*`, already covered there.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -54,6 +56,39 @@ class AgentSessionServiceImplTest {
     @After
     fun tearDown() {
         DatabaseResetter.resetDatabase()
+    }
+
+    // --- AgentSessionManager.changes ------------------------------------------------------------
+
+    @Test
+    fun aStopForTheCurrentWorkspaceSetsTheStopReason() {
+        val service = AgentSessionServiceImpl()
+        val ws = CommonUtils.windowControl.windowRepository.id
+        AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, isRunning = false, stopReason = AgentStopReason.ERROR))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
+        assertFalse(service.snapshot.value.running)
+    }
+
+    @Test
+    fun anotherWorkspacesStopIsIgnored() {
+        val service = AgentSessionServiceImpl()
+        AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(IdType(), isRunning = false, stopReason = AgentStopReason.ERROR))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertNull(service.snapshot.value.lastStopReason)
+    }
+
+    @Test
+    fun aStartClearsTheStopReason() {
+        val service = AgentSessionServiceImpl()
+        val ws = CommonUtils.windowControl.windowRepository.id
+        AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, false, AgentStopReason.COMPLETED))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(AgentStopReasonVd.COMPLETED, service.snapshot.value.lastStopReason)
+
+        AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, true))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertNull(service.snapshot.value.lastStopReason)
     }
 
     // --- mapEntry: all 5 kinds ------------------------------------------------------------------

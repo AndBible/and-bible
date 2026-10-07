@@ -3,7 +3,7 @@ package net.bible.sharedcore.ai.reading
 import kotlinx.coroutines.flow.StateFlow
 
 interface AgentSessionService {
-    /** Current workspace's session snapshot; re-emitted on each agent event (bridged from ABEventBus). */
+    /** Current workspace's session snapshot; re-emitted on each change (bridged from AgentSessionManager.changes). */
     val snapshot: StateFlow<AgentLogSnapshot>
     /** Cancel the running agent in the current workspace (AgentSessionManager.stopAgent). */
     fun stop()
