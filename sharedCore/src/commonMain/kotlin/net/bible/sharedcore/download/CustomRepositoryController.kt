@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
  * (id == 0), update (existing id), or delete, then a refresh. A rejected duplicate-name
  * upsert (classic: an `InstallManager` built-in-name clash or a `SQLiteConstraintException`,
  * both surfaced by the host as `service.upsert` returning `false`) fires [onDuplicate] instead
- * of silently applying, mirroring classic's `ToastEvent(duplicate_custom_repository)`.
+ * of silently applying, mirroring classic's `duplicate_custom_repository` toast.
  */
 class CustomRepositoryController(
     private val service: CustomRepositoryService,

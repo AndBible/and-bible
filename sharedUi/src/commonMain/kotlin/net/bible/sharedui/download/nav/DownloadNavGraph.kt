@@ -90,7 +90,7 @@ import net.bible.sharedui.strings.Strings
  * - [title] is the WINDOW title, classic's `android:label="@string/custom_repositories"` (one host
  *   now serves every cluster) -- the same string [CustomRepositoriesScreen] draws in its own top bar.
  *
- * - [onDuplicate] is classic `handleResult`'s `ToastEvent(duplicate_custom_repository)` path,
+ * - [onDuplicate] is classic `handleResult`'s `duplicate_custom_repository` toast path,
  *   surfaced when [CustomRepositoryController.applyResult] rejects an upsert as a duplicate name. It
  *   is threaded through [controllerFor] rather than set on the controller afterwards, because the
  *   controller's own `onDuplicate` var has to be wired before the first `applyResult` call could

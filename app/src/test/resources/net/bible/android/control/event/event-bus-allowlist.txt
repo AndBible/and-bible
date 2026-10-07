@@ -11,7 +11,6 @@ BookmarksDeletedEvent
 BookmarksUpdatedViaSyncEvent
 CurrentBibleVerseChanged
 CurrentVerseChangedEvent
-ErrorNotificationEvent
 HideTransportEvent
 LabelAddedOrUpdatedEvent
 LabelsDeletedEvent
@@ -30,7 +29,6 @@ StudyPadOrderEvent
 StudyPadTextEntryDeleted
 SynchronizeWindowsEvent
 SystemBarSettingChangedEvent
-ToastEvent
 UpdateMainBibleActivityDocuments
 WorkspaceRefreshRequired
 WorkspacesUpdatedViaSyncEvent

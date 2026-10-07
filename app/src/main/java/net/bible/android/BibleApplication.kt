@@ -38,12 +38,9 @@ import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
 import net.bible.android.control.event.UserMessage
 import net.bible.android.control.event.UserMessages
 import net.bible.sharedcore.event.Subscription
-import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.BugReport
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.ErrorActivity
@@ -143,17 +140,6 @@ open class BibleApplication : Application() {
             when (message) {
                 is UserMessage.Toast -> showToast(message)
                 is UserMessage.ErrorNotification -> showErrorNotification(message)
-            }
-        }
-        // Transition (phase 9 plan Task 2-4): unmigrated posts still reach the presenter.
-        ABEventBus.register(this) {
-            on<ToastEvent> { ev ->
-                if (ev.messageId != null) UserMessages.toast(ev.messageId, long = ev.duration == Toast.LENGTH_LONG)
-                else UserMessages.toast(ev.message)
-            }
-            on<ErrorNotificationEvent> { ev ->
-                if (ev.message != null) UserMessages.errorNotification(ev.message, ev.showReportButton)
-                else UserMessages.errorNotification(ev.messageId ?: R.string.error_occurred)
             }
         }
         InstallManager.installSiteMap(
@@ -410,11 +396,6 @@ open class BibleApplication : Application() {
         val newConf = Configuration(oldConf)
         newConf.setLocale(Locale(language))
         return app.createConfigurationContext(newConf).resources
-    }
-
-    class ErrorNotificationEvent(val message: String? = null, val messageId: Int?= null, val showReportButton: Boolean = true) {
-        constructor(messageId: Int): this(null, messageId)
-        constructor(message: String): this(message, null)
     }
 
     private fun createChannels() {

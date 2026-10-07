@@ -44,7 +44,7 @@ import net.bible.sharedui.strings.LocalStrings
  * The repeat-passage verse range page: both endpoints visible at once, each opening the passage
  * grid as the next page of the same sheet.
  *
- * The ordering failure is shown INLINE under the end row. Before round 13a it was a `ToastEvent`
+ * The ordering failure is shown INLINE under the end row. Before round 13a it was a toast
  * fired after the second full-screen picker had already closed, which is why the flow read as
  * "nothing happened".
  */
