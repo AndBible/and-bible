@@ -158,6 +158,56 @@ class BookmarkControlChangesTest {
         assertNull(dao.studyPadTextEntryById(entry.id))
     }
 
+    @Test fun updatingStudyPadEntryPersistsMetadataAndEmitsHydratedEntry() {
+        val l = label()
+        control.createStudyPadEntry(l.id, 0)
+        val entry = dao.studyPadTextEntriesByLabelId(l.id).single()
+        control.updateStudyPadTextEntryText(entry.id, "retained text")
+        val updated = entry.studyPadTextEntryEntity.copy(orderNumber = 7, indentLevel = 2)
+        seen.clear()
+
+        control.updateStudyPadTextEntry(updated)
+
+        val stored = dao.studyPadTextEntryById(entry.id)!!
+        assertEquals(7, stored.orderNumber)
+        assertEquals(2, stored.indentLevel)
+        assertEquals("retained text", stored.text)
+        assertEquals("one StudyPad change must be emitted after persistence", 1, seen.size)
+        val change = seen.single() as BookmarkChange.StudyPadOrder
+        assertEquals(l.id, change.labelId)
+        assertEquals(stored, change.newStudyPadTextEntry)
+        assertTrue(change.bookmarkToLabelsOrderChanged.isEmpty())
+        assertTrue(change.genericBookmarkToLabelsOrderChanged.isEmpty())
+        assertTrue(change.studyPadOrderChanged.isEmpty())
+    }
+
+    @Test fun explicitStudyPadReorderPersistsAllKindsAndEmitsTheirNewOrders() {
+        val l = label()
+        val bible = bookmark(labels = setOf(l.id))
+        val generic = control.addOrUpdateGenericBookmark(GenericBookmarkWithNotes(
+            key = "reorder-key", bookInitials = "missing-test-document", ordinalStart = null, ordinalEnd = null,
+            startOffset = null, endOffset = null, playbackSettings = null, new = true,
+        ), setOf(l.id))
+        control.createStudyPadEntry(l.id, 0)
+        val entry = dao.studyPadTextEntriesByLabelId(l.id).single().copy(orderNumber = 0, indentLevel = 3)
+        val bibleLink = control.getBibleBookmarkToLabel(bible.id, l.id)!!.apply { orderNumber = 2 }
+        val genericLink = control.getGenericBookmarkToLabel(generic.id, l.id)!!.apply { orderNumber = 1 }
+        seen.clear()
+
+        control.updateOrderNumbers(l.id, listOf(bibleLink), listOf(genericLink), listOf(entry))
+
+        assertEquals(2, control.getBibleBookmarkToLabel(bible.id, l.id)!!.orderNumber)
+        assertEquals(1, control.getGenericBookmarkToLabel(generic.id, l.id)!!.orderNumber)
+        assertEquals(entry, dao.studyPadTextEntryById(entry.id))
+        assertEquals("one StudyPad change must be emitted after persistence", 1, seen.size)
+        val change = seen.single() as BookmarkChange.StudyPadOrder
+        assertEquals(l.id, change.labelId)
+        assertNull(change.newStudyPadTextEntry)
+        assertEquals(listOf(bibleLink), change.bookmarkToLabelsOrderChanged)
+        assertEquals(listOf(genericLink), change.genericBookmarkToLabelsOrderChanged)
+        assertEquals(listOf(entry), change.studyPadOrderChanged)
+    }
+
     @Test fun changeLabelsForBookmarksEmitsOnceWithHydratedLabels() {
         val l = label()
         val ids = listOf(bookmark().id, bookmark(2).id)
