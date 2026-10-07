@@ -119,8 +119,6 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
-import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.document.canDelete
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
@@ -239,7 +237,6 @@ import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.backup.BackupServiceImpl
 import net.bible.service.db.exportStudyPads
-import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.llm.LlmCostTracker
@@ -4492,24 +4489,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data)
         if (bookmarks != null) {
             lifecycleScope.launch(Dispatchers.IO) {
-                for (bookmark in bookmarks) {
-                    bookmarkControl.changeLabelsForBookmark(bookmark, resultData.selectedLabels.toList())
-                    // F54 fix round 2: `changeLabelsForBookmark` is a bare DAO write that never
-                    // touches `bookmark` itself. `pendingAssign`'s objects were loaded through
-                    // `BookmarksServiceImpl.loadRows` (`addData = false`), so `labelIds` is `null` --
-                    // posting them as-is makes `BibleView`'s `ClientBibleBookmark(...).asJson`
-                    // (`ClientPageObjects.kt`) throw on `labelIds!!`, an NPE `ABEventBus` swallows, so
-                    // the WebView never updates. Refresh each bookmark's cached labels/text in place
-                    // before the post, mirroring what `addOrUpdateBookmark` -- the reading view's own
-                    // quick-assign path, which posts correctly -- does to its own bookmark.
-                    bookmarkControl.refreshTextAndLabels(bookmark)
-                }
-                // `BookmarksAddedOrUpdatedEvent` is what `BibleView` (`:1015`) listens to. Posted
-                // ONCE for the whole batch rather than inside the loop, and fixed here rather than
-                // inside `changeLabelsForBookmark`, whose other caller is `BookmarkCsvUtils`' bulk
-                // import.
+                // The owner hydrates each bookmark and announces the batch once (F54).
+                bookmarkControl.changeLabelsForBookmarks(bookmarks, resultData.selectedLabels.toList())
                 windowControl.windowRepository.updateRecentLabels(resultData.selectedLabels.toList())
-                ABEventBus.post(BookmarksAddedOrUpdatedEvent(bookmarks))
                 windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                 withContext(Dispatchers.Main) { session.controller.refresh() }
             }
@@ -4552,18 +4534,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /**
-     * Classic's `ABEventBus.register(this) { onMain<BookmarksUpdatedViaSyncEvent> { controller.refresh() } }`
-     * (`BookmarksComposeActivity.kt:99`) and its `onDestroy` unregister (`:149`), as the per-destination
-     * seam [subscribeReadingPlansUpdated] established: a fresh token per subscription, so an unsubscribe
-     * can never take another cluster's listeners down with it.
+     * Reacts to [DatabaseContainer.bookmarksSynced] on main through a per-destination subscription.
+     * Unsubscribing one destination never affects another destination's listeners.
      */
-    private fun subscribeBookmarksUpdated(onBookmarksChanged: () -> Unit): () -> Unit {
-        val token = Any()
-        ABEventBus.register(token) {
-            onMain<BookmarksUpdatedViaSyncEvent> { onBookmarksChanged() }
-        }
-        return { ABEventBus.unregister(token) }
-    }
+    private fun subscribeBookmarksUpdated(onBookmarksChanged: () -> Unit): () -> Unit =
+        subscribeToBookmarkSync(onBookmarksChanged)
 
     // --- ManageLabels host baggage -------------------------------------------------------------
     // Ported from ManageLabelsComposeActivity (which a later task deletes). Everything here needs a
@@ -4773,7 +4748,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 } else {
                     dao.deleteLabelOverride(returnedOverride.workspaceId, returnedOverride.labelId)
                 }
-                ABEventBus.post(LabelAddedOrUpdatedEvent(updatedLabel))
+                bookmarkControl.notifyLabelChanged(updatedLabel)
                 controller.refresh() // re-derive the override (Tune icon) indicator immediately
             }
         }

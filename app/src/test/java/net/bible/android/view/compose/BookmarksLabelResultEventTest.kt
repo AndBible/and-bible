@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.compose
 
+import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -23,9 +24,7 @@ import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
+import net.bible.android.control.bookmark.BookmarkChange
 import net.bible.android.control.page.ClientBibleBookmark
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.firstTime
@@ -198,16 +197,18 @@ class BookmarksLabelResultEventTest {
 
     @Test
     fun assigningLabelsFromTheBookmarksListAnnouncesTheChangeOnce() {
-        // Built BEFORE the event bus is watched: `addOrUpdateBibleBookmark` (the creation path) posts
-        // its own BookmarksAddedOrUpdatedEvent per bookmark, which would otherwise be counted as if it
+        // Built before `changes` is watched: `addOrUpdateBibleBookmark` (the creation path) emits
+        // its own BookmarksUpserted per bookmark, which would otherwise be counted as if it
         // were the label-assignment announcement under test and mask a genuine 0.
         val bookmarks = twoBookmarks()
 
-        val seen = mutableListOf<BookmarksAddedOrUpdatedEvent>()
+        val seen = mutableListOf<BookmarkChange.BookmarksUpserted>()
         val latch = CountDownLatch(1)
-        ABEventBus.register(this) {
-            on<BookmarksAddedOrUpdatedEvent> {
-                seen += it
+        var emittedOnMain = true
+        val subscription = bookmarkControl().changes.subscribe { change ->
+            if (change is BookmarkChange.BookmarksUpserted) {
+                emittedOnMain = Looper.myLooper() == Looper.getMainLooper()
+                seen += change
                 latch.countDown()
             }
         }
@@ -218,19 +219,21 @@ class BookmarksLabelResultEventTest {
                 "the background write never announced the change within 5s (F54)",
                 latch.await(5, TimeUnit.SECONDS),
             )
+            assertTrue("label writes and their announcement must stay off main", !emittedOnMain)
             assertEquals(
                 "the change must be announced exactly once for the whole batch -- the open reading " +
                     "view learns of it no other way (F54)",
                 1,
                 seen.size,
             )
+            assertEquals(bookmarks.map { it.id }, seen.single().bookmarks.map { it.id })
             assertEquals(
                 "and it must carry both bookmarks",
                 2,
                 seen.single().bookmarks.size,
             )
         } finally {
-            ABEventBus.unregister(this)
+            subscription.cancel()
         }
     }
 
@@ -248,11 +251,13 @@ class BookmarksLabelResultEventTest {
     fun assigningLabelsFromTheBookmarksListPostsBookmarksWithTheNewLabels() {
         val bookmarks = twoBookmarksAsTheBookmarksListWouldLoadThem()
 
-        val seen = mutableListOf<BookmarksAddedOrUpdatedEvent>()
+        val seen = mutableListOf<BookmarkChange.BookmarksUpserted>()
         val latch = CountDownLatch(1)
-        ABEventBus.register(this) {
-            on<BookmarksAddedOrUpdatedEvent> {
-                seen += it
+        var emittedOnMain = true
+        val subscription = bookmarkControl().changes.subscribe { change ->
+            if (change is BookmarkChange.BookmarksUpserted) {
+                emittedOnMain = Looper.myLooper() == Looper.getMainLooper()
+                seen += change
                 latch.countDown()
             }
         }
@@ -263,7 +268,9 @@ class BookmarksLabelResultEventTest {
                 "the background write never announced the change within 5s (F54)",
                 latch.await(5, TimeUnit.SECONDS),
             )
+            assertTrue("label writes and their announcement must stay off main", !emittedOnMain)
             val posted = seen.single().bookmarks
+            assertEquals(bookmarks.map { it.id }, posted.map { it.id })
             assertEquals(2, posted.size)
             posted.forEach {
                 val bibleBookmark = it as BookmarkEntities.BibleBookmarkWithNotes
@@ -278,7 +285,7 @@ class BookmarksLabelResultEventTest {
                 ClientBibleBookmark(bibleBookmark, kjv).asJson
             }
         } finally {
-            ABEventBus.unregister(this)
+            subscription.cancel()
         }
     }
 }

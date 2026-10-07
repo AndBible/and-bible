@@ -3,12 +3,10 @@ AiDocPagesChangedEvent
 AppSettingsUpdated
 AppToBackgroundEvent
 BibleViewTouched
-BookmarkEvent
 BookmarkNoteModifiedEvent
 BookmarkToLabelAddedOrUpdatedEvent
 BookmarksAddedOrUpdatedEvent
 BookmarksDeletedEvent
-BookmarksUpdatedViaSyncEvent
 CurrentBibleVerseChanged
 CurrentVerseChangedEvent
 ErrorNotificationEvent

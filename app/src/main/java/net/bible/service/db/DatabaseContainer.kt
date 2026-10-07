@@ -504,7 +504,6 @@ class DatabaseContainer {
                     category = SyncableDatabaseDefinition.BOOKMARKS,
                     _reactToUpdates = { entries ->
                         _bookmarksSynced.emit(entries)
-                        ABEventBus.post(BookmarksUpdatedViaSyncEvent(entries))
                     },
                 ) },
                 { SyncableDatabaseAccessor(
@@ -556,5 +555,4 @@ class DatabaseContainer {
 }
 
 class WorkspacesUpdatedViaSyncEvent(val updated: List<LogEntry>)
-class BookmarksUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class MyDocumentsUpdatedViaSyncEvent(val updated: List<LogEntry>)

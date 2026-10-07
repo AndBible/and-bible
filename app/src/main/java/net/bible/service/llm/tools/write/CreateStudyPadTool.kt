@@ -21,8 +21,6 @@ import org.koin.core.context.GlobalContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
-import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -190,7 +188,7 @@ object CreateStudyPadTool : Tool {
         val existingNames = bookmarkControl.assignableLabels.map { it.name }
         val uniqueName = uniqueLabelName(name, existingNames)
 
-        // Create the label (insertOrUpdateLabel sends LabelAddedOrUpdatedEvent)
+        // Create the label (insertOrUpdateLabel announces it on BookmarkControl.changes)
         val color = if (args.color != 0) args.color else defaultLabelColor
         val label = try {
             bookmarkControl.insertOrUpdateLabel(Label(name = uniqueName, color = color, new = true))
@@ -271,8 +269,7 @@ object CreateStudyPadTool : Tool {
                             orderNumber = index,
                             indentLevel = item.indentLevel
                         )
-                        dao.insert(btl)
-                        ABEventBus.post(BookmarkToLabelAddedOrUpdatedEvent(btl))
+                        bookmarkControl.insertBookmarkToLabel(btl)
 
                         // Set StudyPad label as primary (instead of AI label)
                         savedBookmark.primaryLabelId = label.id
