@@ -76,9 +76,16 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
                 primaryTargetLinksWindowId = it.id
             }
 
-    fun addNewLinksWindow() = addNewWindow().also {
-        it.isSynchronised = false
-        it.isLinksWindow = true
+    fun addNewLinksWindow(): Window {
+        val sizeSource = activeWindow
+        return addNewWindow().also {
+            it.isSynchronised = false
+            it.isLinksWindow = true
+            // Again, now that it is a links window: addNewWindow set the weight while the window
+            // could still be in the shared unpinned slot (Window.usesUnpinnedSlot), leaving its
+            // own weight at whatever raw value the copied entity carried.
+            it.weight = sizeSource.weight
+        }
     }
 
     val isMaximized get() = maximizedWindowId != null
