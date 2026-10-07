@@ -1798,7 +1798,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             if (field == value) return
             field = value
             speakTransportServiceImpl.setTransportVisible(value)
-            readingInsets.onSpeakTransportVisibilityChanged()
+            readingInsets.onTransportVisibilityChanged()
         }
 
     // R6d fix round 1 (review Important): this host's own 11-line copy of classic's `pageTitleText`
@@ -6525,11 +6525,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val unsubscribePlans = subscribeToReadingPlanSync { recreate() }
         // Seed the fresh controller with the CURRENT speak state. Classic never needed this: its
         // Activity (and its controller) merely paused behind the selector / day list, so the state
-        // pushed by the last SpeakEvent was still there on return. Here the arm's composition is
+        // pushed by the last SpeakChanges notification was still there on return. Here the arm's composition is
         // disposed and the controller rebuilt, so without this seed the screen would sit at
         // SpeakState.NONE — and DailyReadingScreen.kt:90 gates the pause/play and stop buttons on
         // `speakState != NONE`, so a user who changed day or plan mid-speech would lose the
-        // transport controls until the next SpeakEvent happened to fire.
+        // transport controls until the next SpeakChanges notification.
         pushReadingPlanSpeakState()
         return { speak.cancel(); unsubscribePlans() }
     }

@@ -30,7 +30,7 @@ class ReadingInsetsTest {
         val i = insets()
         val seen = mutableListOf<OffsetsChange>()
         val sub = i.offsetsChanged.subscribe { seen += it }
-        i.onSpeakTransportVisibilityChanged()
+        i.onTransportVisibilityChanged()
         sub.cancel()
         assertEquals(listOf(OffsetsChange(immediate = true)), seen)
     }

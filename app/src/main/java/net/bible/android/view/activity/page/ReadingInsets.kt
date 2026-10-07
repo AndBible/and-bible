@@ -202,11 +202,11 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
     }
 
     /**
-     * The Speak transport bar was shown or hidden (replaces BibleView's `SpeakTransportVisibilityChanged`
-     * handler). The bar's height is read live through [ReadingInsetsHostCallbacks], so this only asks
+     * The reading host calls this alongside `setTransportVisible` when the Speak bar is shown or
+     * hidden. The bar's height is read live through [ReadingInsetsHostCallbacks], so this only asks
      * BibleView to recompute and push its offsets now.
      */
-    fun onSpeakTransportVisibilityChanged() {
+    fun onTransportVisibilityChanged() {
         _offsetsChanged.emit(OffsetsChange(immediate = true))
     }
 

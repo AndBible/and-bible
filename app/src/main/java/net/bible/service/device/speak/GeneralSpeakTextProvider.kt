@@ -23,13 +23,11 @@ import android.util.Log
 import net.bible.service.common.CommonUtils
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
-import net.bible.service.device.speak.event.SpeakProgressEvent
 import net.bible.service.sword.SwordContentFacade
 import net.bible.android.activity.R
 import org.crosswire.jsword.book.Books
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.control.speak.load
@@ -395,17 +393,14 @@ class GeneralSpeakTextProvider(
         endKey = currentKey
 
         SpeakChanges.notifyProgress(SpeakChange.Progress(book, currentKey, null))
-        ABEventBus.post(SpeakProgressEvent(book, currentKey, null))
     }
 
     private fun clearNotificationAndWidgetTitles() {
         // Clear title and text from widget and notification.
         val titleCommand = TextCommand("", type=TextCommand.TextType.TITLE)
         SpeakChanges.notifyProgress(SpeakChange.Progress(book, startKey, titleCommand))
-        ABEventBus.post(SpeakProgressEvent(book, startKey, titleCommand))
         val normalCommand = TextCommand("", type=TextCommand.TextType.NORMAL)
         SpeakChanges.notifyProgress(SpeakChange.Progress(book, startKey, normalCommand))
-        ABEventBus.post(SpeakProgressEvent(book, startKey, normalCommand))
     }
 
     override fun forward(amount: SpeakSettings.RewindAmount?) {
@@ -425,7 +420,6 @@ class GeneralSpeakTextProvider(
         endKey = currentKey
         clearNotificationAndWidgetTitles()
         SpeakChanges.notifyProgress(SpeakChange.Progress(book, currentKey, null))
-        ABEventBus.post(SpeakProgressEvent(book, currentKey, null))
     }
 
     override fun finishedUtterance(utteranceId: String) {}
@@ -446,7 +440,6 @@ class GeneralSpeakTextProvider(
             val command = state.command!!
             val forceFollow = stopOrdinal != null
             SpeakChanges.notifyProgress(SpeakChange.Progress(state.book, key, command, forceFollow))
-            ABEventBus.post(SpeakProgressEvent(state.book, key, command, forceFollow))
         }
     }
 

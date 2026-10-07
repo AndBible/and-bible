@@ -468,9 +468,9 @@ class ReadingCommands(
      *
      * Lives here rather than in `ComposeReadingViewHost` because [transportBarVisible] is this
      * activity's private field and the single source of truth for bar visibility — the Compose side
-     * only ever OBSERVES it, through the `SpeakTransportVisibilityChanged` the setter posts. The
-     * setter's own `if (field == value) return` is what makes this idempotent: a second call posts
-     * no event and triggers no recomposition.
+     * only ever OBSERVES it, through the `setTransportVisible` call made by the setter. The
+     * setter's own `if (field == value) return` is what makes this idempotent: a second call sends
+     * no notification and triggers no recomposition.
      */
     internal fun composeShowSpeakTransport() {
         hostCallbacks.setTransportBarVisible(true)

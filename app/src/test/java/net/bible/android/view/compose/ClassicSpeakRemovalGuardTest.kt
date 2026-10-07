@@ -59,7 +59,7 @@ class ClassicSpeakRemovalGuardTest {
         // Batch Z-late epilogue, Task 5 (spec 10.4 / decision D1): the classic transport bar was
         // the last of the classic bottom chrome. It could not simply be left GONE -- a GONE view is
         // still ATTACHED, so it kept three ABEventBus subscriptions and ran getStatusText on every
-        // SpeakProgressEvent beside the Compose SpeakTransportController that replaced it.
+        // progress tick beside the Compose SpeakTransportController that replaced it.
         "src/main/java/net/bible/android/view/util/widget/SpeakTransportWidget.kt",
         "src/main/res/layout/speak_transport_widget.xml",
     )

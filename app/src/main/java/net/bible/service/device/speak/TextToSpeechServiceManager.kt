@@ -31,7 +31,6 @@ import androidx.annotation.RequiresApi
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.phonecall.PhoneCallMonitor
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -44,8 +43,6 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.device.speak.event.SpeakEvent
-import net.bible.service.device.speak.event.SpeakEvent.SpeakState
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
@@ -674,22 +671,14 @@ class TextToSpeechServiceManager constructor(
 			isPaused -> {
 				temporary = false
 				SpeakChanges.notifyState(SpeakPlaybackState.PAUSED)
-				ABEventBus.post(SpeakEvent(SpeakState.PAUSED))
 			}
 			isSpeaking -> {
 				temporary = false
 				SpeakChanges.notifyState(SpeakPlaybackState.SPEAKING)
-				ABEventBus.post(SpeakEvent(SpeakState.SPEAKING))
 			}
 			else -> {
-				val legacyState = if (temporary) SpeakState.TEMPORARY_STOP else SpeakState.SILENT
-				val state = when (legacyState) {
-					SpeakState.TEMPORARY_STOP -> SpeakPlaybackState.TEMPORARY_STOP
-					SpeakState.SILENT -> SpeakPlaybackState.SILENT
-					else -> error("Unexpected speak state: $legacyState")
-				}
+				val state = if (temporary) SpeakPlaybackState.TEMPORARY_STOP else SpeakPlaybackState.SILENT
 				SpeakChanges.notifyState(state)
-				ABEventBus.post(SpeakEvent(legacyState))
 			}
 		}
 

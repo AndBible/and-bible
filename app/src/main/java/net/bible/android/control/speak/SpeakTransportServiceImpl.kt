@@ -80,7 +80,7 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
         }
     }
 
-    /** The reading host's `transportBarVisible` changed (replaces `SpeakTransportVisibilityChanged`). */
+    /** The reading host calls [setTransportVisible] when its `transportBarVisible` changes. */
     fun setTransportVisible(visible: Boolean) {
         _state.value = build(visible = visible)
     }

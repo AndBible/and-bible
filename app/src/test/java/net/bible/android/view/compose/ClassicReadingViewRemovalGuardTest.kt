@@ -198,14 +198,11 @@ class ClassicReadingViewRemovalGuardTest {
      * regardless of visibility. `AgentLogWidget` likewise kept live bus handlers and a
      * `RecyclerView` adapter. So the tags go and the classes go with them.
      *
-     * The presence half is not decoration: both files held a LIVE declaration that the Compose path
-     * still posts and consumes (`HideTransportEvent`), so the deletion
-     * is only correct if those were split out first -- exactly the shape of
-     * [theRestoreButtonsEventOutlivesItsClassicHome] above. Deleting the widgets and dropping the
-     * events would break the Compose Speak bar's hide path and the agent-log offset bookkeeping,
-     * and the two halves together forbid the other failure mode too: a split-out file that merely
-     * shadows a still-present host. `AgentLogEvents.kt` was deleted in ABEventBus removal phase 0: its
-     * event had no sender.
+     * The live hide event was split out before deleting the widget, then replaced by a direct
+     * `setTransportVisible` call in `SpeakTransportServiceImpl.stop()` in ABEventBus removal phase 6.
+     * [ClassicSpeakRemovalGuardTest.theTransportBarsHidePathOutlivedTheWidget] pins that path, so
+     * no split-out speak event file must remain. `AgentLogEvents.kt` was deleted in ABEventBus
+     * removal phase 0: its event had no sender.
      *
      * The layout half used to read `main_bible_view.xml` and count the classic chrome tags in it.
      * Slice 8 F4 deleted that layout with `MainBibleActivity`, so the half is now "the layout is
@@ -223,12 +220,6 @@ class ClassicReadingViewRemovalGuardTest {
             "spec 10.4 / D1: a GONE view is still attached, so leaving these hidden kept three " +
                 "ABEventBus subscriptions and a per-tick getStatusText running beside the Compose " +
                 "controller. The tags go and the classes go with them.",
-        )
-        ClassicRemovalScan.assertPathsPresent(
-            listOf(
-                "src/main/java/net/bible/android/view/util/widget/SpeakTransportEvents.kt",
-            ),
-            "their live Compose-path events had to be split out first",
         )
         ClassicRemovalScan.assertPathsGone(
             listOf("src/main/res/layout/main_bible_view.xml"),

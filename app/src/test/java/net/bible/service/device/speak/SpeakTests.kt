@@ -116,15 +116,15 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
     @Test
     fun testPlaybackSettingsAreRefreshedWhenSettingsChangeExternally() {
         // Was testSpeakActivityIsUpdatedWhenSettingsAreChanged, which asserted that the classic
-        // Activity's view refreshed when a SpeakSettingsChangedEvent was posted behind its back.
+        // Activity's view refreshed when settings changed behind its back.
         // The observable state that carries that contract now is SpeakSettingsService.playback,
-        // which re-reads on exactly that event (SpeakSettingsServiceImpl.kt:53-55).
+        // which re-reads on SpeakSettingsChanges notifications.
         val before = speakSettingsService.playback.value.speedPercent
         val s = SpeakSettings.load()
         s.playbackSettings = s.playbackSettings.copy(speed = before + 10)
-        // save() itself broadcasts SpeakSettingsChangedEvent whenever the settings differ from
-        // currentSettings (SpeakSettings.kt:35), which they do here (speed changed by 10) — no
-        // extra post needed; this line still exercises the event->listener path this test is for.
+        // save() itself emits through SpeakSettingsChanges whenever the settings differ from
+        // currentSettings, which they do here (speed changed by 10) — no
+        // extra emit needed; this line still exercises the owner-to-listener path this test is for.
         s.save()
         assertThat(speakSettingsService.playback.value.speedPercent, equalTo(before + 10))
     }

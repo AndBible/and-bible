@@ -20,9 +20,6 @@ MyDocumentsUpdatedViaSyncEvent
 NightModeChanged
 PassageChangedEvent
 ReloadAddonsEvent
-SpeakEvent
-SpeakProgressEvent
-SpeakSettingsChangedEvent
 StudyPadOrderEvent
 StudyPadTextEntryDeleted
 SynchronizeWindowsEvent

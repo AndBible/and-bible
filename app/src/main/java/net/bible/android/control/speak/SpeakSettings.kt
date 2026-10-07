@@ -19,7 +19,6 @@ package net.bible.android.control.speak
 
 import android.util.Log
 import androidx.annotation.VisibleForTesting
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
@@ -28,9 +27,7 @@ import net.bible.service.common.CommonUtils
 
 const val PERSIST_SETTINGS = "SpeakSettings"
 
-data class SpeakSettingsChangedEvent(val speakSettings: SpeakSettings, val updateBookmark: Boolean = false, val sleepTimerChanged: Boolean = false)
-
-/** A saved change to the speak settings (replaces `SpeakSettingsChangedEvent`). */
+/** A saved change emitted by [SpeakSettingsChanges]. */
 data class SpeakSettingsChange(val speakSettings: SpeakSettings, val updateBookmark: Boolean = false, val sleepTimerChanged: Boolean = false)
 
 /** Synchronous change stream owned by the persisted global speak settings. */
@@ -54,7 +51,6 @@ fun SpeakSettings.save(updateBookmark: Boolean = false) {
         val updateBookmarkNow = updateBookmark && oldSettings?.playbackSettings?.equals(this.playbackSettings) != true
         val sleepTimerChanged = oldSettings?.sleepTimer != this.sleepTimer
         SpeakSettingsChanges.emit(SpeakSettingsChange(this, updateBookmarkNow, sleepTimerChanged))
-        ABEventBus.post(SpeakSettingsChangedEvent(this, updateBookmarkNow, sleepTimerChanged))
     }
 }
 

@@ -419,9 +419,9 @@ class HostedStateRefresher(
  * classic `MainBibleActivity.updateBottomBars()`'s `if (isFullScreen || !transportBarVisible)`
  * animate-out branch.
  *
- * [transportVisible] arrives from `SpeakTransportVisibilityChanged`, which the
- * `transportBarVisible` **setter** posts with the raw backing field — its getter's
- * `if (isFullScreen) false` mask is NOT applied before posting, and `toggleFullScreen()` emits
+ * [transportVisible] arrives through `SpeakTransportServiceImpl.setTransportVisible`, which the
+ * `transportBarVisible` **setter** calls with the raw backing field — its getter's
+ * `if (isFullScreen) false` mask is NOT applied before the call, and `toggleFullScreen()` emits
  * only `fullScreenChanged`. So without re-applying the fullscreen half here, the bar stayed on
  * screen in fullscreen on the Compose path while classic animated it away (pre-A/B spec §1 P3).
  *
@@ -1207,8 +1207,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * State holder for the reading-view Speak transport bar (Batch 12f Task 6) — the compose-path
      * counterpart of classic `SpeakTransportWidget`. Not `private`, mirroring [readingLlmDialogs]/
      * [agentLog] above, for the same test-visibility reason. Visibility flows entirely from
-     * [speakTransportService] (bridged from [MainBibleActivity.transportBarVisible] via
-     * `SpeakTransportVisibilityChanged`), NOT from a host-owned flag — the `onConfig` seam below is
+     * [speakTransportService] (bridged from `NavHostComposeActivity.transportBarVisible` via
+     * `setTransportVisible`), NOT from a host-owned flag — the `onConfig` seam below is
      * the only host-supplied one (round 13a: it opens the Speak settings SHEET over the reading
      * view via [showSpeakSettings]; the `Screen.BibleSpeak` route it replaced was removed from the
      * enum in Batch Z-late's epilogue). Rendered by [mountComposeView] (see [install]) as `ReadingViewScreen`'s `speakBar`

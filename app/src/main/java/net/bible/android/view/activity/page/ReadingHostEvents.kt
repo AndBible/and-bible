@@ -21,8 +21,6 @@ package net.bible.android.view.activity.page
  * The reading host's bus events, formerly nested in `MainBibleActivity` (deleted in slice 8). Same names, so
  * every poster and subscriber reads the same; renaming them is left to the tail sweep (spec §2).
  */
-class SpeakTransportVisibilityChanged(val value: Boolean)
-
 class KeyIsNull: Exception()
 
 class MainBibleAfterRestore

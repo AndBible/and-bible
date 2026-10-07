@@ -17,14 +17,12 @@
 package net.bible.service.device.speak
 
 import android.util.Log
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.database.bookmarks.SpeakSettings.RewindAmount
 import net.bible.service.common.AndRuntimeException
 import net.bible.service.common.CommonUtils.settings
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
-import net.bible.service.device.speak.event.SpeakProgressEvent
 import net.bible.service.sword.SwordContentFacade.getTextToSpeak
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
@@ -51,10 +49,8 @@ class LegacySpeakTextProvider : SpeakTextProvider {
             val key = keyList!![0]
             val normalCommand = TextCommand(currentText, TextCommand.TextType.NORMAL)
             SpeakChanges.notifyProgress(SpeakChange.Progress(book, key, normalCommand))
-            ABEventBus.post(SpeakProgressEvent(book, key, normalCommand))
             val titleCommand = TextCommand(book.name, TextCommand.TextType.TITLE)
             SpeakChanges.notifyProgress(SpeakChange.Progress(book, key, titleCommand))
-            ABEventBus.post(SpeakProgressEvent(book, key, titleCommand))
         }
     }
 
