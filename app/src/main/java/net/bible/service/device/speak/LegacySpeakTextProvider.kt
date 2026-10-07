@@ -18,7 +18,7 @@ package net.bible.service.device.speak
 
 import android.util.Log
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.database.bookmarks.SpeakSettings.RewindAmount
 import net.bible.service.common.AndRuntimeException
 import net.bible.service.common.CommonUtils.settings
@@ -69,7 +69,7 @@ class LegacySpeakTextProvider : SpeakTextProvider {
         }
     }
 
-    override fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {}
+    override fun updateSettings(change: SpeakSettingsChange) {}
 
     override var isSpeaking: Boolean
         get() = false

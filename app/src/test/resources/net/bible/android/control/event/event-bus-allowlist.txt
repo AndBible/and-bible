@@ -12,7 +12,6 @@ BookmarksUpdatedViaSyncEvent
 CurrentBibleVerseChanged
 CurrentVerseChangedEvent
 ErrorNotificationEvent
-HideTransportEvent
 LabelAddedOrUpdatedEvent
 LabelsDeletedEvent
 MainBibleAfterRestore
@@ -25,7 +24,6 @@ ReloadAddonsEvent
 SpeakEvent
 SpeakProgressEvent
 SpeakSettingsChangedEvent
-SpeakTransportVisibilityChanged
 StudyPadOrderEvent
 StudyPadTextEntryDeleted
 SynchronizeWindowsEvent

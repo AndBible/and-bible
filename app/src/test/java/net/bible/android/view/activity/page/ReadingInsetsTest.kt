@@ -26,4 +26,12 @@ class ReadingInsetsTest {
     @Test fun withTheSpeakBarUpTheWebViewNeedsNoBottomOffset() { transport = true; assertEquals(0, insets().bottomOffsetForWebView) }
     @Test fun withTheBarHiddenTheNavBarIsTheOffset() { assertEquals(39, insets().bottomOffsetForWebView) }
     @Test fun withTheBarAndTheRailOnlyTheRailCounts() { transport = true; rail = true; assertEquals(53, insets().bottomOffsetForWebView) }
+    @Test fun theSpeakBarTogglingAsksBibleViewForImmediateOffsets() {
+        val i = insets()
+        val seen = mutableListOf<OffsetsChange>()
+        val sub = i.offsetsChanged.subscribe { seen += it }
+        i.onSpeakTransportVisibilityChanged()
+        sub.cancel()
+        assertEquals(listOf(OffsetsChange(immediate = true)), seen)
+    }
 }

@@ -1111,7 +1111,6 @@ class BibleView(
                         val labelIds = json.encodeToString(serializer(), event.labelIds)
                         executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
                     }
-                    on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
                     // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here
                     // and finish a deferred teardown. Both events were posted only by the classic
                     // split reading area, so they became unpostable when it went; the live teardown

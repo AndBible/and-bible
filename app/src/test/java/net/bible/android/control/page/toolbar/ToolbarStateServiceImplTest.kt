@@ -31,7 +31,8 @@ import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.speak.event.SpeakEvent
+import net.bible.android.control.speak.SpeakChanges
+import net.bible.android.control.speak.SpeakPlaybackState
 import net.bible.sharedcore.reading.ToolbarState
 import net.bible.test.DatabaseResetter
 import net.bible.test.PassageTestData
@@ -202,7 +203,7 @@ class ToolbarStateServiceImplTest {
     }
 
     @Test
-    fun speakEvent_rebuildsSnapshot() {
+    fun speakStateChange_rebuildsSnapshot() {
         seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
         service.refresh()
         val before = service.toolbar.value
@@ -210,7 +211,7 @@ class ToolbarStateServiceImplTest {
         seedActivePageSilently(kjv, gen11) // silent -> no event yet
         assertThat(service.toolbar.value, equalTo(before))
 
-        ABEventBus.post(SpeakEvent(SpeakEvent.SpeakState.SILENT))
+        SpeakChanges.notifyState(SpeakPlaybackState.SILENT)
 
         val after = service.toolbar.value
         assertThat(after.documentTitle, equalTo(kjv.name))

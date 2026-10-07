@@ -34,7 +34,7 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.database.bookmarks.SpeakSettings
@@ -106,16 +106,16 @@ class BibleSpeakTextProvider(
 
     private val currentState: State get() = utteranceState[currentUtteranceId] ?: State(book, startVerse, endVerse, currentVerse)
 
-    override fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {
-        this.settings = speakSettingsChangedEvent.speakSettings
-        Log.i(TAG, "SpeakSettings updated: $speakSettingsChangedEvent")
+    override fun updateSettings(change: SpeakSettingsChange) {
+        this.settings = change.speakSettings
+        Log.i(TAG, "SpeakSettings updated: $change")
         val bookmark = bookmark
-        if(speakSettingsChangedEvent.updateBookmark && bookmark != null) {
+        if(change.updateBookmark && bookmark != null) {
             // If playback is paused or we are speaking, we need to update bookmark that is upon startVerse
             // (of which we will continue playback if unpaused)
 
             val oldPlaybackSettings = bookmark.playbackSettings
-            val newPlaybackSettings = speakSettingsChangedEvent.speakSettings.playbackSettings
+            val newPlaybackSettings = change.speakSettings.playbackSettings
             // Let's retain bookId and bookmarkWasCreated
 
             if (oldPlaybackSettings != null) {

@@ -39,7 +39,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakChanges
 import net.bible.android.control.speak.SpeakPlaybackState
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
+import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.control.speak.load
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.SpeakSettings
@@ -773,9 +773,9 @@ class TextToSpeechServiceManager constructor(
         return mSpeakTextProvider.getStatusText(showFlag)
     }
 
-    fun updateSettings(ev: SpeakSettingsChangedEvent) {
-        mSpeakTextProvider.updateSettings(ev)
-        setRate(ev.speakSettings.playbackSettings.speed)
+    fun updateSettings(change: SpeakSettingsChange) {
+        mSpeakTextProvider.updateSettings(change)
+        setRate(change.speakSettings.playbackSettings.speed)
 
     }
 

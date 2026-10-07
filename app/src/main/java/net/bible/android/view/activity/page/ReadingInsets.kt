@@ -202,6 +202,15 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
     }
 
     /**
+     * The Speak transport bar was shown or hidden (replaces BibleView's `SpeakTransportVisibilityChanged`
+     * handler). The bar's height is read live through [ReadingInsetsHostCallbacks], so this only asks
+     * BibleView to recompute and push its offsets now.
+     */
+    fun onSpeakTransportVisibilityChanged() {
+        _offsetsChanged.emit(OffsetsChange(immediate = true))
+    }
+
+    /**
      * Applies (or removes) the IME-height padding on the Compose/WebView container.
      *
      * Reads live state, so it needs no snapshot of the insets: the listener's original condition
