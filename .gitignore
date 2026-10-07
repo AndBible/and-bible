@@ -25,6 +25,7 @@ __pycache__/
 /app/src/main/assets/web/bibleview-js/
 /tmp/
 /ai-local/
+/.superpowers/
 /wiki/
 /readthedocs/
 /.playwright-mcp/
