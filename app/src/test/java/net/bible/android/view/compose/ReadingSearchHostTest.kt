@@ -20,6 +20,7 @@ import android.widget.FrameLayout
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -836,25 +837,46 @@ class ReadingSearchHostTest {
 
     /**
      * An EPUB query must reach the EPUB controller, never the SWORD one — and must actually run:
-     * loading flips synchronously (`EpubSearchResultsController.run` sets `_loading.value = true`
-     * BEFORE launching the coroutine, so this is deterministic, not a race), and the results sheet's
-     * scroll state is reset to a fresh instance, exactly as [ComposeReadingViewHost.runSearch] does
+     * loading stays true while a controlled service request is suspended, then clears on completion.
+     * A real missing-module search can finish before run returns, so it cannot pin pending state.
+     * The results sheet's scroll state resets to a fresh instance, as [ComposeReadingViewHost.runSearch] does
      * for a SWORD query. (Verified this test goes RED against an emptied `runEpubSearch` body — see
      * the fix-round section of `task-4-report.md`.)
      */
     @Test
     fun runEpubSearchDrivesTheEpubControllerAndNotTheSwordOne() {
-        val h = host()
-        val listStateBefore = h.searchResultsListStateForTest
-
-        h.runEpubSearch("TestEpub", "grace")
-
-        assertTrue(h.epubSearchResults.loading.value, "run() must flip loading synchronously")
-        assertNotSame(
-            listStateBefore, h.searchResultsListStateForTest,
-            "a new EPUB query must reset the sheet's scroll state, same as a SWORD query",
-        )
-        assertEquals(0, h.searchResults.results.value.total, "the SWORD controller must be untouched")
+        assertTrue(GlobalContext.get().get<EpubSearchService>() is AndroidEpubSearchService)
+        val completion = CompletableDeferred<List<EpubResultRow>>()
+        val calls = mutableListOf<Triple<String, String, EpubSearchMode>>()
+        val fake = object : EpubSearchService {
+            override fun isIndexed(docId: String) = true
+            override suspend fun searchEpub(docId: String, query: String, mode: EpubSearchMode): List<EpubResultRow> {
+                calls += Triple(docId, query, mode)
+                return completion.await()
+            }
+        }
+        val overrideModule = module { single<EpubSearchService> { fake } }
+        loadKoinModules(overrideModule)
+        try {
+            val h = host()
+            val listStateBefore = h.searchResultsListStateForTest
+            h.runEpubSearch("TestEpub", "grace")
+            assertEquals(listOf(Triple("TestEpub", "grace", h.epubSearchMode.value)), calls)
+            assertTrue(h.epubSearchResults.loading.value, "an unfinished EPUB request must be loading")
+            assertNotSame(
+                listStateBefore, h.searchResultsListStateForTest,
+                "a new EPUB query must reset the sheet's scroll state, same as a SWORD query",
+            )
+            assertFalse(h.searchResults.loading.value, "the SWORD controller must be untouched")
+            assertEquals(0, h.searchResults.results.value.total, "the SWORD controller must be untouched")
+            completion.complete(emptyList())
+            assertFalse(h.epubSearchResults.loading.value, "a completed EPUB request must stop loading")
+            assertFalse(h.epubSearchResults.error.value)
+        } finally {
+            completion.cancel()
+            unloadKoinModules(overrideModule)
+            loadKoinModules(module { singleOf(::AndroidEpubSearchService) { bind<EpubSearchService>() } })
+        }
     }
 
     /**
