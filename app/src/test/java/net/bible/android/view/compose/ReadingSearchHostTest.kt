@@ -27,6 +27,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.search.BibleSearchServiceImpl
+import net.bible.sharedcore.search.BibleSearchService
+import net.bible.sharedcore.search.SearchRequest
+import net.bible.sharedcore.search.SearchResultsCache
+import net.bible.sharedcore.search.MultiSearchResults
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
@@ -887,13 +892,45 @@ class ReadingSearchHostTest {
      */
     @Test
     fun runSearchDrivesTheSwordControllerAndNotTheEpubOne() {
-        val h = host()
-
-        h.runSearch("KJV", "grace")
-
-        assertTrue(h.searchResults.loading.value, "run() must flip loading synchronously")
-        assertFalse(h.epubSearchResults.loading.value, "the EPUB controller must be untouched")
-        assertTrue(h.epubSearchResults.results.value.isEmpty(), "no EPUB rows may appear for a Bible query")
+        val production = GlobalContext.get().get<BibleSearchService>()
+        assertTrue(production is BibleSearchServiceImpl)
+        val productionCache = GlobalContext.get().get<SearchResultsCache>()
+        val completion = CompletableDeferred<MultiSearchResults>()
+        val calls = mutableListOf<SearchRequest>()
+        val fake = object : BibleSearchService by production {
+            override suspend fun searchMulti(request: SearchRequest): MultiSearchResults {
+                calls += request
+                return completion.await()
+            }
+        }
+        // A shared cache hit bypasses the service; this test specifically owns an in-flight request.
+        val overrideModule = module {
+            single<BibleSearchService> { fake }
+            single { SearchResultsCache() }
+        }
+        loadKoinModules(overrideModule)
+        try {
+            val h = host()
+            h.runSearch("KJV", "grace")
+            assertEquals(1, calls.size)
+            assertEquals("grace", calls.single().query)
+            assertEquals(listOf("KJV"), calls.single().translationIds)
+            assertTrue(h.searchResults.loading.value, "an unfinished SWORD request must be loading")
+            assertFalse(h.epubSearchResults.loading.value, "the EPUB controller must be untouched")
+            assertTrue(h.epubSearchResults.results.value.isEmpty(), "no EPUB rows may appear for a Bible query")
+            val result = MultiSearchResults(main = emptyList(), other = emptyList(), total = 7)
+            completion.complete(result)
+            assertFalse(h.searchResults.loading.value, "a completed SWORD request must stop loading")
+            assertEquals(result, h.searchResults.results.value)
+            assertNull(h.searchResults.error.value)
+        } finally {
+            completion.cancel()
+            unloadKoinModules(overrideModule)
+            loadKoinModules(module {
+                single<BibleSearchService> { production }
+                single { productionCache }
+            })
+        }
     }
 
     /**
