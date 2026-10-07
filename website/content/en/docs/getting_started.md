@@ -28,6 +28,29 @@ to download (and update) the apk from Github. AFTER installing Obtainium, you ca
 [this link](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22net.bible.android.activity%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FAndBible%2Fand-bible%22%2C%22author%22%3A%22AndBible%22%2C%22name%22%3A%22Bible%20Study%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22filterReleaseTitlesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22filterReleaseNotesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22verifyLatestTag%5C%22%3Afalse%2C%5C%22sortMethodChoice%5C%22%3A%5C%22date%5C%22%2C%5C%22useLatestAssetDateAsReleaseDate%5C%22%3Afalse%2C%5C%22releaseTitleAsVersion%5C%22%3Afalse%2C%5C%22trackOnly%5C%22%3Afalse%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%5C%22%2C%5C%22versionDetection%5C%22%3Atrue%2C%5C%22releaseDateAsVersion%5C%22%3Afalse%2C%5C%22useVersionCodeAsOSVersion%5C%22%3Atrue%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22andbible-production%5C%22%2C%5C%22invertAPKFilter%5C%22%3Afalse%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22appName%5C%22%3A%5C%22%5C%22%2C%5C%22appAuthor%5C%22%3A%5C%22%5C%22%2C%5C%22shizukuPretendToBeGooglePlay%5C%22%3Afalse%2C%5C%22allowInsecure%5C%22%3Afalse%2C%5C%22exemptFromBackgroundUpdates%5C%22%3Afalse%2C%5C%22skipUpdateNotifications%5C%22%3Afalse%2C%5C%22about%5C%22%3A%5C%22%5C%22%2C%5C%22refreshBeforeDownload%5C%22%3Afalse%2C%5C%22includeZips%5C%22%3Afalse%2C%5C%22zippedApkFilterRegEx%5C%22%3A%5C%22%5C%22%7D%22%2C%22overrideSource%22%3Anull%7D)
 to load the AndBible config directly into Obtainium.
 
+## First start
+
+When you open *AndBible* for the first time, your library is empty, and the welcome screen offers
+ways to add documents.
+
+If your phone is set to English, the screen has two tabs:
+
+- **Easy** downloads a recommended set of Bibles, dictionaries and cross-references with one tap
+  (**Download and start**). If you have used *AndBible* on this device before, a
+  **Redownload** link lets you pick documents you had installed.
+- **Advanced** lists every option, described below.
+
+In other languages, the screen shows the Advanced options directly:
+
+- **Redownload Documents**: choose from documents installed earlier on this device (shown only
+  when there are any).
+- **Download Documents**: browse the online catalog of Bibles, commentaries, dictionaries and
+  books in many languages. See [Documents](documents.md).
+- **Load Documents From Files**: install from a file. Supported formats are AndBible zip,
+  MyBible, MySword and EPUB.
+- **Restore Database File**: restore a backup of your bookmarks, notes and settings. See
+  [Backup and restore](backup_restore.md).
+
 ## Linux setup
 
 1. [Install Waydroid](https://docs.waydro.id/usage/install-on-desktops)
