@@ -23,9 +23,9 @@ import kotlinx.coroutines.Job
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
+import net.bible.android.control.event.UserMessage
+import net.bible.android.control.event.UserMessages
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
-import net.bible.android.control.event.on
 import net.bible.android.control.page.window.WindowSync
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntry
@@ -37,6 +37,7 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
+import net.bible.sharedcore.event.Subscription
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
@@ -75,7 +76,7 @@ import kotlin.test.assertTrue
  * sync never ran on background/foreground.
  *
  * Each event is posted at a composed reading host and its classic effect asserted. The workspace
- * reloads are anchored on the `ToastEvent` `ReadingCommands.currentWorkspaceId`'s setter posts, the
+ * reloads are anchored on the `UserMessages` toast `ReadingCommands.currentWorkspaceId`'s setter posts, the
  * one loud synchronous effect of a workspace switch (as `ReadingHostResumeReconciliationTest` does).
  *
  * The second half is the gate: a host that has NOT run the reading bootstrap (here one started on
@@ -90,9 +91,11 @@ class ReadingHostSyncAndRestoreEventsTest {
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private var toasts = 0
+    private var toastSubscription: Subscription? = null
 
     @After
     fun tearDown() {
+        toastSubscription?.cancel()
         ABEventBus.unregister(this)
         controllers.forEach { runCatching { it.get().readingAppBootstrap.stopPeriodicSync() } }
         controllers.forEach { it.close() }
@@ -123,7 +126,7 @@ class ReadingHostSyncAndRestoreEventsTest {
 
     private fun countToasts() {
         toasts = 0
-        ABEventBus.register(this) { on<ToastEvent> { toasts++ } }
+        toastSubscription = UserMessages.messages.subscribe { if (it is UserMessage.Toast) toasts++ }
     }
 
     /**
@@ -176,7 +179,7 @@ class ReadingHostSyncAndRestoreEventsTest {
         ABEventBus.post(MainBibleAfterRestore())
         idleMain()
 
-        assertTrue(toasts > 0, "MainBibleAfterRestore must reload the workspace (its setter posts a ToastEvent)")
+        assertTrue(toasts > 0, "MainBibleAfterRestore must reload the workspace (its setter posts a toast)")
         assertNotEquals(0L, lastForceSyncAllField.getLong(windowSync), "…and flag every window for a forced resync")
         assertNotNull(activity.hostWindowRepository.activeWindow, "sanity: the reloaded workspace has an active window")
     }

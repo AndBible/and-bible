@@ -21,13 +21,14 @@ import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
-import net.bible.android.control.event.on
+import net.bible.android.control.event.UserMessage
+import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.event.Subscription
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
@@ -62,14 +63,14 @@ import kotlin.test.assertTrue
  * `Dispatchers.IO` — the same anchor
  * `ReadingDestinationInGraphTest.theComposedReadingViewsWindowsGetTheirInitialContentLoad` uses for
  * the ENTRY-time half of the same load. Nulling it and watching it come back is therefore a real
- * reload, not a proxy for one. The workspace arm is anchored on the `ToastEvent` its setter posts
+ * reload, not a proxy for one. The workspace arm is anchored on the `UserMessages` toast its setter posts
  * (`ReadingCommands.currentWorkspaceId`), which is the one loud, synchronous effect of a workspace
  * switch.
  *
  * Mutations, each of which fails exactly one test below: drop the
  * `UpdateMainBibleActivityDocuments` subscription; drop the `updateDocumentsPending` gate; drop the
  * repository reclaim; swap the `else if` for a second `if` (precedence — caught by the SECOND half
- * of [theWorkspaceReloadTakesPrecedenceOverTheDocumentRefresh], not by its `ToastEvent`).
+ * of [theWorkspaceReloadTakesPrecedenceOverTheDocumentRefresh], not by its `UserMessages` toast).
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -78,9 +79,11 @@ class ReadingHostResumeReconciliationTest {
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
     private var toasts = 0
+    private var toastSubscription: Subscription? = null
 
     @After
     fun tearDown() {
+        toastSubscription?.cancel()
         ABEventBus.unregister(this)
         controllers.forEach { it.close() }
         controllers.clear()
@@ -112,7 +115,7 @@ class ReadingHostResumeReconciliationTest {
 
     private fun countToasts() {
         toasts = 0
-        ABEventBus.register(this) { on<ToastEvent> { toasts++ } }
+        toastSubscription = UserMessages.messages.subscribe { if (it is UserMessage.Toast) toasts++ }
     }
 
     /**
@@ -208,7 +211,7 @@ class ReadingHostResumeReconciliationTest {
      * is reloaded and the document refresh is not ALSO run.
      *
      * **The second half is what makes this see the mutation** (fix round 1, review Minor 2a). The
-     * `ToastEvent` assertion alone cannot: with a second `if` instead of `else if` BOTH arms run and
+     * `UserMessages` toast assertion alone cannot: with a second `if` instead of `else if` BOTH arms run and
      * a toast is still posted. What only `else if` produces is a pending flag that SURVIVES the
      * workspace arm — `updateDocuments()` is the only thing that clears it, and classic does not
      * clear it on the needRefresh path — so the next ordinary resume is the one that performs the
@@ -234,7 +237,7 @@ class ReadingHostResumeReconciliationTest {
         assertTrue(
             toasts > 0,
             "the needRefresh arm must run the full workspace reload (whose setter posts a " +
-                "ToastEvent naming the workspace), not the document refresh",
+                "toast naming the workspace), not the document refresh",
         )
 
         val window = activity.hostWindowRepository.activeWindow
