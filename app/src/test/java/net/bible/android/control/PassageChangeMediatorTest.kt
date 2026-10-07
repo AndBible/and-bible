@@ -55,7 +55,8 @@ class PassageChangeMediatorTest {
 
     @Test fun currentPageChangedEmitsVerseChanged() {
         PassageChangeMediator.onCurrentPageChanged(window)
-        assertTrue(PageChange.VerseChanged(window) in received)
+        val verseChanges = received.filterIsInstance<PageChange.VerseChanged>()
+        assertEquals(listOf(PageChange.VerseChanged(window)), verseChanges)
     }
 
     @Test fun bibleVerseSelectedEmitsBibleVerseChanged() {

@@ -20,10 +20,16 @@ DONE
 - Confirmed synchronous delivery uses `EventSource.emit`; the explicit thread test checks the handler runs on the emitter thread.
 - Confirmed legacy posts remain alongside stream emissions and the allowlist guard passes.
 - Confirmed test lifecycle reset precedes subscription setup, avoiding cross-test mediator subscribers.
-- The `currentPageChanged` test checks for the contract event rather than enforcing an exact full event list because `updateText()` has existing, unrelated side effects.
+- The `currentPageChanged` assertion filters to `PageChange.VerseChanged` and requires exactly one event for the target window, while permitting `updateText()`'s existing `BibleVerseChanged` side effects.
 
 ## Concerns
-- No outstanding concerns. Gradle emitted existing configuration/deprecation warnings; no test or compilation errors on the final focused run.
+- Gradle emitted configuration and deprecation warnings. Their actual messages and origin verification status are recorded in the follow-up below; no test or compilation errors occurred on the final focused run.
 
 ## Commit
-Pending at report creation; see controller's final message for commit hash.
+Implementation commit: `39a5a000c`.
+
+## Review follow-up (base `39a5a000c76b148c561ab8e619aadaa95ae23605`)
+- Tightened `currentPageChangedEmitsVerseChanged` to filter `VerseChanged` events and assert exactly one `VerseChanged(window)` value. This catches duplicate/wrong-window verse emissions without asserting that `updateText()` emits no other event types.
+- Focused rerun command: `./gradlew -Dorg.gradle.native=false :app:testStandardGoogleplayDebugUnitTest --tests "*.PassageChangeMediatorTest"` (foreground, exit 0, `BUILD SUCCESSFUL`). The command listed all six mediator tests as PASSED: `currentPageChangedEmitsVerseChanged`, `selectingABibleVerseEmitsThroughTheMediator`, `bibleVerseSelectedEmitsBibleVerseChanged`, `currentVerseChangedEmitsVerseChangedForThatWindow`, `deliveryIsSynchronousOnTheEmittersThread`, and `contentChangeFinishedEmitsContentLoaded`. Result XML reported `tests=6`, `failures=0`, `errors=0`; the scoped test-results directory was removed after collection.
+- The fresh focused rerun emitted these six `WARNING` messages: `android.disallowKotlinSourceSets=false` is experimental; `sharedCore`'s `commonTest` source directory exists while Android host tests are not enabled; `ErrorReportControl.kt:78` uses a delicate API; `CommonUtils.kt:366` references deprecated `versionCode`; `CommonUtils.kt:694` calls deprecated `getColor`; and `CommonUtils.kt:1971` uses a return in an expression-body function, which becomes an error in Kotlin language version 2.5. The initial broad focused command's retained output also showed Gradle/JDK restricted-method warnings for `System::load` from `net.rubygrapefruit.platform.internal.NativeLibraryLoader`, Vite dynamic+static import warnings for `default.yaml` and `en.yaml`, a Vite >500 kB chunk warning, and Kotlin/Java deprecation warnings (including deprecated overrides, Hamcrest `assertThat`, and `SOFT_INPUT_ADJUST_RESIZE`). Its terminal output was truncated and not retained as a separate log, so the review's earlier total of 26 warning messages cannot be reconstructed exactly here. These messages concern build configuration, unrelated existing source locations, or build tooling; however, their pre-task origin is not independently proven from retained evidence and is explicitly unverified.
+- Follow-up commit: see commit hash in the coordinator's final message.
