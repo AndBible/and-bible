@@ -39,7 +39,6 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
-import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.OrdinalRange
@@ -1400,7 +1399,7 @@ class ReadingCommands(
      *    (`refreshSystemBars` / `showSystemUI`, the single system-bar writer));
      *  - the SD-card permission the "manual install folder" preference asks for, which is only ever
      *    requested on the way back from Settings;
-     *  - `SynchronizeWindowsEvent(true)`, which NOTHING else in the tree posts;
+     *  - the forced window resync performed here, its only caller;
      *  - `CommonUtils.changeAppIconAndName()`, whose ONLY production caller this is. `discrete_mode`
      *    forces a `recreate()`, and `recreate()` does not swap the launcher alias -- so without this
      *    call turning discrete mode on no longer hides the app's icon and name, a privacy feature
@@ -1412,7 +1411,7 @@ class ReadingCommands(
     internal fun preferenceSettingsChanged() {
         readingHost.applyIdleSystemUi()
         hostCallbacks.requestSdcardPermission()
-        ABEventBus.post(SynchronizeWindowsEvent(true))
+        windowControl.forceResyncAndReloadAll()
         CommonUtils.changeAppIconAndName()
         composeReadingViewHost?.refreshHostedState(rebuildComposition = true)
     }

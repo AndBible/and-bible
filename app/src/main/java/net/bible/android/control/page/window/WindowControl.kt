@@ -18,14 +18,12 @@
 package net.bible.android.control.page.window
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
-import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.PageChange
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.CurrentPageManager
@@ -83,14 +81,16 @@ open class WindowControl constructor() {
         }
     }
 
-    init {
-        ABEventBus.register(this) {
-            on<SynchronizeWindowsEvent> { event ->
-                if(event.forceSyncAll) {
-                    windowSync.setResyncRequired()
-                }
-                windowSync.reloadAllWindows()
-            }
+    @VisibleForTesting
+    internal var forceResyncCountForTest = 0
+
+    /** Marks every window for resync and reloads the visible ones (after a settings change). */
+    fun forceResyncAndReloadAll() {
+        forceResyncCountForTest++
+        try {
+            windowSync.reloadAllWindows(force = true)
+        } catch (e: Throwable) {
+            Log.e(TAG, "reloadAllWindows failed", e)
         }
     }
 

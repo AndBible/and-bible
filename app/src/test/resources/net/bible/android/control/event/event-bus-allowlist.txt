@@ -4,7 +4,6 @@ BibleViewTouched
 MainBibleAfterRestore
 NightModeChanged
 ReloadAddonsEvent
-SynchronizeWindowsEvent
 SystemBarSettingChangedEvent
 UpdateMainBibleActivityDocuments
 WorkspaceRefreshRequired
