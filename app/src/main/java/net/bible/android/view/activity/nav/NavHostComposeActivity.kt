@@ -180,7 +180,6 @@ import net.bible.android.view.activity.download.isInstalled
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.ActivityResultKind
 import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.page.FullScreenEvent
 import net.bible.android.view.activity.page.KeyChooserResults
 import net.bible.android.view.activity.page.ReadingAppBootstrap
 import net.bible.android.view.activity.page.ReadingHostActivity
@@ -1453,7 +1452,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * [ReadingHostActivity.fullScreen]. Reads `SharedActivityState` DIRECTLY instead of mirroring it
      * into a field of its own the way classic does: `MainBibleActivity.toggleFullScreen` has always
      * written that process-wide bit, so while both Activities are alive a second copy could only
-     * disagree with the reading view's own `FullScreenEvent` subscribers.
+     * disagree with the reading view's own `fullScreenChanged` subscribers.
      */
     override var fullScreen: Boolean
         get() = sharedActivityState.isFullScreen
@@ -1481,13 +1480,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /**
      * Classic `MainBibleActivity.toggleFullScreen`. Its `updateToolbar()` call is [applyIdleSystemUi]
      * here: since the Compose toolbar took over, classic's `updateToolbar` IS the system-bar
-     * hide/show and nothing else (see its comment). The `FullScreenEvent` type stays classic's:
-     * `ComposeReadingViewHost` subscribes to `FullScreenEvent` whichever Activity
-     * posted it.
+     * hide/show and nothing else (see its comment).
+     * `SharedActivityState.toggleFullScreen` emits `fullScreenChanged`; the subscribers
+     * are BibleView, BibleGestureListener and ComposeReadingViewHost.
      */
     private fun toggleFullScreen() {
         sharedActivityState.toggleFullScreen()
-        ABEventBus.post(FullScreenEvent(sharedActivityState.isFullScreen))
         applyIdleSystemUi()
         if(sharedActivityState.isFullScreen) {
             ABEventBus.post(ToastEvent(R.string.exit_fullscreen))
@@ -1720,7 +1718,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * by [ComposeReadingViewHost.dispose] in [onDestroy]; an instance created per composition would
      * leak one registration every time the reading destination left and re-entered the back stack
      * (a settings visit and back), and each leaked instance would keep answering
-     * `NightModeChanged`/`FullScreenEvent` for a reading view that no longer exists.
+     * `NightModeChanged`/`fullScreenChanged` for a reading view that no longer exists.
      *
      * `rebuildDrawer()` with no arguments on creation is classic's entry-time rebuild: the
      * `showSearch`/`showSpeak` flags default to the last pushed pair (both `true` initially,

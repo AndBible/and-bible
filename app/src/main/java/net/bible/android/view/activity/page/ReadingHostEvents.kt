@@ -35,8 +35,6 @@ class SearchSheetOffsetsUpdated
 /** See [onComposeSearchFieldFocusChanged]. */
 class ImePaddingChanged
 
-class FullScreenEvent(val isFullScreen: Boolean)
-
 class MainBibleAfterRestore
 
 class UpdateMainBibleActivityDocuments

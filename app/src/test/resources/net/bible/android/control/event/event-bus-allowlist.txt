@@ -19,7 +19,6 @@ DefaultModelChangedEvent
 DocumentDownloadEvent
 DocumentSyncProgressEvent
 ErrorNotificationEvent
-FullScreenEvent
 HideTransportEvent
 ImePaddingChanged
 InstallZipEvent

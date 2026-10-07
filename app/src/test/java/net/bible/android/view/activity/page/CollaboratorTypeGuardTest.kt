@@ -168,9 +168,8 @@ class CollaboratorTypeGuardTest {
         "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
         // R6d: the two callback-bundle files and the reading host itself. The host's surviving
         // code tokens are `WORKSPACE_CHANGED` (the workspace selector's request
-        // code), `.KeyIsNull` (caught around the reference overlay's text) and `.FullScreenEvent`
-        // (the event it subscribes to) -- all three on [allowedNestedMembers], all three Task 13's
-        // to re-home. The bundles have none at all.
+        // code), and `.KeyIsNull` (caught around the reference overlay's text) -- both on
+        // [allowedNestedMembers], both Task 13's to re-home. The bundles have none at all.
         "src/main/java/net/bible/android/view/activity/page/BibleViewHostCallbacks.kt",
         "src/main/java/net/bible/android/view/activity/page/ReadingCommandsHostCallbacks.kt",
         "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",

@@ -20,6 +20,7 @@ package net.bible.android
 import android.content.res.Resources
 import android.util.Log
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.common.CommonUtils
 
 /**
@@ -48,5 +49,6 @@ class TestBibleApplication : BibleApplication() {
         CommonUtils.destroy()
         super.onTerminate()
         ABEventBus.unregisterAll()
+        SharedActivityState.instance.resetSubscribersForTest()
     }
 }

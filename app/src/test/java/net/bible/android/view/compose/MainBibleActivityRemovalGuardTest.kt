@@ -12,7 +12,7 @@ class MainBibleActivityRemovalGuardTest {
 
     private val nested = listOf(
         "SystemInsetsChangedEvent", "KeyIsNull", "SearchSheetOffsetsUpdated",
-        "ImePaddingChanged", "FullScreenEvent", "ConfigurationChanged",
+        "ImePaddingChanged", "ConfigurationChanged",
         "MainBibleAfterRestore", "UpdateMainBibleActivityDocuments", "WORKSPACE_CHANGED",
     )
 

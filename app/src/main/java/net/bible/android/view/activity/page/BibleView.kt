@@ -1117,7 +1117,6 @@ class BibleView(
                             scrollOrJumpToVerse(event.verse)
                         }
                     }
-                    on<FullScreenEvent> { event -> updateOffsets() }
                     on<SystemInsetsChangedEvent> { event -> updateOffsets() }
                     on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
                     // F6 Task 8b Step 3: the search sheet's own visible/height pair changed — see
@@ -1142,6 +1141,7 @@ class BibleView(
                         WindowChange.LayoutConfigurationChanged -> checkWindows = true
                     }
                 })
+                subscriptions.add(SharedActivityState.instance.fullScreenChanged.subscribe { updateOffsets() })
                 subscriptions.add(ProgressControl.changes.subscribe { change ->
                     when (change) {
                         is ProgressChange.Memorization -> onMemorizationChanged(change)

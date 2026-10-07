@@ -168,7 +168,7 @@ class ComposeReadingViewHostTest {
     /**
      * `nightModeState`/`fullScreenState` are `State<Boolean>` (Task 5), not one-shot `Boolean`s,
      * specifically so an external owner (the real `ComposeReadingViewHost`'s
-     * `NightModeChanged`/`FullScreenEvent` subscriptions, or this test) can flip them after mount
+     * `NightModeChanged`/`fullScreenChanged` subscriptions, or this test) can flip them after mount
      * and have `ReadingViewScreen` recompose off the NEW value rather than a value frozen at mount
      * time. Mounting succeeds and the externally-owned states remain independently mutable after
      * mount — the actual "does the toolbar disappear" visual behavior is already golden-tested at
