@@ -97,6 +97,9 @@ class ReadingInsetsHostCallbacks(
     val applyImeBottomPadding: (bottomPaddingPx: Int) -> Unit,
 )
 
+/** BibleView must re-send its offsets; [immediate] maps to `updateOffsets(immediate)`. */
+data class OffsetsChange(val immediate: Boolean)
+
 /**
  * The window-inset ledger lifted out of [MainBibleActivity] -- reading-host re-typing Task R2 (design
  * spec §3.3, `2026-09-16-compose-reading-host-retyping`), and taken off that Activity's TYPE by R6b
@@ -112,15 +115,11 @@ class ReadingInsetsHostCallbacks(
  * delegating members of the same names for `ComposeReadingViewHost` and the Robolectric net
  * (`ReadingSearchEntryPointsTest`), which call them on the Activity and are not edited in this batch.
  */
-/** BibleView must re-send its offsets; [immediate] maps to `updateOffsets(immediate)`. */
-data class OffsetsChange(val immediate: Boolean)
-
 class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
     private val _offsetsChanged = EventSource<OffsetsChange>()
 
     /** "Recompute and push the offsets to the WebView" (replaces three bus events). One ledger per host. */
     val offsetsChanged: Events<OffsetsChange> get() = _offsetsChanged
-
 
     // Top offset with only statusbar and toolbar
     val topOffset2 = 0
