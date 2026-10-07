@@ -18,7 +18,6 @@
 package net.bible.android.control.progress
 
 import net.bible.android.common.toV11n
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.versification.Scripture
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
@@ -29,6 +28,8 @@ import net.bible.android.database.progress.MemorizationTarget
 import net.bible.android.database.progress.MemorizedVerse
 import net.bible.android.database.progress.ReadingSource
 import net.bible.service.db.DatabaseContainer
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
@@ -69,33 +70,31 @@ fun computeRangeDifference(
     return RangeDifferenceResult(remaining, removed)
 }
 
-/** Posted when a chapter's read status changes. All BibleViews should update their mark-as-read button. */
-class ChapterReadStatusChangedEvent(
-    val kjvBookOrdinal: Int,
-    val chapter: Int,
-    val count: Int,
-)
-
 /** Posted when global reading progress settings change. All BibleViews should update their settings. */
 class ReadingProgressSettingsChangedEvent
-
-/** Posted when the active reading cycle changes. All BibleViews should re-check chapter read status. */
-class ActiveCycleChangedEvent(val cycle: Int)
 
 data class MemorizedVerseRangeWithTimestamp(
     val verseRange: VerseRange,
     val latestMemorizedAt: Long,
 )
 
-/** Posted when memorized verses or memorization targets change. All BibleViews should update their indicators. */
-class MemorizationDataChangedEvent(
-    val addedMemorized: List<Int> = emptyList(),
-    val removedMemorized: List<Int> = emptyList(),
-    val addedTargets: List<Int> = emptyList(),
-    val removedTargets: List<Int> = emptyList(),
-)
+/** A reading-progress change every open BibleView must apply. Emitted by [ProgressControl.changes]. */
+sealed interface ProgressChange {
+    data class ChapterReadStatus(val kjvBookOrdinal: Int, val chapter: Int, val count: Int) : ProgressChange
+    data class ActiveCycle(val cycle: Int) : ProgressChange
+    data class Memorization(
+        val addedMemorized: List<Int> = emptyList(),
+        val removedMemorized: List<Int> = emptyList(),
+        val addedTargets: List<Int> = emptyList(),
+        val removedTargets: List<Int> = emptyList(),
+    ) : ProgressChange
+}
 
 object ProgressControl {
+    private val _changes = EventSource<ProgressChange>()
+    /** Every read-status, active-cycle and memorization change, in the order it happened (replaces three bus events). */
+    val changes: Events<ProgressChange> get() = _changes
+
     private val dao get() = DatabaseContainer.instance.progressDb.progressDao()
 
     var autoMarkMemorized: Boolean
@@ -112,7 +111,7 @@ object ProgressControl {
             }
         }
         if (added.isNotEmpty()) {
-            ABEventBus.post(MemorizationDataChangedEvent(addedMemorized = added))
+            _changes.emit(ProgressChange.Memorization(addedMemorized = added))
         }
     }
 
@@ -120,7 +119,7 @@ object ProgressControl {
         val kjvRange = verseRange.toV11n(KJVA)
         val removed = (kjvRange.start.ordinal..kjvRange.end.ordinal).toList()
         dao.deleteMemorizedVersesInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
-        ABEventBus.post(MemorizationDataChangedEvent(removedMemorized = removed))
+        _changes.emit(ProgressChange.Memorization(removedMemorized = removed))
     }
 
     fun isVerseMemorized(v11n: Versification, book: BibleBook, chapter: Int, verse: Int): Boolean {
@@ -177,7 +176,7 @@ object ProgressControl {
             )
         )
         val newCount = dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle)
-        ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, newCount))
+        _changes.emit(ProgressChange.ChapterReadStatus(kjvBook.ordinal, chapter, newCount))
     }
 
     fun isChapterRead(v11n: Versification, book: BibleBook, chapter: Int): Boolean {
@@ -239,7 +238,7 @@ object ProgressControl {
         entries.forEach { dao.deleteChapterReadHistoryById(it.id) }
         entries.distinctBy { it.kjvBookOrdinal to it.chapter }.forEach { entry ->
             val newCount = dao.getChapterReadCount(entry.kjvBookOrdinal, entry.chapter, cycle)
-            ABEventBus.post(ChapterReadStatusChangedEvent(entry.kjvBookOrdinal, entry.chapter, newCount))
+            _changes.emit(ProgressChange.ChapterReadStatus(entry.kjvBookOrdinal, entry.chapter, newCount))
         }
     }
 
@@ -258,7 +257,7 @@ object ProgressControl {
 
     fun setActiveCycle(cycle: Int) {
         ReadingProgressSettings.activeCycle = cycle
-        ABEventBus.post(ActiveCycleChangedEvent(cycle))
+        _changes.emit(ProgressChange.ActiveCycle(cycle))
     }
 
     fun startNewCycle(): Int {
@@ -434,7 +433,7 @@ object ProgressControl {
         )
         dao.insertMemorizationTarget(target)
         val added = (kjvRange.start.ordinal..kjvRange.end.ordinal).toList()
-        ABEventBus.post(MemorizationDataChangedEvent(addedTargets = added))
+        _changes.emit(ProgressChange.Memorization(addedTargets = added))
         return target
     }
 
@@ -450,7 +449,7 @@ object ProgressControl {
         dao.deleteMemorizationTarget(id)
         if (target != null) {
             val removed = (target.kjvOrdinalStart..target.kjvOrdinalEnd).toList()
-            ABEventBus.post(MemorizationDataChangedEvent(removedTargets = removed))
+            _changes.emit(ProgressChange.Memorization(removedTargets = removed))
         }
     }
 
@@ -476,7 +475,7 @@ object ProgressControl {
             dao.insertMemorizationTarget(MemorizationTarget(kjvOrdinalStart = start, kjvOrdinalEnd = end))
         }
         if (result.removed.isNotEmpty()) {
-            ABEventBus.post(MemorizationDataChangedEvent(removedTargets = result.removed))
+            _changes.emit(ProgressChange.Memorization(removedTargets = result.removed))
         }
     }
 

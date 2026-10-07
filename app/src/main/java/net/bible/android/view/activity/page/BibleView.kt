@@ -71,9 +71,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
-import net.bible.android.control.progress.ActiveCycleChangedEvent
-import net.bible.android.control.progress.ChapterReadStatusChangedEvent
-import net.bible.android.control.progress.MemorizationDataChangedEvent
+import net.bible.android.control.progress.ProgressChange
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.progress.ReadingProgressSettingsChangedEvent
 import net.bible.service.common.ReadingProgressSettings
@@ -140,6 +138,7 @@ import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
+import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.currentWorkspaceThemeSeedArgb
 import net.bible.sharedui.theme.themeColorsJson
@@ -988,6 +987,8 @@ class BibleView(
         removeJavascriptInterface("android")
     }
 
+    private val subscriptions = Subscriptions()
+
     var listenEvents: Boolean = false
         set(value) {
             if(value == field) return
@@ -1024,60 +1025,6 @@ class BibleView(
 
                         val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
                         executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
-                    }
-                    on<MemorizationDataChangedEvent> { event ->
-                        val doc = firstDocument
-                        if (doc !is BibleDocument && doc !is MemorizeDocument) return@on
-
-                        // Convert KJV ordinals to document versification
-                        val v11n = when (doc) {
-                            is BibleDocument -> doc.swordBook.versification
-                            is MemorizeDocument -> doc.bookInitials?.let {
-                                (SwordDocumentFacade.getDocumentByInitials(it) as? SwordBook)?.versification
-                            }
-                            else -> null
-                        }
-                        fun convertOrdinals(kjvOrdinals: List<Int>): String {
-                            val converted = if (v11n != null) {
-                                kjvOrdinals.map { Verse(KJVA, it).toV11n(v11n).ordinal }
-                            } else {
-                                kjvOrdinals
-                            }
-                            return json.encodeToString(serializer(), converted)
-                        }
-
-                        val addedMemorized = convertOrdinals(event.addedMemorized)
-                        val removedMemorized = convertOrdinals(event.removedMemorized)
-                        val addedTargets = convertOrdinals(event.addedTargets)
-                        val removedTargets = convertOrdinals(event.removedTargets)
-                        executeJavascriptOnUiThread("""bibleView.emit("update_memorization_data", {
-                            addedMemorized: $addedMemorized, removedMemorized: $removedMemorized,
-                            addedTargets: $addedTargets, removedTargets: $removedTargets
-                        });""")
-                    }
-                    on<ChapterReadStatusChangedEvent> { event ->
-                        val doc = firstDocument
-                        if (doc !is BibleDocument) return@on
-                        // Different windows may show the same chapter number across different books, so
-                        // filter by KJV book ordinal here — the Vue-side tracker only checks chapter number.
-                        val docKjvBookOrdinal = doc.verseRange.toV11n(KJVA).start.book.ordinal
-                        if (docKjvBookOrdinal != event.kjvBookOrdinal) return@on
-                        executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-                            chapter: ${event.chapter}, count: ${event.count}
-                        });""")
-                    }
-                    on<ActiveCycleChangedEvent> { event ->
-                        val doc = firstDocument
-                        if (doc !is BibleDocument) return@on
-                        if (minChapter < 0 || maxChapter < 0) return@on
-                        val v11n = doc.swordBook.versification
-                        val book = doc.verseRange.start.book
-                        for (chapter in minChapter..maxChapter) {
-                            val count = ProgressControl.getChapterReadCount(v11n, book, chapter)
-                            executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-                                chapter: $chapter, count: $count
-                            });""")
-                        }
                     }
                     on<ReadingProgressSettingsChangedEvent> { event ->
                         val settingsJson = ReadingProgressSettings.getBundleAsJson()
@@ -1195,11 +1142,76 @@ class BibleView(
                     // route is `BibleViewFactory.clear()`, which calls `doDestroy()` directly and
                     // is not event-driven. Removed in Batch Z-late's epilogue (spec 10.3).
                 }
+                subscriptions.add(ProgressControl.changes.subscribe { change ->
+                    when (change) {
+                        is ProgressChange.Memorization -> onMemorizationChanged(change)
+                        is ProgressChange.ChapterReadStatus -> onChapterReadStatusChanged(change)
+                        is ProgressChange.ActiveCycle -> onActiveCycleChanged()
+                    }
+                })
             } else {
                 ABEventBus.unregister(this)
+                subscriptions.cancelAll()
             }
             field = value
         }
+
+    private fun onMemorizationChanged(event: ProgressChange.Memorization) {
+        val doc = firstDocument
+        if (doc !is BibleDocument && doc !is MemorizeDocument) return
+
+        // Convert KJV ordinals to document versification
+        val v11n = when (doc) {
+            is BibleDocument -> doc.swordBook.versification
+            is MemorizeDocument -> doc.bookInitials?.let {
+                (SwordDocumentFacade.getDocumentByInitials(it) as? SwordBook)?.versification
+            }
+            else -> null
+        }
+        fun convertOrdinals(kjvOrdinals: List<Int>): String {
+            val converted = if (v11n != null) {
+                kjvOrdinals.map { Verse(KJVA, it).toV11n(v11n).ordinal }
+            } else {
+                kjvOrdinals
+            }
+            return json.encodeToString(serializer(), converted)
+        }
+
+        val addedMemorized = convertOrdinals(event.addedMemorized)
+        val removedMemorized = convertOrdinals(event.removedMemorized)
+        val addedTargets = convertOrdinals(event.addedTargets)
+        val removedTargets = convertOrdinals(event.removedTargets)
+        executeJavascriptOnUiThread("""bibleView.emit("update_memorization_data", {
+            addedMemorized: $addedMemorized, removedMemorized: $removedMemorized,
+            addedTargets: $addedTargets, removedTargets: $removedTargets
+        });""")
+    }
+
+    private fun onChapterReadStatusChanged(event: ProgressChange.ChapterReadStatus) {
+        val doc = firstDocument
+        if (doc !is BibleDocument) return
+        // Different windows may show the same chapter number across different books, so
+        // filter by KJV book ordinal here — the Vue-side tracker only checks chapter number.
+        val docKjvBookOrdinal = doc.verseRange.toV11n(KJVA).start.book.ordinal
+        if (docKjvBookOrdinal != event.kjvBookOrdinal) return
+        executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
+            chapter: ${event.chapter}, count: ${event.count}
+        });""")
+    }
+
+    private fun onActiveCycleChanged() {
+        val doc = firstDocument
+        if (doc !is BibleDocument) return
+        if (minChapter < 0 || maxChapter < 0) return
+        val v11n = doc.swordBook.versification
+        val book = doc.verseRange.start.book
+        for (chapter in minChapter..maxChapter) {
+            val count = ProgressControl.getChapterReadCount(v11n, book, chapter)
+            executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
+                chapter: $chapter, count: $count
+            });""")
+        }
+    }
 
     fun doDestroy() {
         if(!toBeDestroyed) {

@@ -123,7 +123,7 @@ export function useMemorization(config: Config) {
         for (const o of newTargets) targets.add(o);
     }
 
-    /** Apply incremental delta from MemorizationDataChangedEvent. */
+    /** Apply incremental delta from ProgressChange.Memorization. */
     function applyDelta(delta: MemorizationDelta) {
         for (const o of delta.addedMemorized) memorized.add(o);
         for (const o of delta.removedMemorized) memorized.delete(o);

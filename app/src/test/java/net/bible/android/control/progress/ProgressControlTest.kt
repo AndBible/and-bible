@@ -24,6 +24,7 @@ import net.bible.android.database.progress.ChapterReadHistory
 import net.bible.android.database.progress.DailyReadingCount
 import net.bible.android.database.progress.MemorizedVerse
 import net.bible.service.db.DatabaseContainer
+import net.bible.sharedcore.event.Subscription
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -711,5 +712,100 @@ class ProgressControlTest {
         val result = ProgressControl.getMemorizedOrdinalsInRange(v3, v6)
 
         assertEquals((v3..v6).toList(), result)
+    }
+
+    // --- ProgressControl.changes (ABEventBus removal phase 1) ---
+
+    private val received = mutableListOf<ProgressChange>()
+    private var subscription: Subscription? = null
+
+    private fun listen() { subscription = ProgressControl.changes.subscribe { received += it } }
+
+    @After
+    fun stopListening() { subscription?.cancel() }
+
+    @Test
+    fun `markVerseMemorized emits the added KJV ordinals, and nothing when already memorized`() {
+        val range = VerseRange(KJVA, Verse(KJVA, BibleBook.JOHN, 3, 16), Verse(KJVA, BibleBook.JOHN, 3, 17))
+        listen()
+        ProgressControl.markVerseMemorized(range)
+        ProgressControl.markVerseMemorized(range)
+        assertEquals(
+            listOf(ProgressChange.Memorization(addedMemorized = listOf(range.start.ordinal, range.end.ordinal))),
+            received,
+        )
+    }
+
+    @Test
+    fun `unmarkVerseMemorized emits the removed ordinals`() {
+        val range = VerseRange(KJVA, Verse(KJVA, BibleBook.JOHN, 3, 16))
+        ProgressControl.markVerseMemorized(range)
+        listen()
+        ProgressControl.unmarkVerseMemorized(range)
+        assertEquals(listOf(ProgressChange.Memorization(removedMemorized = listOf(range.start.ordinal))), received)
+    }
+
+    @Test
+    fun `recordChapterRead emits the KJV book ordinal, chapter and new count`() {
+        listen()
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        assertEquals(
+            listOf(
+                ProgressChange.ChapterReadStatus(BibleBook.GEN.ordinal, 1, 1),
+                ProgressChange.ChapterReadStatus(BibleBook.GEN.ordinal, 1, 2),
+            ),
+            received,
+        )
+    }
+
+    @Test
+    fun `deleteReadHistoryEntries emits exactly one status per chapter`() {
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
+        val entries = ProgressControl.getReadHistoryForBook(BibleBook.GEN)
+        listen()
+        ProgressControl.deleteReadHistoryEntries(entries)
+        assertEquals(
+            listOf(
+                ProgressChange.ChapterReadStatus(BibleBook.GEN.ordinal, 1, 0),
+                ProgressChange.ChapterReadStatus(BibleBook.GEN.ordinal, 2, 0),
+            ),
+            received.sortedBy { (it as ProgressChange.ChapterReadStatus).chapter },
+        )
+        assertEquals(2, received.size)
+    }
+
+    @Test
+    fun `memorization targets emit added and removed ordinals`() {
+        val range = VerseRange(KJVA, Verse(KJVA, BibleBook.PS, 23, 1), Verse(KJVA, BibleBook.PS, 23, 2))
+        listen()
+        val target = ProgressControl.addMemorizationTarget(range)
+        ProgressControl.removeMemorizationTarget(target.id)
+        val ordinals = listOf(range.start.ordinal, range.end.ordinal)
+        assertEquals(
+            listOf(ProgressChange.Memorization(addedTargets = ordinals), ProgressChange.Memorization(removedTargets = ordinals)),
+            received,
+        )
+    }
+
+    @Test
+    fun `removeMemorizationTargetByRange emits only the removed part`() {
+        val whole = VerseRange(KJVA, Verse(KJVA, BibleBook.PS, 23, 1), Verse(KJVA, BibleBook.PS, 23, 3))
+        val middle = VerseRange(KJVA, Verse(KJVA, BibleBook.PS, 23, 2))
+        ProgressControl.addMemorizationTarget(whole)
+        listen()
+        ProgressControl.removeMemorizationTargetByRange(middle)
+        assertEquals(listOf(ProgressChange.Memorization(removedTargets = listOf(middle.start.ordinal))), received)
+    }
+
+    @Test
+    fun `setActiveCycle emits ActiveCycle after earlier changes, in order`() {
+        listen()
+        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
+        ProgressControl.setActiveCycle(3)
+        assertEquals(ProgressChange.ActiveCycle(3), received.last())
+        assertEquals(2, received.size)
     }
 }
