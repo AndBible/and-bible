@@ -224,6 +224,7 @@ import net.bible.sharedcore.cloud.CloudDocAction
 import net.bible.sharedcore.cloud.CloudDocItem
 import net.bible.sharedcore.cloud.CloudDocumentsController
 import net.bible.sharedcore.event.Events
+import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.cloud.pushOnUnblock
 import net.bible.service.common.CommonUtils.pause
 import net.bible.service.common.displayName
@@ -274,6 +275,7 @@ import net.bible.android.view.activity.installzip.mapPhaseToUiState
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.installzip.DocumentInstallService
+import net.bible.service.installzip.InstallZipProgress
 import net.bible.sharedcore.nav.InstallZipResult
 import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import net.bible.sharedui.installzip.nav.InstallZipNavDeps
@@ -281,7 +283,6 @@ import net.bible.sharedui.installzip.nav.InstallZipSession
 import net.bible.sharedui.installzip.nav.installZipNavGraph
 import net.bible.sharedui.startup.nav.welcomeNavGraph
 import net.bible.android.view.activity.WelcomeFlow
-import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.sharedcore.ai.AiConnectionLabels
 import net.bible.sharedcore.ai.AiConnectionSettingsController
 import net.bible.sharedcore.ai.AiDocumentFilterController
@@ -2962,11 +2963,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // its own line rather than left for the next reader to discover.
 
     /**
-     * This host's ABEventBus subscriptions -- seven, all classic `MainBibleActivity.eventSubscriptions`
-     * ports except the Welcome progress line: `UpdateMainBibleActivityDocuments` (sets
+     * This host's ABEventBus subscriptions -- six, all classic `MainBibleActivity.eventSubscriptions`
+     * ports (the Welcome progress line lives in [installProgress]): `UpdateMainBibleActivityDocuments` (sets
      * [updateDocumentsPending], ungated -- [reconcileReadingStateOnResume] decides whether there is a
-     * workspace to apply it to), `NightModeChanged` (guarded, below), `InstallZipEvent` (slice 8 E2: the
-     * Welcome card's progress line), and the four slice 8's final review restored (the cloud-sync timestamp write moved to `SyncService`) --
+     * workspace to apply it to), `NightModeChanged` (guarded, below), and the four slice 8's final review restored (the cloud-sync timestamp write moved to `SyncService`) --
      * `AppToBackgroundEvent`, `WorkspacesUpdatedViaSyncEvent`, `WorkspaceRefreshRequired` and
      * `MainBibleAfterRestore` -- each gated on [readingAppBootstrapped], because a host that has not run
      * the reading bootstrap owns neither a window repository nor the cloud-sync loop they act on.
@@ -2977,6 +2977,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * refresh their theme on every night-mode change -- the background one pointlessly, and (worse)
      * it re-applies a theme to an Activity whose window is not the one the user is looking at.
      */
+    private val installProgress = Subscriptions()
+
     private val readingHostSubscriptions: ABEventBus.Subscriptions.() -> Unit = {
         // T8a item 2: classic `MainBibleActivity.kt:498-500`. This host posts
         // `UpdateMainBibleActivityDocuments` from six of its own destinations and, until T8a,
@@ -2997,8 +2999,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
         // Fix batch 2 (F77): the setting applies on every destination, immediately.
         onMain<SystemBarSettingChangedEvent> { refreshSystemBars() }
-        // Slice 8 E2: StartupComposeActivity's progress line on its welcome card.
-        onMain<InstallZipEvent> { e -> welcomeFlowOrNull?.controllerIfCreated?.setProgress(e.message) }
 
         // Slice 8 final review, Important 1: the rest of classic `MainBibleActivity.eventSubscriptions`
         // (at 7ac0b64fa), lost when F4 deleted the class. Every one of them is about THIS host's reading
@@ -3350,6 +3350,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             }
         }
         ABEventBus.register(this, readingHostSubscriptions)
+        // Slice 8 E2: StartupComposeActivity's progress line on its welcome card.
+        installProgress.add(InstallZipProgress.messages.subscribeOnMain { welcomeFlowOrNull?.controllerIfCreated?.setProgress(it) })
         val startRoute = resolveStartRoute(savedInstanceState)
         this.startRoute = startRoute
         // F59 fix round 2: the actual mode-setting call, now route-aware -- see
@@ -9563,6 +9565,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // R4: the host's own NightModeChanged subscription, so an Activity recreation (e.g. a
         // config change) does not leak one registration per rotation.
         ABEventBus.unregister(this)
+        installProgress.cancelAll()
         // R8, and classic's `MainBibleActivity.onDestroy` (`:1594`) line for line: the reading view
         // has its OWN ABEventBus registration and its own coroutine scope, so without this an
         // Activity recreation leaks one of each per rotation. Null on every non-reading route,

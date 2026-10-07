@@ -19,12 +19,11 @@ package net.bible.service.sword.epub
 
 import android.util.Log
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.EpubFragment
 import net.bible.android.database.EpubHtmlToFrag
 import net.bible.android.database.StyleSheet
 import net.bible.android.misc.elementToString
-import net.bible.android.view.activity.installzip.InstallZipEvent
+import net.bible.service.installzip.InstallZipProgress
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.common.useXPathInstance
@@ -234,7 +233,7 @@ fun EpubBackendState.optimizeEpub() {
     for(k in originalIds) {
         val title = fileToTitle?.let {f2t -> f2t[idToFile[k]]} ?: application.getString(R.string.nameless)
         val s = application.getString(R.string.processing_epub, "${bookMetaData.name}: $title")
-        ABEventBus.post(InstallZipEvent(s))
+        InstallZipProgress.report(s)
         Log.i(TAG, "${bookMetaData.name}: optimizing $k")
 
         val (origDocument, maxOrdinal) = readOriginal(k)

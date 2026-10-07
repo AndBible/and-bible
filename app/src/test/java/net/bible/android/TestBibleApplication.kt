@@ -25,6 +25,7 @@ import net.bible.service.common.AiSettings
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.common.CommonUtils
+import net.bible.service.installzip.InstallZipProgress
 
 /**
  * Override settings if required
@@ -56,5 +57,6 @@ class TestBibleApplication : BibleApplication() {
         AiSettings.resetSubscribersForTest()
         DocumentSync.resetSubscribersForTest()
         CloudSync.resetSubscribersForTest()
+        InstallZipProgress.resetSubscribersForTest()
     }
 }

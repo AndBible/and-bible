@@ -32,7 +32,6 @@ import kotlinx.coroutines.withContext
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpinnerBinding
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
@@ -41,7 +40,8 @@ import net.bible.android.view.activity.base.mountAppDialogOverlay
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
-import net.bible.android.view.activity.installzip.InstallZipEvent
+import net.bible.service.installzip.InstallZipProgress
+import net.bible.sharedcore.event.Subscription
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
@@ -67,6 +67,7 @@ var comingFromStartupActivity = false
  */
 open class StartupActivity : CustomTitlebarActivityBase() {
     private lateinit var spinnerBinding: SpinnerBinding
+    private var installProgress: Subscription? = null
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
     override val doNotInitializeApp = true
@@ -116,12 +117,8 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "StartupActivity.onCreate")
         super.onCreate(savedInstanceState)
-        ABEventBus.register(this) {
-            onMain<InstallZipEvent> { e ->
-                spinnerBinding.progressText.text = e.message
-            }
-        }
         spinnerBinding = SpinnerBinding.inflate(layoutInflater)
+        installProgress = InstallZipProgress.messages.subscribeOnMain { spinnerBinding.progressText.text = it }
         if(CommonUtils.isDiscrete) {
             spinnerBinding.imageView.setImageResource(
                 R.drawable.ic_calculator_color
@@ -151,7 +148,7 @@ open class StartupActivity : CustomTitlebarActivityBase() {
     }
 
     override fun onDestroy() {
-        ABEventBus.unregister(this)
+        installProgress?.cancel()
         super.onDestroy()
     }
 
