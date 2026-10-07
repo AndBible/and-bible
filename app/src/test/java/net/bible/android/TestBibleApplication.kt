@@ -22,6 +22,7 @@ import android.util.Log
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.service.common.AiSettings
+import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.common.CommonUtils
 
@@ -54,5 +55,6 @@ class TestBibleApplication : BibleApplication() {
         WorkspaceChanges.resetSubscribersForTest()
         AiSettings.resetSubscribersForTest()
         DocumentSync.resetSubscribersForTest()
+        CloudSync.resetSubscribersForTest()
     }
 }

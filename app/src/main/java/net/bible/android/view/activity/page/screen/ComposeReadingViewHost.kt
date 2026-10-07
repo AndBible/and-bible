@@ -3248,7 +3248,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         //
         // What the XML could NOT do is delete the row, and that is not what this does.
         // toolbarLayout's children are still WRITTEN TO by MainBibleActivity code that runs on this
-        // path, so the views have to exist: binding.syncIcon's visibility (the `CloudSyncEvent`
+        // path, so the views have to exist: binding.syncIcon's visibility (the `CloudSync.runningChanged`
         // subscription and `setupUi`), binding.speakButton's alpha (the `transportBarVisible`
         // setter), binding.strongsButton's image + alpha + tint (`updateStrongsButton`),
         // binding.bibleButton's image (`onCreate`'s `isDiscrete` branch), and

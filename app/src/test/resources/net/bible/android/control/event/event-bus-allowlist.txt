@@ -12,7 +12,6 @@ BookmarkToLabelAddedOrUpdatedEvent
 BookmarksAddedOrUpdatedEvent
 BookmarksDeletedEvent
 BookmarksUpdatedViaSyncEvent
-CloudSyncEvent
 ConfigurationChanged
 CurrentBibleVerseChanged
 CurrentVerseChangedEvent

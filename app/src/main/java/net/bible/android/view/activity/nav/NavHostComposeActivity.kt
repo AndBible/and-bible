@@ -215,7 +215,6 @@ import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import net.bible.service.cloudsync.CloudSync
-import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSyncService
@@ -2963,11 +2962,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // its own line rather than left for the next reader to discover.
 
     /**
-     * This host's ABEventBus subscriptions -- eight, all classic `MainBibleActivity.eventSubscriptions`
+     * This host's ABEventBus subscriptions -- seven, all classic `MainBibleActivity.eventSubscriptions`
      * ports except the Welcome progress line: `UpdateMainBibleActivityDocuments` (sets
      * [updateDocumentsPending], ungated -- [reconcileReadingStateOnResume] decides whether there is a
      * workspace to apply it to), `NightModeChanged` (guarded, below), `InstallZipEvent` (slice 8 E2: the
-     * Welcome card's progress line), and the five slice 8's final review restored -- `CloudSyncEvent`,
+     * Welcome card's progress line), and the four slice 8's final review restored (the cloud-sync timestamp write moved to `SyncService`) --
      * `AppToBackgroundEvent`, `WorkspacesUpdatedViaSyncEvent`, `WorkspaceRefreshRequired` and
      * `MainBibleAfterRestore` -- each gated on [readingAppBootstrapped], because a host that has not run
      * the reading bootstrap owns neither a window repository nor the cloud-sync loop they act on.
@@ -3008,12 +3007,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // ([hostWindowRepository] throws), and a bootstrapped host is the one that owns the sync loop
         // ([ReadingAppBootstrap.startSync]) -- so the gate is exactly "the handler has something to act on".
         // The workspace bodies live on [ReadingCommands], next to the workspace switch they drive.
-        on<CloudSyncEvent> { event ->
-            if (!readingAppBootstrapped) return@on
-            if (!event.running) {
-                CommonUtils.settings.setLong("globalLastSynchronized", System.currentTimeMillis())
-            }
-        }
         on<AppToBackgroundEvent> { event ->
             if (!readingAppBootstrapped) return@on
             if (event.isMovedToBackground) {

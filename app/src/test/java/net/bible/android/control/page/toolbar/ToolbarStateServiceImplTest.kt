@@ -30,7 +30,7 @@ import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
-import net.bible.service.cloudsync.CloudSyncEvent
+import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.sharedcore.reading.ToolbarState
@@ -125,19 +125,19 @@ class ToolbarStateServiceImplTest {
     }
 
     @Test
-    fun cloudSyncEvent_setsOnlySyncRunning() {
+    fun cloudSyncRunning_setsOnlySyncRunning() {
         seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
         service.refresh()
         val before = service.toolbar.value
         assertThat(before.syncRunning, equalTo(false))
 
-        ABEventBus.post(CloudSyncEvent(running = true))
+        CloudSync.notifySyncRunning(true)
         val duringSync = service.toolbar.value
         assertThat(duringSync.syncRunning, equalTo(true))
         // every other field is untouched
         assertThat(duringSync.copy(syncRunning = false), equalTo(before))
 
-        ABEventBus.post(CloudSyncEvent(running = false))
+        CloudSync.notifySyncRunning(false)
         assertThat(service.toolbar.value, equalTo(before))
     }
 
