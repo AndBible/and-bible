@@ -53,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -151,10 +152,8 @@ fun StartupWelcomeScreen(
         Text(state.versionText, style = MaterialTheme.typography.labelSmall)
         // Batch 6 A6: both open AndBible URLs (the labels are the URLs), so discrete mode hides them.
         if (state.homepageButtonsVisible) {
-            Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                TextButton(onClick = onOpenHomepage) { Text(strings.welcomeHomepageLabel) }
-                TextButton(onClick = onOpenGithub) { Text(strings.welcomeGithubLabel) }
-            }
+            TextButton(onClick = onOpenHomepage) { Text(strings.welcomeHomepageLabel) }
+            TextButton(onClick = onOpenGithub) { Text(strings.welcomeGithubLabel) }
         }
     }
 }
@@ -227,7 +226,7 @@ private fun AdvancedList(
                     leadingContent = { Icon(row.icon, contentDescription = null) },
                     trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
                     colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-                    modifier = Modifier.clickable(onClick = row.onClick),
+                    modifier = Modifier.clickable(role = Role.Button, onClick = row.onClick),
                 )
             }
         }
