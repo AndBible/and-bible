@@ -24,12 +24,12 @@ import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
-import net.bible.android.control.event.window.WorkspaceColorChanged
+import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
-import net.bible.service.cloudsync.CloudSyncEvent
+import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.sharedcore.reading.ToolbarState
@@ -125,19 +125,19 @@ class ToolbarStateServiceImplTest {
     }
 
     @Test
-    fun cloudSyncEvent_setsOnlySyncRunning() {
+    fun cloudSyncRunning_setsOnlySyncRunning() {
         seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
         service.refresh()
         val before = service.toolbar.value
         assertThat(before.syncRunning, equalTo(false))
 
-        ABEventBus.post(CloudSyncEvent(running = true))
+        CloudSync.notifySyncRunning(true)
         val duringSync = service.toolbar.value
         assertThat(duringSync.syncRunning, equalTo(true))
         // every other field is untouched
         assertThat(duringSync.copy(syncRunning = false), equalTo(before))
 
-        ABEventBus.post(CloudSyncEvent(running = false))
+        CloudSync.notifySyncRunning(false)
         assertThat(service.toolbar.value, equalTo(before))
     }
 
@@ -243,25 +243,53 @@ class ToolbarStateServiceImplTest {
         windowRepository.workspaceSettings.workspaceColor = green
         // No passage/verse/window/speak/sync event happens here — this is exactly the situation the
         // maintainer hit: the colour is written by a settings screen and nothing else moves.
-        ABEventBus.post(WorkspaceColorChanged())
+        WorkspaceChanges.notifyColorEdited()
 
         assertThat(before, not(equalTo(green)))
         assertThat(service.toolbar.value.workspaceColorArgb, equalTo(green))
     }
 
     @Test
-    fun everyWorkspaceColorWriterPostsTheEvent() {
+    fun workspaceSwitch_doesNotRefreshTheToolbar() {
+        seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
+        service.refresh()
+        val before = service.toolbar.value
+        windowRepository.workspaceSettings.workspaceColor = 0xFF1B5E20.toInt()
+
+        WorkspaceChanges.notifySwitched()
+
+        assertThat("Switched alone must not rebuild the toolbar (it refreshes on the active-window change)",
+            service.toolbar.value, equalTo(before))
+    }
+
+    @Test
+    fun theWorkspaceColorGuardFailsOnAWriterWithoutTheNotify() {
+        val writerWithoutNotify = listOf(
+            "fun f(repo: WindowRepository) {",
+            "    repo.workspaceSettings.workspaceColor = 1",
+            "}",
+        )
+        val writerWithNotify = listOf(
+            "    repo.workspaceSettings.workspaceColor = 1",
+            "    WorkspaceChanges.notifyColorEdited()",
+        )
+        assertThat(unpairedWrites(listOf("Bad.kt" to writerWithoutNotify)), equalTo(listOf("Bad.kt:2")))
+        assertThat(unpairedWrites(listOf("Good.kt" to writerWithNotify)), equalTo(emptyList<String>()))
+    }
+
+    @Test
+    fun everyWorkspaceColorWriterNotifies() {
         // A/B batch 4a F1 fix round 1: the ORIGINAL version of this guard asserted `posts > 0` and
         // then `posts >= 1` — the same condition twice — so it could never fail; against
         // TextDisplaySettingsServiceImpl.kt (writes=8, posts=2 at the time) it still passed. This
         // version pairs every actual `workspaceSettings.workspaceColor =` WRITE (not a read like
         // `foo = ws.workspaceSettings?.workspaceColor` or a bare local like `it.workspaceColor =`)
-        // with an `ABEventBus.post(WorkspaceColorChanged())` within the next few lines.
+        // with a `WorkspaceChanges.notifyColorEdited()` within the next few lines.
         //
         // A/B batch 4a whole-batch review I3: the ORIGINAL version of THIS scanned a literal
         // five-file list the reviewer traced live writers into by hand — so a thirteenth writer
         // added in a NEW file (exactly what the next work cycle on this area is likely to do) would
-        // pass silently, defeating the guard's own kdoc claim (see WorkspaceColorChanged.kt) that it
+        // pass silently, defeating the guard's own kdoc claim (see WorkspaceChange.ColorEdited's kdoc) that it
         // catches this. Now walks the whole `src/main/java` tree instead: still cheap (a few
         // thousand files, plain line-regex, no parsing) and self-updating as files are added/moved/
         // renamed. Sorted so a failure message is stable/reproducible across runs (walkTopDown's
@@ -271,13 +299,22 @@ class ToolbarStateServiceImplTest {
             .filter { it.isFile && (it.extension == "kt" || it.extension == "java") }
             .sortedBy { it.path }
             .toList()
+        val unpaired = unpairedWrites(sourceFiles.map { it.path to it.readLines() })
+        assertThat(
+            "workspaceColor write(s) with no WorkspaceChanges.notifyColorEdited() within the next 4 lines: $unpaired",
+            unpaired,
+            equalTo(emptyList<String>()),
+        )
+    }
+
+    private fun unpairedWrites(files: List<Pair<String, List<String>>>): List<String> {
         // Matches `<receiver>.workspaceSettings.workspaceColor =` / `<receiver>.workspaceSettings?.workspaceColor =`
         // (an actual write to the persisted field), never a read (`= foo.workspaceSettings?.workspaceColor`,
         // where nothing follows on the "=" side) nor a bare local (`it.workspaceColor =` / `c.workspaceColor =`,
         // which lack the `workspaceSettings` receiver segment entirely). The trailing `(?!=)` keeps a stray
         // `==` comparison from counting as a write.
         val writeRegex = Regex("""workspaceSettings\??\.workspaceColor\s*=(?!=)""")
-        val postMarker = "ABEventBus.post(WorkspaceColorChanged())"
+        val postMarker = "WorkspaceChanges.notifyColorEdited()"
         val windowSize = 5 // the write's own line + the next 4, per the reviewer's "within the next 4 lines"
         // Strip a trailing `//` line comment before matching either the write or the post: a
         // *commented-out* post must NOT satisfy the guard (verified live below — see the fix
@@ -286,7 +323,7 @@ class ToolbarStateServiceImplTest {
         fun codeOnly(line: String) = line.substringBefore("//")
         // A/B batch 4a whole-batch review I3: walking the WHOLE tree (rather than the hand-picked
         // five files) surfaced a genuine false positive the old scope never could: this guard's own
-        // kdoc, in WorkspaceColorChanged.kt, DOCUMENTS the exact write pattern it's guarding
+        // kdoc, in WorkspaceChanges.kt, DOCUMENTS the exact write pattern it's guarding
         // (`` * pairs every `workspaceSettings.workspaceColor =` write... `` inside a `/** ... */`
         // block), which the write regex matches just as happily as real code. `codeOnly` only strips
         // `//` line comments, so a `/** ... */` block survives it untouched. stripBlockComments
@@ -319,19 +356,15 @@ class ToolbarStateServiceImplTest {
             return out
         }
         val unpaired = mutableListOf<String>()
-        for (file in sourceFiles) {
-            val lines = stripBlockComments(file.readLines()).map(::codeOnly)
+        for ((path, rawLines) in files) {
+            val lines = stripBlockComments(rawLines).map(::codeOnly)
             lines.forEachIndexed { idx, line ->
                 if (writeRegex.containsMatchIn(line)) {
                     val window = lines.subList(idx, minOf(lines.size, idx + windowSize))
-                    if (window.none { it.contains(postMarker) }) unpaired += "${file.path}:${idx + 1}"
+                    if (window.none { it.contains(postMarker) }) unpaired += "$path:${idx + 1}"
                 }
             }
         }
-        assertThat(
-            "workspaceColor write(s) with no WorkspaceColorChanged post within the next 4 lines: $unpaired",
-            unpaired,
-            equalTo(emptyList<String>()),
-        )
+        return unpaired
     }
 }

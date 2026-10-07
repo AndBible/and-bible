@@ -27,7 +27,6 @@ import net.bible.android.control.event.onMain
 import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.DefaultModelChangedEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.agent.PermissionMode
@@ -39,7 +38,7 @@ import net.bible.sharedcore.ai.AiSettingsSnapshot
  * `CommonUtils.aiSettings` facade) and the AI DAOs / [LlmCostTracker], mirroring classic
  * `AiConnectionSettingsFragment` summary/refresh behavior exactly. Each setter writes through the
  * classic accessor then re-emits a freshly built [AiSettingsSnapshot]. Subscribes to the classic
- * broadcasts ([AppSettingsUpdated], [DefaultModelChangedEvent]) so external changes re-emit the
+ * broadcasts ([AppSettingsUpdated]) and [AiSettings.defaultModelChanged] so external changes re-emit the
  * snapshot too (same bridge pattern as [net.bible.android.control.speak.SpeakSettingsServiceImpl]).
  * Registered as a Koin single (lives for the process); the host calls [refresh] in `onResume` for
  * parity with the old pull-based refresh.
@@ -55,8 +54,9 @@ class AiSettingsServiceImpl : AiSettingsService {
     init {
         ABEventBus.register(this) {
             onMain<AppSettingsUpdated> { refresh() }
-            onMain<DefaultModelChangedEvent> { refresh() }
         }
+        // Process lifetime: never cancelled.
+        AiSettings.defaultModelChanged.subscribeOnMain { refresh() }
     }
 
     private fun build(): AiSettingsSnapshot {

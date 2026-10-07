@@ -358,8 +358,8 @@ class DownloadDeps(
  *
  * - [subscribeProgress] is classic's `bridge.register()`/`unregister()` PLUS the
  *   `bridge.running.drop(1).collect { ... }` body (`:105`, `:180`, `:111-116`) as one subscribe/stop
- *   pair: it owns the whole `CloudSyncProgressBridge` lifetime and reports every POST-`drop(1)`
- *   transfer-running transition to [onRunning]. The arm's own job on each callback is exactly
+ *   pair: it owns the whole subscription lifetime (`DocumentSync.runningChanged`; the bridge is gone)
+ *   and reports every transfer-running transition to [onRunning]. The arm's own job on each callback is exactly
  *   classic's collector body: flip `controller.setTransferRunning` and, on the false (transfer
  *   finished) edge, call [refreshFromNetwork].
  *
@@ -977,8 +977,8 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         }
 
         // Classic bridge.register()/unregister() plus the running.drop(1) collector (:105, :180,
-        // :111-116): deps.subscribeProgress owns the whole EventBus bridge lifetime and reports every
-        // post-drop(1) transition; the arm's job is exactly the collector's old body.
+        // :111-116): deps.subscribeProgress owns the `DocumentSync.runningChanged` subscription
+        // lifetime and reports every transition; the arm's job is exactly the collector's old body.
         DisposableEffect(Unit) {
             val stop = d.subscribeProgress { running ->
                 controller.setTransferRunning(running)

@@ -17,22 +17,30 @@
 
 package net.bible.service.common
 
-import net.bible.android.control.event.ABEventBus
+import androidx.annotation.VisibleForTesting
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.GlobalAiSettings
 import net.bible.service.llm.agent.PermissionMode
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 import java.util.Locale
-
-/** Posted when the global default model changes. */
-class DefaultModelChangedEvent
 
 /**
  * Accessor for global AI settings stored in the syncable AiSettingsDatabase.
  * Each property reads/writes the [GlobalAiSettings] singleton row.
  */
 object AiSettings {
+    private var defaultModelSource = EventSource<Unit>()
+
+    /** The global default model changed. Subscribers re-read it. */
+    val defaultModelChanged: Events<Unit> get() = defaultModelSource
+
+    /** Test teardown: process-global, so leaked subscribers would outlive their test. */
+    @VisibleForTesting
+    fun resetSubscribersForTest() { defaultModelSource = EventSource() }
+
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao()
 
     private fun getOrDefault(): GlobalAiSettings = dao.get() ?: GlobalAiSettings()
@@ -77,7 +85,7 @@ object AiSettings {
         get() = getOrDefault().defaultModelId
         set(value) {
             update { copy(defaultModelId = value) }
-            ABEventBus.post(DefaultModelChangedEvent())
+            defaultModelSource.emit(Unit)
         }
 
     var aiLanguage: String?

@@ -22,10 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.onMain
-import net.bible.android.control.event.window.WorkspaceChanged
-import net.bible.android.control.event.window.WorkspaceColorChanged
+import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.page.window.WindowControl
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
@@ -77,8 +74,8 @@ fun deriveToolbarFromTheme(enabledFeatures: Set<String>): Boolean =
  * itself stays pure and explicit — it is the iOS- and golden-facing API and must not learn about
  * Android settings. `AbThemeHostGuardTest` keeps hosts from going around this.
  *
- * The seed is held in state and refreshed on [WorkspaceColorChanged] (the event batch 4a added and
- * every writer of the workspace colour posts) and on [WorkspaceChanged] (batch 5: a workspace
+ * The seed is held in state and refreshed on [WorkspaceChange.ColorEdited] (the event batch 4a added and
+ * every writer of the workspace colour posts) and on [WorkspaceChange.Switched] (batch 5: a workspace
  * switch replaces `workspaceSettings` wholesale and posts no colour event of its own, so without
  * this the theme kept the previous workspace's seed after a switch), so changing the colour or
  * switching workspaces re-themes the visible UI without recreating the Activity. Not unit-tested:
@@ -102,14 +99,10 @@ fun deriveToolbarFromTheme(enabledFeatures: Set<String>): Boolean =
 fun AbAppTheme(darkTheme: Boolean? = null, content: @Composable () -> Unit) {
     var seedArgb by remember { mutableStateOf(currentWorkspaceThemeSeedArgb()) }
     DisposableEffect(Unit) {
-        val subscriber = Any()
-        ABEventBus.register(subscriber) {
-            onMain<WorkspaceColorChanged> { seedArgb = currentWorkspaceThemeSeedArgb() }
-            // A workspace switch replaces workspaceSettings wholesale and posts no colour event, so
-            // without this the UI keeps the previous workspace's seed.
-            onMain<WorkspaceChanged> { seedArgb = currentWorkspaceThemeSeedArgb() }
-        }
-        onDispose { ABEventBus.unregister(subscriber) }
+        // Both kinds re-read the seed: an edit changes it, and a switch replaces workspaceSettings
+        // wholesale (see WorkspaceChange.Switched).
+        val subscription = WorkspaceChanges.changes.subscribeOnMain { seedArgb = currentWorkspaceThemeSeedArgb() }
+        onDispose { subscription.cancel() }
     }
     ProvideAppLocals {
         AbTheme(

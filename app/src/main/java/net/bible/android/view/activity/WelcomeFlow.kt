@@ -66,7 +66,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
     val controller: StartupWelcomeController get() = controllerLazy.value
 
     /**
-     * The controller only if a WELCOME entry has built it -- for the host's `InstallZipEvent` handler, which runs on
+     * The controller only if a WELCOME entry has built it -- for the host's `InstallZipProgress` subscription, which runs on
      * every host and must not build one (building runs `loadInfo`, a DB read) just to show a progress line nobody sees.
      */
     val controllerIfCreated: StartupWelcomeController? get() = if (controllerLazy.isInitialized()) controllerLazy.value else null

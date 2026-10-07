@@ -14,50 +14,35 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-package net.bible.android.control.page.window
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+package net.bible.service.cloudsync
+
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.CommonUtils
-import net.bible.test.DatabaseResetter
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
-import org.junit.After
-import org.junit.Before
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+/** [recordSyncFinished] stamps `globalLastSynchronized` and only then emits the `false` edge (ABEventBus phase 3, C4). */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
-class WorkspaceChangedEventTest {
-    private lateinit var windowControl: WindowControl
-    private lateinit var windowRepository: WindowRepository
-
-    @Before
-    fun setUp() {
-        windowControl = CommonUtils.windowControl
-        windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
-        windowControl.windowRepository = windowRepository
-    }
-
-    @After
-    fun tearDown() {
-        DatabaseResetter.resetDatabase()
-    }
-
-    @Test
-    fun `loading a workspace emits Switched, and only Switched`() {
-        val received = mutableListOf<WorkspaceChange>()
-        val subscription = WorkspaceChanges.changes.subscribe { received += it }
-        try {
-            windowControl.windowRepository.loadFromDb(null)
-            assertThat(received, equalTo(listOf<WorkspaceChange>(WorkspaceChange.Switched)))
-        } finally {
-            subscription.cancel()
+class SyncFinishedTest {
+    @Test fun theTimestampIsWrittenBeforeTheFalseEdge() {
+        CommonUtils.settings.setLong("globalLastSynchronized", 0L)
+        var seenAtEmit = -1L
+        val subscription = CloudSync.runningChanged.subscribe { running ->
+            if (!running) seenAtEmit = CommonUtils.settings.getLong("globalLastSynchronized", 0L)
         }
+        try { recordSyncFinished(now = 1234L) } finally { subscription.cancel() }
+        assertEquals(1234L, seenAtEmit)
+    }
+
+    @Test fun noReadingHostIsNeeded() {
+        CommonUtils.settings.setLong("globalLastSynchronized", 0L)
+        recordSyncFinished(now = 99L)
+        assertEquals(99L, CommonUtils.settings.getLong("globalLastSynchronized", 0L))
     }
 }

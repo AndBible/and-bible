@@ -53,7 +53,7 @@ data class StartupWelcomeState(
  * Framework-free state holder for the first-run welcome screen. Easy start (and so the Easy tab) is
  * English-only because only English has curated default documents; elsewhere the screen is the
  * Advanced list alone. Restore is always offered; Redownload only after a previous install.
- * [setProgress] carries the `InstallZipEvent` line. Button ACTIONS are host seams passed to the
+ * [setProgress] carries the `InstallZipProgress` line. Button ACTIONS are host seams passed to the
  * screen, not this controller. No Android/JSword/Intent types.
  */
 class StartupWelcomeController(

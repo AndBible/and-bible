@@ -100,7 +100,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -214,9 +213,7 @@ import net.bible.service.common.BuildVariant
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-import net.bible.android.view.activity.cloud.CloudSyncProgressBridge
 import net.bible.service.cloudsync.CloudSync
-import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSyncService
@@ -225,6 +222,8 @@ import net.bible.service.cloudsync.documents.SyncPlan
 import net.bible.sharedcore.cloud.CloudDocAction
 import net.bible.sharedcore.cloud.CloudDocItem
 import net.bible.sharedcore.cloud.CloudDocumentsController
+import net.bible.sharedcore.event.Events
+import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.cloud.pushOnUnblock
 import net.bible.service.common.CommonUtils.pause
 import net.bible.service.common.displayName
@@ -275,6 +274,7 @@ import net.bible.android.view.activity.installzip.mapPhaseToUiState
 import net.bible.service.common.AndBibleBackupManifest
 import net.bible.service.common.BackupType
 import net.bible.service.installzip.DocumentInstallService
+import net.bible.service.installzip.InstallZipProgress
 import net.bible.sharedcore.nav.InstallZipResult
 import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import net.bible.sharedui.installzip.nav.InstallZipNavDeps
@@ -282,7 +282,6 @@ import net.bible.sharedui.installzip.nav.InstallZipSession
 import net.bible.sharedui.installzip.nav.installZipNavGraph
 import net.bible.sharedui.startup.nav.welcomeNavGraph
 import net.bible.android.view.activity.WelcomeFlow
-import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.sharedcore.ai.AiConnectionLabels
 import net.bible.sharedcore.ai.AiConnectionSettingsController
 import net.bible.sharedcore.ai.AiDocumentFilterController
@@ -2962,12 +2961,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // classic -- the tilt-scroll focus is gated on the destination having composed -- is stated at
     // its own line rather than left for the next reader to discover.
 
+    /** The Welcome screen's install-progress subscription (see [readingHostSubscriptions]). */
+    private val installProgress = Subscriptions()
+
     /**
-     * This host's ABEventBus subscriptions -- eight, all classic `MainBibleActivity.eventSubscriptions`
-     * ports except the Welcome progress line: `UpdateMainBibleActivityDocuments` (sets
+     * This host's ABEventBus subscriptions -- six, all classic `MainBibleActivity.eventSubscriptions`
+     * ports (the Welcome progress line lives in [installProgress]): `UpdateMainBibleActivityDocuments` (sets
      * [updateDocumentsPending], ungated -- [reconcileReadingStateOnResume] decides whether there is a
-     * workspace to apply it to), `NightModeChanged` (guarded, below), `InstallZipEvent` (slice 8 E2: the
-     * Welcome card's progress line), and the five slice 8's final review restored -- `CloudSyncEvent`,
+     * workspace to apply it to), `NightModeChanged` (guarded, below), and the four slice 8's final
+     * review restored (the cloud-sync timestamp write moved to `SyncService`) --
      * `AppToBackgroundEvent`, `WorkspacesUpdatedViaSyncEvent`, `WorkspaceRefreshRequired` and
      * `MainBibleAfterRestore` -- each gated on [readingAppBootstrapped], because a host that has not run
      * the reading bootstrap owns neither a window repository nor the cloud-sync loop they act on.
@@ -2998,8 +3000,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
         // Fix batch 2 (F77): the setting applies on every destination, immediately.
         onMain<SystemBarSettingChangedEvent> { refreshSystemBars() }
-        // Slice 8 E2: StartupComposeActivity's progress line on its welcome card.
-        onMain<InstallZipEvent> { e -> welcomeFlowOrNull?.controllerIfCreated?.setProgress(e.message) }
 
         // Slice 8 final review, Important 1: the rest of classic `MainBibleActivity.eventSubscriptions`
         // (at 7ac0b64fa), lost when F4 deleted the class. Every one of them is about THIS host's reading
@@ -3008,12 +3008,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // ([hostWindowRepository] throws), and a bootstrapped host is the one that owns the sync loop
         // ([ReadingAppBootstrap.startSync]) -- so the gate is exactly "the handler has something to act on".
         // The workspace bodies live on [ReadingCommands], next to the workspace switch they drive.
-        on<CloudSyncEvent> { event ->
-            if (!readingAppBootstrapped) return@on
-            if (!event.running) {
-                CommonUtils.settings.setLong("globalLastSynchronized", System.currentTimeMillis())
-            }
-        }
         on<AppToBackgroundEvent> { event ->
             if (!readingAppBootstrapped) return@on
             if (event.isMovedToBackground) {
@@ -3356,6 +3350,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             }
         }
         ABEventBus.register(this, readingHostSubscriptions)
+        // Slice 8 E2: StartupComposeActivity's progress line on its welcome card.
+        installProgress.add(InstallZipProgress.messages.subscribeOnMain { welcomeFlowOrNull?.controllerIfCreated?.setProgress(it) })
         val startRoute = resolveStartRoute(savedInstanceState)
         this.startRoute = startRoute
         // F59 fix round 2: the actual mode-setting call, now route-aware -- see
@@ -7871,7 +7867,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Classic `onStart`/`onStop` (`:376-394`) as one subscribe/unsubscribe pair. */
     private fun subscribeDownloadMonitoring(firstDownload: Boolean): () -> Unit {
         val session = downloadSession ?: return {}
-        session.bridge.register()
+        session.bridge.register(downloadControl.progress)
         downloadControl.startMonitoringDownloads()
         if (firstDownload) {
             updateHasBible()
@@ -8472,23 +8468,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /**
      * Classic `bridge.register()`/`unregister()` plus the `bridge.running.drop(1).collect { ... }`
-     * body (`:105`, `:180`, `:111-116`) as one subscribe/stop pair -- see
-     * [CloudDocumentsDeps.subscribeProgress]'s kdoc. A fresh [CloudSyncProgressBridge] per call,
-     * mirroring classic's per-Activity-instance field: this destination can be entered and left
-     * multiple times within one host instance, and each entry needs its own register/unregister
-     * pair, not a single one shared for the host's whole lifetime.
+     * body as one subscribe/stop pair -- see [CloudDocumentsDeps.subscribeProgress]'s kdoc. Each call
+     * is its own subscription on [lifecycleScope] (this destination can be entered and left several
+     * times within one host instance); there is no bridge and no `drop(1)`, since no initial value
+     * exists to skip.
      */
-    private fun cloudDocumentsSubscribeProgress(onRunning: (Boolean) -> Unit): () -> Unit {
-        val bridge = CloudSyncProgressBridge()
-        bridge.register()
-        val job = lifecycleScope.launch {
-            bridge.running.drop(1).collect { running -> onRunning(running) }
-        }
-        return {
-            job.cancel()
-            bridge.unregister()
-        }
-    }
+    private fun cloudDocumentsSubscribeProgress(onRunning: (Boolean) -> Unit): () -> Unit =
+        subscribeToDocumentSyncRunning(lifecycleScope, DocumentSync.runningChanged, onRunning)
 
     /**
      * Classic `runSyncAction` (`:234-241`), used by [buildCloudDocumentsController]'s `onRescan`.
@@ -9579,6 +9565,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // R4: the host's own NightModeChanged subscription, so an Activity recreation (e.g. a
         // config change) does not leak one registration per rotation.
         ABEventBus.unregister(this)
+        installProgress.cancelAll()
         // R8, and classic's `MainBibleActivity.onDestroy` (`:1594`) line for line: the reading view
         // has its OWN ABEventBus registration and its own coroutine scope, so without this an
         // Activity recreation leaks one of each per rotation. Null on every non-reading route,
@@ -9913,4 +9900,18 @@ internal fun LabelEditDeletePromptContent(
             dismissButton = { TextButton(onClick = onDismiss) { Text(dismissLabel) } },
         )
     }
+}
+
+/**
+ * Delivers every document-sync running edge to [onRunning] on [scope] until the returned stop runs.
+ * `asFlow()` is loss-free: a drain that emits `true` then `false` before the collector resumes still
+ * delivers both (a `StateFlow` would conflate them to nothing and skip the rescan).
+ */
+internal fun subscribeToDocumentSyncRunning(
+    scope: CoroutineScope,
+    runningChanged: Events<Boolean>,
+    onRunning: (Boolean) -> Unit,
+): () -> Unit {
+    val job = scope.launch { runningChanged.asFlow().collect { onRunning(it) } }
+    return { job.cancel() }
 }

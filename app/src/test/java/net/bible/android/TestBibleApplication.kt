@@ -21,8 +21,13 @@ import android.content.res.Resources
 import android.util.Log
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowStateServiceImpl
+import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.view.activity.base.SharedActivityState
+import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.documents.DocumentSync
+import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
+import net.bible.service.installzip.InstallZipProgress
 import net.bible.service.llm.agent.AgentSessionManager
 import org.koin.core.context.GlobalContext
 
@@ -55,5 +60,10 @@ class TestBibleApplication : BibleApplication() {
         AgentSessionManager.resetSubscribersForTest()
         SharedActivityState.instance.resetSubscribersForTest()
         GlobalContext.getOrNull()?.getOrNull<WindowStateServiceImpl>()?.resetSubscribersForTest()
+        WorkspaceChanges.resetSubscribersForTest()
+        AiSettings.resetSubscribersForTest()
+        DocumentSync.resetSubscribersForTest()
+        CloudSync.resetSubscribersForTest()
+        InstallZipProgress.resetSubscribersForTest()
     }
 }

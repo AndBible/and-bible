@@ -31,7 +31,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
@@ -40,7 +39,15 @@ private const val SYNC_NOTIFICATION_ID=2
 const val SYNC_NOTIFICATION_CHANNEL="sync-notifications"
 private const val WAKELOCK_TAG = "andbible:sync-wakelock"
 
-class CloudSyncEvent(val running: Boolean = false)
+/**
+ * A cloud sync finished: record `globalLastSynchronized` (read by `ReadingAppBootstrap.synchronize`)
+ * and then emit `false`. Before ABEventBus phase 3 the host wrote it, and only when a reading host was
+ * bootstrapped, so a sync started from sync settings recorded nothing (compose-open-findings).
+ */
+internal fun recordSyncFinished(now: Long = System.currentTimeMillis()) {
+    CommonUtils.settings.setLong("globalLastSynchronized", now)
+    CloudSync.notifySyncRunning(false)
+}
 
 class SyncService: Service() {
     companion object {
@@ -112,14 +119,14 @@ class SyncService: Service() {
         wakeLock.acquire(5*60*1000) // 5 minutes
 
         scope.launch {
-            ABEventBus.post(CloudSyncEvent(true))
+            CloudSync.notifySyncRunning(true)
             CloudSync.synchronize()
             CloudSync.waitUntilFinished(true)
             Log.i(TAG, "Synchronize finished")
             if(wakeLock.isHeld) {
                 wakeLock.release()
             }
-            ABEventBus.post(CloudSyncEvent(false))
+            recordSyncFinished()
             stop()
         }
     }

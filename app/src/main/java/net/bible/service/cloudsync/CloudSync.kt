@@ -20,6 +20,7 @@ package net.bible.service.cloudsync
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import io.requery.android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +42,8 @@ import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -101,6 +104,16 @@ enum class CloudAdapters(val isEnabled: Boolean = true) {
 }
 
 object CloudSync {
+    private var runningSource = EventSource<Boolean>()
+
+    /** `true` when a cloud sync starts, `false` when it finishes (replaces `CloudSyncEvent`). */
+    val runningChanged: Events<Boolean> get() = runningSource
+
+    internal fun notifySyncRunning(running: Boolean) = runningSource.emit(running)
+
+    @VisibleForTesting
+    fun resetSubscribersForTest() { runningSource = EventSource() }
+
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
     // AppDialogRequest.Options ids for initializeSync's "which way?" question (Task 24 Step 3).

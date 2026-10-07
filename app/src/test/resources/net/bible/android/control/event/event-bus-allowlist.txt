@@ -9,15 +9,10 @@ BookmarkToLabelAddedOrUpdatedEvent
 BookmarksAddedOrUpdatedEvent
 BookmarksDeletedEvent
 BookmarksUpdatedViaSyncEvent
-CloudSyncEvent
 CurrentBibleVerseChanged
 CurrentVerseChangedEvent
-DefaultModelChangedEvent
-DocumentDownloadEvent
-DocumentSyncProgressEvent
 ErrorNotificationEvent
 HideTransportEvent
-InstallZipEvent
 LabelAddedOrUpdatedEvent
 LabelsDeletedEvent
 MainBibleAfterRestore
@@ -37,7 +32,5 @@ SynchronizeWindowsEvent
 SystemBarSettingChangedEvent
 ToastEvent
 UpdateMainBibleActivityDocuments
-WorkspaceChanged
-WorkspaceColorChanged
 WorkspaceRefreshRequired
 WorkspacesUpdatedViaSyncEvent

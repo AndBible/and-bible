@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 /**
  * Seam for the model list/edit screen (`AiModelsController`). Implemented in `:app` by
  * `LlmModelServiceImpl`, wrapping `LlmConfiguredModelDao`, `LlmCostTracker` pricing/cost
- * formatting, `GlobalAiSettings.defaultModelId` + `DefaultModelChangedEvent`, and
+ * formatting, `GlobalAiSettings.defaultModelId` + `AiSettings.defaultModelChanged`, and
  * `DynamicModelService` for the available-models picker.
  */
 interface LlmModelService {

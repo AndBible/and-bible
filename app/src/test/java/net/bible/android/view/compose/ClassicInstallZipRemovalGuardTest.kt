@@ -26,8 +26,7 @@ import org.junit.Test
  * needs a test at all (dead code compiles cleanly, so the compiler proves nothing about it).
  *
  * The split kept TWO of the file's twelve top-level declarations. `InstallZipEvent` moved to its
- * own file at its UNCHANGED fully-qualified name — four surviving files import it, and an
- * unchanged package means not one of their import lines had to move. `const val TAG` moved into
+ * own file (since replaced by `InstallZipProgress.messages`, ABEventBus phase 3). `const val TAG` moved into
  * `InstallZipComposeActivity` as a private constant, because the Compose host reads it with no
  * import at all (same package), so no import sweep could have seen that dependency. The other ten
  * — `ZipHandler`, `EpubFile`, `InvalidModule`, `ModulesExists`, `CantOverwrite`, `InstallZipError`
@@ -47,7 +46,7 @@ class ClassicInstallZipRemovalGuardTest {
     )
 
     /**
-     * The file this slice deliberately CREATES rather than deletes. `InstallZipEvent` is posted by
+     * The file this slice deliberately CREATES rather than deletes. `InstallZipProgress` is reported by
      * `DocumentInstallService` and `EpubOptimization` and consumed by `StartupActivity` and
      * `StartupComposeActivity`, none of which is classic-InstallZip code — so it had to outlive the
      * Activity it happened to be declared beside. Asserted by PATH, not merely by compilation:
@@ -56,7 +55,7 @@ class ClassicInstallZipRemovalGuardTest {
      * was chosen to preserve.
      */
     private val survivingCollaborators = listOf(
-        "src/main/java/net/bible/android/view/activity/installzip/InstallZipEvent.kt",
+        "src/main/java/net/bible/service/installzip/InstallZipProgress.kt",
     )
 
     @Test fun theClassicInstallZipFilesAreGone() =
@@ -69,9 +68,9 @@ class ClassicInstallZipRemovalGuardTest {
     @Test fun theSurvivingInstallZipCollaboratorsStillExist() =
         ClassicRemovalScan.assertPathsPresent(
             survivingCollaborators,
-            "the file slice S16 split OUT of the deleted Activity is missing: InstallZipEvent must " +
-                "stay at net.bible.android.view.activity.installzip.InstallZipEvent, the exact " +
-                "fully-qualified name its four consumers import",
+            "the install-progress owner is missing: InstallZipProgress must " +
+                "stay at net.bible.service.installzip.InstallZipProgress, the exact " +
+                "fully-qualified name its consumers import",
         )
 
     @Test fun noSourceFileNamesAClassicInstallZipClass() =
@@ -80,7 +79,7 @@ class ClassicInstallZipRemovalGuardTest {
             "a shipping source file or resource XML still names the classic InstallZip class; the " +
                 "fix is to remove the reference (for a layout, the offending TAG), not to restore " +
                 "the class. The trailing boundary in ClassicRemovalScan.refsFor deliberately " +
-                "spares the surviving InstallZipComposeActivity and InstallZipEvent",
+                "spares the surviving InstallZipComposeActivity and InstallZipProgress",
         )
 
     @Test fun noManifestEntryNamesAClassicInstallZipClass() =

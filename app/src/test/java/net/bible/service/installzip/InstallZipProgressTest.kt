@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -14,16 +14,23 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-package net.bible.android.control.event.documentdownload
 
-import net.bible.android.control.download.DocumentStatus
-import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
+package net.bible.service.installzip
 
-/** Event raised when a change related to document download occurs
- *
- * @author Martin Denham [mjdenham at gmail dot com]
- */
-class DocumentDownloadEvent(id: String, status: DocumentInstallStatus, percentDone: Int) {
-    val documentStatus = DocumentStatus(id, status, percentDone)
-    val id: String get() = documentStatus.id
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class InstallZipProgressTest {
+    @After fun tearDown() { InstallZipProgress.resetSubscribersForTest() }
+
+    @Test fun reportsReachSubscribersInOrder_andNotAfterCancel() {
+        val seen = mutableListOf<String>()
+        val subscription = InstallZipProgress.messages.subscribe { seen += it }
+        InstallZipProgress.report("a")
+        InstallZipProgress.report("b")
+        subscription.cancel()
+        InstallZipProgress.report("c")
+        assertEquals(listOf("a", "b"), seen)
+    }
 }

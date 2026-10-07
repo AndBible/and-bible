@@ -16,8 +16,7 @@
  */
 package net.bible.android.view.activity.workspaces
 
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.window.WorkspaceColorChanged
+import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
@@ -155,7 +154,7 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
         ws.textDisplaySettings = if (reset) WorkspaceEntities.TextDisplaySettings() else settings.workspaceSettings
         ws.workspaceSettings?.workspaceColor =
             if (reset) defaultWorkspaceColor else settings.workspaceSettings.colors?.workspaceColor ?: defaultWorkspaceColor
-        ABEventBus.post(WorkspaceColorChanged())
+        WorkspaceChanges.notifyColorEdited()
         return ws.toVd()
     }
 }

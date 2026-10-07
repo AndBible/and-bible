@@ -131,7 +131,7 @@ fun ColorSettingsScreen(
 
     // Batch 4c: the colour is committed once, on OK, instead of on every slider frame. That is
     // classic's contract and it means `onWorkspaceColorChange` (which writes the setting and posts
-    // WorkspaceColorChanged, re-deriving the whole seeded theme) fires once per edit, not per frame.
+    // WorkspaceChange.ColorEdited, re-deriving the whole seeded theme) fires once per edit, not per frame.
     // The cost is that there is no live preview of the workspace colour while picking.
     if (workspaceDialogOpen) {
         AbColorPickerDialog(

@@ -25,8 +25,8 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.AppSettingsUpdated
+import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.DefaultModelChangedEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.DynamicModelService
 import net.bible.service.llm.LlmConfiguredModel
@@ -50,7 +50,7 @@ import net.bible.sharedcore.ai.ProviderVd
  *   `formatCost`/`getCumulativeCost`. Raw [ModelVd.priceInput]/[ModelVd.priceOutput] are populated
  *   ONLY for models with unknown/editable pricing (`!LlmProvider.hasKnownPricing`, mirroring
  *   [AvailableModelVd.knownPricing]) so the edit dialog can prefill its editable price fields.
- * - `GlobalAiSettings.defaultModelId` (`CommonUtils.aiSettings`) + [DefaultModelChangedEvent] for
+ * - `GlobalAiSettings.defaultModelId` (`CommonUtils.aiSettings`) + [AiSettings.defaultModelChanged] for
  *   the per-model default flag and the tap-to-set-default action.
  * - [DynamicModelService] + [net.bible.service.llm.LlmProviderConfig.resolveAvailableModels] for
  *   the add-model provider picker (identical to `LlmProviderServiceImpl.fetchAvailableModels`).
@@ -62,7 +62,7 @@ import net.bible.sharedcore.ai.ProviderVd
  * (leaving the list default-less); the T3 review flagged this, so [applyDefault] reassigns to
  * another model instead. Every mutation posts [AppSettingsUpdated] and re-emits [models]; the
  * ABEventBus bridge also re-emits when an external change broadcasts [AppSettingsUpdated] /
- * [DefaultModelChangedEvent] (same pattern as [AiSettingsServiceImpl]/[LlmProviderServiceImpl]).
+ * [AiSettings.defaultModelChanged] (same pattern as [AiSettingsServiceImpl]/[LlmProviderServiceImpl]).
  * Registered as a Koin single (lives for the process).
  *
  * Room here is configured with `allowMainThreadQueries`, so the non-suspend reads
@@ -81,8 +81,9 @@ class LlmModelServiceImpl : LlmModelService {
     init {
         ABEventBus.register(this) {
             onMain<AppSettingsUpdated> { refresh() }
-            onMain<DefaultModelChangedEvent> { refresh() }
         }
+        // Process lifetime: never cancelled.
+        AiSettings.defaultModelChanged.subscribeOnMain { refresh() }
     }
 
     private fun buildModels(): List<ModelVd> {
@@ -236,7 +237,7 @@ class LlmModelServiceImpl : LlmModelService {
      *   `if (defaultModelId == null) defaultModelId = newModel.id` first-model-becomes-default).
      * - otherwise (unchecked on a non-default model) → leave the existing default untouched.
      *
-     * The `defaultModelId` setter posts [DefaultModelChangedEvent] itself.
+     * The `defaultModelId` setter emits [AiSettings.defaultModelChanged] itself.
      */
     private fun applyDefault(modelId: IdType, setDefault: Boolean) {
         when {

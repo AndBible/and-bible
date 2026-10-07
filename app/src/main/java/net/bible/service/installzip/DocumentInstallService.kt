@@ -43,7 +43,6 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.BookmarkDatabase
-import net.bible.android.view.activity.installzip.InstallZipEvent
 import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
@@ -84,7 +83,7 @@ private const val GENERIC_NOTIFICATION_CHANNEL = "generic-notifications"
  * instance, wires its [InstallServiceController.JobDeps] to real `contentResolver`/`BackupControl`/
  * `SwordBookPath` collaborators, surfaces progress/action-required notifications, and posts the
  * terminal events (`ToastEvent` / [UpdateMainBibleActivityDocuments] /
- * [InstallZipEvent]) classic `InstallZip` posted directly from its Activity.
+ * [InstallZipProgress]) classic `InstallZip` posted directly from its Activity.
  *
  * Every job the [controller] runs is driven by data forwarded from THIS Service's own
  * `contentResolver`/`cacheDir`/`getString` -- never by a classic Activity -- so a caller only
@@ -350,19 +349,19 @@ class DocumentInstallService : Service() {
 
         val active = jobs.first()
         notificationManager.notify(NOTIFICATION_ID, progressNotification(progressText(active)))
-        postInstallZipEventFor(active.phase)
+        reportInstallZipProgressFor(active.phase)
     }
 
-    /** Feeds the legacy status-text bus (`InstallZipEvent`, also posted by `EpubOptimization`)
+    /** Feeds the legacy status-text bus (`InstallZipProgress`, also reported by `EpubOptimization`)
      *  at the two phases classic `InstallZip`'s `updateProgress`/`installZipLabel` actually
      *  displayed distinct text for. */
-    private fun postInstallZipEventFor(phase: InstallPhase) {
+    private fun reportInstallZipProgressFor(phase: InstallPhase) {
         val messageRes = when (phase) {
             is InstallPhase.Inspecting -> R.string.checking_zip_file
             is InstallPhase.Committing -> R.string.extracting_zip_file
             else -> return
         }
-        ABEventBus.post(InstallZipEvent(getString(messageRes)))
+        InstallZipProgress.report(getString(messageRes))
     }
 
     private fun stopSelfSafe() {

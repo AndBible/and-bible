@@ -17,11 +17,10 @@
 package net.bible.android.view.activity.download
 
 import net.bible.android.TEST_SDK
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
-import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
+import net.bible.android.control.download.DocumentStatus
+import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.navigation.DocInstallStatus
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,13 +30,13 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class DownloadProgressBridgeTest {
-    @After fun tearDown() { ABEventBus.unregisterAll() }
+    private val source = EventSource<DocumentStatus>()
 
     @Test fun event_updates_status_keyed_by_docId() {
         val bridge = DownloadProgressBridge()
         bridge.setRepoIdentityMap(mapOf("REPO::ESV" to "ESV"))
-        bridge.register()
-        ABEventBus.post(DocumentDownloadEvent("REPO::ESV", DocumentInstallStatus.BEING_INSTALLED, 42))
+        bridge.register(source)
+        source.emit(DocumentStatus("REPO::ESV", DocumentInstallStatus.BEING_INSTALLED, 42))
         val s = bridge.statuses.value["ESV"]
         assertEquals(DocInstallStatus.BEING_INSTALLED, s?.status)
         assertEquals(42, s?.percentDone)
@@ -46,9 +45,20 @@ class DownloadProgressBridgeTest {
 
     @Test fun unknown_repoIdentity_is_ignored() {
         val bridge = DownloadProgressBridge()
-        bridge.register()
-        ABEventBus.post(DocumentDownloadEvent("REPO::UNKNOWN", DocumentInstallStatus.BEING_INSTALLED, 10))
+        bridge.register(source)
+        source.emit(DocumentStatus("REPO::UNKNOWN", DocumentInstallStatus.BEING_INSTALLED, 10))
         assertEquals(emptyMap<String, RowDownloadStatus>(), bridge.statuses.value)
         bridge.unregister()
+    }
+
+    @Test fun onlyEmissionsAfterRegisterArrive_andNoneAfterUnregister() {
+        val bridge = DownloadProgressBridge()
+        bridge.setRepoIdentityMap(mapOf("REPO::ESV" to "ESV", "REPO::KJV" to "KJV"))
+        source.emit(DocumentStatus("REPO::ESV", DocumentInstallStatus.INSTALLED, 100))   // before register
+        bridge.register(source)
+        source.emit(DocumentStatus("REPO::KJV", DocumentInstallStatus.BEING_INSTALLED, 5))
+        bridge.unregister()
+        source.emit(DocumentStatus("REPO::KJV", DocumentInstallStatus.INSTALLED, 100))   // after unregister
+        assertEquals(mapOf("KJV" to RowDownloadStatus(DocInstallStatus.BEING_INSTALLED, 5)), bridge.statuses.value)
     }
 }

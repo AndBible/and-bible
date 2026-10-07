@@ -33,7 +33,6 @@ import net.bible.android.database.LogEntryTypes
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.MainBibleAfterRestore
 import net.bible.android.view.activity.page.ReadingAppBootstrap
-import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.common.CommonUtils
@@ -70,8 +69,8 @@ import kotlin.test.assertTrue
  * `readingHostSubscriptions` did not: `MainBibleAfterRestore` (posted by `BackupControl` and
  * `SyncSettingsServiceImpl` after a database restore), `AppToBackgroundEvent` (the cloud-sync
  * background/foreground pair, and the night-mode refresh `onRestart` owes a return from background),
- * `WorkspacesUpdatedViaSyncEvent`, `WorkspaceRefreshRequired`, and `CloudSyncEvent`'s write of
- * `globalLastSynchronized` (which `ReadingAppBootstrap.synchronize` reads). With the only reading
+ * `WorkspacesUpdatedViaSyncEvent`, and `WorkspaceRefreshRequired`. (The cloud-sync write of
+ * `globalLastSynchronized`, which `ReadingAppBootstrap.synchronize` reads, moved to `SyncService`; see `SyncFinishedTest`.) With the only reading
  * host not listening, a restored backup was overwritten by the live workspace's next save and cloud
  * sync never ran on background/foreground.
  *
@@ -232,18 +231,6 @@ class ReadingHostSyncAndRestoreEventsTest {
         assertEquals(0, toasts, "a synced change to some other workspace must not reload this one")
     }
 
-    // ——— CloudSyncEvent ——————————————————————————————————————————————————————————————————————————
-
-    @Test
-    fun aFinishedSyncRecordsGlobalLastSynchronized() {
-        readingHost()
-        lastSynchronized = 0L
-        ABEventBus.post(CloudSyncEvent(running = true))
-        assertEquals(0L, lastSynchronized, "a sync that is still running records nothing")
-        ABEventBus.post(CloudSyncEvent(running = false))
-        assertTrue(lastSynchronized > 0L, "a finished sync must record globalLastSynchronized, which synchronize() reads")
-    }
-
     // ——— AppToBackgroundEvent ————————————————————————————————————————————————————————————————————
 
     @Test
@@ -319,7 +306,6 @@ class ReadingHostSyncAndRestoreEventsTest {
             MainBibleAfterRestore(),
             WorkspaceRefreshRequired(),
             WorkspacesUpdatedViaSyncEvent(listOf(logEntry("Workspace", IdType()))),
-            CloudSyncEvent(running = false),
             AppToBackgroundEvent(AppToBackgroundEvent.Position.BACKGROUND),
             AppToBackgroundEvent(AppToBackgroundEvent.Position.FOREGROUND),
         ).joinToString("") { postCapturingErrors(it) }

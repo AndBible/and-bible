@@ -19,21 +19,21 @@ package net.bible.android.view.activity.download
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import net.bible.android.control.download.DocumentStatus
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
-import net.bible.android.control.event.on
+import net.bible.sharedcore.event.Events
+import net.bible.sharedcore.event.Subscription
 import net.bible.sharedcore.navigation.DocInstallStatus
 
 /** Live per-row download status for one document, as consumed by the Compose Download screen. */
 data class RowDownloadStatus(val status: DocInstallStatus, val percentDone: Int)
 
 /**
- * Bridges classic [DocumentDownloadEvent]s from [ABEventBus] into a [StateFlow] the Compose
- * Download screen observes for live per-row progress.
+ * Bridges `DownloadControl.progress` into a [StateFlow] the Compose Download screen observes for
+ * live per-row progress. Only emissions after [register] arrive (synchronously, on the emitting thread).
  *
- * The events carry the Book's `repoIdentity` (not its initials), so [setRepoIdentityMap] must be
- * supplied a repoIdentity -> docId (initials) mapping; events for unknown repoIdentities are dropped.
+ * The statuses carry the Book's `repoIdentity` (not its initials), so [setRepoIdentityMap] must be
+ * supplied a repoIdentity -> docId (initials) mapping; statuses for unknown repoIdentities are dropped.
  */
 class DownloadProgressBridge {
     private val _statuses = MutableStateFlow<Map<String, RowDownloadStatus>>(emptyMap())
@@ -46,16 +46,19 @@ class DownloadProgressBridge {
         repoIdentityToDocId = map
     }
 
-    fun register() {
-        ABEventBus.register(this) { on<DocumentDownloadEvent> { event -> handle(event) } }
+    private var subscription: Subscription? = null
+
+    fun register(progress: Events<DocumentStatus>) {
+        subscription?.cancel()
+        subscription = progress.subscribe { status -> handle(status) }
     }
 
     fun unregister() {
-        ABEventBus.unregister(this)
+        subscription?.cancel()
+        subscription = null
     }
 
-    private fun handle(event: DocumentDownloadEvent) {
-        val status = event.documentStatus
+    private fun handle(status: DocumentStatus) {
         val docId = repoIdentityToDocId[status.id] ?: return
         val row = RowDownloadStatus(translate(status.documentInstallStatus), status.percentDone)
         _statuses.value = _statuses.value + (docId to row)

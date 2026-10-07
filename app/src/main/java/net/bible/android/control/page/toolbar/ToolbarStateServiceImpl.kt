@@ -24,13 +24,14 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
-import net.bible.android.control.event.window.WorkspaceColorChanged
+import net.bible.android.control.page.window.WorkspaceChange
+import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.speak.SpeakControl
-import net.bible.service.cloudsync.CloudSyncEvent
+import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.sharedcore.reading.ToolbarState
@@ -52,7 +53,7 @@ import org.crosswire.jsword.passage.Verse
  * posted off it.
  *
  * [WindowChange.ActiveWindowChanged]/[PassageChangedEvent]/[CurrentVerseChangedEvent]/[SpeakEvent] each
- * rebuild the full snapshot from the active window's current page; [CloudSyncEvent] only flips
+ * rebuild the full snapshot from the active window's current page; [CloudSync.runningChanged] only flips
  * [ToolbarState.syncRunning], preserving every other field (a sync can run concurrently with the
  * reading view, so it must not clobber title/document/capability state computed from the page).
  *
@@ -74,16 +75,16 @@ class ToolbarStateServiceImpl(
         ABEventBus.register(this) {
             onMain<PassageChangedEvent> { refresh() }
             onMain<CurrentVerseChangedEvent> { refresh() }
-            // A/B batch 4a F1: the workspace colour feeds ToolbarState.workspaceColorArgb, and none
-            // of the other four events fires when it is written. See WorkspaceColorChanged's kdoc.
-            onMain<WorkspaceColorChanged> { refresh() }
             onMain<SpeakEvent> { refresh() }
-            onMain<CloudSyncEvent> { e -> _toolbar.value = _toolbar.value.copy(syncRunning = e.running) }
         }
         // Process lifetime, like the bus registration above: never cancelled.
         windowStateService.windowChanges.subscribeOnMain { change ->
             if (change is WindowChange.ActiveWindowChanged) refresh()
         }
+        // Process lifetime: never cancelled. A/B batch 4a F1: the workspace colour feeds
+        // ToolbarState.workspaceColorArgb, and no other trigger fires when it is written.
+        WorkspaceChanges.changes.subscribeOnMain { if (it == WorkspaceChange.ColorEdited) refresh() }
+        CloudSync.runningChanged.subscribeOnMain { running -> _toolbar.value = _toolbar.value.copy(syncRunning = running) }
     }
 
     /**
@@ -113,7 +114,7 @@ class ToolbarStateServiceImpl(
         return ToolbarState(
             pageTitle = pageTitleText(),
             documentTitle = page.currentDocumentName,
-            syncRunning = false, // overwritten by refresh()'s copy(); CloudSyncEvent sets it directly
+            syncRunning = false, // overwritten by refresh()'s copy(); CloudSync.runningChanged sets it directly
             showBible = showBible,
             showCommentary = showCommentary,
             showStrongs = documentControl.isStrongsInBook,

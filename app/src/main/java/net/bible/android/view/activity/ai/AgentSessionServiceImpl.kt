@@ -21,13 +21,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.onMain
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.DefaultModelChangedEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmProvider
@@ -66,8 +63,8 @@ internal fun mapEntry(e: AgentLogEntry): AgentLogEntryVd = AgentLogEntryVd(
 internal fun AgentStopReason.toVd(): AgentStopReasonVd = AgentStopReasonVd.valueOf(name)
 
 /**
- * Android impl of [AgentSessionService], bridging [AgentSessionManager.changes] into a [StateFlow]
- * of an immutable [AgentLogSnapshot], scoped to the current workspace. The
+ * Android impl of [AgentSessionService], bridging [AgentSessionManager.changes] and [AiSettings.defaultModelChanged]
+ * into a [StateFlow] of an immutable [AgentLogSnapshot], scoped to the current workspace. The
  * `windowControl.windowRepository.id` lookup below was taken from the classic `AgentLogWidget`.
  *
  * Registered as a Koin single (lives for the process); the host calls [refresh] on workspace switch.
@@ -85,9 +82,6 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
     override val snapshot: StateFlow<AgentLogSnapshot> = _snapshot.asStateFlow()
 
     init {
-        ABEventBus.register(this) {
-            onMain<DefaultModelChangedEvent> { refresh() }
-        }
         // Process lifetime (Koin single): never cancelled. onMain before, so subscribeOnMain now.
         AgentSessionManager.changes.subscribeOnMain { change ->
             if (change.workspaceId != wsId()) return@subscribeOnMain
@@ -100,6 +94,8 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
                 is AgentSessionChange.PermissionWaiting -> Unit // the panel never showed it
             }
         }
+        // Process lifetime: never cancelled.
+        AiSettings.defaultModelChanged.subscribeOnMain { refresh() }
     }
 
     private fun build(): AgentLogSnapshot {

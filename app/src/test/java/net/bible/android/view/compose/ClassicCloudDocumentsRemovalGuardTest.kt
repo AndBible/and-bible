@@ -29,7 +29,8 @@ import org.junit.Test
  * nothing for [ClassicRemovalScan.assertPathsPresent] to defend. `CloudDocumentsComposeActivity`
  * survived in the same package with a live consumer at the time (defended by the compiler) until
  * nav-graph slice 4 Task 9 deleted it too, once its screen had a nav-graph destination of its own;
- * `CloudSyncProgressBridge` still survives there with live consumers.
+ * `CloudSyncProgressBridge` survived it too, until ABEventBus phase 3 replaced it with
+ * `DocumentSync.runningChanged`.
  *
  * What this guard canNOT see, recorded here because it is this slice's real hazard: the deleted
  * activity declared eight top-level functions that three same-package test classes called with no
