@@ -20,6 +20,10 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import net.bible.android.TEST_SDK
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import net.bible.android.TestBibleApplication
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -45,6 +49,7 @@ class DocumentSyncServiceRunningTest {
     @Test
     fun drainReassertsRunningTrueOnEveryOp_thenEndsWithFalse() {
         val seen = CopyOnWriteArrayList<Boolean>()
+        var service: DocumentSyncService? = null
         val finished = CountDownLatch(1)
         val subscription = DocumentSync.runningChanged.subscribe {
             seen += it
@@ -55,12 +60,30 @@ class DocumentSyncServiceRunningTest {
             // Nonexistent books: each push is a no-op, but the drain still walks the three ops.
             DocumentSyncService.start(context, pushInitials = listOf("nope-a", "nope-b", "nope-c"), downloadInitials = emptyList())
             val intent = shadowOf(context).nextStartedService
-            val service = Robolectric.buildService(DocumentSyncService::class.java, intent).create().get()
-            service.onStartCommand(intent, 0, 1)
+            val created = Robolectric.buildService(DocumentSyncService::class.java, intent).create().get()
+            service = created
+            created.onStartCommand(intent, 0, 1)
 
             assertTrue("drain did not finish", finished.await(30, TimeUnit.SECONDS))
         } finally { subscription.cancel() }
+        // The `false` edge is emitted BEFORE the drain's stopSelfSafe(). Returning here would let Robolectric
+        // tear the application down while the drain coroutine (on Dispatchers.IO) is still calling
+        // stopForeground, which NPEs on a null application and poisons whichever test runs next.
+        // So wait for the drain coroutine itself, then check its teardown side effect.
+        awaitDrainCompletion(service!!)
+        assertTrue("drain must have stopped the service", shadowOf(service).isStoppedBySelf)
         // 1 (drain start) + 3 (one per op) trues, then the final false.
         assertEquals(listOf(true, true, true, true, false), seen.toList())
+    }
+
+    /** Joins every coroutine still running in the service's private scope (the drain job). */
+    private fun awaitDrainCompletion(service: DocumentSyncService) {
+        val scope = DocumentSyncService::class.java.getDeclaredField("scope").run {
+            isAccessible = true
+            get(service) as CoroutineScope
+        }
+        runBlocking {
+            withTimeout(30_000) { scope.coroutineContext[Job]!!.children.toList().forEach { it.join() } }
+        }
     }
 }
