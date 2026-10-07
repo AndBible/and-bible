@@ -48,7 +48,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.robolectric.shadows.ShadowLog

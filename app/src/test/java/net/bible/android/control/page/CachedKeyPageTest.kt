@@ -30,7 +30,7 @@ import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.`when`
