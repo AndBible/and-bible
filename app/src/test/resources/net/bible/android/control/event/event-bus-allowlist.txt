@@ -3,16 +3,10 @@ AiDocPagesChangedEvent
 AppSettingsUpdated
 AppToBackgroundEvent
 BibleViewTouched
-BookmarkNoteModifiedEvent
-BookmarkToLabelAddedOrUpdatedEvent
-BookmarksAddedOrUpdatedEvent
-BookmarksDeletedEvent
 CurrentBibleVerseChanged
 CurrentVerseChangedEvent
 ErrorNotificationEvent
 HideTransportEvent
-LabelAddedOrUpdatedEvent
-LabelsDeletedEvent
 MainBibleAfterRestore
 MyDocumentUpdatedEvent
 MyDocumentsUpdatedViaSyncEvent
@@ -24,8 +18,6 @@ SpeakEvent
 SpeakProgressEvent
 SpeakSettingsChangedEvent
 SpeakTransportVisibilityChanged
-StudyPadOrderEvent
-StudyPadTextEntryDeleted
 SynchronizeWindowsEvent
 SystemBarSettingChangedEvent
 ToastEvent

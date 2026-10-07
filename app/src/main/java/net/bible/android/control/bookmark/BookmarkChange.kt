@@ -9,8 +9,8 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntryWithText
 
 /**
- * One change to bookmarks, labels or StudyPads, emitted by [BookmarkControl.changes] (replaces the
- * `BookmarkEvent` family on `ABEventBus`). One sealed stream, not one per kind: subscribers rely on
+ * One change to bookmarks, labels or StudyPads, emitted by [BookmarkControl.changes]. One sealed
+ * stream, not one per kind: subscribers rely on
  * the relative order across kinds (a label before the bookmark that refers to it; bookmarks
  * re-sent without a label before the label is deleted).
  */

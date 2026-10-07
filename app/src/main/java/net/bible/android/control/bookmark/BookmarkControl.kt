@@ -86,25 +86,6 @@ import java.util.Date
 import java.util.Locale
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 
-abstract class BookmarkEvent
-
-class BookmarksAddedOrUpdatedEvent(val bookmarks: List<BaseBookmarkWithNotes>): BookmarkEvent()
-class BookmarkToLabelAddedOrUpdatedEvent(val bookmarkToLabel: BaseBookmarkToLabel)
-class BookmarksDeletedEvent(val bookmarkIds: List<IdType>): BookmarkEvent()
-class LabelAddedOrUpdatedEvent(val label: Label): BookmarkEvent()
-class LabelsDeletedEvent(val labelIds: List<IdType>): BookmarkEvent()
-class BookmarkNoteModifiedEvent(val bookmarkId: IdType, val notes: String?, val lastUpdatedOn: Long): BookmarkEvent()
-
-class StudyPadOrderEvent(
-    val labelId: IdType,
-    val newStudyPadTextEntry: StudyPadTextEntryWithText? = null,
-    val bookmarkToLabelsOrderChanged: List<BibleBookmarkToLabel>,
-    val genericBookmarkToLabelsOrderChanged: List<GenericBookmarkToLabel>,
-    val studyPadOrderChanged: List<StudyPadTextEntryWithText>
-)
-
-class StudyPadTextEntryDeleted(val studyPadTextEntryId: IdType)
-
 val LABEL_ALL_ID = IdType.empty()
 
 open class BookmarkControl constructor(
@@ -121,12 +102,10 @@ open class BookmarkControl constructor(
             val labels = dao.labelsById(labelUpserts)
             for(l in labels) {
                 _changes.emit(BookmarkChange.LabelUpserted(l))
-                ABEventBus.post(LabelAddedOrUpdatedEvent(l))
             }
 
             val bookmarksDeletes = updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "BibleBookmark" }.map { it.entityId1 }
             _changes.emit(BookmarkChange.BookmarksDeleted(bookmarksDeletes))
-            ABEventBus.post(BookmarksDeletedEvent(bookmarksDeletes))
 
             val bookmarkUpserts = updated.filter {
                 (it.type == LogEntryTypes.UPSERT && it.tableName == "BibleBookmark") || it.tableName == "BibleBookmarkNotes"
@@ -134,7 +113,6 @@ open class BookmarkControl constructor(
 
             val genericBookmarksDeletes = updated.filter { it.type == LogEntryTypes.DELETE && it.tableName == "GenericBookmark" }.map { it.entityId1 }
             _changes.emit(BookmarkChange.BookmarksDeleted(genericBookmarksDeletes))
-            ABEventBus.post(BookmarksDeletedEvent(genericBookmarksDeletes))
 
             val genericBookmarkUpserts = updated.filter {
                 (it.type == LogEntryTypes.UPSERT && it.tableName == "GenericBookmark") || it.tableName == "GenericBookmarkNotes"
@@ -146,7 +124,6 @@ open class BookmarkControl constructor(
 
             for (studyPadTextEntryId in studyPadTextEntryDeletes) {
                 _changes.emit(BookmarkChange.StudyPadTextEntryDeleted(studyPadTextEntryId))
-                ABEventBus.post(StudyPadTextEntryDeleted(studyPadTextEntryId))
             }
 
             val studyPadTextEntryTextUpserts = updated.filter {
@@ -156,7 +133,6 @@ open class BookmarkControl constructor(
             for(studyPadTextEntryId in studyPadTextEntryTextUpserts) {
                 val withText = dao.studyPadTextEntryById(studyPadTextEntryId)!!
                 _changes.emit(BookmarkChange.StudyPadOrder(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
-                ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
             }
 
             val studyPadTextEntryUpserts = updated.filter {
@@ -168,7 +144,6 @@ open class BookmarkControl constructor(
             for(studyPadTextEntryId in studyPadTextEntryUpserts) {
                 val withText = dao.studyPadTextEntryById(studyPadTextEntryId) ?: continue
                 _changes.emit(BookmarkChange.StudyPadOrder(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
-                ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
                 labelIds.add(withText.labelId)
             }
 
@@ -198,13 +173,11 @@ open class BookmarkControl constructor(
                 addLabels(b)
                 addText(b)
                 _changes.emit(BookmarkChange.BookmarksUpserted(listOf(b)))
-                ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
             }
             for(b in dao.genericBookmarksByIds(genericBookmarkUpserts.toList())) {
                 addLabels(b)
                 addText(b)
                 _changes.emit(BookmarkChange.BookmarksUpserted(listOf(b)))
-                ABEventBus.post(BookmarksAddedOrUpdatedEvent(listOf(b)))
             }
         }
     }
@@ -314,9 +287,6 @@ open class BookmarkControl constructor(
         addText(bookmark)
         addLabels(bookmark)
         _changes.emit(BookmarkChange.BookmarksUpserted(listOf(bookmark)))
-        ABEventBus.post(
-            BookmarksAddedOrUpdatedEvent(listOf(bookmark))
-        )
         return bookmark
     }
     
@@ -351,7 +321,6 @@ open class BookmarkControl constructor(
         dao.delete(bookmark)
         sanitizeStudyPadOrder(bookmark)
         _changes.emit(BookmarkChange.BookmarksDeleted(listOf(bookmark.id)))
-        ABEventBus.post(BookmarksDeletedEvent(listOf(bookmark.id)))
     }
 
     private fun deleteBookmarks(bookmarks: List<BaseBookmarkWithNotes>) {
@@ -364,7 +333,6 @@ open class BookmarkControl constructor(
             sanitizeStudyPadOrder(l)
         }
         _changes.emit(BookmarkChange.BookmarksDeleted(bookmarks.map { it.id }))
-        ABEventBus.post(BookmarksDeletedEvent(bookmarks.map { it.id }))
     }
 
     fun deleteBibleBookmarksById(bookmarkIds: List<IdType>) = deleteBookmarks(dao.bibleBookmarksByIds(bookmarkIds))
@@ -531,7 +499,6 @@ open class BookmarkControl constructor(
             dao.update(label)
         }
         _changes.emit(BookmarkChange.LabelUpserted(label))
-        ABEventBus.post(LabelAddedOrUpdatedEvent(label))
         return label
     }
 
@@ -572,7 +539,6 @@ open class BookmarkControl constructor(
         }
         created?.let {
             _changes.emit(BookmarkChange.LabelUpserted(it))
-            ABEventBus.post(LabelAddedOrUpdatedEvent(it))
         }
         return label
     }
@@ -628,23 +594,21 @@ open class BookmarkControl constructor(
             refreshTextAndLabels(bookmark)
         }
         _changes.emit(BookmarkChange.BookmarksUpserted(bookmarks))
-        ABEventBus.post(BookmarksAddedOrUpdatedEvent(bookmarks))
     }
 
     /** Announces [label] again after something outside this class changed how it renders (a workspace override). */
     fun notifyLabelChanged(label: Label) {
         _changes.emit(BookmarkChange.LabelUpserted(label))
-        ABEventBus.post(LabelAddedOrUpdatedEvent(label))
     }
 
     /**
      * F54: [changeLabelsForBookmark] is a bare DAO write and never touches the in-memory
      * [BaseBookmarkWithNotes] it was given -- `labelIds`/`bookmarkToLabels`/`text` stay whatever they
      * were when the object was loaded (often unset, `addData = false`). A caller that posts
-     * [BookmarksAddedOrUpdatedEvent] with that same object afterwards (so an open reading view's
+     * [BookmarkChange.BookmarksUpserted] with that same object afterwards (so an open reading view's
      * `ClientBibleBookmark`/`ClientGenericBookmark` serialisation can pick up the new labels) must
      * refresh it first. Mirrors the `addText`/`addLabels` pair [addOrUpdateBookmark] runs on its own
-     * bookmark right before its own post.
+     * bookmark right before its own emission.
      */
     fun refreshTextAndLabels(bookmark: BaseBookmarkWithNotes) {
         addText(bookmark)
@@ -663,7 +627,6 @@ open class BookmarkControl constructor(
         addLabels(bookmark)
         addText(bookmark)
         _changes.emit(BookmarkChange.NoteModified(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
-        ABEventBus.post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
     }
     fun saveGenericBookmarkNote(bookmarkId: IdType, note: String?) {
         if(note == null) {
@@ -677,7 +640,6 @@ open class BookmarkControl constructor(
         addLabels(bookmark)
         addText(bookmark)
         _changes.emit(BookmarkChange.NoteModified(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
-        ABEventBus.post(BookmarkNoteModifiedEvent(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
     }
 
     /**
@@ -731,9 +693,7 @@ open class BookmarkControl constructor(
             addLabels(b)
         }
         _changes.emit(BookmarkChange.BookmarksUpserted(bookmarks))
-        ABEventBus.post(BookmarksAddedOrUpdatedEvent(bookmarks))
         _changes.emit(BookmarkChange.LabelsDeleted(labelIdList))
-        ABEventBus.post(LabelsDeletedEvent(labelIdList))
     }
 
     fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false, withText: Boolean = true): List<BibleBookmarkWithNotes> {
@@ -839,7 +799,6 @@ open class BookmarkControl constructor(
         dao.update(entry)
         val withText = dao.studyPadTextEntryById(entry.id)
         _changes.emit(BookmarkChange.StudyPadOrder(entry.labelId, withText, emptyList(), emptyList(), emptyList()))
-        ABEventBus.post(StudyPadOrderEvent(entry.labelId, withText, emptyList(), emptyList(), emptyList()))
     }
 
     /** Inserts a new bookmark-to-label link and announces it after the write succeeds. */
@@ -850,13 +809,11 @@ open class BookmarkControl constructor(
             else -> throw RuntimeException("Illegal type")
         }
         _changes.emit(BookmarkChange.BookmarkToLabelUpserted(bookmarkToLabel))
-        ABEventBus.post(BookmarkToLabelAddedOrUpdatedEvent(bookmarkToLabel))
     }
 
     fun updateBookmarkToLabel(bookmarkToLabel: BaseBookmarkToLabel) {
         dao.update(bookmarkToLabel)
         _changes.emit(BookmarkChange.BookmarkToLabelUpserted(bookmarkToLabel))
-        ABEventBus.post(BookmarkToLabelAddedOrUpdatedEvent(bookmarkToLabel))
     }
 
     fun updateBibleBookmarkTimestamp(bookmarkId: IdType) {
@@ -880,7 +837,6 @@ open class BookmarkControl constructor(
         val entry = dao.studyPadTextEntryById(textEntryId)!!
         dao.delete(entry.studyPadTextEntryEntity)
         _changes.emit(BookmarkChange.StudyPadTextEntryDeleted(textEntryId))
-        ABEventBus.post(StudyPadTextEntryDeleted(textEntryId))
         sanitizeStudyPadOrder(entry.labelId)
     }
 
@@ -936,15 +892,6 @@ open class BookmarkControl constructor(
                     if(updateAllInUi) genericBookmarkToLabels else changedGenericBookmarkToLabels,
                     if(updateAllInUi) studyPadTextEntries else changedJournalTextEntries
                 ))
-            ABEventBus.post(
-                StudyPadOrderEvent(
-                    labelId,
-                    null,
-                    if(updateAllInUi) bookmarkToLabels else changedBookmarkToLabels,
-                    if(updateAllInUi) genericBookmarkToLabels else changedGenericBookmarkToLabels,
-                    if(updateAllInUi) studyPadTextEntries else changedJournalTextEntries
-                )
-            )
         }
     }
 
@@ -967,13 +914,6 @@ open class BookmarkControl constructor(
 
         if (newStudyPadTextEntry != null || bookmarkToLabels.isNotEmpty() || genericBookmarkToLabels.isNotEmpty() || studyPadTextEntries.isNotEmpty()) {
             _changes.emit(BookmarkChange.StudyPadOrder(
-                labelId = labelId,
-                newStudyPadTextEntry = newStudyPadTextEntry,
-                bookmarkToLabelsOrderChanged = bookmarkToLabels,
-                genericBookmarkToLabelsOrderChanged = genericBookmarkToLabels,
-                studyPadOrderChanged = studyPadTextEntries
-            ))
-            ABEventBus.post(StudyPadOrderEvent(
                 labelId = labelId,
                 newStudyPadTextEntry = newStudyPadTextEntry,
                 bookmarkToLabelsOrderChanged = bookmarkToLabels,
@@ -1064,7 +1004,6 @@ open class BookmarkControl constructor(
         dao.updateBibleBookmarkToLabels(bookmarksToLabels)
         dao.updateGenericBookmarkToLabels(genericBookmarksToLabels)
         _changes.emit(BookmarkChange.StudyPadOrder(labelId, null, bookmarksToLabels, genericBookmarksToLabels, studyPadTextEntries))
-        ABEventBus.post(StudyPadOrderEvent(labelId, null, bookmarksToLabels, genericBookmarksToLabels, studyPadTextEntries))
     }
 
     fun setAsPrimaryLabelForBible(bookmarkId: IdType, labelId: IdType) {
@@ -1084,7 +1023,6 @@ open class BookmarkControl constructor(
         dao.update(textEntry)
         val withText = dao.studyPadTextEntryById(id)!!
         _changes.emit(BookmarkChange.StudyPadOrder(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
-        ABEventBus.post(StudyPadOrderEvent(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
     }
 
     suspend fun exportBookmarksToCSV(context: ActivityBase, exportBookmarks: List<BibleBookmarkWithNotes>) = context.run {

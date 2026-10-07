@@ -55,8 +55,8 @@ import org.koin.core.component.inject
 
 
 /**
- * Whether [change] redraws the home-screen bookmark widget: exactly the five kinds that were
- * `BookmarkEvent` subtypes on the bus. Exhaustive on purpose, so a new kind forces a decision.
+ * Whether [change] redraws the home-screen bookmark widget: exactly the five bookmark change kinds
+ * that affect the widget. Exhaustive on purpose, so a new kind forces a decision.
  */
 internal fun redrawsBookmarkWidget(change: BookmarkChange): Boolean = when (change) {
     is BookmarkChange.BookmarksUpserted,

@@ -11,7 +11,7 @@ import org.junit.Test
 class BookmarkWidgetRedrawTest {
     private val id = IdType()
 
-    @Test fun theFiveFormerBookmarkEventKindsRedraw() {
+    @Test fun theFiveWidgetRelevantBookmarkChangesRedraw() {
         listOf(
             BookmarkChange.BookmarksUpserted(emptyList()),
             BookmarkChange.BookmarksDeleted(listOf(id)),
@@ -26,6 +26,6 @@ class BookmarkWidgetRedrawTest {
             BookmarkChange.BookmarkToLabelUpserted(BibleBookmarkToLabel(id, id)),
             BookmarkChange.StudyPadOrder(id, null, emptyList(), emptyList(), emptyList()),
             BookmarkChange.StudyPadTextEntryDeleted(id),
-        ).forEach { assertFalse("$it was never a BookmarkEvent", redrawsBookmarkWidget(it)) }
+        ).forEach { assertFalse("$it does not redraw the widget", redrawsBookmarkWidget(it)) }
     }
 }
