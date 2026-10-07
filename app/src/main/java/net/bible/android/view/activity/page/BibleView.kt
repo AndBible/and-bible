@@ -85,8 +85,6 @@ import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.control.event.onMain
-import net.bible.android.control.event.window.CurrentWindowChangedEvent
-import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
@@ -108,7 +106,9 @@ import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.control.page.StudyPadDocument
 import net.bible.android.control.page.window.Window
+import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
@@ -126,7 +126,6 @@ import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
 import net.bible.android.view.activity.page.screen.PageTiltScroller
-import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.util.UiUtils
 import net.bible.service.sword.SwordContentFacade
@@ -172,6 +171,7 @@ import kotlin.math.abs
 import kotlin.math.min
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.core.context.GlobalContext
 
 class AppSettingsUpdated
 
@@ -988,6 +988,24 @@ class BibleView(
 
     private val subscriptions = Subscriptions()
 
+    private fun onActiveWindowChanged(activeWindow: Window) {
+        if (window == activeWindow) {
+            bibleJavascriptInterface.notificationsEnabled = true
+            resumeTiltScroll()
+        } else {
+            bibleJavascriptInterface.notificationsEnabled = false
+            pauseTiltScroll()
+        }
+        updateActive()
+    }
+
+    private fun onWindowsChanged() {
+        if(window.isVisible) {
+            updateOffsets(true)
+            updateConfig()
+        }
+    }
+
     var listenEvents: Boolean = false
         set(value) {
             if(value == field) return
@@ -1094,16 +1112,6 @@ class BibleView(
                         val labelIds = json.encodeToString(serializer(), event.labelIds)
                         executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
                     }
-                    on<CurrentWindowChangedEvent> { event ->
-                        if (window == event.activeWindow) {
-                            bibleJavascriptInterface.notificationsEnabled = true
-                            resumeTiltScroll()
-                        } else {
-                            bibleJavascriptInterface.notificationsEnabled = false
-                            pauseTiltScroll()
-                        }
-                        updateActive()
-                    }
                     on<ScrollSecondaryWindowEvent> { event ->
                         if (window == event.window) {
                             scrollOrJumpToVerse(event.verse)
@@ -1112,15 +1120,8 @@ class BibleView(
                     on<ConfigurationChanged> { event ->
                         checkWindows = true
                     }
-                    on<NumberOfWindowsChangedEvent> { event ->
-                        if(window.isVisible) {
-                            updateOffsets(true)
-                            updateConfig()
-                        }
-                    }
                     on<FullScreenEvent> { event -> updateOffsets() }
                     on<SystemInsetsChangedEvent> { event -> updateOffsets() }
-                    on<RestoreButtonsVisibilityChanged> { event -> updateOffsets() }
                     on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
                     // F6 Task 8b Step 3: the search sheet's own visible/height pair changed — see
                     // MainBibleActivity.updateSearchSheetOffsets.
@@ -1136,6 +1137,13 @@ class BibleView(
                     // route is `BibleViewFactory.clear()`, which calls `doDestroy()` directly and
                     // is not event-driven. Removed in Batch Z-late's epilogue (spec 10.3).
                 }
+                subscriptions.add(windowState.windowChanges.subscribe { change ->
+                    when (change) {
+                        is WindowChange.ActiveWindowChanged -> onActiveWindowChanged(change.window)
+                        WindowChange.WindowsChanged -> onWindowsChanged()
+                        WindowChange.RestoreButtonsChanged -> updateOffsets()
+                    }
+                })
                 subscriptions.add(ProgressControl.changes.subscribe { change ->
                     when (change) {
                         is ProgressChange.Memorization -> onMemorizationChanged(change)
@@ -1753,6 +1761,7 @@ class BibleView(
     private var lastKey: Key? = null
     private var firstKey: Key? = null
     private val displaySettings get() = window.pageManager.actualTextDisplaySettings
+    private val windowState: WindowStateServiceImpl by lazy { GlobalContext.get().get() }
     internal val workspaceSettings get() = windowControl.windowRepository.workspaceSettings
 
     fun updateTextDisplaySettings(onAttach: Boolean = false) {

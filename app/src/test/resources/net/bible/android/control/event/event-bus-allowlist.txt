@@ -16,7 +16,6 @@ CloudSyncEvent
 ConfigurationChanged
 CurrentBibleVerseChanged
 CurrentVerseChangedEvent
-CurrentWindowChangedEvent
 DefaultModelChangedEvent
 DocumentDownloadEvent
 DocumentSyncProgressEvent
@@ -31,11 +30,9 @@ MainBibleAfterRestore
 MyDocumentUpdatedEvent
 MyDocumentsUpdatedViaSyncEvent
 NightModeChanged
-NumberOfWindowsChangedEvent
 PassageChangedEvent
 PhoneCallEvent
 ReloadAddonsEvent
-RestoreButtonsVisibilityChanged
 ScrollSecondaryWindowEvent
 SearchSheetOffsetsUpdated
 SpeakEvent

@@ -21,10 +21,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.window.WindowLayoutState
 import net.bible.sharedcore.window.WindowSnapshot
 import net.bible.sharedcore.window.WindowStateService
 import net.bible.sharedcore.window.WindowStateValue
+
+/** A window-layout change every open BibleView (and the toolbar, host) must react to. */
+sealed interface WindowChange {
+    /** Windows were added, removed, minimised, restored or resized ([WindowRepository.notifyWindowsChanged]). */
+    object WindowsChanged : WindowChange
+    /** [window] became the active window. */
+    data class ActiveWindowChanged(val window: Window) : WindowChange
+    /** The restore-buttons setting flipped. */
+    object RestoreButtonsChanged : WindowChange
+}
 
 /**
  * Authoritative reactive single-source-of-truth for the window domain (Batch 12a). Owns
@@ -39,6 +51,13 @@ import net.bible.sharedcore.window.WindowStateValue
 class WindowStateServiceImpl : WindowStateService {
     private val _layout = MutableStateFlow(WindowLayoutState.EMPTY)
     override val layout: StateFlow<WindowLayoutState> = _layout.asStateFlow()
+
+    private val _windowChanges = EventSource<WindowChange>()
+    /** Window-layout changes, emitted synchronously after [layout] is refreshed (replaces four bus events). */
+    val windowChanges: Events<WindowChange> get() = _windowChanges
+
+    /** Emits [change]. Called by [WindowRepository]'s notifiers after [refresh]. */
+    fun notify(change: WindowChange) = _windowChanges.emit(change)
 
     fun refresh(repo: WindowRepository) {
         _layout.value = buildSnapshot(repo)

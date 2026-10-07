@@ -103,7 +103,6 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
-import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
@@ -118,6 +117,7 @@ import net.bible.android.control.page.CurrentMyNotePage
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
+import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
@@ -172,6 +172,7 @@ import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.nameWithoutDocument
+import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.agentPanelHeight
@@ -597,6 +598,7 @@ sealed interface ReadingDialog {
  */
 class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinComponent {
     private val windowState: WindowStateServiceImpl by inject()
+    private val subscriptions = Subscriptions()
     private val commands: WindowCommands by inject()
     private val toolbarStateService: ToolbarStateService by inject()
     private val readingLlmService: ReadingLlmService by inject()
@@ -3061,12 +3063,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 // second, less reliable one.
                 searchController.activeDocumentChanged()
             }
-            onMain<CurrentWindowChangedEvent> {
-                overlayText.value = readOverlayText()
-                activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
-                // F44/B3: search mode outlives a window switch, so the panel's target follows it.
-                searchController.activeDocumentChanged()
-            }
             // Task 4 (F2b): classic's per-window rail top label (`WindowButtonWidget.kt:148`,
             // `pageManager.titleText`) is refreshed on this SAME event
             // (`WindowButtonWidget.kt:232-234`). `windowTopLabel`/`windowLabel`/`windowIcon` are
@@ -3097,6 +3093,14 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 refreshHostedState()
             }
         }
+        subscriptions.add(windowState.windowChanges.subscribeOnMain { change ->
+            if (change is WindowChange.ActiveWindowChanged) {
+                overlayText.value = readOverlayText()
+                activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
+                // F44/B3: search mode outlives a window switch, so the panel's target follows it.
+                searchController.activeDocumentChanged()
+            }
+        })
 
         // F6-B1: the activity's IME padding is keyed on this field's focus, and NO inset changes when
         // focus moves — so the insets listener never fires and the change has to be pushed.
@@ -3229,6 +3233,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      */
     fun dispose() {
         ABEventBus.unregister(this)
+        subscriptions.cancelAll()
         // F6 Task 8a: a `JobManager` WorkListener outlives the activity that registered it (the
         // manager is a process-wide static), so an in-flight index build would otherwise leak this
         // host through it.
@@ -3953,7 +3958,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // Batch 12g Task 3 additions: the fullscreen bible-reference overlay's text + the
             // active window's bible-shown flag, `State`s for the same reactivity reason as
             // `fullScreenState` above — [ComposeReadingViewHost.install] mirrors both from
-            // `CurrentVerseChangedEvent`/`CurrentWindowChangedEvent` (see its `init` block) rather
+            // `CurrentVerseChangedEvent`/`WindowChange.ActiveWindowChanged` (see its `init` block) rather
             // than passing a one-shot snapshot. Defaulted (empty text / bible not shown) so
             // `ComposeReadingViewHostTest` (which never renders the overlay) is unaffected.
             overlayTextState: State<String> = mutableStateOf(""),

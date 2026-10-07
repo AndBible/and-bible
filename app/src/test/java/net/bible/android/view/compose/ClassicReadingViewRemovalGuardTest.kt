@@ -151,16 +151,12 @@ class ClassicReadingViewRemovalGuardTest {
     }
 
     @Test
-    fun theRestoreButtonsEventOutlivesItsClassicHome() {
-        // RestoreButtonsVisibilityChanged is posted by WindowRepository.notifyRestoreButtonsChanged
-        // and consumed by BibleView -- both on the Compose path. It must NOT die with SplitBibleArea.
-        ClassicRemovalScan.assertPathsPresent(
-            listOf("src/main/java/net/bible/android/view/activity/page/screen/RestoreButtonsEvents.kt"),
-            "the live Compose-path event must have been split out before SplitBibleArea is deleted",
-        )
+    fun theDoomedClassicHostCannotHoldAWindowEvent() {
+        // RestoreButtonsVisibilityChanged became WindowChange.RestoreButtonsChanged (ABEventBus phase 2);
+        // WindowCommandsImplTest pins that notifyRestoreButtonsChanged emits it.
         ClassicRemovalScan.assertPathsGone(
             doomedReadingViewPaths,
-            "the classic host must be GONE, so it cannot hold a second declaration of the event",
+            "the classic host must be GONE, so it cannot hold a second declaration of a window event",
         )
     }
 
