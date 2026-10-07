@@ -779,10 +779,6 @@
         suplimentare atunci cînd studiezi Biblia.
     </string>
   <!--Welcome text-->
-  <string name="welcome_message">Mulțumim că ai descărcat %s. În prezent, nu există Biblii sau documente instalate. Pentru a continua, instalează
-        cel puțin 1 document descărcîndu-l de pe internet sau încărcîndu-l dintr-un fișier
-        Zip de rezervă.
-    </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Trebuie să alegi fișierul pe care vrei să-l încarci în %s. </string>

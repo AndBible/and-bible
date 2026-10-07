@@ -40,7 +40,7 @@ If your phone is set to English, the screen has two tabs:
   **Redownload** link lets you pick documents you had installed.
 - **Advanced** lists every option, described below.
 
-In other languages, the screen shows the Advanced options directly:
+In other languages there are no tabs and the screen shows the Advanced options directly. The Advanced options are:
 
 - **Redownload Documents**: choose from documents installed earlier on this device (shown only
   when there are any).

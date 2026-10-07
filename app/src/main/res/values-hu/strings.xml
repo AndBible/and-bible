@@ -746,7 +746,6 @@ majd azután nem rögzített ablakok. A Biblia dokumentumokat rögzített ablakk
 Így a Biblia tanulmányozása közben a Bibliák mindig
  nyitva vannak, és egyszerűen lehet a különböző egyéb anyagok között navigálni. </string>
   <!--Welcome text-->
-  <string name="welcome_message">Köszönjük hogy letöltötte a %s alkalmazást. Jelenleg egyetlen Bibiia vagy más dokumentum sincs telepítve. A folytatáshoz telepítsen legalább egy dokumentumot az internetről vagy zip fájlból.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Ki kell választania a fájlt, amelyet be szeretne tölteni a %s-be.</string>

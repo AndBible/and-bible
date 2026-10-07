@@ -149,10 +149,6 @@ Workspaces allow having multiple working environments. Workspace functions can b
         Long press the Back button to access the History list.
     </string>
   <!--Welcome text-->
-  <string name="welcome_message">Thank you for downloading %s. There are currently no Bibles installed. To continue, please install
-        at least 1 Bible document by downloading from the internet, or by loading from a zip file document
-        backup.
-    </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <!--argument is app_name_andbible (AndBible).-->

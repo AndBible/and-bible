@@ -772,9 +772,6 @@ komentare i mape itd, kao ne-istaknute prozore. Tada ćete sa lakoćom imati
 biblijska dokumenta uvek otvorena i brzo preskakati sa komentara i
  ostalog dodatnog materijala kada proučavate Bibliju.</string>
   <!--Welcome text-->
-  <string name="welcome_message">Hvala Vam na preuzimanju %s. Trenutno nema instaliranih Biblija ili dokumenata. Da biste nastavili, molimo instalirajte
-makar jedan dokument preuzimanjem sa interneta ili učitavanjem rezervnih kopija
-iz zip fajla</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Morate izabrati fajl koji želite očitati u %s.</string>

@@ -774,9 +774,6 @@
         осталог додатног материјала када проучавате Библију.
     </string>
   <!--Welcome text-->
-  <string name="welcome_message">Хвала Вам на преузимању %s. Тренутно нема инсталираних Библија или докумената. Да бисте наставили, молимо инсталирајте
-макар један документ преузимањем са интернета или учитавањем резервних копија 
-из zip фајла</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Морате изабрати фајл који желите очитати у %s.</string>

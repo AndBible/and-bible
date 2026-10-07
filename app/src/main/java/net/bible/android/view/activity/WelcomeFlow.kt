@@ -204,11 +204,8 @@ internal fun startupWelcomeLogoRes(): Int =
     if (CommonUtils.isDiscrete) R.drawable.ic_calculator_color else R.drawable.ic_logo
 
 /**
- * F62 fix round 1: the welcome CARD's two other app-name substitutions (`loadInfo()`'s
- * `welcomeText` and the "Supported formats" zip line) must be discrete-aware too, not just the
- * header -- review caught that `loadInfo()` still spelled the real name unconditionally, so
- * discrete mode's card read "Thank you for downloading AndBible..." even though the header above
- * it correctly showed the calculator identity.
+ * F62 fix round 1: the "Supported formats" zip line built by `loadInfo()` must be discrete-aware
+ * too, not just the header -- it used to spell the real app name unconditionally.
  *
  * A SEPARATE helper from [startupWelcomeAppNameRes], not a reuse of it: the non-discrete branch
  * intentionally differs. `format_zip`'s `%s` is documented (`strings.xml`'s comment above it) to

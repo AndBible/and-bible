@@ -766,9 +766,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
      lengvai persijungsite prie komentarų ir kitos papildomos medžiagos.
 </string>
   <!--Welcome text-->
-  <string name="welcome_message">Dėkojame, kad atsisiuntėte %s. Šiuo metu nėra įdiegta jokių dokumentų ar Biblijų. Norėdami tęsti, įsidiekite
-        bent 1 dokumentą, atsisiųsdami jį iš interneto arba įkeldami iš zip failo dokumento atsarginės kopijos.
-    </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Turite pasirinkti failą, kurį norite įkelti į %s.</string>

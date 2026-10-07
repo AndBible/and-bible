@@ -953,10 +953,6 @@
     <string name="welcome_redownload_row_hint">Pick from documents installed before</string>
     <string name="welcome_download_row_hint">Browse the online catalog</string>
     <string name="welcome_restore_row_hint">Database file with bookmarks and notes</string>
-    <string name="welcome_message">Thank you for downloading %s. There are currently no Bibles or documents installed. To continue, please install
-        at least 1 document by downloading from the internet, or by loading from a zip file document
-        backup.
-    </string>
     <!-- Supported file formats for documents -->
     <!-- argument is app_name_andbible (AndBible). -->
     <string name="choose_file">You have to choose the file that you want to load to %s. </string>

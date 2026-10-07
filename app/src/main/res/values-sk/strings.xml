@@ -775,10 +775,6 @@ Režim opakovania bol vypnutý, pretože
         ďalším materiálom pri štúdiu Biblie.
     </string>
   <!--Welcome text-->
-  <string name="welcome_message">Ďakujeme za stiahnutie %s. V súčasnosti nie sú nainštalované žiadne Biblie alebo dokumenty. Ak chcete pokračovať, nainštalujte si
-        aspoň 1 dokument stiahnutím z internetu alebo načítaním dokumentu zo súboru zip
-        zálohy.
-    </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Musíte vybrať súbor, ktorý chcete nahrať do %s. </string>

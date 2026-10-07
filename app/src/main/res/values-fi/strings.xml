@@ -720,7 +720,6 @@ Pitkä napsautus järjestelmän takaisin -painikkeesta vie sinut selaushistorial
   <string name="help_window_pinning_text">
 Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkitään 3 pisteellä, oikea yläkulma). Jos ikkunoiden kiinnitys on päällä, voit näyttää yhtäaikaa useita kiinnitettyjä ikkunoita raamattunäkymässä, mutta vain yhden kiinnittämättömän ikkunan. Kiinnitetyt ikkunat näytetään ensimmäisenä, ja sen jälkeen kiinnittämättömät ikkunat. Voit haluta pitää avoimet raamattudokumentit kiinnitettyinä ikkunoina ja kommentaarit ja kartat yms. kiinnittämättöminä ikkunoina. Näin voit helposti tutkiessasi Raamattua pitää raamattudokumentit aina auki ja nopeasti vaihtaa kommentaarien ja muun ylimääräisen materiaalin välillä.</string>
   <!--Welcome text-->
-  <string name="welcome_message">Kiitos kun latasit sovelluksen %s. Tällä hetkellä yhtään Raamattua tai muuta dokumenttia ei ole asennettu. Jatkaaksesi asenna vähintään yksi dokumentti joko lataamalla internetistä tai lataamalla zip-tiedostostossa olevasta varmuuskopiosta.     </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Sinun pitää valita tiedosto jonka haluat ladata %sen.</string>

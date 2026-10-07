@@ -770,10 +770,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 अन्य अतिरिक्त सामग्री के बीच शीघ्रता से स्विच कर सकते हैं, जब आप बाइबिल का अध्ययन करते हैं।
  </string>
   <!--Welcome text-->
-  <string name="welcome_message">%s डाउनलोड करने के लिए धन्यवाद। वर्तमान में कोई बाइबिल या दस्तावेज़ स्थापित नहीं हैं। जारी रखने के लिए, कृपया
- इंटरनेट से डाउनलोड करके या ज़िप फ़ाइल दस्तावेज़ 
-बैकअप से लोड करके कम से कम 1 दस्तावेज़ से स्थापित करें
- </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">आपको वह फ़ाइल चुननी होगी जिसे आप %s में लोड करना चाहते हैं। </string>

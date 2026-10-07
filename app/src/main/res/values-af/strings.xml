@@ -757,9 +757,6 @@ on-gespende vensters. Jy wil miskienbBybel dokumente oopmaak as vasgespelde vens
 bybel dokumente altyd oop laat wees, en wissel vinnig tussen kommentaar en
 ander ekstra materiaal as jy die bybel bestudeer.</string>
   <!--Welcome text-->
-  <string name="welcome_message">Dankie vir die aflaai %s. Daar is tans geen Bybels of dokumente geïnstalleer nie. Om voort te gaan, installeer asseblief
-Ten minste 1 dokument deur van die internet af te laai, of deur \'n zip lêer dokument te laai
-Rugsteun.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Jy moet die lêer kies waarna jy dit wil laai %s.</string>

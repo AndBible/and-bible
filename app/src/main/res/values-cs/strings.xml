@@ -770,8 +770,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
        dalšími materiály.
 </string>
   <!--Welcome text-->
-  <string name="welcome_message">Děkujeme, že jste si stáhli náš produkt %s. Aktuálně nemáte nainstalovanou žádnou Bibli či jiný dokument. Pokračujte instalací alespoň jednoho dokumentu z Internetu nebo instalací zálohy ZIP souboru.
-    </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Je nutné vybrat soubor, který se má nahrát do %s. </string>

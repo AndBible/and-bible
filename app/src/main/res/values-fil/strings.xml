@@ -664,7 +664,6 @@
   <string name="help_window_pinning_title">Pag-pin ng window</string>
   <string name="help_window_pinning_text">Maaari mong paganahin ang pag-pin ng window mula sa options menu (tatlong tuldok, kanang sulok sa itaas). Kung pinagana ang pag-pin ng window, maaari kang magpakita ng maraming naka-pin na window sa Bible view, ngunit isang hindi naka-pin na window lamang. Ang mga naka-pin na window ay unang ipinapakita, at pagkatapos ay ang mga hindi naka-pin na window. Maaaring gusto mong buksan ang mga dokumento ng Bibliya bilang mga naka-pin na window, at mga komentaryo at mapa atbp. bilang mga hindi naka-pin na window. Pagkatapos ay madali mong maaaring palaging buksan ang mga dokumento ng Bibliya, at mabilis na lumipat sa pagitan ng mga komentaryo at iba pang dagdag na materyal habang nag-aaral ng Bibliya.</string>
   <!--Welcome text-->
-  <string name="welcome_message">Salamat sa pag-download ng %s. Kasalukuyang walang mga Bibliya o dokumento na naka-install. Para magpatuloy, mangyaring mag-install ng hindi bababa sa 1 dokumento sa pamamagitan ng pag-download mula sa internet, o sa pamamagitan ng pag-load mula sa isang zip file na backup ng dokumento.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Kailangan mong piliin ang file na gusto mong i-load sa %s.</string>

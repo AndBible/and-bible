@@ -779,10 +779,6 @@ katkıda bulunmayı düşünün. :-)</string>
     diğer ekstra materyaller arasında hızlıca geçiş yapabilirsiniz.
   </string>
   <!--Welcome text-->
-  <string name="welcome_message">%s’yi indirdiğiniz için teşekkür ederiz. Şu anda yüklü Kutsal Kitap
-    veya belge yok. Devam etmek için lütfen internetten indirerek veya bir zip dosyası belge
-    yedeğinden yükleyerek en az 1 belge yükleyin.
-  </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">%s’ye yüklemek istediğiniz dosyayı seçmeniz gerekir. </string>

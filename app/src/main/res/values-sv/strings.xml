@@ -777,10 +777,6 @@ i GT och NT varje dag.
         annat extramaterial när du studerar Bibeln.
     </string>
   <!--Welcome text-->
-  <string name="welcome_message">Tack för att du laddar ned %s. Just nu är inga biblar eller dokument installerade. För att fortsätta, installera
-        åtminstone 1 dokument genom att ladda ned det från internet, eller genom att läsa in en säkerhetskopia av dokument i
-        en zip-fil.
-    </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Välj vilken fil du vill läsa in i %s.</string>

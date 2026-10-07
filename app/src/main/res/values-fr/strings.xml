@@ -744,10 +744,6 @@ commentaires, les cartes, etc. en tant que fenêtres non épinglées. Ainsi, vou
 avoir les documents bibliques toujours ouverts, et passer rapidement des commentaires et autres
 documents supplémentaires lorsque vous étudiez la Bible.</string>
   <!--Welcome text-->
-  <string name="welcome_message">Merci d’avoir téléchargé %s. Il n’y a actuellement aucune bible ou document installé. Pour continuer, veuillez installer
-  au moins 1 document en le téléchargeant depuis l’internet, ou en le chargeant depuis un fichier zip de document
-        sauvegardé.
-    </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Vous devez choisir le fichier que vous voulez charger dans %s.</string>

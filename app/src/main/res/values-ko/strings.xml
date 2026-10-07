@@ -775,10 +775,6 @@
         주석과 기타 추가 자료 사이를 빠르게 전환할 수 있습니다.
     </string>
   <!--Welcome text-->
-  <string name="welcome_message">%s을(를) 다운로드해 주셔서 감사합니다. 설치된 역본이나 문서가 하나도 없는 상태입니다. 계속 이용하시려면
-        최소한 1개의 문서를 인터넷으로 다운로드하여 설치하거나, zip 파일 백업으로부터 문서를 복구하시기
-        바랍니다.
-    </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">%s에 불러올 파일을 선택해야 합니다. </string>

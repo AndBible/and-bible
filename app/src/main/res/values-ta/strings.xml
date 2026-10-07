@@ -775,10 +775,6 @@
         போன்றவற்றை விரைவாக மாற்றலாம்.
     </string>
   <!--Welcome text-->
-  <string name="welcome_message">%sஐ தரவிறக்கம் செய்வதற்கு நன்றி. தற்போது எந்த விவிலியமோ அல்லது ஆவணங்களோ நிறுவப்படவில்லை. ஆகவே 
-        1 ஆவணத்தையாவது இணையத்தில் இருந்தோ அல்லது zip வடிவ காப்பு நகலில் இருந்தோ நிறுவவும்
-        நிறுவவும்
-    </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">%sக்கு ஏற்ற விரும்பும் கோப்பை நீங்கள் தெரிவு செய்ய வேண்டும்.</string>

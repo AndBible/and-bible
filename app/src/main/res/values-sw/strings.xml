@@ -701,7 +701,6 @@ Telezesha chini kutoka kwenye mwambaa zana kuonyesha kichaguzi cha eneo la kazi.
   <string name="help_window_pinning_text">
 Unaweza kuwezesha upinzani wa dirisha kutoka kwenye menyu ya chaguo (nukta tatu, kona ya juu kulia). Upinzani wa dirisha ukiwa umewezeshwa, unaweza kuonyesha madirisha mengi yaliyopinzwa kwenye maonyesho ya Biblia, lakini dirisha moja tu lisilo pinzwa. Madirisha yaliyopinzwa yanaonyeshwa kwanza, kisha madirisha yasiyopinzwa. Huenda ukataka kufungua hati za Biblia kama madirisha yaliyopinzwa, na maoni, ramani n.k. kama madirisha yasiyopinzwa. Kisha unaweza kwa urahisi kuwa na hati za Biblia zikifunguliwa daima, na kubadilisha haraka kati ya maoni na nyenzo nyingine za ziada unaposoma Biblia.</string>
   <!--Welcome text-->
-  <string name="welcome_message">Asante kwa kupakua %s. Kwa sasa hakuna Biblia au hati zilizosanikishwa. Ili kuendelea, tafadhali sanikisha angalau hati 1 kwa kuipakua kutoka kwa mtandao, au kwa kuipakia kutoka kwa faili la zipu la hifadhi ya hati.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Lazima uchague faili unalotaka kupakia kwenye %s.</string>

@@ -771,10 +771,6 @@ Además de los marcadores, puede haber entradas de texto personalizadas en un pi
         otro material extra cuando estudias la Biblia.
 </string>
   <!--Welcome text-->
-  <string name="welcome_message">Gracias por descargar %s. Actualmente no hay Biblias ni documentos instalados. Para continuar, instale
-al menos 1 documento descargándolo de Internet o cargándolo desde un documento de archivo zip
-respaldo.
-</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Tiene que seleccionar el archivo que quiere cargar en %s. </string>

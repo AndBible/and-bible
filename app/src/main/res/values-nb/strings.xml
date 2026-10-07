@@ -709,9 +709,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="help_window_pinning_title">Feste vindu</string>
   <string name="help_window_pinning_text">Du kan aktivere vindusfesting fra alternativmenyen (tre prikker, øverst til høyre). Hvis vindusfesting er aktivert, kan du vise mange festede vinduer i bibelvisningen, men bare ett ikke-festet vindu. Festede vinduer vises først, deretter ikke-festede vinduer. Du kan åpne bibeldokumenter som festede vinduer, og kommentarer og kart osv. som ikke-festede vinduer. Da kan du alltid ha bibeldokumenter åpne, og raskt bytte mellom kommentarer og annet tilleggsmateriell når du studerer Bibelen.</string>
   <!--Welcome text-->
-  <string name="welcome_message">Takk for at du laster ned %s. Det er for øyeblikket ingen bibeldokumenter installert. For å fortsette, vennligst installér
-        minst ett dokument ved å laste ned fra internett, eller ved å laste inn en sikkerhetskopi i
-        ZIP-format.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Du må velge filen du vil laste inn i %s.</string>

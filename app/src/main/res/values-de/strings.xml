@@ -723,7 +723,6 @@ Langes Drücken des Rückwärtsknopfes führt zur Chronikliste.</string>
 Man kann die Fensterverankerung im Optionenmenü aktivieren (drei Punkte rechts oben).
 Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster angezeigt werden, aber nur ein nicht verankertes. Verankerte Fenster werden zuerst angezeigt, dann nicht verankerte. Es wäre z.B. eine Idee, Bibeldokumente zu verankern und Kommentare und Karten etc. nicht zu verankern. Dann ist es leichter möglich, Bibeldokumente immer geöffnet zu haben und schnell zwischen Kommentaren und anderem Zusatzmaterial zu wechseln.</string>
   <!--Welcome text-->
-  <string name="welcome_message">Danke für das Herunterladen von%s. Zur Zeit sind keine Bibeln oder andere Dokumente installiert. Um fortzufahren, installiere bitte mindestens ein Dokument aus dem Internet oder aus einer Sicherungsdatei.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Du hast die Datei ausgewählt, die du nach %s laden willst.</string>

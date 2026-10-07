@@ -741,7 +741,6 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
  ter os documentos da Bíblia sempre abertos e
  alternar rapidamente entre comentários e outro material extra ao estudar a Bíblia.</string>
   <!--Welcome text-->
-  <string name="welcome_message">Obrigado por baixar %s. Atualmente não há Bíblias ou documentos instalados. Para continuar, instale pelo menos 1 documento baixando da Internet ou carregando a partir de um ficheiro em formato zip de um backup de documento </string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Selecione um ficheiro para carregar em %s.</string>

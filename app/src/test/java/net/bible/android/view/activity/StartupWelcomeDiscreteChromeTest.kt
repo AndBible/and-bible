@@ -84,27 +84,16 @@ class StartupWelcomeDiscreteChromeTest {
     }
 
     /**
-     * Fix round 1 (review): the header alone being discrete-aware was not enough -- `loadInfo()`
-     * independently built the welcome CARD's own body text and the "Supported formats" line from
-     * the real app name unconditionally, so discrete mode's card still read "Thank you for
-     * downloading AndBible..." / "Supported formats: AndBible zip, ..." even with the header fixed.
-     * These two tests compose the exact same format strings (`welcome_message`, `format_zip`)
-     * `loadInfo()` uses, through the same discrete-aware helpers, and assert on the resulting text
-     * -- the "body text and formats line" the review asked to be covered, not just the resource-id
-     * CHOICE the helpers alone would prove.
+     * The "Supported formats" line must be discrete-aware too, not just the header. These two
+     * tests compose the exact `format_zip` string `loadInfo()` uses, through the same discrete-aware
+     * helper, and assert on the resulting text, not just the resource-id CHOICE the helper makes.
      */
     @Test
-    fun discreteModeOffWelcomeCardTextNamesTheRealApp() {
+    fun discreteModeOffZipFormatLineNamesTheRealApp() {
         CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", false).apply()
 
-        val welcomeText = context.getString(R.string.welcome_message, context.getString(startupWelcomeAppNameRes()))
         val zip = context.getString(R.string.format_zip, context.getString(startupWelcomeShortAppNameRes()))
 
-        assertTrue("welcome card text must name AndBible when discrete mode is off", welcomeText.contains("AndBible"))
-        assertFalse(
-            "welcome card text must not name the calculator when discrete mode is off",
-            welcomeText.contains("Simple Calculator"),
-        )
         assertTrue("the zip format line must name AndBible when discrete mode is off", zip.contains("AndBible"))
         assertFalse(
             "the zip format line must not name the calculator when discrete mode is off",
@@ -113,20 +102,11 @@ class StartupWelcomeDiscreteChromeTest {
     }
 
     @Test
-    fun discreteModeOnWelcomeCardTextDoesNotLeakTheRealAppName() {
+    fun discreteModeOnZipFormatLineDoesNotLeakTheRealAppName() {
         CommonUtils.realSharedPreferences.edit().putBoolean("discrete_mode", true).apply()
 
-        val welcomeText = context.getString(R.string.welcome_message, context.getString(startupWelcomeAppNameRes()))
         val zip = context.getString(R.string.format_zip, context.getString(startupWelcomeShortAppNameRes()))
 
-        assertTrue(
-            "welcome card text must name the calculator when discrete mode is on",
-            welcomeText.contains("Simple Calculator"),
-        )
-        assertFalse(
-            "welcome card text must not leak the real app name when discrete mode is on",
-            welcomeText.contains("AndBible"),
-        )
         assertTrue("the zip format line must name the calculator when discrete mode is on", zip.contains("Simple Calculator"))
         assertFalse(
             "the zip format line must not leak the real app name when discrete mode is on",

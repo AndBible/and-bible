@@ -761,8 +761,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
          biblije vedno odprte biblijske dokumente in hitro preklapljajte med komentarji in
          drugim dodatnim gradivom.</string>
   <!--Welcome text-->
-  <string name="welcome_message">Hvala za prenos %s.  Trenutno ni nameščene nobene Biblije ali dokumentov. Za nadaljevanje namestite
-        vsaj 1 dokument s prenosom iz interneta ali z nalaganjem iz arhivske zip datoteke</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Izbrati morate datoteko, ki jo želite naložiti v %s.</string>

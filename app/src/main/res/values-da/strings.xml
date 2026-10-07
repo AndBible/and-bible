@@ -664,7 +664,6 @@
   <string name="help_window_pinning_title">Fastgørelse af vinduer</string>
   <string name="help_window_pinning_text">Du kan aktivere fastgørelse af vinduer fra indstillingsmenuen (tre prikker, øverste højre hjørne). Hvis fastgørelse af vinduer er aktiveret, kan du vise mange fastgjorte vinduer i Bibel-visningen, men kun ét ikke-fastgjort vindue. Fastgjorte vinduer vises først og derefter ikke-fastgjorte vinduer. Du vil måske åbne Bibeldokumenter som fastgjorte vinduer og kommentarer og kort osv. som ikke-fastgjorte vinduer. Så kan du nemt have Bibeldokumenter altid åbne og hurtigt skifte mellem kommentarer og andet ekstramateriale, når du studerer Bibelen.</string>
   <!--Welcome text-->
-  <string name="welcome_message">Tak for at du hentede %s. Der er i øjeblikket ingen Bibler eller dokumenter installeret. For at fortsætte skal du installere mindst ét dokument ved at hente fra internettet eller ved at indlæse fra en zip-fil-dokumentsikkerhedskopi.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Du skal vælge den fil, du vil indlæse til %s.</string>

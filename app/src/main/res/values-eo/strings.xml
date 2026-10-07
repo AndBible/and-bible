@@ -715,7 +715,6 @@ Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
   <string name="help_window_pinning_text">
 Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punktoj ĉe la supra dekstra angulo). Se alpinglado de fenestro estas aktiva, vi povos vidigi plurajn alpinglitajn fenestrojn en la vido de Biblio, sed nur unu nealplinglitan fenestron. Alpinglitaj fenestroj vidiĝos unue kaj sekve nealpinglitaj fenestroj. Vi povos malfermi tekston de Biblio kiel alpinglitan fenestron, kaj komentojn kaj mapojn kiel nealpinglitajn fenestrojn. Tiel vi havos tekston de Biblio ĉiam malfermitan, kaj povas facile transsalti inter komentojn kaj aliajn kromajn materialojn.</string>
   <!--Welcome text-->
-  <string name="welcome_message">Dankon pro elŝuti la aplikaĵon %s. Nuntempe neniu Biblio aŭ dokumento estas instalita. Por pluigi, instalu almenaŭ 1 dokumenton per elŝuti ĝin el la interreto aŭ per ŝargi ĝin el la ZIP‑dosiero.</string>
   <!--Supported file formats for documents-->
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Elektu dosieron por aldoni al %s.</string>
