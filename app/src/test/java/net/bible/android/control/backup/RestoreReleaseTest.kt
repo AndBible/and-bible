@@ -74,9 +74,12 @@ class RestoreReleaseTest {
 
     private fun countReloads(block: () -> Unit): Int {
         var n = 0
+        var streamed = 0
         val sub = Any()
+        val streamSub = DatabaseContainer.databaseRestored.subscribe { streamed++ }
         ABEventBus.register(sub) { on<MainBibleAfterRestore> { n++ } }
-        try { block() } finally { ABEventBus.unregister(sub) }
+        try { block() } finally { ABEventBus.unregister(sub); streamSub.cancel() }
+        assertEquals("bus and stream agree", n, streamed)
         return n
     }
 

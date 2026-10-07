@@ -16,6 +16,7 @@
  */
 package net.bible.service.db
 
+import net.bible.android.view.activity.page.MainBibleAfterRestore
 import androidx.annotation.VisibleForTesting
 import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
@@ -367,6 +368,19 @@ class DatabaseContainer {
          */
         val myDocumentsSynced: Events<List<LogEntry>> get() = _myDocumentsSynced
 
+        private var _workspacesSynced = EventSource<List<LogEntry>>()
+        /** Fires on the sync thread after a cloud sync applied workspace changes (replaces WorkspacesUpdatedViaSyncEvent). */
+        val workspacesSynced: Events<List<LogEntry>> get() = _workspacesSynced
+        private var _databaseRestored = EventSource<Unit>()
+        /** A restore or a sync sign-in replaced the databases; the reading host reloads (replaces MainBibleAfterRestore). */
+        val databaseRestored: Events<Unit> get() = _databaseRestored
+        fun notifyDatabaseRestored() {
+            ABEventBus.post(MainBibleAfterRestore())              // removed in Task 5
+            _databaseRestored.emit(Unit)
+        }
+        @VisibleForTesting internal fun emitWorkspacesSyncedForTest(entries: List<LogEntry>) = _workspacesSynced.emit(entries)
+        @VisibleForTesting fun resetPhase8StreamsForTest() { _workspacesSynced = EventSource(); _databaseRestored = EventSource() }
+
         private var _bookmarksSynced = EventSource<List<LogEntry>>()
         /**
          * Fires on the sync thread after a cloud sync applied bookmark-database changes (replaces
@@ -519,7 +533,8 @@ class DatabaseContainer {
                     localDbFile = application.getDatabasePath(WorkspaceDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.WORKSPACES,
                     _reactToUpdates = {
-                        ABEventBus.post(WorkspacesUpdatedViaSyncEvent(it))
+                        ABEventBus.post(WorkspacesUpdatedViaSyncEvent(it))   // removed in Task 5
+                        _workspacesSynced.emit(it)
                     },
                 ) },
                 { SyncableDatabaseAccessor(

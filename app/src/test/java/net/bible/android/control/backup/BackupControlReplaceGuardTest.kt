@@ -50,7 +50,7 @@ class BackupControlReplaceGuardTest {
         assertEquals(emptyList<Int>(), replaces.filter { idx -> reloadBlocks.none { idx in it } })
     }
     @Test fun theReloadIsPostedExactlyOnceInTheFile() =
-        assertEquals(1, Regex("""post\(MainBibleAfterRestore\(\)\)""").findAll(file.readText()).count())
+        assertEquals(1, Regex("""notifyDatabaseRestored\(\)""").findAll(file.readText()).count())
     @Test fun theReloadGuardCanFail() {
         val src = "fun x() { DatabaseContainer.replacingDatabases { } }"
         assertEquals(1, Regex("""replacingDatabases\s*\{""").findAll(src).count { m -> blocks(src, Regex("""reloadingAfterReplace\s*\{""")).none { m.range.first in it } })

@@ -112,8 +112,18 @@ object CloudSync {
 
     internal fun notifySyncRunning(running: Boolean) = runningSource.emit(running)
 
+    private var refreshSource = EventSource<Unit>()
+
+    /** The last concurrent database replace ended; the reading host reloads its workspace (replaces WorkspaceRefreshRequired). */
+    val workspaceRefreshRequired: Events<Unit> get() = refreshSource
+
+    @VisibleForTesting internal fun notifyWorkspaceRefreshRequired() {
+        ABEventBus.post(WorkspaceRefreshRequired())              // removed in Task 5
+        refreshSource.emit(Unit)
+    }
+
     @VisibleForTesting
-    fun resetSubscribersForTest() { runningSource = EventSource() }
+    fun resetSubscribersForTest() { runningSource = EventSource(); refreshSource = EventSource() }
 
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
@@ -395,7 +405,7 @@ object CloudSync {
             // Categories swap concurrently (`asyncMap`), and a restore may hold its own replace around a
             // sync: release once, when the last replace has ended. Also posts when the swap throws: the
             // epoch is already bumped, so the repository must reload to end the save freeze.
-            if (!DatabaseContainer.replacing) ABEventBus.post(WorkspaceRefreshRequired())
+            if (!DatabaseContainer.replacing) notifyWorkspaceRefreshRequired()
         }
     }
 

@@ -23,6 +23,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.document.DocumentChanges
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
@@ -111,7 +112,7 @@ class DocumentInstallServiceTest {
     }
 
     @Test
-    fun `enqueued content uri drives a job to Done and posts UpdateMainBibleActivityDocuments`() {
+    fun `enqueued content uri drives a job to Done and notifies installedChanged`() {
         val context = RuntimeEnvironment.getApplication()
         val uri = Uri.parse("content://net.bible.installzip.test/testdict.zip")
         val zipBytes = validSwordZipBytes()
@@ -124,6 +125,8 @@ class DocumentInstallServiceTest {
         ABEventBus.register(this) {
             on<UpdateMainBibleActivityDocuments> { latch.countDown() }
         }
+        val streamLatch = CountDownLatch(1)
+        val streamSub = DocumentChanges.installedChanged.subscribe { streamLatch.countDown() }
 
         val intent = DocumentInstallService.enqueueIntent(context, listOf(uri))
         val service = Robolectric.buildService(DocumentInstallService::class.java, intent).create().get()
@@ -136,6 +139,8 @@ class DocumentInstallServiceTest {
 
         val fired = latch.await(5, TimeUnit.SECONDS)
         assertTrue("UpdateMainBibleActivityDocuments must be posted once the job reaches a terminal phase", fired)
+        assertTrue("installedChanged must fire once the job reaches a terminal phase (off-main)", streamLatch.await(5, TimeUnit.SECONDS))
+        streamSub.cancel()
 
         assertNotNull(
             "the real AndroidInstallCommitter/BackupControl stack must have registered the module",

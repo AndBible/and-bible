@@ -17,6 +17,7 @@
 
 package net.bible.android.control.backup
 
+import net.bible.android.control.document.DocumentChanges
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -50,7 +51,6 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.MainBibleAfterRestore
-import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.windowControl
@@ -782,7 +782,7 @@ object BackupControl {
         try {
             return body()
         } finally {
-            if (DatabaseContainer.replaceEpoch != epoch) ABEventBus.post(MainBibleAfterRestore())
+            if (DatabaseContainer.replaceEpoch != epoch) DatabaseContainer.notifyDatabaseRestored()
         }
     }
 
@@ -1091,7 +1091,7 @@ object BackupControl {
                 installed.books.size > countBefore
             }
             if (ok) {
-                ABEventBus.post(UpdateMainBibleActivityDocuments())
+                DocumentChanges.notifyInstalledChanged()
             }
             ok
         }

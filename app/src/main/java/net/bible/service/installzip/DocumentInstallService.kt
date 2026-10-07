@@ -17,6 +17,7 @@
 
 package net.bible.service.installzip
 
+import net.bible.android.control.document.DocumentChanges
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -43,7 +44,6 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
 import net.bible.android.database.BookmarkDatabase
-import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
@@ -158,7 +158,7 @@ class DocumentInstallService : Service() {
          * Mirrors classic `InstallZip`/`ZipHandler`/`installFromFile`'s post-install side effects.
          */
         private fun postTerminalEvents(phase: InstallPhase) {
-            ABEventBus.post(UpdateMainBibleActivityDocuments())
+            DocumentChanges.notifyInstalledChanged()
             when (phase) {
                 is InstallPhase.Done -> UserMessages.toast(R.string.install_zip_successfull)
                 is InstallPhase.Cancelled -> UserMessages.toast(R.string.install_zip_canceled)

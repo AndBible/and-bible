@@ -79,27 +79,34 @@ class CloudSyncInitialSwapTest {
     /** Review Focus 2: one release when the last overlapping swap ends, not one per category. */
     @Test fun theRefreshIsPostedOnlyWhenTheLastSwapEnds() {
         val posts = mutableListOf<Any>()
+        val streamed = mutableListOf<Unit>()
         val sub = Any()
+        val streamSub = CloudSync.workspaceRefreshRequired.subscribe { streamed += it }
         ABEventBus.register(sub) { on<WorkspaceRefreshRequired> { posts += it } }
         try {
             runBlocking {
                 DatabaseContainer.replacingDatabases {
                     CloudSync.swapInInitialDb(workspaces, downloadNamed("C")) { }
                     assertEquals("still inside an outer replace", 0, posts.size)
+                    assertEquals("still inside an outer replace (stream)", 0, streamed.size)
                 }
             }
             assertEquals("the outer replace owns the release: the swap itself posted nothing", 0, posts.size)
-        } finally { ABEventBus.unregister(sub) }
+            assertEquals("the outer replace owns the release: the swap itself emitted nothing", 0, streamed.size)
+        } finally { ABEventBus.unregister(sub); streamSub.cancel() }
     }
 
     /** The post is what triggers `loadFromDb` and ends the save freeze: a lone swap must release exactly once. */
     @Test fun aLoneSwapPostsTheRefreshExactlyOnce() {
         val posts = mutableListOf<Any>()
+        val streamed = mutableListOf<Unit>()
         val sub = Any()
+        val streamSub = CloudSync.workspaceRefreshRequired.subscribe { streamed += it }
         ABEventBus.register(sub) { on<WorkspaceRefreshRequired> { posts += it } }
         try {
             runBlocking { CloudSync.swapInInitialDb(workspaces, downloadNamed("C")) { } }
             assertEquals(1, posts.size)
-        } finally { ABEventBus.unregister(sub) }
+            assertEquals(1, streamed.size)
+        } finally { ABEventBus.unregister(sub); streamSub.cancel() }
     }
 }

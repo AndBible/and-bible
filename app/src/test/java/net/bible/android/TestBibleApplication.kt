@@ -17,6 +17,10 @@
 
 package net.bible.android
 
+import net.bible.android.control.document.DocumentChanges
+import net.bible.android.view.activity.nav.SystemBarSettingChanges
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.service.device.ScreenSettings
 import android.content.res.Resources
 import android.util.Log
 import net.bible.android.control.event.ABEventBus
@@ -73,5 +77,10 @@ class TestBibleApplication : BibleApplication() {
         SpeakSettingsChanges.resetSubscribersForTest()
         DatabaseContainer.resetBookmarksSyncedForTest()
         MyDocumentBookManager.resetSubscribersForTest()
+        ScreenSettings.resetSubscribersForTest()
+        CurrentActivityHolder.resetSubscribersForTest()
+        SystemBarSettingChanges.resetSubscribersForTest()
+        DocumentChanges.resetSubscribersForTest()
+        DatabaseContainer.resetPhase8StreamsForTest()
     }
 }

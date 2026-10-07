@@ -16,6 +16,8 @@
  */
 package net.bible.android.view.activity.nav
 
+import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
+import net.bible.android.control.document.DocumentChanges
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -188,7 +190,6 @@ import net.bible.android.view.activity.page.ReadingCommandsHostCallbacks
 import net.bible.android.view.activity.page.ReadingInsets
 import net.bible.android.view.activity.page.ReadingInsetsHostCallbacks
 import net.bible.android.view.activity.page.SDCARD_READ_REQUEST
-import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.syncScope
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
@@ -7954,7 +7955,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         try {
             downloadControl.downloadDocument(session.repoFactory, document)
             refreshDownloadRowStatus(session, document)
-            ABEventBus.post(UpdateMainBibleActivityDocuments())
+            DocumentChanges.notifyInstalledChanged()
         } catch (e: Exception) {
             Log.e(TAG_DOWNLOAD, "Error on attempt to download", e)
             Toast.makeText(this@NavHostComposeActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()
@@ -8009,7 +8010,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
         if (skipped) UserMessages.toast(R.string.cant_delete_document)
         lifecycleScope.launch { loadDownloadDocuments(session, false) }
-        ABEventBus.post(UpdateMainBibleActivityDocuments())
+        DocumentChanges.notifyInstalledChanged()
     }
 
     /**
@@ -8225,7 +8226,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /** Classic `onInstallZip` (`:891-897`). Slice 8 D2: in-graph, answered through [openInstallZip] (M5). */
     private fun onInstallZip() {
-        openInstallZip { ABEventBus.post(UpdateMainBibleActivityDocuments()) }
+        openInstallZip { DocumentChanges.notifyInstalledChanged() }
     }
 
     private fun DocumentInstallStatus.toDocInstallStatus(): DocInstallStatus = when (this) {
@@ -9308,7 +9309,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
         if (skipped) UserMessages.toast(R.string.cant_delete_document)
         lifecycleScope.launch { loadChooseDocuments() }
-        ABEventBus.post(UpdateMainBibleActivityDocuments())
+        DocumentChanges.notifyInstalledChanged()
     }
 
     /** Task 16 (D8-3 fix, NH row 9333) -- see [handleDownloadDeleteIndexConfirmed]'s kdoc, this is its
@@ -9410,7 +9411,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private suspend fun loadChooseDocumentsOnEntry() {
         if (pendingChooseDocumentDownloadReturn) {
             pendingChooseDocumentDownloadReturn = false
-            ABEventBus.post(UpdateMainBibleActivityDocuments())
+            DocumentChanges.notifyInstalledChanged()
         }
         loadChooseDocuments()
     }
@@ -9423,7 +9424,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Classic `onInstallZip()` (`:414-421`). Slice 8 D2: in-graph, answered through [openInstallZip] (M5). */
     private fun onChooseDocumentInstallZip() {
         openInstallZip {
-            ABEventBus.post(UpdateMainBibleActivityDocuments())
+            DocumentChanges.notifyInstalledChanged()
             lifecycleScope.launch { loadChooseDocuments() }
         }
     }
