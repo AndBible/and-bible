@@ -36,16 +36,15 @@ import androidx.media.app.NotificationCompat.MediaStyle
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.onMain
+import net.bible.android.control.speak.SpeakChange
+import net.bible.android.control.speak.SpeakChanges
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
-import net.bible.service.device.speak.event.SpeakEvent
-import net.bible.service.device.speak.event.SpeakProgressEvent
+import net.bible.sharedcore.event.Subscriptions
 import java.util.*
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -170,6 +169,7 @@ class TextToSpeechNotificationManager : KoinComponent {
     }
 
 
+    private val subscriptions = Subscriptions()
     private val app get() = BibleApplication.application
     /** null = the reset title, resolved live so a language change shows (F114). */
     private var currentTitle: String? = null
@@ -204,37 +204,41 @@ class TextToSpeechNotificationManager : KoinComponent {
 
         app.registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
 
-        ABEventBus.register(this) {
-            onMain<SpeakEvent> { ev ->
-                Log.i(TAG, "SpeakEvent ${ev.speakState}")
-                if(!ev.isSpeaking && ev.isPaused) {
-                    Log.i(TAG, "Stop foreground (pause)")
-                    buildNotification(false)
-                    stopForeground()
-                }
-                else if (ev.isSpeaking) {
-                    buildNotification(true)
-                    startForeground()
-                }
-                else {
-                    shutdown()
-                }
-            }
-            onMain<SpeakProgressEvent> { ev ->
-                if(ev.speakCommand is TextCommand) {
-                    if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
-                        currentTitle = ev.speakCommand.text
-                        if(currentTitle.isNullOrEmpty()) {
-                            currentTitle = null
-                        }
+        subscriptions.add(SpeakChanges.changes.subscribeOnMain { change ->
+            when (change) {
+                is SpeakChange.State -> {
+                    val ev = change
+                    Log.i(TAG, "Speak state ${ev.speakState}")
+                    if(!ev.isSpeaking && ev.isPaused) {
+                        Log.i(TAG, "Stop foreground (pause)")
+                        buildNotification(false)
+                        stopForeground()
+                    }
+                    else if (ev.isSpeaking) {
+                        buildNotification(true)
+                        startForeground()
                     }
                     else {
-                        currentText = ev.speakCommand.text
+                        shutdown()
                     }
                 }
-                buildNotification(speakControl.isSpeaking)
+                is SpeakChange.Progress -> {
+                    val ev = change
+                    if(ev.speakCommand is TextCommand) {
+                        if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
+                            currentTitle = ev.speakCommand.text
+                            if(currentTitle.isNullOrEmpty()) {
+                                currentTitle = null
+                            }
+                        }
+                        else {
+                            currentText = ev.speakCommand.text
+                        }
+                    }
+                    buildNotification(speakControl.isSpeaking)
+                }
             }
-        }
+        })
     }
 
     /** Re-posts the notification in the current language, only while it is showing (F114). */
@@ -243,6 +247,7 @@ class TextToSpeechNotificationManager : KoinComponent {
     }
 
     fun destroy() {
+        subscriptions.cancelAll()
         app.unregisterReceiver(headsetReceiver)
         shutdown()
         instance = null
