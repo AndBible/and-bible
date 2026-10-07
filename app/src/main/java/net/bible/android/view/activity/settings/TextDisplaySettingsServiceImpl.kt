@@ -21,8 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.window.WorkspaceColorChanged
+import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
@@ -287,7 +286,7 @@ class TextDisplaySettingsServiceImpl(
             is SettingsScope.Workspace -> {
                 repo.textDisplaySettings = TextDisplaySettings()
                 repo.workspaceSettings.workspaceColor = defaultWorkspaceColor
-                ABEventBus.post(WorkspaceColorChanged())
+                WorkspaceChanges.notifyColorEdited()
                 repo.updateWindowTextDisplaySettingsValues(all, repo.textDisplaySettings)
                 repo.updateAllWindowsTextDisplaySettings()
                 repo.saveIntoDb(false)
@@ -313,7 +312,7 @@ class TextDisplaySettingsServiceImpl(
             }
             is SettingsScope.Workspace -> {
                 repo.workspaceSettings.workspaceColor = repo.textDisplaySettings.colors?.workspaceColor ?: defaultWorkspaceColor
-                ABEventBus.post(WorkspaceColorChanged())
+                WorkspaceChanges.notifyColorEdited()
                 repo.updateWindowTextDisplaySettingsValues(dirty, repo.textDisplaySettings)
                 repo.updateAllWindowsTextDisplaySettings()
                 repo.saveIntoDb(false)
@@ -388,7 +387,7 @@ class TextDisplaySettingsServiceImpl(
         // (all five route here via editColors), so one short-circuit here covers all five: [colors]
         // is already the mutated bundle value (computed from currentColors, which already resolves
         // to the detached bundle via bundleFor), so we mirror it onto detached.bundle instead of the
-        // WORKSPACE branch's repo/ABEventBus/saveIntoDb below.
+        // WORKSPACE branch's repo/notifyColorEdited/saveIntoDb below.
         detachedFor(scope)?.let {
             it.bundle.workspaceSettings.colors = colors
             it.markDirty()
@@ -408,7 +407,7 @@ class TextDisplaySettingsServiceImpl(
                 // A/B batch 4a F1 fix round 1: this is the live Compose colour picker's per-edit
                 // commit (ColorSettingsController.onWorkspaceColorChange -> setWorkspaceColor ->
                 // editColors -> here) — the site most likely to have caused the original bug report.
-                ABEventBus.post(WorkspaceColorChanged())
+                WorkspaceChanges.notifyColorEdited()
                 repo.updateAllWindowsTextDisplaySettings()
                 repo.saveIntoDb(false)
             }
@@ -475,7 +474,7 @@ class TextDisplaySettingsServiceImpl(
                 repo.workspaceSettings.workspaceColor = defaultWorkspaceColor
                 // A/B batch 4a F1 fix round 1: the live Compose colour picker's "Reset" action
                 // (ColorSettingsController.onReset -> resetColors -> here).
-                ABEventBus.post(WorkspaceColorChanged())
+                WorkspaceChanges.notifyColorEdited()
                 repo.updateWindowTextDisplaySettingsValues(setOf(TextDisplaySettings.Types.COLORS), repo.textDisplaySettings)
                 repo.updateAllWindowsTextDisplaySettings()
                 repo.saveIntoDb(false)

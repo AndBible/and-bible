@@ -23,7 +23,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
-import net.bible.android.control.event.window.WorkspaceChanged
+import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
@@ -447,8 +447,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         setDefaultActiveWindow()
         notifyWindowsChanged()
         // Everything workspace-scoped — colours included — has just been replaced wholesale. See
-        // WorkspaceChanged's kdoc for why this is not WorkspaceColorChanged.
-        ABEventBus.post(WorkspaceChanged())
+        // WorkspaceChange.Switched's kdoc for why this is not ColorEdited.
+        WorkspaceChanges.notifySwitched()
     }
 
     fun clear(destroy: Boolean = false) {

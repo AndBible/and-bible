@@ -16,14 +16,10 @@
  */
 package net.bible.android.control.page.window
 
-import android.os.Looper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.onMain
-import net.bible.android.control.event.window.WorkspaceChanged
 import net.bible.service.common.CommonUtils
 import net.bible.test.DatabaseResetter
 import org.hamcrest.MatcherAssert.assertThat
@@ -33,7 +29,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -55,16 +50,14 @@ class WorkspaceChangedEventTest {
     }
 
     @Test
-    fun `loading a workspace posts WorkspaceChanged`() {
-        val received = mutableListOf<WorkspaceChanged>()
-        val subscriber = Any()
-        ABEventBus.register(subscriber) { onMain<WorkspaceChanged> { received += it } }
+    fun `loading a workspace emits Switched, and only Switched`() {
+        val received = mutableListOf<WorkspaceChange>()
+        val subscription = WorkspaceChanges.changes.subscribe { received += it }
         try {
             windowControl.windowRepository.loadFromDb(null)
-            shadowOf(Looper.getMainLooper()).idle()   // onMain hops through the main looper
-            assertThat(received.size, equalTo(1))
+            assertThat(received, equalTo(listOf<WorkspaceChange>(WorkspaceChange.Switched)))
         } finally {
-            ABEventBus.unregister(subscriber)
+            subscription.cancel()
         }
     }
 }
