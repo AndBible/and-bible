@@ -220,11 +220,12 @@ class Window (
 
     var bibleView: BibleView? = null
 
-    fun destroy() {
+    /** Releases this owner even when its view will be rebound to a replacement window. */
+    fun destroy(destroyView: Boolean = true) {
         ABEventBus.unregister(this)
         documentUpdates.cancel()
         pageManager.destroy()
-        bibleView?.destroy()
+        if (destroyView) bibleView?.destroy()
     }
 
     override fun toString(): String = "Window[${displayId}]"

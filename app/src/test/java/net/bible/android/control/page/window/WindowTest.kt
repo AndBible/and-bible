@@ -122,6 +122,65 @@ class WindowTest {
         assertThat(biblePage.singleKey.name, equalTo(PassageTestData.PS_139_2.name))
     }
     @Test
+    fun switchingWorkspaceReleasesOutgoingWindowsAndPagesButKeepsReplacementLive() {
+        val previousRepository = windowControl!!.windowRepository
+        val repository = WindowRepository(CoroutineScope(Dispatchers.Main + Job().apply { cancel() }))
+        val outgoing = mutableListOf<Window>()
+        fun pages(window: Window) = with(window.pageManager) {
+            listOf(currentDictionary, currentGeneralBook, currentMap)
+        }
+        val meta = mock(BookMetaData::class.java)
+        `when`(meta.getProperty("AndBibleSpecial")).thenReturn("1")
+        `when`(meta.getProperty("AndBibleMyDocument")).thenReturn("1")
+        val book = mock(Book::class.java).apply {
+            `when`(bookMetaData).thenReturn(meta)
+            `when`(initials).thenReturn("MyDoc_Switch")
+            `when`(globalKeyList).thenReturn(DefaultKeyList().apply {
+                addAll(DefaultLeafKeyList("p1", "p1"))
+            })
+        }
+        fun prime(window: Window) {
+            window.windowState = WindowState.VISIBLE
+            window.pageManager.currentBible.onlySetCurrentDocument(book)
+            window.loadText()
+            pages(window).forEach {
+                it.onlySetCurrentDocument(book)
+                assertThat(it.cachedGlobalKeyList!!.size, equalTo(1))
+            }
+        }
+        try {
+            windowControl!!.windowRepository = repository
+            repository.initialize()
+            outgoing += repository.sortedWindows
+            outgoing.forEach(::prime)
+            val workspace = WorkspaceEntities.Workspace("replacement")
+            net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(workspace)
+
+            repository.loadFromDb(workspace.id)
+            assertThat(repository.id, equalTo(workspace.id))
+            val replacement = repository.activeWindow
+            prime(replacement)
+            ShadowLog.clear()
+
+            MyDocumentBookManager.emitForTest(MyDocumentChange.DocumentUpdated("MyDoc_Switch"))
+
+            val reloads = ShadowLog.getLogs().map { it.msg }
+            assertThat(reloads.count { it == "updateText ${replacement.hashCode()}" }, equalTo(1))
+            pages(replacement).forEach { assertThat(it.hasCachedKeyListForTest(), equalTo(false)) }
+            outgoing.forEach { window ->
+                assertThat("discarded window must not reload", reloads.count { it == "updateText ${window.hashCode()}" }, equalTo(0))
+                pages(window).forEach {
+                    assertThat("discarded page must not react", it.hasCachedKeyListForTest(), equalTo(true))
+                }
+            }
+        } finally {
+            repository.clear(destroy = true)
+            outgoing.forEach { it.destroy() }
+            windowControl!!.windowRepository = previousRepository
+        }
+    }
+
+    @Test
     fun destroyingAWindowStopsReloadsAndAllItsPagesReactingToDocumentUpdates() {
         // loadText's synchronous setup stays real; cancel only the background content fetch.
         val repository = WindowRepository(CoroutineScope(Dispatchers.Main + Job().apply { cancel() }))
