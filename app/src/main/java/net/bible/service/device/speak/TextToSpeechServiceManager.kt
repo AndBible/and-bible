@@ -37,6 +37,8 @@ import net.bible.android.control.event.phonecall.PhoneCallMonitor
 import net.bible.android.control.event.phonecall.PhoneCallEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.control.speak.SpeakChanges
+import net.bible.android.control.speak.SpeakPlaybackState
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.versification.BibleTraverser
@@ -676,13 +678,24 @@ class TextToSpeechServiceManager constructor(
 		when {
 			isPaused -> {
 				temporary = false
+				SpeakChanges.notifyState(SpeakPlaybackState.PAUSED)
 				ABEventBus.post(SpeakEvent(SpeakState.PAUSED))
 			}
 			isSpeaking -> {
 				temporary = false
+				SpeakChanges.notifyState(SpeakPlaybackState.SPEAKING)
 				ABEventBus.post(SpeakEvent(SpeakState.SPEAKING))
 			}
-			else -> ABEventBus.post(SpeakEvent(if (temporary) SpeakState.TEMPORARY_STOP else SpeakState.SILENT))
+			else -> {
+				val legacyState = if (temporary) SpeakState.TEMPORARY_STOP else SpeakState.SILENT
+				val state = when (legacyState) {
+					SpeakState.TEMPORARY_STOP -> SpeakPlaybackState.TEMPORARY_STOP
+					SpeakState.SILENT -> SpeakPlaybackState.SILENT
+					else -> error("Unexpected speak state: $legacyState")
+				}
+				SpeakChanges.notifyState(state)
+				ABEventBus.post(SpeakEvent(legacyState))
+			}
 		}
 
     }

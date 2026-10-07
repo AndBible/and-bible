@@ -21,6 +21,8 @@ import android.content.res.Resources
 import android.os.Build
 import android.util.Log
 import android.util.LruCache
+import net.bible.android.control.speak.SpeakChange
+import net.bible.android.control.speak.SpeakChanges
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakProgressEvent
@@ -441,15 +443,19 @@ class BibleSpeakTextProvider(
         startVerse = currentVerse
         endVerse = currentVerse
 
-        ABEventBus.post(SpeakProgressEvent(book, verseRange, null))
+        val key = verseRange
+        SpeakChanges.notifyProgress(SpeakChange.Progress(book, key, null))
+        ABEventBus.post(SpeakProgressEvent(book, key, null))
     }
 
     private fun clearNotificationAndWidgetTitles() {
         // Clear title and text from widget and notification.
-        ABEventBus.post(SpeakProgressEvent(book, startVerse,
-                TextCommand("", type=TextCommand.TextType.TITLE)))
-        ABEventBus.post(SpeakProgressEvent(book, startVerse,
-                TextCommand("", type=TextCommand.TextType.NORMAL)))
+        val titleCommand = TextCommand("", type=TextCommand.TextType.TITLE)
+        SpeakChanges.notifyProgress(SpeakChange.Progress(book, startVerse, titleCommand))
+        ABEventBus.post(SpeakProgressEvent(book, startVerse, titleCommand))
+        val normalCommand = TextCommand("", type=TextCommand.TextType.NORMAL)
+        SpeakChanges.notifyProgress(SpeakChange.Progress(book, startVerse, normalCommand))
+        ABEventBus.post(SpeakProgressEvent(book, startVerse, normalCommand))
     }
 
     override fun forward(amount: SpeakSettings.RewindAmount?) {
@@ -467,7 +473,9 @@ class BibleSpeakTextProvider(
         startVerse = currentVerse
         endVerse = currentVerse
         clearNotificationAndWidgetTitles()
-        ABEventBus.post(SpeakProgressEvent(book, verseRange, null))
+        val key = verseRange
+        SpeakChanges.notifyProgress(SpeakChange.Progress(book, key, null))
+        ABEventBus.post(SpeakProgressEvent(book, key, null))
     }
 
     override fun finishedUtterance(utteranceId: String) {}
@@ -480,7 +488,10 @@ class BibleSpeakTextProvider(
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastVerseWithTitle = state.startVerse
             }
-            ABEventBus.post(SpeakProgressEvent(state.book, VerseRange(state.book.versification, state.startVerse, state.endVerse), state.command!!))
+            val key = VerseRange(state.book.versification, state.startVerse, state.endVerse)
+            val command = state.command!!
+            SpeakChanges.notifyProgress(SpeakChange.Progress(state.book, key, command))
+            ABEventBus.post(SpeakProgressEvent(state.book, key, command))
         }
     }
 
