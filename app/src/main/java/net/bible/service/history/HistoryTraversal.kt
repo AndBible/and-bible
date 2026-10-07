@@ -19,7 +19,6 @@ package net.bible.service.history
 
 import android.util.Log
 
-import net.bible.android.control.event.ABEventBus
 
 
 /**
@@ -32,7 +31,7 @@ class HistoryTraversal(val historyManager: HistoryManager, var isIntegrateWithHi
      */
     fun beforeStartActivity() {
         if (isIntegrateWithHistoryManager) {
-            ABEventBus.post(AddHistoryItem())
+            HistoryManager.recordIfCreated(null)
         }
     }
 

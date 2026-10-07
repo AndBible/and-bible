@@ -273,7 +273,7 @@ class ReadingAppBootstrapTest {
     /**
      * Fix round 1, review Important 1. `ReadingViewVisibility.setActivityVisible(this, true)` must
      * run BEFORE the deep-link dispatch, on this host as on classic. `openDeepLink` ->
-     * `windowControl.showLink` -> `setKey(addHistoryItem = true)` posts `AddHistoryItem`
+     * `windowControl.showLink` -> `setKey(addHistoryItem = true)` calls `HistoryManager.recordIfCreated`
      * SYNCHRONOUSLY, and with the flag false `createHistoryItem` records a wrong `IntentHistoryItem`
      * carrying the deep-link intent instead of the verse. Deferring the flag to the reading
      * destination's `DisposableEffect` cannot work: an effect inside the graph runs after

@@ -59,7 +59,7 @@ import kotlin.test.assertTrue
  *
  * The deferral is not a detail: `onActivityResult` runs before `onResume`, i.e. before
  * `reclaimWindowRepository()`, before `ReadingHostPresence.setForeground(this)` (which is what makes
- * `ReadingViewVisibility.isVisible` true for the `AddHistoryItem` a `setKey` posts) and before the
+ * `ReadingViewVisibility.isVisible` true for the `HistoryManager.recordIfCreated` call made by `setKey`) and before the
  * bootstrap bridge is re-armed.
  */
 @RunWith(RobolectricTestRunner::class)

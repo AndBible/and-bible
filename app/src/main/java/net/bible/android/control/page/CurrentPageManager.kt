@@ -21,7 +21,6 @@ import android.util.Log
 
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.BibleTraverser
@@ -33,7 +32,7 @@ import net.bible.service.common.CommonUtils.defaultBible
 import net.bible.service.common.CommonUtils.defaultVerse
 import net.bible.service.common.tinyName
 import net.bible.service.download.FakeBookFactory
-import net.bible.service.history.AddHistoryItem
+import net.bible.service.history.HistoryManager
 import net.bible.service.sword.BookAndKey
 
 import org.crosswire.jsword.book.Book
@@ -169,7 +168,7 @@ open class CurrentPageManager constructor(
     fun setCurrentDocument(nextDocument: Book?) {
         var nextPage: CurrentPage? = null
         if (nextDocument != null) {
-            ABEventBus.post(AddHistoryItem(window))
+            HistoryManager.recordIfCreated(window)
             nextPage = getBookPage(nextDocument, null)
 
             // is the next doc the same as the prev doc

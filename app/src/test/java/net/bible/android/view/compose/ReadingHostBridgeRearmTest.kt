@@ -52,7 +52,7 @@ import kotlin.test.assertTrue
  * item 2 is that task. Its `onResume` reconciliation calls `handlePendingAgentResult()`, which goes
  * `LinkControl.openAIDocument`/`openStudyPad` -> `showLink` ->
  * `CurrentPageManager.setCurrentDocumentAndKey` / `WindowControl.showLink` -> `setKey(addHistoryItem
- * = true)` -> a SYNCHRONOUS `ABEventBus.post(AddHistoryItem)`, handled by
+ * = true)` -> a SYNCHRONOUS `HistoryManager.recordIfCreated` call, handled by
  * `HistoryManager.createHistoryItem` — the one consumer of `isVisible` with teeth. Inside the window
  * that reads false and records a wrong `IntentHistoryItem` carrying the host's own launch Intent
  * instead of a `KeyHistoryItem` for the verse, which is the same defect

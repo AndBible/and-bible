@@ -75,5 +75,6 @@ class TestBibleApplication : BibleApplication() {
         DatabaseContainer.resetBookmarksSyncedForTest()
         MyDocumentBookManager.resetSubscribersForTest()
         PassageChangeMediator.resetSubscribersForTest()
+        net.bible.service.history.HistoryManager.resetInstanceForTest()
     }
 }
