@@ -115,6 +115,60 @@ class WindowCommandsImplTest {
         assertTrue(notified, "windowSizesChanged() should have notified window listeners")
     }
 
+    /**
+     * Regression: with autoPin off (the default) a links window is always unpinned, and so is any
+     * regular window copied from one. Both used to read and write the single shared
+     * `unPinnedWeight`, so committing a separator drag between them wrote that one slot twice: both
+     * panes ended up with `weight2`, the split snapped back to 50/50 on release, and the shrunken
+     * weight sum made the next drag outrun the finger.
+     */
+    @Test fun commitWeightsKeepsDistinctWeightsForUnpinnedWindowAndItsLinksWindow() {
+        repo.workspaceSettings.autoPin = false
+        val regular = repo.activeWindow
+        regular.isPinMode = false
+        val links = regular.targetLinksWindow
+        links.windowState = WindowLayout.WindowState.VISIBLE
+        // sanity: the scenario really is two unpinned panes side by side
+        assertFalse(regular.isPinMode)
+        assertFalse(links.isPinMode)
+        assertTrue(repo.isMultiWindow)
+
+        commands.commitWeights(regular.id.toString(), 1.4f, links.id.toString(), 0.6f)
+
+        assertEquals(1.4f, regular.weight)
+        assertEquals(0.6f, links.weight)
+    }
+
+    /** A new links window takes the size its unpinned source shows, not the source's stale raw weight. */
+    @Test fun newLinksWindowTakesTheUnpinnedSourcesShownWeight() {
+        repo.workspaceSettings.autoPin = false
+        val regular = repo.activeWindow
+        regular.weight = 0.3f // pinned (initial window): lands in its own raw weight
+        regular.isPinMode = false
+        regular.weight = 1.2f // unpinned: lands in the shared slot, raw weight stays 0.3
+
+        val links = regular.targetLinksWindow
+
+        assertTrue(links.isLinksWindow)
+        assertEquals(1.2f, links.weight)
+    }
+
+    /**
+     * The shared unpinned slot is deliberate for regular windows: only one of them is visible at a
+     * time (restoring one minimises the others), and the one shown takes over the size the slot had.
+     */
+    @Test fun unpinnedRegularWindowsStillShareOneWeight() {
+        repo.workspaceSettings.autoPin = false
+        val w1 = repo.activeWindow
+        w1.isPinMode = false
+        val w2 = repo.addNewWindow(w1)
+        w2.isPinMode = false
+
+        w1.weight = 0.7f
+
+        assertEquals(0.7f, w2.weight)
+    }
+
     @Test fun commitWeightsNoOpWhenFirstWindowIdUnknown() {
         val w2 = repo.addNewWindow()
         val originalWeight2 = w2.weight
