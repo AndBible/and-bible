@@ -27,6 +27,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.AppSettingsUpdated
+import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.ApiFormat
@@ -148,7 +149,7 @@ class LlmProviderServiceImpl : LlmProviderService {
             }
         }
         // Classic posts AppSettingsUpdated only on create; edits just refresh the list locally.
-        if (id == null) ABEventBus.post(AppSettingsUpdated())
+        if (id == null) //MUT
         refresh()
     }
 
@@ -161,7 +162,7 @@ class LlmProviderServiceImpl : LlmProviderService {
         if (currentDefault != null && currentDefault in deletedModelIds) {
             settings.defaultModelId = modelDao.all().firstOrNull()?.id
         }
-        ABEventBus.post(AppSettingsUpdated())
+        AiSettings.notifyConfigChanged()
         refresh()
     }
 
@@ -242,9 +243,9 @@ class LlmProviderServiceImpl : LlmProviderService {
         // The writes above are the commit; broadcast it BEFORE prefetchModels below (whole-branch
         // review I3). prefetchModels is a cache warm-up (see its own kdoc: "best-effort"), not part
         // of the commit -- hoisted out of the withContext(Dispatchers.IO) block above so a
-        // cancellation during its network fetch can no longer swallow this post()/refresh() and
+        // cancellation during its network fetch can no longer swallow this notify/refresh() and
         // leave the DB configured while every consumer outside the AI cluster never hears about it.
-        ABEventBus.post(AppSettingsUpdated())
+        AiSettings.notifyConfigChanged()
         refresh()
         withContext(Dispatchers.IO) { prefetchModels(provider, key) }
     }

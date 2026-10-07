@@ -18,7 +18,9 @@
 package net.bible.service.common
 
 import androidx.annotation.VisibleForTesting
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.IdType
+import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.GlobalAiSettings
@@ -39,7 +41,20 @@ object AiSettings {
 
     /** Test teardown: process-global, so leaked subscribers would outlive their test. */
     @VisibleForTesting
-    fun resetSubscribersForTest() { defaultModelSource = EventSource() }
+    fun resetSubscribersForTest() {
+        defaultModelSource = EventSource()
+        configSource = EventSource()
+    }
+
+    private var configSource = EventSource<Unit>()
+
+    /** LLM providers or models changed (create, delete, configure); subscribers re-read. Replaces family (b) of AppSettingsUpdated. */
+    val configChanged: Events<Unit> get() = configSource
+
+    fun notifyConfigChanged() {
+        ABEventBus.post(AppSettingsUpdated())                    // removed in Task 5
+        configSource.emit(Unit)
+    }
 
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao()
 

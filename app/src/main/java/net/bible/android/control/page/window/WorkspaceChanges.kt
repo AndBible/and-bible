@@ -17,6 +17,8 @@
 package net.bible.android.control.page.window
 
 import androidx.annotation.VisibleForTesting
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 
@@ -78,6 +80,13 @@ sealed interface WorkspaceChange {
      * in a *new* file cannot slip through, which a hardcoded list would have allowed.
      */
     object ColorEdited : WorkspaceChange
+
+    /**
+     * A workspace setting that BibleView's config carries changed (recent labels, StudyPad cursors,
+     * auto-assign labels, compare-document hiding, ambiguous-modal size). Replaces family (a) of
+     * AppSettingsUpdated (phase 8 spec 2.1). Subscribers re-read workspaceSettings.
+     */
+    object SettingsEdited : WorkspaceChange
 }
 
 object WorkspaceChanges {
@@ -88,6 +97,11 @@ object WorkspaceChanges {
 
     fun notifySwitched() = source.emit(WorkspaceChange.Switched)
     fun notifyColorEdited() = source.emit(WorkspaceChange.ColorEdited)
+
+    fun notifySettingsEdited() {
+        ABEventBus.post(AppSettingsUpdated())                    // removed in Task 5
+        source.emit(WorkspaceChange.SettingsEdited)
+    }
 
     /** Test teardown: process-global, so leaked subscribers would outlive their test. */
     @VisibleForTesting

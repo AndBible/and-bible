@@ -28,9 +28,9 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.common.toV11n
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
@@ -61,7 +61,6 @@ import android.graphics.Color
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.BookAndKey
@@ -274,7 +273,7 @@ open class BookmarkControl constructor(
             }
 
             if (toBeAdded.any { workspaceSettings?.studyPadCursors?.containsKey(it) == true}) {
-                ABEventBus.post(AppSettingsUpdated())
+                WorkspaceChanges.notifySettingsEdited()
             }
 
             if(labelIdsInDb.find { it == bookmark.primaryLabelId } == null) {
@@ -928,7 +927,7 @@ open class BookmarkControl constructor(
         val cursor = workspaceSettings.studyPadCursors[labelId] ?: return
         if (cursor >= orderNumber) {
             workspaceSettings.studyPadCursors[labelId] = cursor + 1
-            ABEventBus.post(AppSettingsUpdated())
+            WorkspaceChanges.notifySettingsEdited()
         }
     }
 

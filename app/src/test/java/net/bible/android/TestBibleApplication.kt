@@ -32,6 +32,7 @@ import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.common.AiSettings
+import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.installzip.InstallZipProgress
@@ -82,5 +83,6 @@ class TestBibleApplication : BibleApplication() {
         SystemBarSettingChanges.resetSubscribersForTest()
         DocumentChanges.resetSubscribersForTest()
         DatabaseContainer.resetPhase8StreamsForTest()
+        AndBibleAddons.resetSubscribersForTest()
     }
 }

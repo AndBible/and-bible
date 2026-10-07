@@ -38,6 +38,7 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
+import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentGeneralBookPage
@@ -181,7 +182,7 @@ class BibleJavascriptInterface(
     fun setLimitAmbiguousModalSize(value: Boolean) {
         Log.i(TAG, "setLimitAmbiguousModalSize")
         bibleView.workspaceSettings.limitAmbiguousModalSize = value
-        ABEventBus.post(AppSettingsUpdated())
+        WorkspaceChanges.notifySettingsEdited()
     }
 
     @JavascriptInterface
@@ -441,7 +442,7 @@ class BibleJavascriptInterface(
         val windowRepository = bookmarkControl.windowControl.windowRepository
         val workspaceSettings = windowRepository.workspaceSettings
         workspaceSettings.studyPadCursors[IdType(labelId)] = orderNumber
-        ABEventBus.post(AppSettingsUpdated())
+        WorkspaceChanges.notifySettingsEdited()
     }
 
     @JavascriptInterface
@@ -837,7 +838,7 @@ class BibleJavascriptInterface(
         } else {
             hideDocs.add(documentId)
         }
-        ABEventBus.post(AppSettingsUpdated())
+        WorkspaceChanges.notifySettingsEdited()
     }
 
     /** [content] is now parsed as the app's small HTML subset (`AbHtmlText`/`parseHtmlRuns`) rather

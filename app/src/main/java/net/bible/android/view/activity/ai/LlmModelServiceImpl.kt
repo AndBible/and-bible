@@ -204,7 +204,7 @@ class LlmModelServiceImpl : LlmModelService {
                 applyDefault(existing.id, setDefault)
             }
         }
-        ABEventBus.post(AppSettingsUpdated())
+        AiSettings.notifyConfigChanged()
         refresh()
     }
 
@@ -216,7 +216,7 @@ class LlmModelServiceImpl : LlmModelService {
         if (settings.defaultModelId == model.id) {
             settings.defaultModelId = modelDao.all().firstOrNull()?.id
         }
-        ABEventBus.post(AppSettingsUpdated())
+        AiSettings.notifyConfigChanged()
         refresh()
     }
 
