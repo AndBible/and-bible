@@ -9,7 +9,6 @@ ErrorNotificationEvent
 HideTransportEvent
 MainBibleAfterRestore
 MyDocumentUpdatedEvent
-MyDocumentsUpdatedViaSyncEvent
 NightModeChanged
 PassageChangedEvent
 PhoneCallEvent

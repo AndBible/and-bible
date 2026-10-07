@@ -18,9 +18,10 @@
 package net.bible.service.sword.mydocument
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import kotlinx.serialization.Serializable
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.onMain
+import net.bible.android.database.LogEntry
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.mydocument.AiDocMarkerInfo
@@ -30,7 +31,8 @@ import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.android.database.mydocument.MyDocumentPageContent
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.MyDocumentsUpdatedViaSyncEvent
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 import net.bible.service.llm.agent.CacheableContext
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Book
@@ -81,6 +83,24 @@ val Book.myDocumentId: IdType?
 val MyDocument.isAIDocument: Boolean
     get() = initials == MyDocumentBookManager.AI_DOCUMENTS_INITIALS
 
+/** One change to MyDocuments, emitted by [MyDocumentBookManager.changes] in emission order, on the emitter's thread. */
+sealed interface MyDocumentChange {
+    /** A MyDocument's pages changed: caches that depend on its key list are stale. */
+    data class DocumentUpdated(val initials: String) : MyDocumentChange
+    /**
+     * AI document pages were created, updated or deleted. For adds/updates [markers] holds the current
+     * markers of the affected range; for deletes [deletedPageIds] the removed pages.
+     */
+    data class AiDocPages(
+        val markers: List<AiDocMarkerInfo> = emptyList(),
+        val deletedPageIds: List<IdType> = emptyList(),
+        /** Source book initials for non-Bible page markers (commentary, etc.) */
+        val sourceBookInitials: String? = null,
+        /** Source book key for non-Bible page markers */
+        val sourceBookKey: String? = null,
+    ) : MyDocumentChange
+}
+
 /**
  * Singleton manager for MyDocument books.
  * Handles registration/unregistration with JSword's Books.
@@ -94,10 +114,19 @@ object MyDocumentBookManager {
     val registeredInitials: Set<String>
         get() = registeredBooks.keys.toSet()
 
+    private var changeSource = EventSource<MyDocumentChange>()
+    val changes: Events<MyDocumentChange> get() = changeSource
+
+    /** For callers that change AI document pages without going through this object (agent tools, the pages screen). */
+    fun notifyAiDocPagesChanged(change: MyDocumentChange.AiDocPages) {
+        changeSource.emit(change)
+        ABEventBus.post(AiDocPagesChangedEvent(change.markers, change.deletedPageIds, change.sourceBookInitials, change.sourceBookKey))
+    }
+
+    @VisibleForTesting fun resetSubscribersForTest() { changeSource = EventSource() }
+
     init {
-        ABEventBus.register(this) {
-            onMain<MyDocumentsUpdatedViaSyncEvent> { e -> handleSyncEvent(e) }
-        }
+        DatabaseContainer.myDocumentsSynced.subscribeOnMain { handleSyncEvent(it) }
     }
 
     /**
@@ -105,16 +134,16 @@ object MyDocumentBookManager {
      * refresh only the BibleView windows that display documents affected by
      * the sync.
      *
-     * Must run on the main thread (it is subscribed with [onMain]) because
+     * Must run on the main thread (it is subscribed with `subscribeOnMain`) because
      * SwordGenBook and the JSword Activator are not thread-safe. Running the
      * registration refresh on a background thread causes a race condition where
      * the main thread sees a newly registered book whose internal key map hasn't
      * been activated yet, leading to NPE in getKey().
      *
      * Internal rather than a lambda body so tests can drive it directly instead
-     * of going through the (main-dispatcher) event bus.
+     * of going through the main-dispatched `myDocumentsSynced`.
      */
-    internal fun handleSyncEvent(e: MyDocumentsUpdatedViaSyncEvent) {
+    internal fun handleSyncEvent(updated: List<LogEntry>) {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val affectedInitials = mutableSetOf<String>()
         var refreshAll = false
@@ -122,7 +151,7 @@ object MyDocumentBookManager {
         val documentIds = mutableListOf<IdType>()
         val pageIds = mutableListOf<IdType>()
 
-        for (entry in e.updated) {
+        for (entry in updated) {
             when (entry.tableName) {
                 "MyDocument" -> documentIds.add(entry.entityId1)
                 "MyDocumentPage" -> {
@@ -148,6 +177,7 @@ object MyDocumentBookManager {
         val initialsToRefresh = if (refreshAll) registeredInitials else affectedInitials
         for (initials in initialsToRefresh) {
             SwordContentFacade.evictBook(initials)
+            changeSource.emit(MyDocumentChange.DocumentUpdated(initials))
             ABEventBus.post(MyDocumentUpdatedEvent(initials))
         }
         Log.i(TAG, "Sync update: refreshed ${initialsToRefresh.size} MyDocuments (refreshAll=$refreshAll)")
@@ -287,6 +317,7 @@ object MyDocumentBookManager {
         }
 
         // Notify listeners to invalidate their caches
+        changeSource.emit(MyDocumentChange.DocumentUpdated(initials))
         ABEventBus.post(MyDocumentUpdatedEvent(initials))
     }
 
@@ -396,7 +427,7 @@ object MyDocumentBookManager {
         val page = dao.pageById(pageId) ?: return false
         dao.deletePageWithContent(page)
         refreshDocument(AI_DOCUMENTS_INITIALS)
-        ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = listOf(pageId)))
+        notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = listOf(pageId)))
         Log.i(TAG, "Deleted AI document page: $pageId")
         return true
     }
@@ -528,10 +559,10 @@ object MyDocumentBookManager {
         val bookKey = cacheableContext.sourceBookKey
         if (start != null && end != null) {
             val markers = dao.aiDocMarkersForRange(start, end)
-            ABEventBus.post(AiDocPagesChangedEvent(markers))
+            notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(markers))
         } else if (bookInitials != null && bookKey != null) {
             val markers = dao.aiDocMarkersForPage(bookInitials, bookKey)
-            ABEventBus.post(AiDocPagesChangedEvent(markers, sourceBookInitials = bookInitials, sourceBookKey = bookKey))
+            notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(markers, sourceBookInitials = bookInitials, sourceBookKey = bookKey))
         }
 
         Log.i(TAG, "Saved AI response as page: ${aiDocument.initials}/${page.pageKey}")

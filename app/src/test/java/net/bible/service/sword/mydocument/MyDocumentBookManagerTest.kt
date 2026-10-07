@@ -17,16 +17,18 @@
 
 package net.bible.service.sword.mydocument
 
+import android.os.Looper
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntry
 import net.bible.android.database.LogEntryTypes
+import net.bible.android.database.mydocument.AiDocMarkerInfo
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
+import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.MyDocumentsUpdatedViaSyncEvent
 import org.crosswire.jsword.book.Books
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -37,6 +39,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -85,7 +88,7 @@ class MyDocumentBookManagerTest {
         dao.insertPageWithContent(page, "content of $title")
     }
 
-    private fun syncEventForPages(vararg pageKeys: String): MyDocumentsUpdatedViaSyncEvent {
+    private fun syncEventForPages(vararg pageKeys: String): List<LogEntry> {
         val entries = pageKeys.map { pageKey ->
             val page = dao.pageByKeyWithContent(document.id, pageKey)!!
             LogEntry(
@@ -97,7 +100,7 @@ class MyDocumentBookManagerTest {
                 sourceDevice = "other-device",
             )
         }
-        return MyDocumentsUpdatedViaSyncEvent(entries)
+        return entries
     }
 
     @Test
@@ -184,7 +187,7 @@ class MyDocumentBookManagerTest {
             sourceDevice = "other-device",
         )
         dao.deletePageWithContent(dao.pageById(deleted.id)!!)
-        MyDocumentBookManager.handleSyncEvent(MyDocumentsUpdatedViaSyncEvent(listOf(entry)))
+        MyDocumentBookManager.handleSyncEvent(listOf(entry))
 
         assertTrue(book.globalKeyList.none { it.osisRef == "page_two" })
         assertEquals("page_one", book.getKey("page_one").osisRef)
@@ -198,16 +201,14 @@ class MyDocumentBookManagerTest {
         val page = dao.pageByKeyWithContent(other.id, "page_other")!!
 
         MyDocumentBookManager.handleSyncEvent(
-            MyDocumentsUpdatedViaSyncEvent(
-                listOf(
-                    LogEntry(
-                        tableName = "MyDocumentPage",
-                        entityId1 = page.id,
-                        entityId2 = IdType.empty(),
-                        type = LogEntryTypes.UPSERT,
-                        lastUpdated = 0L,
-                        sourceDevice = "other-device",
-                    )
+            listOf(
+                LogEntry(
+                    tableName = "MyDocumentPage",
+                    entityId1 = page.id,
+                    entityId2 = IdType.empty(),
+                    type = LogEntryTypes.UPSERT,
+                    lastUpdated = 0L,
+                    sourceDevice = "other-device",
                 )
             )
         )
@@ -222,16 +223,14 @@ class MyDocumentBookManagerTest {
         dao.deleteDocumentWithPages(dao.documentById(document.id)!!)
 
         MyDocumentBookManager.handleSyncEvent(
-            MyDocumentsUpdatedViaSyncEvent(
-                listOf(
-                    LogEntry(
-                        tableName = "MyDocument",
-                        entityId1 = document.id,
-                        entityId2 = IdType.empty(),
-                        type = LogEntryTypes.DELETE,
-                        lastUpdated = 0L,
-                        sourceDevice = "other-device",
-                    )
+            listOf(
+                LogEntry(
+                    tableName = "MyDocument",
+                    entityId1 = document.id,
+                    entityId2 = IdType.empty(),
+                    type = LogEntryTypes.DELETE,
+                    lastUpdated = 0L,
+                    sourceDevice = "other-device",
                 )
             )
         )
@@ -248,16 +247,14 @@ class MyDocumentBookManagerTest {
         val renamed = dao.documentById(document.id)!!.apply { name = "Renamed document" }
         dao.update(renamed)
         MyDocumentBookManager.handleSyncEvent(
-            MyDocumentsUpdatedViaSyncEvent(
-                listOf(
-                    LogEntry(
-                        tableName = "MyDocument",
-                        entityId1 = document.id,
-                        entityId2 = IdType.empty(),
-                        type = LogEntryTypes.UPSERT,
-                        lastUpdated = 0L,
-                        sourceDevice = "other-device",
-                    )
+            listOf(
+                LogEntry(
+                    tableName = "MyDocument",
+                    entityId1 = document.id,
+                    entityId2 = IdType.empty(),
+                    type = LogEntryTypes.UPSERT,
+                    lastUpdated = 0L,
+                    sourceDevice = "other-device",
                 )
             )
         )
@@ -266,4 +263,95 @@ class MyDocumentBookManagerTest {
         assertEquals("Renamed document", current.name)
         assertEquals("page_one", current.getKey("page_one").osisRef)
     }
+
+    @Test
+    fun aMyDocumentsSyncReachesTheManagerOnMain() {
+        Books.installed().getBook("MyDoc_Test")!!.getKey("page_one")
+        addPage("page_synced", "Synced page")
+        val entries = syncEventForPages("page_synced")
+        val accessor = DatabaseContainer.getDatabaseAccessorFactories(DatabaseContainer.instance)
+            .map { it() }
+            .single { it.category == SyncableDatabaseDefinition.MYDOCUMENTS }
+        var deliveryLooper: Looper? = null
+        val seen = mutableListOf<MyDocumentChange>()
+        val subscription = MyDocumentBookManager.changes.subscribe {
+            seen.add(it)
+            deliveryLooper = Looper.myLooper()
+        }
+        try {
+            val worker = Thread { accessor._reactToUpdates!!.invoke(entries) }
+            worker.start()
+            worker.join()
+            assertTrue("sync must wait for main before refreshing registrations", seen.isEmpty())
+            shadowOf(Looper.getMainLooper()).idle()
+            assertEquals("page_synced", Books.installed().getBook("MyDoc_Test")!!.getKey("page_synced").osisRef)
+            assertEquals(listOf(MyDocumentChange.DocumentUpdated("MyDoc_Test")), seen)
+            assertSame(Looper.getMainLooper(), deliveryLooper)
+        } finally {
+            subscription.cancel()
+        }
+    }
+
+    @Test
+    fun syncEmitsDocumentUpdatedAfterRefreshingRegistrations() {
+        Books.installed().getBook("MyDoc_Test")!!.getKey("page_one")
+        addPage("page_synced", "Synced page")
+        var resolved = false
+        val subscription = MyDocumentBookManager.changes.subscribe {
+            if (it == MyDocumentChange.DocumentUpdated("MyDoc_Test")) {
+                resolved = Books.installed().getBook("MyDoc_Test")!!.getKey("page_synced").osisRef == "page_synced"
+            }
+        }
+        try {
+            MyDocumentBookManager.handleSyncEvent(syncEventForPages("page_synced"))
+            assertTrue("subscribers must see refreshed keys at emission time", resolved)
+        } finally {
+            subscription.cancel()
+        }
+    }
+
+    @Test
+    fun deletingAnAiDocumentPageEmitsDocumentUpdatedThenAiDocPages() {
+        val aiDocument = MyDocumentBookManager.getOrCreateAIDocument()
+        addPage("ai_page", "AI page", documentId = aiDocument.id)
+        MyDocumentBookManager.refreshDocument(MyDocumentBookManager.AI_DOCUMENTS_INITIALS)
+        val id = dao.pageByKeyWithContent(aiDocument.id, "ai_page")!!.id
+        val seen = mutableListOf<MyDocumentChange>()
+        val subscription = MyDocumentBookManager.changes.subscribe { seen.add(it) }
+        try {
+            assertTrue(MyDocumentBookManager.deleteAIDocumentPage(id))
+            assertEquals(
+                listOf(
+                    MyDocumentChange.DocumentUpdated(MyDocumentBookManager.AI_DOCUMENTS_INITIALS),
+                    MyDocumentChange.AiDocPages(deletedPageIds = listOf(id)),
+                ),
+                seen,
+            )
+            assertNull(dao.pageById(id))
+        } finally {
+            subscription.cancel()
+        }
+    }
+
+    @Test
+    fun notifyAiDocPagesChangedReachesSubscribersUnchanged() {
+        val marker = AiDocMarkerInfo(
+            pageId = IdType(), documentId = document.id, documentInitials = "MyDoc_Test",
+            pageTitle = "Marker", pageKey = "page_one", kjvOrdinalStart = null, kjvOrdinalEnd = null,
+            sourcePromptId = IdType(), sourceBookInitials = "Commentary", sourceBookKey = "entry",
+        )
+        val change = MyDocumentChange.AiDocPages(
+            markers = listOf(marker), deletedPageIds = listOf(IdType()),
+            sourceBookInitials = "Commentary", sourceBookKey = "entry",
+        )
+        val seen = mutableListOf<MyDocumentChange>()
+        val subscription = MyDocumentBookManager.changes.subscribe { seen.add(it) }
+        try {
+            MyDocumentBookManager.notifyAiDocPagesChanged(change)
+            assertEquals(listOf(change), seen)
+        } finally {
+            subscription.cancel()
+        }
+    }
+
 }

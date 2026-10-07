@@ -360,6 +360,13 @@ class DatabaseContainer {
         /** Fires on the sync thread after a cloud sync applied reading-plan changes (replaces `ReadingPlansUpdatedViaSyncEvent`). */
         val readingPlansSynced: Events<List<LogEntry>> get() = _readingPlansSynced
 
+        private val _myDocumentsSynced = EventSource<List<LogEntry>>()
+        /**
+         * Fires on the sync thread after a cloud sync applied MyDocument changes.
+         * Not reset between tests: the `MyDocumentBookManager` object subscribes once per JVM.
+         */
+        val myDocumentsSynced: Events<List<LogEntry>> get() = _myDocumentsSynced
+
         private var _bookmarksSynced = EventSource<List<LogEntry>>()
         /**
          * Fires on the sync thread after a cloud sync applied bookmark-database changes (replaces
@@ -530,9 +537,7 @@ class DatabaseContainer {
                     _resetLocalDb = { resetMyDocumentDb() },
                     localDbFile = application.getDatabasePath(MyDocumentDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.MYDOCUMENTS,
-                    _reactToUpdates = {
-                        ABEventBus.post(MyDocumentsUpdatedViaSyncEvent(it))
-                    },
+                    _reactToUpdates = { _myDocumentsSynced.emit(it) },
                 ) },
                 { SyncableDatabaseAccessor(
                     localDb = aiSettingsDb,
@@ -555,4 +560,3 @@ class DatabaseContainer {
 }
 
 class WorkspacesUpdatedViaSyncEvent(val updated: List<LogEntry>)
-class MyDocumentsUpdatedViaSyncEvent(val updated: List<LogEntry>)

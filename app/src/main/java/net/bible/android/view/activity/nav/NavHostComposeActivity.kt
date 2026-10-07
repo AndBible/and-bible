@@ -253,7 +253,7 @@ import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
-import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
+import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.backup.BackupController
@@ -5772,7 +5772,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             // stale.
             MyDocumentBookManager.refreshDocument(documentInitials)
             val deletedIds = deleted.mapNotNull { myDocumentPagesEntityByLong[it]?.id }
-            if (deletedIds.isNotEmpty()) ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = deletedIds))
+            if (deletedIds.isNotEmpty()) MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = deletedIds))
         }
 
         controller = MyDocumentPagesController(
@@ -5999,7 +5999,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 if (item.id in changed) { doc.updatedAt = System.currentTimeMillis(); toUpdate.add(doc) }
             }
             if (toUpdate.isNotEmpty()) myDocumentDao.updateDocuments(toUpdate)
-            if (deletedPageIds.isNotEmpty()) ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = deletedPageIds))
+            if (deletedPageIds.isNotEmpty()) MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = deletedPageIds))
         }
 
         session.controller = MyDocumentsController(

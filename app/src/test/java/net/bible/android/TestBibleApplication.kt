@@ -30,6 +30,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.installzip.InstallZipProgress
 import net.bible.service.llm.agent.AgentSessionManager
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import org.koin.core.context.GlobalContext
 
 /**
@@ -67,5 +68,6 @@ class TestBibleApplication : BibleApplication() {
         CloudSync.resetSubscribersForTest()
         InstallZipProgress.resetSubscribersForTest()
         DatabaseContainer.resetBookmarksSyncedForTest()
+        MyDocumentBookManager.resetSubscribersForTest()
     }
 }
