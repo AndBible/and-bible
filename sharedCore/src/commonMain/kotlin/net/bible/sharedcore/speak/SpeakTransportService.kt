@@ -13,7 +13,7 @@ interface SpeakTransportService {
     fun speakAny()              // else-branch: start speaking (+ classic AdvancedSpeakSettings.synchronize side-effect)
     fun pause()
     fun continueAfterPause()
-    fun stop()                  // isStopped ⇒ setTransportVisible(false) (hide) else SpeakControl.stop()
+    fun stop()                  // isStopped ⇒ direct state.copy(visible = false) (hide) else SpeakControl.stop()
     fun rewind()
     fun forward()
     fun prevVerse()             // rewind(ONE_VERSE)

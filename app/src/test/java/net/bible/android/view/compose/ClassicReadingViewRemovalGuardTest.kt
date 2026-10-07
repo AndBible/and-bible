@@ -199,7 +199,7 @@ class ClassicReadingViewRemovalGuardTest {
      * `RecyclerView` adapter. So the tags go and the classes go with them.
      *
      * The live hide event was split out before deleting the widget, then replaced by a direct
-     * `setTransportVisible` call in `SpeakTransportServiceImpl.stop()` in ABEventBus removal phase 6.
+     * `state.copy(visible = false)` write in `SpeakTransportServiceImpl.stop()` in ABEventBus removal phase 6.
      * [ClassicSpeakRemovalGuardTest.theTransportBarsHidePathOutlivedTheWidget] pins that path, so
      * no split-out speak event file must remain. `AgentLogEvents.kt` was deleted in ABEventBus
      * removal phase 0: its event had no sender.
