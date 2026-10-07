@@ -76,6 +76,7 @@ class ReadingInsetOwnershipTest {
         speak = painterResource(R.drawable.ic_baseline_headphones_24), strongs = painterResource(R.drawable.ic_strongs_hebrew),
         bible = painterResource(R.drawable.ic_bible_24dp), commentary = painterResource(R.drawable.ic_commentary),
         workspace = painterResource(R.drawable.ic_workspace_solid_24dp), overflow = painterResource(R.drawable.ic_more_vert_black_24dp),
+        sync = painterResource(R.drawable.ic_syncdb_24dp),
     )
 
     private fun callbacks() = ReadingToolbarCallbacks(
