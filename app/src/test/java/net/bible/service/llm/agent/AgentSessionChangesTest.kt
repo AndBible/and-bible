@@ -68,11 +68,19 @@ class AgentSessionChangesTest {
         val s = session()
         val entry = AgentLogEntry.info("x")
         s.addLogEntry(entry)
-        s.updateEntryStatus(entry.id, EntryStatus.COMPLETED)
-        s.setLastEntryCost("0.01")
+        assertEquals(1, seen.size)
+        assertTrue((seen.single() as AgentSessionChange.LogUpdated).entry === entry)
+
+        s.updateEntryStatus(entry.id, EntryStatus.FAILED)
+        assertEquals(2, seen.size)
+        assertTrue((seen.last() as AgentSessionChange.LogUpdated).entry === entry)
+        assertEquals(EntryStatus.FAILED, entry.status)
+
+        s.setLastEntryCost("0.01", isTotalCost = true)
         assertEquals(3, seen.size)
-        seen.forEach { assertTrue((it as AgentSessionChange.LogUpdated).entry === entry) }
-        assertEquals(EntryStatus.COMPLETED, entry.status)
+        assertTrue((seen.last() as AgentSessionChange.LogUpdated).entry === entry)
+        assertEquals("0.01", entry.costInfo)
+        assertTrue(entry.isTotalCost)
     }
 
     @Test fun updateActionEntryEmitsTheSuccessfullyMutatedEntry() {
@@ -81,9 +89,10 @@ class AgentSessionChangesTest {
         s.addLogEntry(entry)
         seen.clear()
 
-        assertTrue(s.updateActionEntry("call-1", "Tool: X", "result", EntryStatus.COMPLETED))
+        assertTrue(s.updateActionEntry("call-1", "Tool: X completed", "result", EntryStatus.COMPLETED))
 
         assertEquals(listOf<AgentSessionChange>(AgentSessionChange.LogUpdated(ws, entry)), seen)
+        assertEquals("Tool: X completed", entry.message)
         assertEquals("result", entry.details)
         assertEquals(EntryStatus.COMPLETED, entry.status)
     }
