@@ -133,4 +133,12 @@ class StartupWelcomeDiscreteChromeTest {
             zip.contains("AndBible"),
         )
     }
+
+    /** The intro replaced `welcome_message` and must stay name-free, or discrete mode leaks the identity again. */
+    @Test
+    fun welcomeIntroNamesNoApp() {
+        val intro = context.getString(R.string.welcome_intro)
+        assertFalse("welcome_intro must not take an app-name placeholder", intro.contains("%"))
+        assertFalse("welcome_intro must not name AndBible", intro.contains("AndBible", ignoreCase = true))
+    }
 }

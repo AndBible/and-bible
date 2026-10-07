@@ -17,6 +17,7 @@
 package net.bible.sharedui.startup
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,29 +28,45 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.CloudDownload
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.FolderOpen
+import androidx.compose.material.icons.outlined.Restore
+import androidx.compose.material.icons.outlined.SettingsBackupRestore
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.startup.StartupWelcomeState
+import net.bible.sharedcore.startup.StartupWelcomeTab
 import net.bible.sharedui.components.AbLoadingIndicator
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.components.volumeVerticalScroll
 
 /**
- * First-run welcome screen (new-path twin of classic `StartupActivity.showFirstLayout()`).
- * Moderate M3 modernization: a welcome card, the "install from files" blurb, and the action
- * buttons shown per [StartupWelcomeState]. All actions are host seams. No top app bar (this is a
+ * First-run welcome screen. English users get an Easy | Advanced switch: Easy is one recommended
+ * path (Quick start, plus a redownload hint after a previous install); Advanced lists every way in.
+ * Other locales have no curated defaults, so they see the Advanced list alone. All actions are host
+ * seams; the tab lives in `StartupWelcomeController` ([onSelectTab]). No top app bar (this is a
  * launcher-context screen, like the classic splash which hides the action bar).
  */
 @Composable
@@ -58,11 +75,11 @@ fun StartupWelcomeScreen(
     /**
      * F62: the header row classic opens with (`startup_view.xml:44-67`). Parameters rather than
      * resource lookups, like [net.bible.sharedui.reading.ReadingDrawerHeader]'s, so this file stays
-     * iOS-clean. The host decides what they are -- including the discrete-mode swap, which classic's
-     * own `showFirstLayout()` never applied, so classic LEAKS the real logo and name here.
+     * iOS-clean. The host decides what they are -- including the discrete-mode swap.
      */
     appName: String,
     logo: Painter?,
+    onSelectTab: (StartupWelcomeTab) -> Unit,
     onDownload: () -> Unit,
     onImport: () -> Unit,
     onRestore: () -> Unit,
@@ -101,71 +118,120 @@ fun StartupWelcomeScreen(
             )
         }
 
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = state.welcomeText,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(16.dp),
-            )
-        }
+        Text(
+            strings.welcomeIntro,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.fillMaxWidth(),
+        )
 
         if (state.progressText != null) {
             AbLoadingIndicator(modifier = Modifier.fillMaxWidth())
             Text(state.progressText!!, style = MaterialTheme.typography.bodySmall)
         }
 
-        // Primary action: download from repository.
-        Button(onClick = onDownload, modifier = Modifier.fillMaxWidth()) {
-            Text(strings.welcomeDownloadButton)
-        }
-
-        if (state.showEasyStart) {
-            Text(
-                state.easyStartMessage,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-            )
-            OutlinedButton(onClick = onEasyStart, modifier = Modifier.fillMaxWidth()) {
-                Text(strings.welcomeEasyStartButton)
+        if (state.showTabs) {
+            val tabs = listOf(StartupWelcomeTab.EASY to strings.welcomeTabEasy, StartupWelcomeTab.ADVANCED to strings.welcomeTabAdvanced)
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                tabs.forEachIndexed { index, (tab, label) ->
+                    SegmentedButton(
+                        selected = state.selectedTab == tab,
+                        onClick = { onSelectTab(tab) },
+                        shape = SegmentedButtonDefaults.itemShape(index, tabs.size),
+                    ) { Text(label) }
+                }
             }
         }
 
-        // Install from files (zip / MyBible / MySword / EPUB).
-        Text(
-            strings.welcomeImportButton,
-            style = MaterialTheme.typography.titleMedium,
-        )
-        Text(
-            state.supportedFormatsText,
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.Center,
-        )
-        OutlinedButton(onClick = onImport, modifier = Modifier.fillMaxWidth()) {
-            Text(strings.welcomeImportButton)
-        }
-
-        if (state.showRedownload) {
-            Text(
-                state.redownloadMessage,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-            )
-            OutlinedButton(onClick = onRedownload, modifier = Modifier.fillMaxWidth()) {
-                Text(strings.welcomeRedownloadButton)
-            }
-        }
-
-        if (state.showRestore) {
-            OutlinedButton(onClick = onRestore, modifier = Modifier.fillMaxWidth()) {
-                Text(strings.welcomeRestoreButton)
-            }
+        when (state.selectedTab) {
+            StartupWelcomeTab.EASY -> EasyContent(state, onEasyStart, onRedownload)
+            StartupWelcomeTab.ADVANCED -> AdvancedList(state, onDownload, onImport, onRestore, onRedownload)
         }
 
         Text(state.versionText, style = MaterialTheme.typography.labelSmall)
         // Batch 6 A6: both open AndBible URLs (the labels are the URLs), so discrete mode hides them.
         if (state.homepageButtonsVisible) {
-            TextButton(onClick = onOpenHomepage) { Text(strings.welcomeHomepageLabel) }
-            TextButton(onClick = onOpenGithub) { Text(strings.welcomeGithubLabel) }
+            Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+                TextButton(onClick = onOpenHomepage) { Text(strings.welcomeHomepageLabel) }
+                TextButton(onClick = onOpenGithub) { Text(strings.welcomeGithubLabel) }
+            }
         }
     }
 }
+
+/** Easy: the Quick start card, and the redownload hint after a previous install. */
+@Composable
+private fun EasyContent(state: StartupWelcomeState, onEasyStart: () -> Unit, onRedownload: () -> Unit) {
+    val strings = LocalStrings.current
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(strings.welcomeQuickStartTitle, style = MaterialTheme.typography.titleMedium)
+            Text(strings.welcomeQuickStartMessage, style = MaterialTheme.typography.bodyMedium)
+            Button(onClick = onEasyStart, modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
+                Icon(Icons.Outlined.Download, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.size(8.dp))
+                Text(strings.welcomeQuickStartButton)
+            }
+        }
+    }
+    if (state.showRedownloadHint) {
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shape = MaterialTheme.shapes.medium,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(start = 16.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+            ) {
+                Icon(Icons.Outlined.Restore, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.size(12.dp))
+                Text(
+                    strings.welcomeRedownloadHint,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(onClick = onRedownload) { Text(strings.welcomeRedownloadHintAction) }
+            }
+        }
+    }
+}
+
+/** Advanced: every way in, as one grouped list. Redownload leads when there is a previous install. */
+@Composable
+private fun AdvancedList(
+    state: StartupWelcomeState,
+    onDownload: () -> Unit,
+    onImport: () -> Unit,
+    onRestore: () -> Unit,
+    onRedownload: () -> Unit,
+) {
+    val strings = LocalStrings.current
+    val rows = buildList {
+        if (state.showRedownload) add(WelcomeRow(Icons.Outlined.Restore, strings.welcomeRedownloadButton, strings.welcomeRedownloadRowHint, onRedownload))
+        add(WelcomeRow(Icons.Outlined.CloudDownload, strings.welcomeDownloadButton, strings.welcomeDownloadRowHint, onDownload))
+        add(WelcomeRow(Icons.Outlined.FolderOpen, strings.welcomeImportButton, state.supportedFormatsText, onImport))
+        add(WelcomeRow(Icons.Outlined.SettingsBackupRestore, strings.welcomeRestoreButton, strings.welcomeRestoreRowHint, onRestore))
+    }
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = MaterialTheme.shapes.large,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column {
+            rows.forEachIndexed { index, row ->
+                if (index > 0) HorizontalDivider(Modifier.padding(start = 56.dp))
+                ListItem(
+                    headlineContent = { Text(row.title) },
+                    supportingContent = { Text(row.hint) },
+                    leadingContent = { Icon(row.icon, contentDescription = null) },
+                    trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                    modifier = Modifier.clickable(onClick = row.onClick),
+                )
+            }
+        }
+    }
+}
+
+private class WelcomeRow(val icon: ImageVector, val title: String, val hint: String, val onClick: () -> Unit)

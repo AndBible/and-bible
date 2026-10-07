@@ -87,11 +87,8 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
             "$zip, ${host.getString(R.string.format_mybible)}, ${host.getString(R.string.format_mysword)}, ${host.getString(R.string.format_epub)}",
         )
         return StartupWelcomeInfo(
-            welcomeText = host.getString(R.string.welcome_message, host.getString(startupWelcomeAppNameRes())),
             versionText = host.getString(R.string.version_text, CommonUtils.applicationVersionName),
             supportedFormatsText = formats,
-            redownloadMessage = host.getString(R.string.redownload_message),
-            easyStartMessage = host.getString(R.string.easy_start_message),
             previousInstallDetected = previousInstallDetected,
             easyStartAvailable = Locale.getDefault().language == "en",
             // Batch 6 A6: the Homepage / GitHub buttons open AndBible URLs.

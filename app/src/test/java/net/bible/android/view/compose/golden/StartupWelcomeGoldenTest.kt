@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import net.bible.android.activity.R
 import net.bible.sharedcore.startup.StartupWelcomeState
+import net.bible.sharedcore.startup.StartupWelcomeTab
 import net.bible.sharedui.startup.StartupWelcomeScreen
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,19 +18,17 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class StartupWelcomeGoldenTest {
     private fun state(
-        showRedownload: Boolean = false,
-        showRestore: Boolean = true,
-        showEasyStart: Boolean = false,
+        tabs: Boolean = true,
+        tab: StartupWelcomeTab = StartupWelcomeTab.EASY,
+        prev: Boolean = false,
         progress: String? = null,
     ) = StartupWelcomeState(
-        welcomeText = "Thank you for downloading AndBible. There are currently no Bibles or documents installed.",
         versionText = "Version: 5.1",
         supportedFormatsText = "Supported formats: AndBible zip, MyBible, MySword, EPUB",
-        redownloadMessage = "A previous installation was detected. You can redownload your documents.",
-        easyStartMessage = "New here? Get started quickly with a recommended set of documents.",
-        showRedownload = showRedownload,
-        showRestore = showRestore,
-        showEasyStart = showEasyStart,
+        showTabs = tabs,
+        selectedTab = if (tabs) tab else StartupWelcomeTab.ADVANCED,
+        showRedownload = prev,
+        showRedownloadHint = tabs && prev,
         progressText = progress,
     )
 
@@ -39,6 +38,7 @@ class StartupWelcomeGoldenTest {
             state = s,
             appName = "AndBible",
             logo = painterResource(R.drawable.ic_logo),
+            onSelectTab = {},
             onDownload = {}, onImport = {}, onRestore = {}, onRedownload = {},
             onEasyStart = {}, onOpenHomepage = {}, onOpenGithub = {},
         )
@@ -46,24 +46,24 @@ class StartupWelcomeGoldenTest {
 
     // Primary = fresh install: Download + Import + Restore, no previous install, no easy start.
     @Test fun welcome_primary() {
-        captureMatrix("StartupWelcome", "primary") { screen(state()) }
+        captureMatrix("StartupWelcome", "primary") { screen(state(tabs = false)) }
     }
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun welcome_primary_rtl() {
-        captureRtl("StartupWelcome", "primary") { screen(state()) }
+        captureRtl("StartupWelcome", "primary") { screen(state(tabs = false)) }
     }
 
     @Test fun welcome_previousInstall() {
         captureGolden("StartupWelcome", "previousInstall", EDGE_MODE) {
-            screen(state(showRedownload = true, showRestore = false))
+            screen(state(tabs = false, prev = true))
         }
     }
 
     @Test fun welcome_easyStart() {
         captureGolden("StartupWelcome", "easyStart", EDGE_MODE) {
-            screen(state(showEasyStart = true))
+            screen(state())
         }
     }
 

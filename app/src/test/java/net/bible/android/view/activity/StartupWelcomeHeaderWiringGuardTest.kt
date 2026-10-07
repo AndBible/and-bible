@@ -75,14 +75,10 @@ class StartupWelcomeHeaderWiringGuardTest {
         private val LOGO_CALL_SITE = Regex("""logo\s*=\s*\{\s*painterResource\(startupWelcomeLogoRes\(\)\)\s*\}""")
 
         // Fix round 1 (review): the header is discrete-aware, but loadInfo() -- the SAME screen's
-        // body text -- independently spelled the real app name, so discrete mode's card still read
-        // "Thank you for downloading AndBible..." and "Supported formats: AndBible zip, ...".
-        private val WELCOME_MESSAGE_CALL_SITE =
-            Regex("""host\.getString\(R\.string\.welcome_message,\s*host\.getString\(startupWelcomeAppNameRes\(\)\)\)""")
+        // body text -- independently spelled the real app name, so discrete mode's
+        // "Supported formats: AndBible zip, ..." line still leaked it.
         private val FORMAT_ZIP_CALL_SITE =
             Regex("""host\.getString\(R\.string\.format_zip,\s*host\.getString\(startupWelcomeShortAppNameRes\(\)\)\)""")
-        private const val RAW_WELCOME_MESSAGE_LITERAL =
-            "host.getString(R.string.welcome_message, host.getString(R.string.app_name_long))"
         private const val RAW_FORMAT_ZIP_LITERAL =
             "host.getString(R.string.format_zip, host.getString(R.string.app_name_andbible))"
     }
@@ -172,38 +168,6 @@ class StartupWelcomeHeaderWiringGuardTest {
         )
         assertThat(body.contains("R.string.app_name_long"), equalTo(true))
         assertThat(body.contains("R.drawable.ic_logo"), equalTo(true))
-    }
-
-    /**
-     * Fix round 1 (F62 review) -- `loadInfo()`'s two OTHER app-name substitutions must route
-     * through the same discrete-mode choice the header uses, not spell the real app name directly.
-     * Pre-fix, `loadInfo()` built `welcomeText` from `getString(R.string.welcome_message,
-     * getString(R.string.app_name_long))` and the zip line from `getString(R.string.format_zip,
-     * getString(R.string.app_name_andbible))` -- both always the real name, regardless of
-     * `CommonUtils.isDiscrete` -- so the welcome CARD (not just the header) leaked the real
-     * identity in discrete mode, defeating this task's own improvement on the very same screen.
-     *
-     * Unlike [theWelcomeCallSiteUsesTheDiscreteModeAppNameHelper] / [theWelcomeCallSiteUsesTheDiscreteModeLogoHelper],
-     * these two assertions are not scoped to a single call's argument list -- `loadInfo()`'s two
-     * call sites are syntactically unrelated lines (one a `val zip = ...` assignment, the other a
-     * `welcomeText = ...` named argument inside a `StartupWelcomeInfo(...)` constructor call) --
-     * so each pattern is specific enough (parameter/variable name plus the exact string resource
-     * pair) to only match its own real call site, not `startupWelcomeAppNameRes()`'s own
-     * non-discrete branch (`R.string.app_name_long` alone, with no `welcome_message` alongside it).
-     */
-    @Test
-    fun loadInfoUsesTheDiscreteModeAppNameHelperForTheWelcomeMessage() {
-        assertThat(
-            "loadInfo()'s welcomeText must call getString(R.string.welcome_message, " +
-                "getString(startupWelcomeAppNameRes())) -- reverting it to the raw " +
-                "getString(R.string.app_name_long) leaves discrete mode's welcome CARD TEXT " +
-                "un-swapped even though the header above it is",
-            WELCOME_MESSAGE_CALL_SITE.containsMatchIn(source), equalTo(true),
-        )
-        assertThat(
-            "the raw, non-discrete-aware welcome_message call site must be gone",
-            source.contains(RAW_WELCOME_MESSAGE_LITERAL), equalTo(false),
-        )
     }
 
     @Test

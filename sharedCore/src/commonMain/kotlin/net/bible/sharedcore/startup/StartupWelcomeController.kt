@@ -20,13 +20,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/** Host-supplied primitives for the first-run welcome screen (all text pre-composed by the host). */
+/** The two first-run views. EASY exists only where Easy start is available (English). */
+enum class StartupWelcomeTab { EASY, ADVANCED }
+
+/** Host-supplied primitives for the first-run welcome screen. Static text comes from `Strings`. */
 data class StartupWelcomeInfo(
-    val welcomeText: String,
     val versionText: String,
     val supportedFormatsText: String,
-    val redownloadMessage: String,
-    val easyStartMessage: String,
     val previousInstallDetected: Boolean,
     val easyStartAvailable: Boolean,
     /** Batch 6 A6: false in discrete mode -- the Homepage / GitHub buttons open AndBible URLs. */
@@ -35,47 +35,58 @@ data class StartupWelcomeInfo(
 
 /** View-data the composable renders. */
 data class StartupWelcomeState(
-    val welcomeText: String,
     val versionText: String,
     val supportedFormatsText: String,
-    val redownloadMessage: String,
-    val easyStartMessage: String,
+    /** The Easy | Advanced switch; only where Easy start exists. Without it the screen is the Advanced view. */
+    val showTabs: Boolean,
+    val selectedTab: StartupWelcomeTab,
+    /** The Advanced "Redownload" row. */
     val showRedownload: Boolean,
-    val showRestore: Boolean,
-    val showEasyStart: Boolean,
+    /** The Easy view's "Previous documents found" hint. */
+    val showRedownloadHint: Boolean,
     val progressText: String? = null,
     /** Batch 6 A6: false in discrete mode -- hides the Homepage and GitHub buttons (they name AndBible). */
     val homepageButtonsVisible: Boolean = true,
 )
 
 /**
- * Framework-free state holder for the first-run welcome screen. Visibility rules mirror classic
- * `StartupActivity.showFirstLayout()`: a previous install → Redownload (Restore hidden), otherwise
- * → Restore; Easy start only when the host reports it available (locale == "en"). [setProgress]
- * carries the `InstallZipEvent` line. All button ACTIONS are host seams passed to the screen, not
- * this controller — it only derives presentation. No Android/JSword/Intent types.
+ * Framework-free state holder for the first-run welcome screen. Easy start (and so the Easy tab) is
+ * English-only because only English has curated default documents; elsewhere the screen is the
+ * Advanced list alone. Restore is always offered; Redownload only after a previous install.
+ * [setProgress] carries the `InstallZipEvent` line. Button ACTIONS are host seams passed to the
+ * screen, not this controller. No Android/JSword/Intent types.
  */
 class StartupWelcomeController(
     private val loadInfo: () -> StartupWelcomeInfo,
 ) {
-    private val _state = MutableStateFlow(toState(loadInfo(), null))
+    private val _state = MutableStateFlow(toState(loadInfo(), progress = null, tab = StartupWelcomeTab.EASY))
     val state: StateFlow<StartupWelcomeState> = _state.asStateFlow()
 
-    /** Recompute from the latest host info (e.g. after a download/restore flow), preserving progress. */
-    fun refresh() { _state.value = toState(loadInfo(), _state.value.progressText) }
+    /** Recompute from the latest host info (e.g. after a download/restore flow), preserving progress and tab. */
+    fun refresh() {
+        val current = _state.value
+        _state.value = toState(loadInfo(), current.progressText, current.selectedTab)
+    }
 
     fun setProgress(text: String?) { _state.value = _state.value.copy(progressText = text) }
 
-    private fun toState(info: StartupWelcomeInfo, progress: String?) = StartupWelcomeState(
-        welcomeText = info.welcomeText,
-        versionText = info.versionText,
-        supportedFormatsText = info.supportedFormatsText,
-        redownloadMessage = info.redownloadMessage,
-        easyStartMessage = info.easyStartMessage,
-        showRedownload = info.previousInstallDetected,
-        showRestore = !info.previousInstallDetected,
-        showEasyStart = info.easyStartAvailable,
-        progressText = progress,
-        homepageButtonsVisible = info.homepageButtonsVisible,
-    )
+    /** Ignored when there are no tabs: the screen is then the Advanced view only. */
+    fun selectTab(tab: StartupWelcomeTab) {
+        val current = _state.value
+        if (current.showTabs) _state.value = current.copy(selectedTab = tab)
+    }
+
+    private fun toState(info: StartupWelcomeInfo, progress: String?, tab: StartupWelcomeTab): StartupWelcomeState {
+        val tabs = info.easyStartAvailable
+        return StartupWelcomeState(
+            versionText = info.versionText,
+            supportedFormatsText = info.supportedFormatsText,
+            showTabs = tabs,
+            selectedTab = if (tabs) tab else StartupWelcomeTab.ADVANCED,
+            showRedownload = info.previousInstallDetected,
+            showRedownloadHint = tabs && info.previousInstallDetected,
+            progressText = progress,
+            homepageButtonsVisible = info.homepageButtonsVisible,
+        )
+    }
 }

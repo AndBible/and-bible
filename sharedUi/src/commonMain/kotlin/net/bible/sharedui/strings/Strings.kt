@@ -632,8 +632,7 @@ interface Strings {
     val welcomeDownloadButton: String       // R.string.download
     val welcomeImportButton: String         // R.string.install_zip
     val welcomeRestoreButton: String        // R.string.restore_database
-    val welcomeRedownloadButton: String     // R.string.redownload_documents
-    val welcomeEasyStartButton: String      // R.string.easy_start_title
+    val welcomeRedownloadButton: String     // R.string.redownload
     val welcomeHomepageLabel: String        // R.string.homepage
     val welcomeGithubLabel: String          // R.string.github_page
     val welcomeIntro: String                // R.string.welcome_intro

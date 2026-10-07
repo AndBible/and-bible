@@ -64,6 +64,7 @@ fun NavGraphBuilder.welcomeNavGraph(deps: WelcomeNavDeps) {
             state = state,
             appName = deps.appName,
             logo = deps.logo(),
+            onSelectTab = controller::selectTab,
             onDownload = deps.onDownload,
             onImport = deps.onImport,
             onRestore = deps.onRestore,
