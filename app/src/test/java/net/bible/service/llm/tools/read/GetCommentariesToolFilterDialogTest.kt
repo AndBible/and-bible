@@ -23,14 +23,13 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.AgentContext
-import net.bible.service.llm.agent.AgentPermissionWaitingEvent
+import net.bible.service.llm.agent.AgentSessionChange
+import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
@@ -202,7 +201,7 @@ class GetCommentariesToolFilterDialogTest {
 
     /** I1 (run 3 final review): restores today's pre-port behaviour, deleted by Task 25 along with
      *  the 500 ms `CurrentActivityHolder` poll -- [net.bible.service.llm.agent.AgentForegroundService]
-     *  consumes [AgentPermissionWaitingEvent] to release its wakelock and show the "permission
+     *  consumes [AgentSessionChange.PermissionWaiting] to release its wakelock and show the "permission
      *  needed" notification while an agent waits with no Activity current. `AppDialogController` is
      *  the wait now, but the waiting/not-waiting posts around it must still happen, bracketing the
      *  `await` exactly like the deleted poll did (`true` before, `false` after) -- here, no
@@ -214,9 +213,8 @@ class GetCommentariesToolFilterDialogTest {
         CommonUtils.aiSettings.commentaryDeselected = emptySet()
         val workspaceId = IdType()
         val results = listOf(bigResult("AAA", "Commentary A"))
-        val seen = mutableListOf<AgentPermissionWaitingEvent>()
-        val subscriber = Any()
-        ABEventBus.register(subscriber) { on<AgentPermissionWaitingEvent> { seen.add(it) } }
+        val seen = mutableListOf<AgentSessionChange.PermissionWaiting>()
+        val subscription = AgentSessionManager.changes.subscribe { if (it is AgentSessionChange.PermissionWaiting) seen.add(it) }
         try {
             val deferred = async {
                 GetCommentariesTool.filterByResponseSizeLimit(results, AgentContext(promptId = IdType(), workspaceId = workspaceId))
@@ -232,14 +230,14 @@ class GetCommentariesToolFilterDialogTest {
             dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.SelectedMany(listOf("AAA")))
             deferred.await()
         } finally {
-            ABEventBus.unregister(subscriber)
+            subscription.cancel()
         }
 
         assertEquals(2, seen.size)
         assertTrue("second post must be waiting = false", !seen[1].waiting)
     }
 
-    /** Same bracket, but the user cancels: the `finally` must still post `waiting = false` -- the
+    /** Same [AgentSessionChange.PermissionWaiting] bracket, but the user cancels: the `finally` must still post `waiting = false` -- the
      *  deleted poll had no cancellation path to lose this on, but the new `AppDialogController.await`
      *  can be cancelled (e.g. the whole agent run stops), so this pins the `finally` semantics. */
     @Test
@@ -248,9 +246,8 @@ class GetCommentariesToolFilterDialogTest {
         CommonUtils.aiSettings.commentaryDeselected = emptySet()
         val workspaceId = IdType()
         val results = listOf(bigResult("AAA", "Commentary A"))
-        val seen = mutableListOf<AgentPermissionWaitingEvent>()
-        val subscriber = Any()
-        ABEventBus.register(subscriber) { on<AgentPermissionWaitingEvent> { seen.add(it) } }
+        val seen = mutableListOf<AgentSessionChange.PermissionWaiting>()
+        val subscription = AgentSessionManager.changes.subscribe { if (it is AgentSessionChange.PermissionWaiting) seen.add(it) }
         try {
             val deferred = async {
                 GetCommentariesTool.filterByResponseSizeLimit(results, AgentContext(promptId = IdType(), workspaceId = workspaceId))
@@ -260,7 +257,7 @@ class GetCommentariesToolFilterDialogTest {
             dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
             assertNull(deferred.await())
         } finally {
-            ABEventBus.unregister(subscriber)
+            subscription.cancel()
         }
 
         assertEquals(2, seen.size)

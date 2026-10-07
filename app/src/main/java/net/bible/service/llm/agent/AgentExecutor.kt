@@ -888,13 +888,14 @@ class AgentExecutor(
 
     /**
      * Waits for the current activity to become available.
-     * Posts waiting/not-waiting events so the UI can show a notification.
+     * Emits [AgentSessionChange.PermissionWaiting] true/false (no
+     * `finally`: a cancelled wait never emits false; see the phase 4 spec §4).
      */
     private suspend fun awaitActivity(workspaceId: IdType? = null, toolName: String? = null): Activity {
         CurrentActivityHolder.currentActivity?.let { return it }
         Log.d(TAG, "No current activity, waiting for activity to resume...")
         if (workspaceId != null) {
-            ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true, toolName = toolName))
+            AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = true, toolName = toolName)
         }
         var activity: Activity?
         do {
@@ -902,7 +903,7 @@ class AgentExecutor(
             activity = CurrentActivityHolder.currentActivity
         } while (activity == null)
         if (workspaceId != null) {
-            ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
+            AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = false)
         }
         Log.d(TAG, "Activity resumed")
         return activity

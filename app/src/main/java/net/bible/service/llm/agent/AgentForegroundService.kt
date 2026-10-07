@@ -36,8 +36,7 @@ import kotlinx.serialization.json.Json
 import net.bible.android.AI_AGENT_NOTIFICATION_CHANNEL
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
+import net.bible.sharedcore.event.Subscriptions
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.nav.NavHostComposeActivity
@@ -125,6 +124,7 @@ class AgentForegroundService : Service() {
         }
     }
 
+    private val subscriptions = Subscriptions()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val notificationManager get() = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val powerManager get() = getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -135,41 +135,45 @@ class AgentForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        ABEventBus.register(this) {
-            on<AgentLogUpdatedEvent> { event ->
-                if (event.workspaceId != currentWorkspaceId) return@on
-                updateProgressNotification(event.entry.message)
-                // Renew WakeLock on activity (progress means active processing)
-                wakeLock?.let {
-                    if (it.isHeld) {
-                        it.release()
+        // `subscribe`, not `subscribeOnMain`: these reactions run synchronously on the emitter's
+        // thread, as the bus's `on` did. stopSelfSafe() must run inside AgentSession.stop() before it
+        // returns, and a log renew must not land after a waiting=true release from the same thread
+        // (a main-thread hop could re-acquire the wakelock the agent just released). ABEventBus phase 4.
+        subscriptions.add(AgentSessionManager.changes.subscribe { change ->
+            if (change.workspaceId != currentWorkspaceId) return@subscribe
+            when (change) {
+                is AgentSessionChange.LogUpdated -> {
+                    updateProgressNotification(change.entry.message)
+                    // Renew WakeLock on activity (progress means active processing)
+                    wakeLock?.let {
+                        if (it.isHeld) {
+                            it.release()
+                        }
+                        it.acquire(WAKELOCK_TIMEOUT_MS)
                     }
-                    it.acquire(WAKELOCK_TIMEOUT_MS)
+                }
+                is AgentSessionChange.PermissionWaiting -> {
+                    if (change.waiting) {
+                        // Release WakeLock while waiting — agent can sleep
+                        releaseWakeLock()
+                        showPermissionNeededNotification(change.toolName)
+                    } else {
+                        restoreProgressNotification()
+                        acquireWakeLock()
+                    }
+                }
+                is AgentSessionChange.StatusChanged -> {
+                    if (!change.isRunning) {
+                        // Agent finished — stop service
+                        stopSelfSafe()
+                    }
                 }
             }
-            on<AgentPermissionWaitingEvent> { event ->
-                if (event.workspaceId != currentWorkspaceId) return@on
-                if (event.waiting) {
-                    // Release WakeLock while waiting — agent can sleep
-                    releaseWakeLock()
-                    showPermissionNeededNotification(event.toolName)
-                } else {
-                    restoreProgressNotification()
-                    acquireWakeLock()
-                }
-            }
-            on<AgentSessionStatusChangedEvent> { event ->
-                if (event.workspaceId != currentWorkspaceId) return@on
-                if (!event.isRunning) {
-                    // Agent finished — stop service
-                    stopSelfSafe()
-                }
-            }
-        }
+        })
     }
 
     override fun onDestroy() {
-        ABEventBus.unregister(this)
+        subscriptions.cancelAll()
         releaseWakeLock()
         scope.cancel()
         super.onDestroy()

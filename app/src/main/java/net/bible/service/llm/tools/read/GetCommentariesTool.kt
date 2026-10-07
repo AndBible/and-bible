@@ -21,14 +21,13 @@ import android.net.Uri
 import kotlinx.serialization.Serializable
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
-import net.bible.service.llm.agent.AgentPermissionWaitingEvent
+import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.ContentFormat
 import net.bible.service.sword.OsisToPlainText
@@ -362,13 +361,13 @@ object GetCommentariesTool : Tool {
         val workspaceId = context.workspaceId
         val postedWaiting = workspaceId != null && CurrentActivityHolder.currentActivity == null
         if (postedWaiting) {
-            ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true))
+            AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = true)
         }
         val selected = try {
             showFilterDialog(sorted, thresholdTokens)
         } finally {
             if (postedWaiting) {
-                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
+                AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = false)
             }
         } ?: return null  // User cancelled
 

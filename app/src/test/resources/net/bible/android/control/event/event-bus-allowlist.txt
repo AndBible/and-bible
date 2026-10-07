@@ -1,7 +1,4 @@
 AddHistoryItem
-AgentLogUpdatedEvent
-AgentPermissionWaitingEvent
-AgentSessionStatusChangedEvent
 AiDocPagesChangedEvent
 AppSettingsUpdated
 AppToBackgroundEvent

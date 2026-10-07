@@ -23,7 +23,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import androidx.annotation.VisibleForTesting
-import net.bible.android.control.event.ABEventBus
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 import net.bible.android.control.link.LinkControl
@@ -78,12 +77,6 @@ open class AgentSessionManagerBase : KoinComponent {
     val linkControl: LinkControl by inject()
 }
 
-@Deprecated("ABEventBus phase 4: use AgentSessionManager.changes")
-class AgentLogUpdatedEvent(
-    val workspaceId: IdType,
-    val entry: AgentLogEntry
-)
-
 /** One agent-session change, in the order it happened (replaces three bus events). */
 sealed interface AgentSessionChange {
     val workspaceId: IdType
@@ -117,22 +110,6 @@ enum class AgentStopReason { COMPLETED, ERROR, CANCELLED }
  */
 fun shouldAutoHideAgentLog(settingEnabled: Boolean, reason: AgentStopReason?): Boolean =
     settingEnabled && reason != null && reason != AgentStopReason.ERROR
-
-@Deprecated("ABEventBus phase 4: use AgentSessionManager.changes")
-class AgentSessionStatusChangedEvent(
-    val workspaceId: IdType,
-    val isRunning: Boolean,
-    /** Terminal outcome when [isRunning] is false; null on the start event. */
-    val stopReason: AgentStopReason? = null
-)
-
-/** Posted when the agent is waiting for user to return to grant permission. */
-@Deprecated("ABEventBus phase 4: use AgentSessionManager.changes")
-class AgentPermissionWaitingEvent(
-    val workspaceId: IdType,
-    val waiting: Boolean,
-    val toolName: String? = null
-)
 
 /** Result to open when user returns to the app after background completion. */
 sealed class PendingAgentResult {
