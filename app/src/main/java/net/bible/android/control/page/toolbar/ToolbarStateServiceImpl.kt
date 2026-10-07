@@ -57,7 +57,8 @@ import org.crosswire.jsword.passage.Verse
  * reading view, so it must not clobber title/document/capability state computed from the page).
  *
  * Registered as a Koin single (lives for the process) — no matching `unregister`, same as
- * [net.bible.android.control.speak.SpeakSettingsServiceImpl].
+ * [net.bible.android.control.speak.SpeakSettingsServiceImpl]. The
+ * `windowChanges` subscription, like the bus registration, is never cancelled (process lifetime).
  */
 class ToolbarStateServiceImpl(
     private val windowControl: WindowControl,

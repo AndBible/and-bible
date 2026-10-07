@@ -587,11 +587,10 @@ class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextD
 }
 
 /**
- * R5 (reading-host re-typing): the one dot-access, `resources`, is a plain [Context] member --
- * no downcast needed here.
+ * Reverse-split-mode toggle. [handle] re-lays out the windows and notifies
+ * [WindowChange.LayoutConfigurationChanged] on [WindowStateServiceImpl.windowChanges].
  */
-class SplitModePreference(val mainBibleActivity: Context) :
-    GeneralPreference() {
+class SplitModePreference : GeneralPreference() {
     private val wsBehaviorSettings = windowRepository.workspaceSettings
     override fun handle() {
         windowControl.windowSizesChanged()

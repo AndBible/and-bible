@@ -898,7 +898,7 @@ class ReadingCommands(
             R.id.autoAssignLabels -> AutoAssignPreference(windowRepository().workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
-            R.id.splitMode -> SplitModePreference(readingHost.hostContext)
+            R.id.splitMode -> SplitModePreference()
             R.id.autoPinMode -> WindowPinningPreference()
             R.id.tiltToScroll -> TiltToScrollPreference(hostActivity)
             R.id.nightMode -> NightModePreference { refreshIfNightModeChange() }

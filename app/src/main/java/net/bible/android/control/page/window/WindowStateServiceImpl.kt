@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page.window
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,22 +45,33 @@ sealed interface WindowChange {
  * Authoritative reactive single-source-of-truth for the window domain (Batch 12a). Owns
  * the [layout] StateFlow; [refresh] rebuilds an immutable [WindowLayoutState] from the
  * current [WindowRepository]. Called from the window-mutation choke-points on
- * `WindowRepository` alongside the legacy `ABEventBus` posts, so the flow and the bus are
- * updated at one site (no drift). The snapshot copies out plain value types — it never
+ * `WindowRepository`. The snapshot copies out plain value types — it never
  * holds a live `Window`, so it is safe to expose to collectors even though
  * `WindowRepository.windowList` is mutated on the main thread while a background sync
- * thread iterates it.
+ * thread iterates it. [windowChanges] carries the change notifications; tests drop leaked
+ * subscribers with [resetSubscribersForTest].
  */
 class WindowStateServiceImpl : WindowStateService {
     private val _layout = MutableStateFlow(WindowLayoutState.EMPTY)
     override val layout: StateFlow<WindowLayoutState> = _layout.asStateFlow()
 
-    private val _windowChanges = EventSource<WindowChange>()
-    /** Window-layout changes, emitted synchronously after [layout] is refreshed (replaces four bus events). */
+    private var _windowChanges = EventSource<WindowChange>()
+    /**
+     * Window-layout changes; replaces four bus events (windows, active window, restore buttons,
+     * layout configuration). Emitted synchronously via [notify], which is NOT always called after
+     * a layout [refresh].
+     */
     val windowChanges: Events<WindowChange> get() = _windowChanges
 
-    /** Emits [change]. Called by [WindowRepository]'s notifiers after [refresh]. */
+    /**
+     * Emits [change]. Called by [WindowRepository]'s notifiers (after [refresh]) and by the host
+     * and `SplitModePreference` for [WindowChange.LayoutConfigurationChanged].
+     */
     fun notify(change: WindowChange) = _windowChanges.emit(change)
+
+    /** Test teardown: this is a Koin singleton for the whole test JVM, so leaked subscribers would outlive their test. */
+    @VisibleForTesting
+    fun resetSubscribersForTest() { _windowChanges = EventSource() }
 
     fun refresh(repo: WindowRepository) {
         _layout.value = buildSnapshot(repo)

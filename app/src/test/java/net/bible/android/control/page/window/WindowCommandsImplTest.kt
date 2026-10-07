@@ -65,10 +65,10 @@ class WindowCommandsImplTest {
         return seen
     }
 
-    private fun awaitNumberOfWindowsChangedEvent(block: () -> Unit): Boolean =
+    private fun awaitWindowsChanged(block: () -> Unit): Boolean =
         WindowChange.WindowsChanged in windowChangesDuring(block)
 
-    private fun awaitRestoreButtonsVisibilityChanged(block: () -> Unit): Boolean =
+    private fun awaitRestoreButtonsChanged(block: () -> Unit): Boolean =
         WindowChange.RestoreButtonsChanged in windowChangesDuring(block)
 
     @Test
@@ -101,7 +101,7 @@ class WindowCommandsImplTest {
         // sanity: both visible windows -> windowSizesChanged() actually runs orientationChange()
         assertTrue(repo.isMultiWindow)
 
-        val notified = awaitNumberOfWindowsChangedEvent {
+        val notified = awaitWindowsChanged {
             commands.commitWeights(w1.id.toString(), 1.5f, w2.id.toString(), 0.5f)
         }
 
@@ -168,7 +168,7 @@ class WindowCommandsImplTest {
         val w2 = repo.addNewWindow()
         val originalWeight2 = w2.weight
 
-        val notified = awaitNumberOfWindowsChangedEvent {
+        val notified = awaitWindowsChanged {
             commands.commitWeights(IdType().toString(), 1.5f, w2.id.toString(), 0.5f)
         }
 
@@ -181,7 +181,7 @@ class WindowCommandsImplTest {
         repo.addNewWindow() // second visible window, so isMultiWindow would be true if reached
         val originalWeight1 = w1.weight
 
-        val notified = awaitNumberOfWindowsChangedEvent {
+        val notified = awaitWindowsChanged {
             commands.commitWeights(w1.id.toString(), 1.5f, IdType().toString(), 0.5f)
         }
 
@@ -318,7 +318,7 @@ class WindowCommandsImplTest {
     @Test fun setRestoreButtonsVisibleFlipsFlagAndNotifies() {
         val start = repo.workspaceSettings.restoreButtonsVisible
 
-        val notified = awaitRestoreButtonsVisibilityChanged {
+        val notified = awaitRestoreButtonsChanged {
             commands.setRestoreButtonsVisible(!start)
         }
 

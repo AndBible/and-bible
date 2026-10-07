@@ -20,8 +20,10 @@ package net.bible.android
 import android.content.res.Resources
 import android.util.Log
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.common.CommonUtils
+import org.koin.core.context.GlobalContext
 
 /**
  * Override settings if required
@@ -50,5 +52,6 @@ class TestBibleApplication : BibleApplication() {
         super.onTerminate()
         ABEventBus.unregisterAll()
         SharedActivityState.instance.resetSubscribersForTest()
+        GlobalContext.getOrNull()?.getOrNull<WindowStateServiceImpl>()?.resetSubscribersForTest()
     }
 }

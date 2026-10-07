@@ -421,7 +421,7 @@ class HostedStateRefresher(
  *
  * [transportVisible] arrives from `SpeakTransportVisibilityChanged`, which the
  * `transportBarVisible` **setter** posts with the raw backing field — its getter's
- * `if (isFullScreen) false` mask is NOT applied before posting, and `toggleFullScreen()` posts
+ * `if (isFullScreen) false` mask is NOT applied before posting, and `toggleFullScreen()` emits
  * only `fullScreenChanged`. So without re-applying the fullscreen half here, the bar stayed on
  * screen in fullscreen on the Compose path while classic animated it away (pre-A/B spec §1 P3).
  *
