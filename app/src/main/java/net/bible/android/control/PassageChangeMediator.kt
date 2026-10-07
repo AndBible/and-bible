@@ -17,10 +17,6 @@
 package net.bible.android.control
 
 import androidx.annotation.VisibleForTesting
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.CurrentVerseChangedEvent
-import net.bible.android.control.event.passage.PassageChangedEvent
-import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.window.Window
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
@@ -39,24 +35,20 @@ object PassageChangeMediator {
     /** the document has changed so ask the view to refresh itself */
     fun onCurrentPageChanged(window: Window) {
         window.updateText()
-        ABEventBus.post(CurrentVerseChangedEvent(window))
         source.emit(PageChange.VerseChanged(window))
     }
 
     /** this is triggered on scroll */
     fun onCurrentVerseChanged(window: Window) {
-        ABEventBus.post(CurrentVerseChangedEvent(window))
         source.emit(PageChange.VerseChanged(window))
     }
 
     fun onBibleVerseSelected() {
-        ABEventBus.post(CurrentBibleVerseChanged())
         source.emit(PageChange.BibleVerseChanged)
     }
 
     /** finished fetching html so should hide hourglass */
     fun contentChangeFinished() {
-        ABEventBus.post(PassageChangedEvent())
         source.emit(PageChange.ContentLoaded)
     }
 

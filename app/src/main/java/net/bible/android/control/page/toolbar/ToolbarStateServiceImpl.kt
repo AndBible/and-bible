@@ -20,10 +20,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.control.document.DocumentControl
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.onMain
-import net.bible.android.control.event.passage.CurrentVerseChangedEvent
-import net.bible.android.control.event.passage.PassageChangedEvent
+import net.bible.android.control.PageChange
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.window.WorkspaceChange
 import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.page.PageControl
@@ -42,25 +40,17 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Verse
 
 /**
- * Android impl of [ToolbarStateService]. Bridges the classic window/passage/speak/cloud-sync
- * [ABEventBus] events into a reactive [ToolbarState] snapshot for the Compose reading toolbar
- * (Batch 12b), mirroring [net.bible.android.control.speak.SpeakSettingsServiceImpl]'s
- * self-registering-Koin-singleton pattern: registers its handlers in `init` via
- * [ABEventBus.register] + [onMain] (not `ABEventBus.register(this)` + `fun onEvent(e: X)` —
- * that greenrobot-style idiom does not exist on this repo's KMP [ABEventBus], whose real
- * subscription surface is the `Subscriptions { onMain<X> { ... } }` DSL). `onMain` keeps every
- * mutation of [_toolbar] on the main looper even though some source events (e.g. [SpeakChanges] state
- * from the TTS engine, [CurrentVerseChangedEvent] from the WebView JS bridge thread) may be
- * posted off it.
+ * Android impl of [ToolbarStateService]. Bridges window, passage, speak and cloud-sync
+ * changes into a reactive [ToolbarState] snapshot for the Compose reading toolbar.
+ * Main-thread subscriptions keep every mutation of [_toolbar] on the main looper even when
+ * [SpeakChanges] or [PassageChangeMediator.changes] emit from background threads.
  *
- * [WindowChange.ActiveWindowChanged]/[PassageChangedEvent]/[CurrentVerseChangedEvent]/[SpeakChanges] state each
- * rebuild the full snapshot from the active window's current page; [CloudSync.runningChanged] only flips
- * [ToolbarState.syncRunning], preserving every other field (a sync can run concurrently with the
- * reading view, so it must not clobber title/document/capability state computed from the page).
+ * [WindowChange.ActiveWindowChanged], [PassageChangeMediator.changes] verse/content changes and
+ * [SpeakChanges] state rebuild the full snapshot from the active window's current page;
+ * [CloudSync.runningChanged] only flips [ToolbarState.syncRunning], preserving every other field.
  *
- * Registered as a Koin single (lives for the process) — no matching `unregister`, same as
- * [net.bible.android.control.speak.SpeakSettingsServiceImpl]. The
- * `windowChanges` subscription, like the bus registration, is never cancelled (process lifetime).
+ * Registered as a Koin single (lives for the process), like
+ * [net.bible.android.control.speak.SpeakSettingsServiceImpl]. Subscriptions are never cancelled.
  */
 class ToolbarStateServiceImpl(
     private val windowControl: WindowControl,
@@ -73,11 +63,11 @@ class ToolbarStateServiceImpl(
     override val toolbar: StateFlow<ToolbarState> = _toolbar.asStateFlow()
 
     init {
-        ABEventBus.register(this) {
-            onMain<PassageChangedEvent> { refresh() }
-            onMain<CurrentVerseChangedEvent> { refresh() }
+        // Process lifetime: never cancelled.
+        PassageChangeMediator.changes.subscribeOnMain { change ->
+            if (change is PageChange.VerseChanged || change == PageChange.ContentLoaded) refresh()
         }
-        // Process lifetime, like the bus registration above: never cancelled.
+        // Process lifetime: never cancelled.
         windowStateService.windowChanges.subscribeOnMain { change ->
             if (change is WindowChange.ActiveWindowChanged) refresh()
         }
@@ -93,7 +83,7 @@ class ToolbarStateServiceImpl(
      * Rebuilds the snapshot from the active window's current page, preserving [ToolbarState.syncRunning].
      *
      * No-op while the workspace is being (re)loaded. `WindowRepository.loadFromDb` restores each
-     * window's page, and that posts `CurrentBibleVerseChanged` — which lands here synchronously,
+     * window's page, and that emits `PageChange.BibleVerseChanged` — which lands here synchronously,
      * mid-load, when the repository has no active window yet. Reading
      * `windowControl.activeWindowPageManager` at that moment used to re-enter `loadFromDb` through
      * the lazy `activeWindow` getter (see `WindowRepository.loadingFromDb` for the full failure).

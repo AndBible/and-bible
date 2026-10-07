@@ -26,7 +26,6 @@ import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 
-class CurrentBibleVerseChanged
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

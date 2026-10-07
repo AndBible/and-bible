@@ -104,7 +104,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
      * that touches [activeWindow] in between would make its lazy getter call [initialize], which
      * calls [loadFromDb] again, RE-ENTRANTLY.
      *
-     * That is not hypothetical: restoring a window's page posts `CurrentBibleVerseChanged`
+     * That is not hypothetical: restoring a window's page emits `PageChange.BibleVerseChanged`
      * (`CurrentBibleVerse.setVerseSelected`, reached from `CurrentPageManager.restoreFrom`), which
      * `ComposeReadingViewHost` handles synchronously by rebuilding the toolbar snapshot from
      * `windowControl.activeWindowPageManager`. Measured on a workspace switch: 340 nested loads,

@@ -19,8 +19,8 @@ package net.bible.android.control
 import net.bible.android.control.page.window.Window
 
 /**
- * A change to what a window's page shows, emitted by [PassageChangeMediator.changes]. Replaces the
- * bus events `CurrentVerseChangedEvent`, `CurrentBibleVerseChanged` and `PassageChangedEvent`
+ * A change to what a window's page shows, emitted by [PassageChangeMediator.changes]:
+ * verse selection, window verse changes and completed content loads
  * (spec `2026-10-07-abeventbus-phase-7-page-passage-history-design.md` §2.1).
  */
 sealed interface PageChange {

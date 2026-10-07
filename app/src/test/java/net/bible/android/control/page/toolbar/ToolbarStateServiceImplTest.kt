@@ -21,9 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.document.DocumentControl
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.CurrentVerseChangedEvent
-import net.bible.android.control.event.passage.PassageChangedEvent
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
@@ -94,7 +92,7 @@ class ToolbarStateServiceImplTest {
 
     @After
     fun tearDown() {
-        ABEventBus.unregister(service)
+        PassageChangeMediator.resetSubscribersForTest()
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 
@@ -109,10 +107,10 @@ class ToolbarStateServiceImplTest {
     }
 
     @Test
-    fun passageChangedEvent_rebuildsSnapshotFromActivePage() {
+    fun contentLoaded_rebuildsSnapshotFromActivePage() {
         seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
 
-        ABEventBus.post(PassageChangedEvent())
+        PassageChangeMediator.contentChangeFinished()
 
         val state = service.toolbar.value
         val pageManager = windowControl.activeWindowPageManager
@@ -173,7 +171,7 @@ class ToolbarStateServiceImplTest {
     }
 
     @Test
-    fun currentVerseChangedEvent_rebuildsSnapshot() {
+    fun verseChanged_rebuildsSnapshot() {
         seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
         service.refresh()
         val before = service.toolbar.value
@@ -181,7 +179,7 @@ class ToolbarStateServiceImplTest {
         seedActivePageSilently(kjv, gen11) // silent -> no event yet, state must still be stale
         assertThat(service.toolbar.value, equalTo(before))
 
-        ABEventBus.post(CurrentVerseChangedEvent(windowControl.activeWindow))
+        PassageChangeMediator.onCurrentVerseChanged(windowControl.activeWindow)
 
         val after = service.toolbar.value
         assertThat(after.documentTitle, equalTo(kjv.name))
@@ -198,7 +196,7 @@ class ToolbarStateServiceImplTest {
 
         // A later event-driven rebuild (not just refresh()) must re-read the live setting too.
         windowControl.activeWindowPageManager.textDisplaySettings.strongsMode = 2
-        ABEventBus.post(PassageChangedEvent())
+        PassageChangeMediator.contentChangeFinished()
         assertThat(service.toolbar.value.strongsMode, equalTo(2))
     }
 

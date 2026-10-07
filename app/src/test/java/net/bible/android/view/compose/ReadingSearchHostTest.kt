@@ -1131,12 +1131,12 @@ class ReadingSearchHostTest {
     /**
      * The other half: a document swap WITHIN the still-active window. Verified from source
      * (`CurrentPageManager.setCurrentDocument` -> `PassageChangeMediator.onCurrentPageChanged`,
-     * `PassageChangeMediator.kt:34-37`) that this path posts `CurrentVerseChangedEvent`
-     * SYNCHRONOUSLY, right after the swap lands on the page manager — unlike `PassageChangedEvent`
+     * `PassageChangeMediator.kt:34-37`) that this path emits `PageChange.VerseChanged`
+     * SYNCHRONOUSLY, right after the swap lands on the page manager — unlike `PageChange.ContentLoaded`
      * (`PassageChangeMediator.contentChangeFinished`, posted from `Window.loadText`'s background IO
      * coroutine only once the WebView content load finishes, and skipped entirely when the window
      * isn't visible), which is neither synchronously observable in this headless suite nor
-     * guaranteed to fire at all for an invisible/backgrounded window. `CurrentVerseChangedEvent` is
+     * guaranteed to fire at all for an invisible/backgrounded window. `PageChange.VerseChanged` is
      * also the event the host already subscribes to for the same "active document may have changed"
      * purpose (the overlay-text/`activeIsBibleShown` refresh right above), so this reuses that
      * existing, proven channel instead of adding a second, less reliable subscription.
@@ -1165,7 +1165,7 @@ class ReadingSearchHostTest {
                 ReadingSearchPhase.NeedsIndex("HostDocSwap", forEpub = false),
                 host.searchController.phase.value,
                 "a document swap within the active window must refresh the search target via " +
-                    "CurrentVerseChangedEvent",
+                    "PageChange.VerseChanged",
             )
         } finally {
             Books.installed().removeBook(other)
