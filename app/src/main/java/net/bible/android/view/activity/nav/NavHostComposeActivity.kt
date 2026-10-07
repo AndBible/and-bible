@@ -118,8 +118,6 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
-import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.document.canDelete
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus
@@ -240,7 +238,6 @@ import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.backup.BackupServiceImpl
 import net.bible.service.db.exportStudyPads
-import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
@@ -256,7 +253,7 @@ import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.StudyPadKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
-import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
+import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.sharedcore.ai.AgentPermissionModeIds
 import net.bible.sharedcore.backup.BackupController
@@ -4494,24 +4491,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val resultData = ManageLabelsContract.ManageLabelsData.fromJSON(result.data)
         if (bookmarks != null) {
             lifecycleScope.launch(Dispatchers.IO) {
-                for (bookmark in bookmarks) {
-                    bookmarkControl.changeLabelsForBookmark(bookmark, resultData.selectedLabels.toList())
-                    // F54 fix round 2: `changeLabelsForBookmark` is a bare DAO write that never
-                    // touches `bookmark` itself. `pendingAssign`'s objects were loaded through
-                    // `BookmarksServiceImpl.loadRows` (`addData = false`), so `labelIds` is `null` --
-                    // posting them as-is makes `BibleView`'s `ClientBibleBookmark(...).asJson`
-                    // (`ClientPageObjects.kt`) throw on `labelIds!!`, an NPE `ABEventBus` swallows, so
-                    // the WebView never updates. Refresh each bookmark's cached labels/text in place
-                    // before the post, mirroring what `addOrUpdateBookmark` -- the reading view's own
-                    // quick-assign path, which posts correctly -- does to its own bookmark.
-                    bookmarkControl.refreshTextAndLabels(bookmark)
-                }
-                // `BookmarksAddedOrUpdatedEvent` is what `BibleView` (`:1015`) listens to. Posted
-                // ONCE for the whole batch rather than inside the loop, and fixed here rather than
-                // inside `changeLabelsForBookmark`, whose other caller is `BookmarkCsvUtils`' bulk
-                // import.
+                // The owner hydrates each bookmark and announces the batch once (F54).
+                bookmarkControl.changeLabelsForBookmarks(bookmarks, resultData.selectedLabels.toList())
                 windowControl.windowRepository.updateRecentLabels(resultData.selectedLabels.toList())
-                ABEventBus.post(BookmarksAddedOrUpdatedEvent(bookmarks))
                 windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                 withContext(Dispatchers.Main) { session.controller.refresh() }
             }
@@ -4554,18 +4536,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /**
-     * Classic's `ABEventBus.register(this) { onMain<BookmarksUpdatedViaSyncEvent> { controller.refresh() } }`
-     * (`BookmarksComposeActivity.kt:99`) and its `onDestroy` unregister (`:149`), as the per-destination
-     * seam [subscribeReadingPlansUpdated] established: a fresh token per subscription, so an unsubscribe
-     * can never take another cluster's listeners down with it.
+     * Reacts to [DatabaseContainer.bookmarksSynced] on main through a per-destination subscription.
+     * Unsubscribing one destination never affects another destination's listeners.
      */
-    private fun subscribeBookmarksUpdated(onBookmarksChanged: () -> Unit): () -> Unit {
-        val token = Any()
-        ABEventBus.register(token) {
-            onMain<BookmarksUpdatedViaSyncEvent> { onBookmarksChanged() }
-        }
-        return { ABEventBus.unregister(token) }
-    }
+    private fun subscribeBookmarksUpdated(onBookmarksChanged: () -> Unit): () -> Unit =
+        subscribeToBookmarkSync(onBookmarksChanged)
 
     // --- ManageLabels host baggage -------------------------------------------------------------
     // Ported from ManageLabelsComposeActivity (which a later task deletes). Everything here needs a
@@ -4775,7 +4750,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 } else {
                     dao.deleteLabelOverride(returnedOverride.workspaceId, returnedOverride.labelId)
                 }
-                ABEventBus.post(LabelAddedOrUpdatedEvent(updatedLabel))
+                bookmarkControl.notifyLabelChanged(updatedLabel)
                 controller.refresh() // re-derive the override (Tune icon) indicator immediately
             }
         }
@@ -5781,7 +5756,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         addMyDocumentPageToList = ::addPageToList
 
         /** Mirror of classic `applyChanges`: delete removed pages, persist reorders/renames, always
-         *  refresh the SWORD book, and post `AiDocPagesChangedEvent` for the deletions. */
+         *  refresh the SWORD book, and post `MyDocumentChange.AiDocPages` for the deletions. */
         fun applyChanges(ordered: List<MyDocPageItem>, changed: Set<Long>, deleted: Set<Long>) {
             deleted.mapNotNull { myDocumentPagesEntityByLong[it] }.forEach { p ->
                 myDocumentDao.pageById(p.id)?.let { myDocumentDao.deletePageWithContent(it) }
@@ -5799,7 +5774,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             // stale.
             MyDocumentBookManager.refreshDocument(documentInitials)
             val deletedIds = deleted.mapNotNull { myDocumentPagesEntityByLong[it]?.id }
-            if (deletedIds.isNotEmpty()) ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = deletedIds))
+            if (deletedIds.isNotEmpty()) MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = deletedIds))
         }
 
         controller = MyDocumentPagesController(
@@ -6006,7 +5981,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
         /** Mirror of classic `applyChanges` (`MyDocumentsComposeActivity.kt:171-195`): delete
          *  removed documents (and their pages, CASCADE), persist reorders/renames/descriptions, and
-         *  post `AiDocPagesChangedEvent` for the deletions. */
+         *  post `MyDocumentChange.AiDocPages` for the deletions. */
         fun applyMyDocumentsChanges(ordered: List<MyDocItem>, changed: Set<Long>, deleted: Set<Long>) {
             val deletedPageIds = deleted.mapNotNull { session.entityByLong[it] }.flatMap { doc ->
                 myDocumentDao.pagesForDocument(doc.id).map { it.id }
@@ -6026,7 +6001,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 if (item.id in changed) { doc.updatedAt = System.currentTimeMillis(); toUpdate.add(doc) }
             }
             if (toUpdate.isNotEmpty()) myDocumentDao.updateDocuments(toUpdate)
-            if (deletedPageIds.isNotEmpty()) ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = deletedPageIds))
+            if (deletedPageIds.isNotEmpty()) MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = deletedPageIds))
         }
 
         session.controller = MyDocumentsController(

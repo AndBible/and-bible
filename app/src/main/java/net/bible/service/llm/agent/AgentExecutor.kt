@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.flow
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
@@ -62,7 +61,7 @@ import net.bible.service.llm.tools.ToolDefinition
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.mydocument.MyDocumentPageContent
 import net.bible.service.sword.mydocument.MyDocumentBookManager
-import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
+import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
@@ -990,7 +989,7 @@ class AgentExecutor(
                     val end = cacheEntry?.kjvOrdinalEnd
                     if (start != null && end != null) {
                         val markers = dao.aiDocMarkersForRange(start, end)
-                        ABEventBus.post(AiDocPagesChangedEvent(markers))
+                        MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(markers))
                     }
                 }
             }

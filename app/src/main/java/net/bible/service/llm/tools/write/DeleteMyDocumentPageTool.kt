@@ -31,8 +31,7 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
-import net.bible.android.control.event.ABEventBus
-import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
+import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import org.json.JSONObject
 
@@ -108,7 +107,7 @@ object DeleteMyDocumentPageTool : Tool {
 
             if (document != null) {
                 MyDocumentBookManager.refreshDocument(document.initials)
-                ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = listOf(args.pageId)))
+                MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = listOf(args.pageId)))
             }
 
             typedSuccess(Result(

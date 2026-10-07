@@ -449,8 +449,8 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         primaryTargetLinksWindowId = null
         for (it in windowList) {
             it.bibleView?.listenEvents = false
-            if(destroy)
-                it.destroy()
+            // The owner is discarded even when BibleViewFactory retains its view for reuse.
+            it.destroy(destroyView = destroy)
         }
         windowList.clear()
         get<HistoryManager>().clear()

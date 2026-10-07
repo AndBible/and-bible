@@ -17,11 +17,12 @@
 package net.bible.android.control.page
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.sword.mydocument.MyDocumentUpdatedEvent
+import net.bible.service.sword.mydocument.MyDocumentBookManager
+import net.bible.service.sword.mydocument.MyDocumentChange
+import net.bible.sharedcore.event.Subscription
 import net.bible.service.sword.mydocument.isMyDocument
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -38,19 +39,20 @@ abstract class CachedKeyPage internal constructor(
 ) : CurrentPageBase(shareKeyBetweenDocs, pageManager) {
     private var mCachedGlobalKeyList: MutableList<Key>? = null
 
-    init {
-        ABEventBus.register(this) {
-            // Called when a MyDocument is updated (pages added/removed).
-            // Clears the cache if the current document matches.
-            on<MyDocumentUpdatedEvent> { event ->
-                val doc = currentDocument
-                if (doc != null && doc.isMyDocument && doc.initials == event.initials) {
-                    Log.d(TAG, "Clearing cached key list for updated MyDocument: ${event.initials}")
-                    mCachedGlobalKeyList = null
-                }
-            }
+    @VisibleForTesting internal fun hasCachedKeyListForTest() = mCachedGlobalKeyList != null
+
+    private val documentUpdates: Subscription = MyDocumentBookManager.changes.subscribe { change ->
+        // Clears the key cache when pages in the current MyDocument change.
+        if (change !is MyDocumentChange.DocumentUpdated) return@subscribe
+        val doc = currentDocument
+        if (doc != null && doc.isMyDocument && doc.initials == change.initials) {
+            Log.d(TAG, "Clearing cached key list for updated MyDocument: ${change.initials}")
+            mCachedGlobalKeyList = null
         }
     }
+
+    /** Releases the subscription when the owning window is destroyed. */
+    internal fun destroy() = documentUpdates.cancel()
 
 
 	override fun setCurrentDocument(doc: Book?) {

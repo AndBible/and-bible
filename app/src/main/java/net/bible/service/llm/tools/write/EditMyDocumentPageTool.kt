@@ -33,8 +33,7 @@ import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
-import net.bible.android.control.event.ABEventBus
-import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
+import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import org.json.JSONObject
 
@@ -160,7 +159,7 @@ object EditMyDocumentPageTool : Tool {
                 val end = cacheEntry?.kjvOrdinalEnd
                 if (start != null && end != null) {
                     val markers = dao.aiDocMarkersForRange(start, end)
-                    ABEventBus.post(AiDocPagesChangedEvent(markers))
+                    MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(markers))
                 }
             }
 

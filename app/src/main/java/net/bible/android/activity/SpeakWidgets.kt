@@ -30,9 +30,7 @@ import android.view.View
 import android.widget.RemoteViews
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.bookmark.BookmarkEvent
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
+import net.bible.android.control.bookmark.BookmarkChange
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
@@ -48,11 +46,27 @@ import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_PERCENT
 import net.bible.service.device.speak.TextCommand
+import net.bible.sharedcore.event.Subscription
 import net.bible.sharedcore.event.Subscriptions
 import java.lang.Exception
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
+
+/**
+ * Whether [change] redraws the home-screen bookmark widget: exactly the five bookmark change kinds
+ * that affect the widget. Exhaustive on purpose, so a new kind forces a decision.
+ */
+internal fun redrawsBookmarkWidget(change: BookmarkChange): Boolean = when (change) {
+    is BookmarkChange.BookmarksUpserted,
+    is BookmarkChange.BookmarksDeleted,
+    is BookmarkChange.LabelUpserted,
+    is BookmarkChange.LabelsDeleted,
+    is BookmarkChange.NoteModified -> true
+    is BookmarkChange.BookmarkToLabelUpserted,
+    is BookmarkChange.StudyPadOrder,
+    is BookmarkChange.StudyPadTextEntryDeleted -> false
+}
 
 /**
  * This is singleton manager class which
@@ -67,6 +81,7 @@ class SpeakWidgetManager : KoinComponent {
 
     val speakControl: SpeakControl by inject()
     val bookmarkControl: BookmarkControl by inject()
+    private var bookmarkChanges: Subscription? = null
 
     private val subscriptions = Subscriptions()
     private val app = BibleApplication.application
@@ -86,12 +101,11 @@ class SpeakWidgetManager : KoinComponent {
             throw IllegalStateException("This is singleton!")
         }
         instance = this
-        ABEventBus.register(this) {
-            on<BookmarkEvent> {
-                val manager = AppWidgetManager.getInstance(app)
-                for (widgetId in manager.getAppWidgetIds(ComponentName(app, SpeakBookmarkWidget::class.java))) {
-                    updateBookmarkWidget(app, manager, widgetId)
-                }
+        bookmarkChanges = bookmarkControl.changes.subscribe { change ->
+            if (!redrawsBookmarkWidget(change)) return@subscribe
+            val manager = AppWidgetManager.getInstance(app)
+            for (widgetId in manager.getAppWidgetIds(ComponentName(app, SpeakBookmarkWidget::class.java))) {
+                updateBookmarkWidget(app, manager, widgetId)
             }
         }
         subscriptions.add(SpeakChanges.changes.subscribe { change ->
@@ -130,8 +144,8 @@ class SpeakWidgetManager : KoinComponent {
     }
 
     fun destroy() {
-        ABEventBus.unregister(this)
         subscriptions.cancelAll()
+        bookmarkChanges?.cancel(); bookmarkChanges = null
         instance = null
     }
 

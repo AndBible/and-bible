@@ -18,6 +18,8 @@
 package net.bible.service.llm.tools
 
 import kotlinx.coroutines.runBlocking
+import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarkChange
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
@@ -54,6 +56,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -1252,6 +1255,26 @@ class ToolIntegrationTest {
     }
 
     // === CreateStudyPad ===
+
+    @Test
+    fun createStudyPad_announcesEachBookmarkLinkThroughBookmarkControl() = runBlocking {
+        val bookmarkControl = GlobalContext.get().get<BookmarkControl>()
+        val links = mutableListOf<BookmarkChange.BookmarkToLabelUpserted>()
+        val subscription = bookmarkControl.changes.subscribe { if (it is BookmarkChange.BookmarkToLabelUpserted) links += it }
+        try {
+            val args = JSONObject().apply {
+                put("name", "Link Study")
+                put("items", org.json.JSONArray().apply {
+                    put(JSONObject().apply { put("type", "bookmark"); put("verseRef", "Rom.1.1") })
+                    put(JSONObject().apply { put("type", "bookmark"); put("verseRef", "Rom.1.2") })
+                })
+            }
+            val data = (CreateStudyPadTool.execute(args, context) as ToolResult.Success).data as CreateStudyPadTool.Result
+            assertEquals(2, links.size)
+            assertTrue(links.all { it.bookmarkToLabel.labelId == data.labelId })
+            assertEquals(listOf(0, 1), links.map { it.bookmarkToLabel.orderNumber })
+        } finally { subscription.cancel() }
+    }
 
     @Test
     fun createStudyPad_textAndBookmarks() = runBlocking {

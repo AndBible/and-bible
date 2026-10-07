@@ -25,8 +25,6 @@ import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
 import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
@@ -47,7 +45,8 @@ import net.bible.sharedcore.event.Subscription
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.isEpub
-import net.bible.service.sword.mydocument.MyDocumentUpdatedEvent
+import net.bible.service.sword.mydocument.MyDocumentBookManager
+import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.sword.mydocument.isMyDocument
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -115,17 +114,17 @@ class Window (
     private var workspaceId = entity.workspaceId
     private val speakSubscription: Subscription
 
+    private val documentUpdates: Subscription = MyDocumentBookManager.changes.subscribe { change ->
+        if (change !is MyDocumentChange.DocumentUpdated) return@subscribe
+        val doc = displayedBook ?: return@subscribe
+        if (doc.isMyDocument && doc.initials == change.initials) {
+            SwordContentFacade.evictBook(change.initials)
+            loadText()
+        }
+    }
+
     init {
         pageManager.window = this
-        ABEventBus.register(this) {
-            on<MyDocumentUpdatedEvent> { e ->
-                val doc = displayedBook ?: return@on
-                if (doc.isMyDocument && doc.initials == e.initials) {
-                    SwordContentFacade.evictBook(e.initials)
-                    loadText()
-                }
-            }
-        }
         speakSubscription = SpeakChanges.changes.subscribe { change ->
             val e = change as? SpeakChange.Progress ?: return@subscribe
             if(AdvancedSpeakSettings.synchronize || e.forceFollow) return@subscribe // handled in SpeakControl
@@ -220,10 +219,12 @@ class Window (
 
     var bibleView: BibleView? = null
 
-    fun destroy() {
+    /** Releases this owner even when its view will be rebound to a replacement window. */
+    fun destroy(destroyView: Boolean = true) {
         speakSubscription.cancel()
-        ABEventBus.unregister(this)
-        bibleView?.destroy()
+        documentUpdates.cancel()
+        pageManager.destroy()
+        if (destroyView) bibleView?.destroy()
     }
 
     override fun toString(): String = "Window[${displayId}]"
