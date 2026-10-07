@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.page.screen
 
+import android.os.Looper
 import android.widget.FrameLayout
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +23,9 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.page.toolbar.ToolbarStateServiceImpl
+import net.bible.android.database.bookmarks.KJVA
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.BibleBook
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.nav.NavHostComposeActivity
@@ -748,32 +752,46 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
      * pair showed up split across two different `refresh()` calls. Substituting the fake sidesteps
      * that: the fake only counts calls, it never reads `WindowRepository`/`pageManager` state.)
      */
-    @Test fun bibleVerseChangedTriggersARefresh() {
-        val fakeToolbar = RecordingToolbarStateService()
-        val overrideModule = module { single<ToolbarStateService> { fakeToolbar } }
-        loadKoinModules(overrideModule)
+    @Test fun bibleVerseChangedTriggersARefresh() = withRecordingToolbar { fakeToolbar ->
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        assertEquals(0, fakeToolbar.refreshCount, "sanity: constructing the host must not itself refresh")
+
+        PassageChangeMediator.onBibleVerseSelected()
+
+        assertEquals(1, fakeToolbar.refreshCount, "PageChange.BibleVerseChanged must reach refreshHostedState() -> hostedStateRefresher.refresh() -> toolbarStateService.refresh()")
+    }
+
+    /** Spec §2.2: a scroll used to refresh the toolbar from the host AND from the service. */
+    @Test fun aScrollDoesNotRefreshTheToolbarThroughTheHost() = withRecordingToolbar { fake ->
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        val window = windowRepository.activeWindow
+        val page = window.pageManager.currentBible
+        val v11n = page.currentBibleVerse.versificationOfLastSelectedVerse
+        val next = page.currentBibleVerse.verse.ordinal + 1
+        page.setCurrentVerseOrdinal(next, v11n, window)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(0, fake.refreshCount,
+            "the scroll's VerseChanged reaches the toolbar service's own subscription; the host must not refresh it a second time")
+    }
+
+    @Test fun inhibitedScrollStillNotifiesTheHost() = withRecordingToolbar { fake ->
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        val window = windowRepository.activeWindow
+        val page = window.pageManager.currentBible
+        val v11n = page.currentBibleVerse.versificationOfLastSelectedVerse
+        page.isInhibitChangeNotifications = true
         try {
-            activity.composeReadingViewHost = ComposeReadingViewHost(activity)
-            assertEquals(0, fakeToolbar.refreshCount, "sanity: constructing the host must not itself refresh")
+            page.setCurrentVerseOrdinal(page.currentBibleVerse.verse.ordinal + 1, v11n, window)
+        } finally { page.isInhibitChangeNotifications = false }
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(1, fake.refreshCount, "no VerseChanged follows while inhibited, so BibleVerseChanged must still reach the host")
+    }
 
-            PassageChangeMediator.onBibleVerseSelected()
-
-            assertEquals(1, fakeToolbar.refreshCount, "PageChange.BibleVerseChanged must reach refreshHostedState() -> hostedStateRefresher.refresh() -> toolbarStateService.refresh()")
-        } finally {
-            // `unloadKoinModules` only REMOVES the override module's definition — it does NOT
-            // restore the production `CoreModule` binding it replaced, and `GlobalContext` is
-            // process-wide (shared by every test class in this Gradle test JVM fork). Left as a
-            // bare `unloadKoinModules`, any later test in the same fork that constructs a
-            // `ComposeReadingViewHost` (which injects `ToolbarStateService`) would throw
-            // `NoDefinitionFoundException`. Re-install the exact same production definition
-            // `CoreModule.kt` installs, so the singleton binding is intact again afterwards.
-            unloadKoinModules(overrideModule)
-            loadKoinModules(module { singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() } })
-            assertTrue(
-                GlobalContext.get().get<ToolbarStateService>() is ToolbarStateServiceImpl,
-                "must not leak the fake ToolbarStateService binding into later tests",
-            )
-        }
+    @Test fun doSetKeyStillRefreshesThroughTheHost() = withRecordingToolbar { fake ->
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        windowRepository.activeWindow.pageManager.currentBible.doSetKey(Verse(KJVA, BibleBook.JOHN, 3, 16))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(1, fake.refreshCount)
     }
 
     /**
@@ -842,6 +860,23 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
 
     @Test fun bibleVerseChangedInvalidatesRailLabels() {
         assertEmittingInvalidatesLabelReads({ PassageChangeMediator.onBibleVerseSelected() }, "BibleVerseChanged")
+    }
+}
+
+private fun withRecordingToolbar(block: (RecordingToolbarStateService) -> Unit) {
+    val fakeToolbar = RecordingToolbarStateService()
+    val overrideModule = module { single<ToolbarStateService> { fakeToolbar } }
+    loadKoinModules(overrideModule)
+    try {
+        block(fakeToolbar)
+    } finally {
+        // `unloadKoinModules` removes the override but does not restore the replaced CoreModule binding.
+        unloadKoinModules(overrideModule)
+        loadKoinModules(module { singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() } })
+        assertTrue(
+            GlobalContext.get().get<ToolbarStateService>() is ToolbarStateServiceImpl,
+            "must not leak the fake ToolbarStateService binding into later tests",
+        )
     }
 }
 

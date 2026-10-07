@@ -3075,21 +3075,10 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 // `CurrentBiblePage.doSetKey` posts this event alone (no `PageChange.VerseChanged`),
                 // so the bump is needed here as well as above.
                 //
-                // KNOWN COST (whole-batch review Minor #3, not coalesced this batch; this handler also
-                // drives the rail tick above, besides `refreshHostedState()`): on the dominant
-                // scroll path, `CurrentBiblePage.setCurrentVerseOrdinal` posts THIS event via
-                // `CurrentBibleVerse.setVerseSelected` and then posts `PageChange.VerseChanged` right
-                // after (`VersePage.onVerseChange` -> `PassageChangeMediator.onCurrentVerseChanged`) —
-                // an event `ToolbarStateServiceImpl` already subscribes to. Both handlers call the same
-                // `ToolbarStateServiceImpl.refresh()` (this one via `refreshHostedState()` ->
-                // `HostedStateRefresher.refresh()` -> `toolbar.refresh()`), so `buildSnapshot()` —
-                // including `DocumentControl.biblesForVerse`/`commentariesForVerse`'s installed-book
-                // sort — runs TWICE per verse change on the main thread; the `MutableStateFlow` only
-                // conflates away the second, redundant EMISSION, not the recomputation cost. Still
-                // needed: `CurrentBiblePage.doSetKey` posts this event ALONE (no `onVerseChange` call,
-                // so no `PageChange.VerseChanged`), and would go stale without this subscription. See
-                // `compose-port-status.md`'s F2b section and the on-device checklist's F2b performance
-                // item (scrolling verse-by-verse in a multi-window split is where it would show).
+                // `BibleVerseChanged` now arrives only from `CurrentBiblePage.doSetKey` and an
+                // inhibited scroll (where no `VerseChanged` follows). Normal scrolling emits
+                // `VerseChanged`, which refreshes the toolbar through its own subscription, so this
+                // handler keeps those remaining paths fresh without a duplicate toolbar rebuild.
                 PageChange.BibleVerseChanged -> {
                     windowLabelFreshness.invalidate()
                     refreshHostedState()

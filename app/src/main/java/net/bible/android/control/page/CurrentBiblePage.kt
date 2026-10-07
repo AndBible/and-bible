@@ -203,7 +203,9 @@ class CurrentBiblePage(
         val old = currentBibleVerse.verse.ordinal
         val newVerse = Verse(versification, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
         if(newVerse.ordinal != old) {
-            currentBibleVerse.setVerseSelected(versification, newVerse)
+            // onVerseChange emits VerseChanged unless notifications are inhibited; only then does
+            // BibleVerseChanged have to carry the change (spec §2.2).
+            currentBibleVerse.setVerseSelected(versification, newVerse, notify = isInhibitChangeNotifications)
             onVerseChange(window)
         }
     }

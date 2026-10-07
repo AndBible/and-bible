@@ -46,9 +46,10 @@ class CurrentBibleVerse {
 
     fun getVerseSelected(versification: Versification): Verse = verse.toV11n(versification)
 
-    fun setVerseSelected(versification: Versification, verseSelected: Verse) {
+    /** [notify] false when the caller emits PageChange.VerseChanged right after (spec §2.2). */
+    fun setVerseSelected(versification: Versification, verseSelected: Verse, notify: Boolean = true) {
         verse = verseSelected.toV11n(versification)
-        PassageChangeMediator.onBibleVerseSelected()
+        if (notify) PassageChangeMediator.onBibleVerseSelected()
     }
 
     var chapterVerse: ChapterVerse
