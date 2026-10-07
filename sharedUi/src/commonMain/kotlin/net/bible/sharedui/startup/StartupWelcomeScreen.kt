@@ -31,8 +31,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.CloudDownload
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.FolderOpen
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.SettingsBackupRestore
 import androidx.compose.material3.Button
@@ -47,6 +49,8 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -90,70 +94,76 @@ fun StartupWelcomeScreen(
     onOpenGithub: () -> Unit,
 ) {
     val strings = LocalStrings.current
+    // The footer (version + links) is pinned to the bottom edge; only the content above it scrolls.
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .volumeVerticalScroll(rememberScrollState())
-            .padding(24.dp),
+        modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        // Rendered with Image, not Icon: ic_logo is a five-colour vector that Icon would flatten to a
-        // single tint. Proportions from ReadingDrawerHeader, which A/B round 6 tuned against classic
-        // (100dp min height, 24dp top padding, 48dp logo, 18sp bold) -- not classic's 75sp/weight-4
-        // row, which that round already judged the worse of the two.
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(top = 24.dp).heightIn(min = 100.dp),
+        Column(
+            modifier = Modifier.weight(1f).fillMaxWidth().volumeVerticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            if (logo != null) {
-                Image(painter = logo, contentDescription = null, modifier = Modifier.size(48.dp))
-                Spacer(Modifier.size(12.dp))
+            // Rendered with Image, not Icon: ic_logo is a five-colour vector that Icon would flatten to a
+            // single tint. Proportions from ReadingDrawerHeader, which A/B round 6 tuned against classic
+            // (100dp min height, 24dp top padding, 48dp logo, 18sp bold) -- not classic's 75sp/weight-4
+            // row, which that round already judged the worse of the two.
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(top = 24.dp).heightIn(min = 100.dp),
+            ) {
+                if (logo != null) {
+                    Image(painter = logo, contentDescription = null, modifier = Modifier.size(48.dp))
+                    Spacer(Modifier.size(12.dp))
+                }
+                Text(
+                    text = appName,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 18.sp, lineHeight = 24.sp, fontWeight = FontWeight.Bold,
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
             }
+
             Text(
-                text = appName,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = 18.sp, lineHeight = 24.sp, fontWeight = FontWeight.Bold,
-                ),
-                color = MaterialTheme.colorScheme.onSurface,
+                strings.welcomeIntro,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth(),
             )
-        }
 
-        Text(
-            strings.welcomeIntro,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.fillMaxWidth(),
-        )
+            if (state.progressText != null) {
+                AbLoadingIndicator(modifier = Modifier.fillMaxWidth())
+                Text(state.progressText!!, style = MaterialTheme.typography.bodySmall)
+            }
 
-        if (state.progressText != null) {
-            AbLoadingIndicator(modifier = Modifier.fillMaxWidth())
-            Text(state.progressText!!, style = MaterialTheme.typography.bodySmall)
-        }
-
-        if (state.showTabs) {
-            val tabs = listOf(StartupWelcomeTab.EASY to strings.welcomeTabEasy, StartupWelcomeTab.ADVANCED to strings.welcomeTabAdvanced)
-            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                tabs.forEachIndexed { index, (tab, label) ->
-                    SegmentedButton(
-                        selected = state.selectedTab == tab,
-                        onClick = { onSelectTab(tab) },
-                        shape = SegmentedButtonDefaults.itemShape(index, tabs.size),
-                    ) { Text(label) }
+            if (state.showTabs) {
+                val tabs = listOf(StartupWelcomeTab.EASY to strings.welcomeTabEasy, StartupWelcomeTab.ADVANCED to strings.welcomeTabAdvanced)
+                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                    tabs.forEachIndexed { index, (tab, label) ->
+                        SegmentedButton(
+                            selected = state.selectedTab == tab,
+                            onClick = { onSelectTab(tab) },
+                            shape = SegmentedButtonDefaults.itemShape(index, tabs.size),
+                        ) { Text(label) }
+                    }
                 }
             }
-        }
 
-        when (state.selectedTab) {
-            StartupWelcomeTab.EASY -> EasyContent(state, onEasyStart, onRedownload)
-            StartupWelcomeTab.ADVANCED -> AdvancedList(state, onDownload, onImport, onRestore, onRedownload)
+            when (state.selectedTab) {
+                StartupWelcomeTab.EASY -> EasyContent(state, onEasyStart, onRedownload)
+                StartupWelcomeTab.ADVANCED -> AdvancedList(state, onDownload, onImport, onRestore, onRedownload)
+            }
         }
 
         Text(state.versionText, style = MaterialTheme.typography.labelSmall)
-        // Batch 6 A6: both open AndBible URLs (the labels are the URLs), so discrete mode hides them.
+        // Batch 6 A6: both open AndBible URLs, so discrete mode hides them.
         if (state.homepageButtonsVisible) {
-            TextButton(onClick = onOpenHomepage) { Text(strings.welcomeHomepageLabel) }
-            TextButton(onClick = onOpenGithub) { Text(strings.welcomeGithubLabel) }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FooterLink(Icons.Outlined.Language, strings.welcomeHomepageLabel, onOpenHomepage)
+                FooterLink(Icons.Outlined.Code, strings.welcomeGithubLabel, onOpenGithub)
+            }
         }
     }
 }
@@ -234,3 +244,13 @@ private fun AdvancedList(
 }
 
 private class WelcomeRow(val icon: ImageVector, val title: String, val hint: String, val onClick: () -> Unit)
+
+/** A compact icon + name link chip for the footer; the full URL stays out of the layout. */
+@Composable
+private fun FooterLink(icon: ImageVector, label: String, onClick: () -> Unit) {
+    AssistChip(
+        onClick = onClick,
+        label = { Text(label) },
+        leadingIcon = { Icon(icon, contentDescription = null, modifier = Modifier.size(AssistChipDefaults.IconSize)) },
+    )
+}
