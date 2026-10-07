@@ -19,9 +19,6 @@ package net.bible.android.control.download
 
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
-import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
 import net.bible.service.download.FakeBookFactory
 import net.bible.test.DatabaseResetter
 import org.crosswire.common.progress.JobManager
@@ -44,36 +41,28 @@ import java.io.IOException
 @Config(application = TestBibleApplication::class, sdk=[TEST_SDK])
 class DocumentDownloadProgressCacheTest {
     private var documentDownloadProgressCache: DocumentDownloadProgressCache? = null
+    private val received = mutableListOf<DocumentStatus>()
     private var testData: TestData? = null
 
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        documentDownloadProgressCache = DocumentDownloadProgressCache()
+        documentDownloadProgressCache = DocumentDownloadProgressCache { received += it }
         testData = TestData()
     }
 
     @Test
     @Throws(InterruptedException::class)
     fun sendEventOnProgress() {
-        val eventReceiver = EventReceiver()
-        ABEventBus.register(eventReceiver) {
-            on<DocumentDownloadEvent> { eventReceiver.received = true }
-        }
         documentDownloadProgressCache!!.startMonitoringDownloads()
         testData!!.progress.workDone = 30
         Thread.sleep(10)
-        MatcherAssert.assertThat(eventReceiver.received, Matchers.`is`(true))
+        MatcherAssert.assertThat(received.any { it.documentInstallStatus == DocumentStatus.DocumentInstallStatus.BEING_INSTALLED }, Matchers.`is`(true))
     }
 
     @After
     fun tearDown() {
-        ABEventBus.unregisterAll()
         DatabaseResetter.resetDatabase()
-    }
-
-    class EventReceiver {
-        var received = false
     }
 
     private inner class TestData {

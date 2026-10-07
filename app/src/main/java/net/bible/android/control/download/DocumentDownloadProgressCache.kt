@@ -16,8 +16,6 @@
  */
 package net.bible.android.control.download
 
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.documentdownload.DocumentDownloadEvent
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
@@ -30,7 +28,7 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DocumentDownloadProgressCache {
+class DocumentDownloadProgressCache(private val onProgress: (DocumentStatus) -> Unit) {
     private val percentDoneByInitials: MutableMap<String, Int> = HashMap()
     private val progressUpdater: WorkListener
     fun startMonitoringDownloads() {
@@ -50,7 +48,7 @@ class DocumentDownloadProgressCache {
             val id = jobID.substring(INSTALL_BOOK_JOB_NAME.length)
             val percentDone = progress.work
             percentDoneByInitials[id] = percentDone
-            ABEventBus.post(DocumentDownloadEvent(id, DocumentStatus.DocumentInstallStatus.BEING_INSTALLED, percentDone))
+            onProgress(DocumentStatus(id, DocumentStatus.DocumentInstallStatus.BEING_INSTALLED, percentDone))
         }
     }
 

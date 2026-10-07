@@ -7873,7 +7873,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Classic `onStart`/`onStop` (`:376-394`) as one subscribe/unsubscribe pair. */
     private fun subscribeDownloadMonitoring(firstDownload: Boolean): () -> Unit {
         val session = downloadSession ?: return {}
-        session.bridge.register()
+        session.bridge.register(downloadControl.progress)
         downloadControl.startMonitoringDownloads()
         if (firstDownload) {
             updateHasBible()

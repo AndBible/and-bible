@@ -85,7 +85,7 @@ val coreModule = module {
     // ResourceProvider interface binding (was ApplicationModule.provideResourceProvider)
     singleOf(::AndroidResourceProvider) { bind<ResourceProvider>() }
     // DownloadControl (was ApplicationModule.provideDownloadControl)
-    single { DownloadControl(DownloadQueue()) }
+    single { DownloadControl() }
     singleOf(::CustomRepositoryServiceImpl) { bind<CustomRepositoryService>() }
 
     // @ApplicationScope singletons

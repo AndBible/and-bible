@@ -25,6 +25,8 @@ import net.bible.service.common.CommonUtils.megabytesFree
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.RepoFactory
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress.INSTALL_BOOK
 import org.crosswire.common.util.Language
@@ -40,11 +42,14 @@ import java.util.*
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class DownloadControl(
-    private val downloadQueue: DownloadQueue,
-)
+class DownloadControl
 {
-    private val documentDownloadProgressCache: DocumentDownloadProgressCache = DocumentDownloadProgressCache()
+    private val _progress = EventSource<DocumentStatus>()
+    /** Every per-document install status change: progress from JSword jobs and the queue's outcome (replaces `DocumentDownloadEvent`). */
+    val progress: Events<DocumentStatus> get() = _progress
+
+    private val downloadQueue = DownloadQueue(_progress::emit)
+    private val documentDownloadProgressCache = DocumentDownloadProgressCache(_progress::emit)
 
     /** pre-download document checks
      */

@@ -17,7 +17,6 @@ ConfigurationChanged
 CurrentBibleVerseChanged
 CurrentVerseChangedEvent
 CurrentWindowChangedEvent
-DocumentDownloadEvent
 DocumentSyncProgressEvent
 ErrorNotificationEvent
 FullScreenEvent
