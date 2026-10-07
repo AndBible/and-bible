@@ -360,6 +360,15 @@ class DatabaseContainer {
         /** Fires on the sync thread after a cloud sync applied reading-plan changes (replaces `ReadingPlansUpdatedViaSyncEvent`). */
         val readingPlansSynced: Events<List<LogEntry>> get() = _readingPlansSynced
 
+        private var _bookmarksSynced = EventSource<List<LogEntry>>()
+        /**
+         * Fires on the sync thread after a cloud sync applied bookmark-database changes (replaces
+         * `BookmarksUpdatedViaSyncEvent`). Subscribers: [BookmarkControl] (synchronous, re-emits the
+         * domain changes on the sync thread) and the bookmarks list (on main).
+         */
+        val bookmarksSynced: Events<List<LogEntry>> get() = _bookmarksSynced
+        @VisibleForTesting fun resetBookmarksSyncedForTest() { _bookmarksSynced = EventSource() }
+
         /**
          * Fix batch 5 §1.1. True while a restore has database files closed or overwritten. A save in
          * that window writes into a closed or replaced file.
@@ -494,6 +503,7 @@ class DatabaseContainer {
                     localDbFile = application.getDatabasePath(BookmarkDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.BOOKMARKS,
                     _reactToUpdates = { entries ->
+                        _bookmarksSynced.emit(entries)
                         ABEventBus.post(BookmarksUpdatedViaSyncEvent(entries))
                     },
                 ) },
