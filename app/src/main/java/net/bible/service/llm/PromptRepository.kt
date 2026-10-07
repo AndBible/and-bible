@@ -40,7 +40,7 @@ object PromptRepository {
     private val categoryDao get() = DatabaseContainer.instance.aiSettingsDb.promptCategoryDao()
     private val overrideDao get() = DatabaseContainer.instance.aiSettingsDb.builtinPromptOverrideDao()
 
-    /** Cached add-on prompts loaded from CSV files. Invalidated on ReloadAddonsEvent. */
+    /** Cached add-on prompts loaded from CSV files. Invalidated on [net.bible.service.common.AndBibleAddons.reloaded]. */
     private var addonPromptsCache: List<AgentPrompt>? = null
 
     init {

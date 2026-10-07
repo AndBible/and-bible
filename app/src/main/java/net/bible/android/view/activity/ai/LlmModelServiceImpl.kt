@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import net.bible.android.control.event.onMain
 import net.bible.android.database.IdType
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
@@ -58,8 +57,8 @@ import net.bible.sharedcore.ai.ProviderVd
  * **a default always exists whenever the list is non-empty** — see [applyDefault]. Classic's edit
  * dialog set `defaultModelId = null` when you unchecked "set default" on the current default
  * (leaving the list default-less); the T3 review flagged this, so [applyDefault] reassigns to
- * another model instead. Every mutation posts [AppSettingsUpdated] and re-emits [models]; the
- * ABEventBus bridge also re-emits when an external change broadcasts [AppSettingsUpdated] /
+ * another model instead. Every mutation calls [AiSettings.notifyConfigChanged] and re-emits [models]; the
+ * [AiSettings.configChanged] subscription also re-emits when an external change fires it, as does
  * [AiSettings.defaultModelChanged] (same pattern as [AiSettingsServiceImpl]/[LlmProviderServiceImpl]).
  * Registered as a Koin single (lives for the process).
  *

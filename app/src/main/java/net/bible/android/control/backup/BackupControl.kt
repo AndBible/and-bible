@@ -771,10 +771,10 @@ object BackupControl {
     }
 
     /**
-     * F115. Runs [body] and, however it ends (normally, by an exception, or cancelled), posts
-     * [MainBibleAfterRestore] iff a [DatabaseContainer.replacingDatabases] ran inside it. The epoch bump froze
-     * the live `WindowRepository`'s saving; only the reload this triggers releases it. The ONLY poster of
-     * [MainBibleAfterRestore] in this file (BackupControlReplaceGuardTest).
+     * F115. Runs [body] and, however it ends (normally, by an exception, or cancelled), calls
+     * [DatabaseContainer.notifyDatabaseRestored] iff a [DatabaseContainer.replacingDatabases] ran inside it. The epoch bump froze
+     * the live `WindowRepository`'s saving; only the reload this triggers releases it. The ONLY caller of
+     * [DatabaseContainer.notifyDatabaseRestored] in this file (BackupControlReplaceGuardTest).
      */
     internal suspend fun <T> reloadingAfterReplace(body: suspend () -> T): T {
         val epoch = DatabaseContainer.replaceEpoch
@@ -957,8 +957,8 @@ object BackupControl {
     /**
      * "Restore documents" from the Backup destination: open InstallZip (slice 8 D2). In-graph on the nav
      * host. The old `awaitIntent` + `if (result.data?.data == null) return` + post was dead (finding M6):
-     * InstallZip attaches no result data, and `DocumentInstallService.postTerminalEvents` already posts
-     * `UpdateMainBibleActivityDocuments` when an install finishes.
+     * InstallZip attaches no result data, and `DocumentInstallService.postTerminalEvents` already calls
+     * `DocumentChanges.notifyInstalledChanged` when an install finishes.
      */
     fun restoreModulesViaIntent(activity: ActivityBase) {
         if (activity is NavHostComposeActivity) {

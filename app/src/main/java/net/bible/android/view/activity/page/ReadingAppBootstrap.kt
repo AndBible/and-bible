@@ -74,7 +74,7 @@ private const val NEW_SYNC_TARGETS_ANNOUNCE_VERSION = 1
  * The scope the cloud-sync calls are launched on. Process-wide and file-private-by-convention
  * (`internal`, same package as its two callers): moved here VERBATIM from `MainBibleActivity.kt`,
  * where it was a top-level `private val` in the same package, so every existing call site
- * (`syncScope.launch { ... }` in `MainBibleActivity`'s `AppToBackgroundEvent` handler) resolves to
+ * (`syncScope.launch { ... }` in `MainBibleActivity`'s app-to-background handler (now the host's [CurrentActivityHolder.appPositionChanges] subscription)) resolves to
  * the same object it always did.
  */
 internal val syncScope = CoroutineScope(Dispatchers.IO)

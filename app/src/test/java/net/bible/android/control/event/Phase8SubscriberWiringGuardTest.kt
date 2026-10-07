@@ -18,7 +18,7 @@ class Phase8SubscriberWiringGuardTest {
     @Test fun bibleViewListensToAddonsWorkspaceSettingsAndAiConfig() {
         val p = "android/view/activity/page/BibleView.kt"
         assertContains(p, "AndBibleAddons.reloaded.subscribe {", "reload_addons, synchronous like the old on{}")
-        assertContains(p, "WorkspaceChanges.changes.subscribe {", "family (a) settings reach updateConfig")
+        assertContains(p, "WorkspaceChanges.changes.subscribe { if (it == WorkspaceChange.SettingsEdited) updateConfig() }", "SettingsEdited reaches updateConfig")
         assertContains(p, "AiSettings.configChanged.subscribe { updateConfig() }", "Review Focus 3: llmConfigured")
     }
 

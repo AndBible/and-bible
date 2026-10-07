@@ -160,7 +160,7 @@ class SyncSettingsServiceImpl(
         val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
         cat.syncEnabled = enabled
         if (enabled) {
-            // Classic setupDrivePref ran the sync-start sequence + posted MainBibleAfterRestore after
+            // Classic setupDrivePref ran the sync-start sequence + broadcast the restore (now `notifyDatabaseRestored`) after
             // sign-in, then recreate()d. We refresh the snapshot instead; the sequence is fire-and-forget.
             scope.launch {
                 CloudSync.waitUntilFinished()

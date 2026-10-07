@@ -75,8 +75,6 @@ import net.bible.service.common.ReadingProgressSettings
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.NoteEditorEntityType
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.event.on
-import net.bible.android.control.event.onMain
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument

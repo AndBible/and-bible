@@ -367,10 +367,10 @@ class DatabaseContainer {
         val myDocumentsSynced: Events<List<LogEntry>> get() = _myDocumentsSynced
 
         private var _workspacesSynced = EventSource<List<LogEntry>>()
-        /** Fires on the sync thread after a cloud sync applied workspace changes (replaces WorkspacesUpdatedViaSyncEvent). */
+        /** Fires on the sync thread after a cloud sync applied workspace changes (replaces the retired WorkspacesUpdatedViaSyncEvent bus event). */
         val workspacesSynced: Events<List<LogEntry>> get() = _workspacesSynced
         private var _databaseRestored = EventSource<Unit>()
-        /** A restore or a sync sign-in replaced the databases; the reading host reloads (replaces MainBibleAfterRestore). */
+        /** A restore or a sync sign-in replaced the databases; the reading host reloads (replaces the retired MainBibleAfterRestore bus event). */
         val databaseRestored: Events<Unit> get() = _databaseRestored
         fun notifyDatabaseRestored() {
             _databaseRestored.emit(Unit)

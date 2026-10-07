@@ -117,7 +117,7 @@ class ReadingNavDeps(
      *
      *  4. ~~classic's `onResume` document refresh, and the reconciliation block around it.~~
      *     **PAID by reading-host re-typing T8a**, the task this item named. `NavHostComposeActivity`
-     *     now subscribes to `UpdateMainBibleActivityDocuments` (it POSTS it from six of its own
+     *     now subscribes to `DocumentChanges.installedChanged` (it notifies it from six of its own
      *     destinations and listened to none), and its `onResume` runs the WHOLE of classic's block
      *     (`MainBibleActivity.kt:1964-1989`), not the one line R8 refused to port on its own: the
      *     `windowControl.windowRepository` reclaim and its `currentWorkspaceId = currentWorkspaceId`

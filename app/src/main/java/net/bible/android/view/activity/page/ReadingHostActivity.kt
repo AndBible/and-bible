@@ -187,6 +187,6 @@ interface ReadingHostActivity : LifecycleOwner {
      */
     fun hideClassicToolbarRow() {}
 
-    /** A tap landed on a BibleView of this host (replaces the BibleViewTouched bus event). */
+    /** A tap landed on a BibleView of this host (replaces the retired BibleViewTouched bus event). */
     fun onBibleViewTouched()
 }

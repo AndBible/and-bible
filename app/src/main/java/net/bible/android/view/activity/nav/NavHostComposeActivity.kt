@@ -111,8 +111,6 @@ import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.view.activity.page.bibleViewBackgroundColorFor
-import net.bible.android.control.event.on
-import net.bible.android.control.event.onMain
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.SaveOrShare
@@ -1007,7 +1005,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * Slice 8 finding M3 (spec §5.1 item 1): record "where the user left the reading view from".
      *
      * Classic `MainBibleActivity` had `integrateWithHistoryManager = true`, so `ActivityBase`'s launch
-     * overrides posted `AddHistoryItem` before every launch. This host's flag is false and must stay so
+     * overrides made a direct `HistoryManager.recordIfCreated` call before every launch. This host's flag is false and must stay so
      * (it is host-global; see [setHistoryRoute]'s kdoc), so the record is made at this host's own two
      * chokepoints -- [startActivityForResult] (every `startActivity*` funnels into it) and
      * [navigateToRoute] -- and ONLY while the reading destination is current. Never a destination
@@ -1321,7 +1319,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /**
      * Classic `MainBibleActivity.refreshIfNightModeChange`, verbatim including its comments. Lifted
      * out of [readingViewScreenTurnedOn] (which used to inline these two calls) because R4's
-     * `NightModeChanged` subscription needs exactly the same body — classic's two call sites, both
+     * `ScreenSettings.nightModeChanges` subscription needs exactly the same body — classic's two call sites, both
      * present again here.
      */
     private fun refreshIfNightModeChange(): Boolean {
@@ -1338,7 +1336,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     // ——— The reading view's window chrome (reading-host re-typing R4) ———————————————————————————
-    // This host had NONE of it: no fullscreen bit, no system-bar calls, no NightModeChanged
+    // This host had NONE of it: no fullscreen bit, no system-bar calls, no nightModeChanges subscription
     // subscription. Classic's `hideSystemUI`/`showSystemUI` were ported from `MainBibleActivity`; since
     // fix batch 2 (§2.4) the visibility half of both is [refreshSystemBars] (one decision in
     // `decideSystemBars`, one writer in `SystemBarController`), and [showSystemUI] keeps only the
@@ -1385,7 +1383,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * destination's `DisposableEffect`: an effect inside the graph necessarily runs AFTER
      * `setContent`, i.e. after [ReadingAppBootstrap.openDeepLink] below has already run
      * `windowControl.showLink` -> `setKey(addHistoryItem = true)` -> a SYNCHRONOUS
-     * `ABEventBus.post(AddHistoryItem)`. With the flag false at that moment `createHistoryItem` does
+     * a direct `HistoryManager.recordIfCreated` call. With the flag false at that moment `createHistoryItem` does
      * not merely drop the item: it falls through to the `currentActivity is AndBibleActivity` arm --
      * this class is one -- and records a WRONG `IntentHistoryItem` carrying the deep-link intent,
      * whose `revertTo()` re-starts it. Classic's 14-line comment in `MainBibleActivity.onCreate`
@@ -1712,7 +1710,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * by [ComposeReadingViewHost.dispose] in [onDestroy]; an instance created per composition would
      * leak one registration every time the reading destination left and re-entered the back stack
      * (a settings visit and back), and each leaked instance would keep answering
-     * `NightModeChanged`/`fullScreenChanged` for a reading view that no longer exists.
+     * `nightModeChanges`/`fullScreenChanged` for a reading view that no longer exists.
      *
      * `rebuildDrawer()` with no arguments on creation is classic's entry-time rebuild: the
      * `showSearch`/`showSpeak` flags default to the last pushed pair (both `true` initially,
@@ -1933,7 +1931,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /**
-     * Classic `MainBibleActivity.paused`, the first half of the `NightModeChanged` guard below.
+     * Classic `MainBibleActivity.paused`, the first half of the `nightModeChanges` guard below.
      * This host had no `onPause`/`onResume` of its own; these two exist only to keep that flag, and
      * set it on classic's side of the `super` call.
      *
@@ -2061,7 +2059,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * i.e. before [reclaimWindowRepository] has taken `windowControl.windowRepository` back (the
      * applies below read `windowControl.activeWindowPageManager`), before
      * `ReadingHostPresence.setForeground(this)` has made `ReadingViewVisibility.isVisible` true for
-     * the `AddHistoryItem` a `setKey`/`setCurrentDocumentAndKey` posts, and before
+     * the a direct `HistoryManager.recordIfCreated` call a `setKey`/`setCurrentDocumentAndKey` makes, and before
      * [rearmBootstrapBridgeIfStillOwed]. Classic needed `CurrentActivityHolder.activate(this)` +
      * `ReadingHostPresence.setForeground(this)` + `ReadingViewVisibility.setActivityVisible(this,
      * true)` inside its dispatcher for exactly that reason; on this host the last of those three
@@ -2646,7 +2644,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /**
      * F57: spend [updateDocumentsPending] when the graph comes back to the reading destination.
      *
-     * Deliberately keyed on the FLAG, not on a request code. `UpdateMainBibleActivityDocuments` is
+     * Deliberately keyed on the FLAG, not on a request code. `DocumentChanges.installedChanged` is
      * posted from six destinations and from `doDownload`; what matters is that documents changed, not
      * who launched. [readingReturnDebts]' request-code arms stay as they are -- they answer "what did
      * this particular launch owe", which is a different question.
@@ -2835,7 +2833,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * kdoc: "A task that gives the host another pre-composition producer of history items has to
      * close this." **T8a item 2 is that task.** [handlePendingAgentResult], which its
      * reconciliation runs from inside `onResume`, reaches `LinkControl.openAIDocument`/`openStudyPad`
-     * -> `showLink` -> `setKey(addHistoryItem = true)` -> a SYNCHRONOUS `AddHistoryItem`, and
+     * -> `showLink` -> `setKey(addHistoryItem = true)` -> a SYNCHRONOUS a direct `HistoryManager.recordIfCreated` call, and
      * `HistoryManager.createHistoryItem` reads `isVisible` while handling it. False there records a
      * wrong `IntentHistoryItem` carrying this host's launch Intent instead of a `KeyHistoryItem` for
      * the verse — the identical defect [bootstrapIfNeeded]'s ordering exists to prevent, one
@@ -2852,7 +2850,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * unconditional re-arm fails.
      *
      * Before `super.onResume()` and before the reconciliation, for [bootstrapIfNeeded]'s reason: the
-     * `AddHistoryItem` its producers post is handled synchronously.
+     * a direct `HistoryManager.recordIfCreated` call its producers make is synchronous.
      */
     private fun rearmBootstrapBridgeIfStillOwed() {
         if (readingAppBootstrapped && composeReadingViewHost == null) {
@@ -2878,7 +2876,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * a block rather than as a line.**
      *
      * R8 recorded a VERDICT here refusing to port `updateDocuments()` alone, and the argument was
-     * right: this host POSTS `UpdateMainBibleActivityDocuments` from six of its own destinations
+     * right: this host NOTIFIES `DocumentChanges.installedChanged` from six of its own destinations
      * (Download, ChooseDocument, MyDocuments, backup restore) and subscribed to none of them, so a
      * document installed from the Download screen did not appear until the workspace was reloaded --
      * but a host that refreshed documents while never reconciling the workspace would have been
@@ -2961,28 +2959,31 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** The Welcome screen's install-progress subscription (see [subscribeReadingHost]). */
     private val installProgress = Subscriptions()
 
-    /**
-     * This host's ABEventBus subscriptions -- six, all classic `MainBibleActivity.eventSubscriptions`
-     * ports (the Welcome progress line lives in [installProgress]): `UpdateMainBibleActivityDocuments` (sets
-     * [updateDocumentsPending], ungated -- [reconcileReadingStateOnResume] decides whether there is a
-     * workspace to apply it to), `NightModeChanged` (guarded, below), and the four slice 8's final
-     * review restored (the cloud-sync timestamp write moved to `SyncService`) --
-     * `AppToBackgroundEvent`, `WorkspacesUpdatedViaSyncEvent`, `WorkspaceRefreshRequired` and
-     * `MainBibleAfterRestore` -- each gated on [readingAppBootstrapped], because a host that has not run
-     * the reading bootstrap owns neither a window repository nor the cloud-sync loop they act on.
-     *
-     * `NightModeChanged` keeps classic's guard shape. **The guard is the point.** `paused` plus the `CurrentActivityHolder.currentActivity == this`
-     * identity check is the original author defending exactly the case this batch creates: TWO live
-     * reading-capable Activities on one bus, of which at most one is on screen. Without it both
-     * refresh their theme on every night-mode change -- the background one pointlessly, and (worse)
-     * it re-applies a theme to an Activity whose window is not the one the user is looking at.
-     */
     private val hostSubscriptions = Subscriptions()
 
-    /** Registers this host's owner-stream subscriptions; called from onCreate, cancelled in onDestroy. */
+    /**
+     * Registers this host's owner-stream subscriptions (cancelled in onDestroy via [hostSubscriptions]);
+     * called from onCreate. Six, all classic `MainBibleActivity.eventSubscriptions` ports (the Welcome
+     * progress line lives in [installProgress]): [DocumentChanges.installedChanged] (sets
+     * [updateDocumentsPending], ungated -- [reconcileReadingStateOnResume] decides whether there is a
+     * workspace to apply it to), [ScreenSettings.nightModeChanges] (guarded, below), and the four slice
+     * 8's final review restored (the cloud-sync timestamp write moved to `SyncService`) --
+     * [CurrentActivityHolder.appPositionChanges], [DatabaseContainer.workspacesSynced],
+     * [CloudSync.workspaceRefreshRequired] and [DatabaseContainer.databaseRestored] -- each gated on
+     * [readingAppBootstrapped], because a host that has not run the reading bootstrap owns neither a
+     * window repository nor the cloud-sync loop they act on. ([SystemBarSettingChanges.changes] is a
+     * seventh, ungated, and applies on every destination.)
+     *
+     * The night-mode subscription keeps classic's guard shape. **The guard is the point.** `paused` plus
+     * the `CurrentActivityHolder.currentActivity == this` identity check is the original author
+     * defending exactly the case this batch creates: TWO live reading-capable Activities, of which at
+     * most one is on screen. Without it both refresh their theme on every night-mode change -- the
+     * background one pointlessly, and (worse) it re-applies a theme to an Activity whose window is not
+     * the one the user is looking at.
+     */
     private fun subscribeReadingHost() {
         // T8a item 2: classic `MainBibleActivity.kt:498-500`. This host posts
-        // `UpdateMainBibleActivityDocuments` from six of its own destinations and, until T8a,
+        // `DocumentChanges.installedChanged` from six of its own destinations and, until T8a,
         // listened to none of them. UNGUARDED, exactly like classic's: the flag records that an
         // update arrived, and [reconcileReadingStateOnResume] decides whether this host has a
         // reading workspace to apply it to.
@@ -6302,7 +6303,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         onRead = { readingNo ->
             val dto = readingsDto ?: return@DailyReadingController
             val key = dto.getReadingKey(readingNo)
-            // read() posts AddHistoryItem synchronously, and HistoryManager then reads
+            // read() makes a direct `HistoryManager.recordIfCreated` call synchronously, and HistoryManager then reads
             // isIntegrateWithHistoryManager + intentForHistoryList off this host — both already
             // pointing at the day on screen, because the destination set the history route when it
             // loaded. Classic's belt-and-braces `isIntegrateWithHistoryManager = true` here is NOT
@@ -6773,7 +6774,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * **Why ONE pop, where classic did two.** Classic popped `{this results screen's item, the
      * launcher's item}`, and in the graph the second of those does not exist:
      *
-     *  - `ActivityBase.startActivity` (`:198-203`) posts `AddHistoryItem` only when the `open val`
+     *  - `ActivityBase.startActivity` (`:198-203`) makes a direct `HistoryManager.recordIfCreated` call only when the `open val`
      *    `integrateWithHistoryManager` is true, and this host deliberately does not override it
      *    (see [setHistoryRoute]'s kdoc for why it drives the `var` instead), so it is permanently
      *    false. And the in-graph `Search form -> results` hop is a `navigate`, not a
@@ -6784,7 +6785,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      *    "the search text was actually a reference" jump would silently lose the way back.
      *  - The one item that IS pushed comes from this very call: `tryToOpenRef` ->
      *    `showLink(forceOpenHere = true)` -> `setCurrentDocumentAndKey` -> `setKey` ->
-     *    `ABEventBus.post(AddHistoryItem)` (`CurrentPageBase.kt:112`) ->
+     *    a direct `HistoryManager.recordIfCreated` call (`CurrentPageBase.kt:112`) ->
      *    `HistoryManager.createHistoryItem`, which for this host builds an `IntentHistoryItem` from
      *    `isIntegrateWithHistoryManager` + [intentForHistoryList]. The graph publishes this
      *    destination's route immediately before calling this, precisely so that item exists and
@@ -9406,7 +9407,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /**
      * The chooser's per-entry load ([ChooseDocumentDeps.loadDocuments]). Every (re)composition of the
      * chooser entry runs it -- its controller is per composition -- so a return from the Download hop
-     * lands here: classic's `UpdateMainBibleActivityDocuments` broadcast runs first, then the reload.
+     * lands here: classic's documents-changed broadcast (`DocumentChanges.notifyInstalledChanged`) runs first, then the reload.
      */
     private suspend fun loadChooseDocumentsOnEntry() {
         if (pendingChooseDocumentDownloadReturn) {

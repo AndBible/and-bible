@@ -54,7 +54,7 @@ import kotlin.test.assertTrue
  * not [NavHostComposeActivity.applyReadingReturnDebts].** The two are siblings called from the same
  * `OnDestinationChangedListener`, not nested — `readingReturnDebts` answers "what did THIS PARTICULAR
  * LAUNCH owe", a request-code question; this fix is flag-driven, keyed on `updateDocumentsPending`
- * alone, because `UpdateMainBibleActivityDocuments` is posted from six destinations plus `doDownload`
+ * alone, because `DocumentChanges.installedChanged` is notified from six destinations plus `doDownload`
  * and what matters is that documents changed, not who launched. `ReadingHostNonStdResultTest`'s
  * `composedHost().apply { … }.applyReadingReturnDebts(NavRoutes.READING)` pattern is the precedent for
  * driving one of this listener's internal arms directly without a composed `NavController`; this test
@@ -127,7 +127,7 @@ class ReadingDocumentRefreshOnReturnTest {
         DocumentChanges.notifyInstalledChanged()
         assertTrue(
             updateDocumentsPendingOf(activity),
-            "sanity: the subscription in readingHostSubscriptions must have armed the flag",
+            "sanity: the DocumentChanges.installedChanged subscription in subscribeReadingHost must have armed the flag",
         )
 
         // The graph pops back to the reading destination -- no onResume happens on this path, so
@@ -191,7 +191,7 @@ class ReadingDocumentRefreshOnReturnTest {
         DocumentChanges.notifyInstalledChanged()
         assertTrue(
             updateDocumentsPendingOf(activity),
-            "sanity: the subscription in readingHostSubscriptions must have armed the flag",
+            "sanity: the DocumentChanges.installedChanged subscription in subscribeReadingHost must have armed the flag",
         )
 
         // Back to reading -- through the REAL listener, with no onResume anywhere in this path.

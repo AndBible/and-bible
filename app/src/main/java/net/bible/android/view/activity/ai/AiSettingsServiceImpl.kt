@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.onMain
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -35,8 +34,8 @@ import net.bible.sharedcore.ai.AiSettingsSnapshot
  * Android impl of [AiSettingsService]. Reads/writes the global [AiSettings] row (the classic
  * `CommonUtils.aiSettings` facade) and the AI DAOs / [LlmCostTracker], mirroring classic
  * `AiConnectionSettingsFragment` summary/refresh behavior exactly. Each setter writes through the
- * classic accessor then re-emits a freshly built [AiSettingsSnapshot]. Subscribes to the classic
- * broadcasts ([AppSettingsUpdated]) and [AiSettings.defaultModelChanged] so external changes re-emit the
+ * classic accessor then re-emits a freshly built [AiSettingsSnapshot]. Subscribes to
+ * [AiSettings.configChanged] and [AiSettings.defaultModelChanged] so external changes re-emit the
  * snapshot too (same bridge pattern as [net.bible.android.control.speak.SpeakSettingsServiceImpl]).
  * Registered as a Koin single (lives for the process); the host calls [refresh] in `onResume` for
  * parity with the old pull-based refresh.

@@ -46,7 +46,7 @@ object AiSettings {
 
     private var configSource = EventSource<Unit>()
 
-    /** LLM providers or models changed (create, delete, configure); subscribers re-read. Replaces family (b) of AppSettingsUpdated. */
+    /** LLM providers or models changed (create, delete, configure); subscribers re-read. Replaces the AI family of the retired AppSettingsUpdated bus event. */
     val configChanged: Events<Unit> get() = configSource
 
     fun notifyConfigChanged() {

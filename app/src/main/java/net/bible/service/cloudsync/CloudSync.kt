@@ -112,7 +112,7 @@ object CloudSync {
 
     private var refreshSource = EventSource<Unit>()
 
-    /** The last concurrent database replace ended; the reading host reloads its workspace (replaces WorkspaceRefreshRequired). */
+    /** The last concurrent database replace ended; the reading host reloads its workspace (replaces the retired WorkspaceRefreshRequired bus event). */
     val workspaceRefreshRequired: Events<Unit> get() = refreshSource
 
     @VisibleForTesting internal fun notifyWorkspaceRefreshRequired() {
@@ -390,7 +390,7 @@ object CloudSync {
             // F113: the same race class as a backup restore. A save between the close and the live
             // repository's reload would write the pre-download windows over the downloaded file, and the
             // freshly created triggers would then log it for upload. The epoch bump freezes saving until
-            // `WorkspaceRefreshRequired` -> `loadFromDb`.
+            // [workspaceRefreshRequired] -> `loadFromDb`.
             DatabaseContainer.replacingDatabases {
                 dbDef.localDb.close()
                 downloaded.copyTo(dbDef.localDbFile, overwrite = true)

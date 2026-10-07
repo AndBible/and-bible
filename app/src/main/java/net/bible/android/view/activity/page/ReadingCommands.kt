@@ -1418,7 +1418,7 @@ class ReadingCommands(
     }
 
     /**
-     * Classic `MainBibleActivity`'s `MainBibleAfterRestore` subscription, verbatim (slice 8 final
+     * Classic `MainBibleActivity`'s restore subscription, verbatim (now fed by `DatabaseContainer.databaseRestored`) (slice 8 final
      * review, Important 1). A database restore replaced the workspace database under the live
      * repository: drop every cached `BibleView`, force a full resync, and reload the workspace from the
      * RESTORED database -- `IdType.empty()` makes `loadFromDb` pick the restored current workspace.
@@ -1432,7 +1432,7 @@ class ReadingCommands(
     }
 
     /**
-     * Classic `MainBibleActivity`'s `WorkspacesUpdatedViaSyncEvent` subscription, verbatim (slice 8
+     * Classic `MainBibleActivity`'s cloud-sync subscription, verbatim (now fed by `DatabaseContainer.workspacesSynced`) (slice 8
      * final review, Important 1): after a cloud sync wrote workspace/window rows, reload the current
      * workspace when it (or one of its windows) changed, and fall back to the first workspace when the
      * current one was deleted on another device.
@@ -1462,7 +1462,7 @@ class ReadingCommands(
         }
     }
 
-    /** Classic `MainBibleActivity`'s `WorkspaceRefreshRequired` subscription, verbatim. */
+    /** Classic `MainBibleActivity`'s refresh subscription, verbatim (now fed by `CloudSync.workspaceRefreshRequired`). */
     internal fun applyWorkspaceRefreshRequired() {
         currentWorkspaceId = workspaces.first().id
     }

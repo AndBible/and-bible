@@ -81,8 +81,8 @@ sealed interface WorkspaceChange {
 
     /**
      * A workspace setting that BibleView's config carries changed (recent labels, StudyPad cursors,
-     * auto-assign labels, compare-document hiding, ambiguous-modal size). Replaces family (a) of
-     * AppSettingsUpdated (phase 8 spec 2.1). Subscribers re-read workspaceSettings.
+     * auto-assign labels, compare-document hiding, ambiguous-modal size). Replaces the workspace-settings family of the retired
+     * AppSettingsUpdated bus event (phase 8 spec 2.1; the AI family is [net.bible.service.common.AiSettings.configChanged]). Subscribers re-read workspaceSettings.
      */
     object SettingsEdited : WorkspaceChange
 }

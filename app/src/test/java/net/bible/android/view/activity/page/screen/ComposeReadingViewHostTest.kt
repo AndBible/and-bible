@@ -403,7 +403,7 @@ class ComposeReadingViewGenerationTest {
  * needed), mirroring [ComposeReadingViewGenerationTest] one class up. [onTouch] is exactly what
  * that call does on a real touch, so asserting it flips [WindowButtonsVisibility.visible]
  * back to `true` (after [WindowButtonsVisibility.onHideTimeout] set it `false`) is the direct,
- * framework-free equivalent of "a `BibleViewTouched` sets [visible] true" the Task-5 brief asks
+ * framework-free equivalent of "a bible-view touch sets [visible] true" the Task-5 brief asks
  * for.
  */
 class WindowButtonsVisibilityTest {

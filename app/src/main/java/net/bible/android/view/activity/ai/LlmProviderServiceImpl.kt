@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.onMain
 import net.bible.android.database.IdType
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
@@ -59,9 +58,9 @@ import net.bible.sharedcore.ai.RecommendedSetupVd
  *
  * Save/delete/easy-setup mirror the classic `AiProvidersFragment.saveProviderConfig`/
  * `confirmDeleteProvider` and `EasySetupDialogs.performEasySetup` exactly (custom-only endpoint/
- * api-format, dynamic-model prefetch, default-model reassignment on delete). Every mutation posts
- * [AppSettingsUpdated] (create/delete/easy-setup, matching classic) and re-emits [providers]; the
- * ABEventBus bridge also re-emits when an external change broadcasts [AppSettingsUpdated] (same
+ * api-format, dynamic-model prefetch, default-model reassignment on delete). Every mutation calls
+ * [AiSettings.notifyConfigChanged] (create/delete/easy-setup, matching classic) and re-emits [providers]; the
+ * [AiSettings.configChanged] subscription also re-emits when an external change fires it (same
  * pattern as [AiSettingsServiceImpl]). Registered as a Koin single (lives for the process).
  *
  * Room here is configured with `allowMainThreadQueries`, so the non-suspend reads/[deleteProvider]
@@ -145,7 +144,7 @@ class LlmProviderServiceImpl : LlmProviderService {
                 updated.setApiKey(key)
             }
         }
-        // Classic posts AppSettingsUpdated only on create; edits just refresh the list locally.
+        // Classic broadcast the config change only on create (now [AiSettings.notifyConfigChanged]); edits just refresh the list locally.
         if (id == null) AiSettings.notifyConfigChanged()
         refresh()
     }

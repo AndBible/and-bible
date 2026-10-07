@@ -88,7 +88,7 @@ fun deriveToolbarFromTheme(enabledFeatures: Set<String>): Boolean =
  * that gets `recreate()`d whenever night mode changes (see `ActivityBase`). The one exception is
  * `ComposeReadingViewHost` (Task 3 fix round 1, batch 4b): it is long-lived inside
  * `MainBibleActivity` and is never `recreate()`d — including on the ambient-light-sensor
- * auto-night-mode flip, which fires `ScreenSettings.NightModeChanged` with no recreate at all — so
+ * auto-night-mode flip, which fires `ScreenSettings.nightModeChanges` with no recreate at all — so
  * it tracks night mode itself in a live `State<Boolean>` and must pass that value through verbatim
  * instead of letting this function re-read the static getter (which would only catch up on some
  * unrelated recomposition). This keeps the "read the app-global inputs in one place" rule intact

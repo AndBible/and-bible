@@ -82,7 +82,7 @@ private const val GENERIC_NOTIFICATION_CHANNEL = "generic-notifications"
  * platform-agnostic install state machine built in A1-A4): owns the app-scoped [controller]
  * instance, wires its [InstallServiceController.JobDeps] to real `contentResolver`/`BackupControl`/
  * `SwordBookPath` collaborators, surfaces progress/action-required notifications, and posts the
- * terminal events (`UserMessages.toast` / [UpdateMainBibleActivityDocuments] /
+ * terminal events (`UserMessages.toast` / [DocumentChanges.installedChanged] /
  * [InstallZipProgress]) classic `InstallZip` posted directly from its Activity.
  *
  * Every job the [controller] runs is driven by data forwarded from THIS Service's own

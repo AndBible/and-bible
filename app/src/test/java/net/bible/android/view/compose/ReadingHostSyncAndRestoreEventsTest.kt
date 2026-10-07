@@ -69,10 +69,10 @@ import kotlin.test.assertTrue
  * lost when F4 deleted classic.**
  *
  * Classic `MainBibleActivity.eventSubscriptions` (at `7ac0b64fa`) handled five events the nav host's
- * `readingHostSubscriptions` did not: `MainBibleAfterRestore` (posted by `BackupControl` and
- * `SyncSettingsServiceImpl` after a database restore), `AppToBackgroundEvent` (the cloud-sync
+ * `subscribeReadingHost` did not: `MainBibleAfterRestore` (now `DatabaseContainer.databaseRestored`, notified by `BackupControl` and
+ * `SyncSettingsServiceImpl` after a database restore), `AppToBackgroundEvent` (now `CurrentActivityHolder.appPositionChanges`: the cloud-sync
  * background/foreground pair, and the night-mode refresh `onRestart` owes a return from background),
- * `WorkspacesUpdatedViaSyncEvent`, and `WorkspaceRefreshRequired`. (The cloud-sync write of
+ * `WorkspacesUpdatedViaSyncEvent` (now `DatabaseContainer.workspacesSynced`), and `WorkspaceRefreshRequired` (now `CloudSync.workspaceRefreshRequired`). (The cloud-sync write of
  * `globalLastSynchronized`, which `ReadingAppBootstrap.synchronize` reads, moved to `SyncService`; see `SyncFinishedTest`.) With the only reading
  * host not listening, a restored backup was overwritten by the live workspace's next save and cloud
  * sync never ran on background/foreground.
@@ -163,7 +163,7 @@ class ReadingHostSyncAndRestoreEventsTest {
     private fun logEntry(table: String, id: IdType, type: LogEntryTypes = LogEntryTypes.UPSERT) =
         LogEntry(table, id, IdType.empty(), type, 0L, "other-device")
 
-    // ——— MainBibleAfterRestore ———————————————————————————————————————————————————————————————————
+    // ——— DatabaseContainer.databaseRestored ———————————————————————————————————————————————————————————————————
 
     /**
      * Classic: `bookmarkControl.reset(); bibleViewFactory.clear(); windowSync.setResyncRequired();
@@ -181,12 +181,12 @@ class ReadingHostSyncAndRestoreEventsTest {
         DatabaseContainer.notifyDatabaseRestored()
         idleMain()
 
-        assertTrue(toasts > 0, "MainBibleAfterRestore must reload the workspace (its setter posts a toast)")
+        assertTrue(toasts > 0, "databaseRestored must reload the workspace (its setter posts a toast)")
         assertNotEquals(0L, lastForceSyncAllField.getLong(windowSync), "…and flag every window for a forced resync")
         assertNotNull(activity.hostWindowRepository.activeWindow, "sanity: the reloaded workspace has an active window")
     }
 
-    // ——— WorkspaceRefreshRequired / WorkspacesUpdatedViaSyncEvent ———————————————————————————————
+    // ——— CloudSync.workspaceRefreshRequired / DatabaseContainer.workspacesSynced ———————————————————————————————
 
     @Test
     fun aWorkspaceRefreshRequiredReloadsTheFirstWorkspace() {
@@ -194,7 +194,7 @@ class ReadingHostSyncAndRestoreEventsTest {
         countToasts()
         CloudSync.notifyWorkspaceRefreshRequired()
         idleMain()
-        assertTrue(toasts > 0, "WorkspaceRefreshRequired must switch to the first workspace, as classic's did")
+        assertTrue(toasts > 0, "workspaceRefreshRequired must switch to the first workspace, as classic's did")
     }
 
     @Test
@@ -234,7 +234,7 @@ class ReadingHostSyncAndRestoreEventsTest {
         assertEquals(0, toasts, "a synced change to some other workspace must not reload this one")
     }
 
-    // ——— AppToBackgroundEvent ————————————————————————————————————————————————————————————————————
+    // ——— CurrentActivityHolder.appPositionChanges ————————————————————————————————————————————————————————————————————
 
     @Test
     fun goingToBackgroundStopsThePeriodicSync() {
@@ -265,12 +265,12 @@ class ReadingHostSyncAndRestoreEventsTest {
     /**
      * Classic `onRestart`: a return from a whole-app background re-applies the theme
      * (`refreshIfNightModeChange` -> `applyTheme`). The night-mode preference is flipped while the host is
-     * stopped WITHOUT posting `NightModeChanged`, so only the restart's refresh can carry it into
+     * stopped WITHOUT firing `ScreenSettings.nightModeChanges`, so only the restart's refresh can carry it into
      * `AppCompatDelegate`'s default mode. (A sentinel written straight into `setDefaultNightMode` cannot
      * serve: AppCompat recreates live Activities on that call, and `onCreate` applies the theme itself.)
      *
      * No "ordinary restart does nothing" twin: with a single Activity, stopping it IS the whole app going
-     * to background (`CurrentActivityHolder` posts the real `AppToBackgroundEvent`), so Robolectric cannot
+     * to background (`CurrentActivityHolder` fires the real `appPositionChanges` BACKGROUND), so Robolectric cannot
      * stage a restart that is not one. The test is instead proven by mutation (see the commit message).
      */
     @Test
