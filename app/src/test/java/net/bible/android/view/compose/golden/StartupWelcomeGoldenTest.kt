@@ -17,6 +17,9 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class StartupWelcomeGoldenTest {
+    // The default viewport clips the Advanced list, the version line and the Homepage/GitHub row.
+    private companion object { const val HEIGHT_DP = 900 }
+
     private fun state(
         tabs: Boolean = true,
         tab: StartupWelcomeTab = StartupWelcomeTab.EASY,
@@ -44,32 +47,35 @@ class StartupWelcomeGoldenTest {
         )
     }
 
-    // Primary = fresh install: Download + Import + Restore, no previous install, no easy start.
+    // Easy (English, fresh install) across light / dark / bw / e-ink.
+    @Test fun welcome_easy() {
+        captureMatrix("StartupWelcome", "easy", heightDp = HEIGHT_DP) { screen(state()) }
+    }
+
+    @Test fun welcome_easyPreviousInstall() {
+        captureGolden("StartupWelcome", "easyPreviousInstall", EDGE_MODE, heightDp = HEIGHT_DP) { screen(state(prev = true)) }
+    }
+
+    @Test fun welcome_advancedPreviousInstall() {
+        captureGolden("StartupWelcome", "advancedPreviousInstall", EDGE_MODE, heightDp = HEIGHT_DP) {
+            screen(state(tab = StartupWelcomeTab.ADVANCED, prev = true))
+        }
+    }
+
+    // Non-English: no tabs, the Advanced list alone (the old "primary").
     @Test fun welcome_primary() {
-        captureMatrix("StartupWelcome", "primary") { screen(state(tabs = false)) }
+        captureMatrix("StartupWelcome", "primary", heightDp = HEIGHT_DP) { screen(state(tabs = false)) }
     }
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
     fun welcome_primary_rtl() {
-        captureRtl("StartupWelcome", "primary") { screen(state(tabs = false)) }
-    }
-
-    @Test fun welcome_previousInstall() {
-        captureGolden("StartupWelcome", "previousInstall", EDGE_MODE) {
-            screen(state(tabs = false, prev = true))
-        }
-    }
-
-    @Test fun welcome_easyStart() {
-        captureGolden("StartupWelcome", "easyStart", EDGE_MODE) {
-            screen(state())
-        }
+        captureRtl("StartupWelcome", "primary", heightDp = HEIGHT_DP) { screen(state(tabs = false, prev = true)) }
     }
 
     @Test fun welcome_progress() {
-        captureGolden("StartupWelcome", "progress", EDGE_MODE) {
-            screen(state(progress = "Installing document 1 of 3…"))
+        captureGolden("StartupWelcome", "progress", EDGE_MODE, heightDp = HEIGHT_DP) {
+            screen(state(tab = StartupWelcomeTab.ADVANCED, progress = "Installing document 1 of 3…"))
         }
     }
 }
