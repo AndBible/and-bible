@@ -45,7 +45,9 @@ import net.bible.service.device.speak.event.SpeakProgressEvent
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.isEpub
-import net.bible.service.sword.mydocument.MyDocumentUpdatedEvent
+import net.bible.service.sword.mydocument.MyDocumentBookManager
+import net.bible.service.sword.mydocument.MyDocumentChange
+import net.bible.sharedcore.event.Subscription
 import net.bible.service.sword.mydocument.isMyDocument
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -112,16 +114,18 @@ class Window (
     private val windowLayout: WindowLayout = WindowLayout(entity.windowLayout)
     private var workspaceId = entity.workspaceId
 
+    private val documentUpdates: Subscription = MyDocumentBookManager.changes.subscribe { change ->
+        if (change !is MyDocumentChange.DocumentUpdated) return@subscribe
+        val doc = displayedBook ?: return@subscribe
+        if (doc.isMyDocument && doc.initials == change.initials) {
+            SwordContentFacade.evictBook(change.initials)
+            loadText()
+        }
+    }
+
     init {
         pageManager.window = this
         ABEventBus.register(this) {
-            on<MyDocumentUpdatedEvent> { e ->
-                val doc = displayedBook ?: return@on
-                if (doc.isMyDocument && doc.initials == e.initials) {
-                    SwordContentFacade.evictBook(e.initials)
-                    loadText()
-                }
-            }
             on<SpeakProgressEvent> { e ->
                 if(AdvancedSpeakSettings.synchronize || e.forceFollow) return@on // handled in SpeakControl
                 val speakKey = (e.key as? BookAndKey)?.key?: e.key
@@ -218,6 +222,8 @@ class Window (
 
     fun destroy() {
         ABEventBus.unregister(this)
+        documentUpdates.cancel()
+        pageManager.destroy()
         bibleView?.destroy()
     }
 

@@ -85,6 +85,13 @@ open class CurrentPageManager constructor(
     val currentGeneralBook = CurrentGeneralBookPage(this)
     val currentMap = CurrentMapPage(this)
 
+    /** Releases cached pages when the owning window is destroyed. */
+    fun destroy() {
+        currentDictionary.destroy()
+        currentGeneralBook.destroy()
+        currentMap.destroy()
+    }
+
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
 
     // State that JS side can store for its internal use (like Memorize doc, for specific game state)

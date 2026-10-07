@@ -168,7 +168,7 @@ object AddMyDocumentPageTool : Tool {
             )
             dao.insertPageWithContent(page, content)
             MyDocumentBookManager.refreshDocument(document.initials)
-            // No AiDocPagesChangedEvent here: insertPageWithContent doesn't create
+            // No MyDocumentChange.AiDocPages here: insertPageWithContent doesn't create
             // AiPageCacheEntry, so no marker is generated. The event is posted by
             // savePageFromAiResponse() which does create the cache entry.
 

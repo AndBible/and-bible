@@ -20,6 +20,8 @@ package net.bible.android.control.page
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.service.sword.mydocument.MyDocumentBookManager
+import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.BibleTraverser
 import org.crosswire.jsword.book.Book
@@ -102,4 +104,51 @@ class CachedKeyPageTest {
         val currentKey = DefaultLeafKeyList("some entry", "some-entry")
         assertThat(page.getKeyPlus(currentKey, 1), equalTo(currentKey as Key))
     }
+    private fun myDocumentBook(initials: String): Book {
+        val meta = mock(BookMetaData::class.java)
+        `when`(meta.getProperty("AndBibleSpecial")).thenReturn("1")
+        `when`(meta.getProperty("AndBibleMyDocument")).thenReturn("1")
+        return mock(Book::class.java).apply {
+            `when`(bookMetaData).thenReturn(meta)
+            `when`(this.initials).thenReturn(initials)
+            `when`(globalKeyList).thenReturn(DefaultKeyList().apply {
+                addAll(DefaultLeafKeyList("p1", "p1"))
+            })
+        }
+    }
+
+    @Test
+    fun aDocumentUpdateClearsTheCachedKeyListOfALivePage() {
+        val manager = createPageManager()
+        try {
+            val page = manager.currentGeneralBook
+            page.onlySetCurrentDocument(myDocumentBook("MyDoc_A"))
+            assertThat(page.cachedGlobalKeyList!!.size, equalTo(1))
+            assertThat(page.hasCachedKeyListForTest(), equalTo(true))
+
+            MyDocumentBookManager.emitForTest(MyDocumentChange.DocumentUpdated("MyDoc_A"))
+
+            assertThat(page.hasCachedKeyListForTest(), equalTo(false))
+        } finally {
+            manager.destroy()
+        }
+    }
+
+    @Test
+    fun aDestroyedPageManagersPagesIgnoreDocumentUpdates() {
+        val manager = createPageManager()
+        val pages = listOf(manager.currentDictionary, manager.currentGeneralBook, manager.currentMap)
+        pages.forEach { page ->
+            page.onlySetCurrentDocument(myDocumentBook("MyDoc_A"))
+            assertThat(page.cachedGlobalKeyList!!.size, equalTo(1))
+        }
+
+        manager.destroy()
+        MyDocumentBookManager.emitForTest(MyDocumentChange.DocumentUpdated("MyDoc_A"))
+
+        pages.forEach { page ->
+            assertThat("a destroyed page must not react", page.hasCachedKeyListForTest(), equalTo(true))
+        }
+    }
+
 }

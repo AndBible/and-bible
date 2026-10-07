@@ -334,7 +334,7 @@ fun NavGraphBuilder.myDocumentsNavGraph(navController: NavHostController, deps: 
                     // The navigate disposes this composition, which fires the autosave
                     // `DisposableEffect` below -- and `save()` does not clear `dirty` (D6's whole
                     // premise), so without the latch that dispose would run `applyChanges` a SECOND
-                    // time: a second delete pass and a second `AiDocPagesChangedEvent` on top of the
+                    // time: a second delete pass and a second `MyDocumentChange.AiDocPages` on top of the
                     // save the user just got. `finished` is a plain `remember`, so popping back
                     // rebuilds this composition with it reset to false and the autosave is armed
                     // again for the next leave.

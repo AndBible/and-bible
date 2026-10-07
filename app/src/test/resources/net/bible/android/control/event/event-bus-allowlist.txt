@@ -1,5 +1,4 @@
 AddHistoryItem
-AiDocPagesChangedEvent
 AppSettingsUpdated
 AppToBackgroundEvent
 BibleViewTouched
@@ -8,7 +7,6 @@ CurrentVerseChangedEvent
 ErrorNotificationEvent
 HideTransportEvent
 MainBibleAfterRestore
-MyDocumentUpdatedEvent
 NightModeChanged
 PassageChangedEvent
 PhoneCallEvent

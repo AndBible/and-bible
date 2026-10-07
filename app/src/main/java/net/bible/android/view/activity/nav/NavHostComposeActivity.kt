@@ -5754,7 +5754,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         addMyDocumentPageToList = ::addPageToList
 
         /** Mirror of classic `applyChanges`: delete removed pages, persist reorders/renames, always
-         *  refresh the SWORD book, and post `AiDocPagesChangedEvent` for the deletions. */
+         *  refresh the SWORD book, and post `MyDocumentChange.AiDocPages` for the deletions. */
         fun applyChanges(ordered: List<MyDocPageItem>, changed: Set<Long>, deleted: Set<Long>) {
             deleted.mapNotNull { myDocumentPagesEntityByLong[it] }.forEach { p ->
                 myDocumentDao.pageById(p.id)?.let { myDocumentDao.deletePageWithContent(it) }
@@ -5979,7 +5979,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
         /** Mirror of classic `applyChanges` (`MyDocumentsComposeActivity.kt:171-195`): delete
          *  removed documents (and their pages, CASCADE), persist reorders/renames/descriptions, and
-         *  post `AiDocPagesChangedEvent` for the deletions. */
+         *  post `MyDocumentChange.AiDocPages` for the deletions. */
         fun applyMyDocumentsChanges(ordered: List<MyDocItem>, changed: Set<Long>, deleted: Set<Long>) {
             val deletedPageIds = deleted.mapNotNull { session.entityByLong[it] }.flatMap { doc ->
                 myDocumentDao.pagesForDocument(doc.id).map { it.id }

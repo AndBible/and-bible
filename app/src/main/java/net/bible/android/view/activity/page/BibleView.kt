@@ -133,7 +133,8 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedui.currentWorkspaceThemeSeedArgb
 import net.bible.sharedui.theme.themeColorsJson
 import net.bible.service.sword.BookAndKey
-import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
+import net.bible.service.sword.mydocument.MyDocumentBookManager
+import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
@@ -1012,20 +1013,6 @@ class BibleView(
                     on<AppSettingsUpdated> { event ->
                         updateConfig()
                     }
-                    on<AiDocPagesChangedEvent> { event ->
-                        // For Bible documents, convert ordinals to target versification.
-                        // For all other documents, pass markers as-is — Vue.js filters by sourceBookInitials/Key.
-                        val v11n = (firstDocument as? BibleDocument)?.swordBook?.versification
-
-                        if (event.markers.isNotEmpty()) {
-                            val markerStr = event.markers.map { ClientAiDocMarker(it, v11n).asJson }.joinToString(",", "[", "]")
-                            executeJavascriptOnUiThread("""bibleView.emit("add_or_update_ai_doc_markers", $markerStr);""")
-                        }
-                        if (event.deletedPageIds.isNotEmpty()) {
-                            val idsStr = json.encodeToString(serializer(), event.deletedPageIds.map { it.toString() })
-                            executeJavascriptOnUiThread("""bibleView.emit("delete_ai_doc_markers", $idsStr);""")
-                        }
-                    }
                     on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
                     // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here
                     // and finish a deferred teardown. Both events were posted only by the classic
@@ -1052,12 +1039,30 @@ class BibleView(
                 })
                 subscriptions.add(ReadingProgressSettings.changed.subscribe { onReadingProgressSettingsChanged() })
                 subscriptions.add(bookmarkControl.changes.subscribe { onBookmarkChange(it) })
+                subscriptions.add(MyDocumentBookManager.changes.subscribe {
+                    if (it is MyDocumentChange.AiDocPages) onAiDocPagesChanged(it)
+                })
             } else {
                 ABEventBus.unregister(this)
                 subscriptions.cancelAll()
             }
             field = value
         }
+
+    private fun onAiDocPagesChanged(change: MyDocumentChange.AiDocPages) {
+        // For Bible documents, convert ordinals to target versification.
+        // For all other documents, pass markers as-is — Vue.js filters by sourceBookInitials/Key.
+        val v11n = (firstDocument as? BibleDocument)?.swordBook?.versification
+
+        if (change.markers.isNotEmpty()) {
+            val markerStr = change.markers.map { ClientAiDocMarker(it, v11n).asJson }.joinToString(",", "[", "]")
+            executeJavascriptOnUiThread("""bibleView.emit("add_or_update_ai_doc_markers", $markerStr);""")
+        }
+        if (change.deletedPageIds.isNotEmpty()) {
+            val idsStr = json.encodeToString(serializer(), change.deletedPageIds.map { it.toString() })
+            executeJavascriptOnUiThread("""bibleView.emit("delete_ai_doc_markers", $idsStr);""")
+        }
+    }
 
     /** The reading view's reaction to [BookmarkControl.changes]; runs on the emitter's thread. */
     private fun onBookmarkChange(change: BookmarkChange) {

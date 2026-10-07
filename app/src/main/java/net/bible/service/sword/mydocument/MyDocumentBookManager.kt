@@ -20,7 +20,6 @@ package net.bible.service.sword.mydocument
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import kotlinx.serialization.Serializable
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.LogEntry
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
@@ -42,28 +41,6 @@ import org.crosswire.jsword.book.sword.SwordGenBook
 import java.util.Locale
 
 private const val TAG = "MyDocumentBookManager"
-
-/**
- * Event posted when a MyDocument is updated (pages added/removed).
- * Used to invalidate caches that depend on the document's key list.
- */
-class MyDocumentUpdatedEvent(val initials: String)
-
-/**
- * Event posted when AI document pages are created, updated, or deleted.
- * BibleView listens for this to refresh AI doc marker icons in the Bible text.
- *
- * For adds/updates: [markers] contains the current markers for the affected range.
- * For deletes: [deletedPageIds] contains the IDs of removed pages.
- */
-class AiDocPagesChangedEvent(
-    val markers: List<AiDocMarkerInfo> = emptyList(),
-    val deletedPageIds: List<IdType> = emptyList(),
-    /** Source book initials for non-Bible page markers (commentary, etc.) */
-    val sourceBookInitials: String? = null,
-    /** Source book key for non-Bible page markers */
-    val sourceBookKey: String? = null,
-)
 
 /**
  * Extension property to check if a book is a MyDocument.
@@ -120,8 +97,9 @@ object MyDocumentBookManager {
     /** For callers that change AI document pages without going through this object (agent tools, the pages screen). */
     fun notifyAiDocPagesChanged(change: MyDocumentChange.AiDocPages) {
         changeSource.emit(change)
-        ABEventBus.post(AiDocPagesChangedEvent(change.markers, change.deletedPageIds, change.sourceBookInitials, change.sourceBookKey))
     }
+
+    @VisibleForTesting internal fun emitForTest(change: MyDocumentChange) = changeSource.emit(change)
 
     @VisibleForTesting fun resetSubscribersForTest() { changeSource = EventSource() }
 
@@ -178,7 +156,6 @@ object MyDocumentBookManager {
         for (initials in initialsToRefresh) {
             SwordContentFacade.evictBook(initials)
             changeSource.emit(MyDocumentChange.DocumentUpdated(initials))
-            ABEventBus.post(MyDocumentUpdatedEvent(initials))
         }
         Log.i(TAG, "Sync update: refreshed ${initialsToRefresh.size} MyDocuments (refreshAll=$refreshAll)")
     }
@@ -318,7 +295,6 @@ object MyDocumentBookManager {
 
         // Notify listeners to invalidate their caches
         changeSource.emit(MyDocumentChange.DocumentUpdated(initials))
-        ABEventBus.post(MyDocumentUpdatedEvent(initials))
     }
 
     /**

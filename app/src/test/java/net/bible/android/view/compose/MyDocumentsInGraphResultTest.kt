@@ -349,7 +349,7 @@ class MyDocumentsInGraphResultTest {
      * `save()` deliberately does NOT clear `dirty` -- that is D6's whole premise. So unless `onOpen`
      * also latches `finished`, the arm's `DisposableEffect(controller)` fires on the way in to
      * `MyDocumentPages` and runs a SECOND `applyChanges`: a second delete pass and a second
-     * `AiDocPagesChangedEvent` on top of a save the user already got. Every other exit from this arm
+     * `MyDocumentChange.AiDocPages` on top of a save the user already got. Every other exit from this arm
      * (Save, Dismiss, the relayed page selection) latches; this one did not, which is exactly the
      * asymmetry D6 exists to prevent. The batch never wrote a dispose-while-dirty test for D6 at
      * all -- this is it.

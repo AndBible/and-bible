@@ -19,10 +19,13 @@ package net.bible.android.control.page.window
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.service.sword.mydocument.MyDocumentBookManager
+import net.bible.service.sword.mydocument.MyDocumentChange
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.versification.BibleTraverser
@@ -34,6 +37,9 @@ import net.bible.service.sword.SwordDocumentFacade
 import net.bible.test.DatabaseResetter
 import net.bible.test.PassageTestData
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookMetaData
+import org.crosswire.jsword.passage.DefaultKeyList
+import org.crosswire.jsword.passage.DefaultLeafKeyList
 
 import org.junit.After
 import org.junit.Before
@@ -44,6 +50,8 @@ import org.robolectric.annotation.Config
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
+import org.robolectric.shadows.ShadowLog
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
@@ -113,4 +121,60 @@ class WindowTest {
         assertThat<Book>(biblePage.currentDocument, equalTo<Book>(PassageTestData.ESV))
         assertThat(biblePage.singleKey.name, equalTo(PassageTestData.PS_139_2.name))
     }
+    @Test
+    fun destroyingAWindowStopsReloadsAndAllItsPagesReactingToDocumentUpdates() {
+        // loadText's synchronous setup stays real; cancel only the background content fetch.
+        val repository = WindowRepository(CoroutineScope(Dispatchers.Main + Job().apply { cancel() }))
+        fun createWindow(): Window = Window(
+            WorkspaceEntities.Window(
+                workspaceId = IdType(), isSynchronized = false, isPinMode = false,
+                windowLayout = WorkspaceEntities.WindowLayout(WindowState.VISIBLE.toString()),
+            ),
+            mockCurrentPageManagerProvider(),
+            repository,
+        )
+        val live = createWindow()
+        val destroyed = createWindow()
+        val meta = mock(BookMetaData::class.java)
+        `when`(meta.getProperty("AndBibleSpecial")).thenReturn("1")
+        `when`(meta.getProperty("AndBibleMyDocument")).thenReturn("1")
+        val book = mock(Book::class.java).apply {
+            `when`(bookMetaData).thenReturn(meta)
+            `when`(initials).thenReturn("MyDoc_A")
+            `when`(globalKeyList).thenReturn(DefaultKeyList().apply {
+                addAll(DefaultLeafKeyList("p1", "p1"))
+            })
+        }
+        fun pages(window: Window) = with(window.pageManager) {
+            listOf(currentDictionary, currentGeneralBook, currentMap)
+        }
+        try {
+            listOf(live, destroyed).forEach { window ->
+                window.windowState = WindowState.VISIBLE
+                // Mark a MyDocument as displayed using the real loadText setup.
+                window.pageManager.currentBible.onlySetCurrentDocument(book)
+                window.loadText()
+                pages(window).forEach { page ->
+                    page.onlySetCurrentDocument(book)
+                    assertThat(page.cachedGlobalKeyList!!.size, equalTo(1))
+                }
+            }
+            destroyed.destroy()
+            ShadowLog.clear()
+
+            MyDocumentBookManager.emitForTest(MyDocumentChange.DocumentUpdated("MyDoc_A"))
+
+            val reloads = ShadowLog.getLogs().map { it.msg }
+            assertThat(reloads.count { it == "updateText ${live.hashCode()}" }, equalTo(1))
+            assertThat(reloads.count { it == "updateText ${destroyed.hashCode()}" }, equalTo(0))
+            pages(live).forEach { assertThat(it.hasCachedKeyListForTest(), equalTo(false)) }
+            pages(destroyed).forEach {
+                assertThat("destroyed window's pages must not react", it.hasCachedKeyListForTest(), equalTo(true))
+            }
+        } finally {
+            live.destroy()
+            destroyed.destroy()
+        }
+    }
+
 }
