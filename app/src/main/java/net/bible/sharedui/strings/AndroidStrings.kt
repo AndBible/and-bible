@@ -567,6 +567,17 @@ class AndroidStrings(private val context: Context) : Strings {
     override val welcomeEasyStartButton: String get() = context.getString(R.string.easy_start_title)
     override val welcomeHomepageLabel: String get() = context.getString(R.string.homepage)
     override val welcomeGithubLabel: String get() = context.getString(R.string.github_page)
+    override val welcomeIntro: String get() = context.getString(R.string.welcome_intro)
+    override val welcomeTabEasy: String get() = context.getString(R.string.welcome_tab_easy)
+    override val welcomeTabAdvanced: String get() = context.getString(R.string.welcome_tab_advanced)
+    override val welcomeQuickStartTitle: String get() = context.getString(R.string.welcome_quick_start_title)
+    override val welcomeQuickStartMessage: String get() = context.getString(R.string.welcome_quick_start_message)
+    override val welcomeQuickStartButton: String get() = context.getString(R.string.welcome_quick_start_button)
+    override val welcomeRedownloadHint: String get() = context.getString(R.string.welcome_redownload_hint)
+    override val welcomeRedownloadHintAction: String get() = context.getString(R.string.welcome_redownload_hint_action)
+    override val welcomeRedownloadRowHint: String get() = context.getString(R.string.welcome_redownload_row_hint)
+    override val welcomeDownloadRowHint: String get() = context.getString(R.string.welcome_download_row_hint)
+    override val welcomeRestoreRowHint: String get() = context.getString(R.string.welcome_restore_row_hint)
 
     // Task B1 (InstallZip Plan B) — Compose install UI
     override val installZipTitle: String get() = context.getString(R.string.install_zip)

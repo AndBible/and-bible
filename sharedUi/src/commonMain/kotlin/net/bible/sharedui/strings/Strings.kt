@@ -636,6 +636,17 @@ interface Strings {
     val welcomeEasyStartButton: String      // R.string.easy_start_title
     val welcomeHomepageLabel: String        // R.string.homepage
     val welcomeGithubLabel: String          // R.string.github_page
+    val welcomeIntro: String                // R.string.welcome_intro
+    val welcomeTabEasy: String              // R.string.welcome_tab_easy (English-only)
+    val welcomeTabAdvanced: String          // R.string.welcome_tab_advanced (English-only)
+    val welcomeQuickStartTitle: String      // R.string.welcome_quick_start_title (English-only)
+    val welcomeQuickStartMessage: String    // R.string.welcome_quick_start_message (English-only)
+    val welcomeQuickStartButton: String     // R.string.welcome_quick_start_button (English-only)
+    val welcomeRedownloadHint: String       // R.string.welcome_redownload_hint (English-only)
+    val welcomeRedownloadHintAction: String // R.string.welcome_redownload_hint_action (English-only)
+    val welcomeRedownloadRowHint: String    // R.string.welcome_redownload_row_hint
+    val welcomeDownloadRowHint: String      // R.string.welcome_download_row_hint
+    val welcomeRestoreRowHint: String       // R.string.welcome_restore_row_hint
 
     // Task B1 (InstallZip Plan B) — Compose install UI (progress + decision dialogs)
     val installZipTitle: String                    // R.string.install_zip (FormatInfo prelude dialog title)
