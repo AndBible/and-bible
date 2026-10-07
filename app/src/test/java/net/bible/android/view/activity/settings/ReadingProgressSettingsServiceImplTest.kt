@@ -18,8 +18,6 @@ package net.bible.android.view.activity.settings
 
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
-import net.bible.android.control.progress.ReadingProgressSettingsChangedEvent
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -85,27 +83,41 @@ class ReadingProgressSettingsServiceImplTest {
         assertEquals("full", ReadingProgressSettings.memorizeWordVisibility)
     }
 
-    // --- event parity: classic ReadingProgressSettingsDataStore posts ReadingProgressSettingsChangedEvent
-    // on every write (the ReadingProgressSettings singleton's own setters do not) ---
+    // --- notification parity: classic ReadingProgressSettingsDataStore notified on every write (the singleton's own setters do not) ---
 
-    @Test fun setBool_postsReadingProgressSettingsChangedEvent() {
+    @Test fun setBool_notifiesReadingProgressSettingsChanged() {
         val service = ReadingProgressSettingsServiceImpl()
         var eventCount = 0
-        ABEventBus.register(this) { on<ReadingProgressSettingsChangedEvent> { eventCount++ } }
-
-        service.setBool("auto_mark_memorized", false)
-
-        assertEquals(1, eventCount)
+        val subscription = ReadingProgressSettings.changed.subscribe { eventCount++ }
+        try {
+            service.setBool("auto_mark_memorized", false)
+            assertEquals(1, eventCount)
+        } finally {
+            subscription.cancel()
+        }
     }
 
-    @Test fun setString_postsReadingProgressSettingsChangedEvent() {
+    @Test fun setString_notifiesReadingProgressSettingsChanged() {
         val service = ReadingProgressSettingsServiceImpl()
         var eventCount = 0
-        ABEventBus.register(this) { on<ReadingProgressSettingsChangedEvent> { eventCount++ } }
+        val subscription = ReadingProgressSettings.changed.subscribe { eventCount++ }
+        try {
+            service.setString("memorize_word_visibility", "hidden")
+            assertEquals(1, eventCount)
+        } finally {
+            subscription.cancel()
+        }
+    }
 
-        service.setString("memorize_word_visibility", "hidden")
-
-        assertEquals(1, eventCount)
+    @Test fun theSettingsSettersAloneDoNotNotify() {
+        var eventCount = 0
+        val subscription = ReadingProgressSettings.changed.subscribe { eventCount++ }
+        try {
+            ReadingProgressSettings.autoMarkMemorized = true
+            assertEquals("only writers that call notifyChanged() notify, as before", 0, eventCount)
+        } finally {
+            subscription.cancel()
+        }
     }
 
     // --- refresh() re-reads the underlying store into the snapshot ---

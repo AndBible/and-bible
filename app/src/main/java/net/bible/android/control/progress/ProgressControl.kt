@@ -70,9 +70,6 @@ fun computeRangeDifference(
     return RangeDifferenceResult(remaining, removed)
 }
 
-/** Posted when global reading progress settings change. All BibleViews should update their settings. */
-class ReadingProgressSettingsChangedEvent
-
 data class MemorizedVerseRangeWithTimestamp(
     val verseRange: VerseRange,
     val latestMemorizedAt: Long,

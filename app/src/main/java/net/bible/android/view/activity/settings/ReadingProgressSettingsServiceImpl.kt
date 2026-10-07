@@ -21,8 +21,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.progress.ReadingProgressSettingsChangedEvent
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.sharedcore.settings.Choice2
 import net.bible.sharedcore.settings.ReadingProgressSettingsService
@@ -35,7 +33,7 @@ import net.bible.sharedcore.settings.ReadingProgressSettingsSnapshot
  * written against) key-for-key: reads/writes go through the [ReadingProgressSettings] singleton
  * (Room-DAO-backed, `net.bible.service.common.ReadingProgressSettings`), NOT
  * `CommonUtils.settings`. That singleton's property setters do NOT themselves post
- * [ReadingProgressSettingsChangedEvent] (they only write to the DAO) — the classic
+ * [ReadingProgressSettings.notifyChanged] (they only write to the DAO) — the classic
  * `PreferenceDataStore.putBoolean`/`putString` post the event explicitly after every
  * write, so this impl does the same, to preserve parity (BibleView listens for this
  * event to refresh its reading-progress markers).
@@ -72,7 +70,7 @@ class ReadingProgressSettingsServiceImpl : ReadingProgressSettingsService {
             "memorize_scramble_hide_used" -> ReadingProgressSettings.memorizeScrambleHideUsed = value
             "memorize_include_reference" -> ReadingProgressSettings.memorizeIncludeReference = value
         }
-        ABEventBus.post(ReadingProgressSettingsChangedEvent())
+        ReadingProgressSettings.notifyChanged()
         refresh()
     }
 
@@ -80,7 +78,7 @@ class ReadingProgressSettingsServiceImpl : ReadingProgressSettingsService {
         when (key) {
             "memorize_word_visibility" -> ReadingProgressSettings.memorizeWordVisibility = value
         }
-        ABEventBus.post(ReadingProgressSettingsChangedEvent())
+        ReadingProgressSettings.notifyChanged()
         refresh()
     }
 

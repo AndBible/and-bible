@@ -21,6 +21,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.bible.android.database.progress.GlobalReadingProgressSettings
 import net.bible.service.db.DatabaseContainer
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 
 /**
  * Serializable bundle of all reading progress settings, used for communication with Vue.js.
@@ -40,6 +42,16 @@ data class ReadingProgressSettingsBundle(
  * Each property reads/writes the [GlobalReadingProgressSettings] singleton row.
  */
 object ReadingProgressSettings {
+    private val _changed = EventSource<Unit>()
+
+    /**
+     * Fires after a write that open BibleViews must re-read: the settings screen and the JS bridge call
+     * [notifyChanged]. The property setters do not notify, as before (replaces `ReadingProgressSettingsChangedEvent`).
+     */
+    val changed: Events<Unit> get() = _changed
+
+    fun notifyChanged() = _changed.emit(Unit)
+
     private val dao get() = DatabaseContainer.instance.progressDb.globalReadingProgressSettingsDao()
 
     private fun getOrDefault(): GlobalReadingProgressSettings = dao.get() ?: GlobalReadingProgressSettings()

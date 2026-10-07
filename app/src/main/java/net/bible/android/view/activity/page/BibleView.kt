@@ -73,7 +73,6 @@ import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
 import net.bible.android.control.progress.ProgressChange
 import net.bible.android.control.progress.ProgressControl
-import net.bible.android.control.progress.ReadingProgressSettingsChangedEvent
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.NoteEditorEntityType
@@ -1026,11 +1025,6 @@ class BibleView(
                         val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
                         executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
                     }
-                    on<ReadingProgressSettingsChangedEvent> { event ->
-                        val settingsJson = ReadingProgressSettings.getBundleAsJson()
-                        executeJavascriptOnUiThread("""bibleView.emit("update_reading_progress_settings", $settingsJson);""")
-                        updateConfig()
-                    }
                     on<AiDocPagesChangedEvent> { event ->
                         // For Bible documents, convert ordinals to target versification.
                         // For all other documents, pass markers as-is — Vue.js filters by sourceBookInitials/Key.
@@ -1149,12 +1143,19 @@ class BibleView(
                         is ProgressChange.ActiveCycle -> onActiveCycleChanged()
                     }
                 })
+                subscriptions.add(ReadingProgressSettings.changed.subscribe { onReadingProgressSettingsChanged() })
             } else {
                 ABEventBus.unregister(this)
                 subscriptions.cancelAll()
             }
             field = value
         }
+
+    private fun onReadingProgressSettingsChanged() {
+        val settingsJson = ReadingProgressSettings.getBundleAsJson()
+        executeJavascriptOnUiThread("""bibleView.emit("update_reading_progress_settings", $settingsJson);""")
+        updateConfig()
+    }
 
     private fun onMemorizationChanged(event: ProgressChange.Memorization) {
         val doc = firstDocument
