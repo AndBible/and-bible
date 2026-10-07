@@ -1383,7 +1383,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * destination's `DisposableEffect`: an effect inside the graph necessarily runs AFTER
      * `setContent`, i.e. after [ReadingAppBootstrap.openDeepLink] below has already run
      * `windowControl.showLink` -> `setKey(addHistoryItem = true)` -> a SYNCHRONOUS
-     * a direct `HistoryManager.recordIfCreated` call. With the flag false at that moment `createHistoryItem` does
+     * direct `HistoryManager.recordIfCreated` call. With the flag false at that moment `createHistoryItem` does
      * not merely drop the item: it falls through to the `currentActivity is AndBibleActivity` arm --
      * this class is one -- and records a WRONG `IntentHistoryItem` carrying the deep-link intent,
      * whose `revertTo()` re-starts it. Classic's 14-line comment in `MainBibleActivity.onCreate`
@@ -2059,7 +2059,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * i.e. before [reclaimWindowRepository] has taken `windowControl.windowRepository` back (the
      * applies below read `windowControl.activeWindowPageManager`), before
      * `ReadingHostPresence.setForeground(this)` has made `ReadingViewVisibility.isVisible` true for
-     * the a direct `HistoryManager.recordIfCreated` call a `setKey`/`setCurrentDocumentAndKey` makes, and before
+     * the direct `HistoryManager.recordIfCreated` call a `setKey`/`setCurrentDocumentAndKey` makes, and before
      * [rearmBootstrapBridgeIfStillOwed]. Classic needed `CurrentActivityHolder.activate(this)` +
      * `ReadingHostPresence.setForeground(this)` + `ReadingViewVisibility.setActivityVisible(this,
      * true)` inside its dispatcher for exactly that reason; on this host the last of those three
@@ -2833,7 +2833,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * kdoc: "A task that gives the host another pre-composition producer of history items has to
      * close this." **T8a item 2 is that task.** [handlePendingAgentResult], which its
      * reconciliation runs from inside `onResume`, reaches `LinkControl.openAIDocument`/`openStudyPad`
-     * -> `showLink` -> `setKey(addHistoryItem = true)` -> a SYNCHRONOUS a direct `HistoryManager.recordIfCreated` call, and
+     * -> `showLink` -> `setKey(addHistoryItem = true)` -> a SYNCHRONOUS direct `HistoryManager.recordIfCreated` call, and
      * `HistoryManager.createHistoryItem` reads `isVisible` while handling it. False there records a
      * wrong `IntentHistoryItem` carrying this host's launch Intent instead of a `KeyHistoryItem` for
      * the verse — the identical defect [bootstrapIfNeeded]'s ordering exists to prevent, one
@@ -2850,7 +2850,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * unconditional re-arm fails.
      *
      * Before `super.onResume()` and before the reconciliation, for [bootstrapIfNeeded]'s reason: the
-     * a direct `HistoryManager.recordIfCreated` call its producers make is synchronous.
+     * direct `HistoryManager.recordIfCreated` call its producers make is synchronous.
      */
     private fun rearmBootstrapBridgeIfStillOwed() {
         if (readingAppBootstrapped && composeReadingViewHost == null) {

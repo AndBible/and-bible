@@ -41,7 +41,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.view.activity.nav.NavHostComposeActivity
@@ -154,7 +153,7 @@ class DocumentInstallService : Service() {
 
         /**
          * Fires once per job's terminal [InstallPhase] (from [InstallServiceController.onTerminal],
-         * potentially off the main thread -- [ABEventBus.post] is safe to call from any thread).
+         * potentially off the main thread -- [net.bible.android.control.document.DocumentChanges.notifyInstalledChanged] emits on the caller's thread, so subscribers must tolerate off-main delivery).
          * Mirrors classic `InstallZip`/`ZipHandler`/`installFromFile`'s post-install side effects.
          */
         private fun postTerminalEvents(phase: InstallPhase) {

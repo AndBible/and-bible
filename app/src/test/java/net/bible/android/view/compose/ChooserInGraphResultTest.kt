@@ -601,7 +601,7 @@ class ChooserInGraphResultTest {
      */
     /**
      * Slice 8 final review, finding 2: the premise of the host's in-graph Download hop. The host arms
-     * its follow-up (`UpdateMainBibleActivityDocuments` + reload) when the Download row navigates, and
+     * its follow-up (a `DocumentChanges.installedChanged` emission + reload) when the Download row navigates, and
      * performs it from `loadDocuments` -- so `loadDocuments` must run again when the chooser entry is
      * RETURNED to, not only on its first entry. A one-shot load (e.g. guarded by saved state) would
      * silently drop the follow-up.
