@@ -16,34 +16,50 @@
  */
 package net.bible.android.control
 
+import androidx.annotation.VisibleForTesting
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
+import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.window.Window
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 
 /** when a bible passage is changed there are lots o things to update and they should be done in a helpful order
  * This helps to control screen updates after a passage change
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-private const val TAG = "PassageChangeMediator"
 object PassageChangeMediator {
-    /** the document has changed so ask the view to refresh itself
-     */
+    private var source = EventSource<PageChange>()
+
+    /** Page changes of every window; see [PageChange]. */
+    val changes: Events<PageChange> get() = source
+
+    /** the document has changed so ask the view to refresh itself */
     fun onCurrentPageChanged(window: Window) {
         window.updateText()
         ABEventBus.post(CurrentVerseChangedEvent(window))
+        source.emit(PageChange.VerseChanged(window))
     }
 
-    /** this is triggered on scroll
-     */
+    /** this is triggered on scroll */
     fun onCurrentVerseChanged(window: Window) {
         ABEventBus.post(CurrentVerseChangedEvent(window))
+        source.emit(PageChange.VerseChanged(window))
     }
 
-    /** finished fetching html so should hide hourglass
-     */
+    fun onBibleVerseSelected() {
+        ABEventBus.post(CurrentBibleVerseChanged())
+        source.emit(PageChange.BibleVerseChanged)
+    }
+
+    /** finished fetching html so should hide hourglass */
     fun contentChangeFinished() {
         ABEventBus.post(PassageChangedEvent())
+        source.emit(PageChange.ContentLoaded)
     }
+
+    @VisibleForTesting
+    fun resetSubscribersForTest() { source = EventSource() }
 }

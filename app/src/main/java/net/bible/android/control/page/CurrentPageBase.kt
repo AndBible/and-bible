@@ -21,7 +21,6 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.Dialogs
@@ -176,7 +175,7 @@ abstract class CurrentPageBase protected constructor(
         }
 
         annotateKey = frag.annotateRef
-        ABEventBus.post(CurrentVerseChangedEvent(pageManager.window))
+        PassageChangeMediator.onCurrentVerseChanged(pageManager.window)
 
         // For MyDocument pages, pass page metadata so Vue.js can render the AI footer
         val myDocumentPage = if (currentDocument.isMyDocument) {
