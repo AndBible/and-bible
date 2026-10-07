@@ -268,6 +268,7 @@ class ReadingCommands(
         imeHeight = { hostCallbacks.readingInsets().imeHeight },
         topOffset2 = { hostCallbacks.readingInsets().topOffset2 },
         bottomOffsetForWebView = { hostCallbacks.readingInsets().bottomOffsetForWebView },
+        insetsChanges = { hostCallbacks.readingInsets().offsetsChanged },
     )
 
     /** The drawer/menu command handler [handleDrawerItemClick] and the Activity's own

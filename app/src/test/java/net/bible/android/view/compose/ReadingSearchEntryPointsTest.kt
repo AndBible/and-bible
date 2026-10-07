@@ -25,7 +25,6 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.window.WindowControl
@@ -36,7 +35,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.MenuCommandHandler
-import net.bible.android.view.activity.page.SearchSheetOffsetsUpdated
+import net.bible.android.view.activity.page.OffsetsChange
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
@@ -1038,15 +1037,14 @@ class ReadingSearchEntryPointsTest {
 
     /**
      * Review item B: only the arithmetic was covered above — nothing asserted that
-     * [ReadingInsets.updateSearchSheetOffsets] actually posts
-     * [SearchSheetOffsetsUpdated], which is the ONLY thing that makes
+     * [ReadingInsets.updateSearchSheetOffsets] actually emits on
+     * [ReadingInsets.offsetsChanged], which is the ONLY thing that makes
      * [BibleView.updateOffsets] re-read [ReadingInsets.bottomOffsetForWebView] and push it to
-     * the Vue side at runtime (see that event's kdoc). `on<T>`, not `onMain<T>`, dispatches
-     * synchronously (`ABEventBus.post`) — no coroutine/dispatcher wait needed.
+     * the Vue side at runtime. `subscribe` dispatches synchronously — no coroutine/dispatcher wait needed.
      */
     @Test fun updateSearchSheetOffsetsPostsTheEventOnlyWhenSomethingActuallyChanged() {
         var updates = 0
-        ABEventBus.register(this) { on<SearchSheetOffsetsUpdated> { updates++ } }
+        val subscription = activity.readingInsets.offsetsChanged.subscribe { if (it.immediate) updates++ }
         try {
             activity.readingInsets.updateSearchSheetOffsets(visible = true, heightPx = 100)
             assertEquals(1, updates, "a real change must post")
@@ -1060,7 +1058,18 @@ class ReadingSearchEntryPointsTest {
             activity.readingInsets.updateSearchSheetOffsets(visible = false, heightPx = 150)
             assertEquals(3, updates, "a visibility-only change must still post")
         } finally {
-            ABEventBus.unregister(this)
+            subscription.cancel()
         }
+    }
+
+    @Test fun searchFieldFocusReportsAnImmediateOffsetsChange() {
+        val seen = mutableListOf<OffsetsChange>()
+        val subscription = activity.readingInsets.offsetsChanged.subscribe { seen += it }
+        try {
+            activity.readingInsets.onComposeSearchFieldFocusChanged()
+        } finally {
+            subscription.cancel()
+        }
+        assertEquals(listOf(OffsetsChange(immediate = true)), seen)
     }
 }

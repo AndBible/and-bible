@@ -11,8 +11,7 @@ import org.junit.Test
 class MainBibleActivityRemovalGuardTest {
 
     private val nested = listOf(
-        "SystemInsetsChangedEvent", "KeyIsNull", "SearchSheetOffsetsUpdated",
-        "ImePaddingChanged", "ConfigurationChanged",
+        "KeyIsNull", "ConfigurationChanged",
         "MainBibleAfterRestore", "UpdateMainBibleActivityDocuments", "WORKSPACE_CHANGED",
     )
 

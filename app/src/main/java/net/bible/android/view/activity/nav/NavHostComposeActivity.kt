@@ -190,7 +190,6 @@ import net.bible.android.view.activity.page.ReadingInsets
 import net.bible.android.view.activity.page.ReadingInsetsHostCallbacks
 import net.bible.android.view.activity.page.SDCARD_READ_REQUEST
 import net.bible.android.view.activity.page.SpeakTransportVisibilityChanged
-import net.bible.android.view.activity.page.SystemInsetsChangedEvent
 import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.syncScope
@@ -3320,7 +3319,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // bracketed by the same guard classic's registration sits behind
         // (`MainBibleActivity.kt:674-675`); this host had a ledger (`readingInsets`, :1338) and
         // nothing to fill it, so `bottomOffsetForWebView` lost its navigation-bar term, `imeHeight`
-        // was permanently 0 and `SystemInsetsChangedEvent` was never posted -- see the
+        // was permanently 0 and the offsets-changed report was never emitted -- see the
         // host-inset-ownership spec, section 1.3.
         //
         // Unlike ActivityBase's listener this one pads NOTHING at the window level: the scaffolds
@@ -3353,7 +3352,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 val systemBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
                 val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
                 readingInsets.onWindowInsetsApplied(systemBarInsets, imeInsets)
-                ABEventBus.post(SystemInsetsChangedEvent(systemBarInsets))
                 windowInsets
             }
         }

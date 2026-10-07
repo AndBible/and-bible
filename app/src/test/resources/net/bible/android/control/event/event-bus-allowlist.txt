@@ -20,7 +20,6 @@ DocumentDownloadEvent
 DocumentSyncProgressEvent
 ErrorNotificationEvent
 HideTransportEvent
-ImePaddingChanged
 InstallZipEvent
 LabelAddedOrUpdatedEvent
 LabelsDeletedEvent
@@ -32,7 +31,6 @@ PassageChangedEvent
 PhoneCallEvent
 ReloadAddonsEvent
 ScrollSecondaryWindowEvent
-SearchSheetOffsetsUpdated
 SpeakEvent
 SpeakProgressEvent
 SpeakSettingsChangedEvent
@@ -41,7 +39,6 @@ StudyPadOrderEvent
 StudyPadTextEntryDeleted
 SynchronizeWindowsEvent
 SystemBarSettingChangedEvent
-SystemInsetsChangedEvent
 ToastEvent
 UpdateMainBibleActivityDocuments
 WorkspaceChanged

@@ -1117,22 +1117,14 @@ class BibleView(
                             scrollOrJumpToVerse(event.verse)
                         }
                     }
-                    on<SystemInsetsChangedEvent> { event -> updateOffsets() }
                     on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
-                    // F6 Task 8b Step 3: the search sheet's own visible/height pair changed — see
-                    // MainBibleActivity.updateSearchSheetOffsets.
-                    on<SearchSheetOffsetsUpdated> { event ->
-                        updateOffsets(true)
-                    }
-                    on<ImePaddingChanged> { event ->
-                        updateOffsets(true)
-                    }
                     // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here
                     // and finish a deferred teardown. Both events were posted only by the classic
                     // split reading area, so they became unpostable when it went; the live teardown
                     // route is `BibleViewFactory.clear()`, which calls `doDestroy()` directly and
                     // is not event-driven. Removed in Batch Z-late's epilogue (spec 10.3).
                 }
+                subscriptions.add(hostCallbacks.insetsChanges().subscribe { updateOffsets(it.immediate) })
                 subscriptions.add(windowState.windowChanges.subscribe { change ->
                     when (change) {
                         is WindowChange.ActiveWindowChanged -> onActiveWindowChanged(change.window)

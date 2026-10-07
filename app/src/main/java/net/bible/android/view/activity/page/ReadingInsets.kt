@@ -18,7 +18,8 @@
 package net.bible.android.view.activity.page
 
 import androidx.core.graphics.Insets
-import net.bible.android.control.event.ABEventBus
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 
 /**
  * What [ReadingInsets] needs from whichever Activity is hosting the reading view: the seven pieces
@@ -111,7 +112,15 @@ class ReadingInsetsHostCallbacks(
  * delegating members of the same names for `ComposeReadingViewHost` and the Robolectric net
  * (`ReadingSearchEntryPointsTest`), which call them on the Activity and are not edited in this batch.
  */
+/** BibleView must re-send its offsets; [immediate] maps to `updateOffsets(immediate)`. */
+data class OffsetsChange(val immediate: Boolean)
+
 class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
+    private val _offsetsChanged = EventSource<OffsetsChange>()
+
+    /** "Recompute and push the offsets to the WebView" (replaces three bus events). One ledger per host. */
+    val offsetsChanged: Events<OffsetsChange> get() = _offsetsChanged
+
 
     // Top offset with only statusbar and toolbar
     val topOffset2 = 0
@@ -181,8 +190,8 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
     /**
      * F6 Task 8b Step 3: [net.bible.android.view.activity.page.screen.ComposeReadingViewHost.install]'s
      * report of the search sheet's live (visible, measured-height-in-px) state — the fourth term in
-     * [bottomOffsetForWebView], mirroring `MainBibleActivity`'s agentLogVisible/agentLogHeight. Posts
-     * [SearchSheetOffsetsUpdated] (a "recompute and push to the WebView" event) so
+     * [bottomOffsetForWebView], mirroring `MainBibleActivity`'s agentLogVisible/agentLogHeight. Emits
+     * [offsetsChanged] (a "recompute and push to the WebView" event) so
      * [net.bible.android.view.activity.page.BibleView.updateOffsets] picks up the new value; a no-op when nothing actually changed, so a benign recomposition doesn't
      * spam `set_offsets` calls.
      */
@@ -190,7 +199,7 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
         if (searchSheetVisible == visible && searchSheetHeight == heightPx) return
         searchSheetVisible = visible
         searchSheetHeight = heightPx
-        ABEventBus.post(SearchSheetOffsetsUpdated())
+        _offsetsChanged.emit(OffsetsChange(immediate = true))
     }
 
     /**
@@ -219,7 +228,7 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
      */
     fun onComposeSearchFieldFocusChanged() {
         applyImePadding()
-        ABEventBus.post(ImePaddingChanged())
+        _offsetsChanged.emit(OffsetsChange(immediate = true))
     }
 
     /**
@@ -242,5 +251,6 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
         // Resize the WebView area when the keyboard is visible, to fix position:fixed drift.
         // This restores the pre-Android 15 ADJUST_RESIZE behaviour manually.
         applyImePadding()
+        _offsetsChanged.emit(OffsetsChange(immediate = false))
     }
 }

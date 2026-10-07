@@ -144,9 +144,8 @@ class CollaboratorTypeGuardTest {
      * The three files R6a re-types plus R6b's `ReadingInsets`. A subset of [files]; scanned harder.
      *
      * `ReadingInsets.kt` earns the harder scan because after R6b the only `MainBibleActivity`
-     * tokens left in its CODE are the two nested event classes it posts
-     * (`SearchSheetOffsetsUpdated`, `ImePaddingChanged`), both already on [allowedNestedMembers] and
-     * both Task 13's to re-home. Anything else appearing there -- a type position, an import, a bare
+     * tokens left in its CODE were two nested event classes it posted; they are now
+     * [ReadingInsets.offsetsChanged]. Anything else appearing there -- a type position, an import, a bare
      * pass of the Activity into the ledger -- is the regression this list exists to catch.
      */
     private val readingViewFiles = listOf(
