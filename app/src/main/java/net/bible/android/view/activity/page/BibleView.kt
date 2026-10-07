@@ -1117,9 +1117,6 @@ class BibleView(
                             scrollOrJumpToVerse(event.verse)
                         }
                     }
-                    on<ConfigurationChanged> { event ->
-                        checkWindows = true
-                    }
                     on<FullScreenEvent> { event -> updateOffsets() }
                     on<SystemInsetsChangedEvent> { event -> updateOffsets() }
                     on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
@@ -1142,6 +1139,7 @@ class BibleView(
                         is WindowChange.ActiveWindowChanged -> onActiveWindowChanged(change.window)
                         WindowChange.WindowsChanged -> onWindowsChanged()
                         WindowChange.RestoreButtonsChanged -> updateOffsets()
+                        WindowChange.LayoutConfigurationChanged -> checkWindows = true
                     }
                 })
                 subscriptions.add(ProgressControl.changes.subscribe { change ->

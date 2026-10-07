@@ -17,7 +17,6 @@
 
 package net.bible.android.view.activity.page
 
-import android.content.res.Configuration
 import androidx.core.graphics.Insets
 
 /**
@@ -37,8 +36,6 @@ class SearchSheetOffsetsUpdated
 class ImePaddingChanged
 
 class FullScreenEvent(val isFullScreen: Boolean)
-
-class ConfigurationChanged(val configuration: Configuration)
 
 class MainBibleAfterRestore
 

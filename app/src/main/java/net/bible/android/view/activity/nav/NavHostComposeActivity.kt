@@ -132,8 +132,10 @@ import net.bible.android.control.link.LinkControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.page.PageControl
+import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.report.AiBugReport
 import net.bible.android.control.report.ErrorReportControl
@@ -177,7 +179,6 @@ import net.bible.android.view.activity.download.isBadDocument
 import net.bible.android.view.activity.download.isInstalled
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.ActivityResultKind
-import net.bible.android.view.activity.page.ConfigurationChanged
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.FullScreenEvent
 import net.bible.android.view.activity.page.KeyChooserResults
@@ -532,6 +533,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val rawLogService: RawLogService by inject()
     private val readingPlanControl: ReadingPlanControl by inject()
     private val speakControl: SpeakControl by inject()
+    private val windowStateService: WindowStateServiceImpl by inject()
     private val searchControl: SearchControl by inject()
     private val bibleSearchService: BibleSearchService by inject()
     private val searchIndexService: SearchIndexService by inject()
@@ -3291,12 +3293,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /**
      * Fix batch 2 §2.3: this host is NOT recreated on rotation (`orientation` is in its
      * `configChanges`, F65), so BibleView must be told -- it re-derives `isSplitVertically` and
-     * re-sends its pane offsets on `ConfigurationChanged` (the event `SplitModePreference` already
-     * posts for the same reason).
+     * re-sends its pane offsets on `WindowChange.LayoutConfigurationChanged` (the change
+     * `SplitModePreference` already notifies for the same reason).
      */
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        ABEventBus.post(ConfigurationChanged(newConfig))
+        windowStateService.notify(WindowChange.LayoutConfigurationChanged)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

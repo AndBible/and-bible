@@ -25,7 +25,8 @@ import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
-import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.page.window.WindowChange
+import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.database.IdType
 import net.bible.android.database.InheritedFrom
@@ -46,6 +47,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
 import org.crosswire.jsword.book.FeatureType
 import org.koin.core.component.KoinComponent
+import org.koin.core.context.GlobalContext
 import org.koin.core.component.inject
 
 interface OptionsMenuItemInterface {
@@ -593,7 +595,7 @@ class SplitModePreference(val mainBibleActivity: Context) :
     private val wsBehaviorSettings = windowRepository.workspaceSettings
     override fun handle() {
         windowControl.windowSizesChanged()
-        ABEventBus.post(ConfigurationChanged(mainBibleActivity.resources.configuration))
+        GlobalContext.get().get<WindowStateServiceImpl>().notify(WindowChange.LayoutConfigurationChanged)
     }
 
     override var value: Any

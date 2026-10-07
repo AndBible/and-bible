@@ -36,6 +36,8 @@ sealed interface WindowChange {
     data class ActiveWindowChanged(val window: Window) : WindowChange
     /** The restore-buttons setting flipped. */
     object RestoreButtonsChanged : WindowChange
+    /** The device configuration or the split mode changed; panes re-derive their split orientation. */
+    object LayoutConfigurationChanged : WindowChange
 }
 
 /**
