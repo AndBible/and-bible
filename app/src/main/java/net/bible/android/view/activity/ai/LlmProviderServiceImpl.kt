@@ -149,7 +149,7 @@ class LlmProviderServiceImpl : LlmProviderService {
             }
         }
         // Classic posts AppSettingsUpdated only on create; edits just refresh the list locally.
-        if (id == null) //MUT
+        if (id == null) AiSettings.notifyConfigChanged()
         refresh()
     }
 
