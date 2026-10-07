@@ -181,6 +181,10 @@ class DocumentSyncService : Service() {
             val current = done.get() + 1
             val totalNow = total.get()
             updateNotification(op, current, totalNow)
+            // Re-assert running per op, not only at drain start: the Cloud documents screen builds a fresh
+            // subscription on every entry, so one attaching mid-drain only learns of the drain from a
+            // later `true`. Duplicates are harmless (the consumer is idempotent, the stream loss-free).
+            DocumentSync.notifyRunning(true)
             lastDownloadPct = -1
             try {
                 when (op) {
