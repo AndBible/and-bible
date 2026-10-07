@@ -308,7 +308,7 @@ class ReadingAppBootstrapTest {
         assertTrue("bootstrapIfNeeded() must dispatch the openLink deep link", deepLink >= 0)
         assertTrue(
             "the visibility flag must be set BEFORE the deep-link dispatch, not after: the " +
-                "AddHistoryItem the dispatch posts is handled synchronously",
+                "history item the dispatch records is handled synchronously",
             visible < deepLink,
         )
         assertTrue("…and so must the host's presence, for the same reason", presence < deepLink)

@@ -125,9 +125,8 @@ class ReadingHostBridgeRearmTest {
         assertTrue(
             ReadingViewVisibility.isVisible,
             "a reading host that is in front and owes a reading view IS the reading view as far as " +
-                "HistoryManager is concerned — T8a item 2's handlePendingAgentResult() posts " +
-                "AddHistoryItem from inside this very onResume, and a false flag there records a " +
-                "wrong IntentHistoryItem instead of the verse",
+                "HistoryManager is concerned — T8a item 2's handlePendingAgentResult() records history from inside " +
+                "this very onResume, and a false flag there records a wrong IntentHistoryItem instead of the verse",
         )
     }
 

@@ -267,8 +267,8 @@ class ReadingHistoryAnchorTest {
             assertTrue(
                 ReadingViewVisibility.isVisible,
                 "the old predicate was true from CurrentActivityHolder.activate() in " +
-                    "ActivityBase.onCreate onwards, and onCreate's openLink branch posts " +
-                    "AddHistoryItem inside that window",
+                    "ActivityBase.onCreate onwards, and onCreate's openLink branch calls " +
+                    "HistoryManager.recordIfCreated inside that window",
             )
         } finally {
             controller.close()
@@ -387,7 +387,7 @@ class ReadingHistoryAnchorTest {
             assertTrue(
                 ReadingHostPresence.isForeground(activity),
                 "onCreate declares the presence, for the same reason it declares the flag: the " +
-                    "deep-link AddHistoryItem is posted inside onCreate",
+                    "deep-link history is recorded inside onCreate",
             )
 
             controller.start().resume().pause()

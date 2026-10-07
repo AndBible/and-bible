@@ -57,8 +57,8 @@ package net.bible.sharedcore.reading
  *    `MainBibleActivity.onCreate`/`onResume`/`onActivityResult` and
  *    `NavHostComposeActivity.bootstrapIfNeeded`/`onResume`. `onCreate` matters as much as
  *    `onResume`: `ActivityBase.onCreate`'s first line is `CurrentActivityHolder.activate(this)`, so
- *    the old predicate was true for the whole of `onCreate` — and both hosts post `AddHistoryItem`
- *    synchronously inside that window through their `openLink` deep-link branch. A presence first
+ *    the old predicate was true for the whole of `onCreate` — and both hosts call
+ *    `HistoryManager.recordIfCreated` synchronously inside that window through their `openLink` deep-link branch. A presence first
  *    declared at `onResume` would make [ReadingViewVisibility.isVisible] false there and bring back
  *    the wrong-`IntentHistoryItem` defect that `onCreate` setter exists to prevent.
  *  - [clearForeground] in `onPause`, which is where the flag has always gone false (the remaining,

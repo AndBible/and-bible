@@ -54,7 +54,7 @@ class ReadingHistoryExitGuardTest {
         val recorder = body("private fun recordHistoryOnLeavingReading(targetRoute: String?)")
         assertTrue("gated on the reading destination", recorder.contains("readingDestinationIsCurrent()"))
         assertTrue(
-            "a DIRECT call, not ABEventBus.post(AddHistoryItem()) -- the item must be created while " +
+            "a DIRECT call, not a bus event -- the item must be created while " +
                 "ReadingViewVisibility is still true, ordered by the call stack",
             recorder.contains("historyManager.addHistoryItem(") && !recorder.contains("ABEventBus.post"),
         )
