@@ -2962,11 +2962,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // classic -- the tilt-scroll focus is gated on the destination having composed -- is stated at
     // its own line rather than left for the next reader to discover.
 
+    /** The Welcome screen's install-progress subscription (see [readingHostSubscriptions]). */
+    private val installProgress = Subscriptions()
+
     /**
      * This host's ABEventBus subscriptions -- six, all classic `MainBibleActivity.eventSubscriptions`
      * ports (the Welcome progress line lives in [installProgress]): `UpdateMainBibleActivityDocuments` (sets
      * [updateDocumentsPending], ungated -- [reconcileReadingStateOnResume] decides whether there is a
-     * workspace to apply it to), `NightModeChanged` (guarded, below), and the four slice 8's final review restored (the cloud-sync timestamp write moved to `SyncService`) --
+     * workspace to apply it to), `NightModeChanged` (guarded, below), and the four slice 8's final
+     * review restored (the cloud-sync timestamp write moved to `SyncService`) --
      * `AppToBackgroundEvent`, `WorkspacesUpdatedViaSyncEvent`, `WorkspaceRefreshRequired` and
      * `MainBibleAfterRestore` -- each gated on [readingAppBootstrapped], because a host that has not run
      * the reading bootstrap owns neither a window repository nor the cloud-sync loop they act on.
@@ -2977,8 +2981,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * refresh their theme on every night-mode change -- the background one pointlessly, and (worse)
      * it re-applies a theme to an Activity whose window is not the one the user is looking at.
      */
-    private val installProgress = Subscriptions()
-
     private val readingHostSubscriptions: ABEventBus.Subscriptions.() -> Unit = {
         // T8a item 2: classic `MainBibleActivity.kt:498-500`. This host posts
         // `UpdateMainBibleActivityDocuments` from six of its own destinations and, until T8a,

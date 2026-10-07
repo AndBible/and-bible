@@ -32,7 +32,6 @@ import kotlinx.coroutines.withContext
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SpinnerBinding
-import net.bible.android.control.event.onMain
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs

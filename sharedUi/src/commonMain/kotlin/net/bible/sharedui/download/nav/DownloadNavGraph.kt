@@ -977,8 +977,8 @@ fun NavGraphBuilder.downloadNavGraph(navController: NavHostController, deps: Dow
         }
 
         // Classic bridge.register()/unregister() plus the running.drop(1) collector (:105, :180,
-        // :111-116): deps.subscribeProgress owns the whole EventBus bridge lifetime and reports every
-        // post-drop(1) transition; the arm's job is exactly the collector's old body.
+        // :111-116): deps.subscribeProgress owns the `DocumentSync.runningChanged` subscription
+        // lifetime and reports every transition; the arm's job is exactly the collector's old body.
         DisposableEffect(Unit) {
             val stop = d.subscribeProgress { running ->
                 controller.setTransferRunning(running)

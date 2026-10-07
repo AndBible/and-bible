@@ -3248,8 +3248,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         //
         // What the XML could NOT do is delete the row, and that is not what this does.
         // toolbarLayout's children are still WRITTEN TO by MainBibleActivity code that runs on this
-        // path, so the views have to exist: binding.syncIcon's visibility (the `CloudSync.runningChanged`
-        // subscription and `setupUi`), binding.speakButton's alpha (the `transportBarVisible`
+        // path, so the views have to exist: binding.syncIcon's visibility (MainBibleActivity's former
+        // `CloudSync.runningChanged` subscription and `setupUi`), binding.speakButton's alpha (the `transportBarVisible`
         // setter), binding.strongsButton's image + alpha + tint (`updateStrongsButton`),
         // binding.bibleButton's image (`onCreate`'s `isDiscrete` branch), and
         // binding.pageTitleContainer's touch listener (`setupToolbarFlingDetection`).
@@ -3328,7 +3328,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 onCommentaryLong = { activity.readingCommands.composeCommentaryLongClick() },
                 // The Strongs refresh now lives inside `composeCycleStrongs`/`composeStrongsLong`,
                 // next to their `updateStrongsButton()` call — `StrongsPreference.handle()` posts
-                // none of the 5 ABEventBus events `toolbarStateService` subscribes to, and keeping
+                // none of the 4 ABEventBus events (or 2 `Events` streams) `toolbarStateService` subscribes to, and keeping
                 // the refresh at the mutation site also covers the long-press dialog's `onReset`
                 // path, which this call site never saw.
                 onStrongs = { activity.readingCommands.composeCycleStrongs() },

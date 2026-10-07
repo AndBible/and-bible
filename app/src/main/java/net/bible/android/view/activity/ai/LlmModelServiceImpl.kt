@@ -25,8 +25,8 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.AppSettingsUpdated
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.AiSettings
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.DynamicModelService
 import net.bible.service.llm.LlmConfiguredModel
