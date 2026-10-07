@@ -22,6 +22,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
+import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentPermission
 import net.bible.service.llm.agent.AgentSessionChange
@@ -68,6 +69,29 @@ class AgentSessionServiceImplTest {
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
         assertFalse(service.snapshot.value.running)
+    }
+
+    @Test
+    fun aRealCurrentWorkspaceSessionRefreshesRunningThenStoppedSnapshot() {
+        val ws = CommonUtils.windowControl.windowRepository.id
+        // Do not overwrite a session left by another test; restore this absent state in finally.
+        assertNull(AgentSessionManager.getSession(ws))
+        val service = AgentSessionServiceImpl()
+        val session = AgentSessionManager.getOrCreateSession(ws)
+        try {
+            assertTrue(session.tryStart(AgentContext(promptId = IdType())))
+            shadowOf(Looper.getMainLooper()).idle()
+            assertTrue(service.snapshot.value.running)
+            assertNull(service.snapshot.value.lastStopReason)
+
+            session.stop(reason = AgentStopReason.ERROR)
+            shadowOf(Looper.getMainLooper()).idle()
+            assertFalse(service.snapshot.value.running)
+            assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
+        } finally {
+            AgentSessionManager.clearSession(ws)
+            shadowOf(Looper.getMainLooper()).idle()
+        }
     }
 
     @Test
