@@ -17,7 +17,6 @@ ConfigurationChanged
 CurrentBibleVerseChanged
 CurrentVerseChangedEvent
 CurrentWindowChangedEvent
-DefaultModelChangedEvent
 DocumentDownloadEvent
 DocumentSyncProgressEvent
 ErrorNotificationEvent

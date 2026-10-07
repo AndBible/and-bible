@@ -42,7 +42,7 @@ import org.robolectric.annotation.Config
  * Covers the PURE parts of [AgentSessionServiceImpl]: the [mapEntry] entry mapping, the
  * [AgentStopReason.toVd] enum bridge, and the two settings-key round trips. The event-bridge
  * (ABEventBus subscriptions rebuilding [AgentSessionServiceImpl.snapshot] on
- * AgentLogUpdatedEvent/AgentSessionStatusChangedEvent/DefaultModelChangedEvent) and the
+ * AgentLogUpdatedEvent/AgentSessionStatusChangedEvent, AiSettings.defaultModelChanged) and the
  * DB-backed [AgentSessionServiceImpl.configuredModels] (same mapping as
  * `ReadingLlmServiceImplTest.configuredModels_*`, already covered there) are left to device A/B —
  * they need a live agent session / DB fixtures beyond what this pure-mapping test aims to assert.

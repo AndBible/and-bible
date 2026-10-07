@@ -27,7 +27,6 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.DefaultModelChangedEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmProvider
@@ -67,8 +66,8 @@ internal fun mapEntry(e: AgentLogEntry): AgentLogEntryVd = AgentLogEntryVd(
 internal fun AgentStopReason.toVd(): AgentStopReasonVd = AgentStopReasonVd.valueOf(name)
 
 /**
- * Android impl of [AgentSessionService], bridging three [ABEventBus] events
- * ([AgentLogUpdatedEvent], [AgentSessionStatusChangedEvent], [DefaultModelChangedEvent]) into a
+ * Android impl of [AgentSessionService], bridging two [ABEventBus] events
+ * ([AgentLogUpdatedEvent], [AgentSessionStatusChangedEvent]) and [AiSettings.defaultModelChanged] into a
  * [StateFlow] of an immutable [AgentLogSnapshot], scoped to the current workspace. All three are
  * still posted by live code, and each has other subscribers besides this one
  * (`AgentForegroundService`, `AiSettingsServiceImpl`, `LlmModelServiceImpl`). What is gone is the
@@ -101,8 +100,9 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
                     refresh()
                 }
             }
-            onMain<DefaultModelChangedEvent> { refresh() }
         }
+        // Process lifetime: never cancelled.
+        AiSettings.defaultModelChanged.subscribeOnMain { refresh() }
     }
 
     private fun build(): AgentLogSnapshot {

@@ -9,7 +9,7 @@ interface AgentSessionService {
     fun stop()
     /** Configured models for the quick model-selector (default-first). */
     suspend fun configuredModels(): List<ReadingModelVd>
-    /** Set the global default model (AiSettings.defaultModelId) — fires DefaultModelChangedEvent → snapshot re-emit. */
+    /** Set the global default model (AiSettings.defaultModelId) — emits AiSettings.defaultModelChanged → snapshot re-emit. */
     fun setDefaultModel(modelId: String)
     fun autoHideEnabled(): Boolean                 // CommonUtils.aiSettings.autoHideAgentLogOnCompletion
     fun logVisiblePref(): Boolean                  // CommonUtils.settings "agent_log_widget_visible"
