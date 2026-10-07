@@ -132,8 +132,10 @@ import net.bible.android.control.link.LinkControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.page.PageControl
+import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
+import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.report.AiBugReport
 import net.bible.android.control.report.ErrorReportControl
@@ -177,9 +179,7 @@ import net.bible.android.view.activity.download.isBadDocument
 import net.bible.android.view.activity.download.isInstalled
 import net.bible.android.view.activity.download.isRecommended
 import net.bible.android.view.activity.page.ActivityResultKind
-import net.bible.android.view.activity.page.ConfigurationChanged
 import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.page.FullScreenEvent
 import net.bible.android.view.activity.page.KeyChooserResults
 import net.bible.android.view.activity.page.ReadingAppBootstrap
 import net.bible.android.view.activity.page.ReadingHostActivity
@@ -190,7 +190,6 @@ import net.bible.android.view.activity.page.ReadingInsets
 import net.bible.android.view.activity.page.ReadingInsetsHostCallbacks
 import net.bible.android.view.activity.page.SDCARD_READ_REQUEST
 import net.bible.android.view.activity.page.SpeakTransportVisibilityChanged
-import net.bible.android.view.activity.page.SystemInsetsChangedEvent
 import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.syncScope
@@ -532,6 +531,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val rawLogService: RawLogService by inject()
     private val readingPlanControl: ReadingPlanControl by inject()
     private val speakControl: SpeakControl by inject()
+    private val windowStateService: WindowStateServiceImpl by inject()
     private val searchControl: SearchControl by inject()
     private val bibleSearchService: BibleSearchService by inject()
     private val searchIndexService: SearchIndexService by inject()
@@ -1451,7 +1451,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * [ReadingHostActivity.fullScreen]. Reads `SharedActivityState` DIRECTLY instead of mirroring it
      * into a field of its own the way classic does: `MainBibleActivity.toggleFullScreen` has always
      * written that process-wide bit, so while both Activities are alive a second copy could only
-     * disagree with the reading view's own `FullScreenEvent` subscribers.
+     * disagree with the reading view's own `fullScreenChanged` subscribers.
      */
     override var fullScreen: Boolean
         get() = sharedActivityState.isFullScreen
@@ -1479,13 +1479,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /**
      * Classic `MainBibleActivity.toggleFullScreen`. Its `updateToolbar()` call is [applyIdleSystemUi]
      * here: since the Compose toolbar took over, classic's `updateToolbar` IS the system-bar
-     * hide/show and nothing else (see its comment). The `FullScreenEvent` type stays classic's:
-     * `ComposeReadingViewHost` subscribes to `FullScreenEvent` whichever Activity
-     * posted it.
+     * hide/show and nothing else (see its comment).
+     * `SharedActivityState.toggleFullScreen` emits `fullScreenChanged`; the subscribers
+     * are BibleView, BibleGestureListener and ComposeReadingViewHost.
      */
     private fun toggleFullScreen() {
         sharedActivityState.toggleFullScreen()
-        ABEventBus.post(FullScreenEvent(sharedActivityState.isFullScreen))
         applyIdleSystemUi()
         if(sharedActivityState.isFullScreen) {
             ABEventBus.post(ToastEvent(R.string.exit_fullscreen))
@@ -1718,7 +1717,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * by [ComposeReadingViewHost.dispose] in [onDestroy]; an instance created per composition would
      * leak one registration every time the reading destination left and re-entered the back stack
      * (a settings visit and back), and each leaked instance would keep answering
-     * `NightModeChanged`/`FullScreenEvent` for a reading view that no longer exists.
+     * `NightModeChanged`/`fullScreenChanged` for a reading view that no longer exists.
      *
      * `rebuildDrawer()` with no arguments on creation is classic's entry-time rebuild: the
      * `showSearch`/`showSpeak` flags default to the last pushed pair (both `true` initially,
@@ -3291,12 +3290,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /**
      * Fix batch 2 §2.3: this host is NOT recreated on rotation (`orientation` is in its
      * `configChanges`, F65), so BibleView must be told -- it re-derives `isSplitVertically` and
-     * re-sends its pane offsets on `ConfigurationChanged` (the event `SplitModePreference` already
-     * posts for the same reason).
+     * re-sends its pane offsets on `WindowChange.LayoutConfigurationChanged` (the change
+     * `SplitModePreference` already notifies for the same reason).
      */
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        ABEventBus.post(ConfigurationChanged(newConfig))
+        windowStateService.notify(WindowChange.LayoutConfigurationChanged)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -3320,7 +3319,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // bracketed by the same guard classic's registration sits behind
         // (`MainBibleActivity.kt:674-675`); this host had a ledger (`readingInsets`, :1338) and
         // nothing to fill it, so `bottomOffsetForWebView` lost its navigation-bar term, `imeHeight`
-        // was permanently 0 and `SystemInsetsChangedEvent` was never posted -- see the
+        // was permanently 0 and the offsets-changed report was never emitted -- see the
         // host-inset-ownership spec, section 1.3.
         //
         // Unlike ActivityBase's listener this one pads NOTHING at the window level: the scaffolds
@@ -3353,7 +3352,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 val systemBarInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
                 val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
                 readingInsets.onWindowInsetsApplied(systemBarInsets, imeInsets)
-                ABEventBus.post(SystemInsetsChangedEvent(systemBarInsets))
                 windowInsets
             }
         }

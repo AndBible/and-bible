@@ -19,16 +19,16 @@ package net.bible.android.view.compose
 import android.content.res.Configuration
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
+import net.bible.android.control.page.window.WindowChange
+import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.page.ConfigurationChanged
 import net.bible.sharedcore.nav.NavRoutes
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
@@ -37,7 +37,7 @@ import org.robolectric.annotation.Config
 /**
  * Fix batch 2 §2.3 (secondary). The nav host declares `orientation` in `configChanges` (F65), so it is
  * not recreated on rotation, and BibleView only re-derives `isSplitVertically` / re-sends its pane
- * offsets on a `ConfigurationChanged` event. Classic never posted one on rotation because it was
+ * offsets on a `WindowChange.LayoutConfigurationChanged`. Classic never posted one on rotation because it was
  * recreated instead.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -62,8 +62,9 @@ class ReadingHostConfigurationChangedTest {
     @Test fun aConfigurationChangeIsBroadcastToTheReadingPanes() {
         val controller = hostController(NavRoutes.READING)
         var seen = 0
-        val subscriber = Any()
-        ABEventBus.register(subscriber) { on<ConfigurationChanged> { seen++ } }
+        val subscription = GlobalContext.get().get<WindowStateServiceImpl>().windowChanges.subscribe {
+            if (it == WindowChange.LayoutConfigurationChanged) seen++
+        }
         try {
             val landscape = Configuration(controller.get().resources.configuration).apply {
                 orientation = Configuration.ORIENTATION_LANDSCAPE
@@ -71,7 +72,7 @@ class ReadingHostConfigurationChangedTest {
             controller.configurationChange(landscape)
             assertEquals("a rotation must reach BibleView (it re-sends its pane offsets on it)", 1, seen)
         } finally {
-            ABEventBus.unregister(subscriber)
+            subscription.cancel()
         }
     }
 }

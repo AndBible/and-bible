@@ -21,6 +21,7 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.llm.PromptContext
+import net.bible.sharedcore.event.Events
 
 /**
  * What [BibleView] and its [BibleJavascriptInterface] need from their host that R4's
@@ -102,4 +103,7 @@ class BibleViewHostCallbacks(
     val imeHeight: () -> Int,
     val topOffset2: () -> Int,
     val bottomOffsetForWebView: () -> Int,
+
+    /** The host's [ReadingInsets.offsetsChanged], read when BibleView starts listening. */
+    val insetsChanges: () -> Events<OffsetsChange>,
 )

@@ -61,7 +61,7 @@ class ReadingHostChromeTest {
     fun theNavHostsFullScreenFlagIsTheSharedOneClassicUses() {
         // MainBibleActivity.toggleFullScreen delegates to SharedActivityState.instance, so the bit
         // is process-wide already; a nav host with its OWN boolean would silently disagree with the
-        // reading view's own FullScreenEvent subscribers.
+        // reading view's own fullScreenChanged subscribers.
         val host = buildNavHost()
         try {
             val before = SharedActivityState.instance.isFullScreen

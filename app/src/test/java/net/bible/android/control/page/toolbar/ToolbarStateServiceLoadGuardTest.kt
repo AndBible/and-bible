@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page.toolbar
 
+import net.bible.android.control.page.window.WindowStateServiceImpl
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import net.bible.android.TEST_SDK
@@ -85,6 +86,7 @@ class ToolbarStateServiceLoadGuardTest {
             neverTouched(),
             neverTouched(),
             neverTouched(),
+            WindowStateServiceImpl(),
         )
 
         // Without the guard this reaches windowControl.activeWindowPageManager -> activeWindow ->

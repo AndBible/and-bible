@@ -23,7 +23,7 @@ import android.view.MotionEvent
 import android.view.ViewConfiguration
 
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
+import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.common.BibleViewSwipeMode
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.reading.AutoFullscreenTracking
@@ -64,6 +64,10 @@ class BibleGestureListener(
     private val autoFullScreen: Boolean get() = CommonUtils.settings.getBoolean("auto_fullscreen_pref", false)
     private var lastFullScreenByDoubleTap = false
 
+    private val fullScreenSubscription = SharedActivityState.instance.fullScreenChanged.subscribe { isFullScreen ->
+        if (!isFullScreen) lastFullScreenByDoubleTap = false
+    }
+
     private lateinit var flingEv: MotionEvent
 
     /**
@@ -91,17 +95,10 @@ class BibleGestureListener(
         minScaledVelocity = ViewConfiguration.get(mainBibleActivity.hostContext).scaledMinimumFlingVelocity
         // make it easier to swipe
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
-        ABEventBus.register(this) {
-            on<FullScreenEvent> { event ->
-                if(!event.isFullScreen) {
-                    lastFullScreenByDoubleTap = false
-                }
-            }
-        }
     }
 
     fun destroy() {
-        ABEventBus.unregister(this)
+        fullScreenSubscription.cancel()
     }
 
     override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {

@@ -68,7 +68,7 @@ interface ReadingHostActivity : LifecycleOwner {
     /**
      * The process-wide fullscreen bit (`SharedActivityState.instance`), not a per-Activity one:
      * `MainBibleActivity.toggleFullScreen` has always delegated to it, and the reading view's own
-     * `FullScreenEvent` subscribers assume every host agrees about it.
+     * `fullScreenChanged` subscribers assume every host agrees about it.
      */
     var fullScreen: Boolean
 

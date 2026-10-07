@@ -144,9 +144,8 @@ class CollaboratorTypeGuardTest {
      * The three files R6a re-types plus R6b's `ReadingInsets`. A subset of [files]; scanned harder.
      *
      * `ReadingInsets.kt` earns the harder scan because after R6b the only `MainBibleActivity`
-     * tokens left in its CODE are the two nested event classes it posts
-     * (`SearchSheetOffsetsUpdated`, `ImePaddingChanged`), both already on [allowedNestedMembers] and
-     * both Task 13's to re-home. Anything else appearing there -- a type position, an import, a bare
+     * tokens left in its CODE were two nested event classes it posted; they are now
+     * [ReadingInsets.offsetsChanged]. Anything else appearing there -- a type position, an import, a bare
      * pass of the Activity into the ledger -- is the regression this list exists to catch.
      */
     private val readingViewFiles = listOf(
@@ -168,9 +167,8 @@ class CollaboratorTypeGuardTest {
         "src/main/java/net/bible/android/view/activity/page/MenuCommandHandler.kt",
         // R6d: the two callback-bundle files and the reading host itself. The host's surviving
         // code tokens are `WORKSPACE_CHANGED` (the workspace selector's request
-        // code), `.KeyIsNull` (caught around the reference overlay's text) and `.FullScreenEvent`
-        // (the event it subscribes to) -- all three on [allowedNestedMembers], all three Task 13's
-        // to re-home. The bundles have none at all.
+        // code), and `.KeyIsNull` (caught around the reference overlay's text) -- both on
+        // [allowedNestedMembers], both Task 13's to re-home. The bundles have none at all.
         "src/main/java/net/bible/android/view/activity/page/BibleViewHostCallbacks.kt",
         "src/main/java/net/bible/android/view/activity/page/ReadingCommandsHostCallbacks.kt",
         "src/main/java/net/bible/android/view/activity/page/screen/ComposeReadingViewHost.kt",

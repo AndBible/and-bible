@@ -16,6 +16,10 @@
  */
 package net.bible.android.view.activity.base
 
+import androidx.annotation.VisibleForTesting
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
+
 /**
  * Base class for List activities.  Copied from Android source.
  * A copy of ListActivity from Android source which also extends ActionBarActivity and the AndBible Activity base class.
@@ -29,9 +33,19 @@ class SharedActivityState {
     var isFullScreen = false
         private set
 
+    private var _fullScreenChanged = EventSource<Boolean>()
+
+    /** Emitted by [toggleFullScreen] after [isFullScreen] flips (replaces `FullScreenEvent`). */
+    val fullScreenChanged: Events<Boolean> get() = _fullScreenChanged
+
     fun toggleFullScreen() {
         isFullScreen = !isFullScreen
+        _fullScreenChanged.emit(isFullScreen)
     }
+
+    /** Test teardown: [instance] is process-global, so leaked subscribers would outlive their test. */
+    @VisibleForTesting
+    fun resetSubscribersForTest() { _fullScreenChanged = EventSource() }
 
     companion object {
         @JvmStatic

@@ -268,6 +268,7 @@ class ReadingCommands(
         imeHeight = { hostCallbacks.readingInsets().imeHeight },
         topOffset2 = { hostCallbacks.readingInsets().topOffset2 },
         bottomOffsetForWebView = { hostCallbacks.readingInsets().bottomOffsetForWebView },
+        insetsChanges = { hostCallbacks.readingInsets().offsetsChanged },
     )
 
     /** The drawer/menu command handler [handleDrawerItemClick] and the Activity's own
@@ -897,7 +898,7 @@ class ReadingCommands(
             R.id.autoAssignLabels -> AutoAssignPreference(windowRepository().workspaceSettings)
             R.id.textOptionsSubMenu -> SubMenuPreference(false)
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
-            R.id.splitMode -> SplitModePreference(readingHost.hostContext)
+            R.id.splitMode -> SplitModePreference()
             R.id.autoPinMode -> WindowPinningPreference()
             R.id.tiltToScroll -> TiltToScrollPreference(hostActivity)
             R.id.nightMode -> NightModePreference { refreshIfNightModeChange() }

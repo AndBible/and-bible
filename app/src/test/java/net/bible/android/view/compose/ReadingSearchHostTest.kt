@@ -1093,14 +1093,14 @@ class ReadingSearchHostTest {
 
     /**
      * `ReadingSearchController.activeDocumentChanged()` (Task 4) is only useful once something
-     * actually calls it. This drives the REAL `CurrentWindowChangedEvent` through `ABEventBus` with
+     * actually calls it. This drives the REAL `WindowChange.ActiveWindowChanged` through `WindowStateServiceImpl.windowChanges` with
      * the real host subscribed (same idiom as `ComposeReadingViewHostTest.currentBibleVerseChangedTriggersARefresh`),
      * and proves the effect end to end: switching the active window to one showing a DIFFERENT
      * document must move the search session's target with it, not leave it pinned to the document
      * that was active when search opened.
      */
     @Test
-    fun currentWindowChangedEventRefreshesTheSearchTargetToTheNewActiveWindowsDocument() {
+    fun activeWindowChangedRefreshesTheSearchTargetToTheNewActiveWindowsDocument() {
         val other = unindexedFakeBible("HostWinSwap")
         Books.installed().addBook(other)
         try {
@@ -1121,7 +1121,7 @@ class ReadingSearchHostTest {
             assertEquals(
                 ReadingSearchPhase.NeedsIndex("HostWinSwap", forEpub = false),
                 host.searchController.phase.value,
-                "CurrentWindowChangedEvent must refresh the search target to the new active window's document",
+                "WindowChange.ActiveWindowChanged must refresh the search target to the new active window's document",
             )
         } finally {
             Books.installed().removeBook(other)

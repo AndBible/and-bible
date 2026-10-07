@@ -4,16 +4,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
-import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.test.assertEquals
@@ -59,28 +56,26 @@ class WindowCommandsImplTest {
         DatabaseResetter.resetDatabase(repo.scope)
     }
 
-    private fun awaitNumberOfWindowsChangedEvent(block: () -> Unit): Boolean {
-        var notified = false
-        val owner = Any()
-        ABEventBus.register(owner) { on<NumberOfWindowsChangedEvent> { notified = true } }
-        try {
-            block()
-        } finally {
-            ABEventBus.unregister(owner)
-        }
-        return notified
+    private val windowState: WindowStateServiceImpl get() = GlobalContext.get().get()
+
+    private fun windowChangesDuring(block: () -> Unit): List<WindowChange> {
+        val seen = mutableListOf<WindowChange>()
+        val subscription = windowState.windowChanges.subscribe { seen += it }
+        try { block() } finally { subscription.cancel() }
+        return seen
     }
 
-    private fun awaitRestoreButtonsVisibilityChanged(block: () -> Unit): Boolean {
-        var notified = false
-        val owner = Any()
-        ABEventBus.register(owner) { on<RestoreButtonsVisibilityChanged> { notified = true } }
-        try {
-            block()
-        } finally {
-            ABEventBus.unregister(owner)
-        }
-        return notified
+    private fun awaitWindowsChanged(block: () -> Unit): Boolean =
+        WindowChange.WindowsChanged in windowChangesDuring(block)
+
+    private fun awaitRestoreButtonsChanged(block: () -> Unit): Boolean =
+        WindowChange.RestoreButtonsChanged in windowChangesDuring(block)
+
+    @Test
+    fun setActiveEmitsActiveWindowChangedWithTheWindow() {
+        val newWindow = repo.addNewWindow()
+        val seen = windowChangesDuring { commands.setActive(newWindow.id.toString()) }
+        assertTrue(WindowChange.ActiveWindowChanged(newWindow) in seen, "got $seen")
     }
 
     @Test fun setActiveResolvesIdAndSetsActiveWindow() {
@@ -106,7 +101,7 @@ class WindowCommandsImplTest {
         // sanity: both visible windows -> windowSizesChanged() actually runs orientationChange()
         assertTrue(repo.isMultiWindow)
 
-        val notified = awaitNumberOfWindowsChangedEvent {
+        val notified = awaitWindowsChanged {
             commands.commitWeights(w1.id.toString(), 1.5f, w2.id.toString(), 0.5f)
         }
 
@@ -173,7 +168,7 @@ class WindowCommandsImplTest {
         val w2 = repo.addNewWindow()
         val originalWeight2 = w2.weight
 
-        val notified = awaitNumberOfWindowsChangedEvent {
+        val notified = awaitWindowsChanged {
             commands.commitWeights(IdType().toString(), 1.5f, w2.id.toString(), 0.5f)
         }
 
@@ -186,7 +181,7 @@ class WindowCommandsImplTest {
         repo.addNewWindow() // second visible window, so isMultiWindow would be true if reached
         val originalWeight1 = w1.weight
 
-        val notified = awaitNumberOfWindowsChangedEvent {
+        val notified = awaitWindowsChanged {
             commands.commitWeights(w1.id.toString(), 1.5f, IdType().toString(), 0.5f)
         }
 
@@ -323,12 +318,12 @@ class WindowCommandsImplTest {
     @Test fun setRestoreButtonsVisibleFlipsFlagAndNotifies() {
         val start = repo.workspaceSettings.restoreButtonsVisible
 
-        val notified = awaitRestoreButtonsVisibilityChanged {
+        val notified = awaitRestoreButtonsChanged {
             commands.setRestoreButtonsVisible(!start)
         }
 
         assertEquals(!start, repo.workspaceSettings.restoreButtonsVisible)
-        assertTrue(notified, "setRestoreButtonsVisible should post RestoreButtonsVisibilityChanged")
+        assertTrue(notified, "setRestoreButtonsVisible should emit WindowChange.RestoreButtonsChanged")
     }
 
     @Test fun unknownIdCommandsAreNoOps() {

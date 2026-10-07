@@ -24,12 +24,11 @@ import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.page.SystemInsetsChangedEvent
+import net.bible.android.view.activity.page.OffsetsChange
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -193,23 +192,20 @@ class HostInsetOwnershipTest {
     }
 
     @Test
-    fun theNavHostPostsSystemInsetsChanged() {
+    fun theNavHostReportsSystemInsetChanges() {
         val activity = Robolectric.buildActivity(NavHostComposeActivity::class.java).setup().get()
-        var seen: SystemInsetsChangedEvent? = null
-        val subscriber = Any()
-        ABEventBus.register(subscriber) {
-            on<SystemInsetsChangedEvent> { seen = it }
-        }
+        val seen = mutableListOf<OffsetsChange>()
+        val subscription = activity.readingInsets.offsetsChanged.subscribe { seen += it }
         try {
             dispatchSystemBars(contentRootOf(activity))
         } finally {
-            ABEventBus.unregister(subscriber)
+            subscription.cancel()
         }
-        assertEquals("the nav host must post SystemInsetsChangedEvent", 39, seen?.insets?.bottom)
+        assertTrue("the nav host must report a system-inset change; got $seen", OffsetsChange(immediate = false) in seen)
     }
 
     /**
-     * Fix round 1: `theNavHostFeedsItsReadingInsetsLedger` and `theNavHostPostsSystemInsetsChanged`
+     * Fix round 1: `theNavHostFeedsItsReadingInsetsLedger` and `theNavHostReportsSystemInsetChanges`
      * only ever dispatched `systemBars()`, so `imeInsets` stayed `Insets.NONE` and
      * `ReadingInsets.onWindowInsetsApplied`'s `imeInsets.bottom > 0` branch -- the one that produces
      * `imeHeight` / `imeOpen` -- was never exercised, even though a dead IME term is one of the four

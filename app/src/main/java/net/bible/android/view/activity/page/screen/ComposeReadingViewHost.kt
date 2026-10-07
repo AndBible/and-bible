@@ -103,7 +103,6 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
-import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
@@ -118,6 +117,7 @@ import net.bible.android.control.page.CurrentMyNotePage
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
+import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
@@ -137,7 +137,6 @@ import net.bible.android.view.activity.navigation.pickGridBook
 import net.bible.android.view.activity.navigation.pickGridChapter
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.DrawerMenuStateBuilder
-import net.bible.android.view.activity.page.FullScreenEvent
 import net.bible.android.view.activity.page.KeyIsNull
 import net.bible.android.view.activity.page.ReadingCommands
 import net.bible.android.view.activity.page.ReadingHostActivity
@@ -172,6 +171,7 @@ import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.nameWithoutDocument
+import net.bible.sharedcore.event.Subscriptions
 import net.bible.sharedcore.ai.reading.AgentLogController
 import net.bible.sharedcore.ai.reading.AgentSessionService
 import net.bible.sharedcore.ai.reading.agentPanelHeight
@@ -421,8 +421,8 @@ class HostedStateRefresher(
  *
  * [transportVisible] arrives from `SpeakTransportVisibilityChanged`, which the
  * `transportBarVisible` **setter** posts with the raw backing field — its getter's
- * `if (isFullScreen) false` mask is NOT applied before posting, and `toggleFullScreen()` posts
- * only `FullScreenEvent`. So without re-applying the fullscreen half here, the bar stayed on
+ * `if (isFullScreen) false` mask is NOT applied before posting, and `toggleFullScreen()` emits
+ * only `fullScreenChanged`. So without re-applying the fullscreen half here, the bar stayed on
  * screen in fullscreen on the Compose path while classic animated it away (pre-A/B spec §1 P3).
  *
  * A pure function so it is unit-testable — see `SpeakBarVisibilityTest`.
@@ -589,14 +589,15 @@ sealed interface ReadingDialog {
  * Activity's name>" and "<colon> <the Activity's name>" read as real code to them. `ReadingCommands`
  * carries the same warning for the same reason.
  *
- * The three surviving `MainBibleActivity` tokens in this file are a companion constant
- * (`WORKSPACE_CHANGED`) and two nested classes (`KeyIsNull`, `FullScreenEvent`). Decoupling the
+ * The two surviving `MainBibleActivity` tokens in this file are a companion constant
+ * (`WORKSPACE_CHANGED`) and a nested class (`KeyIsNull`). Decoupling the
  * TYPE does not remove them and slice 7 Task 13 re-homes them; `CollaboratorTypeGuardTest`
- * allow-lists exactly those three, visibly, and fails when an allow-list entry goes stale
+ * allow-lists exactly those two, visibly, and fails when an allow-list entry goes stale
  * (addendum Ruling E).
  */
 class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinComponent {
     private val windowState: WindowStateServiceImpl by inject()
+    private val subscriptions = Subscriptions()
     private val commands: WindowCommands by inject()
     private val toolbarStateService: ToolbarStateService by inject()
     private val readingLlmService: ReadingLlmService by inject()
@@ -2889,7 +2890,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val monochrome = mutableStateOf(CommonUtils.settings.monochromeMode)
 
     /**
-     * Mirrors [MainBibleActivity.fullScreen]. Kept current via [FullScreenEvent]
+     * Mirrors [MainBibleActivity.fullScreen]. Kept current via [SharedActivityState.fullScreenChanged]
      * (see [init]) so entering/leaving fullscreen from ANY path — the Compose overflow menu's
      * "Full screen" row (Batch 12b-C Task 3, dispatched via [MainBibleActivity.handleOptionsMenuItem]),
      * the same menu reached by the `"AltKeyO"` shortcut (slice 7 Task 2 repointed it at
@@ -3027,12 +3028,12 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     fun closeDrawer() { drawerOpen.value = false }
 
     init {
+        subscriptions.add(SharedActivityState.instance.fullScreenChanged.subscribeOnMain { fullScreen.value = it })
         ABEventBus.register(this) {
             onMain<ScreenSettings.NightModeChanged> {
                 nightMode.value = ScreenSettings.nightMode
                 monochrome.value = CommonUtils.settings.monochromeMode
             }
-            onMain<FullScreenEvent> { event -> fullScreen.value = event.isFullScreen }
             // Classic BibleView.BibleViewTouched re-show (SplitBibleArea.kt:203-205) — see
             // WindowButtonsVisibility's kdoc.
             onMain<BibleView.BibleViewTouched> { windowButtonsVisibility.onTouch() }
@@ -3059,12 +3060,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 // subscribed to here for the same "active document may have changed" purpose, so the
                 // controller refresh reuses this proven, synchronous channel rather than adding a
                 // second, less reliable one.
-                searchController.activeDocumentChanged()
-            }
-            onMain<CurrentWindowChangedEvent> {
-                overlayText.value = readOverlayText()
-                activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
-                // F44/B3: search mode outlives a window switch, so the panel's target follows it.
                 searchController.activeDocumentChanged()
             }
             // Task 4 (F2b): classic's per-window rail top label (`WindowButtonWidget.kt:148`,
@@ -3097,6 +3092,14 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 refreshHostedState()
             }
         }
+        subscriptions.add(windowState.windowChanges.subscribeOnMain { change ->
+            if (change is WindowChange.ActiveWindowChanged) {
+                overlayText.value = readOverlayText()
+                activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
+                // F44/B3: search mode outlives a window switch, so the panel's target follows it.
+                searchController.activeDocumentChanged()
+            }
+        })
 
         // F6-B1: the activity's IME padding is keyed on this field's focus, and NO inset changes when
         // focus moves — so the insets listener never fires and the change has to be pushed.
@@ -3229,6 +3232,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      */
     fun dispose() {
         ABEventBus.unregister(this)
+        subscriptions.cancelAll()
         // F6 Task 8a: a `JobManager` WorkListener outlives the activity that registered it (the
         // manager is a process-wide static), so an in-flight index build would otherwise leak this
         // host through it.
@@ -3510,7 +3514,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 // the bar recomposes only when the panel appears or disappears.
                 val agentLogState = agentLog.state.collectAsState()
                 val agentLogVisible = remember { derivedStateOf { agentLogState.value.visible } }
-                // `fullScreen` is the host's own MutableState (fed by FullScreenEvent), read here
+                // `fullScreen` is the host's own MutableState (fed by fullScreenChanged), read here
                 // so the bar recomposes away when fullscreen is entered — see [speakBarVisible].
                 if (speakBarVisible(fullScreen = fullScreen.value, transportVisible = speakState.visible)) {
                     SpeakTransportBar(
@@ -3947,13 +3951,13 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             toolbar: StateFlow<ToolbarState> = MutableStateFlow(ToolbarState.EMPTY).asStateFlow(),
             toolbarCallbacks: ReadingToolbarCallbacks = noopToolbarCallbacks,
             // A `State` for the same reactivity reason as [nightModeState]: [install] mirrors
-            // [MainBibleActivity.fullScreen] here via [FullScreenEvent] instead
+            // [MainBibleActivity.fullScreen] here via [SharedActivityState.fullScreenChanged] instead
             // of passing a one-shot snapshot.
             fullScreenState: State<Boolean> = mutableStateOf(false),
             // Batch 12g Task 3 additions: the fullscreen bible-reference overlay's text + the
             // active window's bible-shown flag, `State`s for the same reactivity reason as
             // `fullScreenState` above — [ComposeReadingViewHost.install] mirrors both from
-            // `CurrentVerseChangedEvent`/`CurrentWindowChangedEvent` (see its `init` block) rather
+            // `CurrentVerseChangedEvent`/`WindowChange.ActiveWindowChanged` (see its `init` block) rather
             // than passing a one-shot snapshot. Defaulted (empty text / bible not shown) so
             // `ComposeReadingViewHostTest` (which never renders the overlay) is unaffected.
             overlayTextState: State<String> = mutableStateOf(""),

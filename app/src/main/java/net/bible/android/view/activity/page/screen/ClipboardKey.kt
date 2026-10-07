@@ -32,7 +32,7 @@ import net.bible.service.sword.BookAndKey
  * incomplete list is the one defect that makes it useless.
  *
  * Split out of `SplitBibleArea.kt` by Batch Z-late's epilogue (spec 10.3) for the same reason
- * [RestoreButtonsVisibilityChanged] was: it is a top-level declaration that merely happened to live
+ * the (since removed) restore-buttons event was: it is a top-level declaration that merely happened to live
  * in the classic file, it is LIVE on the Compose path (three surviving files import it by name),
  * and its old host is classic-only and is deleted in the next commit. Same package as before, so no
  * consumer needed an import change.

@@ -24,7 +24,6 @@ import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
-import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.WorkspaceColorChanged
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowControl
@@ -88,6 +87,7 @@ class ToolbarStateServiceImplTest {
             documentControl = koin.get<DocumentControl>(),
             pageControl = pageControl,
             speakControl = koin.get<SpeakControl>(),
+            windowStateService = koin.get(),
         )
     }
 
@@ -150,8 +150,23 @@ class ToolbarStateServiceImplTest {
         // 2-arg addNewWindow seeds the new (still inactive) window's page directly.
         val w2 = windowControl.addNewWindow(kjv, gen11)
 
-        // switching active window posts CurrentWindowChangedEvent (WindowRepository.notifyActiveWindowChanged)
+        // switching active window emits WindowChange.ActiveWindowChanged (WindowRepository.notifyActiveWindowChanged)
         windowControl.activeWindow = w2
+
+        assertThat(service.toolbar.value.documentTitle, equalTo(kjv.name))
+    }
+
+    @Test
+    fun activeWindowChange_inASwappedInRepository_stillRefreshes() {
+        val swapped = WindowRepository(CoroutineScope(Dispatchers.Main))
+        windowControl.windowRepository = swapped
+        swapped.initialize()
+        seedActivePageSilently(PassageTestData.ESV, PassageTestData.PS_139_2)
+        service.refresh()
+        val second = swapped.addNewWindow()
+        second.pageManager.setCurrentDocumentAndKey(kjv, gen11)
+
+        windowControl.activeWindow = second
 
         assertThat(service.toolbar.value.documentTitle, equalTo(kjv.name))
     }

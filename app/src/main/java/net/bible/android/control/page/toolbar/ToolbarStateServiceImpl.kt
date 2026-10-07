@@ -24,10 +24,11 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
-import net.bible.android.control.event.window.CurrentWindowChangedEvent
 import net.bible.android.control.event.window.WorkspaceColorChanged
 import net.bible.android.control.page.PageControl
+import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.common.CommonUtils
@@ -50,26 +51,27 @@ import org.crosswire.jsword.passage.Verse
  * from the TTS engine, [CurrentVerseChangedEvent] from the WebView JS bridge thread) may be
  * posted off it.
  *
- * [CurrentWindowChangedEvent]/[PassageChangedEvent]/[CurrentVerseChangedEvent]/[SpeakEvent] each
+ * [WindowChange.ActiveWindowChanged]/[PassageChangedEvent]/[CurrentVerseChangedEvent]/[SpeakEvent] each
  * rebuild the full snapshot from the active window's current page; [CloudSyncEvent] only flips
  * [ToolbarState.syncRunning], preserving every other field (a sync can run concurrently with the
  * reading view, so it must not clobber title/document/capability state computed from the page).
  *
  * Registered as a Koin single (lives for the process) — no matching `unregister`, same as
- * [net.bible.android.control.speak.SpeakSettingsServiceImpl].
+ * [net.bible.android.control.speak.SpeakSettingsServiceImpl]. The
+ * `windowChanges` subscription, like the bus registration, is never cancelled (process lifetime).
  */
 class ToolbarStateServiceImpl(
     private val windowControl: WindowControl,
     private val documentControl: DocumentControl,
     private val pageControl: PageControl,
     private val speakControl: SpeakControl,
+    private val windowStateService: WindowStateServiceImpl,
 ) : ToolbarStateService {
     private val _toolbar = MutableStateFlow(ToolbarState.EMPTY)
     override val toolbar: StateFlow<ToolbarState> = _toolbar.asStateFlow()
 
     init {
         ABEventBus.register(this) {
-            onMain<CurrentWindowChangedEvent> { refresh() }
             onMain<PassageChangedEvent> { refresh() }
             onMain<CurrentVerseChangedEvent> { refresh() }
             // A/B batch 4a F1: the workspace colour feeds ToolbarState.workspaceColorArgb, and none
@@ -77,6 +79,10 @@ class ToolbarStateServiceImpl(
             onMain<WorkspaceColorChanged> { refresh() }
             onMain<SpeakEvent> { refresh() }
             onMain<CloudSyncEvent> { e -> _toolbar.value = _toolbar.value.copy(syncRunning = e.running) }
+        }
+        // Process lifetime, like the bus registration above: never cancelled.
+        windowStateService.windowChanges.subscribeOnMain { change ->
+            if (change is WindowChange.ActiveWindowChanged) refresh()
         }
     }
 
@@ -89,8 +95,8 @@ class ToolbarStateServiceImpl(
      * `windowControl.activeWindowPageManager` at that moment used to re-enter `loadFromDb` through
      * the lazy `activeWindow` getter (see `WindowRepository.loadingFromDb` for the full failure).
      * Before the load ends, `setDefaultActiveWindow()` assigns `activeWindow`, whose setter posts
-     * `CurrentWindowChangedEvent` and refreshes us again — NOT `notifyWindowsChanged()`, which posts
-     * `NumberOfWindowsChangedEvent`, an event this service does not subscribe to — so nothing is lost
+     * `WindowChange.ActiveWindowChanged` and refreshes us again — NOT `notifyWindowsChanged()`, which posts
+     * `WindowChange.WindowsChanged`, an event this service does not subscribe to — so nothing is lost
      * by skipping the mid-load refresh.
      */
     override fun refresh() {
@@ -119,7 +125,7 @@ class ToolbarStateServiceImpl(
             speakable = page.isSpeakable,
             speakStopped = speakControl.isStopped,
             // A/B batch 3 F3. Read fresh on every snapshot: buildSnapshot() re-runs on
-            // CurrentWindowChangedEvent (workspace switch) and on every
+            // WindowChange.ActiveWindowChanged (workspace switch) and on every
             // HostedStateRefresher.refresh() (e.g. returning from colour settings), so the toolbar
             // picks a new colour up with no extra subscription.
             workspaceColorArgb = windowControl.windowRepository.workspaceSettings.workspaceColor,

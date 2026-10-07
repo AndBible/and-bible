@@ -21,10 +21,7 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.window.CurrentWindowChangedEvent
-import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.event.window.WorkspaceChanged
-import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.speak.SpeakControl
@@ -375,34 +372,25 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
 
     /**
      * Window-domain change notifiers (Batch 12a). Each refreshes the reactive SSOT
-     * ([WindowStateServiceImpl.layout]) AND posts the legacy `ABEventBus` event, so both
+     * ([WindowStateServiceImpl.layout]) AND emits the matching [WindowChange], so both
      * are updated at one site. `WindowControl`/`Window` route their mutations through these.
      */
     fun notifyWindowsChanged() {
         windowStateService.refresh(this)
-        ABEventBus.post(NumberOfWindowsChangedEvent())
+        windowStateService.notify(WindowChange.WindowsChanged)
     }
     fun notifyActiveWindowChanged(window: Window) {
         windowStateService.refresh(this)
-        ABEventBus.post(CurrentWindowChangedEvent(window))
+        windowStateService.notify(WindowChange.ActiveWindowChanged(window))
     }
-    /** Only refreshes the layout; nothing is posted on the bus for a single-window change. */
+    /** Only refreshes the layout; nothing is emitted for a single-window change. */
     fun notifyWindowChanged(window: Window) {
         windowStateService.refresh(this)
     }
-    /**
-     * Posts [RestoreButtonsVisibilityChanged], the sole remaining sender of it.
-     *
-     * Carry-over correction from Batch Z-late's epilogue (Task 4 review): this KDoc used to say the
-     * event class was shared with classic `SplitBibleArea`, which "posts" it, so that a toggle
-     * through the Compose command seam "still refreshes the classic view". Both halves are now
-     * false -- `SplitBibleArea` was deleted in Task 4 (the event class survived it only because it
-     * was split out into `RestoreButtonsEvents.kt` first), and there is no classic reading view
-     * left to refresh. The single consumer is `BibleView`, which re-reads its bottom offsets.
-     */
+    /** Refreshes the layout and emits [WindowChange.RestoreButtonsChanged]; the only consumer is BibleView, which re-reads its bottom offsets. */
     fun notifyRestoreButtonsChanged() {
         windowStateService.refresh(this)
-        ABEventBus.post(RestoreButtonsVisibilityChanged())
+        windowStateService.notify(WindowChange.RestoreButtonsChanged)
     }
 
     /** Rebuilds this repository from the given (or first) workspace. Not re-entrant — see [loadingFromDb]. */
