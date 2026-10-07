@@ -527,9 +527,6 @@ class DatabaseContainer {
                     _resetLocalDb = { resetAiSettingsDb() },
                     localDbFile = application.getDatabasePath(AiSettingsDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.AI_SETTINGS,
-                    _reactToUpdates = {
-                        ABEventBus.post(AiSettingsUpdatedViaSyncEvent(it))
-                    },
                 ) },
                 { SyncableDatabaseAccessor(
                     localDb = progressDb,
@@ -537,9 +534,6 @@ class DatabaseContainer {
                     _resetLocalDb = { resetProgressDb() },
                     localDbFile = application.getDatabasePath(ProgressDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.PROGRESS,
-                    _reactToUpdates = {
-                        ABEventBus.post(ProgressUpdatedViaSyncEvent(it))
-                    },
                 ) },
             )
         }
@@ -551,5 +545,3 @@ class ReadingPlansUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class WorkspacesUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class BookmarksUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class MyDocumentsUpdatedViaSyncEvent(val updated: List<LogEntry>)
-class AiSettingsUpdatedViaSyncEvent(val updated: List<LogEntry>)
-class ProgressUpdatedViaSyncEvent(val updated: List<LogEntry>)

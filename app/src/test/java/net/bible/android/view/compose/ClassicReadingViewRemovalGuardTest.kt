@@ -203,12 +203,13 @@ class ClassicReadingViewRemovalGuardTest {
      * `RecyclerView` adapter. So the tags go and the classes go with them.
      *
      * The presence half is not decoration: both files held a LIVE declaration that the Compose path
-     * still posts and consumes (`HideTransportEvent`, `AgentLogVisibilityChanged`), so the deletion
+     * still posts and consumes (`HideTransportEvent`), so the deletion
      * is only correct if those were split out first -- exactly the shape of
      * [theRestoreButtonsEventOutlivesItsClassicHome] above. Deleting the widgets and dropping the
      * events would break the Compose Speak bar's hide path and the agent-log offset bookkeeping,
      * and the two halves together forbid the other failure mode too: a split-out file that merely
-     * shadows a still-present host.
+     * shadows a still-present host. `AgentLogEvents.kt` was deleted in ABEventBus removal phase 0: its
+     * event had no sender.
      *
      * The layout half used to read `main_bible_view.xml` and count the classic chrome tags in it.
      * Slice 8 F4 deleted that layout with `MainBibleActivity`, so the half is now "the layout is
@@ -230,7 +231,6 @@ class ClassicReadingViewRemovalGuardTest {
         ClassicRemovalScan.assertPathsPresent(
             listOf(
                 "src/main/java/net/bible/android/view/util/widget/SpeakTransportEvents.kt",
-                "src/main/java/net/bible/android/view/util/widget/AgentLogEvents.kt",
             ),
             "their live Compose-path events had to be split out first",
         )

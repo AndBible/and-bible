@@ -1682,14 +1682,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // `false`/`0` is what classic answers too, and will keep answering after R8 --
                 // NOT a placeholder, and not "this host has no strip" (the strip is the READING
                 // VIEW's, via `ComposeReadingViewHost.agentLog`, so R8 would inherit it).
-                // `AgentLogVisibilityChanged` has NO SENDER anywhere in the repository: its only
-                // poster was `AgentLogWidget.notifyVisibilityChanged`, deleted by Batch Z-late's
-                // epilogue, and `AgentLogEvents.kt`'s own kdoc records that the pair has been
-                // permanently `false`/`0` on the Compose path since the `classicBottomChromeAllowed`
-                // gate landed. Classic's fields are therefore never written either -- the
-                // subscription at `MainBibleActivity.kt:429` is the handler with no sender that kdoc
-                // names. The debt is whoever re-introduces the Compose agent-log panel's (the KNOWN
-                // GAP tracked in `MainBibleActivity.updateBottomBars`), not R8's.
+                // The agent-log strip reports no height: nothing has posted its visibility since Batch Z-late's epilogue, and the event was deleted in ABEventBus removal phase 0.
                 agentLogVisible = { false },
                 agentLogHeight = { 0 },
                 restoreButtonsVisible = { hostWindowRepository.workspaceSettings.restoreButtonsVisible },
