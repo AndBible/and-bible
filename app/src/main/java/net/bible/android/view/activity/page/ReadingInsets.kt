@@ -65,7 +65,7 @@ class ReadingInsetsHostCallbacks(
     /** The transport bar's height in px, resolved from the theme's `R.attr.transportBarHeight`. */
     val transportBarHeight: () -> Int,
 
-    /** `true` while the agent log strip is showing (pushed in by `AgentLogOffsetsUpdated`). */
+    /** `true` while the agent log strip is showing. */
     val agentLogVisible: () -> Boolean,
 
     /** The agent log strip's measured height in px. */
@@ -182,9 +182,8 @@ class ReadingInsets(private val host: ReadingInsetsHostCallbacks) {
      * F6 Task 8b Step 3: [net.bible.android.view.activity.page.screen.ComposeReadingViewHost.install]'s
      * report of the search sheet's live (visible, measured-height-in-px) state — the fourth term in
      * [bottomOffsetForWebView], mirroring `MainBibleActivity`'s agentLogVisible/agentLogHeight. Posts
-     * [SearchSheetOffsetsUpdated] (the same "recompute and push to the WebView" idiom
-     * as `AgentLogOffsetsUpdated`) so [net.bible.android.view.activity.page.BibleView.updateOffsets]
-     * picks up the new value; a no-op when nothing actually changed, so a benign recomposition doesn't
+     * [SearchSheetOffsetsUpdated] (a "recompute and push to the WebView" event) so
+     * [net.bible.android.view.activity.page.BibleView.updateOffsets] picks up the new value; a no-op when nothing actually changed, so a benign recomposition doesn't
      * spam `set_offsets` calls.
      */
     fun updateSearchSheetOffsets(visible: Boolean, heightPx: Int) {

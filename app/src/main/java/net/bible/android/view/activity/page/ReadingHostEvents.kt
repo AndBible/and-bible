@@ -30,8 +30,6 @@ class SystemInsetsChangedEvent(val insets: Insets)
 
 class KeyIsNull: Exception()
 
-class AgentLogOffsetsUpdated
-
 /** See [updateSearchSheetOffsets]. */
 class SearchSheetOffsetsUpdated
 
@@ -39,8 +37,6 @@ class SearchSheetOffsetsUpdated
 class ImePaddingChanged
 
 class FullScreenEvent(val isFullScreen: Boolean)
-
-class UpdateRestoreWindowButtons
 
 class ConfigurationChanged(val configuration: Configuration)
 

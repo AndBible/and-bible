@@ -386,9 +386,9 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         windowStateService.refresh(this)
         ABEventBus.post(CurrentWindowChangedEvent(window))
     }
+    /** Only refreshes the layout; nothing is posted on the bus for a single-window change. */
     fun notifyWindowChanged(window: Window) {
         windowStateService.refresh(this)
-        ABEventBus.post(WindowChangedEvent(window))
     }
     /**
      * Posts [RestoreButtonsVisibilityChanged], the sole remaining sender of it.

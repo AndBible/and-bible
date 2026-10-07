@@ -310,7 +310,6 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun reportInputFocus(newValue: Boolean) {
         Log.i(TAG, "Focus mode now $newValue")
-        ABEventBus.post(BibleViewInputFocusChanged(bibleView, newValue))
     }
 
     @JavascriptInterface

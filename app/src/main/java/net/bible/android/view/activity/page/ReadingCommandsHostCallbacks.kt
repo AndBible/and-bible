@@ -133,9 +133,9 @@ class ReadingCommandsHostCallbacks(
     val setTransportBarVisible: (Boolean) -> Unit,
 
     /**
-     * Also NOT an honest no-op: `MainBibleActivity.updateBottomBars` is nothing but
-     * `ABEventBus.post(UpdateRestoreWindowButtons())`, which the Compose restore rail listens to.
-     * A second host supplies its own post; it does not supply silence.
+     * Classic's `updateBottomBars` only posted an event nothing subscribed to; the restore rail reads
+     * `WindowStateService.layout`, refreshed by `WindowRepository`'s notifiers. A host that later needs
+     * a bottom-bar refresh supplies it here; the workspace switch still makes the call.
      */
     val updateBottomBars: () -> Unit,
 

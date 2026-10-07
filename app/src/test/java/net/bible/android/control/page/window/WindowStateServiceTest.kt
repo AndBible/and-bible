@@ -118,7 +118,7 @@ class WindowStateServiceTest {
         val service = liveService()
         val active = windowControl.activeWindow
         val w2 = windowControl.addNewWindow(active)
-        w2.isSynchronised = true    // triggers WindowChangedEvent via the isSynchronised setter
+        w2.isSynchronised = true    // refreshes the layout via notifyWindowChanged
         val w2Snapshot = service.layout.value.windows.single { it.id == w2.id.toString() }
         assertThat(w2Snapshot.isSynchronised, equalTo(true))
     }

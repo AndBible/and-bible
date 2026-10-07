@@ -18,7 +18,6 @@ package net.bible.android.control
 
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
-import net.bible.android.control.event.passage.PassageChangeStartedEvent
 import net.bible.android.control.event.passage.PassageChangedEvent
 import net.bible.android.control.page.window.Window
 
@@ -40,12 +39,6 @@ object PassageChangeMediator {
      */
     fun onCurrentVerseChanged(window: Window) {
         ABEventBus.post(CurrentVerseChangedEvent(window))
-    }
-
-    /** The thread which fetches the new page html has started
-     */
-    fun contentChangeStarted() {
-        ABEventBus.post(PassageChangeStartedEvent())
     }
 
     /** finished fetching html so should hide hourglass

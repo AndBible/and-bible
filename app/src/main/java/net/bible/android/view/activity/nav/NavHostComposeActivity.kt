@@ -192,7 +192,6 @@ import net.bible.android.view.activity.page.SDCARD_READ_REQUEST
 import net.bible.android.view.activity.page.SpeakTransportVisibilityChanged
 import net.bible.android.view.activity.page.SystemInsetsChangedEvent
 import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
-import net.bible.android.view.activity.page.UpdateRestoreWindowButtons
 import net.bible.android.view.activity.page.WORKSPACE_CHANGED
 import net.bible.android.view.activity.page.syncScope
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
@@ -1481,9 +1480,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /**
      * Classic `MainBibleActivity.toggleFullScreen`. Its `updateToolbar()` call is [applyIdleSystemUi]
      * here: since the Compose toolbar took over, classic's `updateToolbar` IS the system-bar
-     * hide/show and nothing else (see its comment). `updateBottomBars()` is its one surviving line,
-     * the `UpdateRestoreWindowButtons` broadcast `BibleView` re-reads its offsets on -- which was
-     * never bar-specific, so it is posted here too. The `FullScreenEvent` type stays classic's:
+     * hide/show and nothing else (see its comment). The `FullScreenEvent` type stays classic's:
      * `ComposeReadingViewHost` subscribes to `FullScreenEvent` whichever Activity
      * posted it.
      */
@@ -1491,7 +1488,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         sharedActivityState.toggleFullScreen()
         ABEventBus.post(FullScreenEvent(sharedActivityState.isFullScreen))
         applyIdleSystemUi()
-        ABEventBus.post(UpdateRestoreWindowButtons())
         if(sharedActivityState.isFullScreen) {
             ABEventBus.post(ToastEvent(R.string.exit_fullscreen))
         }
@@ -1615,9 +1611,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         currentNightMode = { currentNightMode },
         transportBarVisible = { transportBarVisible },
         setTransportBarVisible = { transportBarVisible = it },
-        // Classic's `updateBottomBars()` is nothing but this post, which the Compose restore rail
-        // listens to -- so this host supplies the post, not silence (Ruling D).
-        updateBottomBars = { ABEventBus.post(UpdateRestoreWindowButtons()) },
+        // Classic's `updateBottomBars()` posted `UpdateRestoreWindowButtons`, which nothing subscribed to;
+        // the restore rail reads `WindowStateService.layout`, refreshed by `WindowRepository`'s notifiers.
+        // `ReadingCommandsHostDelegationGuardTest` still pins the CALL in the workspace switch, so a host
+        // that later needs a bottom-bar refresh has the seam.
+        updateBottomBars = {},
         // Classic's `updateTitle()` writes the toolbar row's two `TextView`s. This host draws its
         // title from Compose state; there is genuinely nothing to push.
         updateTitle = { },

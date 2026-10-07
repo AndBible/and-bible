@@ -175,15 +175,6 @@ import kotlin.math.min
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-/**
- * POSTED WITH NO SUBSCRIBERS since Batch Z-late phase 1 removed the classic reading view.
- *
- * Recorded rather than swept, deliberately and consistently across the whole batch: deleting an
- * unreachable HANDLER is a local tidy-up, while deleting a posted EVENT changes what the app
- * announces about itself, and any later subscriber -- Compose, iOS or a future feature -- would
- * want it back. Whoever revisits this should decide the poster's fate first, not the class's.
- */
-class BibleViewInputFocusChanged(val view: BibleView, val newFocus: Boolean)
 class AppSettingsUpdated
 
 const val MAX_DOC_STR_LENGTH = 4000000;
@@ -1190,10 +1181,6 @@ class BibleView(
                     on<SystemInsetsChangedEvent> { event -> updateOffsets() }
                     on<RestoreButtonsVisibilityChanged> { event -> updateOffsets() }
                     on<SpeakTransportVisibilityChanged> { event -> updateOffsets(true) }
-                    on<AgentLogOffsetsUpdated> { event ->
-                        Log.i(TAG, "BibleView received AgentLogOffsetsUpdated")
-                        updateOffsets(true)
-                    }
                     // F6 Task 8b Step 3: the search sheet's own visible/height pair changed — see
                     // MainBibleActivity.updateSearchSheetOffsets.
                     on<SearchSheetOffsetsUpdated> { event ->

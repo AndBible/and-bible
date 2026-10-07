@@ -52,16 +52,6 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
 
-/**
- * POSTED WITH NO SUBSCRIBERS since Batch Z-late phase 1 removed the classic reading view.
- *
- * Recorded rather than swept, deliberately and consistently across the whole batch: deleting an
- * unreachable HANDLER is a local tidy-up, while deleting a posted EVENT changes what the app
- * announces about itself, and any later subscriber -- Compose, iOS or a future feature -- would
- * want it back. Whoever revisits this should decide the poster's fate first, not the class's.
- */
-class WindowChangedEvent(val window: Window)
-
 class Window (
     entity: WorkspaceEntities.Window,
     val pageManager: CurrentPageManager,
@@ -269,9 +259,6 @@ class Window (
         Log.i(TAG, "updateText ${this.hashCode()}")
 
         updateScope.launch(Dispatchers.IO) {
-            if (notifyLocationChange) {
-                PassageChangeMediator.contentChangeStarted()
-            }
             val b = bibleView
             val adjusted = b?.adjustLoadingCount(1)?: false
             val doc = fetchDocument()
