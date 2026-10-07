@@ -48,21 +48,9 @@ private const val WAKELOCK_TIMEOUT_MS = 30L * 60 * 1000 // 30 minutes
 private const val TAG = "DocumentSyncService"
 
 /**
- * Posted on [ABEventBus] as document transfers progress. [running] is false once the
- * queue is drained. [current]/[total] count completed-or-in-progress vs total ops in
- * the active batch; [currentName] is the document being transferred (null at start/end).
- */
-class DocumentSyncProgressEvent(
-    val running: Boolean,
-    val current: Int,
-    val total: Int,
-    val currentName: String?,
-)
-
-/**
  * Foreground service that runs all document-sync transfers (push/download) off the UI
  * thread, with a single per-document progress notification. Callers enqueue ops via
- * [start]; a single consumer coroutine drains the queue and posts [DocumentSyncProgressEvent].
+ * [start]; a single consumer coroutine drains the queue and emits [DocumentSync.runningChanged] edges.
  */
 class DocumentSyncService : Service() {
     companion object {
@@ -173,7 +161,7 @@ class DocumentSyncService : Service() {
     }
 
     private fun drain() = scope.launch {
-        ABEventBus.post(DocumentSyncProgressEvent(true, 0, total.get(), null))
+        DocumentSync.notifyRunning(true)
         // The start id this drain session is responsible for. Captured while we still own the
         // queue (active == true): a fresh start() arriving after we relinquish advances
         // lastStartId beyond this value, so stopSelfResult(stopId) then returns false and won't
@@ -193,7 +181,6 @@ class DocumentSyncService : Service() {
             val current = done.get() + 1
             val totalNow = total.get()
             updateNotification(op, current, totalNow)
-            ABEventBus.post(DocumentSyncProgressEvent(true, current, totalNow, op.initials))
             lastDownloadPct = -1
             try {
                 when (op) {
@@ -222,7 +209,7 @@ class DocumentSyncService : Service() {
         // Refresh the cloud-listing cache so the management view shows the new state even if it
         // isn't open to run its own scan (e.g. after auto-upload on install).
         try { DocumentSync.refreshCache() } catch (e: Exception) { Log.e(TAG, "Cache refresh failed", e) }
-        ABEventBus.post(DocumentSyncProgressEvent(false, done.get(), total.get(), null))
+        DocumentSync.notifyRunning(false)
         stopSelfSafe(stopId)
     }
 

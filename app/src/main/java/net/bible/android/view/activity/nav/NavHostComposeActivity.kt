@@ -100,7 +100,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -215,7 +214,6 @@ import net.bible.service.common.BuildVariant
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-import net.bible.android.view.activity.cloud.CloudSyncProgressBridge
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
@@ -226,6 +224,7 @@ import net.bible.service.cloudsync.documents.SyncPlan
 import net.bible.sharedcore.cloud.CloudDocAction
 import net.bible.sharedcore.cloud.CloudDocItem
 import net.bible.sharedcore.cloud.CloudDocumentsController
+import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.cloud.pushOnUnblock
 import net.bible.service.common.CommonUtils.pause
 import net.bible.service.common.displayName
@@ -8474,23 +8473,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /**
      * Classic `bridge.register()`/`unregister()` plus the `bridge.running.drop(1).collect { ... }`
-     * body (`:105`, `:180`, `:111-116`) as one subscribe/stop pair -- see
-     * [CloudDocumentsDeps.subscribeProgress]'s kdoc. A fresh [CloudSyncProgressBridge] per call,
-     * mirroring classic's per-Activity-instance field: this destination can be entered and left
-     * multiple times within one host instance, and each entry needs its own register/unregister
-     * pair, not a single one shared for the host's whole lifetime.
+     * body as one subscribe/stop pair -- see [CloudDocumentsDeps.subscribeProgress]'s kdoc. Each call
+     * is its own subscription on [lifecycleScope] (this destination can be entered and left several
+     * times within one host instance); there is no bridge and no `drop(1)`, since no initial value
+     * exists to skip.
      */
-    private fun cloudDocumentsSubscribeProgress(onRunning: (Boolean) -> Unit): () -> Unit {
-        val bridge = CloudSyncProgressBridge()
-        bridge.register()
-        val job = lifecycleScope.launch {
-            bridge.running.drop(1).collect { running -> onRunning(running) }
-        }
-        return {
-            job.cancel()
-            bridge.unregister()
-        }
-    }
+    private fun cloudDocumentsSubscribeProgress(onRunning: (Boolean) -> Unit): () -> Unit =
+        subscribeToDocumentSyncRunning(lifecycleScope, DocumentSync.runningChanged, onRunning)
 
     /**
      * Classic `runSyncAction` (`:234-241`), used by [buildCloudDocumentsController]'s `onRescan`.
@@ -9915,4 +9904,18 @@ internal fun LabelEditDeletePromptContent(
             dismissButton = { TextButton(onClick = onDismiss) { Text(dismissLabel) } },
         )
     }
+}
+
+/**
+ * Delivers every document-sync running edge to [onRunning] on [scope] until the returned stop runs.
+ * `asFlow()` is loss-free: a drain that emits `true` then `false` before the collector resumes still
+ * delivers both (a `StateFlow` would conflate them to nothing and skip the rescan).
+ */
+internal fun subscribeToDocumentSyncRunning(
+    scope: CoroutineScope,
+    runningChanged: Events<Boolean>,
+    onRunning: (Boolean) -> Unit,
+): () -> Unit {
+    val job = scope.launch { runningChanged.asFlow().collect { onRunning(it) } }
+    return { job.cancel() }
 }

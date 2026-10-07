@@ -358,8 +358,8 @@ class DownloadDeps(
  *
  * - [subscribeProgress] is classic's `bridge.register()`/`unregister()` PLUS the
  *   `bridge.running.drop(1).collect { ... }` body (`:105`, `:180`, `:111-116`) as one subscribe/stop
- *   pair: it owns the whole `CloudSyncProgressBridge` lifetime and reports every POST-`drop(1)`
- *   transfer-running transition to [onRunning]. The arm's own job on each callback is exactly
+ *   pair: it owns the whole subscription lifetime (`DocumentSync.runningChanged`; the bridge is gone)
+ *   and reports every transfer-running transition to [onRunning]. The arm's own job on each callback is exactly
  *   classic's collector body: flip `controller.setTransferRunning` and, on the false (transfer
  *   finished) edge, call [refreshFromNetwork].
  *

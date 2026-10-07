@@ -33,13 +33,29 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
+import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.util.Collections
 
 object DocumentSync {
     private const val TAG = "DocumentSync"
+
+    private var runningSource = EventSource<Boolean>()
+
+    /**
+     * `true` when a document-sync drain starts, `false` when it ends. An edge stream: never conflate it
+     * (replaces `DocumentSyncProgressEvent`).
+     */
+    val runningChanged: Events<Boolean> get() = runningSource
+
+    internal fun notifyRunning(running: Boolean) = runningSource.emit(running)
+
+    @VisibleForTesting
+    fun resetSubscribersForTest() { runningSource = EventSource() }
 
     /**
      * Whether [cloudVersion] is strictly newer than [localVersion].
