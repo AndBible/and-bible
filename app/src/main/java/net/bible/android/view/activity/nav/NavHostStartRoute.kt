@@ -37,7 +37,7 @@ const val STATE_START_ROUTE: String = "nav_start_route"
  * host a child route (`manageLabels` from `CurrentGeneralBookPage`'s StudyPad arm,
  * `myDocumentPages` from its my-document arm, `download` from `ChooseDocumentComposeActivity`, a
  * `HistoryManager` intent revert) the host's OWN intent is that child route. `recreate()` — which
- * the `ReadingPlansUpdatedViaSyncEvent` handler calls, and which every configuration change the
+ * the `DatabaseContainer.readingPlansSynced` handler calls, and which every configuration change the
  * manifest does not absorb causes — would then re-run `onCreate` against it, so a host that was
  * created as the reading host would come back as a download host: `bootstrapIfNeeded()` would not
  * run, while the `NavHost`'s own `rememberSaveable` back stack still restores the `reading` entry,

@@ -241,7 +241,6 @@ import net.bible.service.sword.unlockLockedBiblesIfNoneUsable
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.backup.BackupServiceImpl
 import net.bible.service.db.exportStudyPads
-import net.bible.service.db.ReadingPlansUpdatedViaSyncEvent
 import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
 import net.bible.service.device.speak.event.SpeakEvent
@@ -6519,7 +6518,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (dto.isDateBasedPlan && dto.readingDate != null) dto.readingDateString else dto.dayDesc
 
     /**
-     * Classic `DailyReadingComposeActivity`'s `ABEventBus.register(this) { ... }` pair, registered
+     * Classic `DailyReadingComposeActivity`'s `ABEventBus.register(this) { ... }` pair (now the `SpeakEvent` bus listener plus `DatabaseContainer.readingPlansSynced`), registered
      * per DESTINATION rather than per host (see [DailyReadingDeps.subscribeEvents]): the token is a
      * fresh object per subscription, so an unsubscribe can never take another cluster's listeners
      * down with it. `recreate()` is classic's own reaction to a plan sync — it now recreates the
@@ -6528,9 +6527,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun subscribeDailyReadingEvents(): () -> Unit {
         val token = Any()
         ABEventBus.register(token) {
-            onMain<ReadingPlansUpdatedViaSyncEvent> { recreate() }
             onMain<SpeakEvent> { pushReadingPlanSpeakState() }
         }
+        val unsubscribePlans = subscribeToReadingPlanSync { recreate() }
         // Seed the fresh controller with the CURRENT speak state. Classic never needed this: its
         // Activity (and its controller) merely paused behind the selector / day list, so the state
         // pushed by the last SpeakEvent was still there on return. Here the arm's composition is
@@ -6539,17 +6538,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         // `speakState != NONE`, so a user who changed day or plan mid-speech would lose the
         // transport controls until the next SpeakEvent happened to fire.
         pushReadingPlanSpeakState()
-        return { ABEventBus.unregister(token) }
+        return { ABEventBus.unregister(token); unsubscribePlans() }
     }
 
-    /** The day list's / selector's `onMain<ReadingPlansUpdatedViaSyncEvent> { controller.load() }`. */
-    private fun subscribeReadingPlansUpdated(onReadingPlansChanged: () -> Unit): () -> Unit {
-        val token = Any()
-        ABEventBus.register(token) {
-            onMain<ReadingPlansUpdatedViaSyncEvent> { onReadingPlansChanged() }
-        }
-        return { ABEventBus.unregister(token) }
-    }
+    /** The day list's / selector's reaction to `DatabaseContainer.readingPlansSynced` (`controller.load()`). */
+    private fun subscribeReadingPlansUpdated(onReadingPlansChanged: () -> Unit): () -> Unit =
+        subscribeToReadingPlanSync(onReadingPlansChanged)
 
     // --- Search cluster host baggage -----------------------------------------------------------
     // Ported from classic SearchComposeActivity / SearchIndexComposeActivity /

@@ -104,7 +104,7 @@ enum class DailyReadingLoad {
  *   composition so a day chosen through the day list is not silently reverted to the route's
  *   original (usually argument-free) day. Host-owned, because it must outlive this destination's
  *   composition for exactly the reason given under [controllerFor].
- * - [subscribeEvents] wires classic's `ABEventBus.register(this) { onMain<ReadingPlansUpdatedViaSyncEvent>
+ * - [subscribeEvents] wires classic's `ABEventBus.register(this) { onMain<ReadingPlansUpdatedViaSyncEvent> (now `DatabaseContainer.readingPlansSynced`)
  *   { recreate() }; onMain<SpeakEvent> { pushSpeakState() } }` and returns the unsubscribe.
  *   Route-scoped (a `DisposableEffect` in this destination's arm), not host-wide, following
  *   [net.bible.sharedui.ai.nav.AiModelsDeps.onResume]'s established convention: one host now serves
@@ -153,7 +153,7 @@ class DailyReadingDeps(
  * "day picked" lambda (which publishes to [ReadingPlanNavDeps.pendingSelection] and pops) and
  * builds the [DailyReadingListController] around it — same shape as
  * [net.bible.sharedui.ai.nav.RawLogHistoryDeps.controllerFor]. [subscribeEvents] is classic's
- * `onMain<ReadingPlansUpdatedViaSyncEvent> { controller.load() }`: it takes the reload to run and
+ * a `DatabaseContainer.readingPlansSynced` subscription running `controller.load()`: it takes the reload to run and
  * returns the unsubscribe, so the host never needs a reference to the controller the graph owns.
  * [title] is both the screen's own top-bar title and its window title (classic's
  * `getString(R.string.rdg_plan_title)` plus the identical `android:label`).

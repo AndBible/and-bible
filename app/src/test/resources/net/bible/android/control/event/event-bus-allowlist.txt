@@ -34,7 +34,6 @@ NightModeChanged
 NumberOfWindowsChangedEvent
 PassageChangedEvent
 PhoneCallEvent
-ReadingPlansUpdatedViaSyncEvent
 ReloadAddonsEvent
 RestoreButtonsVisibilityChanged
 ScrollSecondaryWindowEvent

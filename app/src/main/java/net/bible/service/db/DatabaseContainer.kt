@@ -29,6 +29,8 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.DocumentSyncDatabase
 import net.bible.android.database.LogEntry
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 import net.bible.android.database.OldMonolithicAppDatabase
 import net.bible.android.database.REPO_DATABASE_VERSION
 import net.bible.android.database.ReadingPlanDatabase
@@ -354,6 +356,10 @@ class DatabaseContainer {
     companion object {
         var ready: Boolean = false
 
+        private val _readingPlansSynced = EventSource<List<LogEntry>>()
+        /** Fires on the sync thread after a cloud sync applied reading-plan changes (replaces `ReadingPlansUpdatedViaSyncEvent`). */
+        val readingPlansSynced: Events<List<LogEntry>> get() = _readingPlansSynced
+
         /**
          * Fix batch 5 §1.1. True while a restore has database files closed or overwritten. A save in
          * that window writes into a closed or replaced file.
@@ -506,9 +512,7 @@ class DatabaseContainer {
                     _resetLocalDb = { resetReadingPlanDb() },
                     localDbFile = application.getDatabasePath(ReadingPlanDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.READINGPLANS,
-                    _reactToUpdates = {
-                        ABEventBus.post(ReadingPlansUpdatedViaSyncEvent(it))
-                    },
+                    _reactToUpdates = { _readingPlansSynced.emit(it) },
                 )
                 },
                 { SyncableDatabaseAccessor(
@@ -541,7 +545,6 @@ class DatabaseContainer {
     }
 }
 
-class ReadingPlansUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class WorkspacesUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class BookmarksUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class MyDocumentsUpdatedViaSyncEvent(val updated: List<LogEntry>)
