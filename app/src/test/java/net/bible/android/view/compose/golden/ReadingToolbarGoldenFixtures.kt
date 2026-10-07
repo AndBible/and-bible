@@ -46,6 +46,7 @@ internal fun goldenToolbarIcons() = ReadingToolbarIcons(
     commentary = painterResource(R.drawable.ic_commentary),
     workspace = painterResource(R.drawable.ic_workspace_solid_24dp),
     overflow = painterResource(R.drawable.ic_more_vert_black_24dp),
+    sync = painterResource(R.drawable.ic_syncdb_24dp),
 )
 
 /** Every toolbar callback a no-op — a golden never clicks anything. */

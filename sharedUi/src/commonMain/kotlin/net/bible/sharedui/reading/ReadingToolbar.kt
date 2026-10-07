@@ -17,6 +17,11 @@
 
 package net.bible.sharedui.reading
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -42,7 +47,6 @@ import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -117,6 +121,7 @@ import net.bible.sharedui.components.AbSearchField
 import net.bible.sharedui.components.topBarCutoutTop
 import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.LocalDisplayColorMode
+import net.bible.sharedui.theme.LocalDisableAnimations
 import net.bible.sharedui.theme.LocalIsDarkTheme
 import net.bible.sharedui.theme.SyncSystemBars
 import kotlin.math.abs
@@ -135,6 +140,8 @@ data class ReadingToolbarIcons(
     val commentary: Painter,
     val workspace: Painter,
     val overflow: Painter,
+    /** Background (cloud) sync glyph shown beside the document title while [ToolbarState.syncRunning]. */
+    val sync: Painter,
 )
 
 /**
@@ -539,7 +546,7 @@ fun ReadingToolbar(
                     contentDescription = strings.menu,
                     onClick = callbacks.onHome,
                 )
-                ReadingToolbarTitle(state, callbacks, documentTitleColor, Modifier.weight(1f).fillMaxHeight())
+                ReadingToolbarTitle(state, callbacks, documentTitleColor, icons.sync, Modifier.weight(1f).fillMaxHeight())
                 buttons.forEach { button ->
                     QuickToolbarButton(
                         button = button,
@@ -646,7 +653,7 @@ private fun ToolbarIconButton(
 
 /**
  * The tappable title block: page title (large, single line, ellipsized) over the document title
- * (small, secondary) with a sync indicator alongside it while [ToolbarState.syncRunning]. Gestures
+ * (small, secondary) with a sync glyph alongside it while [ToolbarState.syncRunning]. Gestures
  * mirror classic `setupToolbarFlingDetection()`: a plain tap re-opens the key chooser, a long-press
  * opens the document chooser, and a fling is routed to a vertical (workspace selector) or
  * horizontal (cycle workspace) callback depending on its dominant axis — see [detectTitleGestures].
@@ -656,6 +663,7 @@ private fun ReadingToolbarTitle(
     state: ToolbarState,
     callbacks: ReadingToolbarCallbacks,
     documentTitleColor: Color,
+    syncIcon: Painter,
     modifier: Modifier = Modifier,
 ) {
     // Keyed on Unit (stable) rather than `callbacks` — a recomposition mid-gesture (e.g.
@@ -695,36 +703,44 @@ private fun ReadingToolbarTitle(
                 modifier = Modifier.weight(1f, fill = false),
             )
             if (state.syncRunning) {
-                SyncIndicator(Modifier.padding(start = 6.dp))
+                SyncIndicator(icon = syncIcon, modifier = Modifier.padding(start = 6.dp))
             }
         }
     }
 }
 
 /**
- * Small spinner shown next to the document title while a background sync is running. Under
- * inspection (Roborazzi goldens / previews) it renders a frozen determinate frame instead of the
- * animated indeterminate one — same reasoning as [net.bible.sharedui.components.AbLoadingIndicator]:
- * `LocalInspectionMode` does not freeze Compose's `InfiniteTransition`, so an indeterminate spinner
- * would capture a non-deterministic frame and make the "syncing" golden flaky. The frozen fraction
- * is a non-zero [FrozenSyncIndicatorProgress] — a `progress = 0f` frame draws a zero-sweep (fully
- * invisible) arc, which would make the "syncing" golden indistinguishable from "not syncing".
+ * Background-sync glyph ([ReadingToolbarIcons.sync], the classic `ic_syncdb_24dp`) shown next to
+ * the document title while a cloud sync is running. A dedicated sync glyph rather than a generic
+ * spinner, so the user can tell it apart from in-app loading (classic `main_bible_view.xml`
+ * `syncIcon` parity). It breathes slowly between [SyncIndicatorMinAlpha] and full opacity; with
+ * [LocalDisableAnimations], and under [LocalInspectionMode] (Roborazzi goldens / previews, where
+ * an `InfiniteTransition` would capture a non-deterministic frame), it is drawn static and opaque.
  */
 @Composable
-private fun SyncIndicator(modifier: Modifier = Modifier) {
-    if (LocalInspectionMode.current) {
-        CircularProgressIndicator(
-            progress = { FrozenSyncIndicatorProgress },
-            modifier = modifier.size(10.dp),
-            strokeWidth = 1.5.dp,
-        )
+private fun SyncIndicator(icon: Painter, modifier: Modifier = Modifier) {
+    val animate = !LocalDisableAnimations.current && !LocalInspectionMode.current
+    val alpha = if (animate) {
+        rememberInfiniteTransition(label = "syncIndicator").animateFloat(
+            initialValue = 1f,
+            targetValue = SyncIndicatorMinAlpha,
+            animationSpec = infiniteRepeatable(tween(SyncIndicatorPulseMillis), RepeatMode.Reverse),
+            label = "syncIndicatorAlpha",
+        ).value
     } else {
-        CircularProgressIndicator(modifier = modifier.size(10.dp), strokeWidth = 1.5.dp)
+        1f
     }
+    Icon(
+        painter = icon,
+        contentDescription = null,
+        tint = LocalContentColor.current,
+        modifier = modifier.size(SyncIndicatorSize).alpha(alpha),
+    )
 }
 
-/** Frozen progress fraction [SyncIndicator] draws under [LocalInspectionMode] — see its kdoc. */
-private const val FrozenSyncIndicatorProgress = 0.65f
+private val SyncIndicatorSize = 12.dp
+private const val SyncIndicatorMinAlpha = 0.35f
+private const val SyncIndicatorPulseMillis = 900
 
 /** Distance (px) a drag must cover on its dominant axis before it counts as a fling, not a tap-adjacent wobble. */
 private const val MinFlingDistanceDp = 40
