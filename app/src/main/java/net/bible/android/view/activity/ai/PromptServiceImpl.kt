@@ -21,10 +21,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
+import net.bible.service.common.AiSettings
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
@@ -94,9 +93,8 @@ class PromptServiceImpl : PromptService {
     override val hasHiddenPrompts: StateFlow<Boolean> = _hasHiddenPrompts.asStateFlow()
 
     init {
-        ABEventBus.register(this) {
-            onMain<AppSettingsUpdated> { refresh() }
-        }
+        // Process lifetime, like the bus registration it replaces: never cancelled.
+        AiSettings.configChanged.subscribeOnMain { refresh() }
     }
 
     // --- groups (classic AiSettingsActivity.loadPrompts, Favorites → uncategorized → categories) --

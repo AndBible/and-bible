@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.AppSettingsUpdated
@@ -79,9 +78,8 @@ class LlmProviderServiceImpl : LlmProviderService {
     override val providers: StateFlow<List<ProviderVd>> = _providers.asStateFlow()
 
     init {
-        ABEventBus.register(this) {
-            onMain<AppSettingsUpdated> { refresh() }
-        }
+        // Process lifetime, like the bus registration it replaces: never cancelled.
+        AiSettings.configChanged.subscribeOnMain { refresh() }
     }
 
     private fun buildProviders(): List<ProviderVd> = dao.all().map { config ->

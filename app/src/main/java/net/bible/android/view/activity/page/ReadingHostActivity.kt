@@ -186,4 +186,7 @@ interface ReadingHostActivity : LifecycleOwner {
      * grows one overrides this. `MainBibleActivity` does.
      */
     fun hideClassicToolbarRow() {}
+
+    /** A tap landed on a BibleView of this host (replaces the BibleViewTouched bus event). */
+    fun onBibleViewTouched()
 }

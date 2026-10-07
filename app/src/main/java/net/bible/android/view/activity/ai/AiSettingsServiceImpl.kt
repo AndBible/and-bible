@@ -22,9 +22,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
-import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -52,9 +50,8 @@ class AiSettingsServiceImpl : AiSettingsService {
     override val snapshot: StateFlow<AiSettingsSnapshot> = _snapshot.asStateFlow()
 
     init {
-        ABEventBus.register(this) {
-            onMain<AppSettingsUpdated> { refresh() }
-        }
+        // Process lifetime, like the bus registration it replaces: never cancelled.
+        AiSettings.configChanged.subscribeOnMain { refresh() }
         // Process lifetime: never cancelled.
         AiSettings.defaultModelChanged.subscribeOnMain { refresh() }
     }

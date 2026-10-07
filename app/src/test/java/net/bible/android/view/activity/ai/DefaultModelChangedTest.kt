@@ -32,7 +32,6 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -54,9 +53,11 @@ class DefaultModelChangedTest {
     }
 
     @Test fun aDefaultModelWriteRefreshesTheServiceSnapshots() {
-        val koin = GlobalContext.get()
-        val settingsService = koin.get<AiSettingsService>()
-        val modelService = koin.get<LlmModelService>()
+        // Fresh instances, not the Koin singletons: another test class may have created those, and
+        // TestBibleApplication.onTerminate resets AiSettings' sources, which kills the process-lifetime
+        // subscriptions of an already-built singleton.
+        val settingsService: AiSettingsService = AiSettingsServiceImpl()
+        val modelService: LlmModelService = LlmModelServiceImpl()
         val db = DatabaseContainer.instance.aiSettingsDb
         val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "P")
         db.llmProviderConfigDao().insert(provider)

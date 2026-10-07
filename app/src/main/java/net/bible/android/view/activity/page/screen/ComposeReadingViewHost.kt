@@ -503,7 +503,7 @@ internal fun readHistoryApplyDeletes(
  *
  * [visible] starts `true` (buttons shown on first render, mirroring classic's initial
  * `buttonsVisible = true`, `SplitBibleArea.kt:149`). [onTouch] — wired to
- * [BibleView.BibleViewTouched] in [ComposeReadingViewHost.init], and also called by
+ * [ComposeReadingViewHost.onBibleViewTouched], and also called by
  * [ComposeReadingViewHost.openPaneMenu] (mirroring classic `showPopupMenu`'s
  * `timerTask?.cancel(); toggleWindowButtonVisibility(true)`, `SplitBibleArea.kt:731-732`, so a menu
  * opened while auto-hidden still renders) — sets [visible] `true` and bumps [touchTick] so a
@@ -2888,6 +2888,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * the e-ink/monochrome device path posts.
      */
     private val monochrome = mutableStateOf(CommonUtils.settings.monochromeMode)
+    internal val monochromeForTest: State<Boolean> get() = monochrome
+    internal val windowButtonsVisibilityForTest: WindowButtonsVisibility get() = windowButtonsVisibility
 
     /**
      * Mirrors [MainBibleActivity.fullScreen]. Kept current via [SharedActivityState.fullScreenChanged]
@@ -3024,19 +3026,19 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     /** Opens the Compose drawer (idempotent) — see [isDrawerOpen]. */
     fun openDrawer() { drawerOpen.value = true }
 
+    /** A tap on one of this host's BibleViews: re-show the window buttons (classic SplitBibleArea.kt:203-205). */
+    fun onBibleViewTouched() = windowButtonsVisibility.onTouch()
+
     /** Closes the Compose drawer (idempotent) — see [isDrawerOpen]. */
     fun closeDrawer() { drawerOpen.value = false }
 
     init {
         subscriptions.add(SharedActivityState.instance.fullScreenChanged.subscribeOnMain { fullScreen.value = it })
+        subscriptions.add(ScreenSettings.nightModeChanges.subscribeOnMain {
+            nightMode.value = ScreenSettings.nightMode
+            monochrome.value = CommonUtils.settings.monochromeMode
+        })
         ABEventBus.register(this) {
-            onMain<ScreenSettings.NightModeChanged> {
-                nightMode.value = ScreenSettings.nightMode
-                monochrome.value = CommonUtils.settings.monochromeMode
-            }
-            // Classic BibleView.BibleViewTouched re-show (SplitBibleArea.kt:203-205) — see
-            // WindowButtonsVisibility's kdoc.
-            onMain<BibleView.BibleViewTouched> { windowButtonsVisibility.onTouch() }
             // Batch 12g Task 3: mirrors classic `SplitBibleArea`'s own registration for the same two
             // events (`SplitBibleArea.kt:172,190`), which drive its `updateBibleReferenceOverlay`.
             // Unlike a dedicated `:sharedCore` service seam, this reuses the host's existing

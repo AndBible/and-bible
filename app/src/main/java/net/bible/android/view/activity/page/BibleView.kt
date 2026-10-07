@@ -75,7 +75,6 @@ import net.bible.service.common.ReadingProgressSettings
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.NoteEditorEntityType
 import net.bible.android.control.download.DownloadControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.on
 import net.bible.android.control.event.onMain
 import net.bible.android.control.link.LinkControl
@@ -121,11 +120,13 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.util.UiUtils
 import net.bible.service.sword.SwordContentFacade
+import net.bible.android.control.page.window.WorkspaceChange
+import net.bible.android.control.page.window.WorkspaceChanges
+import net.bible.service.common.AiSettings
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.parseAndBibleReference
-import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.event.Subscriptions
@@ -330,8 +331,6 @@ class BibleView(
         set(value) {
             windowRef = WeakReference(value)
         }
-
-    class BibleViewTouched(val onlyTouch: Boolean = false)
 
     init {
         //if ((0 != BibleApplication.application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) || CommonUtils.isBeta) {
@@ -1003,22 +1002,20 @@ class BibleView(
         set(value) {
             if(value == field) return
             if(value) {
-                ABEventBus.register(this) {
-                    on<ReloadAddonsEvent> { e ->
-                        val fontModuleNames = json.encodeToString(serializer(), AndBibleAddons.fontModuleNames)
-                        val featureModuleNames = json.encodeToString(serializer(), AndBibleAddons.featureModuleNames)
-                        val styleModuleNames = json.encodeToString(serializer(), AndBibleAddons.styleModuleNames)
-                        executeJavascriptOnUiThread("bibleView.emit('reload_addons', {fontModuleNames: $fontModuleNames, featureModuleNames: $featureModuleNames, styleModuleNames: $styleModuleNames});")
-                    }
-                    on<AppSettingsUpdated> { event ->
-                        updateConfig()
-                    }
-                    // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here
-                    // and finish a deferred teardown. Both events were posted only by the classic
-                    // split reading area, so they became unpostable when it went; the live teardown
-                    // route is `BibleViewFactory.clear()`, which calls `doDestroy()` directly and
-                    // is not event-driven. Removed in Batch Z-late's epilogue (spec 10.3).
-                }
+                subscriptions.add(AndBibleAddons.reloaded.subscribe {
+                    val fontModuleNames = json.encodeToString(serializer(), AndBibleAddons.fontModuleNames)
+                    val featureModuleNames = json.encodeToString(serializer(), AndBibleAddons.featureModuleNames)
+                    val styleModuleNames = json.encodeToString(serializer(), AndBibleAddons.styleModuleNames)
+                    executeJavascriptOnUiThread("bibleView.emit('reload_addons', {fontModuleNames: $fontModuleNames, featureModuleNames: $featureModuleNames, styleModuleNames: $styleModuleNames});")
+                })
+                subscriptions.add(WorkspaceChanges.changes.subscribe { if (it == WorkspaceChange.SettingsEdited) updateConfig() })
+                // updateConfig carries llmConfigured, so AI configuration changes must reach it too.
+                subscriptions.add(AiSettings.configChanged.subscribe { updateConfig() })
+                // `WebViewsBuiltEvent` / `AfterRemoveWebViewEvent` handlers used to sit here
+                // and finish a deferred teardown. Both events were posted only by the classic
+                // split reading area, so they became unpostable when it went; the live teardown
+                // route is `BibleViewFactory.clear()`, which calls `doDestroy()` directly and
+                // is not event-driven. Removed in Batch Z-late's epilogue (spec 10.3).
                 subscriptions.add(hostCallbacks.insetsChanges().subscribe { updateOffsets(it.immediate) })
                 subscriptions.add(windowState.windowChanges.subscribe { change ->
                     when (change) {
@@ -1042,7 +1039,6 @@ class BibleView(
                     if (it is MyDocumentChange.AiDocPages) onAiDocPagesChanged(it)
                 })
             } else {
-                ABEventBus.unregister(this)
                 subscriptions.cancelAll()
             }
             field = value

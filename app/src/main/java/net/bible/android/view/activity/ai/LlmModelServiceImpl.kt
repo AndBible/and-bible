@@ -21,10 +21,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.onMain
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -79,9 +77,8 @@ class LlmModelServiceImpl : LlmModelService {
     override val models: StateFlow<List<ModelVd>> = _models.asStateFlow()
 
     init {
-        ABEventBus.register(this) {
-            onMain<AppSettingsUpdated> { refresh() }
-        }
+        // Process lifetime, like the bus registration it replaces: never cancelled.
+        AiSettings.configChanged.subscribeOnMain { refresh() }
         // Process lifetime: never cancelled.
         AiSettings.defaultModelChanged.subscribeOnMain { refresh() }
     }

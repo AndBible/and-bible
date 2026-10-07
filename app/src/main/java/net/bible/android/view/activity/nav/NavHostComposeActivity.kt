@@ -514,6 +514,8 @@ import org.koin.android.ext.android.inject
  * one that matters for this cluster — `awaitIntent`, which the SAF flows need.
  */
 class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPolicyHost {
+    override fun onBibleViewTouched() { composeReadingViewHost?.onBibleViewTouched() }
+
     private val documentFilterService: DocumentFilterService by inject()
     private val toolPermissionService: ToolPermissionService by inject()
     private val llmModelService: LlmModelService by inject()

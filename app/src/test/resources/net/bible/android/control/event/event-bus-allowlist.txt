@@ -1,7 +1,6 @@
 AddHistoryItem
 AppSettingsUpdated
 AppToBackgroundEvent
-BibleViewTouched
 CurrentBibleVerseChanged
 CurrentVerseChangedEvent
 MainBibleAfterRestore
