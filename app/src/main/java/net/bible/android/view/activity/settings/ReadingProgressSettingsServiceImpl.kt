@@ -32,11 +32,11 @@ import net.bible.sharedcore.settings.ReadingProgressSettingsSnapshot
  * settings cluster" commit; see that commit and its history for the source of truth this was
  * written against) key-for-key: reads/writes go through the [ReadingProgressSettings] singleton
  * (Room-DAO-backed, `net.bible.service.common.ReadingProgressSettings`), NOT
- * `CommonUtils.settings`. That singleton's property setters do NOT themselves post
- * [ReadingProgressSettings.notifyChanged] (they only write to the DAO) — the classic
- * `PreferenceDataStore.putBoolean`/`putString` post the event explicitly after every
- * write, so this impl does the same, to preserve parity (BibleView listens for this
- * event to refresh its reading-progress markers).
+ * `CommonUtils.settings`. That
+ * singleton's property setters only write to the DAO; writers announce a change through
+ * [ReadingProgressSettings.notifyChanged], which emits [ReadingProgressSettings.changed] (BibleView
+ * subscribes to it to refresh its reading-progress markers). This impl calls `notifyChanged()`
+ * explicitly after every write, as the classic `PreferenceDataStore.putBoolean`/`putString` did.
  */
 class ReadingProgressSettingsServiceImpl : ReadingProgressSettingsService {
 
