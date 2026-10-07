@@ -32,9 +32,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
 import net.bible.android.control.event.phonecall.PhoneCallMonitor
-import net.bible.android.control.event.phonecall.PhoneCallEvent
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakChanges
@@ -136,9 +134,6 @@ class TextToSpeechServiceManager constructor(
         mSpeakTextProvider = bibleSpeakTextProvider
 
         mSpeakTiming = SpeakTiming()
-        ABEventBus.safelyRegister(this) {
-            on<PhoneCallEvent> { event -> callStateChanged(event.callActivating) }
-        }
         restorePauseState()
     }
 
@@ -443,7 +438,7 @@ class TextToSpeechServiceManager constructor(
      * Add event listener to stop on call
      */
     private fun stopIfPhoneCall() {
-        PhoneCallMonitor.ensureMonitoringStarted()
+        PhoneCallMonitor.ensureMonitoringStarted(::callStateChanged)
     }
 
     @Synchronized

@@ -19,7 +19,6 @@ MyDocumentUpdatedEvent
 MyDocumentsUpdatedViaSyncEvent
 NightModeChanged
 PassageChangedEvent
-PhoneCallEvent
 ReloadAddonsEvent
 SpeakEvent
 SpeakProgressEvent
