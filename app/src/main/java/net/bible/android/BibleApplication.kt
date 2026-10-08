@@ -67,7 +67,7 @@ import org.crosswire.common.util.Language
 import org.crosswire.common.util.PropertyMap
 import org.crosswire.jsword.book.install.InstallManager
 import org.crosswire.jsword.book.sword.BookType
-import org.crosswire.jsword.bridge.BookIndexer
+import org.crosswire.jsword.index.BookIndexer
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import org.koin.android.ext.koin.androidContext
