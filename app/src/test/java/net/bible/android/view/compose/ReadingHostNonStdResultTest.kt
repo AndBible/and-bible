@@ -24,9 +24,7 @@ import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
-import net.bible.android.control.event.passage.SynchronizeWindowsEvent
+import net.bible.service.common.CommonUtils
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.Screen
 import net.bible.android.view.ScreenLauncher
@@ -71,7 +69,7 @@ import kotlin.test.assertTrue
  *    screens are destinations of this host's OWN graph — so the launch is a `singleTop` self-launch
  *    that produces no result at all, and the whole of classic's `preferenceSettingsChanged()` (the
  *    only production caller of `CommonUtils.changeAppIconAndName`, and the only producer of
- *    `SynchronizeWindowsEvent(true)` in the tree) simply stopped running.
+ *    window resync in the tree) simply stopped running.
  *
  * Every test below is red on the pre-T8d behaviour — restore the `requestCode != STD_REQUEST_CODE`
  * early return, or make `recordReadingReturnDebt` a no-op, and they fail rather than pass quietly.
@@ -82,7 +80,8 @@ import kotlin.test.assertTrue
 class ReadingHostNonStdResultTest {
 
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
-    private var synchronizeWindows = 0
+    private var resyncBaseline = 0
+    private val synchronizeWindows get() = CommonUtils.windowControl.forceResyncCountForTest - resyncBaseline
 
     /**
      * The launcher alias already says what `discrete_mode` says.
@@ -115,7 +114,6 @@ class ReadingHostNonStdResultTest {
 
     @After
     fun tearDown() {
-        ABEventBus.unregister(this)
         controllers.forEach { it.close() }
         controllers.clear()
         ReadingHostPresence.setForeground(null)
@@ -131,8 +129,7 @@ class ReadingHostNonStdResultTest {
         ).also { controllers += it }.apply { create(state).start().resume().visible() }
 
     private fun countSynchronizeWindows() {
-        synchronizeWindows = 0
-        ABEventBus.register(this) { on<SynchronizeWindowsEvent> { synchronizeWindows++ } }
+        resyncBaseline = CommonUtils.windowControl.forceResyncCountForTest
     }
 
     private fun aSecondWorkspace(): WorkspaceEntities.Workspace =
@@ -208,7 +205,7 @@ class ReadingHostNonStdResultTest {
      * `reading` from a Settings screen this host launched at `REFRESH_DISPLAY_ON_FINISH`.
      *
      * Two independent observables, because two of the five steps are the ones that matter:
-     * `SynchronizeWindowsEvent(true)`, which nothing else in the tree posts, and the composition
+     * a forced window resync, and the composition
      * rebuild the reading view needs to re-read `toolbar_button_actions` and its three
      * inside-the-composition settings.
      */
@@ -230,9 +227,8 @@ class ReadingHostNonStdResultTest {
 
         assertEquals(
             1, synchronizeWindows,
-            "returning from Settings must post SynchronizeWindowsEvent(true) — nothing else in the " +
-                "tree posts it, so without this arm window synchronisation never reconciles after a " +
-                "settings change",
+            "returning from Settings must force a window resync so window synchronisation " +
+                "reconciles after a settings change",
         )
         assertTrue(
             host.generationForTest.state.value > generationBefore,
@@ -367,7 +363,7 @@ class ReadingHostNonStdResultTest {
      *
      * **The assertion is POSITIVE and is driven by code 3 alone** (T8d fix round, review finding 1).
      * What stood here asserted only that the composition was NOT rebuilt and that no
-     * `SynchronizeWindowsEvent` was posted, and drove its one positive assertion with code 2 — so
+     * a window resync was requested, and drove its one positive assertion with code 2 — so
      * deleting the code-3 arm, or dropping the code from `RETURN_TO_READING_REQUEST_CODES`, left the
      * whole suite green while the Download return silently stopped refreshing the drawer again.
      *
@@ -409,7 +405,7 @@ class ReadingHostNonStdResultTest {
         )
         assertEquals(
             0, synchronizeWindows,
-            "…and posts no SynchronizeWindowsEvent either — that belongs to the Settings arm",
+            "…and forces no window resync either — that belongs to the Settings arm",
         )
     }
 

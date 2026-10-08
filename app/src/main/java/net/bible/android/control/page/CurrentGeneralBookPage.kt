@@ -199,8 +199,8 @@ class CurrentGeneralBookPage internal constructor(
      * `ActivityThread` has finished the same looper message — i.e. after the host's `onResume`.
      * On `NavHostComposeActivity` that is the difference between applying a key into a host that
      * has not yet reclaimed `windowControl.windowRepository`, re-declared itself foreground or
-     * re-armed its bootstrap bridge, and one that has: the `AddHistoryItem` that
-     * `setCurrentDocumentAndKey` posts is read by `HistoryManager.createHistoryItem` through
+     * re-armed its bootstrap bridge, and one that has: the history entry that
+     * `setCurrentDocumentAndKey` records is read by `HistoryManager.createHistoryItem` through
      * `ReadingViewVisibility.isVisible`, which is false until `ReadingHostPresence` says this host
      * is foreground. Classic needed `CurrentActivityHolder.activate` +
      * `ReadingHostPresence.setForeground` + `ReadingViewVisibility.setActivityVisible` in its

@@ -46,7 +46,7 @@ package net.bible.sharedcore.reading
  * A3 — NavHost pops, classic Activities finish — but the bug and its fix predate that rename)
  * never fired and the user got a DEAD BACK KEY (`ActivityBase.onBackPressed` returns without
  * `super` when `goBack()` returned true). The same
- * state also recorded a `KeyHistoryItem` for an `AddHistoryItem` posted while the app was in the
+ * state also recorded a `KeyHistoryItem` for a call to `HistoryManager.recordIfCreated` while the app was in the
  * background. [ReadingHostPresence]'s kdoc has the full argument, including why the Activity input
  * and the destination input could not simply be ANDed with a lifecycle observer each: they would be
  * two facts that can disagree, and this seam had that bug once already.
@@ -62,7 +62,7 @@ package net.bible.sharedcore.reading
  *
  * **The bootstrap bridge, and how `NavHostComposeActivity` stays balanced.** That host calls
  * `setActivityVisible(this, true)` as the first statement of `bootstrapIfNeeded()`, before the
- * `openLink` deep link posts a synchronous `AddHistoryItem` (see that method's kdoc and
+ * `openLink` deep link synchronously calls `HistoryManager.recordIfCreated` (see that method's kdoc and
  * `ReadingAppBootstrap`); the destination's effect cannot cover that window, because an effect
  * inside the graph necessarily runs after `setContent`. The bridge is RETIRED — not shadowed — at
  * whichever comes first of:
@@ -85,13 +85,13 @@ package net.bible.sharedcore.reading
  * composition -> resumed, still not composed. The bridge was retired by that `onPause`, nothing
  * re-armed it (`bootstrapIfNeeded` is one-shot), and [isVisible] was false for that window where the
  * pre-R7b flag was true. R7b accepted it because nothing read the flag there — the only reason the
- * bridge exists is the synchronous `AddHistoryItem` that `bootstrapIfNeeded`'s deep link posts,
+ * bridge exists is the synchronous call to `HistoryManager.recordIfCreated` that `bootstrapIfNeeded`'s deep link makes,
  * which happened before the pause — and named its own expiry: a task that gives the host another
  * PRE-COMPOSITION producer of history items has to close it.
  *
  * T8a item 2 is that task. The `onResume` reconciliation it ported ends with
  * `handlePendingAgentResult()`, which reaches `LinkControl.openAIDocument`/`openStudyPad` ->
- * `showLink` -> `setKey(addHistoryItem = true)` -> a synchronous `AddHistoryItem`, from inside
+ * `showLink` -> `setKey(addHistoryItem = true)` -> a synchronous call to `HistoryManager.recordIfCreated`, from inside
  * `onResume` and therefore inside the window; `HistoryManager.createHistoryItem` reads [isVisible]
  * while handling it, and false there records a wrong `IntentHistoryItem` instead of a
  * `KeyHistoryItem`.
@@ -103,7 +103,7 @@ package net.bible.sharedcore.reading
  * shows. The condition cannot be true again once the destination has composed, because that field is
  * memoised for the host's life.
  *
- * **The invariant, for whoever adds the next producer**: any code that can post an `AddHistoryItem`
+ * **The invariant, for whoever adds the next producer**: any code that can call `HistoryManager.recordIfCreated`
  * from a reading host BEFORE its destination composes must run while the bridge is armed. Today that
  * is `bootstrapIfNeeded`'s deep link (armed by the bootstrap) and the `onResume` reconciliation
  * (armed by the re-arm above, which runs first). A third producer somewhere else needs the same

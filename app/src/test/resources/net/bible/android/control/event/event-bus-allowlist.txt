@@ -1,14 +1,9 @@
-AddHistoryItem
 AppSettingsUpdated
 AppToBackgroundEvent
 BibleViewTouched
-CurrentBibleVerseChanged
-CurrentVerseChangedEvent
 MainBibleAfterRestore
 NightModeChanged
-PassageChangedEvent
 ReloadAddonsEvent
-SynchronizeWindowsEvent
 SystemBarSettingChangedEvent
 UpdateMainBibleActivityDocuments
 WorkspaceRefreshRequired

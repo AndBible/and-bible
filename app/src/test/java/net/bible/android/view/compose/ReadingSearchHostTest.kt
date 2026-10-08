@@ -20,12 +20,18 @@ import android.widget.FrameLayout
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.control.search.BibleSearchServiceImpl
+import net.bible.sharedcore.search.BibleSearchService
+import net.bible.sharedcore.search.SearchRequest
+import net.bible.sharedcore.search.SearchResultsCache
+import net.bible.sharedcore.search.MultiSearchResults
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
@@ -836,25 +842,46 @@ class ReadingSearchHostTest {
 
     /**
      * An EPUB query must reach the EPUB controller, never the SWORD one — and must actually run:
-     * loading flips synchronously (`EpubSearchResultsController.run` sets `_loading.value = true`
-     * BEFORE launching the coroutine, so this is deterministic, not a race), and the results sheet's
-     * scroll state is reset to a fresh instance, exactly as [ComposeReadingViewHost.runSearch] does
+     * loading stays true while a controlled service request is suspended, then clears on completion.
+     * A real missing-module search can finish before run returns, so it cannot pin pending state.
+     * The results sheet's scroll state resets to a fresh instance, as [ComposeReadingViewHost.runSearch] does
      * for a SWORD query. (Verified this test goes RED against an emptied `runEpubSearch` body — see
      * the fix-round section of `task-4-report.md`.)
      */
     @Test
     fun runEpubSearchDrivesTheEpubControllerAndNotTheSwordOne() {
-        val h = host()
-        val listStateBefore = h.searchResultsListStateForTest
-
-        h.runEpubSearch("TestEpub", "grace")
-
-        assertTrue(h.epubSearchResults.loading.value, "run() must flip loading synchronously")
-        assertNotSame(
-            listStateBefore, h.searchResultsListStateForTest,
-            "a new EPUB query must reset the sheet's scroll state, same as a SWORD query",
-        )
-        assertEquals(0, h.searchResults.results.value.total, "the SWORD controller must be untouched")
+        assertTrue(GlobalContext.get().get<EpubSearchService>() is AndroidEpubSearchService)
+        val completion = CompletableDeferred<List<EpubResultRow>>()
+        val calls = mutableListOf<Triple<String, String, EpubSearchMode>>()
+        val fake = object : EpubSearchService {
+            override fun isIndexed(docId: String) = true
+            override suspend fun searchEpub(docId: String, query: String, mode: EpubSearchMode): List<EpubResultRow> {
+                calls += Triple(docId, query, mode)
+                return completion.await()
+            }
+        }
+        val overrideModule = module { single<EpubSearchService> { fake } }
+        loadKoinModules(overrideModule)
+        try {
+            val h = host()
+            val listStateBefore = h.searchResultsListStateForTest
+            h.runEpubSearch("TestEpub", "grace")
+            assertEquals(listOf(Triple("TestEpub", "grace", h.epubSearchMode.value)), calls)
+            assertTrue(h.epubSearchResults.loading.value, "an unfinished EPUB request must be loading")
+            assertNotSame(
+                listStateBefore, h.searchResultsListStateForTest,
+                "a new EPUB query must reset the sheet's scroll state, same as a SWORD query",
+            )
+            assertFalse(h.searchResults.loading.value, "the SWORD controller must be untouched")
+            assertEquals(0, h.searchResults.results.value.total, "the SWORD controller must be untouched")
+            completion.complete(emptyList())
+            assertFalse(h.epubSearchResults.loading.value, "a completed EPUB request must stop loading")
+            assertFalse(h.epubSearchResults.error.value)
+        } finally {
+            completion.cancel()
+            unloadKoinModules(overrideModule)
+            loadKoinModules(module { singleOf(::AndroidEpubSearchService) { bind<EpubSearchService>() } })
+        }
     }
 
     /**
@@ -865,13 +892,45 @@ class ReadingSearchHostTest {
      */
     @Test
     fun runSearchDrivesTheSwordControllerAndNotTheEpubOne() {
-        val h = host()
-
-        h.runSearch("KJV", "grace")
-
-        assertTrue(h.searchResults.loading.value, "run() must flip loading synchronously")
-        assertFalse(h.epubSearchResults.loading.value, "the EPUB controller must be untouched")
-        assertTrue(h.epubSearchResults.results.value.isEmpty(), "no EPUB rows may appear for a Bible query")
+        val production = GlobalContext.get().get<BibleSearchService>()
+        assertTrue(production is BibleSearchServiceImpl)
+        val productionCache = GlobalContext.get().get<SearchResultsCache>()
+        val completion = CompletableDeferred<MultiSearchResults>()
+        val calls = mutableListOf<SearchRequest>()
+        val fake = object : BibleSearchService by production {
+            override suspend fun searchMulti(request: SearchRequest): MultiSearchResults {
+                calls += request
+                return completion.await()
+            }
+        }
+        // A shared cache hit bypasses the service; this test specifically owns an in-flight request.
+        val overrideModule = module {
+            single<BibleSearchService> { fake }
+            single { SearchResultsCache() }
+        }
+        loadKoinModules(overrideModule)
+        try {
+            val h = host()
+            h.runSearch("KJV", "grace")
+            assertEquals(1, calls.size)
+            assertEquals("grace", calls.single().query)
+            assertEquals(listOf("KJV"), calls.single().translationIds)
+            assertTrue(h.searchResults.loading.value, "an unfinished SWORD request must be loading")
+            assertFalse(h.epubSearchResults.loading.value, "the EPUB controller must be untouched")
+            assertTrue(h.epubSearchResults.results.value.isEmpty(), "no EPUB rows may appear for a Bible query")
+            val result = MultiSearchResults(main = emptyList(), other = emptyList(), total = 7)
+            completion.complete(result)
+            assertFalse(h.searchResults.loading.value, "a completed SWORD request must stop loading")
+            assertEquals(result, h.searchResults.results.value)
+            assertNull(h.searchResults.error.value)
+        } finally {
+            completion.cancel()
+            unloadKoinModules(overrideModule)
+            loadKoinModules(module {
+                single<BibleSearchService> { production }
+                single { productionCache }
+            })
+        }
     }
 
     /**
@@ -1131,12 +1190,12 @@ class ReadingSearchHostTest {
     /**
      * The other half: a document swap WITHIN the still-active window. Verified from source
      * (`CurrentPageManager.setCurrentDocument` -> `PassageChangeMediator.onCurrentPageChanged`,
-     * `PassageChangeMediator.kt:34-37`) that this path posts `CurrentVerseChangedEvent`
-     * SYNCHRONOUSLY, right after the swap lands on the page manager — unlike `PassageChangedEvent`
+     * `PassageChangeMediator.kt:34-37`) that this path emits `PageChange.VerseChanged`
+     * SYNCHRONOUSLY, right after the swap lands on the page manager — unlike `PageChange.ContentLoaded`
      * (`PassageChangeMediator.contentChangeFinished`, posted from `Window.loadText`'s background IO
      * coroutine only once the WebView content load finishes, and skipped entirely when the window
      * isn't visible), which is neither synchronously observable in this headless suite nor
-     * guaranteed to fire at all for an invisible/backgrounded window. `CurrentVerseChangedEvent` is
+     * guaranteed to fire at all for an invisible/backgrounded window. `PageChange.VerseChanged` is
      * also the event the host already subscribes to for the same "active document may have changed"
      * purpose (the overlay-text/`activeIsBibleShown` refresh right above), so this reuses that
      * existing, proven channel instead of adding a second, less reliable subscription.
@@ -1165,7 +1224,7 @@ class ReadingSearchHostTest {
                 ReadingSearchPhase.NeedsIndex("HostDocSwap", forEpub = false),
                 host.searchController.phase.value,
                 "a document swap within the active window must refresh the search target via " +
-                    "CurrentVerseChangedEvent",
+                    "PageChange.VerseChanged",
             )
         } finally {
             Books.installed().removeBook(other)

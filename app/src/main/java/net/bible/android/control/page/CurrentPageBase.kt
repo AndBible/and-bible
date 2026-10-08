@@ -20,8 +20,6 @@ import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.Dialogs
@@ -30,7 +28,7 @@ import net.bible.service.common.RecentDocumentsStore
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
 import net.bible.service.download.isRemoved
-import net.bible.service.history.AddHistoryItem
+import net.bible.service.history.HistoryManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
@@ -110,7 +108,7 @@ abstract class CurrentPageBase protected constructor(
 
     override fun setKey(key: Key, addHistoryItem: Boolean) {
         if(addHistoryItem) {
-            ABEventBus.post(AddHistoryItem(window = pageManager.window))
+            HistoryManager.recordIfCreated(pageManager.window)
         }
         doSetKey(key)
         pageChange()
@@ -176,7 +174,7 @@ abstract class CurrentPageBase protected constructor(
         }
 
         annotateKey = frag.annotateRef
-        ABEventBus.post(CurrentVerseChangedEvent(pageManager.window))
+        PassageChangeMediator.onCurrentVerseChanged(pageManager.window)
 
         // For MyDocument pages, pass page metadata so Vue.js can render the AI footer
         val myDocumentPage = if (currentDocument.isMyDocument) {

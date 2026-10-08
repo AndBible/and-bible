@@ -841,7 +841,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
         if (isReference) {
             LaunchedEffect(Unit) {
                 // Publish FIRST, and this is load-bearing rather than tidy. Opening the reference
-                // ends in `setCurrentDocumentAndKey`, which posts `AddHistoryItem`, and
+                // ends in `setCurrentDocumentAndKey`, which calls `HistoryManager.recordIfCreated` synchronously, and
                 // `HistoryManager.createHistoryItem` then reads THIS HOST's
                 // `isIntegrateWithHistoryManager` + `intentForHistoryList` — i.e. whatever
                 // setHistoryRoute last published. Without this line the item it pushes is either
@@ -861,7 +861,7 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                 )
                 d.openScriptureReference(searchText)
                 // Published only across the jump: this destination is leaving and must not be what
-                // a later AddHistoryItem records. A no-op if the DisposableEffect below got there
+                // a later `HistoryManager.recordIfCreated` call records. A no-op if the DisposableEffect below got there
                 // first (compare-and-clear by owner identity).
                 deps.clearHistoryRoute(historyOwner)
                 navController.popOrExit(deps.exitHost)

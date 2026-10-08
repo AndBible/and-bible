@@ -102,12 +102,12 @@ import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.event.onMain
-import net.bible.android.control.event.passage.CurrentVerseChangedEvent
+import net.bible.android.control.PageChange
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
-import net.bible.android.control.page.CurrentBibleVerseChanged
 import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentDictionaryPage
@@ -364,9 +364,9 @@ class ComposeReadingViewGeneration {
  * icon (`windowIconFor`) is not wrapped: it is read in the same rail composition scope as the
  * labels, so it is re-evaluated whenever they are.
  *
- * The bump relies on the host's `CurrentVerseChangedEvent` / `CurrentBibleVerseChanged` handlers
+ * The bump relies on the host's `PageChange.VerseChanged` / `PageChange.BibleVerseChanged` handlers
  * being reached: a document or key change reaches the rail only because `CurrentPageManager` /
- * `PassageChangeMediator` post one of them. A mutation that posts neither leaves the labels stale;
+ * `PassageChangeMediator` emit one of them. A mutation that emits neither leaves the labels stale;
  * `railLabelsFollowARealDocumentChange` pins the document-swap path.
  *
  * Framework-free like [ComposeReadingViewGeneration], so it is unit-testable without a composition.
@@ -2822,7 +2822,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * `rebuildDrawer(showSearch, showSpeak)` + `refreshHostedState()`, and it is the WHOLE of what
      * classic's `UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH` arm does. Without a read of what that rebuild
      * produced, the only assertions available for that arm were negative ones ("the composition was
-     * not rebuilt", "no SynchronizeWindowsEvent"), which a deleted arm passes just as happily as a
+     * not rebuilt", "no window-resynchronization call"), which a deleted arm passes just as happily as a
      * live one -- the review's finding 1.
      */
     internal val drawerMenuForTest: State<DrawerMenuState> get() = drawerMenu
@@ -3037,61 +3037,55 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // Classic BibleView.BibleViewTouched re-show (SplitBibleArea.kt:203-205) — see
             // WindowButtonsVisibility's kdoc.
             onMain<BibleView.BibleViewTouched> { windowButtonsVisibility.onTouch() }
-            // Batch 12g Task 3: mirrors classic `SplitBibleArea`'s own registration for the same two
-            // events (`SplitBibleArea.kt:172,190`), which drive its `updateBibleReferenceOverlay`.
-            // Unlike a dedicated `:sharedCore` service seam, this reuses the host's existing
-            // fullscreen/night-mode event-mirror idiom: the overlay is just one string + two
-            // booleans, kept as host-owned Compose `State` and gated by the pure `bibleReferenceOverlayVisible`
-            // (`:sharedCore`) fn at render time — no separate service/controller class, per the plan.
-            onMain<CurrentVerseChangedEvent> {
-                // Fires for every window (synchronised ones included), unlike the active-window-only
-                // `refreshHostedState()` path, so the rail's labels for ALL windows are covered.
-                windowLabelFreshness.invalidate()
-                overlayText.value = readOverlayText()
-                activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
-                // F44/B3b: this is the event a document swap WITHIN one window reliably fires
-                // synchronously — `CurrentPageManager.setCurrentDocument` ->
-                // `PassageChangeMediator.onCurrentPageChanged` posts it right after the swap takes
-                // effect on the page manager, before any async content load. `PassageChangedEvent`
-                // (`PassageChangeMediator.contentChangeFinished`) also follows a document swap, but
-                // only once `Window.loadText`'s background IO coroutine finishes fetching + handing
-                // the doc to the (possibly still-null, in a headless/invisible window) `BibleView` —
-                // and it is skipped entirely when the window is not visible. This event is already
-                // subscribed to here for the same "active document may have changed" purpose, so the
-                // controller refresh reuses this proven, synchronous channel rather than adding a
-                // second, less reliable one.
-                searchController.activeDocumentChanged()
-            }
-            // Task 4 (F2b): classic's per-window rail top label (`WindowButtonWidget.kt:148`,
-            // `pageManager.titleText`) is refreshed on this SAME event
-            // (`WindowButtonWidget.kt:232-234`). `windowTopLabel`/`windowLabel`/`windowIcon` are
-            // plain, non-`@Composable` lambdas (see `MainBibleActivity.windowTopLabelFor`'s kdoc for
-            // why), so Compose cannot observe them: the label lambdas read [windowLabelFreshness]
-            // and this handler bumps it, which is what recomposes the rail. `refreshHostedState()`
-            // below only refreshes the toolbar (active window) and does NOT recompose the rail.
-            // `CurrentBiblePage.doSetKey` posts this event alone (no `CurrentVerseChangedEvent`),
-            // so the bump is needed here as well as above.
-            //
-            // KNOWN COST (whole-batch review Minor #3, not coalesced this batch; this handler also
-            // drives the rail tick above, besides `refreshHostedState()`): on the dominant
-            // scroll path, `CurrentBiblePage.setCurrentVerseOrdinal` posts THIS event via
-            // `CurrentBibleVerse.setVerseSelected` and then posts `CurrentVerseChangedEvent` right
-            // after (`VersePage.onVerseChange` -> `PassageChangeMediator.onCurrentVerseChanged`) —
-            // an event `ToolbarStateServiceImpl` already subscribes to. Both handlers call the same
-            // `ToolbarStateServiceImpl.refresh()` (this one via `refreshHostedState()` ->
-            // `HostedStateRefresher.refresh()` -> `toolbar.refresh()`), so `buildSnapshot()` —
-            // including `DocumentControl.biblesForVerse`/`commentariesForVerse`'s installed-book
-            // sort — runs TWICE per verse change on the main thread; the `MutableStateFlow` only
-            // conflates away the second, redundant EMISSION, not the recomputation cost. Still
-            // needed: `CurrentBiblePage.doSetKey` posts this event ALONE (no `onVerseChange` call,
-            // so no `CurrentVerseChangedEvent`), and would go stale without this subscription. See
-            // `compose-port-status.md`'s F2b section and the on-device checklist's F2b performance
-            // item (scrolling verse-by-verse in a multi-window split is where it would show).
-            onMain<CurrentBibleVerseChanged> {
-                windowLabelFreshness.invalidate()
-                refreshHostedState()
-            }
         }
+        subscriptions.add(PassageChangeMediator.changes.subscribeOnMain { change ->
+            when (change) {
+                // Batch 12g Task 3: mirrors classic `SplitBibleArea`'s own registration for the same two
+                // events (`SplitBibleArea.kt:172,190`), which drive its `updateBibleReferenceOverlay`.
+                // Unlike a dedicated `:sharedCore` service seam, this reuses the host's existing
+                // fullscreen/night-mode event-mirror idiom: the overlay is just one string + two
+                // booleans, kept as host-owned Compose `State` and gated by the pure `bibleReferenceOverlayVisible`
+                // (`:sharedCore`) fn at render time — no separate service/controller class, per the plan.
+                is PageChange.VerseChanged -> {
+                    // Fires for every window (synchronised ones included), unlike the active-window-only
+                    // `refreshHostedState()` path, so the rail's labels for ALL windows are covered.
+                    windowLabelFreshness.invalidate()
+                    overlayText.value = readOverlayText()
+                    activeIsBibleShown.value = windowControl.activeWindow.pageManager.isBibleShown
+                    // F44/B3b: this is the event a document swap WITHIN one window reliably fires
+                    // synchronously — `CurrentPageManager.setCurrentDocument` ->
+                    // `PassageChangeMediator.onCurrentPageChanged` emits it right after the swap takes
+                    // effect on the page manager, before any async content load. `PageChange.ContentLoaded`
+                    // (`PassageChangeMediator.contentChangeFinished`) also follows a document swap, but
+                    // only once `Window.loadText`'s background IO coroutine finishes fetching + handing
+                    // the doc to the (possibly still-null, in a headless/invisible window) `BibleView` —
+                    // and it is skipped entirely when the window is not visible. This event is already
+                    // subscribed to here for the same "active document may have changed" purpose, so the
+                    // controller refresh reuses this proven, synchronous channel rather than adding a
+                    // second, less reliable one.
+                    searchController.activeDocumentChanged()
+                }
+                // Task 4 (F2b): classic's per-window rail top label (`WindowButtonWidget.kt:148`,
+                // `pageManager.titleText`) is refreshed on this SAME event
+                // (`WindowButtonWidget.kt:232-234`). `windowTopLabel`/`windowLabel`/`windowIcon` are
+                // plain, non-`@Composable` lambdas (see `MainBibleActivity.windowTopLabelFor`'s kdoc for
+                // why), so Compose cannot observe them: the label lambdas read [windowLabelFreshness]
+                // and this handler bumps it, which is what recomposes the rail. `refreshHostedState()`
+                // below only refreshes the toolbar (active window) and does NOT recompose the rail.
+                // `CurrentBiblePage.doSetKey` posts this event alone (no `PageChange.VerseChanged`),
+                // so the bump is needed here as well as above.
+                //
+                // `BibleVerseChanged` now arrives only from `CurrentBiblePage.doSetKey` and an
+                // inhibited scroll (where no `VerseChanged` follows). Normal scrolling emits
+                // `VerseChanged`, which refreshes the toolbar through its own subscription, so this
+                // handler keeps those remaining paths fresh without a duplicate toolbar rebuild.
+                PageChange.BibleVerseChanged -> {
+                    windowLabelFreshness.invalidate()
+                    refreshHostedState()
+                }
+                PageChange.ContentLoaded -> Unit
+            }
+        })
         subscriptions.add(windowState.windowChanges.subscribeOnMain { change ->
             if (change is WindowChange.ActiveWindowChanged) {
                 overlayText.value = readOverlayText()
@@ -3957,7 +3951,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             // Batch 12g Task 3 additions: the fullscreen bible-reference overlay's text + the
             // active window's bible-shown flag, `State`s for the same reactivity reason as
             // `fullScreenState` above — [ComposeReadingViewHost.install] mirrors both from
-            // `CurrentVerseChangedEvent`/`WindowChange.ActiveWindowChanged` (see its `init` block) rather
+            // `PageChange.VerseChanged`/`WindowChange.ActiveWindowChanged` (see its `init` block) rather
             // than passing a one-shot snapshot. Defaulted (empty text / bible not shown) so
             // `ComposeReadingViewHostTest` (which never renders the overlay) is unaffected.
             overlayTextState: State<String> = mutableStateOf(""),

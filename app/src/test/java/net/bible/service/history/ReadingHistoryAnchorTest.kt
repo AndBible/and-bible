@@ -240,10 +240,10 @@ class ReadingHistoryAnchorTest {
      *
      * `ActivityBase.onCreate`'s FIRST line is `CurrentActivityHolder.activate(this)`
      * (`ActivityBase.kt:88`), so the OLD predicate (`currentActivity is MainBibleActivity`) was true
-     * for the whole of `onCreate` — and `MainBibleActivity.onCreate` really does post
-     * `AddHistoryItem` inside that window, via its `openLink` deep-link branch ->
+     * for the whole of `onCreate` — and `MainBibleActivity.onCreate` really does call
+     * `HistoryManager.recordIfCreated` inside that window, via its `openLink` deep-link branch ->
      * `WindowControl.showLink` -> `setCurrentDocumentAndKey` -> `CurrentPageBase.setKey(key,
-     * addHistoryItem = true)` -> `ABEventBus.post(AddHistoryItem)`, and the bus is synchronous. A
+     * addHistoryItem = true)` -> `HistoryManager.recordIfCreated`, synchronously. A
      * flag first set in `onResume` is false there, and `createHistoryItem` then falls through to the
      * `currentActivity is AndBibleActivity` arm — `MainBibleActivity` IS an `AndBibleActivity` with
      * `integrateWithHistoryManager = true` — recording a WRONG `IntentHistoryItem` whose
@@ -267,8 +267,8 @@ class ReadingHistoryAnchorTest {
             assertTrue(
                 ReadingViewVisibility.isVisible,
                 "the old predicate was true from CurrentActivityHolder.activate() in " +
-                    "ActivityBase.onCreate onwards, and onCreate's openLink branch posts " +
-                    "AddHistoryItem inside that window",
+                    "ActivityBase.onCreate onwards, and onCreate's openLink branch calls " +
+                    "HistoryManager.recordIfCreated inside that window",
             )
         } finally {
             controller.close()
@@ -311,7 +311,7 @@ class ReadingHistoryAnchorTest {
      * content when the Activity stops), so the state this test described is "the user is looking at
      * a classic secondary screen while a backgrounded host's reading destination keeps the flag
      * on" — which made `HistoryManager.goBack()`'s `if (!isVisible) finish()` never fire, i.e. a
-     * DEAD BACK KEY, and recorded a `KeyHistoryItem` for an `AddHistoryItem` posted in the
+     * DEAD BACK KEY, and recorded a `KeyHistoryItem` for a `HistoryManager.recordIfCreated` call made in the
      * background.
      *
      * Under the new rule a registration only counts while [ReadingHostPresence] says its host is
@@ -387,7 +387,7 @@ class ReadingHistoryAnchorTest {
             assertTrue(
                 ReadingHostPresence.isForeground(activity),
                 "onCreate declares the presence, for the same reason it declares the flag: the " +
-                    "deep-link AddHistoryItem is posted inside onCreate",
+                    "deep-link history is recorded inside onCreate",
             )
 
             controller.start().resume().pause()

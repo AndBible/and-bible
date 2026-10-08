@@ -18,15 +18,14 @@
 package net.bible.android.control.page.window
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
-import net.bible.android.control.event.passage.SynchronizeWindowsEvent
-import net.bible.android.control.event.passage.CurrentVerseChangedEvent
+import net.bible.android.control.PageChange
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.IdType
@@ -75,18 +74,23 @@ open class WindowControl constructor() {
     val activeWindowPosition get() = windowRepository.windowList.indexOf(activeWindow)
     fun windowPosition(windowId: IdType) = windowRepository.windowList.indexOf(windowRepository.getWindow(windowId))
 
-    init {
-        ABEventBus.register(this) {
-            on<CurrentVerseChangedEvent> { event ->
-                if(event.window.windowRepository != windowRepository) return@on
-                windowSync.synchronizeWindows(event.window)
-            }
-            on<SynchronizeWindowsEvent> { event ->
-                if(event.forceSyncAll) {
-                    windowSync.setResyncRequired()
-                }
-                windowSync.reloadAllWindows()
-            }
+    // Synchronous on the emitter's thread (JS bridge, content load), like the bus's on { }.
+    private val pageChangeSubscription = PassageChangeMediator.changes.subscribe { change ->
+        if (change is PageChange.VerseChanged && change.window.windowRepository == windowRepository) {
+            windowSync.synchronizeWindows(change.window)
+        }
+    }
+
+    @VisibleForTesting
+    internal var forceResyncCountForTest = 0
+
+    /** Marks every window for resync and reloads the visible ones (after a settings change). */
+    fun forceResyncAndReloadAll() {
+        forceResyncCountForTest++
+        try {
+            windowSync.reloadAllWindows(force = true)
+        } catch (e: Throwable) {
+            Log.e(TAG, "reloadAllWindows failed", e)
         }
     }
 

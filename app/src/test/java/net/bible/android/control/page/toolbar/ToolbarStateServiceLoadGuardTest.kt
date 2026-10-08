@@ -37,7 +37,7 @@ import org.robolectric.annotation.Config
  * Regression test for the workspace-switch crash/ANR (A/B feedback round 5).
  *
  * `WindowRepository.loadFromDb` starts by clearing the active window and then restores each
- * window's page — and restoring a bible page posts `CurrentBibleVerseChanged`, which this service
+ * window's page — and restoring a bible page emits `PageChange.BibleVerseChanged`, which this service
  * handles by rebuilding its snapshot from `windowControl.activeWindowPageManager`. Reading that
  * mid-load went through `WindowRepository.activeWindow`'s lazy getter, which saw
  * `initialized == false` and started ANOTHER `loadFromDb`. Measured on a real switch: 340 nested

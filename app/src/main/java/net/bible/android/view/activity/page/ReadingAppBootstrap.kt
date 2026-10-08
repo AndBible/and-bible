@@ -133,7 +133,7 @@ private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pr
  * `ReadingViewVisibility.setActivityVisible(this, true)` must still run before
  * [prepareData] and long before [openDeepLink] -- see the 14-line comment that survives at the top
  * of `MainBibleActivity.onCreate` for why (`openDeepLink` -> `windowControl.showLink` ->
- * `setKey(addHistoryItem = true)` posts `AddHistoryItem` synchronously, and with the flag false that
+ * `setKey(addHistoryItem = true)` calls `HistoryManager.recordIfCreated` synchronously, and with the flag false that
  * records a WRONG `IntentHistoryItem` carrying the deep-link intent).
  *
  * **The network callback is balanced (T8a item 4; R7 recorded it as a known leak and deferred the

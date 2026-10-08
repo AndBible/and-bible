@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.page.screen
 
+import android.os.Looper
 import android.widget.FrameLayout
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -17,12 +18,14 @@ import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.CurrentVerseChangedEvent
-import net.bible.android.control.page.CurrentBibleVerseChanged
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.page.toolbar.ToolbarStateServiceImpl
+import net.bible.android.database.bookmarks.KJVA
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.versification.BibleBook
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.nav.NavHostComposeActivity
@@ -726,19 +729,19 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
 
     /**
      * Task 4 (F2b), fix round 1: with a real [ComposeReadingViewHost] installed,
-     * `CurrentBibleVerseChanged` (classic's own trigger for the rail's tiny top label,
+     * `PageChange.BibleVerseChanged` (classic's own trigger for the rail's tiny top label,
      * `WindowButtonWidget.kt:232-234`) must reach the host's `refreshHostedState()` push — the SAME
      * mechanism `updateActions()`'s callers use for the sibling `windowLabelFor`
      * (document-abbreviation) refresh — rather than the rail staying stale until some unrelated
      * event happens to recompose it.
      *
-     * Asserted end-to-end (event posted -> `refreshHostedState()` -> `hostedStateRefresher.refresh()`
+     * Asserted end-to-end (change emitted -> `refreshHostedState()` -> `hostedStateRefresher.refresh()`
      * -> the fake's recorded refresh) by swapping the Koin-bound `ToolbarStateService` for the
      * existing [RecordingToolbarStateService] fake, scoped to this one test via
      * `loadKoinModules`/`unloadKoinModules` — the same "framework-free fake, driven through the real
      * mechanism" idiom [HostedStateRefresherTest] already uses one level down, just reached through
      * Koin instead of direct construction (this test needs the REAL [ComposeReadingViewHost]'s `init`
-     * ABEventBus wiring, which `HostedStateRefresherTest` deliberately bypasses). This replaced an
+     * mediator wiring, which `HostedStateRefresherTest` deliberately bypasses). This replaced an
      * earlier version that widened `ComposeReadingViewHost`/`refreshHostedState` to `open` for a
      * counting subclass — reverted once this composition-based route was confirmed to work, so the
      * production class's inheritance contract is unchanged.
@@ -749,32 +752,46 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
      * pair showed up split across two different `refresh()` calls. Substituting the fake sidesteps
      * that: the fake only counts calls, it never reads `WindowRepository`/`pageManager` state.)
      */
-    @Test fun currentBibleVerseChangedTriggersARefresh() {
-        val fakeToolbar = RecordingToolbarStateService()
-        val overrideModule = module { single<ToolbarStateService> { fakeToolbar } }
-        loadKoinModules(overrideModule)
+    @Test fun bibleVerseChangedTriggersARefresh() = withRecordingToolbar { fakeToolbar ->
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        assertEquals(0, fakeToolbar.refreshCount, "sanity: constructing the host must not itself refresh")
+
+        PassageChangeMediator.onBibleVerseSelected()
+
+        assertEquals(1, fakeToolbar.refreshCount, "PageChange.BibleVerseChanged must reach refreshHostedState() -> hostedStateRefresher.refresh() -> toolbarStateService.refresh()")
+    }
+
+    /** Spec §2.2: a scroll used to refresh the toolbar from the host AND from the service. */
+    @Test fun aScrollDoesNotRefreshTheToolbarThroughTheHost() = withRecordingToolbar { fake ->
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        val window = windowRepository.activeWindow
+        val page = window.pageManager.currentBible
+        val v11n = page.currentBibleVerse.versificationOfLastSelectedVerse
+        val next = page.currentBibleVerse.verse.ordinal + 1
+        page.setCurrentVerseOrdinal(next, v11n, window)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(0, fake.refreshCount,
+            "the scroll's VerseChanged reaches the toolbar service's own subscription; the host must not refresh it a second time")
+    }
+
+    @Test fun inhibitedScrollStillNotifiesTheHost() = withRecordingToolbar { fake ->
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        val window = windowRepository.activeWindow
+        val page = window.pageManager.currentBible
+        val v11n = page.currentBibleVerse.versificationOfLastSelectedVerse
+        page.isInhibitChangeNotifications = true
         try {
-            activity.composeReadingViewHost = ComposeReadingViewHost(activity)
-            assertEquals(0, fakeToolbar.refreshCount, "sanity: constructing the host must not itself refresh")
+            page.setCurrentVerseOrdinal(page.currentBibleVerse.verse.ordinal + 1, v11n, window)
+        } finally { page.isInhibitChangeNotifications = false }
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(1, fake.refreshCount, "no VerseChanged follows while inhibited, so BibleVerseChanged must still reach the host")
+    }
 
-            ABEventBus.post(CurrentBibleVerseChanged())
-
-            assertEquals(1, fakeToolbar.refreshCount, "CurrentBibleVerseChanged must reach refreshHostedState() -> hostedStateRefresher.refresh() -> toolbarStateService.refresh()")
-        } finally {
-            // `unloadKoinModules` only REMOVES the override module's definition — it does NOT
-            // restore the production `CoreModule` binding it replaced, and `GlobalContext` is
-            // process-wide (shared by every test class in this Gradle test JVM fork). Left as a
-            // bare `unloadKoinModules`, any later test in the same fork that constructs a
-            // `ComposeReadingViewHost` (which injects `ToolbarStateService`) would throw
-            // `NoDefinitionFoundException`. Re-install the exact same production definition
-            // `CoreModule.kt` installs, so the singleton binding is intact again afterwards.
-            unloadKoinModules(overrideModule)
-            loadKoinModules(module { singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() } })
-            assertTrue(
-                GlobalContext.get().get<ToolbarStateService>() is ToolbarStateServiceImpl,
-                "must not leak the fake ToolbarStateService binding into later tests",
-            )
-        }
+    @Test fun doSetKeyStillRefreshesThroughTheHost() = withRecordingToolbar { fake ->
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        windowRepository.activeWindow.pageManager.currentBible.doSetKey(Verse(KJVA, BibleBook.JOHN, 3, 16))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(1, fake.refreshCount)
     }
 
     /**
@@ -783,7 +800,7 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
      * A label read through the host's [WindowLabelFreshness] must be invalidated (i.e. the rail
      * recomposes) when a window's verse changes — for ANY window, not just the active one.
      */
-    private fun assertPostingInvalidatesLabelReads(event: Any) {
+    private fun assertEmittingInvalidatesLabelReads(emit: () -> Unit, name: String) {
         activity.composeReadingViewHost = ComposeReadingViewHost(activity)
         val host = activity.composeReadingViewHost!!
         val reads = mutableSetOf<Any>()
@@ -797,18 +814,18 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
         val written = mutableSetOf<Any>()
         val handle = Snapshot.registerApplyObserver { changed, _ -> written.addAll(changed) }
         try {
-            ABEventBus.post(event)
+            emit()
             Snapshot.sendApplyNotifications()
         } finally {
             handle.dispose()
         }
-        assertTrue(reads.any { it in written }, "${event::class.simpleName} must invalidate composition scopes that read a window label")
-        assertTrue(topReads.any { it in written }, "${event::class.simpleName} must invalidate composition scopes that read a window top label")
+        assertTrue(reads.any { it in written }, "${name} must invalidate composition scopes that read a window label")
+        assertTrue(topReads.any { it in written }, "${name} must invalidate composition scopes that read a window top label")
     }
 
     /**
      * Pins the implicit dependency of [WindowLabelFreshness]: a REAL document swap on a window's
-     * page manager reaches the rail only because it posts `CurrentVerseChangedEvent`. Nothing here
+     * page manager reaches the rail only because it emits `PageChange.VerseChanged`. Nothing here
      * posts an event by hand.
      */
     @Test fun railLabelsFollowARealDocumentChange() {
@@ -837,12 +854,29 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
         assertTrue(reads.any { it in written }, "a real document swap must invalidate scopes that read the rail label")
     }
 
-    @Test fun currentVerseChangedEventInvalidatesRailLabels() {
-        assertPostingInvalidatesLabelReads(CurrentVerseChangedEvent(windowRepository.activeWindow))
+    @Test fun verseChangedInvalidatesRailLabels() {
+        assertEmittingInvalidatesLabelReads({ PassageChangeMediator.onCurrentVerseChanged(windowRepository.activeWindow) }, "VerseChanged")
     }
 
-    @Test fun currentBibleVerseChangedInvalidatesRailLabels() {
-        assertPostingInvalidatesLabelReads(CurrentBibleVerseChanged())
+    @Test fun bibleVerseChangedInvalidatesRailLabels() {
+        assertEmittingInvalidatesLabelReads({ PassageChangeMediator.onBibleVerseSelected() }, "BibleVerseChanged")
+    }
+}
+
+private fun withRecordingToolbar(block: (RecordingToolbarStateService) -> Unit) {
+    val fakeToolbar = RecordingToolbarStateService()
+    val overrideModule = module { single<ToolbarStateService> { fakeToolbar } }
+    loadKoinModules(overrideModule)
+    try {
+        block(fakeToolbar)
+    } finally {
+        // `unloadKoinModules` removes the override but does not restore the replaced CoreModule binding.
+        unloadKoinModules(overrideModule)
+        loadKoinModules(module { singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() } })
+        assertTrue(
+            GlobalContext.get().get<ToolbarStateService>() is ToolbarStateServiceImpl,
+            "must not leak the fake ToolbarStateService binding into later tests",
+        )
     }
 }
 

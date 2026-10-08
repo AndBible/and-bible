@@ -19,6 +19,7 @@ package net.bible.android
 
 import android.content.res.Resources
 import android.util.Log
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.page.window.WorkspaceChanges
@@ -73,5 +74,7 @@ class TestBibleApplication : BibleApplication() {
         SpeakSettingsChanges.resetSubscribersForTest()
         DatabaseContainer.resetBookmarksSyncedForTest()
         MyDocumentBookManager.resetSubscribersForTest()
+        PassageChangeMediator.resetSubscribersForTest()
+        net.bible.service.history.HistoryManager.resetInstanceForTest()
     }
 }

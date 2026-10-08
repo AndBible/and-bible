@@ -20,8 +20,7 @@ package net.bible.service.history
 import android.content.Intent
 import android.util.Log
 
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
+import androidx.annotation.VisibleForTesting
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -47,8 +46,6 @@ import java.util.Stack
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-
-class AddHistoryItem(val window: Window? = null)
 
 class HistoryManager constructor(private val windowControl: WindowControl) {
 
@@ -118,12 +115,8 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
     }
 
     init {
-        // register for BeforePageChangeEvent
-        Log.i(TAG, "Registering HistoryManager with EventBus")
-        ABEventBus.safelyRegister(this) {
-            // allow current page to save any settings or data before being changed
-            on<AddHistoryItem> { event -> addHistoryItem(event.window) }
-        }
+        // The newest constructed manager is live; do not force the lazy Koin singleton.
+        instance = this
     }
 
     fun canGoBack(): Boolean {
@@ -235,6 +228,23 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
     }
 
     companion object {
+        @Volatile private var instance: HistoryManager? = null
+
+        /**
+         * Records the old position in the live manager (null: active window), if one exists.
+         * Logs failures instead of interrupting navigation, as the former bus delivery did.
+         */
+        fun recordIfCreated(window: Window?) {
+            val manager = instance ?: return
+            try {
+                manager.addHistoryItem(window)
+            } catch (e: Throwable) {
+                Log.e(TAG, "addHistoryItem failed", e)
+            }
+        }
+
+        @VisibleForTesting
+        fun resetInstanceForTest() { instance = null }
 
         const val MAX_HISTORY = 500
 

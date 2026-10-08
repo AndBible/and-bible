@@ -18,7 +18,7 @@ package net.bible.android.control.page
 
 import net.bible.android.common.entity
 import net.bible.android.common.toV11n
-import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.versification.chapterVerse
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.passage.Verse
@@ -26,7 +26,6 @@ import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 
-class CurrentBibleVerseChanged
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -47,9 +46,10 @@ class CurrentBibleVerse {
 
     fun getVerseSelected(versification: Versification): Verse = verse.toV11n(versification)
 
-    fun setVerseSelected(versification: Versification, verseSelected: Verse) {
+    /** [notify] false when the caller emits PageChange.VerseChanged right after (spec §2.2). */
+    fun setVerseSelected(versification: Versification, verseSelected: Verse, notify: Boolean = true) {
         verse = verseSelected.toV11n(versification)
-        ABEventBus.post(CurrentBibleVerseChanged())
+        if (notify) PassageChangeMediator.onBibleVerseSelected()
     }
 
     var chapterVerse: ChapterVerse

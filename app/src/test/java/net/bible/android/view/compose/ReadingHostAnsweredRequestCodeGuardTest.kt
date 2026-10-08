@@ -222,9 +222,9 @@ class ReadingHostAnsweredRequestCodeGuardTest {
         }
         assertEquals(
             1,
-            Regex("""ABEventBus\.post\(SynchronizeWindowsEvent\(true\)\)""")
+            Regex("""windowControl\.forceResyncAndReloadAll\(\)""")
                 .findAll(readingCommandsSrc + hostSrc).count(),
-            "SynchronizeWindowsEvent(true) must be posted from exactly ONE place — a second copy " +
+            "forceResyncAndReloadAll() must be called from exactly ONE place — a second copy " +
                 "means preferenceSettingsChanged was retyped rather than shared",
         )
     }

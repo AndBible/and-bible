@@ -48,7 +48,7 @@ import kotlin.test.assertNotNull
 
 /**
  * F92 (fix batch 1, spec §2.10): switching document in a window records the OLD document's position
- * BEFORE the switch (`CurrentPageManager.setCurrentDocument` posts `AddHistoryItem` first), so Back
+ * BEFORE the switch (`CurrentPageManager.setCurrentDocument` calls `HistoryManager.recordIfCreated` first), so Back
  * walks KJV Gen 2:4 -> KJV Gen 1:1 -> FinRK Gen 1:1. That is the intended classic behaviour a review
  * misread as a bug; this test pins it.
  */
@@ -87,10 +87,9 @@ class DocumentSwitchHistoryPinTest {
         idle()
         val kjv = assertNotNull(SwordDocumentFacade.getDocumentByInitials("KJV"), "KJV test module missing (~/.sword)")
         val finRk = assertNotNull(SwordDocumentFacade.getDocumentByInitials("FinRK"), "FinRK test module missing (~/.sword)")
-        // NOT the Koin singleton: it subscribes to ABEventBus once, in its init, and several tests in this
-        // JVM call ABEventBus.unregisterAll() (TestBibleApplication.onTerminate, the download/sync tests),
-        // after which the singleton never hears AddHistoryItem again and records nothing (fix wave, finding
-        // A). A fresh manager registers itself on construction -- ReadingHistoryAnchorTest does the same.
+        // A fresh manager becomes the live instance on construction. The Koin singleton is not
+        // live after TestBibleApplication.onTerminate resets the holder; constructing a manager
+        // here re-arms history recording, as ReadingHistoryAnchorTest does too.
         val history = HistoryManager(CommonUtils.windowControl).also { this.history = it }
         val window = CommonUtils.windowControl.activeWindow
         val pm = window.pageManager

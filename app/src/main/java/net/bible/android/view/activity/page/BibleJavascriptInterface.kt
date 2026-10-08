@@ -31,13 +31,13 @@ import kotlinx.serialization.serializer
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
+import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
-import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentGeneralBookPage
@@ -163,7 +163,7 @@ class BibleJavascriptInterface(
             // listeners (title bar / synced windows). Bible & MyNotes are handled above by ordinal.
             if((curPage is CurrentGeneralBookPage || curPage is CurrentCommentaryPage) && doc is OsisDocument) {
                 if(curPage.updateKeyFromScrolledOsisRef(keyStr)) {
-                    ABEventBus.post(CurrentVerseChangedEvent(window = bibleView.window))
+                    PassageChangeMediator.onCurrentVerseChanged(bibleView.window)
                 }
             }
             curPage.anchorOrdinal = OrdinalRange(ordinal)

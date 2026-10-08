@@ -171,7 +171,7 @@ class ReadingNavDeps(
      * the bookmark list or the text-settings editor asked for, since those arms are composed only
      * while THEY are on top — and by the time one fires this destination's `DisposableEffect` has
      * already run, so `ReadingViewVisibility` reports the reading view visible for the
-     * `AddHistoryItem` an applied result posts. The consumer can never run before the destination
+     * `HistoryManager.recordIfCreated` an applied result calls synchronously. The consumer can never run before the destination
      * has composed, which is the invariant `ReadingViewVisibility`'s kdoc names.
      *
      * Empty is legal and means "this host answers nothing in-graph" — the classic Activity, whose
@@ -248,7 +248,7 @@ class ReadingResultCollector<T>(
  *  1. [ReadingViewVisibility], the predicate `HistoryManager.createHistoryItem` asks instead of
  *     `CurrentActivityHolder.currentActivity is MainBibleActivity` (design §5.1). It is the only
  *     producer of `KeyHistoryItem`, i.e. of the verse back-stack and of history persistence, so it
- *     has to be entered before anything the content hosts can post `AddHistoryItem` — which a
+ *     has to be entered before anything the content hosts can call `HistoryManager.recordIfCreated` — which a
  *     `DisposableEffect` in the arm is, since effects run with the first composition. Both
  *     registrations below are made under [ReadingNavDeps.host], so neither of them says "on screen"
  *     while this destination's host is in the background (R7b).

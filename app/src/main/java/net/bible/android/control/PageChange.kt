@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -14,14 +14,20 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-
-package net.bible.android.control.event.passage
+package net.bible.android.control
 
 import net.bible.android.control.page.window.Window
 
 /**
- * The verse has changed.
- *
- * @author Martin Denham [mjdenham at gmail dot com]
+ * A change to what a window's page shows, emitted by [PassageChangeMediator.changes]:
+ * verse selection, window verse changes and completed content loads
+ * (spec `2026-10-07-abeventbus-phase-7-page-passage-history-design.md` §2.1).
  */
-data class CurrentVerseChangedEvent(val window: Window)
+sealed interface PageChange {
+    /** The window's verse or document changed (page change, scroll, entry change). */
+    data class VerseChanged(val window: Window) : PageChange
+    /** The shared Bible verse was selected without a following [VerseChanged] (spec §2.2). */
+    data object BibleVerseChanged : PageChange
+    /** A window finished loading its content. */
+    data object ContentLoaded : PageChange
+}
