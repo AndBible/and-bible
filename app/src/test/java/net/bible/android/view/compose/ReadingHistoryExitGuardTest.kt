@@ -56,7 +56,7 @@ class ReadingHistoryExitGuardTest {
         assertTrue(
             "a DIRECT call, not a bus event -- the item must be created while " +
                 "ReadingViewVisibility is still true, ordered by the call stack",
-            recorder.contains("historyManager.addHistoryItem(") && !recorder.contains("ABEventBus.post"),
+            recorder.contains("historyManager.addHistoryItem("),
         )
     }
 }

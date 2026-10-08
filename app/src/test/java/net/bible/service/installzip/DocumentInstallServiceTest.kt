@@ -24,7 +24,6 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.document.DocumentChanges
-import net.bible.android.control.event.ABEventBus
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookPath
 import org.junit.After
@@ -71,7 +70,6 @@ class DocumentInstallServiceTest {
 
     @After
     fun tearDown() {
-        ABEventBus.unregisterAll()
         Books.installed().getBook("TestDict")?.let { Books.installed().removeBook(it) }
         File(SharedConstants.modulesDir, "mods.d/testdict.conf").delete()
         File(SharedConstants.modulesDir, "modules/lexdict/rawld/testdict").deleteRecursively()

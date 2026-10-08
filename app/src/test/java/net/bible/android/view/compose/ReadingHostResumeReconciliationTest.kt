@@ -20,7 +20,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessage
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.window.Window
@@ -84,7 +83,6 @@ class ReadingHostResumeReconciliationTest {
     @After
     fun tearDown() {
         toastSubscription?.cancel()
-        ABEventBus.unregister(this)
         controllers.forEach { it.close() }
         controllers.clear()
         ReadingHostPresence.setForeground(null)

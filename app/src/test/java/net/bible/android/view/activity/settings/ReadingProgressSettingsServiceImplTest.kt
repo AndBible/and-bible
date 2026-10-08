@@ -17,7 +17,6 @@
 package net.bible.android.view.activity.settings
 
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.test.DatabaseResetter
 import org.junit.After
@@ -33,7 +32,6 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class)
 class ReadingProgressSettingsServiceImplTest {
     @After fun tearDown() {
-        ABEventBus.unregisterAll()
         DatabaseResetter.resetDatabase()
     }
 

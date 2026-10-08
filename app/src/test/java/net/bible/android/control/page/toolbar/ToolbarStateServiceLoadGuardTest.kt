@@ -21,7 +21,10 @@ import net.bible.android.control.page.window.WindowStateServiceImpl
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import net.bible.android.TEST_SDK
-import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.PassageChangeMediator
+import net.bible.android.control.speak.SpeakChanges
+import net.bible.android.control.page.window.WorkspaceChanges
+import net.bible.service.cloudsync.CloudSync
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.sharedcore.reading.ToolbarState
@@ -60,16 +63,24 @@ class ToolbarStateServiceLoadGuardTest {
      */
     private inline fun <reified T : Any> neverTouched(): T = ObjenesisHelper.newInstance(T::class.java)
 
+    /** The real [WindowStateServiceImpl] the service under test subscribes to; reset in [tearDown]. */
+    private val windowStateService = WindowStateServiceImpl()
+
     /**
-     * `ToolbarStateServiceImpl`'s `init` registers on [ABEventBus] with no matching unregister — by
-     * design, it is normally a process-lifetime singleton. This test constructs one directly under
-     * plain `android.app.Application`, so `TestBibleApplication.onTerminate()`'s
-     * `ABEventBus.unregisterAll()` never runs for it, and the subscriber would otherwise leak into
-     * later tests sharing this JVM.
+     * `ToolbarStateServiceImpl`'s `init` subscribes to [PassageChangeMediator.changes], the window
+     * state service's `windowChanges`, [WorkspaceChanges.changes], [CloudSync.runningChanged] and
+     * [SpeakChanges.changes] with no matching unsubscribe — by design, it is normally a
+     * process-lifetime singleton. This test constructs one directly under plain
+     * `android.app.Application`, so `TestBibleApplication.onTerminate()`'s owner resets never run for
+     * it, and the subscribers would otherwise leak into later tests sharing this JVM.
      */
     @After
     fun tearDown() {
-        ABEventBus.unregisterAll()
+        PassageChangeMediator.resetSubscribersForTest()
+        windowStateService.resetSubscribersForTest()
+        WorkspaceChanges.resetSubscribersForTest()
+        CloudSync.resetSubscribersForTest()
+        SpeakChanges.resetSubscribersForTest()
     }
 
     @Test
@@ -86,7 +97,7 @@ class ToolbarStateServiceLoadGuardTest {
             neverTouched(),
             neverTouched(),
             neverTouched(),
-            WindowStateServiceImpl(),
+            windowStateService,
         )
 
         // Without the guard this reaches windowControl.activeWindowPageManager -> activeWindow ->

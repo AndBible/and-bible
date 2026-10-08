@@ -22,7 +22,6 @@ import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.Job
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessage
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.window.WindowSync
@@ -98,7 +97,6 @@ class ReadingHostSyncAndRestoreEventsTest {
     @After
     fun tearDown() {
         toastSubscription?.cancel()
-        ABEventBus.unregister(this)
         controllers.forEach { runCatching { it.get().readingAppBootstrap.stopPeriodicSync() } }
         controllers.forEach { it.close() }
         controllers.clear()

@@ -23,7 +23,6 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.CommonUtils
 import net.bible.service.history.HistoryManager
 import net.bible.service.sword.SwordDocumentFacade
@@ -63,7 +62,6 @@ class DocumentSwitchHistoryPinTest {
     fun tearDown() {
         controllers.forEach { it.close() }
         controllers.clear()
-        history?.let { ABEventBus.unregister(it) }
         history = null
         ReadingHostPresence.setForeground(null)
         ReadingViewVisibility.setVisible(false)
