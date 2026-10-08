@@ -887,8 +887,8 @@ class AgentExecutor(
 
     /**
      * Waits for the current activity to become available.
-     * Emits [AgentSessionChange.PermissionWaiting] true/false (no
-     * `finally`: a cancelled wait never emits false; see the phase 4 spec §4).
+     * Emits [AgentSessionChange.PermissionWaiting] true, then false on every exit (normal return or
+     * cancellation) via `finally`.
      */
     private suspend fun awaitActivity(workspaceId: IdType? = null, toolName: String? = null): Activity {
         CurrentActivityHolder.currentActivity?.let { return it }
@@ -896,16 +896,21 @@ class AgentExecutor(
         if (workspaceId != null) {
             AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = true, toolName = toolName)
         }
-        var activity: Activity?
-        do {
-            delay(500)
-            activity = CurrentActivityHolder.currentActivity
-        } while (activity == null)
-        if (workspaceId != null) {
-            AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = false)
+        // F126: announce the end of the wait on every exit, cancellation included, so the service restores
+        // its progress notification and wakelock (GetCommentariesTool does the same).
+        try {
+            var activity: Activity?
+            do {
+                delay(500)
+                activity = CurrentActivityHolder.currentActivity
+            } while (activity == null)
+            Log.d(TAG, "Activity resumed")
+            return activity
+        } finally {
+            if (workspaceId != null) {
+                AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = false)
+            }
         }
-        Log.d(TAG, "Activity resumed")
-        return activity
     }
 
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
