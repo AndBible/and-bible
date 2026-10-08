@@ -139,7 +139,7 @@ object SwordContentFacade {
                 bibleNames.enableFuzzy = orig
                 k
             } ?:
-            if (lang != MyLocaleProvider.userLocale.language) {
+            if (lang != MyLocaleProvider.getUserLocale().language) {
                 synchronized(bibleNames) {
                     MyLocaleProvider.override = Locale(lang)
                     val orig = bibleNames.enableFuzzy
