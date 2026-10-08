@@ -18,6 +18,7 @@
 package net.bible.service.cloudsync.documents
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.CachedCloudDocument
@@ -43,7 +44,8 @@ class DocumentSyncSignOutTest {
             listOf(CachedCloudDocument("KJV", "KJV", "SWORD", "1.0", 10, "en", "BIBLE", "dev", 1L, null, false))
         )
 
-        DocumentSync.onSignOut()
+        // onSignOut runs a Room transaction over four DAOs: it must finish, not deadlock
+        withTimeout(10_000) { DocumentSync.onSignOut() }
 
         assertFalse(DocumentSyncSettings.enabled)
         assertEquals(0L, DocumentSyncSettings.watermark)
