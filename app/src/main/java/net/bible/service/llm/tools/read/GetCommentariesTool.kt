@@ -353,23 +353,13 @@ object GetCommentariesTool : Tool {
         // Sort by size descending for display
         val sorted = infos.sortedByDescending { it.estimatedChars }
 
-        // Today's pre-port behaviour (d222d2ab9): while no Activity is current, the agent is
-        // running in the background and the queued dialog is invisible to the user, so tell
-        // AgentForegroundService to release the wakelock and show the "permission needed"
-        // notification. AppDialogController.await() below IS the wait now (no more 500 ms
-        // CurrentActivityHolder poll) -- only the waiting/not-waiting posts need restoring.
+        // While no Activity is current the agent runs in the background and the queued dialog is
+        // invisible; awaitingUserDecision announces that (waiting = true, then false) so
+        // AgentForegroundService releases the wakelock and shows the "permission needed"
+        // notification. It does so once, so this tool must not post its own bracket.
         val workspaceId = context.workspaceId
-        val postedWaiting = workspaceId != null && CurrentActivityHolder.currentActivity == null
-        if (postedWaiting) {
-            AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = true)
-        }
-        val selected = try {
-            AgentSessionManager.awaitingUserDecision(workspaceId, null) { showFilterDialog(sorted, thresholdTokens) }
-        } finally {
-            if (postedWaiting) {
-                AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = false)
-            }
-        } ?: return null  // User cancelled
+        val selected = AgentSessionManager.awaitingUserDecision(workspaceId, null) { showFilterDialog(sorted, thresholdTokens) }
+            ?: return null  // User cancelled
 
         val selectedInitials = selected.map { it.initials }.toSet()
         val excluded = infos.filter { it.initials !in selectedInitials }.map { it.initials }

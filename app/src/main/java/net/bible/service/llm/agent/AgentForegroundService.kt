@@ -404,6 +404,8 @@ class AgentForegroundService : Service() {
     // --- WakeLock management ---
 
     private fun acquireWakeLock() {
+        // Not idempotent otherwise: replacing a held lock would leak it until its timeout.
+        releaseWakeLock()
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG).apply {
             acquire(WAKELOCK_TIMEOUT_MS)
         }

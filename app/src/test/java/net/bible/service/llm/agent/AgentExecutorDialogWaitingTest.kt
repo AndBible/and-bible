@@ -27,6 +27,7 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.AppPosition
 import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.read.GetCommentariesTool
@@ -46,7 +47,6 @@ import org.junit.runner.RunWith
 import org.koin.java.KoinJavaComponent
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
-import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.reflect.full.callSuspend
@@ -57,7 +57,7 @@ import kotlin.reflect.jvm.isAccessible
  * F132 behaviour: `AgentExecutor`'s private `showPermissionDialog` / `showContinueDialog` announce a
  * pending decision when the app leaves while their dialog is open. The real Koin
  * [AppDialogController] / [AgentPermissionController] are driven directly (no rendered host) and a
- * mocked [ActivityBase] is the current Activity, so `awaitActivity` does not post its own wait and
+ * real [CalculatorComposeActivity] is the current Activity, so `awaitActivity` does not post its own wait and
  * every `PermissionWaiting` seen here comes from `awaitingUserDecision`.
  */
 @RunWith(RobolectricTestRunner::class)

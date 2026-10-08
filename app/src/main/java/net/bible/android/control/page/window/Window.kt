@@ -217,6 +217,7 @@ class Window (
             else windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
 
 
+    @Volatile
     var bibleView: BibleView? = null
 
     /** Releases this owner even when its view will be rebound to a replacement window. */
@@ -310,16 +311,14 @@ class Window (
      * restore). `BibleViewFactory` re-runs [loadText] when it creates the next view. Cleared by
      * [takeLoadPending] and by any successful document load.
      */
-    @Volatile
-    var loadPending = false
-        internal set
+    private val loadPendingFlag = java.util.concurrent.atomic.AtomicBoolean(false)
 
-    /** Returns [loadPending] and clears it. */
-    fun takeLoadPending(): Boolean {
-        val pending = loadPending
-        loadPending = false
-        return pending
-    }
+    var loadPending: Boolean
+        get() = loadPendingFlag.get()
+        internal set(value) = loadPendingFlag.set(value)
+
+    /** Returns [loadPending] and clears it, atomically. */
+    fun takeLoadPending(): Boolean = loadPendingFlag.getAndSet(false)
 
     /** A load that reached a BibleView supersedes any dropped one. */
     internal fun onLoadDelivered(viewReady: Boolean) {
@@ -337,9 +336,14 @@ class Window (
             delay(delayMillis)
             time += delayMillis
             if(time > bibleViewWaitTimeoutMillis) {
-                if (bibleView != null) return true // appeared during the last delay
+                // Set the flag first, then re-check: a view created in between either sees the flag
+                // (and reloads) or is seen here (and the flag is cleared again).
+                loadPendingFlag.set(true)
+                if (bibleView != null) {
+                    loadPendingFlag.set(false)
+                    return true
+                }
                 Log.e(TAG, "waitForBibleView timed out")
-                loadPending = true
                 return false
             }
         }

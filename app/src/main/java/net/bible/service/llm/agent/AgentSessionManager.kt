@@ -70,6 +70,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -244,37 +245,55 @@ object AgentSessionManager : AgentSessionManagerBase() {
      * low-priority progress notification (F132).
      *
      * `BACKGROUND` emits `waiting = true` (with [toolName]), `FOREGROUND` emits `false`, and only on a
-     * position *change* during the block (no emission otherwise). When [block] returns or throws, the
-     * subscription is cancelled and, if the last emission was `true`, a closing `false` is emitted.
-     * Cancellation follows the phase 4 rule (spec §4): the run is ending and the service stops, so
-     * nothing is restored and nothing extra is emitted. A null [workspaceId] emits nothing.
-     * Position events are assumed to arrive on the main thread (they do: Activity lifecycle callbacks).
+     * position *change* during the block. Right after subscribing, if no Activity is current (the app
+     * left in the gap between `awaitActivity` returning and this subscription, or the caller never
+     * waited for one) the wait is announced at once. Callers must therefore not post their own
+     * waiting bracket around this. When [block] returns or throws, the subscription is cancelled and,
+     * if the last emission was `true`, a closing `false` is emitted. Cancellation follows the phase 4
+     * rule (spec §4): the run is ending and the service stops, so nothing is restored and nothing
+     * extra is emitted. A null [workspaceId] emits nothing.
+     *
+     * State is a CAS tri-state (IDLE / ANNOUNCED / CLOSED), so no thread assumption is needed and a
+     * handler running after close can never emit.
      */
     suspend fun <T> awaitingUserDecision(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T {
         if (workspaceId == null) return block()
-        val announced = AtomicBoolean(false)
+        val state = AtomicInteger(DECISION_IDLE)
+        fun close(emitFalse: Boolean) {
+            if (state.getAndSet(DECISION_CLOSED) == DECISION_ANNOUNCED && emitFalse)
+                notifyPermissionWaiting(workspaceId, false)
+        }
         val subscription = CurrentActivityHolder.appPositionChanges.subscribe { position ->
             when (position) {
                 AppPosition.BACKGROUND ->
-                    if (announced.compareAndSet(false, true)) notifyPermissionWaiting(workspaceId, true, toolName)
+                    if (state.compareAndSet(DECISION_IDLE, DECISION_ANNOUNCED)) notifyPermissionWaiting(workspaceId, true, toolName)
                 AppPosition.FOREGROUND ->
-                    if (announced.compareAndSet(true, false)) notifyPermissionWaiting(workspaceId, false)
+                    if (state.compareAndSet(DECISION_ANNOUNCED, DECISION_IDLE)) notifyPermissionWaiting(workspaceId, false)
             }
+        }
+        if (CurrentActivityHolder.currentActivity == null &&
+            state.compareAndSet(DECISION_IDLE, DECISION_ANNOUNCED)) {
+            notifyPermissionWaiting(workspaceId, true, toolName)
         }
         val result = try {
             block()
         } catch (e: CancellationException) {
             subscription.cancel()
+            state.set(DECISION_CLOSED)
             throw e
         } catch (e: Throwable) {
             subscription.cancel()
-            if (announced.compareAndSet(true, false)) notifyPermissionWaiting(workspaceId, false)
+            close(emitFalse = true)
             throw e
         }
         subscription.cancel()
-        if (announced.compareAndSet(true, false)) notifyPermissionWaiting(workspaceId, false)
+        close(emitFalse = true)
         return result
     }
+
+    private const val DECISION_IDLE = 0
+    private const val DECISION_ANNOUNCED = 1
+    private const val DECISION_CLOSED = 2
 
     /** Test teardown: process-global, so leaked subscribers would outlive their test. */
     @VisibleForTesting

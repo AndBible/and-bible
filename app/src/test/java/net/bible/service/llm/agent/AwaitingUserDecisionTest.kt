@@ -23,12 +23,14 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.test.runTest
 import net.bible.android.database.IdType
+import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.AppPosition
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.mock
 
 /** [AgentSessionManager.awaitingUserDecision]: app background/foreground while a user dialog blocks the agent. */
 class AwaitingUserDecisionTest {
@@ -36,13 +38,29 @@ class AwaitingUserDecisionTest {
     private val seen = mutableListOf<AgentSessionChange>()
     private var sub: net.bible.sharedcore.event.Subscription? = null
 
+    private var savedActivities: List<ActivityBase> = emptyList()
+
+    @Suppress("UNCHECKED_CAST")
+    private fun holderActivities(): ArrayList<ActivityBase> =
+        CurrentActivityHolder::class.java.getDeclaredField("activities").apply { isAccessible = true }
+            .get(CurrentActivityHolder) as ArrayList<ActivityBase>
+
+    private fun setCurrentActivity(present: Boolean) {
+        holderActivities().clear()
+        if (present) holderActivities().add(mock(ActivityBase::class.java))
+    }
+
     @Before fun subscribe() {
+        savedActivities = ArrayList(holderActivities())
+        setCurrentActivity(true)
         AgentSessionManager.resetSubscribersForTest()
         CurrentActivityHolder.resetSubscribersForTest()
         sub = AgentSessionManager.changes.subscribe { seen += it }
     }
 
     @After fun cleanup() {
+        holderActivities().clear()
+        holderActivities().addAll(savedActivities)
         sub?.cancel()
         AgentSessionManager.resetSubscribersForTest()
         CurrentActivityHolder.resetSubscribersForTest()
@@ -132,5 +150,16 @@ class AwaitingUserDecisionTest {
         CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
         gate.complete(Unit); job.await()
         assertEquals(listOf<AgentSessionChange>(waiting(true, "T"), waiting(false), waiting(true, "T"), waiting(false)), seen)
+    }
+
+    @Test fun noCurrentActivityAtSubscriptionAnnouncesAtOnceAndClosesOnce() = runTest {
+        setCurrentActivity(false)
+        val gate = CompletableDeferred<Unit>()
+        val job = async(start = CoroutineStart.UNDISPATCHED) { AgentSessionManager.awaitingUserDecision(ws, "T") { gate.await() } }
+        assertEquals(listOf<AgentSessionChange>(waiting(true, "T")), seen)
+        CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND) // already announced: no duplicate
+        assertEquals(1, seen.size)
+        gate.complete(Unit); job.await()
+        assertEquals(listOf<AgentSessionChange>(waiting(true, "T"), waiting(false)), seen)
     }
 }

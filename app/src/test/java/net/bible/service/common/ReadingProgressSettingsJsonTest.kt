@@ -25,6 +25,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import net.bible.android.TestBibleApplication
 import net.bible.test.DatabaseResetter
 import org.junit.After
+import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,6 +39,10 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)
 class ReadingProgressSettingsJsonTest {
+    @Before fun resetToDefaults() {
+        DatabaseResetter.resetDatabase()
+    }
+
     @After fun tearDown() {
         DatabaseResetter.resetDatabase()
     }
