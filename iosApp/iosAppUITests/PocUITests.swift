@@ -22,11 +22,31 @@ final class PocUITests: XCTestCase {
             .waitForExistence(timeout: timeout)
     }
 
+    /// Polls until `condition` holds or `timeout` elapses; returns the final result.
+    private func waitUntil(timeout: TimeInterval = 5, _ condition: () -> Bool) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if condition() { return true }
+            usleep(100_000)
+        }
+        return condition()
+    }
+
+    /// An element that is always present once the scenario's route has rendered: the split toggle on the
+    /// reading route, the back button on every other route.
+    private func chromeElement(_ app: XCUIApplication, reading: Bool) -> XCUIElement {
+        reading ? app.buttons["poc-split-toggle"] : app.buttons["poc-back"]
+    }
+
     func testScreenshotsAllScenarios() {
+        let readingScenarios: Set<String> = ["single", "split2", "split3"]
         for s in ["single", "split2", "split3", "bookmarks", "history", "settings"] {
             for dark in [false, true] {
                 let app = launch(s, dark: dark)
-                if s.hasPrefix("s") && s != "settings" { _ = waitForVerseText(app) }
+                let reading = readingScenarios.contains(s)
+                XCTAssertTrue(chromeElement(app, reading: reading).waitForExistence(timeout: 10),
+                              "\(s): screen chrome not visible within 10 s")
+                if reading { XCTAssertTrue(waitForVerseText(app), "\(s): verse text not visible within 10 s") }
                 shot(app, "\(s)-\(dark ? "dark" : "light")")
                 app.terminate()
             }
@@ -38,7 +58,7 @@ final class PocUITests: XCTestCase {
     }
 
     func testScrollUpdatesToolbarTitle() {
-        let app = launch("single"); _ = waitForVerseText(app)
+        let app = launch("single"); XCTAssertTrue(waitForVerseText(app), "verse text not visible within 10 s")
         let title = app.staticTexts["reading-title"]
         let before = title.label
         app.webViews.firstMatch.swipeUp(velocity: .fast)
@@ -47,7 +67,7 @@ final class PocUITests: XCTestCase {
     }
 
     func testScrollPerformance() {
-        let app = launch("single"); _ = waitForVerseText(app)
+        let app = launch("single"); XCTAssertTrue(waitForVerseText(app), "verse text not visible within 10 s")
         let options = XCTMeasureOptions(); options.iterationCount = 5
         measure(metrics: [XCTOSSignpostMetric.scrollDecelerationMetric], options: options) {
             app.webViews.firstMatch.swipeUp(velocity: .fast)
@@ -56,27 +76,32 @@ final class PocUITests: XCTestCase {
     }
 
     func testEdgeSwipeBack() {
-        let app = launch("single"); _ = waitForVerseText(app)
+        let app = launch("single"); XCTAssertTrue(waitForVerseText(app), "verse text not visible within 10 s")
         app.buttons["poc-open-bookmarks"].tap()
+        XCTAssertTrue(app.buttons["poc-back"].waitForExistence(timeout: 5), "bookmarks route not reached")
         let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.0, dy: 0.5))
-        start.press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5)))
-        XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 5), "edge swipe did not return to reading")
+        start.press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5)),
+                    withVelocity: .fast, thenHoldForDuration: 0)
+        XCTAssertTrue(waitUntil { !app.buttons["poc-back"].exists }, "edge swipe did not leave bookmarks")
+        XCTAssertTrue(app.buttons["poc-split-toggle"].waitForExistence(timeout: 5), "edge swipe did not return to reading")
     }
 
     func testSplitChangesKeepWebViews() {
-        let app = launch("split2"); _ = waitForVerseText(app)
+        let app = launch("split2"); XCTAssertTrue(waitForVerseText(app), "verse text not visible within 10 s")
         app.buttons["poc-split-toggle"].tap()
         app.buttons["poc-split-toggle"].tap()
-        XCTAssertEqual(app.webViews.count, 2)
+        XCTAssertTrue(waitUntil { app.webViews.count == 2 }, "expected 2 web views after toggling, got \(app.webViews.count)")
         shot(app, "split-after-toggle")
     }
 
     func testDynamicTypeXXXL() {
-        let app = launch("bookmarks", xxxl: true); shot(app, "bookmarks-light-xxxl")
+        let app = launch("bookmarks", xxxl: true)
+        XCTAssertTrue(app.buttons["poc-back"].waitForExistence(timeout: 10), "bookmarks screen not visible within 10 s")
+        shot(app, "bookmarks-light-xxxl")
     }
 
     func testAccessibilityAudit() throws {
-        let app = launch("single"); _ = waitForVerseText(app)
+        let app = launch("single"); XCTAssertTrue(waitForVerseText(app), "verse text not visible within 10 s")
         if #available(iOS 17.0, *) {
             try app.performAccessibilityAudit { issue in
                 let a = XCTAttachment(string: issue.debugDescription); a.name = "a11y-issue"; a.lifetime = .keepAlways
