@@ -43,9 +43,22 @@ describe("ios-shim", () => {
     });
 
     it("is idempotent when injected twice", () => {
+        const first = window.android;
         new Function(shimSource)();
+        expect(window.android).toBe(first);
         window.android.setClientReady();
         expect(posted.filter(m => m.method === "setClientReady")).toHaveLength(1);
+        window.dispatchEvent(new ErrorEvent("error", {message: "once", filename: "b.js", lineno: 1}));
+        expect(posted.filter(m => m.method === "console")).toHaveLength(1);
+    });
+
+    it("is not mistaken for a thenable, serialisable or iterable object", () => {
+        expect(window.android.then).toBeUndefined();
+        expect(window.android.toJSON).toBeUndefined();
+        expect(window.android[Symbol.iterator]).toBeUndefined();
+        expect(window.android[Symbol.toPrimitive]).toBeUndefined();
+        expect(JSON.stringify({a: window.android})).toBe("{\"a\":{}}");
+        expect(posted).toEqual([]);
     });
 });
 

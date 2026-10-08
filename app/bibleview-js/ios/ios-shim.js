@@ -10,6 +10,8 @@
     }
     window.android = new Proxy({}, {
         get: function (_target, prop) {
+            // Not bridge methods: keeps the proxy from looking thenable/serialisable/iterable to the runtime.
+            if (typeof prop === "symbol" || prop === "then" || prop === "toJSON") return undefined;
             if (prop === "getActiveLanguages") {
                 // The only bridge method with a synchronous return value; postMessage cannot return.
                 return function () { return window.__activeLanguages__ || '["en"]'; };
