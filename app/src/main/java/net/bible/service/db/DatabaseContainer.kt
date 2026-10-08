@@ -288,7 +288,8 @@ class DatabaseContainer {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
-    private val settingsScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(1))
+    /** `internal` only so a test can occupy the writer thread; not for production use. */
+    internal val settingsScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(1))
 
     /** Settings cache for this container instance; a new container (restore/reset) reloads from disk. */
     val settingsStore: SettingsStore = SettingsStore(
@@ -367,12 +368,20 @@ class DatabaseContainer {
     /**
      * Closes one database by file name ahead of its file being replaced or deleted. The settings store is
      * flushed first: a write still queued would otherwise reopen the closed handle and land in the restored file.
+     * Writes made by other threads after the flush update this (old) store's memory only; [reset] discards them,
+     * and a later DAO write would reopen the handle on whatever file is then in place.
      */
     internal fun closeForReplace(fileName: String) {
         if (fileName == SettingsDatabase.dbFileName) runBlocking { settingsStore.flush() }
         dbByFilename[fileName]?.close()
     }
 
+    /**
+     * Flushes the settings store, cancels its writer and closes every database. Setting writes made by other
+     * threads between the flush/scope-cancel and `_instance = null` update only the old store's memory and are
+     * dropped (previously a DAO write would have reopened the file). The window is milliseconds, and restore
+     * paths already treat writes there as a hazard.
+     */
     internal fun closeAll() {
         // Flush BEFORE cancelling the scope: writes still queued at cancel are dropped.
         runBlocking { settingsStore.flush() }

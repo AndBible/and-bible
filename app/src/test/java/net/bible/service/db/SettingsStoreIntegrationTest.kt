@@ -8,7 +8,14 @@ import net.bible.android.database.SettingsDatabase
 import net.bible.service.common.CommonUtils
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import kotlinx.coroutines.launch
+import net.bible.service.common.DisplayColorMode
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -61,15 +68,60 @@ class SettingsStoreIntegrationTest {
         assertNotSame(first, DatabaseContainer.instance.settingsStore)
     }
 
-    /** Restore/reset paths close the settings file via closeForReplace: queued writes must reach the OLD file first. */
+    /**
+     * Restore/reset paths close the settings file via closeForReplace: queued writes must reach the OLD file first.
+     * The writer thread is held by a gated task, so the write is genuinely still queued when closeForReplace runs;
+     * the gate opens from a watchdog only after a delay. Without the flush closeForReplace returns at once and the
+     * raw read below sees nothing.
+     */
     @Test fun closeForReplaceFlushesQueuedSettingsBeforeClosing() {
-        CommonUtils.settings.setString("q", "queued")
-        DatabaseContainer.instance.closeForReplace(SettingsDatabase.dbFileName)
-        val f = application.getDatabasePath(SettingsDatabase.dbFileName)
-        val v = SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY).use {
-            it.rawQuery("SELECT value FROM StringSetting WHERE `key`='q'", null).use { c -> if (c.moveToFirst()) c.getString(0) else null }
+        val container = DatabaseContainer.instance
+        val gate = CountDownLatch(1)
+        val started = CountDownLatch(1)
+        container.settingsScope.launch { started.countDown(); gate.await() }
+        assertTrue(started.await(10, TimeUnit.SECONDS))
+        val watchdog = Thread { Thread.sleep(500); gate.countDown() }.apply { isDaemon = true; start() }
+        try {
+            CommonUtils.settings.setString("q", "queued") // queued behind the gated task
+            container.closeForReplace(SettingsDatabase.dbFileName)
+            val f = application.getDatabasePath(SettingsDatabase.dbFileName)
+            val v = SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY).use {
+                it.rawQuery("SELECT value FROM StringSetting WHERE `key`='q'", null).use { c -> if (c.moveToFirst()) c.getString(0) else null }
+            }
+            assertEquals("queued", v)
+        } finally {
+            gate.countDown(); watchdog.join()
         }
-        assertEquals("queued", v)
+    }
+
+    private val store get() = DatabaseContainer.instance.settingsStore
+
+    @Test fun migrationTurnsMonochromeFalseIntoNormalColorMode() {
+        store.setBoolean("monochrome_mode", false)
+        CommonUtils.migrateOldSettingsKeys()
+        assertEquals(DisplayColorMode.NORMAL.value, store.getString("display_color_mode", null))
+        assertEquals("gone", if (store.getBoolean("monochrome_mode", false) || !store.getBoolean("monochrome_mode", true)) "present" else "gone")
+    }
+
+    @Test fun migrationLeavesColorModeUnsetWhenMonochromeKeyMissing() {
+        CommonUtils.migrateOldSettingsKeys()
+        assertNull(store.getString("display_color_mode", null))
+    }
+
+    @Test fun migrationTurnsMonochromeTrueIntoBwColorMode() {
+        store.setBoolean("monochrome_mode", true)
+        CommonUtils.migrateOldSettingsKeys()
+        assertEquals(DisplayColorMode.BW.value, store.getString("display_color_mode", null))
+    }
+
+    @Test fun migrationRenamesBooleanAndLongKeys() {
+        store.setBoolean("gdrive_bookmarks", true)
+        store.setLong("gdrive_sync_interval", 42L)
+        CommonUtils.migrateOldSettingsKeys()
+        assertTrue(store.getBoolean("sync_enable_bookmarks", false))
+        assertEquals(42L, store.getLong("cloud_sync_interval", -1L))
+        assertEquals(-1L, store.getLong("gdrive_sync_interval", -1L))
+        assertFalse(store.getBoolean("gdrive_bookmarks", false))
     }
 
     /** The zip-restore / reset-database path: close, replace the file, reset() -> next container reloads the replaced file. */
