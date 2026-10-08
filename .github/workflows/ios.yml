@@ -1,0 +1,87 @@
+name: iOS PoC
+on:
+  workflow_dispatch:
+  push:
+    branches: [ios]
+    paths:
+      - "sharedUi/**"
+      - "sharedCore/**"
+      - "iosApp/**"
+      - "app/bibleview-js/**"
+      - ".github/workflows/ios.yml"
+concurrency: {group: "ios-${{ github.ref }}", cancel-in-progress: true}
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: "17"}
+      - uses: actions/setup-node@v4
+        with: {node-version: "24"}
+      # Kotlin 2.3.20-2.3.21 pairs with Xcode 26.0 (KMP compatibility guide); newest 26.0.x on macos-15 is 26.0.1.
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.0.1.app
+      - name: Gradle JVM args for the Xcode pre-build framework task
+        run: echo "org.gradle.jvmargs=-Xmx6g" >> gradle.properties
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Build bibleview-js
+        working-directory: app/bibleview-js
+        run: npm ci && npm run build-production
+      - name: Generate Xcode project
+        working-directory: iosApp
+        run: xcodegen generate
+      - name: Test (iPhone)
+        run: |
+          mkdir -p build
+          set -o pipefail
+          xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \
+            -destination "platform=iOS Simulator,name=iPhone 16" \
+            -resultBundlePath build/ios-iphone.xcresult | tee build/xcodebuild-iphone.log
+      - name: Test (iPad, screenshots only)
+        if: always()
+        run: |
+          mkdir -p build
+          set -o pipefail
+          xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \
+            -destination "platform=iOS Simulator,name=iPad Air 11-inch (M2)" \
+            -only-testing:iosAppUITests/PocUITests/testScreenshotsAllScenarios \
+            -resultBundlePath build/ios-ipad.xcresult | tee build/xcodebuild-ipad.log
+      - name: Export screenshots
+        if: always()
+        run: |
+          mkdir -p build/screenshots
+          for r in build/ios-iphone.xcresult build/ios-ipad.xcresult; do
+            [ -d "$r" ] && xcrun xcresulttool export attachments --path "$r" --output-path "build/screenshots/$(basename $r .xcresult)" || true
+          done
+          grep -c "I0-WEBVIEW-TERMINATED" build/xcodebuild-*.log || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-poc-results
+          path: |
+            build/*.xcresult
+            build/screenshots
+            build/xcodebuild-*.log
+  webkit-shim:
+    runs-on: macos-15
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: app/bibleview-js
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "24"}
+      - run: npm ci
+      - run: npx playwright install webkit
+      - run: npm run build-production
+      - run: npm run test:ios-webkit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: webkit-shim-screenshot
+          path: app/bibleview-js/ios/webkit/last-run.png
+          if-no-files-found: ignore
