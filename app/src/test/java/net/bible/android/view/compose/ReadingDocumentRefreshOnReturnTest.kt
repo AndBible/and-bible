@@ -20,11 +20,10 @@ import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.Window
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
+import net.bible.android.control.document.DocumentChanges
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
 import net.bible.sharedcore.reading.ReadingViewVisibility
@@ -55,7 +54,7 @@ import kotlin.test.assertTrue
  * not [NavHostComposeActivity.applyReadingReturnDebts].** The two are siblings called from the same
  * `OnDestinationChangedListener`, not nested — `readingReturnDebts` answers "what did THIS PARTICULAR
  * LAUNCH owe", a request-code question; this fix is flag-driven, keyed on `updateDocumentsPending`
- * alone, because `UpdateMainBibleActivityDocuments` is posted from six destinations plus `doDownload`
+ * alone, because `DocumentChanges.installedChanged` is notified from six destinations plus `doDownload`
  * and what matters is that documents changed, not who launched. `ReadingHostNonStdResultTest`'s
  * `composedHost().apply { … }.applyReadingReturnDebts(NavRoutes.READING)` pattern is the precedent for
  * driving one of this listener's internal arms directly without a composed `NavController`; this test
@@ -125,10 +124,10 @@ class ReadingDocumentRefreshOnReturnTest {
         clearDisplayedKey(window)
         assertNull(displayedKeyOf(window), "sanity: the fixture's entry-time load must actually be clearable")
 
-        ABEventBus.post(UpdateMainBibleActivityDocuments())
+        DocumentChanges.notifyInstalledChanged()
         assertTrue(
             updateDocumentsPendingOf(activity),
-            "sanity: the subscription in readingHostSubscriptions must have armed the flag",
+            "sanity: the DocumentChanges.installedChanged subscription in subscribeReadingHost must have armed the flag",
         )
 
         // The graph pops back to the reading destination -- no onResume happens on this path, so
@@ -189,10 +188,10 @@ class ReadingDocumentRefreshOnReturnTest {
         shadowOf(Looper.getMainLooper()).idle()
 
         clearDisplayedKey(window)
-        ABEventBus.post(UpdateMainBibleActivityDocuments())
+        DocumentChanges.notifyInstalledChanged()
         assertTrue(
             updateDocumentsPendingOf(activity),
-            "sanity: the subscription in readingHostSubscriptions must have armed the flag",
+            "sanity: the DocumentChanges.installedChanged subscription in subscribeReadingHost must have armed the flag",
         )
 
         // Back to reading -- through the REAL listener, with no onResume anywhere in this path.

@@ -22,7 +22,6 @@ import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.common.BibleViewSwipeMode
 import net.bible.service.common.CommonUtils
@@ -209,7 +208,7 @@ class BibleGestureListener(
     }
 
     override fun onSingleTapUp(e: MotionEvent): Boolean {
-        ABEventBus.post(BibleView.BibleViewTouched(onlyTouch = true))
+        mainBibleActivity.onBibleViewTouched()
         return super.onSingleTapUp(e)
     }
 

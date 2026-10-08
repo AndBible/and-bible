@@ -21,10 +21,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.onMain
+import net.bible.service.common.AiSettings
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
@@ -69,8 +67,8 @@ import net.bible.sharedcore.settings.SettingsItem
  * "(hidden)" suffix so they can be individually restored).
  *
  * Mutations rebuild [groups] locally via [refresh] (mirroring classic's per-action `loadPrompts()`;
- * classic does NOT broadcast for these), while the ABEventBus bridge re-emits when an external
- * change broadcasts [AppSettingsUpdated] (e.g. the PromptEdit host saving a prompt, or the host's
+ * classic does NOT broadcast for these), while the [AiSettings.configChanged] subscription re-emits when an external
+ * change fires it (e.g. the PromptEdit host saving a prompt, or the host's
  * `onResume` refresh). Registered as a Koin single (lives for the process). Room here uses
  * `allowMainThreadQueries`, so the non-suspend reads/mutations run synchronously on the caller
  * thread (as elsewhere in the AI settings layer).
@@ -94,9 +92,8 @@ class PromptServiceImpl : PromptService {
     override val hasHiddenPrompts: StateFlow<Boolean> = _hasHiddenPrompts.asStateFlow()
 
     init {
-        ABEventBus.register(this) {
-            onMain<AppSettingsUpdated> { refresh() }
-        }
+        // Process lifetime, like the bus registration it replaces: never cancelled.
+        AiSettings.configChanged.subscribeOnMain { refresh() }
     }
 
     // --- groups (classic AiSettingsActivity.loadPrompts, Favorites → uncategorized → categories) --

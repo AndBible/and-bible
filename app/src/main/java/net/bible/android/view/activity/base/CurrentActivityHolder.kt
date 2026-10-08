@@ -16,8 +16,12 @@
  */
 package net.bible.android.view.activity.base
 
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
+import androidx.annotation.VisibleForTesting
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
+
+/** Whether the app as a whole is on screen. */
+enum class AppPosition { FOREGROUND, BACKGROUND }
 
 /** Allow operations form middle tier that require a reference to the current Activity
  *
@@ -26,6 +30,16 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
 
 object CurrentActivityHolder {
     private val activities = ArrayList<ActivityBase>()
+
+    private var positionSource = EventSource<AppPosition>()
+    /** The first activity started or the last one stopped; synchronous on the caller's thread. */
+    val appPositionChanges: Events<AppPosition> get() = positionSource
+
+    @VisibleForTesting internal fun notifyAppPosition(position: AppPosition) {
+        positionSource.emit(position)
+    }
+
+    @VisibleForTesting fun resetSubscribersForTest() { positionSource = EventSource() }
 
     val currentActivity: ActivityBase? get() = try { activities.last() } catch (e: NoSuchElementException) {null}
 
@@ -47,8 +61,7 @@ object CurrentActivityHolder {
         activities.add(activity)
         activity.unFreeze()
         if (wasEmpty) {
-            ABEventBus
-                .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.FOREGROUND))
+            notifyAppPosition(AppPosition.FOREGROUND)
         } else {
             for (a in activities.filterNot { it == activity }) {
                 a.freeze()
@@ -59,8 +72,7 @@ object CurrentActivityHolder {
     fun deactivate(activity: ActivityBase) {
         activities.remove(activity)
         if (activities.isEmpty()) {
-            ABEventBus
-                .post(AppToBackgroundEvent(AppToBackgroundEvent.Position.BACKGROUND))
+            notifyAppPosition(AppPosition.BACKGROUND)
         } else {
             currentActivity!!.unFreeze()
         }

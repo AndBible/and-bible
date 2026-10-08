@@ -1,5 +1,8 @@
 package net.bible.android.view.activity.nav
 
+import net.bible.sharedcore.event.Events
+import net.bible.sharedcore.event.EventSource
+import androidx.annotation.VisibleForTesting
 import android.view.Window
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
@@ -66,8 +69,15 @@ class SystemBarController(private val window: Window) {
     }
 }
 
-/** Posted when `hide_status_bar` is written, so the host re-decides on the current destination. */
-class SystemBarSettingChangedEvent
+/** `hide_status_bar` was written, so hosts re-decide their system bars. */
+object SystemBarSettingChanges {
+    private var source = EventSource<Unit>()
+    val changes: Events<Unit> get() = source
+    fun notifyChanged() {
+        source.emit(Unit)
+    }
+    @VisibleForTesting fun resetSubscribersForTest() { source = EventSource() }
+}
 
 /**
  * Implemented by the nav host: a top bar's `SyncSystemBars` REPORTS its colour here instead of

@@ -335,7 +335,7 @@ private val PaneButtonDragThresholdDp = 28.dp
  * dispose+recreate of the pane subtree. Needed because each pane is
  * `key(window.id) { AndroidView(factory = { ... }) }` — the factory runs once per window id and
  * is never re-invoked by a plain recomposition. When [MainBibleActivity.currentWorkspaceId]'s
- * setter (or `MainBibleAfterRestore`) reloads the SAME workspace, it does
+ * setter (or a database restore, `DatabaseContainer.databaseRestored`) reloads the SAME workspace, it does
  * `documentViewManager.removeView()` -> `bibleViewFactory.clear()` (destroys every cached
  * [net.bible.android.view.activity.page.BibleView]) -> `windowRepository.loadFromDb()` ->
  * `documentViewManager.buildView(forceUpdate = true)`; the window ids are unchanged, so without
@@ -503,7 +503,7 @@ internal fun readHistoryApplyDeletes(
  *
  * [visible] starts `true` (buttons shown on first render, mirroring classic's initial
  * `buttonsVisible = true`, `SplitBibleArea.kt:149`). [onTouch] — wired to
- * [BibleView.BibleViewTouched] in [ComposeReadingViewHost.init], and also called by
+ * [ComposeReadingViewHost.onBibleViewTouched], and also called by
  * [ComposeReadingViewHost.openPaneMenu] (mirroring classic `showPopupMenu`'s
  * `timerTask?.cancel(); toggleWindowButtonVisibility(true)`, `SplitBibleArea.kt:731-732`, so a menu
  * opened while auto-hidden still renders) — sets [visible] `true` and bumps [touchTick] so a
@@ -2872,7 +2872,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     internal val paneMenuAnchorForTest: PaneMenuAnchor get() = paneMenuAnchor.value
 
     /**
-     * Mirrors [ScreenSettings.nightMode]. Kept current via [ScreenSettings.NightModeChanged] (see
+     * Mirrors [ScreenSettings.nightMode]. Kept current via [ScreenSettings.nightModeChanges] (see
      * [init]) instead of being captured once at [install] time, which is what made the host's
      * `AbTheme` non-reactive to a runtime night-mode flip (the Plan-A carry-forward this task
      * closes — see the whole-Plan-A review Minor).
@@ -2883,11 +2883,13 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * Mirrors `CommonUtils.settings.monochromeMode` — the compose-drawer counterpart of classic
      * `setupUi`'s `if (monochromeMode) drawerLayout.setScrimColor(TRANSPARENT)` (this is the only
      * thing that read it on the drawer path). There is no dedicated change event for it, so it is
-     * refreshed alongside [nightMode] on [ScreenSettings.NightModeChanged] (see [init]) — the
+     * refreshed alongside [nightMode] on [ScreenSettings.nightModeChanges] (see [init]) — the
      * closest thing this codebase has to a "display appearance changed" signal, and the same event
      * the e-ink/monochrome device path posts.
      */
     private val monochrome = mutableStateOf(CommonUtils.settings.monochromeMode)
+    internal val monochromeForTest: State<Boolean> get() = monochrome
+    internal val windowButtonsVisibilityForTest: WindowButtonsVisibility get() = windowButtonsVisibility
 
     /**
      * Mirrors [MainBibleActivity.fullScreen]. Kept current via [SharedActivityState.fullScreenChanged]
@@ -3024,20 +3026,18 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     /** Opens the Compose drawer (idempotent) — see [isDrawerOpen]. */
     fun openDrawer() { drawerOpen.value = true }
 
+    /** A tap on one of this host's BibleViews: re-show the window buttons (classic SplitBibleArea.kt:203-205). */
+    fun onBibleViewTouched() = windowButtonsVisibility.onTouch()
+
     /** Closes the Compose drawer (idempotent) — see [isDrawerOpen]. */
     fun closeDrawer() { drawerOpen.value = false }
 
     init {
         subscriptions.add(SharedActivityState.instance.fullScreenChanged.subscribeOnMain { fullScreen.value = it })
-        ABEventBus.register(this) {
-            onMain<ScreenSettings.NightModeChanged> {
-                nightMode.value = ScreenSettings.nightMode
-                monochrome.value = CommonUtils.settings.monochromeMode
-            }
-            // Classic BibleView.BibleViewTouched re-show (SplitBibleArea.kt:203-205) — see
-            // WindowButtonsVisibility's kdoc.
-            onMain<BibleView.BibleViewTouched> { windowButtonsVisibility.onTouch() }
-        }
+        subscriptions.add(ScreenSettings.nightModeChanges.subscribeOnMain {
+            nightMode.value = ScreenSettings.nightMode
+            monochrome.value = CommonUtils.settings.monochromeMode
+        })
         subscriptions.add(PassageChangeMediator.changes.subscribeOnMain { change ->
             when (change) {
                 // Batch 12g Task 3: mirrors classic `SplitBibleArea`'s own registration for the same two
@@ -3225,7 +3225,6 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * rotation). Safe to call unconditionally even if [install] hasn't run yet.
      */
     fun dispose() {
-        ABEventBus.unregister(this)
         subscriptions.cancelAll()
         // F6 Task 8a: a `JobManager` WorkListener outlives the activity that registered it (the
         // manager is a process-wide static), so an in-flight index build would otherwise leak this
@@ -3935,7 +3934,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
             container: ViewGroup,
             windowState: WindowStateServiceImpl,
             commands: WindowCommands,
-            // A `State` (not a plain `Boolean`) so the host's [ScreenSettings.NightModeChanged]
+            // A `State` (not a plain `Boolean`) so the host's [ScreenSettings.nightModeChanges]
             // subscription (or a test) can flip it and drive a real recomposition instead of a
             // value frozen at mount time.
             nightModeState: State<Boolean>,
@@ -4320,7 +4319,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
         ) {
             // AbAppTheme's darkTheme override (A/B batch 4b Task 3 fix round 1): this host
             // is long-lived inside MainBibleActivity and is never recreate()d on
-            // ScreenSettings.NightModeChanged (including the ambient-light-sensor
+            // ScreenSettings.nightModeChanges (including the ambient-light-sensor
             // auto-night-mode flip, which fires with no recreate at all), so it tracks night
             // mode itself in nightModeState and passes it through verbatim instead of
             // letting AbAppTheme re-read the static ScreenSettings.nightMode getter (which

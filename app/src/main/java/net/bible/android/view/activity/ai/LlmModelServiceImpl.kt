@@ -21,10 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.onMain
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -60,8 +57,8 @@ import net.bible.sharedcore.ai.ProviderVd
  * **a default always exists whenever the list is non-empty** — see [applyDefault]. Classic's edit
  * dialog set `defaultModelId = null` when you unchecked "set default" on the current default
  * (leaving the list default-less); the T3 review flagged this, so [applyDefault] reassigns to
- * another model instead. Every mutation posts [AppSettingsUpdated] and re-emits [models]; the
- * ABEventBus bridge also re-emits when an external change broadcasts [AppSettingsUpdated] /
+ * another model instead. Every mutation calls [AiSettings.notifyConfigChanged] and re-emits [models]; the
+ * [AiSettings.configChanged] subscription also re-emits when an external change fires it, as does
  * [AiSettings.defaultModelChanged] (same pattern as [AiSettingsServiceImpl]/[LlmProviderServiceImpl]).
  * Registered as a Koin single (lives for the process).
  *
@@ -79,9 +76,8 @@ class LlmModelServiceImpl : LlmModelService {
     override val models: StateFlow<List<ModelVd>> = _models.asStateFlow()
 
     init {
-        ABEventBus.register(this) {
-            onMain<AppSettingsUpdated> { refresh() }
-        }
+        // Process lifetime, like the bus registration it replaces: never cancelled.
+        AiSettings.configChanged.subscribeOnMain { refresh() }
         // Process lifetime: never cancelled.
         AiSettings.defaultModelChanged.subscribeOnMain { refresh() }
     }
@@ -204,7 +200,7 @@ class LlmModelServiceImpl : LlmModelService {
                 applyDefault(existing.id, setDefault)
             }
         }
-        ABEventBus.post(AppSettingsUpdated())
+        AiSettings.notifyConfigChanged()
         refresh()
     }
 
@@ -216,7 +212,7 @@ class LlmModelServiceImpl : LlmModelService {
         if (settings.defaultModelId == model.id) {
             settings.defaultModelId = modelDao.all().firstOrNull()?.id
         }
-        ABEventBus.post(AppSettingsUpdated())
+        AiSettings.notifyConfigChanged()
         refresh()
     }
 

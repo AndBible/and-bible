@@ -17,10 +17,9 @@
 package net.bible.android.view.activity.bookmark
 
 import net.bible.android.activity.R
+import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.CommonUtils
 import kotlinx.serialization.Serializable
 import android.util.Log
@@ -114,5 +113,5 @@ fun WorkspaceEntities.WorkspaceSettings.updateFrom(resultData: ManageLabelsContr
     Log.i("ManageLabels", "WorkspaceEntities.updateRecentLabels")
     autoAssignLabels = resultData.autoAssignLabels
     autoAssignPrimaryLabel = resultData.autoAssignPrimaryLabel
-    ABEventBus.post(AppSettingsUpdated())
+    WorkspaceChanges.notifySettingsEdited()
 }

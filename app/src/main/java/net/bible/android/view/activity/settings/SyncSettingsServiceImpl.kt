@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.settings
 
+import net.bible.service.db.DatabaseContainer
 import android.text.format.Formatter
 import android.webkit.URLUtil
 import kotlinx.coroutines.CoroutineScope
@@ -27,9 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.page.MainBibleAfterRestore
 import net.bible.service.cloudsync.CloudAdapters
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
@@ -160,13 +159,13 @@ class SyncSettingsServiceImpl(
         val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
         cat.syncEnabled = enabled
         if (enabled) {
-            // Classic setupDrivePref ran the sync-start sequence + posted MainBibleAfterRestore after
+            // Classic setupDrivePref ran the sync-start sequence + broadcast the restore (now `notifyDatabaseRestored`) after
             // sign-in, then recreate()d. We refresh the snapshot instead; the sequence is fire-and-forget.
             scope.launch {
                 CloudSync.waitUntilFinished()
                 CloudSync.start()
                 CloudSync.waitUntilFinished()
-                ABEventBus.post(MainBibleAfterRestore())
+                DatabaseContainer.notifyDatabaseRestored()
                 refresh()
             }
         }

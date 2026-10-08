@@ -52,6 +52,7 @@ import net.bible.sharedcore.window.WindowStateValue
 import net.bible.sharedcore.window.buildWindowTabBar
 import net.bible.sharedui.progress.ReadHistoryRow
 import net.bible.test.DatabaseResetter
+import net.bible.service.device.ScreenSettings
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -171,7 +172,7 @@ class ComposeReadingViewHostTest {
     /**
      * `nightModeState`/`fullScreenState` are `State<Boolean>` (Task 5), not one-shot `Boolean`s,
      * specifically so an external owner (the real `ComposeReadingViewHost`'s
-     * `NightModeChanged`/`fullScreenChanged` subscriptions, or this test) can flip them after mount
+     * `nightModeChanges`/`fullScreenChanged` subscriptions, or this test) can flip them after mount
      * and have `ReadingViewScreen` recompose off the NEW value rather than a value frozen at mount
      * time. Mounting succeeds and the externally-owned states remain independently mutable after
      * mount — the actual "does the toolbar disappear" visual behavior is already golden-tested at
@@ -399,13 +400,12 @@ class ComposeReadingViewGenerationTest {
 
 /**
  * Batch 12b follow-on Plan B Task 5: [WindowButtonsVisibility] is the framework-free holder the
- * real [ComposeReadingViewHost] wires to [net.bible.android.view.activity.page.BibleView.BibleViewTouched]
- * (via `ABEventBus.register`'s `onMain<BibleView.BibleViewTouched> { windowButtonsVisibility.onTouch() }`
- * in [ComposeReadingViewHost]'s `init`) — exercised directly here (no MainBibleActivity/Koin boot
+ * real [ComposeReadingViewHost] drives from [ComposeReadingViewHost.onBibleViewTouched]
+ * (a direct call from the gesture listener, no bus event) — exercised directly here (no MainBibleActivity/Koin boot
  * needed), mirroring [ComposeReadingViewGenerationTest] one class up. [onTouch] is exactly what
- * that subscription calls on a real touch, so asserting it flips [WindowButtonsVisibility.visible]
+ * that call does on a real touch, so asserting it flips [WindowButtonsVisibility.visible]
  * back to `true` (after [WindowButtonsVisibility.onHideTimeout] set it `false`) is the direct,
- * framework-free equivalent of "a `BibleViewTouched` sets [visible] true" the Task-5 brief asks
+ * framework-free equivalent of "a bible-view touch sets [visible] true" the Task-5 brief asks
  * for.
  */
 class WindowButtonsVisibilityTest {
@@ -428,7 +428,7 @@ class WindowButtonsVisibilityTest {
 
         v.onTouch()
 
-        assertTrue(v.visible.value, "a touch (BibleViewTouched) must re-show the buttons")
+        assertTrue(v.visible.value, "a touch (onBibleViewTouched) must re-show the buttons")
         assertEquals(1, v.touchTick.value)
 
         v.onTouch()
@@ -479,6 +479,27 @@ class MainBibleActivityHandleWindowPaneMenuItemTest {
 
     /** Builds a real [ComposeReadingViewHost] against the test [activity] (never `.install()`ed — see the class kdoc). */
     private fun host() = ComposeReadingViewHost(activity)
+
+    @Test fun onBibleViewTouchedReShowsTheWindowButtons() {
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        val host = activity.composeReadingViewHost!!
+        host.windowButtonsVisibilityForTest.onHideTimeout()
+        assertFalse(host.windowButtonsVisibilityForTest.visible.value, "sanity: hidden before the touch")
+        host.onBibleViewTouched()
+        assertTrue(host.windowButtonsVisibilityForTest.visible.value)
+    }
+
+    @Test fun nightModeFlipUpdatesTheHostState() {
+        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
+        val host = activity.composeReadingViewHost!!
+        assertFalse(host.monochromeForTest.value, "sanity: not monochrome before the flip")
+        CommonUtils.settings.setString("display_color_mode", "bw")
+        try {
+            ScreenSettings.notifyNightModeChanged()
+            shadowOf(Looper.getMainLooper()).idle()
+            assertTrue(host.monochromeForTest.value)
+        } finally { CommonUtils.settings.removeString("display_color_mode") }
+    }
 
     /**
      * A/B batch 3 F5b: [ComposeReadingViewHost.openPaneMenu] now takes a [PaneMenuAnchor] so the

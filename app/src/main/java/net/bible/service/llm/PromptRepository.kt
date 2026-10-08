@@ -22,10 +22,7 @@ import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
 
 /**
  * Unified facade for accessing both built-in and user-created prompts.
@@ -43,14 +40,11 @@ object PromptRepository {
     private val categoryDao get() = DatabaseContainer.instance.aiSettingsDb.promptCategoryDao()
     private val overrideDao get() = DatabaseContainer.instance.aiSettingsDb.builtinPromptOverrideDao()
 
-    /** Cached add-on prompts loaded from CSV files. Invalidated on ReloadAddonsEvent. */
+    /** Cached add-on prompts loaded from CSV files. Invalidated on [net.bible.service.common.AndBibleAddons.reloaded]. */
     private var addonPromptsCache: List<AgentPrompt>? = null
 
     init {
-        ABEventBus.register(this) {
-            // Called by EventBus when add-on modules are reloaded.
-            on<ReloadAddonsEvent> { addonPromptsCache = null }
-        }
+        AndBibleAddons.reloaded.subscribe { addonPromptsCache = null }
     }
 
     fun clearAddonCache() {

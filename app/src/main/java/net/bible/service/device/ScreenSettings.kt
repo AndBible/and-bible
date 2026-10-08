@@ -23,7 +23,9 @@ import net.bible.service.common.CommonUtils
 import android.content.Context
 import android.content.res.Configuration
 import android.os.PowerManager
-import net.bible.android.control.event.ABEventBus
+import androidx.annotation.VisibleForTesting
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 
 /** Manage screen related functions
  *
@@ -39,12 +41,20 @@ object ScreenSettings {
                 lastNightMode = false
             }
             if(oldValue != lastNightMode) {
-                ABEventBus.post(NightModeChanged())
+                notifyNightModeChanged()
             }
         }
     }
 
-    class NightModeChanged()
+    private var nightModeSource = EventSource<Unit>()
+    /** The light sensor flipped night mode; subscribers re-read [nightMode]. */
+    val nightModeChanges: Events<Unit> get() = nightModeSource
+
+    @VisibleForTesting internal fun notifyNightModeChanged() {
+        nightModeSource.emit(Unit)
+    }
+
+    @VisibleForTesting fun resetSubscribersForTest() { nightModeSource = EventSource() }
 
     private const val MAX_DARK_READING = 5
     private const val DARK_READING_THRESHOLD = 15

@@ -78,6 +78,13 @@ sealed interface WorkspaceChange {
      * in a *new* file cannot slip through, which a hardcoded list would have allowed.
      */
     object ColorEdited : WorkspaceChange
+
+    /**
+     * A workspace setting that BibleView's config carries changed (recent labels, StudyPad cursors,
+     * auto-assign labels, compare-document hiding, ambiguous-modal size). Replaces the workspace-settings family of the retired
+     * AppSettingsUpdated bus event (phase 8 spec 2.1; the AI family is [net.bible.service.common.AiSettings.configChanged]). Subscribers re-read workspaceSettings.
+     */
+    object SettingsEdited : WorkspaceChange
 }
 
 object WorkspaceChanges {
@@ -88,6 +95,10 @@ object WorkspaceChanges {
 
     fun notifySwitched() = source.emit(WorkspaceChange.Switched)
     fun notifyColorEdited() = source.emit(WorkspaceChange.ColorEdited)
+
+    fun notifySettingsEdited() {
+        source.emit(WorkspaceChange.SettingsEdited)
+    }
 
     /** Test teardown: process-global, so leaked subscribers would outlive their test. */
     @VisibleForTesting

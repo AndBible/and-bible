@@ -26,7 +26,7 @@ import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
+import net.bible.android.control.document.DocumentChanges
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.event.Subscription
 import net.bible.sharedcore.nav.NavRoutes
@@ -52,8 +52,8 @@ import kotlin.test.assertTrue
  *
  * `MainBibleActivity.onResume` (`:1964-1989`) runs a five-part block: reclaim
  * `windowControl.windowRepository` for this host, then EITHER reload the workspace (the
- * `needRefresh` arm) OR consume a pending `UpdateMainBibleActivityDocuments`, then the tilt-scroll
- * focus hand-back and `handlePendingAgentResult()`. The nav host had none of it while POSTING that
+ * `needRefresh` arm) OR consume a pending `DocumentChanges.installedChanged`, then the tilt-scroll
+ * focus hand-back and `handlePendingAgentResult()`. The nav host had none of it while NOTIFYING that
  * event from six of its own destinations — the owed-work item recorded at `ReadingNavGraph.kt:112`,
  * which names this task as its payer. Symptom: a document installed from the Download screen does
  * not appear until the workspace is reloaded.
@@ -68,7 +68,7 @@ import kotlin.test.assertTrue
  * switch.
  *
  * Mutations, each of which fails exactly one test below: drop the
- * `UpdateMainBibleActivityDocuments` subscription; drop the `updateDocumentsPending` gate; drop the
+ * `DocumentChanges.installedChanged` subscription; drop the `updateDocumentsPending` gate; drop the
  * repository reclaim; swap the `else if` for a second `if` (precedence — caught by the SECOND half
  * of [theWorkspaceReloadTakesPrecedenceOverTheDocumentRefresh], not by its `UserMessages` toast).
  */
@@ -134,7 +134,7 @@ class ReadingHostResumeReconciliationTest {
     }
 
     /**
-     * The payload of the owed item: an `UpdateMainBibleActivityDocuments` that arrived while the
+     * The payload of the owed item: a `DocumentChanges.installedChanged` that arrived while the
      * host was away is consumed on the way back.
      *
      * Before T8a nothing on this host subscribed to that event at all, so the resume did nothing
@@ -148,7 +148,7 @@ class ReadingHostResumeReconciliationTest {
         clearDisplayedKey(window)
 
         controller.pause()
-        ABEventBus.post(UpdateMainBibleActivityDocuments())
+        DocumentChanges.notifyInstalledChanged()
         controller.resume()
 
         assertNotNull(
@@ -177,7 +177,7 @@ class ReadingHostResumeReconciliationTest {
         assertNull(
             displayedKeyOf(window),
             "an ordinary resume must not reload every window — the refresh is gated on a pending " +
-                "UpdateMainBibleActivityDocuments, exactly as classic's is",
+                "DocumentChanges.installedChanged, exactly as classic's is",
         )
     }
 
@@ -230,7 +230,7 @@ class ReadingHostResumeReconciliationTest {
 
         controller.pause()
         CommonUtils.windowControl.windowRepository = foreign
-        ABEventBus.post(UpdateMainBibleActivityDocuments())
+        DocumentChanges.notifyInstalledChanged()
         countToasts()
         controller.resume()
 
@@ -264,7 +264,7 @@ class ReadingHostResumeReconciliationTest {
         clearDisplayedKey(activity.hostWindowRepository.activeWindow)
 
         controller.pause()
-        ABEventBus.post(UpdateMainBibleActivityDocuments())
+        DocumentChanges.notifyInstalledChanged()
         countToasts()
         controller.resume()
 

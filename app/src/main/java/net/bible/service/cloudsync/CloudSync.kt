@@ -29,7 +29,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
 import net.bible.android.database.SyncStatus
 import net.bible.android.view.activity.base.ActivityBase
@@ -64,7 +63,6 @@ const val INITIAL_BACKUP_FILENAME = "initial.sqlite3.gz"
 const val TAG = "DeviceSync"
 
 class CancelStartedSync: Exception()
-class WorkspaceRefreshRequired {}
 
 val app get() = BibleApplication.application
 
@@ -112,8 +110,17 @@ object CloudSync {
 
     internal fun notifySyncRunning(running: Boolean) = runningSource.emit(running)
 
+    private var refreshSource = EventSource<Unit>()
+
+    /** The last concurrent database replace ended; the reading host reloads its workspace (replaces the retired WorkspaceRefreshRequired bus event). */
+    val workspaceRefreshRequired: Events<Unit> get() = refreshSource
+
+    @VisibleForTesting internal fun notifyWorkspaceRefreshRequired() {
+        refreshSource.emit(Unit)
+    }
+
     @VisibleForTesting
-    fun resetSubscribersForTest() { runningSource = EventSource() }
+    fun resetSubscribersForTest() { runningSource = EventSource(); refreshSource = EventSource() }
 
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
@@ -383,7 +390,7 @@ object CloudSync {
             // F113: the same race class as a backup restore. A save between the close and the live
             // repository's reload would write the pre-download windows over the downloaded file, and the
             // freshly created triggers would then log it for upload. The epoch bump freezes saving until
-            // `WorkspaceRefreshRequired` -> `loadFromDb`.
+            // [workspaceRefreshRequired] -> `loadFromDb`.
             DatabaseContainer.replacingDatabases {
                 dbDef.localDb.close()
                 downloaded.copyTo(dbDef.localDbFile, overwrite = true)
@@ -395,7 +402,7 @@ object CloudSync {
             // Categories swap concurrently (`asyncMap`), and a restore may hold its own replace around a
             // sync: release once, when the last replace has ended. Also posts when the swap throws: the
             // epoch is already bumped, so the repository must reload to end the save freeze.
-            if (!DatabaseContainer.replacing) ABEventBus.post(WorkspaceRefreshRequired())
+            if (!DatabaseContainer.replacing) notifyWorkspaceRefreshRequired()
         }
     }
 

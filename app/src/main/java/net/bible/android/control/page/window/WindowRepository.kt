@@ -20,7 +20,6 @@ package net.bible.android.control.page.window
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.control.speak.SpeakControl
@@ -31,7 +30,6 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
-import net.bible.android.view.activity.page.AppSettingsUpdated
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.history.HistoryManager
@@ -544,7 +542,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
                 }
             }
         }
-        ABEventBus.post(AppSettingsUpdated())
+        WorkspaceChanges.notifySettingsEdited()
     }
 
     companion object {

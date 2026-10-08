@@ -39,7 +39,19 @@ object AiSettings {
 
     /** Test teardown: process-global, so leaked subscribers would outlive their test. */
     @VisibleForTesting
-    fun resetSubscribersForTest() { defaultModelSource = EventSource() }
+    fun resetSubscribersForTest() {
+        defaultModelSource = EventSource()
+        configSource = EventSource()
+    }
+
+    private var configSource = EventSource<Unit>()
+
+    /** LLM providers or models changed (create, delete, configure); subscribers re-read. Replaces the AI family of the retired AppSettingsUpdated bus event. */
+    val configChanged: Events<Unit> get() = configSource
+
+    fun notifyConfigChanged() {
+        configSource.emit(Unit)
+    }
 
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao()
 

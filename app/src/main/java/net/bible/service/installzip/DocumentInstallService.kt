@@ -17,6 +17,7 @@
 
 package net.bible.service.installzip
 
+import net.bible.android.control.document.DocumentChanges
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -40,10 +41,8 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
 import net.bible.android.database.BookmarkDatabase
-import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
@@ -82,7 +81,7 @@ private const val GENERIC_NOTIFICATION_CHANNEL = "generic-notifications"
  * platform-agnostic install state machine built in A1-A4): owns the app-scoped [controller]
  * instance, wires its [InstallServiceController.JobDeps] to real `contentResolver`/`BackupControl`/
  * `SwordBookPath` collaborators, surfaces progress/action-required notifications, and posts the
- * terminal events (`UserMessages.toast` / [UpdateMainBibleActivityDocuments] /
+ * terminal events (`UserMessages.toast` / [DocumentChanges.installedChanged] /
  * [InstallZipProgress]) classic `InstallZip` posted directly from its Activity.
  *
  * Every job the [controller] runs is driven by data forwarded from THIS Service's own
@@ -154,11 +153,11 @@ class DocumentInstallService : Service() {
 
         /**
          * Fires once per job's terminal [InstallPhase] (from [InstallServiceController.onTerminal],
-         * potentially off the main thread -- [ABEventBus.post] is safe to call from any thread).
+         * potentially off the main thread -- [net.bible.android.control.document.DocumentChanges.notifyInstalledChanged] emits on the caller's thread, so subscribers must tolerate off-main delivery).
          * Mirrors classic `InstallZip`/`ZipHandler`/`installFromFile`'s post-install side effects.
          */
         private fun postTerminalEvents(phase: InstallPhase) {
-            ABEventBus.post(UpdateMainBibleActivityDocuments())
+            DocumentChanges.notifyInstalledChanged()
             when (phase) {
                 is InstallPhase.Done -> UserMessages.toast(R.string.install_zip_successfull)
                 is InstallPhase.Cancelled -> UserMessages.toast(R.string.install_zip_canceled)

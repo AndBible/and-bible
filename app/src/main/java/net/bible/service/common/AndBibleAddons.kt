@@ -18,13 +18,13 @@
 package net.bible.service.common
 
 import android.util.Log
-import net.bible.android.control.event.ABEventBus
+import androidx.annotation.VisibleForTesting
 import net.bible.service.sword.AndBibleAddonFilter
+import net.bible.sharedcore.event.EventSource
+import net.bible.sharedcore.event.Events
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import java.io.File
-
-class ReloadAddonsEvent
 
 class ProvidedFont(val book: Book, val name: String, val path: String) {
     val file: File get() = File(File(book.bookMetaData.location), path)
@@ -124,10 +124,18 @@ object AndBibleAddons {
         return packs
     }
 
+    private var reloadedSource = EventSource<Unit>()
+
+    /** The add-on caches were cleared; views reload fonts/features/styles. */
+    val reloaded: Events<Unit> get() = reloadedSource
+
     fun clearCaches() {
         _addons =null
-        ABEventBus.post(ReloadAddonsEvent())
+        reloadedSource.emit(Unit)
     }
+
+    @VisibleForTesting
+    fun resetSubscribersForTest() { reloadedSource = EventSource() }
 
     val fontModuleNames: List<String> get() =
         addons.filter { it.bookMetaData.getValues("AndBibleProvidesFont") != null }.map { it.initials }

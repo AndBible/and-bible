@@ -23,10 +23,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.onMain
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.page.AppSettingsUpdated
+import net.bible.service.common.AiSettings
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.ApiFormat
@@ -60,9 +58,9 @@ import net.bible.sharedcore.ai.RecommendedSetupVd
  *
  * Save/delete/easy-setup mirror the classic `AiProvidersFragment.saveProviderConfig`/
  * `confirmDeleteProvider` and `EasySetupDialogs.performEasySetup` exactly (custom-only endpoint/
- * api-format, dynamic-model prefetch, default-model reassignment on delete). Every mutation posts
- * [AppSettingsUpdated] (create/delete/easy-setup, matching classic) and re-emits [providers]; the
- * ABEventBus bridge also re-emits when an external change broadcasts [AppSettingsUpdated] (same
+ * api-format, dynamic-model prefetch, default-model reassignment on delete). Every mutation calls
+ * [AiSettings.notifyConfigChanged] (create/delete/easy-setup, matching classic) and re-emits [providers]; the
+ * [AiSettings.configChanged] subscription also re-emits when an external change fires it (same
  * pattern as [AiSettingsServiceImpl]). Registered as a Koin single (lives for the process).
  *
  * Room here is configured with `allowMainThreadQueries`, so the non-suspend reads/[deleteProvider]
@@ -78,9 +76,8 @@ class LlmProviderServiceImpl : LlmProviderService {
     override val providers: StateFlow<List<ProviderVd>> = _providers.asStateFlow()
 
     init {
-        ABEventBus.register(this) {
-            onMain<AppSettingsUpdated> { refresh() }
-        }
+        // Process lifetime, like the bus registration it replaces: never cancelled.
+        AiSettings.configChanged.subscribeOnMain { refresh() }
     }
 
     private fun buildProviders(): List<ProviderVd> = dao.all().map { config ->
@@ -147,8 +144,8 @@ class LlmProviderServiceImpl : LlmProviderService {
                 updated.setApiKey(key)
             }
         }
-        // Classic posts AppSettingsUpdated only on create; edits just refresh the list locally.
-        if (id == null) ABEventBus.post(AppSettingsUpdated())
+        // Classic broadcast the config change only on create (now [AiSettings.notifyConfigChanged]); edits just refresh the list locally.
+        if (id == null) AiSettings.notifyConfigChanged()
         refresh()
     }
 
@@ -161,7 +158,7 @@ class LlmProviderServiceImpl : LlmProviderService {
         if (currentDefault != null && currentDefault in deletedModelIds) {
             settings.defaultModelId = modelDao.all().firstOrNull()?.id
         }
-        ABEventBus.post(AppSettingsUpdated())
+        AiSettings.notifyConfigChanged()
         refresh()
     }
 
@@ -242,9 +239,9 @@ class LlmProviderServiceImpl : LlmProviderService {
         // The writes above are the commit; broadcast it BEFORE prefetchModels below (whole-branch
         // review I3). prefetchModels is a cache warm-up (see its own kdoc: "best-effort"), not part
         // of the commit -- hoisted out of the withContext(Dispatchers.IO) block above so a
-        // cancellation during its network fetch can no longer swallow this post()/refresh() and
+        // cancellation during its network fetch can no longer swallow this notify/refresh() and
         // leave the DB configured while every consumer outside the AI cluster never hears about it.
-        ABEventBus.post(AppSettingsUpdated())
+        AiSettings.notifyConfigChanged()
         refresh()
         withContext(Dispatchers.IO) { prefetchModels(provider, key) }
     }

@@ -17,6 +17,7 @@
 
 package net.bible.android.control.backup
 
+import net.bible.android.control.document.DocumentChanges
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -33,7 +34,6 @@ import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.BookmarkDatabase
@@ -49,8 +49,6 @@ import net.bible.android.database.progress.ProgressDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.page.MainBibleAfterRestore
-import net.bible.android.view.activity.page.UpdateMainBibleActivityDocuments
 import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.windowControl
@@ -772,17 +770,17 @@ object BackupControl {
     }
 
     /**
-     * F115. Runs [body] and, however it ends (normally, by an exception, or cancelled), posts
-     * [MainBibleAfterRestore] iff a [DatabaseContainer.replacingDatabases] ran inside it. The epoch bump froze
-     * the live `WindowRepository`'s saving; only the reload this triggers releases it. The ONLY poster of
-     * [MainBibleAfterRestore] in this file (BackupControlReplaceGuardTest).
+     * F115. Runs [body] and, however it ends (normally, by an exception, or cancelled), calls
+     * [DatabaseContainer.notifyDatabaseRestored] iff a [DatabaseContainer.replacingDatabases] ran inside it. The epoch bump froze
+     * the live `WindowRepository`'s saving; only the reload this triggers releases it. The ONLY caller of
+     * [DatabaseContainer.notifyDatabaseRestored] in this file (BackupControlReplaceGuardTest).
      */
     internal suspend fun <T> reloadingAfterReplace(body: suspend () -> T): T {
         val epoch = DatabaseContainer.replaceEpoch
         try {
             return body()
         } finally {
-            if (DatabaseContainer.replaceEpoch != epoch) ABEventBus.post(MainBibleAfterRestore())
+            if (DatabaseContainer.replaceEpoch != epoch) DatabaseContainer.notifyDatabaseRestored()
         }
     }
 
@@ -958,8 +956,8 @@ object BackupControl {
     /**
      * "Restore documents" from the Backup destination: open InstallZip (slice 8 D2). In-graph on the nav
      * host. The old `awaitIntent` + `if (result.data?.data == null) return` + post was dead (finding M6):
-     * InstallZip attaches no result data, and `DocumentInstallService.postTerminalEvents` already posts
-     * `UpdateMainBibleActivityDocuments` when an install finishes.
+     * InstallZip attaches no result data, and `DocumentInstallService.postTerminalEvents` already calls
+     * `DocumentChanges.notifyInstalledChanged` when an install finishes.
      */
     fun restoreModulesViaIntent(activity: ActivityBase) {
         if (activity is NavHostComposeActivity) {
@@ -1091,7 +1089,7 @@ object BackupControl {
                 installed.books.size > countBefore
             }
             if (ok) {
-                ABEventBus.post(UpdateMainBibleActivityDocuments())
+                DocumentChanges.notifyInstalledChanged()
             }
             ok
         }

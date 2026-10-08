@@ -25,7 +25,6 @@ import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.DocumentSyncDatabase
 import net.bible.android.database.LogEntry
@@ -367,6 +366,18 @@ class DatabaseContainer {
          */
         val myDocumentsSynced: Events<List<LogEntry>> get() = _myDocumentsSynced
 
+        private var _workspacesSynced = EventSource<List<LogEntry>>()
+        /** Fires on the sync thread after a cloud sync applied workspace changes (replaces the retired WorkspacesUpdatedViaSyncEvent bus event). */
+        val workspacesSynced: Events<List<LogEntry>> get() = _workspacesSynced
+        private var _databaseRestored = EventSource<Unit>()
+        /** A restore or a sync sign-in replaced the databases; the reading host reloads (replaces the retired MainBibleAfterRestore bus event). */
+        val databaseRestored: Events<Unit> get() = _databaseRestored
+        fun notifyDatabaseRestored() {
+            _databaseRestored.emit(Unit)
+        }
+        @VisibleForTesting internal fun emitWorkspacesSyncedForTest(entries: List<LogEntry>) = _workspacesSynced.emit(entries)
+        @VisibleForTesting fun resetPhase8StreamsForTest() { _workspacesSynced = EventSource(); _databaseRestored = EventSource() }
+
         private var _bookmarksSynced = EventSource<List<LogEntry>>()
         /**
          * Fires on the sync thread after a cloud sync applied bookmark-database changes (replaces
@@ -519,7 +530,7 @@ class DatabaseContainer {
                     localDbFile = application.getDatabasePath(WorkspaceDatabase.dbFileName),
                     category = SyncableDatabaseDefinition.WORKSPACES,
                     _reactToUpdates = {
-                        ABEventBus.post(WorkspacesUpdatedViaSyncEvent(it))
+                        _workspacesSynced.emit(it)
                     },
                 ) },
                 { SyncableDatabaseAccessor(
@@ -559,4 +570,3 @@ class DatabaseContainer {
     }
 }
 
-class WorkspacesUpdatedViaSyncEvent(val updated: List<LogEntry>)

@@ -275,7 +275,7 @@ class AiProvidersDeps(
  *   supplies `onImportCsv = { lifecycleScope.launch { importPrompts() } }` and the equivalent for
  *   export) and the graph's arm merely calls the lambda — no coroutine scope of its own needed.
  * - [onResume] is classic `AiPromptsComposeActivity.onResume { service.refresh() }`: a child
- *   PromptEdit save already posts `AppSettingsUpdated` (picked up elsewhere), but CSV imports and
+ *   PromptEdit save does not emit `AiSettings.configChanged` (no prompt write calls `notifyConfigChanged`), and CSV imports and
  *   add-on installs performed here (or an add-on installed from somewhere else entirely) need an
  *   explicit re-query that nothing else triggers — same domain reason
  *   [RawLogHistoryDeps.onResume]'s kdoc restates for its own destination, and

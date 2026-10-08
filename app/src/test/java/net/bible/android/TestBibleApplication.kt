@@ -17,6 +17,10 @@
 
 package net.bible.android
 
+import net.bible.android.control.document.DocumentChanges
+import net.bible.android.view.activity.nav.SystemBarSettingChanges
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.service.device.ScreenSettings
 import android.content.res.Resources
 import android.util.Log
 import net.bible.android.control.PassageChangeMediator
@@ -29,6 +33,7 @@ import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.common.AiSettings
+import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.installzip.InstallZipProgress
@@ -76,5 +81,11 @@ class TestBibleApplication : BibleApplication() {
         MyDocumentBookManager.resetSubscribersForTest()
         PassageChangeMediator.resetSubscribersForTest()
         net.bible.service.history.HistoryManager.resetInstanceForTest()
+        ScreenSettings.resetSubscribersForTest()
+        CurrentActivityHolder.resetSubscribersForTest()
+        SystemBarSettingChanges.resetSubscribersForTest()
+        DocumentChanges.resetSubscribersForTest()
+        DatabaseContainer.resetPhase8StreamsForTest()
+        AndBibleAddons.resetSubscribersForTest()
     }
 }

@@ -28,9 +28,8 @@ import android.util.Log
 import androidx.media.session.MediaButtonReceiver
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.on
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent
+import net.bible.android.view.activity.base.AppPosition
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.common.CommonUtils
@@ -127,13 +126,11 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
     }
 
     init {
-        ABEventBus.register(this) {
-            on<AppToBackgroundEvent> { event ->
-                if(event.newPosition == AppToBackgroundEvent.Position.FOREGROUND && speakControl.isSpeaking) {
-                    makeTriggerSound()
-                }
+        subscriptions.add(CurrentActivityHolder.appPositionChanges.subscribe { position ->
+            if(position == AppPosition.FOREGROUND && speakControl.isSpeaking) {
+                makeTriggerSound()
             }
-        }
+        })
         subscriptions.add(SpeakChanges.changes.subscribeOnMain { change ->
             when (change) {
                 is SpeakChange.State -> {
@@ -174,7 +171,6 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
     }
 
     fun release() {
-        ABEventBus.unregister(this)
         subscriptions.cancelAll()
         ms.run {
             isActive = false
