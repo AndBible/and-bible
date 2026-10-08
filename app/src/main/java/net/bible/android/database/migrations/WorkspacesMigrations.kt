@@ -17,6 +17,8 @@
 
 package net.bible.android.database.migrations
 
+import androidx.sqlite.execSQL
+
 private val resetMaximizedWindowId = makeMigration(1..2) { _db ->
     _db.execSQL("UPDATE Workspace SET maximizedWindowId=NULL")
 }
