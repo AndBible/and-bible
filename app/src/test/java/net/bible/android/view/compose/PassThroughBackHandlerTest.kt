@@ -16,51 +16,57 @@
  */
 package net.bible.android.view.compose
 
-import android.os.Looper
+import android.app.Application
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import net.bible.android.TEST_SDK
 import net.bible.sharedui.PassThroughBackHandler
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
-/** Spec §3.1: a destination handler that can hand a press on to what is below it, synchronously. */
+/**
+ * Spec §3.1: a destination handler that can hand a press on to what is below it, synchronously.
+ *
+ * Content is driven through the Compose test rule, not by idling the main looper by hand: the
+ * `enabled = false` case depends on recomposition running the handler's `SideEffect`, and
+ * `waitForIdle()` flushes global snapshot apply notifications and frames. Looper-only idling did not
+ * do that reliably when the whole `:app` suite shares one JVM.
+ */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [TEST_SDK], application = android.app.Application::class)
+@Config(sdk = [TEST_SDK], application = Application::class)
 class PassThroughBackHandlerTest {
-    private fun activity() = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
-    private fun idle() = shadowOf(Looper.getMainLooper()).idle()
+    @get:Rule
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test fun aConsumedPressDoesNotReachTheCallbackBelow() {
-        val a = activity()
+        val a = composeRule.activity
         var below = 0
         a.onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) { override fun handleOnBackPressed() { below++ } })
         var mine = 0
-        a.setContent { PassThroughBackHandler(enabled = true) { mine++ } }
-        idle()
+        composeRule.setContent { PassThroughBackHandler(enabled = true) { mine++ } }
+        composeRule.waitForIdle()
         a.onBackPressedDispatcher.onBackPressed()
         assertEquals(1, mine)
         assertEquals(0, below)
     }
 
     @Test fun passThroughReachesTheCallbackBelowAndTheHandlerStaysEnabled() {
-        val a = activity()
+        val a = composeRule.activity
         var below = 0
         a.onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) { override fun handleOnBackPressed() { below++ } })
         var mine = 0
-        a.setContent { PassThroughBackHandler(enabled = true) { passThrough -> mine++; passThrough() } }
-        idle()
+        composeRule.setContent { PassThroughBackHandler(enabled = true) { passThrough -> mine++; passThrough() } }
+        composeRule.waitForIdle()
         a.onBackPressedDispatcher.onBackPressed()
         assertEquals("handled once, not re-entered", 1, mine)
         assertEquals(1, below)
@@ -69,23 +75,23 @@ class PassThroughBackHandlerTest {
     }
 
     @Test fun passThroughWithNothingBelowRunsTheActivityFallback() {
-        val a = activity()
-        a.setContent { PassThroughBackHandler(enabled = true) { passThrough -> passThrough() } }
-        idle()
+        val a = composeRule.activity
+        composeRule.setContent { PassThroughBackHandler(enabled = true) { passThrough -> passThrough() } }
+        composeRule.waitForIdle()
         a.onBackPressedDispatcher.onBackPressed()
         assertTrue("Activity.onBackPressed's default finishes a test activity", a.isFinishing)
     }
 
     @Test fun aDisabledHandlerIsSkipped() {
-        val a = activity()
+        val a = composeRule.activity
         var below = 0
         a.onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) { override fun handleOnBackPressed() { below++ } })
         var enabled by mutableStateOf(true)
         var mine = 0
-        a.setContent { PassThroughBackHandler(enabled = enabled) { mine++ } }
-        idle()
-        enabled = false
-        idle()
+        composeRule.setContent { PassThroughBackHandler(enabled = enabled) { mine++ } }
+        composeRule.waitForIdle()
+        composeRule.runOnIdle { enabled = false }
+        composeRule.waitForIdle()
         a.onBackPressedDispatcher.onBackPressed()
         assertEquals(0, mine)
         assertEquals(1, below)
