@@ -36,6 +36,8 @@ import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.sqlite.execSQL
 import net.bible.android.database.migrations.deduplicateSpecialLabels
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter.resetDatabase
@@ -315,6 +317,20 @@ class BookmarkControlTest {
     }
 
     /**
+     * `deduplicateSpecialLabels` now takes a driver `SQLiteConnection`, which Room 2.8 does not hand
+     * out outside migrations. Run it on a second (bundled-driver) connection to the same database file,
+     * with foreign keys on like the Room connection the old test used. Room's own connection has
+     * already committed everything (TRUNCATE journal), so the two do not conflict.
+     */
+    private fun runDeduplicateSpecialLabels(bookmarkDb: net.bible.android.database.BookmarkDatabase) {
+        val path = bookmarkDb.openHelper.writableDatabase.path!!
+        BundledSQLiteDriver().open(path).use { connection ->
+            connection.execSQL("PRAGMA foreign_keys=ON")
+            deduplicateSpecialLabels(connection)
+        }
+    }
+
+    /**
      * `deduplicateSpecialLabels` belongs to the 11->12 migration, so its INSERT names the six style
      * booleans that migration 12->13 replaced with `displayStyle`/`displayStyleWholeVerse`; in the
      * app it only ever sees a v11-shaped `Label`. These tests run it against the CURRENT (v13)
@@ -370,7 +386,7 @@ class BookmarkControlTest {
 
         // Run migration dedup logic
         addLegacyLabelStyleColumns(bookmarkDb.openHelper.writableDatabase)
-        deduplicateSpecialLabels(bookmarkDb.openHelper.writableDatabase)
+        runDeduplicateSpecialLabels(bookmarkDb)
 
         // Old label gone, canonical exists with inherited properties
         Assert.assertNull("Old label should be deleted", runBlocking { dao.labelById(oldId) })
@@ -422,7 +438,7 @@ class BookmarkControlTest {
 
         // Run migration dedup logic
         addLegacyLabelStyleColumns(bookmarkDb.openHelper.writableDatabase)
-        deduplicateSpecialLabels(bookmarkDb.openHelper.writableDatabase)
+        runDeduplicateSpecialLabels(bookmarkDb)
 
         // Both old labels should be gone
         Assert.assertNull("Old label 1 should be deleted", runBlocking { dao.labelById(oldId1) })
