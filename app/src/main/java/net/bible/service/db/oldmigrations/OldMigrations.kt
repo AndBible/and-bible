@@ -25,7 +25,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.database.bookmarks.KJVA
-import net.bible.android.database.migrations.Migration
+import net.bible.android.database.migrations.LegacyMigration
 import net.bible.android.database.migrations.TAG
 import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.passage.VerseRange
@@ -33,7 +33,7 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 
-private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
+private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : LegacyMigration(37, 38) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
             execSQL("ALTER TABLE `Bookmark` ADD COLUMN `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0")
@@ -104,7 +104,7 @@ private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
     }
 }
 
-private val MIGRATION_53_54_booleanSettings = object : Migration(53, 54) {
+private val MIGRATION_53_54_booleanSettings = object : LegacyMigration(53, 54) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         db.apply {
             execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_primaryLabelId` ON `Bookmark` (`primaryLabelId`)")
@@ -150,7 +150,7 @@ private val MIGRATION_53_54_booleanSettings = object : Migration(53, 54) {
     }
 }
 
-private val MIGRATION_5_6 = object : Migration(5, 6) {
+private val MIGRATION_5_6 = object : LegacyMigration(5, 6) {
     override fun doMigrate(db: SupportSQLiteDatabase) {
         ReadingPlanDatabaseOperations.instance.onCreate(db)
         ReadingPlanDatabaseOperations.instance.migratePrefsToDatabase(db)
