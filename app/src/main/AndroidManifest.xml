@@ -42,18 +42,6 @@
         android:name="android.hardware.touchscreen"
         android:required="false" />
 
-    <!--
-      ~ android:enableOnBackInvokedCallback="false" opts out of the predictive back system
-      ~ animations that became default-on for apps targeting API 36. Without it the platform
-      ~ stops calling Activity.onBackPressed() and stops dispatching KEYCODE_BACK, which would
-      ~ break back handling app-wide (see ActivityBase / MainBibleActivity) and silently drop
-      ~ the long-press-back shortcut to the History screen.
-      ~
-      ~ This opt-out is documented as temporary and is expected to stop working at targetSdk 37.
-      ~ The migration to OnBackPressedDispatcher is tracked as part of the Compose rewrite: the
-      ~ flag can be flipped to "true" per <activity> as screens are ported, and this line removed
-      ~ once no legacy activity relies on onBackPressed().
-      -->
     <application
         android:name="net.bible.android.BibleApplication"
         android:allowBackup="true"
@@ -68,7 +56,6 @@
         android:supportsRtl="true"
         android:exported="true"
         android:usesCleartextTraffic="false"
-        android:enableOnBackInvokedCallback="false"
         >
         <uses-library
             android:name="org.apache.http.legacy"

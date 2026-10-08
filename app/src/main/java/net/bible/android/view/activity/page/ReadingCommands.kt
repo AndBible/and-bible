@@ -441,8 +441,8 @@ class ReadingCommands(
 
     /**
      * Whether the Compose reading-view search mode is active — `false` only before the host is
-     * installed. F6 Task 9: used in [onKeyLongPress] to swallow a long-press back while a search
-     * field is focused, the same role [composeDrawerOpen] plays for the drawer there.
+     * installed. F6 Task 9: formerly used to swallow a long-press back while a search
+     * field is focused (that route is gone, spec 2026-10-08 API 36), the same role [composeDrawerOpen] plays for the drawer there.
      */
     internal val composeSearchModeActive: Boolean
         get() = composeReadingViewHost?.searchController?.searchModeActive?.value == true

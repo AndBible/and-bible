@@ -49,10 +49,12 @@ import org.robolectric.annotation.Config
  * F55. The reading host's BACK chain.
  *
  * Against the pre-fix tree [backDoesNotFinishTheHostWhileHistoryRemains] FAILS: the dispatcher's
- * fallback is `Activity.onBackPressed`, which skips the chain (it lives in the reading destination's
- * `PassThroughBackHandler`), so `ActivityBase.onBackPressed` runs, `goBackInHistory()` returns
- * false (the host's `isIntegrateWithHistoryManager` is only ever true on a Search or ReadingPlan
- * destination), and `super.onBackPressed()` finishes the Activity with the history stack still full.
+ * fallback finishes the Activity, because the chain lives in the reading destination's
+ * `PassThroughBackHandler` and nothing else steps the history (the host's `isIntegrateWithHistoryManager`
+ * is only ever true on a Search or ReadingPlan destination), leaving the history stack still full.
+ *
+ * Long-press BACK no longer opens History (spec 2026-10-08 API 36, decisions 1 and 5: with predictive back
+ * on the platform never delivers it); History is reached from the menu only.
  *
  * The chain-shape tests fail earlier still -- `readingBackChain` does not exist.
  */
@@ -191,41 +193,5 @@ class ReadingHostBackChainTest {
 
         activity.onBackPressedDispatcher.onBackPressed()
         assertTrue("the second press within the window exits", activity.isFinishing)
-    }
-
-    /**
-     * Fix round 1, CRITICAL: `assertTrue(handled)` alone is vacuous -- `ActivityBase.onKeyLongPress`
-     * (`:282-284`) already returns `true` for `KEYCODE_BACK` unconditionally, pre-fix and post-fix
-     * alike, so that assertion cannot distinguish "the host opened History" from "ActivityBase
-     * swallowed it and did nothing". The real, only-post-fix effect is
-     * `ComposeReadingViewHost.quickSheet` becoming [ReadingQuickSheet.History] -- what
-     * `showHistorySheet()` actually sets -- so that is the primary assertion now; `handled` stays
-     * as the secondary one the brief also wanted.
-     *
-     * `composeReadingViewHost` is installed directly (`ComposeReadingViewHost(activity)`) rather
-     * than relying on the reading destination's real Compose content to compose it: this class's
-     * `host()` never drains a `ComposeTestRule` the way `ReadingDestinationInGraphTest` does, so
-     * without this the field stays null and `onKeyLongPress` would silently take its
-     * `composeReadingViewHost == null` fallback to `super` -- the SAME vacuous path this fix round
-     * is about. Same direct-install idiom `ReadingSearchBackTest.setUp` uses for
-     * `MainBibleActivity`.
-     */
-    @Test
-    fun aLongBackOpensTheHistorySheetInsteadOfBeingSwallowed() {
-        val activity = host()
-        activity.composeReadingViewHost = ComposeReadingViewHost(activity)
-        val event = KeyEvent(0L, 0L, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK, 1)
-
-        val handled = activity.onKeyLongPress(KeyEvent.KEYCODE_BACK, event)
-
-        assertEquals(
-            "long-press BACK must open the History quick sheet, not merely report itself handled",
-            ReadingQuickSheet.History,
-            activity.composeReadingViewHost?.quickSheet?.value,
-        )
-        assertTrue(
-            "long-press BACK must be claimed by the host (ActivityBase swallows it and does nothing)",
-            handled,
-        )
     }
 }

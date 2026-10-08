@@ -18,6 +18,7 @@ package net.bible.android.view.activity.discrete
 
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -86,6 +87,15 @@ class CalculatorComposeActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Calculator (Compose): onCreate")
         super.onCreate(savedInstanceState)
+        // Spec 2026-10-08 API 36 §3.3: explicit, because the default back of a task root moves the task to the
+        // back on API 31+ instead of finishing the disguise.
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.i(TAG, "Calculator (Compose): back")
+                setResult(RESULT_CANCELED)
+                finish()
+            }
+        })
         setContent {
             AbAppTheme {
                 FailClosedLinkRouting {
@@ -96,11 +106,5 @@ class CalculatorComposeActivity : ActivityBase() {
                 }
             }
         }
-    }
-
-    override fun onBackPressed() {
-        Log.i(TAG, "Calculator (Compose): onBackPressed")
-        setResult(RESULT_CANCELED)
-        finish()
     }
 }

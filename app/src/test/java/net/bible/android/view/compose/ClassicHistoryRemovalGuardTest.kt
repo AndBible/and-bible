@@ -26,8 +26,9 @@ import org.junit.Test
  * with no Activity of any kind while the flag could still route to it. The epilogue removed the
  * last two branches that could reach it, so the activity, its `<activity>` manifest block, its
  * `@style/Theme.AbComposeDialog` window theme and the `Screen.History` enum entry all went
- * together, and both remaining callers (`MenuCommandHandler.historyButton`,
- * `MainBibleActivity.onKeyLongPress`) now only call `host.showHistorySheet()`.
+ * together, and the remaining caller (`MenuCommandHandler.historyButton`) only calls
+ * `host.showHistorySheet()`. The long-press-BACK route (`MainBibleActivity.onKeyLongPress`) is gone (spec
+ * 2026-10-08 API 36, decision 1), so History is reached only from the menu.
  *
  * What that leaves behind is recorded rather than swept: `sharedUi`'s full-screen `HistoryScreen`
  * composable is now test-only code carrying 7 goldens. It is NOT deleted — `:sharedUi` cleanup is

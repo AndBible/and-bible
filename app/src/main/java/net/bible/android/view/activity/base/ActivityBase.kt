@@ -288,17 +288,8 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
      */
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent): Boolean {
         // ignore long press on search because it causes errors
-        if (keyCode == KeyEvent.KEYCODE_SEARCH) {
-            // ignore
-            return true
-        }
-
-        //TODO make Long press back - currently the History screen does not show the correct screen after item selection if not called from main window
-        return if (keyCode == KeyEvent.KEYCODE_BACK) {
-            // ignore
-            true
-        } else super.onKeyLongPress(keyCode, event)
-
+        if (keyCode == KeyEvent.KEYCODE_SEARCH) return true
+        return super.onKeyLongPress(keyCode, event)
     }
 
     override var isIntegrateWithHistoryManager: Boolean

@@ -48,11 +48,11 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * F6 Task 9 — the back chain that closes the reading-view search sheet/mode, and the long-press-back
- * swallow while search is active. The reading destination's `PassThroughBackHandler` (predictive back is on) and the
- * host's `onKeyLongPress` (the nav host's since slice 8 F2; classic `MainBibleActivity`'s before) are the live back
- * routes, so a Compose `BackHandler` inside the reading view would never be reached before the search guard; the
- * branch has to live in the host's back chain instead.
+ * F6 Task 9 — the back chain that closes the reading-view search sheet/mode. The reading destination's
+ * `PassThroughBackHandler` (predictive back is on) is the live back route (the long-press-back swallow went with
+ * long-press BACK itself, spec 2026-10-08 API 36 decisions 1 and 5), so a Compose `BackHandler` inside the
+ * reading view would never be reached before the search guard; the branch has to live in the host's back chain
+ * instead.
  *
  * The host's own `searchController`/`isDrawerOpen` state IS the recording, no fake/mock needed.
  * `aBackWithSearchClosedIsNotConsumed` asserts the search guard's own return value rather than the
@@ -140,38 +140,5 @@ class ReadingSearchBackTest {
         assertFalse(host().isDrawerOpen, "the drawer closes")
         assertTrue(host().searchController.searchModeActive.value, "search must be untouched")
         assertTrue(host().searchController.sheetVisible.value, "search must be untouched")
-    }
-
-    /**
-     * Step 3: with a focused search field now reachable, long-press back must not fall through to
-     * opening History out from under it — the same swallow the open drawer already gets. Both
-     * branches are driven through the real [NavHostComposeActivity.onKeyLongPress] on the set-up
-     * host: first a positive control (search closed -> the History quick sheet opens, so the
-     * observable below really can see "opened History"), then the swallowed case.
-     */
-    @Test
-    fun longPressBackIsSwallowedWhileSearchIsActive() {
-        // Positive control: with search closed a long BACK opens History on this host.
-        assertTrue(activity.onKeyLongPress(KeyEvent.KEYCODE_BACK, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK)))
-        assertEquals(
-            ReadingQuickSheet.History,
-            host().quickSheet.value,
-            "positive control: with search closed a long BACK must open the History sheet",
-        )
-        host().quickSheet.value = null
-
-        host().openSearch("light")
-
-        val consumed = activity.onKeyLongPress(KeyEvent.KEYCODE_BACK, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK))
-
-        assertTrue(consumed, "must not fall through to opening History")
-        // Slice 8 F2: `consumed` alone cannot tell a swallow from "opened History" -- the nav host's
-        // onKeyLongPress returns true for both -- so the History sheet itself is asserted closed.
-        assertNotEquals(
-            ReadingQuickSheet.History,
-            host().quickSheet.value,
-            "a long BACK while search is active must be swallowed, not open the History sheet",
-        )
-        assertTrue(host().searchController.searchModeActive.value, "swallowing must not itself close search")
     }
 }

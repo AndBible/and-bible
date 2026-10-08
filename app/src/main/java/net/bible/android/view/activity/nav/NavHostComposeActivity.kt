@@ -35,7 +35,6 @@ import android.provider.Settings
 import android.text.format.Formatter
 import android.util.Log
 import android.util.TypedValue
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
@@ -1104,32 +1103,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /**
-     * F55: long-press BACK opens the History sheet, classic `MainBibleActivity.onKeyLongPress`.
-     *
-     * `ActivityBase.onKeyLongPress` (`:282-285`) returns `true` for `KEYCODE_BACK` and does nothing,
-     * so without this override the shortcut is dead on this host. With the drawer open classic
-     * swallows the long press WITHOUT opening History; that is reproduced here.
-     *
-     * The platform only dispatches `onKeyLongPress` after `onKeyDown` called `event.startTracking()`.
-     * `Activity.onKeyDown`'s default does that for `KEYCODE_BACK`, and this host's `onKeyDown`
-     * override (`:901-910`) falls through to `super` for a touchscreen BACK (`readingViewKeyFor`
-     * claims BACK only from an external keyboard), so tracking is armed.
-     */
-    override fun onKeyLongPress(keyCode: Int, event: KeyEvent): Boolean {
-        if (keyCode != KeyEvent.KEYCODE_BACK || !readingDestinationIsCurrent()) {
-            return super.onKeyLongPress(keyCode, event)
-        }
-        if (readingCommands.composeDrawerOpen) return true
-        // Classic `MainBibleActivity.onKeyLongPress`'s F6 Task 9 swallow, missed by the port and
-        // found when slice 8 F2 rehosted `ReadingSearchBackTest`: a focused search field is reachable
-        // here, and a long BACK must not open History out from under it.
-        if (readingCommands.composeSearchModeActive) return true
-        val host = composeReadingViewHost ?: return super.onKeyLongPress(keyCode, event)
-        host.showHistorySheet()
-        return true
-    }
-
-    /**
      * The device SEARCH key -- classic `MainBibleActivity.onKeyUp`, F6 Task 8b entry point 6, missed by
      * the port and found when slice 8 F2 rehosted `ReadingSearchEntryPointsTest`: retarget into the
      * reading view's own search when a Compose reading view is mounted, else the classic search
@@ -1159,7 +1132,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
         val handlers = ReadingViewHostCallbacks.current
         if (handlers != null) {
-            val key = readingViewKeyFor(keyCode, event)
+            val key = readingViewKeyFor(keyCode)
             // A `false` from the destination means "not mine" — classic's gates (volume_keys_scroll
             // off, speaking, music playing) reached `super.onKeyDown` the same way, which with
             // `enableGenericVolumeScroll` false above is AppCompat's own handling.
@@ -1181,42 +1154,18 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             volumeScrollRegistry.hasTarget
 
     /**
-     * Which of the reading view's three keys this event is, or `null` for "not the reading view's".
-     * BACK counts only from an EXTERNAL KEYBOARD, exactly as classic
-     * `MainBibleActivity.onKeyDown` (`:2952`) tested it: the on-screen/system back belongs to the
-     * back dispatcher, and claiming it here would make back dead.
+     * Which of the reading view's keys this event is, or `null` for "not the reading view's". BACK is not
+     * one of them: with predictive back on the platform never dispatches it here (spec 2026-10-08 API 36,
+     * decisions 1 and 5), so every back, an external keyboard's included, runs the back dispatcher.
      */
-    private fun readingViewKeyFor(keyCode: Int, event: KeyEvent): ReadingViewKey? = when {
-        keyCode == KeyEvent.KEYCODE_VOLUME_UP -> ReadingViewKey.VolumeUp
-        keyCode == KeyEvent.KEYCODE_VOLUME_DOWN -> ReadingViewKey.VolumeDown
-        keyCode == KeyEvent.KEYCODE_BACK && isExternalKeyboard(event) -> ReadingViewKey.ExternalKeyboardBack
+    private fun readingViewKeyFor(keyCode: Int): ReadingViewKey? = when (keyCode) {
+        KeyEvent.KEYCODE_VOLUME_UP -> ReadingViewKey.VolumeUp
+        KeyEvent.KEYCODE_VOLUME_DOWN -> ReadingViewKey.VolumeDown
         else -> null
     }
 
-    /** Classic's `InputDevice.getDevice(event.deviceId)?.isExternal` + `SOURCE_KEYBOARD` pair. */
-    private fun isExternalKeyboard(event: KeyEvent): Boolean =
-        (event.source and InputDevice.SOURCE_KEYBOARD) != 0 && isExternalDevice(event.deviceId)
-
     /**
-     * The device half of [isExternalKeyboard], as a replaceable member and not an inline call, for
-     * one reason: Robolectric's `InputManager` shadow registers no input devices and offers no
-     * public way to add one, so `InputDevice.getDevice(id)` is permanently null in a unit test and
-     * the POSITIVE external-keyboard branch would be unreachable. That branch is the one whose
-     * failure is silent — "external-keyboard BACK is never claimed" looks exactly like working
-     * software until someone plugs a keyboard in — so it gets a seam rather than no coverage. Only
-     * `ReadingDestinationInGraphTest` replaces it.
-     */
-    @VisibleForTesting
-    internal var isExternalDevice: (Int) -> Boolean = { deviceId ->
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            InputDevice.getDevice(deviceId)?.isExternal ?: false
-        } else {
-            false
-        }
-    }
-
-    /**
-     * Slice 8 §4's predicate as this host's gates read it. A seam for the reason [isExternalDevice] is one:
+     * Slice 8 §4's predicate as this host's gates read it. A seam because
      * a Robolectric test environment always has an unlocked Bible installed, so "none usable" cannot be
      * staged any other way.
      */
@@ -1236,16 +1185,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             } else {
                 false
             }
-        // R8 pays the close half, the debt [ReadingNavDeps.content]'s kdoc recorded as item 1.
-        // Classic closed BOTH drawers and returned true unconditionally: `binding.drawerLayout`
-        // (the XML slice 7 Task 11 removes, and which this host has never had) and then
-        // `composeCloseDrawerIfOpen()`, the reading view's own Compose drawer. The second is
-        // reachable now that this host composes a reading view, so it is called; the return value
-        // stays classic's unconditional `true`, including when no drawer was open.
-        ReadingViewKey.ExternalKeyboardBack -> {
-            readingCommands.composeCloseDrawerIfOpen()
-            true
-        }
     }
 
     /**
