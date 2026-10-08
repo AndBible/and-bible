@@ -333,11 +333,14 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
     fun search(search: String): List<KeyAndText> {
         val book = Books.installed().getBook(bookMetaData.initials)
-        return this.search.search(search).mapNotNull {
-            val frag = blockingDb { dao.getFragment(it.fragId) }?: return@mapNotNull null
-            val key = BookAndKey(getKey(frag), book, OrdinalRange(it.ordinal))
-            val text = it.text
-            KeyAndText(key, text)
+        val hits = this.search.search(search)
+        return blockingDb {
+            hits.mapNotNull {
+                val frag = dao.getFragment(it.fragId) ?: return@mapNotNull null
+                val key = BookAndKey(getKey(frag), book, OrdinalRange(it.ordinal))
+                val text = it.text
+                KeyAndText(key, text)
+            }
         }
     }
 

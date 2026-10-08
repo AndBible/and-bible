@@ -23,6 +23,7 @@ import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.service.db.roomTransaction
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -74,5 +75,21 @@ class CloudDocumentCacheDaoTest {
         assertEquals(listOf("NEW"), dao.all().map { it.initials })
         withTimeout(10_000) { dao.replaceAll(emptyList()) }
         assertTrue(dao.all().isEmpty())
+    }
+
+    /** A failure midway through a [roomTransaction] must roll back every DAO write made inside it. */
+    @Test fun roomTransactionRollsBackAllWritesWhenABodyStepThrows() = runBlocking {
+        dao.insertAll(listOf(doc("KEEP1"), doc("KEEP2")))
+        val failure = runCatching {
+            withTimeout(10_000) {
+                db.roomTransaction {
+                    dao.clear()
+                    dao.insertAll(listOf(doc("NEW")))
+                    error("boom")
+                }
+            }
+        }
+        assertTrue(failure.exceptionOrNull() is IllegalStateException)
+        assertEquals(setOf("KEEP1", "KEEP2"), dao.all().map { it.initials }.toSet())
     }
 }

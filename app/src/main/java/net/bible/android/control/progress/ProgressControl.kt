@@ -102,10 +102,12 @@ object ProgressControl {
     fun markVerseMemorized(verseRange: VerseRange) {
         val kjvRange = verseRange.toV11n(KJVA)
         val added = mutableListOf<Int>()
-        for (ordinal in kjvRange.start.ordinal..kjvRange.end.ordinal) {
-            if (!blockingDb { dao.isVerseMemorized(ordinal) }) {
-                blockingDb { dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = ordinal)) }
-                added.add(ordinal)
+        blockingDb {
+            for (ordinal in kjvRange.start.ordinal..kjvRange.end.ordinal) {
+                if (!dao.isVerseMemorized(ordinal)) {
+                    dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = ordinal))
+                    added.add(ordinal)
+                }
             }
         }
         if (added.isNotEmpty()) {
@@ -179,14 +181,16 @@ object ProgressControl {
 
     fun isChapterRead(v11n: Versification, book: BibleBook, chapter: Int): Boolean {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
-        return blockingDb { dao.getChapterReadCount(kjvBook.ordinal, chapter, getCurrentCycle()) } > 0
+        val cycle = getCurrentCycle()
+        return blockingDb { dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle) } > 0
     }
 
     fun getReadingProgress(v11n: Versification, book: BibleBook): Float {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
         val totalChapters = KJVA.getLastChapter(kjvBook)
         if (totalChapters <= 0) return 0f
-        val readChapters = blockingDb { dao.getDistinctReadChaptersCountForBook(kjvBook.ordinal, getCurrentCycle()) }
+        val cycle = getCurrentCycle()
+        val readChapters = blockingDb { dao.getDistinctReadChaptersCountForBook(kjvBook.ordinal, cycle) }
         return readChapters.toFloat() / totalChapters
     }
 
@@ -233,7 +237,7 @@ object ProgressControl {
     /** Deletes multiple history entries and refreshes the final read state for each affected chapter. */
     fun deleteReadHistoryEntries(entries: List<ChapterReadEntry>, cycle: Int = getCurrentCycle()) {
         if (entries.isEmpty()) return
-        entries.forEach { blockingDb { dao.deleteChapterReadHistoryById(it.id) } }
+        blockingDb { entries.forEach { dao.deleteChapterReadHistoryById(it.id) } }
         entries.distinctBy { it.kjvBookOrdinal to it.chapter }.forEach { entry ->
             val newCount = blockingDb { dao.getChapterReadCount(entry.kjvBookOrdinal, entry.chapter, cycle) }
             _changes.emit(ProgressChange.ChapterReadStatus(entry.kjvBookOrdinal, entry.chapter, newCount))
@@ -243,7 +247,8 @@ object ProgressControl {
     /** Get total read count for a chapter. */
     fun getChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int): Int {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
-        return blockingDb { dao.getChapterReadCount(kjvBook.ordinal, chapter, getCurrentCycle()) }
+        val cycle = getCurrentCycle()
+        return blockingDb { dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle) }
     }
 
     fun getCurrentCycle(): Int {
@@ -302,13 +307,15 @@ object ProgressControl {
 
     fun getBookReadingProgress(cycle: Int = getCurrentCycle()): Map<BibleBook, Float> {
         val result = mutableMapOf<BibleBook, Float>()
-        for (book in KJVA.bookIterator) {
-            if (!Scripture.isScripture(book)) continue
-            val totalChapters = KJVA.getLastChapter(book)
-            if (totalChapters <= 0) continue
-            val readChapters = blockingDb { dao.getDistinctReadChaptersCountForBook(book.ordinal, cycle) }
-            if (readChapters > 0) {
-                result[book] = readChapters.toFloat() / totalChapters
+        blockingDb {
+            for (book in KJVA.bookIterator) {
+                if (!Scripture.isScripture(book)) continue
+                val totalChapters = KJVA.getLastChapter(book)
+                if (totalChapters <= 0) continue
+                val readChapters = dao.getDistinctReadChaptersCountForBook(book.ordinal, cycle)
+                if (readChapters > 0) {
+                    result[book] = readChapters.toFloat() / totalChapters
+                }
             }
         }
         return result
@@ -330,13 +337,15 @@ object ProgressControl {
 
     fun getBookCountProgress(cycle: Int = getCurrentCycle()): Map<BibleBook, BookCountProgress> {
         val result = mutableMapOf<BibleBook, BookCountProgress>()
-        for (book in KJVA.bookIterator) {
-            if (!Scripture.isScripture(book)) continue
-            val totalChapters = KJVA.getLastChapter(book)
-            if (totalChapters <= 0) continue
-            val totalReads = blockingDb { dao.getTotalReadCountForBook(book.ordinal, cycle) }
-            if (totalReads > 0) {
-                result[book] = BookCountProgress(readPercent = totalReads.toFloat() / totalChapters)
+        blockingDb {
+            for (book in KJVA.bookIterator) {
+                if (!Scripture.isScripture(book)) continue
+                val totalChapters = KJVA.getLastChapter(book)
+                if (totalChapters <= 0) continue
+                val totalReads = dao.getTotalReadCountForBook(book.ordinal, cycle)
+                if (totalReads > 0) {
+                    result[book] = BookCountProgress(readPercent = totalReads.toFloat() / totalChapters)
+                }
             }
         }
         return result
@@ -466,11 +475,13 @@ object ProgressControl {
             kjvRange.end.ordinal,
         )
 
-        for (target in overlapping) {
-            blockingDb { dao.deleteMemorizationTarget(target.id) }
-        }
-        for ((start, end) in result.remaining) {
-            blockingDb { dao.insertMemorizationTarget(MemorizationTarget(kjvOrdinalStart = start, kjvOrdinalEnd = end)) }
+        blockingDb {
+            for (target in overlapping) {
+                dao.deleteMemorizationTarget(target.id)
+            }
+            for ((start, end) in result.remaining) {
+                dao.insertMemorizationTarget(MemorizationTarget(kjvOrdinalStart = start, kjvOrdinalEnd = end))
+            }
         }
         if (result.removed.isNotEmpty()) {
             _changes.emit(ProgressChange.Memorization(removedTargets = result.removed))
@@ -490,8 +501,8 @@ object ProgressControl {
         val targets = blockingDb { dao.allMemorizationTargets() }
         if (targets.isEmpty()) return 0 to 0
         val totalTarget = targets.sumOf { it.verseCount }
-        val memorizedInTargets = targets.sumOf { target ->
-            blockingDb { dao.countMemorizedVersesInRange(target.kjvOrdinalStart, target.kjvOrdinalEnd) }
+        val memorizedInTargets = blockingDb {
+            targets.sumOf { target -> dao.countMemorizedVersesInRange(target.kjvOrdinalStart, target.kjvOrdinalEnd) }
         }
         return memorizedInTargets to totalTarget
     }
@@ -544,17 +555,19 @@ object ProgressControl {
      */
     fun getBookMemorizationProgress(): Map<BibleBook, Float> {
         val result = mutableMapOf<BibleBook, Float>()
-        for (book in KJVA.bookIterator) {
-            if (!Scripture.isScripture(book)) continue
-            val startOrdinal = Verse(KJVA, book, 1, 1).ordinal
-            val lastChapter = KJVA.getLastChapter(book)
-            val lastVerse = KJVA.getLastVerse(book, lastChapter)
-            val endOrdinal = Verse(KJVA, book, lastChapter, lastVerse).ordinal
-            val totalVerses = endOrdinal - startOrdinal + 1
-            if (totalVerses <= 0) continue
-            val memorized = blockingDb { dao.countMemorizedVersesInRange(startOrdinal, endOrdinal) }
-            if (memorized > 0) {
-                result[book] = memorized.toFloat() / totalVerses
+        blockingDb {
+            for (book in KJVA.bookIterator) {
+                if (!Scripture.isScripture(book)) continue
+                val startOrdinal = Verse(KJVA, book, 1, 1).ordinal
+                val lastChapter = KJVA.getLastChapter(book)
+                val lastVerse = KJVA.getLastVerse(book, lastChapter)
+                val endOrdinal = Verse(KJVA, book, lastChapter, lastVerse).ordinal
+                val totalVerses = endOrdinal - startOrdinal + 1
+                if (totalVerses <= 0) continue
+                val memorized = dao.countMemorizedVersesInRange(startOrdinal, endOrdinal)
+                if (memorized > 0) {
+                    result[book] = memorized.toFloat() / totalVerses
+                }
             }
         }
         return result
