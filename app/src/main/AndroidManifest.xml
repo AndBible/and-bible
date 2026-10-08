@@ -105,36 +105,23 @@
              the app's main screen; now that this host IS the main screen (StartupActivity's boot
              handoff opens it on NavRoutes.READING) a parent would have to be itself, and an
              Activity cannot be its own Up target. -->
-        <!--
-          ~ CalculatorComposeActivity below locks screenOrientation. From API 36
-          ~ onwards the platform ignores screenOrientation/resizableActivity/min-maxAspectRatio on
-          ~ displays with smallestWidth >= 600dp, so the portrait lock would stop applying on
-          ~ tablets and unfolded foldables. PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY keeps
-          ~ the current behaviour.
-          ~
-          ~ Like the predictive back opt-out above this is temporary — it is ignored from targetSdk 37.
-          ~ The real fix is layouts that work in landscape on a large screen; CalculatorComposeActivity in
-          ~ particular is the discrete build's disguise, so its landscape appearance has to be
-          ~ credible before the lock can be dropped.
-          ~
-          ~ InstallZip's portrait lock moved into its nav-graph destination in slice 8 (a `DisposableEffect`);
-          ~ the Activity left here is an exported redirect with no UI.
-          -->
+        <!-- InstallZip's portrait lock lives in its nav-graph destination (slice 8, a DisposableEffect). -->
         <activity
             android:name="net.bible.android.view.activity.installzip.InstallZipComposeActivity"
             android:label="@string/install_zip_module"
             android:theme="@style/Theme.AbCompose"
             android:exported="true"
             />
+        <!--
+          ~ Rotates like a real calculator (spec 2026-10-08 API 36 §3.4, #3040). configChanges keeps the activity, and
+          ~ with it the display and a PIN in progress, across rotation and resizing; night mode and locale still
+          ~ recreate it.
+          -->
         <activity
             android:name="net.bible.android.view.activity.discrete.CalculatorComposeActivity"
             android:label="@string/app_name_calculator"
-            android:screenOrientation="portrait"
-            >
-            <property
-                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
-                android:value="true" />
-        </activity>
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            />
         <activity
             android:name="net.bible.android.view.activity.base.ErrorActivity"
             android:label="@string/error_occurred"
