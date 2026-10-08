@@ -394,18 +394,15 @@ object CommonUtils : CommonUtilsBase() {
             return megAvailable
         }
 
-    val booleanSettings get() = DatabaseContainer.instance.settingsDb.booleanSettingDao()
-    val longSettings get() = DatabaseContainer.instance.settingsDb.longSettingDao()
-    val stringSettings get() = DatabaseContainer.instance.settingsDb.stringSettingDao()
-    val doubleSettings get() = DatabaseContainer.instance.settingsDb.doubleSettingDao()
+    private val store get() = DatabaseContainer.instance.settingsStore
 
     class AndBibleSettings {
-        fun getString(key: String, default: String? = null) = orDefaultIfDbNotReady(default) { stringSettings.get(key, default) }
-        fun getLong(key: String, default: Long) = orDefaultIfDbNotReady(default) { longSettings.get(key, default) }
-        fun getInt(key: String, default: Int) = orDefaultIfDbNotReady(default) { longSettings.get(key, default.toLong()).toInt() }
-        fun getBoolean(key: String, default: Boolean) = if(initialized) booleanSettings.get(key, default) else default
-        fun getDouble(key: String, default: Double) = orDefaultIfDbNotReady(default) { doubleSettings.get(key, default) }
-        fun getFloat(key: String, default: Float): Float = orDefaultIfDbNotReady(default) { doubleSettings.get(key, default.toDouble()).toFloat() }
+        fun getString(key: String, default: String? = null) = orDefaultIfDbNotReady(default) { store.getString(key, default) }
+        fun getLong(key: String, default: Long) = orDefaultIfDbNotReady(default) { store.getLong(key, default) }
+        fun getInt(key: String, default: Int) = orDefaultIfDbNotReady(default) { store.getLong(key, default.toLong()).toInt() }
+        fun getBoolean(key: String, default: Boolean) = if(initialized) store.getBoolean(key, default) else default
+        fun getDouble(key: String, default: Double) = orDefaultIfDbNotReady(default) { store.getDouble(key, default) }
+        fun getFloat(key: String, default: Float): Float = orDefaultIfDbNotReady(default) { store.getDouble(key, default.toDouble()).toFloat() }
 
         /**
          * Nav-graph slice 8 C3 (Review Focus #1): a read before the database exists answers [default]
@@ -426,12 +423,12 @@ object CommonUtils : CommonUtilsBase() {
         private inline fun <T> orDefaultIfDbNotReady(default: T, read: () -> T): T =
             try { read() } catch (e: DataBaseNotReady) { default }
 
-        fun setString(key: String, value: String?) = stringSettings.set(key, value)
-        fun setLong(key: String, value: Long?) = longSettings.set(key, value)
-        fun setInt(key: String, value: Int?) = longSettings.set(key, value?.toLong())
-        fun setBoolean(key: String, value: Boolean?) = booleanSettings.set(key, value)
-        fun setDouble(key: String, value: Double?) = doubleSettings.set(key, value)
-        fun setFloat(key: String, value: Float?) = doubleSettings.set(key, value?.toDouble())
+        fun setString(key: String, value: String?) = store.setString(key, value)
+        fun setLong(key: String, value: Long?) = store.setLong(key, value)
+        fun setInt(key: String, value: Int?) = store.setLong(key, value?.toLong())
+        fun setBoolean(key: String, value: Boolean?) = store.setBoolean(key, value)
+        fun setDouble(key: String, value: Double?) = store.setDouble(key, value)
+        fun setFloat(key: String, value: Float?) = store.setDouble(key, value?.toDouble())
 
         fun getStringSet(key: String, defValues: Set<String> = emptySet()): Set<String> {
             val s = getString(key, null) ?: return defValues
@@ -844,6 +841,7 @@ object CommonUtils : CommonUtilsBase() {
         Log.i(TAG, "forceStopApp!")
         scope.launch {
             CloudSync.waitUntilFinished()
+            DatabaseContainer.flushSettingsBeforeExit()
             exitProcess(2)
         }
     }
@@ -1681,12 +1679,10 @@ object CommonUtils : CommonUtilsBase() {
      */
     fun migrateOldSettingsKeys() {
         val sharedPrefs = realSharedPreferences
-        val settingsDb = settings
-        // Use DAOs directly to bypass the `initialized` guard in AndBibleSettings.getBoolean.
+        // Use the SettingsStore directly to bypass the `initialized` guard in AndBibleSettings.getBoolean.
         // This function runs during DatabaseContainer.init(), before `initialized` is set to true,
         // so AndBibleSettings.getBoolean would always return the default value, losing the old data.
-        val boolDao = booleanSettings
-        val longDao = longSettings
+        val st = store
 
         val secretMigrations = mapOf(
             "gdrive_password" to "cloud_sync_password",
@@ -1696,11 +1692,11 @@ object CommonUtils : CommonUtilsBase() {
         )
         for ((oldKey, newKey) in secretMigrations) {
             if (sharedPrefs.getString(newKey, null) != null) continue
-            val value = settingsDb.getString(oldKey) ?: sharedPrefs.getString(oldKey, null)
+            val value = st.getString(oldKey, null) ?: sharedPrefs.getString(oldKey, null)
             if (value != null) {
                 Log.i(TAG, "Migrating setting '$oldKey' → '$newKey'")
                 sharedPrefs.edit().putString(newKey, value).apply()
-                settingsDb.removeString(oldKey)
+                st.setString(oldKey, null)
                 sharedPrefs.edit().remove(oldKey).apply()
             }
         }
@@ -1722,30 +1718,31 @@ object CommonUtils : CommonUtilsBase() {
             "gdrive_llmprocessing" to "sync_enable_ai_settings",
         )
         for ((oldKey, newKey) in boolRenames) {
-            val value = boolDao.get(oldKey, false)
+            val value = st.getBoolean(oldKey, false)
             if (value) {
                 Log.i(TAG, "Renaming boolean setting '$oldKey' → '$newKey'")
-                boolDao.set(newKey, true)
+                st.setBoolean(newKey, true)
             }
-            boolDao.set(oldKey, null)
+            st.setBoolean(oldKey, null)
         }
 
-        val oldInterval = longDao.get("gdrive_sync_interval", Long.MIN_VALUE)
+        val oldInterval = st.getLong("gdrive_sync_interval", Long.MIN_VALUE)
         if (oldInterval != Long.MIN_VALUE) {
             Log.i(TAG, "Renaming long setting 'gdrive_sync_interval' → 'cloud_sync_interval'")
-            longDao.set("cloud_sync_interval", oldInterval)
-            longDao.set("gdrive_sync_interval", null)
+            st.setLong("cloud_sync_interval", oldInterval)
+            st.setLong("gdrive_sync_interval", null)
         }
 
         // Migrate boolean monochrome_mode → tri-state display_color_mode
-        val strDao = stringSettings
-        if (strDao.byKey("display_color_mode") == null) {
-            val oldMono = boolDao.byKey("monochrome_mode")
-            if (oldMono != null) {
-                val newValue = if (oldMono.value) DisplayColorMode.BW.value else DisplayColorMode.NORMAL.value
-                Log.i(TAG, "Migrating 'monochrome_mode'=${oldMono.value} → 'display_color_mode'=$newValue")
-                strDao.set("display_color_mode", newValue)
-                boolDao.set("monochrome_mode", null)
+        if (st.getString("display_color_mode", null) == null) {
+            // The store has no "contains": a key is absent iff both defaults come back.
+            val monoPresent = st.getBoolean("monochrome_mode", false) || !st.getBoolean("monochrome_mode", true)
+            if (monoPresent) {
+                val oldMono = st.getBoolean("monochrome_mode", false)
+                val newValue = if (oldMono) DisplayColorMode.BW.value else DisplayColorMode.NORMAL.value
+                Log.i(TAG, "Migrating 'monochrome_mode'=$oldMono → 'display_color_mode'=$newValue")
+                st.setString("display_color_mode", newValue)
+                st.setBoolean("monochrome_mode", null)
             }
         }
     }

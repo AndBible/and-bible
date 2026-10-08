@@ -53,6 +53,7 @@ interface BooleanSettingDao {
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE) fun insertOrUpdate(value: BooleanSetting)
     @Query("DELETE FROM BooleanSetting WHERE `key`=:key") fun delete(key: String)
     @Query("SELECT * FROM BooleanSetting WHERE `key`=:key") fun byKey(key: String): BooleanSetting?
+    @Query("SELECT * FROM BooleanSetting") fun all(): List<BooleanSetting>
 
     fun get(key: String, default_: Boolean = false) = byKey(key)?.value ?: default_
 
@@ -72,6 +73,7 @@ interface LongSettingDao {
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE) fun insertOrUpdate(value: LongSetting)
     @Query("DELETE FROM LongSetting WHERE `key`=:key") fun delete(key: String)
     @Query("SELECT * FROM LongSetting WHERE `key`=:key") fun byKey(key: String): LongSetting?
+    @Query("SELECT * FROM LongSetting") fun all(): List<LongSetting>
 
     fun get(key: String, default_: Long) = byKey(key)?.value ?: default_
 
@@ -90,6 +92,7 @@ interface StringSettingDao {
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE) fun insertOrUpdate(value: StringSetting)
     @Query("DELETE FROM StringSetting WHERE `key`=:key") fun delete(key: String)
     @Query("SELECT * FROM StringSetting WHERE `key`=:key") fun byKey(key: String): StringSetting?
+    @Query("SELECT * FROM StringSetting") fun all(): List<StringSetting>
 
     fun get(key: String, default_: String?) = byKey(key)?.value ?: default_
 
@@ -108,6 +111,7 @@ interface DoubleSettingDao {
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE) fun insertOrUpdate(value: DoubleSetting)
     @Query("DELETE FROM DoubleSetting WHERE `key`=:key") fun delete(key: String)
     @Query("SELECT * FROM DoubleSetting WHERE `key`=:key") fun byKey(key: String): DoubleSetting?
+    @Query("SELECT * FROM DoubleSetting") fun all(): List<DoubleSetting>
 
     fun get(key: String, default_: Double) = byKey(key)?.value ?: default_
 

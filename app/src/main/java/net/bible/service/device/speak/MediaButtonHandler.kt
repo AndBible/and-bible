@@ -54,7 +54,7 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
         const val TAG = "MediaButtons"
         var handler: MediaButtonHandler? = null
         fun initialize(speakControl: SpeakControl) {
-            if(!application.isRunningTests && CommonUtils.booleanSettings.get("enable_bluetooth_pref", true)) {
+            if(!application.isRunningTests && CommonUtils.settings.getBoolean("enable_bluetooth_pref", true)) {
                 handler = MediaButtonHandler(speakControl)
             }
         }
@@ -89,7 +89,7 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
 
         override fun onPlay() {
             Log.i(TAG, "onPlay")
-            if(!CommonUtils.booleanSettings.get("enable_bluetooth_pref", true)) return
+            if(!CommonUtils.settings.getBoolean("enable_bluetooth_pref", true)) return
             speakControl.continueLastPosition()
         }
 
@@ -159,7 +159,7 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
     private fun makeTriggerSound() {
         // Hack to make media button listening work!
         // https://stackoverflow.com/questions/45960265/android-o-oreo-8-and-higher-media-buttons-issue
-        if(!CommonUtils.booleanSettings.get("enable_bluetooth_pref", true)) return
+        if(!CommonUtils.settings.getBoolean("enable_bluetooth_pref", true)) return
         MediaPlayer.create(application, R.raw.silence)?.run {
             setOnCompletionListener { release() }
             start()
