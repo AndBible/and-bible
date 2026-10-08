@@ -16,16 +16,13 @@
  */
 package net.bible.android.view.compose
 
-import android.view.KeyEvent
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.service.common.CommonUtils
 import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.nav.NavRoutes
-import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
@@ -53,10 +50,8 @@ import org.robolectric.annotation.Config
  * `PassThroughBackHandler` and nothing else steps the history (the host's `isIntegrateWithHistoryManager`
  * is only ever true on a Search or ReadingPlan destination), leaving the history stack still full.
  *
- * Long-press BACK no longer opens History (spec 2026-10-08 API 36, decisions 1 and 5: with predictive back
+ * Long-press BACK does nothing special (spec 2026-10-08 API 36, decisions 1 and 5: with predictive back
  * on the platform never delivers it); History is reached from the menu only.
- *
- * The chain-shape tests fail earlier still -- `readingBackChain` does not exist.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class)

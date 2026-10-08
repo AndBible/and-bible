@@ -551,12 +551,14 @@ class ReadingDestinationInGraphTest {
     }
 
     /**
-     * BACK, an external keyboard's included, is never claimed for the reading view: the back dispatcher
-     * and the `PlatformBackHandler`s own it (spec 2026-10-08 API 36, decision 5). Mutation: decode BACK into
-     * a `ReadingViewKey` again and this fails.
+     * Guards only that the host does not decode KEYCODE_BACK (external keyboard included) as a
+     * `ReadingViewKey`: it sends the key straight to `onKeyDown` and checks the probe is never offered
+     * it (spec 2026-10-08 API 36, decision 5). It does not exercise the back chain or the dispatcher;
+     * that is covered by `ReadingHostBackChainTest`. Mutation: decode BACK into a `ReadingViewKey`
+     * again and this fails.
      */
     @Test
-    fun theHostDoesNotClaimAnOrdinaryBackPressForTheReadingView() {
+    fun theHostDoesNotDecodeBackAsAReadingViewKey() {
         val activity = buildHost()
         val unpublish = publishProbe(activity)
         try {

@@ -16,10 +16,7 @@
  */
 package net.bible.android.view.compose
 
-import android.view.KeyEvent
 import androidx.test.core.app.ApplicationProvider
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
@@ -27,7 +24,6 @@ import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
-import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
 import net.bible.test.resetComposeUiDispatcher

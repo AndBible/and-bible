@@ -146,7 +146,6 @@ Workspaces allow having multiple working environments. Workspace functions can b
         Long press the window button to quickly minimize.
         Long press the Speak toolbar button to quickly go to speak settings.
         Long press the verse location title in toolbar to jump to document selector.
-        Long press the Back button to access the History list.
     </string>
   <!--Welcome text-->
   <!--Supported file formats for documents-->

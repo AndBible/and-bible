@@ -31,6 +31,10 @@ package net.bible.android.view.activity.nav
  * its own press and that the steps below it did not run, and a future reader can line it up against
  * classic's six branches without reading a method body.
  *
+ * The chain runs from the reading destination's `PassThroughBackHandler` (see
+ * `NavHostComposeActivity.readingBack`); nothing overrides `onBackPressed` any more, and an unconsumed
+ * press goes on to the dispatcher's default.
+ *
  * @param name for logging and for the test's failure messages -- never parsed.
  * @param clearsExitWarning whether consuming this step resets the "press back again to close the app"
  *   timer. Classic clears it only after the WebView-modal and history branches; its drawer, search and
