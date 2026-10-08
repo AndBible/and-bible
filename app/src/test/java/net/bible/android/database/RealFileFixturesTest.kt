@@ -60,7 +60,7 @@ class RealFileFixturesTest {
         install(BookmarkDatabase.dbFileName)
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
-        val bookmarks = dao.allBookmarks()
+        val bookmarks = runBlocking { dao.allBookmarks() }
         assertEquals(3, bookmarks.size)
         assertEquals(setOf(1, 26137, 14000), bookmarks.map { it.kjvOrdinalStart }.toSet())
         assertTrue(bookmarks.all { it.v11n.name == "KJVA" })
@@ -70,12 +70,12 @@ class RealFileFixturesTest {
         assertEquals(1, bookmarks.count { it.notes != null })
 
         val labelled = bookmarks.single { it.kjvOrdinalStart == 14000 }
-        assertEquals(setOf("d1-label-a", "d1-label-b"), dao.labelsForBookmark(labelled.id).map { it.name }.toSet())
-        assertTrue(dao.labelsForBookmark(bookmarks.single { it.kjvOrdinalStart == 1 }.id).isEmpty())
+        assertEquals(setOf("d1-label-a", "d1-label-b"), runBlocking { dao.labelsForBookmark(labelled.id) }.map { it.name }.toSet())
+        assertTrue(runBlocking { dao.labelsForBookmark(bookmarks.single { it.kjvOrdinalStart == 1 }.id) }.isEmpty())
 
-        val labels = dao.allLabelsSortedByName()
+        val labels = runBlocking { dao.allLabelsSortedByName() }
         assertEquals(listOf("d1-label-a", "d1-label-b", "d1-studypad"), labels.map { it.name })
-        val entries = dao.studyPadTextEntriesByLabelId(labels.single { it.name == "d1-studypad" }.id)
+        val entries = runBlocking { dao.studyPadTextEntriesByLabelId(labels.single { it.name == "d1-studypad" }.id) }
         assertEquals(listOf("d1-entry-one", "d1-entry-two"), entries.sortedBy { it.orderNumber }.map { it.text })
     }
 
@@ -168,7 +168,7 @@ class RealFileFixturesTest {
     private fun openBookmarkCount(): Result<Int> {
         // Container creation must not be what throws: the rejection has to come from opening the file.
         val bookmarkDb = DatabaseContainer.instance.bookmarkDb
-        return runCatching { bookmarkDb.bookmarkDao().allBookmarks().size }
+        return runCatching { runBlocking { bookmarkDb.bookmarkDao().allBookmarks() }.size }
     }
 
     @Test fun corruptedFixtureIsRejected() {

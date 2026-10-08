@@ -65,32 +65,32 @@ class BookmarkControlSearchTest {
 
         // Delete text entries
         createdTextEntryIds.forEach { entryId ->
-            dao.studyPadTextEntryById(entryId)?.let { entryWithText ->
+            runBlocking { dao.studyPadTextEntryById(entryId) }?.let { entryWithText ->
                 val entry = StudyPadTextEntry(
                     id = entryWithText.id,
                     labelId = entryWithText.labelId,
                     orderNumber = entryWithText.orderNumber,
                     indentLevel = entryWithText.indentLevel
                 )
-                dao.delete(entry)
+                runBlocking { dao.delete(entry) }
             }
         }
 
         // Delete bookmarks
         createdBibleBookmarkIds.forEach { bookmarkId ->
-            dao.bibleBookmarkById(bookmarkId)?.let { bookmark ->
+            runBlocking { dao.bibleBookmarkById(bookmarkId) }?.let { bookmark ->
                 bookmarkControl!!.deleteBookmark(bookmark)
             }
         }
         createdGenericBookmarkIds.forEach { bookmarkId ->
-            dao.genericBookmarkById(bookmarkId)?.let { bookmark ->
+            runBlocking { dao.genericBookmarkById(bookmarkId) }?.let { bookmark ->
                 bookmarkControl!!.deleteBookmark(bookmark)
             }
         }
 
         // Delete labels
         createdLabelIds.forEach { labelId ->
-            dao.labelById(labelId)?.let { label ->
+            runBlocking { dao.labelById(labelId) }?.let { label ->
                 bookmarkControl!!.deleteLabel(label)
             }
         }
@@ -113,7 +113,7 @@ class BookmarkControlSearchTest {
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
         // Find the highest order number for this label
-        val entries = dao.studyPadTextEntriesByLabelId(labelId)
+        val entries = runBlocking { dao.studyPadTextEntriesByLabelId(labelId) }
         val maxOrderNumber = entries.maxOfOrNull { it.orderNumber } ?: -1
 
         // Create entry with generated ID
@@ -125,14 +125,14 @@ class BookmarkControlSearchTest {
             indentLevel = 0
         )
 
-        dao.insert(entry)
+        runBlocking { dao.insert(entry) }
 
         // Insert the text separately
         val textEntry = StudyPadTextEntryText(
             studyPadTextEntryId = entryId,
             text = text
         )
-        dao.insert(textEntry)
+        runBlocking { dao.insert(textEntry) }
 
         createdTextEntryIds.add(entryId)
         return entry

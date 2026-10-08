@@ -7846,7 +7846,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             !documentToDownload.isPseudoBook
         ) {
             if (documentToDownload.isInstalled && DatabaseContainer.ready &&
-                downloadBookmarksDao.genericBookmarkCountFor(documentToDownload) > 0
+                blockingDb { downloadBookmarksDao.genericBookmarkCountFor(documentToDownload) } > 0
             ) {
                 lifecycleScope.launch {
                     if (CommonUtils.documentUpgradeConfirmation(this@NavHostComposeActivity)) {

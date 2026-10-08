@@ -38,11 +38,10 @@ import java.lang.reflect.Modifier
  *
  * ReadingPlanDao is already fully suspend and so is not listed.
  * [notYetConverted] is exactly the set of DAOs that still have at least one non-suspend Room function. It
- * shrinks as DAOs convert: BookmarkDao in Task 11, SyncDao in Task 15 (together with SyncUtilities); [notYetConvertedEntriesStillHaveOffenders] keeps it from going stale.
+ * shrinks as DAOs convert: BookmarkDao converted in Task 11; SyncDao follows in Task 15 (together with SyncUtilities); [notYetConvertedEntriesStillHaveOffenders] keeps it from going stale.
  */
 class DaoSuspendGuardTest {
     private val notYetConverted = setOf(
-        "BookmarkDao", // 82 non-suspend
         "SyncDao", // 17 non-suspend; stays until Task 15 (SyncUtilities calls it inside raw beginTransaction blocks)
     )
 

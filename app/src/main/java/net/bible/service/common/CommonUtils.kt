@@ -1338,6 +1338,12 @@ object CommonUtils : CommonUtilsBase() {
     }
 
     private fun prepareExampleBookmarksAndWorkspaces() {
+        blockingDb { prepareExampleBookmarks() }
+        prepareExampleWorkspaces()
+    }
+
+    /** First-run example bookmarks and highlight labels; one bridge at the caller covers every DAO call here. */
+    private suspend fun prepareExampleBookmarks() {
         val bookmarkDao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
         val hasExistingBookmarks = bookmarkDao.allBookmarks(BookmarkSortOrder.ORDER_NUMBER).isNotEmpty()
 
@@ -1410,6 +1416,9 @@ object CommonUtils : CommonUtilsBase() {
                     }
             }
         }
+    }
+
+    private fun prepareExampleWorkspaces() {
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
         val ws = blockingDb { workspaceDao.allWorkspaces() }
         if(ws.isNotEmpty()) {
