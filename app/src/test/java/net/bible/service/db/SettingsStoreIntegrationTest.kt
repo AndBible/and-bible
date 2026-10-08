@@ -13,6 +13,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.launch
 import net.bible.service.common.DisplayColorMode
 import java.util.concurrent.CountDownLatch
@@ -39,7 +40,7 @@ class SettingsStoreIntegrationTest {
         CommonUtils.settings.setString("d1-key", "v1")
         DatabaseContainer.reset() // closeAll() must flush first
         assertEquals("v1", CommonUtils.settings.getString("d1-key", null))
-        assertEquals("v1", DatabaseContainer.instance.settingsDb.stringSettingDao().byKey("d1-key")?.value)
+        assertEquals("v1", runBlocking { DatabaseContainer.instance.settingsDb.stringSettingDao().byKey("d1-key") }?.value)
     }
 
     @Test fun restoredSettingsFileIsReadAfterReset() {

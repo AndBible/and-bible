@@ -133,7 +133,7 @@ class RealFileFixturesTest {
         assertEquals(1791489829011L, history.single().readAt)
     }
 
-    @Test fun requeryBuiltSettingsOpenAndReadBack() {
+    @Test fun requeryBuiltSettingsOpenAndReadBack() = runBlocking {
         install(SettingsDatabase.dbFileName)
         val db = DatabaseContainer.instance.settingsDb
 

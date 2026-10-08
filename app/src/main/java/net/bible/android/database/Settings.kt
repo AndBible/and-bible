@@ -50,14 +50,14 @@ class DoubleSetting(
 
 @Dao
 interface BooleanSettingDao {
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE) fun insertOrUpdate(value: BooleanSetting)
-    @Query("DELETE FROM BooleanSetting WHERE `key`=:key") fun delete(key: String)
-    @Query("SELECT * FROM BooleanSetting WHERE `key`=:key") fun byKey(key: String): BooleanSetting?
-    @Query("SELECT * FROM BooleanSetting") fun all(): List<BooleanSetting>
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE) suspend fun insertOrUpdate(value: BooleanSetting)
+    @Query("DELETE FROM BooleanSetting WHERE `key`=:key") suspend fun delete(key: String)
+    @Query("SELECT * FROM BooleanSetting WHERE `key`=:key") suspend fun byKey(key: String): BooleanSetting?
+    @Query("SELECT * FROM BooleanSetting") suspend fun all(): List<BooleanSetting>
 
-    fun get(key: String, default_: Boolean = false) = byKey(key)?.value ?: default_
+    suspend fun get(key: String, default_: Boolean = false) = byKey(key)?.value ?: default_
 
-    fun set(key: String, value: Boolean?) {
+    suspend fun set(key: String, value: Boolean?) {
         if(value == null) {
             delete(key);
 
@@ -70,14 +70,14 @@ interface BooleanSettingDao {
 
 @Dao
 interface LongSettingDao {
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE) fun insertOrUpdate(value: LongSetting)
-    @Query("DELETE FROM LongSetting WHERE `key`=:key") fun delete(key: String)
-    @Query("SELECT * FROM LongSetting WHERE `key`=:key") fun byKey(key: String): LongSetting?
-    @Query("SELECT * FROM LongSetting") fun all(): List<LongSetting>
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE) suspend fun insertOrUpdate(value: LongSetting)
+    @Query("DELETE FROM LongSetting WHERE `key`=:key") suspend fun delete(key: String)
+    @Query("SELECT * FROM LongSetting WHERE `key`=:key") suspend fun byKey(key: String): LongSetting?
+    @Query("SELECT * FROM LongSetting") suspend fun all(): List<LongSetting>
 
-    fun get(key: String, default_: Long) = byKey(key)?.value ?: default_
+    suspend fun get(key: String, default_: Long) = byKey(key)?.value ?: default_
 
-    fun set(key: String, value: Long?) {
+    suspend fun set(key: String, value: Long?) {
         if(value == null) {
             delete(key);
 
@@ -89,14 +89,14 @@ interface LongSettingDao {
 
 @Dao
 interface StringSettingDao {
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE) fun insertOrUpdate(value: StringSetting)
-    @Query("DELETE FROM StringSetting WHERE `key`=:key") fun delete(key: String)
-    @Query("SELECT * FROM StringSetting WHERE `key`=:key") fun byKey(key: String): StringSetting?
-    @Query("SELECT * FROM StringSetting") fun all(): List<StringSetting>
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE) suspend fun insertOrUpdate(value: StringSetting)
+    @Query("DELETE FROM StringSetting WHERE `key`=:key") suspend fun delete(key: String)
+    @Query("SELECT * FROM StringSetting WHERE `key`=:key") suspend fun byKey(key: String): StringSetting?
+    @Query("SELECT * FROM StringSetting") suspend fun all(): List<StringSetting>
 
-    fun get(key: String, default_: String?) = byKey(key)?.value ?: default_
+    suspend fun get(key: String, default_: String?) = byKey(key)?.value ?: default_
 
-    fun set(key: String, value: String?) {
+    suspend fun set(key: String, value: String?) {
         if(value == null) {
             delete(key);
 
@@ -108,14 +108,14 @@ interface StringSettingDao {
 
 @Dao
 interface DoubleSettingDao {
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE) fun insertOrUpdate(value: DoubleSetting)
-    @Query("DELETE FROM DoubleSetting WHERE `key`=:key") fun delete(key: String)
-    @Query("SELECT * FROM DoubleSetting WHERE `key`=:key") fun byKey(key: String): DoubleSetting?
-    @Query("SELECT * FROM DoubleSetting") fun all(): List<DoubleSetting>
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE) suspend fun insertOrUpdate(value: DoubleSetting)
+    @Query("DELETE FROM DoubleSetting WHERE `key`=:key") suspend fun delete(key: String)
+    @Query("SELECT * FROM DoubleSetting WHERE `key`=:key") suspend fun byKey(key: String): DoubleSetting?
+    @Query("SELECT * FROM DoubleSetting") suspend fun all(): List<DoubleSetting>
 
-    fun get(key: String, default_: Double) = byKey(key)?.value ?: default_
+    suspend fun get(key: String, default_: Double) = byKey(key)?.value ?: default_
 
-    fun set(key: String, value: Double?) {
+    suspend fun set(key: String, value: Double?) {
         if(value == null) {
             delete(key);
 

@@ -16,6 +16,7 @@
  */
 package net.bible.service.download
 
+import net.bible.service.db.blockingDb
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.control.download.repoIdentity
@@ -51,7 +52,7 @@ class DownloadManager(
     private lateinit var installManager: InstallManager
     fun refreshInstallManager() {
         installManager = InstallManager()
-        for(r in customRepositoryDao.all()) {
+        for(r in blockingDb { customRepositoryDao.all() }) {
             val installer = when(r.type) {
                 "sword-https" -> {
                     HttpsSwordInstaller().apply {
@@ -162,9 +163,11 @@ class DownloadManager(
         // InstallWatcher does not know about repository, so let's add it here
         book.putProperty(REPOSITORY_KEY, repositoryName)
         Books.installed().getBook(bookInitials)?.putProperty(REPOSITORY_KEY, repositoryName)
-        docDao.getBook(bookInitials)?.run {
-            repository = repositoryName
-            docDao.update(this)
+        blockingDb {
+            docDao.getBook(bookInitials)?.let {
+                it.repository = repositoryName
+                docDao.update(it)
+            }
         }
     }
 

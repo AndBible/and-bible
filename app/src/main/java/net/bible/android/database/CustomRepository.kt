@@ -66,17 +66,17 @@ data class CustomRepository(
 @Dao
 interface CustomRepositoryDao {
     @Insert
-    fun insert(item: CustomRepository)
+    suspend fun insert(item: CustomRepository)
 
     @Update
-    fun update(item: CustomRepository)
+    suspend fun update(item: CustomRepository)
 
     @Delete
-    fun delete(item: CustomRepository)
+    suspend fun delete(item: CustomRepository)
 
     @Insert
-    fun insert(items: List<CustomRepository>)
+    suspend fun insert(items: List<CustomRepository>)
 
     @Query("SELECT * from CustomRepository")
-    fun all(): List<CustomRepository>
+    suspend fun all(): List<CustomRepository>
 }

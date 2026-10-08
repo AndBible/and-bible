@@ -111,6 +111,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.db.blockingDb
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DataBaseNotReady
 import net.bible.service.device.speak.TextToSpeechNotificationManager
@@ -1231,7 +1232,7 @@ object CommonUtils : CommonUtilsBase() {
 
         if(!booksInitialized && Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }.isNotEmpty()) {
             if(!application.isRunningTests) {
-                for (it in docDao.getUnlocked()) {
+                for (it in blockingDb { docDao.getUnlocked() }) {
                     val book = Books.installed().getBook(it.initials)
                     book.unlock(it.cipherKey)
                 }

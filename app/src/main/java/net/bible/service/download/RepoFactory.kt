@@ -16,6 +16,7 @@
  */
 package net.bible.service.download
 
+import net.bible.service.db.blockingDb
 import androidx.annotation.VisibleForTesting
 import net.bible.service.common.CommonUtils
 import net.bible.service.sword.AcceptableBookTypeFilter
@@ -70,7 +71,7 @@ class RepoFactory(private val downloadManager: DownloadManager) {
 
     private val betaRepositories = listOf(crosswireBetaRepo, andBibleBetaRepo)
 
-    private val customRepositories: List<Repository> get() = downloadManager.customRepositoryDao.all().map {
+    private val customRepositories: List<Repository> get() = blockingDb { downloadManager.customRepositoryDao.all() }.map {
         Repository(it.name, AcceptableBookTypeFilter(), downloadManager)
     }
 

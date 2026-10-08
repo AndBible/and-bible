@@ -41,14 +41,14 @@ data class DocumentSearch(
 @Dao
 interface DocumentSearchDao {
     @Insert
-    fun insertDocuments(documentSearches: List<DocumentSearch>)
+    suspend fun insertDocuments(documentSearches: List<DocumentSearch>)
 
     @Query("""SELECT count(*) from Document""")
-    fun count(): Long
+    suspend fun count(): Long
 
     @Query("""SELECT osisId from Document WHERE Document MATCH :search""")
-    fun search(search: String): List<String>
+    suspend fun search(search: String): List<String>
 
     @Query("DELETE FROM Document")
-    fun clear()
+    suspend fun clear()
 }

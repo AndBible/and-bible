@@ -293,7 +293,7 @@ object DocumentSync {
      * an encrypted module syncs but stays locked, rendering no readable content. The key travels
      * in the document's [DocumentSyncMeta] (the user's own private cloud account).
      */
-    private fun applyCipherKey(initials: String, cipherKey: String?) {
+    private suspend fun applyCipherKey(initials: String, cipherKey: String?) {
         if (cipherKey == null) return
         val book = Books.installed().getBook(initials) ?: return
         book.unlock(cipherKey)

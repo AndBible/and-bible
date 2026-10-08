@@ -47,22 +47,14 @@ class DaoSuspendGuardTest {
         "ProgressDao", // 29 non-suspend
         "WorkspaceDao", // 26 non-suspend
         "SyncDao", // 17 non-suspend
-        "EpubDao", // 11 non-suspend
         "AgentPromptDao", // 11 non-suspend
-        "SwordDocumentInfoDao", // 7 non-suspend
         "PromptCategoryDao", // 7 non-suspend
         "LlmRawLogRecordDao", // 7 non-suspend
         "LlmProviderConfigDao", // 7 non-suspend
         "LlmConfiguredModelDao", // 7 non-suspend
         "CloudDocumentCacheDao", // 6 non-suspend
         "LlmUsageRecordDao", // 5 non-suspend
-        "StringSettingDao", // 4 non-suspend
-        "LongSettingDao", // 4 non-suspend
-        "DoubleSettingDao", // 4 non-suspend
-        "DocumentSearchDao", // 4 non-suspend
-        "CustomRepositoryDao", // 4 non-suspend
         "BuiltinPromptOverrideDao", // 4 non-suspend
-        "BooleanSettingDao", // 4 non-suspend
         "DocumentSyncPreferencesDao", // 3 non-suspend
         "CloudListingStateDao", // 3 non-suspend
         "CloudDocumentSyncTimestampDao", // 3 non-suspend
