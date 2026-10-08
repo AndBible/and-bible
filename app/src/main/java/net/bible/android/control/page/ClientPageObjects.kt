@@ -49,6 +49,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
 import java.util.*
@@ -187,6 +188,14 @@ open class OsisDocument(
     }
 }
 
+/**
+ * F128: the chapter read count sent with a Bible document. BibleView records and shows reads for
+ * `Math.max(1, chapterNumber)` (`BibleDocument.vue`), so a document that starts at the book intro (chapter 0)
+ * shows chapter 1's count; this must use the same chapter or the persisted count never appears on load.
+ */
+internal fun initialChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int): Int =
+    ProgressControl.getChapterReadCount(v11n, book, maxOf(1, chapter))
+
 class BibleDocument(
     val bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>,
     val verseRange: VerseRange,
@@ -222,7 +231,7 @@ class BibleDocument(
             put("memorizedOrdinals", json.encodeToString(serializer(), memorizedOrdinals))
             put("targetOrdinals", json.encodeToString(serializer(), targetOrdinals))
             put("chapterReadCount", json.encodeToString(serializer(),
-                ProgressControl.getChapterReadCount(swordBook.versification, verseRange.start.book, verseRange.start.chapter)))
+                initialChapterReadCount(swordBook.versification, verseRange.start.book, verseRange.start.chapter)))
             put("readingProgress", ReadingProgressInfo.forVerseKey(swordBook.versification, vrInV11n).asJson)
         }
     }
