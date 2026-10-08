@@ -231,24 +231,13 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
         super.attachBaseContext(LocaleHelper.localized(newBase))
     }
 
-    /**	This will be called automatically for you on 2.0 or later
-     */
-    override fun onBackPressed() {
-        if (goBackInHistory()) {
-            return
-        }
-        super.onBackPressed()
-    }
-
     /**
      * Step one entry back in the reading history, if there is one.
      *
-     * Public because [onBackPressed] is no longer the only caller: reading-host re-typing T8b moved
-     * `CurrentGeneralBookPage`'s three key-chooser arms onto [awaitIntent], which took them out of
-     * classic `MainBibleActivity.onActivityResult`'s reach — including its
-     * `STD_REQUEST_CODE` + `RESULT_CANCELED` guard, which goes back when a cancelled chooser has
-     * left the page with no key at all. That guard is now expressed at the awaiting call site, on
-     * whatever host it was opened from, and needs this.
+     * Called by the history-route destinations' back handlers and the chooser cancel arms: reading-host
+     * re-typing T8b moved `CurrentGeneralBookPage`'s three key-chooser arms onto [awaitIntent], and its
+     * `STD_REQUEST_CODE` + `RESULT_CANCELED` guard goes back when a cancelled chooser has left the page with
+     * no key at all.
      *
      * `open` since slice 8 B1: `NavHostComposeActivity` replays the reading history directly while
      * its graph is on `reading`, because its host-global `isIntegrateWithHistoryManager` is off there

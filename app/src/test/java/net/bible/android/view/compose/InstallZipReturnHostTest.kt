@@ -86,7 +86,7 @@ class InstallZipReturnHostTest {
         activity.openInstallZip { answers += it }
         idle()
         assertEquals(NavRoutes.INSTALL_ZIP_PATTERN, nav.currentDestination?.route)
-        activity.onBackPressed() // the live route: F55, predictive back off
+        activity.onBackPressedDispatcher.onBackPressed()
         idle()
         assertEquals(NavRoutes.BACKUP, nav.currentDestination?.route)
         assertEquals("the opener's callback gets its entry's answer", listOf(InstallZipResult.CANCELED), answers)
@@ -100,7 +100,7 @@ class InstallZipReturnHostTest {
 
         nav.navigate(NavRoutes.installZip()) // an entry nobody opened through openInstallZip
         idle()
-        activity.onBackPressed()
+        activity.onBackPressedDispatcher.onBackPressed()
         idle()
         assertEquals(NavRoutes.BACKUP, nav.currentDestination?.route)
         assertEquals("a callback whose entry left unanswered answers nothing later", emptyList<InstallZipResult>(), orphaned)

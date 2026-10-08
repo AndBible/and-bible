@@ -398,7 +398,7 @@ class ReadingChooserInGraphResultTest {
     /**
      * The override must not change BACK. The reading destination's back handler asks its own
      * "history" step (gated on `ReadingViewVisibility.isVisible`) and, on the confirmed second
-     * press, exits through `ActivityBase.onBackPressed` -- which calls `goBackInHistory()` first.
+     * press, exits through `PassThroughBackHandler`'s pass-through (the Activity fallback).
      * Before B1 that always declined on `reading`; with a declined history step and a non-empty
      * stack, the exit must still be an exit, not a history step.
      */

@@ -49,11 +49,10 @@ import kotlin.test.assertTrue
 
 /**
  * F6 Task 9 — the back chain that closes the reading-view search sheet/mode, and the long-press-back
- * swallow while search is active. The reading destination's `PassThroughBackHandler` and the host's `onKeyLongPress` (the nav
- * host's since slice 8 F2; classic `MainBibleActivity`'s before) are the only live back route today (predictive back is opted out via `AndroidManifest.xml`'s
- * `android:enableOnBackInvokedCallback="false"`, documented there as temporary until targetSdk 37 —
- * see `app/build.gradle.kts`'s `targetSdk = 36`), so a Compose `BackHandler` inside the reading view
- * would never fire; the branch has to live in this method instead.
+ * swallow while search is active. The reading destination's `PassThroughBackHandler` (predictive back is on) and the
+ * host's `onKeyLongPress` (the nav host's since slice 8 F2; classic `MainBibleActivity`'s before) are the live back
+ * routes, so a Compose `BackHandler` inside the reading view would never be reached before the search guard; the
+ * branch has to live in the host's back chain instead.
  *
  * The host's own `searchController`/`isDrawerOpen` state IS the recording, no fake/mock needed.
  * `aBackWithSearchClosedIsNotConsumed` asserts the search guard's own return value rather than the

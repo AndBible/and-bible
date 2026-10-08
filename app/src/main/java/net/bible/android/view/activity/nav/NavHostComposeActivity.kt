@@ -3535,6 +3535,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         setWindowTitle = { title -> setTitle(title) },
                         setHistoryRoute = { owner, route -> setHistoryRoute(owner, route) },
                         clearHistoryRoute = { owner -> clearHistoryRoute(owner) },
+                        goBackInHistory = ::goBackInHistory,
                         pendingSelection = pendingReadingPlanSelection,
                         dailyReading = DailyReadingDeps(
                             controllerFor = { onChangePlan, onChangeDay ->
@@ -3598,6 +3599,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         setWindowTitle = { title -> setTitle(title) },
                         setHistoryRoute = { owner, route -> setHistoryRoute(owner, route) },
                         clearHistoryRoute = { owner -> clearHistoryRoute(owner) },
+                        goBackInHistory = ::goBackInHistory,
                         searchForm = SearchFormDeps(
                             prepare = { restoredBibleBook -> prepareSearchForm(restoredBibleBook) },
                             loadTranslations = { loadSearchTranslations() },
