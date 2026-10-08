@@ -240,6 +240,15 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             epubDbFile = File(epubDir, epubDbFilename)
         }
 
+        // F124: the gz is only as good as the fragment files it indexes. version.txt is written last by
+        // optimizeEpub, so its absence means the optimized output is missing or incomplete (an EPUB shipped
+        // with a foreign gz, or external storage cleaned). Then optimize again instead of reusing it.
+        val optimizedOutputComplete = fragDir.isDirectory && versionFile.canRead()
+        if(epubDbFile.exists() && !optimizedOutputComplete) {
+            Log.w(TAG, "Optimized output missing for ${epubDir.name}; discarding ${epubDbFile.name} and re-optimizing")
+            epubDbFile.delete()
+        }
+
         if(!epubDbFile.exists()) {
             optimizeEpub()
             CommonUtils.gzipFile(appDbFile, epubDbFile)

@@ -159,4 +159,45 @@ class EpubBackendStateTest {
         val total = state.totalCharacters
         assertTrue("totalCharacters must survive a missing fragment", total >= 0)
     }
+
+    /** F124: a bundled optimized.sqlite3.gz without its optimized/ fragments (the kit EPUB) must be re-optimized. */
+    @Test
+    fun aStaleOptimizedDatabaseWithoutFragmentsIsReoptimized() {
+        val epubDir = buildEpub("stale-gz")
+        EpubBackendState(epubDir) // first open: optimizes and writes optimized.sqlite3.gz
+        assertTrue(File(epubDir, "optimized.sqlite3.gz").exists())
+        assertTrue(optimizedDirOf(epubDir).deleteRecursively())
+        buildEpub("stale-gz") // optimization deletes the source files; a kit EPUB ships them beside the foreign gz
+        application.deleteDatabase("epub-${epubInitials("stale-gz")}.sqlite3") // as on a fresh install of the kit file
+
+        val state = EpubBackendState(epubDir)
+        val keys = state.keys
+        assertTrue(keys.isNotEmpty())
+        assertTrue("every fragment must read back content", keys.all { state.read(it).isNotEmpty() })
+    }
+
+    /** F124 variant: the app database survived but the fragments are gone (external storage cleaned). */
+    @Test
+    fun missingFragmentsWithASurvivingAppDatabaseAreReoptimized() {
+        val epubDir = buildEpub("stale-frags")
+        EpubBackendState(epubDir)
+        assertTrue(optimizedDirOf(epubDir).deleteRecursively())
+        buildEpub("stale-frags") // optimization deletes the source files; restore them as the user's copy would have
+
+        val state = EpubBackendState(epubDir)
+        assertTrue(state.keys.isNotEmpty())
+        assertTrue(state.keys.all { state.read(it).isNotEmpty() })
+    }
+
+    /** Review Focus 5: an intact optimized EPUB is reused, not optimized again on every open. */
+    @Test
+    fun anIntactOptimizedEpubIsNotReoptimized() {
+        val epubDir = buildEpub("intact-reuse")
+        EpubBackendState(epubDir)
+        val versionFile = File(optimizedDirOf(epubDir), "version.txt")
+        val stamp = versionFile.lastModified()
+        Thread.sleep(1_100) // lastModified resolution is 1 s on some file systems
+        EpubBackendState(epubDir)
+        assertEquals("version.txt rewritten means a second optimization ran", stamp, versionFile.lastModified())
+    }
 }
