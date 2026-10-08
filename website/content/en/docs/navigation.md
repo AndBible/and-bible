@@ -167,7 +167,8 @@ To disable: `Settings` > `Application behavior` > `Volume keys scroll`.
 
 Several buttons support long-press for quick access to additional features:
 
-- **Back button** – Open the navigation history list.
 - **Speak toolbar button** – Open speak settings directly.
 - **Window button** (in the bottom bar) – Minimize the window instantly.
 - **Verse location title** (top of screen) – Jump to the document selector.
+
+The navigation history list is in the main menu as `History`.

@@ -49,6 +49,7 @@ import net.bible.sharedcore.search.SearchRequest
 import net.bible.sharedcore.search.SearchResultsController
 import net.bible.sharedcore.search.SearchType
 import net.bible.sharedcore.search.SwordResultRow
+import net.bible.sharedui.PassThroughBackHandler
 import net.bible.sharedui.nav.popOrExitOnFailedPop
 import net.bible.sharedui.search.EpubSearchResultsScreen
 import net.bible.sharedui.search.EpubSearchScreen
@@ -491,6 +492,11 @@ class SearchNavDeps(
      * `Search -> SearchResults` in this very cluster is exactly that shape.
      */
     val clearHistoryRoute: (owner: Any) -> Unit,
+    /**
+     * One step back in the reading history (`ActivityBase.goBackInHistory`). A destination that publishes a
+     * history route runs it first on BACK and passes the press on when it declines (spec 2026-10-08 API 36 §3.2).
+     */
+    val goBackInHistory: () -> Boolean,
     // — SEARCH FORM —
     val searchForm: SearchFormDeps,
     // — SEARCH INDEX PROMPT —
@@ -638,6 +644,9 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
             DisposableEffect(Unit) {
                 onDispose { deps.clearHistoryRoute(historyOwner) }
             }
+            // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
+            // the destination so it registers after the NavHost's own callback and wins over it.
+            PassThroughBackHandler(enabled = true) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
 
             SearchScreen(
                 title = setup.title,
@@ -870,6 +879,9 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
             DisposableEffect(Unit) {
                 onDispose { deps.clearHistoryRoute(historyOwner) }
             }
+            // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
+            // the destination so it registers after the NavHost's own callback and wins over it.
+            PassThroughBackHandler(enabled = true) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
         } else {
             // Eager, inside remember, for the same reason: classic ran the search in onCreate, so
             // the very first frame already showed the controller's `loading` state. Deferring to a
@@ -944,6 +956,9 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
             DisposableEffect(Unit) {
                 onDispose { deps.clearHistoryRoute(historyOwner) }
             }
+            // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
+            // the destination so it registers after the NavHost's own callback and wins over it.
+            PassThroughBackHandler(enabled = true) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
 
             SearchResultsScreen(
                 title = title,
@@ -1036,6 +1051,9 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
             DisposableEffect(Unit) {
                 onDispose { deps.clearHistoryRoute(historyOwner) }
             }
+            // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
+            // the destination so it registers after the NavHost's own callback and wins over it.
+            PassThroughBackHandler(enabled = true) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
 
             val query by controller.query.collectAsState()
             val mode by controller.mode.collectAsState()
@@ -1132,6 +1150,9 @@ fun NavGraphBuilder.searchNavGraph(navController: NavHostController, deps: Searc
                 DisposableEffect(Unit) {
                     onDispose { deps.clearHistoryRoute(historyOwner) }
                 }
+                // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
+                // the destination so it registers after the NavHost's own callback and wins over it.
+                PassThroughBackHandler(enabled = true) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
 
                 EpubSearchResultsScreen(
                     title = title,

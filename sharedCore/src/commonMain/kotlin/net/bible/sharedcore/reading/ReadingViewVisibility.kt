@@ -44,7 +44,7 @@ package net.bible.sharedcore.reading
  * backgrounded host the flag stayed true: `HistoryManager.goBack()`'s
  * `if (!isVisible) currentActivity?.finish()` (that call is `leaveCurrentScreen()` since slice 8
  * A3 — NavHost pops, classic Activities finish — but the bug and its fix predate that rename)
- * never fired and the user got a DEAD BACK KEY (`ActivityBase.onBackPressed` returns without
+ * never fired and the user got a DEAD BACK KEY (the old, now deleted `ActivityBase.onBackPressed` returned without
  * `super` when `goBack()` returned true). The same
  * state also recorded a `KeyHistoryItem` for a call to `HistoryManager.recordIfCreated` while the app was in the
  * background. [ReadingHostPresence]'s kdoc has the full argument, including why the Activity input

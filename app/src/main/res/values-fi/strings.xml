@@ -714,8 +714,7 @@ Työtilat mahdollistaa usean eri työympäristön eri asiayhteyksiin. Työtilaan
 Pyyhkäise alas työkalupalkista näyttääksesi työtilavalitsimen.
 Pitkä napsautus ikkunapainikkeesta pienentää ikkunan.
 Pitkä napsautus työkalupalkin puhepainikkeesta vie puheen asetuksiin.
-Pitkä napsautus jakeen sijainnin otsikosta työkalupalkissa vie dokumentinvalitsimeen.
-Pitkä napsautus järjestelmän takaisin -painikkeesta vie sinut selaushistorialistaukseen.</string>
+Pitkä napsautus jakeen sijainnin otsikosta työkalupalkissa vie dokumentinvalitsimeen.</string>
   <string name="help_window_pinning_title">Ikkunan kiinnitys</string>
   <string name="help_window_pinning_text">
 Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkitään 3 pisteellä, oikea yläkulma). Jos ikkunoiden kiinnitys on päällä, voit näyttää yhtäaikaa useita kiinnitettyjä ikkunoita raamattunäkymässä, mutta vain yhden kiinnittämättömän ikkunan. Kiinnitetyt ikkunat näytetään ensimmäisenä, ja sen jälkeen kiinnittämättömät ikkunat. Voit haluta pitää avoimet raamattudokumentit kiinnitettyinä ikkunoina ja kommentaarit ja kartat yms. kiinnittämättöminä ikkunoina. Näin voit helposti tutkiessasi Raamattua pitää raamattudokumentit aina auki ja nopeasti vaihtaa kommentaarien ja muun ylimääräisen materiaalin välillä.</string>

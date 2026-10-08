@@ -757,7 +757,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
         Dlouhým stiskem tlačítka okna jej rychle minimalizujete.
         Dlouhým stiskem tlačítka předčítání rychle přejdete na nastavení předčítání.
         Dlouhým stiskem na odkaz verše v nástrojové liště přejdete na výběr dokumentu.
-        Dlouhým stiskem tlačítka Zpět přejdete na seznam historie.
 </string>
   <string name="help_window_pinning_title">Připínání oken</string>
   <string name="help_window_pinning_text">

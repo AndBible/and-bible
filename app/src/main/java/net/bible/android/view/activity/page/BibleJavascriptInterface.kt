@@ -242,7 +242,7 @@ class BibleJavascriptInterface(
      * The host is declared nullable so SOME null handling is compiler-mandated, but a `BibleView`
      * only ever exists inside a mounted host's pane, so that arm is unreachable in practice; it
      * answers JS with no verse rather than launching anything, the same shape as round 15b's
-     * History sheet (`MainBibleActivity.onKeyLongPress`).
+     * History sheet.
      */
     @JavascriptInterface
     fun refChooserDialog(callId: Long) {

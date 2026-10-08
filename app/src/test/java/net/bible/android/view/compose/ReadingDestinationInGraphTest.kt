@@ -18,7 +18,6 @@ package net.bible.android.view.compose
 
 import android.content.Context
 import android.os.PowerManager
-import android.view.InputDevice
 import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Box
@@ -158,6 +157,7 @@ class ReadingDestinationInGraphTest {
     private fun deps() = ReadingNavDeps(
         host = graphHost,
         windowTitle = "AndBible",
+        onBack = { passThrough -> passThrough() },
         content = { Box(Modifier.testTag("readingView")) { Text("reading view") } },
         onKey = { key ->
             keys += key
@@ -383,21 +383,14 @@ class ReadingDestinationInGraphTest {
     }
 
     /**
-     * The two DRAWER debts reading-host re-typing R8 paid, both of which needed the content slot to
-     * be real before they could be paid at all, and both of which were SILENT NO-OPS until it was.
+     * The DRAWER debt reading-host re-typing R8 paid, which needed the content slot to
+     * be real before it could be paid at all, and which was a SILENT NO-OP until it was.
      *
      *  - `NavHostComposeActivity.toggleDrawer()` was a documented no-op with a comment deferring it
      *    to slice 7 Task 11. It is the ☰ button's only target
      *    (`ReadingToolbarCallbacks.onHome`), so on this host the ☰ button did nothing at all the
      *    moment the reading view rendered. R8 made it classic's one-line
      *    `readingCommands.composeToggleDrawer()`.
-     *  - `ExternalKeyboardBack` returned `true` and closed nothing --
-     *    [net.bible.sharedui.reading.nav.ReadingNavDeps.content]'s owed-work item 1. Classic closed
-     *    both drawers; only the Compose one exists here, and R8 closes it.
-     *
-     * Driven through `ReadingViewHostCallbacks.current`, not through the private method, so what is
-     * exercised is the same path a real key event takes: `onKeyDown` -> decode -> the published
-     * handler the destination's own `DisposableEffect` installed.
      *
      * Mutations: restore either no-op and one of the two `assertFalse`/`assertTrue` pairs fails.
      */
@@ -422,15 +415,8 @@ class ReadingDestinationInGraphTest {
                     "view's own Compose drawer",
             )
 
-            val handlers = assertNotNull(ReadingViewHostCallbacks.current)
-            assertTrue(
-                handlers.onKey(ReadingViewKey.ExternalKeyboardBack),
-                "classic consumed external-keyboard BACK unconditionally",
-            )
-            assertFalse(
-                readingView.isDrawerOpen,
-                "…and closed the drawer on the way, which is the half R8 owed",
-            )
+            activity.toggleDrawer()
+            assertFalse(readingView.isDrawerOpen, "a second toggle closes it again")
         } finally {
             controller.close()
         }
@@ -565,19 +551,19 @@ class ReadingDestinationInGraphTest {
     }
 
     /**
-     * BACK is claimed only for an EXTERNAL KEYBOARD (classic's `InputDevice.isExternal` +
-     * `SOURCE_KEYBOARD` branch); an ordinary back press is not the reading view's to swallow — the
-     * `PlatformBackHandler`s and `onBackPressed` own that. Mutation: drop the source/external gate
-     * from the host's decode and this fails, which is the failure that would otherwise show up as
-     * "back does nothing".
+     * Guards only that the host does not decode KEYCODE_BACK (external keyboard included) as a
+     * `ReadingViewKey`: it sends the key straight to `onKeyDown` and checks the probe is never offered
+     * it (spec 2026-10-08 API 36, decision 5). It does not exercise the back chain or the dispatcher;
+     * that is covered by `ReadingHostBackChainTest`. Mutation: decode BACK into a `ReadingViewKey`
+     * again and this fails.
      */
     @Test
-    fun theHostDoesNotClaimAnOrdinaryBackPressForTheReadingView() {
+    fun theHostDoesNotDecodeBackAsAReadingViewKey() {
         val activity = buildHost()
         val unpublish = publishProbe(activity)
         try {
             activity.onKeyDown(KeyEvent.KEYCODE_BACK, keyEvent(KeyEvent.KEYCODE_BACK))
-            assertEquals(emptyList<ReadingViewKey>(), probeKeys, "a non-keyboard BACK must not be offered as ExternalKeyboardBack")
+            assertEquals(emptyList<ReadingViewKey>(), probeKeys, "BACK must not be offered to the reading view")
         } finally {
             unpublish()
         }
@@ -794,38 +780,6 @@ class ReadingDestinationInGraphTest {
     }
 
     /**
-     * The POSITIVE external-keyboard branch — the one
-     * [theHostDoesNotClaimAnOrdinaryBackPressForTheReadingView] cannot reach, and the one whose
-     * failure is silent (an external-keyboard BACK that is never claimed looks like working
-     * software until someone plugs a keyboard in). Robolectric registers no input devices, so the
-     * device half of the decode is replaced; the SOURCE half is real.
-     *
-     * Mutations: make `isExternalDevice` constantly false (the first assertion fails), or drop the
-     * `SOURCE_KEYBOARD` term from `isExternalKeyboard` (the second fails).
-     */
-    @Test
-    fun theHostClaimsBackOnlyFromAnExternalKeyboard() {
-        val activity = buildHost()
-        stubExternalDevice(activity, external = true)
-
-        assertEquals(
-            ReadingViewKey.ExternalKeyboardBack,
-            keyFor(activity, KeyEvent.KEYCODE_BACK, keyEvent(KeyEvent.KEYCODE_BACK, InputDevice.SOURCE_KEYBOARD)),
-            "BACK from an external keyboard is the reading view's",
-        )
-        assertNull(
-            keyFor(activity, KeyEvent.KEYCODE_BACK, keyEvent(KeyEvent.KEYCODE_BACK, InputDevice.SOURCE_TOUCHSCREEN)),
-            "…but the same external device on a non-keyboard source is not",
-        )
-
-        stubExternalDevice(activity, external = false)
-        assertNull(
-            keyFor(activity, KeyEvent.KEYCODE_BACK, keyEvent(KeyEvent.KEYCODE_BACK, InputDevice.SOURCE_KEYBOARD)),
-            "…and neither is a keyboard that is not external (the on-screen one)",
-        )
-    }
-
-    /**
      * The screen-on port re-reads night mode and re-applies the theme — classic's
      * `refreshIfNightModeChange()`. Only `applyTheme()` is observable from a test
      * (`AppCompatDelegate`'s default night mode is process-global);
@@ -925,30 +879,6 @@ class ReadingDestinationInGraphTest {
     ).also { hostControllers += it }.create().get()
 
     private fun keyEvent(keyCode: Int) = KeyEvent(KeyEvent.ACTION_DOWN, keyCode)
-
-    /** A key event from device 7 on an explicit input SOURCE — what the external-keyboard decode reads. */
-    private fun keyEvent(keyCode: Int, source: Int) = KeyEvent(
-        0L, 0L, KeyEvent.ACTION_DOWN, keyCode, 0, 0, /* deviceId = */ 7, /* scancode = */ 0,
-        /* flags = */ 0, source,
-    )
-
-    /**
-     * Replaces the host's `isExternalDevice` seam. Written through the backing FIELD: the property
-     * is `internal`, and going through the field keeps the test independent of Kotlin's
-     * friend-module/name-mangling arrangements for the test source set.
-     */
-    private fun stubExternalDevice(activity: NavHostComposeActivity, external: Boolean) {
-        NavHostComposeActivity::class.java
-            .getDeclaredField("isExternalDevice")
-            .apply { isAccessible = true }
-            .set(activity) { _: Int -> external }
-    }
-
-    private fun keyFor(activity: NavHostComposeActivity, keyCode: Int, event: KeyEvent): ReadingViewKey? =
-        NavHostComposeActivity::class.java
-            .getDeclaredMethod("readingViewKeyFor", Int::class.java, KeyEvent::class.java)
-            .apply { isAccessible = true }
-            .invoke(activity, keyCode, event) as ReadingViewKey?
 
     private fun volumeKeysOwned(activity: NavHostComposeActivity): Boolean =
         NavHostComposeActivity::class.java

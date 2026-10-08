@@ -37,6 +37,9 @@ import org.robolectric.annotation.Config
  * have to compose a search form. `ReadingViewVisibility.setVisible(false)` is forced for the same
  * reason: in production the reading destination is disposed while another destination is on top,
  * but Robolectric's frame clock need not have finished the crossfade.
+ *
+ * M4's subject is `HistoryManager.goBack` -> `leaveCurrentScreen`; BACK on a real history-route destination is
+ * `HistoryRouteBackTest`.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -73,7 +76,7 @@ class HistoryGoBackLeavesScreenTest {
             Intent(activity, ErrorActivity::class.java).putExtra("description", "probe"),
         )
 
-        activity.onBackPressed()
+        activity.goBackInHistory()
 
         assertFalse(
             "M4: history BACK from a non-reading destination must not finish the one host (the app)",

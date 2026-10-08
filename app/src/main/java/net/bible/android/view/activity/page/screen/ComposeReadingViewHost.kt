@@ -2412,8 +2412,8 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * The three-stage back for search, in one call: after a result tap the first press brings the
      * results list back (F83, [ReadingSearchController.reopenResultsOnBack]); then a press closes the
      * results/index sheet (keeping the query and the results); the last leaves search mode. Returns
-     * whether the press was consumed. Wired into `MainBibleActivity.onBackPressed` by Task 9 — inert
-     * until then.
+     * whether the press was consumed. Called from the reading destination's back chain
+     * (`NavHostComposeActivity.readingBackChain`).
      */
     fun closeSearchIfOpen(): Boolean {
         if (searchController.closeSheet()) return true
@@ -2894,7 +2894,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * (see [init]) so entering/leaving fullscreen from ANY path — the Compose overflow menu's
      * "Full screen" row (Batch 12b-C Task 3, dispatched via [MainBibleActivity.handleOptionsMenuItem]),
      * the same menu reached by the `"AltKeyO"` shortcut (slice 7 Task 2 repointed it at
-     * [openOverflowMenu]), or `onBackPressed` — is reflected here. There is
+     * [openOverflowMenu]), or the reading back chain — is reflected here. There is
      * no dedicated "toggle fullscreen" entry point in [ReadingToolbarCallbacks]/`ReadingViewScreen`
      * (only the overflow-menu row), so mirroring [MainBibleActivity.fullScreen] is what keeps this
      * host's `AbTheme`/`ReadingViewScreen` in sync regardless of which path set it.

@@ -34,6 +34,7 @@ import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.readingplan.DailyReadingController
 import net.bible.sharedcore.readingplan.DailyReadingListController
 import net.bible.sharedcore.readingplan.ReadingPlanSelectorController
+import net.bible.sharedui.PassThroughBackHandler
 import net.bible.sharedui.nav.popOrExitOnFailedPop
 import net.bible.sharedui.readingplan.DailyReadingListScreen
 import net.bible.sharedui.readingplan.DailyReadingScreen
@@ -229,6 +230,11 @@ class ReadingPlanNavDeps(
      */
     val clearHistoryRoute: (owner: Any) -> Unit,
     /**
+     * One step back in the reading history (`ActivityBase.goBackInHistory`). A destination that publishes a
+     * history route runs it first on BACK and passes the press on when it declines (spec 2026-10-08 API 36 §3.2).
+     */
+    val goBackInHistory: () -> Boolean,
+    /**
      * Child -> parent channel replacing two `setResult(Intent(<value as action>))` round trips —
      * see [ReadingPlanSelection]. Created by the HOST, not `remember`ed in a destination's arm:
      * the parent destination's composition is disposed while the child that writes to it is on top,
@@ -330,6 +336,9 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
         DisposableEffect(Unit) {
             onDispose { deps.clearHistoryRoute(historyOwner) }
         }
+        // History first, then the NavHost pop / Activity fallback (spec 2026-10-08 API 36 §3.2). Declared inside
+        // the destination so it registers after the NavHost's own callback and wins over it.
+        PassThroughBackHandler(enabled = true) { passThrough -> if (!deps.goBackInHistory()) passThrough() }
 
         /** NO_PLAN -> classic's selector-then-finish pair; see DailyReadingDeps.onPlanMissing. */
         fun applyLoad(result: DailyReadingLoad) {

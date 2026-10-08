@@ -431,18 +431,18 @@ class ReadingCommands(
     }
 
     /**
-     * F6 Task 9: the reading-view search's three-stage back, wired into [onBackPressed] as a leading
-     * guard right after [composeCloseDrawerIfOpen] — after a result tap the first press brings the
-     * results list back (F83), then one press closes the results/index sheet (keeping the query and
-     * results), and the last leaves search mode. Returns whether the press was
-     * consumed. Always `false` before the host is installed, same idiom as [composeCloseDrawerIfOpen].
+     * The reading-view search's three-stage back: the search step of the F55 back chain
+     * (`NavHostComposeActivity.readingBackChain`), run after the drawer step. After a result tap the
+     * first press brings the results list back (F83), the next closes the results/index sheet
+     * (keeping the query and results), and the last leaves search mode. Returns whether the press was
+     * consumed; `false` before the host is installed, same idiom as [composeCloseDrawerIfOpen].
      */
     internal fun composeCloseSearchIfOpen(): Boolean = composeReadingViewHost?.closeSearchIfOpen() ?: false
 
     /**
      * Whether the Compose reading-view search mode is active — `false` only before the host is
-     * installed. F6 Task 9: used in [onKeyLongPress] to swallow a long-press back while a search
-     * field is focused, the same role [composeDrawerOpen] plays for the drawer there.
+     * installed. F6 Task 9: formerly used to swallow a long-press back while a search
+     * field is focused (that route is gone, spec 2026-10-08 API 36), the same role [composeDrawerOpen] plays for the drawer there.
      */
     internal val composeSearchModeActive: Boolean
         get() = composeReadingViewHost?.searchController?.searchModeActive?.value == true

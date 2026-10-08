@@ -32,7 +32,8 @@ package net.bible.sharedcore.reading
  *    destination is still composed, `depth > 0` kept `ReadingViewVisibility.isVisible` true, so
  *    `HistoryManager.goBack()`'s `if (!isVisible) currentActivity?.finish()` never fired (that call
  *    is `leaveCurrentScreen()` since slice 8 A3 — NavHost pops, classic Activities finish — but the
- *    bug and its fix predate that rename) — and `ActivityBase.onBackPressed` returns WITHOUT
+ *    bug and its fix predate that rename) — and the old `ActivityBase.onBackPressed` (deleted
+ *    with the move to predictive back) returned WITHOUT
  *    `super` whenever `historyTraversal.goBack()` returned true, so the user got a back press that
  *    reverted history and left them on the same secondary screen.
  *  - **Keys dispatched into a backgrounded destination.** `ReadingViewHostCallbacks.current` was

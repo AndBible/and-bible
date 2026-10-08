@@ -716,8 +716,7 @@ Einstellungen zu Arbeitsbereichen können über das \"Optionen\" - Menü (rechts
 Von der Werkzeugleiste herunterwischen, um die Arbeitsbereichsauswahl anzuzeigen.
 Langes Drücken des Fensterknopfes minimiert das Fenster sofort.
 Langes Drücken des Vorleseknopfes führt zu den Vorleseeinstellungen.
-Langes Drücken der Versauswahl führt zur Dokumentauswahl.
-Langes Drücken des Rückwärtsknopfes führt zur Chronikliste.</string>
+Langes Drücken der Versauswahl führt zur Dokumentauswahl.</string>
   <string name="help_window_pinning_title">Fensterverankerung</string>
   <string name="help_window_pinning_text">
 Man kann die Fensterverankerung im Optionenmenü aktivieren (drei Punkte rechts oben).

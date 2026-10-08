@@ -28,4 +28,11 @@ class CalculatorGoldenTest {
             CalculatorScreen(display = "2++", error = CalcError.WRONG_FORMAT, onKey = {})
         }
     }
+
+    /** Spec §3.4: wider than tall (the harness is always 320 dp wide) takes the landscape branch. */
+    @Test fun calculator_landscape() {
+        captureMatrix("Calculator", "landscape", heightDp = 180) {
+            CalculatorScreen(display = "2+2", error = null, onKey = {})
+        }
+    }
 }

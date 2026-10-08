@@ -762,7 +762,6 @@
         창 버튼을 길게 누르면 빠르게 최소화됩니다.
         말하기 도구 모음 버튼을 길게 누르면 말하기 설정으로 빠르게 이동합니다.
         도구 모음의 구절 위치 제목을 길게 누르면 문서 선택기로 이동합니다.
-        뒤로 버튼을 길게 누르면 방문 기록 목록에 접근할 수 있습니다.
     </string>
   <string name="help_window_pinning_title">윈도우 고정</string>
   <string name="help_window_pinning_text">

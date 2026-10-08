@@ -935,7 +935,6 @@
         Long press window button to quickly minimize.
         Long press speak toolbar button to quickly go to speak settings.
         Long press verse location title in toolbar to jump to document selector.
-        Long press the Back button to access the History list.
     </string>
     <string name="help_window_pinning_title">Window pinning</string>
     <string name="help_window_pinning_text">

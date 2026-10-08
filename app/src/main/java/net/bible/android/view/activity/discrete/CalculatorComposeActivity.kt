@@ -18,6 +18,7 @@ package net.bible.android.view.activity.discrete
 
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -86,6 +87,16 @@ class CalculatorComposeActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.i(TAG, "Calculator (Compose): onCreate")
         super.onCreate(savedInstanceState)
+        // Spec 2026-10-08 API 36 §3.3: explicit finish with RESULT_CANCELED keeps the previous contract (the
+        // launcher awaits this result) regardless of launch mode or task position, instead of relying on the
+        // platform default back behaviour.
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.i(TAG, "Calculator (Compose): back")
+                setResult(RESULT_CANCELED)
+                finish()
+            }
+        })
         setContent {
             AbAppTheme {
                 FailClosedLinkRouting {
@@ -96,11 +107,5 @@ class CalculatorComposeActivity : ActivityBase() {
                 }
             }
         }
-    }
-
-    override fun onBackPressed() {
-        Log.i(TAG, "Calculator (Compose): onBackPressed")
-        setResult(RESULT_CANCELED)
-        finish()
     }
 }

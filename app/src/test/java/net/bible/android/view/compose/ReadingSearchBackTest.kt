@@ -16,10 +16,7 @@
  */
 package net.bible.android.view.compose
 
-import android.view.KeyEvent
 import androidx.test.core.app.ApplicationProvider
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.firstTime
@@ -27,7 +24,6 @@ import net.bible.android.view.activity.nav.NavHostComposeActivity
 import net.bible.android.view.activity.page.screen.ComposeReadingViewHost
 import net.bible.sharedcore.nav.NavRoutes
 import net.bible.sharedcore.reading.ReadingHostPresence
-import net.bible.sharedcore.reading.ReadingQuickSheet
 import net.bible.sharedcore.reading.ReadingViewVisibility
 import net.bible.test.DatabaseResetter
 import net.bible.test.resetComposeUiDispatcher
@@ -48,12 +44,11 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * F6 Task 9 — the back chain that closes the reading-view search sheet/mode, and the long-press-back
- * swallow while search is active. The reading host's `onBackPressed`/`onKeyLongPress` (the nav
- * host's since slice 8 F2; classic `MainBibleActivity`'s before) are the only live back route today (predictive back is opted out via `AndroidManifest.xml`'s
- * `android:enableOnBackInvokedCallback="false"`, documented there as temporary until targetSdk 37 —
- * see `app/build.gradle.kts`'s `targetSdk = 36`), so a Compose `BackHandler` inside the reading view
- * would never fire; the branch has to live in this method instead.
+ * F6 Task 9 — the back chain that closes the reading-view search sheet/mode. The reading destination's
+ * `PassThroughBackHandler` (predictive back is on) is the live back route (the long-press-back swallow went with
+ * long-press BACK itself, spec 2026-10-08 API 36 decisions 1 and 5), so a Compose `BackHandler` inside the
+ * reading view would never be reached before the search guard; the branch has to live in the host's back chain
+ * instead.
  *
  * The host's own `searchController`/`isDrawerOpen` state IS the recording, no fake/mock needed.
  * `aBackWithSearchClosedIsNotConsumed` asserts the search guard's own return value rather than the
@@ -69,10 +64,10 @@ class ReadingSearchBackTest {
 
     /**
      * Slice 8 F2: a fully set-up reading-route [NavHostComposeActivity] rather than classic's
-     * never-`.create()`d `MainBibleActivity`. The nav host's `onBackPressed` / `onKeyLongPress` run the
+     * never-`.create()`d `MainBibleActivity`. The reading destination's back handler runs the
      * reading chain only while `readingDestinationIsCurrent()`, which reads the graph's `navController`
-     * -- null on a never-created host, where every press would fall to `super` and the long-press
-     * assertion below would pass on `ActivityBase`'s unconditional `true` for BACK. `firstTime` and
+     * -- null on a never-created host, where the chain would never run and a press would fall through to
+     * the dispatcher's default. `firstTime` and
      * [resetComposeUiDispatcher] for the reasons `ReadingHostBackChainTest.host()` and slice 8 D1 give.
      * The `ComposeReadingViewHost` is still installed directly when the destination has not composed
      * one, exactly as classic's fixture did.
@@ -110,11 +105,11 @@ class ReadingSearchBackTest {
         assertTrue(host().searchController.searchModeActive.value, "sanity")
         assertTrue(host().searchController.sheetVisible.value, "sanity")
 
-        activity.onBackPressed()
+        activity.onBackPressedDispatcher.onBackPressed()
         assertTrue(host().searchController.searchModeActive.value, "first press must only close the sheet")
         assertFalse(host().searchController.sheetVisible.value, "first press closes the sheet")
 
-        activity.onBackPressed()
+        activity.onBackPressedDispatcher.onBackPressed()
         assertFalse(host().searchController.searchModeActive.value, "second press leaves search mode")
     }
 
@@ -136,43 +131,10 @@ class ReadingSearchBackTest {
         assertTrue(host().searchController.searchModeActive.value, "sanity")
         assertTrue(host().isDrawerOpen, "sanity")
 
-        activity.onBackPressed()
+        activity.onBackPressedDispatcher.onBackPressed()
 
         assertFalse(host().isDrawerOpen, "the drawer closes")
         assertTrue(host().searchController.searchModeActive.value, "search must be untouched")
         assertTrue(host().searchController.sheetVisible.value, "search must be untouched")
-    }
-
-    /**
-     * Step 3: with a focused search field now reachable, long-press back must not fall through to
-     * opening History out from under it — the same swallow the open drawer already gets. Both
-     * branches are driven through the real [NavHostComposeActivity.onKeyLongPress] on the set-up
-     * host: first a positive control (search closed -> the History quick sheet opens, so the
-     * observable below really can see "opened History"), then the swallowed case.
-     */
-    @Test
-    fun longPressBackIsSwallowedWhileSearchIsActive() {
-        // Positive control: with search closed a long BACK opens History on this host.
-        assertTrue(activity.onKeyLongPress(KeyEvent.KEYCODE_BACK, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK)))
-        assertEquals(
-            ReadingQuickSheet.History,
-            host().quickSheet.value,
-            "positive control: with search closed a long BACK must open the History sheet",
-        )
-        host().quickSheet.value = null
-
-        host().openSearch("light")
-
-        val consumed = activity.onKeyLongPress(KeyEvent.KEYCODE_BACK, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK))
-
-        assertTrue(consumed, "must not fall through to opening History")
-        // Slice 8 F2: `consumed` alone cannot tell a swallow from "opened History" -- the nav host's
-        // onKeyLongPress returns true for both -- so the History sheet itself is asserted closed.
-        assertNotEquals(
-            ReadingQuickSheet.History,
-            host().quickSheet.value,
-            "a long BACK while search is active must be swallowed, not open the History sheet",
-        )
-        assertTrue(host().searchController.searchModeActive.value, "swallowing must not itself close search")
     }
 }

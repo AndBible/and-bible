@@ -746,8 +746,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
 在工具列向下滑動以顯示工作區選項。
 長按視窗按鍵以最小化。
 長按朗讀按鍵以進入朗讀設定。
-長按經文位置以跳轉至文件選擇。
-長按返回鍵以進入閱讀歷史。</string>
+長按經文位置以跳轉至文件選擇。</string>
   <string name="help_window_pinning_title">視窗釘選</string>
   <string name="help_window_pinning_text">
 你可以從選單啟用視窗釘選。

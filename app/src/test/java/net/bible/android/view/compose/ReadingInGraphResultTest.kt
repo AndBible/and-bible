@@ -131,6 +131,7 @@ class ReadingInGraphResultTest {
         val deps = ReadingNavDeps(
             host = this,
             windowTitle = "AndBible",
+            onBack = { passThrough -> passThrough() },
             content = { Text("reading view") },
             onKey = { false },
             onScreenTurnedOn = {},

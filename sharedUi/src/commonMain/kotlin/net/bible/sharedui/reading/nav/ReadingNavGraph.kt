@@ -28,6 +28,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedui.PassThroughBackHandler
 import net.bible.sharedui.nav.NavResultChannel
 import net.bible.sharedcore.reading.ReadingViewHostCallbacks
 import net.bible.sharedcore.reading.ReadingViewHostHandlers
@@ -93,6 +94,12 @@ class ReadingNavDeps(
      * window title would silently become the application label.
      */
     val windowTitle: String,
+    /**
+     * BACK on the reading destination (spec 2026-10-08 API 36 §3.1): the host's back chain. Call `passThrough`
+     * to hand the press to what is below the reading view (the NavHost pop, else the Activity fallback), as the
+     * old `super.onBackPressed()` did.
+     */
+    val onBack: (passThrough: () -> Unit) -> Unit,
     /**
      * The reading view itself — see this class's kdoc for why it is one slot. Composed directly in
      * the destination arm, with no wrapper of any kind, so that what the destination renders is
@@ -279,6 +286,9 @@ fun NavGraphBuilder.readingNavGraph(navController: NavHostController, deps: Read
         // error. rememberUpdatedState + delegating handlers make that impossible without giving up
         // the Unit key.
         val currentDeps = rememberUpdatedState(deps)
+        // Always enabled: the chain must be asked first, and the dispatcher cannot ask a callback whether it would
+        // consume. Consequence: no predictive "back to home" animation on the reading view (spec §3.1).
+        PassThroughBackHandler(enabled = true) { passThrough -> currentDeps.value.onBack(passThrough) }
         // One effect for both seams — see this function's kdoc. Keyed on Unit: the destination is
         // argument-free, so there is nothing that could legitimately re-key it, and a re-key would
         // mean an exit/enter pair that History would see as the reading view briefly leaving.

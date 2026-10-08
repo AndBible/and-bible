@@ -709,8 +709,7 @@ Laborspacoj ebligas havi plurajn sendependajn mediojn por labori. Funkcioj de la
 Fingrumu suben el la ilarstrio por vidigi elekton de laborspacoj.
  Frapetadu la butonon de fenestro por minimumigi la aplikaĵon.
  Frapetadu la butonon de parolo por malfermi agordojn pri parolo.
- Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekton de dokumento.
- Frapetadu la REEN‑butonon por aliri liston de historio.</string>
+ Frapetadu la vidigilon de libro kaj verso (ĉe la ilarbreto) por malfermi elekton de dokumento.</string>
   <string name="help_window_pinning_title">Alpingli fenestron</string>
   <string name="help_window_pinning_text">
 Vi povas aktivigi alpingladon de fenestro per la menuo de agordoj (⋮tri punktoj ĉe la supra dekstra angulo). Se alpinglado de fenestro estas aktiva, vi povos vidigi plurajn alpinglitajn fenestrojn en la vido de Biblio, sed nur unu nealplinglitan fenestron. Alpinglitaj fenestroj vidiĝos unue kaj sekve nealpinglitaj fenestroj. Vi povos malfermi tekston de Biblio kiel alpinglitan fenestron, kaj komentojn kaj mapojn kiel nealpinglitajn fenestrojn. Tiel vi havos tekston de Biblio ĉiam malfermitan, kaj povas facile transsalti inter komentojn kaj aliajn kromajn materialojn.</string>

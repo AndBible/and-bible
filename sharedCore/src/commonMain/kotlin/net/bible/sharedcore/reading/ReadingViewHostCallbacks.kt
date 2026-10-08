@@ -20,16 +20,14 @@ package net.bible.sharedcore.reading
  * A key press the reading view claims from its host, decoded by the host so that no platform key
  * type crosses into `commonMain`.
  *
- * Exactly the three the classic `MainBibleActivity.onKeyDown` claimed, and nothing else: the two
- * volume keys, plus BACK **from an external keyboard** (`InputDevice.isExternal` +
- * `SOURCE_KEYBOARD`), which is a different gesture from the on-screen/system back the
- * `PlatformBackHandler`s handle. The host decides which of these an incoming key event IS; the
- * destination decides what to do about it.
+ * The two volume keys. BACK is not one of them: with predictive back on the platform never
+ * dispatches it as a key event (spec 2026-10-08 API 36, decisions 1 and 5), so an external keyboard's
+ * BACK takes the same route as the on-screen one, the `PlatformBackHandler`s. The host decides which
+ * of these an incoming key event IS; the destination decides what to do about it.
  */
 enum class ReadingViewKey {
     VolumeUp,
     VolumeDown,
-    ExternalKeyboardBack,
 }
 
 /**

@@ -744,8 +744,7 @@ Pored straničnika, moguće je i unijeti tekst po želji u radnoj bilježnici.</
         Prevucite prema dolje od naslovne trake da odaberete radnu površinu.
         Dugo pritisnite gumb prozora da ga lako smanjite.
         Dugo pritisnite liniju alata govora za podešavanja izgovaranja.
-        Dugo pritisnite naslov lokacije retka da skočite na izbor dokumenata.
-        Dugo pritisnite gumb Natrag da biste pristupili Povijesti.</string>
+        Dugo pritisnite naslov lokacije retka da skočite na izbor dokumenata.</string>
   <string name="help_window_pinning_title">Isticanje prozora</string>
   <string name="help_window_pinning_text">
 Možete omogućiti isticanje prozora iz izbornika opcije (3-točke, gornji desni kut).
