@@ -8,6 +8,12 @@ on:
       - "sharedCore/**"
       - "iosApp/**"
       - "app/bibleview-js/**"
+      - "gradle/libs.versions.toml"
+      - "settings.gradle.kts"
+      - "build.gradle.kts"
+      - "gradle.properties"
+      - "strings-gen/**"
+      - "app/src/main/res/values/strings.xml"
       - ".github/workflows/ios.yml"
 concurrency: {group: "ios-${{ github.ref }}", cancel-in-progress: true}
 jobs:
@@ -16,6 +22,10 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+      # settings.gradle.kts includes :jsword (a submodule), so the Gradle build needs it. Only that one: the
+      # golden-screenshot and website-media submodules are unused here, and docs/superpowers is private (update=none).
+      - name: Init jsword submodule
+        run: git submodule update --init jsword
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: "17"}
       - uses: actions/setup-node@v4
@@ -25,7 +35,10 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_26.0.1.app
       - name: Gradle JVM args for the Xcode pre-build framework task
-        run: echo "org.gradle.jvmargs=-Xmx6g" >> gradle.properties
+        # Keep the project's other JVM flags; only raise the heap (replace the -Xmx value in place).
+        run: |
+          sed -i.bak -E 's/-Xmx[0-9]+[gGmM]/-Xmx6g/' gradle.properties
+          grep -n "org.gradle.jvmargs" gradle.properties
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Build bibleview-js
@@ -41,18 +54,44 @@ jobs:
         run: |
           mkdir -p build
           set -o pipefail
+          # Under XCUITest the app is a separate process: its NSLog output (I0-WEBVIEW-TERMINATED, js[..] errors,
+          # bridge: logs) never reaches xcodebuild's stdout. Boot the destination first so `log stream` can attach
+          # to that simulator, and stream the app's unified log to a file for the duration of the run.
+          UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; n=sys.argv[1]; print(next(d['udid'] for rt in json.load(sys.stdin)['devices'].values() for d in rt if d['name']==n))" "iPhone 16")
+          xcrun simctl bootstatus "$UDID" -b || true
+          nohup xcrun simctl spawn "$UDID" log stream --style compact --predicate 'process == "AndBiblePoC"' > build/app-iphone.log 2>&1 &
+          echo $! > build/logstream-iphone.pid
+          sleep 2
           xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \
-            -destination "platform=iOS Simulator,name=iPhone 16" \
+            -destination "platform=iOS Simulator,id=$UDID" \
             -resultBundlePath build/ios-iphone.xcresult | tee build/xcodebuild-iphone.log
+      - name: Stop app log stream (iphone)
+        if: always()
+        run: |
+          sleep 2
+          [ -f build/logstream-iphone.pid ] && kill "$(cat build/logstream-iphone.pid)" || true
       - name: Test (iPad, screenshots only)
         if: always()
         run: |
           mkdir -p build
           set -o pipefail
+          # Under XCUITest the app is a separate process: its NSLog output (I0-WEBVIEW-TERMINATED, js[..] errors,
+          # bridge: logs) never reaches xcodebuild's stdout. Boot the destination first so `log stream` can attach
+          # to that simulator, and stream the app's unified log to a file for the duration of the run.
+          UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; n=sys.argv[1]; print(next(d['udid'] for rt in json.load(sys.stdin)['devices'].values() for d in rt if d['name']==n))" "iPad Air 11-inch (M2)")
+          xcrun simctl bootstatus "$UDID" -b || true
+          nohup xcrun simctl spawn "$UDID" log stream --style compact --predicate 'process == "AndBiblePoC"' > build/app-ipad.log 2>&1 &
+          echo $! > build/logstream-ipad.pid
+          sleep 2
           xcodebuild test -project iosApp/iosApp.xcodeproj -scheme iosApp \
-            -destination "platform=iOS Simulator,name=iPad Air 11-inch (M2)" \
+            -destination "platform=iOS Simulator,id=$UDID" \
             -only-testing:iosAppUITests/PocUITests/testScreenshotsAllScenarios \
             -resultBundlePath build/ios-ipad.xcresult | tee build/xcodebuild-ipad.log
+      - name: Stop app log stream (ipad)
+        if: always()
+        run: |
+          sleep 2
+          [ -f build/logstream-ipad.pid ] && kill "$(cat build/logstream-ipad.pid)" || true
       - name: Export screenshots
         if: always()
         run: |
@@ -60,7 +99,16 @@ jobs:
           for r in build/ios-iphone.xcresult build/ios-ipad.xcresult; do
             [ -d "$r" ] && xcrun xcresulttool export attachments --path "$r" --output-path "build/screenshots/$(basename $r .xcresult)" || true
           done
-          grep -c "I0-WEBVIEW-TERMINATED" build/xcodebuild-*.log || true
+      - name: App log summary
+        if: always()
+        run: |
+          for f in build/app-*.log; do
+            [ -f "$f" ] || continue
+            echo "$f: lines=$(wc -l < "$f")"
+            echo "  I0-WEBVIEW-TERMINATED: $(grep -c 'I0-WEBVIEW-TERMINATED' "$f" || true)"
+            echo "  js[ error lines: $(grep -c 'js\[' "$f" || true)"
+            grep 'js\[' "$f" | head -20 || true
+          done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -69,6 +117,7 @@ jobs:
             build/*.xcresult
             build/screenshots
             build/xcodebuild-*.log
+            build/app-*.log
   webkit-shim:
     runs-on: macos-15
     timeout-minutes: 20
