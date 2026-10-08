@@ -18,6 +18,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -27,6 +29,7 @@ import net.bible.sharedcore.bookmark.BookmarkSortMode
 import net.bible.sharedui.history.HistoryScreen
 import net.bible.sharedui.reading.ReadingViewScreen
 import net.bible.sharedui.settings.AppSettingsScreen
+import net.bible.sharedui.strings.LocalStrings
 import net.bible.sharedui.theme.AbTheme
 import net.bible.sharedui.webview.LocalBibleWebView
 
@@ -58,15 +61,23 @@ fun IosPocApp(
 private fun PocContent(scenario: PocScenario, documentJson: String, darkTheme: Boolean) {
     var windowCount by rememberSaveable { mutableStateOf(scenario.windowCount) }
     var active by rememberSaveable { mutableStateOf("w1") }
-    val controllers = remember(documentJson, darkTheme) { mutableMapOf<String, PocBibleViewController>() }
+    val strings = LocalStrings.current
+    // Keyed on documentJson only: a theme flip must not re-create controllers (and so panes).
+    val controllers = remember(documentJson) { mutableMapOf<String, PocBibleViewController>() }
+    // Composition-time getOrPut: a controller is created once per window id, on first use.
     fun controller(id: String) = controllers.getOrPut(id) { PocBibleViewController(id, documentJson, darkTheme) }
+    controllers.values.forEach { it.darkTheme = darkTheme }
 
     val nav = rememberNavController()
     val route = nav.currentBackStackEntryAsState().value?.destination?.route ?: scenario.startRoute
     val activeVerse by controller(active).currentVerse.collectAsState()
     val title = controller(active).titleFor(activeVerse)
 
-    val toggleSplit = { windowCount = if (windowCount == 3) 2 else windowCount + 1 }
+    val toggleSplit = {
+        windowCount = if (windowCount == 3) 2 else windowCount + 1
+        // The active window must still exist after the count shrinks.
+        if (active.removePrefix("w").toIntOrNull()?.let { it > windowCount } != false) active = "w1"
+    }
     val open = { r: String -> nav.navigate(r) { launchSingleTop = true } }
 
     Column(Modifier.fillMaxSize()) {
@@ -89,12 +100,12 @@ private fun PocContent(scenario: PocScenario, documentJson: String, darkTheme: B
                 )
             }
             composable("history") {
-                HistoryScreen("History", pocHistory, null, onSelect = {}, onDismissError = {})
+                HistoryScreen(POC_LABEL_HISTORY, pocHistory, null, onSelect = {}, onDismissError = {})
             }
             composable("bookmarks") {
                 var sort by remember { mutableStateOf(BookmarkSortMode.BIBLE_ORDER) }
                 BookmarksScreen(
-                    title = "Bookmarks", rows = pocBookmarks, filterLabels = emptyList(), selectedFilterIndex = 0,
+                    title = strings.bookmarks, rows = pocBookmarks, filterLabels = emptyList(), selectedFilterIndex = 0,
                     sortMode = sort, searchText = "", showNotes = false, selection = emptySet(),
                     expandedIds = emptySet(), loading = false, onSelectFilter = {},
                     onCycleSort = { sort = sort.next() }, onSearch = {}, searchModeActive = false,
@@ -109,18 +120,18 @@ private fun PocContent(scenario: PocScenario, documentJson: String, darkTheme: B
                     state = pocSettings, onUp = { nav.popBackStack() }, onSwitch = { _, _ -> },
                     onListChoice = { _, _ -> }, onTextInput = { _, _ -> }, onSliderChange = { _, _ -> },
                     onMultiSelectChange = { _, _ -> }, onNavigate = {}, onReset = {},
-                    resetContentDescription = "Reset",
+                    resetContentDescription = strings.resetToDefault,
                 )
             }
         }
         // Stable automation targets for XCUITest and desktop tests (always visible, outside the nav graph).
         Row(Modifier.fillMaxWidth()) {
-            Text(title, Modifier.testTag("reading-title"))
-            if (route != "reading") TextButton({ nav.popBackStack() }, Modifier.testTag("poc-back")) { Text("Back") }
-            TextButton(toggleSplit, Modifier.testTag("poc-split-toggle")) { Text("Split") }
-            TextButton({ open("bookmarks") }, Modifier.testTag("poc-open-bookmarks")) { Text("Bookmarks") }
-            TextButton({ open("history") }, Modifier.testTag("poc-open-history")) { Text("History") }
-            TextButton({ open("settings") }, Modifier.testTag("poc-open-settings")) { Text("Settings") }
+            Text(title, Modifier.testTag("reading-title").semantics { stateDescription = active })
+            if (route != "reading") TextButton({ nav.popBackStack() }, Modifier.testTag("poc-back")) { Text(strings.menuBack) }
+            TextButton(toggleSplit, Modifier.testTag("poc-split-toggle")) { Text(POC_LABEL_SPLIT) }
+            TextButton({ open("bookmarks") }, Modifier.testTag("poc-open-bookmarks")) { Text(strings.bookmarks) }
+            TextButton({ open("history") }, Modifier.testTag("poc-open-history")) { Text(POC_LABEL_HISTORY) }
+            TextButton({ open("settings") }, Modifier.testTag("poc-open-settings")) { Text(POC_LABEL_SETTINGS) }
         }
     }
 }

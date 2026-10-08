@@ -20,7 +20,8 @@ const val POC_FIRST_VERSE_ORDINAL = 36294
 class PocBibleViewController(
     val windowId: String,
     private val documentJson: String,
-    private val darkTheme: Boolean,
+    /** Read at `set_config` time; IosPocApp updates it on theme flips so panes are never re-created. */
+    var darkTheme: Boolean,
 ) {
     private val verse = MutableStateFlow<Int?>(null)
     val currentVerse: StateFlow<Int?> = verse

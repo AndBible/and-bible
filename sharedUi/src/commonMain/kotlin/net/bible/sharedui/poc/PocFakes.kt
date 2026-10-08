@@ -89,3 +89,8 @@ val pocSettings = SettingsScreenState(
         ),
     ),
 )
+
+/** PoC-only fixture labels for chrome that has no existing Strings member (not user-facing app text). */
+const val POC_LABEL_SPLIT = "Split"
+const val POC_LABEL_HISTORY = "History"
+const val POC_LABEL_SETTINGS = "Settings"

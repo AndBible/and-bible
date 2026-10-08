@@ -2,6 +2,7 @@ package net.bible.sharedui.poc
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
@@ -22,9 +23,11 @@ class IosPocAppTest {
         it.config.getOrNull(SemanticsProperties.TestTag)?.startsWith("pane-") == true
     }
 
+    private val dark = androidx.compose.runtime.mutableStateOf(false)
+
     private fun androidx.compose.ui.test.ComposeUiTest.show(scenario: PocScenario) = setContent {
         CompositionLocalProvider(LocalStrings provides iosStrings("en")) {
-            IosPocApp(scenario, documentJson = "{}", darkTheme = false, onPaneCreated = { created += it })
+            IosPocApp(scenario, documentJson = "{}", darkTheme = dark.value, onPaneCreated = { created += it })
         }
     }
 
@@ -41,7 +44,7 @@ class IosPocAppTest {
         onNodeWithTag("poc-open-history").performClick()
         onNodeWithText("Ephesians 2:8").assertExists()          // a fake history entry
         onNodeWithTag("pane-w1").assertDoesNotExist()
-        onNodeWithTag("poc-back").performClick()                // History's up action, tagged in IosPocApp
+        onNodeWithTag("poc-back").performClick()                // the PoC row's back button (HistoryScreen has no up action)
         onNodeWithTag("pane-w1").assertExists()
     }
 
@@ -54,5 +57,26 @@ class IosPocAppTest {
         onNodeWithTag("poc-split-toggle").performClick()   // 3 -> 2
         waitForIdle()
         assertEquals(listOf("w1", "w2", "w3"), created, "w1/w2 must not be re-created")
+    }
+
+    @Test fun themeFlipDoesNotRecreatePanes() = runComposeUiTest {
+        show(PocScenario.SPLIT2)
+        waitForIdle()
+        dark.value = true
+        waitForIdle()
+        assertEquals(listOf("w1", "w2"), created)
+    }
+
+    @Test fun activeWindowIsResetWhenSplitShrinks() = runComposeUiTest {
+        show(PocScenario.SPLIT2)
+        onNodeWithTag("poc-split-toggle").performClick()   // 2 -> 3
+        waitForIdle()
+        onNodeWithTag("pane-w3").performClick()            // activates w3 via the real onWindowActivated path
+        waitForIdle()
+        onNodeWithTag("poc-split-toggle").performClick()   // 3 -> 2
+        waitForIdle()
+        onNodeWithTag("pane-w3").assertDoesNotExist()
+        onNodeWithTag("reading-title").assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "w1"))
+        onAllNodes(isPane).assertCountEquals(2)
     }
 }

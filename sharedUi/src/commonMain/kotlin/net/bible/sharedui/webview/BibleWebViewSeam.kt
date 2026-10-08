@@ -24,7 +24,7 @@ val LocalBibleWebView: ProvidableCompositionLocal<BibleWebViewFactory> =
 fun PlaceholderBibleWebView(controller: PocBibleViewController, modifier: Modifier) {
     val verse by controller.currentVerse.collectAsState()
     val onCreated = LocalPocPaneCreated.current
-    DisposableEffect(controller.windowId) {
+    DisposableEffect(controller) {
         onCreated(controller.windowId)
         onDispose {}
     }
