@@ -44,7 +44,7 @@ private class IosNavDelegate(private val windowId: String) : NSObject(), WKNavig
 }
 
 /** One window's WebView plus the objects WebKit only holds weakly (spec §5 rule 2). */
-private class PaneEntry(val webView: WKWebView, val handler: IosBridgeMessageHandler, val navDelegate: NSObject)
+private class PaneEntry(val webView: WKWebView, val handler: IosBridgeMessageHandler, val navDelegate: IosNavDelegate)
 
 /**
  * Process-wide WebView cache keyed by windowId (spec §5 rule 4): moving a pane or changing the split
@@ -106,7 +106,7 @@ private object IosWebViewHolder {
             addScriptMessageHandler(handler, "bridge")
         }
         webView = WKWebView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0), configuration = config)
-        webView.navigationDelegate = navDelegate as WKNavigationDelegateProtocol
+        webView.navigationDelegate = navDelegate
         load(webView, controller.darkTheme)
         return PaneEntry(webView, handler, navDelegate)
     }
@@ -138,9 +138,13 @@ val IosBibleWebViewFactory: BibleWebViewFactory = { controller, modifier ->
         onDispose {}
     }
     UIKitView(
-        factory = { entry.webView },
+        // Detach from any previous (disposed) interop holder before re-parenting the cached view.
+        // Survival across re-parenting must be confirmed on the simulator in CI (Task 8/9): split 1->2->3->1
+        // and reading -> bookmarks -> back, with no I0-WEBVIEW-TERMINATED.
+        factory = { entry.webView.apply { removeFromSuperview() } },
         modifier = modifier.testTag("pane-${controller.windowId}"),
         update = {},
+        onRelease = {}, // never destroy or detach the shared WKWebView; the holder owns it
         properties = UIKitInteropProperties(isInteractive = true, isNativeAccessibilityEnabled = true),
     )
 }

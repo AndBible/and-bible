@@ -21,6 +21,11 @@ import platform.darwin.NSObject
 class IosBridgeMessageHandler(private val dispatcher: BridgeDispatcher) : NSObject(), WKScriptMessageHandlerProtocol {
     override fun userContentController(userContentController: WKUserContentController, didReceiveScriptMessage: WKScriptMessage) {
         try {
+            // dataWithJSONObject raises an ObjC exception (fatal in K/N) on invalid input, so guard first.
+            if (!NSJSONSerialization.isValidJSONObject(didReceiveScriptMessage.body)) {
+                NSLog("bridge: invalid JSON body")
+                return
+            }
             val data = NSJSONSerialization.dataWithJSONObject(didReceiveScriptMessage.body, 0u, null) ?: return
             val text = NSString.create(data = data, encoding = NSUTF8StringEncoding)?.toString() ?: return
             dispatcher.dispatch(text)
