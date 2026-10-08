@@ -19,7 +19,11 @@
 package net.bible.service.llm.agent
 
 import android.content.Intent
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.job
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
@@ -56,6 +60,18 @@ class AgentForegroundServiceStopTest {
             get(service) as LiveRuns
         }
 
+    /**
+     * Waits until every run the service launched has finished its `finally`. A run still in flight after the
+     * test ends would call `stopForeground` with no Robolectric application and fail an unrelated later test.
+     */
+    private fun joinRuns(service: AgentForegroundService) {
+        val scope = AgentForegroundService::class.java.getDeclaredField("scope").run {
+            isAccessible = true
+            get(service) as CoroutineScope
+        }
+        runBlocking { withTimeout(10_000) { scope.coroutineContext.job.children.toList().forEach { it.join() } } }
+    }
+
     @Test fun aSessionStoppingDoesNotStopTheServiceWhileAnotherRunIsLive() {
         val intent = startIntent()
         val controller = Robolectric.buildService(AgentForegroundService::class.java, intent).create()
@@ -65,7 +81,7 @@ class AgentForegroundServiceStopTest {
             liveRuns(service).add(otherRun)
             // Unknown prompt: this run ends at once; the other run keeps the service alive.
             service.onStartCommand(intent, 0, 1)
-            Thread.sleep(500)
+            joinRuns(service)
 
             AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(ws, false, AgentStopReason.CANCELLED))
 
@@ -84,6 +100,7 @@ class AgentForegroundServiceStopTest {
             service.onStartCommand(intent, 0, 1)
             service.onStartCommand(Intent(AgentForegroundService.CANCEL_AGENT), 0, 2)
             assertTrue(shadowOf(service).isStoppedBySelf)
+            joinRuns(service)
         } finally {
             controller.destroy()
         }
