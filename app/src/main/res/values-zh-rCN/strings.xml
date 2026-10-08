@@ -749,8 +749,7 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
 在工具列向下滑动以显示工作检视选项。
 长按视窗按键以最小化。
 长按朗读按键以进入朗读设定。
-长按经文位置以跳转至文件选择。
-长按返回键以进入阅读历史。</string>
+长按经文位置以跳转至文件选择。</string>
   <string name="help_window_pinning_title">视窗钉选</string>
   <string name="help_window_pinning_text">
 你可以从选单启用视窗钉选。

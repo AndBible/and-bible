@@ -764,7 +764,6 @@ i GT och NT varje dag.
         Långtryck på fönsterknappen för att snabbt minimera.
         Långtryck på uppläsningsknappen i verktygsfältet för att öppna uppläsningsinställningarna.
         Långtryck på bibelstället i verktygsfältet för att välja dokument.
-        Långtryck på bakåtknappen för att öppna historiken.
     </string>
   <string name="help_window_pinning_title">Nåla fast fönster</string>
   <string name="help_window_pinning_text">

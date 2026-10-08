@@ -731,8 +731,7 @@ l’espace de travail précédent / suivant.</string>
 Balayez vers le bas depuis la barre d’outils pour afficher le sélecteur d’espace de travail.
 Appuyez longuement sur le bouton de la fenêtre pour minimiser rapidement.
 Appuyez longuement sur le bouton de la barre d’outils Lecture audio, pour accéder rapidement aux paramètres de lecture audio.
-Appuyez longuement sur le titre de l’emplacement du verset dans la barre d’outils pour accéder au sélecteur de documents.
-Appuyez longuement sur le bouton Retour pour accéder à la liste de l’historique.</string>
+Appuyez longuement sur le titre de l’emplacement du verset dans la barre d’outils pour accéder au sélecteur de documents.</string>
   <string name="help_window_pinning_title">Épinglage de fenêtre</string>
   <string name="help_window_pinning_text">
    Vous pouvez activer l’épinglage des fenêtres à partir du menu des options (trois points, coin supérieur droit).

@@ -734,8 +734,7 @@ Ha az ujját jobbra vagy balra húzza az eszköztáron, a következő vagy előz
 Húzza lefelé az ujját az eszköztáron a munkamentváltó megjelenítéséhez.
 Nyomja hosszan az ablak gombot, ha gyorsan le akarja kicsinyíteni.
 Nyomja hosszan a felolvasás gombot az eszköztáron a felolvasási beállítások megnyitásához.
-Nyomja hosszan a vers szämát az eszköztáron a dokumentum választó előhívásához.
-Nyomja hosszan a Vissza gombot az Előzmények listájának előhívásához. </string>
+Nyomja hosszan a vers szämát az eszköztáron a dokumentum választó előhívásához.</string>
   <string name="help_window_pinning_title">Ablakok kitűzése</string>
   <string name="help_window_pinning_text">
 Az ablakok rögzítését engedélyezheti az opciók menüből (három pont, jobb felső sarok). 

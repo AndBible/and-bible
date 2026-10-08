@@ -758,7 +758,6 @@ Además de los marcadores, puede haber entradas de texto personalizadas en un pi
         Mantenga presionado el botón de la ventana para minimizar rápidamente.
         Mantenga presionado el botón de la barra de herramientas de hablar para ir rápidamente a la configuración de hablar.
         Mantenga presionado el título de ubicación del verso en la barra de herramientas para saltar al selector de documentos.
-        Mantenga presionado el botón Atrás para acceder a la lista Historial.
 </string>
   <string name="help_window_pinning_title">Fijación de ventanas</string>
   <string name="help_window_pinning_text">

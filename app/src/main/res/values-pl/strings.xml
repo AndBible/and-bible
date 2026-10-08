@@ -702,8 +702,7 @@ Obszary robocze umożliwiają pracę w kilku niezależnych środowiskach. Funkcj
 Przeciągnij palcem w dół z paska narzędzi, aby wyświetlić wybierak obszarów roboczych.
  Naciśnij i przytrzymaj przycisk okna, aby zminimalizować aplikację.
  Naciśnij i przytrzymaj przycisk „odtwarzaj”, aby otworzyć opcje czytania.
- Naciśnij i przytrzymaj tytuł księgi na pasku narzędzi, aby otworzyć wybierak dokumentów.
- Naciśnij i przytrzymaj przycisk wstecz, aby wyświetlić listę historii.</string>
+ Naciśnij i przytrzymaj tytuł księgi na pasku narzędzi, aby otworzyć wybierak dokumentów.</string>
   <string name="help_window_pinning_title">Przypinanie okien</string>
   <string name="help_window_pinning_text">
 Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym górnym rogu). Gdy przypinanie okien jest aktywne, można wyświetlać kilka przypiętych okien w widoku Biblii, ale tylko jedno okno nieprzypięte. Najpierw są wyświetlane okna przypięte, następnie nieprzypięte. Możesz przykładowo otworzyć dokumenty Biblii w przypiętych oknach, i komentarze i mapy w oknach nieprzypiętych. W ten sposób będzie można mieć dokumenty Biblii zawsze otwarte i móc szybko przeskakiwać między komentarzami i innymi materiałami.</string>
