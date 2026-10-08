@@ -138,7 +138,7 @@ class AgentForegroundService : Service() {
         // `subscribe`, not `subscribeOnMain`: these reactions run synchronously on the emitter's
         // thread, as the bus's `on` did. stopSelfSafe() must run inside AgentSession.stop() before it
         // returns, and a log renew must not land after a waiting=true release from the same thread
-        // (a main-thread hop could re-acquire the wakelock the agent just released). ABEventBus phase 4.
+        // (a main-thread hop could re-acquire the wakelock the agent just released). Event-bus removal phase 4.
         subscriptions.add(AgentSessionManager.changes.subscribe { change ->
             if (change.workspaceId != currentWorkspaceId) return@subscribe
             when (change) {

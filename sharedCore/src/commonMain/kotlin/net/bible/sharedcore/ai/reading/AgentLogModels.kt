@@ -14,7 +14,7 @@ data class AgentLogEntryVd(
     val showRawLogLink: Boolean = false,
 )
 
-/** Immutable snapshot of the current workspace's agent session, rebuilt on each ABEventBus event. */
+/** Immutable snapshot of the current workspace's agent session, rebuilt on each agent-session change. */
 data class AgentLogSnapshot(
     val running: Boolean = false,
     val entries: List<AgentLogEntryVd> = emptyList(),

@@ -500,7 +500,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     }
 
     /**
-     * Swap this Activity's content view (and its `ABEventBus` subscriptions) out while ANOTHER Activity is on top,
+     * Swap this Activity's content view (and its owner-stream subscriptions) out while ANOTHER Activity is on top,
      * and back when it returns; [CurrentActivityHolder.activate]/[CurrentActivityHolder.deactivate] are the only
      * callers. `MainBibleActivity` was the only override and was deleted in slice 8; the hooks are kept because a
      * second live `NavHostComposeActivity` is still reachable through `StartupActivity`'s `ACTION_VIEW` handoff --

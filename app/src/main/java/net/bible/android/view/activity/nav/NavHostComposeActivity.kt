@@ -1673,7 +1673,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // `false`/`0` is what classic answers too, and will keep answering after R8 --
                 // NOT a placeholder, and not "this host has no strip" (the strip is the READING
                 // VIEW's, via `ComposeReadingViewHost.agentLog`, so R8 would inherit it).
-                // The agent-log strip reports no height: nothing has posted its visibility since Batch Z-late's epilogue, and the event was deleted in ABEventBus removal phase 0.
+                // The agent-log strip reports no height: nothing has posted its visibility since Batch Z-late's epilogue, and the event was deleted in event-bus removal phase 0.
                 agentLogVisible = { false },
                 agentLogHeight = { 0 },
                 restoreButtonsVisible = { hostWindowRepository.workspaceSettings.restoreButtonsVisible },
@@ -1706,7 +1706,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      *
      * **Activity-scoped, not composition-scoped, and that is the whole reason this is a function
      * rather than a `remember { ComposeReadingViewHost(this) }` in the `content` slot.** The
-     * constructor registers on `ABEventBus` and opens a `hostScope`, both of which are undone only
+     * constructor subscribes to the owner `Events` streams (its `Subscriptions`) and opens a `hostScope`, both of which are undone only
      * by [ComposeReadingViewHost.dispose] in [onDestroy]; an instance created per composition would
      * leak one registration every time the reading destination left and re-entered the back stack
      * (a settings visit and back), and each leaked instance would keep answering
@@ -5522,8 +5522,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     // --- Reading plan host baggage ------------------------------------------------------------
     // Ported from classic DailyReadingComposeActivity / DailyReadingListComposeActivity /
     // ReadingPlanSelectorComposeActivity (all three deleted in nav-graph Task 9). Everything here
-    // needs ReadingPlanControl, SpeakControl, JSword's BookName, a SAF launcher or ABEventBus with
-    // :app-module event types — none of which commonMain can reach. (Task 30b ported the reading-plan
+    // needs ReadingPlanControl, SpeakControl, JSword's BookName, a SAF launcher or the
+    // :app-module owner event streams — none of which commonMain can reach. (Task 30b ported the reading-plan
     // start-date picker off the platform `DatePickerDialog`; only computing its initial/max dates
     // still needs ReadingPlanControl here.)
     // See ReadingPlanNavGraph.kt's Deps kdocs for the seam each piece arrives through.
@@ -6491,7 +6491,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         if (dto.isDateBasedPlan && dto.readingDate != null) dto.readingDateString else dto.dayDesc
 
     /**
-     * Classic `DailyReadingComposeActivity`'s `ABEventBus.register(this) { ... }` pair (now the `SpeakChanges` state subscription plus `DatabaseContainer.readingPlansSynced`), registered
+     * Classic `DailyReadingComposeActivity`'s bus `register(this) { ... }` pair (now the `SpeakChanges` state subscription plus `DatabaseContainer.readingPlansSynced`), registered
      * per DESTINATION rather than per host (see [DailyReadingDeps.subscribeEvents]).
      * `recreate()` is classic's own reaction to a plan sync — it now recreates the
      * whole host, which is the documented consequence (plan D5).
@@ -9542,7 +9542,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         hostSubscriptions.cancelAll()
         installProgress.cancelAll()
         // R8, and classic's `MainBibleActivity.onDestroy` (`:1594`) line for line: the reading view
-        // has its OWN ABEventBus registration and its own coroutine scope, so without this an
+        // has its OWN event subscriptions and its own coroutine scope, so without this an
         // Activity recreation leaks one of each per rotation. Null on every non-reading route,
         // where [readingViewHost] was never called; `dispose()` does not null the field, so a
         // second call would still find it and is harmless.

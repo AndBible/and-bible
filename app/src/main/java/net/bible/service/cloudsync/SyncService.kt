@@ -41,7 +41,7 @@ private const val WAKELOCK_TAG = "andbible:sync-wakelock"
 
 /**
  * A cloud sync finished: record `globalLastSynchronized` (read by `ReadingAppBootstrap.synchronize`)
- * and then emit `false`. Before ABEventBus phase 3 the host wrote it, and only when a reading host was
+ * and then emit `false`. Before event-bus removal phase 3 the host wrote it, and only when a reading host was
  * bootstrapped, so a sync started from sync settings recorded nothing (compose-open-findings).
  */
 internal fun recordSyncFinished(now: Long = System.currentTimeMillis()) {

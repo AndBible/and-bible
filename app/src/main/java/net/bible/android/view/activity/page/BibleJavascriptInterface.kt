@@ -36,7 +36,6 @@ import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.page.BibleDocument
