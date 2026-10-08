@@ -117,6 +117,8 @@ egress_allow:
   - plugins.gradle.org
   - services.gradle.org
   - jitpack.io
+  # Android developer docs (Room KMP / Room 3 / androidx release notes)
+  - developer.android.com:443
   # Kotlin/Native (iOS targets)
   - download.jetbrains.com:443
   # Node / npm (app/bibleview-js)
