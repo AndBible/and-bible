@@ -28,7 +28,7 @@ import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 import org.crosswire.common.progress.JobManager
-import org.crosswire.common.progress.Progress.INSTALL_BOOK
+import org.crosswire.common.progress.Progress.Companion.INSTALL_BOOK
 import org.crosswire.common.util.Language
 import org.crosswire.common.util.LucidException
 import org.crosswire.common.util.Version
