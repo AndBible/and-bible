@@ -919,29 +919,29 @@ class AgentExecutor(
             null
         }
         return AgentSessionManager.awaitingUserDecision(workspaceId, toolDisplayName) {
-        when (Dialogs.agentPermissionDialog(activity, toolDisplayName, tool.description, actionDescription)) {
-            Dialogs.AgentPermissionResult.ALLOW -> DialogResult.Allowed
-            Dialogs.AgentPermissionResult.ALLOW_FOR_SESSION -> DialogResult.AllowedForSession
-            Dialogs.AgentPermissionResult.ALLOW_ALL_SESSION -> DialogResult.AllowedAllForSession
-            Dialogs.AgentPermissionResult.ALLOW_ALWAYS -> {
-                // Show confirmation dialog
-                val confirmed = Dialogs.simpleQuestion(
-                    activity,
-                    message = activity.getString(R.string.permission_always_allow_confirm, toolDisplayName) +
-                        "\n\n" + activity.getString(R.string.permission_always_allow_confirm_reset_hint),
-                    title = activity.getString(R.string.permission_always_allow_confirm_title)
-                )
-                if (confirmed) {
-                    val aiSettings = CommonUtils.aiSettings
-                    aiSettings.permanentlyAllowedTools += tool.agentTool
-                    // Also remove from denied set if present
-                    aiSettings.permanentlyDeniedTools -= tool.agentTool
+            when (Dialogs.agentPermissionDialog(activity, toolDisplayName, tool.description, actionDescription)) {
+                Dialogs.AgentPermissionResult.ALLOW -> DialogResult.Allowed
+                Dialogs.AgentPermissionResult.ALLOW_FOR_SESSION -> DialogResult.AllowedForSession
+                Dialogs.AgentPermissionResult.ALLOW_ALL_SESSION -> DialogResult.AllowedAllForSession
+                Dialogs.AgentPermissionResult.ALLOW_ALWAYS -> {
+                    // Show confirmation dialog
+                    val confirmed = Dialogs.simpleQuestion(
+                        activity,
+                        message = activity.getString(R.string.permission_always_allow_confirm, toolDisplayName) +
+                            "\n\n" + activity.getString(R.string.permission_always_allow_confirm_reset_hint),
+                        title = activity.getString(R.string.permission_always_allow_confirm_title)
+                    )
+                    if (confirmed) {
+                        val aiSettings = CommonUtils.aiSettings
+                        aiSettings.permanentlyAllowedTools += tool.agentTool
+                        // Also remove from denied set if present
+                        aiSettings.permanentlyDeniedTools -= tool.agentTool
+                    }
+                    // Allow this operation regardless of confirmation
+                    DialogResult.Allowed
                 }
-                // Allow this operation regardless of confirmation
-                DialogResult.Allowed
+                Dialogs.AgentPermissionResult.DENY -> DialogResult.Denied
             }
-            Dialogs.AgentPermissionResult.DENY -> DialogResult.Denied
-        }
         }
     }
 

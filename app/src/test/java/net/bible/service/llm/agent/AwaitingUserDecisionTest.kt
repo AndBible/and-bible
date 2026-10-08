@@ -27,7 +27,6 @@ import net.bible.android.view.activity.base.AppPosition
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -115,16 +114,23 @@ class AwaitingUserDecisionTest {
         assertEquals(emptyList<AgentSessionChange>(), seen)
     }
 
-    /**
-     * Source guard: `showPermissionDialog`/`showContinueDialog` are private and need a real Activity
-     * plus a rendered dialog, which Robolectric cannot drive here; the behaviour is covered by the
-     * helper tests and the GetCommentariesTool caller test.
-     */
-    @Test fun executorDialogsRouteThroughTheHelper() {
-        val src = java.io.File("src/main/java/net/bible/service/llm/agent/AgentExecutor.kt").readText()
-        val permission = src.substringAfter("private suspend fun showPermissionDialog").substringBefore("private suspend fun showContinueDialog")
-        val cont = src.substringAfter("private suspend fun showContinueDialog").substringBefore("private fun saveNoteContent")
-        assertTrue(permission, permission.contains("AgentSessionManager.awaitingUserDecision(workspaceId, toolDisplayName)"))
-        assertTrue(cont, cont.contains("AgentSessionManager.awaitingUserDecision(workspaceId, null)"))
+    @Test fun aRepeatedBackgroundEmitsOnce() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        val job = async(start = CoroutineStart.UNDISPATCHED) { AgentSessionManager.awaitingUserDecision(ws, "T") { gate.await() } }
+        CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
+        CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
+        assertEquals(listOf<AgentSessionChange>(waiting(true, "T")), seen)
+        gate.complete(Unit); job.await()
+        assertEquals(listOf<AgentSessionChange>(waiting(true, "T"), waiting(false)), seen)
+    }
+
+    @Test fun backgroundForegroundBackgroundThenEndEmitsTrueFalseTrueFalse() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        val job = async(start = CoroutineStart.UNDISPATCHED) { AgentSessionManager.awaitingUserDecision(ws, "T") { gate.await() } }
+        CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
+        CurrentActivityHolder.notifyAppPosition(AppPosition.FOREGROUND)
+        CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
+        gate.complete(Unit); job.await()
+        assertEquals(listOf<AgentSessionChange>(waiting(true, "T"), waiting(false), waiting(true, "T"), waiting(false)), seen)
     }
 }

@@ -248,6 +248,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
      * subscription is cancelled and, if the last emission was `true`, a closing `false` is emitted.
      * Cancellation follows the phase 4 rule (spec §4): the run is ending and the service stops, so
      * nothing is restored and nothing extra is emitted. A null [workspaceId] emits nothing.
+     * Position events are assumed to arrive on the main thread (they do: Activity lifecycle callbacks).
      */
     suspend fun <T> awaitingUserDecision(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T {
         if (workspaceId == null) return block()
