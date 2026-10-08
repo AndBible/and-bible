@@ -1,0 +1,73 @@
+name: iosApp
+options:
+  bundleIdPrefix: org.andbible
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+targets:
+  iosApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: iosApp
+    settings:
+      base:
+        # I0 PoC ids; never the store id org.andbible.ios.
+        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.poc
+        PRODUCT_NAME: AndBiblePoC
+        INFOPLIST_FILE: iosApp/Info.plist
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        # Only the arm64 simulator is a KMP target (no iosX64()), so exclude x86_64 on the
+        # simulator SDK, else embedAndSignAppleFrameworkForXcode fails on "Unknown arch x86_64".
+        "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
+        # The Kotlin framework is produced here by embedAndSignAppleFrameworkForXcode,
+        # keyed on the active configuration + sdk.
+        FRAMEWORK_SEARCH_PATHS:
+          - $(inherited)
+          - $(SRCROOT)/../sharedUi/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+        OTHER_LDFLAGS:
+          - $(inherited)
+          - -framework
+          - SharedUi
+        # Xcode 26 sandboxes run-script phases by default; gradle needs to write outside DerivedData.
+        ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+        CODE_SIGN_STYLE: Automatic
+        # Simulator-only PoC: no team/signing needed.
+        "CODE_SIGNING_REQUIRED[sdk=iphonesimulator*]": "NO"
+        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
+        "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": ""
+    preBuildScripts:
+      - name: "Compile & embed SharedUi Kotlin framework"
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ -z "$JAVA_HOME" ]; then export JAVA_HOME="$(/usr/libexec/java_home -v 17)"; fi
+          cd "$SRCROOT/.."
+          ./gradlew -Dorg.gradle.native=false :sharedUi:embedAndSignAppleFrameworkForXcode
+      - name: "Copy bibleview-js bundle"
+        basedOnDependencyAnalysis: false
+        script: '"$SRCROOT/scripts/copy-bibleview.sh"'
+  iosAppUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [iosAppUITests]
+    dependencies: [{target: iosApp}]
+    settings:
+      base:
+        TEST_TARGET_NAME: iosApp
+        PRODUCT_BUNDLE_IDENTIFIER: org.andbible.ios.poc.uitests
+        "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": "NO"
+schemes:
+  iosApp:
+    build:
+      targets:
+        iosApp: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets: [iosAppUITests]
