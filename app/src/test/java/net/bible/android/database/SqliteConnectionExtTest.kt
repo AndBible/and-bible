@@ -20,9 +20,12 @@ package net.bible.android.database
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
+import net.bible.service.db.columnIndex
 import net.bible.service.db.exec
+import net.bible.service.db.insertOr
 import net.bible.service.db.queryLong
 import net.bible.service.db.queryRows
+import net.bible.service.db.textOrNull
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
@@ -85,5 +88,32 @@ class SqliteConnectionExtTest {
     fun unsupportedBindTypeThrows() {
         val e = assertThrows(IllegalStateException::class.java) { c.exec("INSERT INTO t (s) VALUES (?)", listOf(1)) }
         assertTrue(e.message!!.contains("unsupported bind type"))
+    }
+
+    @Test
+    fun insertOrReturnsRowIdAndHonoursTheConflictClause() {
+        c.execSQL("CREATE TABLE u (id INTEGER PRIMARY KEY AUTOINCREMENT, k TEXT NOT NULL UNIQUE, v TEXT)")
+        assertEquals(1L, c.insertOr("FAIL", "u", "k" to "a", "v" to null))
+        assertEquals(2L, c.insertOr("IGNORE", "u", "k" to "b", "v" to "x"))
+        // duplicate key: IGNORE reports "no row" as -1 and keeps the old row; FAIL/ABORT log and return -1 too
+        assertEquals(-1L, c.insertOr("IGNORE", "u", "k" to "a", "v" to "changed"))
+        assertEquals(-1L, c.insertOr("FAIL", "u", "k" to "a", "v" to "changed"))
+        assertEquals(-1L, c.insertOr("ABORT", "u", "k" to "a", "v" to "changed"))
+        // NOT NULL violation is also swallowed
+        assertEquals(-1L, c.insertOr("FAIL", "u", "k" to null))
+        assertEquals(3L, c.insertOr("REPLACE", "u", "id" to 3, "k" to "a", "v" to "replaced"))
+        assertEquals(listOf(Triple(2L, "b", "x"), Triple(3L, "a", "replaced")),
+            c.queryRows("SELECT id, k, v FROM u ORDER BY id") { Triple(it.getLong(0), it.getText(1), it.getText(2)) })
+    }
+
+    @Test
+    fun textOrNullAndColumnIndexReadByName() {
+        c.exec("INSERT INTO t (s, n) VALUES (?, ?)", "text", null)
+        c.queryRows("SELECT s, n FROM t") {
+            assertEquals(1, it.columnIndex("n"))
+            assertEquals("text", it.textOrNull(it.columnIndex("s")))
+            assertNull(it.textOrNull(it.columnIndex("n")))
+            assertThrows(IllegalArgumentException::class.java) { it.columnIndex("missing") }
+        }
     }
 }
