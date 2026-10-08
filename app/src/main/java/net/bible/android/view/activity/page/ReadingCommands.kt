@@ -1482,7 +1482,7 @@ class ReadingCommands(
      * The workspace the owning host is showing. The setter is the real workspace switch, moved here
      * verbatim from `MainBibleActivity` (Ruling D): every step of it is either this collaborator's
      * own ([bibleViewFactory]), a Koin singleton ([windowControl]), the owning host's repository
-     * supplier, a global (`CommonUtils.settings`), or one of the two host callbacks
+     * supplier, a global (`CommonUtils.settings`, `UserMessages`), or one of the two host callbacks
      * a second host must genuinely answer ([ReadingCommandsHostCallbacks.documentViewManager] and
      * [ReadingCommandsHostCallbacks.updateBottomBars]). Only [ReadingCommandsHostCallbacks.updateTitle]
      * is honestly nothing-to-do for a Compose host -- and it is the one step a dropped workspace
