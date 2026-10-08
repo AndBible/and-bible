@@ -15,7 +15,6 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-
 package net.bible.service.llm.agent
 
 import android.os.Looper
@@ -38,6 +37,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * F123: an `executePrompt` that loses `tryStart` must report it, must not run `onStarted` (regeneration deletes
@@ -86,5 +86,35 @@ class ExecutePromptLostRaceTest {
         assertFalse("onStarted must not run for a lost race", started)
         assertTrue("the winner's job stays bound", AgentSessionManager.getSession(ws)!!.job === winner)
         assertFalse(winner.isCancelled)
+    }
+
+    /**
+     * A failing onStarted (e.g. a DB error deleting the old page) must not leave the session stuck "running".
+     * stop() cancels the bound job, which is this very coroutine, so the deferred ends cancelled rather than
+     * completed; the failure is therefore captured inside the coroutine instead of read from the result.
+     */
+    @Test fun aThrowingOnStartedLeavesTheSessionStopped() {
+        CommonUtils.windowControl.windowRepository.initialize()
+        val failure = AtomicReference<Throwable?>()
+        val d = CoroutineScope(Dispatchers.IO).async {
+            try {
+                AgentSessionManager.executePrompt(
+                    AgentPrompt(name = "t"),
+                    Selection(bookInitials = null, startOrdinal = -1, startOffset = null, endOrdinal = -1, endOffset = null, bookmarks = emptyList()),
+                    skipCache = true,
+                    onStarted = { throw IllegalStateException("boom") },
+                )
+            } catch (e: IllegalStateException) {
+                failure.set(e)
+            }
+        }
+        val deadline = System.currentTimeMillis() + 30_000
+        while (!d.isCompleted) {
+            check(System.currentTimeMillis() < deadline) { "executePrompt did not return in 30 s" }
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(10)
+        }
+        assertTrue("the failure must propagate", failure.get()?.message == "boom")
+        assertFalse("the session must not stay running", AgentSessionManager.getSession(ws)!!.isRunning)
     }
 }

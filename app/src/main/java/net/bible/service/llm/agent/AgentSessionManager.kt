@@ -406,7 +406,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
             }
             return false
         }
-        onStarted()
+        try {
+            onStarted()
+        } catch (e: Exception) {
+            // The session is already marked running; without a stop() every later run reports "already running".
+            session.stop()
+            throw e
+        }
 
         // Track write tools usage
         val usedWriteToolsTracker = AtomicBoolean(false)
