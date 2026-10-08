@@ -26,8 +26,8 @@ import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
 import net.bible.android.control.backup.SaveOrShare
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.android.database.migrations.getColumnNames
-import net.bible.android.database.migrations.getColumnNamesJoined
+import net.bible.service.db.getColumnNames
+import net.bible.service.db.getColumnNamesJoined
 import net.bible.android.database.migrations.joinColumnNames
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.AndBibleBackupManifest

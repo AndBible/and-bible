@@ -17,15 +17,18 @@
 
 package net.bible.service.db.oldmigrations
 
-import android.content.ContentValues
-import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
+import net.bible.service.db.columnIndex
+import net.bible.service.db.insertOr
+import net.bible.service.db.queryRows
+import net.bible.service.db.textOrNull
+import net.bible.android.database.migrations.Migration
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.database.bookmarks.KJVA
-import net.bible.android.database.migrations.LegacyMigration
 import net.bible.android.database.migrations.TAG
 import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.passage.VerseRange
@@ -33,79 +36,68 @@ import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 
-private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : LegacyMigration(37, 38) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Bookmark` ADD COLUMN `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0")
             execSQL("UPDATE Bookmark SET lastUpdatedOn=createdAt")
 
-            val c = db.query("SELECT * from mynote")
-            val idIdx = c.getColumnIndex("_id")
-            val keyIdx = c.getColumnIndex("key")
-            val v11nIdx = c.getColumnIndex("versification")
-            val myNoteIdx = c.getColumnIndex("mynote")
-            val lastUpdatedOnIdx = c.getColumnIndex("last_updated_on")
-            val createdOnIdx = c.getColumnIndex("created_on")
-
-            c.moveToFirst()
-
-            var labelId = -1L
-            if(!c.isAfterLast) {
-                val labelValues = ContentValues().apply {
-                    put("name", BibleApplication.application.getString(R.string.migrated_my_notes))
-                }
-                labelId = db.insert("Label", SQLiteDatabase.CONFLICT_FAIL, labelValues)
+            class MyNote(val id: Long, val key: String?, val v11n: String?, val myNote: String?, val lastUpdatedOn: Long, val createdOn: Long)
+            val myNotes = db.queryRows("SELECT * from mynote") { st ->
+                val idIdx = st.columnIndex("_id")
+                val keyIdx = st.columnIndex("key")
+                val v11nIdx = st.columnIndex("versification")
+                val myNoteIdx = st.columnIndex("mynote")
+                val lastUpdatedOnIdx = st.columnIndex("last_updated_on")
+                val createdOnIdx = st.columnIndex("created_on")
+                MyNote(st.getLong(idIdx), st.textOrNull(keyIdx), st.textOrNull(v11nIdx), st.textOrNull(myNoteIdx),
+                    st.getLong(lastUpdatedOnIdx), st.getLong(createdOnIdx))
             }
 
-            while(!c.isAfterLast) {
-                val id = c.getLong(idIdx)
-                val key = c.getString(keyIdx)
+            var labelId = -1L
+            if(myNotes.isNotEmpty()) {
+                labelId = db.insertOr("FAIL", "Label", "name" to BibleApplication.application.getString(R.string.migrated_my_notes))
+            }
+
+            for (c in myNotes) {
+                val key = c.key
                 var v11n: Versification? = null
                 var verseRange: VerseRange? = null
                 var verseRangeInKjv: VerseRange? = null
 
                 try {
                     v11n = Versifications.instance().getVersification(
-                        c.getString(v11nIdx) ?: Versifications.DEFAULT_V11N
+                        c.v11n ?: Versifications.DEFAULT_V11N
                     )
                     verseRange = VerseRangeFactory.fromString(v11n, key)
                     verseRangeInKjv = verseRange.toV11n(KJVA)
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to migrate bookmark: v11n:$v11n verseRange:$verseRange verseRangeInKjv:$verseRangeInKjv", e)
-                    c.moveToNext()
                     continue
                 }
 
-                val createdAt = c.getLong(createdOnIdx)
-                val lastUpdatedOn = c.getLong(lastUpdatedOnIdx)
-                val myNote = c.getString(myNoteIdx)
-                val newValues = ContentValues()
-                newValues.apply {
-                    put("v11n", v11n.name)
-                    put("kjvOrdinalStart", verseRangeInKjv.start.ordinal)
-                    put("kjvOrdinalEnd", verseRangeInKjv.end.ordinal)
-                    put("ordinalStart", verseRange.start.ordinal)
-                    put("ordinalEnd", verseRange.end.ordinal)
-                    put("createdAt", createdAt)
-                    put("lastUpdatedOn", lastUpdatedOn)
-                    put("notes", myNote)
-                }
-                val bookmarkId = db.insert("Bookmark", SQLiteDatabase.CONFLICT_FAIL, newValues)
+                val bookmarkId = db.insertOr("FAIL", "Bookmark",
+                    "v11n" to v11n.name,
+                    "kjvOrdinalStart" to verseRangeInKjv.start.ordinal,
+                    "kjvOrdinalEnd" to verseRangeInKjv.end.ordinal,
+                    "ordinalStart" to verseRange.start.ordinal,
+                    "ordinalEnd" to verseRange.end.ordinal,
+                    "createdAt" to c.createdOn,
+                    "lastUpdatedOn" to c.lastUpdatedOn,
+                    "notes" to c.myNote,
+                )
 
-                val bookmarkLabelValues = ContentValues().apply {
-                    put("bookmarkId", bookmarkId)
-                    put("labelId", labelId)
-                }
-                db.insert("BookmarkToLabel", SQLiteDatabase.CONFLICT_FAIL, bookmarkLabelValues)
-                c.moveToNext()
+                db.insertOr("FAIL", "BookmarkToLabel", "bookmarkId" to bookmarkId, "labelId" to labelId)
             }
             execSQL("DROP TABLE mynote;")
         }
     }
 }
 
-private val MIGRATION_53_54_booleanSettings = object : LegacyMigration(53, 54) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+private val MIGRATION_53_54_booleanSettings = object : Migration(53, 54) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_primaryLabelId` ON `Bookmark` (`primaryLabelId`)")
             execSQL("CREATE TABLE IF NOT EXISTS `BooleanSetting` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))");
@@ -114,33 +106,13 @@ private val MIGRATION_53_54_booleanSettings = object : LegacyMigration(53, 54) {
             execSQL("CREATE TABLE IF NOT EXISTS `DoubleSetting` (`key` TEXT NOT NULL, `value` REAL NOT NULL, PRIMARY KEY(`key`))")
             val sharedPreferences = CommonUtils.realSharedPreferences
             for((k, v) in sharedPreferences.all) {
-                val values = ContentValues()
-                values.put("key", k)
                 when(v) {
-                    is Long -> {
-                        values.put("value", v)
-                        db.insert("LongSetting", SQLiteDatabase.CONFLICT_IGNORE, values)
-                    }
-                    is Int -> {
-                        values.put("value", v)
-                        db.insert("LongSetting", SQLiteDatabase.CONFLICT_IGNORE, values)
-                    }
-                    is Boolean -> {
-                        values.put("value", v)
-                        db.insert("BooleanSetting", SQLiteDatabase.CONFLICT_IGNORE, values)
-                    }
-                    is String -> {
-                        values.put("value", v)
-                        db.insert("StringSetting", SQLiteDatabase.CONFLICT_IGNORE, values)
-                    }
-                    is Float -> {
-                        values.put("value", v)
-                        db.insert("DoubleSetting", SQLiteDatabase.CONFLICT_IGNORE, values)
-                    }
-                    is Double -> {
-                        values.put("value", v)
-                        db.insert("DoubleSetting", SQLiteDatabase.CONFLICT_IGNORE, values)
-                    }
+                    is Long -> db.insertOr("IGNORE", "LongSetting", "key" to k, "value" to v)
+                    is Int -> db.insertOr("IGNORE", "LongSetting", "key" to k, "value" to v)
+                    is Boolean -> db.insertOr("IGNORE", "BooleanSetting", "key" to k, "value" to v)
+                    is String -> db.insertOr("IGNORE", "StringSetting", "key" to k, "value" to v)
+                    is Float -> db.insertOr("IGNORE", "DoubleSetting", "key" to k, "value" to v)
+                    is Double -> db.insertOr("IGNORE", "DoubleSetting", "key" to k, "value" to v)
                     else -> {
                         Log.e(TAG, "Illegal value '$k', $v")
                     }
@@ -150,8 +122,9 @@ private val MIGRATION_53_54_booleanSettings = object : LegacyMigration(53, 54) {
     }
 }
 
-private val MIGRATION_5_6 = object : LegacyMigration(5, 6) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+private val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         ReadingPlanDatabaseOperations.instance.onCreate(db)
         ReadingPlanDatabaseOperations.instance.migratePrefsToDatabase(db)
     }

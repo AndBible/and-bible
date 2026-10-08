@@ -21,7 +21,9 @@ package net.bible.android.database.migrations
 
 import android.provider.BaseColumns
 import android.util.Log
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
+import net.bible.service.db.queryRows
 
 
 /**
@@ -65,11 +67,11 @@ private constructor() {
     /** Called when no database exists in disk and the helper class needs
      * to create a new one.
      */
-    fun onCreate(db: SupportSQLiteDatabase) {
+    fun onCreate(db: SQLiteConnection) {
         bootstrapDB(db)
     }
 
-    private fun bootstrapDB(db: SupportSQLiteDatabase) {
+    private fun bootstrapDB(db: SQLiteConnection) {
         Log.i(TAG, "Bootstrapping AndBible database (MyNotes)")
         db.execSQL("CREATE TABLE " + Table.MYNOTE + " (" +
             MyNoteColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -85,7 +87,7 @@ private constructor() {
             ");")
     }
 
-    fun upgradeToVersion3(db: SupportSQLiteDatabase) {
+    fun upgradeToVersion3(db: SQLiteConnection) {
         Log.i(TAG, "Upgrading MyNote db to version 3")
         if (!tableExists(db, Table.MYNOTE)) {
             Log.w(TAG, "MyNote table doesn't exist, creating it")
@@ -95,11 +97,8 @@ private constructor() {
         db.execSQL("ALTER TABLE " + Table.MYNOTE + " ADD COLUMN " + MyNoteColumn.VERSIFICATION + " TEXT;")
     }
 
-    private fun tableExists(db: SupportSQLiteDatabase, tableName: String): Boolean {
-        val cursor = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name=?", arrayOf(tableName))
-        val exists = cursor.count > 0
-        cursor.close()
-        return exists
+    private fun tableExists(db: SQLiteConnection, tableName: String): Boolean {
+        return db.queryRows("SELECT name FROM sqlite_master WHERE type='table' AND name=?", tableName) { 1 }.isNotEmpty()
     }
 
     companion object {

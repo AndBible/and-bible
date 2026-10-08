@@ -18,11 +18,8 @@
 package net.bible.android.database.migrations
 
 import android.app.Application
-import android.content.ContentValues
-import io.requery.android.database.sqlite.SQLiteDatabase
-import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT
-import androidx.core.database.getStringOrNull
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.database.BookmarkDatabase
@@ -32,16 +29,24 @@ import net.bible.android.database.RepoDatabase
 import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.json
-import java.sql.Blob
-import java.util.UUID
+import net.bible.service.db.exec
+import net.bible.service.db.insertOr
+import net.bible.service.db.openSqlite
+import net.bible.service.db.queryLong
+import net.bible.service.db.queryRows
+import net.bible.service.db.textOrNull
 
 const val GENERATE_UUID4_SQL = "randomblob(16)"
 
-class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app: Application) {
+/**
+ * Copies the pre-split monolithic database ([oldDb], already migrated to its last version) into the per-topic
+ * database files, which it creates at `user_version` 1 so Room migrates each on its first access.
+ * [oldDb] must be a connection opened outside Room (`openSqlite`), with no transaction open: it ATTACHes
+ * each new file in turn.
+ */
+class DatabaseSplitMigrations(private val oldDb: SQLiteConnection, val app: Application) {
 
-    private fun setPragmas(db: SQLiteDatabase)  = db.run {
-        db.version = 1
-    }
+    private fun setPragmas(db: SQLiteConnection) = db.execSQL("PRAGMA user_version = 1")
 
     fun migrateAll() {
         readingPlanDb()
@@ -52,7 +57,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
         settingsDb()
     }
 
-    private fun copyData(db: SupportSQLiteDatabase, tableName: String, newTableName_: String? = null) = db.run {
+    private fun copyData(db: SQLiteConnection, tableName: String, newTableName_: String? = null) = db.run {
         val newTableName = newTableName_?: tableName
         val cols = getColumnNamesJoined(oldDb, newTableName, "new")
         execSQL("INSERT INTO new.$newTableName ($cols) SELECT $cols FROM $tableName")
@@ -60,7 +65,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
 
     private fun bookmarkDb() {
         val dbFileName = app.getDatabasePath(BookmarkDatabase.dbFileName).absolutePath
-        SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY).use { _db ->
+        openSqlite(dbFileName).use { _db ->
             _db.execSQL("CREATE TABLE IF NOT EXISTS `Bookmark` (`kjvOrdinalStart` INTEGER NOT NULL, `kjvOrdinalEnd` INTEGER NOT NULL, `ordinalStart` INTEGER NOT NULL, `ordinalEnd` INTEGER NOT NULL, `v11n` TEXT NOT NULL, `playbackSettings` TEXT, `id` BLOB NOT NULL, `createdAt` INTEGER NOT NULL, `book` TEXT, `startOffset` INTEGER, `endOffset` INTEGER, `primaryLabelId` BLOB DEFAULT NULL, `notes` TEXT DEFAULT NULL, `lastUpdatedOn` INTEGER NOT NULL DEFAULT 0, `wholeVerse` INTEGER NOT NULL DEFAULT 0, `type` TEXT DEFAULT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`primaryLabelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalStart` ON `Bookmark` (`kjvOrdinalStart`)");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Bookmark_kjvOrdinalEnd` ON `Bookmark` (`kjvOrdinalEnd`)");
@@ -146,7 +151,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
 
     private fun readingPlanDb() {
         val dbFileName = app.getDatabasePath(ReadingPlanDatabase.dbFileName).absolutePath
-        SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY).use { _db ->
+        openSqlite(dbFileName).use { _db ->
             _db.execSQL("CREATE TABLE IF NOT EXISTS `ReadingPlan` (`planCode` TEXT NOT NULL, `planStartDate` INTEGER NOT NULL, `planCurrentDay` INTEGER NOT NULL DEFAULT 1, `id` BLOB NOT NULL, PRIMARY KEY(`id`))");
             _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_ReadingPlan_planCode` ON `ReadingPlan` (`planCode`)");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `ReadingPlanStatus` (`planCode` TEXT NOT NULL, `planDay` INTEGER NOT NULL, `readingStatus` TEXT NOT NULL, `id` BLOB NOT NULL, PRIMARY KEY(`id`))");
@@ -203,11 +208,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
 
     private fun workspaceDb() {
         val dbFileName = app.getDatabasePath(WorkspaceDatabase.dbFileName).absolutePath
-        SQLiteDatabase.openDatabase(
-            dbFileName,
-            null,
-            SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY
-        ).use { _db ->
+        openSqlite(dbFileName).use { _db ->
             _db.execSQL("CREATE TABLE IF NOT EXISTS `Workspace` (`name` TEXT NOT NULL, `contentsText` TEXT, `id` BLOB NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT 0, `unPinnedWeight` REAL DEFAULT NULL, `maximizedWindowId` BLOB, `primaryTargetLinksWindowId` BLOB DEFAULT NULL, `text_display_settings_strongsMode` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_expandXrefs` INTEGER DEFAULT NULL, `text_display_settings_showXrefs` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_hyphenation` INTEGER DEFAULT NULL, `text_display_settings_topMargin` INTEGER DEFAULT NULL, `text_display_settings_fontSize` INTEGER DEFAULT NULL, `text_display_settings_fontFamily` TEXT DEFAULT NULL, `text_display_settings_lineSpacing` INTEGER DEFAULT NULL, `text_display_settings_bookmarksHideLabels` TEXT DEFAULT NULL, `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL, `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL, `workspace_settings_enableTiltToScroll` INTEGER DEFAULT 0, `workspace_settings_enableReverseSplitMode` INTEGER DEFAULT 0, `workspace_settings_autoPin` INTEGER DEFAULT 1, `workspace_settings_speakSettings` TEXT DEFAULT NULL, `workspace_settings_recentLabels` TEXT DEFAULT NULL, `workspace_settings_favouriteLabels` TEXT DEFAULT NULL, `workspace_settings_autoAssignLabels` TEXT DEFAULT NULL, `workspace_settings_autoAssignPrimaryLabel` BLOB DEFAULT NULL, `workspace_settings_hideCompareDocuments` TEXT DEFAULT NULL, `workspace_settings_limitAmbiguousModalSize` INTEGER DEFAULT 0, `workspace_settings_workspaceColor` INTEGER DEFAULT NULL, PRIMARY KEY(`id`))");
             _db.execSQL("CREATE TABLE IF NOT EXISTS `Window` (`workspaceId` BLOB NOT NULL, `isSynchronized` INTEGER NOT NULL, `isPinMode` INTEGER NOT NULL, `isLinksWindow` INTEGER NOT NULL, `id` BLOB NOT NULL, `orderNumber` INTEGER NOT NULL, `targetLinksWindowId` BLOB DEFAULT NULL, `syncGroup` INTEGER NOT NULL DEFAULT 0, `window_layout_state` TEXT NOT NULL, `window_layout_weight` REAL NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
             _db.execSQL("CREATE INDEX IF NOT EXISTS `index_Window_workspaceId` ON `Window` (`workspaceId`)");
@@ -309,61 +310,56 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             ).joinToString(",") { "`workspace_settings_$it`" }
 
             val labelMap = mutableMapOf<Long, ByteArray>()
-            query("SELECT id,uuid FROM LabelMap").use {
-                while (it.moveToNext()) {
-                    labelMap[it.getLong(0)] = it.getBlob(1)
-                }
-            }
+            queryRows("SELECT id,uuid FROM LabelMap") { labelMap[it.getLong(0)] = it.getBlob(1) }
 
-            query("SELECT id,$workspaceSettings,`text_display_settings_bookmarksHideLabels` FROM new.Workspace").use { cur ->
-                while (cur.moveToNext()) {
-                    val id = cur.getBlob(0)
-                    val recentLabels: List<OldRecentLabel> = cur.getStringOrNull(1)?.let {json.decodeFromString(serializer(), it) } ?: emptyList()
-                    val favouriteLabels: List<Long> = cur.getStringOrNull(2)?.let { json.decodeFromString(serializer(), it)} ?: emptyList()
-                    val autoAssignLabels: List<Long> = cur.getStringOrNull(3)?.let {json.decodeFromString(serializer(), it)} ?: emptyList()
-                    val newRecentLabels: String = json.encodeToString(serializer(), recentLabels.mapNotNull { oldRecentLabel ->
-                        val labelId = labelMap[oldRecentLabel.labelId] ?: return@mapNotNull null
-                        NewRecentLabel(IdType.fromByteArray(labelId).toString(), oldRecentLabel.lastAccess)
-                    })
-                    val newFavouriteLabels: String = json.encodeToString(serializer(), favouriteLabels.mapNotNull {
+            class WorkspaceRow(val id: ByteArray, val recent: String?, val favourite: String?, val autoAssign: String?, val hideLabels: String?)
+            val workspaceRows = queryRows("SELECT id,$workspaceSettings,`text_display_settings_bookmarksHideLabels` FROM new.Workspace") { cur ->
+                WorkspaceRow(cur.getBlob(0), cur.textOrNull(1), cur.textOrNull(2), cur.textOrNull(3), cur.textOrNull(4))
+            }
+            for (cur in workspaceRows) {
+                val id = cur.id
+                val recentLabels: List<OldRecentLabel> = cur.recent?.let {json.decodeFromString(serializer(), it) } ?: emptyList()
+                val favouriteLabels: List<Long> = cur.favourite?.let { json.decodeFromString(serializer(), it)} ?: emptyList()
+                val autoAssignLabels: List<Long> = cur.autoAssign?.let {json.decodeFromString(serializer(), it)} ?: emptyList()
+                val newRecentLabels: String = json.encodeToString(serializer(), recentLabels.mapNotNull { oldRecentLabel ->
+                    val labelId = labelMap[oldRecentLabel.labelId] ?: return@mapNotNull null
+                    NewRecentLabel(IdType.fromByteArray(labelId).toString(), oldRecentLabel.lastAccess)
+                })
+                val newFavouriteLabels: String = json.encodeToString(serializer(), favouriteLabels.mapNotNull {
+                    val v = labelMap[it] ?: return@mapNotNull null
+                    IdType.fromByteArray(v).toString()
+                })
+                val newAutoAssignLabels: String = json.encodeToString(serializer(), autoAssignLabels.mapNotNull {
+                    val v = labelMap[it] ?: return@mapNotNull null
+                    IdType.fromByteArray(v).toString()
+                })
+                val bookmarksHideLabelsStr = cur.hideLabels
+                val newBookmarksHideLabels: String? = if(bookmarksHideLabelsStr != null) {
+                    val bookmarksHideLabels: List<Long> =
+                        json.decodeFromString(serializer(), bookmarksHideLabelsStr)
+                    json.encodeToString(serializer(), bookmarksHideLabels.mapNotNull {
                         val v = labelMap[it] ?: return@mapNotNull null
                         IdType.fromByteArray(v).toString()
                     })
-                    val newAutoAssignLabels: String = json.encodeToString(serializer(), autoAssignLabels.mapNotNull {
-                        val v = labelMap[it] ?: return@mapNotNull null
-                        IdType.fromByteArray(v).toString()
-                    })
-                    val bookmarksHideLabelsStr = cur.getStringOrNull(4)
-                    val newBookmarksHideLabels: String? = if(bookmarksHideLabelsStr != null) {
-                        val bookmarksHideLabels: List<Long> =
-                            json.decodeFromString(serializer(), bookmarksHideLabelsStr)
-                        json.encodeToString(serializer(), bookmarksHideLabels.mapNotNull {
-                            val v = labelMap[it] ?: return@mapNotNull null
-                            IdType.fromByteArray(v).toString()
-                        })
-                    } else null
+                } else null
 
-                    update("new.Workspace", CONFLICT_ABORT, ContentValues().apply {
-                        put("workspace_settings_recentLabels", newRecentLabels)
-                        put("workspace_settings_favouriteLabels", newFavouriteLabels)
-                        put("workspace_settings_autoAssignLabels", newAutoAssignLabels)
-                        put("text_display_settings_bookmarksHideLabels", newBookmarksHideLabels)
-                    }, "id = ?", arrayOf(id))
-                }
+                exec(
+                    "UPDATE OR ABORT new.Workspace SET workspace_settings_recentLabels = ?, workspace_settings_favouriteLabels = ?, " +
+                        "workspace_settings_autoAssignLabels = ?, text_display_settings_bookmarksHideLabels = ? WHERE id = ?",
+                    newRecentLabels, newFavouriteLabels, newAutoAssignLabels, newBookmarksHideLabels, id
+                )
             }
 
-            query("SELECT windowId,text_display_settings_bookmarksHideLabels FROM new.PageManager WHERE text_display_settings_bookmarksHideLabels IS NOT NULL").use { cur ->
-                while (cur.moveToNext()) {
-                    val id = cur.getBlob(0)
-                    val newBookmarksHideLabels: String = run {
-                        val bookmarksHideLabels: List<Long> =
-                            cur.getStringOrNull(1)?.let {json.decodeFromString(serializer(), it) } ?: emptyList()
-                        json.encodeToString(serializer(), bookmarksHideLabels.mapNotNull { labelMap[it] })
-                    }
-                    update("new.PageManager", CONFLICT_ABORT, ContentValues().apply {
-                        put("text_display_settings_bookmarksHideLabels", newBookmarksHideLabels)
-                    }, "windowId = ?", arrayOf(id))
+            val pageManagerRows = queryRows("SELECT windowId,text_display_settings_bookmarksHideLabels FROM new.PageManager WHERE text_display_settings_bookmarksHideLabels IS NOT NULL") { cur ->
+                cur.getBlob(0) to cur.textOrNull(1)
+            }
+            for ((id, hideLabelsStr) in pageManagerRows) {
+                val newBookmarksHideLabels: String = run {
+                    val bookmarksHideLabels: List<Long> =
+                        hideLabelsStr?.let {json.decodeFromString(serializer(), it) } ?: emptyList()
+                    json.encodeToString(serializer(), bookmarksHideLabels.mapNotNull { labelMap[it] })
                 }
+                exec("UPDATE OR ABORT new.PageManager SET text_display_settings_bookmarksHideLabels = ? WHERE windowId = ?", newBookmarksHideLabels, id)
             }
 
             execSQL("PRAGMA foreign_keys=ON;")
@@ -373,7 +369,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
 
     private fun repoDb() {
         val dbFileName = app.getDatabasePath(RepoDatabase.dbFileName).absolutePath
-        SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY).use { db -> db.run {
+        openSqlite(dbFileName).use { db -> db.run {
             execSQL("CREATE TABLE IF NOT EXISTS `CustomRepository` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `type` TEXT NOT NULL, `host` TEXT NOT NULL, `catalogDirectory` TEXT NOT NULL, `packageDirectory` TEXT NOT NULL, `manifestUrl` TEXT)");
             execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_CustomRepository_name` ON `CustomRepository` (`name`)");
             execSQL("CREATE TABLE IF NOT EXISTS `SwordDocumentInfo` (`initials` TEXT NOT NULL, `name` TEXT NOT NULL, `abbreviation` TEXT NOT NULL, `language` TEXT NOT NULL, `repository` TEXT NOT NULL, `cipherKey` TEXT, PRIMARY KEY(`initials`))");
@@ -399,7 +395,7 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
 
     private fun settingsDb() {
         val dbFileName = app.getDatabasePath(SettingsDatabase.dbFileName).absolutePath
-        SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY).use { db ->
+        openSqlite(dbFileName).use { db ->
             db.run {
                 execSQL("CREATE TABLE IF NOT EXISTS `BooleanSetting` (`key` TEXT NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY(`key`))");
                 execSQL("CREATE TABLE IF NOT EXISTS `StringSetting` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))");
@@ -419,19 +415,15 @@ class DatabaseSplitMigrations(private val oldDb: SupportSQLiteDatabase, val app:
             copyData(oldDb, "DoubleSetting")
 
             // Migrate current_workspace_id
-            val oldWorkspaceId = query("SELECT value FROM new.LongSetting WHERE key = 'current_workspace_id'").use { cur ->
-                if (cur.moveToNext()) cur.getLong(0) else null
-            }
-            delete("new.LongSetting", "key = 'current_workspace_id'", null)
+            val oldWorkspaceId = queryLong("SELECT value FROM new.LongSetting WHERE key = 'current_workspace_id'")
+            exec("DELETE FROM new.LongSetting WHERE key = 'current_workspace_id'")
 
-            val newWorkspaceId = query("SELECT uuid FROM WorkspaceMap WHERE id = ?", arrayOf(oldWorkspaceId)).use { cur ->
-                if (cur.moveToNext()) cur.getBlob(0) else null
-            }
+            val newWorkspaceId = queryRows("SELECT uuid FROM WorkspaceMap WHERE id = ?", oldWorkspaceId) { it.getBlob(0) }.firstOrNull()
             if(oldWorkspaceId != null && newWorkspaceId != null) {
-                insert("new.StringSetting", CONFLICT_ABORT, ContentValues().apply {
-                    put("key", "current_workspace_id")
-                    put("value", IdType.fromByteArray(newWorkspaceId).toString())
-                })
+                insertOr("ABORT", "new.StringSetting",
+                    "key" to "current_workspace_id",
+                    "value" to IdType.fromByteArray(newWorkspaceId).toString()
+                )
             }
 
             execSQL("PRAGMA foreign_keys=ON;")

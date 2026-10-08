@@ -21,7 +21,7 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
-import net.bible.android.database.migrations.getColumnNamesJoined
+import net.bible.service.db.getColumnNamesJoined
 import net.bible.android.view.activity.page.application
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.common.getFirst

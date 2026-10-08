@@ -28,8 +28,8 @@ import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.progress.ProgressDatabase
-import net.bible.android.database.migrations.getColumnNames
-import net.bible.android.database.migrations.getColumnNamesJoined
+import net.bible.service.db.getColumnNames
+import net.bible.service.db.getColumnNamesJoined
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.getFirst
 import net.bible.service.db.DatabaseContainer

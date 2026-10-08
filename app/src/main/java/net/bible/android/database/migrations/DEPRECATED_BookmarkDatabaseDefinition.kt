@@ -18,7 +18,9 @@ package net.bible.android.database.migrations
 
 import android.provider.BaseColumns
 import android.util.Log
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
+import net.bible.service.db.queryRows
 
 
 /**
@@ -72,11 +74,11 @@ class DEPRECATED_BookmarkDatabaseDefinition {
     /** Called when no database exists in disk and the helper class needs
      * to create a new one.
      */
-    fun onCreate(db: SupportSQLiteDatabase) {
+    fun onCreate(db: SQLiteConnection) {
         bootstrapDB(db)
     }
 
-    fun upgradeToVersion5(db: SupportSQLiteDatabase) {
+    fun upgradeToVersion5(db: SQLiteConnection) {
         Log.i(TAG, "Upgrading Bookmark db to version 5")
         if (!tableExists(db, Table.BOOKMARK)) {
             Log.w(TAG, "Bookmark table doesn't exist, creating it")
@@ -86,7 +88,7 @@ class DEPRECATED_BookmarkDatabaseDefinition {
         db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.PLAYBACK_SETTINGS + " TEXT DEFAULT null;")
     }
 
-    fun upgradeToVersion4(db: SupportSQLiteDatabase) {
+    fun upgradeToVersion4(db: SQLiteConnection) {
         Log.i(TAG, "Upgrading Bookmark db to version 4")
         if (!tableExists(db, Table.LABEL)) {
             Log.w(TAG, "Label table doesn't exist, creating all bookmark tables")
@@ -96,7 +98,7 @@ class DEPRECATED_BookmarkDatabaseDefinition {
         db.execSQL("ALTER TABLE " + Table.LABEL + " ADD COLUMN " + LabelColumn.BOOKMARK_STYLE + " TEXT;")
     }
 
-    fun upgradeToVersion3(db: SupportSQLiteDatabase) {
+    fun upgradeToVersion3(db: SQLiteConnection) {
         Log.i(TAG, "Upgrading Bookmark db to version 3")
         if (!tableExists(db, Table.BOOKMARK)) {
             Log.w(TAG, "Bookmark table doesn't exist, creating it")
@@ -107,14 +109,11 @@ class DEPRECATED_BookmarkDatabaseDefinition {
         db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.CREATED_ON + " INTEGER DEFAULT 0;")
     }
 
-    private fun tableExists(db: SupportSQLiteDatabase, tableName: String): Boolean {
-        val cursor = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name=?", arrayOf(tableName))
-        val exists = cursor.count > 0
-        cursor.close()
-        return exists
+    private fun tableExists(db: SQLiteConnection, tableName: String): Boolean {
+        return db.queryRows("SELECT name FROM sqlite_master WHERE type='table' AND name=?", tableName) { 1 }.isNotEmpty()
     }
 
-    private fun bootstrapDB(db: SupportSQLiteDatabase) {
+    private fun bootstrapDB(db: SQLiteConnection) {
         Log.i(TAG, "Bootstrapping AndBible database (Bookmarks)")
         db.execSQL("CREATE TABLE " + Table.BOOKMARK + " (" +
             BookmarkColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +

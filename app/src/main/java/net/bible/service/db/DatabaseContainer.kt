@@ -117,11 +117,16 @@ class DatabaseContainer {
             for (name in application.databaseList().filterNot { it == OLD_MONOLITHIC_DATABASE_NAME }) {
                 application.deleteDatabase(name)
             }
-            getOldDatabase().openHelper.writableDatabase.use {
+            // Room opens the old file only to run its legacy migrations; its connection must be closed
+            // before the split reopens the same file outside Room.
+            getOldDatabase().apply {
+                try { openHelper.writableDatabase } finally { close() }
+            }
+            openSqlite(oldDbFile.path).use {
                 val migrations = DatabaseSplitMigrations(it, application)
                 migrations.migrateAll()
             }
-            oldDbFile.delete()
+            application.deleteDatabase(OLD_MONOLITHIC_DATABASE_NAME) // the file and any journal/WAL leftovers
         }
     }
     fun getBookmarkDb(filename: String = BookmarkDatabase.dbFileName) = Room.databaseBuilder(
