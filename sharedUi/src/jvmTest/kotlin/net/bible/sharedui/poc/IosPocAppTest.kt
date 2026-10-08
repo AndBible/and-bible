@@ -48,6 +48,15 @@ class IosPocAppTest {
         onNodeWithTag("pane-w1").assertExists()
     }
 
+    @Test fun backOnStartDestinationDoesNotBlankTheNavHost() = runComposeUiTest {
+        show(PocScenario.HISTORY)
+        onNodeWithText("Ephesians 2:8").assertExists()
+        onNodeWithTag("poc-back").performClick()   // the only back-stack entry: must not pop it
+        mainClock.advanceTimeBy(2_000)             // let any exit transition finish
+        waitForIdle()
+        onNodeWithText("Ephesians 2:8").assertExists()
+    }
+
     @Test fun paneIdentitySurvivesSplitChanges() = runComposeUiTest {
         show(PocScenario.SPLIT2)
         waitForIdle()

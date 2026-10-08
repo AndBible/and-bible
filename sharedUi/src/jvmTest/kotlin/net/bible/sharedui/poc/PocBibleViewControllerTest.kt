@@ -1,6 +1,5 @@
 package net.bible.sharedui.poc
 
-import kotlinx.serialization.json.JsonPrimitive
 import net.bible.sharedui.webview.BridgeDispatcher
 import net.bible.sharedui.webview.BridgeResult
 import net.bible.sharedui.webview.JsSink

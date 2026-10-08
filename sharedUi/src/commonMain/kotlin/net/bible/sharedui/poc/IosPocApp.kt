@@ -78,6 +78,8 @@ private fun PocContent(scenario: PocScenario, documentJson: String, darkTheme: B
         // The active window must still exist after the count shrinks.
         if (active.removePrefix("w").toIntOrNull()?.let { it > windowCount } != false) active = "w1"
     }
+    // Never pop the only destination (scenarios that start on history/bookmarks/settings): that leaves a blank NavHost.
+    val back = { if (nav.previousBackStackEntry != null) nav.popBackStack() }
     val open = { r: String -> nav.navigate(r) { launchSingleTop = true } }
 
     Column(Modifier.fillMaxSize()) {
@@ -112,12 +114,12 @@ private fun PocContent(scenario: PocScenario, documentJson: String, darkTheme: B
                     onOpenSearch = {}, onCloseSearch = {}, onToggleShowNotes = {}, onRowClick = { _, _ -> },
                     onRowLongClick = {}, onToggleSelected = {}, onToggleExpand = {}, onAssignSelected = {},
                     onDeleteSelected = {}, onClearSelection = {}, onManageLabels = {}, onExportCsv = {},
-                    onImportCsv = {}, onUp = { nav.popBackStack() },
+                    onImportCsv = {}, onUp = { back() },
                 )
             }
             composable("settings") {
                 AppSettingsScreen(
-                    state = pocSettings, onUp = { nav.popBackStack() }, onSwitch = { _, _ -> },
+                    state = pocSettings, onUp = { back() }, onSwitch = { _, _ -> },
                     onListChoice = { _, _ -> }, onTextInput = { _, _ -> }, onSliderChange = { _, _ -> },
                     onMultiSelectChange = { _, _ -> }, onNavigate = {}, onReset = {},
                     resetContentDescription = strings.resetToDefault,
@@ -127,7 +129,7 @@ private fun PocContent(scenario: PocScenario, documentJson: String, darkTheme: B
         // Stable automation targets for XCUITest and desktop tests (always visible, outside the nav graph).
         Row(Modifier.fillMaxWidth()) {
             Text(title, Modifier.testTag("reading-title").semantics { stateDescription = active })
-            if (route != "reading") TextButton({ nav.popBackStack() }, Modifier.testTag("poc-back")) { Text(strings.menuBack) }
+            if (route != "reading") TextButton({ back() }, Modifier.testTag("poc-back")) { Text(strings.menuBack) }
             TextButton(toggleSplit, Modifier.testTag("poc-split-toggle")) { Text(POC_LABEL_SPLIT) }
             TextButton({ open("bookmarks") }, Modifier.testTag("poc-open-bookmarks")) { Text(strings.bookmarks) }
             TextButton({ open("history") }, Modifier.testTag("poc-open-history")) { Text(POC_LABEL_HISTORY) }
