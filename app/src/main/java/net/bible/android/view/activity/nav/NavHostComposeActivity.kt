@@ -949,7 +949,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * F55: classic `MainBibleActivity.onBackPressed`'s six branches, as an enumerable list.
      *
      * The double-back exit warning is NOT a step -- it is what happens when no step consumed the
-     * press, and it needs `super.onBackPressed()` on its second invocation, which a step returning
+     * press, and it needs `passThrough()` on its second invocation, which a step returning
      * `Boolean` cannot express.
      *
      * `by lazy` for [readingCommands]' reason: these read collaborators that are themselves lazy.
@@ -1024,20 +1024,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private var lastBackPressed: Long? = null
 
     /**
-     * F55. Reached for every BACK press because `AndroidManifest.xml:71` declares
-     * `android:enableOnBackInvokedCallback="false"` application-wide, so predictive-back dispatch is
-     * off and this is the live route (the device trace shows a legacy `KEYCODE_BACK`). When that
-     * opt-out goes at targetSdk 37 this body moves onto an `OnBackPressedCallback` -- which is exactly
-     * why the chain is a list: the move is then mechanical.
-     *
-     * Only the reading destination gets the chain. Every other destination keeps its own
-     * `PlatformBackHandler` and the `NavHost` back stack, and must reach `super` unchanged.
+     * F55 chain, the reading destination's BACK (spec 2026-10-08 API 36 §3.1). Reached through the reading
+     * destination's `PassThroughBackHandler`, never through `onBackPressed()`, which the platform no longer calls
+     * with predictive back on. `passThrough` hands an unconsumed press on, as `super.onBackPressed()` did.
      */
-    override fun onBackPressed() {
-        if (!readingDestinationIsCurrent()) {
-            super.onBackPressed()
-            return
-        }
+    internal fun readingBack(passThrough: () -> Unit) {
         for (step in readingBackChain) {
             if (step.run()) {
                 Log.i(TAG_BACK, "BACK consumed by ${step.name}")
@@ -1053,24 +1044,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             return
         }
         lastBackPressed = null
-        // ActivityBase.onBackPressed consults goBackInHistory() first. The chain's own "history" step
-        // has already been asked and declined, so the exit must not be turned into a history step by
-        // this host's goBackInHistory override (slice 8 B1) -- see [exitingFromReadingBack].
-        exitingFromReadingBack = true
-        try {
-            super.onBackPressed()
-        } finally {
-            exitingFromReadingBack = false
-        }
+        passThrough()
     }
-
-    /**
-     * True only while the reading branch of [onBackPressed] hands its final "exit" to
-     * `ActivityBase.onBackPressed`, which asks [goBackInHistory] before exiting. Before slice 8 B1
-     * that call always declined on `reading` (`isIntegrateWithHistoryManager` is off there); this
-     * keeps it declining, so the override changes no BACK behaviour.
-     */
-    private var exitingFromReadingBack = false
 
     /**
      * Slice 8 B1 (Review Focus #3): a history step asked for while the graph is on `reading` replays
@@ -1086,7 +1061,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * `reading`. Off `reading`, `super` keeps its behaviour (Search/ReadingPlan history routes).
      */
     override fun goBackInHistory(): Boolean {
-        if (exitingFromReadingBack || !readingDestinationIsCurrent()) return super.goBackInHistory()
+        if (!readingDestinationIsCurrent()) return super.goBackInHistory()
         val manager = historyTraversal.historyManager
         if (!manager.canGoBack()) return false
         manager.goBack()
@@ -4128,6 +4103,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         // This host's own block carries no label at all, so without this the reading
                         // view's window title would become the application label instead.
                         windowTitle = getString(R.string.app_name_short),
+                        onBack = ::readingBack,
                         content = {
                             // R8: the real reading view, composed by THIS host's own
                             // `ComposeReadingViewHost` -- see [readingViewHost] for why the instance

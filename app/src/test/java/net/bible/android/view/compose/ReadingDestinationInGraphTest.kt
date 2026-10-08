@@ -158,6 +158,7 @@ class ReadingDestinationInGraphTest {
     private fun deps() = ReadingNavDeps(
         host = graphHost,
         windowTitle = "AndBible",
+        onBack = { passThrough -> passThrough() },
         content = { Box(Modifier.testTag("readingView")) { Text("reading view") } },
         onKey = { key ->
             keys += key

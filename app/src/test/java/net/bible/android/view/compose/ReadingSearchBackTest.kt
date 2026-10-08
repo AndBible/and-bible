@@ -49,7 +49,7 @@ import kotlin.test.assertTrue
 
 /**
  * F6 Task 9 — the back chain that closes the reading-view search sheet/mode, and the long-press-back
- * swallow while search is active. The reading host's `onBackPressed`/`onKeyLongPress` (the nav
+ * swallow while search is active. The reading destination's `PassThroughBackHandler` and the host's `onKeyLongPress` (the nav
  * host's since slice 8 F2; classic `MainBibleActivity`'s before) are the only live back route today (predictive back is opted out via `AndroidManifest.xml`'s
  * `android:enableOnBackInvokedCallback="false"`, documented there as temporary until targetSdk 37 —
  * see `app/build.gradle.kts`'s `targetSdk = 36`), so a Compose `BackHandler` inside the reading view
@@ -69,7 +69,7 @@ class ReadingSearchBackTest {
 
     /**
      * Slice 8 F2: a fully set-up reading-route [NavHostComposeActivity] rather than classic's
-     * never-`.create()`d `MainBibleActivity`. The nav host's `onBackPressed` / `onKeyLongPress` run the
+     * never-`.create()`d `MainBibleActivity`. The reading destination's back handler and the nav host's `onKeyLongPress` run the
      * reading chain only while `readingDestinationIsCurrent()`, which reads the graph's `navController`
      * -- null on a never-created host, where every press would fall to `super` and the long-press
      * assertion below would pass on `ActivityBase`'s unconditional `true` for BACK. `firstTime` and
@@ -110,11 +110,11 @@ class ReadingSearchBackTest {
         assertTrue(host().searchController.searchModeActive.value, "sanity")
         assertTrue(host().searchController.sheetVisible.value, "sanity")
 
-        activity.onBackPressed()
+        activity.onBackPressedDispatcher.onBackPressed()
         assertTrue(host().searchController.searchModeActive.value, "first press must only close the sheet")
         assertFalse(host().searchController.sheetVisible.value, "first press closes the sheet")
 
-        activity.onBackPressed()
+        activity.onBackPressedDispatcher.onBackPressed()
         assertFalse(host().searchController.searchModeActive.value, "second press leaves search mode")
     }
 
@@ -136,7 +136,7 @@ class ReadingSearchBackTest {
         assertTrue(host().searchController.searchModeActive.value, "sanity")
         assertTrue(host().isDrawerOpen, "sanity")
 
-        activity.onBackPressed()
+        activity.onBackPressedDispatcher.onBackPressed()
 
         assertFalse(host().isDrawerOpen, "the drawer closes")
         assertTrue(host().searchController.searchModeActive.value, "search must be untouched")

@@ -155,11 +155,15 @@ class SearchHostBackRoutingGuardTest {
         // It gets its own test rather than a SEARCH_HOST_FILES entry: its search step closes search
         // through `ReadingCommands.composeCloseSearchIfOpen()`, so it never spells the
         // `searchModeActive` / `searchMode.active` tokens that list's second assertion requires.
-        // ReadingNavGraph.kt stays OUT of SEARCH_HOST_GRAPH_FILES deliberately: the reading destination
-        // has no PlatformBackHandler by design (its back is NavHostComposeActivity.onBackPressed's
-        // chain), so requiring one there would assert the opposite of the design.
+        // ReadingNavGraph.kt stays OUT of SEARCH_HOST_GRAPH_FILES deliberately: its back is a
+        // `PassThroughBackHandler` that delegates to NavHostComposeActivity.readingBack's chain, so the
+        // search tokens live in the host, not the graph (spec 2026-10-08 API 36 §3.1).
         private const val READING_HOST_FILE =
             "src/main/java/net/bible/android/view/activity/nav/NavHostComposeActivity.kt"
+        private const val READING_GRAPH_FILE =
+            "../sharedUi/src/commonMain/kotlin/net/bible/sharedui/reading/nav/ReadingNavGraph.kt"
+        private val READING_GRAPH_BACK_HANDLER = Regex("PassThroughBackHandler\\s*\\(")
+        private val READING_HOST_WIRES_CHAIN = Regex("onBack\\s*=\\s*::readingBack")
         private const val READING_HOST_SEARCH_STEP = "composeCloseSearchIfOpen()"
     }
 
@@ -167,9 +171,14 @@ class SearchHostBackRoutingGuardTest {
     fun theReadingHostRoutesHardwareBackThroughItsChain() {
         val source = strippedSourceOf(READING_HOST_FILE)
         assertThat(
-            "$READING_HOST_FILE must override `onBackPressed` -- the reading view's back chain " +
-                "(drawer, search, fullscreen, WebView modal, history, double-back exit) lives there (F55)",
-            BACK_ENTRY_ON_BACK_PRESSED.containsMatchIn(source), equalTo(true),
+            "$READING_GRAPH_FILE must call `PassThroughBackHandler(...)` -- the reading destination owns " +
+                "its BACK there, since the platform no longer calls `onBackPressed` with predictive back on",
+            READING_GRAPH_BACK_HANDLER.containsMatchIn(strippedSourceOf(READING_GRAPH_FILE)), equalTo(true),
+        )
+        assertThat(
+            "$READING_HOST_FILE must pass `onBack = ::readingBack` to ReadingNavDeps -- the reading view's " +
+                "back chain (drawer, search, fullscreen, WebView modal, history, double-back exit) lives there (F55)",
+            READING_HOST_WIRES_CHAIN.containsMatchIn(source), equalTo(true),
         )
         assertThat(
             "$READING_HOST_FILE's back chain must close an open search (`$READING_HOST_SEARCH_STEP`)",

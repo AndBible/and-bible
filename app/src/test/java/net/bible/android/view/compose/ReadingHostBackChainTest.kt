@@ -48,8 +48,9 @@ import org.robolectric.annotation.Config
 /**
  * F55. The reading host's BACK chain.
  *
- * Against the pre-fix tree [backDoesNotFinishTheHostWhileHistoryRemains] FAILS: the host has no
- * `onBackPressed` override at all, so `ActivityBase.onBackPressed` runs, `goBackInHistory()` returns
+ * Against the pre-fix tree [backDoesNotFinishTheHostWhileHistoryRemains] FAILS: the dispatcher's
+ * fallback is `Activity.onBackPressed`, which skips the chain (it lives in the reading destination's
+ * `PassThroughBackHandler`), so `ActivityBase.onBackPressed` runs, `goBackInHistory()` returns
  * false (the host's `isIntegrateWithHistoryManager` is only ever true on a Search or ReadingPlan
  * destination), and `super.onBackPressed()` finishes the Activity with the history stack still full.
  *
@@ -169,7 +170,7 @@ class ReadingHostBackChainTest {
         // ReadingHistoryAnchorTest does, so canGoBack() is true.
         pushTwoReadingPositions()
 
-        activity.onBackPressed()
+        activity.onBackPressedDispatcher.onBackPressed()
 
         assertFalse(
             "BACK with a non-empty reading history must walk the history, not finish the app (F55)",
@@ -185,10 +186,10 @@ class ReadingHostBackChainTest {
     fun backOnAnEmptyHistoryWarnsBeforeItExits() {
         val activity = host()
         // No history pushed: the chain falls through to the double-back warning.
-        activity.onBackPressed()
+        activity.onBackPressedDispatcher.onBackPressed()
         assertFalse("the first press must only warn", activity.isFinishing)
 
-        activity.onBackPressed()
+        activity.onBackPressedDispatcher.onBackPressed()
         assertTrue("the second press within the window exits", activity.isFinishing)
     }
 

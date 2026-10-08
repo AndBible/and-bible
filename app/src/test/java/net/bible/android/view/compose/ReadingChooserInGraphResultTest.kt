@@ -396,7 +396,7 @@ class ReadingChooserInGraphResultTest {
     }
 
     /**
-     * The override must not change BACK. The reading branch of `onBackPressed` asks its own
+     * The override must not change BACK. The reading destination's back handler asks its own
      * "history" step (gated on `ReadingViewVisibility.isVisible`) and, on the confirmed second
      * press, exits through `ActivityBase.onBackPressed` -- which calls `goBackInHistory()` first.
      * Before B1 that always declined on `reading`; with a declined history step and a non-empty
@@ -412,8 +412,8 @@ class ReadingChooserInGraphResultTest {
         val depthBefore = historyDepth()
         assertTrue("fixture: history must be non-empty", depthBefore > 0)
 
-        activity.onBackPressed()   // warns
-        activity.onBackPressed()   // confirmed: exits
+        activity.onBackPressedDispatcher.onBackPressed()   // warns
+        activity.onBackPressedDispatcher.onBackPressed()   // confirmed: exits
 
         assertTrue("the second BACK on reading exits, as before slice 8 B1", activity.isFinishing)
         assertEquals("…without spending history", depthBefore, historyDepth())
