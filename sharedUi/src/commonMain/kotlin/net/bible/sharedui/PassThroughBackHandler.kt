@@ -26,6 +26,8 @@ import androidx.compose.runtime.Composable
  * [PlatformBackHandler] cannot do this: Compose's `BackHandler` applies `enabled` in a `SideEffect`, so turning it
  * off and dispatching again in the same call would re-enter the same handler. Spec
  * `2026-10-08-api36-predictive-back-and-calculator-rotation-design.md` §3.1.
+ *
+ * `passThrough` must be called synchronously from within [onBack].
  */
 @Composable
 expect fun PassThroughBackHandler(enabled: Boolean, onBack: (passThrough: () -> Unit) -> Unit)

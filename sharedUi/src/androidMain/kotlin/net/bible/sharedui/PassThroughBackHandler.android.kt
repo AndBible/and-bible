@@ -34,7 +34,7 @@ actual fun PassThroughBackHandler(enabled: Boolean, onBack: (passThrough: () -> 
     val lifecycleOwner = LocalLifecycleOwner.current
     val currentOnBack by rememberUpdatedState(onBack)
     val currentEnabled by rememberUpdatedState(enabled)
-    val callback = remember {
+    val callback = remember(dispatcher) {
         object : OnBackPressedCallback(enabled) {
             override fun handleOnBackPressed() {
                 currentOnBack {

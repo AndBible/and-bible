@@ -64,10 +64,10 @@ class ReadingSearchBackTest {
 
     /**
      * Slice 8 F2: a fully set-up reading-route [NavHostComposeActivity] rather than classic's
-     * never-`.create()`d `MainBibleActivity`. The reading destination's back handler and the nav host's `onKeyLongPress` run the
+     * never-`.create()`d `MainBibleActivity`. The reading destination's back handler runs the
      * reading chain only while `readingDestinationIsCurrent()`, which reads the graph's `navController`
-     * -- null on a never-created host, where every press would fall to `super` and the long-press
-     * assertion below would pass on `ActivityBase`'s unconditional `true` for BACK. `firstTime` and
+     * -- null on a never-created host, where the chain would never run and a press would fall through to
+     * the dispatcher's default. `firstTime` and
      * [resetComposeUiDispatcher] for the reasons `ReadingHostBackChainTest.host()` and slice 8 D1 give.
      * The `ComposeReadingViewHost` is still installed directly when the destination has not composed
      * one, exactly as classic's fixture did.

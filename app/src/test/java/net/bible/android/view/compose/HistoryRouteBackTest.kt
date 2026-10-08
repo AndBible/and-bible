@@ -11,6 +11,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.base.ErrorActivity
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.nav.NavHostComposeActivity
+import net.bible.test.resetComposeUiDispatcher
 import net.bible.service.common.CommonUtils
 import net.bible.service.history.HistoryManager
 import net.bible.sharedcore.nav.NavRoutes
@@ -62,7 +63,7 @@ class HistoryRouteBackTest {
         compose.waitForIdle()
     }
 
-    @Test fun aHistoryRouteDestinationStepsHistoryBeforePopping() {
+    private fun searchFormHost(): Pair<NavHostComposeActivity, NavHostController> {
         firstTime = false
         val activity = Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
@@ -80,6 +81,13 @@ class HistoryRouteBackTest {
         nav.navigate(NavRoutes.searchForm())
         idle()
         assertTrue("fixture: the destination published its history route", activity.isIntegrateWithHistoryManager)
+        return activity to nav
+    }
+
+    private fun currentRoute(nav: NavHostController) = nav.currentDestination?.route?.substringBefore('?')
+
+    @Test fun aHistoryRouteDestinationStepsHistoryBeforePopping() {
+        val (activity, _) = searchFormHost()
         val manager: HistoryManager = GlobalContext.get().get()
         val window = CommonUtils.windowControl.activeWindow
         manager.addHistoryItem(window, Intent(activity, ErrorActivity::class.java).putExtra("description", "probe"))
@@ -92,5 +100,53 @@ class HistoryRouteBackTest {
 
         assertEquals("BACK must consume one history item first (a bare NavHost pop leaves history untouched)",
             depth - 1, manager.getHistory(window.id).size)
+    }
+
+    /** With nothing to step back to, `goBackInHistory` declines and the press must reach the NavHost pop. */
+    @Test fun aHistoryRouteDestinationWithEmptyHistoryPassesThroughToThePop() {
+        val (activity, nav) = searchFormHost()
+        val manager: HistoryManager = GlobalContext.get().get()
+        val window = CommonUtils.windowControl.activeWindow
+        assertTrue("fixture: history is empty", manager.getHistory(window.id).isEmpty())
+        assertEquals("fixture: on the search form", NavRoutes.searchForm().substringBefore('?'), currentRoute(nav))
+
+        activity.onBackPressedDispatcher.onBackPressed()
+        idle()
+
+        assertEquals(NavRoutes.READING, currentRoute(nav))
+    }
+
+    /** Daily reading publishes its history route too: BACK steps history first (ReadingPlanNavGraph). */
+    @Test fun aDailyReadingDestinationStepsHistoryBeforePopping() {
+        resetComposeUiDispatcher()
+        firstTime = false
+        CommonUtils.settings.setString("reading_plan", PLAN)
+        val controller = Robolectric.buildActivity(
+            NavHostComposeActivity::class.java,
+            NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),
+        ).also { controllers += it }.setup()
+        val activity = controller.get()
+        idle()
+        controller.newIntent(
+            NavHostComposeActivity.intentFor(
+                ApplicationProvider.getApplicationContext(), NavRoutes.dailyReading(plan = PLAN, day = 5),
+            ),
+        )
+        idle()
+        assertEquals("fixture: on daily reading", NavRoutes.dailyReading().substringBefore('?'), activity.currentRouteForTest()?.substringBefore('?'))
+        assertTrue("fixture: the destination published its history route", activity.isIntegrateWithHistoryManager)
+        val manager: HistoryManager = GlobalContext.get().get()
+        val window = CommonUtils.windowControl.activeWindow
+        manager.addHistoryItem(window, Intent(activity, ErrorActivity::class.java).putExtra("description", "probe"))
+        val depth = manager.getHistory(window.id).size
+
+        activity.onBackPressedDispatcher.onBackPressed()
+        idle()
+
+        assertEquals(depth - 1, manager.getHistory(window.id).size)
+    }
+
+    private companion object {
+        const val PLAN = "y1ot1nt1_OTandNT"
     }
 }

@@ -4,12 +4,18 @@ import android.content.ComponentName
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.view.activity.discrete.CalculatorComposeActivity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -20,6 +26,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class CalculatorRotationTest {
+    @get:Rule val compose = createEmptyComposeRule()
+
     private fun info(): ActivityInfo {
         val app = ApplicationProvider.getApplicationContext<android.app.Application>()
         return app.packageManager.getActivityInfo(ComponentName(app, CalculatorComposeActivity::class.java), PackageManager.GET_META_DATA)
@@ -39,7 +47,13 @@ class CalculatorRotationTest {
         try {
             val before = controller.get()
             val land = Configuration(before.resources.configuration).apply { orientation = Configuration.ORIENTATION_LANDSCAPE }
+            // Display "0" plus the "7" key; after the tap the display shows a second "7".
+            compose.onNodeWithText("7").performClick()
+            compose.waitForIdle()
+            compose.onAllNodesWithText("7").assertCountEquals(2)
             controller.configurationChange(land)
+            compose.waitForIdle()
+            compose.onAllNodesWithText("7").assertCountEquals(2)
             assertSame("a recreation would drop the display value and the PIN in progress", before, controller.get())
         } finally {
             runCatching { controller.pause().stop().destroy() }

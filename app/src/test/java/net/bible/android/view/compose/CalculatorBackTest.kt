@@ -21,6 +21,7 @@ class CalculatorBackTest {
         val controller = Robolectric.buildActivity(CalculatorComposeActivity::class.java).setup()
         try {
             val a = controller.get()
+            assertTrue("the calculator registers its own back callback", a.onBackPressedDispatcher.hasEnabledCallbacks())
             a.onBackPressedDispatcher.onBackPressed()
             assertTrue(a.isFinishing)
             assertEquals(Activity.RESULT_CANCELED, shadowOf(a).resultCode)
