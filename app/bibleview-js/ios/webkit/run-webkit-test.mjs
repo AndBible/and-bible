@@ -74,9 +74,9 @@ await page.goto(`http://127.0.0.1:${server.address().port}/index.html?lang=en&ni
 await page.waitForFunction(() => window.__posted__.some(m => m.method === "setClientReady"), null, {timeout: 10000})
     .catch(() => fail("setClientReady never posted"));
 await page.evaluate(([d]) => {
-    bibleView.emit("set_config", {config: {}, appSettings: {activeWindow: true, nightMode: false, windowId: "w1"}, initial: true});
-    bibleView.emit("clear_document");
-    bibleView.emit("add_documents", JSON.parse(d));
+    window.bibleView.emit("set_config", {config: {}, appSettings: {activeWindow: true, nightMode: false, windowId: "w1"}, initial: true});
+    window.bibleView.emit("clear_document");
+    window.bibleView.emit("add_documents", JSON.parse(d));
 }, [doc]);
 await page.waitForFunction(() => document.body.innerText.includes("quickened"), null, {timeout: 10000})
     .catch(() => fail("document did not render"));
