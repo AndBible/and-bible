@@ -13,6 +13,7 @@ coreKtx = "1.16.0"
 jdom = "2.0.6.1"
 commonsText = "1.9"
 sqliteAndroid = "3.49.0"
+androidxSqlite = "2.7.1"
 appcompat = "1.7.1"
 lifecycle = "2.9.1"
 material = "1.12.0"
@@ -38,6 +39,8 @@ navigationCompose = "2.9.2"
 lifecycleRuntimeCompose = "2.9.6"
 
 [libraries]
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "androidxSqlite" }
+androidx-sqlite = { module = "androidx.sqlite:sqlite", version.ref = "androidxSqlite" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
