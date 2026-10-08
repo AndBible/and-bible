@@ -298,7 +298,7 @@ fun NavGraphBuilder.readingPlanNavGraph(navController: NavHostController, deps: 
             )
         }
 
-        // Classic's ABEventBus.register/unregister pair, route-scoped — see DailyReadingDeps'
+        // Classic's bus register/unregister pair, route-scoped — see DailyReadingDeps'
         // subscribeEvents kdoc for why this is not a host-wide registration.
         DisposableEffect(Unit) {
             val unsubscribe = d.subscribeEvents()

@@ -22,7 +22,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.OrdinalRange
@@ -133,7 +132,6 @@ class ReadingHistoryAnchorTest {
     @After
     fun tearDown() {
         resetReadingSeams()
-        ABEventBus.unregister(historyManager)
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
 

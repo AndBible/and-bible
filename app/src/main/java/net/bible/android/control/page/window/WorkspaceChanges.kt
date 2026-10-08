@@ -35,7 +35,7 @@ sealed interface WorkspaceChange {
      * **Measured on-device (A/B feedback batch 5, task 5, fix round 1): a listener registered on a
      * `BibleView` will NEVER receive this event.** `MainBibleActivity.currentWorkspaceId`'s setter
      * calls `bibleViewFactory.clear()` first, which `doDestroy()`s every cached `BibleView` — setting
-     * `listenEvents = false` and unregistering it from [net.bible.android.control.event.ABEventBus] —
+     * `listenEvents = false` and cancelling its subscriptions —
      * *before* `loadFromDb()` runs and emits this event. Emission dispatches against a
      * snapshot of subscribers taken at call time, and the replacement `BibleView`s aren't
      * constructed until a later recomposition, well after the emit has already returned. `loadFromDb`'s

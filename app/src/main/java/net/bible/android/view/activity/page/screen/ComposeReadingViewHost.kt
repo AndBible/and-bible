@@ -99,9 +99,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
-import net.bible.android.control.event.onMain
 import net.bible.android.control.PageChange
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.document.DocumentControl
@@ -387,8 +385,8 @@ class WindowLabelFreshness {
  * Fans a "classic said this may have changed" signal out to the Compose reading view's state
  * (pre-A/B state-freshness spec §1 P3).
  *
- * Every Compose state bridge subscribes to a *guessed set* of [net.bible.android.control.event.ABEventBus]
- * events and rebuilds its snapshot from the domain, so a mutation that posts none of them leaves
+ * Every Compose state bridge subscribes to a *guessed set* of owner `Events`
+ * streams and rebuilds its snapshot from the domain, so a mutation that posts none of them leaves
  * the UI stale — `ToolbarStateServiceImpl` subscribes to 5 events while classic calls
  * `MainBibleActivity.updateActions()` from 12 places, only 3 of which coincide with one. Rather
  * than guess more events, the classic imperative refresh points push here, mirroring what Batch
@@ -615,7 +613,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     private val linkControl: LinkControl by inject()
 
     /** Owns [readingLlmDialogs]' coroutine work (dialog open/execute/dismiss). Cancelled in
-     *  [dispose] — one host per activity (re-)creation, mirroring the [ABEventBus] registration
+     *  [dispose] — one host per activity (re-)creation, mirroring the [subscriptions]
      *  lifecycle right below. */
     private val hostScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
@@ -2917,7 +2915,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
 
     /**
      * The Compose overflow ("3-dot") options menu's item list + expanded flag (Batch 12b-C Task 3)
-     * — host-owned state, since (unlike [nightMode]/[fullScreen]) there is no `ABEventBus` event to
+     * — host-owned state, since (unlike [nightMode]/[fullScreen]) there is no owner event stream to
      * mirror: [ReadingToolbarCallbacks.onOverflow] below rebuilds [overflowItems] from
      * [MainBibleActivity.buildOptionsMenuItems] and opens the menu; the `onOverflowItemClick`/
      * `onOverflowDismiss` callbacks passed to [mountComposeView] (see [install]) drive it closed
@@ -3108,7 +3106,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
      * setter (workspace switch, or a same-workspace reload) drives, AFTER `windowRepository` has
      * already been reloaded to the new/current workspace. Also refreshes [agentSessionService] here
      * (Batch 12e-B Task 6 workspace-switch refresh): unlike classic `AgentLogWidget`, which always
-     * recomputes `workspaceId` fresh per `ABEventBus` event, [agentSessionService]'s `snapshot` is a
+     * recomputes `workspaceId` fresh per event, [agentSessionService]'s `snapshot` is a
      * cached `StateFlow` only rebuilt on an agent event for the CURRENT workspace at the time — so
      * without this, switching workspace with no agent event in between would keep showing the
      * previous workspace's snapshot until the next agent event for the new one fires.
@@ -3217,7 +3215,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
     }
 
     /**
-     * Unregisters this host's [ABEventBus] subscriptions (see [init]) and cancels [hostScope] (so
+     * Cancels this host's owner-stream [subscriptions] (see [init]) and cancels [hostScope] (so
      * any in-flight [readingLlmDialogs] coroutine work is torn down with the host). Call from
      * [MainBibleActivity.onDestroy] — each activity (re-)creation builds a fresh
      * [ComposeReadingViewHost], so without this the previous instance's registration/scope would
@@ -3325,7 +3323,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 onCommentaryLong = { activity.readingCommands.composeCommentaryLongClick() },
                 // The Strongs refresh now lives inside `composeCycleStrongs`/`composeStrongsLong`,
                 // next to their `updateStrongsButton()` call — `StrongsPreference.handle()` posts
-                // none of the 4 ABEventBus events (or 2 `Events` streams) `toolbarStateService` subscribes to, and keeping
+                // none of the 5 owner `Events` streams `toolbarStateService` subscribes to, and keeping
                 // the refresh at the mutation site also covers the long-press dialog's `onReset`
                 // path, which this call site never saw.
                 onStrongs = { activity.readingCommands.composeCycleStrongs() },

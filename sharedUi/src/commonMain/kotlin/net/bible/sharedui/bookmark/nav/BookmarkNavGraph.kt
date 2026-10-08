@@ -185,7 +185,7 @@ class LabelEditDeps(
  *   SAVES). A user who backs out of it is delivering a result, and classic's `if (resultCode ==
  *   RESULT_OK)` guard was therefore always true on this edge.
  *
- * - [subscribeSyncEvents] is classic's `ABEventBus.register(this) { onMain<BookmarksUpdatedViaSyncEvent>
+ * - [subscribeSyncEvents] is classic's bus `register(this) { onMain<BookmarksUpdatedViaSyncEvent>
  *   { controller.refresh() } }` / `unregister` pair (`:99`, `:149`), as a `DisposableEffect` in this
  *   arm -- the seam shape [net.bible.sharedui.readingplan.nav.DailyReadingDeps.subscribeEvents]
  *   established, and route-scoped for its reason: the token is per-subscription, so an unsubscribe
@@ -441,7 +441,7 @@ fun NavGraphBuilder.bookmarkNavGraph(navController: NavHostController, deps: Boo
 
         LaunchedEffect(d.title) { deps.setWindowTitle(d.title) }
 
-        // Classic's ABEventBus.register/unregister pair (`:99`, `:149`), route-scoped -- see
+        // Classic's bus register/unregister pair (`:99`, `:149`), route-scoped -- see
         // BookmarksDeps.subscribeSyncEvents. Keyed on the controller so a rebuilt controller is the
         // one a sync refreshes.
         DisposableEffect(controller) {

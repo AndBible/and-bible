@@ -37,7 +37,6 @@ import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.document.DocumentControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.UserMessages
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.navigation.NavigationControl
@@ -1483,7 +1482,7 @@ class ReadingCommands(
      * The workspace the owning host is showing. The setter is the real workspace switch, moved here
      * verbatim from `MainBibleActivity` (Ruling D): every step of it is either this collaborator's
      * own ([bibleViewFactory]), a Koin singleton ([windowControl]), the owning host's repository
-     * supplier, a global (`CommonUtils.settings`, `ABEventBus`), or one of the two host callbacks
+     * supplier, a global (`CommonUtils.settings`, `UserMessages`), or one of the two host callbacks
      * a second host must genuinely answer ([ReadingCommandsHostCallbacks.documentViewManager] and
      * [ReadingCommandsHostCallbacks.updateBottomBars]). Only [ReadingCommandsHostCallbacks.updateTitle]
      * is honestly nothing-to-do for a Compose host -- and it is the one step a dropped workspace

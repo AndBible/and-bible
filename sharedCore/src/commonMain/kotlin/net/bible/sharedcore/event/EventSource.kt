@@ -32,9 +32,8 @@ import kotlinx.coroutines.launch
 fun interface Subscription { fun cancel() }
 
 /**
- * The read side of a domain owner's change stream: subscribe only, never emit. It replaces a
- * global `ABEventBus` event. The subscriber names the owner, so the dependency is visible in the
- * code (spec `2026-10-07-abeventbus-removal-program-design.md` §3.1).
+ * The read side of a domain owner's change stream: subscribe only, never emit. The subscriber
+ * names the owner, so the dependency is visible in the code (spec `2026-10-07-abeventbus-removal-program-design.md` §3.1).
  */
 interface Events<out T : Any> {
     /** Runs [handler] synchronously on the emitter's thread, before `emit` returns (the old `on { }`). */
@@ -51,7 +50,7 @@ interface Events<out T : Any> {
 private val mainScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate) }
 
 /**
- * A typed, per-owner event stream with `ABEventBus`'s delivery semantics:
+ * A typed, per-owner event stream with these delivery semantics:
  * - Handlers are snapshotted under the lock and invoked outside it, so a re-entrant [emit] and a
  *   `cancel()` during dispatch are safe. A cancel does not affect the snapshot already taken.
  * - A throwing handler is caught and printed; the other handlers still run.

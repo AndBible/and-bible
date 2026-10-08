@@ -24,7 +24,6 @@ import net.bible.service.device.ScreenSettings
 import android.content.res.Resources
 import android.util.Log
 import net.bible.android.control.PassageChangeMediator
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.page.window.WorkspaceChanges
 import net.bible.android.control.speak.SpeakChanges
@@ -66,7 +65,6 @@ class TestBibleApplication : BibleApplication() {
     override fun onTerminate() {
         CommonUtils.destroy()
         super.onTerminate()
-        ABEventBus.unregisterAll()
         AgentSessionManager.resetSubscribersForTest()
         SharedActivityState.instance.resetSubscribersForTest()
         GlobalContext.getOrNull()?.getOrNull<WindowStateServiceImpl>()?.resetSubscribersForTest()

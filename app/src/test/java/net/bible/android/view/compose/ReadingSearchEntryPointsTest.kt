@@ -25,7 +25,6 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.document.DocumentControl
-import net.bible.android.control.event.on
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
