@@ -176,7 +176,7 @@ class EpubBackendStateTest {
         assertTrue("every fragment must read back content", keys.all { state.read(it).isNotEmpty() })
     }
 
-    /** F124 variant: the app database survived but the fragments are gone (external storage cleaned). */
+    /** F124 variant: sources present, fragments gone, app database surviving: optimized again. */
     @Test
     fun missingFragmentsWithASurvivingAppDatabaseAreReoptimized() {
         val epubDir = buildEpub("stale-frags")
@@ -195,9 +195,24 @@ class EpubBackendStateTest {
         val epubDir = buildEpub("intact-reuse")
         EpubBackendState(epubDir)
         val versionFile = File(optimizedDirOf(epubDir), "version.txt")
-        val stamp = versionFile.lastModified()
-        Thread.sleep(1_100) // lastModified resolution is 1 s on some file systems
+        val stamp = 1_000_000_000_000L
+        assertTrue(versionFile.setLastModified(stamp))
         EpubBackendState(epubDir)
         assertEquals("version.txt rewritten means a second optimization ran", stamp, versionFile.lastModified())
+    }
+
+    /** F124 guard: an EPUB optimized before version.txt existed has no sources and no version.txt; reuse it. */
+    @Test
+    fun anIntactPre2023EpubWithoutVersionFileOrSourcesIsReused() {
+        val epubDir = buildEpub("pre-2023")
+        EpubBackendState(epubDir)
+        assertTrue(File(optimizedDirOf(epubDir), "version.txt").delete())
+        assertFalse(File(epubDir, "OEBPS/ch1.xhtml").exists())
+
+        val state = EpubBackendState(epubDir)
+        assertTrue(File(epubDir, "optimized.sqlite3.gz").exists())
+        assertFalse(File(epubDir, "optimize.lock").exists())
+        assertTrue(state.keys.isNotEmpty())
+        assertTrue(state.keys.all { state.read(it).isNotEmpty() })
     }
 }
