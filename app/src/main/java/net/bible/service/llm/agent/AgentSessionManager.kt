@@ -145,6 +145,7 @@ class AgentSession(
     var context: AgentContext? = null
         private set
 
+    @Volatile
     var job: Job? = null
 
     /** Result to open when user returns to the app after background completion. */
@@ -174,9 +175,12 @@ class AgentSession(
             val hasRawLog = rawLlmLog?.isEmpty() == false
             addLogEntry(AgentLogEntry.info(message, showRawLogLink = hasRawLog))
         }
-        running.set(false)
-        this.job?.cancel()
+        // F134: unbind and cancel the job before releasing `running`. Once it is false a new winner can bind its
+        // own job in tryStart; nulling afterwards would unbind that one.
+        val stopped = this.job
         this.job = null
+        stopped?.cancel()
+        running.set(false)
         emit(AgentSessionChange.StatusChanged(workspaceId, false, reason))
     }
 

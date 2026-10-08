@@ -139,8 +139,7 @@ class AgentForegroundService : Service() {
     override fun onCreate() {
         super.onCreate()
         // `subscribe`, not `subscribeOnMain`: these reactions run synchronously on the emitter's
-        // thread, as the bus's `on` did. stopSelfSafe() must run inside AgentSession.stop() before it
-        // returns, and a log renew must not land after a waiting=true release from the same thread
+        // thread, as the bus's `on` did. A log renew must not land after a waiting=true release from the same thread
         // (a main-thread hop could re-acquire the wakelock the agent just released). Event-bus removal phase 4.
         subscriptions.add(AgentSessionManager.changes.subscribe { change ->
             if (change.workspaceId != currentWorkspaceId) return@subscribe
@@ -165,12 +164,12 @@ class AgentForegroundService : Service() {
                         acquireWakeLock()
                     }
                 }
-                is AgentSessionChange.StatusChanged -> {
-                    if (!change.isRunning) {
-                        // Agent finished — stop service
-                        stopSelfSafe()
-                    }
-                }
+                // F134: deliberately no stop here. StatusChanged(!isRunning) fires when the winning run ends, but
+                // another run this service launched may still be live (it has not yet won tryStart, or it is in
+                // another workspace), and stopping runs onDestroy -> scope.cancel(). Only LiveRuns (a run's
+                // finally) and an explicit cancel stop the service. A stop() cancels the winning run's job, whose
+                // finally then stops the service once no run is left.
+                is AgentSessionChange.StatusChanged -> Unit
             }
         })
     }

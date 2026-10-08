@@ -65,6 +65,18 @@ class AgentSessionTryStartTest {
         assertFalse("the loser is not the session's to cancel", loser.isCancelled)
     }
 
+    /** F134: stop() must not unbind a new winner's job that started while it was cancelling the old one. */
+    @Test fun stopNeverUnbindsAWinnerThatStartsDuringTheCancel() {
+        val session = AgentSession(IdType())
+        val old = Job()
+        val next = Job()
+        assertTrue(session.tryStart(ctx(), old))
+        var restarted = false
+        old.invokeOnCompletion { restarted = session.tryStart(ctx(), next) }
+        session.stop()
+        assertTrue("a start that won during stop() must keep its job bound", !restarted || session.job === next)
+    }
+
     @Test fun theJobIsBoundBeforeTheStartIsAnnounced() {
         val winner = Job()
         var jobSeenAtStart: Job? = null
