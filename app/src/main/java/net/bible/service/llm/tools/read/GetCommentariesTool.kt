@@ -364,7 +364,7 @@ object GetCommentariesTool : Tool {
             AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = true)
         }
         val selected = try {
-            showFilterDialog(sorted, thresholdTokens)
+            AgentSessionManager.awaitingUserDecision(workspaceId, null) { showFilterDialog(sorted, thresholdTokens) }
         } finally {
             if (postedWaiting) {
                 AgentSessionManager.notifyPermissionWaiting(workspaceId, waiting = false)

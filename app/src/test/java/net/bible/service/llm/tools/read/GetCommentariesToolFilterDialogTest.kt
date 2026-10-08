@@ -25,6 +25,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.AppPosition
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.AgentContext
@@ -263,5 +264,29 @@ class GetCommentariesToolFilterDialogTest {
         assertEquals(2, seen.size)
         assertTrue("first post must be waiting = true", seen[0].waiting)
         assertTrue("finally must post waiting = false even on cancel", !seen[1].waiting)
+    }
+
+    /** F132: the app leaves while the filter dialog is up, so the run waits invisibly unless announced. */
+    @Test
+    fun leavingTheAppWhileTheFilterDialogIsOpenPostsWaitingTrueThenFalse() = runTest(timeout = 30.seconds) {
+        CommonUtils.aiSettings.commentaryMaxResponseTokens = 10
+        val ws = IdType()
+        val ctx = AgentContext(promptId = IdType(), workspaceId = ws)
+        val seen = mutableListOf<AgentSessionChange>()
+        val sub = AgentSessionManager.changes.subscribe { seen += it }
+        try {
+            // An Activity is current, so the pre-dialog no-Activity wait does not fire; only the helper can post.
+            holderActivities().add(org.mockito.Mockito.mock(ActivityBase::class.java))
+            val results = listOf(bigResult("AAA", "Commentary A"), bigResult("BBB", "Commentary B"))
+            val deferred = async { GetCommentariesTool.filterByResponseSizeLimit(results, ctx) }
+            yield()
+            CurrentActivityHolder.notifyAppPosition(AppPosition.BACKGROUND)
+            assertEquals(listOf<AgentSessionChange>(AgentSessionChange.PermissionWaiting(ws, true, null)), seen.toList())
+            dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
+            deferred.await()
+            assertEquals(listOf(true, false), seen.filterIsInstance<AgentSessionChange.PermissionWaiting>().map { it.waiting })
+        } finally {
+            sub.cancel()
+        }
     }
 }

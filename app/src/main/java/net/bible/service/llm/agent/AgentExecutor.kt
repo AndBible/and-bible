@@ -918,7 +918,8 @@ class AgentExecutor(
             Log.w(TAG, "Failed to format action description for ${tool.agentTool.camelCaseName}", e)
             null
         }
-        return when (Dialogs.agentPermissionDialog(activity, toolDisplayName, tool.description, actionDescription)) {
+        return AgentSessionManager.awaitingUserDecision(workspaceId, toolDisplayName) {
+        when (Dialogs.agentPermissionDialog(activity, toolDisplayName, tool.description, actionDescription)) {
             Dialogs.AgentPermissionResult.ALLOW -> DialogResult.Allowed
             Dialogs.AgentPermissionResult.ALLOW_FOR_SESSION -> DialogResult.AllowedForSession
             Dialogs.AgentPermissionResult.ALLOW_ALL_SESSION -> DialogResult.AllowedAllForSession
@@ -941,6 +942,7 @@ class AgentExecutor(
             }
             Dialogs.AgentPermissionResult.DENY -> DialogResult.Denied
         }
+        }
     }
 
     /**
@@ -949,11 +951,13 @@ class AgentExecutor(
      */
     private suspend fun showContinueDialog(currentIteration: Int, increment: Int, workspaceId: IdType? = null): Boolean {
         val activity = awaitActivity(workspaceId)
-        return Dialogs.simpleQuestion(
-            activity,
-            message = application.getString(R.string.llm_continue_iterations_message, currentIteration, increment),
-            title = application.getString(R.string.llm_continue_iterations_title)
-        )
+        return AgentSessionManager.awaitingUserDecision(workspaceId, null) {
+            Dialogs.simpleQuestion(
+                activity,
+                message = application.getString(R.string.llm_continue_iterations_message, currentIteration, increment),
+                title = application.getString(R.string.llm_continue_iterations_title)
+            )
+        }
     }
 
     /**

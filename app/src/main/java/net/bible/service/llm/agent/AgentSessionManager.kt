@@ -61,6 +61,7 @@ import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
 import android.widget.Toast
 import net.bible.android.database.mydocument.AiCachedPageWithContent
+import net.bible.android.view.activity.base.AppPosition
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -234,6 +235,45 @@ object AgentSessionManager : AgentSessionManagerBase() {
     /** The agent waits for (or stopped waiting for) an Activity to ask the user. */
     fun notifyPermissionWaiting(workspaceId: IdType, waiting: Boolean, toolName: String? = null) =
         emitChange(AgentSessionChange.PermissionWaiting(workspaceId, waiting, toolName))
+
+    /**
+     * Runs [block], a user dialog the agent is blocked on, and mirrors the app leaving and returning
+     * into [AgentSessionChange.PermissionWaiting]. Why: `AgentExecutor.awaitActivity` only announces a
+     * wait when there is no Activity at the moment a dialog is needed; if the dialog is already open
+     * and the user then leaves the app, nothing was emitted and the run waited invisibly behind the
+     * low-priority progress notification (F132).
+     *
+     * `BACKGROUND` emits `waiting = true` (with [toolName]), `FOREGROUND` emits `false`, and only on a
+     * position *change* during the block (no emission otherwise). When [block] returns or throws, the
+     * subscription is cancelled and, if the last emission was `true`, a closing `false` is emitted.
+     * Cancellation follows the phase 4 rule (spec §4): the run is ending and the service stops, so
+     * nothing is restored and nothing extra is emitted. A null [workspaceId] emits nothing.
+     */
+    suspend fun <T> awaitingUserDecision(workspaceId: IdType?, toolName: String?, block: suspend () -> T): T {
+        if (workspaceId == null) return block()
+        val announced = AtomicBoolean(false)
+        val subscription = CurrentActivityHolder.appPositionChanges.subscribe { position ->
+            when (position) {
+                AppPosition.BACKGROUND ->
+                    if (announced.compareAndSet(false, true)) notifyPermissionWaiting(workspaceId, true, toolName)
+                AppPosition.FOREGROUND ->
+                    if (announced.compareAndSet(true, false)) notifyPermissionWaiting(workspaceId, false)
+            }
+        }
+        val result = try {
+            block()
+        } catch (e: CancellationException) {
+            subscription.cancel()
+            throw e
+        } catch (e: Throwable) {
+            subscription.cancel()
+            if (announced.compareAndSet(true, false)) notifyPermissionWaiting(workspaceId, false)
+            throw e
+        }
+        subscription.cancel()
+        if (announced.compareAndSet(true, false)) notifyPermissionWaiting(workspaceId, false)
+        return result
+    }
 
     /** Test teardown: process-global, so leaked subscribers would outlive their test. */
     @VisibleForTesting
