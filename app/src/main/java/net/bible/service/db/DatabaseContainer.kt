@@ -66,7 +66,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.runBlocking
 import net.bible.sharedcore.settings.store.SettingsStore
 import java.io.File
 import java.text.SimpleDateFormat
@@ -295,7 +294,7 @@ class DatabaseContainer {
     val settingsStore: SettingsStore = SettingsStore(
         RoomSettingsBackend(settingsDb), settingsScope,
         onWriteError = { w, e -> Log.e(TAG, "Settings write failed for key ${w.key}", e) },
-    ).also { runBlocking { it.load() } }
+    ).also { blockingDb { it.load() } }
 
     private fun backupDatabaseIfNeeded() {
         if(application.isRunningTests) return
@@ -372,7 +371,7 @@ class DatabaseContainer {
      * and a later DAO write would reopen the handle on whatever file is then in place.
      */
     internal fun closeForReplace(fileName: String) {
-        if (fileName == SettingsDatabase.dbFileName) runBlocking { settingsStore.flush() }
+        if (fileName == SettingsDatabase.dbFileName) blockingDb { settingsStore.flush() }
         dbByFilename[fileName]?.close()
     }
 
@@ -384,7 +383,7 @@ class DatabaseContainer {
      */
     internal fun closeAll() {
         // Flush BEFORE cancelling the scope: writes still queued at cancel are dropped.
-        runBlocking { settingsStore.flush() }
+        blockingDb { settingsStore.flush() }
         settingsScope.cancel()
         allDatabases.forEach { it.close() }
     }
@@ -524,7 +523,7 @@ class DatabaseContainer {
         /** Persists queued settings writes; call before a path that ends the process (`exitProcess`). No-op if the database is not open. */
         fun flushSettingsBeforeExit() {
             if (!ready) return
-            try { runBlocking { _instance?.settingsStore?.flush() } } catch (e: Exception) { Log.e(TAG, "Settings flush failed", e) }
+            try { blockingDb { _instance?.settingsStore?.flush() } } catch (e: Exception) { Log.e(TAG, "Settings flush failed", e) }
         }
 
         fun sync() = instance.sync()
