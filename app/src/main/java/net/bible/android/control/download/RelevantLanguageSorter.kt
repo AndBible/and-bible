@@ -16,7 +16,6 @@
  */
 package net.bible.android.control.download
 
-import org.apache.commons.lang3.ObjectUtils
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import java.util.*
@@ -35,7 +34,12 @@ class RelevantLanguageSorter(installedDocuments: List<Book>) : Comparator<Langua
         return if (lhsRelevant != rhsRelevant) {
             if (lhsRelevant) -1 else 1
         } else {
-            ObjectUtils.compare(lhs, rhs)
+            // same ordering as ObjectUtils.compare (nulls first); Language is Kotlin-typed Comparable<Language> now
+            if (lhs == null || rhs == null) {
+                if (lhs == null && rhs == null) 0 else if (lhs == null) -1 else 1
+            } else {
+                lhs.compareTo(rhs)
+            }
         }
     }
 
