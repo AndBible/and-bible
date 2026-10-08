@@ -74,7 +74,6 @@
 -keep class org.crosswire.jsword.book.filter.** { *; }
 -keep class org.crosswire.jsword.book.basic.DefaultBookmark { *; }
 -keep class org.crosswire.common.config.** { *; }
--keep class org.crosswire.jsword.xml.ConfigurableConverter { *; }
 
 # This class has a number of dynamic invocation so let's not
 # touch it
