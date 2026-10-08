@@ -45,16 +45,8 @@ class DaoSuspendGuardTest {
         "BookmarkDao", // 82 non-suspend
         "MyDocumentDao", // 33 non-suspend
         "WorkspaceDao", // 26 non-suspend
-        "SyncDao", // 17 non-suspend
-        "AgentPromptDao", // 11 non-suspend
-        "PromptCategoryDao", // 7 non-suspend
-        "LlmRawLogRecordDao", // 7 non-suspend
-        "LlmProviderConfigDao", // 7 non-suspend
-        "LlmConfiguredModelDao", // 7 non-suspend
-        "LlmUsageRecordDao", // 5 non-suspend
-        "BuiltinPromptOverrideDao", // 4 non-suspend
+        "SyncDao", // 17 non-suspend; stays until Task 15 (SyncUtilities calls it inside raw beginTransaction blocks)
         "GlobalTextDisplaySettingsDao", // 2 non-suspend
-        "GlobalAiSettingsDao", // 2 non-suspend
     )
 
     private val roomAnnotations = setOf("Query", "Insert", "Update", "Delete", "Upsert", "Transaction", "RawQuery")
@@ -139,10 +131,33 @@ class DaoSuspendGuardTest {
         }
     }
 
+    @Test fun everyCheckedDaoHasDetectedRoomFunctions() {
+        // An already-suspend DAO (ReadingPlanDao) must not pass vacuously because the detector saw nothing.
+        val empty = daoClasses().filterNot { it.simpleName in notYetConverted }
+            .filter { hierarchy(it.name.replace('.', '/')).sumOf { c -> c.roomFunctions.size } == 0 }
+        assertEquals("checked DAOs with no detected Room function: $empty", emptyList<Class<*>>(), empty)
+    }
+
+    /** Test-only stand-in for a DAO; not processed by Room (KSP runs on main only), annotations are what we read. */
+    @androidx.room.Dao
+    interface FixtureDao {
+        @androidx.room.Query("SELECT 1") fun blocking(): Int
+        @androidx.room.Query("SELECT 2") suspend fun suspending(): Int
+        fun plainHelper(): Int = 3
+    }
+
     @Test fun detectionSeesSuspendAndNonSuspendFunctions() {
-        // Self-check of the ASM detector against a known-converted DAO shape and a non-suspend one.
-        assertTrue(isSuspend("(Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;"))
-        assertFalse(isSuspend("(Ljava/lang/String;)V"))
+        // Drive the real ASM visitor on compiled classes, not on hand-written descriptors.
+        val fixture = read(FixtureDao::class.java.name.replace('.', '/'))!!
+        assertTrue(fixture.isDao)
+        assertEquals(setOf("blocking", "suspending"), fixture.roomFunctions.map { it.first }.toSet())
+        assertEquals(listOf("FixtureDao.blocking"), offendersOf(FixtureDao::class.java))
+
+        // A converted production DAO: functions are found and every one is suspend.
+        val epub = read("net/bible/android/database/EpubDao")!!
+        assertTrue(epub.isDao)
+        assertTrue("no Room functions detected on EpubDao", epub.roomFunctions.isNotEmpty())
+        assertTrue(epub.roomFunctions.all { isSuspend(it.second) })
     }
 
     private companion object { const val DAO_COUNT = 28 }

@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import net.bible.service.db.blockingDb
 
 private const val TAG = "LlmProcessingService"
 private const val CONNECT_TIMEOUT_SECONDS = 120L
@@ -105,8 +106,9 @@ object LlmProcessingService {
         val configuredModel = (llmConfig ?: LlmModelConfig()).resolveConfiguredModel()
             ?: throw IllegalStateException("No LLM model configured")
 
-        val providerConfig = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
-            .getById(configuredModel.providerConfigId)
+        val providerConfig = blockingDb {
+            DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getById(configuredModel.providerConfigId)
+        }
             ?: throw IllegalStateException("LLM provider not found for model ${configuredModel.modelId}")
 
         return ResolvedProvider(

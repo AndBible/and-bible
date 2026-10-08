@@ -149,14 +149,14 @@ class RealFileFixturesTest {
         install(AiSettingsDatabase.dbFileName)
         val db = DatabaseContainer.instance.aiSettingsDb
 
-        val provider = db.llmProviderConfigDao().all().single()
+        val provider = runBlocking { db.llmProviderConfigDao().all() }.single()
         assertEquals("d1-provider", provider.displayName)
         assertEquals("CUSTOM", provider.providerType)
         assertEquals("https://d1.example/v1", provider.endpoint)
-        val model = db.llmConfiguredModelDao().all().single()
+        val model = runBlocking { db.llmConfiguredModelDao().all() }.single()
         assertEquals("d1-model", model.modelId)
         assertEquals(provider.id, model.providerConfigId)
-        assertEquals(model, db.llmConfiguredModelDao().getByProvider(provider.id).single())
+        assertEquals(model, runBlocking { db.llmConfiguredModelDao().getByProvider(provider.id) }.single())
     }
 
     /**

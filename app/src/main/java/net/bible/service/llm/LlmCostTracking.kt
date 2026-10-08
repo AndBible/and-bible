@@ -22,6 +22,7 @@ import kotlinx.coroutines.sync.withLock
 import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.blockingDb
 
 /**
  * Token usage from a single LLM API call.
@@ -69,7 +70,7 @@ object LlmPricing {
     }
 
     private fun getConfiguredModelPricing(configuredModelId: IdType): ModelPricing? {
-        val m = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().getById(configuredModelId)
+        val m = blockingDb { DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().getById(configuredModelId) }
             ?: return null
         return if (m.inputPricePerMillion > 0 || m.outputPricePerMillion > 0) {
             ModelPricing(m.inputPricePerMillion, m.outputPricePerMillion, m.cacheCreationPricePerMillion, m.cacheReadPricePerMillion)
@@ -118,19 +119,19 @@ object LlmCostTracker {
         fold(LlmUsage()) { acc, r -> acc + LlmUsage(r.inputTokens, r.outputTokens, r.cacheCreationTokens, r.cacheReadTokens) }
 
     fun getCumulativeUsage(configuredModelId: IdType): LlmUsage =
-        dao.getByModel(configuredModelId).sumUsage()
+        blockingDb { dao.getByModel(configuredModelId) }.sumUsage()
 
     fun getCumulativeCost(configuredModelId: IdType): Double =
-        dao.getByModel(configuredModelId).sumOf { it.estimatedCostUsd }
+        blockingDb { dao.getByModel(configuredModelId) }.sumOf { it.estimatedCostUsd }
 
     fun getTotalUsage(): LlmUsage =
-        dao.all().sumUsage()
+        blockingDb { dao.all() }.sumUsage()
 
     fun getTotalCost(): Double =
-        dao.all().sumOf { it.estimatedCostUsd }
+        blockingDb { dao.all() }.sumOf { it.estimatedCostUsd }
 
     fun reset(configuredModelId: IdType) {
-        dao.deleteByModel(configuredModelId)
+        blockingDb { dao.deleteByModel(configuredModelId) }
     }
 
     fun formatCost(cost: Double): String =

@@ -47,7 +47,7 @@ import net.bible.sharedcore.ai.ToolVd
  *   `radioDeny` id.
  *
  * Registered as a Koin single (stateless — reads/writes go straight to `CommonUtils.aiSettings`,
- * which persists via `GlobalAiSettingsDao`; `allowMainThreadQueries`, as elsewhere in this layer).
+ * which persists via `GlobalAiSettingsDao`; DAO calls are suspend and bridged with `blockingDb` there).
  */
 class ToolPermissionServiceImpl : ToolPermissionService {
     private val settings get() = CommonUtils.aiSettings

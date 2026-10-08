@@ -35,6 +35,7 @@ import net.bible.sharedcore.ai.AvailableModelVd
 import net.bible.sharedcore.ai.LlmModelService
 import net.bible.sharedcore.ai.ModelVd
 import net.bible.sharedcore.ai.ProviderVd
+import net.bible.service.db.blockingDb
 
 /**
  * Android impl of [LlmModelService] backing [net.bible.sharedcore.ai.AiModelsController] and the
@@ -62,8 +63,8 @@ import net.bible.sharedcore.ai.ProviderVd
  * [AiSettings.defaultModelChanged] (same pattern as [AiSettingsServiceImpl]/[LlmProviderServiceImpl]).
  * Registered as a Koin single (lives for the process).
  *
- * Room here is configured with `allowMainThreadQueries`, so the non-suspend reads
- * ([providersForPicker], [deleteModel], [setDefault]) run synchronously on the caller thread (as
+ * The DAOs are `suspend`; the non-suspend seam methods
+ * ([providersForPicker], [deleteModel], [setDefault]) bridge them with one `blockingDb` per method (as
  * elsewhere in the AI settings layer); the suspend paths ([saveModel], [availableModelsFor]) still
  * hop to [Dispatchers.IO] for the network-touching prefetch/insert.
  */
@@ -84,8 +85,9 @@ class LlmModelServiceImpl : LlmModelService {
 
     private fun buildModels(): List<ModelVd> {
         val defaultId = settings.defaultModelId
-        val providerNames = providerDao.all().associate { it.id to it.displayName }
-        return modelDao.all().map { m ->
+        val (providers, models) = blockingDb { providerDao.all() to modelDao.all() }
+        val providerNames = providers.associate { it.id to it.displayName }
+        return models.map { m ->
             // Raw editable prices exposed only when pricing is unknown/custom (mirrors
             // AvailableModelVd.knownPricing / the ModelVd contract). Known-pricing models carry
             // null so the edit dialog shows the read-only pricingSummary instead.
@@ -123,7 +125,7 @@ class LlmModelServiceImpl : LlmModelService {
         }
     }
 
-    override fun providersForPicker(): List<ProviderVd> = providerDao.all().map { config ->
+    override fun providersForPicker(): List<ProviderVd> = blockingDb { providerDao.all() }.map { config ->
         ProviderVd(
             id = config.id.toString(),
             displayName = config.displayName,
@@ -205,12 +207,13 @@ class LlmModelServiceImpl : LlmModelService {
     }
 
     override fun deleteModel(id: String) {
-        val model = modelDao.getById(IdType(id)) ?: return
-        modelDao.delete(model)
+        val model = blockingDb {
+            modelDao.getById(IdType(id))?.also { modelDao.delete(it) }
+        } ?: return
         // Classic confirmDeleteModel: if the deleted model was default, reassign to the first
         // remaining model (null only when the list is now empty — a legitimately default-less state).
         if (settings.defaultModelId == model.id) {
-            settings.defaultModelId = modelDao.all().firstOrNull()?.id
+            settings.defaultModelId = blockingDb { modelDao.all() }.firstOrNull()?.id
         }
         AiSettings.notifyConfigChanged()
         refresh()
@@ -239,7 +242,7 @@ class LlmModelServiceImpl : LlmModelService {
         when {
             setDefault -> settings.defaultModelId = modelId
             settings.defaultModelId == modelId ->
-                settings.defaultModelId = modelDao.all().firstOrNull { it.id != modelId }?.id ?: modelId
+                settings.defaultModelId = blockingDb { modelDao.all() }.firstOrNull { it.id != modelId }?.id ?: modelId
             settings.defaultModelId == null -> settings.defaultModelId = modelId
         }
     }

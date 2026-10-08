@@ -74,6 +74,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import net.bible.service.db.blockingDb
 
 open class AgentSessionManagerBase : KoinComponent {
     val windowControl: WindowControl by inject()
@@ -810,9 +811,10 @@ object AgentSessionManager : AgentSessionManagerBase() {
     private fun resolveProviderType(configuredModelId: IdType?): String {
         if (configuredModelId == null) return ""
         val db = DatabaseContainer.instance.aiSettingsDb
-        val model = db.llmConfiguredModelDao().getById(configuredModelId) ?: return ""
-        val provider = db.llmProviderConfigDao().getById(model.providerConfigId) ?: return ""
-        return provider.providerType
+        return blockingDb {
+            val model = db.llmConfiguredModelDao().getById(configuredModelId)
+            model?.let { db.llmProviderConfigDao().getById(it.providerConfigId) }?.providerType ?: ""
+        }
     }
 
     private fun persistRawLog(
@@ -845,7 +847,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 iterationCount = rawLog.usageByIteration.size,
                 wasError = wasError,
             )
-            DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().insert(record)
+            blockingDb { DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().insert(record) }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to persist raw log", e)
         }
@@ -870,7 +872,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         try {
             val retentionDays = CommonUtils.aiSettings.rawLogRetentionDays ?: return
             val cutoff = System.currentTimeMillis() - retentionDays.toLong() * 24 * 60 * 60 * 1000
-            DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff)
+            blockingDb { DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff) }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to cleanup old raw logs", e)
         }

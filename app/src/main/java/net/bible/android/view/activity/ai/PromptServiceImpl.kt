@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.service.db.blockingDb
 import net.bible.service.common.AiSettings
 import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
@@ -69,8 +70,8 @@ import net.bible.sharedcore.settings.SettingsItem
  * Mutations rebuild [groups] locally via [refresh] (mirroring classic's per-action `loadPrompts()`;
  * classic does NOT broadcast for these), while the [AiSettings.configChanged] subscription re-emits when an external
  * change fires it (e.g. the PromptEdit host saving a prompt, or the host's
- * `onResume` refresh). Registered as a Koin single (lives for the process). Room here uses
- * `allowMainThreadQueries`, so the non-suspend reads/mutations run synchronously on the caller
+ * `onResume` refresh). Registered as a Koin single (lives for the process). The DAOs are
+ * `suspend`; the non-suspend reads/mutations bridge them with `blockingDb`, so they block the caller
  * thread (as elsewhere in the AI settings layer).
  */
 class PromptServiceImpl : PromptService {
@@ -372,13 +373,16 @@ class PromptServiceImpl : PromptService {
     /** Model-override options, mirroring classic `PromptEditActivity.setupModelPreference` verbatim. */
     override fun modelChoices(): List<SettingsItem.Choice> {
         val defaultModelId = settings.defaultModelId
-        val models = modelDao.all().sortedByDescending { it.id == defaultModelId }
-        val providerConfigs = providerDao.all().associateBy { it.id }
+        // One bridge for all three reads; defaultModelId is read before it (it bridges itself).
+        val (allModels, providers, defaultModel) = blockingDb {
+            Triple(modelDao.all(), providerDao.all(), defaultModelId?.let { modelDao.getById(it) })
+        }
+        val models = allModels.sortedByDescending { it.id == defaultModelId }
+        val providerConfigs = providers.associateBy { it.id }
 
         val choices = mutableListOf<SettingsItem.Choice>()
 
         // First entry: "" = default/null.
-        val defaultModel = defaultModelId?.let { modelDao.getById(it) }
         val defaultProvider = defaultModel?.let { providerConfigs[it.providerConfigId] }
         val defaultSuffix = if (defaultModel != null && defaultProvider != null) {
             " (${defaultModel.modelId} — ${defaultProvider.displayName})"
@@ -449,7 +453,7 @@ class PromptServiceImpl : PromptService {
         // Mirrors classic PromptEditActivity.saveBuiltinOverride: upsert a BuiltinPromptOverride row
         // for the built-in prompt; a null configuredModelId row is equivalent to "use global default"
         // (PromptRepository.applyOverride copies the null through), i.e. the override is cleared.
-        overrideDao.upsert(BuiltinPromptOverride(id = IdType(promptId), configuredModelId = modelId?.let { IdType(it) }))
+        blockingDb { overrideDao.upsert(BuiltinPromptOverride(id = IdType(promptId), configuredModelId = modelId?.let { IdType(it) })) }
         refresh()
     }
 

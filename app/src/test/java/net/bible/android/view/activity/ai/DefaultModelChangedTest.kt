@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.ai
 
+import kotlinx.coroutines.runBlocking
 import android.os.Looper
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -60,11 +61,11 @@ class DefaultModelChangedTest {
         val modelService: LlmModelService = LlmModelServiceImpl()
         val db = DatabaseContainer.instance.aiSettingsDb
         val provider = LlmProviderConfig(providerType = "CUSTOM", displayName = "P")
-        db.llmProviderConfigDao().insert(provider)
+        runBlocking { db.llmProviderConfigDao().insert(provider) }
         val first = LlmConfiguredModel(providerConfigId = provider.id, modelId = "model-a", orderNumber = 0)
         val second = LlmConfiguredModel(providerConfigId = provider.id, modelId = "model-b", orderNumber = 1)
-        db.llmConfiguredModelDao().insert(first)
-        db.llmConfiguredModelDao().insert(second)
+        runBlocking { db.llmConfiguredModelDao().insert(first) }
+        runBlocking { db.llmConfiguredModelDao().insert(second) }
 
         AiSettings.defaultModelId = second.id
         shadowOf(Looper.getMainLooper()).idle()

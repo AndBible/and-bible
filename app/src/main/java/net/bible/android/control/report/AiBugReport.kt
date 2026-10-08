@@ -37,6 +37,7 @@ import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.agent.RawLlmLog
 import java.io.File
 import java.util.Date
+import net.bible.service.db.blockingDb
 
 object AiBugReport {
 
@@ -120,9 +121,10 @@ object AiBugReport {
     private fun resolveProviderType(configuredModelId: IdType?): String {
         if (configuredModelId == null) return ""
         val db = DatabaseContainer.instance.aiSettingsDb
-        val model = db.llmConfiguredModelDao().getById(configuredModelId) ?: return ""
-        val provider = db.llmProviderConfigDao().getById(model.providerConfigId) ?: return ""
-        return provider.providerType
+        return blockingDb {
+            val model = db.llmConfiguredModelDao().getById(configuredModelId)
+            model?.let { db.llmProviderConfigDao().getById(it.providerConfigId) }?.providerType ?: ""
+        }
     }
 
     /** Resolve model name from an in-memory RawLlmLog's iteration data. */

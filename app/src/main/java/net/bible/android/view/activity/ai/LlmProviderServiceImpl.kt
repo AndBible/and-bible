@@ -41,6 +41,7 @@ import net.bible.sharedcore.ai.LlmProviderService
 import net.bible.sharedcore.ai.ProviderTypeVd
 import net.bible.sharedcore.ai.ProviderVd
 import net.bible.sharedcore.ai.RecommendedSetupVd
+import net.bible.service.db.blockingDb
 
 /**
  * Android impl of [LlmProviderService] backing [net.bible.sharedcore.ai.AiProvidersController] and
@@ -63,8 +64,8 @@ import net.bible.sharedcore.ai.RecommendedSetupVd
  * [AiSettings.configChanged] subscription also re-emits when an external change fires it (same
  * pattern as [AiSettingsServiceImpl]). Registered as a Koin single (lives for the process).
  *
- * Room here is configured with `allowMainThreadQueries`, so the non-suspend reads/[deleteProvider]
- * run synchronously on the caller thread (as elsewhere in the AI settings layer); the suspend
+ * The DAOs are `suspend`; the non-suspend reads/[deleteProvider]
+ * bridge them with `blockingDb` and block the caller thread (as elsewhere in the AI settings layer); the suspend
  * mutations still hop to [Dispatchers.IO] for the network-touching prefetch.
  */
 class LlmProviderServiceImpl : LlmProviderService {
@@ -80,7 +81,7 @@ class LlmProviderServiceImpl : LlmProviderService {
         AiSettings.configChanged.subscribeOnMain { refresh() }
     }
 
-    private fun buildProviders(): List<ProviderVd> = dao.all().map { config ->
+    private fun buildProviders(): List<ProviderVd> = blockingDb { dao.all() }.map { config ->
         ProviderVd(
             id = config.id.toString(),
             displayName = config.displayName,
@@ -105,7 +106,7 @@ class LlmProviderServiceImpl : LlmProviderService {
     }
 
     override fun apiKeyFor(providerId: String): String =
-        dao.getById(IdType(providerId))?.getApiKey() ?: ""
+        blockingDb { dao.getById(IdType(providerId)) }?.getApiKey() ?: ""
 
     override suspend fun saveProvider(
         id: String?,
@@ -150,13 +151,14 @@ class LlmProviderServiceImpl : LlmProviderService {
     }
 
     override fun deleteProvider(id: String) {
-        val config = dao.getById(IdType(id)) ?: return
+        val config = blockingDb { dao.getById(IdType(id)) } ?: return
         config.removeApiKey()
-        val deletedModelIds = modelDao.getByProvider(config.id).map { it.id }.toSet()
-        dao.delete(config)
+        val deletedModelIds = blockingDb {
+            modelDao.getByProvider(config.id).map { it.id }.toSet().also { dao.delete(config) }
+        }
         val currentDefault = settings.defaultModelId
         if (currentDefault != null && currentDefault in deletedModelIds) {
-            settings.defaultModelId = modelDao.all().firstOrNull()?.id
+            settings.defaultModelId = blockingDb { modelDao.all() }.firstOrNull()?.id
         }
         AiSettings.notifyConfigChanged()
         refresh()

@@ -50,7 +50,7 @@ class PromptCsvUtilsTest {
 
     @After
     fun tearDown() {
-        dao.allPrompts().forEach { dao.delete(it) }
+        runBlocking { dao.allPrompts().forEach { dao.delete(it) } }
         resetDatabase()
     }
 
@@ -720,7 +720,7 @@ class PromptCsvUtilsTest {
         assertTrue(prompts[1].showIn.contains(PromptContext.TEXT_SELECTION))
 
         // Verify no DB side effects
-        assertThat(dao.allPrompts().size, equalTo(0))
+        assertThat(runBlocking { dao.allPrompts() }.size, equalTo(0))
     }
 
     @Test
@@ -752,7 +752,7 @@ class PromptCsvUtilsTest {
 
         // No category should have been created in DB
         val categoryDao = DatabaseContainer.instance.aiSettingsDb.promptCategoryDao()
-        assertThat(categoryDao.all().size, equalTo(0))
+        assertThat(runBlocking { categoryDao.all() }.size, equalTo(0))
     }
 
     @Test

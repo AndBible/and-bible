@@ -479,7 +479,7 @@ object CommonUtils : CommonUtilsBase() {
         /** Check if any LlmProviderConfig exists in the database. */
         val llmConfigured: Boolean
             get() = try {
-                DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() > 0
+                blockingDb { DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() } > 0
             } catch (_: Exception) { false }
 
     }

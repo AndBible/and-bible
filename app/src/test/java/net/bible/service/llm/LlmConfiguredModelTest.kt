@@ -53,7 +53,7 @@ class LlmConfiguredModelTest {
             providerType = "GEMINI",
             displayName = "Test Gemini",
         )
-        providerDao.insert(testProvider)
+        runBlocking { providerDao.insert(testProvider) }
 
         testModel = LlmConfiguredModel(
             providerConfigId = testProvider.id,
@@ -62,7 +62,7 @@ class LlmConfiguredModelTest {
             inputPricePerMillion = 0.15,
             outputPricePerMillion = 0.60,
         )
-        modelDao.insert(testModel)
+        runBlocking { modelDao.insert(testModel) }
         AiSettings.defaultModelId = testModel.id
     }
 
@@ -166,7 +166,7 @@ class LlmConfiguredModelTest {
             inputPricePerMillion = 1.25,
             outputPricePerMillion = 10.0,
         )
-        modelDao.insert(secondModel)
+        runBlocking { modelDao.insert(secondModel) }
 
         val config = LlmModelConfig(configuredModelId = secondModel.id)
         val resolved = config.resolveConfiguredModel()
@@ -186,7 +186,7 @@ class LlmConfiguredModelTest {
             inputPricePerMillion = 99.0,
             outputPricePerMillion = 199.0,
         )
-        modelDao.insert(customPricedModel)
+        runBlocking { modelDao.insert(customPricedModel) }
 
         val pricing = LlmPricing.getPricing("custom-gemini-flash", customPricedModel.id)
         assertNotNull(pricing)
@@ -203,7 +203,7 @@ class LlmConfiguredModelTest {
             inputPricePerMillion = 0.0,
             outputPricePerMillion = 0.0,
         )
-        modelDao.insert(zeroPricedModel)
+        runBlocking { modelDao.insert(zeroPricedModel) }
 
         // getPricing with configuredModelId that has 0 pricing should fall back to enum
         val pricing = LlmPricing.getPricing("gemini-2.5-flash", zeroPricedModel.id)
@@ -296,29 +296,29 @@ class LlmConfiguredModelTest {
             providerType = "OPENAI",
             displayName = "Test OpenAI",
         )
-        providerDao.insert(secondProvider)
+        runBlocking { providerDao.insert(secondProvider) }
 
         val openaiModel = LlmConfiguredModel(
             providerConfigId = secondProvider.id,
             modelId = "gpt-4o-mini",
 
         )
-        modelDao.insert(openaiModel)
+        runBlocking { modelDao.insert(openaiModel) }
 
-        val geminiModels = modelDao.getByProvider(testProvider.id)
+        val geminiModels = runBlocking { modelDao.getByProvider(testProvider.id) }
         assertEquals(1, geminiModels.size)
         assertEquals("gemini-2.5-flash", geminiModels[0].modelId)
 
-        val openaiModels = modelDao.getByProvider(secondProvider.id)
+        val openaiModels = runBlocking { modelDao.getByProvider(secondProvider.id) }
         assertEquals(1, openaiModels.size)
         assertEquals("gpt-4o-mini", openaiModels[0].modelId)
     }
 
     @Test
     fun modelDao_cascadeDelete_removesModelsWhenProviderDeleted() {
-        assertEquals(1, modelDao.all().size)
-        providerDao.delete(testProvider)
-        assertEquals(0, modelDao.all().size)
+        assertEquals(1, runBlocking { modelDao.all() }.size)
+        runBlocking { providerDao.delete(testProvider) }
+        assertEquals(0, runBlocking { modelDao.all() }.size)
     }
 
     @Test
@@ -327,14 +327,14 @@ class LlmConfiguredModelTest {
             providerType = "OPENAI",
             displayName = "Test OpenAI",
         )
-        providerDao.insert(secondProvider)
-        modelDao.insert(LlmConfiguredModel(
+        runBlocking { providerDao.insert(secondProvider) }
+        runBlocking { modelDao.insert(LlmConfiguredModel(
             providerConfigId = secondProvider.id,
             modelId = "gpt-4o-mini",
 
-        ))
+        )) }
 
-        val all = modelDao.all()
+        val all = runBlocking { modelDao.all() }
         assertEquals(2, all.size)
     }
 }

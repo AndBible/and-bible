@@ -29,6 +29,7 @@ import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.agent.PermissionMode
 import net.bible.sharedcore.ai.AiSettingsService
 import net.bible.sharedcore.ai.AiSettingsSnapshot
+import net.bible.service.db.blockingDb
 
 /**
  * Android impl of [AiSettingsService]. Reads/writes the global [AiSettings] row (the classic
@@ -56,13 +57,15 @@ class AiSettingsServiceImpl : AiSettingsService {
     }
 
     private fun build(): AiSettingsSnapshot {
-        val models = modelDao.all()
+        val (models, providerCount, providerNames) = blockingDb {
+            Triple(modelDao.all(), providerDao.getCount(), providerDao.all().map { it.displayName })
+        }
         val defaultModelId = settings.defaultModelId
         val defaultModel = models.firstOrNull { it.id == defaultModelId } ?: models.firstOrNull()
 
         return AiSettingsSnapshot(
-            providerCount = providerDao.getCount(),
-            providerNames = providerDao.all().map { it.displayName },
+            providerCount = providerCount,
+            providerNames = providerNames,
             modelCount = models.size,
             defaultModelLabel = defaultModel?.modelId,
             agentPermissionMode = settings.agentPermissionMode.name,
