@@ -2,6 +2,7 @@ package net.bible.sharedcore.settings.store
 
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -15,7 +16,11 @@ import kotlinx.coroutines.launch
  * reads so that DAOs can be `suspend` (D1 spec R4). Owned by one database-container instance: when
  * the files are replaced (restore/import) a new container builds a new store, so nothing is stale.
  */
-class SettingsStore(private val backend: SettingsBackend, scope: CoroutineScope) {
+class SettingsStore(
+    private val backend: SettingsBackend,
+    scope: CoroutineScope,
+    private val onWriteError: (SettingWrite, Throwable) -> Unit = { _, _ -> },
+) {
     private val lock = SynchronizedObject()
     private val booleans = HashMap<String, Boolean>()
     private val longs = HashMap<String, Long>()
@@ -35,15 +40,31 @@ class SettingsStore(private val backend: SettingsBackend, scope: CoroutineScope)
 
     init {
         // A single consumer drains the queue, so backend writes never run concurrently and keep call order.
-        scope.launch {
+        // A failing write is reported and skipped so the queue keeps draining; cancellation still ends the loop.
+        val consumer = scope.launch {
             for (job in queue) when (job) {
-                is Job.Write -> backend.write(job.w)
+                is Job.Write -> try {
+                    backend.write(job.w)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Throwable) {
+                    onWriteError(job.w, e)
+                }
                 is Job.Flush -> job.done.complete(Unit)
+            }
+        }
+        // Runs however the consumer ends, including cancelled before it started. Closing the queue makes
+        // later sets drop their write (memory is still updated), and releases any flush still waiting.
+        consumer.invokeOnCompletion {
+            queue.close()
+            while (true) {
+                val job = queue.tryReceive().getOrNull() ?: break
+                if (job is Job.Flush) job.done.complete(Unit)
             }
         }
     }
 
-    /** Replaces the in-memory state with the backend's contents. */
+    /** Replaces the in-memory state with the backend's contents. Call once, before the first set. */
     suspend fun load() {
         val s = backend.loadAll()
         synchronized(lock) {
@@ -71,16 +92,23 @@ class SettingsStore(private val backend: SettingsBackend, scope: CoroutineScope)
     fun setDouble(key: String, value: Double?) =
         put(SettingWrite.Dbl(key, value)) { if (value == null) doubles.remove(key) else doubles[key] = value }
 
-    /** Memory update and enqueue under one lock, so memory order == write order (Review Focus 5). */
+    /**
+     * Memory update and enqueue under one lock, so memory order == write order (Review Focus 5).
+     * The enqueue result is ignored on purpose: it fails only after the scope has ended, and then the
+     * write is dropped while memory is still updated.
+     */
     private inline fun put(write: SettingWrite, update: () -> Unit) {
         synchronized(lock) { update(); queue.trySend(Job.Write(write)) }
         _changes.tryEmit(write.key)
     }
 
-    /** Suspends until every write enqueued before this call has reached the backend. */
+    /**
+     * Suspends until every write enqueued before this call has reached the backend. Returns at once if
+     * the scope has ended (the queue is closed), instead of waiting for a consumer that no longer runs.
+     */
     suspend fun flush() {
         val done = CompletableDeferred<Unit>()
-        queue.send(Job.Flush(done))
+        if (queue.trySend(Job.Flush(done)).isFailure) return
         done.await()
     }
 }

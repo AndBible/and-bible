@@ -12,10 +12,12 @@ private class FakeBackend(initial: SettingsSnapshot = SettingsSnapshot(emptyMap(
     val booleans = initial.booleans.toMutableMap(); val longs = initial.longs.toMutableMap()
     val strings = initial.strings.toMutableMap(); val doubles = initial.doubles.toMutableMap()
     var gate: CompletableDeferred<Unit>? = null
+    var failOn: String? = null
     private val lock = Mutex()
     override suspend fun loadAll() = SettingsSnapshot(booleans.toMap(), longs.toMap(), strings.toMap(), doubles.toMap())
     override suspend fun write(write: SettingWrite) {
         gate?.await()
+        if (write.key == failOn) throw IllegalStateException("disk full")
         lock.withLock {
             written += write
             when (write) {
@@ -70,6 +72,7 @@ class SettingsStoreTest {
         (1..8).map { t -> launch(Dispatchers.Default) { repeat(200) { store.setLong("k", (t * 1000 + it).toLong()) } } }.joinAll()
         store.flush()
         assertEquals(store.getLong("k", -1), backend.longs["k"])
+        assertEquals(1600, backend.written.size)
         scope.cancel()
     }
 
@@ -85,5 +88,39 @@ class SettingsStoreTest {
         yield()
         store.setBoolean("x", true)
         assertEquals("x", got.await())
+    }
+
+    @Test fun aFailingWriteIsReportedAndLaterWritesStillLand() = runTest {
+        val backend = FakeBackend().apply { failOn = "bad" }
+        val errors = mutableListOf<Pair<SettingWrite, Throwable>>()
+        val store = SettingsStore(backend, backgroundScope) { w, e -> errors += w to e }.apply { load() }
+        store.setString("bad", "x")
+        store.setString("good", "y")
+        withTimeout(5_000) { store.flush() }
+        assertEquals(listOf<SettingWrite>(SettingWrite.Str("bad", "x")), errors.map { it.first })
+        assertEquals("disk full", errors.single().second.message)
+        assertEquals("y", backend.strings["good"])
+        assertEquals("x", store.getString("bad", null))
+    }
+
+    @Test fun flushAfterTheScopeIsCancelledReturns() = runBlocking {
+        val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+        val store = SettingsStore(FakeBackend(), scope).apply { load() }
+        scope.cancel()
+        withTimeout(5_000) { store.flush() }
+        store.setLong("k", 7)
+        assertEquals(7L, store.getLong("k", 0))
+        withTimeout(5_000) { store.flush() }
+    }
+
+    @Test fun flushSuspendedWhenTheScopeIsCancelledCompletes() = runBlocking {
+        val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+        val backend = FakeBackend().apply { gate = CompletableDeferred() }
+        val store = SettingsStore(backend, scope).apply { load() }
+        store.setLong("k", 1)
+        // UNDISPATCHED: flush enqueues its marker and suspends in done.await() before we cancel.
+        val flushed = async(start = CoroutineStart.UNDISPATCHED) { store.flush() }
+        scope.cancel()
+        withTimeout(5_000) { flushed.await() }
     }
 }
