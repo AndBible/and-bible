@@ -91,12 +91,11 @@ accrescent-debug:
 	@cp app/build/outputs/apkset/standardAccrescentDebug/app-standardAccrescentDebug.apks app/standardAccrescent/debug/
 	@echo "✓ APK set: app/standardAccrescent/debug/app-standardAccrescentDebug.apks"
 
-# Push the current branch, pushing our own submodules (goldens, superpowers) first so the
+# Push the current branch, pushing our own submodules (jsword, goldens, superpowers, media) first so the
 # gitlinks never point at unpublished commits. Each submodule pushes the commit the committed
 # gitlink names (not its checkout, which can lag behind) to the superproject's branch name,
-# fast-forward only. jsword is an upstream fork, pushed by hand; --recurse-submodules=check
-# refuses the final push if any gitlink (jsword included) is unpushed.
-PUSH_SUBMODULES := app/src/test/roborazzi docs/superpowers website/media
+# fast-forward only. --recurse-submodules=check refuses the final push if any gitlink is unpushed.
+PUSH_SUBMODULES := jsword app/src/test/roborazzi docs/superpowers website/media
 
 # andbible.org (website/): build into website/_site, then check it. CI runs both.
 site:
