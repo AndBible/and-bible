@@ -77,6 +77,17 @@ object SchemaExportFixtures {
 }
 
 /**
+ * Versions whose migration chain runs `ALTER TABLE ... DROP COLUMN`. Under Robolectric the framework
+ * SQLite predates 3.35 and rejects the syntax, so `MigrationChainTest` skips them and
+ * `MigrationChainBundledDriverTest` runs them on the bundled driver instead. Remove this set when the
+ * whole chain test runs on the bundled driver (D1 Task 17).
+ */
+val NEEDS_MODERN_SQLITE: Map<String, Set<Int>> = mapOf(
+    "net.bible.android.database.BookmarkDatabase" to (1..10).toSet(),
+    "net.bible.android.database.WorkspaceDatabase" to setOf(1, 2),
+)
+
+/**
  * One Room database exercised by the schema tests. [open] must go through the production builder
  * (or an exact copy of it) so the tests see the same migrations and journal mode as the app.
  */

@@ -40,23 +40,12 @@ class MigrationChainTest {
         "net.bible.android.database.AiSettingsDatabase" to setOf(17),
     )
 
-    /**
-     * Versions whose migration chain runs `ALTER TABLE ... DROP COLUMN`. Production opens the databases
-     * with requery SQLite 3.49 (`dbFactory`); under Robolectric the framework SQLite predates 3.35 and
-     * rejects the syntax, so these cannot be exercised here until the tests run on the bundled driver
-     * (D1 Tasks 16-17). Remove this set then.
-     */
-    private val needsModernSqlite: Map<String, Set<Int>> = mapOf(
-        "net.bible.android.database.BookmarkDatabase" to (1..10).toSet(),
-        "net.bible.android.database.WorkspaceDatabase" to setOf(1, 2),
-    )
-
     @Test
     fun everyExportedVersionMigratesToCurrent() {
         val failures = mutableListOf<String>()
         var tested = 0
         for (db in DB_UNDER_TEST) {
-            val skip = knownUnmigratable[db.schemaDir].orEmpty() + needsModernSqlite[db.schemaDir].orEmpty()
+            val skip = knownUnmigratable[db.schemaDir].orEmpty() + NEEDS_MODERN_SQLITE[db.schemaDir].orEmpty()
             for (v in SchemaExportFixtures.exportedVersions(db.schemaDir).filter { it < db.currentVersion && it !in skip }) {
                 val name = "chain-${db.schemaDir}-$v.sqlite3"
                 application.deleteDatabase(name)
