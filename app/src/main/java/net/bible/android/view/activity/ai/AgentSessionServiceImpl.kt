@@ -75,8 +75,11 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
     /** Always reads the current workspace ID so it stays correct after workspace switches. */
     private fun wsId(): IdType = windowControl.windowRepository.id
 
-    /** Terminal stop reason from the most recent [AgentSessionChange.StatusChanged]; cleared on start. */
-    private var lastStop: AgentStopReasonVd? = null
+    /**
+     * F127: terminal stop reason of the most recent [AgentSessionChange.StatusChanged], per workspace;
+     * a start clears it. Only touched on Main: every [build] caller runs there.
+     */
+    private val lastStopByWorkspace = mutableMapOf<IdType, AgentStopReasonVd?>()
 
     private val _snapshot = MutableStateFlow(build())
     override val snapshot: StateFlow<AgentLogSnapshot> = _snapshot.asStateFlow()
@@ -84,13 +87,14 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
     init {
         // Process lifetime (Koin single): never cancelled. onMain before, so subscribeOnMain now.
         AgentSessionManager.changes.subscribeOnMain { change ->
+            // Recorded for every workspace, before the filter, so switching back finds its own reason.
+            if (change is AgentSessionChange.StatusChanged) {
+                lastStopByWorkspace[change.workspaceId] = change.stopReason?.toVd()
+            }
             if (change.workspaceId != wsId()) return@subscribeOnMain
             when (change) {
                 is AgentSessionChange.LogUpdated -> refresh()
-                is AgentSessionChange.StatusChanged -> {
-                    lastStop = change.stopReason?.toVd()
-                    refresh()
-                }
+                is AgentSessionChange.StatusChanged -> refresh()
                 is AgentSessionChange.PermissionWaiting -> Unit // the panel never showed it
             }
         }
@@ -108,7 +112,7 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
             headerCost = AgentSessionManager.getSession(workspaceId)?.sessionCostUsd
                 ?.takeIf { it > 0 }?.let { LlmCostTracker.formatCost(it) },
             defaultModelText = defaultModelLabel(),
-            lastStopReason = lastStop,
+            lastStopReason = lastStopByWorkspace[workspaceId],
         )
     }
 
