@@ -21,6 +21,8 @@ import androidx.room.Room
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -60,7 +62,7 @@ class EpubDaoTest {
     }
 
     @Test
-    fun clearRemovesRowsFromEveryTable() {
+    fun clearRemovesRowsFromEveryTable() = runBlocking {
         val ids = dao.insert(
             EpubFragment("origA", 0, 10),
             EpubFragment("origB", 11, 20),
@@ -84,7 +86,7 @@ class EpubDaoTest {
     }
 
     @Test
-    fun freshInsertsAfterClearHaveNoStaleRows() {
+    fun freshInsertsAfterClearHaveNoStaleRows() = runBlocking {
         // Simulate a first optimization that leaves rows behind.
         dao.insert(EpubFragment("stale", 0, 5))
         dao.insert(EpubMeta(totalCharacters = 999))
@@ -99,5 +101,19 @@ class EpubDaoTest {
         // The cached character count from the previous run must not survive.
         assertNull(dao.getMeta())
         assertTrue(freshIds.isNotEmpty())
+    }
+
+    /** `clear()` is a `@Transaction`: it must complete (no deadlock) and clear every table in one go. */
+    @Test
+    fun clearTransactionCompletesUnderTimeout() = runBlocking {
+        val ids = dao.insert(EpubFragment("a", 0, 1))
+        dao.insert(EpubHtmlToFrag("a", ids[0]))
+        dao.insert(StyleSheet("a", "s.css"))
+        dao.insert(EpubMeta(totalCharacters = 1))
+        withTimeout(10_000) { dao.clear() }
+        assertTrue(dao.fragments().isEmpty())
+        assertTrue(dao.epubHtmlToFrags().isEmpty())
+        assertTrue(dao.styleSheets("a").isEmpty())
+        assertNull(dao.getMeta())
     }
 }
