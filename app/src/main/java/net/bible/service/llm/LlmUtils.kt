@@ -149,19 +149,19 @@ data class LlmModelConfig(
      * Resolve the configured model. Falls back to the global default.
      * Returns null if the model was deleted or no default is configured.
      */
-    fun resolveConfiguredModel(): LlmConfiguredModel? {
+    suspend fun resolveConfiguredModel(): LlmConfiguredModel? {
         if (configuredModelId != null) {
-            blockingDb { modelDao.getById(configuredModelId) }?.let { return it }
+            modelDao.getById(configuredModelId)?.let { return it }
             // Model was deleted → fall back to global default
         }
         val defaultId = AiSettings.defaultModelId ?: return null
-        return blockingDb { modelDao.getById(defaultId) }
+        return modelDao.getById(defaultId)
     }
 
     /** Resolve the provider config via the configured model. */
-    fun resolveProviderConfig(): LlmProviderConfig? {
+    suspend fun resolveProviderConfig(): LlmProviderConfig? {
         val model = resolveConfiguredModel() ?: return null
-        return blockingDb { providerDao.getById(model.providerConfigId) }
+        return providerDao.getById(model.providerConfigId)
     }
 
     companion object {

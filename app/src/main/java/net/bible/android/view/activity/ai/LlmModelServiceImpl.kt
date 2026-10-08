@@ -238,11 +238,11 @@ class LlmModelServiceImpl : LlmModelService {
      *
      * The `defaultModelId` setter emits [AiSettings.defaultModelChanged] itself.
      */
-    private fun applyDefault(modelId: IdType, setDefault: Boolean) {
+    private suspend fun applyDefault(modelId: IdType, setDefault: Boolean) {
         when {
             setDefault -> settings.defaultModelId = modelId
             settings.defaultModelId == modelId ->
-                settings.defaultModelId = blockingDb { modelDao.all() }.firstOrNull { it.id != modelId }?.id ?: modelId
+                settings.defaultModelId = modelDao.all().firstOrNull { it.id != modelId }?.id ?: modelId
             settings.defaultModelId == null -> settings.defaultModelId = modelId
         }
     }

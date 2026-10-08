@@ -102,13 +102,12 @@ object LlmProcessingService {
     /**
      * Resolve provider, model, adapter, API key, and endpoint from an LlmModelConfig.
      */
-    internal fun resolveFromConfig(llmConfig: LlmModelConfig? = null): ResolvedProvider {
+    internal suspend fun resolveFromConfig(llmConfig: LlmModelConfig? = null): ResolvedProvider {
         val configuredModel = (llmConfig ?: LlmModelConfig()).resolveConfiguredModel()
             ?: throw IllegalStateException("No LLM model configured")
 
-        val providerConfig = blockingDb {
-            DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getById(configuredModel.providerConfigId)
-        }
+        val providerConfig = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+            .getById(configuredModel.providerConfigId)
             ?: throw IllegalStateException("LLM provider not found for model ${configuredModel.modelId}")
 
         return ResolvedProvider(

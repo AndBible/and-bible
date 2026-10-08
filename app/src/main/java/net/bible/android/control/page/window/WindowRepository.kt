@@ -122,10 +122,17 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         if(initialized || loadingFromDb) return
         if(id.isEmpty) {
             val newId = settings.getString("current_workspace_id")?.let{IdType(it)}?.apply { this@WindowRepository.id = this }
-            if (newId == null || blockingDb { dao.workspace(newId) } == null) {
-                val newWorkspace = WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1))
-                id = newWorkspace.id
-                blockingDb { dao.insertWorkspace(newWorkspace) }
+            // DAO resolved before the bridge (first access may construct the container, which bridges itself);
+            // the existence check and the insert share one bridge.
+            val workspaceDao = dao
+            val created = blockingDb {
+                if (newId == null || workspaceDao.workspace(newId) == null) {
+                    WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1))
+                        .also { workspaceDao.insertWorkspace(it) }
+                } else null
+            }
+            if (created != null) {
+                id = created.id
                 settings.setString("current_workspace_id", id.toString())
             }
         }
@@ -418,13 +425,14 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
         // The whole workspace is read in ONE bridge, before clear(): the restore below posts events
         // synchronously (see [loadingFromDb]) and must not run inside a database call.
+        val workspaceDao = dao
         val loaded = blockingDb {
-            val entity = (if(workspaceId != null) dao.workspace(workspaceId) else null)?: dao.firstWorkspace()
+            val entity = (if(workspaceId != null) workspaceDao.workspace(workspaceId) else null)?: workspaceDao.firstWorkspace()
                 ?: WorkspaceEntities.Workspace("").apply{
-                    dao.insertWorkspace(this)
+                    workspaceDao.insertWorkspace(this)
                 }
-            LoadedWorkspace(entity, dao.windows(entity.id).map {
-                LoadedWindow(it, dao.pageManager(it.id), dao.historyItems(it.id))
+            LoadedWorkspace(entity, workspaceDao.windows(entity.id).map {
+                LoadedWindow(it, workspaceDao.pageManager(it.id), workspaceDao.historyItems(it.id))
             })
         }
         val entity = loaded.entity

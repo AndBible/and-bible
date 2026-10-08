@@ -449,7 +449,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
      * - strict (true): Matches full context hash (Bible version, selected text, etc.)
      * - loose (false): Matches only KJVA verse ordinals (cross-version)
      */
-    private fun findCachedPage(
+    private suspend fun findCachedPage(
         prompt: AgentPrompt,
         cacheableContext: CacheableContext
     ): AiCachedPageWithContent? {
@@ -458,13 +458,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
         return if (prompt.strictContextMatching) {
             // Strict: match full context
             val contextHash = cacheableContext.computeHash()
-            blockingDb { dao.findCachedPageByContextHash(prompt.id, contextHash) }
+            dao.findCachedPageByContextHash(prompt.id, contextHash)
         } else {
             // Loose: match only verse ordinals
             val start = cacheableContext.kjvOrdinalStart
             val end = cacheableContext.kjvOrdinalEnd
             if (start != null && end != null) {
-                blockingDb { dao.findCachedPageByVerseRange(prompt.id, start, end) }
+                dao.findCachedPageByVerseRange(prompt.id, start, end)
             } else null
         }
     }
@@ -794,7 +794,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     /** Stops the session, attaches total cost, and persists raw log. Used by all completion event handlers. */
-    private fun completeSession(session: AgentSession, event: CompletionEvent, prompt: AgentPrompt) {
+    private suspend fun completeSession(session: AgentSession, event: CompletionEvent, prompt: AgentPrompt) {
         val app = BibleApplication.application
         session.stop(app.getString(R.string.agent_log_completed), AgentStopReason.COMPLETED)
         attachTotalCost(session, event.usage, event.model, event.configuredModelId)
@@ -808,16 +808,14 @@ object AgentSessionManager : AgentSessionManagerBase() {
         )
     }
 
-    private fun resolveProviderType(configuredModelId: IdType?): String {
+    private suspend fun resolveProviderType(configuredModelId: IdType?): String {
         if (configuredModelId == null) return ""
         val db = DatabaseContainer.instance.aiSettingsDb
-        return blockingDb {
-            val model = db.llmConfiguredModelDao().getById(configuredModelId)
-            model?.let { db.llmProviderConfigDao().getById(it.providerConfigId) }?.providerType ?: ""
-        }
+        val model = db.llmConfiguredModelDao().getById(configuredModelId)
+        return model?.let { db.llmProviderConfigDao().getById(it.providerConfigId) }?.providerType ?: ""
     }
 
-    private fun persistRawLog(
+    private suspend fun persistRawLog(
         session: AgentSession,
         prompt: AgentPrompt,
         model: String,
@@ -847,13 +845,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 iterationCount = rawLog.usageByIteration.size,
                 wasError = wasError,
             )
-            blockingDb { DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().insert(record) }
+            DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().insert(record)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to persist raw log", e)
         }
     }
 
-    private fun persistRawLogFromIterations(session: AgentSession, prompt: AgentPrompt) {
+    private suspend fun persistRawLogFromIterations(session: AgentSession, prompt: AgentPrompt) {
         val rawLog = session.rawLlmLog ?: return
         if (rawLog.isEmpty()) return
         val lastIteration = rawLog.usageByIteration.values.lastOrNull()
@@ -879,7 +877,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     /** Saves an AI response document and logs it. Shared by Completed and CompletedWithDocument. */
-    private fun saveAndLogDocument(
+    private suspend fun saveAndLogDocument(
         title: String,
         content: String,
         context: AgentContext,

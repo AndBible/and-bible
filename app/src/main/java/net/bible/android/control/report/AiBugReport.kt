@@ -118,13 +118,11 @@ object AiBugReport {
         activity.awaitIntent(chooser)
     }
 
-    private fun resolveProviderType(configuredModelId: IdType?): String {
+    private suspend fun resolveProviderType(configuredModelId: IdType?): String {
         if (configuredModelId == null) return ""
         val db = DatabaseContainer.instance.aiSettingsDb
-        return blockingDb {
-            val model = db.llmConfiguredModelDao().getById(configuredModelId)
-            model?.let { db.llmProviderConfigDao().getById(it.providerConfigId) }?.providerType ?: ""
-        }
+        val model = db.llmConfiguredModelDao().getById(configuredModelId)
+        return model?.let { db.llmProviderConfigDao().getById(it.providerConfigId) }?.providerType ?: ""
     }
 
     /** Resolve model name from an in-memory RawLlmLog's iteration data. */

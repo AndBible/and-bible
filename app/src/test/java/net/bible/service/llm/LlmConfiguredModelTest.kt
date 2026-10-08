@@ -77,7 +77,7 @@ class LlmConfiguredModelTest {
     @Test
     fun resolveConfiguredModel_withExplicitId_returnsSpecificModel() {
         val config = LlmModelConfig(configuredModelId = testModel.id)
-        val resolved = config.resolveConfiguredModel()
+        val resolved = runBlocking { config.resolveConfiguredModel() }
         assertNotNull(resolved)
         assertEquals(testModel.modelId, resolved!!.modelId)
     }
@@ -85,7 +85,7 @@ class LlmConfiguredModelTest {
     @Test
     fun resolveConfiguredModel_withNull_returnsGlobalDefault() {
         val config = LlmModelConfig(configuredModelId = null)
-        val resolved = config.resolveConfiguredModel()
+        val resolved = runBlocking { config.resolveConfiguredModel() }
         assertNotNull(resolved)
         assertEquals(testModel.modelId, resolved!!.modelId)
     }
@@ -94,7 +94,7 @@ class LlmConfiguredModelTest {
     fun resolveConfiguredModel_withDeletedModelId_fallsBackToDefault() {
         val deletedId = IdType()
         val config = LlmModelConfig(configuredModelId = deletedId)
-        val resolved = config.resolveConfiguredModel()
+        val resolved = runBlocking { config.resolveConfiguredModel() }
         // Should fall back to global default since the specified model doesn't exist
         assertNotNull(resolved)
         assertEquals(testModel.modelId, resolved!!.modelId)
@@ -104,7 +104,7 @@ class LlmConfiguredModelTest {
     fun resolveConfiguredModel_noDefaultSet_returnsNull() {
         AiSettings.defaultModelId = null
         val config = LlmModelConfig(configuredModelId = null)
-        val resolved = config.resolveConfiguredModel()
+        val resolved = runBlocking { config.resolveConfiguredModel() }
         assertNull(resolved)
     }
 
@@ -112,14 +112,14 @@ class LlmConfiguredModelTest {
     fun resolveConfiguredModel_defaultPointsToDeletedModel_returnsNull() {
         AiSettings.defaultModelId = IdType() // Points to non-existent model
         val config = LlmModelConfig(configuredModelId = null)
-        val resolved = config.resolveConfiguredModel()
+        val resolved = runBlocking { config.resolveConfiguredModel() }
         assertNull(resolved)
     }
 
     @Test
     fun resolveProviderConfig_returnsProviderViaModel() {
         val config = LlmModelConfig(configuredModelId = testModel.id)
-        val provider = config.resolveProviderConfig()
+        val provider = runBlocking { config.resolveProviderConfig() }
         assertNotNull(provider)
         assertEquals(testProvider.id, provider!!.id)
         assertEquals("GEMINI", provider.providerType)
@@ -129,7 +129,7 @@ class LlmConfiguredModelTest {
     fun resolveProviderConfig_noModel_returnsNull() {
         AiSettings.defaultModelId = null
         val config = LlmModelConfig(configuredModelId = null)
-        val provider = config.resolveProviderConfig()
+        val provider = runBlocking { config.resolveProviderConfig() }
         assertNull(provider)
     }
 
@@ -169,7 +169,7 @@ class LlmConfiguredModelTest {
         runBlocking { modelDao.insert(secondModel) }
 
         val config = LlmModelConfig(configuredModelId = secondModel.id)
-        val resolved = config.resolveConfiguredModel()
+        val resolved = runBlocking { config.resolveConfiguredModel() }
         assertNotNull(resolved)
         assertEquals("gemini-2.5-pro", resolved!!.modelId)
     }

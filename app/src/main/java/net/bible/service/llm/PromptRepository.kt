@@ -197,8 +197,8 @@ object PromptRepository {
     }
 
     /** Set the model override for a built-in prompt. */
-    fun setBuiltinPromptModelOverride(promptId: IdType, modelId: IdType) {
-        blockingDb { overrideDao.upsert(BuiltinPromptOverride(id = promptId, configuredModelId = modelId)) }
+    suspend fun setBuiltinPromptModelOverride(promptId: IdType, modelId: IdType) {
+        overrideDao.upsert(BuiltinPromptOverride(id = promptId, configuredModelId = modelId))
     }
 
     /** Hide a built-in prompt so it doesn't appear in any context. */

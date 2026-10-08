@@ -313,7 +313,7 @@ class MyDocumentBookManagerTest {
 
     @Test
     fun deletingAnAiDocumentPageEmitsDocumentUpdatedThenAiDocPages() {
-        val aiDocument = MyDocumentBookManager.getOrCreateAIDocument()
+        val aiDocument = runBlocking { MyDocumentBookManager.getOrCreateAIDocument() }
         addPage("ai_page", "AI page", documentId = aiDocument.id)
         MyDocumentBookManager.refreshDocument(MyDocumentBookManager.AI_DOCUMENTS_INITIALS)
         val id = runBlocking { dao.pageByKeyWithContent(aiDocument.id, "ai_page") }!!.id

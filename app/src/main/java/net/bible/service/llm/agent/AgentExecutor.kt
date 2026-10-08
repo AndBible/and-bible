@@ -478,7 +478,7 @@ class AgentExecutor(
      * Returns a [ProcessToolsResult] if the tool signals completion, or null to continue.
      * For setDocumentTitle with pending content, returns [ProcessToolsResult.Continue] with pendingDocumentTitle.
      */
-    private fun checkForFinishResult(
+    private suspend fun checkForFinishResult(
         toolCall: ToolCall,
         result: ToolResult.Success,
         responseContent: String?,
@@ -529,7 +529,7 @@ class AgentExecutor(
      * or sets up document with title. Returns [ProcessToolsResult.Continue] with
      * pendingDocumentTitle when content is not yet available.
      */
-    private fun handleSetDocumentTitle(
+    private suspend fun handleSetDocumentTitle(
         toolCall: ToolCall,
         result: ToolResult.Success,
         responseContent: String?,
@@ -969,7 +969,7 @@ class AgentExecutor(
     /**
      * Routes transformed text back to the appropriate note entity based on [AgentContext.noteEditorEntityType].
      */
-    private fun saveNoteContent(context: AgentContext, content: String) {
+    private suspend fun saveNoteContent(context: AgentContext, content: String) {
         val entityId = context.noteEditorEntityId ?: return
         val bookmarkControl = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 
@@ -986,21 +986,19 @@ class AgentExecutor(
             NoteEditorEntityType.MY_DOCUMENT_PAGE -> {
                 val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
                 val pageId = IdType(entityId)
-                val page = blockingDb { dao.pageById(pageId) } ?: return
+                val page = dao.pageById(pageId) ?: return
                 page.updatedAt = System.currentTimeMillis()
-                blockingDb {
-                    dao.update(page)
-                    dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
-                }
+                dao.update(page)
+                dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
 
-                val document = blockingDb { dao.documentById(page.documentId) }
+                val document = dao.documentById(page.documentId)
                 if (document != null) {
                     MyDocumentBookManager.refreshDocument(document.initials)
-                    val cacheEntry = blockingDb { dao.getCacheEntry(pageId) }
+                    val cacheEntry = dao.getCacheEntry(pageId)
                     val start = cacheEntry?.kjvOrdinalStart
                     val end = cacheEntry?.kjvOrdinalEnd
                     if (start != null && end != null) {
-                        val markers = blockingDb { dao.aiDocMarkersForRange(start, end) }
+                        val markers = dao.aiDocMarkersForRange(start, end)
                         MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(markers))
                     }
                 }
