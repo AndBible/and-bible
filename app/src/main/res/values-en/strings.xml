@@ -145,6 +145,7 @@ Workspaces allow having multiple working environments. Workspace functions can b
         Swipe down starting on the bible verse selector to show the workspace selector.
         Long press the window button to quickly minimize.
         Long press the Speak toolbar button to quickly go to speak settings.
+        Long press the verse location title in toolbar to jump to document selector.
     </string>
   <!--Welcome text-->
   <!--Supported file formats for documents-->
