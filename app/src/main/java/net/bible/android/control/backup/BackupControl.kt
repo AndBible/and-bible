@@ -871,7 +871,7 @@ object BackupControl {
                                     } else true
                                     if (!areYouSure) continue
                                     Log.i(TAG, "Restoring $fileName")
-                                    if (DatabaseContainer.ready) DatabaseContainer.instance.dbByFilename[fileName]?.close()
+                                    if (DatabaseContainer.ready) DatabaseContainer.instance.closeForReplace(fileName)
                                     val targetFilePath = activity.getDatabasePath(fileName).path
                                     val targetFile = File(targetFilePath)
                                     f.copyTo(targetFile, overwrite = true)
@@ -1158,7 +1158,7 @@ object BackupControl {
                     }
 
                     if (DatabaseContainer.ready) {
-                        DatabaseContainer.instance.dbByFilename[dbFileName]?.close()
+                        DatabaseContainer.instance.closeForReplace(dbFileName)
                     }
 
                     val dbPath = activity.getDatabasePath(dbFileName).path

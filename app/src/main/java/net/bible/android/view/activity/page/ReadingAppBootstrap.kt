@@ -229,7 +229,10 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         if(!initialized) {
             requestSdcardPermission()
             ErrorReportControl.checkCrash(host)
-            if(!CommonUtils.checkPoorTranslations(host)) exitProcess(2)
+            if(!CommonUtils.checkPoorTranslations(host)) {
+                DatabaseContainer.flushSettingsBeforeExit()
+                exitProcess(2)
+            }
             showBetaNotice()
             showStableNotice()
             showNewSyncTargetsNotice()
