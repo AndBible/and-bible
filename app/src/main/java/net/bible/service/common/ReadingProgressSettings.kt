@@ -118,7 +118,10 @@ object ReadingProgressSettings {
         setBundle(bundle)
     }
 
+    /** Encodes defaults too: the JS update listener merges with `Object.assign`, so omitted fields could never be reset. */
+    private val fullBundleJson = Json { encodeDefaults = true }
+
     fun getBundleAsJson(): String {
-        return Json.encodeToString(ReadingProgressSettingsBundle.serializer(), getBundle())
+        return fullBundleJson.encodeToString(ReadingProgressSettingsBundle.serializer(), getBundle())
     }
 }
