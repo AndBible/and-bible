@@ -120,7 +120,7 @@ class RealFileFixturesTest {
         assertEquals(1791489829006L, docs.single().createdAt)
     }
 
-    @Test fun requeryBuiltProgressOpensAndReadsBack() {
+    @Test fun requeryBuiltProgressOpensAndReadsBack() = runBlocking {
         install(ProgressDatabase.dbFileName)
         val dao = DatabaseContainer.instance.progressDb.progressDao()
 

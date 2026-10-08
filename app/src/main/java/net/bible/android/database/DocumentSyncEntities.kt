@@ -69,35 +69,35 @@ data class CloudDocumentSyncTimestamp(
 @Dao
 interface DocumentSyncPreferencesDao {
     @Query("SELECT * FROM DocumentSyncPreferences LIMIT 1")
-    fun get(): DocumentSyncPreferences?
+    suspend fun get(): DocumentSyncPreferences?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun set(prefs: DocumentSyncPreferences)
+    suspend fun set(prefs: DocumentSyncPreferences)
 
     @Query("DELETE FROM DocumentSyncPreferences")
-    fun clear()
+    suspend fun clear()
 }
 
 @Dao
 interface CloudListingStateDao {
     @Query("SELECT * FROM CloudListingState LIMIT 1")
-    fun get(): CloudListingState?
+    suspend fun get(): CloudListingState?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun set(state: CloudListingState)
+    suspend fun set(state: CloudListingState)
 
     @Query("DELETE FROM CloudListingState")
-    fun clear()
+    suspend fun clear()
 }
 
 @Dao
 interface CloudDocumentSyncTimestampDao {
     @Query("SELECT timestamp FROM CloudDocumentSyncTimestamp WHERE initials = :initials")
-    fun get(initials: String): Long?
+    suspend fun get(initials: String): Long?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun set(row: CloudDocumentSyncTimestamp)
+    suspend fun set(row: CloudDocumentSyncTimestamp)
 
     @Query("DELETE FROM CloudDocumentSyncTimestamp")
-    fun clear()
+    suspend fun clear()
 }

@@ -44,7 +44,6 @@ class DaoSuspendGuardTest {
     private val notYetConverted = setOf(
         "BookmarkDao", // 82 non-suspend
         "MyDocumentDao", // 33 non-suspend
-        "ProgressDao", // 29 non-suspend
         "WorkspaceDao", // 26 non-suspend
         "SyncDao", // 17 non-suspend
         "AgentPromptDao", // 11 non-suspend
@@ -52,14 +51,9 @@ class DaoSuspendGuardTest {
         "LlmRawLogRecordDao", // 7 non-suspend
         "LlmProviderConfigDao", // 7 non-suspend
         "LlmConfiguredModelDao", // 7 non-suspend
-        "CloudDocumentCacheDao", // 6 non-suspend
         "LlmUsageRecordDao", // 5 non-suspend
         "BuiltinPromptOverrideDao", // 4 non-suspend
-        "DocumentSyncPreferencesDao", // 3 non-suspend
-        "CloudListingStateDao", // 3 non-suspend
-        "CloudDocumentSyncTimestampDao", // 3 non-suspend
         "GlobalTextDisplaySettingsDao", // 2 non-suspend
-        "GlobalReadingProgressSettingsDao", // 2 non-suspend
         "GlobalAiSettingsDao", // 2 non-suspend
     )
 

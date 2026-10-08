@@ -17,6 +17,7 @@
 
 package net.bible.service.cloudsync.documents
 
+import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.db.DatabaseContainer
@@ -34,12 +35,13 @@ import org.robolectric.annotation.Config
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class DocumentSyncSettingsTest {
     @Before
-    fun reset() {
+    fun reset() = runBlocking {
         DatabaseContainer.instance.documentSyncDb.apply {
             documentSyncPreferencesDao().clear()
             cloudListingStateDao().clear()
             cloudDocumentSyncTimestampDao().clear()
         }
+        Unit
     }
 
     @Test

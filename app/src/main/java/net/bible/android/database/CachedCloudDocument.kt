@@ -49,24 +49,24 @@ data class CachedCloudDocument(
 @Dao
 interface CloudDocumentCacheDao {
     @Query("SELECT * FROM CachedCloudDocument")
-    fun all(): List<CachedCloudDocument>
+    suspend fun all(): List<CachedCloudDocument>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(items: List<CachedCloudDocument>)
+    suspend fun insertAll(items: List<CachedCloudDocument>)
 
     @Query("DELETE FROM CachedCloudDocument")
-    fun clear()
+    suspend fun clear()
 
     /** Drops one cached entry (e.g. an optimistic purge of a removed-document marker). */
     @Query("DELETE FROM CachedCloudDocument WHERE initials = :initials")
-    fun deleteByInitials(initials: String)
+    suspend fun deleteByInitials(initials: String)
 
     /** Marks one cached entry as a tombstone (e.g. an optimistic remove-from-cloud). */
     @Query("UPDATE CachedCloudDocument SET deleted = 1 WHERE initials = :initials")
-    fun markDeleted(initials: String)
+    suspend fun markDeleted(initials: String)
 
     @Transaction
-    fun replaceAll(items: List<CachedCloudDocument>) {
+    suspend fun replaceAll(items: List<CachedCloudDocument>) {
         clear()
         insertAll(items)
     }

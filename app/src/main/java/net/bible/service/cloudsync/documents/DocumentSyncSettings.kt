@@ -24,15 +24,18 @@ import net.bible.android.database.CloudListingState
 import net.bible.android.database.DocumentSyncPreferences
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.blockingDb
 
 object DocumentSyncSettings {
     private val prefsDao get() = DatabaseContainer.instance.documentSyncDb.documentSyncPreferencesDao()
     private val listingDao get() = DatabaseContainer.instance.documentSyncDb.cloudListingStateDao()
     private val tsDao get() = DatabaseContainer.instance.documentSyncDb.cloudDocumentSyncTimestampDao()
 
-    private fun prefs(): DocumentSyncPreferences = prefsDao.get() ?: DocumentSyncPreferences()
-    private fun update(transform: DocumentSyncPreferences.() -> DocumentSyncPreferences) =
-        prefsDao.set(prefs().transform())
+    private fun prefs(): DocumentSyncPreferences = blockingDb { prefsDao.get() } ?: DocumentSyncPreferences()
+    private fun update(transform: DocumentSyncPreferences.() -> DocumentSyncPreferences) {
+        val updated = prefs().transform()
+        blockingDb { prefsDao.set(updated) }
+    }
 
     var enabled: Boolean
         get() = prefs().enabled
@@ -77,13 +80,13 @@ object DocumentSyncSettings {
 
     /** Incremental-listing watermark: max observed cloud meta createdTime. 0 ⇒ cold start. */
     var watermark: Long
-        get() = (listingDao.get() ?: CloudListingState()).watermark
-        set(value) = listingDao.set(CloudListingState(watermark = value))
+        get() = (blockingDb { listingDao.get() } ?: CloudListingState()).watermark
+        set(value) = blockingDb { listingDao.set(CloudListingState(watermark = value)) }
 
-    fun syncTimestamp(initials: String): Long? = tsDao.get(initials)
+    fun syncTimestamp(initials: String): Long? = blockingDb { tsDao.get(initials) }
 
     fun setSyncTimestamp(initials: String, ts: Long) =
-        tsDao.set(CloudDocumentSyncTimestamp(initials, ts))
+        blockingDb { tsDao.set(CloudDocumentSyncTimestamp(initials, ts)) }
 
     val isAutoTransferAllowed: Boolean
         get() = !wifiOnly || !CommonUtils.isMeteredNetwork
