@@ -7,6 +7,7 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.database.SettingsDatabase
 import net.bible.service.common.CommonUtils
 import org.junit.After
+import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotSame
@@ -24,6 +25,9 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class SettingsStoreIntegrationTest {
+    /** Other classes in the one-JVM suite may leave a container built in a dead Robolectric data dir; start clean. */
+    @Before fun setUp() { DatabaseContainer.reset() }
+
     @After fun tearDown() { DatabaseContainer.reset() }
 
     private fun rawSql(sql: String) {
