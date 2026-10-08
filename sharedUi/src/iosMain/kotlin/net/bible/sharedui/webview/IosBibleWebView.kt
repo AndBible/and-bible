@@ -107,6 +107,7 @@ private object IosWebViewHolder {
         }
         webView = WKWebView(frame = CGRectMake(0.0, 0.0, 0.0, 0.0), configuration = config)
         webView.navigationDelegate = navDelegate
+        webView.inspectable = true   // iOS 16.4+: lets Safari Web Inspector attach to this WKWebView
         load(webView, controller.darkTheme)
         return PaneEntry(webView, handler, navDelegate)
     }
