@@ -62,6 +62,19 @@ class BridgeDispatcherTest {
         assertTrue(r.reason.contains("boom"))
     }
 
+    @Test fun throwingJsSinkOnAsyncMethodBecomesError() {
+        val d = BridgeDispatcher(JsSink { error("webview torn down") }, { logged += it }, emptyMap())
+        val r = d.dispatch("""{"method":"parseRef","args":[3,"Gen 1"]}""")
+        assertIs<BridgeResult.Error>(r)
+        assertTrue(r.reason.contains("webview torn down"))
+    }
+
+    @Test fun throwingLogNeverEscapesDispatch() {
+        val d = BridgeDispatcher(JsSink { }, { error("log broken") }, emptyMap())
+        assertEquals(BridgeResult.Unhandled("selectionCleared"), d.dispatch("""{"method":"selectionCleared","args":[]}"""))
+        assertIs<BridgeResult.Error>(d.dispatch("not json"))
+    }
+
     @Test fun emitJsFormatsEvent() {
         assertEquals("bibleView.emit('add_documents', {\"a\":1})", emitJs("add_documents", """{"a":1}"""))
         assertEquals("bibleView.emit('clear_document')", emitJs("clear_document"))

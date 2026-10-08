@@ -41,14 +41,25 @@ class BridgeDispatcher(
         if (message.method in ASYNC_BRIDGE_METHODS) {
             val callId = (message.args.firstOrNull() as? JsonPrimitive)?.content?.toIntOrNull()
                 ?: return error("${message.method} without a numeric callId")
-            js.evaluate("bibleView.response($callId, null)")
+            return try {
+                js.evaluate("bibleView.response($callId, null)")
+                safeLog("bridge: unhandled ${message.method}")
+                BridgeResult.Unhandled(message.method)
+            } catch (e: Throwable) {
+                error("${message.method} response failed: ${e.message}")
+            }
         }
-        log("bridge: unhandled ${message.method}")
+        safeLog("bridge: unhandled ${message.method}")
         return BridgeResult.Unhandled(message.method)
     }
 
     private fun error(reason: String): BridgeResult.Error {
-        log("bridge: $reason")
+        safeLog("bridge: $reason")
         return BridgeResult.Error(reason)
+    }
+
+    /** Logging must never make [dispatch] throw; a failing logger is dropped silently. */
+    private fun safeLog(message: String) {
+        runCatching { log(message) }
     }
 }
