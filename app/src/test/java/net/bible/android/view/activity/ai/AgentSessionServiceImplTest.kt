@@ -115,6 +115,32 @@ class AgentSessionServiceImplTest {
         assertNull(service.snapshot.value.lastStopReason)
     }
 
+    /** F127: a stop reason belongs to its workspace; a switch must not show another workspace's reason. */
+    @Test
+    fun theStopReasonFollowsTheWorkspaceAcrossASwitch() {
+        val repo = CommonUtils.windowControl.windowRepository
+        val original = repo.id
+        val a = IdType()
+        val b = IdType()
+        try {
+            repo.id = a
+            val service = AgentSessionServiceImpl()
+            AgentSessionManager.emitChange(AgentSessionChange.StatusChanged(a, isRunning = false, stopReason = AgentStopReason.ERROR))
+            shadowOf(Looper.getMainLooper()).idle()
+            assertEquals(AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
+
+            repo.id = b
+            service.refresh()
+            assertNull("workspace B never stopped", service.snapshot.value.lastStopReason)
+
+            repo.id = a
+            service.refresh()
+            assertEquals("back in A, its reason is still shown", AgentStopReasonVd.ERROR, service.snapshot.value.lastStopReason)
+        } finally {
+            repo.id = original
+        }
+    }
+
     // --- mapEntry: all 5 kinds ------------------------------------------------------------------
 
     @Test

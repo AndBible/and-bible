@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.agent
 
+import kotlinx.coroutines.Job
 import net.bible.android.database.IdType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -49,6 +50,28 @@ class AgentSessionTryStartTest {
         assertFalse(session.tryStart(ctx()))
         session.stop()
         assertTrue(session.tryStart(ctx()))
+    }
+
+    /** F123: the winner's job is bound at the moment it wins; a losing start must not replace it. */
+    @Test fun aLosingStartDoesNotReplaceTheWinnersJob() {
+        val session = AgentSession(IdType())
+        val winner = Job()
+        val loser = Job()
+        assertTrue(session.tryStart(ctx(), winner))
+        assertFalse(session.tryStart(ctx(), loser))
+        assertTrue("the winner's job must stay bound", session.job === winner)
+        session.stop()
+        assertTrue("stop() reaches the winner", winner.isCancelled)
+        assertFalse("the loser is not the session's to cancel", loser.isCancelled)
+    }
+
+    @Test fun theJobIsBoundBeforeTheStartIsAnnounced() {
+        val winner = Job()
+        var jobSeenAtStart: Job? = null
+        lateinit var session: AgentSession
+        session = AgentSession(IdType(), emit = { if (it is AgentSessionChange.StatusChanged && it.isRunning) jobSeenAtStart = session.job })
+        assertTrue(session.tryStart(ctx(), winner))
+        assertTrue(jobSeenAtStart === winner)
     }
 
     /** Review Focus 4 (C2): a cached result opens even while a run is going, so the cache check stays first. */

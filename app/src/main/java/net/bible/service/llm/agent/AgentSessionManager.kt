@@ -66,6 +66,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
@@ -153,9 +154,12 @@ class AgentSession(
     /**
      * F122: starts the session unless it is already running, atomically. Two `executePrompt` coroutines
      * run on IO threads; a separate check and start let both through.
+     * F123: [job] is the winning run's coroutine. It is bound here, inside the winning branch and before the
+     * start is announced, so a losing call can never replace it and [stop] always reaches the run that won.
      */
-    fun tryStart(context: AgentContext): Boolean {
+    fun tryStart(context: AgentContext, job: Job? = null): Boolean {
         if (!running.compareAndSet(false, true)) return false
+        this.job = job
         this.context = context
         this.sessionCostUsd = 0.0
         _logEntries.clear()
@@ -353,6 +357,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
     /**
      * Main entry point: builds context, checks cache, executes via AgentExecutor,
      * saves response to AI Documents, and opens result in a window.
+     *
+     * Returns true when this call started the run; false when it opened a cached result or another run was
+     * going. [onStarted] runs only after this call has won the session.
      */
     suspend fun executePrompt(
         prompt: AgentPrompt,
@@ -362,8 +369,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
         previousResponse: String? = null,
         skipCache: Boolean = false,
         userSpecification: String? = null,
-        modelOverrideId: IdType? = null
-    ) {
+        modelOverrideId: IdType? = null,
+        onStarted: suspend () -> Unit = {}
+    ): Boolean {
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
 
@@ -382,13 +390,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 Log.i(TAG, "Cache hit for prompt ${prompt.id}: opening ${cached.pageKey}")
                 // Open cached document directly
                 openMyDocumentResult(MyDocumentBookManager.AI_DOCUMENTS_INITIALS, cached.pageKey, targetWindowId)
-                return
+                return false
             }
         }
 
         // Start session (prevent concurrent runs; F122: atomically)
         val session = getOrCreateSession(workspaceId)
-        if (!session.tryStart(context)) {
+        if (!session.tryStart(context, currentCoroutineContext()[Job])) {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     BibleApplication.application,
@@ -396,7 +404,14 @@ object AgentSessionManager : AgentSessionManagerBase() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            return
+            return false
+        }
+        try {
+            onStarted()
+        } catch (e: Exception) {
+            // The session is already marked running; without a stop() every later run reports "already running".
+            session.stop()
+            throw e
         }
 
         // Track write tools usage
@@ -419,6 +434,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             }
             throw e
         }
+        return true
     }
 
     /**
@@ -1049,18 +1065,16 @@ object AgentSessionManager : AgentSessionManagerBase() {
             return false
         }
 
-        if (!keepPrevious) {
-            MyDocumentBookManager.deleteAIDocumentPage(pageId)
-        }
-        executePrompt(
+        // F123: delete the old page only once this run has won the session; a lost race keeps it.
+        return executePrompt(
             prompt, selection,
             targetWindowId = targetWindowId,
             additionalInstructions = additionalInstructions,
             previousResponse = if (freshRun) null else previousContent,
             skipCache = true,
-            modelOverrideId = modelOverrideId
+            modelOverrideId = modelOverrideId,
+            onStarted = { if (!keepPrevious) MyDocumentBookManager.deleteAIDocumentPage(pageId) },
         )
-        return true
     }
 
     fun getCurrentSession(): AgentSession? {

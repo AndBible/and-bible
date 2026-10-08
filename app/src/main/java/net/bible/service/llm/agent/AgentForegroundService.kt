@@ -28,7 +28,9 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -126,6 +128,7 @@ class AgentForegroundService : Service() {
 
     private val subscriptions = Subscriptions()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val liveRuns = LiveRuns()
     private val notificationManager get() = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val powerManager get() = getSystemService(Context.POWER_SERVICE) as PowerManager
     private var wakeLock: PowerManager.WakeLock? = null
@@ -223,12 +226,13 @@ class AgentForegroundService : Service() {
         startForegroundWithNotification()
         acquireWakeLock()
 
-        scope.launch {
+        // F123: LAZY so the run is registered before it can end; the session binds its own job in tryStart.
+        val run = scope.launch(start = CoroutineStart.LAZY) {
+            val self = coroutineContext[Job]!!
             try {
                 val prompt = PromptRepository.promptById(promptId)
                 if (prompt == null) {
                     Log.e(TAG, "Prompt not found: $promptId")
-                    stopSelfSafe()
                     return@launch
                 }
                 AgentSessionManager.executePrompt(
@@ -239,12 +243,14 @@ class AgentForegroundService : Service() {
             } catch (e: Exception) {
                 Log.e(TAG, "Agent execution failed", e)
             } finally {
-                showCompletionNotification()
-                stopSelfSafe()
+                if (liveRuns.finish(self)) {
+                    showCompletionNotification()
+                    stopSelfSafe()
+                }
             }
-        }.also { job ->
-            AgentSessionManager.getOrCreateSession(workspaceId).job = job
         }
+        liveRuns.add(run)
+        run.start()
     }
 
     private fun handleStartRegenerate(intent: Intent) {
@@ -264,7 +270,8 @@ class AgentForegroundService : Service() {
         startForegroundWithNotification()
         acquireWakeLock()
 
-        scope.launch {
+        val run = scope.launch(start = CoroutineStart.LAZY) {
+            val self = coroutineContext[Job]!!
             try {
                 AgentSessionManager.regenerateAIDocument(
                     pageId,
@@ -277,12 +284,14 @@ class AgentForegroundService : Service() {
             } catch (e: Exception) {
                 Log.e(TAG, "Regeneration failed", e)
             } finally {
-                showCompletionNotification()
-                stopSelfSafe()
+                if (liveRuns.finish(self)) {
+                    showCompletionNotification()
+                    stopSelfSafe()
+                }
             }
-        }.also { job ->
-            AgentSessionManager.getOrCreateSession(workspaceId).job = job
         }
+        liveRuns.add(run)
+        run.start()
     }
 
     private fun handleCancel() {
