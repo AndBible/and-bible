@@ -34,21 +34,40 @@ class BibleViewFactoryLoadPendingTest {
         )
     }
 
+    /** Runs resolveView with a fake view type, recording the order of events. */
+    private fun resolve(w: Window, map: MutableMap<IdType, String>, events: MutableList<String>) =
+        BibleViewFactory.resolveView(
+            w, map,
+            rebind = { events += "rebind" },
+            create = { events += "create"; "view" },
+            assign = { events += "assign" },
+            load = { events += "load" },
+        )
+
     @Test
-    fun aWindowWithAPendingLoadIsReloadedOnceAndTheFlagCleared() {
+    fun aCreatedViewIsAssignedBeforeThePendingLoadRunsAndTheFlagIsCleared() {
         val w = window().apply { loadPending = true }
-        var loads = 0
-        BibleViewFactory.reloadIfLoadWasDropped(w) { loads++ }
-        assertEquals(1, loads)
+        val map = mutableMapOf<IdType, String>()
+        val events = mutableListOf<String>()
+        resolve(w, map, events)
+        assertEquals(listOf("create", "assign", "load"), events)
+        assertEquals("view", map[w.id])
         assertEquals(false, w.loadPending)
-        BibleViewFactory.reloadIfLoadWasDropped(w) { loads++ }
-        assertEquals("flag consumed, no second load", 1, loads)
     }
 
     @Test
-    fun aWindowWithoutAPendingLoadIsNotReloaded() {
-        var loads = 0
-        BibleViewFactory.reloadIfLoadWasDropped(window()) { loads++ }
-        assertEquals(0, loads)
+    fun aCachedViewIsOnlyReboundAndNeverLoads() {
+        val w = window().apply { loadPending = true }
+        val map = mutableMapOf(w.id to "cached")
+        val events = mutableListOf<String>()
+        assertEquals("cached", resolve(w, map, events))
+        assertEquals(listOf("rebind"), events)
+    }
+
+    @Test
+    fun aCreatedViewForAWindowWithoutAPendingLoadDoesNotLoad() {
+        val events = mutableListOf<String>()
+        resolve(window(), mutableMapOf(), events)
+        assertEquals(listOf("create", "assign"), events)
     }
 }

@@ -260,5 +260,12 @@ class WindowTest {
         assertThat(window.takeLoadPending(), equalTo(false))
     }
 
-
+    @Test
+    fun aDeliveredLoadClearsLoadPendingButADroppedOneDoesNot() {
+        val window = newWindow().apply { loadPending = true }
+        window.onLoadDelivered(viewReady = false)
+        assertThat(window.loadPending, equalTo(true))
+        window.onLoadDelivered(viewReady = true)
+        assertThat(window.loadPending, equalTo(false))
+    }
 }

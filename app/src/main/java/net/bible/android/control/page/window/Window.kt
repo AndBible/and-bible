@@ -294,7 +294,7 @@ class Window (
             lastUpdated = System.currentTimeMillis()
             lastChecksum = checksum
 
-            if (viewReady) loadPending = false
+            onLoadDelivered(viewReady)
             bibleView?.loadDocument(doc, updateLocation = notifyLocationChange, key = key, anchorOrdinal = anchorOrdinal, htmlId = htmlId)
 
             if(notifyLocationChange)
@@ -321,6 +321,11 @@ class Window (
         return pending
     }
 
+    /** A load that reached a BibleView supersedes any dropped one. */
+    internal fun onLoadDelivered(viewReady: Boolean) {
+        if (viewReady) loadPending = false
+    }
+
     /** How long [waitForBibleView] polls before giving up; a var so tests can shorten it. */
     internal var bibleViewWaitTimeoutMillis = 5000L
 
@@ -332,6 +337,7 @@ class Window (
             delay(delayMillis)
             time += delayMillis
             if(time > bibleViewWaitTimeoutMillis) {
+                if (bibleView != null) return true // appeared during the last delay
                 Log.e(TAG, "waitForBibleView timed out")
                 loadPending = true
                 return false

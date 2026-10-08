@@ -74,33 +74,30 @@ class BibleViewFactory(
         Log.i(TAG, "New BibleViewFactory ${this.hashCode()}")// ${Log.getStackTraceString(Exception())}")
     }
     
-    fun getOrCreateBibleView(window: Window): BibleView {
-        var bibleView = windowBibleViewMap[window.id]?.also {
+    fun getOrCreateBibleView(window: Window): BibleView = resolveView(
+        window, windowBibleViewMap,
+        rebind = {
             // Update window reference (window objects are created when loading from db, but id's are same)
             it.window = window
             window.bibleView = it
             it.listenEvents = true
-        }
-
-        if (bibleView == null) {
+        },
+        create = {
             val pageTiltScrollControl = getPageTiltScrollControl(window)
-            bibleView = BibleView(this.host, this.hostCallbacks, WeakReference(window), windowControl,
+            val bibleView = BibleView(this.host, this.hostCallbacks, WeakReference(window), windowControl,
                 pageControl, pageTiltScrollControl, linkControl, bookmarkControl, downloadControl, searchControl)
             val bibleJavascriptInterface = BibleJavascriptInterface(bibleView)
-            Log.i(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")//  ${Log.getStackTraceString(Exception())}")
+            Log.i(TAG, "Creating new BibleView ${this.hashCode()} ${window.id}")
             bibleView.setBibleJavascriptInterface(bibleJavascriptInterface)
             bibleView.initialise()
             bibleView.onDestroy = {
                 windowBibleViewMap.remove(window.id)
             }
-
-            windowBibleViewMap[window.id] = bibleView
-            window.bibleView = bibleView
-            reloadIfLoadWasDropped(window)
-        }
-        return bibleView
-
-    }
+            bibleView
+        },
+        assign = { window.bibleView = it },
+        load = { window.loadText() },
+    )
 
     fun crashAll() {
         Log.i(TAG, "crashAll")
@@ -120,11 +117,27 @@ class BibleViewFactory(
     }
 
     companion object {
-        /** A load that timed out waiting for a BibleView (see [Window.loadPending]) is re-run now that one exists. */
-        internal fun reloadIfLoadWasDropped(window: Window, load: () -> Unit = { window.loadText() }) {
+        /**
+         * Cached/created decision of [getOrCreateBibleView], generic so it can be tested without a
+         * real [BibleView]. A cached view is only rebound. A created view is registered in [map],
+         * assigned to the window via [assign], and only THEN, if the window's last load was dropped
+         * (see [Window.loadPending]), [load] re-runs it, so the load finds the view.
+         */
+        internal fun <V : Any> resolveView(
+            window: Window,
+            map: MutableMap<IdType, V>,
+            rebind: (V) -> Unit,
+            create: () -> V,
+            assign: (V) -> Unit,
+            load: () -> Unit,
+        ): V {
+            map[window.id]?.let { rebind(it); return it }
+            val view = create()
+            map[window.id] = view
+            assign(view)
             if (window.takeLoadPending()) load()
+            return view
         }
-
 
         private val BIBLE_WEB_VIEW_ID_BASE = 990
 		private val TAG = "BibleViewFactory"
