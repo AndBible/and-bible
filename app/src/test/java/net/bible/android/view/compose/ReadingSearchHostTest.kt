@@ -21,6 +21,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CompletableDeferred
+import org.robolectric.Shadows.shadowOf
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.CancellationException
+import androidx.lifecycle.lifecycleScope
+import android.os.Looper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -176,8 +181,15 @@ class ReadingSearchHostTest {
         windowRepository.activeWindow.pageManager.currentBible.setCurrentDocumentAndKey(kjv, verse)
     }
 
+    private var tornDown = false
+
     @After
     fun tearDownRealHost() {
+        if (tornDown) return
+        tornDown = true
+        // F130: the host's searches run on the activity's lifecycleScope, which a never-destroyed Robolectric
+        // activity never cancels; an unfinished one used to escape into later tests.
+        activity.lifecycleScope.cancel()
         CurrentActivityHolder.deactivate(activity)
         DatabaseResetter.resetDatabase(windowRepository.scope)
     }
@@ -885,6 +897,40 @@ class ReadingSearchHostTest {
     }
 
     /**
+     * F130: a search still running at teardown must not outlive the test. The real search escaped into later
+     * tests (`UncaughtExceptionsBeforeTest`) because nothing cancelled `activity.lifecycleScope`.
+     */
+    @Test
+    fun teardownCancelsASearchStillInFlight() {
+        val production = GlobalContext.get().get<BibleSearchService>()
+        val productionCache = GlobalContext.get().get<SearchResultsCache>()
+        var cancelled = false
+        val fake = object : BibleSearchService by production {
+            override suspend fun searchMulti(request: SearchRequest): MultiSearchResults {
+                try { return CompletableDeferred<MultiSearchResults>().await() } catch (e: CancellationException) { cancelled = true; throw e }
+            }
+        }
+        val overrideModule = module {
+            single<BibleSearchService> { fake }
+            single { SearchResultsCache() }
+        }
+        loadKoinModules(overrideModule)
+        try {
+            host().runSearch("KJV", "grace")
+            assertFalse(cancelled, "sanity: the search is in flight")
+            tearDownRealHost()
+            shadowOf(Looper.getMainLooper()).idle()
+            assertTrue(cancelled, "teardown must cancel the host's search")
+        } finally {
+            unloadKoinModules(overrideModule)
+            loadKoinModules(module {
+                single<BibleSearchService> { production }
+                single { productionCache }
+            })
+        }
+    }
+
+    /**
      * Review M10 — the OTHER direction of the same routing, which nothing pinned: a Bible query must
      * drive the SWORD controller and leave the EPUB one completely untouched. Without this, a
      * `runSearch` that accidentally ran BOTH (or an `onRunSearch` lambda whose branch inverted) would
@@ -1303,6 +1349,18 @@ class ReadingSearchHostTest {
      */
     @Test
     fun runSearchPublishesTheUsersSelectionNotTheAutoAppendedSearchList() {
+        val production = GlobalContext.get().get<BibleSearchService>()
+        val productionCache = GlobalContext.get().get<SearchResultsCache>()
+        // F130: no real Lucene search against the NullBackend fake; the request and selection are the subject.
+        val fake = object : BibleSearchService by production {
+            override suspend fun searchMulti(request: SearchRequest): MultiSearchResults =
+                CompletableDeferred<MultiSearchResults>().await()
+        }
+        val overrideModule = module {
+            single<BibleSearchService> { fake }
+            single { SearchResultsCache() }
+        }
+        loadKoinModules(overrideModule)
         val target = unindexedFakeBible("HostI2Target").apply { indexStatus = IndexStatus.DONE }
         Books.installed().addBook(target)
         try {
@@ -1323,6 +1381,11 @@ class ReadingSearchHostTest {
             )
         } finally {
             Books.installed().removeBook(target)
+            unloadKoinModules(overrideModule)
+            loadKoinModules(module {
+                single<BibleSearchService> { production }
+                single { productionCache }
+            })
         }
     }
 }
