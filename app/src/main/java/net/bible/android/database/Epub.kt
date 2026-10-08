@@ -17,6 +17,7 @@
 
 package net.bible.android.database
 
+import androidx.sqlite.execSQL
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
