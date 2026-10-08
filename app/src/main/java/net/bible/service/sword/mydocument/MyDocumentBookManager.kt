@@ -39,6 +39,7 @@ import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordGenBook
 import java.util.Locale
+import net.bible.service.db.blockingDb
 
 private const val TAG = "MyDocumentBookManager"
 
@@ -143,11 +144,13 @@ object MyDocumentBookManager {
             }
         }
 
-        if (documentIds.isNotEmpty()) {
-            affectedInitials.addAll(dao.initialsByIds(documentIds))
-        }
-        if (pageIds.isNotEmpty()) {
-            affectedInitials.addAll(dao.initialsByPageIds(pageIds))
+        blockingDb {
+            if (documentIds.isNotEmpty()) {
+                affectedInitials.addAll(dao.initialsByIds(documentIds))
+            }
+            if (pageIds.isNotEmpty()) {
+                affectedInitials.addAll(dao.initialsByPageIds(pageIds))
+            }
         }
 
         refreshRegistrations()
@@ -167,7 +170,7 @@ object MyDocumentBookManager {
     fun registerAllDocuments() {
         Log.i(TAG, "Registering all MyDocuments")
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        val documents = dao.allDocuments()
+        val documents = blockingDb { dao.allDocuments() }
 
         for (document in documents) {
             registerDocument(document)
@@ -192,7 +195,7 @@ object MyDocumentBookManager {
      */
     private fun refreshRegistrations() {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        val documents = dao.allDocuments()
+        val documents = blockingDb { dao.allDocuments() }
         val currentInitials = documents.map { it.initials }.toSet()
 
         for (initials in registeredBooks.keys.toList()) {
@@ -289,7 +292,7 @@ object MyDocumentBookManager {
         } else {
             // Book not registered yet — register it
             val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-            val document = dao.documentByInitials(initials) ?: return
+            val document = blockingDb { dao.documentByInitials(initials) } ?: return
             registerDocument(document)
         }
 
@@ -315,20 +318,23 @@ object MyDocumentBookManager {
             .take(10)
             .ifEmpty { "MyDoc" }
 
-        var initials = "MyDoc_$sanitized"
-        var counter = 1
+        // One bridge around the whole search (no per-candidate bridging).
+        return blockingDb {
+            var initials = "MyDoc_$sanitized"
+            var counter = 1
 
-        fun exists(initials: String): Boolean =
-            Books.installed().getBook(initials) != null ||
-            registeredBooks.containsKey(initials) ||
-            dao.documentByInitials(initials) != null
+            suspend fun exists(initials: String): Boolean =
+                Books.installed().getBook(initials) != null ||
+                registeredBooks.containsKey(initials) ||
+                dao.documentByInitials(initials) != null
 
-        while (exists(initials)) {
-            initials = "MyDoc_${sanitized}_$counter"
-            counter++
+            while (exists(initials)) {
+                initials = "MyDoc_${sanitized}_$counter"
+                counter++
+            }
+
+            initials
         }
-
-        return initials
     }
 
     /**
@@ -348,7 +354,7 @@ object MyDocumentBookManager {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
 
         // Check if AI Documents already exists
-        val existing = dao.documentByInitials(AI_DOCUMENTS_INITIALS)
+        val existing = blockingDb { dao.documentByInitials(AI_DOCUMENTS_INITIALS) }
         if (existing != null) {
             return existing
         }
@@ -360,13 +366,15 @@ object MyDocumentBookManager {
             initials = AI_DOCUMENTS_INITIALS,
             orderNumber = 0  // Always first in the list
         )
-        dao.insert(aiDocument)
+        blockingDb { dao.insert(aiDocument) }
         registerDocument(aiDocument)
 
         // Shift other documents' order numbers
-        val otherDocs = dao.allDocuments().filter { it.id != aiDocument.id }
-        otherDocs.forEachIndexed { index, doc -> doc.orderNumber = index + 1 }
-        dao.updateDocuments(otherDocs)
+        blockingDb {
+            val otherDocs = dao.allDocuments().filter { it.id != aiDocument.id }
+            otherDocs.forEachIndexed { index, doc -> doc.orderNumber = index + 1 }
+            dao.updateDocuments(otherDocs)
+        }
 
         Log.i(TAG, "Created AI Documents: $AI_DOCUMENTS_INITIALS")
         return aiDocument
@@ -381,7 +389,7 @@ object MyDocumentBookManager {
             return true
         }
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        return dao.pageCount(document.id) == 0
+        return blockingDb { dao.pageCount(document.id) } == 0
     }
 
     /**
@@ -389,7 +397,7 @@ object MyDocumentBookManager {
      */
     fun getAIDocumentPage(pageId: IdType): MyDocumentPage? {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        return dao.pageById(pageId)
+        return blockingDb { dao.pageById(pageId) }
     }
 
     /**
@@ -400,8 +408,8 @@ object MyDocumentBookManager {
      */
     fun deleteAIDocumentPage(pageId: IdType): Boolean {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        val page = dao.pageById(pageId) ?: return false
-        dao.deletePageWithContent(page)
+        val page = blockingDb { dao.pageById(pageId) } ?: return false
+        blockingDb { dao.deletePageWithContent(page) }
         refreshDocument(AI_DOCUMENTS_INITIALS)
         notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = listOf(pageId)))
         Log.i(TAG, "Deleted AI document page: $pageId")
@@ -422,8 +430,9 @@ object MyDocumentBookManager {
      */
     fun getPageRawContent(initials: String, pageKey: String): PageRawContent? {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        val document = dao.documentByInitials(initials) ?: return null
-        val page = dao.pageByKeyWithContent(document.id, pageKey) ?: return null
+        val page = blockingDb {
+            dao.documentByInitials(initials)?.let { dao.pageByKeyWithContent(it.id, pageKey) }
+        } ?: return null
         return PageRawContent(
             pageId = page.id.toString(),
             contentType = page.contentType.name,
@@ -439,13 +448,15 @@ object MyDocumentBookManager {
      */
     fun savePageContent(pageId: IdType, content: String, title: String?) {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        val page = dao.pageById(pageId) ?: return
+        val page = blockingDb { dao.pageById(pageId) } ?: return
         if (title != null) {
             page.title = title
             page.updatedAt = System.currentTimeMillis()
-            dao.update(page)
         }
-        dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
+        blockingDb {
+            if (title != null) dao.update(page)
+            dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
+        }
     }
 
     /**
@@ -460,12 +471,12 @@ object MyDocumentBookManager {
             title = title,
             pageKey = "page_${pageId}",
             contentType = contentType,
-            orderNumber = (dao.maxOrderNumber(documentId) ?: -1) + 1,
+            orderNumber = (blockingDb { dao.maxOrderNumber(documentId) } ?: -1) + 1,
             languageCode = Locale.getDefault().language
         )
-        dao.insertPageWithContent(page, "")
+        blockingDb { dao.insertPageWithContent(page, "") }
 
-        val document = dao.documentById(documentId)
+        val document = blockingDb { dao.documentById(documentId) }
         if (document != null) {
             refreshDocument(document.initials)
         }
@@ -508,7 +519,7 @@ object MyDocumentBookManager {
             title = title,
             pageKey = "ai_${pageId}",
             contentType = MyDocumentContentType.MARKDOWN,
-            orderNumber = (dao.maxOrderNumber(aiDocument.id) ?: -1) + 1,
+            orderNumber = (blockingDb { dao.maxOrderNumber(aiDocument.id) } ?: -1) + 1,
             sourcePromptId = sourcePromptId,
             languageCode = Locale.getDefault().language
         )
@@ -527,17 +538,17 @@ object MyDocumentBookManager {
         )
 
         // Save clean content - footer is rendered by Vue.js based on sourcePromptId
-        dao.insertPageWithCacheEntry(page, response, cacheEntry)
+        blockingDb { dao.insertPageWithCacheEntry(page, response, cacheEntry) }
         refreshDocument(aiDocument.initials)
         val start = cacheableContext.kjvOrdinalStart
         val end = cacheableContext.kjvOrdinalEnd
         val bookInitials = cacheableContext.activeDocumentInitials
         val bookKey = cacheableContext.sourceBookKey
         if (start != null && end != null) {
-            val markers = dao.aiDocMarkersForRange(start, end)
+            val markers = blockingDb { dao.aiDocMarkersForRange(start, end) }
             notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(markers))
         } else if (bookInitials != null && bookKey != null) {
-            val markers = dao.aiDocMarkersForPage(bookInitials, bookKey)
+            val markers = blockingDb { dao.aiDocMarkersForPage(bookInitials, bookKey) }
             notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(markers, sourceBookInitials = bookInitials, sourceBookKey = bookKey))
         }
 

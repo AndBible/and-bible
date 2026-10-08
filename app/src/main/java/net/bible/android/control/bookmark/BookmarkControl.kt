@@ -84,6 +84,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
+import net.bible.service.db.blockingDb
 
 val LABEL_ALL_ID = IdType.empty()
 
@@ -681,8 +682,10 @@ open class BookmarkControl constructor(
 
         dao.deleteLabelsByIds(labelIdList)
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        for (labelId in labelIdList) {
-            workspaceDao.deleteOverridesByLabelId(labelId)
+        blockingDb {
+            for (labelId in labelIdList) {
+                workspaceDao.deleteOverridesByLabelId(labelId)
+            }
         }
         bookmarks =
             dao.bibleBookmarksByIds(bookmarks.map { it.id }) +

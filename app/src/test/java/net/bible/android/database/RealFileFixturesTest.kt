@@ -79,7 +79,7 @@ class RealFileFixturesTest {
         assertEquals(listOf("d1-entry-one", "d1-entry-two"), entries.sortedBy { it.orderNumber }.map { it.text })
     }
 
-    @Test fun requeryBuiltWorkspacesOpenAndReadBack() {
+    @Test fun requeryBuiltWorkspacesOpenAndReadBack() = runBlocking {
         install(WorkspaceDatabase.dbFileName)
         val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
 
@@ -110,7 +110,7 @@ class RealFileFixturesTest {
         assertEquals(null, dao.getStatus("d1-plan", 2))
     }
 
-    @Test fun requeryBuiltMyDocumentsOpenAndReadBack() {
+    @Test fun requeryBuiltMyDocumentsOpenAndReadBack() = runBlocking {
         install(MyDocumentDatabase.dbFileName)
         val docs = DatabaseContainer.instance.myDocumentDb.myDocumentDao().allDocuments()
 

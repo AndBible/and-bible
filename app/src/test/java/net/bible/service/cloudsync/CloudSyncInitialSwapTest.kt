@@ -50,11 +50,11 @@ class CloudSyncInitialSwapTest {
 
     /** The "download": the current workspaces DB with the workspace renamed [name], checkpointed and copied out. */
     private fun downloadNamed(name: String): File {
-        dao.updateWorkspace(dao.workspace(repo.id)!!.copy(name = name))
+        runBlocking { dao.updateWorkspace(dao.workspace(repo.id)!!.copy(name = name)) }
         workspaces.writableDb.query("PRAGMA wal_checkpoint(FULL)").use { it.moveToFirst() }
         val f = File.createTempFile("initial", ".sqlite3")
         workspaces.localDbFile.copyTo(f, overwrite = true)
-        dao.updateWorkspace(dao.workspace(repo.id)!!.copy(name = "A"))
+        runBlocking { dao.updateWorkspace(dao.workspace(repo.id)!!.copy(name = "A")) }
         return f
     }
 
@@ -63,7 +63,7 @@ class CloudSyncInitialSwapTest {
         runBlocking { CloudSync.swapInInitialDb(workspaces, downloaded) { } }
         repo.name = "B" // pre-download in-memory state, not yet reloaded
         repo.saveIntoDb(false)
-        assertEquals("C", dao.workspace(repo.id)!!.name)
+        assertEquals("C", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 
     @Test fun saveWorksAgainAfterTheReload() {
@@ -71,7 +71,7 @@ class CloudSyncInitialSwapTest {
         repo.loadFromDb(repo.id)
         repo.name = "D"
         repo.saveIntoDb(false)
-        assertEquals("D", dao.workspace(repo.id)!!.name)
+        assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 
     /** Review Focus 2: one release when the last overlapping swap ends, not one per category. */

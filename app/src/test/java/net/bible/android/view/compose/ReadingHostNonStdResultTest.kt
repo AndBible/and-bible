@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.compose
 
+import kotlinx.coroutines.runBlocking
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
@@ -134,7 +135,7 @@ class ReadingHostNonStdResultTest {
 
     private fun aSecondWorkspace(): WorkspaceEntities.Workspace =
         WorkspaceEntities.Workspace(name = "T8d target workspace").also {
-            DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(it)
+            runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(it) }
         }
 
     private fun workspaceResult(workspaceId: String?, changed: Boolean) = Intent().apply {

@@ -38,6 +38,7 @@ import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
+import net.bible.service.db.blockingDb
 
 /** Reference to current passage shown by viewer
  *
@@ -77,8 +78,8 @@ class CurrentBiblePage(
         return if(doc is OsisDocument) {
             val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
             val kjvRange = verseRange.toV11n(KJVA)
-            val aiDocMarkers = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-                .aiDocMarkersForRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+            val myDocumentDao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+            val aiDocMarkers = blockingDb { myDocumentDao.aiDocMarkersForRange(kjvRange.start.ordinal, kjvRange.end.ordinal) }
             BibleDocument(
                 osisFragment = doc.osisFragment, swordBook = doc.book as SwordBook,
                 bookmarks = bookmarksForChapter, verseRange = verseRange, originalKey = originalKey,

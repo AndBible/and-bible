@@ -25,6 +25,7 @@ import net.bible.service.llm.llmJson
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.json.JSONArray
 import org.json.JSONObject
+import net.bible.service.db.blockingDb
 
 /** Decode tool arguments from JSONObject to a typed @Serializable data class. */
 inline fun <reified T> JSONObject.decodeArgs(): T =
@@ -132,10 +133,10 @@ fun uniqueLabelName(baseName: String, existingNames: List<String>): String {
 fun resolveMyDocument(documentId: IdType?, initials: String?): MyDocument? {
     val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
     if (documentId != null && !documentId.isEmpty) {
-        return dao.documentById(documentId)
+        return blockingDb { dao.documentById(documentId) }
     }
     if (!initials.isNullOrBlank()) {
-        return dao.documentByInitials(initials)
+        return blockingDb { dao.documentByInitials(initials) }
     }
     return null
 }

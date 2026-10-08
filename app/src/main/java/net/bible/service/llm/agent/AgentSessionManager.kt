@@ -458,13 +458,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
         return if (prompt.strictContextMatching) {
             // Strict: match full context
             val contextHash = cacheableContext.computeHash()
-            dao.findCachedPageByContextHash(prompt.id, contextHash)
+            blockingDb { dao.findCachedPageByContextHash(prompt.id, contextHash) }
         } else {
             // Loose: match only verse ordinals
             val start = cacheableContext.kjvOrdinalStart
             val end = cacheableContext.kjvOrdinalEnd
             if (start != null && end != null) {
-                dao.findCachedPageByVerseRange(prompt.id, start, end)
+                blockingDb { dao.findCachedPageByVerseRange(prompt.id, start, end) }
             } else null
         }
     }

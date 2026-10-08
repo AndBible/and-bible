@@ -91,7 +91,7 @@ class OldMonolithicRestoreRollbackTest {
         assertFalse(restore())
         assertEquals(before, fingerprint())
         assertFalse(rollbackDir.exists())
-        assertEquals("Before restore", DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id)?.name)
+        assertEquals("Before restore", runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id) }?.name)
     }
 
     @Test fun aMigrationThatThrowsRollsBackToo() {
@@ -127,7 +127,7 @@ class OldMonolithicRestoreRollbackTest {
         assertFalse(ok)
         assertEquals(before, fingerprint())
         assertFalse(rollbackDir.exists())
-        assertEquals("Before restore", DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id)?.name)
+        assertEquals("Before restore", runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id) }?.name)
     }
 
     /** C1: the containerFactory stands in for DatabaseSplitMigrations, which consumes the old file. */

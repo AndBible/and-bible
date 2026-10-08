@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose
 
+import kotlinx.coroutines.runBlocking
 import android.app.Activity
 import android.content.Intent
 import android.os.Looper
@@ -193,7 +194,7 @@ class ReadingChooserInGraphResultTest {
     fun aWorkspacePickedInGraphIsSwitchedToWithoutWaitingForOnResume() {
         val activity = composedReadingHost()
         val target = WorkspaceEntities.Workspace(name = "slice 8 target").also {
-            DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(it)
+            runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(it) }
         }
         activity.startActivityForResult(
             NavHostComposeActivity.intentFor(activity, NavRoutes.WORKSPACE_SELECTOR),

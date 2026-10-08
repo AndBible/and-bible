@@ -498,11 +498,12 @@ object CommonUtils : CommonUtilsBase() {
     val aiSettings: AiSettings get() = AiSettings
 
     var globalTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
-        get() = DatabaseContainer.instance.workspaceDb
-            .globalTextDisplaySettingsDao().get()?.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()
+        get() = DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao().let { dao ->
+            blockingDb { dao.get() }?.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()
+        }
         set(value) {
-            DatabaseContainer.instance.workspaceDb
-                .globalTextDisplaySettingsDao().set(GlobalTextDisplaySettings(textDisplaySettings = value))
+            val dao = DatabaseContainer.instance.workspaceDb.globalTextDisplaySettingsDao()
+            blockingDb { dao.set(GlobalTextDisplaySettings(textDisplaySettings = value)) }
         }
 
     val localePref: String?
@@ -1410,19 +1411,18 @@ object CommonUtils : CommonUtilsBase() {
             }
         }
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        val ws = workspaceDao.allWorkspaces()
+        val ws = blockingDb { workspaceDao.allWorkspaces() }
         if(ws.isNotEmpty()) {
-            workspaceDao.updateWorkspaces(ws)
+            blockingDb { workspaceDao.updateWorkspaces(ws) }
             settings.setBoolean("first-time", false)
         } else {
             val workspaceSettings = WorkspaceEntities.WorkspaceSettings()
-            val workspaceIds = listOf(
+            val newWorkspaces = listOf(
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 1), workspaceSettings = workspaceSettings),
                 WorkspaceEntities.Workspace(name = application.getString(R.string.workspace_number, 2), workspaceSettings = workspaceSettings),
-            ).map {
-                workspaceDao.insertWorkspace(it)
-                it.id
-            }
+            )
+            blockingDb { newWorkspaces.forEach { workspaceDao.insertWorkspace(it) } }
+            val workspaceIds = newWorkspaces.map { it.id }
             settings.setString("current_workspace_id", workspaceIds[0].toString())
         }
     }

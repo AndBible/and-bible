@@ -68,6 +68,7 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.json.JSONObject
 import java.io.StringReader
+import net.bible.service.db.blockingDb
 
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
@@ -985,19 +986,21 @@ class AgentExecutor(
             NoteEditorEntityType.MY_DOCUMENT_PAGE -> {
                 val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
                 val pageId = IdType(entityId)
-                val page = dao.pageById(pageId) ?: return
+                val page = blockingDb { dao.pageById(pageId) } ?: return
                 page.updatedAt = System.currentTimeMillis()
-                dao.update(page)
-                dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
+                blockingDb {
+                    dao.update(page)
+                    dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
+                }
 
-                val document = dao.documentById(page.documentId)
+                val document = blockingDb { dao.documentById(page.documentId) }
                 if (document != null) {
                     MyDocumentBookManager.refreshDocument(document.initials)
-                    val cacheEntry = dao.getCacheEntry(pageId)
+                    val cacheEntry = blockingDb { dao.getCacheEntry(pageId) }
                     val start = cacheEntry?.kjvOrdinalStart
                     val end = cacheEntry?.kjvOrdinalEnd
                     if (start != null && end != null) {
-                        val markers = dao.aiDocMarkersForRange(start, end)
+                        val markers = blockingDb { dao.aiDocMarkersForRange(start, end) }
                         MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(markers))
                     }
                 }

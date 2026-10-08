@@ -27,6 +27,7 @@ import net.bible.android.control.speak.save
 import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.blockingDb
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.SharedActivityState
@@ -121,10 +122,10 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         if(initialized || loadingFromDb) return
         if(id.isEmpty) {
             val newId = settings.getString("current_workspace_id")?.let{IdType(it)}?.apply { this@WindowRepository.id = this }
-            if (newId == null || dao.workspace(newId) == null) {
+            if (newId == null || blockingDb { dao.workspace(newId) } == null) {
                 val newWorkspace = WorkspaceEntities.Workspace(getResourceString(R.string.workspace_number, 1))
                 id = newWorkspace.id
-                dao.insertWorkspace(newWorkspace)
+                blockingDb { dao.insertWorkspace(newWorkspace) }
                 settings.setString("current_workspace_id", id.toString())
             }
         }
@@ -220,7 +221,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         window.windowState = WindowState.CLOSED
         val currentPos = windowList.indexOf(window)
 
-        dao.deleteWindow(window.id)
+        blockingDb { dao.deleteWindow(window.id) }
         destroy(window)
         if(visibleWindows.isEmpty()) {
             activeWindow = windowList[min(currentPos, windowList.size - 1)]
@@ -276,14 +277,14 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
                 ).apply {
                     targetLinksWindowId = null
                     id = IdType()
-                    dao.insertWindow(this)
+                    blockingDb { dao.insertWindow(this@apply) }
                 }
 
         val newWindow = Window(winEntity, pageManager, this)
         if(sourceWindow != null) {
             pageManager.restoreFrom(sourceWindow.pageManager.entity, textDisplaySettings)
         }
-        dao.insertPageManager(pageManager.entity)
+        blockingDb { dao.insertPageManager(pageManager.entity) }
         val pos =
             if(first) 0
             else if(sourceWindow?.isLinksWindow == true) windowList.size
@@ -335,15 +336,15 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
             maximizedWindowId = maximizedWindowId,
             primaryTargetLinksWindowId = primaryTargetLinksWindowId
         )
-        if(ws != savedEntity) {
-            dao.updateWorkspace(ws)
+        val workspaceChanged = ws != savedEntity
+        if(workspaceChanged) {
             savedEntity = ws.deepCopy()
         }
 
         val historyManager = get<HistoryManager>()
+        val historyUpdates = windowList.map { it.id to historyManager.getEntities(it.id) }
 
         val windowEntities = windowList.mapIndexed { i, it ->
-            dao.updateHistoryItems(it.id, historyManager.getEntities(it.id))
             val entity = it.entity.apply {
                 orderNumber = i
             }
@@ -361,8 +362,13 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
             } else null
         }
 
-        dao.updateWindows(windowEntities)
-        dao.updatePageManagers(pageManagers)
+        // One bridge for every write of this save (no per-window bridging).
+        blockingDb {
+            if(workspaceChanged) dao.updateWorkspace(ws)
+            for ((windowId, entities) in historyUpdates) dao.updateHistoryItems(windowId, entities)
+            dao.updateWindows(windowEntities)
+            dao.updatePageManagers(pageManagers)
+        }
     }
 
     lateinit var savedEntity: WorkspaceEntities.Workspace
@@ -390,6 +396,13 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         windowStateService.notify(WindowChange.RestoreButtonsChanged)
     }
 
+    private class LoadedWindow(
+        val entity: WorkspaceEntities.Window,
+        val pageManager: WorkspaceEntities.PageManager?,
+        val history: List<WorkspaceEntities.HistoryItem>,
+    )
+    private class LoadedWorkspace(val entity: WorkspaceEntities.Workspace, val windows: List<LoadedWindow>)
+
     /** Rebuilds this repository from the given (or first) workspace. Not re-entrant — see [loadingFromDb]. */
     fun loadFromDb(workspaceId: IdType?) {
         loadingFromDb = true
@@ -403,10 +416,18 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     private fun loadFromDbInner(workspaceId: IdType?) {
         loadedEpoch = DatabaseContainer.replaceEpoch
         Log.i(TAG, "onLoadDb for workspaceId=$workspaceId")
-        val entity = (if(workspaceId != null) dao.workspace(workspaceId) else null)?: dao.firstWorkspace()
-            ?: WorkspaceEntities.Workspace("").apply{
-                dao.insertWorkspace(this)
-            }
+        // The whole workspace is read in ONE bridge, before clear(): the restore below posts events
+        // synchronously (see [loadingFromDb]) and must not run inside a database call.
+        val loaded = blockingDb {
+            val entity = (if(workspaceId != null) dao.workspace(workspaceId) else null)?: dao.firstWorkspace()
+                ?: WorkspaceEntities.Workspace("").apply{
+                    dao.insertWorkspace(this)
+                }
+            LoadedWorkspace(entity, dao.windows(entity.id).map {
+                LoadedWindow(it, dao.pageManager(it.id), dao.historyItems(it.id))
+            })
+        }
+        val entity = loaded.entity
         savedEntity = entity.deepCopy()
         clear()
 
@@ -422,12 +443,13 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
         SpeakSettings.currentSettings = workspaceSettings.speakSettings
 
         val historyManager = get<HistoryManager>()
-        for (it in dao.windows(id)) {
+        for (loadedWindow in loaded.windows) {
+            val it = loadedWindow.entity
             val pageManager = get<CurrentPageManager>()
-            pageManager.restoreFrom(dao.pageManager(it.id), textDisplaySettings)
+            pageManager.restoreFrom(loadedWindow.pageManager, textDisplaySettings)
             val window = Window(it, pageManager, this)
             windowList.add(window)
-            historyManager.restoreFrom(window, dao.historyItems(it.id))
+            historyManager.restoreFrom(window, loadedWindow.history)
         }
         setDefaultActiveWindow()
         notifyWindowsChanged()
@@ -478,34 +500,36 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
     ) {
         val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
 
-        for (ws in dao.allWorkspaces()) {
-            val wsTds = ws.textDisplaySettings ?: continue
-            var wsChanged = false
-            for (t in dirtyTypes) {
-                if (wsTds.getValue(t) == globalSettings.getValue(t)) {
-                    wsTds.setNonSpecific(t)
-                    wsChanged = true
-                }
-            }
-            if (wsChanged) {
-                dao.updateWorkspace(ws)
-            }
-
-            for (win in dao.windows(ws.id)) {
-                val pm = dao.pageManager(win.id) ?: continue
-                val pmTds = pm.textDisplaySettings ?: continue
-                var pmChanged = false
+        blockingDb {
+            for (ws in dao.allWorkspaces()) {
+                val wsTds = ws.textDisplaySettings ?: continue
+                var wsChanged = false
                 for (t in dirtyTypes) {
-                    val parentValue = wsTds.getValue(t)
-                        ?: globalSettings.getValue(t)
-                        ?: WorkspaceEntities.TextDisplaySettings.default.getValue(t)
-                    if (pmTds.getValue(t) == parentValue) {
-                        pmTds.setNonSpecific(t)
-                        pmChanged = true
+                    if (wsTds.getValue(t) == globalSettings.getValue(t)) {
+                        wsTds.setNonSpecific(t)
+                        wsChanged = true
                     }
                 }
-                if (pmChanged) {
-                    dao.updatePageManagers(listOf(pm))
+                if (wsChanged) {
+                    dao.updateWorkspace(ws)
+                }
+
+                for (win in dao.windows(ws.id)) {
+                    val pm = dao.pageManager(win.id) ?: continue
+                    val pmTds = pm.textDisplaySettings ?: continue
+                    var pmChanged = false
+                    for (t in dirtyTypes) {
+                        val parentValue = wsTds.getValue(t)
+                            ?: globalSettings.getValue(t)
+                            ?: WorkspaceEntities.TextDisplaySettings.default.getValue(t)
+                        if (pmTds.getValue(t) == parentValue) {
+                            pmTds.setNonSpecific(t)
+                            pmChanged = true
+                        }
+                    }
+                    if (pmChanged) {
+                        dao.updatePageManagers(listOf(pm))
+                    }
                 }
             }
         }

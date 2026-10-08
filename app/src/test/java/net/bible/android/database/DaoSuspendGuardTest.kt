@@ -43,10 +43,7 @@ import java.lang.reflect.Modifier
 class DaoSuspendGuardTest {
     private val notYetConverted = setOf(
         "BookmarkDao", // 82 non-suspend
-        "MyDocumentDao", // 33 non-suspend
-        "WorkspaceDao", // 26 non-suspend
         "SyncDao", // 17 non-suspend; stays until Task 15 (SyncUtilities calls it inside raw beginTransaction blocks)
-        "GlobalTextDisplaySettingsDao", // 2 non-suspend
     )
 
     private val roomAnnotations = setOf("Query", "Insert", "Update", "Delete", "Upsert", "Transaction", "RawQuery")

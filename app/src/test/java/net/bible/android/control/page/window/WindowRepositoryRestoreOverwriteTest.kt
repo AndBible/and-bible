@@ -55,7 +55,7 @@ class WindowRepositoryRestoreOverwriteTest {
         restoreWorkspaceNamed("C")
         repo.name = "B" // pre-restore in-memory state, not yet reloaded
         repo.saveIntoDb(false)
-        assertEquals("C", dao.workspace(repo.id)!!.name)
+        assertEquals("C", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 
     @Test fun nothingIsWrittenWhileReplacing() = runBlocking {
@@ -71,7 +71,7 @@ class WindowRepositoryRestoreOverwriteTest {
         repo.loadFromDb(repo.id)
         repo.name = "D"
         repo.saveIntoDb(false)
-        assertEquals("D", dao.workspace(repo.id)!!.name)
+        assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 
     @Test fun aThrowingReplaceLeavesReplacingFalse() {
