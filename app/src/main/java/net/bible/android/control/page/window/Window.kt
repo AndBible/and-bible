@@ -289,11 +289,12 @@ class Window (
             } else -1
 
             // BibleView initialization might take more time than loading OSIS, so let's wait for it.
-            waitForBibleView()
+            val viewReady = waitForBibleView()
 
             lastUpdated = System.currentTimeMillis()
             lastChecksum = checksum
 
+            if (viewReady) loadPending = false
             bibleView?.loadDocument(doc, updateLocation = notifyLocationChange, key = key, anchorOrdinal = anchorOrdinal, htmlId = htmlId)
 
             if(notifyLocationChange)
@@ -303,18 +304,40 @@ class Window (
 
     private var lastChecksum = 0
 
-    private suspend fun waitForBibleView() {
+    /**
+     * True while this window's last [loadText] was dropped because no BibleView appeared within
+     * [bibleViewWaitTimeoutMillis] (e.g. the reading destination was not composed after a database
+     * restore). `BibleViewFactory` re-runs [loadText] when it creates the next view. Cleared by
+     * [takeLoadPending] and by any successful document load.
+     */
+    @Volatile
+    var loadPending = false
+        internal set
+
+    /** Returns [loadPending] and clears it. */
+    fun takeLoadPending(): Boolean {
+        val pending = loadPending
+        loadPending = false
+        return pending
+    }
+
+    /** How long [waitForBibleView] polls before giving up; a var so tests can shorten it. */
+    internal var bibleViewWaitTimeoutMillis = 5000L
+
+    /** Waits for a BibleView; on timeout sets [loadPending] and returns false. */
+    internal suspend fun waitForBibleView(): Boolean {
         var time = 0L
         val delayMillis = 50L
-        val timeout = 5000L
         while(bibleView == null) {
             delay(delayMillis)
-            time += delayMillis;
-            if(time > timeout) {
+            time += delayMillis
+            if(time > bibleViewWaitTimeoutMillis) {
                 Log.e(TAG, "waitForBibleView timed out")
-                return;
+                loadPending = true
+                return false
             }
         }
+        return true
     }
 
     fun updateText() {

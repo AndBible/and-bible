@@ -96,6 +96,7 @@ class BibleViewFactory(
 
             windowBibleViewMap[window.id] = bibleView
             window.bibleView = bibleView
+            reloadIfLoadWasDropped(window)
         }
         return bibleView
 
@@ -119,6 +120,11 @@ class BibleViewFactory(
     }
 
     companion object {
+        /** A load that timed out waiting for a BibleView (see [Window.loadPending]) is re-run now that one exists. */
+        internal fun reloadIfLoadWasDropped(window: Window, load: () -> Unit = { window.loadText() }) {
+            if (window.takeLoadPending()) load()
+        }
+
 
         private val BIBLE_WEB_VIEW_ID_BASE = 990
 		private val TAG = "BibleViewFactory"

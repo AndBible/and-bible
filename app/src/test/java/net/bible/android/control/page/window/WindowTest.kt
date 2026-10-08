@@ -236,4 +236,29 @@ class WindowTest {
         }
     }
 
+    private fun newWindow() = Window(
+        WorkspaceEntities.Window(
+            workspaceId = IdType(), isSynchronized = false, isPinMode = false,
+            windowLayout = WorkspaceEntities.WindowLayout(WindowState.VISIBLE.toString()),
+        ),
+        mockCurrentPageManagerProvider(),
+        windowRepository,
+    )
+
+    @Test
+    fun waitForBibleViewTimeoutLeavesTheLoadPending() = kotlinx.coroutines.test.runTest {
+        val window = newWindow()
+        assertThat(window.bibleView == null, equalTo(true))
+        assertThat(window.loadPending, equalTo(false))
+
+        val ready = window.waitForBibleView()
+
+        assertThat(ready, equalTo(false))
+        assertThat(window.loadPending, equalTo(true))
+        assertThat(window.takeLoadPending(), equalTo(true))
+        assertThat("take clears the flag", window.loadPending, equalTo(false))
+        assertThat(window.takeLoadPending(), equalTo(false))
+    }
+
+
 }
