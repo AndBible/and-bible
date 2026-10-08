@@ -100,7 +100,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.event.UserMessages
-import net.bible.android.control.event.onMain
 import net.bible.android.control.PageChange
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.document.DocumentControl

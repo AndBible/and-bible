@@ -24,7 +24,6 @@ import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import net.bible.android.TestBibleApplication
-import net.bible.android.control.event.on
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.applyComposeHostWindowSetup
 import net.bible.android.view.activity.nav.NavHostComposeActivity
