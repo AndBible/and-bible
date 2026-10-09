@@ -16,7 +16,7 @@
  */
 package net.bible.service.device.speak
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.database.bookmarks.SpeakSettings.RewindAmount
 import net.bible.service.common.AndRuntimeException

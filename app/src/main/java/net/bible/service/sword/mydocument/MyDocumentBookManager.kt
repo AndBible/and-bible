@@ -17,7 +17,7 @@
 
 package net.bible.service.sword.mydocument
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import kotlinx.serialization.Serializable
 import net.bible.android.database.LogEntry

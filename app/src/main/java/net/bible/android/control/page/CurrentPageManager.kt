@@ -17,7 +17,7 @@
 
 package net.bible.android.control.page
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.bookmark.BookmarkControl

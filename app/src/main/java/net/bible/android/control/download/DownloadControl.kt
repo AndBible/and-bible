@@ -16,7 +16,7 @@
  */
 package net.bible.android.control.download
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus.DocumentInstallStatus

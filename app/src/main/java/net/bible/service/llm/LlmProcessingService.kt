@@ -17,7 +17,7 @@
 
 package net.bible.service.llm
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive

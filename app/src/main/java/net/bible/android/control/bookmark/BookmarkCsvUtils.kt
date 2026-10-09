@@ -17,7 +17,7 @@
 
 package net.bible.android.control.bookmark
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R

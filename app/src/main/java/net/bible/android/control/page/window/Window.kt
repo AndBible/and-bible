@@ -17,7 +17,7 @@
 
 package net.bible.android.control.page.window
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

@@ -17,7 +17,7 @@
 
 package net.bible.service.db.readingplan
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -102,7 +102,7 @@ class ReadingPlanRepository(
     }
 
     companion object {
-        private val TAG = ReadingPlanRepository::class.simpleName
+        private val TAG = ReadingPlanRepository::class.simpleName ?: "ReadingPlanRepository"
 
         /** No real start date is before 2 Jan 1970; the corrupt rows hold a day number (ms). */
         const val CORRUPT_START_DATE_LIMIT_MS = 100_000_000L

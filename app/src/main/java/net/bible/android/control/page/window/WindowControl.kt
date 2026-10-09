@@ -17,7 +17,7 @@
 
 package net.bible.android.control.page.window
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope

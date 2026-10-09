@@ -19,7 +19,7 @@ package net.bible.service.sword.backgroundimage
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.SharedConstants
 import net.bible.service.common.AndBibleAddons
 import java.io.File

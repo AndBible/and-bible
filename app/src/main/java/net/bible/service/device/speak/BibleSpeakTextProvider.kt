@@ -19,7 +19,7 @@ package net.bible.service.device.speak
 
 import android.content.res.Resources
 import android.os.Build
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.util.LruCache
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges

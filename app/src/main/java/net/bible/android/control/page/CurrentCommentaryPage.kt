@@ -16,7 +16,7 @@
  */
 package net.bible.android.control.page
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.common.toV11n
 import net.bible.android.control.progress.ProgressControl
 import net.bible.service.common.ReadingProgressSettings

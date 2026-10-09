@@ -17,7 +17,7 @@
 
 package net.bible.service.history
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.control.page.OrdinalRange
 
 import net.bible.android.control.page.window.Window

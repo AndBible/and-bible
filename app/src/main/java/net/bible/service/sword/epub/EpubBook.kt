@@ -17,7 +17,7 @@
 
 package net.bible.service.sword.epub
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R

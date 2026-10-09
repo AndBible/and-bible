@@ -18,7 +18,7 @@ package net.bible.service.sword
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.util.LruCache
 import androidx.core.content.ContextCompat
 import net.bible.android.BibleApplication.Companion.application

@@ -17,7 +17,7 @@
 
 package net.bible.service.llm.tools
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.BibleApplication
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory

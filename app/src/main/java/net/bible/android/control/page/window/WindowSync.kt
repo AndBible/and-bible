@@ -17,7 +17,7 @@
 
 package net.bible.android.control.page.window
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import debounce
 import net.bible.android.control.page.CurrentPage
 import net.bible.android.control.page.DocumentCategory

@@ -17,7 +17,7 @@
 
 package net.bible.service.sword.mysword
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement

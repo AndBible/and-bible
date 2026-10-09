@@ -18,7 +18,7 @@ package net.bible.android.control.search
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.control.navigation.DocumentBibleBooksFactory

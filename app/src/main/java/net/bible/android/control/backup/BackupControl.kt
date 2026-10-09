@@ -23,7 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.net.Uri
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers

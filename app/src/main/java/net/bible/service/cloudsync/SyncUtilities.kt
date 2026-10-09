@@ -17,7 +17,7 @@
 
 package net.bible.service.cloudsync
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.room3.PooledConnection
 import androidx.room3.useWriterConnection
 import net.bible.android.activity.R

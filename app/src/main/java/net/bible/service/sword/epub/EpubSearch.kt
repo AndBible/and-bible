@@ -17,7 +17,7 @@
 
 package net.bible.service.sword.epub
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.sqlite.SQLiteException
 import net.bible.service.db.exec
 import net.bible.service.db.insertOr

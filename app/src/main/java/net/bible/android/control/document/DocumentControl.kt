@@ -18,7 +18,7 @@
 package net.bible.android.control.document
 
 import net.bible.service.db.blockingDb
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.page.CurrentPageManager

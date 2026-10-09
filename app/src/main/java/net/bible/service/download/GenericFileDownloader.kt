@@ -16,7 +16,7 @@
  */
 package net.bible.service.download
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope

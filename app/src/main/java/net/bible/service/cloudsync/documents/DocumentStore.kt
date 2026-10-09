@@ -19,7 +19,7 @@
 
 package net.bible.service.cloudsync.documents
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
 import net.bible.service.cloudsync.DownloadProgressListener

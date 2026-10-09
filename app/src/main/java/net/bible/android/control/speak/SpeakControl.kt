@@ -18,7 +18,7 @@
 package net.bible.android.control.speak
 
 import android.media.AudioManager
-import android.util.Log
+import net.bible.sharedcore.log.Log
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R

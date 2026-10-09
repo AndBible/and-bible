@@ -17,7 +17,7 @@
 package net.bible.service.download
 
 import net.bible.service.db.blockingDb
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.activity.R
 import net.bible.android.control.download.repoIdentity
 import net.bible.android.view.activity.base.Dialogs

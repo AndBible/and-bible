@@ -19,7 +19,7 @@
 
 package net.bible.service.cloudsync.documents
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.BibleApplication
 import net.bible.android.control.document.canDelete
 import net.bible.android.database.SwordDocumentInfo

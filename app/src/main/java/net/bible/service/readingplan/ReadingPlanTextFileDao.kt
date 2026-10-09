@@ -18,7 +18,7 @@
 package net.bible.service.readingplan
 
 import org.koin.core.context.GlobalContext
-import android.util.Log
+import net.bible.sharedcore.log.Log
 
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants

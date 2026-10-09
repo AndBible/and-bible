@@ -17,7 +17,7 @@
 
 package net.bible.service.llm
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable

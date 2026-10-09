@@ -20,7 +20,7 @@ package net.bible.service.device.speak
 import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.database.bookmarks.SpeakSettings
 import java.util.*
 

@@ -17,7 +17,7 @@
 package net.bible.android.control.versification
 
 import net.bible.service.db.blockingDb
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.BibleApplication
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.service.cloudsync.documents.DocumentSync

@@ -17,7 +17,7 @@
 
 package net.bible.service.llm.tools.write
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import org.koin.core.context.GlobalContext
 import net.bible.android.BibleApplication

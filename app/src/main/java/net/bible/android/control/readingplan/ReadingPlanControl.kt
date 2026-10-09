@@ -17,7 +17,7 @@
 
 package net.bible.android.control.readingplan
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowControl

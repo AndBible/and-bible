@@ -18,7 +18,7 @@ package net.bible.android.control.page
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
