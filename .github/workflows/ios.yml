@@ -29,6 +29,9 @@ jobs:
         with: {distribution: temurin, java-version: "17"}
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_26.0.1.app
+      - name: "Diagnostic: iOS log crash probe (temporary)"
+        continue-on-error: true
+        run: ./gradlew -Dorg.gradle.native=false :jsword:iosSimulatorArm64Test --tests 'org.crosswire.common.util.IosLogCrashProbeTest'
       - name: jsword common tests on the iOS simulator
         run: ./gradlew -Dorg.gradle.native=false :jsword:iosSimulatorArm64Test
       - uses: actions/upload-artifact@v4
