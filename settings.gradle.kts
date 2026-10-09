@@ -32,3 +32,5 @@ dependencyResolutionManagement {
 }
 
 include(":app", ":jsword", ":sharedCore", ":strings-gen", ":sharedUi")
+include(":xml-spike")
+project(":xml-spike").projectDir = file("jsword/spikes/xml")
