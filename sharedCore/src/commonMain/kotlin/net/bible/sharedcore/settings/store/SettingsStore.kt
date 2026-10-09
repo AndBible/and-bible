@@ -15,6 +15,10 @@ import kotlinx.coroutines.launch
  * written through [SettingsBackend] by one serial writer, in call order. Replaces synchronous DAO
  * reads so that DAOs can be `suspend` (D1 spec R4). Owned by one database-container instance: when
  * the files are replaced (restore/import) a new container builds a new store, so nothing is stale.
+ *
+ * [onWriteError] is told about a backend write that failed (the write is skipped, the queue keeps draining). It
+ * runs on the writer coroutine and must not throw; should it throw anyway, the exception is swallowed so that one
+ * bad callback cannot stop later writes and flushes.
  */
 class SettingsStore(
     private val backend: SettingsBackend,
@@ -32,7 +36,8 @@ class SettingsStore(
         class Flush(val done: CompletableDeferred<Unit>) : Job
     }
 
-    private val queue = Channel<Job>(Channel.UNLIMITED)
+    // A Flush that was sent but never received (the queue was closed or cancelled meanwhile) is completed here.
+    private val queue = Channel<Job>(Channel.UNLIMITED, onUndeliveredElement = { if (it is Job.Flush) it.done.complete(Unit) })
     private val _changes = MutableSharedFlow<String>(extraBufferCapacity = 64)
 
     /** Emits the key of every set call (value or null-delete), after memory is updated. */
@@ -48,7 +53,7 @@ class SettingsStore(
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Throwable) {
-                    onWriteError(job.w, e)
+                    runCatching { onWriteError(job.w, e) } // only the callback; cancellation was rethrown above
                 }
                 is Job.Flush -> job.done.complete(Unit)
             }

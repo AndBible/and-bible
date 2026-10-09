@@ -103,6 +103,22 @@ class SettingsStoreTest {
         assertEquals("x", store.getString("bad", null))
     }
 
+    @Test fun aThrowingOnWriteErrorDoesNotStopLaterWritesOrFlush() = runTest {
+        val backend = FakeBackend().apply { failOn = "bad" }
+        var calls = 0
+        val store = SettingsStore(backend, backgroundScope) { _, _ -> calls++; throw IllegalStateException("callback boom") }.apply { load() }
+        store.setString("bad", "x")
+        store.setString("good", "y")
+        withTimeout(5_000) { store.flush() }
+        assertEquals(1, calls)
+        assertEquals("y", backend.strings["good"])
+        store.setString("bad", "z") // fails again, the callback throws again
+        store.setString("later", "w")
+        withTimeout(5_000) { store.flush() }
+        assertEquals(2, calls)
+        assertEquals("w", backend.strings["later"])
+    }
+
     @Test fun flushAfterTheScopeIsCancelledReturns() = runBlocking {
         val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
         val store = SettingsStore(FakeBackend(), scope).apply { load() }
