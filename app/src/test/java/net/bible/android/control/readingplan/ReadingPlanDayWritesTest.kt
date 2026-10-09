@@ -1,5 +1,6 @@
 package net.bible.android.control.readingplan
 
+import net.bible.sharedcore.platform.AppCoroutineScope
 import androidx.room3.Room
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +45,7 @@ class ReadingPlanDayWritesTest {
     private var originalPlan: String? = null
     private val entered = CompletableDeferred<Unit>()
     private val gate = CompletableDeferred<Unit>()
-    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val appScope = AppCoroutineScope()
 
     @Before fun setUp() {
         db = Room.inMemoryDatabaseBuilder(application, ReadingPlanDatabase::class.java)
@@ -58,7 +59,7 @@ class ReadingPlanDayWritesTest {
                 real.updatePlan(plan)
             }
         }
-        val repo = ReadingPlanRepository(daoProvider = { gated })
+        val repo = ReadingPlanRepository(daoProvider = { gated }, appScope = appScope)
         val source = object : ReadingPlanSource {
             override fun builtInPlanCodes() = listOf("three")
             override fun openBuiltInPlan(code: String) = "# Three\n1=Gen.1\n2=Gen.2\n3=Gen.3\n"

@@ -1,5 +1,7 @@
 package net.bible.android.control.readingplan
 
+import kotlinx.coroutines.Job
+import net.bible.sharedcore.platform.AppCoroutineScope
 import androidx.room3.Room
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -32,6 +34,7 @@ class ReadingPlanControlDoneTest {
     private lateinit var control: ReadingPlanControl
     private val settings = testAppSettings()
     private var originalPlan: String? = null
+    private val appScope = AppCoroutineScope()
 
     @Before fun setUp() {
         db = Room.inMemoryDatabaseBuilder(application, ReadingPlanDatabase::class.java)
@@ -41,7 +44,7 @@ class ReadingPlanControlDoneTest {
         val slow = object : ReadingPlanDao by real {
             override suspend fun updatePlan(plan: ReadingPlanEntities.ReadingPlan) { delay(300); real.updatePlan(plan) }
         }
-        val repo = ReadingPlanRepository(daoProvider = { slow })
+        val repo = ReadingPlanRepository(daoProvider = { slow }, appScope = appScope)
         val source = object : ReadingPlanSource {
             override fun builtInPlanCodes() = listOf("three")
             override fun openBuiltInPlan(code: String) = "# Three\n1=Gen.1\n2=Gen.2\n3=Gen.3\n"
@@ -54,6 +57,7 @@ class ReadingPlanControlDoneTest {
     }
 
     @After fun tearDown() {
+        appScope.coroutineContext[Job]?.cancel()
         settings.setString("reading_plan", originalPlan)
         db.close()
     }

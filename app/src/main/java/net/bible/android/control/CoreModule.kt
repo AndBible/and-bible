@@ -152,7 +152,7 @@ val coreModule = module {
     singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() }
     singleOf(::PageControl)
     singleOf(::ReadingPlanControl)
-    single { ReadingPlanRepository(daoProvider = { DatabaseContainer.instance.readingPlanDb.readingPlanDao() }) }
+    single { ReadingPlanRepository(daoProvider = { DatabaseContainer.instance.readingPlanDb.readingPlanDao() }, appScope = get()) }
     single<ReadingPlanSource> { AndroidReadingPlanSource() }
     single {
         ReadingPlanTextFileDao(

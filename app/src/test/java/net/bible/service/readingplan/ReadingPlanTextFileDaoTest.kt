@@ -1,5 +1,7 @@
 package net.bible.service.readingplan
 
+import kotlinx.coroutines.Job
+import net.bible.sharedcore.platform.AppCoroutineScope
 import androidx.room3.Room
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication.Companion.application
@@ -60,14 +62,19 @@ class ReadingPlanTextFileDaoTest {
         userDir = tmp.newFolder("user")
     }
 
-    @After fun tearDown() { db.close() }
+    private val appScope = AppCoroutineScope()
+
+    @After fun tearDown() {
+        appScope.coroutineContext[Job]?.cancel()
+        db.close()
+    }
 
     private fun dao(
         source: ReadingPlanSource,
         distributed: List<DistributedPlanDetails> = emptyList(),
     ) = ReadingPlanTextFileDao(
         source = source,
-        repository = ReadingPlanRepository(daoProvider = { db.readingPlanDao() }),
+        repository = ReadingPlanRepository(daoProvider = { db.readingPlanDao() }, appScope = appScope),
         coreStrings = strings,
         userPlanFolder = { userDir },
         providedPlans = { emptyMap() },
