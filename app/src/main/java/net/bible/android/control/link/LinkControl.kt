@@ -534,8 +534,10 @@ class LinkControl constructor(
      * Uses efficient binary search via book.getKey() for exact matching.
      * Returns true if results were found, false otherwise.
      */
-    fun lookupInDictionaries(text: String): Boolean {
-        val dictionaries = SwordDocumentFacade.wordLookupDictionaries
+    fun lookupInDictionaries(text: String): Boolean = lookupInDictionaries(text, SwordDocumentFacade.wordLookupDictionaries)
+
+    /** [lookupInDictionaries] over an explicit dictionary list (the installed ones in production). */
+    internal fun lookupInDictionaries(text: String, dictionaries: List<Book>): Boolean {
         if (dictionaries.isEmpty()) {
             notifier.showError(strings.wordNotFoundInDictionaries)
             return false

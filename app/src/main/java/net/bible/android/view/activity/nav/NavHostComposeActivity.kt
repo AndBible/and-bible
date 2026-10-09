@@ -7969,6 +7969,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 try {
                     Log.i(TAG_DOWNLOAD, "Deleting:$document")
                     documentControl.deleteDocument(document.installedDocument)
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e // the delete itself finished in the app scope; only this screen went away
                 } catch (e: Exception) {
                     Log.e(TAG_DOWNLOAD, "Deleting document crashed", e)
                     Dialogs.showErrorMsg(R.string.error_occurred, e)
@@ -9271,6 +9273,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 try {
                     Log.i(TAG_CHOOSE_DOCUMENT, "Deleting:$document")
                     documentControl.deleteDocument(document.installedDocument)
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e // the delete itself finished in the app scope; only this screen went away
                 } catch (e: Exception) {
                     Log.e(TAG_CHOOSE_DOCUMENT, "Deleting document crashed", e)
                     Dialogs.showErrorMsg(R.string.error_occurred, e)

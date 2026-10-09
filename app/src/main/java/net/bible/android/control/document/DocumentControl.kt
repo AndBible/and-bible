@@ -38,6 +38,9 @@ import org.crosswire.jsword.versification.BibleBook
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.android.database.SwordDocumentInfoDao
+import kotlinx.coroutines.withContext
 
 
 val Book.canDelete: Boolean get () {
@@ -54,9 +57,14 @@ class DocumentControl constructor(
     private val settings: AppSettings,
     private val notifier: UserNotifier,
     private val strings: CoreStrings,
+    private val appScope: AppCoroutineScope,
+    /** Bound in CoreModule (L1a: no platform defaults); seam for the file-deleting step of [deleteDocument]. */
+    private val deleteFiles: (Book) -> Unit,
+    /** Bound in CoreModule. */
+    private val backupDaoProvider: () -> SwordDocumentInfoDao,
 )
 {
-    private val documentBackupDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+    private val documentBackupDao get() = backupDaoProvider()
 
     val isNewTestament get() = windowControl.activeWindowPageManager.currentVersePage.currentBibleVerse.currentBibleBook.ordinal >= BibleBook.MATT.ordinal
 
@@ -189,9 +197,13 @@ class DocumentControl constructor(
      */
     @Throws(BookException::class)
     suspend fun deleteDocument(document: Book) {
-        SwordDocumentFacade.deleteDocument(document)
+        // The files and the backup row go together or not at all: run both in the app scope so that a caller
+        // that goes away mid-delete (back, finish) cannot leave a deleted book with a stale backup row.
+        withContext(appScope.coroutineContext) {
+            deleteFiles(document)
+            if (document.bookCategory != BookCategory.AND_BIBLE) documentBackupDao.deleteByOsisId(document.initials)
+        }
         if(document.bookCategory == BookCategory.AND_BIBLE) return
-        documentBackupDao.deleteByOsisId(document.initials)
         val currentPage = windowControl.activeWindowPageManager.getBookPage(document, null)
         currentPage?.checkCurrentDocumenInstalled()
     }

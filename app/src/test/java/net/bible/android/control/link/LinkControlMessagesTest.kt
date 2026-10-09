@@ -8,6 +8,8 @@ import net.bible.android.control.search.SearchControl
 import net.bible.test.testAppSettings
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.UserNotifier
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.passage.NoSuchKeyException
 import org.koin.core.context.GlobalContext
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -49,17 +51,28 @@ class LinkControlMessagesTest {
         testAppSettings(), notifier, strings, platform,
     )
 
+    private fun dictionary(throwing: Boolean): Book = Mockito.mock(Book::class.java).also {
+        if (throwing) Mockito.`when`(it.getKey(Mockito.anyString())).thenThrow(NoSuchKeyException("no such key"))
+    }
+
+    @Test fun lookupWithNoInstalledDictionaryTellsTheUserTheWordWasNotFound() {
+        assertFalse(control().lookupInDictionaries("word", emptyList()))
+        assertEquals(listOf("FAKE word not found"), shown)
+    }
+
     @Test fun blankDictionaryLookupTellsTheUserTheWordWasNotFound() {
-        assertFalse(control().lookupInDictionaries("   "))
+        // a dictionary IS installed, so only the blank-text branch can produce the message
+        assertFalse(control().lookupInDictionaries("  .,; ", listOf(dictionary(throwing = true))))
+        assertEquals(listOf("FAKE word not found"), shown)
+    }
+
+    @Test fun lookupMissingInEveryDictionaryTellsTheUserTheWordWasNotFound() {
+        assertFalse(control().lookupInDictionaries("zzzz", listOf(dictionary(throwing = true), dictionary(throwing = true))))
         assertEquals(listOf("FAKE word not found"), shown)
     }
 
     @Test fun uninstalledDocumentLinkNamesTheDocumentToDownload() {
-        try {
-            control().loadApplicationUrl(BibleLink("sword", "sword://NoSuchModuleXyz/Matt.1.1"))
-        } catch (e: Exception) {
-            // what happens after the message is not under test; the message is asserted below
-        }
+        control().loadApplicationUrl(BibleLink("sword", "sword://NoSuchModuleXyz/Matt.1.1"))
         assertEquals(listOf("FAKE please download NoSuchModuleXyz"), shown)
     }
 }
