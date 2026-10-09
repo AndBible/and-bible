@@ -139,9 +139,10 @@ def _contrast(a: str, b: str) -> float:
     return (hi + 0.05) / (lo + 0.05)
 
 
-def test_current_page_marker_meets_wcag_aa_in_both_themes():
+@pytest.mark.parametrize("selector", [r"\.pager__num\[aria-current\]", r"\.news__label"])
+def test_badge_text_meets_wcag_aa_in_both_themes(selector):
     css = (Path(__file__).resolve().parents[1] / "assets" / "css" / "site.css").read_text()
-    rule = re.search(r"\.pager__num\[aria-current\]\s*\{([^}]*)\}", css).group(1)
+    rule = re.search(selector + r"\s*\{([^}]*)\}", css).group(1)
     background = re.search(r"background:\s*var\(--([\w-]+)\)", rule).group(1)
     foreground = re.search(r"(?<![-\w])color:\s*var\(--([\w-]+)\)", rule).group(1)
     for block in (re.search(r':root, :root\[data-theme="light"\] \{(.*?)\n\}', css, re.S).group(1),
@@ -272,3 +273,59 @@ def test_share_images_fit_link_preview_limits():
     assert OG.stat().st_size < 300_000  # WhatsApp drops previews above ~300 kB
     with Image.open(TOUCH_ICON) as icon:
         assert icon.size == (180, 180) and icon.mode == "RGB"  # opaque: iOS fills transparency with black
+
+
+def _post(slug: str, day: str, when: str = "00:00"):
+    from datetime import date, time
+
+    from sitegen.content import Post
+    return Post(slug=slug, title=slug.title(), date=date.fromisoformat(day), time=time.fromisoformat(when),
+                url_date=date.fromisoformat(day), summary="s", categories=(), tags=(), image=None,
+                image_alt=None, body_md="", source=Path(f"{day}-{slug}.md"))
+
+
+def test_headline_is_every_post_of_the_newest_day_up_to_two():
+    from datetime import date
+
+    from sitegen.home import headline_posts
+    pair = [_post("roadmap", "2026-10-09", "12:00"), _post("report", "2026-10-09", "10:00"),
+            _post("older", "2026-10-01")]
+    assert [p.slug for p in headline_posts(pair, date(2026, 10, 9))] == ["roadmap", "report"]
+    single = [_post("new", "2026-10-09"), _post("older", "2026-10-08")]
+    assert [p.slug for p in headline_posts(single, date(2026, 10, 9))] == ["new"]
+    three = [_post(s, "2026-10-09") for s in ("a", "b", "c")]
+    assert [p.slug for p in headline_posts(three, date(2026, 10, 9))] == ["a", "b"]
+
+
+def test_headline_hides_once_the_newest_post_is_stale():
+    from datetime import date, timedelta
+
+    from sitegen.home import HEADLINE_MAX_AGE_DAYS, headline_posts
+    posts = [_post("new", "2026-10-09")]
+    last_day = date(2026, 10, 9) + timedelta(days=HEADLINE_MAX_AGE_DAYS)
+    assert headline_posts(posts, last_day)
+    assert headline_posts(posts, last_day + timedelta(days=1)) == []
+    assert headline_posts([], date(2026, 10, 9)) == []
+
+
+def test_home_shows_latest_news_row_linking_the_newest_post(content, tmp_path):
+    from datetime import date
+    today = date.today().isoformat()
+    (content / "en" / "blog").mkdir()
+    (content / "en" / "blog" / f"{today}-big-news.md").write_text(
+        f"---\ntitle: Big & news\ndate: '{today}'\nslug: big-news\nsummary: s\n---\nBody\n")
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    html = (out / "index.html").read_text()
+    row = re.search(r'<nav class="news"[^>]*>(.*?)</nav>', html, re.S)
+    assert row, "latest news row missing"
+    assert "Latest" in row.group(1)
+    assert f'href="/{today.replace("-", "/")}/big-news/"' in row.group(1)
+    assert "Big &amp; news" in row.group(1)
+    assert html.index('class="news"') < html.index('class="hero__panel"')  # above the hero panel
+
+
+def test_home_has_no_news_row_without_posts(content, tmp_path):
+    out = tmp_path / "out"
+    build(content, out, data=tmp_path / "data", docs=False)
+    assert 'class="news"' not in (out / "index.html").read_text()

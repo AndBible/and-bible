@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import xml.etree.ElementTree as ET
-from datetime import UTC, datetime, time
+from datetime import UTC, datetime
 from email.utils import format_datetime
 from pathlib import Path
 
@@ -87,7 +87,7 @@ def _feed(posts: list[Post], bodies: dict[str, str], strings: dict, out: Path) -
         link = f"{BASE_URL}{post.path}"
         for tag, value in (("title", post.title), ("link", link), ("guid", link),
                            ("description", post.summary),
-                           ("pubDate", format_datetime(datetime.combine(post.date, time.min, UTC), usegmt=True))):
+                           ("pubDate", format_datetime(datetime.combine(post.date, post.time, UTC), usegmt=True))):
             ET.SubElement(item, tag).text = value
         for category in post.categories:
             ET.SubElement(item, "category").text = category

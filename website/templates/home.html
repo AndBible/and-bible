@@ -3,6 +3,12 @@
 {% block head_extra %}<script src="{{ asset_url('js/reviews-carousel.js') }}" defer></script><script src="{{ asset_url('js/appshots.js') }}" defer></script>{% endblock %}
 {% block content %}
 <section class="hero">
+  {% if headlines %}
+  <nav class="news" aria-label="{{ strings.sections.news_region }}">
+    <span class="news__label">{{ strings.sections.news }}</span>
+    {% for post in headlines %}<a class="news__link" href="{{ post.path }}">{{ post.title }} <span aria-hidden="true">→</span></a>{% endfor %}
+  </nav>
+  {% endif %}
   <div class="hero__panel">
     <div class="hero__text">
       <div class="lockup"><img src="/assets/img/logo.svg" alt="" width="44" height="44"><span class="lockup__word">{{ strings.site_name }}</span></div>
