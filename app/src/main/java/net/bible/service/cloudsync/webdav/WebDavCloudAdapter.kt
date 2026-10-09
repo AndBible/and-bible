@@ -1,0 +1,158 @@
+package net.bible.service.cloudsync.webdav
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.bible.android.database.SyncConfiguration
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.cloudsync.CloudAdapter
+import net.bible.service.cloudsync.CloudFile
+import net.bible.service.cloudsync.DownloadProgressListener
+import net.bible.service.cloudsync.GZIP_MIMETYPE
+import net.bible.service.cloudsync.SyncableDatabaseAccessor
+import net.bible.service.cloudsync.nextcloud.FOLDER_MIMETYPE
+import net.bible.service.common.CommonUtils
+import net.bible.service.common.asyncMap
+import net.bible.sharedcore.webdav.*
+import java.io.File
+import java.io.FileNotFoundException
+import io.ktor.utils.io.writeFully
+import java.io.OutputStream
+import java.util.UUID
+
+const val WEBDAV_SECRET_FILE_NAME_KEY = "webDavSecretFile"
+
+/**
+ * [CloudAdapter] over a generic WebDAV server (spec 2026-10-09-webdav-sync-design).
+ *
+ * IDs are [DavPath] paths relative to the WebDAV root. Every time handed to the sync layer is in
+ * the **device** clock (server time − [WebDavClient.serverClockOffsetMs]), so CloudSync's
+ * device-clock `lastSynchronized` and DocumentSync's listing-derived watermark compare
+ * consistently against what this adapter returns.
+ */
+class WebDavCloudAdapter(
+    private val config: WebDavConfig,
+    private val state: WebDavStateStore,
+    private val ui: WebDavSignInUi,
+    private val clientFactory: (WebDavConfig, WebDavStateStore) -> WebDavClient = { c, s -> createWebDavClient(c, s) },
+    private val nowMs: () -> Long = System::currentTimeMillis,
+) : CloudAdapter {
+    private var _client: WebDavClient? = null
+    private val client get() = _client ?: throw IllegalStateException("WebDAV adapter not signed in")
+    private val base get() = config.baseFolder
+
+    override val signedIn: Boolean get() = _client != null
+
+    override suspend fun signIn(activity: ActivityBase): Boolean = withContext(Dispatchers.IO) { signInLoop() }
+
+    private suspend fun signInLoop(): Boolean {
+        var trustedNow = false
+        while (true) {
+            val c = clientFactory(config, state)
+            try {
+                val root = c.propfind("", 0).firstOrNull { it.path == "" }
+                if (root == null || !root.isCollection) throw Exception(ui.message(WebDavMessage.NOT_A_FOLDER))
+                if (base.isNotEmpty()) c.mkcols(base)
+                _client = c
+                return true
+            } catch (e: DavUntrustedCertificateException) {
+                if (trustedNow || !ui.confirmCertificate(e.certificate)) return false
+                state.certPin = CertPin(e.certificate.host, e.certificate.sha256)
+                trustedNow = true
+            } catch (e: DavAuthException) {
+                throw Exception(ui.message(WebDavMessage.WRONG_CREDENTIALS), e)
+            } catch (e: DavNotFoundException) {
+                throw Exception(ui.message(WebDavMessage.NOT_A_FOLDER), e)
+            }
+        }
+    }
+
+    override suspend fun signOut() {
+        _client = null
+        state.propagation = Propagation.UNKNOWN
+    }
+
+    override suspend fun get(id: String): CloudFile = dav {
+        client.propfind(id, 0).firstOrNull { it.path == id }?.toCloudFile() ?: throw DavNotFoundException(id)
+    }
+
+    override suspend fun listFiles(parentsIds: List<String>?, name: String?, mimeType: String?, createdTimeAtLeast: Long?): List<CloudFile> = dav {
+        val parents = parentsIds ?: listOf(base)
+        val sinceServer = createdTimeAtLeast?.let { it + client.serverClockOffsetMs - CLOCK_MARGIN_MS }
+        parents.asyncMap { p -> listChildren(p, sinceServer) }.flatten()
+            .asSequence()
+            .filter { name == null || it.name == name }
+            .filter { mimeType == null || (mimeType == FOLDER_MIMETYPE) == it.isCollection }
+            .filter { sinceServer == null || (it.lastModified ?: Long.MAX_VALUE) >= sinceServer }
+            .map { it.toCloudFile() }
+            .toList()
+    }
+
+    /** Task 6 adds folder skipping here. */
+    private suspend fun listChildren(parent: String, sinceServer: Long?): List<DavResource> =
+        client.propfind(parent, 1).filter { it.path != parent }
+
+    override suspend fun getFolders(parentId: String): List<CloudFile> =
+        listFiles(parentsIds = listOf(parentId), mimeType = FOLDER_MIMETYPE)
+
+    override suspend fun download(id: String, outputStream: OutputStream, onProgress: DownloadProgressListener?) = dav {
+        var total = 0L
+        client.get(id) { buf, n -> outputStream.write(buf, 0, n); total += n; onProgress?.invoke(total) }
+    }
+
+    override suspend fun createNewFolder(name: String, parentId: String?): CloudFile = dav {
+        val parent = parentId ?: base
+        val path = joinDavPath(parent, name)
+        try { client.mkcol(path) } catch (e: DavProtocolException) { if (e.status == 409) client.mkcols(path) else throw e }
+        CloudFile(id = path, name = name, size = 0, createdTime = nowMs(), parentId = parent)
+    }
+
+    /** Task 6 adds calibration around the PUT. */
+    override suspend fun upload(name: String, file: File, parentId: String): CloudFile = dav {
+        val path = joinDavPath(parentId, name)
+        putFile(path, file)
+        client.propfind(path, 0).firstOrNull { it.path == path }?.toCloudFile()
+            ?: CloudFile(path, name, file.length(), nowMs(), parentId)
+    }
+
+    private suspend fun putFile(path: String, file: File) =
+        client.put(path, file.length(), GZIP_MIMETYPE) { ch ->
+            file.inputStream().use { input ->
+                val buf = ByteArray(64 * 1024)
+                while (true) { val n = input.read(buf); if (n < 0) break; ch.writeFully(buf, 0, n) }
+            }
+        }
+
+    override suspend fun delete(id: String) = dav { client.delete(id) }
+
+    override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean {
+        val secret = dbDef.dao.getString(WEBDAV_SECRET_FILE_NAME_KEY) ?: return false
+        return try { get(joinDavPath(id, secret)); true } catch (e: FileNotFoundException) {
+            dbDef.dao.removeConfig(WEBDAV_SECRET_FILE_NAME_KEY); false
+        }
+    }
+
+    override suspend fun makeSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String) {
+        val secret = "device-known-${CommonUtils.deviceIdentifier}-${UUID.randomUUID()}"
+        val tmp = File.createTempFile("webdav-secret", null)
+        try { upload(secret, tmp, id) } finally { tmp.delete() }
+        dbDef.dao.setConfig(WEBDAV_SECRET_FILE_NAME_KEY, secret)
+    }
+
+    override fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> =
+        listOfNotNull(dbDef.dao.getConfig(WEBDAV_SECRET_FILE_NAME_KEY))
+
+    private fun DavResource.toCloudFile() = CloudFile(
+        id = path, name = name, size = contentLength,
+        createdTime = ((lastModified ?: creationDate) ?: 0L) - client.serverClockOffsetMs,
+        parentId = parent,
+    )
+
+    /** Maps a missing resource to FileNotFoundException, the sync layer's "not there" signal. */
+    private suspend fun <T> dav(block: suspend () -> T): T = try { block() } catch (e: DavNotFoundException) {
+        throw FileNotFoundException("WebDAV: not found ${e.path}")
+    }
+
+    companion object {
+        const val CLOCK_MARGIN_MS = 120_000L
+    }
+}
