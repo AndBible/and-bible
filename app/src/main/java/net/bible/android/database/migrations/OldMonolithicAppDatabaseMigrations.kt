@@ -33,7 +33,7 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
-import java.sql.SQLException
+import androidx.sqlite.SQLiteException
 
 
 const val TAG = "OldMigrations"
@@ -507,7 +507,7 @@ private val MIGRATION_27_28 = object : Migration(27, 28) {
             execSQL("DROP INDEX IF EXISTS index_readingplan_plan_code;")
             try {
                 execSQL("CREATE UNIQUE INDEX `index_readingplan_plan_code` ON `readingplan` (`plan_code`);")
-            } catch (e: SQLException) {
+            } catch (e: SQLiteException) {
                 // in case table already has data that prevents unique index from being created (should never be)
                 try {
                     execSQL("CREATE INDEX `index_readingplan_plan_code` ON `readingplan` (`plan_code`);")
@@ -518,7 +518,7 @@ private val MIGRATION_27_28 = object : Migration(27, 28) {
             execSQL("DROP INDEX IF EXISTS `code_day`;")
             try {
                 execSQL("CREATE UNIQUE INDEX `code_day` ON `readingplan_status` (`plan_code`, `plan_day`);")
-            } catch (e: SQLException) {
+            } catch (e: SQLiteException) {
                 // in case table already has data that prevents unique index from being created (should never be)
                 try {
                     execSQL("CREATE INDEX `code_day` ON `readingplan_status` (`plan_code`, `plan_day`);")
