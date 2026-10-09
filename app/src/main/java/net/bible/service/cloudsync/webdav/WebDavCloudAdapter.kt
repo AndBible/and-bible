@@ -64,6 +64,9 @@ class WebDavCloudAdapter(
                 throw Exception(ui.message(WebDavMessage.WRONG_CREDENTIALS), e)
             } catch (e: DavNotFoundException) {
                 throw Exception(ui.message(WebDavMessage.NOT_A_FOLDER), e)
+            } catch (e: DavProtocolException) {
+                // 405, or a 200 that is not a multistatus (an HTML page): not a WebDAV folder.
+                throw Exception(ui.message(WebDavMessage.NOT_A_FOLDER), e)
             }
         }
     }

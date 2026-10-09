@@ -73,6 +73,15 @@ class WebDavSignInTest {
         assertEquals(1, ui.asked)
     }
 
+    @Test fun notAWebDavEndpoint_surfacesAsNotAFolderMessage() {
+        for (status in listOf(405, 200)) {
+            server.statusOverride = { status }
+            val e = assertThrows(Exception::class.java) { runBlocking { adapter().signIn(mock<ActivityBase>()) } }
+            assertEquals("status $status", WebDavMessage.NOT_A_FOLDER.name, e.message)
+            assertTrue("status $status", e.cause is DavProtocolException)
+        }
+    }
+
     @Test fun formatFingerprint_groupsByTwo() {
         assertEquals("AB:CD:EF", formatFingerprint("ABCDEF"))
     }
