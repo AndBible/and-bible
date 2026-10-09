@@ -76,7 +76,7 @@ class BookInstallWatcherTest {
                 release.await()
             }
         }
-        val book = Books.installed().books.first()
+        val book = Books.installed().getBooks().first()
         val ev = BooksEvent(Books.installed(), book, true)
         try {
             events.forEachIndexed { i, it ->
@@ -131,7 +131,7 @@ class BookInstallWatcherTest {
                     release.await()
                 }
             }
-            val book = Books.installed().books.first()
+            val book = Books.installed().getBooks().first()
             preexisting?.let { docDao.insert(it.copy(initials = book.initials)) }
             try {
                 watcher.listener.bookAdded(BooksEvent(Books.installed(), book, true))

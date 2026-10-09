@@ -101,7 +101,7 @@ class KeyHistoryItem(
 internal fun keyDescription(key: Key): String {
     var name: String
     try {
-        name = key.name
+        name = key.getName()
 
         // do not show verse 0
         if (key is Verse) {
@@ -113,7 +113,7 @@ internal fun keyDescription(key: Key): String {
     } catch (e: Exception) {
         Log.e("KeyHistoryItem", "Error getting key name - could that Versification does not contain book")
         // but this normally works
-        name = key.osisRef.replace('.', ' ')
+        name = key.getOsisRef().replace('.', ' ')
     }
 
     return name

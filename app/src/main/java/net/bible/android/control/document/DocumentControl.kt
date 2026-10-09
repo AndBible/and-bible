@@ -225,11 +225,11 @@ class DocumentControl constructor(
      * thread (their observers are UI state), still inside the app-scope block. Per-document failures are collected in
      * the result, not thrown.
      */
-    suspend fun deleteDocuments(documents: List<Book>): DeleteDocumentsResult = withContext(appScope.coroutineContext) {
+    suspend fun deleteDocuments(documents: List<Book?>): DeleteDocumentsResult = withContext(appScope.coroutineContext) {
         var skipped = false
         val failures = mutableListOf<Pair<Book, Exception>>()
         for (document in documents) {
-            if (!canDelete(document)) { skipped = true; continue }
+            if (document == null || !canDelete(document)) { skipped = true; continue }
             try {
                 deleteDocument(document)
             } catch (e: CancellationException) {

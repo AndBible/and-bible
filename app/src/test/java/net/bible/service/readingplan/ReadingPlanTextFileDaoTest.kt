@@ -92,7 +92,7 @@ class ReadingPlanTextFileDaoTest {
         assertEquals(2, dao.getNumberOfPlanDays("two"))
         val day2 = dao.getReading("two", 2)
         assertEquals(2, day2.day)
-        assertTrue(day2.getReadingKey(1).cardinality > 30) // Gen.2-Gen.3
+        assertTrue(day2.getReadingKey(1).getCardinality() > 30) // Gen.2-Gen.3
     }
 
     @Test fun planNameAndDescriptionComeFromTheHeaderComments() = runBlocking {
