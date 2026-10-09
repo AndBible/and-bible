@@ -61,10 +61,16 @@ class BookInstallWatcherStartupTest {
             sword.setBoolean(SwordEnvironmentInitialisation, false)
             GlobalContext.stopKoin()
 
+            // Robolectric already ran onCreate() for this test; a second onCreate() overwrites
+            // userMessagesSubscription and would leak the first presenter on the process-global
+            // UserMessages stream (later tests then see every toast twice). Release it first.
+            BibleApplication.application.onTerminate()
             BibleApplication.application.onCreate()
 
             assertEquals("exactly one BookInstallWatcher listener registered", 1, watcherListeners().size)
         } finally {
+            // release the presenter the manual onCreate() created
+            BibleApplication.application.onTerminate()
             sword.setBoolean(SwordEnvironmentInitialisation, wasLoaded)
         }
     }
