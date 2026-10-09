@@ -34,7 +34,7 @@ I logged **75.85 hours** of development this quarter, almost exactly the same as
 
 **GitHub Sponsors.** The [GitHub Sponsors](https://github.com/sponsors/AndBible) button now has two monthly donors, bringing in a total of **$30/month**. As noted in the Q2 report, these are donations without consideration: they do not purchase development hours and are not part of the hour pools in this report. Thank you to both donors.
 
-**Planning, reporting and support.** Planning took 4.97 hours. This category covers roadmap work, such as the [Q3/Q4 roadmap](/2026/08/01/the-road-ahead-q3-q4-2026/), and other dedicated planning. Part of the planning, reporting and support work is also included in the maintenance hours above, since many of the bug fixes respond directly to reports that come in through the support desk. For user support itself, I have received welcome help, and special thanks go to [Timmy Brown (timbze)](https://github.com/timbze).
+**Planning, reporting and support.** Planning took 4.97 hours. This category covers roadmap work, such as the [Q3/Q4 roadmap](/2026/08/01/the-road-ahead-q3-q4-2026/), and other dedicated planning. Part of the planning, reporting and support work is also included in the maintenance hours above, since many of the bug fixes respond directly to reports that come in through the support desk. For user support itself, I have received welcome help, and special thanks go to [Timmy Braun (timbze)](https://github.com/timbze).
 
 ## Sponsorship Flow
 
