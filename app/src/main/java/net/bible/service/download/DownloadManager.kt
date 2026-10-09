@@ -55,9 +55,9 @@ class DownloadManager(
             val installer = when(r.type) {
                 "sword-https" -> {
                     HttpsSwordInstaller().apply {
-                        host = r.host
-                        packageDirectory = r.packageDirectory
-                        catalogDirectory = r.catalogDirectory
+                        setHost(r.host)
+                        setPackageDirectory(r.packageDirectory)
+                        setCatalogDirectory(r.catalogDirectory)
                     }
                 }
                 "mybible-https" -> {

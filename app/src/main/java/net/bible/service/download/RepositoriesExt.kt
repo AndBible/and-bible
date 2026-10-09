@@ -23,5 +23,5 @@ val Installer.urlPrefix: String? get()
         else -> null
         }
 
-    return protocol?.let { "${protocol}://${host}/" }
+    return protocol?.let { "${protocol}://${getHost()}/" }
     }
