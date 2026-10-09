@@ -20,7 +20,11 @@ package net.bible.android.database
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
+import kotlinx.coroutines.runBlocking
+import net.bible.service.db.BlockingDbInTransaction
+import net.bible.service.db.blockingDb
 import net.bible.service.db.columnIndex
+import net.bible.service.db.inTransaction
 import net.bible.service.db.exec
 import net.bible.service.db.insertOr
 import net.bible.service.db.queryFirst
@@ -30,6 +34,7 @@ import net.bible.service.db.textOrNull
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -126,5 +131,30 @@ class SqliteConnectionExtTest {
             assertNull(it.textOrNull(it.columnIndex("n")))
             assertThrows(IllegalArgumentException::class.java) { it.columnIndex("missing") }
         }
+    }
+
+    @Test
+    fun inTransactionCommitsAndReturnsTheBlockValue() {
+        val result = runBlocking { c.inTransaction { exec("INSERT INTO t (i) VALUES (1)"); queryLong("SELECT COUNT(*) FROM t") } }
+        assertEquals(1L, result)
+        assertFalse(c.inTransaction())
+        assertEquals(1L, c.queryLong("SELECT COUNT(*) FROM t"))
+    }
+
+    @Test
+    fun inTransactionRollsBackAndRethrowsWhenTheBlockThrows() {
+        val e = runCatching {
+            runBlocking { c.inTransaction { exec("INSERT INTO t (i) VALUES (1)"); error("boom") } }
+        }.exceptionOrNull()
+        assertEquals("boom", e?.message)
+        assertFalse(c.inTransaction())
+        assertEquals(0L, c.queryLong("SELECT COUNT(*) FROM t"))
+    }
+
+    @Test
+    fun inTransactionRefusesBlockingDbInside() {
+        val e = runCatching { runBlocking { c.inTransaction { exec("INSERT INTO t (i) VALUES (1)"); blockingDb { 1 } } } }.exceptionOrNull()
+        assertTrue("$e", e is BlockingDbInTransaction)
+        assertEquals(0L, c.queryLong("SELECT COUNT(*) FROM t"))
     }
 }

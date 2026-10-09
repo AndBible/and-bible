@@ -18,9 +18,16 @@
 package net.bible.service.db
 
 import android.util.Log
+import androidx.room.PooledConnection
+import androidx.room.TransactionScope
+import androidx.room.Transactor
+import androidx.room.immediateTransaction
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.execSQL
+import kotlinx.coroutines.withContext
+import net.bible.android.database.migrations.joinColumnNames
 
 /** Prepares and runs [sql] to completion with [args] bound to its `?` placeholders (1-based, in order). */
 fun SQLiteConnection.exec(sql: String, vararg args: Any?) =
@@ -86,3 +93,50 @@ fun SQLiteConnection.insertOr(conflict: String, table: String, vararg values: Pa
     }
     return if ((queryLong("SELECT changes()") ?: 0L) > 0L) queryLong("SELECT last_insert_rowid()") ?: -1L else -1L
 }
+
+/**
+ * `BEGIN IMMEDIATE` ... `COMMIT` on a raw (non-Room) connection, `ROLLBACK` when [block] throws (the exception
+ * is rethrown; a failing ROLLBACK is attached to it as suppressed). The coroutine is marked as in a transaction,
+ * so [blockingDb] refuses to run inside [block].
+ */
+suspend fun <T> SQLiteConnection.inTransaction(block: suspend SQLiteConnection.() -> T): T = withContext(DbTransactionMarker) {
+    execSQL("BEGIN IMMEDIATE")
+    try {
+        block().also { execSQL("COMMIT") }
+    } catch (t: Throwable) {
+        try { execSQL("ROLLBACK") } catch (r: Throwable) { t.addSuppressed(r) }
+        throw t
+    }
+}
+
+/**
+ * Room-connection counterpart of [SQLiteConnection.inTransaction], for a [Transactor] from `useWriterConnection`:
+ * an IMMEDIATE transaction through Room (which also handles compatibility mode), rolled back when [block] throws.
+ * Suspend DAO calls made inside [block] join this transaction: Room finds the connection in the coroutine context.
+ * Marked like the raw one, so [blockingDb] refuses inside. Not to be confused with the member `inTransaction()`,
+ * which only asks whether a transaction is open.
+ */
+suspend fun <T> Transactor.inTransaction(block: suspend TransactionScope<T>.() -> T): T =
+    withContext(DbTransactionMarker) { immediateTransaction(block) }
+
+/** Suspend [exec] for a Room connection (`useWriterConnection` / a transaction scope). */
+suspend fun PooledConnection.exec(sql: String, vararg args: Any?) =
+    usePrepared(sql) { st -> st.bindAll(args); while (st.step()) {} }
+
+/** Suspend [queryRows] for a Room connection; the statement is only valid inside [row]. */
+suspend fun <T> PooledConnection.queryRows(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): List<T> =
+    usePrepared(sql) { st -> st.bindAll(args); buildList { while (st.step()) add(row(st)) } }
+
+/** Suspend [queryLong] for a Room connection: first column of the first row, null for no row or SQL NULL. */
+suspend fun PooledConnection.queryLong(sql: String, vararg args: Any?): Long? =
+    queryRows(sql, *args) { if (it.isNull(0)) null else it.getLong(0) }.firstOrNull()
+
+/** Column names of [tableName] (in [schema] when given, e.g. an attached `patch`), from `PRAGMA table_info`. */
+suspend fun PooledConnection.columnNames(tableName: String, schema: String? = null): List<String> {
+    val schemaString = schema?.let { "$it." } ?: ""
+    return queryRows("PRAGMA ${schemaString}table_info($tableName)") { it.getText(it.columnIndex("name")) }
+}
+
+/** [columnNames] as a backquoted, comma-separated list. */
+suspend fun PooledConnection.columnNamesJoined(tableName: String, schema: String? = null): String =
+    joinColumnNames(columnNames(tableName, schema))
