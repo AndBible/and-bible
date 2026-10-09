@@ -1,6 +1,6 @@
 ---
 title: Financial report for Q3/2026
-date: '2026-10-09'
+date: '2026-10-09 10:00'
 slug: financial-report-for-q3-2026
 summary: 'The AndBible Q3 2026 financial report is published. Most of the quarter went into the Compose port, which is now functional and nearly finished; AndBible for iOS reached the App Store; and the general pool was used up to fund the shared-codebase work. Full transparency on where every sponsored hour went.'
 tags:
