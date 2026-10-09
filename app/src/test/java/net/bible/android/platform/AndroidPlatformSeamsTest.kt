@@ -21,7 +21,21 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import net.bible.android.control.bookmark.BookmarkJsActions
+import net.bible.android.control.coreModule
+import net.bible.android.control.document.DocumentControl
+import net.bible.android.control.link.LinkPlatform
+import net.bible.android.control.progress.ProgressJsActions
+import net.bible.android.control.versification.BookInstallWatcher
+import net.bible.service.db.readingplan.ReadingPlanRepository
+import net.bible.service.history.HistoryPlatform
+import net.bible.service.readingplan.ReadingPlanTextFileDao
+import net.bible.sharedcore.cloud.DocumentSyncStarter
+import net.bible.sharedcore.platform.OrderedLauncher
+import net.bible.sharedcore.readingplan.ReadingPlanSource
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext
+import org.koin.dsl.koinApplication
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.util.Date
@@ -71,5 +85,31 @@ class AndroidPlatformSeamsTest {
     @Test fun koinResolvesEverySeam() {
         listOf(AppSettings::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class, AppCoroutineScope::class)
             .forEach { assertNotNull(it.simpleName, GlobalContext.get().getOrNull<Any>(it)) }
+    }
+
+    /**
+     * CoreModuleVerifyTest checks constructors only, and its extraTypes (CoroutineScope, Function0, ...) let lambda
+     * and scope parameters through unchecked. This actually BUILDS every definition L1a added or rewired, so a
+     * definition whose factory throws (a wrong get<>(), a missing binding) fails here. It resolves into an isolated
+     * Koin application (closed afterwards), so the suite's global Koin gains no singletons it did not have.
+     */
+    @Test fun koinBuildsEveryDefinitionL1aAdded() {
+        val app = koinApplication {
+            androidContext(ApplicationProvider.getApplicationContext())
+            modules(coreModule)
+        }
+        try {
+            listOf(
+                OrderedLauncher::class, BookInstallWatcher::class, ProgressJsActions::class, BookmarkJsActions::class,
+                DocumentControl::class, ReadingPlanTextFileDao::class, ReadingPlanRepository::class,
+                ReadingPlanSource::class, HistoryPlatform::class, LinkPlatform::class, DocumentSyncStarter::class,
+                AppSettings::class, AppCoroutineScope::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class,
+            ).forEach { type ->
+                val instance: Any = app.koin.get(type, null, null) // throws (with the cause) if the factory fails
+                assertTrue("${type.simpleName} resolved to ${instance::class}", type.isInstance(instance))
+            }
+        } finally {
+            app.close()
+        }
     }
 }
