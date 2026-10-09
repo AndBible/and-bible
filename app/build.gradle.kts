@@ -328,6 +328,7 @@ android {
                   // suite (hundreds of bitmaps loaded/compared) together with the full :app unit suite
                   // in one fork can OOM near the edge. Give the fork a real heap; the container has 32 GiB.
                   test.maxHeapSize = "4g"
+                  test.systemProperty("mono.audit.report", System.getProperty("mono.audit.report") ?: "")
                   test.testLogging {
                     events("passed", "skipped", "failed")
                     setExceptionFormat("full")

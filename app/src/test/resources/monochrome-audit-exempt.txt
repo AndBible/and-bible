@@ -1,0 +1,2 @@
+# Scenes showing stored colours by design; each entry must include a reason.
+# Temporary empty list: controller decides exemptions from actual audit renders.

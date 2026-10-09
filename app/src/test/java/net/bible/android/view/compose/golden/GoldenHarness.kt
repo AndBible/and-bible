@@ -22,8 +22,12 @@ import net.bible.sharedui.ProvideAppLocals
 import net.bible.sharedui.theme.AbTheme
 import net.bible.sharedui.theme.LocalSystemBarSync
 import net.bible.test.resetComposeUiDispatcher
+import com.github.takahirom.roborazzi.RoborazziOptions
+import com.github.takahirom.roborazzi.RoborazziTaskType
+import java.io.File
+import javax.imageio.ImageIO
 
-/** The four LTR golden renders (theme modes). The RTL check is a separate Arabic-locale capture. */
+/** Reference and audit-only LTR modes. RTL is a separate Arabic-locale capture. */
 enum class GoldenMode(
     val dark: Boolean,
     val colorMode: DisplayColorMode,
@@ -34,10 +38,13 @@ enum class GoldenMode(
     LIGHT(false, DisplayColorMode.NORMAL, false, "light"),
     BW(false, DisplayColorMode.BW, false, "bw"),
     EINK(false, DisplayColorMode.COLOR_EINK, false, "eink"),
+    MONO(false, DisplayColorMode.MONOCHROME, false, "mono"),
+    MONO_DARK(true, DisplayColorMode.MONOCHROME, false, "mono_dark"),
 }
 
-/** Full theme matrix (four LTR modes), for a screen's primary state. */
-val ALL_MODES: List<GoldenMode> = GoldenMode.entries.toList()
+/** Four reference LTR modes; monochrome renders are audited without reference PNGs. */
+val ALL_MODES: List<GoldenMode> = GoldenMode.entries.filter { it.colorMode != DisplayColorMode.MONOCHROME }
+val MONO_MODES: List<GoldenMode> = listOf(GoldenMode.MONO, GoldenMode.MONO_DARK)
 
 /** Single mode used for edge states (empty/error) — theming is already covered by the primary state. */
 val EDGE_MODE: GoldenMode = GoldenMode.LIGHT
@@ -56,6 +63,7 @@ private fun capture(
     rtl: Boolean,
     heightDp: Int = 0,
     captureOptions: List<RoborazziComposeOption> = emptyList(),
+    roborazziOptions: RoborazziOptions? = null,
     content: @Composable () -> Unit,
 ) {
     // inspectionMode=true sets LocalInspectionMode, which makes Compose's InfiniteTransition
@@ -78,19 +86,17 @@ private fun capture(
     // ReadingHostResumeReconciliationTest / ReadingHostSyncAndRestoreEventsTest, each of which alone
     // turned the next golden class red.
     resetComposeUiDispatcher()
-    captureRoboImage(
-        path,
-        roborazziComposeOptions = RoborazziComposeOptions {
-            inspectionMode(true)
-            if (heightDp > 0) size(0, heightDp)
-            // captureOptions defaults to empty for every existing caller (byte-identical
-            // behaviour, no re-record needed); a caller that passes a
-            // RoborazziComposeCaptureOption (e.g. to settle an async effect before the
-            // screenshot -- see AbDatePickerDialogGoldenTest) gets its beforeCapture()/
-            // afterCapture() wired into this specific capture only.
-            captureOptions.forEach { addOption(it) }
-        },
-    ) {
+    val composeOptions = RoborazziComposeOptions {
+        inspectionMode(true)
+        if (heightDp > 0) size(0, heightDp)
+        // captureOptions defaults to empty for every existing caller (byte-identical
+        // behaviour, no re-record needed); a caller that passes a
+        // RoborazziComposeCaptureOption (e.g. to settle an async effect before the
+        // screenshot -- see AbDatePickerDialogGoldenTest) gets its beforeCapture()/
+        // afterCapture() wired into this specific capture only.
+        captureOptions.forEach { addOption(it) }
+    }
+    val renderedContent: @Composable () -> Unit = {
         val dir = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
         CompositionLocalProvider(LocalLayoutDirection provides dir) {
             ProvideAppLocals {
@@ -130,6 +136,12 @@ private fun capture(
             }
         }
     }
+    // Reference captures retain the library's context-dependent default, not RoborazziOptions().
+    if (roborazziOptions == null) {
+        captureRoboImage(path, roborazziComposeOptions = composeOptions, content = renderedContent)
+    } else {
+        captureRoboImage(path, roborazziOptions = roborazziOptions, roborazziComposeOptions = composeOptions, content = renderedContent)
+    }
 }
 
 /**
@@ -144,7 +156,7 @@ fun captureGolden(
     heightDp: Int = 0,
     captureOptions: List<RoborazziComposeOption> = emptyList(),
     content: @Composable () -> Unit,
-) = capture("src/test/roborazzi/${screen}_${state}_${mode.tag}.png", mode.dark, mode.colorMode, mode.rtl, heightDp, captureOptions, content)
+) = capture("src/test/roborazzi/${screen}_${state}_${mode.tag}.png", mode.dark, mode.colorMode, mode.rtl, heightDp, captureOptions, content = content)
 
 /**
  * Render [content] in the light theme with RTL layout, capturing to <screen>_<state>_light_rtl.png.
@@ -176,4 +188,28 @@ fun captureMatrix(
     content: @Composable () -> Unit,
 ) {
     ALL_MODES.forEach { mode -> captureGolden(screen, state, mode, heightDp = heightDp, captureOptions = captureOptions, content = content) }
+    auditMono(screen, state, heightDp, captureOptions, content)
+}
+
+/** Force audit captures into build output, even when the enclosing task does not record goldens. */
+@OptIn(ExperimentalRoborazziApi::class)
+private fun auditMono(
+    screen: String,
+    state: String,
+    heightDp: Int,
+    captureOptions: List<RoborazziComposeOption>,
+    content: @Composable () -> Unit,
+) {
+    val key = "${screen}_${state}"
+    val policy = MonochromeAuditPolicy.fromResources()
+    if (!policy.shouldAudit(key)) return
+    MONO_MODES.forEach { mode ->
+        val file = File("build/mono-audit/${key}_${mode.tag}.png")
+        file.parentFile?.mkdirs()
+        capture(file.path, mode.dark, mode.colorMode, mode.rtl, heightDp, captureOptions,
+            roborazziOptions = RoborazziOptions(taskType = RoborazziTaskType.Record), content = content)
+        val image = checkNotNull(ImageIO.read(file)) { "Cannot read monochrome audit capture: $file" }
+        policy.check(key, mode.tag, MonochromePaletteAudit.audit(image, mode.dark), file,
+            System.getProperty("mono.audit.report"))
+    }
 }
