@@ -1,0 +1,1 @@
+service/history/IntentHistoryItem.kt	Android Activity-stack history item (holds an Intent); iOS gets its own HistoryPlatform
