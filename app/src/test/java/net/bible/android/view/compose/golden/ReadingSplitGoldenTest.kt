@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose.golden
 
+import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -57,7 +58,7 @@ class ReadingSplitGoldenTest {
     // A distinct background color per window id makes the pane split geometry (which pane is
     // where, and how wide/tall each is relative to the others) visible in the captured PNG.
     private val pane: @Composable (String) -> Unit = { id ->
-        val color = when (id) {
+        val color = if (isPureMonochrome()) MaterialTheme.colorScheme.background else when (id) {
             "A" -> MaterialTheme.colorScheme.primaryContainer
             "B" -> MaterialTheme.colorScheme.secondaryContainer
             else -> MaterialTheme.colorScheme.surfaceVariant

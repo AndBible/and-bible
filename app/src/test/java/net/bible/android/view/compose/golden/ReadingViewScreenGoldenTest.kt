@@ -17,6 +17,7 @@
 
 package net.bible.android.view.compose.golden
 
+import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -116,7 +120,7 @@ class ReadingViewScreenGoldenTest {
     // below the toolbar row) is visible in the captured PNG, same technique as ReadingSplitGoldenTest.
     private val pane: @Composable (String) -> Unit = { id ->
         Box(
-            Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primaryContainer),
+            Modifier.fillMaxSize().background(if (isPureMonochrome()) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.primaryContainer),
             Alignment.Center,
         ) { Text(id) }
     }
@@ -414,33 +418,32 @@ class ReadingViewScreenGoldenTest {
     ) }
     }
 
-    // Empty panes expose the screen's own paint rather than a fixture's themed fill.
-    private fun seededSideNavScreen(): @Composable () -> Unit = {
-        val view = androidx.compose.ui.platform.LocalView.current
-        SideEffect {
-            androidx.core.view.ViewCompat.dispatchApplyWindowInsets(
-                view.rootView,
-                androidx.core.view.WindowInsetsCompat.Builder()
-                    .setInsets(androidx.core.view.WindowInsetsCompat.Type.navigationBars(),
-                        androidx.core.graphics.Insets.of(0, 0, 24, 0))
-                    .build(),
-            )
-        }
+    // Empty panes expose the screen's paint; the hook proves the side inset actually arrived.
+    private fun seededSideNavScreen(proof: SideNavCaptureProof): @Composable () -> Unit = {
+        proof.view = androidx.compose.ui.platform.LocalView.current
+        proof.rightInset = androidx.compose.foundation.layout.WindowInsets.navigationBars
+            .getRight(androidx.compose.ui.platform.LocalDensity.current, androidx.compose.ui.platform.LocalLayoutDirection.current)
         ReadingViewScreen(
             layout = layout,
             toolbar = toolbarState.copy(workspaceColorArgb = 0xFFFF00FF.toInt(), deriveToolbarFromTheme = false),
             toolbarIcons = icons(), toolbarCallbacks = noopCallbacks, fullScreen = false,
-            onWindowActivated = {}, onSeparatorCommitted = { _, _, _, _ -> }, pane = {},
+            onWindowActivated = {}, onSeparatorCommitted = { _, _, _, _ -> },
+            pane = {
+                Box(Modifier.fillMaxSize().onGloballyPositioned { proof.paneRight = it.boundsInWindow().right })
+            },
             edgeBackground = androidx.compose.ui.graphics.Color(0xFF00FFFF),
             paneBackground = { androidx.compose.ui.graphics.Color(0xFFFF00FF) },
         )
     }
 
+    @OptIn(com.github.takahirom.roborazzi.ExperimentalRoborazziApi::class)
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun seededSideNav_mono() {
         MONO_MODES.forEach { mode ->
-            captureGolden("ReadingViewScreen", "seededSideNav", mode, content = seededSideNavScreen())
+            val proof = SideNavCaptureProof()
+            captureGolden("ReadingViewScreen", "seededSideNav", mode,
+                captureOptions = listOf(proof), content = seededSideNavScreen(proof))
         }
     }
 
@@ -459,3 +462,29 @@ class ReadingViewScreenGoldenTest {
  * arithmetic goes stale with it.
  */
 private const val AGENT_OVERLAY_CANVAS_DP = 800
+
+/** Dispatch only once the real content root and Compose's inset listener have settled. */
+@OptIn(com.github.takahirom.roborazzi.ExperimentalRoborazziApi::class)
+private class SideNavCaptureProof : com.github.takahirom.roborazzi.RoborazziComposeCaptureOption {
+    lateinit var view: android.view.View
+    var rightInset = -1
+    var paneRight = Float.NaN
+
+    override fun beforeCapture() {
+        val looper = org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper())
+        looper.idle()
+        val root = view.rootView.findViewById<android.view.ViewGroup>(android.R.id.content)
+        androidx.core.view.ViewCompat.dispatchApplyWindowInsets(root,
+            androidx.core.view.WindowInsetsCompat.Builder()
+                .setInsets(androidx.core.view.WindowInsetsCompat.Type.navigationBars(),
+                    androidx.core.graphics.Insets.of(0, 0, 24, 0))
+                .build())
+        looper.idleFor(java.time.Duration.ofSeconds(1))
+        looper.idle()
+        org.junit.Assert.assertEquals("The golden must exercise a real right navigation inset", 24, rightInset)
+        org.junit.Assert.assertEquals("The pane must stop before the navigation band",
+            (root.width - 24).toFloat(), paneRight, 1f)
+    }
+
+    override fun afterCapture() {}
+}
