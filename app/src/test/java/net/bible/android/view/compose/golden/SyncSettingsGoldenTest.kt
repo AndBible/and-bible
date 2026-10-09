@@ -64,8 +64,11 @@ class SyncSettingsGoldenTest {
         certificateSummary: String = "",
     ) = SyncSettingsSnapshot(
         adapter = adapter,
-        adapterChoices = listOf(Choice2("GOOGLE_DRIVE", "Google Drive"), Choice2("NEXT_CLOUD", "Nextcloud")),
-        adapterSummary = "Sync keeps your data across devices. Provider: Nextcloud",
+        adapterChoices = listOf(
+            Choice2("GOOGLE_DRIVE", "Google Drive"), Choice2("NEXT_CLOUD", "Nextcloud"), Choice2("WEBDAV", "WebDAV"),
+        ).filter { adapter == "WEBDAV" || it.value != "WEBDAV" },
+        adapterSummary = "Sync keeps your data across devices. Provider: " +
+            (if (adapter == "WEBDAV") "WebDAV" else "Nextcloud"),
         adapterEnabled = !signedIn,
         cloudInfoSummary = if (signedIn) "Using 12.34 MB in the cloud" else null,
         serverUrl = serverUrl, username = username, password = password, folderPath = folderPath,

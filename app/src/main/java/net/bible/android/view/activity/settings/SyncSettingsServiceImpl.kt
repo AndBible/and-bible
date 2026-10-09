@@ -206,7 +206,9 @@ class SyncSettingsServiceImpl(
         }
     }
 
-    override fun setText(key: String, value: String): Boolean {
+    override fun setText(key: String, rawValue: String): Boolean {
+        // WebDAV addresses are often pasted with a trailing space/newline; trim before validating and storing.
+        val value = if (isWebDav && key == "cloud_sync_server_url") rawValue.trim() else rawValue
         if (key == "cloud_sync_server_url") {
             val valid = if (isWebDav) WebDavUrl.validate(value) else {
                 val isHttpOrHttps = value.startsWith("http://") || value.startsWith("https://")
