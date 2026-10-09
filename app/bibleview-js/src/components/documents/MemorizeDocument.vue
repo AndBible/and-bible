@@ -464,4 +464,13 @@ h2 {
     color: #4CAF50;
   }
 }
+
+.pureMonochrome {
+  .memorize-wrapper { transition: none; }
+  .memorize-wrapper.memorized-border { border-color: black; }
+  &.night .memorize-wrapper.memorized-border { border-color: white; }
+  .dropdown-menu { animation: none; }
+  .menu-item:hover { background: black; color: white; }
+  &.night .menu-item:hover { background: white; color: black; }
+}
 </style>

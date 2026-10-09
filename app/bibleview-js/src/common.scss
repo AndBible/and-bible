@@ -672,3 +672,51 @@ table {
     color: #d1b656;
   }
 }
+
+// Pure mode is separate from BW: never change the older monochrome substitutions.
+:root .pureMonochrome {
+  --primary-color: black;
+  --mono-ink: black;
+  --mono-paper: white;
+  --label-text-black: black;
+  &.night {
+    --primary-color: white;
+    --mono-ink: white;
+    --mono-paper: black;
+    --modal-grey: white;
+    --modal-grey-text: black;
+    --icon-grey: white;
+  }
+}
+.pureMonochrome, .pureMonochrome.night {
+  .mono-frame {
+    border: 0 solid black;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  .mono-frame-start { border-left-width: 1px; }
+  .mono-frame-end { border-right-width: 1px; }
+  &.night .mono-frame { border-color: white; }
+  .icon-button.disabled {
+    opacity: 1;
+    color: #808080;
+  }
+  .button.disabled {
+    color: #808080;
+    border-color: #808080;
+  }
+  .highlight-transition, .memorize-text, .help-button { transition: none; }
+  .isHighlighted {
+    background: transparent;
+    outline-color: var(--mono-ink);
+  }
+  .separator { border-color: var(--mono-ink); }
+  .memorize-text { background: var(--mono-paper); }
+  .memorize-word.blurred { background: var(--mono-ink); }
+  .memorization-indicator--memorized { background: var(--mono-ink); }
+  .memorization-indicator--target {
+    background: repeating-linear-gradient(to bottom, var(--mono-ink) 0px, var(--mono-ink) 3px, transparent 3px, transparent 6px);
+  }
+}

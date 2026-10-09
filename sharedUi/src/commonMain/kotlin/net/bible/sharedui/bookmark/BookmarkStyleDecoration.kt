@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.bookmark
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -47,6 +48,8 @@ import net.bible.service.common.DisplayColorMode
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedui.theme.LocalDisplayColorMode
 import net.bible.sharedui.theme.LocalIsDarkTheme
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.theme.monoInk
 
 /** The band drawn under UNDERLINE text. Odd-looking as a constant, but the underline has to read as
  *  a band rather than a hairline at every font scale, and 3dp is what the reading view's underline
@@ -64,7 +67,7 @@ private val UnderlineBandHeight = 3.dp
  * raised placement in the label's colour — rather than each call site drawing its icon slot at its
  * own full size.
  */
-data class BookmarkStyleDecoration(val textModifier: Modifier, val showsMarkerIcon: Boolean)
+data class BookmarkStyleDecoration(val textModifier: Modifier, val showsMarkerIcon: Boolean, val frame: Boolean = false)
 
 /**
  * Resolves [style] into a decoration for text painted in [colorArgb].
@@ -78,6 +81,7 @@ data class BookmarkStyleDecoration(val textModifier: Modifier, val showsMarkerIc
  * own rules (`bookmarks.ts:140`, `:164-165`, `:193-199`), so anyone changing the JS should find and
  * update this too. One deliberate deviation: the monochrome underline uses the theme's `onSurface`
  * rather than a hardcoded black/white, staying consistent with the rest of the theme.
+ * Pure monochrome replaces the highlight band with a transparent, square 1dp ink frame.
  *
  * HIDDEN and MARKER return an undecorated modifier, because that is what they look like: HIDDEN
  * draws nothing, MARKER draws the glyph instead. Their callers tell them apart — the preview by
@@ -94,7 +98,9 @@ fun bookmarkStyleDecoration(style: BookmarkDisplayStyle, colorArgb: Int): Bookma
     // LocalIsDarkTheme exists to prevent) — this mirrors the reader's nightMode flag.
     val night = LocalIsDarkTheme.current
     val labelColor = Color(colorArgb)
+    val frame = isPureMonochrome()
     val highlightFill = when {
+        frame -> Color.Transparent
         monochrome -> if (night) Color(0xFFB4B4B4) else Color(0xFFD2D2D2)   // 180 / 210 grey
         else -> labelColor.copy(alpha = if (night) 0.4f else 0.3f)          // bookmarks.ts:198
     }
@@ -104,8 +110,10 @@ fun bookmarkStyleDecoration(style: BookmarkDisplayStyle, colorArgb: Int): Bookma
     }
     return when (style) {
         BookmarkDisplayStyle.HIGHLIGHT -> BookmarkStyleDecoration(
-            Modifier.background(highlightFill, RoundedCornerShape(2.dp)).padding(horizontal = 2.dp),
+            (if (frame) Modifier.background(highlightFill).border(1.dp, monoInk(night))
+            else Modifier.background(highlightFill, RoundedCornerShape(2.dp))).padding(horizontal = 2.dp),
             showsMarkerIcon = false,
+            frame = frame,
         )
         BookmarkDisplayStyle.UNDERLINE -> BookmarkStyleDecoration(
             Modifier.drawBehind {

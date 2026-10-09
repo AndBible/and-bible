@@ -15,12 +15,13 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {useBookmarks, useGlobalBookmarks, verseHighlighting, bookmarkHighlightColor} from "@/composables/bookmarks";
-import {ref} from "vue";
+import {useBookmarks, useGlobalBookmarks, verseHighlighting, bookmarkHighlightColor, monoFrameEdges} from "@/composables/bookmarks";
+import {ref, defineComponent, h, nextTick} from "vue";
+import {mount} from "@vue/test-utils";
 import Color from "color";
 import {useConfig} from "@/composables/config";
 import {abbreviated} from "@/utils";
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 window.bibleViewDebug = {}
 
@@ -507,5 +508,155 @@ describe("color e-ink accent colors", () => {
         expect(bw).toContain(Color("black").string());
         expect(colorEink).toContain(new Color(0xFF0000).hsl().string());
         expect(colorEink).not.toContain(Color("black").string());
+    });
+});
+
+describe("pure monochrome frame edges", () => {
+    const r = (s, e, highlighted = true) => ({start: [s, null], end: [e, null], highlighted});
+    const both = {frameStart: true, frameEnd: true};
+    const neither = {frameStart: false, frameEnd: false};
+    it("single range", () => expect(monoFrameEdges([r(1, 2)])).toEqual([both]));
+    it("contiguous overlap splits", () => expect(monoFrameEdges([r(1, 2), r(2, 3), r(3, 4)])).toEqual([
+        {frameStart: true, frameEnd: false}, neither, {frameStart: false, frameEnd: true},
+    ]));
+    it("gap", () => expect(monoFrameEdges([r(1, 2), r(5, 6)])).toEqual([both, both]));
+    it("underline-only breaks a run", () => expect(monoFrameEdges([r(1, 2), r(2, 3, false), r(3, 4)])).toEqual([both, neither, both]));
+    it("empty and unhighlighted", () => {
+        expect(monoFrameEdges([])).toEqual([]);
+        expect(monoFrameEdges([r(1, 2, false)])).toEqual([neither]);
+    });
+    it("joins canonical verse boundaries but not offset gaps", () => {
+        expect(monoFrameEdges([
+            {start: [1, 2], end: [1, 4], highlighted: true},
+            {start: [1, 4], end: [1, null], highlighted: true},
+            {start: [2, 0], end: [2, 3], highlighted: true},
+            {start: [2, 4], end: [2, 5], highlighted: true},
+        ])).toEqual([{frameStart: true, frameEnd: false}, neither, {frameStart: false, frameEnd: true}, both]);
+    });
+    it("transparent MONO, unchanged BW light and dark", () => {
+        const label = {color: 0xFFFF0000};
+        const settings = {monochromeMode: true, colorEinkMode: false, nightMode: false};
+        expect(bookmarkHighlightColor(label, 1, {...settings, pureMonochromeMode: true}).alpha()).toBe(0);
+        expect(bookmarkHighlightColor(label, 1, settings).rgb().array()).toEqual([210, 210, 210]);
+        expect(bookmarkHighlightColor(label, 1, {...settings, nightMode: true}).rgb().array()).toEqual([180, 180, 180]);
+    });
+});
+
+describe("pure monochrome bookmark DOM", () => {
+    let wrapper, gb, appSettings, config;
+    const bookmark = (id, ordinalRange, offsetRange = null) => ({
+        id, ordinalRange, offsetRange, labels: [1], bookInitials: "KJV", notes: null,
+        wholeVerse: false, type: "bookmark", editAction: {},
+    });
+    beforeEach(async () => {
+        wrapper = mount(defineComponent({setup() {
+            ({config, appSettings} = useConfig());
+            Object.assign(appSettings, {pureMonochromeMode: true, monochromeMode: true, colorEinkMode: false});
+            gb = useGlobalBookmarks(config, ref("bible"));
+            useBookmarks("mono", [1, 3], gb, "KJV", null, true, ref(true), {adjustedColor: c => Color(c)}, config, appSettings);
+            return () => h("div", {id: "doc-mono"}, [1, 2, 3].map(ord => h("span", {id: `o-${ord}`}, ["abc", h("em", "def"), "ghi"])));
+        }}), {attachTo: document.body});
+        gb.updateBookmarkLabels([{id: 1, color: 0xFFFF0000, displayStyle: "HIGHLIGHT", displayStyleWholeVerse: "HIGHLIGHT"}]);
+        await nextTick();
+    });
+    afterEach(() => {
+        window.bibleViewDebug.removeHighLights();
+        wrapper.unmount();
+    });
+    const frames = () => document.querySelectorAll("#doc-mono .mono-frame");
+    const outerEdges = () => {
+        expect(document.querySelectorAll("#doc-mono .mono-frame-start")).toHaveLength(1);
+        expect(document.querySelectorAll("#doc-mono .mono-frame-end")).toHaveLength(1);
+    };
+    it("whole-verse overlap has one frame and cleans up", async () => {
+        gb.updateBookmarks([bookmark(1, [1, 2]), bookmark(2, [2, 3])]);
+        await nextTick();
+        expect(frames()).toHaveLength(3);
+        outerEdges();
+        frames().forEach(e => expect(e.style.backgroundImage).toBe(""));
+        window.bibleViewDebug.removeHighLights();
+        expect(frames()).toHaveLength(0);
+        expect(document.querySelectorAll("#doc-mono .bookmarked, #doc-mono .mono-frame-start, #doc-mono .mono-frame-end")).toHaveLength(0);
+    });
+    it("partial overlap preserves nested text, offsets and only outer edges", async () => {
+        gb.updateBookmarks([bookmark(1, [1, 3], [2, 7]), bookmark(2, [1, 2], [4, 5])]);
+        await nextTick();
+        outerEdges();
+        expect(document.querySelector(".mono-frame-start").textContent).toBe("c");
+        expect(document.querySelector(".mono-frame-end").textContent).toBe("g");
+        expect(wrapper.text()).toBe("abcdefghi".repeat(3));
+        window.bibleViewDebug.removeHighLights();
+        expect(frames()).toHaveLength(0);
+        expect(wrapper.text()).toBe("abcdefghi".repeat(3));
+        expect(wrapper.findAll("em")).toHaveLength(3);
+    });
+    it("switches MONO to BW to NORMAL and back", async () => {
+        gb.updateBookmarks([bookmark(1, [1, 3])]);
+        await nextTick();
+        outerEdges();
+        appSettings.pureMonochromeMode = false;
+        await nextTick();
+        expect(frames()).toHaveLength(0);
+        const bw = document.querySelector("#o-1").style.backgroundImage;
+        expect(bw).toContain("linear-gradient");
+        appSettings.monochromeMode = false;
+        await nextTick();
+        expect(document.querySelector("#o-1").style.backgroundImage).not.toBe(bw);
+        Object.assign(appSettings, {monochromeMode: true, pureMonochromeMode: true});
+        await nextTick();
+        outerEdges();
+        expect(document.querySelector("#o-1").style.backgroundImage).toBe("");
+    });
+    it.each(["UNDERLINE", "HIDDEN", "MARKER", "SPEAK"])("%s does not create frames", async style => {
+        gb.updateBookmarkLabels([{id: 1, color: 0xFFFF0000, isSpeak: style === "SPEAK",
+            displayStyle: style === "SPEAK" ? "HIGHLIGHT" : style,
+            displayStyleWholeVerse: style === "SPEAK" ? "HIGHLIGHT" : style}]);
+        gb.updateBookmarks([bookmark(1, [1, 3])]);
+        await nextTick();
+        expect(frames()).toHaveLength(0);
+        if (style === "UNDERLINE") expect(document.querySelector("#o-1").style.backgroundImage).toContain("linear-gradient");
+    });
+    it("underline-only verse separates two highlight frames", async () => {
+        gb.updateBookmarkLabels([{id: 2, color: 0xFF00FF00, displayStyle: "UNDERLINE", displayStyleWholeVerse: "UNDERLINE"}]);
+        gb.updateBookmarks([bookmark(1, [1, 1]), {...bookmark(2, [2, 2]), labels: [2]}, bookmark(3, [3, 3])]);
+        await nextTick();
+        expect(frames()).toHaveLength(2);
+        expect(document.querySelectorAll("#doc-mono .mono-frame-start")).toHaveLength(2);
+        expect(document.querySelectorAll("#doc-mono .mono-frame-end")).toHaveLength(2);
+        expect(document.querySelector("#o-2").style.backgroundImage).toContain("linear-gradient");
+    });
+    it("hidden and speak overlap splits do not add internal frame edges", async () => {
+        gb.updateBookmarkLabels([
+            {id: 2, color: 0xFF00FF00, displayStyle: "HIDDEN", displayStyleWholeVerse: "HIDDEN"},
+            {id: 3, color: 0xFF0000FF, isSpeak: true, displayStyle: "HIGHLIGHT", displayStyleWholeVerse: "HIGHLIGHT"},
+        ]);
+        gb.updateBookmarks([bookmark(1, [1, 3]), {...bookmark(2, [2, 2]), labels: [2]}, {...bookmark(3, [2, 2]), labels: [3]}]);
+        await nextTick();
+        expect(frames()).toHaveLength(3);
+        outerEdges();
+    });
+    it("highlight and underline overlap keeps the ink underline and the frame", async () => {
+        gb.updateBookmarkLabels([{id: 2, color: 0xFF00FF00, displayStyle: "UNDERLINE", displayStyleWholeVerse: "UNDERLINE"}]);
+        gb.updateBookmarks([bookmark(1, [1, 3]), {...bookmark(2, [2, 2]), labels: [2]}]);
+        await nextTick();
+        outerEdges();
+        expect(frames()).toHaveLength(3);
+        const light = document.querySelector("#o-2").style.backgroundImage;
+        expect(light).toContain("rgb(0, 0, 0)");
+        appSettings.nightMode = true;
+        await nextTick();
+        expect(document.querySelector("#o-2").style.backgroundImage).toContain("rgb(255, 255, 255)");
+        expect(document.querySelector("#o-1").style.backgroundImage).toBe("");
+        outerEdges();
+    });
+    it("hidden labels and disabled bookmarks suppress frames", async () => {
+        config.bookmarksHideLabels = [1];
+        gb.updateBookmarks([bookmark(1, [1, 3])]);
+        await nextTick();
+        expect(frames()).toHaveLength(0);
+        config.bookmarksHideLabels = [];
+        config.showBookmarks = false;
+        await nextTick();
+        expect(frames()).toHaveLength(0);
     });
 });

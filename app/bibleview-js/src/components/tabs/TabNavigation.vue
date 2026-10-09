@@ -240,4 +240,9 @@ function handleTabClick(tabId: string) {
 .tab-label {
   white-space: nowrap;
 }
+
+.pureMonochrome .tab-button, .pureMonochrome.night .tab-button {
+  transition: none;
+  &:disabled, &.disabled { color: #808080; opacity: 1; }
+}
 </style>

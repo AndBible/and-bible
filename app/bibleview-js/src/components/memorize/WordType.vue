@@ -649,4 +649,20 @@ onBeforeUnmount(() => {
   70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
   100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
 }
+
+.pureMonochrome .type-word, .pureMonochrome.night .type-word {
+  transition: none;
+  &.type-unreached, &.type-current {
+    &.visibility-light, &.visibility-dim { color: #808080; }
+  }
+  &.type-incorrect { animation: none; }
+  // Error frequency stays visible by stroke width, not a forbidden grey wash.
+  &.heatmap-1, &.heatmap-2, &.heatmap-3 {
+    background-color: transparent;
+    border-bottom: solid var(--mono-ink);
+  }
+  &.heatmap-1 { border-bottom-width: 1px; }
+  &.heatmap-2 { border-bottom-width: 2px; }
+  &.heatmap-3 { border-bottom-width: 3px; }
+}
 </style>
