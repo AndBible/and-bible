@@ -22,7 +22,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import net.bible.android.control.bookmark.BookmarkJsActions
+import net.bible.android.control.buildCoreModule
 import net.bible.android.control.coreModule
+import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.page.window.WindowControl
+import kotlinx.coroutines.Job
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertSame
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.link.LinkPlatform
 import net.bible.android.control.progress.ProgressJsActions
@@ -90,26 +96,44 @@ class AndroidPlatformSeamsTest {
     /**
      * CoreModuleVerifyTest checks constructors only, and its extraTypes (CoroutineScope, Function0, ...) let lambda
      * and scope parameters through unchecked. This actually BUILDS every definition L1a added or rewired, so a
-     * definition whose factory throws (a wrong get<>(), a missing binding) fails here. It resolves into an isolated
-     * Koin application (closed afterwards), so the suite's global Koin gains no singletons it did not have.
+     * definition whose factory throws (a wrong get<>(), a missing binding) fails here.
+     *
+     * It resolves into an isolated Koin application built from its OWN [buildCoreModule] instance, never the shared
+     * [coreModule] value: a Koin `Module` holds its definitions' instance factories, and with them the cached
+     * singletons, so a second application loading the same `Module` object shares the global one's singletons.
+     * Resolving there handed this test's objects to the global Koin, and `close()` dropped every global coreModule
+     * singleton, so later tests got a new WindowControl while `by inject()` holders kept the old one. The last
+     * assert guards that: the suite's global singletons are the same objects afterwards.
      */
     @Test fun koinBuildsEveryDefinitionL1aAdded() {
+        val types = listOf(
+            OrderedLauncher::class, BookInstallWatcher::class, ProgressJsActions::class, BookmarkJsActions::class,
+            DocumentControl::class, ReadingPlanTextFileDao::class, ReadingPlanRepository::class,
+            ReadingPlanSource::class, HistoryPlatform::class, LinkPlatform::class, DocumentSyncStarter::class,
+            AppSettings::class, AppCoroutineScope::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class,
+        )
+        val global = GlobalContext.get()
+        val globalBefore = (types + listOf(WindowControl::class, BookmarkControl::class)).associateWith { global.get<Any>(it) }
         val app = koinApplication {
             androidContext(ApplicationProvider.getApplicationContext())
-            modules(coreModule)
+            modules(buildCoreModule())
         }
         try {
-            listOf(
-                OrderedLauncher::class, BookInstallWatcher::class, ProgressJsActions::class, BookmarkJsActions::class,
-                DocumentControl::class, ReadingPlanTextFileDao::class, ReadingPlanRepository::class,
-                ReadingPlanSource::class, HistoryPlatform::class, LinkPlatform::class, DocumentSyncStarter::class,
-                AppSettings::class, AppCoroutineScope::class, UserNotifier::class, CoreStrings::class, DateTimeFormats::class,
-            ).forEach { type ->
+            types.forEach { type ->
                 val instance: Any = app.koin.get(type, null, null) // throws (with the cause) if the factory fails
                 assertTrue("${type.simpleName} resolved to ${instance::class}", type.isInstance(instance))
+                // AppSettings is bound to the process-wide CommonUtils.settings, so only it may be the same object
+                if (type != AppSettings::class) {
+                    assertNotSame("${type.simpleName} must be built by the isolated application", globalBefore[type], instance)
+                }
             }
         } finally {
+            // the isolated app's own scope: cancel it so nothing it launched outlives this test
+            app.koin.getOrNull<AppCoroutineScope>()?.coroutineContext?.get(Job)?.cancel()
             app.close()
+        }
+        globalBefore.forEach { (type, before) ->
+            assertSame("the global ${type.simpleName} singleton must survive the isolated app", before, global.get<Any>(type))
         }
     }
 }
