@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity
 
+import net.bible.service.db.blockingDb
 import android.app.Activity
 import android.content.Intent
 import androidx.annotation.DrawableRes
@@ -59,7 +60,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
 
     // A host restored on WELCOME after process death never ran StartupActivity's DB open (fix batch 1 §2.6).
     private val docsDao get() = DatabaseContainer.openForUse().repoDb.swordDocumentInfoDao()
-    private val previousInstallDetected: Boolean get() = docsDao.getKnownInstalled().isNotEmpty()
+    private val previousInstallDetected: Boolean get() = blockingDb { docsDao.getKnownInstalled() }.isNotEmpty()
 
     private val controllerLazy = lazy { StartupWelcomeController(::loadInfo) }
 
@@ -151,7 +152,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
     }
 
     private fun onRedownload() {
-        redownloadBooks = docsDao.getKnownInstalled().sortedBy { it.language }
+        redownloadBooks = blockingDb { docsDao.getKnownInstalled() }.sortedBy { it.language }
     }
 
     private fun launchRedownload(books: List<SwordDocumentInfo>) =

@@ -20,6 +20,7 @@ package net.bible.service.common
 import androidx.annotation.VisibleForTesting
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.blockingDb
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.GlobalAiSettings
 import net.bible.service.llm.agent.PermissionMode
@@ -55,10 +56,13 @@ object AiSettings {
 
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao()
 
-    private fun getOrDefault(): GlobalAiSettings = dao.get() ?: GlobalAiSettings()
+    // Each property access is one bridge (a read, or a read-modify-write in a single bridge); callers are
+    // property accessors on arbitrary threads, so they stay blocking until their callers are coroutines.
+    private fun getOrDefault(): GlobalAiSettings = dao.let { d -> blockingDb { d.get() ?: GlobalAiSettings() } }
 
     private fun update(transform: GlobalAiSettings.() -> GlobalAiSettings) {
-        dao.set(getOrDefault().transform())
+        val d = dao // resolved before the bridge: first access may construct the container (which bridges itself)
+        blockingDb { d.set((d.get() ?: GlobalAiSettings()).transform()) }
     }
 
     var agentPermissionMode: PermissionMode

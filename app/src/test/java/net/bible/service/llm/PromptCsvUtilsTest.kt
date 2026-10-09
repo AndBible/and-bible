@@ -50,7 +50,7 @@ class PromptCsvUtilsTest {
 
     @After
     fun tearDown() {
-        dao.allPrompts().forEach { dao.delete(it) }
+        runBlocking { dao.allPrompts().forEach { dao.delete(it) } }
         resetDatabase()
     }
 
@@ -588,7 +588,7 @@ class PromptCsvUtilsTest {
         val imported = dao.allPrompts()[0]
         assertNull(imported.description)
         assertNull(imported.permissionMode)
-        // Note: Room's TypeConverter converts null Set<String>? to empty set on read,
+        // Note: Room's ColumnTypeConverter converts null Set<String>? to empty set on read,
         // so after DB round-trip these are empty sets rather than null.
         assertTrue(imported.allowedTools.isNullOrEmpty())
         assertTrue(imported.deniedTools.isNullOrEmpty())
@@ -720,7 +720,7 @@ class PromptCsvUtilsTest {
         assertTrue(prompts[1].showIn.contains(PromptContext.TEXT_SELECTION))
 
         // Verify no DB side effects
-        assertThat(dao.allPrompts().size, equalTo(0))
+        assertThat(runBlocking { dao.allPrompts() }.size, equalTo(0))
     }
 
     @Test
@@ -752,7 +752,7 @@ class PromptCsvUtilsTest {
 
         // No category should have been created in DB
         val categoryDao = DatabaseContainer.instance.aiSettingsDb.promptCategoryDao()
-        assertThat(categoryDao.all().size, equalTo(0))
+        assertThat(runBlocking { categoryDao.all() }.size, equalTo(0))
     }
 
     @Test

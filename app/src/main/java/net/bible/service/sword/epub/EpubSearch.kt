@@ -17,67 +17,61 @@
 
 package net.bible.service.sword.epub
 
-import android.content.ContentValues
-import android.database.sqlite.SQLiteCantOpenDatabaseException
 import android.util.Log
-import io.requery.android.database.sqlite.SQLiteDatabase
-import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
-import net.bible.android.BibleApplication.Companion.application
+import androidx.sqlite.SQLiteException
+import net.bible.service.db.exec
+import net.bible.service.db.insertOr
+import net.bible.service.db.openSqlite
+import net.bible.service.db.queryFirst
+import net.bible.service.db.queryRows
 import java.io.File
 
 
 data class EpubSearchResult(val fragId: Long, val ordinal: Int, val text: String)
 
 class EpubSearch(val file: File) {
-    // The requery SQLite driver is excluded from the unit-test classpath (see app/build.gradle.kts),
-    // so skip opening the search database under tests — mirrors the dbFactory guard in EpubBook.kt.
-    private val db = if (application.isRunningTests) null else try {
-        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE or SQLiteDatabase.CREATE_IF_NECESSARY)
-    } catch (e: SQLiteCantOpenDatabaseException) {
+    // Every use of the connection holds the lock: a bundled-driver connection is not safe for concurrent
+    // use (the old framework-style database was), and the index is built on a bare thread while the UI may query it.
+    private val db = try {
+        openSqlite(file.path)
+    } catch (e: SQLiteException) {
         Log.e("EpubSearch", "Could not open database ${file.path}")
         null
     }
-    val isIndexed: Boolean get() = db?.run {
-        !query("SELECT name FROM sqlite_master WHERE type='table' AND name=?", arrayOf("SearchIndex")).isAfterLast
-    }?: false
+    val isIndexed: Boolean get() = db?.let { c ->
+        synchronized(c) {
+            c.queryFirst("SELECT name FROM sqlite_master WHERE type='table' AND name=?", "SearchIndex") { true } ?: false
+        }
+    } ?: false
 
-    fun deleteIndex() = db?.run {
-        execSQL("""DROP TABLE IF EXISTS SearchIndex""")
+    fun deleteIndex() = db?.let { c ->
+        synchronized(c) { c.exec("""DROP TABLE IF EXISTS SearchIndex""") }
     }
 
-    fun createTable() = db?.run {
-        execSQL("""
-            CREATE VIRTUAL TABLE SearchIndex USING FTS5(contentText, frag_id UNINDEXED, ordinal UNINDEXED);
-        """.trimIndent())
+    fun createTable() = db?.let { c ->
+        synchronized(c) {
+            c.exec("""
+                CREATE VIRTUAL TABLE SearchIndex USING FTS5(contentText, frag_id UNINDEXED, ordinal UNINDEXED);
+            """.trimIndent())
+        }
     }
 
-    fun addContent(content: String, fragId:Long, ordinal: Int) = db?.run {
-        insert("SearchIndex", CONFLICT_IGNORE, ContentValues().apply {
-            put("contentText", content)
-            put("frag_id", fragId)
-            put("ordinal", ordinal)
-        })
+    fun addContent(content: String, fragId:Long, ordinal: Int) = db?.let { c ->
+        synchronized(c) {
+            c.insertOr("IGNORE", "SearchIndex", "contentText" to content, "frag_id" to fragId, "ordinal" to ordinal)
+        }
     }
 
-    fun search(text: String): List<EpubSearchResult> = db?.run {
+    fun search(text: String): List<EpubSearchResult> = db?.let { c ->
         // `snippet` (not `highlight`): highlight() returns the WHOLE indexed block, so one hit used
         // to render as a screenful of text. 30 tokens around the best-matching window, with FTS5's
         // own ellipsis marker, is what a result row should show. No schema change, no re-index.
-        query(
-            "SELECT frag_id, ordinal, snippet(SearchIndex, 0, '<b>', '</b>', '…', 30) " +
-                "FROM SearchIndex WHERE contentText MATCH ?",
-            bindArgs = arrayOf(text),
-        ).let { c ->
-            c.moveToFirst()
-            val list = mutableListOf<EpubSearchResult>()
-            while (!c.isAfterLast){
-                val fragId = c.getString(0).toLong()
-                val ordinal = c.getString(1).toInt()
-                val txt = c.getString(2)
-                c.moveToNext()
-                list.add(EpubSearchResult(fragId, ordinal, txt))
-            }
-            list
+        synchronized(c) {
+            c.queryRows(
+                "SELECT frag_id, ordinal, snippet(SearchIndex, 0, '<b>', '</b>', '…', 30) " +
+                    "FROM SearchIndex WHERE contentText MATCH ?",
+                text,
+            ) { EpubSearchResult(it.getLong(0), it.getInt(1), it.getText(2)) }
         }
-    }?: emptyList()
+    } ?: emptyList()
 }

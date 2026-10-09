@@ -17,7 +17,8 @@
 
 package net.bible.android.database.migrations
 
-import androidx.room.migration.Migration
+import androidx.sqlite.execSQL
+import androidx.room3.migration.Migration
 
 private val addMemorizationTarget = makeMigration(1..2) { db ->
     db.execSQL("""

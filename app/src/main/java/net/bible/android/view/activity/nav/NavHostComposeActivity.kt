@@ -501,6 +501,7 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.jdom2.Element
 import org.koin.android.ext.android.inject
+import net.bible.service.db.blockingDb
 
 /**
  * The single Android host for the Compose navigation graph. Screens migrated off their own
@@ -4580,7 +4581,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val workspaceOverride = if (!workspaceContext) null else {
             val workspaceId = windowControl.windowRepository.id
             val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-            val existingOverrides = if (!isNew) workspaceDao.labelOverrides(workspaceId) else emptyList()
+            val existingOverrides = if (!isNew) blockingDb { workspaceDao.labelOverrides(workspaceId) } else emptyList()
             existingOverrides.find { it.labelId == label.id } ?: WorkspaceEntities.WorkspaceLabelOverride(
                 workspaceId = workspaceId,
                 labelId = label.id,
@@ -4664,10 +4665,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val returnedOverride = newLabelData.workspaceOverride
             if (returnedOverride != null) {
                 val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-                if (returnedOverride.hasOverride) {
-                    dao.insertOrUpdateLabelOverride(returnedOverride)
-                } else {
-                    dao.deleteLabelOverride(returnedOverride.workspaceId, returnedOverride.labelId)
+                blockingDb {
+                    if (returnedOverride.hasOverride) {
+                        dao.insertOrUpdateLabelOverride(returnedOverride)
+                    } else {
+                        dao.deleteLabelOverride(returnedOverride.workspaceId, returnedOverride.labelId)
+                    }
                 }
                 bookmarkControl.notifyLabelChanged(updatedLabel)
                 controller.refresh() // re-derive the override (Tune icon) indicator immediately
@@ -5666,7 +5669,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 contentType = contentType,
                 orderNumber = controller.totalCount.value,
             )
-            myDocumentDao.insertPageWithContent(page, content)
+            blockingDb { myDocumentDao.insertPageWithContent(page, content) }
             val id = nextLongId()
             myDocumentPagesEntityByLong = myDocumentPagesEntityByLong + (id to page)
             val ct = if (contentType == MyDocumentContentType.HTML) ContentType.HTML else ContentType.MARKDOWN
@@ -5677,8 +5680,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         /** Mirror of classic `applyChanges`: delete removed pages, persist reorders/renames, always
          *  refresh the SWORD book, and post `MyDocumentChange.AiDocPages` for the deletions. */
         fun applyChanges(ordered: List<MyDocPageItem>, changed: Set<Long>, deleted: Set<Long>) {
-            deleted.mapNotNull { myDocumentPagesEntityByLong[it] }.forEach { p ->
-                myDocumentDao.pageById(p.id)?.let { myDocumentDao.deletePageWithContent(it) }
+            val removedPages = deleted.mapNotNull { myDocumentPagesEntityByLong[it] }
+            blockingDb {
+                removedPages.forEach { p ->
+                    myDocumentDao.pageById(p.id)?.let { myDocumentDao.deletePageWithContent(it) }
+                }
             }
             val toUpdate = ArrayList<MyDocumentPage>()
             ordered.forEachIndexed { index, item ->
@@ -5687,7 +5693,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 p.title = item.name
                 if (item.id in changed) { p.updatedAt = System.currentTimeMillis(); toUpdate.add(p) }
             }
-            if (toUpdate.isNotEmpty()) myDocumentDao.updatePages(toUpdate)
+            if (toUpdate.isNotEmpty()) blockingDb { myDocumentDao.updatePages(toUpdate) }
             // Classic always refreshes: new pages are inserted directly to the DB in
             // addPageToList() without going through `changed`, so the SWORD book would otherwise be
             // stale.
@@ -5902,15 +5908,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
          *  removed documents (and their pages, CASCADE), persist reorders/renames/descriptions, and
          *  post `MyDocumentChange.AiDocPages` for the deletions. */
         fun applyMyDocumentsChanges(ordered: List<MyDocItem>, changed: Set<Long>, deleted: Set<Long>) {
-            val deletedPageIds = deleted.mapNotNull { session.entityByLong[it] }.flatMap { doc ->
-                myDocumentDao.pagesForDocument(doc.id).map { it.id }
+            val removedDocs = deleted.mapNotNull { session.entityByLong[it] }
+            val deletedPageIds = blockingDb {
+                removedDocs.flatMap { doc -> myDocumentDao.pagesForDocument(doc.id).map { it.id } }
             }
-            deleted.mapNotNull { session.entityByLong[it] }.forEach { doc ->
-                myDocumentDao.documentById(doc.id)?.let { fresh ->
-                    MyDocumentBookManager.unregisterDocument(fresh.initials)
-                    myDocumentDao.delete(fresh)
-                }
-            }
+            // MyDocumentBookManager bridges by itself, so it is called outside the DAO bridges.
+            val freshDocs = blockingDb { removedDocs.mapNotNull { myDocumentDao.documentById(it.id) } }
+            freshDocs.forEach { MyDocumentBookManager.unregisterDocument(it.initials) }
+            blockingDb { freshDocs.forEach { myDocumentDao.delete(it) } }
             val toUpdate = ArrayList<MyDocument>()
             ordered.forEachIndexed { index, item ->
                 val doc = session.entityByLong[item.id] ?: return@forEachIndexed
@@ -5919,7 +5924,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 doc.description = item.description.ifEmpty { null }
                 if (item.id in changed) { doc.updatedAt = System.currentTimeMillis(); toUpdate.add(doc) }
             }
-            if (toUpdate.isNotEmpty()) myDocumentDao.updateDocuments(toUpdate)
+            if (toUpdate.isNotEmpty()) blockingDb { myDocumentDao.updateDocuments(toUpdate) }
             if (deletedPageIds.isNotEmpty()) MyDocumentBookManager.notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = deletedPageIds))
         }
 
@@ -5962,7 +5967,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun createMyDocument(session: MyDocumentsSession, name: String) {
         val initials = MyDocumentBookManager.generateInitials(name)
         val newDoc = MyDocument(name = name, initials = initials, orderNumber = session.controller.totalCount.value)
-        myDocumentDao.insert(newDoc)
+        blockingDb { myDocumentDao.insert(newDoc) }
         MyDocumentBookManager.registerDocument(newDoc)
         val id = (session.entityByLong.keys.maxOrNull() ?: -1L) + 1L
         session.entityByLong = session.entityByLong + (id to newDoc)
@@ -7841,7 +7846,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             !documentToDownload.isPseudoBook
         ) {
             if (documentToDownload.isInstalled && DatabaseContainer.ready &&
-                downloadBookmarksDao.genericBookmarkCountFor(documentToDownload) > 0
+                blockingDb { downloadBookmarksDao.genericBookmarkCountFor(documentToDownload) } > 0
             ) {
                 lifecycleScope.launch {
                     if (CommonUtils.documentUpgradeConfirmation(this@NavHostComposeActivity)) {

@@ -164,6 +164,7 @@ import kotlin.math.min
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.GlobalContext
+import net.bible.service.db.blockingDb
 
 const val MAX_DOC_STR_LENGTH = 4000000;
 private val notFound = WebResourceResponse(null, null, null)
@@ -1123,7 +1124,7 @@ class BibleView(
             is BookmarkChange.LabelUpserted -> {
                 val workspaceId = windowControl.windowRepository.id
                 val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-                labelOverridesMap = dao.labelOverrides(workspaceId).associateBy { it.labelId }
+                labelOverridesMap = blockingDb { dao.labelOverrides(workspaceId) }.associateBy { it.labelId }
                 val overriddenLabel = change.label.withStyleOverrides(labelOverridesMap[change.label.id])
                 val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(overriddenLabel))
                 executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")

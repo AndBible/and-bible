@@ -20,6 +20,7 @@ package net.bible.service.llm
 import net.bible.android.database.IdType
 import net.bible.service.common.AiSettings
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.blockingDb
 
 enum class ApiFormat { OPENAI, ANTHROPIC }
 
@@ -148,7 +149,7 @@ data class LlmModelConfig(
      * Resolve the configured model. Falls back to the global default.
      * Returns null if the model was deleted or no default is configured.
      */
-    fun resolveConfiguredModel(): LlmConfiguredModel? {
+    suspend fun resolveConfiguredModel(): LlmConfiguredModel? {
         if (configuredModelId != null) {
             modelDao.getById(configuredModelId)?.let { return it }
             // Model was deleted → fall back to global default
@@ -158,7 +159,7 @@ data class LlmModelConfig(
     }
 
     /** Resolve the provider config via the configured model. */
-    fun resolveProviderConfig(): LlmProviderConfig? {
+    suspend fun resolveProviderConfig(): LlmProviderConfig? {
         val model = resolveConfiguredModel() ?: return null
         return providerDao.getById(model.providerConfigId)
     }

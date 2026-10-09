@@ -56,5 +56,5 @@ interface CloudAdapter {
     suspend fun delete(id: String)
     suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean
     suspend fun makeSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String)
-    fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration>
+    suspend fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration>
 }

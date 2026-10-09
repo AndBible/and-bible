@@ -17,21 +17,21 @@
 
 package net.bible.android.database
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Update
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.Transaction
+import androidx.room3.Update
 
 @Dao
 interface WorkspaceDao {
-    @Insert fun insertWorkspace(workspace: WorkspaceEntities.Workspace)
+    @Insert suspend fun insertWorkspace(workspace: WorkspaceEntities.Workspace)
 
-    @Update fun updateWorkspace(workspace: WorkspaceEntities.Workspace)
+    @Update suspend fun updateWorkspace(workspace: WorkspaceEntities.Workspace)
 
     @Transaction
-    fun cloneWorkspace(workspaceId: IdType, newName: String): WorkspaceEntities.Workspace {
+    suspend fun cloneWorkspace(workspaceId: IdType, newName: String): WorkspaceEntities.Workspace {
         val oldWorkspace = workspace(workspaceId)
             ?: return WorkspaceEntities.Workspace(newName).apply {
                 insertWorkspace(this)
@@ -64,55 +64,55 @@ interface WorkspaceDao {
 
         return newWorkspace
     }
-    @Insert fun insertPageManager(pageManager: WorkspaceEntities.PageManager)
+    @Insert suspend fun insertPageManager(pageManager: WorkspaceEntities.PageManager)
 
-    @Insert fun insertWindow(window: WorkspaceEntities.Window)
+    @Insert suspend fun insertWindow(window: WorkspaceEntities.Window)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE) fun insertHistoryItems(historyItems: List<WorkspaceEntities.HistoryItem>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE) suspend fun insertHistoryItems(historyItems: List<WorkspaceEntities.HistoryItem>)
 
-    @Update fun updateWindows(windows: List<WorkspaceEntities.Window>)
+    @Update suspend fun updateWindows(windows: List<WorkspaceEntities.Window>)
 
     @Update
-    fun updatePageManagers(pageManagers: List<WorkspaceEntities.PageManager>)
+    suspend fun updatePageManagers(pageManagers: List<WorkspaceEntities.PageManager>)
 
     @Query("DELETE FROM Workspace WHERE id = :workspaceId")
-    fun deleteWorkspace(workspaceId: IdType)
+    suspend fun deleteWorkspace(workspaceId: IdType)
 
     @Query("DELETE from Window WHERE id = :windowId")
-    fun deleteWindow(windowId: IdType)
+    suspend fun deleteWindow(windowId: IdType)
 
     @Query("DELETE from HistoryItem WHERE windowId = :windowId")
-    fun deleteHistoryItems(windowId: IdType)
+    suspend fun deleteHistoryItems(windowId: IdType)
 
     @Query("SELECT * from Window")
-    fun allWindows(): List<WorkspaceEntities.Window>
+    suspend fun allWindows(): List<WorkspaceEntities.Window>
 
     @Query("SELECT * from Workspace WHERE id = :workspaceId")
-    fun workspace(workspaceId: IdType): WorkspaceEntities.Workspace?
+    suspend fun workspace(workspaceId: IdType): WorkspaceEntities.Workspace?
 
     @Query("SELECT * from Workspace LIMIT 1")
-    fun firstWorkspace(): WorkspaceEntities.Workspace?
+    suspend fun firstWorkspace(): WorkspaceEntities.Workspace?
 
     @Query("SELECT * from Workspace ORDER BY orderNumber, name")
-    fun allWorkspaces(): List<WorkspaceEntities.Workspace>
+    suspend fun allWorkspaces(): List<WorkspaceEntities.Workspace>
 
     @Query("SELECT * from Window WHERE workspaceId = :workspaceId ORDER BY orderNumber ")
-    fun windows(workspaceId: IdType): List<WorkspaceEntities.Window>
+    suspend fun windows(workspaceId: IdType): List<WorkspaceEntities.Window>
 
     @Query("SELECT * from PageManager WHERE windowId = :windowId")
-    fun pageManager(windowId: IdType): WorkspaceEntities.PageManager?
+    suspend fun pageManager(windowId: IdType): WorkspaceEntities.PageManager?
 
     @Query("SELECT * from HistoryItem WHERE windowId = :windowId ORDER BY createdAt")
-    fun historyItems(windowId: IdType): List<WorkspaceEntities.HistoryItem>
+    suspend fun historyItems(windowId: IdType): List<WorkspaceEntities.HistoryItem>
 
     @Transaction
-    fun updateHistoryItems(windowId: IdType, entities: List<WorkspaceEntities.HistoryItem>) {
+    suspend fun updateHistoryItems(windowId: IdType, entities: List<WorkspaceEntities.HistoryItem>) {
         deleteHistoryItems(windowId)
         insertHistoryItems(entities)
     }
 
     @Transaction
-    fun applyTextToDisplaySettingsToAllWorkspaces(displaySettings: WorkspaceEntities.TextDisplaySettings) {
+    suspend fun applyTextToDisplaySettingsToAllWorkspaces(displaySettings: WorkspaceEntities.TextDisplaySettings) {
         for(w in allWorkspaces()) {
             w.textDisplaySettings = displaySettings
             updateWorkspace(w)
@@ -120,29 +120,29 @@ interface WorkspaceDao {
     }
 
     @Query("SELECT count() from Workspace")
-    fun workspacesCount(): Int
+    suspend fun workspacesCount(): Int
 
     @Update
-    fun updateWorkspaces(items: List<WorkspaceEntities.Workspace>)
+    suspend fun updateWorkspaces(items: List<WorkspaceEntities.Workspace>)
 
     @Query("SELECT * FROM WorkspaceLabelOverride WHERE workspaceId = :workspaceId")
-    fun labelOverrides(workspaceId: IdType): List<WorkspaceEntities.WorkspaceLabelOverride>
+    suspend fun labelOverrides(workspaceId: IdType): List<WorkspaceEntities.WorkspaceLabelOverride>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOrUpdateLabelOverride(override: WorkspaceEntities.WorkspaceLabelOverride)
+    suspend fun insertOrUpdateLabelOverride(override: WorkspaceEntities.WorkspaceLabelOverride)
 
     @Query("DELETE FROM WorkspaceLabelOverride WHERE workspaceId = :workspaceId AND labelId = :labelId")
-    fun deleteLabelOverride(workspaceId: IdType, labelId: IdType)
+    suspend fun deleteLabelOverride(workspaceId: IdType, labelId: IdType)
 
     @Query("DELETE FROM WorkspaceLabelOverride WHERE labelId = :labelId")
-    fun deleteOverridesByLabelId(labelId: IdType)
+    suspend fun deleteOverridesByLabelId(labelId: IdType)
 }
 
 @Dao
 interface GlobalTextDisplaySettingsDao {
     @Query("SELECT * FROM GlobalTextDisplaySettings LIMIT 1")
-    fun get(): GlobalTextDisplaySettings?
+    suspend fun get(): GlobalTextDisplaySettings?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun set(settings: GlobalTextDisplaySettings)
+    suspend fun set(settings: GlobalTextDisplaySettings)
 }

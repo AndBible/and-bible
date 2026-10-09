@@ -229,7 +229,10 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         if(!initialized) {
             requestSdcardPermission()
             ErrorReportControl.checkCrash(host)
-            if(!CommonUtils.checkPoorTranslations(host)) exitProcess(2)
+            if(!CommonUtils.checkPoorTranslations(host)) {
+                DatabaseContainer.flushSettingsBeforeExit()
+                exitProcess(2)
+            }
             showBetaNotice()
             showStableNotice()
             showNewSyncTargetsNotice()
@@ -248,7 +251,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
      * Backup database is used to allow user to quickly reinstall all
      * available books if moving to a new device.
      */
-    private fun checkDocBackupDBInSync() {
+    private suspend fun checkDocBackupDBInSync() {
         val docs = SwordDocumentFacade.documents
         val knownInstalled = docDao.getKnownInstalled()
         if (knownInstalled.isEmpty()) {

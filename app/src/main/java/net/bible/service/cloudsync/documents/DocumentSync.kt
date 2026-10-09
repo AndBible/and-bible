@@ -27,6 +27,7 @@ import net.bible.android.database.toMeta
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.roomTransaction
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.util.Version
 import org.crosswire.jsword.book.Book
@@ -165,7 +166,7 @@ object DocumentSync {
      */
     suspend fun onSignOut() = withContext(Dispatchers.IO) {
         val db = DatabaseContainer.instance.documentSyncDb
-        db.runInTransaction {
+        db.roomTransaction {
             db.cloudDocumentCacheDao().clear()
             db.documentSyncPreferencesDao().clear()
             db.cloudListingStateDao().clear()
@@ -293,7 +294,7 @@ object DocumentSync {
      * an encrypted module syncs but stays locked, rendering no readable content. The key travels
      * in the document's [DocumentSyncMeta] (the user's own private cloud account).
      */
-    private fun applyCipherKey(initials: String, cipherKey: String?) {
+    private suspend fun applyCipherKey(initials: String, cipherKey: String?) {
         if (cipherKey == null) return
         val book = Books.installed().getBook(initials) ?: return
         book.unlock(cipherKey)

@@ -284,7 +284,7 @@ class NextCloudAdapter(
         dbDef.dao.setConfig(NEXTCLOUD_SECRET_FILE_NAME_KEY, secretFileName)
     }
 
-    override fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> {
+    override suspend fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> {
         return listOf(
            dbDef.dao.getConfig(NEXTCLOUD_SECRET_FILE_NAME_KEY)
         ).filterNotNull()

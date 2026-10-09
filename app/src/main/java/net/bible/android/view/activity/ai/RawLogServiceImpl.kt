@@ -43,6 +43,7 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import net.bible.service.db.blockingDb
 
 /**
  * Android impl of [RawLogService] backing the raw-LLM-log screens
@@ -50,8 +51,8 @@ import java.util.Locale
  * the new-path twin of classic [RawLogHistoryActivity] / [RawLlmLogActivity] / [RawLlmLogAdapter].
  *
  * Registered as a Koin single. It holds two pieces of state: the [summaries] `StateFlow` (re-read
- * from [net.bible.service.llm.LlmRawLogRecordDao.allSummaries] on each [refresh], `allowMainThreadQueries`
- * as elsewhere in this layer) and [lastSessionLog] — the last in-memory [RawLlmLog] resolved by
+ * from [net.bible.service.llm.LlmRawLogRecordDao.allSummaries] on each [refresh], wrapped in the single
+ * `blockingDb` bridge, as elsewhere in this layer) and [lastSessionLog] — the last in-memory [RawLlmLog] resolved by
  * [sessionEntries]. The latter exists because the [RawLogService] seam's [canReportBug] takes only a
  * nullable `recordId`, so the in-memory case (`recordId == null`) has no `workspaceId` to work from;
  * the controller always calls [sessionEntries] (which stashes the log) immediately before
@@ -74,11 +75,11 @@ class RawLogServiceImpl : RawLogService {
     override val summaries: StateFlow<List<RawLogSummaryVd>> = _summaries.asStateFlow()
 
     override fun refresh() {
-        _summaries.value = dao.allSummaries().map { it.toVd() }
+        _summaries.value = blockingDb { dao.allSummaries() }.map { it.toVd() }
     }
 
     override fun deleteByIds(ids: Set<String>) {
-        dao.deleteByIds(ids.map { IdType(it) })
+        blockingDb { dao.deleteByIds(ids.map { IdType(it) }) }
         refresh()
     }
 
@@ -88,12 +89,12 @@ class RawLogServiceImpl : RawLogService {
             return
         }
         val cutoff = System.currentTimeMillis() - days.toLong() * 24 * 60 * 60 * 1000
-        dao.deleteOlderThan(cutoff)
+        blockingDb { dao.deleteOlderThan(cutoff) }
         refresh()
     }
 
     override fun deleteAll() {
-        dao.deleteAll()
+        blockingDb { dao.deleteAll() }
         refresh()
     }
 
@@ -132,7 +133,7 @@ class RawLogServiceImpl : RawLogService {
 
     override fun canReportBug(recordId: String?): Boolean {
         return if (recordId != null) {
-            val record = dao.getById(IdType(recordId)) ?: return false
+            val record = blockingDb { dao.getById(IdType(recordId)) } ?: return false
             AiBugReport.isReportAvailable(record.modelName)
         } else {
             // In-memory: mirror classic's `rawLog != null && usageByIteration.isNotEmpty()` gate, then

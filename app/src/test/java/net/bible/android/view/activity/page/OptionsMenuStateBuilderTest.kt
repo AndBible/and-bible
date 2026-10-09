@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.page
 
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
@@ -197,8 +198,10 @@ class OptionsMenuStateBuilderTest {
     fun staticOverflowRowsCarryClassicsIcons() {
         // llmActionsSubMenu is hidden unless an LlmProviderConfig exists (see
         // llmActionsSubMenuIsAbsentWhenLlmIsNotConfigured) -- seed one so the row is present.
-        DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
-            .insert(LlmProviderConfig(providerType = "GEMINI", displayName = "Test Gemini"))
+        runBlocking {
+            DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+                .insert(LlmProviderConfig(providerType = "GEMINI", displayName = "Test Gemini"))
+        }
 
         assertEquals("ic_full_screen_24", itemById("fullscreen").iconKey)
         assertEquals("ic_night_mode_24", itemById("nightMode").iconKey)

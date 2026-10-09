@@ -17,13 +17,13 @@
 
 package net.bible.android.database.mydocument
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Update
+import androidx.room3.Dao
+import androidx.room3.Delete
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.Transaction
+import androidx.room3.Update
 import net.bible.android.database.IdType
 
 @Dao
@@ -31,96 +31,96 @@ interface MyDocumentDao {
     // ==================== Documents ====================
 
     @Insert
-    fun insert(document: MyDocument)
+    suspend fun insert(document: MyDocument)
 
     @Update
-    fun update(document: MyDocument)
+    suspend fun update(document: MyDocument)
 
     @Delete
-    fun delete(document: MyDocument)
+    suspend fun delete(document: MyDocument)
 
     @Query("SELECT * FROM MyDocument ORDER BY orderNumber ASC")
-    fun allDocuments(): List<MyDocument>
+    suspend fun allDocuments(): List<MyDocument>
 
     @Update
-    fun updateDocuments(documents: List<MyDocument>)
+    suspend fun updateDocuments(documents: List<MyDocument>)
 
     @Query("SELECT * FROM MyDocument WHERE id = :id")
-    fun documentById(id: IdType): MyDocument?
+    suspend fun documentById(id: IdType): MyDocument?
 
     @Query("SELECT * FROM MyDocument WHERE initials = :initials")
-    fun documentByInitials(initials: String): MyDocument?
+    suspend fun documentByInitials(initials: String): MyDocument?
 
     @Query("SELECT * FROM MyDocument WHERE name = :name")
-    fun documentByName(name: String): MyDocument?
+    suspend fun documentByName(name: String): MyDocument?
 
     @Query("SELECT MAX(orderNumber) FROM MyDocument")
-    fun maxDocumentOrderNumber(): Int?
+    suspend fun maxDocumentOrderNumber(): Int?
 
     @Query("SELECT DISTINCT initials FROM MyDocument WHERE id IN (:ids)")
-    fun initialsByIds(ids: List<IdType>): List<String>
+    suspend fun initialsByIds(ids: List<IdType>): List<String>
 
     @Query("SELECT DISTINCT d.initials FROM MyDocumentPage p JOIN MyDocument d ON p.documentId = d.id WHERE p.id IN (:pageIds)")
-    fun initialsByPageIds(pageIds: List<IdType>): List<String>
+    suspend fun initialsByPageIds(pageIds: List<IdType>): List<String>
 
     // ==================== Pages (metadata only) ====================
 
     @Insert
-    fun insert(page: MyDocumentPage)
+    suspend fun insert(page: MyDocumentPage)
 
     @Update
-    fun update(page: MyDocumentPage)
+    suspend fun update(page: MyDocumentPage)
 
     @Update
-    fun updatePages(pages: List<MyDocumentPage>)
+    suspend fun updatePages(pages: List<MyDocumentPage>)
 
     @Delete
-    fun delete(page: MyDocumentPage)
+    suspend fun delete(page: MyDocumentPage)
 
     @Query("SELECT * FROM MyDocumentPage WHERE documentId = :documentId ORDER BY orderNumber")
-    fun pagesForDocument(documentId: IdType): List<MyDocumentPage>
+    suspend fun pagesForDocument(documentId: IdType): List<MyDocumentPage>
 
     @Query("SELECT * FROM MyDocumentPage WHERE id = :id")
-    fun pageById(id: IdType): MyDocumentPage?
+    suspend fun pageById(id: IdType): MyDocumentPage?
 
     @Query("SELECT * FROM MyDocumentPage WHERE documentId = :documentId AND pageKey = :pageKey")
-    fun pageByKey(documentId: IdType, pageKey: String): MyDocumentPage?
+    suspend fun pageByKey(documentId: IdType, pageKey: String): MyDocumentPage?
 
     @Query("SELECT COUNT(*) FROM MyDocumentPage WHERE documentId = :documentId")
-    fun pageCount(documentId: IdType): Int
+    suspend fun pageCount(documentId: IdType): Int
 
     @Query("SELECT MAX(orderNumber) FROM MyDocumentPage WHERE documentId = :documentId")
-    fun maxOrderNumber(documentId: IdType): Int?
+    suspend fun maxOrderNumber(documentId: IdType): Int?
 
     // ==================== Page content (separate table) ====================
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOrUpdateContent(content: MyDocumentPageContent)
+    suspend fun insertOrUpdateContent(content: MyDocumentPageContent)
 
     @Query("DELETE FROM MyDocumentPageContent WHERE pageId = :pageId")
-    fun deleteContent(pageId: IdType)
+    suspend fun deleteContent(pageId: IdType)
 
     @Query("SELECT content FROM MyDocumentPageContent WHERE pageId = :pageId")
-    fun getContent(pageId: IdType): String?
+    suspend fun getContent(pageId: IdType): String?
 
     // ==================== Combined view (with content) ====================
 
     @Query("SELECT * FROM MyDocumentPageWithContent WHERE documentId = :documentId ORDER BY orderNumber")
-    fun pagesWithContentForDocument(documentId: IdType): List<MyDocumentPageWithContent>
+    suspend fun pagesWithContentForDocument(documentId: IdType): List<MyDocumentPageWithContent>
 
     @Query("SELECT * FROM MyDocumentPageWithContent WHERE id = :id")
-    fun pageByIdWithContent(id: IdType): MyDocumentPageWithContent?
+    suspend fun pageByIdWithContent(id: IdType): MyDocumentPageWithContent?
 
     @Query("SELECT * FROM MyDocumentPageWithContent WHERE documentId = :documentId AND pageKey = :pageKey")
-    fun pageByKeyWithContent(documentId: IdType, pageKey: String): MyDocumentPageWithContent?
+    suspend fun pageByKeyWithContent(documentId: IdType, pageKey: String): MyDocumentPageWithContent?
 
     // ==================== AI page cache ====================
 
     @Insert
-    fun insert(cacheEntry: AiPageCacheEntry)
+    suspend fun insert(cacheEntry: AiPageCacheEntry)
 
     @Query("SELECT * FROM AiPageCacheEntry WHERE pageId = :pageId")
-    fun getCacheEntry(pageId: IdType): AiPageCacheEntry?
+    suspend fun getCacheEntry(pageId: IdType): AiPageCacheEntry?
 
     /**
      * Find cached page by full context hash (strict matching).
@@ -133,7 +133,7 @@ interface MyDocumentDao {
         ORDER BY createdAt DESC
         LIMIT 1
     """)
-    fun findCachedPageByContextHash(
+    suspend fun findCachedPageByContextHash(
         promptId: IdType,
         contextHash: String
     ): AiCachedPageWithContent?
@@ -150,7 +150,7 @@ interface MyDocumentDao {
         ORDER BY createdAt DESC
         LIMIT 1
     """)
-    fun findCachedPageByVerseRange(
+    suspend fun findCachedPageByVerseRange(
         promptId: IdType,
         kjvOrdinalStart: Int,
         kjvOrdinalEnd: Int
@@ -172,7 +172,7 @@ interface MyDocumentDao {
         WHERE c.kjvOrdinalStart IS NOT NULL AND c.kjvOrdinalEnd IS NOT NULL
           AND c.kjvOrdinalStart <= :rangeEnd AND c.kjvOrdinalEnd >= :rangeStart
     """)
-    fun aiDocMarkersForRange(rangeStart: Int, rangeEnd: Int): List<AiDocMarkerInfo>
+    suspend fun aiDocMarkersForRange(rangeStart: Int, rangeEnd: Int): List<AiDocMarkerInfo>
 
     /**
      * Find AI document pages created from a specific non-Bible document page.
@@ -187,37 +187,37 @@ interface MyDocumentDao {
         INNER JOIN MyDocument d ON p.documentId = d.id
         WHERE c.sourceBookInitials = :bookInitials AND c.sourceBookKey = :bookKey
     """)
-    fun aiDocMarkersForPage(bookInitials: String, bookKey: String): List<AiDocMarkerInfo>
+    suspend fun aiDocMarkersForPage(bookInitials: String, bookKey: String): List<AiDocMarkerInfo>
 
     // ==================== Transaction helpers ====================
 
     @Transaction
-    fun insertPageWithContent(page: MyDocumentPage, content: String) {
+    suspend fun insertPageWithContent(page: MyDocumentPage, content: String) {
         insert(page)
         insertOrUpdateContent(MyDocumentPageContent(pageId = page.id, content = content))
     }
 
     @Transaction
-    fun insertPageWithCacheEntry(page: MyDocumentPage, content: String, cacheEntry: AiPageCacheEntry) {
+    suspend fun insertPageWithCacheEntry(page: MyDocumentPage, content: String, cacheEntry: AiPageCacheEntry) {
         insert(page)
         insertOrUpdateContent(MyDocumentPageContent(pageId = page.id, content = content))
         insert(cacheEntry)
     }
 
     @Transaction
-    fun updatePageWithContent(page: MyDocumentPage, content: String) {
+    suspend fun updatePageWithContent(page: MyDocumentPage, content: String) {
         update(page)
         insertOrUpdateContent(MyDocumentPageContent(pageId = page.id, content = content))
     }
 
     @Transaction
-    fun deletePageWithContent(page: MyDocumentPage) {
+    suspend fun deletePageWithContent(page: MyDocumentPage) {
         // Content is deleted automatically via FK CASCADE
         delete(page)
     }
 
     @Transaction
-    fun deleteDocumentWithPages(document: MyDocument) {
+    suspend fun deleteDocumentWithPages(document: MyDocument) {
         // Foreign key CASCADE will handle pages and their content
         delete(document)
     }

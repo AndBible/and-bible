@@ -23,7 +23,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.net.Uri
-import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.FileProvider
@@ -57,6 +56,7 @@ import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
+import net.bible.service.db.readUserVersion
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.cloudsync.CloudSync
@@ -68,6 +68,7 @@ import net.bible.service.common.BackupType
 import net.bible.service.common.CommonUtils.determineFileType
 import net.bible.service.common.DbType
 import net.bible.service.db.bookmarksDbStats
+import net.bible.service.db.deleteAppDatabase
 import net.bible.service.db.importDatabaseFile
 import net.bible.service.sword.dbFile
 import net.bible.service.sword.backgroundimage.addManuallyInstalledBackgroundImageBooks
@@ -323,14 +324,6 @@ object BackupControl {
         }
     }
 
-    /**
-     * Test seam (F120): the `user_version` of a SQLite file. The default goes through requery's SQLite,
-     * which unit tests exclude from the classpath (`app/build.gradle.kts`), so tests swap in the framework one.
-     */
-    @VisibleForTesting
-    internal var readDatabaseVersion: (File) -> Int = { file ->
-        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
-    }
 
     /** Test seam (F120): the copy of the validated file into the database directory. */
     @VisibleForTesting
@@ -348,7 +341,7 @@ object BackupControl {
             if (String(dbHeader) != "SQLite format 3\u0000") return false
             FileOutputStream(target).use { out -> out.write(dbHeader); stream.copyTo(out) }
         }
-        val version = readDatabaseVersion(target)
+        val version = readUserVersion(target)
         Log.i(TAG, "Old monolithic backup database, version $version")
         return version <= OLD_DATABASE_VERSION
     }
@@ -653,12 +646,27 @@ object BackupControl {
         )
     }
 
-    fun makeDatabaseBackupFile(): File? {
+    /**
+     * Saves the open windows, flushes queued settings writes, vacuums and checkpoints the databases when they are
+     * open, then zips them ([zipDatabaseFiles]).
+     */
+    suspend fun makeDatabaseBackupFile(): File? {
         if(CommonUtils.initialized && DatabaseContainer.ready) {
             windowControl.windowRepository.saveIntoDb()
+            // A setting changed just before "backup now" may still be queued in the store's writer.
+            DatabaseContainer.instance.settingsStore.flush()
             DatabaseContainer.vacuum()
             DatabaseContainer.sync()
         }
+        return zipDatabaseFiles()
+    }
+
+    /**
+     * Zips the database files as they are on disk, with the backup manifest; null when there are none. Without
+     * [makeDatabaseBackupFile]'s vacuum and checkpoint: the pre-migration safety backup runs while the container is
+     * still being built, when the databases are not open yet.
+     */
+    fun zipDatabaseFiles(): File? {
         internalDbBackupDir.mkdirs()
         val zipFile = File(internalDbBackupDir, DATABASE_BACKUP_NAME)
         if(zipFile.exists()) zipFile.delete()
@@ -738,7 +746,7 @@ object BackupControl {
     private suspend fun verifyDatabaseBackupFile(file: File): Boolean {
         val inputStream = BufferedInputStream(file.inputStream())
         if(!isSqliteFile(inputStream)) return false
-        val version = SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
+        val version = readUserVersion(file)
         return version <= maxDatabaseVersion(file.name)
     }
 
@@ -819,79 +827,40 @@ object BackupControl {
                 throw IOException("Failed to process backup file: ${e.message}")
             }
 
-            val restored = reloadingAfterReplace {
-                val restoredSelection =
-                    Closeable {
-                        tmpFile.delete()
-                        unzipFolder.deleteRecursively()
-                        dismissProgress()
-                    }.use {
-                        val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
-                            .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
-                            .map { file -> file.name }
-
-                        dismissProgress()
-                        if (containedBackups.isEmpty()) {
-                            Dialogs.showMsg(R.string.restore_unsuccessfull)
-                            return@reloadingAfterReplace false
-                        }
-                        val selection =
-                            if (containedBackups.size > 1)
-                                selectDatabaseSections(activity, containedBackups)
-                            else
-                                containedBackups
-                        val restoredSelection = ArrayList<SyncableDatabaseDefinition>()
-                        if (selection.isEmpty()) {
-                            return@reloadingAfterReplace false
-                        }
-                        showProgress()
-                        DatabaseContainer.replacingDatabases {
-                            for (fileName in selection) {
-                                val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
-                                val f = File(unzipFolder, "db/${fileName}")
-                                val restore =
-                                    if (category != null)
-                                        askIfRestoreOrImport(category, f, activity)
-                                    else true
-                                if (restore == null) continue
-
-                                if (restore) {
-                                    if(category != null) {
-                                        restoredSelection.add(category)
-                                        beforeRestore(category)
-                                    }
-
-                                    val areYouSure = if (category != null) {
-                                        Dialogs.simpleQuestion(
-                                            activity,
-                                            activity.getString(R.string.overwrite_something,
-                                                getString(category.contentDescription)
-                                            )
-                                        )
-                                    } else true
-                                    if (!areYouSure) continue
-                                    Log.i(TAG, "Restoring $fileName")
-                                    if (DatabaseContainer.ready) DatabaseContainer.instance.dbByFilename[fileName]?.close()
-                                    val targetFilePath = activity.getDatabasePath(fileName).path
-                                    val targetFile = File(targetFilePath)
-                                    f.copyTo(targetFile, overwrite = true)
-                                    File("$targetFilePath-journal").delete()
-                                    File("$targetFilePath-shm").delete()
-                                    File("$targetFilePath-wal").delete()
-                                } else {
-                                    importDatabaseFile(category!!, f)
-                                }
-                            }
-                            DatabaseContainer.reset()
-                        }
-                        restoredSelection
-                    }
-                showProgress()
-                if (DatabaseContainer.ready) {
-                    DatabaseContainer.instance
-                    afterRestore(restoredSelection)
-                }
+            val restored = Closeable {
+                tmpFile.delete()
+                unzipFolder.deleteRecursively()
                 dismissProgress()
+            }.use {
+                val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
+                    .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
+                    .map { file -> file.name }
+
+                dismissProgress()
+                if (containedBackups.isEmpty()) {
+                    Dialogs.showMsg(R.string.restore_unsuccessfull)
+                    return@use false
+                }
+                val selection =
+                    if (containedBackups.size > 1)
+                        selectDatabaseSections(activity, containedBackups)
+                    else
+                        containedBackups
+                if (selection.isEmpty()) {
+                    return@use false
+                }
+                showProgress()
+                restoreSelectedFiles(selection, unzipFolder, object : RestorePrompts {
+                    override suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: File) =
+                        askIfRestoreOrImport(category, backupFile, activity)
+                    override suspend fun confirmOverwrite(category: SyncableDatabaseDefinition) =
+                        Dialogs.simpleQuestion(
+                            activity,
+                            activity.getString(R.string.overwrite_something,
+                                getString(category.contentDescription)
+                            )
+                        )
+                })
                 Log.i(TAG, "Restored database successfully")
                 true
             }
@@ -899,6 +868,87 @@ object BackupControl {
             true
         } finally {
             progressId?.let { dialogs.dismiss(it) }
+        }
+    }
+
+    /** The two questions the zip restore asks per category; a seam so tests can answer them (D1 final review I1). */
+    internal interface RestorePrompts {
+        /** true = restore (overwrite), false = import (merge), null = skip this category. */
+        suspend fun restoreOrImport(category: SyncableDatabaseDefinition, backupFile: File): Boolean?
+        /** The "are you sure" before an overwrite; false skips this category. */
+        suspend fun confirmOverwrite(category: SyncableDatabaseDefinition): Boolean
+    }
+
+    /**
+     * What the user chose for every selected file of a zip restore. [restoredSelection] keeps the old flow's
+     * semantics: a category answered "Restore" is in it (and had [beforeRestore]) even when its "are you sure"
+     * was then answered No.
+     */
+    internal class RestorePlan(
+        val toRestore: List<Pair<String, File>>,
+        val toImport: List<Pair<SyncableDatabaseDefinition, File>>,
+        val restoredSelection: List<SyncableDatabaseDefinition>,
+    )
+
+    /**
+     * Phase 1 of the zip restore (D1 final review I1): asks every question for every selected file of
+     * [unzipFolder]`/db/` BEFORE any database is closed. Under Room 3 a closed database never reopens, so the old
+     * flow (close and overwrite file N, then wait on the user's answer for file N+1) crashed any DAO call made
+     * while a dialog was up. Nothing is closed, copied or imported here.
+     */
+    internal suspend fun collectRestoreDecisions(selection: List<String>, unzipFolder: File, prompts: RestorePrompts): RestorePlan {
+        val toRestore = ArrayList<Pair<String, File>>()
+        val toImport = ArrayList<Pair<SyncableDatabaseDefinition, File>>()
+        val restoredSelection = ArrayList<SyncableDatabaseDefinition>()
+        for (fileName in selection) {
+            val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
+            val f = File(unzipFolder, "db/${fileName}")
+            val restore = if (category != null) prompts.restoreOrImport(category, f) else true
+            if (restore == null) continue
+            if (restore) {
+                if (category != null) {
+                    restoredSelection.add(category)
+                    beforeRestore(category)
+                }
+                val areYouSure = if (category != null) prompts.confirmOverwrite(category) else true
+                if (!areYouSure) continue
+                toRestore.add(fileName to f)
+            } else {
+                toImport.add(category!! to f)
+            }
+        }
+        return RestorePlan(toRestore, toImport, restoredSelection)
+    }
+
+    /**
+     * The zip restore after the user picked the sections: asks every question first ([collectRestoreDecisions]),
+     * then closes and overwrites every file to restore in one stretch with no user prompt in between, calls
+     * [DatabaseContainer.reset] at once, runs the imports (they need the new container) and finally clears the
+     * restored categories' sync state ([afterRestore]).
+     */
+    internal suspend fun restoreSelectedFiles(
+        selection: List<String>,
+        unzipFolder: File,
+        prompts: RestorePrompts,
+    ) = reloadingAfterReplace {
+        val plan = collectRestoreDecisions(selection, unzipFolder, prompts)
+        DatabaseContainer.replacingDatabases {
+            for ((fileName, f) in plan.toRestore) {
+                Log.i(TAG, "Restoring $fileName")
+                if (DatabaseContainer.ready) DatabaseContainer.instance.closeForReplace(fileName)
+                val targetFilePath = application.getDatabasePath(fileName).path
+                f.copyTo(File(targetFilePath), overwrite = true)
+                File("$targetFilePath-journal").delete()
+                File("$targetFilePath-shm").delete()
+                File("$targetFilePath-wal").delete()
+                File("$targetFilePath.lck").delete()
+            }
+            DatabaseContainer.reset()
+            for ((category, f) in plan.toImport) importDatabaseFile(category, f)
+        }
+        if (DatabaseContainer.ready) {
+            DatabaseContainer.instance
+            afterRestore(plan.restoredSelection)
         }
     }
 
@@ -1158,14 +1208,10 @@ object BackupControl {
                     }
 
                     if (DatabaseContainer.ready) {
-                        DatabaseContainer.instance.dbByFilename[dbFileName]?.close()
+                        DatabaseContainer.instance.closeForReplace(dbFileName)
                     }
 
-                    val dbPath = activity.getDatabasePath(dbFileName).path
-                    File(dbPath).delete()
-                    File("$dbPath-journal").delete()
-                    File("$dbPath-shm").delete()
-                    File("$dbPath-wal").delete()
+                    deleteAppDatabase(dbFileName) // the file, its journal/WAL leftovers and Room's .lck
 
                     DatabaseContainer.reset()
                     if (DatabaseContainer.ready) {

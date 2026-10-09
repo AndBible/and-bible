@@ -17,6 +17,7 @@
 
 package net.bible.android.control.progress
 
+import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.bookmarks.KJVA
@@ -211,13 +212,13 @@ class ProgressControlTest {
         // Since we haven't written cycle 2 records yet, getCurrentCycle still returns 1.
         // We need to manually write a cycle 2 record to advance.
         val cycle2 = ProgressControl.startNewCycle()
-        dao.insertChapterReadHistory(
+        runBlocking { dao.insertChapterReadHistory(
             net.bible.android.database.progress.ChapterReadHistory(
                 kjvBookOrdinal = BibleBook.GEN.ordinal,
                 chapter = 5,
                 cycle = cycle2,
             )
-        )
+        ) }
 
         // Now getCurrentCycle should return 2
         assertEquals(2, ProgressControl.getCurrentCycle())
@@ -450,8 +451,8 @@ class ProgressControlTest {
     @Test
     fun `getMemorizationCalendar buckets memorizations by local day`() = withTimeZone("Etc/GMT-10") {
         // Two memorizations on the same local day split by UTC midnight.
-        dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = 1, memorizedAt = parseUtc("2025-11-08T15:00:00Z")))
-        dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = 2, memorizedAt = parseUtc("2025-11-08T23:30:00Z")))
+        runBlocking { dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = 1, memorizedAt = parseUtc("2025-11-08T15:00:00Z"))) }
+        runBlocking { dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = 2, memorizedAt = parseUtc("2025-11-08T23:30:00Z"))) }
 
         val records = ProgressControl.getMemorizationCalendar(
             parseUtc("2025-11-01T00:00:00Z"),
@@ -474,9 +475,9 @@ class ProgressControlTest {
     private fun parseUtc(iso: String): Long = Instant.parse(iso).toEpochMilli()
 
     private fun insertRead(book: BibleBook, chapter: Int, readAt: Long) {
-        dao.insertChapterReadHistory(
+        runBlocking { dao.insertChapterReadHistory(
             ChapterReadHistory(kjvBookOrdinal = book.ordinal, chapter = chapter, readAt = readAt)
-        )
+        ) }
     }
 
     /** Runs [block] with the JVM default timezone temporarily set to [zoneId]. */

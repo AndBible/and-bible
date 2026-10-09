@@ -18,18 +18,18 @@
 package net.bible.service.llm
 
 import net.bible.android.activity.R
-import androidx.room.ColumnInfo
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Ignore
-import androidx.room.Index
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room3.ColumnInfo
+import androidx.room3.Dao
+import androidx.room3.Delete
+import androidx.room3.Entity
+import androidx.room3.ForeignKey
+import androidx.room3.Ignore
+import androidx.room3.Index
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.PrimaryKey
+import androidx.room3.Query
+import androidx.room3.Update
 import kotlinx.serialization.Serializable
 import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
@@ -242,49 +242,49 @@ fun LlmProviderConfig.removeApiKey() =
 @Dao
 interface LlmProviderConfigDao {
     @Query("SELECT * FROM LlmProviderConfig ORDER BY orderNumber")
-    fun all(): List<LlmProviderConfig>
+    suspend fun all(): List<LlmProviderConfig>
 
     @Query("SELECT * FROM LlmProviderConfig WHERE id = :id")
-    fun getById(id: IdType): LlmProviderConfig?
+    suspend fun getById(id: IdType): LlmProviderConfig?
 
     @Insert
-    fun insert(config: LlmProviderConfig)
+    suspend fun insert(config: LlmProviderConfig)
 
     @Update
-    fun update(config: LlmProviderConfig)
+    suspend fun update(config: LlmProviderConfig)
 
     @Delete
-    fun delete(config: LlmProviderConfig)
+    suspend fun delete(config: LlmProviderConfig)
 
     @Query("SELECT COUNT(*) FROM LlmProviderConfig")
-    fun getCount(): Int
+    suspend fun getCount(): Int
 
     @Query("DELETE FROM LlmProviderConfig")
-    fun deleteAll()
+    suspend fun deleteAll()
 }
 
 @Dao
 interface LlmConfiguredModelDao {
     @Query("SELECT * FROM LlmConfiguredModel WHERE providerConfigId = :providerConfigId ORDER BY orderNumber")
-    fun getByProvider(providerConfigId: IdType): List<LlmConfiguredModel>
+    suspend fun getByProvider(providerConfigId: IdType): List<LlmConfiguredModel>
 
     @Query("SELECT * FROM LlmConfiguredModel WHERE id = :id")
-    fun getById(id: IdType): LlmConfiguredModel?
+    suspend fun getById(id: IdType): LlmConfiguredModel?
 
     @Query("SELECT * FROM LlmConfiguredModel ORDER BY orderNumber")
-    fun all(): List<LlmConfiguredModel>
+    suspend fun all(): List<LlmConfiguredModel>
 
     @Insert
-    fun insert(model: LlmConfiguredModel)
+    suspend fun insert(model: LlmConfiguredModel)
 
     @Update
-    fun update(model: LlmConfiguredModel)
+    suspend fun update(model: LlmConfiguredModel)
 
     @Delete
-    fun delete(model: LlmConfiguredModel)
+    suspend fun delete(model: LlmConfiguredModel)
 
     @Query("DELETE FROM LlmConfiguredModel WHERE providerConfigId = :providerConfigId")
-    fun deleteByProvider(providerConfigId: IdType)
+    suspend fun deleteByProvider(providerConfigId: IdType)
 }
 
 /** Category (folder) for grouping prompts in the UI. */
@@ -300,25 +300,25 @@ data class PromptCategory(
 @Dao
 interface PromptCategoryDao {
     @Query("SELECT * FROM PromptCategory ORDER BY orderNumber, name")
-    fun all(): List<PromptCategory>
+    suspend fun all(): List<PromptCategory>
 
     @Query("SELECT * FROM PromptCategory WHERE id = :id")
-    fun getById(id: IdType): PromptCategory?
+    suspend fun getById(id: IdType): PromptCategory?
 
     @Insert
-    fun insert(category: PromptCategory)
+    suspend fun insert(category: PromptCategory)
 
     @Update
-    fun update(category: PromptCategory)
+    suspend fun update(category: PromptCategory)
 
     @Delete
-    fun delete(category: PromptCategory)
+    suspend fun delete(category: PromptCategory)
 
     @Query("UPDATE AgentPrompt SET categoryId = NULL WHERE categoryId = :categoryId")
-    fun clearCategoryFromPrompts(categoryId: IdType)
+    suspend fun clearCategoryFromPrompts(categoryId: IdType)
 
     @Query("DELETE FROM PromptCategory")
-    fun deleteAll()
+    suspend fun deleteAll()
 }
 
 /** User-defined or default prompt for LLM operations. */
@@ -388,37 +388,37 @@ data class AgentPrompt(
 @Dao
 interface AgentPromptDao {
     @Insert
-    fun insert(entity: AgentPrompt)
+    suspend fun insert(entity: AgentPrompt)
 
     @Insert
-    fun insertAll(prompts: List<AgentPrompt>)
+    suspend fun insertAll(prompts: List<AgentPrompt>)
 
     @Update
-    fun update(entity: AgentPrompt)
+    suspend fun update(entity: AgentPrompt)
 
     @Delete
-    fun delete(entity: AgentPrompt)
+    suspend fun delete(entity: AgentPrompt)
 
     @Query("SELECT * FROM AgentPrompt WHERE id = :id")
-    fun promptById(id: IdType): AgentPrompt?
+    suspend fun promptById(id: IdType): AgentPrompt?
 
     @Query("SELECT * FROM AgentPrompt ORDER BY orderNumber")
-    fun allPrompts(): List<AgentPrompt>
+    suspend fun allPrompts(): List<AgentPrompt>
 
     @Query("SELECT COUNT(*) FROM AgentPrompt")
-    fun getCount(): Int
+    suspend fun getCount(): Int
 
     @Query("DELETE FROM AgentPrompt WHERE id = :id")
-    fun deleteById(id: IdType)
+    suspend fun deleteById(id: IdType)
 
     @Query("DELETE FROM AgentPrompt WHERE categoryId = :categoryId")
-    fun deleteByCategoryId(categoryId: IdType)
+    suspend fun deleteByCategoryId(categoryId: IdType)
 
     @Query("DELETE FROM AgentPrompt")
-    fun deleteAll()
+    suspend fun deleteAll()
 
     @Query("UPDATE AgentPrompt SET orderNumber = orderNumber + 1 WHERE orderNumber > :afterOrder")
-    fun shiftOrderNumbersAfter(afterOrder: Int)
+    suspend fun shiftOrderNumbersAfter(afterOrder: Int)
 }
 
 /**
@@ -464,10 +464,10 @@ data class GlobalAiSettings(
 @Dao
 interface GlobalAiSettingsDao {
     @Query("SELECT * FROM GlobalAiSettings LIMIT 1")
-    fun get(): GlobalAiSettings?
+    suspend fun get(): GlobalAiSettings?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun set(settings: GlobalAiSettings)
+    suspend fun set(settings: GlobalAiSettings)
 }
 
 /**
@@ -498,19 +498,19 @@ data class LlmUsageRecord(
 @Dao
 interface LlmUsageRecordDao {
     @Query("SELECT * FROM LlmUsageRecord WHERE configuredModelId = :modelId")
-    fun getByModel(modelId: IdType): List<LlmUsageRecord>
+    suspend fun getByModel(modelId: IdType): List<LlmUsageRecord>
 
     @Query("SELECT * FROM LlmUsageRecord WHERE configuredModelId = :modelId AND deviceId = :deviceId")
-    fun get(modelId: IdType, deviceId: String): LlmUsageRecord?
+    suspend fun get(modelId: IdType, deviceId: String): LlmUsageRecord?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun upsert(record: LlmUsageRecord)
+    suspend fun upsert(record: LlmUsageRecord)
 
     @Query("DELETE FROM LlmUsageRecord WHERE configuredModelId = :modelId")
-    fun deleteByModel(modelId: IdType)
+    suspend fun deleteByModel(modelId: IdType)
 
     @Query("SELECT * FROM LlmUsageRecord")
-    fun all(): List<LlmUsageRecord>
+    suspend fun all(): List<LlmUsageRecord>
 }
 
 /**
@@ -565,25 +565,25 @@ data class LlmRawLogSummary(
 @Dao
 interface LlmRawLogRecordDao {
     @Query("SELECT id, promptId, promptName, promptDescription, configuredModelId, modelName, providerType, timestamp, totalInputTokens, totalOutputTokens, estimatedCostUsd, iterationCount, wasError FROM LlmRawLogRecord ORDER BY timestamp DESC")
-    fun allSummaries(): List<LlmRawLogSummary>
+    suspend fun allSummaries(): List<LlmRawLogSummary>
 
     @Query("SELECT * FROM LlmRawLogRecord WHERE id = :id")
-    fun getById(id: IdType): LlmRawLogRecord?
+    suspend fun getById(id: IdType): LlmRawLogRecord?
 
     @Insert
-    fun insert(record: LlmRawLogRecord)
+    suspend fun insert(record: LlmRawLogRecord)
 
     @Query("DELETE FROM LlmRawLogRecord WHERE id IN (:ids)")
-    fun deleteByIds(ids: List<IdType>)
+    suspend fun deleteByIds(ids: List<IdType>)
 
     @Query("DELETE FROM LlmRawLogRecord WHERE timestamp < :beforeTimestamp")
-    fun deleteOlderThan(beforeTimestamp: Long)
+    suspend fun deleteOlderThan(beforeTimestamp: Long)
 
     @Query("SELECT COUNT(*) FROM LlmRawLogRecord")
-    fun getCount(): Int
+    suspend fun getCount(): Int
 
     @Query("DELETE FROM LlmRawLogRecord")
-    fun deleteAll()
+    suspend fun deleteAll()
 }
 
 /**
@@ -613,14 +613,14 @@ data class BuiltinPromptOverride(
 @Dao
 interface BuiltinPromptOverrideDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun upsert(entity: BuiltinPromptOverride)
+    suspend fun upsert(entity: BuiltinPromptOverride)
 
     @Query("SELECT * FROM BuiltinPromptOverride WHERE id = :id")
-    fun getById(id: IdType): BuiltinPromptOverride?
+    suspend fun getById(id: IdType): BuiltinPromptOverride?
 
     @Query("SELECT * FROM BuiltinPromptOverride")
-    fun all(): List<BuiltinPromptOverride>
+    suspend fun all(): List<BuiltinPromptOverride>
 
     @Query("DELETE FROM BuiltinPromptOverride WHERE id = :id")
-    fun deleteById(id: IdType)
+    suspend fun deleteById(id: IdType)
 }

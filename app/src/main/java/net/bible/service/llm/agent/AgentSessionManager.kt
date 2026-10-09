@@ -74,6 +74,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import net.bible.service.db.blockingDb
 
 open class AgentSessionManagerBase : KoinComponent {
     val windowControl: WindowControl by inject()
@@ -448,7 +449,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
      * - strict (true): Matches full context hash (Bible version, selected text, etc.)
      * - loose (false): Matches only KJVA verse ordinals (cross-version)
      */
-    private fun findCachedPage(
+    private suspend fun findCachedPage(
         prompt: AgentPrompt,
         cacheableContext: CacheableContext
     ): AiCachedPageWithContent? {
@@ -793,7 +794,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     /** Stops the session, attaches total cost, and persists raw log. Used by all completion event handlers. */
-    private fun completeSession(session: AgentSession, event: CompletionEvent, prompt: AgentPrompt) {
+    private suspend fun completeSession(session: AgentSession, event: CompletionEvent, prompt: AgentPrompt) {
         val app = BibleApplication.application
         session.stop(app.getString(R.string.agent_log_completed), AgentStopReason.COMPLETED)
         attachTotalCost(session, event.usage, event.model, event.configuredModelId)
@@ -807,15 +808,14 @@ object AgentSessionManager : AgentSessionManagerBase() {
         )
     }
 
-    private fun resolveProviderType(configuredModelId: IdType?): String {
+    private suspend fun resolveProviderType(configuredModelId: IdType?): String {
         if (configuredModelId == null) return ""
         val db = DatabaseContainer.instance.aiSettingsDb
-        val model = db.llmConfiguredModelDao().getById(configuredModelId) ?: return ""
-        val provider = db.llmProviderConfigDao().getById(model.providerConfigId) ?: return ""
-        return provider.providerType
+        val model = db.llmConfiguredModelDao().getById(configuredModelId)
+        return model?.let { db.llmProviderConfigDao().getById(it.providerConfigId) }?.providerType ?: ""
     }
 
-    private fun persistRawLog(
+    private suspend fun persistRawLog(
         session: AgentSession,
         prompt: AgentPrompt,
         model: String,
@@ -851,7 +851,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
     }
 
-    private fun persistRawLogFromIterations(session: AgentSession, prompt: AgentPrompt) {
+    private suspend fun persistRawLogFromIterations(session: AgentSession, prompt: AgentPrompt) {
         val rawLog = session.rawLlmLog ?: return
         if (rawLog.isEmpty()) return
         val lastIteration = rawLog.usageByIteration.values.lastOrNull()
@@ -870,14 +870,14 @@ object AgentSessionManager : AgentSessionManagerBase() {
         try {
             val retentionDays = CommonUtils.aiSettings.rawLogRetentionDays ?: return
             val cutoff = System.currentTimeMillis() - retentionDays.toLong() * 24 * 60 * 60 * 1000
-            DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff)
+            blockingDb { DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff) }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to cleanup old raw logs", e)
         }
     }
 
     /** Saves an AI response document and logs it. Shared by Completed and CompletedWithDocument. */
-    private fun saveAndLogDocument(
+    private suspend fun saveAndLogDocument(
         title: String,
         content: String,
         context: AgentContext,
@@ -1077,7 +1077,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             previousResponse = if (freshRun) null else previousContent,
             skipCache = true,
             modelOverrideId = modelOverrideId,
-            onStarted = { if (!keepPrevious) MyDocumentBookManager.deleteAIDocumentPage(pageId) },
+            onStarted = { if (!keepPrevious) MyDocumentBookManager.deleteAIDocumentPageSuspending(pageId) },
         )
     }
 

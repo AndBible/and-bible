@@ -95,6 +95,7 @@ import org.crosswire.jsword.versification.BookName
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.coroutines.resume
+import net.bible.service.db.blockingDb
 
 /**
  * The reading view's COMMAND SURFACE, lifted out of [MainBibleActivity] -- reading-host re-typing
@@ -1340,7 +1341,7 @@ class ReadingCommands(
 
     // ---- Workspace switching (addendum Ruling D) ----
 
-    private val workspaces get() = DatabaseContainer.instance.workspaceDb.workspaceDao().allWorkspaces()
+    private val workspaces get() = DatabaseContainer.instance.workspaceDb.workspaceDao().let { dao -> blockingDb { dao.allWorkspaces() } }
 
     /**
      * Switch to a workspace by id. Extracted from the WORKSPACE_CHANGED result arm so round 15b's

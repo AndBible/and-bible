@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page.window
 
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -154,7 +155,7 @@ class WindowTest {
             outgoing += repository.sortedWindows
             outgoing.forEach(::prime)
             val workspace = WorkspaceEntities.Workspace("replacement")
-            net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(workspace)
+            runBlocking { net.bible.service.db.DatabaseContainer.instance.workspaceDb.workspaceDao().insertWorkspace(workspace) }
 
             repository.loadFromDb(workspace.id)
             assertThat(repository.id, equalTo(workspace.id))

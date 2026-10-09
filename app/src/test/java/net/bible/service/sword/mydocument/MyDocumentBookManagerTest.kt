@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.mydocument
 
+import kotlinx.coroutines.runBlocking
 import android.os.Looper
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -31,6 +32,7 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.Books
 import org.junit.After
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -63,10 +65,10 @@ class MyDocumentBookManagerTest {
     @Before
     fun setUp() {
         MyDocumentBookManager.clear()
-        dao.allDocuments().forEach { dao.deleteDocumentWithPages(it) }
+        runBlocking { dao.allDocuments() }.forEach { runBlocking { dao.deleteDocumentWithPages(it) } }
 
         document = MyDocument(name = "Test document", initials = "MyDoc_Test")
-        dao.insert(document)
+        runBlocking { dao.insert(document) }
         addPage("page_one", "First page")
         MyDocumentBookManager.registerDocument(document)
     }
@@ -74,7 +76,7 @@ class MyDocumentBookManagerTest {
     @After
     fun tearDown() {
         MyDocumentBookManager.clear()
-        dao.allDocuments().forEach { dao.deleteDocumentWithPages(it) }
+        runBlocking { dao.allDocuments() }.forEach { runBlocking { dao.deleteDocumentWithPages(it) } }
     }
 
     private fun addPage(pageKey: String, title: String, documentId: IdType = document.id) {
@@ -83,14 +85,14 @@ class MyDocumentBookManagerTest {
             title = title,
             pageKey = pageKey,
             contentType = MyDocumentContentType.MARKDOWN,
-            orderNumber = dao.pagesForDocument(documentId).size,
+            orderNumber = runBlocking { dao.pagesForDocument(documentId) }.size,
         )
-        dao.insertPageWithContent(page, "content of $title")
+        runBlocking { dao.insertPageWithContent(page, "content of $title") }
     }
 
     private fun syncEventForPages(vararg pageKeys: String): List<LogEntry> {
         val entries = pageKeys.map { pageKey ->
-            val page = dao.pageByKeyWithContent(document.id, pageKey)!!
+            val page = runBlocking { dao.pageByKeyWithContent(document.id, pageKey) }!!
             LogEntry(
                 tableName = "MyDocumentPage",
                 entityId1 = page.id,
@@ -128,7 +130,7 @@ class MyDocumentBookManagerTest {
     @Test
     fun refreshDocumentRecoversFromAKeyMapBuiltWhileTheDocumentHadNoPages() {
         val empty = MyDocument(name = "Empty document", initials = "MyDoc_Empty")
-        dao.insert(empty)
+        runBlocking { dao.insert(empty) }
         MyDocumentBookManager.registerDocument(empty)
         val book = Books.installed().getBook("MyDoc_Empty")!!
         // Activating with no pages freezes an empty key map. Without a rebuild
@@ -177,7 +179,7 @@ class MyDocumentBookManagerTest {
         val book = Books.installed().getBook("MyDoc_Test")!!
         assertEquals("page_two", book.getKey("page_two").osisRef)
 
-        val deleted = dao.pageByKeyWithContent(document.id, "page_two")!!
+        val deleted = runBlocking { dao.pageByKeyWithContent(document.id, "page_two") }!!
         val entry = LogEntry(
             tableName = "MyDocumentPage",
             entityId1 = deleted.id,
@@ -186,7 +188,7 @@ class MyDocumentBookManagerTest {
             lastUpdated = 0L,
             sourceDevice = "other-device",
         )
-        dao.deletePageWithContent(dao.pageById(deleted.id)!!)
+        runBlocking { dao.deletePageWithContent(dao.pageById(deleted.id)!!) }
         MyDocumentBookManager.handleSyncEvent(listOf(entry))
 
         assertTrue(book.globalKeyList.none { it.osisRef == "page_two" })
@@ -196,9 +198,9 @@ class MyDocumentBookManagerTest {
     @Test
     fun syncUpdateRegistersDocumentsCreatedOnAnotherDevice() {
         val other = MyDocument(name = "Other document", initials = "MyDoc_Other")
-        dao.insert(other)
+        runBlocking { dao.insert(other) }
         addPage("page_other", "Other page", documentId = other.id)
-        val page = dao.pageByKeyWithContent(other.id, "page_other")!!
+        val page = runBlocking { dao.pageByKeyWithContent(other.id, "page_other") }!!
 
         MyDocumentBookManager.handleSyncEvent(
             listOf(
@@ -220,7 +222,7 @@ class MyDocumentBookManagerTest {
 
     @Test
     fun syncUpdateUnregistersDocumentsDeletedOnAnotherDevice() {
-        dao.deleteDocumentWithPages(dao.documentById(document.id)!!)
+        runBlocking { dao.deleteDocumentWithPages(dao.documentById(document.id)!!) }
 
         MyDocumentBookManager.handleSyncEvent(
             listOf(
@@ -244,8 +246,8 @@ class MyDocumentBookManagerTest {
         val book = Books.installed().getBook("MyDoc_Test")!!
         book.getKey("page_one")
 
-        val renamed = dao.documentById(document.id)!!.apply { name = "Renamed document" }
-        dao.update(renamed)
+        val renamed = runBlocking { dao.documentById(document.id) }!!.apply { name = "Renamed document" }
+        runBlocking { dao.update(renamed) }
         MyDocumentBookManager.handleSyncEvent(
             listOf(
                 LogEntry(
@@ -312,10 +314,10 @@ class MyDocumentBookManagerTest {
 
     @Test
     fun deletingAnAiDocumentPageEmitsDocumentUpdatedThenAiDocPages() {
-        val aiDocument = MyDocumentBookManager.getOrCreateAIDocument()
+        val aiDocument = runBlocking { MyDocumentBookManager.getOrCreateAIDocument() }
         addPage("ai_page", "AI page", documentId = aiDocument.id)
         MyDocumentBookManager.refreshDocument(MyDocumentBookManager.AI_DOCUMENTS_INITIALS)
-        val id = dao.pageByKeyWithContent(aiDocument.id, "ai_page")!!.id
+        val id = runBlocking { dao.pageByKeyWithContent(aiDocument.id, "ai_page") }!!.id
         val seen = mutableListOf<MyDocumentChange>()
         val subscription = MyDocumentBookManager.changes.subscribe { seen.add(it) }
         try {
@@ -327,7 +329,36 @@ class MyDocumentBookManagerTest {
                 ),
                 seen,
             )
-            assertNull(dao.pageById(id))
+            assertNull(runBlocking { dao.pageById(id) })
+        } finally {
+            subscription.cancel()
+        }
+    }
+
+    /**
+     * D1 final review M8: the coroutine caller (AgentSessionManager's onStarted) deletes through the suspend variant
+     * (direct DAO calls); it behaves like the blocking one. (Not run under DbTransactionMarker: the JSword
+     * re-activation in refreshDocument still bridges, by design.)
+     */
+    @Test
+    fun suspendingDeleteOfAnAiDocumentPageEmitsTheSameChanges() {
+        val aiDocument = runBlocking { MyDocumentBookManager.getOrCreateAIDocument() }
+        addPage("ai_page", "AI page", documentId = aiDocument.id)
+        MyDocumentBookManager.refreshDocument(MyDocumentBookManager.AI_DOCUMENTS_INITIALS)
+        val id = runBlocking { dao.pageByKeyWithContent(aiDocument.id, "ai_page") }!!.id
+        val seen = mutableListOf<MyDocumentChange>()
+        val subscription = MyDocumentBookManager.changes.subscribe { seen.add(it) }
+        try {
+            assertTrue(runBlocking { MyDocumentBookManager.deleteAIDocumentPageSuspending(id) })
+            assertEquals(
+                listOf(
+                    MyDocumentChange.DocumentUpdated(MyDocumentBookManager.AI_DOCUMENTS_INITIALS),
+                    MyDocumentChange.AiDocPages(deletedPageIds = listOf(id)),
+                ),
+                seen,
+            )
+            assertNull(runBlocking { dao.pageById(id) })
+            assertFalse(runBlocking { MyDocumentBookManager.deleteAIDocumentPageSuspending(id) })
         } finally {
             subscription.cancel()
         }

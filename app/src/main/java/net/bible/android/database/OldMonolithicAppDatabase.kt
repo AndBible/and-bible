@@ -16,10 +16,10 @@
  */
 package net.bible.android.database
 
-import androidx.room.Database
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.RoomDatabase
+import androidx.room3.Database
+import androidx.room3.Entity
+import androidx.room3.PrimaryKey
+import androidx.room3.RoomDatabase
 
 const val OLD_DATABASE_VERSION = 69
 @Entity class Dummy(@PrimaryKey(autoGenerate = true) var id: Long = 0)

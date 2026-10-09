@@ -1,5 +1,6 @@
 package net.bible.android.control.bookmark
 
+import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
@@ -77,11 +78,11 @@ class BookmarkControlChangesTest {
     }
 
     @Test fun specialLabelCreationEmitsOnlyWhenCreated() {
-        assertNull(dao.labelById(UNLABELED_LABEL_ID))
+        assertNull(runBlocking { dao.labelById(UNLABELED_LABEL_ID) })
         val saved = control.labelUnlabelled
         assertEquals(UNLABELED_LABEL_ID, saved.id)
         assertEquals(UNLABELED_LABEL_ID, seen.filterIsInstance<BookmarkChange.LabelUpserted>().single().label.id)
-        assertNotNull(dao.labelById(UNLABELED_LABEL_ID))
+        assertNotNull(runBlocking { dao.labelById(UNLABELED_LABEL_ID) })
         seen.clear()
         control.labelUnlabelled
         assertTrue(seen.isEmpty())
@@ -96,11 +97,11 @@ class BookmarkControlChangesTest {
         val event = seen.filterIsInstance<BookmarkChange.NoteModified>().single()
         assertEquals(b.id, event.bookmarkId)
         assertEquals("n", event.notes)
-        assertEquals(dao.bibleBookmarkById(b.id)!!.lastUpdatedOn.time, event.lastUpdatedOn)
+        assertEquals(runBlocking { dao.bibleBookmarkById(b.id) }!!.lastUpdatedOn.time, event.lastUpdatedOn)
         seen.clear()
         control.saveBibleBookmarkNote(b.id, null)
         assertNull(seen.filterIsInstance<BookmarkChange.NoteModified>().single().notes)
-        assertNull(dao.bibleBookmarkById(b.id)!!.notes)
+        assertNull(runBlocking { dao.bibleBookmarkById(b.id) }!!.notes)
     }
 
     @Config(sdk = [35])
@@ -114,12 +115,12 @@ class BookmarkControlChangesTest {
         val event = seen.filterIsInstance<BookmarkChange.NoteModified>().single()
         assertEquals(b.id, event.bookmarkId)
         assertEquals("generic note", event.notes)
-        assertEquals("generic note", dao.genericBookmarkById(b.id)!!.notes)
-        assertEquals(dao.genericBookmarkById(b.id)!!.lastUpdatedOn.time, event.lastUpdatedOn)
+        assertEquals("generic note", runBlocking { dao.genericBookmarkById(b.id) }!!.notes)
+        assertEquals(runBlocking { dao.genericBookmarkById(b.id) }!!.lastUpdatedOn.time, event.lastUpdatedOn)
         seen.clear()
         control.saveGenericBookmarkNote(b.id, null)
         assertNull(seen.filterIsInstance<BookmarkChange.NoteModified>().single().notes)
-        assertNull(dao.genericBookmarkById(b.id)!!.notes)
+        assertNull(runBlocking { dao.genericBookmarkById(b.id) }!!.notes)
     }
 
     @Test fun deleteLabelsEmitsBookmarksBeforeLabelsDeleted() {
@@ -148,27 +149,27 @@ class BookmarkControlChangesTest {
         val l = label()
         seen.clear()
         control.createStudyPadEntry(l.id, 0)
-        val entry = dao.studyPadTextEntriesByLabelId(l.id).single()
+        val entry = runBlocking { dao.studyPadTextEntriesByLabelId(l.id) }.single()
         assertTrue(seen.filterIsInstance<BookmarkChange.StudyPadOrder>().any { it.labelId == l.id && it.newStudyPadTextEntry?.id == entry.id })
         seen.clear()
         control.updateStudyPadTextEntryText(entry.id, "t")
         assertEquals("t", seen.filterIsInstance<BookmarkChange.StudyPadOrder>().single().newStudyPadTextEntry!!.text)
         control.deleteStudyPadTextEntry(entry.id)
         assertEquals(entry.id, seen.filterIsInstance<BookmarkChange.StudyPadTextEntryDeleted>().single().studyPadTextEntryId)
-        assertNull(dao.studyPadTextEntryById(entry.id))
+        assertNull(runBlocking { dao.studyPadTextEntryById(entry.id) })
     }
 
     @Test fun updatingStudyPadEntryPersistsMetadataAndEmitsHydratedEntry() {
         val l = label()
         control.createStudyPadEntry(l.id, 0)
-        val entry = dao.studyPadTextEntriesByLabelId(l.id).single()
+        val entry = runBlocking { dao.studyPadTextEntriesByLabelId(l.id) }.single()
         control.updateStudyPadTextEntryText(entry.id, "retained text")
         val updated = entry.studyPadTextEntryEntity.copy(orderNumber = 7, indentLevel = 2)
         seen.clear()
 
         control.updateStudyPadTextEntry(updated)
 
-        val stored = dao.studyPadTextEntryById(entry.id)!!
+        val stored = runBlocking { dao.studyPadTextEntryById(entry.id) }!!
         assertEquals(7, stored.orderNumber)
         assertEquals(2, stored.indentLevel)
         assertEquals("retained text", stored.text)
@@ -189,7 +190,7 @@ class BookmarkControlChangesTest {
             startOffset = null, endOffset = null, playbackSettings = null, new = true,
         ), setOf(l.id))
         control.createStudyPadEntry(l.id, 0)
-        val entry = dao.studyPadTextEntriesByLabelId(l.id).single().copy(orderNumber = 0, indentLevel = 3)
+        val entry = runBlocking { dao.studyPadTextEntriesByLabelId(l.id) }.single().copy(orderNumber = 0, indentLevel = 3)
         val bibleLink = control.getBibleBookmarkToLabel(bible.id, l.id)!!.apply { orderNumber = 2 }
         val genericLink = control.getGenericBookmarkToLabel(generic.id, l.id)!!.apply { orderNumber = 1 }
         seen.clear()
@@ -198,7 +199,7 @@ class BookmarkControlChangesTest {
 
         assertEquals(2, control.getBibleBookmarkToLabel(bible.id, l.id)!!.orderNumber)
         assertEquals(1, control.getGenericBookmarkToLabel(generic.id, l.id)!!.orderNumber)
-        assertEquals(entry, dao.studyPadTextEntryById(entry.id))
+        assertEquals(entry, runBlocking { dao.studyPadTextEntryById(entry.id) })
         assertEquals("one StudyPad change must be emitted after persistence", 1, seen.size)
         val change = seen.single() as BookmarkChange.StudyPadOrder
         assertEquals(l.id, change.labelId)
@@ -211,7 +212,7 @@ class BookmarkControlChangesTest {
     @Test fun changeLabelsForBookmarksEmitsOnceWithHydratedLabels() {
         val l = label()
         val ids = listOf(bookmark().id, bookmark(2).id)
-        val loaded = dao.bibleBookmarksByIds(ids)
+        val loaded = runBlocking { dao.bibleBookmarksByIds(ids) }
         assertTrue(loaded.all { it.labelIds == null })
         seen.clear()
         control.changeLabelsForBookmarks(loaded, listOf(l.id))
@@ -260,7 +261,7 @@ class BookmarkControlChangesTest {
         val l = label()
         val b = bookmark(labels = setOf(l.id))
         control.createStudyPadEntry(l.id, 0)
-        val e = dao.studyPadTextEntriesByLabelId(l.id).single()
+        val e = runBlocking { dao.studyPadTextEntriesByLabelId(l.id) }.single()
         val deletedBookmark = IdType()
         val deletedEntry = IdType()
         val entries = listOf(

@@ -17,15 +17,15 @@
 
 package net.bible.android.database
 
-import androidx.room.ColumnInfo
-import androidx.room.Dao
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.RoomDatabase
+import androidx.room3.ColumnInfo
+import androidx.room3.Dao
+import androidx.room3.Entity
+import androidx.room3.Index
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.PrimaryKey
+import androidx.room3.Query
+import androidx.room3.RoomDatabase
 
 enum class LogEntryTypes {
     UPSERT,
@@ -68,70 +68,70 @@ data class SyncStatus(
 @Dao
 interface SyncDao {
     @Query("SELECT COUNT(*) FROM LogEntry WHERE sourceDevice=:deviceId AND lastUpdated > :lastPatchWritten")
-    fun countNewLogEntries(lastPatchWritten: Long, deviceId: String): Long
+    suspend fun countNewLogEntries(lastPatchWritten: Long, deviceId: String): Long
 
     @Query("SELECT * FROM LogEntry WHERE lastUpdated > :lastSynchronized AND sourceDevice != :exceptDevice")
-    fun newLogEntries(lastSynchronized: Long, exceptDevice: String): List<LogEntry>
+    suspend fun newLogEntries(lastSynchronized: Long, exceptDevice: String): List<LogEntry>
 
     @Query("SELECT * FROM LogEntry ORDER BY lastUpdated, tableName, type")
-    fun allLogEntries(): List<LogEntry>
+    suspend fun allLogEntries(): List<LogEntry>
 
     @Query("SELECT * FROM LogEntry WHERE tableName=:tableName AND type=:type")
-    fun findLogEntries(tableName: String, type: String): List<LogEntry>
+    suspend fun findLogEntries(tableName: String, type: String): List<LogEntry>
 
     @Query("DELETE FROM LogEntry")
     suspend fun clearLog()
 
     @Query("SELECT patchNumber FROM SyncStatus WHERE sourceDevice=:deviceId ORDER BY patchNumber DESC LIMIT 1")
-    fun lastPatchNum(deviceId: String): Long?
+    suspend fun lastPatchNum(deviceId: String): Long?
 
     @Query("SELECT * FROM SyncStatus")
-    fun allSyncStatus(): List<SyncStatus>
+    suspend fun allSyncStatus(): List<SyncStatus>
 
     @Insert
-    fun addStatus(status: SyncStatus)
+    suspend fun addStatus(status: SyncStatus)
 
     @Query("DELETE FROM SyncStatus")
     suspend fun clearSyncStatus()
 
     @Query("SELECT stringValue FROM SyncConfiguration WHERE keyName = :keyName")
-    fun getString(keyName: String): String?
+    suspend fun getString(keyName: String): String?
 
     @Query("SELECT longValue FROM SyncConfiguration WHERE keyName = :keyName")
-    fun getLong(keyName: String): Long?
+    suspend fun getLong(keyName: String): Long?
 
     @Query("SELECT booleanVAlue FROM SyncConfiguration WHERE keyName = :keyName")
-    fun getBoolean(keyName: String): Boolean?
+    suspend fun getBoolean(keyName: String): Boolean?
 
     @Query("SELECT * FROM SyncConfiguration WHERE keyName = :keyName")
-    fun getConfig(keyName: String): SyncConfiguration?
+    suspend fun getConfig(keyName: String): SyncConfiguration?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun setConfig(config: SyncConfiguration)
+    suspend fun setConfig(config: SyncConfiguration)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun setConfig(configs: List<SyncConfiguration>)
+    suspend fun setConfig(configs: List<SyncConfiguration>)
 
     @Query("DELETE FROM SyncConfiguration WHERE keyName = :keyName")
-    fun removeConfig(keyName: String)
+    suspend fun removeConfig(keyName: String)
 
     @Query("DELETE FROM SyncConfiguration")
     suspend fun clearSyncConfiguration()
 
-    fun setConfig(key: String, value: Long) = setConfig(SyncConfiguration(key, longValue = value))
-    fun setConfig(key: String, value: String) = setConfig(SyncConfiguration(key, stringValue = value))
-    fun setConfig(key: String, value: Boolean) = setConfig(SyncConfiguration(key, booleanValue = value))
+    suspend fun setConfig(key: String, value: Long) = setConfig(SyncConfiguration(key, longValue = value))
+    suspend fun setConfig(key: String, value: String) = setConfig(SyncConfiguration(key, stringValue = value))
+    suspend fun setConfig(key: String, value: Boolean) = setConfig(SyncConfiguration(key, booleanValue = value))
 
     @Query("SELECT * FROM LogEntry WHERE type = 'DELETE'")
-    fun allDeletions(): List<LogEntry>
+    suspend fun allDeletions(): List<LogEntry>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addStatuses(syncStatuses: List<SyncStatus>)
+    suspend fun addStatuses(syncStatuses: List<SyncStatus>)
 
     @Query("SELECT * from SyncStatus WHERE sourceDevice=:name AND patchNumber=:patchNumber")
-    fun syncStatus(name: String, patchNumber: Long): SyncStatus?
+    suspend fun syncStatus(name: String, patchNumber: Long): SyncStatus?
     @Query("SELECT SUM(sizeBytes) from SyncStatus")
-    fun totalBytesUsed(): Long
+    suspend fun totalBytesUsed(): Long
 }
 
 

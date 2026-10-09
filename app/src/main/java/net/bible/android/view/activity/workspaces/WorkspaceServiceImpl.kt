@@ -29,6 +29,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.sharedcore.workspaces.WorkspaceRowVd
 import net.bible.sharedcore.workspaces.WorkspaceService
+import net.bible.service.db.blockingDb
 
 /**
  * Room/JSword-backed [WorkspaceService]; holds the working entities and mirrors classic
@@ -53,7 +54,7 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
     override fun saveCurrentIntoDb() { windowControl.windowRepository.saveIntoDb() }
 
     override fun loadAll(): List<WorkspaceRowVd> {
-        working.clear(); working.addAll(dao.allWorkspaces()); return working.map { it.toVd() }
+        working.clear(); working.addAll(blockingDb { dao.allWorkspaces() }); return working.map { it.toVd() }
     }
 
     override fun createWorkspace(name: String): WorkspaceRowVd {
@@ -61,12 +62,12 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
         val ws = WorkspaceEntities.Workspace(
             name = name, contentsText = null, orderNumber = repo.orderNumber,
             textDisplaySettings = repo.textDisplaySettings, workspaceSettings = repo.workspaceSettings,
-        ).apply { dao.insertWorkspace(this) }
+        ).apply { blockingDb { dao.insertWorkspace(this@apply) } }
         working.add(ws); return ws.toVd()
     }
 
     override fun cloneWorkspace(sourceId: String, name: String): WorkspaceRowVd {
-        val ws = dao.cloneWorkspace(IdType(sourceId), name)
+        val ws = blockingDb { dao.cloneWorkspace(IdType(sourceId), name) }
         working.add(working.indexOfFirst { it.id.toString() == sourceId } + 1, ws)
         return ws.toVd()
     }
@@ -74,13 +75,14 @@ class WorkspaceServiceImpl(private val windowControl: WindowControl) : Workspace
     override fun applyChanges(orderedIds: List<String>, deletedIds: List<String>, renamed: Map<String, String>, changedIds: Set<String>) {
         renamed.forEach { (id, n) -> working.firstOrNull { it.id.toString() == id }?.name = n }
         orderedIds.forEachIndexed { idx, id -> working.firstOrNull { it.id.toString() == id }?.orderNumber = idx }
-        deletedIds.forEach { id ->
-            val wid = IdType(id); dao.deleteWorkspace(wid); AgentSessionManager.clearSession(wid)
-        }
-        dao.updateWorkspaces(working.filter { it.id.toString() in changedIds && it.id.toString() !in deletedIds })
+        val toDelete = deletedIds.map { IdType(it) }
+        blockingDb { toDelete.forEach { dao.deleteWorkspace(it) } }
+        toDelete.forEach { AgentSessionManager.clearSession(it) }
+        val toUpdate = working.filter { it.id.toString() in changedIds && it.id.toString() !in deletedIds }
+        blockingDb { dao.updateWorkspaces(toUpdate) }
     }
 
-    override fun deleteCreated(ids: List<String>) { ids.forEach { dao.deleteWorkspace(IdType(it)) } }
+    override fun deleteCreated(ids: List<String>) { blockingDb { ids.forEach { dao.deleteWorkspace(IdType(it)) } } }
 
     override fun settingTypeLabels(sourceId: String): List<String> {
         val ws = find(sourceId)

@@ -17,8 +17,8 @@
 
 package net.bible.android.database
 
-import androidx.room.*
-import androidx.room.OnConflictStrategy.Companion.REPLACE
+import androidx.room3.*
+import androidx.room3.OnConflictStrategy.Companion.REPLACE
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -35,27 +35,27 @@ data class SwordDocumentInfo(
 @Dao
 interface SwordDocumentInfoDao {
     @Insert(onConflict = REPLACE)
-    fun insert(documents: List<SwordDocumentInfo>)
+    suspend fun insert(documents: List<SwordDocumentInfo>)
 
     @Insert(onConflict = REPLACE)
-    fun insert(documents: SwordDocumentInfo)
+    suspend fun insert(documents: SwordDocumentInfo)
 
     @Update
-    fun update(doc: SwordDocumentInfo)
+    suspend fun update(doc: SwordDocumentInfo)
 
     @Query("""SELECT * FROM SwordDocumentInfo WHERE initials = :initials""")
-    fun getBook(initials: String): SwordDocumentInfo?
+    suspend fun getBook(initials: String): SwordDocumentInfo?
 
     @Query("""SELECT * from SwordDocumentInfo""")
-    fun getKnownInstalled(): List<SwordDocumentInfo>
+    suspend fun getKnownInstalled(): List<SwordDocumentInfo>
 
     @Query("""SELECT * from SwordDocumentInfo WHERE cipherKey IS NOT NULL""")
-    fun getUnlocked(): List<SwordDocumentInfo>
+    suspend fun getUnlocked(): List<SwordDocumentInfo>
 
     @Query("""SELECT * from SwordDocumentInfo""")
-    fun getAll(): List<SwordDocumentInfo>
+    suspend fun getAll(): List<SwordDocumentInfo>
 
     @Query("""DELETE FROM SwordDocumentInfo WHERE initials = :initials""")
-    fun deleteByOsisId(initials: String)
+    suspend fun deleteByOsisId(initials: String)
 
 }

@@ -17,13 +17,13 @@
 
 package net.bible.android.database
 
-import androidx.room.ColumnInfo
-import androidx.room.Dao
-import androidx.room.Entity
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.PrimaryKey
-import androidx.room.Query
+import androidx.room3.ColumnInfo
+import androidx.room3.Dao
+import androidx.room3.Entity
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.PrimaryKey
+import androidx.room3.Query
 
 /**
  * Singleton row of the user's document-sync preferences. Device-local (lives in
@@ -69,35 +69,35 @@ data class CloudDocumentSyncTimestamp(
 @Dao
 interface DocumentSyncPreferencesDao {
     @Query("SELECT * FROM DocumentSyncPreferences LIMIT 1")
-    fun get(): DocumentSyncPreferences?
+    suspend fun get(): DocumentSyncPreferences?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun set(prefs: DocumentSyncPreferences)
+    suspend fun set(prefs: DocumentSyncPreferences)
 
     @Query("DELETE FROM DocumentSyncPreferences")
-    fun clear()
+    suspend fun clear()
 }
 
 @Dao
 interface CloudListingStateDao {
     @Query("SELECT * FROM CloudListingState LIMIT 1")
-    fun get(): CloudListingState?
+    suspend fun get(): CloudListingState?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun set(state: CloudListingState)
+    suspend fun set(state: CloudListingState)
 
     @Query("DELETE FROM CloudListingState")
-    fun clear()
+    suspend fun clear()
 }
 
 @Dao
 interface CloudDocumentSyncTimestampDao {
     @Query("SELECT timestamp FROM CloudDocumentSyncTimestamp WHERE initials = :initials")
-    fun get(initials: String): Long?
+    suspend fun get(initials: String): Long?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun set(row: CloudDocumentSyncTimestamp)
+    suspend fun set(row: CloudDocumentSyncTimestamp)
 
     @Query("DELETE FROM CloudDocumentSyncTimestamp")
-    fun clear()
+    suspend fun clear()
 }

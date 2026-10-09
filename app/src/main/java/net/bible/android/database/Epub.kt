@@ -17,18 +17,19 @@
 
 package net.bible.android.database
 
-import androidx.room.Dao
-import androidx.room.Database
-import androidx.room.Entity
-import androidx.room.Ignore
-import androidx.room.Index
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.RoomDatabase
-import androidx.room.Transaction
-import androidx.room.TypeConverters
+import androidx.sqlite.execSQL
+import androidx.room3.Dao
+import androidx.room3.Database
+import androidx.room3.Entity
+import androidx.room3.Ignore
+import androidx.room3.Index
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.PrimaryKey
+import androidx.room3.Query
+import androidx.room3.RoomDatabase
+import androidx.room3.Transaction
+import androidx.room3.ColumnTypeConverters
 import net.bible.android.database.migrations.Migration
 import net.bible.android.database.migrations.makeMigration
 import org.jdom2.Element
@@ -68,38 +69,38 @@ class EpubMeta(
 
 @Dao
 interface EpubDao {
-    @Insert fun insert(vararg items: EpubFragment): List<Long>
-    @Insert fun insert(vararg items: StyleSheet): List<Long>
-    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insert(vararg items: EpubHtmlToFrag)
+    @Insert suspend fun insert(vararg items: EpubFragment): List<Long>
+    @Insert suspend fun insert(vararg items: StyleSheet): List<Long>
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(vararg items: EpubHtmlToFrag)
 
     @Query(
         "SELECT f.* FROM EpubFragment f " +
         "JOIN EpubHtmlToFrag e2f ON e2f.fragId = f.id " +
         "WHERE e2f.htmlId=:htmlId"
     )
-    fun getFragment(htmlId: String): EpubFragment?
+    suspend fun getFragment(htmlId: String): EpubFragment?
 
     @Query("SELECT * from EpubFragment WHERE id=:id")
-    fun getFragment(id: Long): EpubFragment?
+    suspend fun getFragment(id: Long): EpubFragment?
 
     @Query("SELECT f.* FROM EpubFragment f")
-    fun fragments(): List<EpubFragment>
+    suspend fun fragments(): List<EpubFragment>
 
     @Query("SELECT f.* FROM EpubHtmlToFrag f")
-    fun epubHtmlToFrags(): List<EpubHtmlToFrag>
+    suspend fun epubHtmlToFrags(): List<EpubHtmlToFrag>
 
     @Query("SELECT * FROM StyleSheet WHERE origId=:origId")
-    fun styleSheets(origId: String): List<StyleSheet>
+    suspend fun styleSheets(origId: String): List<StyleSheet>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insert(meta: EpubMeta)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(meta: EpubMeta)
 
     @Query("SELECT * FROM EpubMeta WHERE id = 0")
-    fun getMeta(): EpubMeta?
+    suspend fun getMeta(): EpubMeta?
 
-    @Query("DELETE FROM EpubFragment") fun deleteAllFragments()
-    @Query("DELETE FROM EpubHtmlToFrag") fun deleteAllHtmlToFrags()
-    @Query("DELETE FROM StyleSheet") fun deleteAllStyleSheets()
-    @Query("DELETE FROM EpubMeta") fun deleteAllMeta()
+    @Query("DELETE FROM EpubFragment") suspend fun deleteAllFragments()
+    @Query("DELETE FROM EpubHtmlToFrag") suspend fun deleteAllHtmlToFrags()
+    @Query("DELETE FROM StyleSheet") suspend fun deleteAllStyleSheets()
+    @Query("DELETE FROM EpubMeta") suspend fun deleteAllMeta()
 
     /**
      * Remove all previously-optimized data. Called before re-optimizing so that stale
@@ -107,7 +108,7 @@ interface EpubDao {
      * survive and later point the reader at non-existent fragment files.
      */
     @Transaction
-    fun clear() {
+    suspend fun clear() {
         deleteAllFragments()
         deleteAllHtmlToFrags()
         deleteAllStyleSheets()
@@ -133,7 +134,7 @@ val epubMigrations = arrayOf<Migration>(addEpubMeta)
     ],
     version = EPUB_DATABASE_VERSION
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class EpubDatabase: RoomDatabase() {
     abstract fun epubDao(): EpubDao
 }

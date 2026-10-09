@@ -68,6 +68,7 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.json.JSONObject
 import java.io.StringReader
+import net.bible.service.db.blockingDb
 
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
@@ -477,7 +478,7 @@ class AgentExecutor(
      * Returns a [ProcessToolsResult] if the tool signals completion, or null to continue.
      * For setDocumentTitle with pending content, returns [ProcessToolsResult.Continue] with pendingDocumentTitle.
      */
-    private fun checkForFinishResult(
+    private suspend fun checkForFinishResult(
         toolCall: ToolCall,
         result: ToolResult.Success,
         responseContent: String?,
@@ -528,7 +529,7 @@ class AgentExecutor(
      * or sets up document with title. Returns [ProcessToolsResult.Continue] with
      * pendingDocumentTitle when content is not yet available.
      */
-    private fun handleSetDocumentTitle(
+    private suspend fun handleSetDocumentTitle(
         toolCall: ToolCall,
         result: ToolResult.Success,
         responseContent: String?,
@@ -968,7 +969,7 @@ class AgentExecutor(
     /**
      * Routes transformed text back to the appropriate note entity based on [AgentContext.noteEditorEntityType].
      */
-    private fun saveNoteContent(context: AgentContext, content: String) {
+    private suspend fun saveNoteContent(context: AgentContext, content: String) {
         val entityId = context.noteEditorEntityId ?: return
         val bookmarkControl = GlobalContext.get().get<net.bible.android.control.bookmark.BookmarkControl>()
 

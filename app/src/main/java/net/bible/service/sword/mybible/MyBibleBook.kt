@@ -17,11 +17,15 @@
 
 package net.bible.service.sword.mybible
 
-import android.database.CursorIndexOutOfBoundsException
-import android.database.sqlite.SQLiteException
-import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.SQLiteException
+import androidx.sqlite.SQLiteStatement
 import net.bible.android.SharedConstants
+import net.bible.service.db.openSqlite
+import net.bible.service.db.queryFirst
+import net.bible.service.db.queryRows
+import net.bible.service.db.textOrNull
 import net.bible.service.sword.SqliteSwordDriver
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -96,23 +100,34 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
         this.metadata = metadata
     }
 
-    private var _sqlDb: SQLiteDatabase? = null
+    private var _sqlDb: SQLiteConnection? = null
 
-    val sqlDb: SQLiteDatabase get() = synchronized(this) {
-        _sqlDb?.run {
-            if (isOpen) this else null
-        } ?: run {
+    val sqlDb: SQLiteConnection get() = synchronized(this) {
+        _sqlDb ?: run {
             Log.i(TAG, "initDatabase ${sqliteFile.name}")
-            val db = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
+            val db = openSqlite(sqliteFile.path, readOnly = true)
             _sqlDb = db
             db
         }
     }
 
+    /**
+     * Runs [sql] on the shared read-only connection and maps every row. A bundled-driver connection is
+     * not safe for concurrent use (the old framework-style database was), so every query goes through the state's lock.
+     */
+    fun <T> rows(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): List<T> =
+        synchronized(this) { sqlDb.queryRows(sql, *args, row = row) }
+
+    /** Like [rows], but maps only the first row, or returns null when there is none. */
+    fun <T> firstRow(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): T? =
+        synchronized(this) { sqlDb.queryFirst(sql, *args, row = row) }
+
     override fun close() {
-        Log.i(TAG, "close database ${sqliteFile.name}")
-        _sqlDb?.close()
-        _sqlDb = null
+        synchronized(this) {
+            Log.i(TAG, "close database ${sqliteFile.name}")
+            _sqlDb?.close()
+            _sqlDb = null
+        }
     }
 
     var hasStories: Boolean = false
@@ -121,58 +136,33 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
 
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata?: synchronized(this) {
-            val db = this.sqlDb
-            val initials = "MyBible-" + sanitizeModuleName(File(db.path).nameWithoutExtension)
-            val abbreviation = File(db.path).nameWithoutExtension.split(".", limit = 2)[0]
-            val description = db.rawQuery("select value from info where name = ?", arrayOf("description")).use {
-                it.moveToFirst()
-                try {it.getString(0) } catch (e: CursorIndexOutOfBoundsException){""}
-            }
-            val language = db.rawQuery("select value from info where name = ?", arrayOf("language")).use {
-                it.moveToFirst()
-                try {it.getString(0) } catch (e: CursorIndexOutOfBoundsException){"en"}
-            }
-            val hasStrongsDef = db.rawQuery("select value from info where name = ?", arrayOf("is_strong")).use {
-                it.moveToFirst() || return@use false
-                try {it.getString(0) } catch (e: CursorIndexOutOfBoundsException){""} == "true"
-            }
-            val hasStrongs = db.rawQuery("select value from info where name = ?", arrayOf("strong_numbers")).use {
-                it.moveToFirst() || return@use false
-                try {it.getString(0) } catch (e: CursorIndexOutOfBoundsException){""} == "true"
-            }
+            val dbPath = sqliteFile.path
+            val initials = "MyBible-" + sanitizeModuleName(File(dbPath).nameWithoutExtension)
+            val abbreviation = File(dbPath).nameWithoutExtension.split(".", limit = 2)[0]
+            fun info(name: String): String? =
+                firstRow("select value from info where name = ?", name) { it.textOrNull(0) }
+            val description = info("description") ?: ""
+            val language = info("language") ?: "en"
+            val hasStrongsDef = info("is_strong") == "true"
+            val hasStrongs = info("strong_numbers") == "true"
 
-            val tables =
-                db.rawQuery("select name from sqlite_master where type = 'table' AND name not like 'sqlite_%'", null)
-                    .use {
-                        val names = arrayListOf<String>()
-                        while (it.moveToNext()) {
-                            names.add(it.getString(0))
-                        }
-                        names
-                    }
+            val tables = rows("select name from sqlite_master where type = 'table' AND name not like 'sqlite_%'") {
+                it.getText(0)
+            }
             val isCommentary = tables.contains("commentaries")
             val isBible = tables.contains("verses")
             val isDictionary = tables.contains("dictionary")
             hasStories = tables.contains("stories")
             val hasWordsOfChrist = if (isBible) {
                 try {
-                    val hasInfoFlag = db.rawQuery(
-                        "select value from info where name in ('is_words_of_christ', 'words_of_christ', 'is_red_letter', 'red_letter')",
-                        null
-                    ).use { cur ->
-                        while (cur.moveToNext()) {
-                            if (parseMyBibleBoolean(cur.getString(0))) {
-                                return@use true
-                            }
-                        }
-                        false
-                    }
-                    hasInfoFlag || db.rawQuery(
-                        "select 1 from verses where instr(lower(text), '<j>') > 0 limit 1",
-                        null
-                    ).use { it.moveToFirst() }
+                    val hasInfoFlag = rows(
+                        "select value from info where name in ('is_words_of_christ', 'words_of_christ', 'is_red_letter', 'red_letter')"
+                    ) { parseMyBibleBoolean(it.textOrNull(0)) }.any { it }
+                    hasInfoFlag || firstRow(
+                        "select 1 from verses where instr(lower(text), '<j>') > 0 limit 1"
+                    ) { true } ?: false
                 } catch (e: SQLiteException) {
-                    Log.w(TAG, "Failed to detect WordsOfChrist support for ${db.path}", e)
+                    Log.w(TAG, "Failed to detect WordsOfChrist support for $dbPath", e)
                     false
                 }
             } else {
@@ -195,7 +185,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
                 hasStrongsDef = hasStrongsDef,
                 hasStrongs = hasStrongs,
                 hasWordsOfChrist = hasWordsOfChrist,
-                moduleFileName = db.path!!,
+                moduleFileName = dbPath,
             )
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
@@ -232,38 +222,21 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             else -> throw RuntimeException("Illegal book category")
         }
         try {
-            state.sqlDb.rawQuery("select count(*) as count from $table", null).use { cur ->
-                cur.moveToNext()
-                return cur.getInt(0)
-            }
+            return state.firstRow("select count(*) as count from $table") { it.getInt(0) } ?: 0
         } catch (e: SQLiteException) {
             Log.e(TAG, "Error getting cardinality", e)
             return 0
         }
     }
 
+    // The Cursor-based iterator held a statement open between next() calls. A bundled-driver statement
+    // is tied to its connection (closed with the state, shared by every query), so the topics are read
+    // up front instead, like EpubBackend.iterator does.
     override fun iterator(): MutableIterator<Key> =
         when(bookMetaData.bookCategory) {
-            BookCategory.DICTIONARY -> {
-                val cur = state.sqlDb.rawQuery("select topic from dictionary", null)
-                object: MutableIterator<Key> {
-                    override fun hasNext(): Boolean {
-                        return !cur.isLast
-                    }
-                    override fun next(): Key {
-                        cur.moveToNext()
-                        val k = DefaultLeafKeyList(cur.getString(0))
-                        if(cur.isLast) {
-                            Log.i(TAG, "Closing dict cursor")
-                            cur.close()
-                        }
-                        return k
-                    }
-                    override fun remove() {
-                        throw UnsupportedOperationException()
-                    }
-                }
-            }
+            BookCategory.DICTIONARY ->
+                state.rows("select topic from dictionary") { DefaultLeafKeyList(it.getText(0)) as Key }
+                    .toMutableList().iterator()
             else -> super.iterator()
         }
 
@@ -271,14 +244,9 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         when(bookMetaData.bookCategory) {
             BookCategory.DICTIONARY -> {
                 try {
-                    state.sqlDb.rawQuery(
-                        "select topic from dictionary WHERE _rowid_ = ?",
-                        arrayOf(index)
-                    ).use { c ->
-                        c.moveToNext()
-                        val topic = c.getString(0)
-                        return DefaultLeafKeyList(topic)
-                    }
+                    val topic = state.firstRow("select topic from dictionary WHERE _rowid_ = ?", index) { it.getText(0) }
+                        ?: throw IndexOutOfBoundsException()
+                    return DefaultLeafKeyList(topic)
                 } catch (e: SQLiteException) {
                     Log.e(TAG, "Error getting key", e)
                     throw IndexOutOfBoundsException()
@@ -290,26 +258,19 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     private fun indexOfBible(that: Key): Int {
         val verse = KeyUtil.getVerse(that)
-        state.sqlDb.rawQuery("select _rowid_ from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
-            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")).use {
-            it.moveToNext() || return -1
-            return it.getInt(0)
-        }
+        return state.firstRow("select _rowid_ from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
+            "${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}") { it.getInt(0) } ?: -1
     }
 
     private fun indexOfDictionary(that: Key): Int {
         if(that !is DefaultLeafKeyList) return -1;
         val keyName = that.name
-        state.sqlDb.rawQuery("select _rowid_ from dictionary WHERE topic = ?", arrayOf(keyName)).use {
-            it.moveToNext() || return -1
-            return it.getInt(0)
-        }
-
+        return state.firstRow("select _rowid_ from dictionary WHERE topic = ?", keyName) { it.getInt(0) } ?: -1
     }
 
     private fun indexOfCommentary(that: Key): Int {
         val verse = KeyUtil.getVerse(that)
-        state.sqlDb.rawQuery(
+        return state.firstRow(
             """select _rowid_ from commentaries WHERE book_number = ? AND 
                             (
                                 (chapter_number_from <= ? AND verse_number_from <= ? AND
@@ -322,11 +283,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                             )
                             ))
                             """,
-            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}")).use {
-
-            it.moveToNext() || return -1
-            return it.getInt(0)
-        }
+            "${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}") { it.getInt(0) } ?: -1
     }
 
     override fun indexOf(that: Key): Int = try {
@@ -343,25 +300,16 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     private fun readBible(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
-        var text: String? = state.sqlDb.rawQuery(
+        var text: String? = state.firstRow(
             "select text from verses WHERE book_number = ? AND chapter = ? AND verse = ?",
-            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
-        ).use {
-            it.moveToNext() || throw IOException("Can't read $key")
-            it.getString(0)
-        }
+            "${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}"
+        ) { it.textOrNull(0) ?: "" } ?: throw IOException("Can't read $key")
 
         val stories = if(state.hasStories) {
-            state.sqlDb.rawQuery(
+            state.rows(
                 "select title from stories WHERE book_number = ? AND chapter = ? AND verse = ?",
-                arrayOf("${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}")
-            ).use {
-                val result = arrayListOf<String>()
-                while (it.moveToNext()) {
-                    result.add(it.getString(0))
-                }
-                result
-            }
+                "${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}"
+            ) { it.getText(0) }
         } else {
             arrayListOf()
         }
@@ -378,11 +326,8 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     private fun readDictionary(state: SqliteVerseBackendState, key: Key): String {
         if(key !is DefaultLeafKeyList) throw RuntimeException("Invalid key");
         val keyName = key.name
-        return state.sqlDb.rawQuery("select definition from dictionary WHERE topic = ?", arrayOf(keyName)
-        ).use {
-            it.moveToNext() || throw IOException("Can't read $key")
-            it.getString(0)
-        }
+        return state.firstRow("select definition from dictionary WHERE topic = ?", keyName) { it.getText(0) }
+            ?: throw IOException("Can't read $key")
     }
 
     /**
@@ -405,7 +350,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         val toChap = verse.chapter
         val toVerse = verse.verse
 
-        return state.sqlDb.rawQuery(
+        return state.rows(
             """select text from commentaries WHERE book_number = ? AND 
                             (
                                 (chapter_number_from <= ? AND verse_number_from <= ? AND
@@ -419,14 +364,8 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
                             ))
                             ORDER BY chapter_number_from, verse_number_from
                             """,
-            arrayOf("${bibleBookToMyBibleInt[verse.book]}", "$toChap", "$toVerse", "$fromChap", "$fromVerse", "$toChap", "$toVerse")
-        ).use {
-            val result = arrayListOf<String>()
-            while (it.moveToNext()) {
-                result.add(it.getString(0))
-            }
-            result
-        }.joinToString {"<div>$it</div>"}
+            "${bibleBookToMyBibleInt[verse.book]}", "$toChap", "$toVerse", "$fromChap", "$fromVerse", "$toChap", "$toVerse"
+        ) { it.getText(0) }.joinToString {"<div>$it</div>"}
     }
 
     override fun readRawContent(state: SqliteVerseBackendState, key: Key): String =

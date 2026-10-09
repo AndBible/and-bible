@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.compose
 
+import kotlinx.coroutines.runBlocking
 import androidx.lifecycle.lifecycleScope
 import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TEST_SDK
@@ -75,8 +76,8 @@ class ReadingHostSaveOnPauseTest {
 
     private fun savedBiblePage(activity: NavHostComposeActivity) =
         assertNotNull(
-            DatabaseContainer.instance.workspaceDb.workspaceDao()
-                .pageManager(activity.hostWindowRepository.activeWindow.id),
+            runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao()
+                .pageManager(activity.hostWindowRepository.activeWindow.id) },
         ).biblePage
 
     @Test

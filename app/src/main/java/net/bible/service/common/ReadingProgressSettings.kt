@@ -21,6 +21,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.bible.android.database.progress.GlobalReadingProgressSettings
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.blockingDb
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 
@@ -54,10 +55,11 @@ object ReadingProgressSettings {
 
     private val dao get() = DatabaseContainer.instance.progressDb.globalReadingProgressSettingsDao()
 
-    private fun getOrDefault(): GlobalReadingProgressSettings = dao.get() ?: GlobalReadingProgressSettings()
+    private fun getOrDefault(): GlobalReadingProgressSettings = blockingDb { dao.get() } ?: GlobalReadingProgressSettings()
 
     private fun update(transform: GlobalReadingProgressSettings.() -> GlobalReadingProgressSettings) {
-        dao.set(getOrDefault().transform())
+        val updated = getOrDefault().transform()
+        blockingDb { dao.set(updated) }
     }
 
     var autoMarkMemorized: Boolean

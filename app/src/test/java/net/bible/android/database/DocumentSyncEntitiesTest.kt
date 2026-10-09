@@ -17,6 +17,7 @@
 
 package net.bible.android.database
 
+import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.service.db.DatabaseContainer
@@ -34,7 +35,7 @@ class DocumentSyncEntitiesTest {
     private val db get() = DatabaseContainer.instance.documentSyncDb
 
     @Test
-    fun preferencesDefaultWhenEmptyAndRoundTrip() {
+    fun preferencesDefaultWhenEmptyAndRoundTrip() = runBlocking {
         db.documentSyncPreferencesDao().clear()
         assertNull("no row before any write", db.documentSyncPreferencesDao().get())
 
@@ -51,7 +52,7 @@ class DocumentSyncEntitiesTest {
     }
 
     @Test
-    fun listingStateRoundTrip() {
+    fun listingStateRoundTrip() = runBlocking {
         db.cloudListingStateDao().clear()
         assertNull(db.cloudListingStateDao().get())
         db.cloudListingStateDao().set(CloudListingState(watermark = 1740000000000L))
@@ -59,7 +60,7 @@ class DocumentSyncEntitiesTest {
     }
 
     @Test
-    fun timestampPerInitialsRoundTrip() {
+    fun timestampPerInitialsRoundTrip() = runBlocking {
         db.cloudDocumentSyncTimestampDao().clear()
         assertNull(db.cloudDocumentSyncTimestampDao().get("KJV"))
         db.cloudDocumentSyncTimestampDao().set(CloudDocumentSyncTimestamp("KJV", 42L))

@@ -34,6 +34,7 @@ import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import java.util.Locale
+import net.bible.service.db.blockingDb
 
 private const val TAG = "MyDocumentBackend"
 
@@ -77,7 +78,7 @@ class MyDocumentBackend(
     private var cachedPages: List<MyDocumentPage>? = null
 
     private fun getPages(): List<MyDocumentPage> {
-        return cachedPages ?: dao.pagesForDocument(documentId).also { cachedPages = it }
+        return cachedPages ?: blockingDb { dao.pagesForDocument(documentId) }.also { cachedPages = it }
     }
 
     override fun initState(): MyDocumentOpenFileState {
@@ -129,7 +130,7 @@ class MyDocumentBackend(
         if (key == null) return ""
 
         val pageKey = key.osisRef?.takeIf { it.isNotEmpty() } ?: key.name
-        val page = dao.pageByKeyWithContent(documentId, pageKey)
+        val page = blockingDb { dao.pageByKeyWithContent(documentId, pageKey) }
 
         if (page == null) {
             Log.w(TAG, "Page not found: $pageKey in document $documentId")

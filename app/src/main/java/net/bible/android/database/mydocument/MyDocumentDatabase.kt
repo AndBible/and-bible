@@ -17,8 +17,8 @@
 
 package net.bible.android.database.mydocument
 
-import androidx.room.Database
-import androidx.room.TypeConverters
+import androidx.room3.Database
+import androidx.room3.ColumnTypeConverters
 import net.bible.android.database.Converters
 import net.bible.android.database.LogEntry
 import net.bible.android.database.SyncConfiguration
@@ -43,7 +43,7 @@ const val MY_DOCUMENT_DATABASE_VERSION = 4
     ],
     version = MY_DOCUMENT_DATABASE_VERSION
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class MyDocumentDatabase : SyncableRoomDatabase() {
     abstract fun myDocumentDao(): MyDocumentDao
 

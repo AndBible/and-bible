@@ -23,6 +23,7 @@ import net.bible.android.database.IdType
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.blockingDb
 
 /**
  * Unified facade for accessing both built-in and user-created prompts.
@@ -74,7 +75,7 @@ object PromptRepository {
     fun isReadOnly(id: IdType): Boolean = isBuiltIn(id) || isAddon(id)
 
     /** Apply DB overrides (e.g. model selection) to a built-in prompt. */
-    private fun applyOverride(prompt: AgentPrompt): AgentPrompt {
+    private suspend fun applyOverride(prompt: AgentPrompt): AgentPrompt {
         val override = overrideDao.getById(prompt.id) ?: return prompt
         return prompt.copy(configuredModelId = override.configuredModelId)
     }
@@ -84,12 +85,13 @@ object PromptRepository {
      * Built-in prompts are merged with any DB overrides.
      */
     fun promptById(id: IdType): AgentPrompt? {
-        BuiltInPrompts.promptById(id)?.let { return applyOverride(it) }
+        BuiltInPrompts.promptById(id)?.let { return blockingDb { applyOverride(it) } }
         return loadAddonPrompts().find { it.id == id }
-            ?: dao.promptById(id)
+            ?: blockingDb { dao.promptById(id) }
     }
 
-    private fun loadBuiltInPrompts(): List<AgentPrompt> {
+    /** Suspend: the override lookup per prompt runs inside the caller's single bridge. */
+    private suspend fun loadBuiltInPrompts(): List<AgentPrompt> {
         val prompts = if (CommonUtils.isDebugMode) BuiltInPrompts.allBuiltInPrompts()
             else BuiltInPrompts.productionPrompts()
         return prompts.map { applyOverride(it) }
@@ -104,15 +106,17 @@ object PromptRepository {
      */
     fun allPrompts(): List<AgentPrompt> {
         val hidden = CommonUtils.aiSettings.hiddenBuiltInPrompts
-        val visibleBuiltIn = loadBuiltInPrompts().filter { it.id !in hidden }
-        return visibleBuiltIn + loadAddonPrompts() + dao.allPrompts()
+        return blockingDb {
+            val visibleBuiltIn = loadBuiltInPrompts().filter { it.id !in hidden }
+            visibleBuiltIn + loadAddonPrompts() + dao.allPrompts()
+        }
     }
 
     /**
      * Returns all prompts including hidden ones, for use in settings UI.
      */
     fun allPromptsIncludingHidden(): List<AgentPrompt> =
-        loadBuiltInPrompts() + loadAddonPrompts() + dao.allPrompts()
+        blockingDb { loadBuiltInPrompts() + loadAddonPrompts() + dao.allPrompts() }
 
     /**
      * Returns prompts filtered by context and optionally by document category.
@@ -141,7 +145,6 @@ object PromptRepository {
         val source = promptById(id) ?: return null
         val effectiveCategoryId = getCategoryForPrompt(source)?.id
         val newOrder = source.orderNumber + 1
-        dao.shiftOrderNumbersAfter(source.orderNumber)
         val newPrompt = source.copy(
             id = IdType(),
             name = source.name + " (copy)",
@@ -149,7 +152,10 @@ object PromptRepository {
             orderNumber = newOrder,
             categoryId = effectiveCategoryId,
         ).also { it.sourceModule = null }
-        dao.insert(newPrompt)
+        blockingDb {
+            dao.shiftOrderNumbersAfter(source.orderNumber)
+            dao.insert(newPrompt)
+        }
         return newPrompt.id
     }
 
@@ -158,7 +164,7 @@ object PromptRepository {
      */
     fun insertPrompt(prompt: AgentPrompt) {
         require(!BuiltInPrompts.isBuiltIn(prompt.id)) { "Cannot insert a prompt with a built-in ID" }
-        dao.insert(prompt)
+        blockingDb { dao.insert(prompt) }
     }
 
     /**
@@ -166,7 +172,7 @@ object PromptRepository {
      */
     fun updatePrompt(prompt: AgentPrompt) {
         require(!BuiltInPrompts.isBuiltIn(prompt.id)) { "Cannot update a built-in prompt" }
-        dao.update(prompt)
+        blockingDb { dao.update(prompt) }
     }
 
     /**
@@ -174,7 +180,7 @@ object PromptRepository {
      */
     fun deletePrompt(prompt: AgentPrompt) {
         require(!BuiltInPrompts.isBuiltIn(prompt.id)) { "Cannot delete a built-in prompt" }
-        dao.delete(prompt)
+        blockingDb { dao.delete(prompt) }
     }
 
     /**
@@ -182,16 +188,16 @@ object PromptRepository {
      * Built-in prompts are unaffected (they live in code).
      */
     fun deleteAllUserPrompts() {
-        dao.deleteAll()
+        blockingDb { dao.deleteAll() }
     }
 
     /** Delete all user-created categories (built-in categories are in code and unaffected). */
     fun deleteAllUserCategories() {
-        categoryDao.deleteAll()
+        blockingDb { categoryDao.deleteAll() }
     }
 
     /** Set the model override for a built-in prompt. */
-    fun setBuiltinPromptModelOverride(promptId: IdType, modelId: IdType) {
+    suspend fun setBuiltinPromptModelOverride(promptId: IdType, modelId: IdType) {
         overrideDao.upsert(BuiltinPromptOverride(id = promptId, configuredModelId = modelId))
     }
 
@@ -209,29 +215,31 @@ object PromptRepository {
 
     /** All categories: built-in (from code) + user-created (from DB). */
     fun allCategories(): List<PromptCategory> =
-        BuiltInPrompts.defaultCategories() + categoryDao.all()
+        BuiltInPrompts.defaultCategories() + userCategories()
 
     /** User-created categories only (from DB). */
-    fun userCategories(): List<PromptCategory> = categoryDao.all()
+    fun userCategories(): List<PromptCategory> = blockingDb { categoryDao.all() }
 
     fun categoryById(id: IdType): PromptCategory? =
-        BuiltInPrompts.defaultCategories().find { it.id == id } ?: categoryDao.getById(id)
+        BuiltInPrompts.defaultCategories().find { it.id == id } ?: blockingDb { categoryDao.getById(id) }
 
-    fun insertCategory(category: PromptCategory) = categoryDao.insert(category)
+    fun insertCategory(category: PromptCategory) = blockingDb { categoryDao.insert(category) }
 
-    fun updateCategory(category: PromptCategory) = categoryDao.update(category)
+    fun updateCategory(category: PromptCategory) = blockingDb { categoryDao.update(category) }
 
     /**
      * Delete a user category. If [deletePrompts] is true, deletes all prompts in the category.
      * Otherwise moves them to root (categoryId = null).
      */
     fun deleteCategory(categoryId: IdType, deletePrompts: Boolean) {
-        if (deletePrompts) {
-            dao.deleteByCategoryId(categoryId)
-        } else {
-            categoryDao.clearCategoryFromPrompts(categoryId)
+        blockingDb {
+            if (deletePrompts) {
+                dao.deleteByCategoryId(categoryId)
+            } else {
+                categoryDao.clearCategoryFromPrompts(categoryId)
+            }
+            categoryDao.delete(PromptCategory(id = categoryId))
         }
-        categoryDao.delete(PromptCategory(id = categoryId))
     }
 
     /**

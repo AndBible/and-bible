@@ -17,8 +17,8 @@
 
 package net.bible.android.database.progress
 
-import androidx.room.Database
-import androidx.room.TypeConverters
+import androidx.room3.Database
+import androidx.room3.ColumnTypeConverters
 import net.bible.android.database.Converters
 import net.bible.android.database.LogEntry
 import net.bible.android.database.SyncConfiguration
@@ -39,7 +39,7 @@ const val PROGRESS_DATABASE_VERSION = 9
     ],
     version = PROGRESS_DATABASE_VERSION
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class ProgressDatabase : SyncableRoomDatabase() {
     abstract fun progressDao(): ProgressDao
     abstract fun globalReadingProgressSettingsDao(): GlobalReadingProgressSettingsDao

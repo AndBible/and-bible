@@ -51,7 +51,7 @@ class RestoreReleaseTest {
             error("copy failed")
         } } }
         // The next access must reopen, not hit the closed Room instance.
-        assertNotNull(DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id))
+        assertNotNull(runBlocking { DatabaseContainer.instance.workspaceDb.workspaceDao().workspace(repo.id) })
     }
 
     /** The old monolithic restore: reset, delete, reopen (migrate) -- and the migration throws. */
@@ -92,6 +92,6 @@ class RestoreReleaseTest {
         runCatching { runBlocking { BackupControl.reloadingAfterReplace { DatabaseContainer.replacingDatabases { error("boom") } } } }
         repo.loadFromDb(repo.id) // what databaseRestored triggers on the host
         repo.name = "D"; repo.saveIntoDb(false)
-        assertEquals("D", dao.workspace(repo.id)!!.name)
+        assertEquals("D", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 }

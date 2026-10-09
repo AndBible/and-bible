@@ -17,6 +17,7 @@
 
 package net.bible.service.sword.epub
 
+import net.bible.service.db.blockingDb
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.database.EpubFragment
@@ -228,7 +229,7 @@ fun EpubBackendState.optimizeEpub() {
     // The database file lives in internal storage and can outlive the (external) epub dir
     // when a module is removed via the failure path. Clear any stale rows from a previous
     // optimization so newly-written fragment files are the only ones referenced.
-    writeDao.clear()
+    blockingDb { writeDao.clear() }
     val start = System.currentTimeMillis()
     for(k in originalIds) {
         val title = fileToTitle?.let {f2t -> f2t[idToFile[k]]} ?: application.getString(R.string.nameless)
@@ -242,28 +243,28 @@ fun EpubBackendState.optimizeEpub() {
         val fragments = splitIntoFragments(k, origDocument, maxOrdinal).let {
             it.ifEmpty{ listOf(EpubFragment(k, 0, 0).apply { element = origDocument.rootElement }) }
         }
-        val ids = writeDao.insert(*fragments.toTypedArray())
-        for((id, frag) in ids.zip(fragments)) {
-            frag.id = id
-        }
-        writeDao.insert(EpubHtmlToFrag(k, fragments[0].id))
-
         val head = origDocument.rootElement.children.find { it.name == "head" }!!
         val styleSheets = head.children
             .filter { it.name == "link" && it.getAttribute("type")?.value == "text/css" }
             .mapNotNull { StyleSheet(k, it.getAttribute("href").value) }.toTypedArray()
 
-        writeDao.insert(*styleSheets)
+        blockingDb {
+            val ids = writeDao.insert(*fragments.toTypedArray())
+            for((id, frag) in ids.zip(fragments)) {
+                frag.id = id
+            }
+            writeDao.insert(EpubHtmlToFrag(k, fragments[0].id))
+            writeDao.insert(*styleSheets)
+        }
 
+        val epubHtmlToFrags = mutableListOf<EpubHtmlToFrag>()
         for(frag in fragments) {
             Log.i(TAG, "${bookMetaData.name}: writing frag ${frag.id}")
             writeFragment(frag)
-            val epubHtmlToFrags = findIds(frag).map {
-                EpubHtmlToFrag("$k#$it", frag.id)
-            }.toTypedArray()
-            writeDao.insert(*epubHtmlToFrags)
+            findIds(frag).mapTo(epubHtmlToFrags) { EpubHtmlToFrag("$k#$it", frag.id) }
             frag.element = null // clear up memory
         }
+        blockingDb { writeDao.insert(*epubHtmlToFrags.toTypedArray()) }
         fileForOriginalId(k)?.delete()
     }
     versionFile.outputStream().use {

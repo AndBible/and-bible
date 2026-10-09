@@ -55,6 +55,7 @@ import org.crosswire.jsword.passage.Verse
 
 import java.util.ArrayList
 import java.util.Locale
+import net.bible.service.db.blockingDb
 
 
 
@@ -353,8 +354,8 @@ class TextToSpeechServiceManager constructor(
         if (!doc.isMyDocument) return null
         val documentId = doc.myDocumentId ?: return null
         val pageKey = key.key?.osisRef ?: return null
-        return DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-            .pageByKey(documentId, pageKey)?.languageCode
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        return blockingDb { dao.pageByKey(documentId, pageKey) }?.languageCode
     }
 
     private fun getDefaultCountryCode(language: String): String? {

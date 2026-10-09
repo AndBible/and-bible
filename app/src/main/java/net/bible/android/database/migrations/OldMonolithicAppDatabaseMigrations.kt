@@ -16,11 +16,14 @@
  */
 package net.bible.android.database.migrations
 
-import android.content.ContentValues
-import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
-import io.requery.android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE
 import android.util.Log
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
+import net.bible.service.db.exec
+import net.bible.service.db.insertOr
+import net.bible.service.db.queryRows
+import net.bible.service.db.columnIndex
+import net.bible.service.db.textOrNull
 import net.bible.android.common.toV11n
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.KJVA
@@ -30,41 +33,45 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.passage.VerseRangeFactory
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
-import java.sql.SQLException
+import androidx.sqlite.SQLiteException
 
-import androidx.room.migration.Migration as RoomMigration
 
 const val TAG = "OldMigrations"
 
 
 private val MIGRATION_1_2 = object : Migration(1, 2) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         DEPRECATED_MyNoteDatabaseDefinition.instance.onCreate(db)
     }
 }
 
 private val MIGRATION_2_3 = object : Migration(2, 3) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         DEPRECATED_BookmarkDatabaseDefinition.instance.upgradeToVersion3(db)
         DEPRECATED_MyNoteDatabaseDefinition.instance.upgradeToVersion3(db)
     }
 }
 
 private val MIGRATION_3_4 = object : Migration(3, 4) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         DEPRECATED_BookmarkDatabaseDefinition.instance.upgradeToVersion4(db)
     }
 }
 
 private val MIGRATION_4_5 = object : Migration(4, 5) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         DEPRECATED_BookmarkDatabaseDefinition.instance.upgradeToVersion5(db)
 
     }
 }
 
 private val MIGRATION_6_7 = object : Migration(6, 7) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("PRAGMA foreign_keys=ON;")
             execSQL("DROP TRIGGER IF EXISTS bookmark_cleanup;")
@@ -82,7 +89,8 @@ private val MIGRATION_6_7 = object : Migration(6, 7) {
 }
 
 private val MIGRATION_7_8 = object : Migration(7, 8) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("CREATE TABLE IF NOT EXISTS `Workspace` (`name` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)")
             execSQL("CREATE TABLE IF NOT EXISTS `Window` (`workspaceId` INTEGER NOT NULL, `isSynchronized` INTEGER NOT NULL, `wasMinimised` INTEGER NOT NULL, `isLinksWindow` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderNumber` INTEGER NOT NULL, `window_layout_state` TEXT NOT NULL, `window_layout_weight` REAL NOT NULL, FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
@@ -96,12 +104,11 @@ private val MIGRATION_7_8 = object : Migration(7, 8) {
 }
 
 private val MIGRATION_8_9 = object : Migration(8, 9) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             // First check if the PageManager table exists to avoid crashes
-            val cursor = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='PageManager'")
-            val tableExists = cursor.count > 0
-            cursor.close()
+            val tableExists = db.queryRows("SELECT name FROM sqlite_master WHERE type='table' AND name='PageManager'") { 1 }.isNotEmpty()
             
             if (tableExists) {
                 execSQL("ALTER TABLE `PageManager` ADD `commentary_currentYOffsetRatio` REAL")
@@ -119,7 +126,8 @@ private val MIGRATION_8_9 = object : Migration(8, 9) {
 }
 
 private val MIGRATION_9_10 = object : Migration(9, 10) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("CREATE TABLE IF NOT EXISTS `readingplan_new` (`_id` INTEGER, `plan_code` TEXT NOT NULL, `plan_start_date` INTEGER NOT NULL, `plan_current_day` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`_id`))")
             execSQL("INSERT INTO readingplan_new SELECT * from readingplan;")
@@ -131,7 +139,8 @@ private val MIGRATION_9_10 = object : Migration(9, 10) {
 }
 
 private val MIGRATION_10_11 = object : Migration(10, 11) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             val colDefs = "`text_display_settings_fontSize` INTEGER DEFAULT NULL, `text_display_settings_showStrongs` INTEGER DEFAULT NULL, `text_display_settings_showMorphology` INTEGER DEFAULT NULL, `text_display_settings_showFootNotes` INTEGER DEFAULT NULL, `text_display_settings_showRedLetters` INTEGER DEFAULT NULL, `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL, `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL, `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL, `text_display_settings_showBookmarks` INTEGER DEFAULT NULL, `text_display_settings_showMyNotes` INTEGER DEFAULT NULL, `window_behavior_settings_enableTiltToScroll` INTEGER DEFAULT FALSE, `window_behavior_settings_enableReverseSplitMode` INTEGER DEFAULT FALSE".split(",")
             colDefs.forEach {
@@ -147,7 +156,8 @@ private val MIGRATION_10_11 = object : Migration(10, 11) {
 }
 
 private val MIGRATION_11_12 = object : Migration(11, 12) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             val colDefs = "`text_display_settings_marginSize` INTEGER DEFAULT NULL".split(",")
             colDefs.forEach {
@@ -163,7 +173,8 @@ private val MIGRATION_11_12 = object : Migration(11, 12) {
 }
 
 private val MIGRATION_12_13 = object : Migration(12, 13) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             val colDefs = "`text_display_settings_margin_size_marginSize` INTEGER DEFAULT NULL, `text_display_settings_margin_size_left` INTEGER DEFAULT NULL, `text_display_settings_margin_size_right` INTEGER DEFAULT NULL".split(",")
             colDefs.forEach {
@@ -174,7 +185,7 @@ private val MIGRATION_12_13 = object : Migration(12, 13) {
     }
 }
 
-fun createMarginSizeColumns(db: SupportSQLiteDatabase) {
+fun createMarginSizeColumns(db: SQLiteConnection) {
     db.apply {
 
         val colDefs = "`text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL, `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL".split(",")
@@ -186,17 +197,18 @@ fun createMarginSizeColumns(db: SupportSQLiteDatabase) {
 }
 
 private val MIGRATION_13_14 = object : Migration(13, 14) {
-    override fun doMigrate(db: SupportSQLiteDatabase) = createMarginSizeColumns(db)
+    override fun doMigrate(connection: SQLiteConnection) = createMarginSizeColumns(connection)
 
 }
 
 private val MIGRATION_11_15 = object : Migration(11, 15) {
-    override fun doMigrate(db: SupportSQLiteDatabase) = createMarginSizeColumns(db)
+    override fun doMigrate(connection: SQLiteConnection) = createMarginSizeColumns(connection)
 
 }
 
 private val MIGRATION_14_15 = object : Migration(14, 15) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("PRAGMA foreign_keys=OFF;")
 
@@ -222,7 +234,8 @@ private val MIGRATION_14_15 = object : Migration(14, 15) {
 }
 
 private val MIGRATION_15_16 = object : Migration(15, 16) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             val colDefs = "`text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL, `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL, `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL".split(",")
             colDefs.forEach {
@@ -234,7 +247,8 @@ private val MIGRATION_15_16 = object : Migration(15, 16) {
 }
 
 private val MIGRATION_16_17 = object : Migration(16, 17) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             val colDefs = "`text_display_settings_justifyText` INTEGER DEFAULT NULL, `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL ".split(",")
             colDefs.forEach {
@@ -246,7 +260,8 @@ private val MIGRATION_16_17 = object : Migration(16, 17) {
 }
 
 private val MIGRATION_17_18 = object : Migration(17, 18) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             val colDefs = "`text_display_settings_font_fontSize` INTEGER DEFAULT NULL, `text_display_settings_font_fontFamily` TEXT DEFAULT NULL, `text_display_settings_font_lineSpacing` INTEGER DEFAULT NULL".split(",")
             colDefs.forEach {
@@ -258,7 +273,8 @@ private val MIGRATION_17_18 = object : Migration(17, 18) {
 }
 
 private val MIGRATION_18_19 = object : Migration(18, 19) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             val colDefs = "`orderNumber` INTEGER NOT NULL DEFAULT 0, `contentsText` TEXT".split(",")
             colDefs.forEach {
@@ -269,7 +285,8 @@ private val MIGRATION_18_19 = object : Migration(18, 19) {
 }
 
 private val MIGRATION_19_20 = object : Migration(19, 20) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             val colDefs = "`isSwapMode` INTEGER NOT NULL DEFAULT 0".split(",")
             colDefs.forEach {
@@ -281,24 +298,16 @@ private val MIGRATION_19_20 = object : Migration(19, 20) {
 
 
 private val MIGRATION_20_21 = object : Migration(20, 21) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoPin` INTEGER DEFAULT 1")
         }
     }
 }
-fun getColumnNames(db: SupportSQLiteDatabase, tableName: String, schema: String? = null): List<String> {
+fun getColumnNames(db: SQLiteConnection, tableName: String, schema: String? = null): List<String> {
     val schemaString = schema?.let { "$it." } ?: ""
-    val cursor = db.query("PRAGMA ${schemaString}table_info($tableName)")
-    val columnNameIdx = cursor.getColumnIndex("name")
-    cursor.moveToFirst()
-    val columnNames = mutableListOf<String>()
-
-    while(!cursor.isAfterLast) {
-        columnNames.add(cursor.getString(columnNameIdx))
-        cursor.moveToNext()
-    }
-    return columnNames
+    return db.queryRows("PRAGMA ${schemaString}table_info($tableName)") { it.getText(it.columnIndex("name")) }
 }
 
 fun joinColumnNames(columnNames: List<String>, prefix: String? = null): String {
@@ -309,12 +318,13 @@ fun joinColumnNames(columnNames: List<String>, prefix: String? = null): String {
     }
 }
 
-fun getColumnNamesJoined(db: SupportSQLiteDatabase, tableName: String, schema: String? = null): String {
+fun getColumnNamesJoined(db: SQLiteConnection, tableName: String, schema: String? = null): String {
     return joinColumnNames(getColumnNames(db, tableName, schema))
 }
 
 private val MIGRATION_21_22 = object : Migration(21, 22) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         val colNameStr = getColumnNamesJoined(db, "Workspace")
         db.apply {
             execSQL("PRAGMA foreign_keys=OFF;")
@@ -328,7 +338,8 @@ private val MIGRATION_21_22 = object : Migration(21, 22) {
 }
 
 private val MIGRATION_22_23 = object : Migration(22, 23) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("UPDATE `Window` SET window_layout_state = 'SPLIT' WHERE window_layout_state = 'MAXIMISED'")
         }
@@ -336,7 +347,8 @@ private val MIGRATION_22_23 = object : Migration(22, 23) {
 }
 
 private val MIGRATION_23_24 = object : Migration(23, 24) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `unPinnedWeight` REAL DEFAULT NULL")
         }
@@ -344,7 +356,8 @@ private val MIGRATION_23_24 = object : Migration(23, 24) {
 }
 
 private val MIGRATION_24_25 = object : Migration(24, 25) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             val colDefs = "`text_display_settings_hyphenation` INTEGER DEFAULT NULL".split(",")
             colDefs.forEach {
@@ -356,7 +369,8 @@ private val MIGRATION_24_25 = object : Migration(24, 25) {
 }
 
 private val MIGRATION_25_26 = object : Migration(25, 26) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `maximizedWindowId` INTEGER DEFAULT NULL")
         }
@@ -364,7 +378,8 @@ private val MIGRATION_25_26 = object : Migration(25, 26) {
 }
 
 private val CLEANUP_MIGRATION_26_27 = object : Migration(26, 27) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         val wsOldCols = "`name`,`contentsText`,`id`,`orderNumber`,`text_display_settings_showStrongs`,`text_display_settings_showMorphology`," +
             "`text_display_settings_showFootNotes`,`text_display_settings_showRedLetters`,`text_display_settings_showSectionTitles`,`text_display_settings_showVerseNumbers`,`text_display_settings_showVersePerLine`," +
             "`text_display_settings_showBookmarks`,`text_display_settings_showMyNotes`,`text_display_settings_justifyText`,`text_display_settings_font_lineSpacing`,`text_display_settings_margin_size_marginLeft`," +
@@ -433,7 +448,8 @@ private val CLEANUP_MIGRATION_26_27 = object : Migration(26, 27) {
 }
 
 private val SQUASH_MIGRATION_10_27 = object : Migration(10, 27) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("PRAGMA foreign_keys=OFF;")
             val wsOldCols = "`name`,`id`"
@@ -478,7 +494,8 @@ private val SQUASH_MIGRATION_10_27 = object : Migration(10, 27) {
 
 private val MIGRATION_27_28 = object : Migration(27, 28) {
     // Added autogenerate=true for readingplan and readingplan_status. Some db schemas may already have this, but makes sure
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             // readingplan recreate to add AUTOINCREMENT. MIGRATION_9_10 removed it
             execSQL("CREATE TABLE `readingplan_new` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT, `plan_code` TEXT NOT NULL, `plan_start_date` INTEGER NOT NULL, `plan_current_day` INTEGER NOT NULL DEFAULT 1);")
@@ -490,7 +507,7 @@ private val MIGRATION_27_28 = object : Migration(27, 28) {
             execSQL("DROP INDEX IF EXISTS index_readingplan_plan_code;")
             try {
                 execSQL("CREATE UNIQUE INDEX `index_readingplan_plan_code` ON `readingplan` (`plan_code`);")
-            } catch (e: SQLException) {
+            } catch (e: SQLiteException) {
                 // in case table already has data that prevents unique index from being created (should never be)
                 try {
                     execSQL("CREATE INDEX `index_readingplan_plan_code` ON `readingplan` (`plan_code`);")
@@ -501,7 +518,7 @@ private val MIGRATION_27_28 = object : Migration(27, 28) {
             execSQL("DROP INDEX IF EXISTS `code_day`;")
             try {
                 execSQL("CREATE UNIQUE INDEX `code_day` ON `readingplan_status` (`plan_code`, `plan_day`);")
-            } catch (e: SQLException) {
+            } catch (e: SQLiteException) {
                 // in case table already has data that prevents unique index from being created (should never be)
                 try {
                     execSQL("CREATE INDEX `code_day` ON `readingplan_status` (`plan_code`, `plan_day`);")
@@ -512,7 +529,8 @@ private val MIGRATION_27_28 = object : Migration(27, 28) {
 }
 
 private val MIGRATION_28_29 = object : Migration(28, 29) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `Document` USING FTS4(`osisId` TEXT NOT NULL, `abbreviation` TEXT NOT NULL, `name` TEXT NOT NULL, `language` TEXT NOT NULL)")
         }
@@ -520,7 +538,8 @@ private val MIGRATION_28_29 = object : Migration(28, 29) {
 }
 
 private val MIGRATION_29_30 = object : Migration(29, 30) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("DROP TABLE IF EXISTS `Document`")
             execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `Document` USING FTS4(`osisId` TEXT NOT NULL, `abbreviation` TEXT NOT NULL, `name` TEXT NOT NULL, `language` TEXT NOT NULL, `repository` TEXT NOT NULL)")
@@ -529,7 +548,7 @@ private val MIGRATION_29_30 = object : Migration(29, 30) {
 }
 
 
-private fun clearVerse0(db: SupportSQLiteDatabase) {
+private fun clearVerse0(db: SQLiteConnection) {
     db.apply {
         execSQL("DELETE FROM bookmark WHERE `key` LIKE '%.0-%'") // for key like Gen.1.0-Gen.1.1
         execSQL("DELETE FROM bookmark WHERE `key` LIKE '%.0'")
@@ -540,31 +559,36 @@ private fun clearVerse0(db: SupportSQLiteDatabase) {
 }
 
 private val MIGRATION_30_31 = object : Migration(30, 31) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         clearVerse0(db)
     }
 }
 
 private val MIGRATION_31_32 = object : Migration(31, 32) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         clearVerse0(db);
     }
 }
 
 private val MIGRATION_32_33 = object : Migration(32, 33) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         clearVerse0(db);
     }
 }
 
 private val SQUASH_30_33 = object : Migration(30, 33) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         clearVerse0(db);
     }
 }
 
 private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE bookmark RENAME TO bookmark_old;")
             execSQL("ALTER TABLE label RENAME TO label_old;")
@@ -576,49 +600,47 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
             execSQL("CREATE TABLE IF NOT EXISTS `BookmarkToLabel` (`bookmarkId` INTEGER NOT NULL, `labelId` INTEGER NOT NULL, PRIMARY KEY(`bookmarkId`, `labelId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
             execSQL("CREATE INDEX IF NOT EXISTS `index_BookmarkToLabel_labelId` ON `BookmarkToLabel` (`labelId`)")
 
-            val c = db.query("SELECT * from bookmark_old")
-            val keyIdx = c.getColumnIndex("key")
-            val createdOnIdx = c.getColumnIndex("created_on")
-            val v11nIdx = c.getColumnIndex("versification")
-            val speakSettingsIdx = c.getColumnIndex("speak_settings")
-            val idIdx = c.getColumnIndex("_id")
+            class OldBookmark(val key: String?, val v11n: String?, val createdOn: Long, val speakSettings: String?, val id: Long)
+            val oldBookmarks = db.queryRows("SELECT * from bookmark_old") { st ->
+                val keyIdx = st.columnIndex("key")
+                val createdOnIdx = st.columnIndex("created_on")
+                val v11nIdx = st.columnIndex("versification")
+                val speakSettingsIdx = st.columnIndex("speak_settings")
+                val idIdx = st.columnIndex("_id")
+                OldBookmark(st.textOrNull(keyIdx), st.textOrNull(v11nIdx), st.getLong(createdOnIdx), st.textOrNull(speakSettingsIdx), st.getLong(idIdx))
+            }
 
-            c.moveToFirst()
-            while(!c.isAfterLast) {
-                val id = c.getLong(idIdx)
-                val key = c.getString(keyIdx)
+            for (c in oldBookmarks) {
+                val id = c.id
+                val key = c.key
                 var v11n: Versification? = null
                 var verseRange: VerseRange? = null
                 var verseRangeInKjv: VerseRange? = null
 
                 try {
                     v11n = Versifications.instance().getVersification(
-                        c.getString(v11nIdx) ?: Versifications.DEFAULT_V11N
+                        c.v11n ?: Versifications.DEFAULT_V11N
                     )
                     verseRange = VerseRangeFactory.fromString(v11n, key)
                     verseRangeInKjv = verseRange.toV11n(KJVA)
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to migrate bookmark: v11n:$v11n verseRange:$verseRange verseRangeInKjv:$verseRangeInKjv", e)
-                    c.moveToNext()
                     continue
                 }
 
                 //Created date
-                val createdAt = c.getLong(createdOnIdx)
-                val playbackSettingsStr = c.getString(speakSettingsIdx)
-                val newValues = ContentValues()
-                newValues.apply {
-                    put("id", id)
-                    put("v11n", v11n.name)
-                    put("kjvOrdinalStart", verseRangeInKjv.start.ordinal)
-                    put("kjvOrdinalEnd", verseRangeInKjv.end.ordinal)
-                    put("ordinalStart", verseRange.start.ordinal)
-                    put("ordinalEnd", verseRange.end.ordinal)
-                    put("createdAt", createdAt)
-                    put("playbackSettings", playbackSettingsStr)
-                }
-                db.insert("Bookmark", CONFLICT_FAIL, newValues)
-                c.moveToNext()
+                val createdAt = c.createdOn
+                val playbackSettingsStr = c.speakSettings
+                db.insertOr("FAIL", "Bookmark",
+                    "id" to id,
+                    "v11n" to v11n.name,
+                    "kjvOrdinalStart" to verseRangeInKjv.start.ordinal,
+                    "kjvOrdinalEnd" to verseRangeInKjv.end.ordinal,
+                    "ordinalStart" to verseRange.start.ordinal,
+                    "ordinalEnd" to verseRange.end.ordinal,
+                    "createdAt" to createdAt,
+                    "playbackSettings" to playbackSettingsStr,
+                )
             }
 
             execSQL("INSERT INTO Label SELECT * from label_old;")
@@ -632,7 +654,8 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
 }
 
 private val BOOKMARKS_BOOK_34_35 = object : Migration(34, 35) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `book` TEXT")
         db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `startOffset` INTEGER DEFAULT NULL")
         db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `endOffset` INTEGER DEFAULT NULL")
@@ -640,7 +663,8 @@ private val BOOKMARKS_BOOK_34_35 = object : Migration(34, 35) {
 }
 
 private val WORKSPACE_BOOKMARK_35_36 = object : Migration(35, 36) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_bookmarks_showAll` INTEGER DEFAULT NULL")
         db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_bookmarks_showLabels` TEXT DEFAULT NULL")
         db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_bookmarks_assignLabels` TEXT DEFAULT NULL")
@@ -651,7 +675,8 @@ private val WORKSPACE_BOOKMARK_35_36 = object : Migration(35, 36) {
 }
 
 private val BOOKMARKS_BOOK_36_37 = object : Migration(36, 37) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.execSQL("ALTER TABLE `Bookmark` ADD COLUMN `notes` TEXT DEFAULT NULL")
     }
 }
@@ -659,30 +684,28 @@ private val BOOKMARKS_BOOK_36_37 = object : Migration(36, 37) {
 
 
 private val BOOKMARKS_LABEL_COLOR_38_39 = object : Migration(38, 39) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.execSQL("UPDATE Label SET name='${SPEAK_LABEL_NAME}' WHERE bookmarkStyle = 'SPEAK'")
         db.execSQL("ALTER TABLE `Label` ADD COLUMN `color` INTEGER NOT NULL DEFAULT 0")
-        val c = db.query("SELECT * from Label")
-        val idIdx = c.getColumnIndex("id")
-        val bookmarkStyleIdx = c.getColumnIndex("bookmarkStyle")
-        c.moveToFirst()
-        while(!c.isAfterLast) {
-            val id = c.getLong(idIdx)
-            val bookmarkStyle = try {BookmarkStyle.valueOf(c.getString(bookmarkStyleIdx)) }
+        val labels = db.queryRows("SELECT * from Label") { st ->
+            val idIdx = st.columnIndex("id")
+            val bookmarkStyleIdx = st.columnIndex("bookmarkStyle")
+            st.getLong(idIdx) to st.textOrNull(bookmarkStyleIdx)
+        }
+        for ((id, styleName) in labels) {
+            val bookmarkStyle = try {BookmarkStyle.valueOf(styleName!!) }
                                 catch (e: Exception) {BookmarkStyle.BLUE_HIGHLIGHT}
 
             val newColor = bookmarkStyle.backgroundColor
-            val newValues = ContentValues().apply {
-                put("color", newColor)
-            }
-            db.update("Label", CONFLICT_FAIL, newValues, "id = ?", arrayOf(id));
-            c.moveToNext()
+            db.exec("UPDATE OR FAIL Label SET color = ? WHERE id = ?", newColor, id)
         }
     }
 }
 
 private val JOURNAL_39_40 = object : Migration(39, 40) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.execSQL("CREATE TABLE IF NOT EXISTS `JournalTextEntry` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `labelId` INTEGER NOT NULL, `text` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT -1, `indentLevel` INTEGER NOT NULL, FOREIGN KEY(`labelId`) REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_JournalTextEntry_labelId` ON `JournalTextEntry` (`labelId`)")
 
@@ -692,7 +715,8 @@ private val JOURNAL_39_40 = object : Migration(39, 40) {
 }
 
 private val MIGRATION_40_41_DocumentBackup = object : Migration(40, 41) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("""CREATE TABLE IF NOT EXISTS `DocumentBackup` (`osisId` TEXT PRIMARY KEY NOT NULL, `abbreviation` TEXT NOT NULL, `name` TEXT NOT NULL, `language` TEXT NOT NULL, `repository` TEXT NOT NULL);""")
         }
@@ -700,7 +724,8 @@ private val MIGRATION_40_41_DocumentBackup = object : Migration(40, 41) {
 }
 
 private val MIGRATION_41_42_cipherKey = object : Migration(41, 42) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `DocumentBackup` ADD COLUMN `cipherKey` TEXT DEFAULT NULL")
             // Let's empty the db as we changed from book.osisId -> book.initials
@@ -711,7 +736,8 @@ private val MIGRATION_41_42_cipherKey = object : Migration(41, 42) {
 
 
 private val MIGRATION_42_43_expandContent = object : Migration(42, 43) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `BookmarkToLabel` ADD COLUMN `expandContent` INTEGER NOT NULL DEFAULT 0")
         }
@@ -719,7 +745,8 @@ private val MIGRATION_42_43_expandContent = object : Migration(42, 43) {
 }
 
 private val MIGRATION_43_44_topMargin = object : Migration(43, 44) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_topMargin` INTEGER DEFAULT NULL")
             db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_topMargin` INTEGER DEFAULT NULL")
@@ -729,7 +756,8 @@ private val MIGRATION_43_44_topMargin = object : Migration(43, 44) {
 
 
 private val MIGRATION_44_45_nullColors = object : Migration(44, 45) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         val white = -1
         val black = -16777216
         db.apply {
@@ -760,7 +788,8 @@ private val MIGRATION_44_45_nullColors = object : Migration(44, 45) {
 }
 
 private val MIGRATION_45_46_workspaceSpeakSettings = object : Migration(45, 46) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_speakSettings` TEXT DEFAULT NULL")
         }
@@ -768,7 +797,8 @@ private val MIGRATION_45_46_workspaceSpeakSettings = object : Migration(45, 46) 
 }
 
 private val MIGRATION_46_47_primaryLabel = object : Migration(46, 47) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Bookmark` ADD COLUMN `primaryLabelId` INTEGER DEFAULT NULL REFERENCES `Label`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL")
             execSQL("UPDATE `Bookmark` SET primaryLabelId = (SELECT labelId FROM BookmarkToLabel WHERE bookmarkId=Bookmark.id LIMIT 1)")
@@ -777,7 +807,8 @@ private val MIGRATION_46_47_primaryLabel = object : Migration(46, 47) {
 }
 
 private val MIGRATION_47_48_autoAssignLabels = object : Migration(47, 48) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_favouriteLabels` TEXT DEFAULT NULL")
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_autoAssignLabels` TEXT DEFAULT NULL")
@@ -787,7 +818,8 @@ private val MIGRATION_47_48_autoAssignLabels = object : Migration(47, 48) {
 }
 
 private val MIGRATION_48_49_anchorOrdinal = object : Migration(48, 49) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `PageManager` ADD COLUMN `commentary_anchorOrdinal` INTEGER DEFAULT NULL")
             execSQL("ALTER TABLE `PageManager` ADD COLUMN `dictionary_anchorOrdinal` INTEGER DEFAULT NULL")
@@ -799,7 +831,8 @@ private val MIGRATION_48_49_anchorOrdinal = object : Migration(48, 49) {
 }
 
 private val MIGRATION_49_50_wholeVerseBookmark = object : Migration(49, 50) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Bookmark` ADD COLUMN `wholeVerse` INTEGER NOT NULL DEFAULT 0")
             execSQL("UPDATE `Bookmark` SET wholeVerse = startOffset IS NULL")
@@ -808,7 +841,8 @@ private val MIGRATION_49_50_wholeVerseBookmark = object : Migration(49, 50) {
 }
 
 private val MIGRATION_50_51_underlineStyleAndRecentLabels = object : Migration(50, 51) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Label` ADD COLUMN `underlineStyle` INTEGER NOT NULL DEFAULT 0")
             execSQL("ALTER TABLE `Label` ADD COLUMN `underlineStyleWholeVerse` INTEGER NOT NULL DEFAULT 0")
@@ -818,7 +852,8 @@ private val MIGRATION_50_51_underlineStyleAndRecentLabels = object : Migration(5
 }
 
 private val MIGRATION_51_52_compareDocuments = object : Migration(51, 52) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_hideCompareDocuments` TEXT DEFAULT NULL")
         }
@@ -826,7 +861,8 @@ private val MIGRATION_51_52_compareDocuments = object : Migration(51, 52) {
 }
 
 private val MIGRATION_52_53_underline = object : Migration(52, 53) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
              execSQL("UPDATE `Label` SET underlineStyleWholeVerse=1, underlineStyle=1 WHERE bookmarkStyle='UNDERLINE'")
         }
@@ -834,7 +870,8 @@ private val MIGRATION_52_53_underline = object : Migration(52, 53) {
 }
 
 private val MIGRATION_54_55_bookmarkType = object : Migration(54, 55) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE Label ADD COLUMN type TEXT DEFAULT NULL")
             execSQL("ALTER TABLE Bookmark ADD COLUMN type TEXT DEFAULT NULL")
@@ -843,7 +880,8 @@ private val MIGRATION_54_55_bookmarkType = object : Migration(54, 55) {
 }
 
 private val MIGRATION_55_56_limitAmbiguousSize = object : Migration(55, 56) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_limitAmbiguousModalSize` INTEGER DEFAULT 0")
         }
@@ -851,7 +889,8 @@ private val MIGRATION_55_56_limitAmbiguousSize = object : Migration(55, 56) {
 }
 
 private val MIGRATION_56_57_breaklines_in_notes = object : Migration(56, 57) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("UPDATE `Bookmark` SET notes = REPLACE(notes, '\n', '<br>') WHERE notes IS NOT NULL")
         }
@@ -859,14 +898,16 @@ private val MIGRATION_56_57_breaklines_in_notes = object : Migration(56, 57) {
 }
 
 private val MIGRATION_57_58_label_markerStyle = object : Migration(57, 58) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE Label ADD COLUMN markerStyle INTEGER NOT NULL DEFAULT 0")
         }
     }
 }
 private val MIGRATION_58_59_workspace_colors = object : Migration(58, 59) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             val colDefs = "`text_display_settings_colors_dayWorkspaceColor` INTEGER DEFAULT NULL, `text_display_settings_colors_nightWorkspaceColor` INTEGER DEFAULT NULL".split(",")
             colDefs.forEach {
@@ -879,7 +920,8 @@ private val MIGRATION_58_59_workspace_colors = object : Migration(58, 59) {
 }
 
 private val MIGRATION_59_60_label_markerStyle = object : Migration(59, 60) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE Label ADD COLUMN markerStyleWholeVerse INTEGER NOT NULL DEFAULT 0")
         }
@@ -887,7 +929,8 @@ private val MIGRATION_59_60_label_markerStyle = object : Migration(59, 60) {
 }
 
 private val MIGRATION_60_61_workspace_colors = object : Migration(60, 61) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `window_behavior_settings_workspaceColor` INTEGER DEFAULT NULL")
             execSQL("UPDATE `Workspace` SET `window_behavior_settings_workspaceColor` = `text_display_settings_colors_dayWorkspaceColor`")
@@ -896,7 +939,8 @@ private val MIGRATION_60_61_workspace_colors = object : Migration(60, 61) {
 }
 
 private val MIGRATION_61_62_window_changes = object : Migration(61, 62) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Window` ADD COLUMN `targetLinksWindowId` INTEGER DEFAULT NULL")
         }
@@ -904,7 +948,8 @@ private val MIGRATION_61_62_window_changes = object : Migration(61, 62) {
 }
 
 private val MIGRATION_62_63_window_changes = object : Migration(62, 63) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `primaryTargetLinksWindowId` INTEGER DEFAULT NULL")
         }
@@ -912,7 +957,8 @@ private val MIGRATION_62_63_window_changes = object : Migration(62, 63) {
 }
 
 private val MIGRATION_63_64_window_changes = object : Migration(63, 64) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("DELETE from Window WHERE isLinksWindow = 1")
         }
@@ -920,14 +966,16 @@ private val MIGRATION_63_64_window_changes = object : Migration(63, 64) {
 }
 
 private val MIGRATION_64_65_sync_group = object : Migration(64, 65) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Window` ADD COLUMN `syncGroup` INTEGER NOT NULL DEFAULT 0")
         }
     }
 }
 private val MIGRATION_65_66_add_Xrefs_option = object : Migration(65, 66) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showXrefs` INTEGER DEFAULT NULL")
             execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showXrefs` INTEGER DEFAULT NULL")
@@ -938,7 +986,8 @@ private val MIGRATION_65_66_add_Xrefs_option = object : Migration(65, 66) {
 }
 
 private val MIGRATION_66_67_customRepository = object : Migration(66, 67) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("CREATE TABLE IF NOT EXISTS `CustomRepository` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `type` TEXT NOT NULL, `host` TEXT NOT NULL, `catalogDirectory` TEXT NOT NULL, `packageDirectory` TEXT NOT NULL, `manifestUrl` TEXT)")
             execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_CustomRepository_name` ON `CustomRepository` (`name`)")
@@ -947,7 +996,8 @@ private val MIGRATION_66_67_customRepository = object : Migration(66, 67) {
 }
 
 private val MIGRATION_67_68_expand_footnotes = object : Migration(67, 68) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_expandXrefs` INTEGER DEFAULT NULL")
             execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_expandXrefs` INTEGER DEFAULT NULL")
@@ -956,7 +1006,8 @@ private val MIGRATION_67_68_expand_footnotes = object : Migration(67, 68) {
 }
 
 private val MIGRATION_68_69_dummy = object : Migration(68, 69) {
-    override fun doMigrate(db: SupportSQLiteDatabase) {
+    override fun doMigrate(connection: SQLiteConnection) {
+        val db = connection
         db.apply {
             execSQL("CREATE TABLE IF NOT EXISTS `Dummy` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)");
         }

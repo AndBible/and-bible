@@ -21,7 +21,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.VisibleForTesting
-import io.requery.android.database.sqlite.SQLiteDatabase
+import net.bible.service.db.useWriterConnectionMarked
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -42,6 +42,9 @@ import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.exec
+import net.bible.service.db.openSqlite
+import net.bible.service.db.queryLong
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
 import net.bible.sharedcore.settings.SettingsItem
@@ -319,7 +322,7 @@ object CloudSync {
     private suspend fun createAndUploadInitial(dbDef: SyncableDatabaseAccessor<*>) {
         dbDef.dao.clearLog()
         dbDef.dao.clearSyncStatus()
-        dbDef.writableDb.query("VACUUM;").use {  }
+        dbDef.localDb.useWriterConnectionMarked { it.exec("VACUUM;") }
         val tmpFile = CommonUtils.tmpFile
         val gzippedTmpFile = CommonUtils.tmpFile
         dbDef.localDbFile.copyTo(tmpFile, overwrite = true)
@@ -352,13 +355,14 @@ object CloudSync {
         val tmpFile = CommonUtils.tmpFile
         CommonUtils.gunzipFile(gzippedTmpFile, tmpFile)
         gzippedTmpFile.delete()
-        val initialDbVersion = SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
-        if(initialDbVersion > dbDef.version) {
+        val initialDbVersion = openSqlite(tmpFile.path).use { it.queryLong("PRAGMA user_version")!!.toInt() }
+        val localVersion = dbDef.version()
+        if(initialDbVersion > localVersion) {
             tmpFile.delete()
             val activity = CurrentActivityHolder.currentActivity ?: throw CancelStartedSync()
             Dialogs.showMsg2(activity, cantFetchString(dbDef.category.contentDescription))
             dbDef.category.syncEnabled = false
-            Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > ${dbDef.version}")
+            Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > $localVersion")
             throw CancelStartedSync()
         } else {
             swapInInitialDb(dbDef, tmpFile) {
@@ -461,7 +465,7 @@ object CloudSync {
             DatabaseContainer.databaseAccessorFactories.asyncMap {
                 val dbDef = it.invoke()
                 if(!dbDef.category.syncEnabled) return@asyncMap
-                if(dbDef.dao.getLong("disabledForVersion") == dbDef.version.toLong()) return@asyncMap
+                if(dbDef.dao.getLong("disabledForVersion") == dbDef.version().toLong()) return@asyncMap
                 try {
                     initializeSync(dbDef)
                 } catch (e: CancelStartedSync) {
@@ -496,7 +500,7 @@ object CloudSync {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to IOException", e)
                 } catch (e: IncompatiblePatchVersion) {
                     UserMessages.errorNotification(cantFetchString(dbDef.category.contentDescription), showReportButton = false)
-                    dbDef.dao.setConfig("disabledForVersion", dbDef.version.toLong())
+                    dbDef.dao.setConfig("disabledForVersion", dbDef.version().toLong())
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
@@ -566,11 +570,12 @@ object CloudSync {
 
         class DriveFileWithMeta(val file: CloudFile, val parentFolderName: String)
 
+        val localVersion = dbDef.version()
         val patches = patchResults.mapNotNull {
             val parentFolderId = it.parentId
             val folderWithMeta = folders[parentFolderId]!!
             val num = patchNumber(it.name)
-            if(versionNumber(it.name) > dbDef.version) {
+            if(versionNumber(it.name) > localVersion) {
                 // We need to load next time also last set of patches.
                 dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, lastSynchronized)
                 throw IncompatiblePatchVersion()
@@ -620,7 +625,7 @@ object CloudSync {
         val file = createPatchForDatabase(dbDef, false)?: return@withContext
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
         val count = (dbDef.dao.lastPatchNum(CommonUtils.deviceIdentifier)?: 0) + 1
-        val fileName = "$count.${dbDef.version}.sqlite3.gz"
+        val fileName = "$count.${dbDef.version()}.sqlite3.gz"
         val lastWritten = System.currentTimeMillis();
 
         val result = try {
@@ -639,13 +644,13 @@ object CloudSync {
     suspend fun hasChanges(): Boolean =
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
-            dbDef.category.syncEnabled && dbDef.hasChanges
+            dbDef.category.syncEnabled && dbDef.hasChanges()
         }.any { it }
 
     suspend fun bytesUsed(): Long =
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
-            dbDef.bytesUsed
+            dbDef.bytesUsed()
         }.sum() + DocumentSync.cloudBytesUsed()
 
 }

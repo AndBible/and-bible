@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.versification
 
+import net.bible.service.db.blockingDb
 import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.database.SwordDocumentInfo
@@ -86,20 +87,22 @@ object BookInstallWatcher {
     }
     private fun addBookToDb(book: Book) {
         // if book is already installed, we remove it, else it deletes nothing
-        docDao.deleteByOsisId(book.initials)
         Log.i(DownloadManager.TAG, "Adding ${book.name} to document backup database")
-        // insert the new book info into backup db
-        docDao.insert(SwordDocumentInfo(
-            book.initials,
-            book.name,
-            book.abbreviation,
-            book.language.name,
-            ""
-        ))
+        blockingDb {
+            docDao.deleteByOsisId(book.initials)
+            // insert the new book info into backup db
+            docDao.insert(SwordDocumentInfo(
+                book.initials,
+                book.name,
+                book.abbreviation,
+                book.language.name,
+                ""
+            ))
+        }
     }
 
     private fun removeBookFromDb(book: Book) {
-        docDao.deleteByOsisId(book.initials)
+        blockingDb { docDao.deleteByOsisId(book.initials) }
     }
 
     /**

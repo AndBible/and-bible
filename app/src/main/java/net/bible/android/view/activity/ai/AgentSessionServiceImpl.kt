@@ -42,6 +42,7 @@ import net.bible.sharedcore.ai.reading.LogEntryStatus
 import net.bible.sharedcore.ai.reading.ReadingModelVd
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import net.bible.service.db.blockingDb
 
 /**
  * Pure mapping from the mutable runtime [AgentLogEntry] to its immutable view-data twin. The two
@@ -132,7 +133,7 @@ class AgentSessionServiceImpl : AgentSessionService, KoinComponent {
     /** Port of the classic `AgentLogWidget.updateModelSelectorText` model-id lookup. */
     private fun defaultModelLabel(): String? {
         val defaultId = AiSettings.defaultModelId
-        return defaultId?.let { DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().getById(it)?.modelId }
+        return defaultId?.let { id -> blockingDb { DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().getById(id)?.modelId } }
     }
 
     override fun stop() {

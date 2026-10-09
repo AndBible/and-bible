@@ -17,7 +17,8 @@
 
 package net.bible.android.database.migrations
 
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.execSQL
+import androidx.sqlite.SQLiteConnection
 import net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME
 import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
@@ -140,7 +141,7 @@ private val aiFieldsMigration = makeMigration(10..11) { _db ->
  * Used by the 11→12 migration and also run on incoming sync patches (which go through
  * Room migrations before being applied to the local database).
  */
-fun deduplicateSpecialLabels(db: SupportSQLiteDatabase) {
+fun deduplicateSpecialLabels(db: SQLiteConnection) {
     data class SpecialLabel(val name: String, val hexId: String)
     val specialLabels = listOf(
         SpecialLabel(SPEAK_LABEL_NAME, SPEAK_LABEL_ID.toHex()),

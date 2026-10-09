@@ -88,7 +88,7 @@ class SettingsOwnerStreamsTest {
     @Test fun savingAndDeletingAModelEmitConfigChanged() {
         val providerId = createProvider()
         assertEquals(1, countConfigChanges { models.saveModel(null, providerId, "m1", null, null, false) })
-        val modelId = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().all()
+        val modelId = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().let { runBlocking { it.all() } }
             .single { it.modelId == "m1" }.id.toString()
         assertEquals(1, countConfigChanges { models.deleteModel(modelId) })
     }

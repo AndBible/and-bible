@@ -425,10 +425,10 @@ androidComponents {
 
 
 dependencies {
-    ksp(libs.androidx.room.compiler)
+    // Room 3 (D1.5); its compiler reads the room.schemaLocation KSP arg (no androidx.room3 Gradle plugin).
+    ksp(libs.androidx.room3.compiler)
 
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.core.ktx)
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.media:media:1.7.0")
@@ -444,7 +444,6 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.14.0")
     implementation("net.objecthunter:exp4j:0.4.8")
-    implementation("com.github.requery:sqlite-android:3.49.0")
     implementation("org.yaml:snakeyaml:2.2")
 
     for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei", "accrescent").map { "${it}Implementation" }) {
@@ -463,7 +462,8 @@ dependencies {
 
     implementation("com.google.android.material:material:1.12.0")
 
-    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room3.runtime)
+    implementation(libs.androidx.sqlite.bundled)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
@@ -585,9 +585,6 @@ bundletool {
     }
 }
 
-configurations {
-    testImplementation {
-        exclude(group = "com.github.requery", module = "sqlite-android")
-    }
-}
-
+// Unit tests (Robolectric, on the JVM) need the bundled SQLite's JVM natives instead of the Android ones.
+configurations.matching { it.name.endsWith("UnitTestRuntimeClasspath") }.configureEach { exclude(group = "androidx.sqlite", module = "sqlite-bundled-android") }
+dependencies { testImplementation(libs.androidx.sqlite.bundled.jvm) }

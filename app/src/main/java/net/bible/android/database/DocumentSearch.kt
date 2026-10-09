@@ -17,13 +17,13 @@
 
 package net.bible.android.database
 
-import androidx.room.ColumnInfo
-import androidx.room.Dao
-import androidx.room.Entity
-import androidx.room.Fts4
-import androidx.room.Insert
-import androidx.room.PrimaryKey
-import androidx.room.Query
+import androidx.room3.ColumnInfo
+import androidx.room3.Dao
+import androidx.room3.Entity
+import androidx.room3.Fts4
+import androidx.room3.Insert
+import androidx.room3.PrimaryKey
+import androidx.room3.Query
 
 @Entity(tableName = "Document") @Fts4
 data class DocumentSearch(
@@ -41,14 +41,14 @@ data class DocumentSearch(
 @Dao
 interface DocumentSearchDao {
     @Insert
-    fun insertDocuments(documentSearches: List<DocumentSearch>)
+    suspend fun insertDocuments(documentSearches: List<DocumentSearch>)
 
     @Query("""SELECT count(*) from Document""")
-    fun count(): Long
+    suspend fun count(): Long
 
     @Query("""SELECT osisId from Document WHERE Document MATCH :search""")
-    fun search(search: String): List<String>
+    suspend fun search(search: String): List<String>
 
     @Query("DELETE FROM Document")
-    fun clear()
+    suspend fun clear()
 }

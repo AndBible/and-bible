@@ -17,6 +17,8 @@
 
 package net.bible.service.sword.epub
 
+import net.bible.service.db.blockingDb
+import net.bible.service.db.deleteAppDatabase
 import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
@@ -145,7 +147,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             .evaluateFirst(content)?.value
     }
 
-    private fun getFragment(key: Key): EpubFragment? = dao.getFragment(key.osisRef.toLong())
+    private fun getFragment(key: Key): EpubFragment? = blockingDb { dao.getFragment(key.osisRef.toLong()) }
 
     fun fileForOriginalId(id: String): File? = idToFile[id]?.let {File(rootFolder, it) }
 
@@ -153,7 +155,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         val frag = getFragment(key)?: return emptyList()
         val file = fileForOriginalId(frag.originalId)?: return emptyList()
         val parentFolder = file.parentFile
-        return dao.styleSheets(frag.originalId).map { File(parentFolder, it.styleSheetFile).canonicalFile }
+        return blockingDb { dao.styleSheets(frag.originalId) }.map { File(parentFolder, it.styleSheetFile).canonicalFile }
     }
 
     private fun getKey(fragment: EpubFragment, label: String? = null): Key {
@@ -186,7 +188,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             } else {
                 "$id#$htmlId"
             }
-            val frag = dao.getFragment(keyStr)
+            val frag = blockingDb { dao.getFragment(keyStr) }
             frag?.let { BookAndKey(getKey(it, label = label), book, htmlId = htmlId) }
         }
     }
@@ -220,7 +222,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         xp.compile("//ns:spine/ns:itemref", Filters.element(), null, epubNamespace).evaluate(content)
     }.map { it.getAttribute("idref").value }
 
-    val keys: List<Key> get() = dao.fragments().map { getKey(it) }
+    val keys: List<Key> get() = blockingDb { dao.fragments() }.map { getKey(it) }
 
     internal val fragDir get() = File(epubDir,  "optimized")
     internal val versionFile = File(fragDir, "version.txt")
@@ -308,7 +310,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             job.isNotifyUser = true
             job.beginJob(jobName)
             search.createTable()
-            val frags = dao.fragments()
+            val frags = blockingDb { dao.fragments() }
             job.totalWork = frags.size
             for(i in frags.indices) {
                 val frag = frags[i]
@@ -332,11 +334,14 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
 
     fun search(search: String): List<KeyAndText> {
         val book = Books.installed().getBook(bookMetaData.initials)
-        return this.search.search(search).mapNotNull {
-            val frag = dao.getFragment(it.fragId)?: return@mapNotNull null
-            val key = BookAndKey(getKey(frag), book, OrdinalRange(it.ordinal))
-            val text = it.text
-            KeyAndText(key, text)
+        val hits = this.search.search(search)
+        return blockingDb {
+            hits.mapNotNull {
+                val frag = dao.getFragment(it.fragId) ?: return@mapNotNull null
+                val key = BookAndKey(getKey(frag), book, OrdinalRange(it.ordinal))
+                val text = it.text
+                KeyAndText(key, text)
+            }
         }
     }
 
@@ -378,11 +383,11 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     fun delete() {
         epubDir.deleteRecursively()
         readDb.close()
-        BibleApplication.application.deleteDatabase(appDbFilename)
+        deleteAppDatabase(appDbFilename)
     }
 
     fun getKey(originalKey: String, htmlId: String): Key? {
-        val frag = dao.getFragment(if(htmlId.isNotEmpty()) "$originalKey#$htmlId" else originalKey)
+        val frag = blockingDb { dao.getFragment(if(htmlId.isNotEmpty()) "$originalKey#$htmlId" else originalKey) }
         return frag?.let {getKey(it)}
     }
 
@@ -392,13 +397,13 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     }
 
     /** Total ordinal span of the whole book (anchor ordinals restart per spine item). */
-    val bookOrdinalSpan: Int get() = dao.fragments().sumOf { it.ordinalEnd - it.ordinalStart + 1 }
+    val bookOrdinalSpan: Int get() = blockingDb { dao.fragments() }.sumOf { it.ordinalEnd - it.ordinalStart + 1 }
 
     /** Sum of the ordinal spans of all fragments preceding [key] in book order. */
     fun fragmentOffset(key: Key): Int {
         val targetId = getFragment(key)?.id ?: return 0
         var offset = 0
-        for (frag in dao.fragments().sortedBy { it.id }) {
+        for (frag in blockingDb { dao.fragments() }.sortedBy { it.id }) {
             if (frag.id == targetId) break
             offset += frag.ordinalEnd - frag.ordinalStart + 1
         }
@@ -411,10 +416,10 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
      * This avoids forcing a re-optimization of already-installed EPUBs.
      */
     val totalCharacters: Int get() {
-        dao.getMeta()?.let { return it.totalCharacters }
+        blockingDb { dao.getMeta() }?.let { return it.totalCharacters }
         var total = 0
         var failed = false
-        for (frag in dao.fragments()) {
+        for (frag in blockingDb { dao.fragments() }) {
             try {
                 val doc = useSaxBuilder { it.build(StringReader(read(getKey(frag)))) }
                 for (bva in useXPathInstance { xp ->
@@ -431,7 +436,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         }
         // Only cache the result when every fragment was read successfully; otherwise a
         // transient/repairable inconsistency would freeze an inaccurate count forever.
-        if (!failed) dao.insert(EpubMeta(totalCharacters = total))
+        if (!failed) blockingDb { dao.insert(EpubMeta(totalCharacters = total)) }
         return total
     }
 }

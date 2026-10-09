@@ -32,6 +32,7 @@ import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.bookmark.displayStyle
 import kotlin.random.Random.Default.nextInt
+import net.bible.service.db.blockingDb
 
 /** Android-side impl of the [ManageLabelsService] seam, backed by [BookmarkControl]/[WindowControl]. */
 class ManageLabelsServiceImpl(
@@ -50,7 +51,7 @@ class ManageLabelsServiceImpl(
     override fun overriddenLabelStyles(): Map<String, BookmarkDisplayStyle> {
         val workspaceId = windowControl.windowRepository.id
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        return workspaceDao.labelOverrides(workspaceId)
+        return blockingDb { workspaceDao.labelOverrides(workspaceId) }
             .mapNotNull { override ->
                 overrideDisplayStyle(override.overrideMode)?.let { override.labelId.toString() to it }
             }

@@ -16,7 +16,7 @@ import org.robolectric.annotation.GraphicsMode
 // dump of an empty ComposeView instead of a render, and every variant comes out byte-identical.
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 // Every golden test in this directory carries this @Config. Without it Robolectric boots the
-// real BibleApplication and dies on an excluded requery-sqlite class.
+// real BibleApplication (the full app startup), which a golden of a stateless screen must not depend on.
 @Config(sdk = [TEST_SDK], application = android.app.Application::class)
 class KeyChooserSheetGoldenTest {
     // 0-BASED, as production is: a `KeyRow.keyId` is the INDEX of the key in the resolved key list,

@@ -17,7 +17,8 @@
 
 package net.bible.service.db.readingplan
 
-import androidx.room.Room
+import androidx.room3.Room
+import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TestBibleApplication
@@ -51,7 +52,7 @@ class ReadingPlanRepositoryStartDateTest {
 
     @Before fun setUp() {
         db = Room.inMemoryDatabaseBuilder(application, ReadingPlanDatabase::class.java)
-            .allowMainThreadQueries().build()
+            .setDriver(sqliteDriverFactory()).build()
         repo = ReadingPlanRepository(daoProvider = { db.readingPlanDao() }, today = { today })
     }
 

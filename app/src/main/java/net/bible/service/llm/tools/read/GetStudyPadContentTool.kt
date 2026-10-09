@@ -180,7 +180,7 @@ object GetStudyPadContentTool : Tool {
 
     // --- Full mode ---
 
-    private fun loadAllEntries(labelId: IdType): List<StudyPadEntry> {
+    private suspend fun loadAllEntries(labelId: IdType): List<StudyPadEntry> {
         val textEntries = dao.studyPadTextEntriesByLabelId(labelId)
         val bibleBookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId)
         val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId)
@@ -226,7 +226,7 @@ object GetStudyPadContentTool : Tool {
         return orderedEntries.map { it.entry }
     }
 
-    private fun executeFull(labelId: IdType, label: BookmarkEntities.Label): ToolResult {
+    private suspend fun executeFull(labelId: IdType, label: BookmarkEntities.Label): ToolResult {
         val entries = loadAllEntries(labelId)
         return typedSuccess(EntriesResult(
             labelId = labelId,
@@ -238,7 +238,7 @@ object GetStudyPadContentTool : Tool {
 
     // --- Info mode ---
 
-    private fun executeInfo(labelId: IdType, label: BookmarkEntities.Label): ToolResult {
+    private suspend fun executeInfo(labelId: IdType, label: BookmarkEntities.Label): ToolResult {
         val textEntryCount = dao.countStudyPadTextEntities(labelId)
         val bibleBookmarkCount = dao.countBookmarkEntities(labelId)
         val genericBookmarkCount = dao.countGenericBookmarkEntities(labelId)
@@ -276,7 +276,7 @@ object GetStudyPadContentTool : Tool {
         class GenericBookmark(orderNumber: Int, val bookmarkId: IdType) : EntryStub(orderNumber)
     }
 
-    private fun loadEntryStubs(labelId: IdType): List<EntryStub> {
+    private suspend fun loadEntryStubs(labelId: IdType): List<EntryStub> {
         val stubs = mutableListOf<EntryStub>()
         dao.studyPadTextEntryStubs(labelId).mapTo(stubs) { EntryStub.Text(it.orderNumber, it.id) }
         dao.bibleBookmarkToLabelStubs(labelId).mapTo(stubs) { EntryStub.BibleBookmark(it.orderNumber, it.bookmarkId) }
@@ -285,7 +285,7 @@ object GetStudyPadContentTool : Tool {
         return stubs
     }
 
-    private fun executeIndex(labelId: IdType, label: BookmarkEntities.Label): ToolResult {
+    private suspend fun executeIndex(labelId: IdType, label: BookmarkEntities.Label): ToolResult {
         val stubs = loadEntryStubs(labelId)
 
         val textIds = stubs.filterIsInstance<EntryStub.Text>().map { it.id }
@@ -342,7 +342,7 @@ object GetStudyPadContentTool : Tool {
 
     // --- Page mode ---
 
-    private fun loadFullEntriesForStubs(stubs: List<EntryStub>): List<StudyPadEntry> {
+    private suspend fun loadFullEntriesForStubs(stubs: List<EntryStub>): List<StudyPadEntry> {
         val textIds = stubs.filterIsInstance<EntryStub.Text>().map { it.id }
         val bibleIds = stubs.filterIsInstance<EntryStub.BibleBookmark>().map { it.bookmarkId }
         val genericIds = stubs.filterIsInstance<EntryStub.GenericBookmark>().map { it.bookmarkId }
@@ -389,7 +389,7 @@ object GetStudyPadContentTool : Tool {
         }
     }
 
-    private fun executePage(labelId: IdType, label: BookmarkEntities.Label, args: Args): ToolResult {
+    private suspend fun executePage(labelId: IdType, label: BookmarkEntities.Label, args: Args): ToolResult {
         val offset = args.offset
         val limit = args.limit
 

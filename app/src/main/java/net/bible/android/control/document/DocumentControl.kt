@@ -17,6 +17,7 @@
 
 package net.bible.android.control.document
 
+import net.bible.service.db.blockingDb
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
@@ -187,7 +188,7 @@ class DocumentControl constructor(
     fun deleteDocument(document: Book) {
         SwordDocumentFacade.deleteDocument(document)
         if(document.bookCategory == BookCategory.AND_BIBLE) return
-        documentBackupDao.deleteByOsisId(document.initials)
+        blockingDb { documentBackupDao.deleteByOsisId(document.initials) }
         val currentPage = windowControl.activeWindowPageManager.getBookPage(document, null)
         currentPage?.checkCurrentDocumenInstalled()
     }

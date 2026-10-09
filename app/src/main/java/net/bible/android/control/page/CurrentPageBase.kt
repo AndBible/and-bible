@@ -47,6 +47,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.VerseRange
 import org.jdom2.Element
+import net.bible.service.db.blockingDb
 
 /** Common functionality for different document page types
  *
@@ -177,26 +178,26 @@ abstract class CurrentPageBase protected constructor(
         PassageChangeMediator.onCurrentVerseChanged(pageManager.window)
 
         // For MyDocument pages, pass page metadata so Vue.js can render the AI footer
+        val myDocumentDao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val myDocumentPage = if (currentDocument.isMyDocument) {
             val documentId = currentDocument.myDocumentId
             val pageKey = key.osisRef?.takeIf { it.isNotEmpty() } ?: key.name
             if (documentId != null) {
-                DatabaseContainer.instance.myDocumentDb.myDocumentDao().pageByKey(documentId, pageKey)
+                blockingDb { myDocumentDao.pageByKey(documentId, pageKey) }
             } else null
         } else null
 
         // Fetch AI generation metadata (prompt name + model) for footer display
         val promptId = myDocumentPage?.sourcePromptId
         val cacheEntry = if (promptId != null) {
-            DatabaseContainer.instance.myDocumentDb.myDocumentDao().getCacheEntry(myDocumentPage.id)
+            blockingDb { myDocumentDao.getCacheEntry(myDocumentPage.id) }
         } else null
         val promptName = if (promptId != null) {
             PromptRepository.promptById(promptId)?.name ?: application.getString(R.string.ai_unknown_prompt)
         } else null
 
         val effectiveKey = annotateKey ?: key
-        val aiDocMarkers = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-            .aiDocMarkersForPage(currentDocument.initials, effectiveKey.osisRef)
+        val aiDocMarkers = blockingDb { myDocumentDao.aiDocMarkersForPage(currentDocument.initials, effectiveKey.osisRef) }
 
         OsisDocument(
             book = currentDocument,

@@ -17,10 +17,15 @@
 
 package net.bible.service.sword.esword
 
-import android.database.sqlite.SQLiteException
-import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.SQLiteException
+import androidx.sqlite.SQLiteStatement
 import net.bible.android.SharedConstants
+import net.bible.service.db.openSqlite
+import net.bible.service.db.queryFirst
+import net.bible.service.db.queryRows
+import net.bible.service.db.textOrNull
 import net.bible.service.sword.SqliteSwordDriver
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -79,26 +84,37 @@ class SqliteVerseBackendState(private val sqliteFile: File) : OpenFileState {
         this.metadata = metadata
     }
 
-    private var _sqlDb: SQLiteDatabase? = null
+    private var _sqlDb: SQLiteConnection? = null
 
-    val sqlDb: SQLiteDatabase
+    val sqlDb: SQLiteConnection
         get() = synchronized(this) {
-            _sqlDb?.run {
-                if (isOpen) this else null
-            } ?: run {
+            _sqlDb ?: run {
                 Log.i(TAG, "initDatabase ${sqliteFile.name}")
-                val db = SQLiteDatabase.openDatabase(sqliteFile.path, null, SQLiteDatabase.OPEN_READONLY)
+                val db = openSqlite(sqliteFile.path, readOnly = true)
                 _sqlDb = db
                 db
             }
         }
 
+    /**
+     * Runs [sql] on the shared read-only connection and maps every row. A bundled-driver connection is
+     * not safe for concurrent use (the old framework-style database was), so every query goes through the state's lock.
+     */
+    fun <T> rows(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): List<T> =
+        synchronized(this) { sqlDb.queryRows(sql, *args, row = row) }
+
+    /** Like [rows], but maps only the first row, or returns null when there is none. */
+    fun <T> firstRow(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): T? =
+        synchronized(this) { sqlDb.queryFirst(sql, *args, row = row) }
+
     val isBblx: Boolean = sqliteFile.name.lowercase().endsWith(".bblx")
 
     override fun close() {
-        Log.i(TAG, "close database ${sqliteFile.name}")
-        _sqlDb?.close()
-        _sqlDb = null
+        synchronized(this) {
+            Log.i(TAG, "close database ${sqliteFile.name}")
+            _sqlDb?.close()
+            _sqlDb = null
+        }
     }
 
     var metadata: SwordBookMetaData? = null
@@ -110,25 +126,25 @@ class SqliteVerseBackendState(private val sqliteFile: File) : OpenFileState {
     override fun getBookMetaData(): SwordBookMetaData {
         return metadata ?: synchronized(this) {
             val db = this.sqlDb
-            val dbFile = File(db.path!!)
+            val dbFile = sqliteFile
             val initials = "ESword-" + sanitizeModuleName(dbFile.nameWithoutExtension)
 
-            val data = db.rawQuery("select * from Details", null).use {
-                it.moveToFirst()
-                val names = it.columnNames.map { n -> n.lowercase() }
+            val data = db.prepare("select * from Details").use {
+                val hasRow = it.step()
+                val names = it.getColumnNames().map { n -> n.lowercase() }
 
                 fun colIdx(vararg candidates: String): Int =
                     candidates.firstNotNullOfOrNull { c -> names.indexOf(c).takeIf { it >= 0 } } ?: -1
 
                 fun getString(columnNum: Int, default: String = ""): String =
-                    when (columnNum) {
-                        -1 -> default
-                        else -> it.getString(columnNum) ?: default
+                    when {
+                        columnNum == -1 || !hasRow -> default
+                        else -> it.textOrNull(columnNum) ?: default
                     }
 
                 fun getBoolean(columnNum: Int): Boolean =
-                    when (columnNum) {
-                        -1 -> false
+                    when {
+                        columnNum == -1 || !hasRow -> false
                         else -> it.getInt(columnNum) != 0
                     }
 
@@ -144,7 +160,7 @@ class SqliteVerseBackendState(private val sqliteFile: File) : OpenFileState {
                     rightToLeft = getBoolean(rightToLeftCol),
                     hasStrongs = getBoolean(strongCol),
                     language = "en",
-                    moduleFileName = db.path!!,
+                    moduleFileName = sqliteFile.path,
                 )
             }
 
@@ -179,12 +195,8 @@ class SqliteBackend(
         return state
     }
 
-    override fun getCardinality(): Int {
-        state.sqlDb.rawQuery("select count(*) from Bible", null).use { cur ->
-            cur.moveToNext()
-            return cur.getInt(0)
-        }
-    }
+    override fun getCardinality(): Int =
+        state.firstRow("select count(*) from Bible") { it.getInt(0) } ?: 0
 
     override fun get(index: Int): Key {
         throw RuntimeException("Per-index lookup unsupported for e-Sword Bible")
@@ -198,13 +210,10 @@ class SqliteBackend(
 
     override fun indexOf(that: Key): Int = try {
         val verse = KeyUtil.getVerse(that)
-        state.sqlDb.rawQuery(
+        state.firstRow(
             "select _rowid_ from Bible WHERE Book = ? AND Chapter = ? AND Verse = ?",
-            verseParams(verse)
-        ).use {
-            it.moveToNext() || return -1
-            it.getInt(0)
-        }
+            *verseParams(verse)
+        ) { it.getInt(0) } ?: -1
     } catch (e: SQLiteException) {
         Log.e(TAG, "Error in indexOf", e)
         -1
@@ -214,13 +223,10 @@ class SqliteBackend(
 
     private fun readBible(state: SqliteVerseBackendState, key: Key): String {
         val verse = KeyUtil.getVerse(key)
-        return state.sqlDb.rawQuery(
+        return state.firstRow(
             "select Scripture from Bible WHERE Book = ? AND Chapter = ? AND Verse = ?",
-            verseParams(verse)
-        ).use {
-            it.moveToNext() || throw IOException("Can't read $key")
-            it.getString(0) ?: ""
-        }
+            *verseParams(verse)
+        ) { it.textOrNull(0) ?: "" } ?: throw IOException("Can't read $key")
     }
 
     override fun readRawContent(state: SqliteVerseBackendState, key: Key): String = try {
