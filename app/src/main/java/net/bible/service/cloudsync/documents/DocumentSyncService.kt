@@ -33,6 +33,8 @@ import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.UserMessages
+import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.service.cloudsync.SYNC_NOTIFICATION_CHANNEL
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CALC_NOTIFICATION_CHANNEL
@@ -196,6 +198,14 @@ class DocumentSyncService : Service() {
                     is DocumentSyncOp.Purge -> DocumentSync.purgeTombstone(op.initials)
                     is DocumentSyncOp.Uninstall -> DocumentSync.uninstallLocal(op.initials)
                 }
+            } catch (e: CloudSyncUserFacingException) {
+                // Wrong password / changed certificate / full storage: every remaining op would hit
+                // the same wall. Tell the user once, drop the adapter if a reconnect is needed, and
+                // abandon the rest of the queue (ops are retried on the next sync).
+                Log.w(TAG, "Document sync op failed (user-facing); abandoning queue: ${op.initials}", e)
+                UserMessages.errorNotification(e.message ?: "", showReportButton = false)
+                if (e.requiresReconnect) CloudSync.dropAdapterForReconnect()
+                queue.clear()
             } catch (e: Exception) {
                 if (isTransientNetworkError(e)) {
                     // Transient connectivity failure (timeout, dropped connection). Not an app
