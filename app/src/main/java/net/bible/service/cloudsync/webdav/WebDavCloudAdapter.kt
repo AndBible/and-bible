@@ -18,6 +18,7 @@ import java.io.FileNotFoundException
 import io.ktor.utils.io.writeFully
 import java.io.OutputStream
 import java.util.UUID
+import android.util.Log
 
 const val WEBDAV_SECRET_FILE_NAME_KEY = "webDavSecretFile"
 
@@ -87,9 +88,33 @@ class WebDavCloudAdapter(
             .toList()
     }
 
-    /** Task 6 adds folder skipping here. */
-    private suspend fun listChildren(parent: String, sinceServer: Long?): List<DavResource> =
-        client.propfind(parent, 1).filter { it.path != parent }
+    private class CachedMtime(val serverMtime: Long?, val fetchedAt: Long)
+
+    /** Collection mtimes (server clock) seen in recent PROPFINDs; trusted for [CACHE_TTL_MS] only. */
+    private val folderMtimes = java.util.concurrent.ConcurrentHashMap<String, CachedMtime>()
+
+    private fun remember(resources: List<DavResource>) {
+        val at = nowMs()
+        resources.filter { it.isCollection }.forEach { folderMtimes[it.path] = CachedMtime(it.lastModified, at) }
+    }
+
+    private suspend fun freshFolderMtime(path: String): Long? {
+        folderMtimes[path]?.takeIf { nowMs() - it.fetchedAt <= CACHE_TTL_MS }?.let { return it.serverMtime }
+        return client.propfind(path, 0).also(::remember).firstOrNull { it.path == path }?.lastModified
+    }
+
+    /**
+     * Lists [parent]'s children. When the server is known to propagate child changes into the
+     * collection mtime and that mtime is older than [sinceServer], nothing below can be newer, so the
+     * Depth:1 listing is skipped.
+     */
+    private suspend fun listChildren(parent: String, sinceServer: Long?): List<DavResource> {
+        if (sinceServer != null && state.propagation == Propagation.YES) {
+            val m = freshFolderMtime(parent)
+            if (m != null && m < sinceServer) return emptyList()
+        }
+        return client.propfind(parent, 1).also(::remember).filter { it.path != parent }
+    }
 
     override suspend fun getFolders(parentId: String): List<CloudFile> =
         listFiles(parentsIds = listOf(parentId), mimeType = FOLDER_MIMETYPE)
@@ -106,12 +131,18 @@ class WebDavCloudAdapter(
         CloudFile(id = path, name = name, size = 0, createdTime = nowMs(), parentId = parent)
     }
 
-    /** Task 6 adds calibration around the PUT. */
+    /** Uploads, and calibrates from this write whether the server propagates child changes to the folder mtime. */
     override suspend fun upload(name: String, file: File, parentId: String): CloudFile = dav {
         val path = joinDavPath(parentId, name)
+        val m0 = freshFolderMtime(parentId)
         putFile(path, file)
-        client.propfind(path, 0).firstOrNull { it.path == path }?.toCloudFile()
-            ?: CloudFile(path, name, file.length(), nowMs(), parentId)
+        val m1 = client.propfind(parentId, 0).also(::remember).firstOrNull { it.path == parentId }?.lastModified
+        val uploaded = client.propfind(path, 0).firstOrNull { it.path == path }
+        decidePropagation(m0, m1, uploaded?.lastModified)?.let {
+            if (it != state.propagation) Log.i(TAG, "WebDAV folder-mtime propagation: $it")
+            state.propagation = it
+        }
+        uploaded?.toCloudFile() ?: CloudFile(path, name, file.length(), nowMs(), parentId)
     }
 
     private suspend fun putFile(path: String, file: File) =
@@ -154,5 +185,7 @@ class WebDavCloudAdapter(
 
     companion object {
         const val CLOCK_MARGIN_MS = 120_000L
+        const val CACHE_TTL_MS = 60_000L
+        private const val TAG = "WebDavCloudAdapter"
     }
 }

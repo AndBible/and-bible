@@ -33,6 +33,8 @@ class FakeDavServer(var nowServer: Long, var propagates: Boolean = true) {
     val requests: List<HttpRequestData> get() = log
 
     var authRequired = false
+    /** Omit getlastmodified from PROPFIND answers (some servers do). */
+    var omitLastModified = false
     var failWith: ((HttpRequestData) -> Throwable?)? = null
     var statusOverride: ((HttpRequestData) -> Int?)? = null
 
@@ -113,7 +115,7 @@ class FakeDavServer(var nowServer: Long, var propagates: Boolean = true) {
                 append("<d:response><d:href>$href</d:href><d:propstat><d:prop>")
                 append("<d:resourcetype>${if (n.isCollection) "<d:collection/>" else ""}</d:resourcetype>")
                 append("<d:getcontentlength>${n.bytes.size}</d:getcontentlength>")
-                append("<d:getlastmodified>${DateTimeFormatter.RFC_1123_DATE_TIME.format(Instant.ofEpochMilli(n.mtime).atOffset(ZoneOffset.UTC))}</d:getlastmodified>")
+                if (!omitLastModified) append("<d:getlastmodified>${DateTimeFormatter.RFC_1123_DATE_TIME.format(Instant.ofEpochMilli(n.mtime).atOffset(ZoneOffset.UTC))}</d:getlastmodified>")
                 append("</d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response>")
             }
             append("</d:multistatus>")
