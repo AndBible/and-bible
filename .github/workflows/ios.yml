@@ -13,10 +13,29 @@ on:
       - "build.gradle.kts"
       - "gradle.properties"
       - "strings-gen/**"
+      - "jsword"
       - "app/src/main/res/values/strings.xml"
       - ".github/workflows/ios.yml"
 concurrency: {group: "ios-${{ github.ref }}", cancel-in-progress: true}
 jobs:
+  jsword-ios-tests:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Init jsword submodule
+        run: git submodule update --init jsword
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: "17"}
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.0.1.app
+      - name: jsword common tests on the iOS simulator
+        run: ./gradlew -Dorg.gradle.native=false :jsword:iosSimulatorArm64Test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jsword-ios-tests
+          path: jsword/build/reports/tests/iosSimulatorArm64Test
   ios:
     runs-on: macos-15
     timeout-minutes: 90
