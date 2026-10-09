@@ -135,7 +135,7 @@ class WindowTest {
         val book = mock(Book::class.java).apply {
             `when`(bookMetaData).thenReturn(meta)
             `when`(initials).thenReturn("MyDoc_Switch")
-            `when`(globalKeyList).thenReturn(DefaultKeyList().apply {
+            `when`(getGlobalKeyList()).thenReturn(DefaultKeyList().apply {
                 addAll(DefaultLeafKeyList("p1", "p1"))
             })
         }
@@ -200,7 +200,7 @@ class WindowTest {
         val book = mock(Book::class.java).apply {
             `when`(bookMetaData).thenReturn(meta)
             `when`(initials).thenReturn("MyDoc_A")
-            `when`(globalKeyList).thenReturn(DefaultKeyList().apply {
+            `when`(getGlobalKeyList()).thenReturn(DefaultKeyList().apply {
                 addAll(DefaultLeafKeyList("p1", "p1"))
             })
         }

@@ -627,7 +627,7 @@ class AgentExecutor(
             }
             if (prompt.allowedTools == null || AgentTool.SEARCH_BIBLE in prompt.allowedTools!!) {
                 val defaultSearchBible = AiDocumentFilter.filterAllowed(
-                    Books.installed().books.filterIsInstance<SwordBook>()
+                    Books.installed().getBooks().filterIsInstance<SwordBook>()
                 ).firstOrNull { it.indexStatus == IndexStatus.DONE }
                 if (defaultSearchBible != null) {
                     append("Default search Bible (for searchBible tool): ${defaultSearchBible.initials} (${defaultSearchBible.language?.name ?: "unknown language"})\n")

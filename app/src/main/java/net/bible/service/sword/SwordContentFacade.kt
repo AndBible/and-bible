@@ -813,7 +813,7 @@ object SwordContentFacade {
         // This does a standard operator search. See the search
         // documentation for more examples of how to search
         val key = bible.find(searchText) //$NON-NLS-1$
-        Log.i(TAG, "There are " + key.getCardinality() + " verses containing " + searchText)
+        Log.i(TAG, "There are " + key!!.getCardinality() + " verses containing " + searchText)
         return key
     }
 

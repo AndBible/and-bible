@@ -83,7 +83,7 @@ object SwordDocumentFacade {
         if(bookInitials.isNotEmpty()) {
             return bookInitials.mapNotNull{ Books.installed().getBook(it)}
         }
-        val dictionaries = Books.installed().books.filter { it.hasFeature(type) }
+        val dictionaries = Books.installed().getBooks().filter { it.hasFeature(type) }
         if(dictionaries.isNotEmpty()) return dictionaries
         return listOf(FakeBookFactory.giveDoesNotExist(fakeBookName, BookCategory.DICTIONARY))
     }
@@ -99,7 +99,7 @@ object SwordDocumentFacade {
         // Get disabled dictionaries (inverse logic - stores what is NOT selected)
         val disabledInitials = CommonUtils.settings.getStringSet("disabled_word_lookup_dictionaries")
         // Return all plain dictionaries minus the disabled ones
-        return Books.installed().books.filter {
+        return Books.installed().getBooks().filter {
             it.bookCategory == BookCategory.DICTIONARY &&
             !it.hasFeature(FeatureType.GREEK_DEFINITIONS) &&
             !it.hasFeature(FeatureType.HEBREW_DEFINITIONS) &&
@@ -154,7 +154,7 @@ object SwordDocumentFacade {
         } catch (e: Exception) { // just log index delete error, deleting doc is the important thing
             Log.e(TAG, "Error deleting document index", e)
         }
-        document.driver.delete(realDocument)
+        document.driver!!.delete(realDocument!!)
     }
 
     @Throws(BookException::class)

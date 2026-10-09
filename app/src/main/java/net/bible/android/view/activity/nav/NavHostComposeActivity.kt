@@ -7487,7 +7487,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Latching check: once a Bible is installed, OK stays enabled (classic `enableOkayButtonIfBibles`). */
     private fun updateHasBible() {
         if (!downloadHasBible.value) {
-            downloadHasBible.value = Books.installed().books.any { it.bookCategory == BookCategory.BIBLE }
+            downloadHasBible.value = Books.installed().getBooks().any { it.bookCategory == BookCategory.BIBLE }
         }
     }
 
@@ -7920,7 +7920,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
             try {
                 Log.i(TAG_DOWNLOAD, "Deleting:$document")
-                documentControl.deleteDocument(document.installedDocument)
+                documentControl.deleteDocument(document.installedDocument!!)
             } catch (e: Exception) {
                 Log.e(TAG_DOWNLOAD, "Deleting document crashed", e)
                 Dialogs.showErrorMsg(R.string.error_occurred, e)
@@ -8826,7 +8826,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             KeyChooserResult(bookAndKeyJson = key.serialized)
         } else {
             KeyChooserResult(
-                key = key?.getOsisRef() ?: doc!!.globalKeyList.first().getOsisRef(),
+                key = key?.getOsisRef() ?: doc!!.getGlobalKeyList().first().getOsisRef(),
                 book = doc?.initials,
             )
         }
@@ -9219,7 +9219,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
             try {
                 Log.i(TAG_CHOOSE_DOCUMENT, "Deleting:$document")
-                documentControl.deleteDocument(document.installedDocument)
+                documentControl.deleteDocument(document.installedDocument!!)
             } catch (e: Exception) {
                 Log.e(TAG_CHOOSE_DOCUMENT, "Deleting document crashed", e)
                 Dialogs.showErrorMsg(R.string.error_occurred, e)

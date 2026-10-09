@@ -437,7 +437,7 @@ class LinkControl constructor(
     private fun checkStrongs(bible: Book): Boolean {
         return try {
             bible.indexStatus == IndexStatus.DONE &&
-                (bible.find("+[Gen 1:1] strong:h7225").getCardinality() > 0 || bible.find("+[John 1:1] strong:g746").getCardinality() > 0 || bible.find("+[Gen 1:1] strong:g746").getCardinality() > 0)
+                (bible.find("+[Gen 1:1] strong:h7225")!!.getCardinality() > 0 || bible.find("+[John 1:1] strong:g746")!!.getCardinality() > 0 || bible.find("+[Gen 1:1] strong:g746")!!.getCardinality() > 0)
         } catch (be: BookException) {
             Log.e(TAG, "Error checking strongs numbers", be)
             false

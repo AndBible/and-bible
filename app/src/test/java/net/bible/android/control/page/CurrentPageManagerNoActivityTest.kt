@@ -101,7 +101,7 @@ class CurrentPageManagerNoActivityTest {
         File(dataDir, "test.idx").writeBytes(idxBytes)
 
         val bmd = SwordBookMetaData(confFile, NetUtil.getURI(downloadDir))
-        bmd.driver = SwordBookDriver.instance()
+        bmd.setDriver(SwordBookDriver.instance())
         SwordBookDriver.registerNewBook(bmd)
         return requireNotNull(Books.installed().getBook("TestDict")) { "TestDict test module must be installed" }
     }

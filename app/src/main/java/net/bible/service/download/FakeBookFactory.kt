@@ -84,7 +84,7 @@ object FakeBookFactory {
     fun createRepoSBMD(module: String?, conf: String): SwordBookMetaData {
         val sbmd = SwordBookMetaData(conf.toByteArray(), module)
         val fake = SwordBookDriver.instance()
-        sbmd.driver = fake
+        sbmd.setDriver(fake)
         return sbmd
     }
 

@@ -106,7 +106,7 @@ object GetInstalledDocumentsTool : Tool {
                 }
                 SwordDocumentFacade.getBooks(category)
             } else {
-                Books.installed().books
+                Books.installed().getBooks()
             })
 
             val results = books.map { book ->

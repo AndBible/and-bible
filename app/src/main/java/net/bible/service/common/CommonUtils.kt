@@ -1235,7 +1235,7 @@ object CommonUtils : CommonUtilsBase() {
             if(!application.isRunningTests) {
                 for (it in docDao.getUnlocked()) {
                     val book = Books.installed().getBook(it.initials)
-                    book.unlock(it.cipherKey)
+                    book!!.unlock(it.cipherKey)
                 }
             }
             booksInitialized = true
@@ -1956,7 +1956,7 @@ data class LastTypesSerializer(val types: MutableList<WorkspaceEntities.TextDisp
     }
 }
 
-val firstBibleDoc get() = Books.installed().books.first { it.bookCategory == BookCategory.BIBLE } as SwordBook
+val firstBibleDoc get() = Books.installed().getBooks().first { it.bookCategory == BookCategory.BIBLE } as SwordBook
 
 fun <T> Cursor.map(f: (c: Cursor) -> T): Collection<T> = use {
     val result = mutableListOf<T>()

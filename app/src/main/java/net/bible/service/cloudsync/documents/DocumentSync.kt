@@ -80,7 +80,7 @@ object DocumentSync {
     }
 
     private fun installedSyncableBooks(): List<Book> =
-        Books.installed().books.filter { it.isSyncableDocument }
+        Books.installed().getBooks().filter { it.isSyncableDocument }
 
     data class DocumentStatusItem(
         val initials: String,

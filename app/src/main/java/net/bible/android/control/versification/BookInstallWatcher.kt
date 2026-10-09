@@ -45,7 +45,7 @@ object BookInstallWatcher {
     fun startListening() {
         Books.installed().addBooksListener(object : BooksListener {
             override fun bookAdded(ev: BooksEvent) {
-                val book = ev.book
+                val book = ev.book!!
                 Activator.deactivate(book)
                 initialiseRequiredMapping(book)
                 addBookToDb(book)
@@ -79,7 +79,7 @@ object BookInstallWatcher {
                 // Document sync: local uninstall does NOT propagate to the cloud by default.
                 // "Remove from sync" (tombstone) is an explicit action in CloudDocumentsActivity.
                 AndBibleAddons.clearCaches()
-                removeBookFromDb(ev.book)
+                removeBookFromDb(ev.book!!)
                 SwordContentFacade.clearCaches()
             }
         })

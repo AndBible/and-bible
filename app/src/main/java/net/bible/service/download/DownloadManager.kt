@@ -102,7 +102,7 @@ class DownloadManager(
                 // Now we can get the list of books
                 log.debug("getting downloadable books")
 
-                if (refresh || installer.books.size == 0) {
+                if (refresh || installer.getBooks().size == 0) {
                     log.warn("Reloading book list")
 
                     val indexLastUpdated = installer.indexLastUpdated()

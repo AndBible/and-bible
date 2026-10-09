@@ -114,7 +114,7 @@ class MyBibleInstaller(private val manifestUrl: String): Installer, AbstractBook
             downloadUrl = it.download_url
         )
         val metadata = SwordBookMetaData(config.toByteArray(), initials)
-        metadata.driver = fakeDriver
+        metadata.setDriver(fakeDriver)
         SwordBook(metadata, nullBackend)
     }.toMutableList()
 
@@ -124,7 +124,7 @@ class MyBibleInstaller(private val manifestUrl: String): Installer, AbstractBook
 
     override fun toRemoteURI(book: Book): URI = URI(book.myBibleDownloadUrl)
 
-    override fun getBook(name: String): Book? = books.find { it.name == name }
+    override fun getBook(name: String): Book? = getBooks().find { it.name == name }
 
     override fun getSize(book: Book): Int {
         // Note: This is completely unused in JSword API currently

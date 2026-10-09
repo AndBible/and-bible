@@ -361,7 +361,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             )
             Log.i(TAG, "Creating EpubBook metadata $initials, $description $language")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
-            metadata.driver = EpubSwordDriver()
+            metadata.setDriver(EpubSwordDriver())
             this._metadata = metadata
             return@synchronized metadata
         }

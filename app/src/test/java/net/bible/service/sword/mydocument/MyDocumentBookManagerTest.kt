@@ -133,7 +133,7 @@ class MyDocumentBookManagerTest {
         val book = Books.installed().getBook("MyDoc_Empty")!!
         // Activating with no pages freezes an empty key map. Without a rebuild
         // it stays empty for the rest of the session and every getKey() throws.
-        assertEquals(0, book.globalKeyList.getCardinality())
+        assertEquals(0, book.getGlobalKeyList().getCardinality())
 
         addPage("page_late", "Late page", documentId = empty.id)
         MyDocumentBookManager.refreshDocument("MyDoc_Empty")
@@ -189,7 +189,7 @@ class MyDocumentBookManagerTest {
         dao.deletePageWithContent(dao.pageById(deleted.id)!!)
         MyDocumentBookManager.handleSyncEvent(listOf(entry))
 
-        assertTrue(book.globalKeyList.none { it.getOsisRef() == "page_two" })
+        assertTrue(book.getGlobalKeyList().none { it.getOsisRef() == "page_two" })
         assertEquals("page_one", book.getKey("page_one").getOsisRef())
     }
 

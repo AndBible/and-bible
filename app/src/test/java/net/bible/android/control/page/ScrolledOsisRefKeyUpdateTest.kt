@@ -57,7 +57,7 @@ class ScrolledOsisRefKeyUpdateTest {
     private val entry5to8 = VerseRange(kjv, heb11v5, Verse(kjv, BibleBook.HEB, 11, 8))
     private val entry9to10 = VerseRange(kjv, heb11v9, Verse(kjv, BibleBook.HEB, 11, 10))
 
-    private val book: Book get() = Books.installed().getBook("KJV")
+    private val book: Book get() = Books.installed().getBook("KJV")!!
 
     private fun pageManager() = CurrentPageManager(
         mock<BibleTraverser>(),

@@ -97,7 +97,7 @@ class CachedKeyPageTest {
         `when`(meta.getProperty("AndBibleSpecial")).thenReturn("1")
         val book = mock(Book::class.java).apply {
             `when`(bookMetaData).thenReturn(meta)
-            `when`(globalKeyList).thenReturn(DefaultKeyList()) // non-null, empty
+            `when`(getGlobalKeyList()).thenReturn(DefaultKeyList()) // non-null, empty
         }
         page.onlySetCurrentDocument(book)
 
@@ -111,7 +111,7 @@ class CachedKeyPageTest {
         return mock(Book::class.java).apply {
             `when`(bookMetaData).thenReturn(meta)
             `when`(this.initials).thenReturn(initials)
-            `when`(globalKeyList).thenReturn(DefaultKeyList().apply {
+            `when`(getGlobalKeyList()).thenReturn(DefaultKeyList().apply {
                 addAll(DefaultLeafKeyList("p1", "p1"))
             })
         }

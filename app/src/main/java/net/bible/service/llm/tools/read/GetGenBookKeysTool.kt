@@ -167,7 +167,7 @@ object GetGenBookKeysTool : Tool {
             book.epubBackend?.tocKeys ?: emptyList()
         } else {
             val keys = mutableListOf<Key>()
-            for (key in book.globalKeyList) {
+            for (key in book.getGlobalKeyList()) {
                 if (key.getName().isNotBlank()) {
                     keys.add(key)
                 }

@@ -1236,7 +1236,7 @@ class BibleView(
             val parts = path.split("/", limit = 2);
             if(parts.size != 2) return notFound
             val (bookName, resourcePath) = parts
-            val location = File(Books.installed().getBook(bookName).bookMetaData.location)
+            val location = File(Books.installed().getBook(bookName)!!.bookMetaData.location)
             val f = File(location, resourcePath)
             return if(f.isFile && f.exists()) {
                 WebResourceResponse(URLConnection.guessContentTypeFromName(resourcePath), null, f.inputStream())

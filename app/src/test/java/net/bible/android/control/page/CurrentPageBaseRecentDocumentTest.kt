@@ -55,6 +55,6 @@ class CurrentPageBaseRecentDocumentTest {
 
         page.setCurrentDocument(someInstalledBook)
 
-        assertEquals(listOf(someInstalledBook.initials), RecentDocumentsStore.read())
+        assertEquals(listOf(someInstalledBook!!.initials), RecentDocumentsStore.read())
     }
 }

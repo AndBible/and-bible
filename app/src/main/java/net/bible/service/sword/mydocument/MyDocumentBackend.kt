@@ -180,7 +180,7 @@ internal fun createMyDocumentMetadata(document: MyDocument): SwordBookMetaData {
         "AndBibleMyDocumentId=${document.id}"
 
     return SwordBookMetaData(conf.toByteArray(), document.initials).also {
-        it.driver = SwordBookDriver.instance()
+        it.setDriver(SwordBookDriver.instance())
     }
 }
 

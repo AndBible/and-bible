@@ -51,7 +51,7 @@ interface DictionaryOptionsProvider {
 /** Mirrors `SettingsFragment.setupDictionary`/`setupPlainDictionary` (installed-book lookup). */
 object RealDictionaryOptionsProvider : DictionaryOptionsProvider {
     private fun booksWithFeature(type: FeatureType): List<DictOption> =
-        Books.installed().books.filter { it.hasFeature(type) }.map { DictOption(it.initials, it.name) }
+        Books.installed().getBooks().filter { it.hasFeature(type) }.map { DictOption(it.initials, it.name) }
 
     override val greekDictOptions: List<DictOption> get() = booksWithFeature(FeatureType.GREEK_DEFINITIONS)
     override val hebrewDictOptions: List<DictOption> get() = booksWithFeature(FeatureType.HEBREW_DEFINITIONS)
@@ -59,7 +59,7 @@ object RealDictionaryOptionsProvider : DictionaryOptionsProvider {
 
     // Get all dictionaries except Strong's and morphology (mirrors setupPlainDictionary).
     override val wordLookupDictOptions: List<DictOption>
-        get() = Books.installed().books.filter {
+        get() = Books.installed().getBooks().filter {
             it.bookCategory == BookCategory.DICTIONARY &&
                 !it.hasFeature(FeatureType.GREEK_DEFINITIONS) &&
                 !it.hasFeature(FeatureType.HEBREW_DEFINITIONS) &&

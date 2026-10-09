@@ -135,7 +135,7 @@ object SearchByStrongsNumberTool : Tool {
         }
         // Prefer indexed Strong's Bibles; fall back to unindexed if none indexed
         return AiDocumentFilter.filterAllowed(
-            Books.installed().books.filterIsInstance<SwordBook>()
+            Books.installed().getBooks().filterIsInstance<SwordBook>()
         ).filter { it.hasFeature(FeatureType.STRONGS_NUMBERS) }
             .sortedByDescending { it.indexStatus == IndexStatus.DONE }
             .firstOrNull()

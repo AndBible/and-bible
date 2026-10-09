@@ -151,7 +151,7 @@ class SqliteVerseBackendState(private val sqliteFile: File) : OpenFileState {
             val conf = getConfig(data)
             Log.i(TAG, "Creating ESwordBook metadata $initials")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
-            metadata.driver = SqliteSwordDriver()
+            metadata.setDriver(SqliteSwordDriver())
             this.metadata = metadata
             return@synchronized metadata
         }

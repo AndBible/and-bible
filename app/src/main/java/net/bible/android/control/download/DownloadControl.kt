@@ -106,7 +106,7 @@ class DownloadControl
         if (languages != null) {
             languageList.addAll(languages)
 
-            RelevantLanguageSorter.sort(languageList, Books.installed().books)
+            RelevantLanguageSorter.sort(languageList, Books.installed().getBooks())
         }
         return languageList
     }

@@ -153,7 +153,7 @@ class SwordContentFacadeTest {
 
     private fun getBook(initials: String): Book {
         println("Looking for $initials")
-        return Books.installed().getBook(initials)
+        return Books.installed().getBook(initials)!!
     }
 }
 

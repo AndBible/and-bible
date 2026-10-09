@@ -200,7 +200,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
 
-            metadata.driver = SqliteSwordDriver()
+            metadata.setDriver(SqliteSwordDriver())
             this.metadata = metadata
             return@synchronized metadata
         }
@@ -515,4 +515,4 @@ fun addManuallyInstalledMyBibleBooks() {
 }
 
 val Book.isManuallyInstalledMyBibleBook get() = bookMetaData.getProperty("AndBibleMyBibleModule") != null
-val Book.myBibleDownloadUrl: String get() = bookMetaData.getProperty("AndBibleDownloadUrl")
+val Book.myBibleDownloadUrl: String get() = bookMetaData.getProperty("AndBibleDownloadUrl")!!
