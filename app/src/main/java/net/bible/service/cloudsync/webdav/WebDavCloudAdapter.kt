@@ -6,6 +6,7 @@ import net.bible.android.database.SyncConfiguration
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
+import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.service.cloudsync.DownloadProgressListener
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
@@ -178,10 +179,12 @@ class WebDavCloudAdapter(
         parentId = parent,
     )
 
-    /** Maps a missing resource to FileNotFoundException, the sync layer's "not there" signal. */
-    private suspend fun <T> dav(block: suspend () -> T): T = try { block() } catch (e: DavNotFoundException) {
-        throw FileNotFoundException("WebDAV: not found ${e.path}")
-    }
+    /** Maps a missing resource to FileNotFoundException (the sync layer's "not there" signal) and user-actionable failures to [CloudSyncUserFacingException]. */
+    private suspend fun <T> dav(block: suspend () -> T): T = try { block() }
+    catch (e: DavNotFoundException) { throw FileNotFoundException("WebDAV: not found ${e.path}") }
+    catch (e: DavUntrustedCertificateException) { throw CloudSyncUserFacingException(ui.message(WebDavMessage.CERTIFICATE_CHANGED), true, e) }
+    catch (e: DavAuthException) { throw CloudSyncUserFacingException(ui.message(WebDavMessage.WRONG_CREDENTIALS), true, e) }
+    catch (e: DavQuotaException) { throw CloudSyncUserFacingException(ui.message(WebDavMessage.STORAGE_FULL), false, e) }
 
     companion object {
         const val CLOCK_MARGIN_MS = 120_000L

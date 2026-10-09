@@ -35,6 +35,10 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.cloudsync.nextcloud.NextCloudAdapter
+import net.bible.service.cloudsync.webdav.AndroidWebDavSignInUi
+import net.bible.service.cloudsync.webdav.PrefsWebDavStateStore
+import net.bible.service.cloudsync.webdav.WebDavCloudAdapter
+import net.bible.service.cloudsync.webdav.WebDavConfig
 import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
@@ -67,11 +71,12 @@ class CancelStartedSync: Exception()
 val app get() = BibleApplication.application
 
 enum class CloudAdapters(val isEnabled: Boolean = true) {
-    GOOGLE_DRIVE(!BuildVariant.DistributionChannel.isFdroid), NEXT_CLOUD;
+    GOOGLE_DRIVE(!BuildVariant.DistributionChannel.isFdroid), NEXT_CLOUD, WEBDAV;
 
     val displayName: String get() = when(this) {
         GOOGLE_DRIVE -> app.getString(R.string.adapters_google_drive)
         NEXT_CLOUD -> app.getString(R.string.adapters_next_cloud)
+        WEBDAV -> app.getString(R.string.adapters_webdav)
     }
     val newAdapter: CloudAdapter get() = when(this) {
         GOOGLE_DRIVE -> {
@@ -86,6 +91,9 @@ enum class CloudAdapters(val isEnabled: Boolean = true) {
                 prefs.getString("cloud_sync_password", null),
                 prefs.getString("cloud_sync_folder_path", null)
             )
+        }
+        WEBDAV -> CommonUtils.realSharedPreferences.let { prefs ->
+            WebDavCloudAdapter(WebDavConfig.fromPreferences(prefs), PrefsWebDavStateStore(prefs), AndroidWebDavSignInUi())
         }
     }
 
@@ -443,6 +451,14 @@ object CloudSync {
         syncMutex.withLock {  }
     }
 
+    /** Drops the adapter so the next foreground sync signs in again (and can prompt), keeping all sync state. */
+    internal fun dropAdapterForReconnect() { _adapter = null }
+
+    private fun reportUserFacing(e: CloudSyncUserFacingException, reported: java.util.concurrent.atomic.AtomicBoolean) {
+        if (e.requiresReconnect) dropAdapterForReconnect()
+        if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message ?: "", showReportButton = false)
+    }
+
     internal suspend fun synchronize() = withContext(Dispatchers.IO) {
         if(!signedIn) {
             Log.i(TAG, "Not signed in")
@@ -458,6 +474,7 @@ object CloudSync {
             Log.i(TAG, "Synchronizing starts")
             val timerStart = System.currentTimeMillis()
 
+            val reported = java.util.concurrent.atomic.AtomicBoolean(false)
             DatabaseContainer.databaseAccessorFactories.asyncMap {
                 val dbDef = it.invoke()
                 if(!dbDef.category.syncEnabled) return@asyncMap
@@ -470,6 +487,9 @@ object CloudSync {
                 } catch (e: IOException) {
                     Log.e(TAG, "IOException (probably network down)", e)
                     return@asyncMap
+                } catch (e: CloudSyncUserFacingException) {
+                    reportUserFacing(e, reported)
+                    return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "Some other exception happened in initializeSync!", e)
                     UserMessages.errorNotification(R.string.sync_error)
@@ -479,6 +499,9 @@ object CloudSync {
                     createAndUploadNewPatch(dbDef)
                 } catch (e: IOException) {
                     Log.e(TAG, "IOException", e)
+                    return@asyncMap
+                } catch (e: CloudSyncUserFacingException) {
+                    reportUserFacing(e, reported)
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "createAndUploadNewPatch failed due to error", e)
@@ -498,6 +521,9 @@ object CloudSync {
                     UserMessages.errorNotification(cantFetchString(dbDef.category.contentDescription), showReportButton = false)
                     dbDef.dao.setConfig("disabledForVersion", dbDef.version.toLong())
                     return@asyncMap
+                } catch (e: CloudSyncUserFacingException) {
+                    reportUserFacing(e, reported)
+                    return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
                     UserMessages.errorNotification(R.string.sync_error)
@@ -510,6 +536,8 @@ object CloudSync {
                     delete = DocumentSyncSettings.autoDelete,
                     manual = false,
                 )
+            } catch (e: CloudSyncUserFacingException) {
+                reportUserFacing(e, reported)
             } catch (e: Exception) {
                 Log.e(TAG, "Document sync pull failed", e)
             }
