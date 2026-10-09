@@ -20,7 +20,6 @@ import android.text.format.DateFormat
 import net.bible.service.db.blockingDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
@@ -28,11 +27,12 @@ import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNot
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkSortOrder
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.sharedcore.bookmark.BookmarkFilterLabel
 import net.bible.sharedcore.bookmark.BookmarkRow
 import net.bible.sharedcore.bookmark.BookmarkSortMode
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.bookmark.BookmarksService
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
@@ -56,6 +56,8 @@ private const val BOOKMARK_SHOW_NOTES_PREF = "bookmark_show_notes"
 class BookmarksServiceImpl(
     private val bookmarkControl: BookmarkControl,
     private val windowControl: WindowControl,
+    private val settings: AppSettings,
+    private val coreStrings: CoreStrings,
 ) : BookmarksService {
 
     /** The bookmarks behind the most recent [loadRows] result, keyed by `id.toString()`. Insertion
@@ -64,7 +66,7 @@ class BookmarksServiceImpl(
     private var loaded: Map<String, BaseBookmarkWithNotes> = emptyMap()
 
     override fun filterLabels(): List<BookmarkFilterLabel> =
-        blockingDb { bookmarkControl.allLabels() }.mapIndexed { i, l -> BookmarkFilterLabel(i, l.displayName) } // L1-pending(bookmark)
+        blockingDb { bookmarkControl.allLabels() }.mapIndexed { i, l -> BookmarkFilterLabel(i, l.displayName) } // L1-edge: BookmarksController reads filterLabels() synchronously in its constructor and refresh()
 
     override suspend fun loadRows(
         filterIndex: Int,
@@ -103,7 +105,7 @@ class BookmarksServiceImpl(
                 val verseName = bm.verseRange.toV11n(versification).name
                 val speakBook = bm.speakBook
                 if (isSpeak && speakBook != null) {
-                    CommonUtils.getResourceString(R.string.something_with_parenthesis, verseName, speakBook.abbreviation)
+                    coreStrings.somethingWithParenthesis(verseName, speakBook.abbreviation)
                 } else verseName
             }
             is GenericBookmarkWithNotes -> "${bm.book?.abbreviation ?: bm.bookInitials}: ${bm.bookKey?.name ?: bm.key}"
@@ -138,7 +140,7 @@ class BookmarksServiceImpl(
     fun loadedBookmarks(): List<BaseBookmarkWithNotes> = loaded.values.toList()
 
     override fun loadSortMode(): BookmarkSortMode {
-        val str = CommonUtils.getSharedPreference(BOOKMARK_SORT_ORDER_PREF, BookmarkSortOrder.BIBLE_ORDER.toString())
+        val str = settings.getString(BOOKMARK_SORT_ORDER_PREF, BookmarkSortOrder.BIBLE_ORDER.toString())
         val order = try {
             BookmarkSortOrder.valueOf(str!!)
         } catch (e: IllegalArgumentException) {
@@ -148,13 +150,13 @@ class BookmarksServiceImpl(
     }
 
     override fun saveSortMode(mode: BookmarkSortMode) {
-        CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER_PREF, mode.toClassicSortOrder().toString())
+        settings.setString(BOOKMARK_SORT_ORDER_PREF, mode.toClassicSortOrder().toString())
     }
 
-    override fun loadShowNotes(): Boolean = CommonUtils.settings.getBoolean(BOOKMARK_SHOW_NOTES_PREF, true)
+    override fun loadShowNotes(): Boolean = settings.getBoolean(BOOKMARK_SHOW_NOTES_PREF, true)
 
     override fun saveShowNotes(v: Boolean) {
-        CommonUtils.settings.setBoolean(BOOKMARK_SHOW_NOTES_PREF, v)
+        settings.setBoolean(BOOKMARK_SHOW_NOTES_PREF, v)
     }
 }
 

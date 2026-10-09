@@ -257,7 +257,7 @@ class BookmarksInGraphResultTest {
                 LabelEditController(
                     initial = labelEditState(),
                     service = object : LabelEditService {
-                        override fun orphanedBookmarkCount(labelId: String): Int = 0
+                        override suspend fun orphanedBookmarkCount(labelId: String): Int = 0
                     },
                     scope = scope,
                     onFinish = { outcome ->

@@ -165,6 +165,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.GlobalContext
 import net.bible.service.db.blockingDb
+import net.bible.android.control.bookmark.BookmarkJsActions
 
 const val MAX_DOC_STR_LENGTH = 4000000;
 private val notFound = WebResourceResponse(null, null, null)
@@ -292,6 +293,7 @@ class BibleView(
 ) : WebView(host.hostContext.applicationContext), DocumentView
 {
     private lateinit var bibleJavascriptInterface: BibleJavascriptInterface
+    private val bookmarkJsActions: BookmarkJsActions by lazy { GlobalContext.get().get() }
 
     private lateinit var pageTiltScroller: PageTiltScroller
     private var hideScrollBar: Boolean = false
@@ -502,18 +504,21 @@ class BibleView(
                     new = true,
                 )
             }
-        if(primaryLabelId != null) {
-            val label = blockingDb { bookmarkControl.labelById(primaryLabelId) } // L1-pending(view)
-            if(label != null) {
-                bookmark.primaryLabelId = primaryLabelId
+        // Write in this window's order on the application scope; the click event follows the write.
+        bookmarkJsActions.launch(window.id) {
+            if(primaryLabelId != null) {
+                val label = bookmarkControl.labelById(primaryLabelId)
+                if(label != null) {
+                    bookmark.primaryLabelId = primaryLabelId
+                }
             }
-        }
 
-        blockingDb { bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels) } // L1-pending(view)
-        if(initialLabels.isEmpty() || openNotes) {
-            executeJavascriptOnUiThread(
-                "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
-            )
+            bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
+            if(initialLabels.isEmpty() || openNotes) {
+                executeJavascriptOnUiThread(
+                    "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
+                )
+            }
         }
     }
 
@@ -533,18 +538,20 @@ class BibleView(
             new = true,
         )
 
-        if (primaryLabelId != null) {
-            val label = blockingDb { bookmarkControl.labelById(primaryLabelId) } // L1-pending(view)
-            if (label != null) {
-                bookmark.primaryLabelId = primaryLabelId
+        bookmarkJsActions.launch(window.id) {
+            if (primaryLabelId != null) {
+                val label = bookmarkControl.labelById(primaryLabelId)
+                if (label != null) {
+                    bookmark.primaryLabelId = primaryLabelId
+                }
             }
-        }
 
-        blockingDb { bookmarkControl.addOrUpdateGenericBookmark(bookmark, initialLabels) } // L1-pending(view)
-        if (initialLabels.isEmpty()) {
-            executeJavascriptOnUiThread(
-                "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true});"
-            )
+            bookmarkControl.addOrUpdateGenericBookmark(bookmark, initialLabels)
+            if (initialLabels.isEmpty()) {
+                executeJavascriptOnUiThread(
+                    "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true});"
+                )
+            }
         }
     }
 
@@ -573,8 +580,11 @@ class BibleView(
                 )
             }
 
-        bookmark.primaryLabelId = blockingDb { bookmarkControl.paragraphBreakLabel() }.id // L1-pending(view)
-        blockingDb { bookmarkControl.addOrUpdateBookmark(bookmark, setOf(bookmarkControl.paragraphBreakLabel().id)) } // L1-pending(view)
+        bookmarkJsActions.launch(window.id) {
+            val paragraphBreakLabelId = bookmarkControl.paragraphBreakLabel().id
+            bookmark.primaryLabelId = paragraphBreakLabelId
+            bookmarkControl.addOrUpdateBookmark(bookmark, setOf(paragraphBreakLabelId))
+        }
     }
 
     fun openWebSearch(context: Context, query: String) {
@@ -1676,6 +1686,7 @@ class BibleView(
         bookmarkLabels = bookmarkControl.assignableLabels().map { label ->
             label.withStyleOverrides(labelOverridesMap[label.id])
         }
+        refreshFavouriteLabels()
         initialKey = key
 
         initialAnchorOrdinal = anchorOrdinal
@@ -1765,8 +1776,15 @@ class BibleView(
 
     private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.settings.getBoolean("show_errorbox", false) else false
 
+    /** Favourite label ids as of the last [refreshFavouriteLabels]; [getUpdateConfigCommand] is synchronous and reads this. */
+    @Volatile private var favouriteLabelIds: List<IdType> = emptyList()
+
+    private suspend fun refreshFavouriteLabels() {
+        favouriteLabelIds = bookmarkControl.favouriteLabels().map { it.id }
+    }
+
     private fun getUpdateConfigCommand(initial: Boolean): String {
-        val favouriteLabels = json.encodeToString(serializer(), blockingDb { bookmarkControl.favouriteLabels() }.map {it.id}) // L1-pending(view)
+        val favouriteLabels = json.encodeToString(serializer(), favouriteLabelIds)
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
         val studyPadCursors = json.encodeToString(serializer(), workspaceSettings.studyPadCursors)
         val autoAssignLabels = json.encodeToString(serializer(), workspaceSettings.autoAssignLabels.toList())
@@ -1824,7 +1842,10 @@ class BibleView(
     }
 
     private fun updateConfig(initial: Boolean = false) {
-        executeJavascriptOnUiThread(getUpdateConfigCommand(initial))
+        scope.launch {
+            refreshFavouriteLabels()
+            executeJavascriptOnUiThread(getUpdateConfigCommand(initial))
+        }
     }
 
     fun updateBackgroundColor() {

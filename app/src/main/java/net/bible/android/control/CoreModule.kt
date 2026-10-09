@@ -3,6 +3,7 @@ package net.bible.android.control
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarkJsActions
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.download.DownloadQueue
@@ -107,6 +108,7 @@ val coreModule = module {
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }
     single { ProgressJsActions(get()) }
+    single { BookmarkJsActions(get(), get()) }
     single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }
     single { BookInstallWatcher(get(), get()) }
     single<UserNotifier> { AndroidUserNotifier() }

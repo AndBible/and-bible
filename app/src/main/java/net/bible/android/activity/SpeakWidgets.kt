@@ -221,10 +221,10 @@ class SpeakWidgetManager : KoinComponent {
             bookmarksAdded = true
         }
 
-        val label = blockingDb { bookmarkControl.speakLabel() } // L1-pending(view)
+        val label = blockingDb { bookmarkControl.speakLabel() } // L1-edge: AppWidgetProvider callback
 
-        val bibleBookmarks = blockingDb { bookmarkControl.getBibleBookmarksWithLabel(label) }.sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) } // L1-pending(view)
-        val genBookmarks = blockingDb { bookmarkControl.getGenericBookmarksWithLabel(label) } // L1-pending(view)
+        val bibleBookmarks = blockingDb { bookmarkControl.getBibleBookmarksWithLabel(label) }.sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) } // L1-edge: AppWidgetProvider callback
+        val genBookmarks = blockingDb { bookmarkControl.getGenericBookmarksWithLabel(label) } // L1-edge: AppWidgetProvider callback
         val speakBookmarks = bibleBookmarks + genBookmarks
         if(!AdvancedSpeakSettings.autoBookmark && speakBookmarks.isEmpty()) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
@@ -383,8 +383,8 @@ class SpeakWidgetManager : KoinComponent {
                 val bookmarkId = path.slice(1 until path.length)
                 Log.i(TAG, "onReceive osisRef $bookmarkId $bookmarkType")
                 val dto = when(bookmarkType) {
-                    "bible" -> blockingDb { bookmarkControl.bibleBookmarksByIds(listOf(IdType(bookmarkId))) }.first() // L1-pending(view)
-                    "generic" -> blockingDb { bookmarkControl.genericBookmarkById(IdType(bookmarkId)) }!! // L1-pending(view)
+                    "bible" -> blockingDb { bookmarkControl.bibleBookmarksByIds(listOf(IdType(bookmarkId))) }.first() // L1-edge: AppWidgetProvider callback
+                    "generic" -> blockingDb { bookmarkControl.genericBookmarkById(IdType(bookmarkId)) }!! // L1-edge: AppWidgetProvider callback
                     else -> throw RuntimeException("Illegal type")
                 }
                 speakControl.speakFromBookmark(dto)

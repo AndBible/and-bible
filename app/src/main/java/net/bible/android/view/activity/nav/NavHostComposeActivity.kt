@@ -66,6 +66,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -96,6 +97,7 @@ import kotlin.reflect.KFunction1
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import net.bible.sharedcore.platform.AppCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -523,6 +525,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val rawLogService: RawLogService by inject()
     private val readingPlanControl: ReadingPlanControl by inject()
     private val speakControl: SpeakControl by inject()
+    private val appScope: AppCoroutineScope by inject()
     private val speakTransportServiceImpl: SpeakTransportServiceImpl by inject()
     private val windowStateService: WindowStateServiceImpl by inject()
     private val searchControl: SearchControl by inject()
@@ -4159,7 +4162,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // boolean — see the note above; `&&` short-circuits left to right, so the state is
                 // still read on every composition of this scope.
                 if (manageLabelsExportOpen && manageLabelsSession != null) {
-                    val exportableLabels = remember(manageLabelsExportOpen) { blockingDb { bookmarkControl.assignableLabels() } } // L1-pending(view)
+                    val exportableLabels by produceState(emptyList<BookmarkEntities.Label>(), manageLabelsExportOpen) { value = bookmarkControl.assignableLabels() }
                     AbMultiSelectSheet(
                         open = true,
                         title = getString(R.string.export_something, getString(R.string.studypads)),
@@ -4289,8 +4292,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             scope = lifecycleScope,
             initialFilterIndex = initialFilterIndex,
             onSelectBookmark = { id, listPosition ->
-                bookmarkResultFor(id, listPosition, session.controller.selectedFilterIndex.value)
-                    ?.let(onSelectBookmark)
+                val labelNo = session.controller.selectedFilterIndex.value
+                lifecycleScope.launch {
+                    bookmarkResultFor(id, listPosition, labelNo)?.let(onSelectBookmark)
+                }
             },
             onAssignLabels = { ids -> requestAssignLabels(session, ids, navigateToManageLabels) },
             onDeleteSelected = { ids -> confirmDeleteBookmarks(session, ids) },
@@ -4316,11 +4321,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * what the caller saw: it is `controller.selectedFilterIndex.value` at the moment of the tap,
      * which is what classic put in the extra (`:185`).
      */
-    private fun bookmarkResultFor(id: String, listPosition: Int, labelNo: Int): BookmarkResult? {
+    private suspend fun bookmarkResultFor(id: String, listPosition: Int, labelNo: Int): BookmarkResult? {
         val bookmark = bookmarksService.bookmarkById(id) ?: return null
         Log.i(TAG_BOOKMARKS, "Bookmark selected:$bookmark")
         return try {
-            if (bookmark is BookmarkEntities.BibleBookmarkWithNotes && blockingDb { bookmarkControl.isSpeakBookmark(bookmark) }) { // L1-pending(view)
+            if (bookmark is BookmarkEntities.BibleBookmarkWithNotes && bookmarkControl.isSpeakBookmark(bookmark)) {
                 speakControl.speakFromBookmark(bookmark)
             }
             // `title` is the HOST WINDOW's title, which the arm's LaunchedEffect has already set to
@@ -4431,10 +4436,16 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private fun confirmDeleteBookmarks(session: BookmarksSession, ids: List<String>) {
         val bookmarks = bookmarksService.bookmarksByIds(ids)
-        for (bookmark in bookmarks) {
-            blockingDb { bookmarkControl.deleteBookmark(bookmark) } // L1-pending(view)
+        // The delete must complete even if this screen closes at once (app scope); the refresh follows it.
+        val write = appScope.launch {
+            for (bookmark in bookmarks) {
+                bookmarkControl.deleteBookmark(bookmark)
+            }
         }
-        session.controller.refresh()
+        lifecycleScope.launch {
+            write.join()
+            session.controller.refresh()
+        }
     }
 
     /** Classic `onExportCsv` (`:244-248`) -- `exportBookmarksToCSV` wants an `Activity`, hence host-side. */
@@ -4522,7 +4533,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val parsed = ManageLabelsContract.ManageLabelsData.fromJSON(data)
         val session = ManageLabelsSession(
             data = parsed,
-            labelsById = blockingDb { bookmarkControl.assignableLabels() }.associateByTo(mutableMapOf()) { it.id.toString() }, // L1-pending(view)
+            labelsById = blockingDb { bookmarkControl.assignableLabels() }.associateByTo(mutableMapOf()) { it.id.toString() }, // L1-edge: ManageLabelsDeps.controllerFor is a synchronous composition-time factory and the label list seeds ManageLabelsController's constructor
         )
         val highlightId = (windowControl.activeWindowPageManager.currentPage.key as? StudyPadKey)
             ?.takeIf { parsed.mode == ManageLabelsContract.Mode.STUDYPAD }
@@ -4539,8 +4550,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             // Classic launched an Intent here; the payload is built the same way and the GRAPH turns
             // it into a destination. A label that cannot be resolved navigates nowhere, exactly as
             // classic's `?: return` did.
-            onEditLabel = { id -> buildLabelEditPayload(session, id)?.let(onEditLabel) },
-            onSelectStudyPad = { id, entryId -> selectStudyPad(session, id, entryId, onResult) },
+            onEditLabel = { id -> lifecycleScope.launch { buildLabelEditPayload(session, id)?.let(onEditLabel) } },
+            onSelectStudyPad = { id, entryId -> lifecycleScope.launch { selectStudyPad(session, id, entryId, onResult) } },
             onSave = { saveManageLabelsAndExit(session, onResult) },
             onReset = { resetManageLabels(session, onResult) },
         )
@@ -4554,11 +4565,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * .LabelData` JSON the `bookmarks/labelEdit` route carries, or null when the label cannot be
      * resolved (classic's bare `return`).
      */
-    private fun buildLabelEditPayload(session: ManageLabelsSession, id: String?): String? {
+    private suspend fun buildLabelEditPayload(session: ManageLabelsSession, id: String?): String? {
         val controller = session.controller
         val isNew = id == null
         val label: BookmarkEntities.Label = if (id != null) {
-            session.labelsById[id] ?: blockingDb { bookmarkControl.labelById(IdType(id)) } ?: return null // L1-pending(view)
+            session.labelsById[id] ?: bookmarkControl.labelById(IdType(id)) ?: return null
         } else {
             BookmarkEntities.Label(new = true).apply { color = manageLabelsService.randomColorArgb() }
         }
@@ -4682,13 +4693,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * Classic `onSelectStudyPad` (`:557-569`): point the active window at the StudyPad, then leave
      * the way every other exit leaves.
      */
-    private fun selectStudyPad(
+    private suspend fun selectStudyPad(
         session: ManageLabelsSession,
         id: String,
         firstMatchEntryId: String?,
         onResult: (ManageLabelsResult) -> Unit,
     ) {
-        val label = session.labelsById[id] ?: blockingDb { bookmarkControl.labelById(IdType(id)) } ?: return // L1-pending(view)
+        val label = session.labelsById[id] ?: bookmarkControl.labelById(IdType(id)) ?: return
         try {
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(
                 FakeBookFactory.journalDocument,
@@ -4728,12 +4739,6 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val orphanedIds = controller.resultDeletedWithOrphaned()
         val withoutOrphaned = deletedIds.filterNot { orphanedIds.contains(it) }.map { IdType(it) }
         val withOrphaned = orphanedIds.map { IdType(it) }
-        if (withoutOrphaned.isNotEmpty()) {
-            blockingDb { bookmarkControl.deleteLabels(withoutOrphaned, deleteOrphanedBookmarks = false) } // L1-pending(view)
-        }
-        if (withOrphaned.isNotEmpty()) {
-            blockingDb { bookmarkControl.deleteLabels(withOrphaned, deleteOrphanedBookmarks = true) } // L1-pending(view)
-        }
 
         val changedIds = controller.resultChanged()
         val toSave = changedIds.filterNot { deletedIds.contains(it) }.mapNotNull { session.labelsById[it] }
@@ -4746,36 +4751,52 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val newLabels = toSave.filter { it.new }
         val existingLabels = toSave.filter { !it.new }
 
-        // New-label id remap (classic `ManageLabels.kt:695-711`): a label created via the editor only
-        // gets a real, DB-assigned id here, and every set/primary tracked under its temporary id must
-        // follow it.
-        val idRemap = mutableMapOf<String, String>()
-        for (label in newLabels) {
-            val oldId = label.id.toString()
-            val saved = blockingDb { bookmarkControl.insertOrUpdateLabel(label) } // L1-pending(view)
-            label.id = saved.id
-            label.new = false
-            idRemap[oldId] = saved.id.toString()
+        // The writes must land even if this screen is closed right away (app scope); the result is
+        // delivered only after they have, on the host's own scope.
+        val writes = appScope.async {
+            if (withoutOrphaned.isNotEmpty()) {
+                bookmarkControl.deleteLabels(withoutOrphaned, deleteOrphanedBookmarks = false)
+            }
+            if (withOrphaned.isNotEmpty()) {
+                bookmarkControl.deleteLabels(withOrphaned, deleteOrphanedBookmarks = true)
+            }
+
+            // New-label id remap (classic `ManageLabels.kt:695-711`): a label created via the editor only
+            // gets a real, DB-assigned id here, and every set/primary tracked under its temporary id must
+            // follow it.
+            val idRemap = mutableMapOf<String, String>()
+            for (label in newLabels) {
+                val oldId = label.id.toString()
+                val saved = bookmarkControl.insertOrUpdateLabel(label)
+                label.id = saved.id
+                label.new = false
+                idRemap[oldId] = saved.id.toString()
+            }
+            for (label in existingLabels) {
+                bookmarkControl.insertOrUpdateLabel(label)
+            }
+            idRemap
         }
-        for (label in existingLabels) {
-            blockingDb { bookmarkControl.insertOrUpdateLabel(label) } // L1-pending(view)
+
+        lifecycleScope.launch {
+            val idRemap = writes.await()
+
+            fun remapSet(ids: Set<String>) = ids.map { idRemap[it] ?: it }.toSet()
+            fun remapId(id: String?) = id?.let { idRemap[it] ?: it }
+
+            ManageLabelsMapper.applyResult(
+                data = session.data,
+                selected = remapSet(controller.resultSelected()),
+                autoAssign = remapSet(controller.resultAutoAssign()),
+                changed = remapSet(controller.resultChanged()),
+                deleted = controller.resultDeleted(),
+                deletedWithOrphaned = controller.resultDeletedWithOrphaned(),
+                autoAssignPrimary = remapId(controller.resultAutoAssignPrimary()),
+                bookmarkPrimary = remapId(controller.resultBookmarkPrimary()),
+            )
+
+            deliverManageLabelsResult(session, onResult)
         }
-
-        fun remapSet(ids: Set<String>) = ids.map { idRemap[it] ?: it }.toSet()
-        fun remapId(id: String?) = id?.let { idRemap[it] ?: it }
-
-        ManageLabelsMapper.applyResult(
-            data = session.data,
-            selected = remapSet(controller.resultSelected()),
-            autoAssign = remapSet(controller.resultAutoAssign()),
-            changed = remapSet(controller.resultChanged()),
-            deleted = controller.resultDeleted(),
-            deletedWithOrphaned = controller.resultDeletedWithOrphaned(),
-            autoAssignPrimary = remapId(controller.resultAutoAssignPrimary()),
-            bookmarkPrimary = remapId(controller.resultBookmarkPrimary()),
-        )
-
-        deliverManageLabelsResult(session, onResult)
     }
 
     /**

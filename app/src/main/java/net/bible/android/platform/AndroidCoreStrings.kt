@@ -8,4 +8,5 @@ import net.bible.sharedcore.platform.CoreStrings
 class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val labelAll: String get() = context.getString(R.string.all)
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
+    override fun somethingWithParenthesis(a: String, b: String): String = context.getString(R.string.something_with_parenthesis, a, b)
 }

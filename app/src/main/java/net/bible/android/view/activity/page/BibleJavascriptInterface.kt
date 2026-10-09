@@ -18,7 +18,6 @@
 package net.bible.android.view.activity.page
 
 import android.content.ClipData
-import net.bible.service.db.blockingDb
 import android.content.Intent
 import android.util.Log
 import android.webkit.JavascriptInterface
@@ -34,6 +33,7 @@ import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.bookmark.BookmarkJsActions
 import net.bible.android.control.progress.ProgressJsActions
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
@@ -123,6 +123,7 @@ class BibleJavascriptInterface(
 ) : KoinComponent {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
     private val progressJsActions: ProgressJsActions by inject()
+    private val bookmarkJsActions: BookmarkJsActions by inject()
     val linkControl get() = bibleView.linkControl
     val bookmarkControl get() = bibleView.bookmarkControl
     val downloadControl get() = bibleView.downloadControl
@@ -261,40 +262,45 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun saveBookmarkNote(bookmarkId: String, note: String?) {
-        blockingDb { bookmarkControl.saveBibleBookmarkNote(IdType(bookmarkId), if(note?.trim()?.isEmpty() == true) null else note) } // L1-pending(view)
+        bookmarkJsActions.saveBibleBookmarkNote(bibleView.window.id, IdType(bookmarkId), note)
     }
 
     @JavascriptInterface
     fun saveGenericBookmarkNote(bookmarkId: String, note: String?) {
-        blockingDb { bookmarkControl.saveGenericBookmarkNote(IdType(bookmarkId), if(note?.trim()?.isEmpty() == true) null else note) } // L1-pending(view)
+        bookmarkJsActions.saveGenericBookmarkNote(bibleView.window.id, IdType(bookmarkId), note)
     }
 
     @JavascriptInterface
     fun removeBookmark(bookmarkId: String) {
-        blockingDb { bookmarkControl.deleteBibleBookmarksById(listOf(IdType(bookmarkId))) } // L1-pending(view)
+        bookmarkJsActions.deleteBibleBookmarks(bibleView.window.id, listOf(IdType(bookmarkId)))
     }
 
     @JavascriptInterface
     fun removeGenericBookmark(bookmarkId: String) {
-        blockingDb { bookmarkControl.deleteGenericBookmarksById(listOf(IdType(bookmarkId))) } // L1-pending(view)
+        bookmarkJsActions.deleteGenericBookmarks(bibleView.window.id, listOf(IdType(bookmarkId)))
     }
 
     @JavascriptInterface
     fun assignLabels(bookmarkId: String) {
-        val bookmark = blockingDb { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) }!! // L1-pending(view)
-        bibleView.assignLabels(bookmark)
+        // Ordered after this window's earlier writes, so the label dialog sees them.
+        bookmarkJsActions.launch(bibleView.window.id) {
+            val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) ?: return@launch
+            bibleView.assignLabels(bookmark)
+        }
     }
 
     @JavascriptInterface
     fun genericAssignLabels(bookmarkId: String) {
-        val bookmark = blockingDb { bookmarkControl.genericBookmarkById(IdType(bookmarkId)) }!! // L1-pending(view)
-        bibleView.assignLabels(bookmark)
+        bookmarkJsActions.launch(bibleView.window.id) {
+            val bookmark = bookmarkControl.genericBookmarkById(IdType(bookmarkId)) ?: return@launch
+            bibleView.assignLabels(bookmark)
+        }
     }
 
     @JavascriptInterface
     fun setBookmarkEditAction(bookmarkId: String, valueStr: String) {
         val editAction = json.decodeFromString<EditAction>(serializer(), valueStr)
-        blockingDb { bookmarkControl.updateBookmarkEditAction(IdType(bookmarkId), editAction) } // L1-pending(view)
+        bookmarkJsActions.updateBookmarkEditAction(bibleView.window.id, IdType(bookmarkId), editAction)
     }
 
     @JavascriptInterface
@@ -410,32 +416,27 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun createNewStudyPadEntry(labelId: String, entryType: String, afterEntryId: String) {
-        val entryOrderNumber: Int = when (entryType) {
-            "bookmark" -> blockingDb { bookmarkControl.getBibleBookmarkToLabel(IdType(afterEntryId), IdType(labelId)) }!!.orderNumber // L1-pending(view)
-            "generic-bookmark" -> blockingDb { bookmarkControl.getGenericBookmarkToLabel(IdType(afterEntryId), IdType(labelId)) }!!.orderNumber // L1-pending(view)
-            "journal" -> blockingDb { bookmarkControl.getStudyPadById(IdType(afterEntryId)) }!!.orderNumber // L1-pending(view)
-            "none" -> -1
-            else -> throw RuntimeException("Illegal entry type")
-        }
-        blockingDb { bookmarkControl.createStudyPadEntry(IdType(labelId), entryOrderNumber) } // L1-pending(view)
+        bookmarkJsActions.createStudyPadEntry(bibleView.window.id, IdType(labelId), entryType, if (entryType == "none") null else IdType(afterEntryId))
     }
 
     @JavascriptInterface
-    fun deleteStudyPadEntry(studyPadId: String) = blockingDb { bookmarkControl.deleteStudyPadTextEntry(IdType(studyPadId)) } // L1-pending(view)
+    fun deleteStudyPadEntry(studyPadId: String) { bookmarkJsActions.deleteStudyPadEntry(bibleView.window.id, IdType(studyPadId)) }
 
     @JavascriptInterface
-    fun removeBookmarkLabel(bookmarkId: String, labelId: String) = blockingDb { bookmarkControl.removeBibleBookmarkLabel(IdType(bookmarkId), IdType(labelId)) } // L1-pending(view)
+    fun removeBookmarkLabel(bookmarkId: String, labelId: String) { bookmarkJsActions.removeBibleBookmarkLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId)) }
 
     @JavascriptInterface
-    fun removeGenericBookmarkLabel(bookmarkId: String, labelId: String) = blockingDb { bookmarkControl.removeGenericBookmarkLabel(IdType(bookmarkId), IdType(labelId)) } // L1-pending(view)
+    fun removeGenericBookmarkLabel(bookmarkId: String, labelId: String) { bookmarkJsActions.removeGenericBookmarkLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId)) }
 
     @JavascriptInterface
     fun updateOrderNumber(labelId: String, data: String) {
         val deserialized: Map<String, List<Pair<String, Int>>> = json.decodeFromString(serializer(), data)
-        val studyPadTextItems = deserialized["studyPadTextItems"]!!.map { blockingDb { bookmarkControl.getStudyPadById(IdType(it.first)) }!!.apply { orderNumber = it.second } } // L1-pending(view)
-        val bookmarksToLabels = deserialized["bookmarks"]!!.map { blockingDb { bookmarkControl.getBibleBookmarkToLabel(IdType(it.first), IdType(labelId)) }!!.apply { orderNumber = it.second } } // L1-pending(view)
-        val genericBookmarksToLabels = deserialized["genericBookmarks"]!!.map { blockingDb { bookmarkControl.getGenericBookmarkToLabel(IdType(it.first), IdType(labelId)) }!!.apply { orderNumber = it.second } } // L1-pending(view)
-        blockingDb { bookmarkControl.updateOrderNumbers(IdType(labelId), bookmarksToLabels, genericBookmarksToLabels, studyPadTextItems) } // L1-pending(view)
+        bookmarkJsActions.updateOrderNumbers(
+            bibleView.window.id, IdType(labelId),
+            studyPadItems = deserialized["studyPadTextItems"]!!,
+            bookmarkItems = deserialized["bookmarks"]!!,
+            genericBookmarkItems = deserialized["genericBookmarks"]!!,
+        )
     }
 
     @JavascriptInterface
@@ -461,35 +462,35 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun updateStudyPadTextEntry(data: String) {
         val entry: BookmarkEntities.StudyPadTextEntryWithText = json.decodeFromString(serializer(), data)
-        blockingDb { bookmarkControl.updateStudyPadTextEntry(entry.studyPadTextEntryEntity) } // L1-pending(view)
+        bookmarkJsActions.updateStudyPadTextEntry(bibleView.window.id, entry)
     }
 
     @JavascriptInterface
     fun updateStudyPadTextEntryText(id: String, text: String) {
-        blockingDb { bookmarkControl.updateStudyPadTextEntryText(IdType(id), text) } // L1-pending(view)
+        bookmarkJsActions.updateStudyPadTextEntryText(bibleView.window.id, IdType(id), text)
     }
 
     @JavascriptInterface
     fun updateBookmarkToLabel(data: String) {
         val entry: BookmarkEntities.BibleBookmarkToLabel = json.decodeFromString(serializer(), data)
-        blockingDb { bookmarkControl.updateBibleBookmarkTimestamp(entry.bookmarkId) } // L1-pending(view)
-        blockingDb { bookmarkControl.updateBookmarkToLabel(entry) } // L1-pending(view)
+        bookmarkJsActions.updateBibleBookmarkToLabel(bibleView.window.id, entry)
     }
 
     @JavascriptInterface
     fun updateGenericBookmarkToLabel(data: String) {
         val entry: BookmarkEntities.GenericBookmarkToLabel = json.decodeFromString(serializer(), data)
-        blockingDb { bookmarkControl.updateGenericBookmarkTimestamp(entry.bookmarkId) } // L1-pending(view)
-        blockingDb { bookmarkControl.updateBookmarkToLabel(entry) } // L1-pending(view)
+        bookmarkJsActions.updateGenericBookmarkToLabel(bibleView.window.id, entry)
     }
 
     @JavascriptInterface
     fun shareBookmarkVerse(bookmarkId: String) {
-        val bookmark = blockingDb { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) }!! // L1-pending(view)
-        scope.launch(Dispatchers.Main) {
-            hostCallbacks.composeReadingViewHost()?.showShareSheet(
-                SwordContentFacade.buildShareVersesInput(Selection(bookmark))
-            )
+        bookmarkJsActions.launch(bibleView.window.id) {
+            val bookmark = bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) ?: return@launch
+            scope.launch(Dispatchers.Main) {
+                hostCallbacks.composeReadingViewHost()?.showShareSheet(
+                    SwordContentFacade.buildShareVersesInput(Selection(bookmark))
+                )
+            }
         }
     }
 
@@ -752,48 +753,36 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun setAsPrimaryLabel(bookmarkId: String, labelId: String) {
-        val label = blockingDb { bookmarkControl.labelById(IdType(labelId)) }!! // L1-pending(view)
-        if(label.isUnlabeledLabel) {
-            return
+        bookmarkJsActions.setAsPrimaryLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId), generic = false) {
+            bibleView.windowControl.windowRepository.updateRecentLabels(listOf(IdType(labelId)))
         }
-        blockingDb { bookmarkControl.setAsPrimaryLabelForBible(IdType(bookmarkId), IdType(labelId)) } // L1-pending(view)
-        bibleView.windowControl.windowRepository.updateRecentLabels(listOf(IdType(labelId)))
     }
 
     @JavascriptInterface
     fun setAsPrimaryLabelGeneric(bookmarkId: String, labelId: String) {
-        val label = blockingDb { bookmarkControl.labelById(IdType(labelId)) }!! // L1-pending(view)
-        if(label.isUnlabeledLabel) {
-            return
+        bookmarkJsActions.setAsPrimaryLabel(bibleView.window.id, IdType(bookmarkId), IdType(labelId), generic = true) {
+            bibleView.windowControl.windowRepository.updateRecentLabels(listOf(IdType(labelId)))
         }
-        blockingDb { bookmarkControl.setAsPrimaryLabelForGeneric(IdType(bookmarkId), IdType(labelId)) } // L1-pending(view)
-        bibleView.windowControl.windowRepository.updateRecentLabels(listOf(IdType(labelId)))
     }
 
     @JavascriptInterface
     fun toggleBookmarkLabel(bookmarkId: String, labelId: String) {
-        val bookmark = blockingDb { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) }!! // L1-pending(view)
-        return blockingDb { bookmarkControl.toggleBookmarkLabel(bookmark, labelId) } // L1-pending(view)
+        bookmarkJsActions.toggleBibleBookmarkLabel(bibleView.window.id, IdType(bookmarkId), labelId)
     }
 
     @JavascriptInterface
     fun toggleGenericBookmarkLabel(bookmarkId: String, labelId: String) {
-        val bookmark = blockingDb { bookmarkControl.genericBookmarkById(IdType(bookmarkId)) }!! // L1-pending(view)
-        return blockingDb { bookmarkControl.toggleBookmarkLabel(bookmark, labelId) } // L1-pending(view)
+        bookmarkJsActions.toggleGenericBookmarkLabel(bibleView.window.id, IdType(bookmarkId), labelId)
     }
 
     @JavascriptInterface
     fun setBookmarkCustomIcon(bookmarkId: String, value: String?) {
-        val bookmark = blockingDb { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) }!! // L1-pending(view)
-        bookmark.customIcon = value
-        blockingDb { bookmarkControl.addOrUpdateBibleBookmark(bookmark) } // L1-pending(view)
+        bookmarkJsActions.setBibleBookmarkCustomIcon(bibleView.window.id, IdType(bookmarkId), value)
     }
 
     @JavascriptInterface
     fun setGenericBookmarkCustomIcon(bookmarkId: String, value: String?) {
-        val bookmark = blockingDb { bookmarkControl.genericBookmarkById(IdType(bookmarkId)) }!! // L1-pending(view)
-        bookmark.customIcon = value
-        blockingDb { bookmarkControl.addOrUpdateGenericBookmark(bookmark) } // L1-pending(view)
+        bookmarkJsActions.setGenericBookmarkCustomIcon(bibleView.window.id, IdType(bookmarkId), value)
     }
 
     @JavascriptInterface
@@ -803,28 +792,16 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun setBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
-        val bookmark = blockingDb { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) }!! // L1-pending(view)
-        if(!value && bookmark.textRange == null) {
-            UserMessages.toast(R.string.cant_change_wholeverse)
-            return
-        }
-        bookmark.wholeVerse = value
-
-        blockingDb { bookmarkControl.addOrUpdateBibleBookmark(bookmark) } // L1-pending(view)
-        if(value) UserMessages.toast(R.string.whole_verse_turned_on)
+        bookmarkJsActions.setBibleBookmarkWholeVerse(bibleView.window.id, IdType(bookmarkId), value,
+            onRefused = { UserMessages.toast(R.string.cant_change_wholeverse) },
+            onTurnedOn = { UserMessages.toast(R.string.whole_verse_turned_on) })
     }
 
     @JavascriptInterface
     fun setGenericBookmarkWholeVerse(bookmarkId: String, value: Boolean) {
-        val bookmark = blockingDb { bookmarkControl.genericBookmarkById(IdType(bookmarkId)) }!! // L1-pending(view)
-        if(!value && bookmark.textRange == null) {
-            UserMessages.toast(R.string.cant_change_wholeverse)
-            return
-        }
-        bookmark.wholeVerse = value
-
-        blockingDb { bookmarkControl.addOrUpdateGenericBookmark(bookmark) } // L1-pending(view)
-        if(value) UserMessages.toast(R.string.whole_verse_turned_on)
+        bookmarkJsActions.setGenericBookmarkWholeVerse(bibleView.window.id, IdType(bookmarkId), value,
+            onRefused = { UserMessages.toast(R.string.cant_change_wholeverse) },
+            onTurnedOn = { UserMessages.toast(R.string.whole_verse_turned_on) })
     }
 
     @JavascriptInterface

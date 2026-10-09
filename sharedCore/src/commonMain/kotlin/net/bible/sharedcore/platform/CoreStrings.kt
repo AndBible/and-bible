@@ -4,4 +4,5 @@ package net.bible.sharedcore.platform
 interface CoreStrings {
     val labelAll: String // R.string.all
     val errorOccurred: String // R.string.error_occurred
+    fun somethingWithParenthesis(a: String, b: String): String // R.string.something_with_parenthesis: "%1$s (%2$s)"
 }

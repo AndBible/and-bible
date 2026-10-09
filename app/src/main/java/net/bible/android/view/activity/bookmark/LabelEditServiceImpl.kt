@@ -17,13 +17,12 @@
 package net.bible.android.view.activity.bookmark
 
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.service.db.blockingDb
 import net.bible.android.database.IdType
 import net.bible.sharedcore.bookmark.LabelEditService
 
 /** Android-side impl of the [LabelEditService] seam, backed by [BookmarkControl]. */
 class LabelEditServiceImpl(private val bookmarkControl: BookmarkControl) : LabelEditService {
-    override fun orphanedBookmarkCount(labelId: String): Int =
+    override suspend fun orphanedBookmarkCount(labelId: String): Int =
         if (labelId.isEmpty()) 0
-        else blockingDb { bookmarkControl.findOrphanedBookmarks(listOf(IdType(labelId))) }.size // L1-pending(bookmark)
+        else bookmarkControl.findOrphanedBookmarks(listOf(IdType(labelId))).size
 }

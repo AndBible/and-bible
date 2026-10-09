@@ -23,7 +23,6 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.StudyPadSearchResult
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
@@ -31,6 +30,7 @@ import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.bookmark.displayStyle
+import net.bible.sharedcore.platform.AppSettings
 import kotlin.random.Random.Default.nextInt
 import net.bible.service.db.blockingDb
 
@@ -38,12 +38,13 @@ import net.bible.service.db.blockingDb
 class ManageLabelsServiceImpl(
     private val bookmarkControl: BookmarkControl,
     private val windowControl: WindowControl,
+    private val settings: AppSettings,
 ) : ManageLabelsService {
 
     override fun assignableLabels(): List<LabelItem> =
-        blockingDb { bookmarkControl.assignableLabels() }.filter { !it.isUnlabeledLabel }.map { it.toLabelItem() } // L1-pending(bookmark)
+        blockingDb { bookmarkControl.assignableLabels() }.filter { !it.isUnlabeledLabel }.map { it.toLabelItem() } // L1-edge: ManageLabelsController reads assignableLabels() synchronously in its constructor
 
-    override fun unlabeledLabel(): LabelItem = blockingDb { bookmarkControl.labelUnlabelled() }.toLabelItem() // L1-pending(bookmark)
+    override fun unlabeledLabel(): LabelItem = blockingDb { bookmarkControl.labelUnlabelled() }.toLabelItem() // L1-edge: ManageLabelsController reads unlabeledLabel() synchronously while rebuilding its rows
 
     override fun recentLabelIds(): List<String> =
         windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId.toString() }
@@ -71,10 +72,10 @@ class ManageLabelsServiceImpl(
         }
 
     override fun styleTagsVisible(): Boolean =
-        CommonUtils.settings.getBoolean(STYLE_TAGS_PREF, true)
+        settings.getBoolean(STYLE_TAGS_PREF, true)
 
     override fun setStyleTagsVisible(visible: Boolean) =
-        CommonUtils.settings.setBoolean(STYLE_TAGS_PREF, visible)
+        settings.setBoolean(STYLE_TAGS_PREF, visible)
 }
 
 private const val STYLE_TAGS_PREF = "manage_labels_style_tags"
