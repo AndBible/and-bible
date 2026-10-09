@@ -32,7 +32,7 @@ class ToolbarStateTest {
      * real service populates it.
      */
     @Test
-    fun `EMPTY's placeholder deriveToolbarFromTheme is false, not a claim about the app's real default`() {
+    fun `EMPTY's placeholder deriveToolbarFromTheme is false and not a claim about the app's real default`() {
         assertFalse(ToolbarState.EMPTY.deriveToolbarFromTheme)
     }
 }

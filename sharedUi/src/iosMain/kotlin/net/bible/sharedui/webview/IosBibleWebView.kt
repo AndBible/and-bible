@@ -7,11 +7,11 @@ import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
 import androidx.compose.ui.platform.testTag
 import kotlinx.cinterop.ExperimentalForeignApi
+import net.bible.sharedcore.log.nsLog
 import net.bible.sharedui.poc.LocalPocPaneCreated
 import net.bible.sharedui.poc.PocBibleViewController
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSBundle
-import platform.Foundation.NSLog
 import platform.Foundation.NSString
 import platform.Foundation.NSURL
 import platform.Foundation.NSURLComponents
@@ -36,10 +36,10 @@ private const val BUNDLE_DIR = "bibleview-js"
 private class IosNavDelegate(private val windowId: String) : NSObject(), WKNavigationDelegateProtocol {
     override fun webViewWebContentProcessDidTerminate(webView: WKWebView) {
         try {
-            NSLog("I0-WEBVIEW-TERMINATED %@", windowId)
+            nsLog("I0-WEBVIEW-TERMINATED $windowId")
             webView.reload()
         } catch (t: Throwable) {
-            NSLog("bridge[%@]: terminate handler failure %@", windowId, t.toString())
+            nsLog("bridge[$windowId]: terminate handler failure $t")
         }
     }
 }
@@ -76,14 +76,14 @@ private object IosWebViewHolder {
                 try {
                     webView.evaluateJavaScript(js, null)
                 } catch (t: Throwable) {
-                    NSLog("bridge[%@]: evaluateJavaScript failure %@", windowId, t.toString())
+                    nsLog("bridge[$windowId]: evaluateJavaScript failure $t")
                 }
             }
         }
         val handlers = controller.handlers + ("console" to BridgeHandler { args, _ ->
-            NSLog("js[%@]: %@", windowId, args.joinToString(" "))
+            nsLog("js[$windowId]: ${args.joinToString(" ")}")
         })
-        val dispatcher = BridgeDispatcher(sink, { msg -> NSLog("bridge[%@]: %@", windowId, msg) }, handlers)
+        val dispatcher = BridgeDispatcher(sink, { msg -> nsLog("bridge[$windowId]: $msg") }, handlers)
         val handler = IosBridgeMessageHandler(dispatcher)
         val navDelegate = IosNavDelegate(windowId)
 
@@ -120,7 +120,7 @@ private object IosWebViewHolder {
         val folder = NSBundle.mainBundle.resourceURL?.URLByAppendingPathComponent(BUNDLE_DIR, isDirectory = true)
         val index = folder?.URLByAppendingPathComponent("index.html")
         if (folder == null || index == null) {
-            NSLog("bridge: bibleview-js bundle folder missing")
+            nsLog("bridge: bibleview-js bundle folder missing")
             return
         }
         val components = NSURLComponents(uRL = index, resolvingAgainstBaseURL = false)
