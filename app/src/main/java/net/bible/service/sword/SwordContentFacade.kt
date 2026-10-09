@@ -452,7 +452,7 @@ object SwordContentFacade {
     open fun getCanonicalText(book: Book?, key: Key?, compatibleOffsets: Boolean = false): String {
         return try {
             val data = BookData(book, key)
-            val osissep = data.saxEventProvider
+            val osissep = data.getSAXEventProvider()
             val osisHandler: ContentHandler = OsisToCanonicalTextSaxHandler(compatibleOffsets)
             osissep.provideSAXEvents(osisHandler)
             osisHandler.toString()
@@ -792,7 +792,7 @@ object SwordContentFacade {
     fun getTextToSpeak(book: Book, key: Key?): String {
         return try {
             val data = BookData(book, key)
-            val osissep = data.saxEventProvider
+            val osissep = data.getSAXEventProvider()
             val sayReferences = BookCategory.GENERAL_BOOK == book.bookCategory
             val osisHandler = OsisToSpeakTextSaxHandler(sayReferences)
             osissep.provideSAXEvents(osisHandler)

@@ -16,7 +16,7 @@ val Installer.urlPrefix: String? get()
     if (this !is AbstractSwordInstaller)
         { return null }
 
-    val protocol = when (type)
+    val protocol = when (getType())
         {
         "sword-http" -> "http"
         "sword-https" -> "https"
