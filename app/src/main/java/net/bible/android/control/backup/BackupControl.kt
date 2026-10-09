@@ -23,7 +23,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.net.Uri
-import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.FileProvider
@@ -57,6 +56,7 @@ import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
 import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
+import net.bible.service.db.readUserVersion
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.cloudsync.CloudSync
@@ -323,14 +323,6 @@ object BackupControl {
         }
     }
 
-    /**
-     * Test seam (F120): the `user_version` of a SQLite file. The default goes through requery's SQLite,
-     * which unit tests exclude from the classpath (`app/build.gradle.kts`), so tests swap in the framework one.
-     */
-    @VisibleForTesting
-    internal var readDatabaseVersion: (File) -> Int = { file ->
-        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
-    }
 
     /** Test seam (F120): the copy of the validated file into the database directory. */
     @VisibleForTesting
@@ -348,7 +340,7 @@ object BackupControl {
             if (String(dbHeader) != "SQLite format 3\u0000") return false
             FileOutputStream(target).use { out -> out.write(dbHeader); stream.copyTo(out) }
         }
-        val version = readDatabaseVersion(target)
+        val version = readUserVersion(target)
         Log.i(TAG, "Old monolithic backup database, version $version")
         return version <= OLD_DATABASE_VERSION
     }
@@ -653,12 +645,22 @@ object BackupControl {
         )
     }
 
-    fun makeDatabaseBackupFile(): File? {
+    /** Saves the open windows, vacuums and checkpoints the databases when they are open, then zips them ([zipDatabaseFiles]). */
+    suspend fun makeDatabaseBackupFile(): File? {
         if(CommonUtils.initialized && DatabaseContainer.ready) {
             windowControl.windowRepository.saveIntoDb()
             DatabaseContainer.vacuum()
             DatabaseContainer.sync()
         }
+        return zipDatabaseFiles()
+    }
+
+    /**
+     * Zips the database files as they are on disk, with the backup manifest; null when there are none. Without
+     * [makeDatabaseBackupFile]'s vacuum and checkpoint: the pre-migration safety backup runs while the container is
+     * still being built, when the databases are not open yet.
+     */
+    fun zipDatabaseFiles(): File? {
         internalDbBackupDir.mkdirs()
         val zipFile = File(internalDbBackupDir, DATABASE_BACKUP_NAME)
         if(zipFile.exists()) zipFile.delete()
@@ -738,7 +740,7 @@ object BackupControl {
     private suspend fun verifyDatabaseBackupFile(file: File): Boolean {
         val inputStream = BufferedInputStream(file.inputStream())
         if(!isSqliteFile(inputStream)) return false
-        val version = SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
+        val version = readUserVersion(file)
         return version <= maxDatabaseVersion(file.name)
     }
 

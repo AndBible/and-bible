@@ -17,7 +17,6 @@
 package net.bible.service.db
 
 import androidx.annotation.VisibleForTesting
-import io.requery.android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -314,8 +313,7 @@ class DatabaseContainer {
     }
 
     private fun backupOldDatabase(oldDb: File) {
-        val dbVersion =
-            SQLiteDatabase.openDatabase(oldDb.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
+        val dbVersion = readUserVersion(oldDb)
         Log.i(TAG, "backupping old database of version $dbVersion)")
         val backupPath = CommonUtils.dbBackupPath
         val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(Date())
@@ -328,7 +326,7 @@ class DatabaseContainer {
         val versions = ALL_DB_FILENAMES.map {
             val file = application.getDatabasePath(it)
             if(file.exists()) {
-                SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
+                readUserVersion(file)
             } else {
                 0
             }
@@ -338,7 +336,8 @@ class DatabaseContainer {
         val needBackup = maxVersions != versions
 
         if(needBackup) {
-            val backupZipFile = withReadyCleared { BackupControl.makeDatabaseBackupFile() }
+            // Not makeDatabaseBackupFile: with ready cleared it would skip its vacuum and checkpoint anyway.
+            val backupZipFile = withReadyCleared { BackupControl.zipDatabaseFiles() }
             backupZipFile ?: return
             val versionString = versions.joinToString("-")
             Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")

@@ -38,16 +38,11 @@ class OldMonolithicRestoreRollbackTest {
     private val rollbackParent: File get() = dbDir.parentFile!!
     private val rollbackDir: File get() = File(rollbackParent, "db-restore-rollback")
     private val realCopy = BackupControl.copyStagedDatabase
-    private val realReadVersion = BackupControl.readDatabaseVersion
     private var wasReady = false
 
     @Before fun setUp() {
         // FileManager.copyFile refuses under Robolectric (StatFs reports 0 free bytes); copy plainly instead.
         BackupControl.copyStagedDatabase = { from, to -> from.copyTo(to, overwrite = true); true }
-        // requery's SQLite is not on the unit-test classpath; read the fixture's version with the framework's.
-        BackupControl.readDatabaseVersion = { f ->
-            SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY).use { it.version }
-        }
         DatabaseResetter.resetDatabase()
         wasReady = DatabaseContainer.ready
         DatabaseContainer.ready = true // the restore opens and migrates only when the DB is ready
@@ -62,7 +57,6 @@ class OldMonolithicRestoreRollbackTest {
 
     @After fun tearDown() {
         BackupControl.copyStagedDatabase = realCopy
-        BackupControl.readDatabaseVersion = realReadVersion
         DatabaseResetter.resetDatabase()
         DatabaseContainer.ready = wasReady
         repo.clear()
