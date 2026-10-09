@@ -836,7 +836,8 @@ class ProgressControlTest {
         val appScope = AppCoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler))
         val callerJob = SupervisorJob()
         val callerScope = CoroutineScope(callerJob + StandardTestDispatcher(testScheduler))
-        val actions = ProgressJsActions(OrderedLauncher(appScope))
+        val launcher = OrderedLauncher(appScope)
+        val actions = ProgressJsActions(launcher)
         val range = VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 1, 1), Verse(KJVA, BibleBook.GEN, 1, 2))
         var targetsSeenByFollowUp: Int? = null
 
@@ -852,7 +853,10 @@ class ProgressControlTest {
         val follow2 = actions.addTargetIfNeededThen("w", range2, callerScope, EmptyCoroutineContext) { }
         callerScope.cancel()
         advanceUntilIdle()
-        follow2.join()
+        follow2.join() // cancelled with the caller: returns without waiting for the write
+        // The DAO call can resume off the test scheduler, so advanceUntilIdle() may return mid-write; a no-op queued
+        // behind the write on the same key finishes only after it.
+        launcher.launch("w") { }.join()
         assertEquals(1, ProgressControl.getTargetOrdinalsInRange(range2.start.ordinal, range2.end.ordinal).size)
         appScope.cancel()
     }
