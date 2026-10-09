@@ -1436,7 +1436,11 @@ class BibleView(
             val id = uri.getQueryParameter("id")
             val entryId = uri.getQueryParameter("entryId") ?: uri.getQueryParameter("bookmarkId")
             if (id != null) {
-                linkControl.openStudyPad(IdType(id), IdType(entryId))
+                // The label lookup suspends, so launch; the context-menu window mode is read now because
+                // the menu handler resets it as soon as this synchronous URL handler returns.
+                val windowMode = linkControl.windowMode
+                scope.launch(Dispatchers.Main) { linkControl.openStudyPad(IdType(id), IdType(entryId), windowMode) }
+                true
             } else false
         }
         UriConstants.SCHEME_REFERENCE -> {

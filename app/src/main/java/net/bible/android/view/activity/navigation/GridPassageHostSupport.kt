@@ -66,7 +66,7 @@ internal fun buildGridStep(
     selectedChapter: Int,
     navigationControl: NavigationControl,
     windowControl: WindowControl,
-): GridUi = blockingDb { // L1-pending(navigation): GridChoosePassageController.buildStep is a synchronous sharedCore contract; make it suspend later
+): GridUi = blockingDb { // L1-pending(view): view code serving the synchronous :sharedUi contract GridChoosePassageController.buildStep; make it suspend later
     when (step) {
         GridStep.BOOK -> buildBookStep(opts, baseTitle, workspaceName, navigationControl, windowControl)
         GridStep.CHAPTER -> buildChapterStep(opts, selectedBookNo, navigationControl, windowControl)

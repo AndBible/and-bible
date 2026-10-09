@@ -2867,7 +2867,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 linkControl.openAIDocument(result.documentInitials, result.pageKey)
             }
             is PendingAgentResult.OpenStudyPad -> {
-                linkControl.openStudyPad(result.labelId, result.scrollToEntryId)
+                lifecycleScope.launch { linkControl.openStudyPad(result.labelId, result.scrollToEntryId) }
             }
         }
     }

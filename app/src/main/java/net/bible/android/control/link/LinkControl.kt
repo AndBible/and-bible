@@ -17,7 +17,6 @@
 package net.bible.android.control.link
 
 import net.bible.sharedcore.log.Log
-import net.bible.service.db.blockingDb
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.OrdinalRange
@@ -454,7 +453,12 @@ class LinkControl constructor(
         return false
     }
 
-    fun showLink(document: Book?, key: Key, forceOpenHere: Boolean = false) {
+    /**
+     * [windowMode] defaults to the current [LinkControl.windowMode]; a caller that shows the link after a
+     * suspension (e.g. [openStudyPad]) passes the mode read at click time, because the context-menu choice is
+     * reset as soon as the synchronous link handler returns.
+     */
+    fun showLink(document: Book?, key: Key, forceOpenHere: Boolean = false, windowMode: WindowMode = this.windowMode) {
         val currentPageManager = currentPageManager
         val defaultDocument = currentPageManager.currentBible.currentDocument
         if (defaultDocument == null) {
@@ -463,7 +467,7 @@ class LinkControl constructor(
         }
         if (windowMode == WindowMode.WINDOW_MODE_NEW) {
             windowControl.addNewWindow(document?: defaultDocument, key)
-        } else if (checkIfOpenLinksInDedicatedWindow() && !forceOpenHere) {
+        } else if (checkIfOpenLinksInDedicatedWindow(windowMode) && !forceOpenHere) {
             // Pass document through (it may be null for non-specific links, e.g. cross
             // references in Bibles or in EPUBs) so the links window keeps its current
             // Bible version instead of being forced to a specific one (#2502).
@@ -475,7 +479,7 @@ class LinkControl constructor(
         }
     }
 
-    private fun checkIfOpenLinksInDedicatedWindow(): Boolean {
+    private fun checkIfOpenLinksInDedicatedWindow(windowMode: WindowMode): Boolean {
         if(windowControl.windowRepository.isMaximized) return false
         return when (windowMode) {
             WindowMode.WINDOW_MODE_SPECIAL -> true
@@ -495,10 +499,14 @@ class LinkControl constructor(
         return true
     }
 
-    fun openStudyPad(labelId: IdType, entryId: IdType?): Boolean {
-        val label = blockingDb { bookmarkControl.labelById(labelId) } ?: return false // L1-pending(link)
+    /**
+     * Opens the StudyPad of [labelId], scrolled to [entryId]. Call on the main thread (it shows the link);
+     * [windowMode] is read when the call is made, before the label lookup suspends.
+     */
+    suspend fun openStudyPad(labelId: IdType, entryId: IdType?, windowMode: WindowMode = this.windowMode): Boolean {
+        val label = bookmarkControl.labelById(labelId) ?: return false
         val key = StudyPadKey(label, entryId)
-        showLink(FakeBookFactory.journalDocument, key)
+        showLink(FakeBookFactory.journalDocument, key, windowMode = windowMode)
         return true
     }
 

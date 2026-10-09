@@ -27,4 +27,27 @@ out=$("$HERE/l1-readiness.sh" --root "$T" --domain demo --check 2>/dev/null) && 
 row=$(echo "$out" | awk -F'\t' '$1=="demo"')
 expect=$'demo\t3\t1\t1\t1\t3\t1\t1'
 [ "$row" = "$expect" ] || { echo "FAIL: got [$row] expected [$expect]"; exit 1; }
+
+# A done domain that is clean except for a caller still bridged with L1-pending(<itself>) must fail
+# --check (callers of a done domain are converted, not bridged); the same domain without it passes.
+T2="$(mktemp -d)"; trap 'rm -rf "$T" "$T2"' EXIT
+mkdir -p "$T2/scripts" "$T2/app/src/main/java/net/bible/android/control/clean" "$T2/app/src/main/java/net/bible/android/view/other"
+printf 'clean\tandroid/control/clean\n' > "$T2/scripts/l1-readiness-domains.txt"
+: > "$T2/scripts/l1-readiness-platform.txt"
+echo clean > "$T2/scripts/l1-readiness-done.txt"
+cat > "$T2/app/src/main/java/net/bible/android/control/clean/Clean.kt" <<'EOS'
+package net.bible.android.control.clean
+suspend fun clean() = 1
+EOS
+"$HERE/l1-readiness.sh" --root "$T2" --domain clean --check >/dev/null 2>&1 \
+  || { echo "FAIL: --check failed on a clean done domain"; exit 1; }
+cat > "$T2/app/src/main/java/net/bible/android/view/other/Caller.kt" <<'EOS'
+package net.bible.android.view.other
+fun caller() = blockingDb { clean() } // L1-pending(clean)
+EOS
+out=$("$HERE/l1-readiness.sh" --root "$T2" --domain clean --check 2>/dev/null) \
+  && { echo "FAIL: --check passed on a done domain with a pending caller"; exit 1; }
+row=$(echo "$out" | awk -F'\t' '$1=="clean"')
+expect=$'clean\t0\t0\t1\t0\t0\t0\t0'
+[ "$row" = "$expect" ] || { echo "FAIL: got [$row] expected [$expect]"; exit 1; }
 echo "l1-readiness self-test OK"

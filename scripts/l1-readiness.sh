@@ -60,9 +60,12 @@ for d in $domains; do
   j=$(count "$JVMLIBS" '' "${F[@]}")
   io=$(count "$JAVAIO" '' "${F[@]}")
   printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$d" "$b" "$e" "$p" "$a" "$g" "$j" "$io"
-  if [ $CHECK -eq 1 ] && grep -qxF "$d" "$DONE" 2>/dev/null && [ $((b+a+g+j)) -gt 0 ]; then
+  # A done domain has no bridges of its own and no callers still waiting on it (spec §2: callers in
+  # done domains are converted, not bridged), so its L1-pending count must be zero too.
+  if [ $CHECK -eq 1 ] && grep -qxF "$d" "$DONE" 2>/dev/null && [ $((b+p+a+g+j)) -gt 0 ]; then
     echo "REGRESSION in done domain '$d':" >&2
-    grep -a -n -E "$BRIDGE|$ANDROID|$GLOBALS|$JVMLIBS" "${F[@]}" | grep -a -v -E "$MARKER|$ALLOW" >&2 || true
+    [ ${#F[@]} -gt 0 ] && { grep -a -n -E "$BRIDGE|$ANDROID|$GLOBALS|$JVMLIBS" "${F[@]}" | grep -a -v -E "$MARKER|:${ALLOW#^}" >&2 || true; }
+    grep -a -r -n -E "L1-pending\($d\)" "$SRC" >&2 || true
     fail=1
   fi
 done
