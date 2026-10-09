@@ -78,7 +78,11 @@ a { color: var(--accent-ink); }
   font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 .news__link { color: var(--ink); font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
 .news__link:hover, .news__link:focus-visible { color: var(--accent-ink); text-decoration: underline; }
-@media (max-width: 599px) { .news { flex-direction: column; align-items: center; text-align: center; border-radius: var(--radius); padding: 10px 14px; } }
+.news__link + .news__link { padding-left: 14px; border-left: 1px solid color-mix(in srgb, var(--faint) 55%, transparent); }
+@media (max-width: 599px) {
+  .news { flex-direction: column; align-items: center; text-align: center; border-radius: var(--radius); padding: 10px 14px; }
+  .news__link + .news__link { padding-left: 0; border-left: 0; }
+}
 
 .table-wrap { overflow-x: auto; }
 img { max-width: 100%; height: auto; }
