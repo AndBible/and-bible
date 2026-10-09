@@ -23,6 +23,7 @@ import androidx.sqlite.execSQL
 import net.bible.service.db.columnIndex
 import net.bible.service.db.exec
 import net.bible.service.db.insertOr
+import net.bible.service.db.queryFirst
 import net.bible.service.db.queryLong
 import net.bible.service.db.queryRows
 import net.bible.service.db.textOrNull
@@ -67,6 +68,16 @@ class SqliteConnectionExtTest {
         c.exec("INSERT INTO t (i, r, s) VALUES (?, ?, ?)", 7, 2.5f, true)
         val row = c.queryRows("SELECT i, r, s FROM t") { listOf(it.getLong(0), it.getDouble(1), it.getLong(2)) }.single()
         assertEquals(listOf(7L, 2.5, 1L), row)
+    }
+
+    @Test
+    fun queryFirstMapsOnlyTheFirstRowAndIsNullWithoutRows() {
+        assertNull(c.queryFirst("SELECT i FROM t") { it.getLong(0) })
+        c.exec("INSERT INTO t (i) VALUES (?)", 1L)
+        c.exec("INSERT INTO t (i) VALUES (?)", 2L)
+        var mapped = 0
+        assertEquals(1L, c.queryFirst("SELECT i FROM t ORDER BY i LIMIT ?", 5) { mapped++; it.getLong(0) })
+        assertEquals(1, mapped)
     }
 
     @Test

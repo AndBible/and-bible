@@ -49,6 +49,13 @@ fun SQLiteStatement.bindAll(args: Array<out Any?>) = args.forEachIndexed { i, a 
 fun <T> SQLiteConnection.queryRows(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): List<T> =
     prepare(sql).use { st -> st.bindAll(args); buildList { while (st.step()) add(row(st)) } }
 
+/**
+ * Maps only the first row of [sql] with [row], or returns null when there is no row. Unlike
+ * `queryRows(..).firstOrNull()` it stops stepping after the first row.
+ */
+fun <T> SQLiteConnection.queryFirst(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): T? =
+    prepare(sql).use { st -> st.bindAll(args); if (st.step()) row(st) else null }
+
 /** First column of the first row as a Long, or null when there is no row or the value is SQL NULL. */
 fun SQLiteConnection.queryLong(sql: String, vararg args: Any?): Long? =
     queryRows(sql, *args) { if (it.isNull(0)) null else it.getLong(0) }.firstOrNull()
