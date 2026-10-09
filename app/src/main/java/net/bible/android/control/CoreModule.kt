@@ -70,6 +70,9 @@ import net.bible.sharedcore.settings.TextDisplaySettingsService
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedcore.window.WindowStateService
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.control.versification.BookInstallWatcher
+import net.bible.android.platform.AndroidDocumentSyncStarter
+import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton
 import net.bible.service.db.readingplan.ReadingPlanRepository
@@ -104,6 +107,8 @@ val coreModule = module {
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }
     single { ProgressJsActions(get()) }
+    single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }
+    single { BookInstallWatcher(get(), get()) }
     single<UserNotifier> { AndroidUserNotifier() }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
     single<DateTimeFormats> { AndroidDateTimeFormats(androidContext()) }

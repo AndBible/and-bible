@@ -83,7 +83,7 @@ object SwordEnvironmentInitialisation {
                 WebResource.setTimeout(5000)
                 // because the above line causes initialisation set the is initialised flag here
                 isSwordLoaded = true
-                BookInstallWatcher.startListening()
+                org.koin.java.KoinJavaComponent.get<BookInstallWatcher>(BookInstallWatcher::class.java).startListening()
             }
         } catch (e: Exception) {
             log.error("Error initialising", e)

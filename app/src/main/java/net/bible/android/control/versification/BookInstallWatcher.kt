@@ -16,12 +16,11 @@
  */
 package net.bible.android.control.versification
 
-import net.bible.service.db.blockingDb
+import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.log.Log
-import net.bible.android.BibleApplication
+import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.service.cloudsync.documents.DocumentSync
-import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.cloudsync.documents.isSyncableDocument
 import net.bible.service.cloudsync.documents.shouldAutoUpload
@@ -40,16 +39,26 @@ import org.crosswire.jsword.versification.VersificationsMapper
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-object BookInstallWatcher {
+class BookInstallWatcher(
+    private val launcher: OrderedLauncher,
+    private val syncStarter: DocumentSyncStarter,
+) {
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     fun startListening() {
-        Books.installed().addBooksListener(object : BooksListener {
+        Books.installed().addBooksListener(listener)
+    }
+
+    /**
+     * Install/uninstall events fire in quick succession (e.g. replace = remove + add); the backup-db writes
+     * are launched under one key so they land in event order (add then remove leaves the book absent).
+     */
+    internal val listener: BooksListener = object : BooksListener {
             override fun bookAdded(ev: BooksEvent) {
                 val book = ev.book
                 Activator.deactivate(book)
                 initialiseRequiredMapping(book)
-                addBookToDb(book)
+                launcher.launch(DB_KEY) { addBookToDb(book) }
                 // Suppress the echo: a module installed *by* a sync download must not immediately
                 // be auto-pushed back to the cloud it just came from.
                 //
@@ -66,11 +75,7 @@ object BookInstallWatcher {
                         DocumentSyncSettings.isAutoTransferAllowed,
                     )
                 ) {
-                    DocumentSyncService.start(
-                        BibleApplication.application,
-                        pushInitials = listOf(book.initials),
-                        downloadInitials = emptyList(),
-                    )
+                    syncStarter.pushDocuments(listOf(book.initials))
                 }
                 AndBibleAddons.clearCaches()
                 SwordContentFacade.clearCaches()
@@ -80,29 +85,28 @@ object BookInstallWatcher {
                 // Document sync: local uninstall does NOT propagate to the cloud by default.
                 // "Remove from sync" (tombstone) is an explicit action in CloudDocumentsActivity.
                 AndBibleAddons.clearCaches()
-                removeBookFromDb(ev.book)
+                val book = ev.book
+                launcher.launch(DB_KEY) { removeBookFromDb(book) }
                 SwordContentFacade.clearCaches()
             }
-        })
-    }
-    private fun addBookToDb(book: Book) {
-        // if book is already installed, we remove it, else it deletes nothing
-        Log.i(DownloadManager.TAG, "Adding ${book.name} to document backup database")
-        blockingDb {
-            docDao.deleteByOsisId(book.initials)
-            // insert the new book info into backup db
-            docDao.insert(SwordDocumentInfo(
-                book.initials,
-                book.name,
-                book.abbreviation,
-                book.language.name,
-                ""
-            ))
-        }
     }
 
-    private fun removeBookFromDb(book: Book) {
-        blockingDb { docDao.deleteByOsisId(book.initials) }
+    private suspend fun addBookToDb(book: Book) {
+        // if book is already installed, we remove it, else it deletes nothing
+        Log.i(DownloadManager.TAG, "Adding ${book.name} to document backup database")
+        docDao.deleteByOsisId(book.initials)
+        // insert the new book info into backup db
+        docDao.insert(SwordDocumentInfo(
+            book.initials,
+            book.name,
+            book.abbreviation,
+            book.language.name,
+            ""
+        ))
+    }
+
+    private suspend fun removeBookFromDb(book: Book) {
+        docDao.deleteByOsisId(book.initials)
     }
 
     /**
@@ -120,5 +124,8 @@ object BookInstallWatcher {
         }
     }
 
-    private const val TAG = "BookInstallWatcher"
+    private companion object {
+        const val TAG = "BookInstallWatcher"
+        const val DB_KEY = "book-install"
+    }
 }
