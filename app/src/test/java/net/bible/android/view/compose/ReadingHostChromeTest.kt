@@ -195,7 +195,7 @@ class ReadingHostChromeTest {
         assertTrue(
             "ReadingCommands.pageTitleText is the ONE page-title body; if it is gone, the two " +
                 "assertions below are watching nothing",
-            readingCommands.contains("CommonUtils.getWholeChapter(key, false).name"),
+            readingCommands.contains("CommonUtils.getWholeChapter(key, false).getName()"),
         )
         assertTrue(
             "Activity.themePixelSize is the ONE theme-dimension body; same reason",
