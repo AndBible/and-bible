@@ -17,12 +17,14 @@
 
 package net.bible.android.view.activity.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
 import java.util.Collections
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
@@ -60,7 +62,7 @@ class ManageLabelsWritesTest {
 
     @Before fun setUp() {
         Log.sinkOverride = { level, tag, msg, tr -> if (level == LogLevel.ERROR) errors += "$tag: $msg ${tr ?: ""}" }
-        control = BookmarkControl(mock(WindowControl::class.java), mock(AndroidResourceProvider::class.java), OrderedLauncher(appScope))
+        control = BookmarkControl(mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), OrderedLauncher(appScope))
     }
 
     @After fun tearDown() {

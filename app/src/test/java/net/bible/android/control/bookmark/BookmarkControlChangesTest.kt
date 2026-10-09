@@ -1,5 +1,8 @@
 package net.bible.android.control.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -11,7 +14,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntry
@@ -47,7 +49,7 @@ class BookmarkControlChangesTest {
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
     @Before fun setUp() {
-        control = BookmarkControl(mock(WindowControl::class.java), mock(AndroidResourceProvider::class.java), OrderedLauncher(syncScope))
+        control = BookmarkControl(mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), OrderedLauncher(syncScope))
         subscription = control.changes.subscribe { seen += it }
     }
 

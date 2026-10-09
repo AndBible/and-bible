@@ -16,7 +16,6 @@
  */
 package net.bible.android.view.activity.bookmark
 
-import android.graphics.Color
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkControl
@@ -62,7 +61,7 @@ class ManageLabelsServiceImpl(
 
     // Matches classic ManageLabels.randomColor() (ManageLabels.kt:526) exactly, including the
     // (0, 255)-exclusive-upper-bound nextInt calls.
-    override fun randomColorArgb(): Int = Color.argb(255, nextInt(0, 255), nextInt(0, 255), nextInt(0, 255))
+    override fun randomColorArgb(): Int = packArgb(255, nextInt(0, 255), nextInt(0, 255), nextInt(0, 255))
 
     // Run off the main thread: classic ManageLabels.kt:804-842 dispatches this search on
     // Dispatchers.IO (Room DAO queries), and the controller launches it on its own scope, which
@@ -128,3 +127,6 @@ fun BookmarkEntities.Label.toLabelItem(): LabelItem = LabelItem(
  *  function's `null` fallback ([OverrideMode.NONE]'s `displayStyle` is `null`). */
 internal fun overrideDisplayStyle(overrideMode: Int?): BookmarkDisplayStyle? =
     LabelEditMapper.overrideModeFromInt(overrideMode).displayStyle
+
+/** `android.graphics.Color.argb`'s packing, without Android: components in the order alpha, red, green, blue. */
+internal fun packArgb(alpha: Int, red: Int, green: Int, blue: Int): Int = (alpha shl 24) or (red shl 16) or (green shl 8) or blue

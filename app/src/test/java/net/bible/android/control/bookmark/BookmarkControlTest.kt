@@ -17,12 +17,14 @@
 
 package net.bible.android.control.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
 import net.bible.test.testOrderedLauncher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmark
@@ -74,7 +76,7 @@ class BookmarkControlTest {
     @Before
     fun setUp() {
         val mockedWindowControl = Mockito.mock(WindowControl::class.java)
-        bookmarkControl = BookmarkControl(mockedWindowControl, Mockito.mock(AndroidResourceProvider::class.java), testOrderedLauncher())
+        bookmarkControl = BookmarkControl(mockedWindowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher())
     }
 
     @After

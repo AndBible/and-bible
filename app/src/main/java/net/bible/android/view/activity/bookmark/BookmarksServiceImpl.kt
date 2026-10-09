@@ -16,7 +16,6 @@
  */
 package net.bible.android.view.activity.bookmark
 
-import android.text.format.DateFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.common.toV11n
@@ -32,6 +31,7 @@ import net.bible.sharedcore.bookmark.BookmarkRow
 import net.bible.sharedcore.bookmark.BookmarkSortMode
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.DateTimeFormats
 import net.bible.sharedcore.bookmark.BookmarksService
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
@@ -57,6 +57,7 @@ class BookmarksServiceImpl(
     private val windowControl: WindowControl,
     private val settings: AppSettings,
     private val coreStrings: CoreStrings,
+    private val dateTimeFormats: DateTimeFormats,
 ) : BookmarksService {
 
     /** The bookmarks behind the most recent [loadRows] result, keyed by `id.toString()`. Insertion
@@ -115,7 +116,7 @@ class BookmarksServiceImpl(
         val chipLabels = labels.ifEmpty { listOf(bookmarkControl.labelUnlabelled()) }
         val labelColors = chipLabels.filterNot { it.isSpeakLabel }.map { it.color }
 
-        val dateText = DateFormat.format("EEE, yyyy-MM-dd HH:mm", bm.createdAt).toString()
+        val dateText = dateTimeFormats.pattern("EEE, yyyy-MM-dd HH:mm", bm.createdAt.time)
         val notes = bm.notes
         return BookmarkRow(
             id = bm.id.toString(),

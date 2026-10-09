@@ -20,12 +20,10 @@ package net.bible.android.control.bookmark
 import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.defaultLabelColor
-import net.bible.android.view.activity.page.application
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.PassageKeyFactory
@@ -47,59 +45,66 @@ import java.util.TimeZone
 private const val TAG = "BookmarkCsvUtils"
 
 /**
+ * The user-visible title of each [BookmarkCsvUtils.CsvColumn], shown in the export column chooser
+ * (the CSV header row itself carries the column keys). Android: `AndroidCsvColumnTitles`.
+ */
+fun interface CsvColumnTitles {
+    fun title(column: BookmarkCsvUtils.CsvColumn): String
+}
+
+/**
  * CSV Import/Export utilities for Bible bookmarks
  * Uses semicolon (;) as separator to handle commas in notes
  */
 object BookmarkCsvUtils {
 
     // CSV column headers
-    private const val HEADER_OSIS_REF = "osisRef"
-    private const val HEADER_BIBLE_REF = "bibleRef"
-    private const val HEADER_DOCUMENT = "document"
-    private const val HEADER_BOOK = "book"
-    private const val HEADER_CHAPTER_START = "chapterStart"
-    private const val HEADER_VERSE_START = "verseStart"
-    private const val HEADER_CHAPTER_END = "chapterEnd"
-    private const val HEADER_VERSE_END = "verseEnd"
-    private const val HEADER_ID = "id"
-    private const val HEADER_ORDINAL_START = "ordinalStart"
-    private const val HEADER_ORDINAL_END = "ordinalEnd"
-    private const val HEADER_CREATED_AT = "createdAt"
-    private const val HEADER_LAST_UPDATED = "lastUpdatedOn"
-    private const val HEADER_START_OFFSET = "startOffset"
-    private const val HEADER_END_OFFSET = "endOffset"
-    private const val HEADER_LABELS = "labels"
-    private const val HEADER_NOTES = "notes"
-    private const val HEADER_CUSTOM_ICON = "customIcon"
+    const val HEADER_OSIS_REF = "osisRef"
+    const val HEADER_BIBLE_REF = "bibleRef"
+    const val HEADER_DOCUMENT = "document"
+    const val HEADER_BOOK = "book"
+    const val HEADER_CHAPTER_START = "chapterStart"
+    const val HEADER_VERSE_START = "verseStart"
+    const val HEADER_CHAPTER_END = "chapterEnd"
+    const val HEADER_VERSE_END = "verseEnd"
+    const val HEADER_ID = "id"
+    const val HEADER_ORDINAL_START = "ordinalStart"
+    const val HEADER_ORDINAL_END = "ordinalEnd"
+    const val HEADER_CREATED_AT = "createdAt"
+    const val HEADER_LAST_UPDATED = "lastUpdatedOn"
+    const val HEADER_START_OFFSET = "startOffset"
+    const val HEADER_END_OFFSET = "endOffset"
+    const val HEADER_LABELS = "labels"
+    const val HEADER_NOTES = "notes"
+    const val HEADER_CUSTOM_ICON = "customIcon"
 
+    /** One exportable column. [key] is both the header-row text and what import matches on. */
     data class CsvColumn(
         val key: String,
-        val displayNameResId: Int,
         val defaultSelected: Boolean = true
     ) {
         val header get() = key
-        val displayName get() = application.getString(displayNameResId)
     }
 
     val availableColumns = listOf(
-        CsvColumn(HEADER_OSIS_REF, R.string.osis_reference),
-        CsvColumn(HEADER_BIBLE_REF, R.string.bible_reference),
-        CsvColumn(HEADER_DOCUMENT, R.string.document),
-        CsvColumn(HEADER_BOOK, R.string.book),
-        CsvColumn(HEADER_CHAPTER_START, R.string.chapter_start),
-        CsvColumn(HEADER_VERSE_START, R.string.verse_start),
-        CsvColumn(HEADER_CHAPTER_END, R.string.chapter_end),
-        CsvColumn(HEADER_VERSE_END, R.string.verse_end),
-        CsvColumn(HEADER_ID, R.string.id),
-        CsvColumn(HEADER_ORDINAL_START, R.string.ordinal_start),
-        CsvColumn(HEADER_ORDINAL_END, R.string.ordinal_end),
-        CsvColumn(HEADER_CREATED_AT, R.string.created_at),
-        CsvColumn(HEADER_LAST_UPDATED, R.string.last_updated_at),
-        CsvColumn(HEADER_START_OFFSET, R.string.start_offset),
-        CsvColumn(HEADER_END_OFFSET, R.string.end_offset),
-        CsvColumn(HEADER_LABELS, R.string.labels),
-        CsvColumn(HEADER_NOTES, R.string.bookmark_notes),
-        CsvColumn(HEADER_CUSTOM_ICON, R.string.custom_icon)
+        CsvColumn(HEADER_OSIS_REF),
+        CsvColumn(HEADER_BIBLE_REF),
+        CsvColumn(HEADER_DOCUMENT),
+        CsvColumn(HEADER_BOOK),
+        CsvColumn(HEADER_CHAPTER_START),
+        CsvColumn(HEADER_VERSE_START),
+        CsvColumn(HEADER_CHAPTER_END),
+        CsvColumn(HEADER_VERSE_END),
+        CsvColumn(HEADER_ID),
+        CsvColumn(HEADER_ORDINAL_START),
+        CsvColumn(HEADER_ORDINAL_END),
+        CsvColumn(HEADER_CREATED_AT),
+        CsvColumn(HEADER_LAST_UPDATED),
+        CsvColumn(HEADER_START_OFFSET),
+        CsvColumn(HEADER_END_OFFSET),
+        CsvColumn(HEADER_LABELS),
+        CsvColumn(HEADER_NOTES),
+        CsvColumn(HEADER_CUSTOM_ICON)
     )
 
     private const val CSV_SEPARATOR = ";"

@@ -17,6 +17,9 @@
 
 package net.bible.android.control.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +33,6 @@ import net.bible.sharedcore.log.LogLevel
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.IdType
@@ -76,7 +78,7 @@ class BookmarkControlSideEffectsTest {
     private fun awaitLaunchedSyncBlocks() = runBlocking { syncScope.coroutineContext[Job]!!.children.toList().joinAll() }
 
     @Before fun setUp() {
-        control = BookmarkControl(windowControl, mock(AndroidResourceProvider::class.java), OrderedLauncher(syncScope))
+        control = BookmarkControl(windowControl, testAppSettings(), testCoreStrings(), OrderedLauncher(syncScope))
         subscriptions += control.changes.subscribe { seen += it }
     }
 

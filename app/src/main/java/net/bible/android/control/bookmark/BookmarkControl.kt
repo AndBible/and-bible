@@ -16,14 +16,8 @@
  */
 package net.bible.android.control.bookmark
 
-import android.app.Activity.RESULT_OK
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import net.bible.sharedcore.log.Log
-import android.widget.Toast
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -31,14 +25,10 @@ import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import net.bible.android.database.LogEntry
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
-import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.common.toV11n
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WorkspaceChanges
-import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
@@ -64,20 +54,13 @@ import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.database.bookmarks.AI_LABEL_ID
 import net.bible.android.database.bookmarks.AI_LABEL_NAME
-import android.graphics.Color
 import net.bible.android.misc.OsisFragment
-import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
-import net.bible.sharedcore.ui.dialog.AppDialogController
-import net.bible.sharedcore.ui.dialog.AppDialogRequest
-import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
@@ -85,12 +68,10 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import org.koin.java.KoinJavaComponent
-import java.lang.IllegalArgumentException
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.OrderedLauncher
 
 val LABEL_ALL_ID = IdType.empty()
@@ -106,7 +87,8 @@ private class PendingSideEffects : AbstractCoroutineContextElement(Key) {
 
 open class BookmarkControl constructor(
     val windowControl: WindowControl,
-    resourceProvider: ResourceProvider,
+    private val settings: AppSettings,
+    private val strings: CoreStrings,
     private val launcher: OrderedLauncher,
 ) {
     private val _changes = EventSource<BookmarkChange>()
@@ -210,9 +192,11 @@ open class BookmarkControl constructor(
     suspend fun favouriteLabels(): List<Label> = dao.favouriteLabels()
 
     // Dummy labels for all / unlabelled
-    private val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
+    private val labelAll = Label(LABEL_ALL_ID, strings.labelAll, color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
 
     private val bookmarkDb get() = DatabaseContainer.instance.bookmarkDb
+    /** The content type new notes and StudyPad entries get (same key and default as `AndBibleSettings.notesContentType`). */
+    private val notesContentType: String get() = settings.getString("notes_content_type", "HTML") ?: "HTML"
     private val dao get() = bookmarkDb.bookmarkDao()
 
     /**
@@ -619,7 +603,7 @@ open class BookmarkControl constructor(
         Label(
             id = AI_LABEL_ID,
             name = AI_LABEL_NAME,
-            color = Color.argb(255, 100, 100, 255),
+            color = 0xFF6464FF.toInt(),
             displayStyle = BookmarkDisplayStyle.MARKER,
             displayStyleWholeVerse = null,
             customIcon = "robot"
@@ -682,7 +666,7 @@ open class BookmarkControl constructor(
             dao.deleteBookmarkNotes(bookmarkId)
         } else {
             val existingContentType = dao.bibleBookmarkById(bookmarkId)?.notesContentType?.name
-            val contentType = existingContentType ?: CommonUtils.settings.notesContentType
+            val contentType = existingContentType ?: notesContentType
             dao.saveBookmarkNote(bookmarkId, note, contentType)
         }
         val bookmark = dao.bibleBookmarkById(bookmarkId)!!
@@ -695,7 +679,7 @@ open class BookmarkControl constructor(
             dao.deleteGenericBookmarkNotes(bookmarkId)
         } else {
             val existingContentType = dao.genericBookmarkById(bookmarkId)?.notesContentType?.name
-            val contentType = existingContentType ?: CommonUtils.settings.notesContentType
+            val contentType = existingContentType ?: notesContentType
             dao.saveGenericBookmarkNote(bookmarkId, note, contentType)
         }
         val bookmark = dao.genericBookmarkById(bookmarkId)!!
@@ -826,7 +810,7 @@ open class BookmarkControl constructor(
         val result = computeBookmarkTexts(texts, b.startOffset, b.endOffset, wholeVerse) ?: run {
             b.startText = ""
             b.endText = ""
-            b.text = application.getString(R.string.error_occurred)
+            b.text = strings.errorOccurred
             b.fullText = b.text
             return
         }
@@ -994,7 +978,7 @@ open class BookmarkControl constructor(
     }
 
     suspend fun createStudyPadEntry(labelId: IdType, entryOrderNumber: Int) = deferringEffects {
-        val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1, contentType = TextContentType.valueOf(CommonUtils.settings.notesContentType))
+        val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1, contentType = TextContentType.valueOf(notesContentType))
 
         dao.insert(entry.studyPadTextEntryEntity)
         dao.insert(entry.studyPadTextEntryTextEntity)
@@ -1088,140 +1072,6 @@ open class BookmarkControl constructor(
         dao.update(textEntry)
         val withText = dao.studyPadTextEntryById(id)!!
         emitChange(BookmarkChange.StudyPadOrder(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
-    }
-
-    suspend fun exportBookmarksToCSV(context: ActivityBase, exportBookmarks: List<BibleBookmarkWithNotes>) = context.run {
-        try {
-            if (exportBookmarks.isEmpty()) {
-                Toast.makeText(context, getString(R.string.no_bookmarks_to_export), Toast.LENGTH_SHORT)
-                    .show()
-                return
-            }
-
-            // Show column selection dialog
-            val selectedColumns = showColumnSelectionDialog(context)
-            if (selectedColumns.isEmpty()) return // User cancelled or selected no columns
-
-            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "text/csv"
-                val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.US).format(Date())
-                putExtra(Intent.EXTRA_TITLE, "bible_bookmarks_$timestamp.csv")
-            }
-
-            val result = awaitIntent(intent)
-            if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { exportToUri(context, it, exportBookmarks, selectedColumns) }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error starting CSV export", e)
-            ErrorReportControl.showErrorDialog(
-                context,
-                getString(R.string.csv_export_failed, e.message),
-                exception = e
-            )
-        }
-    }
-
-    suspend fun importBookmarksFromCSV(context: ActivityBase) = context.run {
-        try {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "text/*"
-                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/csv", "text/plain", "text/comma-separated-values"))
-            }
-
-            val result = awaitIntent(intent)
-            if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { importFromUri(context, it) }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error starting CSV import", e)
-            ErrorReportControl.showErrorDialog(
-                context,
-                getString(R.string.csv_import_failed, e.message),
-                exception = e
-            )
-        }
-    }
-
-
-    private suspend fun showColumnSelectionDialog(context: ActivityBase): List<String> {
-        val columns = BookmarkCsvUtils.availableColumns
-        
-        // Load previously unchecked columns from settings
-        val uncheckedColumns = CommonUtils.settings.getStringSet("csv_export_unchecked_columns", emptySet())
-        
-        // Pre-select columns (all columns except those that were previously unchecked)
-        val selectedColumns = Dialogs.multiselect(
-            context,
-            context.getString(R.string.csv_column_selection_title),
-            columns,
-            itemToString = { column -> column.displayName },
-            preSelected = { column -> !uncheckedColumns.contains(column.key) }
-        )
-        
-        // Save the inverse selection (unchecked items) to settings
-        val selectedKeys = selectedColumns.map { it.key }.toSet()
-        val newUncheckedColumns = columns.map { it.key }.filter { !selectedKeys.contains(it) }.toSet()
-        CommonUtils.settings.setStringSet("csv_export_unchecked_columns", newUncheckedColumns)
-        
-        return selectedColumns.map { it.key }
-    }
-
-    private suspend fun exportToUri(context: Context, uri: Uri, bookmarks: List<BibleBookmarkWithNotes>, selectedColumns: List<String>) = context.run {
-        withContext(Dispatchers.IO) {
-            contentResolver.openOutputStream(uri)?.use { outputStream ->
-                BookmarkCsvUtils.exportBookmarksToCsv(outputStream, bookmarks, this@BookmarkControl, selectedColumns)
-            } ?: throw IllegalArgumentException("Could not open output stream for URI: $uri")
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    getString(R.string.csv_export_success, bookmarks.size),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    /**
-     * `internal`, not `private`: exercised directly by `BookmarkControlImportFromUriDialogTest` (Task
-     * 19 Step 5's error dialog) rather than through the full `importBookmarksFromCSV` SAF round trip.
-     */
-    internal suspend fun importFromUri(context: Context, uri: Uri) = context.run {
-        withContext(Dispatchers.IO) {
-            contentResolver.openInputStream(uri)?.use { inputStream ->
-                val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, this@BookmarkControl)
-
-                withContext(Dispatchers.Main) {
-                    if (result.errors > 0) {
-                        // Show detailed error dialog. I2 fix: AppDialogRequest.Message is always
-                        // parsed as HTML (parseHtmlRuns) -- a plain "\n"-joined summary collapses
-                        // onto one line, and any "<...>" an exception's own message happens to
-                        // contain is silently dropped as an unknown tag. plainTextToHtml keeps both.
-                        val plainMessage =
-                            getString(R.string.csv_import_errors, result.created, result.updated, result.errors) +
-                                "\n\n" + result.errorMessages.take(5).joinToString("\n") +
-                                if (result.errorMessages.size > 5) "\n..." else ""
-
-                        KoinJavaComponent.get<AppDialogController>(AppDialogController::class.java).post(
-                            AppDialogRequest.Message(
-                                title = getString(R.string.import_items, "CSV"),
-                                message = plainTextToHtml(plainMessage),
-                                confirmText = getString(R.string.okay),
-                                cancellable = true,
-                            ),
-                        )
-                    } else {
-                        Toast.makeText(
-                            context,
-                            getString(R.string.csv_import_success, result.created, result.updated),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            } ?: throw IllegalArgumentException("Could not open input stream for URI: $uri")
-        }
     }
 
     companion object {

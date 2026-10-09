@@ -17,6 +17,9 @@
 
 package net.bible.android.control.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
 import net.bible.test.testOrderedLauncher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -24,7 +27,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.IdType
@@ -66,8 +68,7 @@ class StudyPadCursorIntegrationTest {
         windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowRepository.initialize()
 
-        val mockedResourceProvider = org.mockito.Mockito.mock(AndroidResourceProvider::class.java)
-        bookmarkControl = BookmarkControl(windowControl!!, mockedResourceProvider, testOrderedLauncher())
+        bookmarkControl = BookmarkControl(windowControl!!, testAppSettings(), testCoreStrings(), testOrderedLauncher())
     }
 
     @After

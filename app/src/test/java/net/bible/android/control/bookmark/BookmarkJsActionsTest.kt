@@ -17,6 +17,9 @@
 
 package net.bible.android.control.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +30,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -73,7 +75,7 @@ class BookmarkJsActionsTest {
             if (level == LogLevel.WARN) warnings += "$tag: $msg"
         }
         val launcher = OrderedLauncher(appScope)
-        control = BookmarkControl(mock(WindowControl::class.java), mock(AndroidResourceProvider::class.java), launcher)
+        control = BookmarkControl(mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), launcher)
         actions = BookmarkJsActions(launcher, control)
     }
 

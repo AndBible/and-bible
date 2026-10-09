@@ -11,4 +11,5 @@ class AndroidDateTimeFormats(private val context: Context) : DateTimeFormats {
     override fun shortTime(epochMs: Long): String = DateFormat.getTimeFormat(context).format(Date(epochMs))
     override fun relativeTimeSpan(epochMs: Long, nowMs: Long): String =
         DateUtils.getRelativeTimeSpanString(epochMs, nowMs, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE).toString()
+    override fun pattern(pattern: String, epochMs: Long): String = DateFormat.format(pattern, epochMs).toString()
 }

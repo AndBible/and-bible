@@ -17,6 +17,9 @@
 
 package net.bible.service.device.speak
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
 import net.bible.test.testOrderedLauncher
 import kotlinx.coroutines.runBlocking
 import androidx.test.core.app.ApplicationProvider
@@ -25,7 +28,6 @@ import kotlinx.coroutines.Dispatchers
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
@@ -295,7 +297,7 @@ open class AbstractSpeakTests {
         val windowControl = mock(WindowControl::class.java)
         val windowRepository = mock(WindowRepository::class.java)
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
-        val bookmarkControl = BookmarkControl(windowControl, mock(AndroidResourceProvider::class.java), testOrderedLauncher())
+        val bookmarkControl = BookmarkControl(windowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher())
     }
 }
 

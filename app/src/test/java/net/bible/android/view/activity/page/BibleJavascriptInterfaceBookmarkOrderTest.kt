@@ -126,17 +126,20 @@ class BibleJavascriptInterfaceBookmarkOrderTest {
 
         val gate = CompletableDeferred<Unit>()
         val stuck = jsActions.launch(a.id) { gate.await() } // window a's queue is busy
-
-        bridgeA.saveBookmarkNote(inA.id.toString(), "from a")
-        bridgeB.saveBookmarkNote(inB.id.toString(), "from b")
-        runBlocking {
-            withTimeout(10_000) { while (note(inB) == null) delay(20) }
-            delay(300) // window a's save would have landed by now if it did not wait for a's queue
+        try {
+            bridgeA.saveBookmarkNote(inA.id.toString(), "from a")
+            bridgeB.saveBookmarkNote(inB.id.toString(), "from b")
+            runBlocking {
+                withTimeout(10_000) { while (note(inB) == null) delay(20) }
+                delay(300) // window a's save would have landed by now if it did not wait for a's queue
+            }
+            assertEquals("from b", note(inB))
+            assertNull("window a's save ran past its own window's queue", note(inA))
+        } finally {
+            // Also on a failed assertion: a job left waiting would stay in the app scope of the
+            // suite's single JVM and hold window a's queue for every later test.
+            gate.complete(Unit)
         }
-        assertEquals("from b", note(inB))
-        assertNull("window a's save ran past its own window's queue", note(inA))
-
-        gate.complete(Unit)
         runBlocking {
             withTimeout(10_000) { stuck.join() }
             withTimeout(10_000) { while (note(inA) == null) delay(20) }

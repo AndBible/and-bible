@@ -25,6 +25,8 @@ import org.koin.core.context.GlobalContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -42,6 +44,22 @@ class AndroidPlatformSeamsTest {
         val t = 1_700_000_000_000L
         assertEquals(DateFormat.getDateFormat(ctx).format(Date(t)), f.shortDate(t))
         assertEquals(DateFormat.getTimeFormat(ctx).format(Date(t)), f.shortTime(t))
+        assertEquals(DateFormat.format("EEE, yyyy-MM-dd HH:mm", Date(t)).toString(), f.pattern("EEE, yyyy-MM-dd HH:mm", t))
+    }
+
+    /** The bookmark list's date line: weekday, date and 24h time, in the default time zone and locale. */
+    @Test fun patternFormatsInTheDefaultZoneAndLocale() {
+        val zone = TimeZone.getDefault()
+        val locale = Locale.getDefault()
+        try {
+            TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+            Locale.setDefault(Locale.US)
+            val f = AndroidDateTimeFormats(ApplicationProvider.getApplicationContext())
+            assertEquals("Sat, 2022-01-01 13:05", f.pattern("EEE, yyyy-MM-dd HH:mm", 1_641_042_300_000L))
+        } finally {
+            TimeZone.setDefault(zone)
+            Locale.setDefault(locale)
+        }
     }
 
     @Test fun appScopeSurvivesAFailingChild() = runBlocking {

@@ -17,12 +17,17 @@
 
 package net.bible.android.control.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
 import net.bible.test.testOrderedLauncher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
+import net.bible.android.activity.R
+import net.bible.android.view.activity.bookmark.AndroidCsvColumnTitles
+import org.robolectric.RuntimeEnvironment
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
@@ -55,8 +60,7 @@ class BookmarkCsvUtilsTest {
     fun setUp() {
         // Create a real BookmarkControl instance for testing
         val mockedWindowControl = Mockito.mock(WindowControl::class.java)
-        val mockedResourceProvider = Mockito.mock(AndroidResourceProvider::class.java)
-        bookmarkControl = BookmarkControl(mockedWindowControl, mockedResourceProvider, testOrderedLauncher())
+        bookmarkControl = BookmarkControl(mockedWindowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher())
     }
 
     @After
@@ -134,6 +138,57 @@ class BookmarkCsvUtilsTest {
         assertTrue("Data should contain custom icon", dataLine.contains("star"))
         // Labels should be present (though order may vary)
         assertTrue("Data should contain labels", dataLine.contains("Label 1") || dataLine.contains("Label;2"))
+    }
+
+    /**
+     * The header row carries the column KEYS (machine-readable, what import matches on), in
+     * [BookmarkCsvUtils.availableColumns] order whatever order the selection came in, never the
+     * translated titles the column-selection dialog shows.
+     */
+    @Test
+    fun exportHeaderRow_isTheSelectedColumnKeysInColumnOrder_notTheirTitles(): Unit = runBlocking {
+        val bookmark = bookmarkControl.addOrUpdateBibleBookmark(BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.1"), textRange = null, wholeVerse = true, book = null,
+        ).apply { notes = "n"; new = true })
+        val out = ByteArrayOutputStream()
+
+        BookmarkCsvUtils.exportBookmarksToCsv(out, listOf(bookmark), bookmarkControl, selectedColumns = listOf("notes", "osisRef"))
+
+        val lines = out.toString("UTF-8").split("\n")
+        assertEquals("osisRef;notes", lines[0])
+        assertEquals("Gen.1.1;n", lines[1])
+    }
+
+    /** Every column's dialog title comes from [CsvColumnTitles]; the Android one keeps each column's resource. */
+    @Test
+    fun columnTitles_comeFromCsvColumnTitles_eachColumnItsOwnResource() {
+        val context = RuntimeEnvironment.getApplication()
+        val expected = linkedMapOf(
+            "osisRef" to R.string.osis_reference,
+            "bibleRef" to R.string.bible_reference,
+            "document" to R.string.document,
+            "book" to R.string.book,
+            "chapterStart" to R.string.chapter_start,
+            "verseStart" to R.string.verse_start,
+            "chapterEnd" to R.string.chapter_end,
+            "verseEnd" to R.string.verse_end,
+            "id" to R.string.id,
+            "ordinalStart" to R.string.ordinal_start,
+            "ordinalEnd" to R.string.ordinal_end,
+            "createdAt" to R.string.created_at,
+            "lastUpdatedOn" to R.string.last_updated_at,
+            "startOffset" to R.string.start_offset,
+            "endOffset" to R.string.end_offset,
+            "labels" to R.string.labels,
+            "notes" to R.string.bookmark_notes,
+            "customIcon" to R.string.custom_icon,
+        )
+        assertEquals(expected.keys.toList(), BookmarkCsvUtils.availableColumns.map { it.key })
+
+        val titles: CsvColumnTitles = AndroidCsvColumnTitles(context)
+        for (column in BookmarkCsvUtils.availableColumns) {
+            assertEquals(column.key, context.getString(expected.getValue(column.key)), titles.title(column))
+        }
     }
 
     @Test

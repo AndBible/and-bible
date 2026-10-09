@@ -162,6 +162,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DocumentConfiguration
 import net.bible.android.view.activity.download.PseudoBook
 import net.bible.android.view.activity.download.installedDocument
+import net.bible.android.view.activity.bookmark.BookmarkCsvFlow
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.android.view.activity.bookmark.LabelEditContract
 import net.bible.android.view.activity.bookmark.LabelEditMapper
@@ -4453,12 +4454,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
     }
 
-    /** Classic `onExportCsv` (`:244-248`) -- `exportBookmarksToCSV` wants an `Activity`, hence host-side. */
+    /** Classic `onExportCsv` (`:244-248`) -- `BookmarkCsvFlow.exportBookmarksToCSV` wants an `Activity`, hence host-side. */
     private fun exportBookmarksCsv(session: BookmarksSession) {
         lifecycleScope.launch {
             val bibleBookmarks = bookmarksService.loadedBookmarks()
                 .filterIsInstance<BookmarkEntities.BibleBookmarkWithNotes>()
-            bookmarkControl.exportBookmarksToCSV(this@NavHostComposeActivity, bibleBookmarks)
+            BookmarkCsvFlow(bookmarkControl).exportBookmarksToCSV(this@NavHostComposeActivity, bibleBookmarks)
             session.controller.refresh()
         }
     }
@@ -4466,7 +4467,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Classic `onImportCsv` (`:250-253`). */
     private fun importBookmarksCsv(session: BookmarksSession) {
         lifecycleScope.launch(Dispatchers.Main) {
-            bookmarkControl.importBookmarksFromCSV(this@NavHostComposeActivity)
+            BookmarkCsvFlow(bookmarkControl).importBookmarksFromCSV(this@NavHostComposeActivity)
             session.controller.refresh()
         }
     }
@@ -4693,7 +4694,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val returnedOverride = newLabelData.workspaceOverride
             if (returnedOverride != null) {
                 val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-                blockingDb {
+                blockingDb { // L1-pending(view)
                     if (returnedOverride.hasOverride) {
                         dao.insertOrUpdateLabelOverride(returnedOverride)
                     } else {

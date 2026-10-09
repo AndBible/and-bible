@@ -58,6 +58,7 @@ class ReadingProgressServiceImplTest {
             override fun shortDate(epochMs: Long) = "date:$epochMs"
             override fun shortTime(epochMs: Long) = "time:$epochMs"
             override fun relativeTimeSpan(epochMs: Long, nowMs: Long) = "rel:$epochMs"
+            override fun pattern(pattern: String, epochMs: Long) = "pattern:$epochMs"
         }
         val s = ReadingProgressServiceImpl(fake)
         assertEquals("date:5", s.dayTitle(5))

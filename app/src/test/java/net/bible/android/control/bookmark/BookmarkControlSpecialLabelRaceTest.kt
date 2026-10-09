@@ -1,5 +1,8 @@
 package net.bible.android.control.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
 import kotlinx.coroutines.runBlocking
 import net.bible.test.testOrderedLauncher
 import kotlinx.coroutines.test.runTest
@@ -7,7 +10,6 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.service.db.DatabaseContainer
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,7 +30,7 @@ class BookmarkControlSpecialLabelRaceTest {
      * under one lock, so it must report 0.
      */
     @Test fun twoThreadsCreatingTheSameSpecialLabel() = runTest {
-        val bc = BookmarkControl(Mockito.mock(WindowControl::class.java), Mockito.mock(AndroidResourceProvider::class.java), testOrderedLauncher())
+        val bc = BookmarkControl(Mockito.mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), testOrderedLauncher())
         val failures = AtomicInteger()
         val first = AtomicInteger()
         repeat(300) {

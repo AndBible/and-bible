@@ -166,7 +166,6 @@ import org.koin.core.component.inject
 import org.koin.core.context.GlobalContext
 import net.bible.service.db.blockingDb
 import net.bible.android.control.bookmark.BookmarkJsActions
-import net.bible.android.control.bookmark.favouriteIdsAfter
 
 const val MAX_DOC_STR_LENGTH = 4000000;
 private val notFound = WebResourceResponse(null, null, null)
@@ -1135,8 +1134,8 @@ class BibleView(
             is BookmarkChange.LabelUpserted -> {
                 val workspaceId = windowControl.windowRepository.id
                 val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-                labelOverridesMap = blockingDb { dao.labelOverrides(workspaceId) }.associateBy { it.labelId }
-                favouriteLabelIds = favouriteIdsAfter(favouriteLabelIds, change)
+                labelOverridesMap = blockingDb { dao.labelOverrides(workspaceId) }.associateBy { it.labelId } // L1-pending(view)
+                favouriteLabels.apply(change)
                 val overriddenLabel = change.label.withStyleOverrides(labelOverridesMap[change.label.id])
                 val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(overriddenLabel))
                 executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
@@ -1146,7 +1145,7 @@ class BibleView(
                 executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
             }
             is BookmarkChange.LabelsDeleted -> {
-                favouriteLabelIds = favouriteIdsAfter(favouriteLabelIds, change)
+                favouriteLabels.apply(change)
                 val labelIds = json.encodeToString(serializer(), change.labelIds)
                 executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
             }
@@ -1780,15 +1779,15 @@ class BibleView(
     private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.settings.getBoolean("show_errorbox", false) else false
 
     /** Favourite label ids for [getUpdateConfigCommand] (synchronous): read in [loadDocument], kept
-     *  current from label changes in [onBookmarkChange] via [favouriteIdsAfter]. */
-    @Volatile private var favouriteLabelIds: List<IdType> = emptyList()
+     *  current from label changes in [onBookmarkChange]; see [FavouriteLabelIdsCache] for the threading. */
+    private val favouriteLabels = FavouriteLabelIdsCache()
 
     private suspend fun refreshFavouriteLabels() {
-        favouriteLabelIds = bookmarkControl.favouriteLabels().map { it.id }
+        favouriteLabels.refresh { bookmarkControl.favouriteLabels().map { it.id } }
     }
 
     private fun getUpdateConfigCommand(initial: Boolean): String {
-        val favouriteLabels = json.encodeToString(serializer(), favouriteLabelIds)
+        val favouriteLabels = json.encodeToString(serializer(), favouriteLabels.ids)
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
         val studyPadCursors = json.encodeToString(serializer(), workspaceSettings.studyPadCursors)
         val autoAssignLabels = json.encodeToString(serializer(), workspaceSettings.autoAssignLabels.toList())
@@ -1847,7 +1846,7 @@ class BibleView(
 
     // Synchronous, so set_config keeps its place in the JS task queue relative to what is emitted
     // right after it (an `initial` config must never land after a later one). Favourites come from
-    // the [favouriteLabelIds] cache.
+    // the [favouriteLabels] cache.
     private fun updateConfig(initial: Boolean = false) {
         executeJavascriptOnUiThread(getUpdateConfigCommand(initial))
     }

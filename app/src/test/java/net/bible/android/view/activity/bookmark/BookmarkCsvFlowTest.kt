@@ -14,7 +14,10 @@
  * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
  */
-package net.bible.android.control.bookmark
+package net.bible.android.view.activity.bookmark
+
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
 
 import net.bible.test.testOrderedLauncher
 import net.bible.android.AppDialogControllerResetRule
@@ -28,9 +31,9 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import net.bible.android.TEST_SDK
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.R
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -49,11 +52,12 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 /**
- * Task 19 Step 5: `BookmarkControl.importFromUri`'s CSV-import error summary (class A) moves onto
+ * Task 19 Step 5: the CSV import's error summary ([BookmarkCsvFlow.importFromUri], moved there from
+ * `BookmarkControl` in L1a Task 11) (class A) moves onto
  * the app-wide [AppDialogController], via a direct `post(Message(...))` (kept the original title,
  * which `Dialogs.showErrorMsg` cannot -- it always posts `title = null`).
  *
- * [BookmarkControl.importFromUri] does `withContext(Dispatchers.IO) { ... withContext(Dispatchers.Main)
+ * [BookmarkCsvFlow.importFromUri] does `withContext(Dispatchers.IO) { ... withContext(Dispatchers.Main)
  * { ... } }`; `Dispatchers.setMain(StandardTestDispatcher(testScheduler))` binds the inner hop to this
  * `runTest`'s own scheduler (the same pattern `ErrorReportControlTest.runOnTestMain` uses), so
  * `advanceUntilIdle()` actually drains it instead of dispatching onto a Robolectric main Looper
@@ -61,10 +65,11 @@ import org.robolectric.annotation.Config
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
-class BookmarkControlImportFromUriDialogTest {
+class BookmarkCsvFlowTest {
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
     @get:Rule val dialogReset = AppDialogControllerResetRule()
     private lateinit var bookmarkControl: BookmarkControl
+    private lateinit var flow: BookmarkCsvFlow
     // Shared across the whole test method, and kept as the Main dispatcher until @After -- see the
     // matching field in ErrorReportControlTest for why resetting Main inside the test body's own
     // `finally` (the old shape here too) can deadlock a test that leaves a still-cancelling child
@@ -76,7 +81,8 @@ class BookmarkControlImportFromUriDialogTest {
     @Before
     fun setUp() {
         val mockedWindowControl = Mockito.mock(WindowControl::class.java)
-        bookmarkControl = BookmarkControl(mockedWindowControl, Mockito.mock(AndroidResourceProvider::class.java), testOrderedLauncher())
+        bookmarkControl = BookmarkControl(mockedWindowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher())
+        flow = BookmarkCsvFlow(bookmarkControl)
         Dispatchers.setMain(testDispatcher)
     }
 
@@ -103,7 +109,7 @@ class BookmarkControlImportFromUriDialogTest {
         // importBookmarksFromCsv() records "Record 2: Invalid bookmark data" without throwing.
         val uri = csvUri("osisRef\ngarbage\n")
 
-        bookmarkControl.importFromUri(context, uri)
+        flow.importFromUri(context, uri)
         advanceUntilIdle()
 
         val request = dialogs.pending.value!!.request as AppDialogRequest.Message
@@ -126,7 +132,7 @@ class BookmarkControlImportFromUriDialogTest {
         // Header only, no data rows at all -- created = updated = errors = 0.
         val uri = csvUri("osisRef\n")
 
-        bookmarkControl.importFromUri(context, uri)
+        flow.importFromUri(context, uri)
         advanceUntilIdle()
 
         assertEquals(null, dialogs.pending.value)
