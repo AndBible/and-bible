@@ -1,2 +1,5 @@
-# Scenes showing stored colours by design; each entry must include a reason.
-# Temporary empty list: controller decides exemptions from actual audit renders.
+# Scenes whose purpose is choosing/showing stored colours; scene-level exemptions (spec 8.1).
+AbColorPicker_custom  # colour-field and hue-slider editor must show the selected colour
+AbColorPicker_presets  # colour swatch palette must show the colours users can choose
+ColorSettingsContent_workspace  # workspace/text/background colour-edit swatches show configured colours
+ColorSettings_workspace  # colour settings screen shows configured workspace/text/background colour swatches
