@@ -6,6 +6,7 @@ import net.bible.android.database.SyncConfiguration
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.cloudsync.CloudAdapter
 import net.bible.service.cloudsync.CloudFile
+import net.bible.service.cloudsync.CloudSyncUserCancelledException
 import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.service.cloudsync.DownloadProgressListener
 import net.bible.service.cloudsync.GZIP_MIMETYPE
@@ -57,7 +58,9 @@ class WebDavCloudAdapter(
                 _client = c
                 return true
             } catch (e: DavUntrustedCertificateException) {
-                if (trustedNow || !ui.confirmCertificate(e.certificate)) return false
+                if (trustedNow) return false
+                // Declining the trust prompt is the user's choice, not a failure to report.
+                if (!ui.confirmCertificate(e.certificate)) throw CloudSyncUserCancelledException()
                 state.certPin = CertPin(e.certificate.host, e.certificate.sha256)
                 trustedNow = true
             } catch (e: DavAuthException) {
@@ -138,13 +141,23 @@ class WebDavCloudAdapter(
     /** Uploads, and calibrates from this write whether the server propagates child changes to the folder mtime. */
     override suspend fun upload(name: String, file: File, parentId: String): CloudFile = dav {
         val path = joinDavPath(parentId, name)
-        val m0 = freshFolderMtime(parentId)
+        // Always a fresh baseline: a cached value from before an earlier delete would let that delete's
+        // mtime bump be credited to this PUT.
+        val m0 = client.propfind(parentId, 0).also(::remember).firstOrNull { it.path == parentId }?.lastModified
         putFile(path, file)
-        val m1 = client.propfind(parentId, 0).also(::remember).firstOrNull { it.path == parentId }?.lastModified
-        val uploaded = client.propfind(path, 0).firstOrNull { it.path == path }
-        decidePropagation(m0, m1, uploaded?.lastModified)?.let {
-            if (it != state.propagation) Log.i(TAG, "WebDAV folder-mtime propagation: $it")
-            state.propagation = it
+        // The PUT succeeded; calibration is best effort and must never fail the upload.
+        var uploaded: DavResource? = null
+        try {
+            val m1 = client.propfind(parentId, 0).also(::remember).firstOrNull { it.path == parentId }?.lastModified
+            uploaded = client.propfind(path, 0).firstOrNull { it.path == path }
+            decidePropagation(m0, m1, uploaded?.lastModified)?.let {
+                if (it != state.propagation) Log.i(TAG, "WebDAV folder-mtime propagation: $it")
+                state.propagation = it
+            }
+        } catch (e: DavException) {
+            Log.w(TAG, "WebDAV calibration after upload failed; upload kept", e)
+        } catch (e: java.io.IOException) {
+            Log.w(TAG, "WebDAV calibration after upload failed; upload kept", e)
         }
         uploaded?.toCloudFile() ?: CloudFile(path, name, file.length(), nowMs(), parentId)
     }
@@ -157,7 +170,12 @@ class WebDavCloudAdapter(
             }
         }
 
-    override suspend fun delete(id: String) = dav { client.delete(id) }
+    override suspend fun delete(id: String) = dav {
+        client.delete(id)
+        // The parent's mtime may have just changed; a cached value would be stale.
+        folderMtimes.remove(id.substringBeforeLast('/', ""))
+        Unit
+    }
 
     override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean {
         val secret = dbDef.dao.getString(WEBDAV_SECRET_FILE_NAME_KEY) ?: return false

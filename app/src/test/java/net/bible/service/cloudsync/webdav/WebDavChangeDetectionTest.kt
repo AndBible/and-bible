@@ -71,7 +71,7 @@ class WebDavChangeDetectionTest {
     @Test fun unchangedFolder_isNotListed_whenYes() = runBlocking {
         state.propagation = Propagation.YES
         val a = signedIn(); twoFolders(a)
-        a.getFolders("AndBible/s"); server.requests.let { (it as MutableList).clear() }
+        a.getFolders("AndBible/s"); server.clearRequests()
         val r = a.listFiles(listOf("AndBible/s/d1", "AndBible/s/d2"), createdTimeAtLeast = deviceNow - 60_000)
         assertTrue(r.isEmpty())
         assertEquals(0, server.requests.size)
@@ -82,7 +82,7 @@ class WebDavChangeDetectionTest {
         val a = signedIn(); twoFolders(a)
         a.getFolders("AndBible/s")
         a.upload("new.gz", tmp(), "AndBible/s/d2")
-        a.getFolders("AndBible/s"); (server.requests as MutableList).clear()
+        a.getFolders("AndBible/s"); server.clearRequests()
         val r = a.listFiles(listOf("AndBible/s/d1", "AndBible/s/d2"), createdTimeAtLeast = deviceNow - 60_000)
         assertEquals(listOf("AndBible/s/d2/new.gz"), r.map { it.id })
         assertEquals(1, server.requests.size)
@@ -94,7 +94,7 @@ class WebDavChangeDetectionTest {
         state.propagation = p; server.propagates = false
         val a = signedIn(); twoFolders(a)
         a.getFolders("AndBible/s")
-        server.put("AndBible/s/d1/new.gz", bytes()); (server.requests as MutableList).clear()
+        server.put("AndBible/s/d1/new.gz", bytes()); server.clearRequests()
         val r = a.listFiles(listOf("AndBible/s/d1", "AndBible/s/d2"), createdTimeAtLeast = deviceNow - 60_000)
         assertEquals(listOf("AndBible/s/d1/new.gz"), r.map { it.id })
         assertEquals(2, depth1Propfinds().size)
@@ -142,6 +142,36 @@ class WebDavChangeDetectionTest {
         a.getFolders("AndBible/docs")
         assertEquals(1, a.listFiles(listOf("AndBible/docs/KJV"), name = "meta.json", createdTimeAtLeast = deviceNow - 1000).size)
     }
+
+    /**
+     * DocumentStore.writeMeta deletes then re-uploads. A server that bumps the folder mtime on DELETE but
+     * not on creating a child must not be calibrated YES from a cached pre-delete mtime.
+     */
+    @Test fun deleteThenUpload_onServerThatBumpsOnlyOnDelete_isNotCalibratedYes() = runBlocking {
+        server.propagatesOnCreate = false
+        val a = signedIn(); a.createNewFolder("docs"); a.createNewFolder("KJV", "AndBible/docs")
+        server.put("AndBible/docs/KJV/meta.json", bytes())
+        advance(5_000)
+        a.getFolders("AndBible/docs") // caches KJV's pre-delete mtime
+        advance(5_000)
+        a.delete("AndBible/docs/KJV/meta.json"); a.upload("meta.json", tmp(), "AndBible/docs/KJV")
+        assertNotEquals(Propagation.YES, state.propagation)
+    }
+
+    /** The calibration PROPFINDs run after a successful PUT; their failure must not fail the upload. */
+    private fun uploadSurvivesFailingCalibration(status: Int) = runBlocking {
+        val a = signedIn(); a.createNewFolder("x"); advance(5_000)
+        var put = false
+        server.statusOverride = { req ->
+            if (req.method.value == "PUT") put = true
+            if (put && req.method.value == "PROPFIND") status else null
+        }
+        val f = a.upload("1.1.sqlite3.gz", tmp(), "AndBible/x")
+        assertEquals("AndBible/x/1.1.sqlite3.gz", f.id)
+        assertEquals(Propagation.UNKNOWN, state.propagation)
+    }
+    @Test fun upload_succeeds_whenPostPutPropfindIs404() = uploadSurvivesFailingCalibration(404)
+    @Test fun upload_succeeds_whenPostPutPropfindIs503() = uploadSurvivesFailingCalibration(503)
 
     /** Pins the 120 s margin and the sign of the offset: server mtime == since + offset - margin is in, one second older is out. */
     @Test fun listFiles_boundary_withServerClockTenMinutesAhead() = runBlocking {

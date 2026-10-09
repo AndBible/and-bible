@@ -30,7 +30,14 @@ class FakeDavServer(var nowServer: Long, var propagates: Boolean = true) {
 
     private val nodes = linkedMapOf<String, Node>()
     private val log = mutableListOf<HttpRequestData>()
-    val requests: List<HttpRequestData> get() = log
+    /** A snapshot copy of the requests seen so far. */
+    val requests: List<HttpRequestData> get() = synchronized(nodes) { log.toList() }
+    fun clearRequests() { synchronized(nodes) { log.clear() } }
+
+    /** With [propagates] on, whether creating a child (PUT/MKCOL of a new resource) bumps the parent's mtime. */
+    var propagatesOnCreate = true
+    /** With [propagates] on, whether deleting a child bumps the parent's mtime. */
+    var propagatesOnDelete = true
 
     var authRequired = false
     /** Omit getlastmodified from PROPFIND answers (some servers do). */
@@ -43,12 +50,14 @@ class FakeDavServer(var nowServer: Long, var propagates: Boolean = true) {
     init { nodes[""] = Node(true, mtime = stamp()) }
 
     private fun stamp() = nowServer / 1000 * 1000
-    fun advance(ms: Long) { nowServer += ms }
-    fun mtime(path: String): Long? = nodes[path]?.mtime
+    fun advance(ms: Long) { synchronized(nodes) { nowServer += ms } }
+    fun mtime(path: String): Long? = synchronized(nodes) { nodes[path]?.mtime }
     fun put(path: String, bytes: ByteArray) {
-        val parent = parentOf(path)
-        nodes[path] = Node(false, bytes, stamp())
-        if (propagates) nodes[parent]?.mtime = stamp()
+        synchronized(nodes) {
+            val parent = parentOf(path)
+            nodes[path] = Node(false, bytes, stamp())
+            if (propagates) nodes[parent]?.mtime = stamp()
+        }
     }
 
     private fun parentOf(path: String) = path.substringBeforeLast('/', "")
@@ -61,7 +70,16 @@ class FakeDavServer(var nowServer: Long, var propagates: Boolean = true) {
             headersOf(HttpHeaders.Date to listOf(date()), *extra.map { it.first to listOf(it.second) }.toTypedArray()),
         )
 
+    /**
+     * All state lives under one reentrant monitor (`nodes`), so concurrent requests (the adapter lists
+     * folders in parallel) are serialised. The body is read before taking it: reading suspends.
+     */
     private suspend fun MockRequestHandleScope.handle(req: HttpRequestData): HttpResponseData {
+        val body = if (req.method.value == "PUT") readBody(req) else null
+        return synchronized(nodes) { handleLocked(req, body) }
+    }
+
+    private fun MockRequestHandleScope.handleLocked(req: HttpRequestData, putBody: ByteArray?): HttpResponseData {
         log += req
         failWith?.invoke(req)?.let { throw it }
         statusOverride?.invoke(req)?.let { return reply(it) }
@@ -73,13 +91,13 @@ class FakeDavServer(var nowServer: Long, var propagates: Boolean = true) {
             "MKCOL" -> when {
                 nodes.containsKey(path) -> reply(405)
                 !nodes.containsKey(parentOf(path)) -> reply(409)
-                else -> { nodes[path] = Node(true, mtime = stamp()); bump(path); reply(201) }
+                else -> { nodes[path] = Node(true, mtime = stamp()); bump(path, delete = false); reply(201) }
             }
             "PUT" -> {
                 val existed = nodes.containsKey(path)
                 if (!nodes.containsKey(parentOf(path))) reply(409) else {
-                    nodes[path] = Node(false, readBody(req), stamp())
-                    if (!existed) bump(path)
+                    nodes[path] = Node(false, putBody ?: ByteArray(0), stamp())
+                    if (!existed) bump(path, delete = false)
                     reply(if (existed) 204 else 201)
                 }
             }
@@ -87,14 +105,16 @@ class FakeDavServer(var nowServer: Long, var propagates: Boolean = true) {
                 ?.let { respond(it.bytes, HttpStatusCode.OK, headersOf(HttpHeaders.Date to listOf(date()))) } ?: reply(404)
             "DELETE" -> if (nodes.remove(path) == null) reply(404) else {
                 nodes.keys.removeAll { it.startsWith("$path/") }
-                bump(path)
+                bump(path, delete = true)
                 reply(204)
             }
             else -> reply(405)
         }
     }
 
-    private fun bump(path: String) { if (propagates) nodes[parentOf(path)]?.mtime = stamp() }
+    private fun bump(path: String, delete: Boolean) {
+        if (propagates && (if (delete) propagatesOnDelete else propagatesOnCreate)) nodes[parentOf(path)]?.mtime = stamp()
+    }
 
     private suspend fun readBody(req: HttpRequestData): ByteArray {
         val content = req.body as? OutgoingContent.WriteChannelContent ?: return ByteArray(0)
