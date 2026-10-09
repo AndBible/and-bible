@@ -23,7 +23,7 @@ BRIDGE='runBlocking|blockingDb[[:space:]]*[({]|(^|[^A-Za-z_.])blocking[[:space:]
 MARKER='L1-edge|L1-pending'
 ANDROID='^import[[:space:]]+(android\.|androidx\.)'
 ALLOW='^import[[:space:]]+androidx\.(room3|sqlite|annotation|collection)\.'
-GLOBALS='CommonUtils|BibleApplication|(^|[^A-Za-z_.])R\.(string|plurals|id|drawable|color|raw|array|integer|layout|xml)\.|^import[[:space:]]+net\.bible\.android\.(view|activity|common\.resource)\.'
+GLOBALS='CommonUtils|BibleApplication|(^|[^A-Za-z_.])R\.[a-z]+\.|^import[[:space:]]+net\.bible\.android\.(view|activity|common\.resource)\.'
 JVMLIBS='^import[[:space:]]+(org\.json|okhttp3)\.'
 JAVAIO='^import[[:space:]]+java\.(io|util)\.'
 
