@@ -18,7 +18,6 @@
 package net.bible.service.llm.tools.write
 
 import net.bible.sharedcore.log.Log
-import net.bible.service.db.blockingDb
 import androidx.annotation.VisibleForTesting
 import org.koin.core.context.GlobalContext
 import net.bible.android.BibleApplication
@@ -207,7 +206,7 @@ object CreateBookmarkTool : Tool {
             }
 
             // Parse label IDs and always include AI label
-            val aiLabelId = blockingDb { bookmarkControl.aiLabel() }.id // L1-pending(llm)
+            val aiLabelId = bookmarkControl.aiLabel().id
             val labelIds = if (!labelIdsList.isNullOrEmpty()) {
                 labelIdsList.toSet() + aiLabelId
             } else {

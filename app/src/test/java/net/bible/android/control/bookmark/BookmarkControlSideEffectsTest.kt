@@ -136,6 +136,38 @@ class BookmarkControlSideEffectsTest {
         assertEquals("handlers saw the label before the outermost call finished", listOf<Label?>(null, null, null), labelSeenByHandler)
     }
 
+    /**
+     * A public call made from inside another public call joins the OUTER call's queue: its effects are not flushed when
+     * the nested call returns but, after everything the outer call itself queued, once the outermost call returns.
+     */
+    @Test fun aNestedCallJoinsTheOuterQueueAndItsEffectsFollowTheOuterCallsOwnInOrder() = runTest {
+        val log = mutableListOf<String>()
+        control.deferringEffects {
+            control.afterBridge { log += "outer-effect" }
+            control.deferringEffects {
+                control.afterBridge { log += "nested-effect" }
+                log += "nested-core-done"
+            }
+            log += "nested-returned"
+        }
+        assertEquals(listOf("nested-core-done", "nested-returned", "outer-effect", "nested-effect"), log)
+    }
+
+    /** The real case: `allLabels` creates the Unlabelled label through a nested special-label getter on a fresh database. */
+    @Test fun aSpecialLabelCreatedInsideAnOuterCallAnnouncesItExactlyOnceAfterTheOuterCallsEffects() = runTest {
+        val order = mutableListOf<String>()
+        subscriptions += control.changes.subscribe { order += it::class.simpleName!! }
+
+        val labels = control.deferringEffects {
+            control.afterBridge { order += "outer-effect" }
+            control.allLabels()
+        }
+
+        assertTrue(labels.any { it.isUnlabeledLabel })
+        assertEquals(listOf("outer-effect", "LabelUpserted"), order)
+        assertEquals(1, seen.filterIsInstance<BookmarkChange.LabelUpserted>().size)
+    }
+
     /** A sync entry for a StudyPadTextEntryText row that does not exist makes the core throw (NPE) after it queued two events. */
     @Test fun whenTheCoreThrowsTheEffectsQueuedBeforeItAreStillFlushedAndTheOriginalSurfaces() = runTest {
         val label = control.insertOrUpdateLabel(Label(new = true).apply { name = "L" })

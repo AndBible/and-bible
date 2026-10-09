@@ -2,33 +2,19 @@ package net.bible.android.control.bookmark
 
 import kotlinx.coroutines.runBlocking
 import net.bible.test.testOrderedLauncher
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
-import kotlinx.coroutines.runBlocking
 import net.bible.android.TestBibleApplication
-import kotlinx.coroutines.runBlocking
 import net.bible.android.control.page.window.WindowControl
-import kotlinx.coroutines.runBlocking
 import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
-import kotlinx.coroutines.runBlocking
 import net.bible.android.common.resource.AndroidResourceProvider
-import kotlinx.coroutines.runBlocking
 import net.bible.service.db.DatabaseContainer
-import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import kotlinx.coroutines.runBlocking
 import org.junit.runner.RunWith
-import kotlinx.coroutines.runBlocking
 import org.mockito.Mockito
-import kotlinx.coroutines.runBlocking
 import org.robolectric.RobolectricTestRunner
-import kotlinx.coroutines.runBlocking
 import org.robolectric.annotation.Config
-import kotlinx.coroutines.runBlocking
 import java.util.concurrent.CyclicBarrier
-import kotlinx.coroutines.runBlocking
 import java.util.concurrent.atomic.AtomicInteger
 
 @RunWith(RobolectricTestRunner::class)

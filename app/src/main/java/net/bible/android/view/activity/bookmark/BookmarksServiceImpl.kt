@@ -72,7 +72,7 @@ class BookmarksServiceImpl(
         search: String?,
         showNotes: Boolean,
     ): List<BookmarkRow> = withContext(Dispatchers.IO) {
-        val label = blockingDb { bookmarkControl.allLabels() }.getOrNull(filterIndex) ?: run { // L1-pending(bookmark)
+        val label = bookmarkControl.allLabels().getOrNull(filterIndex) ?: run {
             loaded = emptyMap()
             return@withContext emptyList()
         }
@@ -87,7 +87,7 @@ class BookmarksServiceImpl(
         rows
     }
 
-    private fun toRow(bm: BaseBookmarkWithNotes, versification: Versification, showNotes: Boolean): BookmarkRow {
+    private suspend fun toRow(bm: BaseBookmarkWithNotes, versification: Versification, showNotes: Boolean): BookmarkRow {
         // Classic's BookmarkItemAdapter.getView lazily resolves text the first time a row is bound.
         if (bm.text == null) bookmarkControl.addText(bm)
 
@@ -95,8 +95,8 @@ class BookmarksServiceImpl(
         // to [Unlabeled] for the chip colours (labelUnlabelled is never the speak label). Computed
         // first so the title branch below can reuse `isSpeak` instead of re-querying
         // `isSpeakBookmark` (which just re-runs `labelsForBookmark`).
-        val labels = blockingDb { bookmarkControl.labelsForBookmark(bm) } // L1-pending(bookmark)
-        val isSpeak = labels.contains(blockingDb { bookmarkControl.speakLabel() }) // L1-pending(bookmark)
+        val labels = bookmarkControl.labelsForBookmark(bm)
+        val isSpeak = labels.contains(bookmarkControl.speakLabel())
 
         val title = when (bm) {
             is BibleBookmarkWithNotes -> {
@@ -110,7 +110,7 @@ class BookmarksServiceImpl(
             else -> ""
         }
 
-        val chipLabels = labels.ifEmpty { listOf(blockingDb { bookmarkControl.labelUnlabelled() }) } // L1-pending(bookmark)
+        val chipLabels = labels.ifEmpty { listOf(bookmarkControl.labelUnlabelled()) }
         val labelColors = chipLabels.filterNot { it.isSpeakLabel }.map { it.color }
 
         val dateText = DateFormat.format("EEE, yyyy-MM-dd HH:mm", bm.createdAt).toString()

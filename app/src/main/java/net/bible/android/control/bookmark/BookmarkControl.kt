@@ -224,7 +224,7 @@ open class BookmarkControl constructor(
      *
      * Every public function with such an effect wraps its body in [deferringEffects].
      */
-    private suspend fun <T> deferringEffects(core: suspend () -> T): T {
+    internal suspend fun <T> deferringEffects(core: suspend () -> T): T {
         if (coroutineContext[PendingSideEffects] != null) return core()
         val pending = PendingSideEffects()
         try {
@@ -242,7 +242,7 @@ open class BookmarkControl constructor(
     private suspend fun emitChange(change: BookmarkChange) = afterBridge { _changes.emit(change) }
 
     /** Runs [effect] now, or, inside [deferringEffects], once the outermost call has returned (in call order). */
-    private suspend fun afterBridge(effect: () -> Unit) {
+    internal suspend fun afterBridge(effect: () -> Unit) {
         val pending = coroutineContext[PendingSideEffects]
         if (pending != null) pending.effects.add(effect) else effect()
     }
@@ -565,13 +565,13 @@ open class BookmarkControl constructor(
 
     // add special label that is automatically associated with all-bookmarks
     suspend fun allLabels(): List<Label> = deferringEffects {
-            val labelList = dao.allLabelsSortedByName().toMutableList()
-            labelList.sortBy { it.name.lowercase(Locale.getDefault()) }
-            // add special label that is automatically associated with all-bookmarks
-            labelList.add(0, labelUnlabelled())
-            labelList.add(0, labelAll)
-            labelList
-        }
+        val labelList = dao.allLabelsSortedByName().toMutableList()
+        labelList.sortBy { it.name.lowercase(Locale.getDefault()) }
+        // add special label that is automatically associated with all-bookmarks
+        labelList.add(0, labelUnlabelled())
+        labelList.add(0, labelAll)
+        labelList
+    }
 
     suspend fun assignableLabels(): List<Label> = dao.allLabelsSortedByName()
 

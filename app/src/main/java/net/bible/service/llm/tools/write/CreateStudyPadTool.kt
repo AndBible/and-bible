@@ -18,7 +18,6 @@
 package net.bible.service.llm.tools.write
 
 import org.koin.core.context.GlobalContext
-import net.bible.service.db.blockingDb
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
@@ -186,7 +185,7 @@ object CreateStudyPadTool : Tool {
         }
 
         // Generate unique name if needed
-        val existingNames = blockingDb { bookmarkControl.assignableLabels() }.map { it.name } // L1-pending(llm)
+        val existingNames = bookmarkControl.assignableLabels().map { it.name }
         val uniqueName = uniqueLabelName(name, existingNames)
 
         // Create the label (insertOrUpdateLabel announces it on BookmarkControl.changes)
@@ -198,7 +197,7 @@ object CreateStudyPadTool : Tool {
         }
 
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-        val aiLabelId = blockingDb { bookmarkControl.aiLabel() }.id // L1-pending(llm)
+        val aiLabelId = bookmarkControl.aiLabel().id
         val errors = mutableListOf<ItemError>()
         var textCount = 0
         var bookmarkCount = 0

@@ -1665,15 +1665,15 @@ class BibleView(
         val currentPage = window.pageManager.currentPage
 
         // make sure this has been created
-        blockingDb { bookmarkControl.labelUnlabelled() } // L1-pending(view)
-        blockingDb { bookmarkControl.speakLabel() } // L1-pending(view)
-        blockingDb { bookmarkControl.paragraphBreakLabel() } // L1-pending(view)
+        bookmarkControl.labelUnlabelled()
+        bookmarkControl.speakLabel()
+        bookmarkControl.paragraphBreakLabel()
 
         val workspaceId = windowControl.windowRepository.id
         val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
         val overridesList = dao.labelOverrides(workspaceId)
         labelOverridesMap = overridesList.associateBy { it.labelId }
-        bookmarkLabels = blockingDb { bookmarkControl.assignableLabels() }.map { label -> // L1-pending(view)
+        bookmarkLabels = bookmarkControl.assignableLabels().map { label ->
             label.withStyleOverrides(labelOverridesMap[label.id])
         }
         initialKey = key
