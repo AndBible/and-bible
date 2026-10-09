@@ -32,6 +32,7 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.Books
 import org.junit.After
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -329,6 +330,35 @@ class MyDocumentBookManagerTest {
                 seen,
             )
             assertNull(runBlocking { dao.pageById(id) })
+        } finally {
+            subscription.cancel()
+        }
+    }
+
+    /**
+     * D1 final review M8: the coroutine caller (AgentSessionManager's onStarted) deletes through the suspend variant
+     * (direct DAO calls); it behaves like the blocking one. (Not run under DbTransactionMarker: the JSword
+     * re-activation in refreshDocument still bridges, by design.)
+     */
+    @Test
+    fun suspendingDeleteOfAnAiDocumentPageEmitsTheSameChanges() {
+        val aiDocument = runBlocking { MyDocumentBookManager.getOrCreateAIDocument() }
+        addPage("ai_page", "AI page", documentId = aiDocument.id)
+        MyDocumentBookManager.refreshDocument(MyDocumentBookManager.AI_DOCUMENTS_INITIALS)
+        val id = runBlocking { dao.pageByKeyWithContent(aiDocument.id, "ai_page") }!!.id
+        val seen = mutableListOf<MyDocumentChange>()
+        val subscription = MyDocumentBookManager.changes.subscribe { seen.add(it) }
+        try {
+            assertTrue(runBlocking { MyDocumentBookManager.deleteAIDocumentPageSuspending(id) })
+            assertEquals(
+                listOf(
+                    MyDocumentChange.DocumentUpdated(MyDocumentBookManager.AI_DOCUMENTS_INITIALS),
+                    MyDocumentChange.AiDocPages(deletedPageIds = listOf(id)),
+                ),
+                seen,
+            )
+            assertNull(runBlocking { dao.pageById(id) })
+            assertFalse(runBlocking { MyDocumentBookManager.deleteAIDocumentPageSuspending(id) })
         } finally {
             subscription.cancel()
         }

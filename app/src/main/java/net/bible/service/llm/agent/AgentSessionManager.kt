@@ -1077,7 +1077,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             previousResponse = if (freshRun) null else previousContent,
             skipCache = true,
             modelOverrideId = modelOverrideId,
-            onStarted = { if (!keepPrevious) MyDocumentBookManager.deleteAIDocumentPage(pageId) },
+            onStarted = { if (!keepPrevious) MyDocumentBookManager.deleteAIDocumentPageSuspending(pageId) },
         )
     }
 

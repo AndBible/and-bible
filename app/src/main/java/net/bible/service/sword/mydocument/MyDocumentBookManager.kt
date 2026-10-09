@@ -406,12 +406,24 @@ object MyDocumentBookManager {
      */
     fun deleteAIDocumentPage(pageId: IdType): Boolean {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        // Mixed callers (a UI callback lambda and a coroutine): stays blocking, one bridge.
-        val page = blockingDb { dao.pageById(pageId)?.also { dao.deletePageWithContent(it) } } ?: return false
+        // For the blocking UI callback; coroutine callers use [deleteAIDocumentPageSuspending].
+        blockingDb { dao.pageById(pageId)?.also { dao.deletePageWithContent(it) } } ?: return false
+        afterAIDocumentPageDeleted(pageId)
+        return true
+    }
+
+    /** [deleteAIDocumentPage] for coroutine callers: the DAO calls run directly, without a blocking bridge. */
+    suspend fun deleteAIDocumentPageSuspending(pageId: IdType): Boolean {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        dao.pageById(pageId)?.also { dao.deletePageWithContent(it) } ?: return false
+        afterAIDocumentPageDeleted(pageId)
+        return true
+    }
+
+    private fun afterAIDocumentPageDeleted(pageId: IdType) {
         refreshDocument(AI_DOCUMENTS_INITIALS)
         notifyAiDocPagesChanged(MyDocumentChange.AiDocPages(deletedPageIds = listOf(pageId)))
         Log.i(TAG, "Deleted AI document page: $pageId")
-        return true
     }
 
     @Serializable
