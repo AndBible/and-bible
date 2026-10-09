@@ -2,12 +2,14 @@ package net.bible.service.cloudsync
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import androidx.room.useWriterConnection
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.exec
 import net.bible.test.DatabaseResetter
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -51,7 +53,7 @@ class CloudSyncInitialSwapTest {
     /** The "download": the current workspaces DB with the workspace renamed [name], checkpointed and copied out. */
     private fun downloadNamed(name: String): File {
         runBlocking { dao.updateWorkspace(dao.workspace(repo.id)!!.copy(name = name)) }
-        workspaces.writableDb.query("PRAGMA wal_checkpoint(FULL)").use { it.moveToFirst() }
+        runBlocking { workspaces.localDb.useWriterConnection { it.exec("PRAGMA wal_checkpoint(FULL)") } }
         val f = File.createTempFile("initial", ".sqlite3")
         workspaces.localDbFile.copyTo(f, overwrite = true)
         runBlocking { dao.updateWorkspace(dao.workspace(repo.id)!!.copy(name = "A")) }

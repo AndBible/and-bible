@@ -236,9 +236,11 @@ class DatabaseContainer {
 
     init {
         if(!application.isRunningTests) {
-            for (dbDef in getDatabaseAccessorFactories(this).map { it.invoke() }) {
-                dropTriggers(dbDef)
-                createTriggers(dbDef)
+            blockingDb {
+                for (dbDef in getDatabaseAccessorFactories(this@DatabaseContainer).map { it.invoke() }) {
+                    dropTriggers(dbDef)
+                    createTriggers(dbDef)
+                }
             }
         }
     }

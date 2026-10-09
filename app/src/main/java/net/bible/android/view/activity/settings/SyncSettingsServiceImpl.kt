@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.settings
 
+import net.bible.service.db.blockingDb
 import net.bible.service.db.DatabaseContainer
 import android.text.format.Formatter
 import android.webkit.URLUtil
@@ -83,8 +84,8 @@ class SyncSettingsServiceImpl(
         return result
     }
 
-    private fun categorySummary(cat: SyncableDatabaseDefinition): String {
-        val lastSyncStr = cat.lastSynchronized?.let {
+    private fun categorySummary(cat: SyncableDatabaseDefinition, lastSynchronized: Long?): String {
+        val lastSyncStr = lastSynchronized?.let {
             val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
             ".\n\n" + application.getString(R.string.last_updated, sdf.format(Date(it)))
         } ?: ""
@@ -96,6 +97,8 @@ class SyncSettingsServiceImpl(
         val isCloudSyncEnabled = CommonUtils.isCloudSyncEnabled
         val isGoogleDrive = CloudAdapters.current == CloudAdapters.GOOGLE_DRIVE
         val documentsEnabled = DocumentSyncSettings.enabled
+        val displayed = SyncCategoryKeys.DISPLAY.map { SyncableDatabaseDefinition.nameToCategory[it.removePrefix("sync_enable_").uppercase()]!! }
+        val lastSynchronized = blockingDb { displayed.associateWith { it.lastSynchronized() } }
         return SyncSettingsSnapshot(
             adapter = CloudAdapters.current.name,
             adapterChoices = CloudAdapters.allEnabled.map { Choice2(it.name, it.displayName) },
@@ -114,7 +117,8 @@ class SyncSettingsServiceImpl(
                 SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!.syncEnabled
             },
             categorySummary = SyncCategoryKeys.DISPLAY.associateWith { key ->
-                categorySummary(SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!)
+                val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
+                categorySummary(cat, lastSynchronized[cat])
             },
             documentsEnabled = documentsEnabled,
             documentCategoryVisible = signedIn,

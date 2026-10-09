@@ -19,7 +19,6 @@
 package net.bible.android.database
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.objectweb.asm.AnnotationVisitor
@@ -36,15 +35,10 @@ import java.lang.reflect.Modifier
  * Room's annotations (`@Dao`, `@Query`, ...) have CLASS retention, so neither Java nor Kotlin reflection
  * can see them; this test reads them from the compiled class files with ASM instead.
  *
- * ReadingPlanDao is already fully suspend and so is not listed.
- * [notYetConverted] is exactly the set of DAOs that still have at least one non-suspend Room function. It
- * shrinks as DAOs convert: BookmarkDao converted in Task 11; SyncDao follows in Task 15 (together with SyncUtilities); [notYetConvertedEntriesStillHaveOffenders] keeps it from going stale.
+ * No allowlist: since D1 Task 15 (SyncDao, the last one) every DAO of every database is fully suspend, and a new
+ * blocking Room function anywhere fails [everyRoomDaoFunctionIsSuspend].
  */
 class DaoSuspendGuardTest {
-    private val notYetConverted = setOf(
-        "SyncDao", // 17 non-suspend; stays until Task 15 (SyncUtilities calls it inside raw beginTransaction blocks)
-    )
-
     private val roomAnnotations = setOf("Query", "Insert", "Update", "Delete", "Upsert", "Transaction", "RawQuery")
         .map { "Landroidx/room/$it;" }.toSet()
 
@@ -115,21 +109,13 @@ class DaoSuspendGuardTest {
         val daos = daoClasses()
         println("DAOs found (${daos.size}): ${daos.map { it.simpleName }.sorted()}")
         assertTrue("found only ${daos.size} DAOs", daos.size >= DAO_COUNT)
-        val offenders = daos.filterNot { it.simpleName in notYetConverted }.flatMap { offendersOf(it) }
+        val offenders = daos.flatMap { offendersOf(it) }
         assertEquals(offenders.joinToString(), emptyList<String>(), offenders)
     }
 
-    @Test fun notYetConvertedEntriesStillHaveOffenders() {
-        val daos = daoClasses().associateBy { it.simpleName }
-        for (name in notYetConverted) {
-            val dao = daos[name] ?: error("$name is not a DAO reachable from the databases; remove it from notYetConverted")
-            assertFalse("$name is fully suspend now; remove it from notYetConverted", offendersOf(dao).isEmpty())
-        }
-    }
-
     @Test fun everyCheckedDaoHasDetectedRoomFunctions() {
-        // An already-suspend DAO (ReadingPlanDao) must not pass vacuously because the detector saw nothing.
-        val empty = daoClasses().filterNot { it.simpleName in notYetConverted }
+        // A DAO must not pass vacuously because the detector saw nothing on it.
+        val empty = daoClasses()
             .filter { hierarchy(it.name.replace('.', '/')).sumOf { c -> c.roomFunctions.size } == 0 }
         assertEquals("checked DAOs with no detected Room function: $empty", emptyList<Class<*>>(), empty)
     }

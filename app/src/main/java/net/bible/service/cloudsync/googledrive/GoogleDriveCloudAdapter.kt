@@ -301,7 +301,7 @@ class GoogleDriveCloudAdapter: CloudAdapter {
     // For Google Drive implementation, we don't need to do anything
     {}
 
-    override fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = emptyList()
+    override suspend fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = emptyList()
 
     override suspend fun download(id: String, outputStream: OutputStream, onProgress: DownloadProgressListener?): Unit =
         withContext(Dispatchers.IO) {

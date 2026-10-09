@@ -74,7 +74,7 @@ class DocumentSyncOfflineScanTest {
         override suspend fun delete(id: String) = throw NotImplementedError()
         override suspend fun isSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String): Boolean = throw NotImplementedError()
         override suspend fun makeSyncFolderKnown(dbDef: SyncableDatabaseAccessor<*>, name: String, id: String) = throw NotImplementedError()
-        override fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = throw NotImplementedError()
+        override suspend fun getConfigs(dbDef: SyncableDatabaseAccessor<*>): List<SyncConfiguration> = throw NotImplementedError()
     }
 
     /** Injects (or clears) the private CloudSync adapter singleton for the test. */

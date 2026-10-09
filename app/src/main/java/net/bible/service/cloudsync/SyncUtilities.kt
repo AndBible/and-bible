@@ -18,7 +18,9 @@
 package net.bible.service.cloudsync
 
 import android.util.Log
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.room.PooledConnection
+import androidx.room.useReaderConnection
+import androidx.room.useWriterConnection
 import net.bible.android.activity.R
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.LogEntry
@@ -28,11 +30,13 @@ import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.progress.ProgressDatabase
-import net.bible.service.db.getColumnNames
-import net.bible.service.db.getColumnNamesJoined
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.getFirst
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.columnNames
+import net.bible.service.db.columnNamesJoined
+import net.bible.service.db.exec
+import net.bible.service.db.inTransaction
+import net.bible.service.db.queryLong
 import java.io.File
 import java.lang.Exception
 
@@ -139,7 +143,7 @@ enum class SyncableDatabaseDefinition {
         set(value) = CommonUtils.settings.setBoolean("sync_enable_"+name.lowercase(), value)
 
     val accessor get() = DatabaseContainer.databaseAccessorsByCategory[this]!!
-    val lastSynchronized get() = if(!syncEnabled) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)
+    suspend fun lastSynchronized(): Long? = if(!syncEnabled) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)
 
     companion object {
         val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, AI_SETTINGS, PROGRESS)
@@ -161,29 +165,30 @@ class SyncableDatabaseAccessor<T: SyncableRoomDatabase>(
         localDb = _resetLocalDb()
     }
 
-    fun reactToUpdates(lastSynchronized: Long) {
+    suspend fun reactToUpdates(lastSynchronized: Long) {
         val newEntries = dao.newLogEntries(lastSynchronized, deviceId)
         if(newEntries.isNotEmpty()) {
             _reactToUpdates?.invoke(newEntries)
         }
     }
 
-    val bytesUsed: Long get() {
+    suspend fun bytesUsed(): Long {
         return dao.totalBytesUsed()
     }
-    val hasChanges: Boolean get() {
+    suspend fun hasChanges(): Boolean {
         val lastSynchronized = dao.getLong(LAST_SYNCHRONIZED_KEY)?: 0
         return dao.countNewLogEntries(lastSynchronized, deviceId) > 0
     }
 
     val categoryName get() = category.name.lowercase()
     val dao get() = localDb.syncDao()
-    val writableDb get() = localDb.openHelper.writableDatabase
     val tableDefinitions get() = category.tables
-    val version get() = writableDb.version
+    /** `PRAGMA user_version` of the local database. */
+    suspend fun version(): Int = localDb.useReaderConnection { it.queryLong("PRAGMA user_version")!!.toInt() }
 }
 
-private fun createTriggersForTable(
+private suspend fun createTriggersForTable(
+    db: PooledConnection,
     dbDef: SyncableDatabaseAccessor<*>,
     tableDef: SyncableDatabaseDefinition.Table,
 ) = tableDef.run {
@@ -201,27 +206,26 @@ private fun createTriggersForTable(
         }
     val timeStampFunc = "CAST(UNIXEPOCH('subsec') * 1000 AS INTEGER)"
 
-    val db = dbDef.writableDb
     val deviceId = dbDef.deviceId
     val whenCondition = """
             WHEN (SELECT count(*) FROM SyncConfiguration WHERE keyName='${TRIGGERS_DISABLED_KEY}' AND booleanValue = 1 LIMIT 1) = 0
             """.trimIndent()
 
-    db.execSQL("""
+    db.exec("""
             CREATE TRIGGER IF NOT EXISTS ${tableName}_inserts AFTER INSERT ON $tableName $whenCondition 
             BEGIN DELETE FROM LogEntry WHERE ${where("NEW")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("NEW")}, 'UPSERT', $timeStampFunc, '$deviceId'); 
             END;
         """.trimIndent()
     )
-    db.execSQL("""
+    db.exec("""
             CREATE TRIGGER IF NOT EXISTS ${tableName}_updates AFTER UPDATE ON $tableName $whenCondition 
             BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'UPSERT', $timeStampFunc, '$deviceId'); 
             END;
         """.trimIndent()
     )
-    db.execSQL("""
+    db.exec("""
             CREATE TRIGGER IF NOT EXISTS ${tableName}_deletes AFTER DELETE ON $tableName $whenCondition 
             BEGIN DELETE FROM LogEntry WHERE ${where("OLD")} AND tableName = '$tableName';
             INSERT INTO LogEntry VALUES ('$tableName', ${insert("OLD")}, 'DELETE', $timeStampFunc, '$deviceId'); 
@@ -230,37 +234,37 @@ private fun createTriggersForTable(
     )
 }
 
-private fun dropTriggersForTable(
-    dbDef: SyncableDatabaseAccessor<*>,
+private suspend fun dropTriggersForTable(
+    db: PooledConnection,
     tableDef: SyncableDatabaseDefinition.Table
-) = dbDef.writableDb.run {
-    execSQL("DROP TRIGGER IF EXISTS ${tableDef.tableName}_inserts")
-    execSQL("DROP TRIGGER IF EXISTS ${tableDef.tableName}_updates")
-    execSQL("DROP TRIGGER IF EXISTS ${tableDef.tableName}_deletes")
+) = db.run {
+    exec("DROP TRIGGER IF EXISTS ${tableDef.tableName}_inserts")
+    exec("DROP TRIGGER IF EXISTS ${tableDef.tableName}_updates")
+    exec("DROP TRIGGER IF EXISTS ${tableDef.tableName}_deletes")
 }
 
 
-fun createTriggers(dbDef: SyncableDatabaseAccessor<*>) {
+suspend fun createTriggers(dbDef: SyncableDatabaseAccessor<*>) = dbDef.localDb.useWriterConnection { db ->
     for(tableDef in dbDef.tableDefinitions) {
-        createTriggersForTable(dbDef, tableDef)
+        createTriggersForTable(db, dbDef, tableDef)
     }
 }
 
-fun dropTriggers(dbDef: SyncableDatabaseAccessor<*>) {
+suspend fun dropTriggers(dbDef: SyncableDatabaseAccessor<*>) = dbDef.localDb.useWriterConnection { db ->
     for(tableDef in dbDef.tableDefinitions) {
-        dropTriggersForTable(dbDef, tableDef)
+        dropTriggersForTable(db, tableDef)
     }
 }
 
-private fun writePatchData(
-    db: SupportSQLiteDatabase,
+private suspend fun writePatchData(
+    db: PooledConnection,
     tableDef: SyncableDatabaseDefinition.Table,
     lastPatchWritten: Long
 ) = db.run {
     val table = tableDef.tableName
     val idField1 = tableDef.idField1
     val idField2 = tableDef.idField2
-    val cols = getColumnNamesJoined(db, table, "patch")
+    val cols = columnNamesJoined(table, "patch")
 
     var where = idField1
     var select = "pe.entityId1"
@@ -268,30 +272,29 @@ private fun writePatchData(
         where = "($idField1,$idField2)"
         select = "pe.entityId1,pe.entityId2"
     }
-    execSQL("""
+    exec("""
             INSERT INTO patch.$table ($cols) SELECT $cols FROM $table WHERE $where IN 
             (SELECT $select FROM LogEntry pe WHERE tableName = '$table' AND type = 'UPSERT' 
             AND lastUpdated > $lastPatchWritten)
             """.trimIndent())
-    execSQL("""
+    exec("""
             INSERT INTO patch.LogEntry SELECT * FROM LogEntry 
             WHERE tableName = '$table' AND lastUpdated > $lastPatchWritten
             """.trimIndent())
 }
 
-private fun readPatchData(
-    dbDef: SyncableDatabaseAccessor<*>,
+private suspend fun readPatchData(
+    db: PooledConnection,
     tableDef: SyncableDatabaseDefinition.Table,
-) = dbDef.writableDb.run {
+) = db.run {
     val table = tableDef.tableName
     val idField1 = tableDef.idField1
     val idField2 = tableDef.idField2
 
-    val colList = getColumnNames(this, table)
+    val colList = columnNames(table)
     val cols = colList.joinToString(",") { "`$it`" }
     val setValues = colList.filterNot {it == idField1 || it == idField2}.joinToString(",\n") { "`$it`=excluded.`$it`" }
-    val amount = query("SELECT COUNT(*) FROM patch.LogEntry WHERE tableName = '$table'")
-        .getFirst { it.getInt(0)}
+    val amount = queryLong("SELECT COUNT(*) FROM patch.LogEntry WHERE tableName = '$table'")!!
 
     Log.i(TAG, "Reading patch data for $table: $amount log entries")
     var idFields = idField1
@@ -313,7 +316,7 @@ private fun readPatchData(
     }
 
     // Insert all rows from patch table that don't have more recent entry in LogEntry table
-    execSQL("""
+    exec("""
             INSERT INTO $table ($cols)
             SELECT $cols FROM patch.$table 
             WHERE $idFields IN ${where("UPSERT")}
@@ -322,49 +325,55 @@ private fun readPatchData(
 
     // Let's fix all foreign key violations. Those will result if target object has been deleted here,
     // but patch still adds references
-    execSQL("""
+    exec("""
             DELETE FROM $table 
             WHERE rowId in (SELECT rowid FROM pragma_foreign_key_check('$table'));
             """.trimIndent()
     )
 
     // Delete all marked deletions from patch LogEntry table
-    execSQL("""
+    exec("""
             DELETE FROM $table WHERE $idFields IN ${where("DELETE")}
             """.trimIndent()
     )
 
-    execSQL("""
+    exec("""
             INSERT OR REPLACE INTO LogEntry SELECT * FROM patch.LogEntry pe 
             WHERE pe.tableName = '$table' AND ($select) IN ${where()}
             """.trimIndent()
     )
 }
 
-fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, updateTimestamp: Boolean = true): File? {
+/**
+ * Writes this device's log entries newer than the last patch, with the rows they name, into a new database
+ * file of the same schema, gzipped. Null when there is nothing new. The local database attaches the new file as
+ * `patch`; ATTACH and `foreign_keys` cannot change inside a transaction, so they come before and after it.
+ */
+suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, updateTimestamp: Boolean = true): File? {
     val lastPatchWritten = dbDef.dao.getLong(LAST_PATCH_WRITTEN_KEY)?: 0
     val patchDbFile = File.createTempFile("created-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
 
-    dbDef.writableDb.run {
-        val amountUpdated = dbDef.dao.countNewLogEntries(lastPatchWritten, dbDef.deviceId)
-        if(amountUpdated == 0L) {
-            Log.i(TAG, "No new entries ${dbDef.categoryName}")
-            return null
+    val amountUpdated = dbDef.dao.countNewLogEntries(lastPatchWritten, dbDef.deviceId)
+    if(amountUpdated == 0L) {
+        Log.i(TAG, "No new entries ${dbDef.categoryName}")
+        return null
+    }
+    // let's create empty database with correct schema first.
+    createWithSchema(dbDef, patchDbFile)
+    Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
+    dbDef.localDb.useWriterConnection { db ->
+        db.exec("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
+        db.exec("PRAGMA patch.foreign_keys=OFF;")
+        try {
+            db.inTransaction<Unit> {
+                for (tableDef in dbDef.tableDefinitions) {
+                    writePatchData(this, tableDef, lastPatchWritten)
+                }
+            }
+        } finally {
+            db.exec("PRAGMA patch.foreign_keys=ON;")
+            db.exec("DETACH DATABASE patch")
         }
-        // let's create empty database with correct schema first.
-        val patchDb = dbDef.dbFactory(patchDbFile.absolutePath)
-        patchDb.openHelper.writableDatabase.use {}
-        Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
-        execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
-        execSQL("PRAGMA patch.foreign_keys=OFF;")
-        beginTransaction()
-        for (tableDef in dbDef.tableDefinitions) {
-            writePatchData(this, tableDef, lastPatchWritten)
-        }
-        setTransactionSuccessful()
-        endTransaction()
-        execSQL("PRAGMA patch.foreign_keys=ON;")
-        execSQL("DETACH DATABASE patch")
     }
 
     val gzippedOutput = CommonUtils.tmpFile
@@ -380,31 +389,42 @@ fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, updateTimestamp: 
     return gzippedOutput
 }
 
-fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, vararg patchFiles: File?) {
+/** Opens [file] as a database of [dbDef]'s kind (creating it, or migrating it to the current schema) and closes it. */
+private suspend fun createWithSchema(dbDef: SyncableDatabaseAccessor<*>, file: File) {
+    val db = dbDef.dbFactory(file.absolutePath)
+    try { db.useWriterConnection { } } finally { db.close() }
+}
+
+/**
+ * Merges each gzipped patch into the local database, one transaction per patch: rows whose log entry is newer
+ * than the local one are upserted or deleted, and the log entries are taken over. The sync triggers are
+ * disabled (through SyncConfiguration, inside the same transaction) while the rows are written, so the merge is
+ * not logged as a local change. A patch that fails is rolled back completely and the exception rethrown.
+ */
+suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, vararg patchFiles: File?) {
     for(gzippedPatchFile in patchFiles.filterNotNull()) {
         val patchDbFile = File.createTempFile("downloaded-patch-${dbDef.categoryName}-", ".sqlite3", CommonUtils.tmpDir)
         Log.i(TAG, "Applying patch file ${patchDbFile.name}")
         CommonUtils.gunzipFile(gzippedPatchFile, patchDbFile)
         // Let's apply possible migrations first
-        dbDef.dbFactory(patchDbFile.absolutePath).openHelper.writableDatabase.use {  }
-        dbDef.writableDb.run {
-            execSQL("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
-            execSQL("PRAGMA foreign_keys=OFF;")
-            beginTransaction()
+        createWithSchema(dbDef, patchDbFile)
+        dbDef.localDb.useWriterConnection { db ->
+            db.exec("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
+            db.exec("PRAGMA foreign_keys=OFF;")
             try {
-                for (tableDef in dbDef.tableDefinitions) {
-                    dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
-                    readPatchData(dbDef, tableDef)
-                    dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
+                db.inTransaction<Unit> {
+                    for (tableDef in dbDef.tableDefinitions) {
+                        dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
+                        readPatchData(this, tableDef)
+                        dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
+                    }
                 }
-                setTransactionSuccessful()
             } catch (e: Exception) {
                 Log.e(TAG, "Error occurred in applyPatchesForDatabase", e)
                 throw e
             } finally {
-                endTransaction()
-                execSQL("PRAGMA foreign_keys=ON;")
-                execSQL("DETACH DATABASE patch")
+                db.exec("PRAGMA foreign_keys=ON;")
+                db.exec("DETACH DATABASE patch")
             }
         }
         if(!CommonUtils.isDebugMode) {
