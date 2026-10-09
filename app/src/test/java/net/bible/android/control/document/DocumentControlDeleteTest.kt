@@ -98,7 +98,7 @@ class DocumentControlDeleteTest {
             withTimeout(10_000) { daoEntered.await() } // files are gone, the row delete is in flight
             caller.cancel()                             // the screen went away (withContext still waits for the app-scope work)
             daoGate.complete(Unit)
-            caller.join()
+            withTimeout(10_000) { caller.join() }
             withTimeout(10_000) { while (backupRowsDeleted.isEmpty()) kotlinx.coroutines.delay(10) }
             withTimeout(10_000) { while (tidyUpThreads.isEmpty()) kotlinx.coroutines.delay(10) }
         } finally {
@@ -125,7 +125,7 @@ class DocumentControlDeleteTest {
             withTimeout(10_000) { daoEntered.await() } // first document: files gone, its row delete parked
             caller.cancel()                             // the screen went away mid-loop
             daoGate.complete(Unit)
-            caller.join()
+            withTimeout(10_000) { caller.join() }
             kotlinx.coroutines.withTimeoutOrNull(3_000) { while (notified == 0) kotlinx.coroutines.delay(10) } // bounded: a miss fails the asserts below
         } finally {
             sub.cancel()
