@@ -75,6 +75,14 @@ import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.device.speak.TextToSpeechServiceManager
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.DateTimeFormats
+import net.bible.sharedcore.platform.UserNotifier
+import net.bible.android.platform.AndroidCoreStrings
+import net.bible.android.platform.AndroidDateTimeFormats
+import net.bible.android.platform.AndroidUserNotifier
+import org.koin.android.ext.koin.androidContext
 import net.bible.service.history.HistoryManager
 import net.bible.service.history.HistoryTraversalFactory
 import org.koin.core.module.dsl.bind
@@ -91,6 +99,10 @@ val coreModule = module {
     singleOf(::CustomRepositoryServiceImpl) { bind<CustomRepositoryService>() }
 
     single<AppSettings> { CommonUtils.settings }
+    single { AppCoroutineScope() }
+    single<UserNotifier> { AndroidUserNotifier() }
+    single<CoreStrings> { AndroidCoreStrings(androidContext()) }
+    single<DateTimeFormats> { AndroidDateTimeFormats(androidContext()) }
 
     // @ApplicationScope singletons
     singleOf(::BibleTraverser)
