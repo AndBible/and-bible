@@ -422,6 +422,16 @@ class DatabaseContainer {
         }
 
         /**
+         * Test-only: forgets the current instance WITHOUT closing it and returns it; never builds one. The caller
+         * closes it later ([closeAll]). Used by the test application's after-test net, which must not close
+         * databases that a finished test's background work (a document render on Dispatchers.Default) may still be
+         * using: a closed Room 3 database throws instead of reopening, and the exception would surface as an
+         * uncaught coroutine exception in an unrelated later test.
+         */
+        @VisibleForTesting
+        internal fun detachInstanceForTest(): DatabaseContainer? = synchronized(this) { _instance.also { _instance = null } }
+
+        /**
          * Runs [block] with [ready] cleared, and restores it however [block] ends. The clearing makes
          * `makeDatabaseBackupFile` skip vacuum/sync, which would otherwise re-enter [instance] mid-
          * construction; without the `finally`, a throwing backup left `ready = false` forever and

@@ -46,6 +46,11 @@ import org.koin.core.context.GlobalContext
 
 const val TEST_SDK = 33
 class TestBibleApplication : BibleApplication() {
+    private companion object {
+        /** The container detached at the previous test's teardown, closed at this one's (see [onTerminate]). */
+        var detachedContainer: DatabaseContainer? = null
+    }
+
     init {
         println("TestBibleApplication BibleApplication subclass being used.")
     }
@@ -86,13 +91,18 @@ class TestBibleApplication : BibleApplication() {
         DatabaseContainer.resetPhase8StreamsForTest()
         AndBibleAddons.resetSubscribersForTest()
         // D1 final review M9: the one-JVM suite's safety net. A test that touched the settings or a DAO without
-        // DatabaseContainer.reset() would otherwise leave a container whose files live in this test's (now dead)
-        // Robolectric data dir for the next class. Closes (flushing settings) only a container that exists;
-        // never builds one. Last, so nothing above reopens it.
+        // DatabaseContainer.reset() would otherwise leave its container (files in this test's now dead Robolectric
+        // data dir) for the next class. The container is detached now (never built) but closed only at the NEXT
+        // test's teardown: closing it here broke background work of the finished test still using it (e.g. a
+        // BibleView render reading ProgressDb on Dispatchers.Default -> "Database is closed", reported by
+        // kotlinx-coroutines-test as UncaughtExceptionsBeforeTest in a later runTest). Last, so nothing above
+        // reopens it.
         try {
-            DatabaseContainer.dropInstanceWithoutOpening()
+            val previous = detachedContainer
+            detachedContainer = DatabaseContainer.detachInstanceForTest()
+            previous?.closeAll()
         } catch (e: Throwable) {
-            Log.e("TestBibleApplication", "Dropping the database container failed", e)
+            Log.e("TestBibleApplication", "Detaching or closing the database container failed", e)
         }
     }
 }
