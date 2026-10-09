@@ -60,6 +60,8 @@ class TestBibleApplication : BibleApplication() {
     override fun getLocalizedResources(language: String): Resources = application.resources
 
     override fun onCreate() {
+        // At the start, not in onTerminate: a test may terminate the application mid-way with its activity still live.
+        CurrentActivityHolder.forgetActivitiesForTest()
         super.onCreate()
         CommonUtils.initializeApp()
     }
@@ -85,7 +87,7 @@ class TestBibleApplication : BibleApplication() {
         PassageChangeMediator.resetSubscribersForTest()
         net.bible.service.history.HistoryManager.resetInstanceForTest()
         ScreenSettings.resetSubscribersForTest()
-        CurrentActivityHolder.resetForTest()
+        CurrentActivityHolder.resetSubscribersForTest()
         SystemBarSettingChanges.resetSubscribersForTest()
         DocumentChanges.resetSubscribersForTest()
         DatabaseContainer.resetPhase8StreamsForTest()
