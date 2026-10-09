@@ -89,7 +89,7 @@ fun bookmarkStyleDecoration(style: BookmarkDisplayStyle, colorArgb: Int): Bookma
     // highlight and plain black/white for the underline. accentArgbFor is for workspace accents and
     // would grey the label colour into the container tone here, making highlight, underline and
     // hidden indistinguishable in BW.
-    val monochrome = LocalDisplayColorMode.current == DisplayColorMode.BW
+    val monochrome = LocalDisplayColorMode.current.isGreyBase
     // The theme's own resolved night state, not re-derived from a colour (that is exactly what
     // LocalIsDarkTheme exists to prevent) — this mirrors the reader's nightMode flag.
     val night = LocalIsDarkTheme.current

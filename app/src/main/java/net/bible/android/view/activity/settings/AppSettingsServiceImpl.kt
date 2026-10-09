@@ -25,6 +25,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.DisplayColorMode
 import net.bible.service.device.ScreenSettings
 import net.bible.sharedcore.settings.AppSettingsService
 import net.bible.sharedcore.settings.AppSettingsSnapshot
@@ -90,7 +91,7 @@ object RealDictionaryOptionsProvider : DictionaryOptionsProvider {
  *  - `strongs_greek_dictionary`/`strongs_hebrew_dictionary`/`robinson_greek_morphology` default to
  *    ALL installed matching books selected (`setupDictionary` calls `pref.setDefaultValue(initials)`
  *    with every installed book's initials) — NOT an empty set.
- *  - `display_color_mode` defaults to `"bw"` on Onyx devices, `"normal"` otherwise (fragment
+ *  - `display_color_mode` defaults to `"monochrome"` on Onyx devices, `"normal"` otherwise (fragment
  *    override of the XML `defaultValue="normal"`).
  *  - `toolbar_button_actions` has no XML default; `onCreatePreferences` sets it to `"default"`
  *    when blank, so that is the effective default read here too.
@@ -223,7 +224,7 @@ class AppSettingsServiceImpl(
             bibleBookmarkModalOptions = bibleBookmarkModalOptions,
             genBookmarkModalOptions = genBookmarkModalOptions,
             // E-ink
-            displayColorMode = readString("display_color_mode", if (CommonUtils.isOnyxDevice) "bw" else "normal"),
+            displayColorMode = readString("display_color_mode", DisplayColorMode.defaultFor(CommonUtils.isOnyxDevice).value),
             einkMode = readBool("eink_mode", false),
             disableAnimations = readBool("disable_animations", false),
             // Persecution

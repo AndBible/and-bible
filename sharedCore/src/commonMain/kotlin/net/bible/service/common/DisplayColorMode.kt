@@ -25,14 +25,22 @@ package net.bible.service.common
  * - [COLOR_EINK]: monochrome base but selected accents (bookmark colors, active-window
  *   indicator, scroll helper lines, top-margin line) are shown in color. Intended for
  *   color e-ink screens where high contrast still matters.
+ * - [MONOCHROME]: pure black & white for e-ink — ink, paper and one #808080 for disabled; no other grey.
  */
 enum class DisplayColorMode(val value: String) {
     NORMAL("normal"),
     BW("bw"),
-    COLOR_EINK("color_eink");
+    COLOR_EINK("color_eink"),
+    MONOCHROME("monochrome");
+
+    /** BW and MONOCHROME both start from a greyscale, unseeded base (workspace colour ignored). */
+    val isGreyBase: Boolean get() = this == BW || this == MONOCHROME
 
     companion object {
         /** Returns null for a null or unrecognized value so callers can apply a device default. */
         fun fromValue(v: String?): DisplayColorMode? = values().firstOrNull { it.value == v }
+
+        /** The default when the user has not chosen: Onyx (e-ink) devices get MONOCHROME. */
+        fun defaultFor(isOnyx: Boolean): DisplayColorMode = if (isOnyx) MONOCHROME else NORMAL
     }
 }

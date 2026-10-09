@@ -29,6 +29,14 @@ private const val TEAL = 0xFF008080.toInt()
 
 class ThemeColorsPayloadTest {
     @Test
+    fun `monochrome ships null like BW, seed or no seed`() {
+        assertEquals("null", themeColorsJson(0xFFFF8000.toInt(), dark = false, colorMode = DisplayColorMode.MONOCHROME))
+        assertEquals("null", themeColorsJson(0xFFFF8000.toInt(), dark = true, colorMode = DisplayColorMode.MONOCHROME))
+        assertEquals("null", themeColorsJson(null, dark = false, colorMode = DisplayColorMode.MONOCHROME))
+        assertEquals("null", themeColorsJson(null, dark = true, colorMode = DisplayColorMode.MONOCHROME))
+    }
+
+    @Test
     fun `null when no seed`() {
         assertEquals("null", themeColorsJson(null, false, DisplayColorMode.NORMAL))
     }

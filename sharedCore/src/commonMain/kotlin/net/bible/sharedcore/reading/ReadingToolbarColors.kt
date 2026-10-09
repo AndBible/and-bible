@@ -57,6 +57,7 @@ fun lerpArgb(fromArgb: Int, toArgb: Int, fraction: Float): Int {
 /**
  * The Compose reading toolbar's container colour (A/B batch 3, F3).
  *
+ * - **MONOCHROME** → [surfaceArgb] always (paper); the workspace colour is ignored.
  * - **Not set** → [surfaceArgb] unchanged, i.e. today's plain Material 3 bar. `accentArgbFor` is
  *   deliberately NOT applied on this path: `AbTheme` already greyscales the whole `ColorScheme` in
  *   BW and COLOR_EINK, and wrapping a scheme role a second time is the mistake palette B banked.
@@ -75,6 +76,7 @@ fun readingToolbarContainerArgb(
     nightMode: Boolean,
     colorMode: DisplayColorMode,
 ): Int {
+    if (colorMode == DisplayColorMode.MONOCHROME) return surfaceArgb
     if (!isWorkspaceColorSet(workspaceArgb)) return surfaceArgb
     val accent = accentArgbFor(workspaceArgb!!, colorMode)
     return if (nightMode) lerpArgb(surfaceArgb, accent, NIGHT_WORKSPACE_TINT_FRACTION) else accent

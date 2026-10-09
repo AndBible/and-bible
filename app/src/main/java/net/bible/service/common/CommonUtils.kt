@@ -459,9 +459,11 @@ object CommonUtils : CommonUtilsBase() {
 
         val displayColorMode: DisplayColorMode get() =
             DisplayColorMode.fromValue(getString("display_color_mode", null))
-                ?: if (isOnyxDevice) DisplayColorMode.BW else DisplayColorMode.NORMAL
+                ?: DisplayColorMode.defaultFor(isOnyxDevice)
         val monochromeMode: Boolean get() = displayColorMode != DisplayColorMode.NORMAL
         val colorEinkMode: Boolean get() = displayColorMode == DisplayColorMode.COLOR_EINK
+        /** True only for MONOCHROME: pure black & white, stricter than [monochromeMode]. */
+        val pureMonochromeMode: Boolean get() = displayColorMode == DisplayColorMode.MONOCHROME
         val einkMode: Boolean get() = getBoolean("eink_mode", false)
         val disableAnimations: Boolean get() = getBoolean("disable_animations", isOnyxDevice)
         val disableClickToEdit: Boolean get() = getBoolean("disable_click_to_edit", false)

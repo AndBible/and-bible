@@ -105,7 +105,7 @@ private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
  */
 fun abColorScheme(seedArgb: Int?, dark: Boolean, colorMode: DisplayColorMode): ColorScheme {
     val stock = if (dark) darkColorScheme() else lightColorScheme()
-    val seeded = if (!isWorkspaceColorSet(seedArgb) || colorMode == DisplayColorMode.BW) {
+    val seeded = if (!isWorkspaceColorSet(seedArgb) || colorMode.isGreyBase) {
         stock
     } else {
         // Named arguments only: the positional list carries six optional role overrides between

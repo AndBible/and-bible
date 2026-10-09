@@ -1777,6 +1777,7 @@ class BibleView(
         val monochromeMode = CommonUtils.settings.monochromeMode
         val einkMode = CommonUtils.settings.einkMode
         val colorEinkMode = CommonUtils.settings.colorEinkMode
+        val pureMonochromeMode = CommonUtils.settings.pureMonochromeMode
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
@@ -1806,6 +1807,7 @@ class BibleView(
                         monochromeMode: $monochromeMode,
                         einkMode: $einkMode,
                         colorEinkMode: $colorEinkMode,
+                        pureMonochromeMode: $pureMonochromeMode,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,

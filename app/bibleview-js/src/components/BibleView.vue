@@ -18,7 +18,7 @@
 <template>
   <div
       @click="ambiguousSelection?.handle"
-      :class="{night: appSettings.nightMode, noAnimation: appSettings.disableAnimations, monochrome: appSettings.monochromeMode, colorEink: appSettings.colorEinkMode}"
+      :class="{night: appSettings.nightMode, noAnimation: appSettings.disableAnimations, monochrome: appSettings.monochromeMode, colorEink: appSettings.colorEinkMode, pureMonochrome: appSettings.pureMonochromeMode}"
       :style="topStyle"
       :dir="direction"
   >
