@@ -73,4 +73,17 @@ class MultistatusParserTest {
         assertEquals(5L, r.contentLength)
         assertNull(r.etag); assertNull(r.lastModified); assertNull(r.creationDate)
     }
+
+    @Test fun rcloneRealCapture() {
+        val res = MultistatusParser.parse(MultistatusFixtures.RCLONE_REAL, DavPath("https://localhost:8443/")).associateBy { it.path }
+        assertEquals(setOf("sync", "sync/device one", "sync/1.12.sqlite3.gz"), res.keys)
+        assertTrue(res.getValue("sync").isCollection)
+        assertTrue(res.getValue("sync/device one").isCollection)
+        val file = res.getValue("sync/1.12.sqlite3.gz")
+        assertEquals(false, file.isCollection)
+        assertEquals(2048L, file.contentLength)
+        assertEquals("\"18dce906974a90b2800\"", file.etag)
+        assertEquals(HttpDates.parseRfc1123("Fri, 09 Oct 2026 16:22:46 GMT"), file.lastModified)
+        assertNull(file.creationDate)
+    }
 }
