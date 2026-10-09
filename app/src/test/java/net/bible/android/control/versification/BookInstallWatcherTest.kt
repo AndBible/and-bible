@@ -17,17 +17,23 @@
 package net.bible.android.control.versification
 
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.android.database.SwordDocumentInfo
+import net.bible.service.cloudsync.documents.DocumentSync
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.download.DownloadManager
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.test.DatabaseResetter.resetDatabase
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.BooksEvent
 import org.junit.After
@@ -104,5 +110,65 @@ class BookInstallWatcherTest {
             assertNotNull(row)
             assertEquals(initials, row!!.initials)
         }
+    }
+
+    /**
+     * Critical race (final review): JSword fires bookAdded synchronously inside `install()`, and the caller then
+     * amends the row (repository / cipher key). The row insert is held on the latch while the caller's amendment
+     * runs on another coroutine and is given time to land; an amendment that bypasses the watcher's queue either
+     * finds no row (repository lost) or is overwritten by the delete-and-reinsert (cipher key lost).
+     */
+    private fun installThenAmend(preexisting: SwordDocumentInfo?, amend: suspend (BookInstallWatcher, Book) -> Unit): SwordDocumentInfo? =
+        runBlocking {
+            val appScope = AppCoroutineScope()
+            val watcher = BookInstallWatcher(OrderedLauncher(appScope), starter)
+            val firstWriteHeld = CompletableDeferred<Unit>()
+            val release = CompletableDeferred<Unit>()
+            val writes = AtomicInteger()
+            watcher.beforeWrite = {
+                if (writes.incrementAndGet() == 1) {
+                    firstWriteHeld.complete(Unit)
+                    release.await()
+                }
+            }
+            val book = Books.installed().books.first()
+            preexisting?.let { docDao.insert(it.copy(initials = book.initials)) }
+            try {
+                watcher.listener.bookAdded(BooksEvent(Books.installed(), book, true))
+                withTimeout(30_000) { firstWriteHeld.await() }
+                val amendment = async(Dispatchers.Default) { amend(watcher, book) }
+                // Give an (incorrectly) unqueued amendment ample time to run before the held insert.
+                delay(300)
+                release.complete(Unit)
+                withTimeout(30_000) {
+                    amendment.await()
+                    appScope.coroutineContext[Job]!!.children.toList().forEach { it.join() }
+                }
+            } finally {
+                release.complete(Unit)
+                appScope.coroutineContext[Job]!!.cancel()
+            }
+            docDao.getBook(book.initials)
+        }
+
+    @Test
+    fun `repository recorded after install survives the queued row insert`() {
+        val row = installThenAmend(null) { watcher, book ->
+            DownloadManager.recordRepository(watcher, book.initials, "CrossWire")
+        }
+        assertEquals("CrossWire", row?.repository)
+    }
+
+    @Test
+    fun `cipher key stored after a sync install survives the queued row insert`() {
+        val row = installThenAmend(null) { watcher, book -> DocumentSync.persistCipherKey(watcher, book, "secret") }
+        assertEquals("secret", row?.cipherKey)
+    }
+
+    @Test
+    fun `cipher key stored after a reinstall survives the delete-and-reinsert`() {
+        val old = SwordDocumentInfo("x", "Old", "OLD", "English", "OldRepo", "old-key")
+        val row = installThenAmend(old) { watcher, book -> DocumentSync.persistCipherKey(watcher, book, "new-key") }
+        assertEquals("new-key", row?.cipherKey)
     }
 }

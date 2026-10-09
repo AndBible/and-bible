@@ -17,6 +17,7 @@
 package net.bible.android.control.versification
 
 import androidx.annotation.VisibleForTesting
+import kotlinx.coroutines.Job
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.OrderedLauncher
@@ -119,6 +120,29 @@ class BookInstallWatcher(
             book.language.name,
             ""
         ))
+    }
+
+    /**
+     * Changes the backup-db row of [initials] AFTER every install/uninstall write already queued.
+     *
+     * JSword fires [BooksListener.bookAdded] synchronously inside `install()`, but the row insert it causes is
+     * queued under [DB_KEY]. Code that amends the row right after an install (the repository name in
+     * `DownloadManager.installBook`, the cipher key in `DocumentSync`) must therefore queue behind it:
+     * a direct DAO read/update could run before the insert (row missing: change lost) or be overwritten by it
+     * (reinstall: delete-and-reinsert without the field).
+     *
+     * [update] gets the current row (null when there is none) and returns the row to store, or null to leave
+     * the table unchanged. The write runs in the application scope, so cancelling a caller cannot skip it.
+     */
+    fun launchRowUpdate(initials: String, update: (SwordDocumentInfo?) -> SwordDocumentInfo?): Job =
+        launcher.launch(DB_KEY) {
+            val updated = update(docDao.getBook(initials)) ?: return@launch
+            docDao.insert(updated) // REPLACE: updates an existing row, inserts a missing one
+        }
+
+    /** [launchRowUpdate], suspending until the row write has run. */
+    suspend fun updateRow(initials: String, update: (SwordDocumentInfo?) -> SwordDocumentInfo?) {
+        launchRowUpdate(initials, update).join()
     }
 
     private suspend fun removeBookFromDb(book: Book) {
