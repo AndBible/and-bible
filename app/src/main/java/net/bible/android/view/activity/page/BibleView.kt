@@ -104,6 +104,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.control.link.BibleLink
 import net.bible.android.database.json
 import net.bible.android.misc.wrapString
 import net.bible.android.view.activity.base.DocumentView
@@ -905,32 +906,6 @@ class BibleView(
     fun setBibleJavascriptInterface(bibleJavascriptInterface: BibleJavascriptInterface) {
         this.bibleJavascriptInterface = bibleJavascriptInterface
         addJavascriptInterface(bibleJavascriptInterface, "android")
-    }
-
-    class BibleLink(val type: String, val target: String, private val v11nName: String? = null, val forceDoc: Boolean = false) {
-        val versification: Versification get() =
-            Versifications.instance().getVersification(v11nName ?: SystemKJVA.V11N_NAME) ?: KJVA
-        val url: String get() {
-            return when(type) {
-                "content" -> "$type:$target"
-                "strong" -> "$type:$target"
-                "robinson" -> "$type:$target"
-                "strongMorph" -> "$type:$target"
-                else -> {
-                    if(target.startsWith("sword://") || target.startsWith("osis:"))
-                        target
-                    else {
-                        var protocol = "osis:"
-                        var ref = target
-                        if (target.split(":").size > 1) {
-                            protocol = "sword://"
-                            ref = target.replace(":", "/")
-                        }
-                        "$protocol$ref"
-                    }
-                }
-            }
-        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")

@@ -17,15 +17,11 @@
 
 package net.bible.android.control.document
 
-import net.bible.service.db.blockingDb
 import net.bible.sharedcore.log.Log
-import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.hideFromSelector
@@ -39,6 +35,9 @@ import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.UserNotifier
 
 
 val Book.canDelete: Boolean get () {
@@ -51,7 +50,11 @@ val Book.canDelete: Boolean get () {
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DocumentControl constructor(
-    private val windowControl: WindowControl)
+    private val windowControl: WindowControl,
+    private val settings: AppSettings,
+    private val notifier: UserNotifier,
+    private val strings: CoreStrings,
+)
 {
     private val documentBackupDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
@@ -167,13 +170,13 @@ class DocumentControl constructor(
         try {
             SwordEnvironmentInitialisation.enableDefaultAndManualInstallFolder()
         } catch (e: BookException) {
-            Dialogs.showErrorMsg(R.string.error_occurred)
+            notifier.showError(strings.errorOccurred)
         }
 
     }
 
     fun turnOffManualInstallFolderSetting() {
-        CommonUtils.settings.setBoolean("request_sdcard_permission_pref", false)
+        settings.setBoolean("request_sdcard_permission_pref", false)
     }
 
     /**
@@ -185,10 +188,10 @@ class DocumentControl constructor(
     /** delete selected document, even of current doc (Map and Gen Book only currently) and tidy up CurrentPage
      */
     @Throws(BookException::class)
-    fun deleteDocument(document: Book) {
+    suspend fun deleteDocument(document: Book) {
         SwordDocumentFacade.deleteDocument(document)
         if(document.bookCategory == BookCategory.AND_BIBLE) return
-        blockingDb { documentBackupDao.deleteByOsisId(document.initials) }
+        documentBackupDao.deleteByOsisId(document.initials)
         val currentPage = windowControl.activeWindowPageManager.getBookPage(document, null)
         currentPage?.checkCurrentDocumenInstalled()
     }

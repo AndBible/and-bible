@@ -18,7 +18,6 @@ package net.bible.android.control.link
 
 import net.bible.sharedcore.log.Log
 import net.bible.service.db.blockingDb
-import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.OrdinalRange
@@ -27,13 +26,10 @@ import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.android.view.activity.page.BibleView
-import net.bible.android.view.activity.page.ReadingHostActivity
-import net.bible.android.view.activity.nav.NavHostComposeActivity
-import net.bible.service.common.CommonUtils.settings
 import net.bible.sharedcore.nav.NavRoutes
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.UserNotifier
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
@@ -82,10 +78,14 @@ class LinkControl constructor(
     private val windowControl: WindowControl,
 	private val bookmarkControl: BookmarkControl,
 	private val searchControl: SearchControl,
+	private val settings: AppSettings,
+	private val notifier: UserNotifier,
+	private val strings: CoreStrings,
+	private val platform: LinkPlatform,
 )  {
     var windowMode: WindowMode = WindowMode.WINDOW_MODE_UNDEFINED
 
-    fun openMulti(links: List<BibleView.BibleLink>): Boolean {
+    fun openMulti(links: List<BibleLink>): Boolean {
         val key = BookAndKeyList()
         val bookKeys = links.mapNotNull {
             try {
@@ -120,7 +120,7 @@ class LinkControl constructor(
         return true
     }
 
-    fun loadApplicationUrl(link: BibleView.BibleLink, book: Book? = null): Boolean = loadApplicationUrl(link.url, link.versification, link.forceDoc, book)
+    fun loadApplicationUrl(link: BibleLink, book: Book? = null): Boolean = loadApplicationUrl(link.url, link.versification, link.forceDoc, book)
 
     fun errorLink() {
         ErrorReportControl.sendErrorReportEmail(Exception("Error in webview-js"), "webview")
@@ -200,10 +200,10 @@ class LinkControl constructor(
                     return when (strongsMatch.groupValues[1]) {
                         "G" -> getStrongsKey(SwordDocumentFacade.defaultStrongsGreekDictionary, reference, StrongsKeyType.GREEK)
                         "H" -> getStrongsKey(SwordDocumentFacade.defaultStrongsHebrewDictionary, reference, StrongsKeyType.HEBREW)
-                        else -> { Dialogs.showErrorMsg(R.string.document_not_installed, initials); null }
+                        else -> { notifier.showError(strings.documentNotInstalled(initials.orEmpty())); null }
                     }
                 }
-                Dialogs.showErrorMsg(R.string.document_not_installed, initials)
+                notifier.showError(strings.documentNotInstalled(initials.orEmpty()))
             } else if(document.bookCategory == BookCategory.BIBLE && book == null) {
                 return getBibleKey(ref, versification, book)
             } else if(document.isGreekDef || document.isHebrewDef) {
@@ -346,7 +346,7 @@ class LinkControl constructor(
         }
         // possibly no Strong's bible
         if (strongsBible == null) {
-            Dialogs.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
+            notifier.showError(strings.noIndexedBibleWithStrongsRef)
             return
         }
 
@@ -385,14 +385,7 @@ class LinkControl constructor(
         // READ document — which is not the one this find-all is actually about — instead of running
         // immediately. Not fixed here: the same "index a document other than the active window's"
         // gap Task 11 exists for.
-        val activity = CurrentActivityHolder.currentActivity!!
-        if (!needToIndex &&
-            // T8b fix round 1 (I1): was `(activity as? MainBibleActivity)`, which is always null once
-            // NavHostComposeActivity hosts the reading view — so "find all occurrences" had silently
-            // stopped searching in place and left the reading view for the search cluster instead.
-            (activity as? ReadingHostActivity)?.readingCommands
-                ?.composeSearchStrongsIfHosted(ref, selection.map { it.initials }) == true
-        ) {
+        if (!needToIndex && platform.searchStrongsInReadingView(ref, selection.map { it.initials })) {
             return
         }
 
@@ -430,7 +423,7 @@ class LinkControl constructor(
                 isStrongsSearch = true,
             )
         }
-        activity.startActivity(NavHostComposeActivity.intentFor(activity, route))
+        platform.openRoute(route)
     }
 
     /** ensure a book is indexed and the index contains typical Greek or Hebrew Strongs Numbers
@@ -544,13 +537,13 @@ class LinkControl constructor(
     fun lookupInDictionaries(text: String): Boolean {
         val dictionaries = SwordDocumentFacade.wordLookupDictionaries
         if (dictionaries.isEmpty()) {
-            Dialogs.showErrorMsg(R.string.word_not_found_in_dictionaries)
+            notifier.showError(strings.wordNotFoundInDictionaries)
             return false
         }
 
         val searchText = normalizeSearchText(text)
         if (searchText.isBlank()) {
-            Dialogs.showErrorMsg(R.string.word_not_found_in_dictionaries)
+            notifier.showError(strings.wordNotFoundInDictionaries)
             return false
         }
 
@@ -570,7 +563,7 @@ class LinkControl constructor(
         }
 
         if (bookAndKeys.isEmpty()) {
-            Dialogs.showErrorMsg(R.string.word_not_found_in_dictionaries)
+            notifier.showError(strings.wordNotFoundInDictionaries)
             return false
         }
 

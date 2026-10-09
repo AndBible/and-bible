@@ -79,6 +79,8 @@ import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBar
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.android.platform.AndroidReadingPlanSource
 import net.bible.android.platform.AndroidHistoryPlatform
+import net.bible.android.platform.AndroidLinkPlatform
+import net.bible.android.control.link.LinkPlatform
 import net.bible.android.view.activity.readingplan.ReadingPlanCatalog
 import net.bible.service.readingplan.DistributedPlanDetails
 import net.bible.service.readingplan.ReadingPlanTextFileDao
@@ -134,6 +136,7 @@ val coreModule = module {
     singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() }
     singleOf(::LinkControl)
     single<HistoryPlatform> { AndroidHistoryPlatform() }
+    single<LinkPlatform> { AndroidLinkPlatform() }
     singleOf(::HistoryManager)
     singleOf(::HistoryTraversalFactory)
     singleOf(::DocumentControl)

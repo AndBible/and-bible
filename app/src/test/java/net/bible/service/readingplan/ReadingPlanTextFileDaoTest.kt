@@ -41,6 +41,11 @@ class ReadingPlanTextFileDaoTest {
         override val errorOccurred = "Error"
         override fun somethingWithParenthesis(a: String, b: String) = "$a ($b)"
         override fun readingPlanDay(day: String) = "Day $day"
+        override val sortByAlphabetical = "Alphabetical"
+        override val sortByBibleBook = "Biblical"
+        override fun documentNotInstalled(initials: String) = "Please download '$initials'"
+        override val noIndexedBibleWithStrongsRef = "No indexed Bible"
+        override val wordNotFoundInDictionaries = "Word not found"
     }
 
     /** The real file format: `#` header comment lines (name, then description), `day=Book.chapter, ...` lines. */

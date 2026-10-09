@@ -7961,20 +7961,23 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private fun handleDownloadDeleteConfirmed(session: DownloadSession) {
         val deletable = session.pendingDelete
-        var skipped = false
-        for (document in deletable) {
-            if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
-            try {
-                Log.i(TAG_DOWNLOAD, "Deleting:$document")
-                documentControl.deleteDocument(document.installedDocument)
-            } catch (e: Exception) {
-                Log.e(TAG_DOWNLOAD, "Deleting document crashed", e)
-                Dialogs.showErrorMsg(R.string.error_occurred, e)
+        // deleteDocument suspends (it clears the backup row); launch, and keep the tail in order after it.
+        lifecycleScope.launch {
+            var skipped = false
+            for (document in deletable) {
+                if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
+                try {
+                    Log.i(TAG_DOWNLOAD, "Deleting:$document")
+                    documentControl.deleteDocument(document.installedDocument)
+                } catch (e: Exception) {
+                    Log.e(TAG_DOWNLOAD, "Deleting document crashed", e)
+                    Dialogs.showErrorMsg(R.string.error_occurred, e)
+                }
             }
+            if (skipped) UserMessages.toast(R.string.cant_delete_document)
+            loadDownloadDocuments(session, false)
+            DocumentChanges.notifyInstalledChanged()
         }
-        if (skipped) UserMessages.toast(R.string.cant_delete_document)
-        lifecycleScope.launch { loadDownloadDocuments(session, false) }
-        DocumentChanges.notifyInstalledChanged()
     }
 
     /**
@@ -9260,20 +9263,23 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      *  ChooseDocument counterpart, unchanged apart from which session/log tag it reads. */
     private fun handleChooseDocumentDeleteConfirmed(session: ChooseDocumentSession) {
         val deletable = session.pendingDelete
-        var skipped = false
-        for (document in deletable) {
-            if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
-            try {
-                Log.i(TAG_CHOOSE_DOCUMENT, "Deleting:$document")
-                documentControl.deleteDocument(document.installedDocument)
-            } catch (e: Exception) {
-                Log.e(TAG_CHOOSE_DOCUMENT, "Deleting document crashed", e)
-                Dialogs.showErrorMsg(R.string.error_occurred, e)
+        // deleteDocument suspends (it clears the backup row); launch, and keep the tail in order after it.
+        lifecycleScope.launch {
+            var skipped = false
+            for (document in deletable) {
+                if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
+                try {
+                    Log.i(TAG_CHOOSE_DOCUMENT, "Deleting:$document")
+                    documentControl.deleteDocument(document.installedDocument)
+                } catch (e: Exception) {
+                    Log.e(TAG_CHOOSE_DOCUMENT, "Deleting document crashed", e)
+                    Dialogs.showErrorMsg(R.string.error_occurred, e)
+                }
             }
+            if (skipped) UserMessages.toast(R.string.cant_delete_document)
+            loadChooseDocuments()
+            DocumentChanges.notifyInstalledChanged()
         }
-        if (skipped) UserMessages.toast(R.string.cant_delete_document)
-        lifecycleScope.launch { loadChooseDocuments() }
-        DocumentChanges.notifyInstalledChanged()
     }
 
     /** Task 16 (D8-3 fix, NH row 9333) -- see [handleDownloadDeleteIndexConfirmed]'s kdoc, this is its

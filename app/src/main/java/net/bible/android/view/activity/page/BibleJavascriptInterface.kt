@@ -34,6 +34,7 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.bookmark.BookmarkJsActions
+import net.bible.android.control.link.BibleLink
 import net.bible.android.control.progress.ProgressJsActions
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
@@ -338,7 +339,7 @@ class BibleJavascriptInterface(
                 val bookInt = book.split(":")[1].toInt()
                 val bibleBook = myBibleIntToBibleBook[bookInt]?: return
                 val lnk = "${bibleBook.osis} $rest"
-                val bibleLink = BibleView.BibleLink("content", target=lnk)
+                val bibleLink = BibleLink("content", target=lnk)
                 scope.launch(Dispatchers.Main) {
                     linkControl.loadApplicationUrl(bibleLink)
                 }
@@ -346,7 +347,7 @@ class BibleJavascriptInterface(
             link.startsWith("S:") -> {
                 // MyBible strongs
                 val (prefix, rest) = link.split(":", limit=2)
-                val bibleLink = BibleView.BibleLink("strong", target=rest)
+                val bibleLink = BibleLink("strong", target=rest)
                 scope.launch(Dispatchers.Main) {
                     linkControl.loadApplicationUrl(bibleLink)
                 }
@@ -357,7 +358,7 @@ class BibleJavascriptInterface(
                 val (bookInt, chapInt, verInt) = rest.split(".").map { it.toInt() }
                 val bibleBook = mySwordIntToBibleBook[bookInt]?: return
                 val lnk = "${bibleBook.osis}.$chapInt.$verInt"
-                val bibleLink = BibleView.BibleLink("content", target=lnk)
+                val bibleLink = BibleLink("content", target=lnk)
                 scope.launch(Dispatchers.Main) {
                     linkControl.loadApplicationUrl(bibleLink)
                 }
@@ -365,14 +366,14 @@ class BibleJavascriptInterface(
             link.startsWith("#s") || link.startsWith("#d") -> {
                 // MySword strongs links
                 val rest = link.substring(2)
-                val bibleLink = BibleView.BibleLink("strong", target=rest)
+                val bibleLink = BibleLink("strong", target=rest)
                 scope.launch(Dispatchers.Main) {
                     linkControl.loadApplicationUrl(bibleLink)
                 }
             }
             link.startsWith("sword://") || link.startsWith("osis:") -> {
                 // Internal app links (e.g. sword://CalvinCommentaries/Eph.1.11)
-                val bibleLink = BibleView.BibleLink("sword", target=link)
+                val bibleLink = BibleLink("sword", target=link)
                 scope.launch(Dispatchers.Main) {
                     linkControl.loadApplicationUrl(bibleLink)
                 }
@@ -380,7 +381,7 @@ class BibleJavascriptInterface(
             link.startsWith("strongs://") -> {
                 // Document-independent Strong's links (e.g. strongs://G2316, strongs://H430)
                 val ref = link.removePrefix("strongs://")
-                val bibleLink = BibleView.BibleLink("strong", target=ref)
+                val bibleLink = BibleLink("strong", target=ref)
                 scope.launch(Dispatchers.Main) {
                     linkControl.loadApplicationUrl(bibleLink)
                 }
@@ -391,7 +392,7 @@ class BibleJavascriptInterface(
                 val slashIdx = rest.indexOf('/')
                 val morphType = if (slashIdx >= 0) rest.substring(0, slashIdx) else rest
                 val code = if (slashIdx >= 0) rest.substring(slashIdx + 1) else ""
-                val bibleLink = BibleView.BibleLink(morphType, target=code)
+                val bibleLink = BibleLink(morphType, target=code)
                 scope.launch(Dispatchers.Main) {
                     linkControl.loadApplicationUrl(bibleLink)
                 }
