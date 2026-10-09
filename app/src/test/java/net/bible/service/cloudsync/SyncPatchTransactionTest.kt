@@ -106,6 +106,9 @@ class SyncPatchTransactionTest {
 
     private fun run(block: suspend () -> Unit) = runBlocking { withTimeout(10_000) { block() } }
 
+    /** The log in a stable order: allLogEntries orders by timestamp first, and rows logged in one millisecond tie. */
+    private suspend fun log(dbDef: SyncableDatabaseAccessor<*>) = dbDef.dao.allLogEntries().sortedBy { it.toString() }
+
     private suspend fun labelNames(dbDef: SyncableDatabaseAccessor<BookmarkDatabase>) =
         dbDef.localDb.bookmarkDao().allLabelsSortedByName().map { it.name }
 
@@ -125,11 +128,11 @@ class SyncPatchTransactionTest {
 
         assertEquals(listOf("label 1", "label 2"), labelNames(dbDef2))
         assertEquals(listOf(label.id), dbDef2.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark.id).map { it.labelId })
-        val log1 = dbDef1.dao.allLogEntries()
+        val log1 = log(dbDef1)
         assertEquals(4, log1.size)
-        assertEquals(log1, dbDef2.dao.allLogEntries())
+        assertEquals(log1, log(dbDef2))
         // The triggers were off while the patch was applied: no entry is attributed to device 2.
-        assertTrue(dbDef2.dao.allLogEntries().all { it.sourceDevice == dbDef1.deviceId })
+        assertTrue(log(dbDef2).all { it.sourceDevice == dbDef1.deviceId })
         assertNotEquals(true, dbDef2.dao.getBoolean(TRIGGERS_DISABLED_KEY))
         // ... and back on afterwards.
         dbDef2.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 3"))
@@ -167,7 +170,7 @@ class SyncPatchTransactionTest {
         applyPatchesForDatabase(dbDef1, patch2)
         assertEquals(0, dao1.getBookmarkToLabelsForBookmark(bookmark2.id).size)
         assertEquals(0, dao1.allLabelsSortedByName().size)
-        assertEquals(dbDef1.dao.allLogEntries(), dbDef2.dao.allLogEntries())
+        assertEquals(log(dbDef1), log(dbDef2))
     }
 
     @Test fun aPatchThatFailsHalfwayLeavesNothingApplied() = run {
@@ -181,7 +184,7 @@ class SyncPatchTransactionTest {
         val e = runCatching { applyPatchesForDatabase(dbDef2, broken) }.exceptionOrNull()
         assertTrue("expected the apply to fail, got $e", e != null && "StudyPadTextEntryText" in e.toString())
         assertEquals(emptyList<String>(), labelNames(dbDef2))
-        assertEquals(emptyList<Any>(), dbDef2.dao.allLogEntries())
+        assertEquals(emptyList<Any>(), log(dbDef2))
         assertNotEquals(true, dbDef2.dao.getBoolean(TRIGGERS_DISABLED_KEY))
 
         // The patch database was detached and foreign keys restored: the good patch applies normally afterwards.
