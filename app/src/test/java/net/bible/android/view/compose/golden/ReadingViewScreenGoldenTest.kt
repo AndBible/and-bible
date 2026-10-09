@@ -419,7 +419,7 @@ class ReadingViewScreenGoldenTest {
     }
 
     // Empty panes expose the screen's paint; the hook proves the side inset actually arrived.
-    private fun seededSideNavScreen(proof: SideNavCaptureProof): @Composable () -> Unit = {
+    internal fun seededSideNavScreen(proof: SideNavCaptureProof): @Composable () -> Unit = {
         proof.view = androidx.compose.ui.platform.LocalView.current
         proof.rightInset = androidx.compose.foundation.layout.WindowInsets.navigationBars
             .getRight(androidx.compose.ui.platform.LocalDensity.current, androidx.compose.ui.platform.LocalLayoutDirection.current)
@@ -465,7 +465,7 @@ private const val AGENT_OVERLAY_CANVAS_DP = 800
 
 /** Dispatch only once the real content root and Compose's inset listener have settled. */
 @OptIn(com.github.takahirom.roborazzi.ExperimentalRoborazziApi::class)
-private class SideNavCaptureProof : com.github.takahirom.roborazzi.RoborazziComposeCaptureOption {
+internal class SideNavCaptureProof : com.github.takahirom.roborazzi.RoborazziComposeCaptureOption {
     lateinit var view: android.view.View
     var rightInset = -1
     var paneRight = Float.NaN
@@ -480,6 +480,18 @@ private class SideNavCaptureProof : com.github.takahirom.roborazzi.RoborazziComp
                     androidx.core.graphics.Insets.of(0, 0, 24, 0))
                 .build())
         looper.idleFor(java.time.Duration.ofSeconds(1))
+        looper.idle()
+        // Roborazzi captures AndroidComposeView directly inside onActivity. Insets can recompose
+        // here without a ViewRoot traversal; perform the real root measure/layout before reading
+        // onGloballyPositioned bounds, not just another looper idle.
+        root.measure(
+            android.view.View.MeasureSpec.makeMeasureSpec(root.width, android.view.View.MeasureSpec.EXACTLY),
+            android.view.View.MeasureSpec.makeMeasureSpec(root.height, android.view.View.MeasureSpec.EXACTLY),
+        )
+        root.layout(root.left, root.top, root.right, root.bottom)
+        val bitmap = android.graphics.Bitmap.createBitmap(root.width, root.height, android.graphics.Bitmap.Config.ARGB_8888)
+        root.draw(android.graphics.Canvas(bitmap))
+        bitmap.recycle()
         looper.idle()
         org.junit.Assert.assertEquals("The golden must exercise a real right navigation inset", 24, rightInset)
         org.junit.Assert.assertEquals("The pane must stop before the navigation band",
