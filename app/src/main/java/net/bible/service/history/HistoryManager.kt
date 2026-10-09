@@ -97,7 +97,7 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
             val doc = Books.installed().getBook(entity.document) ?: continue
             val key = try {
                 val k = doc.getKey(entity.key)
-                if(k is RangedPassage) k[0]!! else k
+                if(k is RangedPassage) k.get(0)!! else k
             } catch (e: NoSuchKeyException) {
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
