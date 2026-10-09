@@ -187,7 +187,11 @@ abstract class RepoDatabase: RoomDatabase() {
 
 const val SETTINGS_DATABASE_VERSION = 1
 
-@Database(
+/**
+ * On Room 3 (`androidx.room3`) since D1 Task 16; the other databases follow in Task 17. Fully qualified
+ * annotations because this file still imports Room 2. No column converters: every column is a primitive.
+ */
+@androidx.room3.Database(
     entities = [
         BooleanSetting::class,
         StringSetting::class,
@@ -196,8 +200,7 @@ const val SETTINGS_DATABASE_VERSION = 1
     ],
     version = SETTINGS_DATABASE_VERSION
 )
-@TypeConverters(Converters::class)
-abstract class SettingsDatabase: RoomDatabase() {
+abstract class SettingsDatabase: androidx.room3.RoomDatabase() {
     abstract fun booleanSettingDao(): BooleanSettingDao
     abstract fun stringSettingDao(): StringSettingDao
     abstract fun longSettingDao(): LongSettingDao

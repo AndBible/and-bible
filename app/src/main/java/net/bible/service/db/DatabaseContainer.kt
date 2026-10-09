@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.useWriterConnection
+import androidx.room3.useWriterConnection as room3UseWriterConnection
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
@@ -287,14 +288,12 @@ class DatabaseContainer {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
+    /** On Room 3 with the bundled driver since D1 Task 16 (the other databases follow in Task 17). */
     val settingsDb: SettingsDatabase =
-        Room.databaseBuilder(
-            application, SettingsDatabase::class.java, SettingsDatabase.dbFileName
-        )
-            .allowMainThreadQueries()
-            .addMigrations()
-            .openHelperFactory(dbFactory)
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+        androidx.room3.Room.databaseBuilder<SettingsDatabase>(application, SettingsDatabase.dbFileName)
+            .setDriver(sqliteDriverFactory())
+            .setQueryCoroutineContext(Dispatchers.IO)
+            .setJournalMode(androidx.room3.RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
     /** `internal` only so a test can occupy the writer thread; not for production use. */
@@ -353,19 +352,23 @@ class DatabaseContainer {
         }
     }
 
-    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, aiSettingsDb, progressDb)
+    // settingsDb is backed up too, but is a Room 3 database: sync(), vacuum(), closeForReplace() and closeAll()
+    // handle it beside these Room 2 arrays until Task 17 moves every database to Room 3.
+    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, myDocumentDb, aiSettingsDb, progressDb)
     // documentSyncDb is intentionally NOT backed up or vacuumed (device-local, sign-out-scoped cache),
     // but it must still be closed by closeAll() on reset()/restore — otherwise the old Room handle
     // leaks and the next container opens a second handle to the same file (SQLite lock risk).
     private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, documentSyncDb)
 
-    /** Keyed by the file name each database was built with (what the open helper's database name used to answer). */
+    /**
+     * Keyed by the file name each database was built with (what the open helper's database name used to answer).
+     * Room 2 databases only: [settingsDb] (Room 3) is closed by [closeForReplace] directly until Task 17.
+     */
     val dbByFilename: Map<String, RoomDatabase> = mapOf(
         BookmarkDatabase.dbFileName to bookmarkDb,
         ReadingPlanDatabase.dbFileName to readingPlanDb,
         WorkspaceDatabase.dbFileName to workspaceDb,
         RepoDatabase.dbFileName to repoDb,
-        SettingsDatabase.dbFileName to settingsDb,
         MyDocumentDatabase.dbFileName to myDocumentDb,
         AiSettingsDatabase.dbFileName to aiSettingsDb,
         ProgressDatabase.dbFileName to progressDb,
@@ -374,17 +377,17 @@ class DatabaseContainer {
         DOCUMENT_SYNC_DB_FILENAME to documentSyncDb,
     )
 
-    internal suspend fun sync() = allDatabases.forEach {
-        it.useWriterConnection { c ->
-            // we are not using WAL mode any more, but it does not hurt either. Just in case we switch back to WAL.
-            c.exec("PRAGMA wal_checkpoint(FULL)")
-        }
+    internal suspend fun sync() {
+        // we are not using WAL mode any more, but it does not hurt either. Just in case we switch back to WAL.
+        allDatabases.forEach { it.useWriterConnection { c -> c.exec("PRAGMA wal_checkpoint(FULL)") } }
+        settingsDb.room3UseWriterConnection { c -> c.usePrepared("PRAGMA wal_checkpoint(FULL)") { st -> while (st.step()) {} } }
     }
 
     internal suspend fun vacuum() {
         backedUpDatabases.forEach {
             it.useWriterConnection { c -> c.exec("VACUUM;") }
         }
+        settingsDb.room3UseWriterConnection { c -> c.usePrepared("VACUUM;") { st -> while (st.step()) {} } }
     }
 
     /**
@@ -394,7 +397,10 @@ class DatabaseContainer {
      * and a later DAO write would reopen the handle on whatever file is then in place.
      */
     internal fun closeForReplace(fileName: String) {
-        if (fileName == SettingsDatabase.dbFileName) blockingDb { settingsStore.flush() }
+        if (fileName == SettingsDatabase.dbFileName) {
+            blockingDb { settingsStore.flush() }
+            settingsDb.close()
+        }
         dbByFilename[fileName]?.close()
     }
 
@@ -409,6 +415,7 @@ class DatabaseContainer {
         blockingDb { settingsStore.flush() }
         settingsScope.cancel()
         allDatabases.forEach { it.close() }
+        settingsDb.close()
     }
 
     companion object {

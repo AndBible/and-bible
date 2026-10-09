@@ -39,8 +39,12 @@ import java.lang.reflect.Modifier
  * blocking Room function anywhere fails [everyRoomDaoFunctionIsSuspend].
  */
 class DaoSuspendGuardTest {
+    // Both Room 2 (androidx/room) and Room 3 (androidx/room3) annotations while the databases are split between
+    // them (D1 Task 16, SettingsDatabase on Room 3); Task 17 leaves only androidx/room3.
+    private val roomPackages = listOf("androidx/room", "androidx/room3")
     private val roomAnnotations = setOf("Query", "Insert", "Update", "Delete", "Upsert", "Transaction", "RawQuery")
-        .map { "Landroidx/room/$it;" }.toSet()
+        .flatMap { a -> roomPackages.map { "L$it/$a;" } }.toSet()
+    private val daoAnnotations = roomPackages.map { "L$it/Dao;" }.toSet()
 
     private val databases = listOf(
         BookmarkDatabase::class.java, WorkspaceDatabase::class.java, ReadingPlanDatabase::class.java,
@@ -68,7 +72,7 @@ class DaoSuspendGuardTest {
                 superName = sup; ifaces = i?.toList().orEmpty()
             }
             override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor? {
-                if (desc == "Landroidx/room/Dao;") isDao = true
+                if (desc in daoAnnotations) isDao = true
                 return null
             }
             override fun visitMethod(a: Int, n: String, d: String, sig: String?, ex: Array<String>?): MethodVisitor {
@@ -140,6 +144,12 @@ class DaoSuspendGuardTest {
         assertTrue(epub.isDao)
         assertTrue("no Room functions detected on EpubDao", epub.roomFunctions.isNotEmpty())
         assertTrue(epub.roomFunctions.all { isSuspend(it.second) })
+
+        // A Room 3 DAO (androidx/room3 annotations) is detected too.
+        val settings = read("net/bible/android/database/BooleanSettingDao")!!
+        assertTrue(settings.isDao)
+        assertTrue("no Room 3 functions detected on BooleanSettingDao", settings.roomFunctions.isNotEmpty())
+        assertTrue(settings.roomFunctions.all { isSuspend(it.second) })
     }
 
     private companion object { const val DAO_COUNT = 28 }

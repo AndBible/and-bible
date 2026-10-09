@@ -52,7 +52,7 @@ class MigrationChainTest {
                 application.deleteDatabase(name)
                 SchemaExportFixtures.createFromExport(db.schemaDir, v, application.getDatabasePath(name))
                 try {
-                    db.open(name).also { it.openHelper.writableDatabase }.close()  // Task 16: useWriterConnection
+                    db.open(name).also { it.identityHash() }.close()  // opening the file runs the migration chain
                     tested++
                 } catch (e: Throwable) {
                     failures += "${db.schemaDir} v$v: ${e::class.simpleName}: ${e.message?.take(200)}"

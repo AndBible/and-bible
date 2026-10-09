@@ -6,6 +6,7 @@ ksp = "2.3.9"
 gradle = "9.5.1"                 # informational; the wrapper is the source of truth
 # AndBible libraries — current values, moved verbatim into the catalog
 room = "2.8.4"                   # bumped from 2.7.2 to a KSP-2.3.9-compatible Room
+room3 = "3.0.3"                  # D1.5: Room 3 (androidx.room3), alongside room until Task 17
 coroutines = "1.11.0"            # bumped from 1.10.2 to the reference level
 kotlinxSerialization = "1.8.1"
 atomicfu = "0.33.0"
@@ -47,6 +48,8 @@ androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtim
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3" }
+androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }

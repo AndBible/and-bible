@@ -17,11 +17,12 @@
 
 package net.bible.android.database
 
-import androidx.room.Room
+import androidx.room3.Room
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.service.db.sqliteDriverFactory
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -38,7 +39,7 @@ class SettingsDaoTest {
     private lateinit var db: SettingsDatabase
 
     @Before fun setUp() {
-        db = Room.inMemoryDatabaseBuilder(application, SettingsDatabase::class.java).allowMainThreadQueries().build()
+        db = Room.inMemoryDatabaseBuilder(application, SettingsDatabase::class.java).setDriver(sqliteDriverFactory()).build()
     }
 
     @After fun tearDown() { db.close() }

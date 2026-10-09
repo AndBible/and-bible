@@ -426,6 +426,9 @@ androidComponents {
 
 dependencies {
     ksp(libs.androidx.room.compiler)
+    // Room 3 (D1.5): both processors run in this module until Task 17; each handles only its own
+    // annotations (androidx.room.* vs androidx.room3.*) and both read the room.schemaLocation KSP arg.
+    ksp(libs.androidx.room3.compiler)
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.room.ktx)
@@ -464,6 +467,7 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
 
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room3.runtime)
     implementation(libs.androidx.sqlite.bundled)
 
     implementation(libs.kotlinx.serialization.json)
