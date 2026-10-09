@@ -62,9 +62,18 @@ class WebDavBackgroundFailureTest {
         assertFalse(e is IOException)
     }
 
+    @Test fun bareUnauthorizedDuringSync_isUserFacingReconnect() = runBlocking {
+        val a = signedIn()
+        server.statusOverride = { 401 }
+        val e = runCatching { a.listFiles(null, null, null, null) }.exceptionOrNull()
+        assertTrue("was \$e", e is CloudSyncUserFacingException)
+        e as CloudSyncUserFacingException
+        assertTrue(e.requiresReconnect)
+        assertEquals("WRONG_CREDENTIALS", e.message)
+    }
+
     @Test fun authFailureDuringSync_isUserFacingReconnect() = runBlocking {
-        // A real 401 carries a WWW-Authenticate challenge (a bare 401 NPEs inside ktor's Auth plugin),
-        // so use the fake server's auth mode with an adapter whose password is wrong.
+        // The fake server's auth mode (a real challenge) with an adapter whose password is wrong.
         val a = WebDavCloudAdapter(
             WebDavConfig("https://h/dav/", "me", "wrong", "AndBible"), state, ui,
             clientFactory = { c, _ -> WebDavClient(createWebDavHttpClient(server.engine, c.username, c.password), c.serverUrl, c.username, c.password, { server.nowServer }) },

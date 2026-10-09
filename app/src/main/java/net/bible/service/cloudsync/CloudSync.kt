@@ -140,7 +140,7 @@ object CloudSync {
     private var _adapter: CloudAdapter? = null
     private val adapter: CloudAdapter get() = _adapter!!
 
-    val signedIn get() = _adapter != null && adapter.signedIn
+    val signedIn get() = _adapter?.signedIn == true
 
     internal val cloudAdapter: CloudAdapter? get() = _adapter
 
@@ -454,8 +454,16 @@ object CloudSync {
     /** Drops the adapter so the next foreground sync signs in again (and can prompt), keeping all sync state. */
     internal fun dropAdapterForReconnect() { _adapter = null }
 
-    private fun reportUserFacing(e: CloudSyncUserFacingException, reported: java.util.concurrent.atomic.AtomicBoolean) {
-        if (e.requiresReconnect) dropAdapterForReconnect()
+    /**
+     * Notifies once per sync. Only records [needsReconnect]; the adapter is dropped after every
+     * category has finished (see [synchronize]) so concurrent categories never see a null adapter.
+     */
+    private fun reportUserFacing(
+        e: CloudSyncUserFacingException,
+        reported: java.util.concurrent.atomic.AtomicBoolean,
+        needsReconnect: java.util.concurrent.atomic.AtomicBoolean,
+    ) {
+        if (e.requiresReconnect) needsReconnect.set(true)
         if (reported.compareAndSet(false, true)) UserMessages.errorNotification(e.message ?: "", showReportButton = false)
     }
 
@@ -475,6 +483,7 @@ object CloudSync {
             val timerStart = System.currentTimeMillis()
 
             val reported = java.util.concurrent.atomic.AtomicBoolean(false)
+            val needsReconnect = java.util.concurrent.atomic.AtomicBoolean(false)
             DatabaseContainer.databaseAccessorFactories.asyncMap {
                 val dbDef = it.invoke()
                 if(!dbDef.category.syncEnabled) return@asyncMap
@@ -488,7 +497,7 @@ object CloudSync {
                     Log.e(TAG, "IOException (probably network down)", e)
                     return@asyncMap
                 } catch (e: CloudSyncUserFacingException) {
-                    reportUserFacing(e, reported)
+                    reportUserFacing(e, reported, needsReconnect)
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "Some other exception happened in initializeSync!", e)
@@ -501,7 +510,7 @@ object CloudSync {
                     Log.e(TAG, "IOException", e)
                     return@asyncMap
                 } catch (e: CloudSyncUserFacingException) {
-                    reportUserFacing(e, reported)
+                    reportUserFacing(e, reported, needsReconnect)
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "createAndUploadNewPatch failed due to error", e)
@@ -522,7 +531,7 @@ object CloudSync {
                     dbDef.dao.setConfig("disabledForVersion", dbDef.version.toLong())
                     return@asyncMap
                 } catch (e: CloudSyncUserFacingException) {
-                    reportUserFacing(e, reported)
+                    reportUserFacing(e, reported, needsReconnect)
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
@@ -537,10 +546,11 @@ object CloudSync {
                     manual = false,
                 )
             } catch (e: CloudSyncUserFacingException) {
-                reportUserFacing(e, reported)
+                reportUserFacing(e, reported, needsReconnect)
             } catch (e: Exception) {
                 Log.e(TAG, "Document sync pull failed", e)
             }
+            if (needsReconnect.get()) dropAdapterForReconnect()
             Log.i(TAG, "Synchronization complete in ${(System.currentTimeMillis() - timerStart)/1000.0} seconds.")
         }
     }

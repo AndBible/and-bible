@@ -56,6 +56,16 @@ class WebDavClientTest {
         assertEquals(5 * 60_000L, c.serverClockOffsetMs)
     }
 
+    @Test fun bare401WithoutChallenge_isAuthException() = runTest {
+        val c = client { respond("", HttpStatusCode.Unauthorized) }
+        assertEquals(401, assertFailsWith<DavAuthException> { c.propfind("sync", 0) }.status)
+    }
+
+    @Test fun bare403WithoutChallenge_isAuthException() = runTest {
+        val c = client { respond("", HttpStatusCode.Forbidden) }
+        assertEquals(403, assertFailsWith<DavAuthException> { c.propfind("sync", 0) }.status)
+    }
+
     @Test fun basicAuth_challengeThenPreemptive() = runTest {
         val c = client { req ->
             if (req.headers[HttpHeaders.Authorization] == null)

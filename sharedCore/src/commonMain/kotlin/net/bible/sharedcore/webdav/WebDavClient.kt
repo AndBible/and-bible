@@ -125,12 +125,25 @@ class WebDavClient(
         path: String, method: HttpMethod, collectionUrl: Boolean,
         okStatuses: Set<Int> = emptySet(), configure: HttpRequestBuilder.() -> Unit = {},
     ): HttpResponse {
-        var resp = http.request { build(path, method, collectionUrl); configure() }
-        if (retryBasicIfChallenged(resp)) resp = http.request { build(path, method, collectionUrl); configure() }
+        var resp = requestOrAuthFailure { http.request { build(path, method, collectionUrl); configure() } }
+        if (retryBasicIfChallenged(resp)) resp = requestOrAuthFailure { http.request { build(path, method, collectionUrl); configure() } }
         noteDate(resp)
         val status = resp.status.value
         if (status !in okStatuses) davStatusException(status, path)?.let { throw it }
         return resp
+    }
+
+    /**
+     * ktor's Auth plugin dereferences the WWW-Authenticate header of a 401 and throws a
+     * NullPointerException (or IllegalStateException) when the server sent none. That is a rejected
+     * credential, not a bug: surface it as [DavAuthException] so the sync layer asks for reconnect.
+     */
+    private suspend fun requestOrAuthFailure(block: suspend () -> HttpResponse): HttpResponse = try {
+        block()
+    } catch (e: Throwable) {
+        val fromAuth = (e is NullPointerException || e is IllegalStateException) &&
+            e.stackTraceToString().contains("plugins.auth", ignoreCase = true)
+        if (fromAuth) throw DavAuthException(401) else throw e
     }
 
     private fun HttpRequestBuilder.build(path: String, method: HttpMethod, collectionUrl: Boolean) {
