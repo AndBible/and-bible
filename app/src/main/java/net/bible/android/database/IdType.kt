@@ -154,7 +154,9 @@ data class IdType(
         fun fromString(value: String) = if(value.isEmpty()) empty() else IdType(MyUUID.fromString(value))
         fun fromByteArray(value: ByteArray?): IdType? {
             if(value==null) return null
-            if(value.size == 1) {
+            // The empty id is stored as '' (e.g. LogEntry.entityId2 for single-key tables). An Android CursorWindow
+            // reads that as one NUL byte, the androidx.sqlite drivers (bundled SQLite, Room 3) as zero bytes.
+            if(value.size <= 1) {
                 return empty()
             }
             return IdType(MyUUID.fromByteArray(value))
