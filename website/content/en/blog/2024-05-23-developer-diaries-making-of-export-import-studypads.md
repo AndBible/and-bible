@@ -6,6 +6,11 @@ summary: 'In this video I''m telling about upcoming feature I''m developing curr
 categories:
 - Developer diaries
 - New features
+tags:
+- studypads
+- export
+- import
+- video
 image: blog/2024/05/developer.webp
 image_alt: 'Developer diaries: Making of Export & Import StudyPad(s)'
 ---

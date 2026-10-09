@@ -3,6 +3,9 @@ title: 'AndBible for iOS: Now Available on the App Store'
 date: '2026-09-26'
 slug: andbible-for-ios-now-available-on-the-app-store
 summary: Back in July, we announced the public beta of AndBible for iOS — our answer to one of the most frequent requests we’ve received over the years. Today we’re happy…
+tags:
+- ios
+- news
 image: blog/2026/09/andbible-ios-ready.webp
 image_alt: 'AndBible for iOS: Now Available on the App Store'
 ---

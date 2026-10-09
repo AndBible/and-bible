@@ -5,6 +5,9 @@ slug: new-video-export-studypad-as-html-file
 summary: Have you ever been wanting to print out a StudyPad that you have been working on in AndBible? Export as HTML feature is made for such situations. You can use…
 tags:
 - tips & tricks
+- studypads
+- export
+- video
 image: blog/2023/12/export-studypad-as-html.webp
 image_alt: 'New video: Export StudyPad as HTML file'
 ---

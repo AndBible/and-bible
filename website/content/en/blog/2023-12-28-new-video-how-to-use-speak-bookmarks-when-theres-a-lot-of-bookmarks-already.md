@@ -5,6 +5,9 @@ slug: new-video-how-to-use-speak-bookmarks-when-theres-a-lot-of-bookmarks-alread
 summary: One user was pondering how to use speak bookmarks when there are a lot of bookmarks or bookmarks with a lot of labels in a passage already. He was initially…
 tags:
 - tips & tricks
+- bookmarks
+- text-to-speech
+- video
 image: blog/2023/12/listening.webp
 image_alt: 'New video: How to use speak bookmarks when there''s a lot of bookmarks already?'
 ---

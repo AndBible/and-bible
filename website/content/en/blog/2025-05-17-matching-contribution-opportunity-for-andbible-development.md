@@ -5,6 +5,8 @@ slug: matching-contribution-opportunity-for-andbible-development
 summary: We have received an exciting and generous proposal from a dedicated AndBible user, aimed at accelerating the development of key features and general improvements. The user has offered a "matching"…
 categories:
 - Sponsoring AndBible
+tags:
+- financial support
 image: blog/2025/05/ab-match-1.webp
 image_alt: Matching Contribution Opportunity for AndBible Development
 ---

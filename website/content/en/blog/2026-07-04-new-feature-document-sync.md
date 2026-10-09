@@ -3,6 +3,11 @@ title: 'New feature: Document Sync'
 date: '2026-07-04'
 slug: new-feature-document-sync
 summary: If you use AndBible on more than one device — a phone and a tablet, an old phone and a new one — you know the small frustration of setting…
+tags:
+- device synchronization
+- documents
+- new features
+- video
 image: blog/2025/08/new-andbible-features.webp
 image_alt: 'New feature: Document Sync'
 ---

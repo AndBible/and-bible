@@ -90,6 +90,8 @@ blog:
   next_page: Next page
   category: "Category: {name}"
   tag: "Tag: {name}"
+  tags_title: Tags
+  all_tags: All tags
   posted_in: Posted in
 videos:
   title: Tutorial videos

@@ -5,6 +5,9 @@ slug: new-video-using-chained-links-windows-with-andbible
 summary: In AndBible, we use links window as a concept to tap conveniently links and to display simultaneously the parent text as well as the link target text. Link target text…
 tags:
 - tips & tricks
+- windows
+- links
+- video
 image: blog/2023/12/selection-282.webp
 image_alt: 'New video: Using chained links windows with AndBible'
 ---

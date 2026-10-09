@@ -5,6 +5,9 @@ slug: new-video-how-save-space-in-google-drive-storage-when-using-device-synchro
 summary: When using Device Synchronization to keep multiple devices in sync, AndBible uses some space in Google Drive. That space allocation is incrementally increased as time goes by. That is because…
 tags:
 - tips & tricks
+- device synchronization
+- google drive
+- video
 image: blog/2023/12/how-to-save-space.webp
 image_alt: 'New video: How save space in Google Drive storage when using  Device Synchronization'
 ---

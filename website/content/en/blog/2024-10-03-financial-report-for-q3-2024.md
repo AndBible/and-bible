@@ -8,6 +8,7 @@ categories:
 tags:
 - financial support
 - transparency
+- video
 image: blog/2024/10/screenshot-from-2024-10-03-13-49-04.webp
 image_alt: Financial report for Q3 / 2024
 ---

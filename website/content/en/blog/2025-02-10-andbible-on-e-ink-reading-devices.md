@@ -3,6 +3,10 @@ title: AndBible on E-Ink reading devices
 date: '2025-02-10'
 slug: andbible-on-e-ink-reading-devices
 summary: In this video, I'm going to show you how to use AndBible on Android E-ink devices such as Onyx Boox. If you are interested in buying this kind of Android…
+tags:
+- e-ink
+- devices
+- video
 image: blog/2025/01/screenshot-from-2025-01-06-17-29-31.webp
 image_alt: AndBible on E-Ink reading devices
 ---
