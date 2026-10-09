@@ -245,13 +245,13 @@ object BookmarkCsvUtils {
         ImportResult(created, updated, errorMessages)
     }
 
-    private fun assignLabelsToBookmark(
+    private suspend fun assignLabelsToBookmark(
         bookmark: BookmarkEntities.BibleBookmarkWithNotes,
         labelNames: List<String>,
         bookmarkControl: BookmarkControl
     ) {
         try {
-            val allLabels = bookmarkControl.allLabels.associateBy { it.name.trim() }
+            val allLabels = bookmarkControl.allLabels().associateBy { it.name.trim() }
             val labelIds = mutableListOf<IdType>()
 
             for (labelName in labelNames) {

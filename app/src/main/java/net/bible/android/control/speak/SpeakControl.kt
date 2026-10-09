@@ -18,6 +18,7 @@
 package net.bible.android.control.speak
 
 import android.media.AudioManager
+import net.bible.service.db.blockingDb
 import net.bible.sharedcore.log.Log
 
 import net.bible.android.BibleApplication
@@ -148,7 +149,7 @@ class SpeakControl constructor(
             if (!isPaused && !isSpeaking) {
                 // if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
                 if (ev.updateBookmark) {
-                    bookmarkControl.updateBookmarkPlaybackSettings(ev.speakSettings.playbackSettings)
+                    blockingDb { bookmarkControl.updateBookmarkPlaybackSettings(ev.speakSettings.playbackSettings) } // L1-pending(speak)
                 }
             } else if (isSpeaking) {
                 pause(true)

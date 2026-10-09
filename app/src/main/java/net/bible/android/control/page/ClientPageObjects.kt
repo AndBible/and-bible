@@ -348,7 +348,7 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
             "originalOrdinalRange" to json.encodeToString(serializer(), listOf(bookmark.verseRange.start.ordinal, bookmark.verseRange.end.ordinal)),
             "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse || bookmark.book == null) null else bookmark.textRange?.clientList),
             "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
-                if(it.isEmpty()) it.add(bookmarkControl.labelUnlabelled.id)
+                if(it.isEmpty()) it.add(blockingDb { bookmarkControl.labelUnlabelled() }.id) // L1-pending(page)
             }),
             "bookInitials" to wrapString(bookmark.book?.initials),
             "bookName" to wrapString(bookmark.book?.name),
@@ -390,7 +390,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.ordinalStart, bookmark.ordinalEnd)),
             "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse) null else bookmark.textRange?.clientList),
             "labels" to json.encodeToString(serializer(), bookmark.labelIds!!.toMutableList().also {
-                if(it.isEmpty()) it.add(bookmarkControl.labelUnlabelled.id)
+                if(it.isEmpty()) it.add(blockingDb { bookmarkControl.labelUnlabelled() }.id) // L1-pending(page)
             }),
             "bookInitials" to wrapString(bookmark.bookInitials),
             "bookName" to wrapString(bookmark.book?.name?: bookmark.bookInitials),

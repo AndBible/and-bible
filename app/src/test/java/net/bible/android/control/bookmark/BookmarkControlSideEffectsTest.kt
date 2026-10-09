@@ -17,8 +17,17 @@
 
 package net.bible.android.control.bookmark
 
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.runBlocking
+import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.log.LogLevel
+import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
@@ -49,8 +58,6 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 
 /**
  * The emit-after-bridge contract of [BookmarkControl]'s bridged calls: effects queued while the DAO calls run are
@@ -63,29 +70,34 @@ class BookmarkControlSideEffectsTest {
     private lateinit var control: BookmarkControl
     private val subscriptions = mutableListOf<Subscription>()
     private val seen = mutableListOf<BookmarkChange>()
+    private val syncScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    /** Waits for the `bookmark-sync` blocks the control launched (a sync notification is handled asynchronously). */
+    private fun awaitLaunchedSyncBlocks() = runBlocking { syncScope.coroutineContext[Job]!!.children.toList().joinAll() }
 
     @Before fun setUp() {
-        control = BookmarkControl(windowControl, mock(AndroidResourceProvider::class.java))
+        control = BookmarkControl(windowControl, mock(AndroidResourceProvider::class.java), OrderedLauncher(syncScope))
         subscriptions += control.changes.subscribe { seen += it }
     }
 
     @After fun tearDown() {
         subscriptions.forEach { it.cancel() }
+        syncScope.cancel()
         resetDatabase()
     }
 
-    private fun bookmark(labels: Set<IdType>? = null) =
+    private suspend fun bookmark(labels: Set<IdType>? = null) =
         control.addOrUpdateBibleBookmark(BibleBookmarkWithNotes(
             VerseRangeFactory.fromString(Versifications.instance().getVersification("KJV"), "Ps 119:1"),
             null, true, null,
         ), labels)
 
-    @Test fun aSubscriberThatBridgesFromInsideItsHandlerNeitherDeadlocksNorThrows() {
+    @Test fun aSubscriberThatBridgesFromInsideItsHandlerNeitherDeadlocksNorThrows() = runTest {
         control.insertOrUpdateLabel(Label(new = true).apply { name = "existing" })
         var result: Result<List<Label>>? = null
-        subscriptions += control.changes.subscribe { if (it is BookmarkChange.LabelUpserted) result = runCatching { control.allLabels } }
+        subscriptions += control.changes.subscribe { if (it is BookmarkChange.LabelUpserted) result = runCatching { blockingDb { control.allLabels() } } }
 
-        val worker = Thread { control.insertOrUpdateLabel(Label(new = true).apply { name = "second" }) }
+        val worker = Thread { runBlocking { control.insertOrUpdateLabel(Label(new = true).apply { name = "second" }) } }
         worker.start()
         worker.join(15_000)
 
@@ -101,7 +113,7 @@ class BookmarkControlSideEffectsTest {
      * label gone (effects run at the end of the outermost call), every change must arrive, in emission order, and the
      * handler's bridge must not throw BlockingDbInTransaction.
      */
-    @Test fun aBridgingSubscriberRunsAfterTheOutermostCallAndSeesItsFinalStateInEmissionOrder() {
+    @Test fun aBridgingSubscriberRunsAfterTheOutermostCallAndSeesItsFinalStateInEmissionOrder() = runTest {
         val label = control.insertOrUpdateLabel(Label(new = true).apply { name = "doomed" })
         val b = bookmark(labels = setOf(label.id))
         seen.clear()
@@ -125,30 +137,31 @@ class BookmarkControlSideEffectsTest {
     }
 
     /** A sync entry for a StudyPadTextEntryText row that does not exist makes the core throw (NPE) after it queued two events. */
-    @Test fun whenTheCoreThrowsTheEffectsQueuedBeforeItAreStillFlushedAndTheOriginalSurfaces() {
+    @Test fun whenTheCoreThrowsTheEffectsQueuedBeforeItAreStillFlushedAndTheOriginalSurfaces() = runTest {
         val label = control.insertOrUpdateLabel(Label(new = true).apply { name = "L" })
         seen.clear()
         val entries = listOf(
             LogEntry("Label", label.id, IdType.empty(), LogEntryTypes.UPSERT, 0L, "other-device"),
             LogEntry("StudyPadTextEntryText", IdType(), IdType.empty(), LogEntryTypes.UPSERT, 0L, "other-device"),
         )
-        val err = ByteArrayOutputStream()
-        val oldErr = System.err
-        System.setErr(PrintStream(err, true))
+        val errors = java.util.concurrent.CopyOnWriteArrayList<Throwable>()
+        val oldSink = Log.sinkOverride
+        Log.sinkOverride = { level, _, _, tr -> if (level == LogLevel.ERROR && tr != null) errors += tr }
         try {
-            // The sync event source catches and prints a throwing subscriber: the printed trace is the surfaced exception.
+            // The ordered launcher logs a failing block as an ERROR with its exception: that is the surfaced exception.
             val accessor = DatabaseContainer.getDatabaseAccessorFactories(DatabaseContainer.instance)
                 .map { it() }.single { it.category == SyncableDatabaseDefinition.BOOKMARKS }
             accessor._reactToUpdates!!.invoke(entries)
+            awaitLaunchedSyncBlocks()
         } finally {
-            System.setErr(oldErr)
+            Log.sinkOverride = oldSink
         }
         assertEquals(label.id, seen.filterIsInstance<BookmarkChange.LabelUpserted>().single().label.id)
         assertEquals(2, seen.filterIsInstance<BookmarkChange.BookmarksDeleted>().size) // both queued deletes flushed
-        assertTrue("original exception expected, got: $err", "NullPointerException" in err.toString())
+        assertTrue("original exception expected, got: $errors", errors.any { it is NullPointerException })
     }
 
-    @Test fun anEffectThatThrowsDoesNotDropTheEffectsAfterItNorFailTheCall() {
+    @Test fun anEffectThatThrowsDoesNotDropTheEffectsAfterItNorFailTheCall() = runTest {
         val repo = WindowRepository(CoroutineScope(Dispatchers.Unconfined)).apply {
             workspaceSettings = WorkspaceEntities.WorkspaceSettings(recentLabels = ThrowingList())
         }

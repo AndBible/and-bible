@@ -18,6 +18,7 @@
 package net.bible.service.llm.tools.write
 
 import org.koin.core.context.GlobalContext
+import net.bible.service.db.blockingDb
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
@@ -105,7 +106,7 @@ object CreateLabelTool : Tool {
         }
 
         return try {
-            val existingNames = bookmarkControl.assignableLabels.map { it.name }
+            val existingNames = blockingDb { bookmarkControl.assignableLabels() }.map { it.name } // L1-pending(llm)
             val uniqueName = uniqueLabelName(name.trim(), existingNames)
 
             // Create label using BookmarkControl (sends UI events)

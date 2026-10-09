@@ -203,7 +203,7 @@ abstract class CurrentPageBase protected constructor(
             book = currentDocument,
             key = key,
             osisFragment = frag,
-            genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, effectiveKey, withLabels = true),
+            genericBookmarks = blockingDb { pageManager.bookmarkControl.genericBookmarksFor(currentDocument, effectiveKey, withLabels = true) }, // L1-pending(page)
             myDocumentPageId = myDocumentPage?.id?.toString(),
             sourcePromptId = myDocumentPage?.sourcePromptId?.toString(),
             sourcePromptName = promptName,

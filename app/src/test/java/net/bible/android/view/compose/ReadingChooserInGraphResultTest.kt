@@ -105,7 +105,7 @@ class ReadingChooserInGraphResultTest {
         // Label.id`. Which one wins is thread timing, so it failed only in some full-suite orders.
         // The race itself is production code's (reported, not changed here); this test is about the
         // chooser answer, not about first-run label creation.
-        GlobalContext.get().get<BookmarkControl>().apply { labelUnlabelled; speakLabel; paragraphBreakLabel }
+        GlobalContext.get().get<BookmarkControl>().apply { runBlocking { labelUnlabelled(); speakLabel(); paragraphBreakLabel() } }
         return Robolectric.buildActivity(
             NavHostComposeActivity::class.java,
             NavHostComposeActivity.intentFor(ApplicationProvider.getApplicationContext(), NavRoutes.READING),

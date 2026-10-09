@@ -17,6 +17,7 @@
 package net.bible.android.control.page
 
 import android.app.Activity
+import net.bible.service.db.blockingDb
 import android.content.Intent
 import net.bible.sharedcore.log.Log
 import androidx.lifecycle.lifecycleScope
@@ -224,11 +225,11 @@ class CurrentGeneralBookPage internal constructor(
         get() {
             return when(val key = key) {
                 is StudyPadKey -> {
-                    val bookmarks = pageManager.bookmarkControl.getBibleBookmarksWithLabel(key.label, addData = true)
-                    val genericBookmarks = pageManager.bookmarkControl.getGenericBookmarksWithLabel(key.label, addData = true)
-                    val journalTextEntries = pageManager.bookmarkControl.getStudyPadTextEntriesForLabel(key.label)
-                    val bookmarkToLabels = bookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) as BookmarkEntities.BibleBookmarkToLabel? }
-                    val genericBookmarkToLabels = genericBookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) as BookmarkEntities.GenericBookmarkToLabel? }
+                    val bookmarks = blockingDb { pageManager.bookmarkControl.getBibleBookmarksWithLabel(key.label, addData = true) } // L1-pending(page)
+                    val genericBookmarks = blockingDb { pageManager.bookmarkControl.getGenericBookmarksWithLabel(key.label, addData = true) } // L1-pending(page)
+                    val journalTextEntries = blockingDb { pageManager.bookmarkControl.getStudyPadTextEntriesForLabel(key.label) } // L1-pending(page)
+                    val bookmarkToLabels = bookmarks.mapNotNull { blockingDb { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) } as BookmarkEntities.BibleBookmarkToLabel? } // L1-pending(page)
+                    val genericBookmarkToLabels = genericBookmarks.mapNotNull { blockingDb { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) } as BookmarkEntities.GenericBookmarkToLabel? } // L1-pending(page)
                     val entryId = key.entryId
                     StudyPadDocument(key.label, entryId, bookmarks, genericBookmarks, bookmarkToLabels, genericBookmarkToLabels, journalTextEntries)
                 }
@@ -291,7 +292,7 @@ class CurrentGeneralBookPage internal constructor(
         val key = key
         when (currentDocument) {
             FakeBookFactory.journalDocument -> {
-                val nextLabel = pageManager.bookmarkControl.getNextLabel((key as StudyPadKey).label)
+                val nextLabel = blockingDb { pageManager.bookmarkControl.getNextLabel((key as StudyPadKey).label) } // L1-pending(page)
                 setKey(StudyPadKey(nextLabel))
             }
             FakeBookFactory.multiDocument -> {}
@@ -305,7 +306,7 @@ class CurrentGeneralBookPage internal constructor(
         val key = key
         when (currentDocument) {
             FakeBookFactory.journalDocument -> {
-                val nextLabel = pageManager.bookmarkControl.getPrevLabel((key as StudyPadKey).label)
+                val nextLabel = blockingDb { pageManager.bookmarkControl.getPrevLabel((key as StudyPadKey).label) } // L1-pending(page)
                 setKey(StudyPadKey(nextLabel))
             }
             FakeBookFactory.multiDocument -> {}
@@ -330,7 +331,7 @@ class CurrentGeneralBookPage internal constructor(
                 val splitted = entity!!.key?.split(":")?: return
                 if(splitted.size != 2) return
                 val id = splitted[1]
-                val label = pageManager.bookmarkControl.labelById(IdType(id))
+                val label = blockingDb { pageManager.bookmarkControl.labelById(IdType(id)) } // L1-pending(page)
                 if (label != null) {
                     doSetKey(StudyPadKey(label))
                     localSetCurrentDocument(FakeBookFactory.journalDocument)

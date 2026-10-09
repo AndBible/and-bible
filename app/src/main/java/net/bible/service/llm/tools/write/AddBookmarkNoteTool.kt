@@ -18,6 +18,7 @@
 package net.bible.service.llm.tools.write
 
 import org.koin.core.context.GlobalContext
+import net.bible.service.db.blockingDb
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
@@ -127,7 +128,7 @@ object AddBookmarkNoteTool : Tool {
 
             // Ensure AI label is present on the bookmark
             val existingLabelIds = bookmarkControl.labelsForBookmark(bookmark).map { it.id }.toSet()
-            val aiLabelId = bookmarkControl.aiLabel.id
+            val aiLabelId = blockingDb { bookmarkControl.aiLabel() }.id // L1-pending(llm)
             val labels = if (aiLabelId !in existingLabelIds) existingLabelIds + aiLabelId else null
 
             // Save using BookmarkControl (sends UI events)

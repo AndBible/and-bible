@@ -503,13 +503,13 @@ class BibleView(
                 )
             }
         if(primaryLabelId != null) {
-            val label = bookmarkControl.labelById(primaryLabelId)
+            val label = blockingDb { bookmarkControl.labelById(primaryLabelId) } // L1-pending(view)
             if(label != null) {
                 bookmark.primaryLabelId = primaryLabelId
             }
         }
 
-        bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels)
+        blockingDb { bookmarkControl.addOrUpdateBookmark(bookmark, initialLabels) } // L1-pending(view)
         if(initialLabels.isEmpty() || openNotes) {
             executeJavascriptOnUiThread(
                 "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true, openNotes: $openNotes});"
@@ -534,13 +534,13 @@ class BibleView(
         )
 
         if (primaryLabelId != null) {
-            val label = bookmarkControl.labelById(primaryLabelId)
+            val label = blockingDb { bookmarkControl.labelById(primaryLabelId) } // L1-pending(view)
             if (label != null) {
                 bookmark.primaryLabelId = primaryLabelId
             }
         }
 
-        bookmarkControl.addOrUpdateGenericBookmark(bookmark, initialLabels)
+        blockingDb { bookmarkControl.addOrUpdateGenericBookmark(bookmark, initialLabels) } // L1-pending(view)
         if (initialLabels.isEmpty()) {
             executeJavascriptOnUiThread(
                 "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true});"
@@ -573,8 +573,8 @@ class BibleView(
                 )
             }
 
-        bookmark.primaryLabelId = bookmarkControl.paragraphBreakLabel.id
-        bookmarkControl.addOrUpdateBookmark(bookmark, setOf(bookmarkControl.paragraphBreakLabel.id))
+        bookmark.primaryLabelId = blockingDb { bookmarkControl.paragraphBreakLabel() }.id // L1-pending(view)
+        blockingDb { bookmarkControl.addOrUpdateBookmark(bookmark, setOf(bookmarkControl.paragraphBreakLabel().id)) } // L1-pending(view)
     }
 
     fun openWebSearch(context: Context, query: String) {
@@ -1665,15 +1665,15 @@ class BibleView(
         val currentPage = window.pageManager.currentPage
 
         // make sure this has been created
-        bookmarkControl.labelUnlabelled
-        bookmarkControl.speakLabel
-        bookmarkControl.paragraphBreakLabel
+        blockingDb { bookmarkControl.labelUnlabelled() } // L1-pending(view)
+        blockingDb { bookmarkControl.speakLabel() } // L1-pending(view)
+        blockingDb { bookmarkControl.paragraphBreakLabel() } // L1-pending(view)
 
         val workspaceId = windowControl.windowRepository.id
         val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
         val overridesList = dao.labelOverrides(workspaceId)
         labelOverridesMap = overridesList.associateBy { it.labelId }
-        bookmarkLabels = bookmarkControl.assignableLabels.map { label ->
+        bookmarkLabels = blockingDb { bookmarkControl.assignableLabels() }.map { label -> // L1-pending(view)
             label.withStyleOverrides(labelOverridesMap[label.id])
         }
         initialKey = key
@@ -1766,7 +1766,7 @@ class BibleView(
     private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.settings.getBoolean("show_errorbox", false) else false
 
     private fun getUpdateConfigCommand(initial: Boolean): String {
-        val favouriteLabels = json.encodeToString(serializer(), bookmarkControl.favouriteLabels.map {it.id})
+        val favouriteLabels = json.encodeToString(serializer(), blockingDb { bookmarkControl.favouriteLabels() }.map {it.id}) // L1-pending(view)
         val recentLabels = json.encodeToString(serializer(), workspaceSettings.recentLabels.map { it.labelId })
         val studyPadCursors = json.encodeToString(serializer(), workspaceSettings.studyPadCursors)
         val autoAssignLabels = json.encodeToString(serializer(), workspaceSettings.autoAssignLabels.toList())

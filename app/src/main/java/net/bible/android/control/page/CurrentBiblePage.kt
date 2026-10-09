@@ -76,7 +76,7 @@ class CurrentBiblePage(
         val verseRange = key as VerseRange
         val doc = super.getPageContent(verseRange)
         return if(doc is OsisDocument) {
-            val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
+            val bookmarksForChapter = blockingDb { pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true) } // L1-pending(page)
             val kjvRange = verseRange.toV11n(KJVA)
             val myDocumentDao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
             val aiDocMarkers = blockingDb { myDocumentDao.aiDocMarkersForRange(kjvRange.start.ordinal, kjvRange.end.ordinal) }

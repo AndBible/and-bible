@@ -18,6 +18,7 @@
 package net.bible.android.activity
 
 import android.app.PendingIntent
+import net.bible.service.db.blockingDb
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
@@ -220,10 +221,10 @@ class SpeakWidgetManager : KoinComponent {
             bookmarksAdded = true
         }
 
-        val label = bookmarkControl.speakLabel
+        val label = blockingDb { bookmarkControl.speakLabel() } // L1-pending(view)
 
-        val bibleBookmarks = bookmarkControl.getBibleBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }
-        val genBookmarks = bookmarkControl.getGenericBookmarksWithLabel(label)
+        val bibleBookmarks = blockingDb { bookmarkControl.getBibleBookmarksWithLabel(label) }.sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) } // L1-pending(view)
+        val genBookmarks = blockingDb { bookmarkControl.getGenericBookmarksWithLabel(label) } // L1-pending(view)
         val speakBookmarks = bibleBookmarks + genBookmarks
         if(!AdvancedSpeakSettings.autoBookmark && speakBookmarks.isEmpty()) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
@@ -382,8 +383,8 @@ class SpeakWidgetManager : KoinComponent {
                 val bookmarkId = path.slice(1 until path.length)
                 Log.i(TAG, "onReceive osisRef $bookmarkId $bookmarkType")
                 val dto = when(bookmarkType) {
-                    "bible" -> bookmarkControl.bibleBookmarksByIds(listOf(IdType(bookmarkId))).first()
-                    "generic" -> bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
+                    "bible" -> blockingDb { bookmarkControl.bibleBookmarksByIds(listOf(IdType(bookmarkId))) }.first() // L1-pending(view)
+                    "generic" -> blockingDb { bookmarkControl.genericBookmarkById(IdType(bookmarkId)) }!! // L1-pending(view)
                     else -> throw RuntimeException("Illegal type")
                 }
                 speakControl.speakFromBookmark(dto)

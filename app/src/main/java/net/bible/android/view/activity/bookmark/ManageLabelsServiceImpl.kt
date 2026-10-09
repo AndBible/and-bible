@@ -41,9 +41,9 @@ class ManageLabelsServiceImpl(
 ) : ManageLabelsService {
 
     override fun assignableLabels(): List<LabelItem> =
-        bookmarkControl.assignableLabels.filter { !it.isUnlabeledLabel }.map { it.toLabelItem() }
+        blockingDb { bookmarkControl.assignableLabels() }.filter { !it.isUnlabeledLabel }.map { it.toLabelItem() } // L1-pending(bookmark)
 
-    override fun unlabeledLabel(): LabelItem = bookmarkControl.labelUnlabelled.toLabelItem()
+    override fun unlabeledLabel(): LabelItem = blockingDb { bookmarkControl.labelUnlabelled() }.toLabelItem() // L1-pending(bookmark)
 
     override fun recentLabelIds(): List<String> =
         windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId.toString() }

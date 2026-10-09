@@ -17,6 +17,7 @@
 package net.bible.android.control.link
 
 import net.bible.sharedcore.log.Log
+import net.bible.service.db.blockingDb
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
@@ -502,7 +503,7 @@ class LinkControl constructor(
     }
 
     fun openStudyPad(labelId: IdType, entryId: IdType?): Boolean {
-        val label = bookmarkControl.labelById(labelId) ?: return false
+        val label = blockingDb { bookmarkControl.labelById(labelId) } ?: return false // L1-pending(link)
         val key = StudyPadKey(label, entryId)
         showLink(FakeBookFactory.journalDocument, key)
         return true

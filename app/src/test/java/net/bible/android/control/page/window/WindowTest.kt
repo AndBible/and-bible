@@ -17,6 +17,8 @@
 
 package net.bible.android.control.page.window
 
+import net.bible.test.testOrderedLauncher
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -67,7 +69,7 @@ class WindowTest {
     fun setUp() {
         val bibleTraverser = mock(BibleTraverser::class.java)
 
-        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java))
+        val bookmarkControl = BookmarkControl(AbstractSpeakTests.windowControl, mock(AndroidResourceProvider::class.java), testOrderedLauncher())
         mockCurrentPageManagerProvider = {
             CurrentPageManager(bibleTraverser, bookmarkControl, windowControl!!)
         }

@@ -102,18 +102,18 @@ class BookmarksLabelResultEventTest {
      *  (a Koin singleton -- see `ReadingHostBackChainTest.historyManager()` for the same reasoning). */
     private fun twoBookmarks(): List<BookmarkEntities.BaseBookmarkWithNotes> {
         val control = bookmarkControl()
-        val one = control.addOrUpdateBibleBookmark(
+        val one = runBlocking { control.addOrUpdateBibleBookmark(
             BookmarkEntities.BibleBookmarkWithNotes(
                 VerseRangeFactory.fromString(kjv, "Psalms 119:1"), null, true, null,
             ),
             null,
-        )
-        val two = control.addOrUpdateBibleBookmark(
+        ) }
+        val two = runBlocking { control.addOrUpdateBibleBookmark(
             BookmarkEntities.BibleBookmarkWithNotes(
                 VerseRangeFactory.fromString(kjv, "Psalms 119:2"), null, true, null,
             ),
             null,
-        )
+        ) }
         return listOf(one, two)
     }
 
@@ -185,7 +185,7 @@ class BookmarksLabelResultEventTest {
         val session = currentBookmarksSession(activity)
         setPendingAssign(session, bookmarks)
 
-        val label = bookmarkControl().insertOrUpdateLabel(BookmarkEntities.Label(new = true).apply { name = "Grace" })
+        val label = runBlocking { bookmarkControl().insertOrUpdateLabel(BookmarkEntities.Label(new = true).apply { name = "Grace" }) }
         val payload = ManageLabelsContract.ManageLabelsData(
             mode = ManageLabelsContract.Mode.ASSIGN,
             selectedLabels = mutableSetOf(label.id),

@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.bookmark
 
+import net.bible.test.testOrderedLauncher
 import net.bible.android.AppDialogControllerResetRule
 import android.net.Uri
 import java.io.File
@@ -75,7 +76,7 @@ class BookmarkControlImportFromUriDialogTest {
     @Before
     fun setUp() {
         val mockedWindowControl = Mockito.mock(WindowControl::class.java)
-        bookmarkControl = BookmarkControl(mockedWindowControl, Mockito.mock(AndroidResourceProvider::class.java))
+        bookmarkControl = BookmarkControl(mockedWindowControl, Mockito.mock(AndroidResourceProvider::class.java), testOrderedLauncher())
         Dispatchers.setMain(testDispatcher)
     }
 

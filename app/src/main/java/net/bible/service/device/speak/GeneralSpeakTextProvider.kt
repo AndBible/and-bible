@@ -18,6 +18,7 @@
 package net.bible.service.device.speak
 
 import android.content.res.Resources
+import net.bible.service.db.blockingDb
 import android.os.Build
 import net.bible.sharedcore.log.Log
 import net.bible.service.common.CommonUtils
@@ -111,7 +112,7 @@ class GeneralSpeakTextProvider(
                 }
             }
             bookmark.playbackSettings = newPlaybackSettings
-            this.bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
+            this.bookmark = blockingDb { bookmarkControl.addOrUpdateGenericBookmark(bookmark) } // L1-pending(speak)
         }
     }
 
@@ -266,9 +267,9 @@ class GeneralSpeakTextProvider(
         if(stopOrdinal == null) {
             val key = currentKey
 
-            val bookmark: GenericBookmarkWithNotes = bookmarkControl.speakBookmarkForKey(key)?: return
-            val labelList = bookmarkControl.labelsForBookmark(bookmark)
-            val speakLabel = bookmarkControl.speakLabel
+            val bookmark: GenericBookmarkWithNotes = blockingDb { bookmarkControl.speakBookmarkForKey(key) }?: return // L1-pending(speak)
+            val labelList = blockingDb { bookmarkControl.labelsForBookmark(bookmark) } // L1-pending(speak)
+            val speakLabel = blockingDb { bookmarkControl.speakLabel() } // L1-pending(speak)
             val ttsLabel = labelList.find { it.id == speakLabel.id }
 
             if(ttsLabel != null) {
@@ -289,8 +290,8 @@ class GeneralSpeakTextProvider(
     private fun removeBookmark(): Boolean {
         var bookmark: GenericBookmarkWithNotes = this.bookmark ?: return false
 
-        val labelList = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
-        val speakLabel = bookmarkControl.speakLabel
+        val labelList = blockingDb { bookmarkControl.labelsForBookmark(bookmark) }.toMutableList() // L1-pending(speak)
+        val speakLabel = blockingDb { bookmarkControl.speakLabel() } // L1-pending(speak)
         val ttsLabel = labelList.find { it.id == speakLabel.id }
         var wasRemoved = false
 
@@ -298,12 +299,12 @@ class GeneralSpeakTextProvider(
             if(labelList.size > 1 || bookmark.playbackSettings?.bookmarkWasCreated == false) {
                 labelList.remove(ttsLabel)
                 bookmark.playbackSettings = null
-                bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
-                bookmarkControl.setLabelsForBookmark(bookmark, labelList)
+                bookmark = blockingDb { bookmarkControl.addOrUpdateGenericBookmark(bookmark) } // L1-pending(speak)
+                blockingDb { bookmarkControl.setLabelsForBookmark(bookmark, labelList) } // L1-pending(speak)
                 Log.i("SpeakBookmark", "Removed speak label from bookmark $bookmark")
             }
             else {
-                bookmarkControl.deleteBookmark(bookmark)
+                blockingDb { bookmarkControl.deleteBookmark(bookmark) } // L1-pending(speak)
                 Log.i("SpeakBookmark", "Removed bookmark from $bookmark")
             }
             wasRemoved = true
@@ -321,11 +322,11 @@ class GeneralSpeakTextProvider(
             playbackSettings.bookmarkWasCreated = true
             var bookmark = GenericBookmarkWithNotes(startKey.key, book, null, startKey.ordinal!!.start)
             bookmark.playbackSettings = playbackSettings
-            bookmark = bookmarkControl.addOrUpdateGenericBookmark(bookmark)
+            bookmark = blockingDb { bookmarkControl.addOrUpdateGenericBookmark(bookmark) } // L1-pending(speak)
 
-            labelList.add(bookmarkControl.speakLabel)
+            labelList.add(blockingDb { bookmarkControl.speakLabel() }) // L1-pending(speak)
 
-            bookmarkControl.setLabelsForBookmark(bookmark, labelList.toList())
+            blockingDb { bookmarkControl.setLabelsForBookmark(bookmark, labelList.toList()) } // L1-pending(speak)
             Log.i("SpeakBookmark", "Saved bookmark into $bookmark, ${settings.playbackSettings.speed}")
             this.bookmark = bookmark
         }

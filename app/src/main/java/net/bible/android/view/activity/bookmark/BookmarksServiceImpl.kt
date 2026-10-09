@@ -17,6 +17,7 @@
 package net.bible.android.view.activity.bookmark
 
 import android.text.format.DateFormat
+import net.bible.service.db.blockingDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
@@ -63,7 +64,7 @@ class BookmarksServiceImpl(
     private var loaded: Map<String, BaseBookmarkWithNotes> = emptyMap()
 
     override fun filterLabels(): List<BookmarkFilterLabel> =
-        bookmarkControl.allLabels.mapIndexed { i, l -> BookmarkFilterLabel(i, l.displayName) }
+        blockingDb { bookmarkControl.allLabels() }.mapIndexed { i, l -> BookmarkFilterLabel(i, l.displayName) } // L1-pending(bookmark)
 
     override suspend fun loadRows(
         filterIndex: Int,
@@ -71,7 +72,7 @@ class BookmarksServiceImpl(
         search: String?,
         showNotes: Boolean,
     ): List<BookmarkRow> = withContext(Dispatchers.IO) {
-        val label = bookmarkControl.allLabels.getOrNull(filterIndex) ?: run {
+        val label = blockingDb { bookmarkControl.allLabels() }.getOrNull(filterIndex) ?: run { // L1-pending(bookmark)
             loaded = emptyMap()
             return@withContext emptyList()
         }
@@ -94,8 +95,8 @@ class BookmarksServiceImpl(
         // to [Unlabeled] for the chip colours (labelUnlabelled is never the speak label). Computed
         // first so the title branch below can reuse `isSpeak` instead of re-querying
         // `isSpeakBookmark` (which just re-runs `labelsForBookmark`).
-        val labels = bookmarkControl.labelsForBookmark(bm)
-        val isSpeak = labels.contains(bookmarkControl.speakLabel)
+        val labels = blockingDb { bookmarkControl.labelsForBookmark(bm) } // L1-pending(bookmark)
+        val isSpeak = labels.contains(blockingDb { bookmarkControl.speakLabel() }) // L1-pending(bookmark)
 
         val title = when (bm) {
             is BibleBookmarkWithNotes -> {
@@ -109,7 +110,7 @@ class BookmarksServiceImpl(
             else -> ""
         }
 
-        val chipLabels = labels.ifEmpty { listOf(bookmarkControl.labelUnlabelled) }
+        val chipLabels = labels.ifEmpty { listOf(blockingDb { bookmarkControl.labelUnlabelled() }) } // L1-pending(bookmark)
         val labelColors = chipLabels.filterNot { it.isSpeakLabel }.map { it.color }
 
         val dateText = DateFormat.format("EEE, yyyy-MM-dd HH:mm", bm.createdAt).toString()

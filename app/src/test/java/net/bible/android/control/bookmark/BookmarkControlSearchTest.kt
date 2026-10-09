@@ -17,6 +17,8 @@
 
 package net.bible.android.control.bookmark
 
+import net.bible.test.testOrderedLauncher
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -55,7 +57,7 @@ class BookmarkControlSearchTest {
     @Before
     fun setUp() {
         val mockedWindowControl = Mockito.mock(WindowControl::class.java)
-        bookmarkControl = BookmarkControl(mockedWindowControl, Mockito.mock(AndroidResourceProvider::class.java))
+        bookmarkControl = BookmarkControl(mockedWindowControl, Mockito.mock(AndroidResourceProvider::class.java), testOrderedLauncher())
     }
 
     @After
@@ -79,19 +81,19 @@ class BookmarkControlSearchTest {
         // Delete bookmarks
         createdBibleBookmarkIds.forEach { bookmarkId ->
             runBlocking { dao.bibleBookmarkById(bookmarkId) }?.let { bookmark ->
-                bookmarkControl!!.deleteBookmark(bookmark)
+                runBlocking { bookmarkControl!!.deleteBookmark(bookmark) }
             }
         }
         createdGenericBookmarkIds.forEach { bookmarkId ->
             runBlocking { dao.genericBookmarkById(bookmarkId) }?.let { bookmark ->
-                bookmarkControl!!.deleteBookmark(bookmark)
+                runBlocking { bookmarkControl!!.deleteBookmark(bookmark) }
             }
         }
 
         // Delete labels
         createdLabelIds.forEach { labelId ->
             runBlocking { dao.labelById(labelId) }?.let { label ->
-                bookmarkControl!!.deleteLabel(label)
+                runBlocking { bookmarkControl!!.deleteLabel(label) }
             }
         }
 
@@ -104,7 +106,7 @@ class BookmarkControlSearchTest {
     private fun createStudyPadLabel(name: String): Label {
         val label = Label(new = true)
         label.name = name
-        val savedLabel = bookmarkControl!!.insertOrUpdateLabel(label)
+        val savedLabel = runBlocking { bookmarkControl!!.insertOrUpdateLabel(label) }
         createdLabelIds.add(savedLabel.id)
         return savedLabel
     }
@@ -144,7 +146,7 @@ class BookmarkControlSearchTest {
         val bookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
         bookmark.notes = note
 
-        val savedBookmark = bookmarkControl!!.addOrUpdateBibleBookmark(bookmark, setOf(labelId))
+        val savedBookmark = runBlocking { bookmarkControl!!.addOrUpdateBibleBookmark(bookmark, setOf(labelId)) }
         createdBibleBookmarkIds.add(savedBookmark.id)
         return savedBookmark
     }
@@ -163,7 +165,7 @@ class BookmarkControlSearchTest {
         )
         bookmark.notes = note
 
-        val savedBookmark = bookmarkControl!!.addOrUpdateGenericBookmark(bookmark, setOf(labelId))
+        val savedBookmark = runBlocking { bookmarkControl!!.addOrUpdateGenericBookmark(bookmark, setOf(labelId)) }
         createdGenericBookmarkIds.add(savedBookmark.id)
         return savedBookmark
     }
@@ -369,7 +371,7 @@ class BookmarkControlSearchTest {
     // ========== Tests for generateTextSnippet() ==========
 
     @Test
-    fun testSnippetGeneration_matchInMiddle() {
+    fun testSnippetGeneration_matchInMiddle() = runTest {
         val fullText = "This is a long text that contains the word prayer in the middle of a sentence and continues for a while longer."
         val searchText = "prayer"
 
@@ -386,7 +388,7 @@ class BookmarkControlSearchTest {
     }
 
     @Test
-    fun testSnippetGeneration_matchAtStart() {
+    fun testSnippetGeneration_matchAtStart() = runTest {
         val fullText = "Prayer is very important in our daily walk with God and we should practice it regularly."
         val searchText = "Prayer"
 
@@ -402,7 +404,7 @@ class BookmarkControlSearchTest {
     }
 
     @Test
-    fun testSnippetGeneration_matchAtEnd() {
+    fun testSnippetGeneration_matchAtEnd() = runTest {
         val fullText = "In our daily walk with God we should always remember the importance of prayer"
         val searchText = "prayer"
 
@@ -418,7 +420,7 @@ class BookmarkControlSearchTest {
     }
 
     @Test
-    fun testSnippetGeneration_shortText() {
+    fun testSnippetGeneration_shortText() = runTest {
         val fullText = "Short prayer text"
         val searchText = "prayer"
 
@@ -435,7 +437,7 @@ class BookmarkControlSearchTest {
     }
 
     @Test
-    fun testSnippetGeneration_caseInsensitive() {
+    fun testSnippetGeneration_caseInsensitive() = runTest {
         val fullText = "This text contains PRAYER in uppercase"
         val searchText = "prayer"
 
@@ -447,7 +449,7 @@ class BookmarkControlSearchTest {
     }
 
     @Test
-    fun testSnippetGeneration_matchPositionCalculation() {
+    fun testSnippetGeneration_matchPositionCalculation() = runTest {
         val fullText = "0123456789 prayer 0123456789"
         val searchText = "prayer"
 
@@ -460,7 +462,7 @@ class BookmarkControlSearchTest {
     }
 
     @Test
-    fun testSnippetGeneration_veryLongText() {
+    fun testSnippetGeneration_veryLongText() = runTest {
         val prefix = "a".repeat(500)
         val suffix = "b".repeat(500)
         val fullText = "$prefix prayer $suffix"
@@ -478,7 +480,7 @@ class BookmarkControlSearchTest {
     }
 
     @Test
-    fun testSnippetGeneration_unicodeText() {
+    fun testSnippetGeneration_unicodeText() = runTest {
         val fullText = "🙏 Daily prayer 🙏 is essential for spiritual growth 🌱"
         val searchText = "prayer"
 
@@ -491,7 +493,7 @@ class BookmarkControlSearchTest {
     }
 
     @Test
-    fun testSnippetGeneration_noMatchReturnsBeginning() {
+    fun testSnippetGeneration_noMatchReturnsBeginning() = runTest {
         val fullText = "This text does not contain the search term"
         val searchText = "prayer"
 
@@ -504,7 +506,7 @@ class BookmarkControlSearchTest {
     }
 
     @Test
-    fun testSnippetGeneration_customContextSize() {
+    fun testSnippetGeneration_customContextSize() = runTest {
         val fullText = "a".repeat(100) + " prayer " + "b".repeat(100)
         val searchText = "prayer"
 

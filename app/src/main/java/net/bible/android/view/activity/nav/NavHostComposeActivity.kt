@@ -4159,7 +4159,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // boolean — see the note above; `&&` short-circuits left to right, so the state is
                 // still read on every composition of this scope.
                 if (manageLabelsExportOpen && manageLabelsSession != null) {
-                    val exportableLabels = remember(manageLabelsExportOpen) { bookmarkControl.assignableLabels }
+                    val exportableLabels = remember(manageLabelsExportOpen) { blockingDb { bookmarkControl.assignableLabels() } } // L1-pending(view)
                     AbMultiSelectSheet(
                         open = true,
                         title = getString(R.string.export_something, getString(R.string.studypads)),
@@ -4320,7 +4320,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val bookmark = bookmarksService.bookmarkById(id) ?: return null
         Log.i(TAG_BOOKMARKS, "Bookmark selected:$bookmark")
         return try {
-            if (bookmark is BookmarkEntities.BibleBookmarkWithNotes && bookmarkControl.isSpeakBookmark(bookmark)) {
+            if (bookmark is BookmarkEntities.BibleBookmarkWithNotes && blockingDb { bookmarkControl.isSpeakBookmark(bookmark) }) { // L1-pending(view)
                 speakControl.speakFromBookmark(bookmark)
             }
             // `title` is the HOST WINDOW's title, which the arm's LaunchedEffect has already set to
@@ -4432,7 +4432,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun confirmDeleteBookmarks(session: BookmarksSession, ids: List<String>) {
         val bookmarks = bookmarksService.bookmarksByIds(ids)
         for (bookmark in bookmarks) {
-            bookmarkControl.deleteBookmark(bookmark)
+            blockingDb { bookmarkControl.deleteBookmark(bookmark) } // L1-pending(view)
         }
         session.controller.refresh()
     }
@@ -4522,7 +4522,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val parsed = ManageLabelsContract.ManageLabelsData.fromJSON(data)
         val session = ManageLabelsSession(
             data = parsed,
-            labelsById = bookmarkControl.assignableLabels.associateByTo(mutableMapOf()) { it.id.toString() },
+            labelsById = blockingDb { bookmarkControl.assignableLabels() }.associateByTo(mutableMapOf()) { it.id.toString() }, // L1-pending(view)
         )
         val highlightId = (windowControl.activeWindowPageManager.currentPage.key as? StudyPadKey)
             ?.takeIf { parsed.mode == ManageLabelsContract.Mode.STUDYPAD }
@@ -4558,7 +4558,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val controller = session.controller
         val isNew = id == null
         val label: BookmarkEntities.Label = if (id != null) {
-            session.labelsById[id] ?: bookmarkControl.labelById(IdType(id)) ?: return null
+            session.labelsById[id] ?: blockingDb { bookmarkControl.labelById(IdType(id)) } ?: return null // L1-pending(view)
         } else {
             BookmarkEntities.Label(new = true).apply { color = manageLabelsService.randomColorArgb() }
         }
@@ -4688,7 +4688,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         firstMatchEntryId: String?,
         onResult: (ManageLabelsResult) -> Unit,
     ) {
-        val label = session.labelsById[id] ?: bookmarkControl.labelById(IdType(id)) ?: return
+        val label = session.labelsById[id] ?: blockingDb { bookmarkControl.labelById(IdType(id)) } ?: return // L1-pending(view)
         try {
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(
                 FakeBookFactory.journalDocument,
@@ -4729,10 +4729,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val withoutOrphaned = deletedIds.filterNot { orphanedIds.contains(it) }.map { IdType(it) }
         val withOrphaned = orphanedIds.map { IdType(it) }
         if (withoutOrphaned.isNotEmpty()) {
-            bookmarkControl.deleteLabels(withoutOrphaned, deleteOrphanedBookmarks = false)
+            blockingDb { bookmarkControl.deleteLabels(withoutOrphaned, deleteOrphanedBookmarks = false) } // L1-pending(view)
         }
         if (withOrphaned.isNotEmpty()) {
-            bookmarkControl.deleteLabels(withOrphaned, deleteOrphanedBookmarks = true)
+            blockingDb { bookmarkControl.deleteLabels(withOrphaned, deleteOrphanedBookmarks = true) } // L1-pending(view)
         }
 
         val changedIds = controller.resultChanged()
@@ -4752,13 +4752,13 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val idRemap = mutableMapOf<String, String>()
         for (label in newLabels) {
             val oldId = label.id.toString()
-            val saved = bookmarkControl.insertOrUpdateLabel(label)
+            val saved = blockingDb { bookmarkControl.insertOrUpdateLabel(label) } // L1-pending(view)
             label.id = saved.id
             label.new = false
             idRemap[oldId] = saved.id.toString()
         }
         for (label in existingLabels) {
-            bookmarkControl.insertOrUpdateLabel(label)
+            blockingDb { bookmarkControl.insertOrUpdateLabel(label) } // L1-pending(view)
         }
 
         fun remapSet(ids: Set<String>) = ids.map { idRemap[it] ?: it }.toSet()
