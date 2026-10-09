@@ -69,7 +69,10 @@ class BookmarkJsActionsTest {
     private val warnings = java.util.Collections.synchronizedList(mutableListOf<String>())
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
+    private var previousSink: ((LogLevel, String, String, Throwable?) -> Unit)? = null
+
     @Before fun setUp() {
+        previousSink = Log.sinkOverride
         Log.sinkOverride = { level, tag, msg, tr ->
             if (level == LogLevel.ERROR) errors += "$tag: $msg ${tr ?: ""}"
             if (level == LogLevel.WARN) warnings += "$tag: $msg"
@@ -84,7 +87,7 @@ class BookmarkJsActionsTest {
             appScope.cancel()
             resetDatabase()
         } finally {
-            Log.sinkOverride = null
+            Log.sinkOverride = previousSink
         }
     }
 

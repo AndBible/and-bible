@@ -60,7 +60,10 @@ class ManageLabelsWritesTest {
     private val errors = Collections.synchronizedList(mutableListOf<String>())
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
+    private var previousSink: ((LogLevel, String, String, Throwable?) -> Unit)? = null
+
     @Before fun setUp() {
+        previousSink = Log.sinkOverride
         Log.sinkOverride = { level, tag, msg, tr -> if (level == LogLevel.ERROR) errors += "$tag: $msg ${tr ?: ""}" }
         control = BookmarkControl(mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), OrderedLauncher(appScope))
     }
@@ -70,7 +73,7 @@ class ManageLabelsWritesTest {
             appScope.cancel()
             resetDatabase()
         } finally {
-            Log.sinkOverride = null
+            Log.sinkOverride = previousSink
         }
     }
 

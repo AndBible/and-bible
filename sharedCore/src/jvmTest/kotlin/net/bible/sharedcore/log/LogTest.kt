@@ -9,7 +9,9 @@ import kotlin.test.assertTrue
 class LogTest {
     private val seen = mutableListOf<Triple<LogLevel, String, Throwable?>>()
 
-    @AfterTest fun reset() { Log.sinkOverride = null }
+    private val previousSink = Log.sinkOverride
+
+    @AfterTest fun reset() { Log.sinkOverride = previousSink }
 
     @Test fun routesEveryLevelWithTagMessageAndThrowable() {
         Log.sinkOverride = { level, tag, msg, tr -> seen += Triple(level, "$tag:$msg", tr) }

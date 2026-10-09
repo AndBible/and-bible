@@ -1,5 +1,7 @@
 package net.bible.sharedcore.log
 
+import kotlin.concurrent.Volatile
+
 enum class LogLevel { VERBOSE, DEBUG, INFO, WARN, ERROR }
 
 /** Platform log output. Android: android.util.Log; iOS: NSLog; JVM: stderr. */
@@ -10,7 +12,8 @@ internal expect fun platformLog(level: LogLevel, tag: String, msg: String, tr: T
  * import without other changes (spec L1a §3). Logging never throws.
  */
 object Log {
-    /** Test hook: when set, receives every call instead of the platform sink. */
+    /** Test hook: when set, receives every call instead of the platform sink. Volatile: set on the test thread, read by logging worker threads. */
+    @Volatile
     var sinkOverride: ((LogLevel, String, String, Throwable?) -> Unit)? = null
 
     private fun log(level: LogLevel, tag: String, msg: String, tr: Throwable?): Int {
