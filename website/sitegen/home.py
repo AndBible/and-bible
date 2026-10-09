@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import re
 from collections.abc import Sequence
+from datetime import date
 from pathlib import Path
 
 import markdown
@@ -48,12 +49,25 @@ def environment() -> Environment:
     return env
 
 
+HEADLINE_MAX_AGE_DAYS = 45
+HEADLINE_MAX_POSTS = 2
+
+
+def headline_posts(posts: Sequence[Post], today: date) -> list[Post]:
+    """The "Latest" row above the hero: the newest day's posts (several when published as a set),
+    in blog order, hidden once that day is more than HEADLINE_MAX_AGE_DAYS before the build."""
+    if not posts or (today - posts[0].date).days > HEADLINE_MAX_AGE_DAYS:
+        return []
+    return [p for p in posts if p.date == posts[0].date][:HEADLINE_MAX_POSTS]
+
+
 def render_home(env: Environment, strings: dict, lang: str, latest: list[Post], out: Path,
-                reviews: Sequence[Review] = (), videos: Sequence[Video] = ()) -> None:
+                reviews: Sequence[Review] = (), videos: Sequence[Video] = (), today: date | None = None) -> None:
     target = out / prefix(lang).lstrip("/") / "index.html"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(env.get_template("home.html").render(
         lang=lang, prefix=prefix(lang), strings=strings, latest=latest[:3], reviews=reviews,
+        headlines=headline_posts(latest, today or date.today()),
         video_cards=[card(v, strings) for v in newest(list(videos))],
         title=strings["meta"]["title"], description=strings["meta"]["description"],
         canonical=f"{paths.BASE_URL}{prefix(lang)}/",

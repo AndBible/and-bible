@@ -46,6 +46,8 @@ features:
   - {title: Sync, text: Bookmarks and workspaces synced through Google Drive or NextCloud.}
   - {title: Workspaces, text: Split windows with synchronised scrolling and pinned documents.}
 sections:
+  news: Latest
+  news_region: Latest news
   latest: Latest from the blog
   all_posts: All posts
   reviews: What users say
