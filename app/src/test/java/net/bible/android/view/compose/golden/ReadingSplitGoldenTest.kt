@@ -145,7 +145,10 @@ class ReadingSplitGoldenTest {
     fun withPaneBackground() =
         captureGolden(
             "ReadingSplit", "withPaneBackground", EDGE_MODE,
-            content = {
+            content = seededPaneContent(),
+        )
+
+    private fun seededPaneContent(): @androidx.compose.runtime.Composable () -> Unit = {
                 SplitContent(
                     state(win("A", 1f), win("B", 1f)),
                     {},
@@ -153,6 +156,65 @@ class ReadingSplitGoldenTest {
                     pane = {},
                     paneBackground = { id -> if (id == "A") Color(0xFFFF00FF) else Color(0xFF00FFFF) },
                 )
-            },
-        )
+            }
+
+    @Test
+    fun single_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingSplit", "single", mode, content = screen(state(win("A", 1f)))) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun twoHorizontal_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingSplit", "twoHorizontal", mode, content = screen(state(win("A", 2f), win("B", 1f)))) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun twoVertical_mono() {
+        MONO_MODES.forEach { mode -> captureGolden(
+            "ReadingSplit", "twoVertical", mode,
+            content = screen(state(win("A", 1f), win("B", 1f), reverse = true)),
+        ) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun minimizedHidden_mono() {
+        MONO_MODES.forEach { mode -> captureGolden(
+            "ReadingSplit", "minimizedHidden", mode,
+            content = screen(
+                state(
+                    win("A", 1f),
+                    win("B", 1f).copy(state = WindowStateValue.MINIMISED, isVisible = false),
+                    win("C", 1f),
+                ),
+            ),
+        ) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withOverlay_mono() {
+        MONO_MODES.forEach { mode -> captureGolden(
+            "ReadingSplit", "withOverlay", mode,
+            content = screen(
+                state(win("A", 2f), win("B", 1f)),
+                paneOverlay = { _ ->
+                    Box(
+                        Modifier.align(Alignment.TopEnd).size(40.dp).background(MaterialTheme.colorScheme.tertiary),
+                    ) { Text("☰") }
+                },
+            ),
+        ) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withPaneBackground_mono() {
+        MONO_MODES.forEach { mode -> captureGolden(
+            "ReadingSplit", "withPaneBackground", mode,
+            content = seededPaneContent(),
+        ) }
+    }
 }

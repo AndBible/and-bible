@@ -293,7 +293,18 @@ class ReadingViewScreenGoldenTest {
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
     fun withRail() = captureGolden(
         "ReadingViewScreen", "withRail", EDGE_MODE,
-        content = screen(
+        content = railScreen(),
+    )
+
+    // Covers the speakBar slot (Batch 12f Task 5): rendered between agentLog and tabBar only when
+    // non-null. Uses the real SpeakTransportBar (its own full mode/RTL matrix is Task 6's golden
+    // test) with a representative playing state, just to prove the slot stacks correctly here.
+    private val speakTransportPlaying = SpeakTransportVd(
+        visible = true, playing = true, stopped = false, statusText = "Reading John 3",
+        speedPercent = 150, bookmarkButtonVisible = true,
+    )
+
+    private fun railScreen(): @Composable () -> Unit = screen(
             fullScreen = false,
             tabBar = { _ ->
                 WindowTabBar(
@@ -306,22 +317,9 @@ class ReadingViewScreenGoldenTest {
                     windowLabel = { it.id },
                 )
             },
-        ),
-    )
+        )
 
-    // Covers the speakBar slot (Batch 12f Task 5): rendered between agentLog and tabBar only when
-    // non-null. Uses the real SpeakTransportBar (its own full mode/RTL matrix is Task 6's golden
-    // test) with a representative playing state, just to prove the slot stacks correctly here.
-    private val speakTransportPlaying = SpeakTransportVd(
-        visible = true, playing = true, stopped = false, statusText = "Reading John 3",
-        speedPercent = 150, bookmarkButtonVisible = true,
-    )
-
-    @Test
-    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
-    fun withSpeakBar() = captureMatrix(
-        "ReadingViewScreen", "withSpeakBar", heightDp = 640,
-        content = screen(
+    private fun speakScreen(): @Composable () -> Unit = screen(
             fullScreen = false,
             speakBar = { _ ->
                 SpeakTransportBar(
@@ -330,7 +328,13 @@ class ReadingViewScreenGoldenTest {
                     onPrev = {}, onNext = {}, onBookmark = {}, onConfig = {},
                 )
             },
-        ),
+        )
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withSpeakBar() = captureMatrix(
+        "ReadingViewScreen", "withSpeakBar", heightDp = 640,
+        content = speakScreen(),
     )
 
     /**
@@ -377,6 +381,69 @@ class ReadingViewScreenGoldenTest {
             },
         ),
     )
+
+
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun toolbarOn_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingViewScreen", "toolbarOn", mode, content = screen(fullScreen = false)) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun fullScreen_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("ReadingViewScreen", "fullScreen", mode, content = screen(fullScreen = true)) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withRail_mono() {
+        MONO_MODES.forEach { mode -> captureGolden(
+        "ReadingViewScreen", "withRail", mode,
+        content = railScreen(),
+    ) }
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun withSpeakBar_mono() {
+        MONO_MODES.forEach { mode -> captureGolden(
+        "ReadingViewScreen", "withSpeakBar", mode, heightDp = 640,
+        content = speakScreen(),
+    ) }
+    }
+
+    // Empty panes expose the screen's own paint rather than a fixture's themed fill.
+    private fun seededSideNavScreen(): @Composable () -> Unit = {
+        val view = androidx.compose.ui.platform.LocalView.current
+        SideEffect {
+            androidx.core.view.ViewCompat.dispatchApplyWindowInsets(
+                view.rootView,
+                androidx.core.view.WindowInsetsCompat.Builder()
+                    .setInsets(androidx.core.view.WindowInsetsCompat.Type.navigationBars(),
+                        androidx.core.graphics.Insets.of(0, 0, 24, 0))
+                    .build(),
+            )
+        }
+        ReadingViewScreen(
+            layout = layout,
+            toolbar = toolbarState.copy(workspaceColorArgb = 0xFFFF00FF.toInt(), deriveToolbarFromTheme = false),
+            toolbarIcons = icons(), toolbarCallbacks = noopCallbacks, fullScreen = false,
+            onWindowActivated = {}, onSeparatorCommitted = { _, _, _, _ -> }, pane = {},
+            edgeBackground = androidx.compose.ui.graphics.Color(0xFF00FFFF),
+            paneBackground = { androidx.compose.ui.graphics.Color(0xFFFF00FF) },
+        )
+    }
+
+    @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "land")
+    fun seededSideNav_mono() {
+        MONO_MODES.forEach { mode ->
+            captureGolden("ReadingViewScreen", "seededSideNav", mode, content = seededSideNavScreen())
+        }
+    }
+
 }
 
 /**

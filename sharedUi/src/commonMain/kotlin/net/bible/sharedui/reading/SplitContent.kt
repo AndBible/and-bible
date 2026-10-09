@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.theme.isPureMonochrome
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -313,7 +315,7 @@ private fun PaneBody(args: PaneRenderArgs) {
             // created (A/B batch 4a F5, the symptom the pane background alone did not fix).
             .clipToBounds()
             // Before the tap handler so the fill covers the whole pane.
-            .then(args.paneBackground(w.id)?.let { Modifier.background(it) } ?: Modifier)
+            .then(if (isPureMonochrome()) Modifier.background(MaterialTheme.colorScheme.background) else args.paneBackground(w.id)?.let { Modifier.background(it) } ?: Modifier)
             .pointerInput(w.id) { detectTapGestures { args.onWindowActivated(w.id) } },
     ) {
         pane(w.id)

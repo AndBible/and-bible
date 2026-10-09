@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.theme.isPureMonochrome
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -58,6 +59,7 @@ private val OverlayBottomOffset = 80.dp
  */
 @Composable
 fun BoxScope.BibleReferenceOverlay(visible: Boolean, text: String, modifier: Modifier = Modifier) {
+    val mono = isPureMonochrome()
     val disableAnim = LocalDisableAnimations.current
     AnimatedVisibility(
         visible = visible,
@@ -67,10 +69,10 @@ fun BoxScope.BibleReferenceOverlay(visible: Boolean, text: String, modifier: Mod
     ) {
         Surface(
             shape = RoundedCornerShape(6.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.87f),
+            color = if (mono) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.87f),
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            tonalElevation = 3.dp,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            tonalElevation = if (mono) 0.dp else 3.dp,
+            border = BorderStroke(1.dp, if (mono) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.outlineVariant),
         ) {
             Text(
                 text = text,

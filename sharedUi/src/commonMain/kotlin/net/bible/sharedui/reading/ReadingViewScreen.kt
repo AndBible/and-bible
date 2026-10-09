@@ -17,6 +17,8 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.theme.isPureMonochrome
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -210,6 +212,8 @@ fun ReadingViewScreen(
     // Collapsed, the reservation equals the panel and nothing is covered; expanded, the panel grows
     // upward out of a reservation that does not grow with it, so the panes never reflow. The panes
     // are WebViews -- re-measuring them once per drag frame would mean a JS relayout per frame.
+    val mono = isPureMonochrome()
+    val monoBackground = MaterialTheme.colorScheme.background
     var splitHeightDp by remember { mutableStateOf(0f) }
     var bottomBarsHeightDp by remember { mutableStateOf(0f) }
     var collapsedAgentHeightDp by remember { mutableStateOf(0f) }
@@ -240,7 +244,7 @@ fun ReadingViewScreen(
                 // this height plus the panel's own reservation right below it.
                 modifier = Modifier.weight(1f)
                     // F107: painted BEFORE the padding, so it fills the bands the padding leaves.
-                    .then(edgeBackground?.let { Modifier.background(it) } ?: Modifier)
+                    .then(if (mono) Modifier.background(monoBackground) else edgeBackground?.let { Modifier.background(it) } ?: Modifier)
                     // Correction C2: the reading tree is edge-to-edge, and nothing else pads a side nav
                     // bar (landscape 3-button) or a side cutout. The toolbar pads its own row the same
                     // way (ReadingToolbar's systemBars ∪ displayCutout, Horizontal).
@@ -251,7 +255,7 @@ fun ReadingViewScreen(
                 paneOverlay = paneOverlay,
                 bottomOverlay = bottomOverlay,
                 railOverlay = tabBar?.let { bar -> { Box(Modifier.align(Alignment.BottomEnd)) { bar(railNavInset) } } },
-                paneBackground = paneBackground,
+                paneBackground = if (mono) { { monoBackground } } else paneBackground,
             )
             // The overlay's footprint. Zero when the panel is hidden.
             if (agentLogVisible) Spacer(Modifier.height(collapsedAgentHeightDp.dp))

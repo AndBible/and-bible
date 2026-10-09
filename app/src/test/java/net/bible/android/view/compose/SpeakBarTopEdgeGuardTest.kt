@@ -25,7 +25,7 @@ import org.junit.Test
 /**
  * Round 14b §6 is a THREE-way split inside one `Surface` call, and only two thirds of it are the
  * obvious part. `shape` and `shadowElevation` become conditional on `ownsTopEdge`; `tonalElevation
- * = 3.dp` must stay UNCONDITIONAL, because the tonal elevation is what makes the bar resolve to the
+ * = 3.dp` must stay unconditional on `ownsTopEdge` outside MONOCHROME, because the tonal elevation is what makes the bar resolve to the
  * agent panel's exact colour. Drop it along with the corners and the shadow and the two abutting
  * surfaces stop being one continuous slab — which is the entire defect the round exists to fix, and
  * which would look in a golden like a colour bug rather than a lost parameter.
@@ -61,13 +61,13 @@ class SpeakBarTopEdgeGuardTest {
     @Test fun theTonalElevationIsNotConditionalOnOwnsTopEdge() {
         val src = code()
         assertEquals(
-            "tonalElevation must appear exactly once, as an unconditional `3.dp` — it is what makes " +
+            "tonalElevation must appear exactly once, as `3.dp` outside MONOCHROME — it is what makes " +
                 "the bar resolve to the agent panel's colour, so it must NOT be switched by ownsTopEdge",
-            1, Regex("""tonalElevation\s*=\s*3\.dp""").findAll(src).count(),
+            1, Regex("""tonalElevation\s*=\s*if\s*\(mono\)\s*0\.dp\s*else\s*3\.dp""").findAll(src).count(),
         )
         assertEquals(
-            "tonalElevation must not be given a conditional value",
-            0, Regex("""tonalElevation\s*=\s*if\s*\(""").findAll(src).count(),
+            "tonalElevation must only be conditional on MONOCHROME",
+            0, Regex("""tonalElevation\s*=\s*if\s*\(ownsTopEdge""").findAll(src).count(),
         )
     }
 
@@ -79,7 +79,7 @@ class SpeakBarTopEdgeGuardTest {
         )
         assertEquals(
             "shadowElevation must be chosen by ownsTopEdge (8.dp when it owns the edge, 0.dp when not)",
-            1, Regex("""shadowElevation\s*=\s*if\s*\(ownsTopEdge\)""").findAll(src).count(),
+            1, Regex("""shadowElevation\s*=\s*if\s*\(mono\)\s*0\.dp\s*else\s*if\s*\(ownsTopEdge\)""").findAll(src).count(),
         )
         assertTrue(
             "the squared-off branch must use RectangleShape, not RoundedCornerShape(0.dp)",
@@ -109,7 +109,7 @@ class SpeakBarTopEdgeGuardTest {
         )
         assertTrue(
             "the ownsTopEdge branch must be 8.dp and the non-owning branch 0.dp — not swapped",
-            Regex("""shadowElevation\s*=\s*if\s*\(ownsTopEdge\)\s*8\.dp\s*else\s*0\.dp""").containsMatchIn(src),
+            Regex("""shadowElevation\s*=\s*if\s*\(mono\)\s*0\.dp\s*else\s*if\s*\(ownsTopEdge\)\s*8\.dp\s*else\s*0\.dp""").containsMatchIn(src),
         )
     }
 }

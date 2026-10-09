@@ -9,17 +9,19 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import net.bible.sharedcore.search.StyledText
+import net.bible.sharedui.theme.isPureMonochrome
 
 /**
  * Renders a host-built [StyledText] into a Compose [AnnotatedString], mapping each run's
  * `bold`/`highlight` flags to span styles. Highlighted runs are forced bold and get the theme
  * primary colour plus a primaryContainer background pill, so the match reads as a filled,
- * bold pill and stays legible in monochrome/e-ink themes (which map primaryContainer to grey).
+ * bold pill. Pure MONOCHROME uses paper text on ink; legacy e-ink themes retain their grey pill.
  * Shared by the search-result screens (later Batch 5 tasks depend on this exact name).
  */
 @Composable
 fun styledTextToAnnotatedString(text: StyledText): AnnotatedString {
-    val highlightColor = MaterialTheme.colorScheme.primary
+    val mono = isPureMonochrome()
+    val highlightColor = if (mono) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
     val highlightBackground = MaterialTheme.colorScheme.primaryContainer
     return buildAnnotatedString {
         text.runs.forEach { run ->

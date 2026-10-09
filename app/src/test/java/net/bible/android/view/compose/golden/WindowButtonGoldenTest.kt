@@ -199,5 +199,12 @@ class WindowButtonGoldenTest {
     // ReadingToolbarGoldenTest/ReadingViewScreenGoldenTest, widened further for this wider row).
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w720dp-land")
-    fun states_matrix() = captureMatrix("WindowButton", "states", content = { states() })
+    fun states_matrix() = captureMatrix("WindowButton", "states", content = statesContent())
+
+    private fun statesContent(): @androidx.compose.runtime.Composable () -> Unit = { states() }
+
+    @Test
+    fun states_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("WindowButton", "states", mode, content = statesContent()) }
+    }
 }

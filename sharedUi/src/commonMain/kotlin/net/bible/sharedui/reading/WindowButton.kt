@@ -17,6 +17,9 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.theme.LocalAbColors
+import net.bible.sharedui.theme.monoBorder
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -204,16 +207,17 @@ fun WindowButton(
     leadingIcon: Painter? = null,
     topLabel: String? = null,
 ) {
+    val mono = isPureMonochrome()
     val colors = MaterialTheme.colorScheme
     val containerColor = if (isActive) colors.primaryContainer else colors.surfaceVariant
-    val contentColor = if (isActive) colors.onPrimaryContainer else colors.onSurfaceVariant
-    val outlineColor = colors.outline
+    val contentColor = if (mono && isMinimised) LocalAbColors.current.monoDisabled else if (isActive) colors.onPrimaryContainer else colors.onSurfaceVariant
+    val outlineColor = if (mono && isMinimised) LocalAbColors.current.monoDisabled else colors.outline
     val cornerShape = RoundedCornerShape(WindowButtonCorner)
 
     Box(
         modifier = modifier
             .size(WindowButtonSize)
-            .alpha(if (isMinimised) MinimisedAlpha else 1f)
+            .alpha(if (isMinimised && !mono) MinimisedAlpha else 1f)
             .clip(cornerShape)
             .background(containerColor)
             .then(
@@ -229,6 +233,8 @@ fun WindowButton(
                             ),
                         )
                     }
+                } else if (mono && !isActive) {
+                    Modifier.monoBorder(cornerShape)
                 } else {
                     Modifier.border(BorderWidth, colors.outlineVariant, cornerShape)
                 },

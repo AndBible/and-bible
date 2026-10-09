@@ -17,6 +17,11 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.theme.isPureMonochrome
+import net.bible.sharedui.theme.LocalAbColors
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -302,6 +307,7 @@ fun ReadingToolbar(
     modifier: Modifier = Modifier,
     overflowIcon: @Composable (iconKey: String) -> Painter? = { null },
 ) {
+    val mono = isPureMonochrome()
     val density = LocalDensity.current
     // A/B batch 4b §6: the derived variant takes the scheme's own container role (and with it the
     // matching onPrimaryContainer, so contrast is guaranteed by M3 rather than by our luminance
@@ -311,7 +317,7 @@ fun ReadingToolbar(
     //
     // A/B batch 3 F3: the container is the workspace colour when the user set one (see
     // readingToolbarContainerArgb's sentinel), otherwise today's plain surface.
-    val container = if (state.deriveToolbarFromTheme) {
+    val container = if (mono) MaterialTheme.colorScheme.surface else if (state.deriveToolbarFromTheme) {
         MaterialTheme.colorScheme.primaryContainer
     } else {
         Color(
@@ -331,7 +337,7 @@ fun ReadingToolbar(
     // ReadingProgressPalette.textColorForBackground. Branch on isWorkspaceColorSet (not e.g.
     // "container == surface") so this never drifts from readingToolbarContainerArgb's own sentinel.
     val workspaceColorSet = isWorkspaceColorSet(state.workspaceColorArgb)
-    val onContainer = if (state.deriveToolbarFromTheme) {
+    val onContainer = if (mono) MaterialTheme.colorScheme.onSurface else if (state.deriveToolbarFromTheme) {
         MaterialTheme.colorScheme.onPrimaryContainer
     } else if (workspaceColorSet) {
         if (container.luminance() < 0.45f) Color.White else Color.Black
@@ -343,7 +349,7 @@ fun ReadingToolbar(
     // play there is no equivalent "variant" token for an arbitrary user colour, so it is derived the
     // same way the rest of this feature derives secondary text: the primary content colour at 0.75
     // alpha. The derived-theme variant reuses onContainer the same way, rather than recomputing.
-    val documentTitleColor = if (state.deriveToolbarFromTheme || workspaceColorSet) {
+    val documentTitleColor = if (mono) onContainer else if (state.deriveToolbarFromTheme || workspaceColorSet) {
         onContainer.copy(alpha = 0.75f)
     } else {
         MaterialTheme.colorScheme.onSurfaceVariant
@@ -378,132 +384,145 @@ fun ReadingToolbar(
             searchBarCallbacks.onImeRequestHandled()
         }
         CompositionLocalProvider(LocalContentColor provides onContainer) {
-            Row(
-                modifier
-                    .fillMaxWidth()
-                    // .background BEFORE .windowInsetsPadding, same reason as the normal row below:
-                    // a background covers the padding applied after it, so the container colour
-                    // extends under the status bar instead of stopping below it.
-                    .background(container)
-                    // Union (max), not sum, of the status bar and the top cutout. The cutout is cleared
-                    // only while the status bar is visible: with it hidden (hide_status_bar) the bar
-                    // draws up into the cutout, like the legacy app (see topBarCutoutTop).
-                    .windowInsetsPadding(WindowInsets.statusBars.union(topBarCutoutTop()))
-                    // The normal row does the same below: without it the field slides under a display
-                    // cutout in landscape.
-                    .windowInsetsPadding(
-                        WindowInsets.systemBars.union(WindowInsets.displayCutout)
-                            .only(WindowInsetsSides.Horizontal)
+            Box {
+                Row(
+                    modifier
+                        .fillMaxWidth()
+                        // .background BEFORE .windowInsetsPadding, same reason as the normal row below:
+                        // a background covers the padding applied after it, so the container colour
+                        // extends under the status bar instead of stopping below it.
+                        .background(container)
+                        // Union (max), not sum, of the status bar and the top cutout. The cutout is cleared
+                        // only while the status bar is visible: with it hidden (hide_status_bar) the bar
+                        // draws up into the cutout, like the legacy app (see topBarCutoutTop).
+                        .windowInsetsPadding(WindowInsets.statusBars.union(topBarCutoutTop()))
+                        // The normal row does the same below: without it the field slides under a display
+                        // cutout in landscape.
+                        .windowInsetsPadding(
+                            WindowInsets.systemBars.union(WindowInsets.displayCutout)
+                                .only(WindowInsetsSides.Horizontal)
+                        )
+                        .height(ToolbarHeight),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    ToolbarVectorButton(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        strings.searchClose,
+                        searchBarCallbacks.onClose,
                     )
-                    .height(ToolbarHeight),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                ToolbarVectorButton(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    strings.searchClose,
-                    searchBarCallbacks.onClose,
-                )
-                Box(Modifier.weight(1f)) {
-                    // Deliberately NOT AbSearchField. That is an `OutlinedTextField`, and it fails here
-                    // twice over — both found by inspecting the recorded goldens zoomed, neither
-                    // detectable by any assertion:
-                    //
-                    //  1. Its M3 minimum height is exactly [ToolbarHeight], so its outline lands flush on
-                    //     the toolbar's top and bottom edges (measured: the border occupied rows 0 and 55
-                    //     of a 56px capture), pressing against the status bar with no breathing room.
-                    //  2. Its colours come from M3's own defaults rather than this toolbar's `onContainer`,
-                    //     so on a saturated workspace colour the text and both field icons rendered dark on
-                    //     purple while the neighbouring toolbar icons were white. Same defect family as
-                    //     batch 3's F1.
-                    //
-                    // In an app bar the bar IS the container, so this is a bare field whose every colour
-                    // derives from `onContainer`.
-                    ReadingSearchField(
-                        value = searchBar.query,
-                        onValueChange = searchBarCallbacks.onQueryChange,
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = onContainer),
-                        cursorBrush = SolidColor(onContainer),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                        keyboardActions = KeyboardActions(onSearch = { searchBarCallbacks.onSubmit() }),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester)
-                            .onFocusChanged { searchBarCallbacks.onFieldFocusChanged(it.isFocused) },
-                        decorationBox = { innerTextField ->
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                when (searchBar.leadingAction) {
-                                    SearchFieldLeadingAction.ShowResults -> ToolbarVectorButton(
-                                        Icons.AutoMirrored.Filled.FormatListBulleted,
-                                        strings.searchShowResults,
-                                        searchBarCallbacks.onShowResults,
-                                    )
-                                    SearchFieldLeadingAction.RecentTerms -> ToolbarVectorButton(
-                                        Icons.Filled.History,
-                                        strings.recentSearches,
-                                        searchBarCallbacks.onRecentTermsOpen,
-                                    )
-                                    SearchFieldLeadingAction.None -> Unit
-                                }
-                                Box(Modifier.weight(1f)) {
-                                    if (searchBar.query.isEmpty()) {
-                                        Text(
-                                            strings.search,
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            color = onContainer.copy(alpha = 0.6f),
+                    Box(Modifier.weight(1f)) {
+                        // Deliberately NOT AbSearchField. That is an `OutlinedTextField`, and it fails here
+                        // twice over — both found by inspecting the recorded goldens zoomed, neither
+                        // detectable by any assertion:
+                        //
+                        //  1. Its M3 minimum height is exactly [ToolbarHeight], so its outline lands flush on
+                        //     the toolbar's top and bottom edges (measured: the border occupied rows 0 and 55
+                        //     of a 56px capture), pressing against the status bar with no breathing room.
+                        //  2. Its colours come from M3's own defaults rather than this toolbar's `onContainer`,
+                        //     so on a saturated workspace colour the text and both field icons rendered dark on
+                        //     purple while the neighbouring toolbar icons were white. Same defect family as
+                        //     batch 3's F1.
+                        //
+                        // In an app bar the bar IS the container, so this is a bare field whose every colour
+                        // derives from `onContainer`.
+                        ReadingSearchField(
+                            value = searchBar.query,
+                            onValueChange = searchBarCallbacks.onQueryChange,
+                            textStyle = MaterialTheme.typography.bodyLarge.copy(color = onContainer),
+                            cursorBrush = SolidColor(onContainer),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            keyboardActions = KeyboardActions(onSearch = { searchBarCallbacks.onSubmit() }),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester)
+                                .onFocusChanged { searchBarCallbacks.onFieldFocusChanged(it.isFocused) },
+                            decorationBox = { innerTextField ->
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    when (searchBar.leadingAction) {
+                                        SearchFieldLeadingAction.ShowResults -> ToolbarVectorButton(
+                                            Icons.AutoMirrored.Filled.FormatListBulleted,
+                                            strings.searchShowResults,
+                                            searchBarCallbacks.onShowResults,
                                         )
+                                        SearchFieldLeadingAction.RecentTerms -> ToolbarVectorButton(
+                                            Icons.Filled.History,
+                                            strings.recentSearches,
+                                            searchBarCallbacks.onRecentTermsOpen,
+                                        )
+                                        SearchFieldLeadingAction.None -> Unit
                                     }
-                                    innerTextField()
+                                    Box(Modifier.weight(1f)) {
+                                        if (searchBar.query.isEmpty()) {
+                                            Text(
+                                                strings.search,
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                color = if (mono) LocalAbColors.current.monoDisabled else onContainer.copy(alpha = 0.6f),
+                                            )
+                                        }
+                                        innerTextField()
+                                    }
+                                    if (searchBar.query.isNotEmpty()) {
+                                        ToolbarVectorButton(
+                                            Icons.Filled.Clear,
+                                            strings.searchClear,
+                                        ) { searchBarCallbacks.onQueryChange("") }
+                                    }
                                 }
-                                if (searchBar.query.isNotEmpty()) {
-                                    ToolbarVectorButton(
-                                        Icons.Filled.Clear,
-                                        strings.searchClear,
-                                    ) { searchBarCallbacks.onQueryChange("") }
-                                }
+                            },
+                        )
+                        DropdownMenu(
+                            expanded = searchBar.recentMenuOpen,
+                            onDismissRequest = searchBarCallbacks.onRecentTermsDismiss,
+                            containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
+                            tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
+                            shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
+                            border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+                        ) {
+                            searchBar.recentTerms.forEach { term ->
+                                AbMenuItem(
+                                    text = term,
+                                    onClick = { searchBarCallbacks.onRecentTermSelected(term) },
+                                    icon = { Icon(Icons.Filled.History, contentDescription = null) },
+                                )
                             }
-                        },
-                    )
-                    DropdownMenu(
-                        expanded = searchBar.recentMenuOpen,
-                        onDismissRequest = searchBarCallbacks.onRecentTermsDismiss,
-                    ) {
-                        searchBar.recentTerms.forEach { term ->
+                        }
+                    }
+                    // `Tune` rather than the host's overflow painter: this opens settings, and Tune is what
+                    // `AbSettingsSummarySheet` already uses for exactly that. A vertical ⋮ reads as "more
+                    // actions", which this is not.
+                    ToolbarVectorButton(Icons.Filled.Tune, strings.searchOptions, searchBarCallbacks.onOpenSettings)
+                    // The submit button is gone: the IME already carries `ImeAction.Search`, and a button
+                    // duplicating it does not earn a slot in a row this crowded. The slot holds the
+                    // overflow classic had on its search screen instead (F6-B5).
+                    //
+                    // Hand-rolled from ToolbarVectorButton + DropdownMenu rather than reusing
+                    // AbOverflowMenu, for the same reason the recent-terms menu just above is: this row
+                    // is not a TopAppBar, its buttons are fixed-width ToolbarVectorButtons, and
+                    // AbOverflowMenu's IconButton would be a different width — changing the row's
+                    // geometry to add a menu item.
+                    Box {
+                        ToolbarVectorButton(Icons.Filled.MoreVert, strings.menu) { searchMenuOpen = true }
+                        DropdownMenu(
+                            expanded = searchMenuOpen, onDismissRequest = { searchMenuOpen = false },
+                            containerColor = if (mono) MaterialTheme.colorScheme.surface else MenuDefaults.containerColor,
+                            tonalElevation = if (mono) 0.dp else MenuDefaults.TonalElevation,
+                            shadowElevation = if (mono) 0.dp else MenuDefaults.ShadowElevation,
+                            border = if (mono) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+                        ) {
                             AbMenuItem(
-                                text = term,
-                                onClick = { searchBarCallbacks.onRecentTermSelected(term) },
-                                icon = { Icon(Icons.Filled.History, contentDescription = null) },
+                                text = strings.rebuildIndex,
+                                onClick = { searchMenuOpen = false; searchBarCallbacks.onRebuildIndex() },
+                                icon = { Icon(Icons.Filled.Autorenew, contentDescription = null) },
+                            )
+                            AbMenuItem(
+                                text = strings.help,
+                                onClick = { searchMenuOpen = false; searchHelpOpen = true },
+                                icon = AbHelpMenuIcon,
                             )
                         }
                     }
                 }
-                // `Tune` rather than the host's overflow painter: this opens settings, and Tune is what
-                // `AbSettingsSummarySheet` already uses for exactly that. A vertical ⋮ reads as "more
-                // actions", which this is not.
-                ToolbarVectorButton(Icons.Filled.Tune, strings.searchOptions, searchBarCallbacks.onOpenSettings)
-                // The submit button is gone: the IME already carries `ImeAction.Search`, and a button
-                // duplicating it does not earn a slot in a row this crowded. The slot holds the
-                // overflow classic had on its search screen instead (F6-B5).
-                //
-                // Hand-rolled from ToolbarVectorButton + DropdownMenu rather than reusing
-                // AbOverflowMenu, for the same reason the recent-terms menu just above is: this row
-                // is not a TopAppBar, its buttons are fixed-width ToolbarVectorButtons, and
-                // AbOverflowMenu's IconButton would be a different width — changing the row's
-                // geometry to add a menu item.
-                Box {
-                    ToolbarVectorButton(Icons.Filled.MoreVert, strings.menu) { searchMenuOpen = true }
-                    DropdownMenu(expanded = searchMenuOpen, onDismissRequest = { searchMenuOpen = false }) {
-                        AbMenuItem(
-                            text = strings.rebuildIndex,
-                            onClick = { searchMenuOpen = false; searchBarCallbacks.onRebuildIndex() },
-                            icon = { Icon(Icons.Filled.Autorenew, contentDescription = null) },
-                        )
-                        AbMenuItem(
-                            text = strings.help,
-                            onClick = { searchMenuOpen = false; searchHelpOpen = true },
-                            icon = AbHelpMenuIcon,
-                        )
-                    }
-                }
+                if (mono) HorizontalDivider(Modifier.align(Alignment.BottomCenter), thickness = 1.dp, color = onContainer)
             }
         }
         if (searchHelpOpen) {
@@ -571,6 +590,7 @@ fun ReadingToolbar(
                 }
             }
         }
+        if (mono) HorizontalDivider(Modifier.align(Alignment.BottomCenter), thickness = 1.dp, color = onContainer)
     }
 }
 
@@ -590,7 +610,8 @@ private fun QuickToolbarButton(
             contentDescription = strings.prefsShowStrongsTitle,
             onClick = callbacks.onStrongs,
             onLongClick = callbacks.onStrongsLong,
-            alpha = if (state.strongsMode == 0) 0.5f else 1f,
+            alpha = if (isPureMonochrome()) 1f else if (state.strongsMode == 0) 0.5f else 1f,
+            tint = if (isPureMonochrome() && state.strongsMode == 0) LocalAbColors.current.monoDisabled else LocalContentColor.current,
         )
         ToolbarButton.SEARCH -> ToolbarIconButton(icons.search, strings.search, callbacks.onSearch)
         ToolbarButton.SPEAK -> ToolbarIconButton(icons.speak, strings.speak, callbacks.onSpeak, callbacks.onSpeakLong)
@@ -634,6 +655,7 @@ private fun ToolbarIconButton(
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     alpha: Float = 1f,
+    tint: Color = LocalContentColor.current,
 ) {
     Row(
         modifier = Modifier
@@ -647,6 +669,7 @@ private fun ToolbarIconButton(
             painter = icon,
             contentDescription = contentDescription,
             modifier = Modifier.size(AbActionIconSize).alpha(alpha),
+            tint = tint,
         )
     }
 }
@@ -720,7 +743,7 @@ private fun ReadingToolbarTitle(
 @Composable
 private fun SyncIndicator(icon: Painter, modifier: Modifier = Modifier) {
     val animate = !LocalDisableAnimations.current && !LocalInspectionMode.current
-    val alpha = if (animate) {
+    val alpha = if (animate && !isPureMonochrome()) {
         rememberInfiniteTransition(label = "syncIndicator").animateFloat(
             initialValue = 1f,
             targetValue = SyncIndicatorMinAlpha,

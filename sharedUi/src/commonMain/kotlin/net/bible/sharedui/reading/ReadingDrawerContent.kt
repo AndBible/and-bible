@@ -17,6 +17,7 @@
 
 package net.bible.sharedui.reading
 
+import net.bible.sharedui.theme.LocalAbColors
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -168,7 +169,7 @@ private fun DrawerRow(
 ) {
     val contentColor =
         if (enabled) MaterialTheme.colorScheme.onSurface
-        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+        else LocalAbColors.current.monoDisabled
     Row(
         modifier = Modifier
             .fillMaxWidth()

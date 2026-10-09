@@ -19,11 +19,7 @@ class BibleReferenceOverlayGoldenTest {
     // BibleReferenceOverlay's kdoc), so visible = true captures deterministically — no separate
     // hidden-state golden is needed (it would just be an empty capture).
     @Test
-    fun visible_matrix() = captureMatrix("BibleReferenceOverlay", "visible") {
-        Box(Modifier.fillMaxSize()) {
-            BibleReferenceOverlay(visible = true, text = "KJV:Genesis 1:1")
-        }
-    }
+    fun visible_matrix() = captureMatrix("BibleReferenceOverlay", "visible", content = visibleContent())
 
     @Test
     @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "ar")
@@ -31,5 +27,16 @@ class BibleReferenceOverlayGoldenTest {
         Box(Modifier.fillMaxSize()) {
             BibleReferenceOverlay(visible = true, text = "KJV:Genesis 1:1")
         }
+    }
+
+    private fun visibleContent(): @androidx.compose.runtime.Composable () -> Unit = {
+        Box(Modifier.fillMaxSize()) {
+            BibleReferenceOverlay(visible = true, text = "KJV:Genesis 1:1")
+        }
+    }
+
+    @Test
+    fun visible_mono() {
+        MONO_MODES.forEach { mode -> captureGolden("BibleReferenceOverlay", "visible", mode, content = visibleContent()) }
     }
 }
