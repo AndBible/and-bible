@@ -22,6 +22,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -228,7 +229,11 @@ open class BookmarkControl constructor(
         try {
             return blockingDb { withContext(pending) { core() } }
         } finally {
-            pending.effects.forEach { it() }
+            // Every queued effect runs, even when one throws or the core failed: an effect's failure is logged (it must
+            // not mask the core's exception nor drop the effects after it); cancellation is the one thing not swallowed.
+            pending.effects.forEach {
+                try { it() } catch (e: CancellationException) { throw e } catch (e: Exception) { Log.e(TAG, "Side effect failed", e) }
+            }
         }
     }
 
