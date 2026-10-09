@@ -64,6 +64,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.withTimeoutOrNull
 import net.bible.sharedcore.settings.store.SettingsStore
 import java.io.File
 import java.text.SimpleDateFormat
@@ -118,9 +119,12 @@ class DatabaseContainer {
             deleteAppDatabase(OLD_MONOLITHIC_DATABASE_NAME) // the file, any journal/WAL leftovers and Room's .lck
         }
     }
+    // The six syncable databases below are @Volatile (D1 final review I2): CloudSync's first sync swaps a field
+    // (resetXDb) from an IO thread while other threads read it, and a stale read would reach the closed instance,
+    // which under Room 3 throws instead of reopening.
     fun getBookmarkDb(filename: String = BookmarkDatabase.dbFileName) = buildAppDatabase<BookmarkDatabase>(filename, *bookmarkMigrations)
 
-    var bookmarkDb: BookmarkDatabase = getBookmarkDb()
+    @Volatile var bookmarkDb: BookmarkDatabase = getBookmarkDb()
     fun resetBookmarkDb(): BookmarkDatabase {
         bookmarkDb.close()
         bookmarkDb = getBookmarkDb()
@@ -130,7 +134,7 @@ class DatabaseContainer {
     fun getReadingPlanDb(filename: String = ReadingPlanDatabase.dbFileName) =
         buildAppDatabase<ReadingPlanDatabase>(filename, *readingPlanMigrations)
 
-    var readingPlanDb: ReadingPlanDatabase = getReadingPlanDb()
+    @Volatile var readingPlanDb: ReadingPlanDatabase = getReadingPlanDb()
     fun resetReadingPlanDb(): ReadingPlanDatabase {
         readingPlanDb.close()
         readingPlanDb = getReadingPlanDb()
@@ -140,7 +144,7 @@ class DatabaseContainer {
     fun getWorkspaceDb(filename: String = WorkspaceDatabase.dbFileName) =
         buildAppDatabase<WorkspaceDatabase>(filename, *workspacesMigrations)
 
-    var workspaceDb: WorkspaceDatabase = getWorkspaceDb()
+    @Volatile var workspaceDb: WorkspaceDatabase = getWorkspaceDb()
 
     fun resetWorkspaceDb(): WorkspaceDatabase {
         workspaceDb.close()
@@ -151,7 +155,7 @@ class DatabaseContainer {
     fun getMyDocumentDb(filename: String = MyDocumentDatabase.dbFileName) =
         buildAppDatabase<MyDocumentDatabase>(filename, *myDocumentMigrations)
 
-    var myDocumentDb: MyDocumentDatabase = getMyDocumentDb()
+    @Volatile var myDocumentDb: MyDocumentDatabase = getMyDocumentDb()
 
     fun resetMyDocumentDb(): MyDocumentDatabase {
         myDocumentDb.close()
@@ -162,7 +166,7 @@ class DatabaseContainer {
     fun getAiSettingsDb(filename: String = AiSettingsDatabase.dbFileName) =
         buildAppDatabase<AiSettingsDatabase>(filename, *aiSettingsMigrations)
 
-    var aiSettingsDb: AiSettingsDatabase = getAiSettingsDb()
+    @Volatile var aiSettingsDb: AiSettingsDatabase = getAiSettingsDb()
 
     fun resetAiSettingsDb(): AiSettingsDatabase {
         aiSettingsDb.close()
@@ -173,7 +177,7 @@ class DatabaseContainer {
     fun getProgressDb(filename: String = ProgressDatabase.dbFileName) =
         buildAppDatabase<ProgressDatabase>(filename, *progressMigrations)
 
-    var progressDb: ProgressDatabase = getProgressDb()
+    @Volatile var progressDb: ProgressDatabase = getProgressDb()
 
     fun resetProgressDb(): ProgressDatabase {
         progressDb.close()
@@ -282,12 +286,12 @@ class DatabaseContainer {
 
     internal suspend fun sync() {
         // we are not using WAL mode any more, but it does not hurt either. Just in case we switch back to WAL.
-        allDatabases.forEach { it.useWriterConnection { c -> c.exec("PRAGMA wal_checkpoint(FULL)") } }
+        allDatabases.forEach { it.useWriterConnectionMarked { c -> c.exec("PRAGMA wal_checkpoint(FULL)") } }
     }
 
     internal suspend fun vacuum() {
         backedUpDatabases.forEach {
-            it.useWriterConnection { c -> c.exec("VACUUM;") }
+            it.useWriterConnectionMarked { c -> c.exec("VACUUM;") }
         }
     }
 
@@ -323,7 +327,7 @@ class DatabaseContainer {
     }
 
     companion object {
-        var ready: Boolean = false
+        @Volatile var ready: Boolean = false
 
         private val _readingPlansSynced = EventSource<List<LogEntry>>()
         /** Fires on the sync thread after a cloud sync applied reading-plan changes (replaces `ReadingPlansUpdatedViaSyncEvent`). */
@@ -439,7 +443,7 @@ class DatabaseContainer {
             ready = true
             return instance
         }
-        private var _instance: DatabaseContainer? = null
+        @Volatile private var _instance: DatabaseContainer? = null
         val instance: DatabaseContainer get() {
             if(!ready && !application.isRunningTests) throw DataBaseNotReady()
             return _instance ?: synchronized(this) {
@@ -454,10 +458,21 @@ class DatabaseContainer {
             }
         }
 
-        /** Persists queued settings writes; call before a path that ends the process (`exitProcess`). No-op if the database is not open. */
-        fun flushSettingsBeforeExit() {
+        /**
+         * Persists queued settings writes; call before a path that ends the process (`exitProcess`). No-op if the
+         * database is not open; never builds a container and never throws. With [timeoutMs] it gives up waiting
+         * after that long (the crash handler: a dying process must not hang on a stuck writer; the wait for the
+         * writer is a cancellable await, so the timeout takes effect).
+         */
+        fun flushSettingsBeforeExit(timeoutMs: Long? = null) {
             if (!ready) return
-            try { blockingDb { _instance?.settingsStore?.flush() } } catch (e: Exception) { Log.e(TAG, "Settings flush failed", e) }
+            try {
+                blockingDb {
+                    val store = _instance?.settingsStore ?: return@blockingDb
+                    if (timeoutMs == null) store.flush()
+                    else if (withTimeoutOrNull(timeoutMs) { store.flush() } == null) Log.w(TAG, "Settings flush timed out")
+                }
+            } catch (e: Throwable) { Log.e(TAG, "Settings flush failed", e) }
         }
 
         suspend fun sync() = instance.sync()

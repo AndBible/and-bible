@@ -36,9 +36,24 @@ class SettingsStoreIntegrationTest {
         SQLiteDatabase.openDatabase(f.path, null, 0).use { it.execSQL(sql) }
     }
 
+    /**
+     * closeAll() must flush before it cancels the writer. The writer is held by a gated task (as in
+     * [closeForReplaceFlushesQueuedSettingsBeforeClosing]), so the write is still queued when reset() runs; without
+     * the flush the scope cancel drops it and the reopened container does not see it.
+     */
     @Test fun settingWrittenBeforeCloseAllSurvivesReopen() {
-        CommonUtils.settings.setString("d1-key", "v1")
-        DatabaseContainer.reset() // closeAll() must flush first
+        val container = DatabaseContainer.instance
+        val gate = CountDownLatch(1)
+        val started = CountDownLatch(1)
+        container.settingsScope.launch { started.countDown(); gate.await() }
+        assertTrue(started.await(10, TimeUnit.SECONDS))
+        val watchdog = Thread { Thread.sleep(500); gate.countDown() }.apply { isDaemon = true; start() }
+        try {
+            CommonUtils.settings.setString("d1-key", "v1") // queued behind the gated task
+            DatabaseContainer.reset() // closeAll() must flush first
+        } finally {
+            gate.countDown(); watchdog.join()
+        }
         assertEquals("v1", CommonUtils.settings.getString("d1-key", null))
         assertEquals("v1", runBlocking { DatabaseContainer.instance.settingsDb.stringSettingDao().byKey("d1-key") }?.value)
     }
@@ -96,6 +111,55 @@ class SettingsStoreIntegrationTest {
             assertEquals("queued", v)
         } finally {
             gate.countDown(); watchdog.join()
+        }
+    }
+
+    /** Holds the settings writer until [gate] opens; returns once the gated task runs. */
+    private fun holdWriter(gate: CountDownLatch) {
+        val started = CountDownLatch(1)
+        DatabaseContainer.instance.settingsScope.launch { started.countDown(); gate.await() }
+        assertTrue(started.await(10, TimeUnit.SECONDS))
+    }
+
+    private fun rawSettingValue(key: String): String? {
+        val f = application.getDatabasePath(SettingsDatabase.dbFileName)
+        return SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY).use {
+            it.rawQuery("SELECT value FROM StringSetting WHERE `key`=?", arrayOf(key)).use { c -> if (c.moveToFirst()) c.getString(0) else null }
+        }
+    }
+
+    private inline fun <T> whileReady(block: () -> T): T {
+        val wasReady = DatabaseContainer.ready
+        DatabaseContainer.ready = true
+        try { return block() } finally { DatabaseContainer.ready = wasReady }
+    }
+
+    /** D1 final review M3: the crash handler's flush writes a queued setting. */
+    @Test fun flushSettingsBeforeExitWritesAQueuedSetting() = whileReady {
+        val gate = CountDownLatch(1)
+        holdWriter(gate)
+        val watchdog = Thread { Thread.sleep(500); gate.countDown() }.apply { isDaemon = true; start() }
+        try {
+            CommonUtils.settings.setString("exit", "flushed")
+            DatabaseContainer.flushSettingsBeforeExit(timeoutMs = 10_000)
+            assertEquals("flushed", rawSettingValue("exit"))
+        } finally {
+            gate.countDown(); watchdog.join()
+        }
+    }
+
+    /** D1 final review M3: the crash handler's flush gives up on a stuck writer instead of hanging a dying process. */
+    @Test fun flushSettingsBeforeExitIsBoundedWhenTheWriterIsStuck() = whileReady {
+        val gate = CountDownLatch(1)
+        holdWriter(gate)
+        try {
+            CommonUtils.settings.setString("stuck", "x")
+            val t0 = System.nanoTime()
+            DatabaseContainer.flushSettingsBeforeExit(timeoutMs = 300)
+            val ms = (System.nanoTime() - t0) / 1_000_000
+            assertTrue("flush waited $ms ms", ms < 5_000)
+        } finally {
+            gate.countDown()
         }
     }
 

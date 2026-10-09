@@ -33,6 +33,7 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.openSqlite
 import net.bible.service.db.queryRows
 import net.bible.android.activity.R
@@ -135,6 +136,8 @@ open class BibleApplication : Application() {
             if(numCrashed == 0) {
                 CommonUtils.realSharedPreferences.edit().putLong("app-crashed-time", crashTime).commit()
             }
+            // Settings writes still queued in the store would die with the process. Bounded: never hang a dying app.
+            DatabaseContainer.flushSettingsBeforeExit(timeoutMs = 2_000)
             defaultExceptionHandler.uncaughtException(t, e)
         }
         userMessagesSubscription = UserMessages.messages.subscribeOnMain { message ->
