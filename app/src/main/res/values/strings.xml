@@ -1364,7 +1364,7 @@
     <string name="webdav_trust_certificate">Trust this certificate</string>
     <string name="webdav_wrong_credentials">Wrong username or password.</string>
     <string name="webdav_not_a_folder">The address is not a WebDAV folder.</string>
-    <string name="webdav_certificate_changed">The server certificate has changed. Synchronization is paused until you reconnect in sync settings.</string>
+    <string name="webdav_certificate_changed">The server certificate has changed. Synchronization is paused until you confirm the new certificate, which AndBible asks about the next time it opens or syncs in the foreground.</string>
     <string name="webdav_storage_full">The server storage is full.</string>
     <string name="auth_server_uri">Server URL</string>
     <string name="auth_username">User name</string>

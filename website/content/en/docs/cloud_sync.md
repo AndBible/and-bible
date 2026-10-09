@@ -9,7 +9,7 @@ while the app is open, as well as when opening or exiting the app.
 ## Requirements
 
 - Android 5.1 or newer
-- A Google account (for Google Drive sync) a Nextcloud server, or a WebDAV server
+- A Google account (for Google Drive sync), a Nextcloud server, or a WebDAV server
 - Internet connection
 
 !!! note
@@ -88,11 +88,15 @@ fingerprint with the one on your server, and choose **Trust this certificate**
 only if they match.
 
 - The trust is remembered for that server address only. Certificates you have
-    installed on the phone as extra certificate authorities are not used.
-- If the server's certificate changes later, sync pauses with a message. Reconnect
-    in Sync settings and confirm the new fingerprint.
-- While a certificate is trusted and you are not signed in, Sync settings shows a
-    **Server certificate** row where you can forget the trusted certificate.
+    installed on the phone as extra certificate authorities are not used. (On
+    Android 6, certificates you installed on the phone may still be accepted by the
+    system; Android excludes them only from Android 7 onwards.)
+- If the server's certificate changes later, sync pauses with a message. The
+    prompt to confirm the new fingerprint appears the next time *AndBible* is opened
+    or syncs in the foreground.
+- Whenever a certificate is trusted for the WebDAV provider, Sync settings shows a
+    **Server certificate** row where you can forget the trusted certificate. The
+    row is disabled while you are signed in.
 
 !!! tip
 
