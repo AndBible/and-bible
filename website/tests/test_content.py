@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, time
 from pathlib import Path
 
 import pytest
@@ -51,11 +51,30 @@ def test_url_date_overrides_the_permalink_date(tmp_path, media):
     assert post.path == "/2025/08/20/new-feature-memorize/"
 
 
+def test_time_of_day_orders_same_day_posts_without_touching_the_permalink(tmp_path, media):
+    def post(slug: str, when: str) -> None:
+        text = POST.replace("new-feature-memorize", slug).replace("date: 2025-08-19", f"date: '{when}'")
+        write(tmp_path / f"blog/2025-08-19-{slug}.md", text)
+
+    # Without a time, same-day posts fall back to slug order (a-first, b-second).
+    post("a-first", "2025-08-19")
+    post("b-second", "2025-08-19 12:00")
+    post("c-third", "2025-08-19 18:30")
+    posts = load_posts(tmp_path / "blog", media)
+    assert [p.slug for p in posts] == ["c-third", "b-second", "a-first"]
+    assert posts[0].date == date(2025, 8, 19)
+    assert posts[0].time == time(18, 30)
+    assert posts[2].time == time.min
+    assert posts[0].path == "/2025/08/19/c-third/"
+
+
 @pytest.mark.parametrize(
     "change, message",
     [
         (("title: \"New feature: Memorize\"\n", ""), "title"),
         (("date: 2025-08-19", "date: 2025-8-19"), "date must be YYYY-MM-DD"),
+        (("date: 2025-08-19", "date: 2025-08-19 9:00"), "date must be YYYY-MM-DD"),
+        (("date: 2025-08-19", "date: 2025-08-19 24:00"), "invalid date"),
         (("slug: new-feature-memorize", "slug: Bad Slug"), "slug"),
         (("image: blog/2025/08/m.webp", "image: blog/missing.webp"), "image does not exist"),
         (("image: blog/2025/08/m.webp", "image: ../../etc/passwd"), "invalid image path"),

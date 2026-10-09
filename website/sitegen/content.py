@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime, time
 from pathlib import Path
 
 from sitegen.frontmatter import split
@@ -12,6 +12,7 @@ from sitegen.frontmatter import split
 _FILENAME = re.compile(r"^(\d{4}-\d{2}-\d{2})-[a-z0-9-]+\.md$")
 _SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_DATE_TIME = re.compile(r"^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})$")
 
 
 def taxonomy_slug(name: str) -> str:
@@ -34,6 +35,7 @@ class Post:
     slug: str
     title: str
     date: date
+    time: time
     url_date: date
     summary: str
     categories: tuple[str, ...]
@@ -81,6 +83,20 @@ def _date(data: dict[str, object], key: str, source: Path) -> date:
         raise ValueError(f"{source}: invalid {key}: {value}") from exc
 
 
+def _published(data: dict[str, object], source: Path) -> tuple[date, time]:
+    """`date` with an optional `HH:MM` time of day, which only orders posts of the same day."""
+    value = _required(data, "date", source)
+    match = _DATE_TIME.fullmatch(value)
+    if match is None:
+        if not _DATE.fullmatch(value):
+            raise ValueError(f"{source}: date must be YYYY-MM-DD or 'YYYY-MM-DD HH:MM'")
+        return _date(data, "date", source), time.min
+    try:
+        return date.fromisoformat(match.group(1)), datetime.strptime(match.group(2), "%H:%M").time()
+    except ValueError as exc:
+        raise ValueError(f"{source}: invalid date: {value}") from exc
+
+
 def _names(data: dict[str, object], key: str, source: Path) -> tuple[str, ...]:
     value = data.get(key, [])
     if not isinstance(value, list) or not all(isinstance(v, str) and v.strip() for v in value):
@@ -94,7 +110,7 @@ def parse_post(source: Path, media_dir: Path) -> Post:
         raise ValueError(f"{source}: filename must be YYYY-MM-DD-slug.md")
     data, body = split(source.read_text(encoding="utf-8"), source)
     title = _required(data, "title", source)
-    published = _date(data, "date", source)
+    published, published_time = _published(data, source)
     if published.isoformat() != match.group(1):
         raise ValueError(f"{source}: date must match the filename prefix")
     slug = _required(data, "slug", source)
@@ -112,6 +128,7 @@ def parse_post(source: Path, media_dir: Path) -> Post:
         slug=slug,
         title=title,
         date=published,
+        time=published_time,
         url_date=url_date,
         summary=_required(data, "summary", source),
         categories=_names(data, "categories", source),
@@ -132,7 +149,7 @@ def load_posts(blog_dir: Path, media_dir: Path) -> list[Post]:
         if post.path in seen:
             raise ValueError(f"{post.source}: duplicate permalink {post.path} (also {seen[post.path]})")
         seen[post.path] = post.source
-    return sorted(posts, key=lambda p: (-p.date.toordinal(), p.slug))
+    return sorted(posts, key=lambda p: (-p.date.toordinal(), -(p.time.hour * 60 + p.time.minute), p.slug))
 
 
 def load_pages(pages_dir: Path) -> list[Page]:
