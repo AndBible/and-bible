@@ -101,6 +101,19 @@ class SyncSettingsServiceImplWebDavTest {
         assertEquals(Propagation.YES, PrefsWebDavStateStore(prefs).propagation)
     }
 
+    @Test fun webDav_hostChange_clearsCertPin_pathChangeKeepsIt() {
+        CloudAdapters.current = CloudAdapters.WEBDAV
+        val service = impl()
+        assertTrue(service.setText("cloud_sync_server_url", "https://nas/dav/"))
+        PrefsWebDavStateStore(prefs).certPin = CertPin("nas", "ABCDEF0123456789ABCDEF0123456789")
+        assertTrue(service.setText("cloud_sync_server_url", "https://nas/other/path/"))
+        assertNotNull("same host keeps the pin", PrefsWebDavStateStore(prefs).certPin)
+        assertFalse(service.setText("cloud_sync_server_url", "http://elsewhere/"))
+        assertNotNull("rejected URL keeps the pin", PrefsWebDavStateStore(prefs).certPin)
+        assertTrue(service.setText("cloud_sync_server_url", "https://other-host/dav/"))
+        assertNull("new host clears the pin", PrefsWebDavStateStore(prefs).certPin)
+    }
+
     @Test fun nextCloud_urlChange_doesNotTouchPropagation() {
         CloudAdapters.current = CloudAdapters.NEXT_CLOUD
         PrefsWebDavStateStore(prefs).propagation = Propagation.YES

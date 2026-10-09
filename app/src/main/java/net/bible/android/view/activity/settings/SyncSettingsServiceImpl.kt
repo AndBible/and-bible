@@ -38,6 +38,7 @@ import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.cloudsync.documents.DocumentSyncSummary
 import net.bible.service.cloudsync.documents.computeDocumentSyncSummary
 import net.bible.service.cloudsync.webdav.PrefsWebDavStateStore
+import net.bible.service.cloudsync.webdav.WebDavConfig
 import net.bible.service.cloudsync.webdav.Propagation
 import net.bible.service.cloudsync.webdav.formatFingerprint
 import net.bible.sharedcore.webdav.WebDavUrl
@@ -220,6 +221,11 @@ class SyncSettingsServiceImpl(
         // A different server/folder invalidates the collection-mtime calibration.
         if (isWebDav && (key == "cloud_sync_server_url" || key == "cloud_sync_folder_path")) {
             webDavState.propagation = Propagation.UNKNOWN
+        }
+        // A pin is bound to its host: after a host change it can never match, so drop it.
+        if (isWebDav && key == "cloud_sync_server_url") {
+            val pin = webDavState.certPin
+            if (pin != null && WebDavConfig(value, "", "", "").host != pin.host) webDavState.certPin = null
         }
         return true
     }
