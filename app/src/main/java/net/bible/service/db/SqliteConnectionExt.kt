@@ -84,6 +84,7 @@ fun SQLiteStatement.textOrNull(i: Int): String? = if (isNull(i)) null else getTe
  * (a constraint violation under FAIL/ABORT, say) instead of throwing.
  */
 fun SQLiteConnection.insertOr(conflict: String, table: String, vararg values: Pair<String, Any?>): Long {
+    require(conflict in setOf("IGNORE", "FAIL", "ABORT", "REPLACE", "ROLLBACK")) { "bad conflict resolution: $conflict" }
     require(values.isNotEmpty()) { "insertOr needs at least one column" }
     val cols = values.joinToString(",") { "`${it.first}`" }
     val marks = values.joinToString(",") { "?" }

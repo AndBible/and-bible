@@ -113,6 +113,14 @@ class SqliteConnectionExtTest {
     }
 
     @Test
+    fun insertOrRejectsAConflictClauseThatIsNotAKeyword() {
+        c.exec("CREATE TABLE guard (k TEXT)")
+        assertThrows(IllegalArgumentException::class.java) { c.insertOr("IGNORE INTO guard (k) VALUES ('x'); --", "guard", "k" to "a") }
+        assertThrows(IllegalArgumentException::class.java) { c.insertOr("ignore", "guard", "k" to "a") }
+        assertEquals(0L, c.queryLong("SELECT COUNT(*) FROM guard"))
+    }
+
+    @Test
     fun insertOrReturnsRowIdAndHonoursTheConflictClause() {
         c.execSQL("CREATE TABLE u (id INTEGER PRIMARY KEY AUTOINCREMENT, k TEXT NOT NULL UNIQUE, v TEXT)")
         assertEquals(1L, c.insertOr("FAIL", "u", "k" to "a", "v" to null))
