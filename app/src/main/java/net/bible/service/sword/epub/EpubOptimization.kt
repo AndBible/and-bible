@@ -82,7 +82,7 @@ fun EpubBackendState.readOriginal(origId: String): Pair<Document?, Int> {
             val processed = fixReferences(it.rootElement)
             val body = useXPathInstance { xp -> xp.compile("//ns:body", Filters.element(), null, xhtmlNamespace).evaluateFirst(processed) }
                 ?: return Pair(null, 0)
-            val maxOrdinal = SwordContentFacade.addAnchors(body, bookMetaData.language.code, true)
+            val maxOrdinal = SwordContentFacade.addAnchors(body, getBookMetaData().language.code, true)
             Pair(it, maxOrdinal)
         }
 }
@@ -232,9 +232,9 @@ fun EpubBackendState.optimizeEpub() {
     val start = System.currentTimeMillis()
     for(k in originalIds) {
         val title = fileToTitle?.let {f2t -> f2t[idToFile[k]]} ?: application.getString(R.string.nameless)
-        val s = application.getString(R.string.processing_epub, "${bookMetaData.name}: $title")
+        val s = application.getString(R.string.processing_epub, "${getBookMetaData().name}: $title")
         InstallZipProgress.report(s)
-        Log.i(TAG, "${bookMetaData.name}: optimizing $k")
+        Log.i(TAG, "${getBookMetaData().name}: optimizing $k")
 
         val (origDocument, maxOrdinal) = readOriginal(k)
         origDocument ?: continue
@@ -256,7 +256,7 @@ fun EpubBackendState.optimizeEpub() {
         writeDao.insert(*styleSheets)
 
         for(frag in fragments) {
-            Log.i(TAG, "${bookMetaData.name}: writing frag ${frag.id}")
+            Log.i(TAG, "${getBookMetaData().name}: writing frag ${frag.id}")
             writeFragment(frag)
             val epubHtmlToFrags = findIds(frag).map {
                 EpubHtmlToFrag("$k#$it", frag.id)

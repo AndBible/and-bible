@@ -164,7 +164,7 @@ fun addEpubBook(epubDir: File) {
     }
 
     val state = EpubBackendState(epubDir)
-    val metadata = state.bookMetaData
+    val metadata = state.getBookMetaData()
     if(Books.installed().getBook(metadata.initials) != null) return
     val backend = EpubBackend(state, metadata)
     val book = SwordGenBook(metadata, backend)

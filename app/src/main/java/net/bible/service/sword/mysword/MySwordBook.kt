@@ -426,7 +426,7 @@ val mySwordDictionary = object: BookType("MySwordDictionary", BookCategory.DICTI
 fun addMySwordBook(file: File) {
     if(!(file.canRead() && file.isFile)) return
     val state = SqliteVerseBackendState(file)
-    val metadata = try { state.bookMetaData } catch (err: SQLiteException) {
+    val metadata = try { state.getBookMetaData() } catch (err: SQLiteException) {
         Log.e(TAG, "Failed to load MySword module $file", err)
         return
     }

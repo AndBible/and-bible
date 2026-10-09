@@ -116,7 +116,7 @@ class DocumentBibleBooks(private val document: AbstractPassageBook) {
      * <chapter eID="gen1010" osisID="Mal.3"></chapter>
      */
     private fun isProbablyEmptyVerseInDocument(document: Book, verse: Verse): Boolean {
-        val rawTextLength = (document as AbstractBook).backend.getRawTextLength(verse)
+        val rawTextLength = (document as AbstractBook).backend!!.getRawTextLength(verse)
         return if (verse.book.isShortBook) {
             isProbablyShortBookEmptyVerseStub(rawTextLength)
         } else {

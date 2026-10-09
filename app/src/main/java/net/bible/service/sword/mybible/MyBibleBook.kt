@@ -482,7 +482,7 @@ val myBibleDictionary = object: BookType("MyBibleDictionary", BookCategory.DICTI
 fun addMyBibleBook(file: File) {
     if(!(file.canRead() && file.isFile)) return
     val state = SqliteVerseBackendState(file)
-    val metadata = try { state.bookMetaData } catch (err: SQLiteException) {
+    val metadata = try { state.getBookMetaData() } catch (err: SQLiteException) {
         Log.e(TAG, "Failed to load MyBible module $file", err)
         return
     }

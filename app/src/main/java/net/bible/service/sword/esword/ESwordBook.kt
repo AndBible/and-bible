@@ -248,7 +248,7 @@ fun addESwordBook(file: File) {
     if (!(file.canRead() && file.isFile)) return
     val state = SqliteVerseBackendState(file)
     val metadata = try {
-        state.bookMetaData
+        state.getBookMetaData()
     } catch (err: SQLiteException) {
         Log.e(TAG, "Failed to load e-Sword module $file", err)
         return
