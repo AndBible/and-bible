@@ -17,9 +17,9 @@
 
 package net.bible.android.database
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room3.Database
+import androidx.room3.RoomDatabase
+import androidx.room3.ColumnTypeConverters
 import net.bible.android.database.bookmarks.BookmarkDao
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
@@ -68,7 +68,7 @@ import net.bible.service.llm.PromptCategoryDao
     ],
     version = BOOKMARK_DATABASE_VERSION
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class BookmarkDatabase: SyncableRoomDatabase() {
     abstract fun bookmarkDao(): BookmarkDao
     companion object {
@@ -86,7 +86,7 @@ abstract class BookmarkDatabase: SyncableRoomDatabase() {
     ],
     version = READING_PLAN_DATABASE_VERSION
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class ReadingPlanDatabase: SyncableRoomDatabase() {
     abstract fun readingPlanDao(): ReadingPlanDao
     companion object {
@@ -108,7 +108,7 @@ abstract class ReadingPlanDatabase: SyncableRoomDatabase() {
     ],
     version = WORKSPACE_DATABASE_VERSION
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class WorkspaceDatabase: SyncableRoomDatabase() {
     abstract fun workspaceDao(): WorkspaceDao
     abstract fun globalTextDisplaySettingsDao(): GlobalTextDisplaySettingsDao
@@ -132,7 +132,7 @@ const val TEMPORARY_DATABASE_VERSION = 1
     ],
     version = TEMPORARY_DATABASE_VERSION
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class TemporaryDatabase: RoomDatabase() {
     abstract fun documentSearchDao(): DocumentSearchDao
 }
@@ -159,7 +159,7 @@ const val DOCUMENT_SYNC_DATABASE_VERSION = 1
     ],
     version = DOCUMENT_SYNC_DATABASE_VERSION
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class DocumentSyncDatabase: RoomDatabase() {
     abstract fun cloudDocumentCacheDao(): CloudDocumentCacheDao
     abstract fun documentSyncPreferencesDao(): DocumentSyncPreferencesDao
@@ -176,7 +176,7 @@ const val REPO_DATABASE_VERSION = 1
     ],
     version = REPO_DATABASE_VERSION
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class RepoDatabase: RoomDatabase() {
     abstract fun swordDocumentInfoDao(): SwordDocumentInfoDao
     abstract fun customRepositoryDao(): CustomRepositoryDao
@@ -187,11 +187,8 @@ abstract class RepoDatabase: RoomDatabase() {
 
 const val SETTINGS_DATABASE_VERSION = 1
 
-/**
- * On Room 3 (`androidx.room3`) since D1 Task 16; the other databases follow in Task 17. Fully qualified
- * annotations because this file still imports Room 2. No column converters: every column is a primitive.
- */
-@androidx.room3.Database(
+/** No column converters: every column is a primitive. */
+@Database(
     entities = [
         BooleanSetting::class,
         StringSetting::class,
@@ -200,7 +197,7 @@ const val SETTINGS_DATABASE_VERSION = 1
     ],
     version = SETTINGS_DATABASE_VERSION
 )
-abstract class SettingsDatabase: androidx.room3.RoomDatabase() {
+abstract class SettingsDatabase: RoomDatabase() {
     abstract fun booleanSettingDao(): BooleanSettingDao
     abstract fun stringSettingDao(): StringSettingDao
     abstract fun longSettingDao(): LongSettingDao
@@ -228,7 +225,7 @@ const val AI_SETTINGS_DATABASE_VERSION = 23
     ],
     version = AI_SETTINGS_DATABASE_VERSION
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class AiSettingsDatabase: SyncableRoomDatabase() {
     abstract fun agentPromptDao(): AgentPromptDao
     abstract fun llmProviderConfigDao(): LlmProviderConfigDao

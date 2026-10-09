@@ -20,7 +20,7 @@ package net.bible.android.database
 
 import android.util.Base64
 import android.util.Log
-import androidx.room.TypeConverter
+import androidx.room3.ColumnTypeConverter
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.serializer
 import net.bible.android.database.bookmarks.BookmarkStyle
@@ -51,29 +51,29 @@ import java.util.Date
 
 
 class Converters {
-    @TypeConverter
+    @ColumnTypeConverter
     fun toLabelType(value: String?) = if(value==null) null else LabelType.valueOf(value)
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun idTypeToBlob(value: IdType?): ByteArray? = value?.toByteArray()
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun blobToIdType(value: ByteArray?): IdType? = IdType.fromByteArray(value)
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromLabelType(value: LabelType?) = value?.name
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toBookmarkType(value: String?) = if(value==null) null else BookmarkType.valueOf(value)
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromBookmarkType(value: BookmarkType?) = value?.name
 
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toBookmarkStyle(value: String?) = if(value==null) null else BookmarkStyle.valueOf(value)
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromBookmarkStyle(value: BookmarkStyle?) = value?.name
 
     /**
@@ -83,30 +83,30 @@ class Converters {
      * `docs/superpowers/specs/2026-08-19-label-style-schema-migration-design.md` §4.
      * `null` means "inherit the selection style" and is preserved as `null`.
      */
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromBookmarkDisplayStyle(value: BookmarkDisplayStyle?): Int? = value?.ordinal
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toBookmarkDisplayStyle(value: Int?): BookmarkDisplayStyle? =
         if (value == null) null else BookmarkDisplayStyle.entries.getOrNull(value) ?: BookmarkDisplayStyle.HIGHLIGHT
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toTextContentType(value: String?) = if(value==null) null else TextContentType.valueOf(value)
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromTextContentType(value: TextContentType?) = value?.name
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromTimestamp(value: Long): Date = Date(value)
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun dateToTimestamp(date: Date): Long = date.time
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun verseRangeToStr(v: VerseRange?): String? =
         if (v!=null) "${v.versification.name}::${v.osisRef}" else null
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToVerseRange(s: String?): VerseRange? {
         if(s == null) return null
         val splitted = s.split("::")
@@ -114,54 +114,54 @@ class Converters {
         return VerseRangeFactory.fromString(v11n, splitted[1])
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun versificationToStr(v: Versification): String = v.name
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToVersification(s: String): Versification {
         return Versifications.instance().getVersification(s)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun bookToStr(v: AbstractPassageBook?): String? = v?.initials
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToBook(s: String?): AbstractPassageBook? = s?.let {
         val book = Books.installed().getBook(s)
         if(book is AbstractPassageBook) book else null
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun bookToStr2(v: Book?): String? = v?.initials
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToBook2(s: String?): Book? = s?.let {
         return Books.installed().getBook(s)
     }
 
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun speakSettingsToStr(p: SpeakSettings?): String? {
         return p?.toJson()
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToSpeakSettings(s: String?): SpeakSettings? {
         return if (s != null) SpeakSettings.fromJson(s) else null
     }
 
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun playbackSettingsToStr(p: PlaybackSettings?): String? {
         return p?.toJson()
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToPlaybackSettings(s: String?): PlaybackSettings? {
         return if (s != null) PlaybackSettings.fromJson(s) else null
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun keyToStr(key: Key?): String? {
         if(key == null) return null
         val out = ByteArrayOutputStream()
@@ -170,7 +170,7 @@ class Converters {
         return Base64.encodeToString(out.toByteArray(), Base64.DEFAULT)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToKey(s: String?): Key? {
         if(s == null) return null
         return try {
@@ -182,7 +182,7 @@ class Converters {
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToList4(s: String?): List<IdType>? {
         if(s == null) return null
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
@@ -191,14 +191,14 @@ class Converters {
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun listToStr4(obj: List<IdType>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
 
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToList1(s: String?): List<Long>? {
         if(s == null) return null
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
@@ -207,13 +207,13 @@ class Converters {
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun listToStr1(obj: List<Long>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToList3(s: String?): List<String>? {
         if(s == null) return null
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
@@ -222,13 +222,13 @@ class Converters {
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun listToStr3(obj: List<String>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToList2(s: String?): MutableList<WorkspaceEntities.RecentLabel> {
         if(s == null) return mutableListOf()
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
@@ -237,13 +237,13 @@ class Converters {
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun listToStr2(obj: List<WorkspaceEntities.RecentLabel>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToSet3(s: String?): MutableSet<IdType> {
         if(s == null) return mutableSetOf()
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
@@ -252,13 +252,13 @@ class Converters {
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun setToStr3(obj: Set<IdType>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToSet1(s: String?): MutableSet<Long> {
         if(s == null) return mutableSetOf()
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
@@ -267,13 +267,13 @@ class Converters {
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun setToStr1(obj: Set<Long>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToSet2(s: String?): MutableSet<String> {
         if(s == null) return mutableSetOf()
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
@@ -282,13 +282,13 @@ class Converters {
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun setToStr2(obj: Set<String>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToMapIdTypeInt(s: String?): MutableMap<IdType, Int> {
         if(s == null) return mutableMapOf()
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
@@ -297,13 +297,13 @@ class Converters {
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun mapIdTypeIntToStr(obj: Map<IdType, Int>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToMapIdTypeNullableIdType(s: String?): Map<IdType, IdType?>? {
         if(s == null) return null
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
@@ -312,13 +312,13 @@ class Converters {
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun mapIdTypeNullableIdTypeToStr(obj: Map<IdType, IdType?>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToAgentToolSet(s: String?): Set<AgentTool>? {
         if(s == null) return null
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
@@ -327,13 +327,13 @@ class Converters {
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun agentToolSetToStr(obj: Set<AgentTool>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToPromptContextSet(s: String?): Set<PromptContext> {
         if(s == null) return emptySet()
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
@@ -342,36 +342,36 @@ class Converters {
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun promptContextSetToStr(obj: Set<PromptContext>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToApiFormat(s: String?): ApiFormat? {
         if (s == null) return null
         return try { ApiFormat.valueOf(s) } catch (_: IllegalArgumentException) { null }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun apiFormatToStr(obj: ApiFormat?): String? = obj?.name
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun strToPermissionMode(s: String?): PermissionMode? {
         if(s == null) return null
         return try { PermissionMode.valueOf(s) } catch(e: IllegalArgumentException) { null }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun permissionModeToStr(obj: PermissionMode?): String? = obj?.name
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toReadingSource(value: String?): ReadingSource? {
         if (value == null) return null
         return try { ReadingSource.valueOf(value) } catch (_: IllegalArgumentException) { null }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromReadingSource(value: ReadingSource?) = value?.name
 }

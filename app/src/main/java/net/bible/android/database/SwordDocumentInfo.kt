@@ -17,8 +17,8 @@
 
 package net.bible.android.database
 
-import androidx.room.*
-import androidx.room.OnConflictStrategy.Companion.REPLACE
+import androidx.room3.*
+import androidx.room3.OnConflictStrategy.Companion.REPLACE
 import kotlinx.serialization.Serializable
 
 @Serializable

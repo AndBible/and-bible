@@ -18,7 +18,7 @@
 package net.bible.android.database.migrations
 
 import androidx.sqlite.execSQL
-import androidx.room.migration.Migration
+import androidx.room3.migration.Migration
 
 private val addSourceModelName = makeMigration(1..2) { db ->
     db.execSQL("ALTER TABLE `AiPageCacheEntry` ADD COLUMN `sourceModelName` TEXT DEFAULT NULL")

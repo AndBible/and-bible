@@ -18,14 +18,14 @@
 package net.bible.android.database
 
 import android.graphics.Color
-import androidx.room.ColumnInfo
-import androidx.room.Embedded
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.ForeignKey.Companion.CASCADE
-import androidx.room.Ignore
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import androidx.room3.ColumnInfo
+import androidx.room3.Embedded
+import androidx.room3.Entity
+import androidx.room3.ForeignKey
+import androidx.room3.ForeignKey.Companion.CASCADE
+import androidx.room3.Ignore
+import androidx.room3.Index
+import androidx.room3.PrimaryKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.bible.android.database.bookmarks.SpeakSettings

@@ -18,7 +18,7 @@
 package net.bible.android.database.migrations
 
 import androidx.sqlite.execSQL
-import androidx.room.migration.Migration
+import androidx.room3.migration.Migration
 
 private val addEditBeforeRun = makeMigration(1..2) { db ->
     db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `editBeforeRun` INTEGER NOT NULL DEFAULT 0")

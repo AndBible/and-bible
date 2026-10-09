@@ -18,14 +18,15 @@
 package net.bible.service.sword.epub
 
 import android.util.Log
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.database.EpubDatabase
 import net.bible.android.database.epubMigrations
+import net.bible.service.db.sqliteDriverFactory
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.view.activity.base.Dialogs
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -69,14 +70,11 @@ About=$about
 
 const val TAG = "EpubBook"
 
-val dbFactory = if(application.isRunningTests) null else RequerySQLiteOpenHelperFactory()
 fun getEpubDatabase(name: String): EpubDatabase =
-    Room.databaseBuilder(
-        application, EpubDatabase::class.java, name
-    )
-        .allowMainThreadQueries()
+    Room.databaseBuilder<EpubDatabase>(application, name)
+        .setDriver(sqliteDriverFactory())
+        .setQueryCoroutineContext(Dispatchers.IO)
         .addMigrations(*epubMigrations)
-        .openHelperFactory(dbFactory)
         .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
         .build()
 

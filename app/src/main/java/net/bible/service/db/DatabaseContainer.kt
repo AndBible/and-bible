@@ -18,11 +18,9 @@ package net.bible.service.db
 
 import androidx.annotation.VisibleForTesting
 import android.util.Log
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.useWriterConnection
-import androidx.room3.useWriterConnection as room3UseWriterConnection
-import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
+import androidx.room3.useWriterConnection
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
@@ -92,6 +90,16 @@ val ALL_DB_FILENAMES = arrayOf(
 
 class DataBaseNotReady: Exception()
 
+/**
+ * The configuration every app database is built with: the bundled SQLite driver ([sqliteDriverFactory]),
+ * queries on [Dispatchers.IO] and TRUNCATE journaling (which makes Room 3's pool a single connection).
+ * Migrations are added per database by the caller.
+ */
+internal fun <T : RoomDatabase> RoomDatabase.Builder<T>.productionConfig(): RoomDatabase.Builder<T> =
+    setDriver(sqliteDriverFactory())
+        .setQueryCoroutineContext(Dispatchers.IO)
+        .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+
 class DatabaseContainer {
     init {
         backupDatabaseIfNeeded()
@@ -100,15 +108,9 @@ class DatabaseContainer {
         migrateOldDatabaseIfNeeded()
     }
 
-    private val dbFactory = if(application.isRunningTests) null else RequerySQLiteOpenHelperFactory()
-
     private fun getOldDatabase(): OldMonolithicAppDatabase =
-        Room.databaseBuilder(
-            application, OldMonolithicAppDatabase::class.java, OLD_MONOLITHIC_DATABASE_NAME
-        )
-            .allowMainThreadQueries()
-            .openHelperFactory(dbFactory)
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+        Room.databaseBuilder<OldMonolithicAppDatabase>(application, OLD_MONOLITHIC_DATABASE_NAME)
+            .productionConfig()
             .addMigrations(
                 *oldMonolithicAppDatabaseMigrations,
                 *oldMigrations,
@@ -133,13 +135,9 @@ class DatabaseContainer {
             application.deleteDatabase(OLD_MONOLITHIC_DATABASE_NAME) // the file and any journal/WAL leftovers
         }
     }
-    fun getBookmarkDb(filename: String = BookmarkDatabase.dbFileName) = Room.databaseBuilder(
-        application, BookmarkDatabase::class.java, filename
-    )
-        .allowMainThreadQueries()
+    fun getBookmarkDb(filename: String = BookmarkDatabase.dbFileName) = Room.databaseBuilder<BookmarkDatabase>(application, filename)
+        .productionConfig()
         .addMigrations(*bookmarkMigrations)
-        .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-        .openHelperFactory(dbFactory)
         .build()
 
     var bookmarkDb: BookmarkDatabase = getBookmarkDb()
@@ -150,12 +148,8 @@ class DatabaseContainer {
     }
 
     fun getReadingPlanDb(filename: String = ReadingPlanDatabase.dbFileName) =
-        Room.databaseBuilder(
-            application, ReadingPlanDatabase::class.java, filename
-        )
-            .openHelperFactory(dbFactory)
-            .allowMainThreadQueries()
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+        Room.databaseBuilder<ReadingPlanDatabase>(application, filename)
+            .productionConfig()
             .addMigrations(*readingPlanMigrations)
             .build()
 
@@ -167,13 +161,9 @@ class DatabaseContainer {
     }
 
     fun getWorkspaceDb(filename: String = WorkspaceDatabase.dbFileName) =
-        Room.databaseBuilder(
-            application, WorkspaceDatabase::class.java, filename
-        )
-            .allowMainThreadQueries()
+        Room.databaseBuilder<WorkspaceDatabase>(application, filename)
+            .productionConfig()
             .addMigrations(*workspacesMigrations)
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .openHelperFactory(dbFactory)
             .build()
 
     var workspaceDb: WorkspaceDatabase = getWorkspaceDb()
@@ -185,13 +175,9 @@ class DatabaseContainer {
     }
 
     fun getMyDocumentDb(filename: String = MyDocumentDatabase.dbFileName) =
-        Room.databaseBuilder(
-            application, MyDocumentDatabase::class.java, filename
-        )
-            .allowMainThreadQueries()
+        Room.databaseBuilder<MyDocumentDatabase>(application, filename)
+            .productionConfig()
             .addMigrations(*myDocumentMigrations)
-            .openHelperFactory(dbFactory)
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
     var myDocumentDb: MyDocumentDatabase = getMyDocumentDb()
@@ -203,13 +189,9 @@ class DatabaseContainer {
     }
 
     fun getAiSettingsDb(filename: String = AiSettingsDatabase.dbFileName) =
-        Room.databaseBuilder(
-            application, AiSettingsDatabase::class.java, filename
-        )
-            .allowMainThreadQueries()
+        Room.databaseBuilder<AiSettingsDatabase>(application, filename)
+            .productionConfig()
             .addMigrations(*aiSettingsMigrations)
-            .openHelperFactory(dbFactory)
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
     var aiSettingsDb: AiSettingsDatabase = getAiSettingsDb()
@@ -221,13 +203,9 @@ class DatabaseContainer {
     }
 
     fun getProgressDb(filename: String = ProgressDatabase.dbFileName) =
-        Room.databaseBuilder(
-            application, ProgressDatabase::class.java, filename
-        )
-            .allowMainThreadQueries()
+        Room.databaseBuilder<ProgressDatabase>(application, filename)
+            .productionConfig()
             .addMigrations(*progressMigrations)
-            .openHelperFactory(dbFactory)
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
     var progressDb: ProgressDatabase = getProgressDb()
@@ -250,50 +228,31 @@ class DatabaseContainer {
     }
 
     val downloadDocumentsDb: TemporaryDatabase =
-        Room.databaseBuilder(
-            application, TemporaryDatabase::class.java, TEMPORARY_DOWNLOAD_DB_FILENAME
-        )
-            .allowMainThreadQueries()
+        Room.databaseBuilder<TemporaryDatabase>(application, TEMPORARY_DOWNLOAD_DB_FILENAME)
+            .productionConfig()
             .addMigrations(*temporaryMigrations)
-            .openHelperFactory(dbFactory)
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
     val chooseDocumentsDb: TemporaryDatabase =
-        Room.databaseBuilder(
-            application, TemporaryDatabase::class.java, TEMPORARY_CHOOSE_DB_FILENAME
-        )
-            .allowMainThreadQueries()
+        Room.databaseBuilder<TemporaryDatabase>(application, TEMPORARY_CHOOSE_DB_FILENAME)
+            .productionConfig()
             .addMigrations(*temporaryMigrations)
-            .openHelperFactory(dbFactory)
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
     val documentSyncDb: DocumentSyncDatabase =
-        Room.databaseBuilder(
-            application, DocumentSyncDatabase::class.java, DOCUMENT_SYNC_DB_FILENAME
-        )
-            .allowMainThreadQueries()
-            .openHelperFactory(dbFactory)
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+        Room.databaseBuilder<DocumentSyncDatabase>(application, DOCUMENT_SYNC_DB_FILENAME)
+            .productionConfig()
             .build()
 
     val repoDb: RepoDatabase =
-        Room.databaseBuilder(
-            application, RepoDatabase::class.java, RepoDatabase.dbFileName
-        )
-            .allowMainThreadQueries()
+        Room.databaseBuilder<RepoDatabase>(application, RepoDatabase.dbFileName)
+            .productionConfig()
             .addMigrations()
-            .openHelperFactory(dbFactory)
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
-    /** On Room 3 with the bundled driver since D1 Task 16 (the other databases follow in Task 17). */
     val settingsDb: SettingsDatabase =
-        androidx.room3.Room.databaseBuilder<SettingsDatabase>(application, SettingsDatabase.dbFileName)
-            .setDriver(sqliteDriverFactory())
-            .setQueryCoroutineContext(Dispatchers.IO)
-            .setJournalMode(androidx.room3.RoomDatabase.JournalMode.TRUNCATE)
+        Room.databaseBuilder<SettingsDatabase>(application, SettingsDatabase.dbFileName)
+            .productionConfig()
             .build()
 
     /** `internal` only so a test can occupy the writer thread; not for production use. */
@@ -352,23 +311,19 @@ class DatabaseContainer {
         }
     }
 
-    // settingsDb is backed up too, but is a Room 3 database: sync(), vacuum(), closeForReplace() and closeAll()
-    // handle it beside these Room 2 arrays until Task 17 moves every database to Room 3.
-    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, myDocumentDb, aiSettingsDb, progressDb)
+    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, aiSettingsDb, progressDb)
     // documentSyncDb is intentionally NOT backed up or vacuumed (device-local, sign-out-scoped cache),
     // but it must still be closed by closeAll() on reset()/restore — otherwise the old Room handle
     // leaks and the next container opens a second handle to the same file (SQLite lock risk).
     private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, documentSyncDb)
 
-    /**
-     * Keyed by the file name each database was built with (what the open helper's database name used to answer).
-     * Room 2 databases only: [settingsDb] (Room 3) is closed by [closeForReplace] directly until Task 17.
-     */
+    /** Keyed by the file name each database was built with. */
     val dbByFilename: Map<String, RoomDatabase> = mapOf(
         BookmarkDatabase.dbFileName to bookmarkDb,
         ReadingPlanDatabase.dbFileName to readingPlanDb,
         WorkspaceDatabase.dbFileName to workspaceDb,
         RepoDatabase.dbFileName to repoDb,
+        SettingsDatabase.dbFileName to settingsDb,
         MyDocumentDatabase.dbFileName to myDocumentDb,
         AiSettingsDatabase.dbFileName to aiSettingsDb,
         ProgressDatabase.dbFileName to progressDb,
@@ -380,42 +335,40 @@ class DatabaseContainer {
     internal suspend fun sync() {
         // we are not using WAL mode any more, but it does not hurt either. Just in case we switch back to WAL.
         allDatabases.forEach { it.useWriterConnection { c -> c.exec("PRAGMA wal_checkpoint(FULL)") } }
-        settingsDb.room3UseWriterConnection { c -> c.usePrepared("PRAGMA wal_checkpoint(FULL)") { st -> while (st.step()) {} } }
     }
 
     internal suspend fun vacuum() {
         backedUpDatabases.forEach {
             it.useWriterConnection { c -> c.exec("VACUUM;") }
         }
-        settingsDb.room3UseWriterConnection { c -> c.usePrepared("VACUUM;") { st -> while (st.step()) {} } }
     }
 
     /**
-     * Closes one database by file name ahead of its file being replaced or deleted. The settings store is
-     * flushed first: a write still queued would otherwise reopen the closed handle and land in the restored file.
-     * Writes made by other threads after the flush update this (old) store's memory only; [reset] discards them,
-     * and a later DAO write would reopen the handle on whatever file is then in place.
+     * Closes one database by file name ahead of its file being replaced or deleted. For the settings database
+     * the settings store is flushed first, so no write still queued is lost or lands in the replaced file.
+     *
+     * A Room 3 database never reopens after `close()`: any DAO call on it afterwards fails. Between this call
+     * and the [reset] that builds a new container (the restore flow's hazard window), a DAO call on the closed
+     * database (a settings write from another thread reaching the store's writer, a UI save) throws instead of
+     * reaching either file; settings writes made then are logged by the store's `onWriteError` and dropped.
+     * Closing an already closed database is a no-op, so [closeAll] after this is safe.
      */
     internal fun closeForReplace(fileName: String) {
-        if (fileName == SettingsDatabase.dbFileName) {
-            blockingDb { settingsStore.flush() }
-            settingsDb.close()
-        }
+        if (fileName == SettingsDatabase.dbFileName) blockingDb { settingsStore.flush() }
         dbByFilename[fileName]?.close()
     }
 
     /**
      * Flushes the settings store, cancels its writer and closes every database. Setting writes made by other
      * threads between the flush/scope-cancel and `_instance = null` update only the old store's memory and are
-     * dropped (previously a DAO write would have reopened the file). The window is milliseconds, and restore
-     * paths already treat writes there as a hazard.
+     * dropped (a closed Room 3 database does not reopen). The window is milliseconds, and restore paths already
+     * treat writes there as a hazard. Databases already closed by [closeForReplace] are closed again harmlessly.
      */
     internal fun closeAll() {
         // Flush BEFORE cancelling the scope: writes still queued at cancel are dropped.
         blockingDb { settingsStore.flush() }
         settingsScope.cancel()
         allDatabases.forEach { it.close() }
-        settingsDb.close()
     }
 
     companion object {

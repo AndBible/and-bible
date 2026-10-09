@@ -35,7 +35,6 @@ import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
 import java.sql.SQLException
 
-import androidx.room.migration.Migration as RoomMigration
 
 const val TAG = "OldMigrations"
 

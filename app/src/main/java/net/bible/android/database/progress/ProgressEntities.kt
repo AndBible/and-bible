@@ -17,11 +17,11 @@
 
 package net.bible.android.database.progress
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Ignore
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import androidx.room3.ColumnInfo
+import androidx.room3.Entity
+import androidx.room3.Ignore
+import androidx.room3.Index
+import androidx.room3.PrimaryKey
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.passage.Verse

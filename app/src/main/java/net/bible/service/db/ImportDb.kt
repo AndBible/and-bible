@@ -18,8 +18,8 @@
 package net.bible.service.db
 
 import android.util.Log
-import androidx.room.useReaderConnection
-import androidx.room.useWriterConnection
+import androidx.room3.useReaderConnection
+import androidx.room3.useWriterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R

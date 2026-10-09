@@ -17,12 +17,12 @@
 
 package net.bible.android.database.bookmarks
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
-import androidx.room.Upsert
+import androidx.room3.Dao
+import androidx.room3.Delete
+import androidx.room3.Insert
+import androidx.room3.Query
+import androidx.room3.Update
+import androidx.room3.Upsert
 import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
 import org.crosswire.jsword.passage.Verse

@@ -18,10 +18,10 @@
 package net.bible.service.db
 
 import android.util.Log
-import androidx.room.PooledConnection
-import androidx.room.TransactionScope
-import androidx.room.Transactor
-import androidx.room.immediateTransaction
+import androidx.room3.PooledConnection
+import androidx.room3.TransactionScope
+import androidx.room3.Transactor
+import androidx.room3.immediateTransaction
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement

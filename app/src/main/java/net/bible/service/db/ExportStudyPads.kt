@@ -18,8 +18,8 @@
 package net.bible.service.db
 
 import androidx.annotation.VisibleForTesting
-import androidx.room.PooledConnection
-import androidx.room.useWriterConnection
+import androidx.room3.PooledConnection
+import androidx.room3.useWriterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R

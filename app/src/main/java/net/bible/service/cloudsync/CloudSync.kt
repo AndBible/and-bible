@@ -21,7 +21,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.VisibleForTesting
-import androidx.room.useWriterConnection
+import androidx.room3.useWriterConnection
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex

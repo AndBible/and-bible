@@ -18,7 +18,7 @@
 package net.bible.android.database.migrations
 
 import android.util.Log
-import androidx.room.migration.Migration as RoomMigration
+import androidx.room3.migration.Migration as RoomMigration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 import net.bible.service.db.queryLong
@@ -26,7 +26,8 @@ import net.bible.service.db.queryLong
 abstract class Migration(startVersion: Int, endVersion: Int): RoomMigration(startVersion, endVersion) {
     abstract fun doMigrate(connection: SQLiteConnection)
 
-    override fun migrate(connection: SQLiteConnection) {
+    /** Room 3's `migrate` is `suspend`; [doMigrate] stays blocking (it only uses the synchronous connection API). */
+    override suspend fun migrate(connection: SQLiteConnection) {
         Log.i(TAG, "Migrating from version $startVersion to $endVersion")
         disableSyncTriggers(connection)
         try {

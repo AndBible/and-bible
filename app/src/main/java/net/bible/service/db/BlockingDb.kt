@@ -17,8 +17,8 @@
 
 package net.bible.service.db
 
-import androidx.room.RoomDatabase
-import androidx.room.withTransaction
+import androidx.room3.RoomDatabase
+import androidx.room3.withWriteTransaction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ThreadContextElement
 import kotlinx.coroutines.runBlocking
@@ -53,6 +53,6 @@ fun <T> blockingDb(block: suspend CoroutineScope.() -> T): T {
     return runBlocking(block = block)
 }
 
-/** Every Room transaction in app code goes through this (Room 2.8 `withTransaction`; Task 17 renames the inner call). */
+/** Every Room transaction in app code goes through this: Room 3 `withWriteTransaction` (`BEGIN IMMEDIATE`), marked. */
 suspend fun <R> RoomDatabase.roomTransaction(block: suspend () -> R): R =
-    withContext(DbTransactionMarker) { withTransaction(block) }
+    withContext(DbTransactionMarker) { withWriteTransaction { block() } }

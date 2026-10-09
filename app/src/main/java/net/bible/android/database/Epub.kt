@@ -18,18 +18,18 @@
 package net.bible.android.database
 
 import androidx.sqlite.execSQL
-import androidx.room.Dao
-import androidx.room.Database
-import androidx.room.Entity
-import androidx.room.Ignore
-import androidx.room.Index
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.RoomDatabase
-import androidx.room.Transaction
-import androidx.room.TypeConverters
+import androidx.room3.Dao
+import androidx.room3.Database
+import androidx.room3.Entity
+import androidx.room3.Ignore
+import androidx.room3.Index
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.PrimaryKey
+import androidx.room3.Query
+import androidx.room3.RoomDatabase
+import androidx.room3.Transaction
+import androidx.room3.ColumnTypeConverters
 import net.bible.android.database.migrations.Migration
 import net.bible.android.database.migrations.makeMigration
 import org.jdom2.Element
@@ -134,7 +134,7 @@ val epubMigrations = arrayOf<Migration>(addEpubMeta)
     ],
     version = EPUB_DATABASE_VERSION
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class EpubDatabase: RoomDatabase() {
     abstract fun epubDao(): EpubDao
 }
