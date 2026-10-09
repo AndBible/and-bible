@@ -26,7 +26,9 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.execSQL
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import net.bible.android.database.migrations.joinColumnNames
 
 /** Prepares and runs [sql] to completion with [args] bound to its `?` placeholders (1-based, in order). */
@@ -140,3 +142,45 @@ suspend fun PooledConnection.columnNames(tableName: String, schema: String? = nu
 /** [columnNames] as a backquoted, comma-separated list. */
 suspend fun PooledConnection.columnNamesJoined(tableName: String, schema: String? = null): String =
     joinColumnNames(columnNames(tableName, schema))
+
+/** Bound for one cleanup statement (see [withCleanup]). */
+internal const val CLEANUP_TIMEOUT_MS = 5_000L
+
+/** [withCleanup] on a Room writer connection. */
+suspend fun <T> PooledConnection.withCleanup(vararg cleanupSql: String, body: suspend () -> T): T =
+    runWithCleanup(cleanupSql.asList(), { exec(it) }, body)
+
+/**
+ * Runs [body], then every statement of [cleanupSql] through [execute] (each separately), also when [body] throws
+ * or its coroutine is cancelled: the cleanup runs in [NonCancellable], so a cancelled caller cannot skip it
+ * (`foreign_keys` left OFF, a schema left ATTACHed). A failing cleanup statement is logged and does not stop the
+ * next one; it never replaces an exception from [body] (it is attached as suppressed). When [body] succeeded, the
+ * first cleanup failure is thrown after all statements ran. Each statement is bounded by [CLEANUP_TIMEOUT_MS]:
+ * a connection that died with the cancellation must not hang the caller.
+ */
+internal suspend fun <T> runWithCleanup(
+    cleanupSql: List<String>,
+    execute: suspend (String) -> Unit,
+    body: suspend () -> T,
+): T {
+    var primary: Throwable? = null
+    var cleanupFailure: Throwable? = null
+    try {
+        return body()
+    } catch (t: Throwable) {
+        primary = t
+        throw t
+    } finally {
+        withContext(NonCancellable) {
+            for (sql in cleanupSql) {
+                try {
+                    withTimeout(CLEANUP_TIMEOUT_MS) { execute(sql) }
+                } catch (e: Throwable) {
+                    Log.e("SqliteConnectionExt", "Cleanup statement failed: $sql", e)
+                    if (primary != null) primary.addSuppressed(e) else if (cleanupFailure == null) cleanupFailure = e
+                }
+            }
+        }
+        cleanupFailure?.let { throw it }
+    }
+}

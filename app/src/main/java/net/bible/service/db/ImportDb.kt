@@ -61,23 +61,22 @@ suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: Fil
     dbDef.localDb.useWriterConnection { db ->
         db.exec("ATTACH DATABASE '${dbFile.absolutePath}' AS import")
         db.exec("PRAGMA foreign_keys=OFF;")
-        try {
-            db.inTransaction<Unit> {
-                for (tableDef in dbDef.tableDefinitions) {
-                    val table = tableDef.tableName
-                    val cols = columnNamesJoined(table)
-                    exec("""
-                        INSERT OR IGNORE INTO $table ($cols)
-                        SELECT $cols FROM import.$table 
-                    """.trimIndent())
+        db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE import") {
+            try {
+                db.inTransaction<Unit> {
+                    for (tableDef in dbDef.tableDefinitions) {
+                        val table = tableDef.tableName
+                        val cols = columnNamesJoined(table)
+                        exec("""
+                            INSERT OR IGNORE INTO $table ($cols)
+                            SELECT $cols FROM import.$table 
+                        """.trimIndent())
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error occurred in importDatabaseFile", e)
+                throw e
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error occurred in importDatabaseFile", e)
-            throw e
-        } finally {
-            db.exec("PRAGMA foreign_keys=ON;")
-            db.exec("DETACH DATABASE import")
         }
     }
 }

@@ -156,7 +156,7 @@ internal suspend fun writeStudyPadExportDb(
     source.useWriterConnection { db ->
         db.exec("ATTACH DATABASE '${exportDbFile.absolutePath}' AS export")
         db.exec("PRAGMA foreign_keys=OFF;")
-        try {
+        db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE export") {
             db.inTransaction<Unit> {
                 for (label in labels) {
                     copyStudyPad(this, label)
@@ -164,9 +164,6 @@ internal suspend fun writeStudyPadExportDb(
                 // Primary label(s) of bookmarks might not be included, so let's fix them
                 fixPrimaryLabels(this)
             }
-        } finally {
-            db.exec("PRAGMA foreign_keys=ON;")
-            db.exec("DETACH DATABASE export")
         }
     }
 }

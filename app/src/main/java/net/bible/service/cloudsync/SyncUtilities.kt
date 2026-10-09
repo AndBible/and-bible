@@ -37,6 +37,7 @@ import net.bible.service.db.columnNamesJoined
 import net.bible.service.db.exec
 import net.bible.service.db.inTransaction
 import net.bible.service.db.queryLong
+import net.bible.service.db.withCleanup
 import java.io.File
 import java.lang.Exception
 
@@ -364,15 +365,12 @@ suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, updateTim
     dbDef.localDb.useWriterConnection { db ->
         db.exec("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
         db.exec("PRAGMA patch.foreign_keys=OFF;")
-        try {
+        db.withCleanup("PRAGMA patch.foreign_keys=ON;", "DETACH DATABASE patch") {
             db.inTransaction<Unit> {
                 for (tableDef in dbDef.tableDefinitions) {
                     writePatchData(this, tableDef, lastPatchWritten)
                 }
             }
-        } finally {
-            db.exec("PRAGMA patch.foreign_keys=ON;")
-            db.exec("DETACH DATABASE patch")
         }
     }
 
@@ -411,20 +409,19 @@ suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, vararg p
         dbDef.localDb.useWriterConnection { db ->
             db.exec("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
             db.exec("PRAGMA foreign_keys=OFF;")
-            try {
-                db.inTransaction<Unit> {
-                    for (tableDef in dbDef.tableDefinitions) {
-                        dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
-                        readPatchData(this, tableDef)
-                        dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
+            db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE patch") {
+                try {
+                    db.inTransaction<Unit> {
+                        for (tableDef in dbDef.tableDefinitions) {
+                            dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, true)
+                            readPatchData(this, tableDef)
+                            dbDef.dao.setConfig(TRIGGERS_DISABLED_KEY, false)
+                        }
                     }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error occurred in applyPatchesForDatabase", e)
+                    throw e
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error occurred in applyPatchesForDatabase", e)
-                throw e
-            } finally {
-                db.exec("PRAGMA foreign_keys=ON;")
-                db.exec("DETACH DATABASE patch")
             }
         }
         if(!CommonUtils.isDebugMode) {

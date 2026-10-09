@@ -21,6 +21,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.useWriterConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
@@ -94,6 +96,29 @@ class RoomConnectionTransactionTest {
         db.useWriterConnection { t -> assertFalse(mode, t.inTransaction()) }
         db.syncDao().setConfig("after", 1L)
         assertEquals(mode, 1L, db.long("after"))
+    }
+
+    @Test fun aFailingCleanupDoesNotMaskTheOriginalExceptionAndTheRestStillRuns() = bothModes { mode, db ->
+        db.useWriterConnection { t ->
+            t.exec("PRAGMA foreign_keys=OFF;")
+            val e = runCatching {
+                t.withCleanup("DETACH DATABASE nonexistent", "PRAGMA foreign_keys=ON;") { error("original") }
+            }.exceptionOrNull()
+            assertEquals(mode, "original", e?.message)
+            assertEquals(mode, 1, e?.suppressed?.size)
+            assertEquals(mode, 1L, t.queryLong("PRAGMA foreign_keys"))
+        }
+    }
+
+    @Test fun aFailingCleanupSurfacesWhenTheBodySucceeded() = bothModes { mode, db ->
+        db.useWriterConnection { t ->
+            t.exec("PRAGMA foreign_keys=OFF;")
+            val e = runCatching {
+                t.withCleanup("DETACH DATABASE nonexistent", "PRAGMA foreign_keys=ON;") { 42 }
+            }.exceptionOrNull()
+            assertTrue("$mode: $e", e != null)
+            assertEquals(mode, 1L, t.queryLong("PRAGMA foreign_keys"))
+        }
     }
 
     @Test fun blockingDbIsRefusedInside() = bothModes { mode, db ->

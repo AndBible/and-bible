@@ -20,7 +20,12 @@ package net.bible.android.database
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.yield
 import net.bible.service.db.BlockingDbInTransaction
 import net.bible.service.db.blockingDb
 import net.bible.service.db.columnIndex
@@ -30,6 +35,7 @@ import net.bible.service.db.insertOr
 import net.bible.service.db.queryFirst
 import net.bible.service.db.queryLong
 import net.bible.service.db.queryRows
+import net.bible.service.db.runWithCleanup
 import net.bible.service.db.textOrNull
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
@@ -156,5 +162,47 @@ class SqliteConnectionExtTest {
         val e = runCatching { runBlocking { c.inTransaction { exec("INSERT INTO t (i) VALUES (1)"); blockingDb { 1 } } } }.exceptionOrNull()
         assertTrue("$e", e is BlockingDbInTransaction)
         assertEquals(0L, c.queryLong("SELECT COUNT(*) FROM t"))
+    }
+
+    /**
+     * The cleanup statements of the sync/import/export sites are suspend calls: [yield] stands in for the
+     * cancellation check a suspend DAO/connection call makes, so a cleanup in a cancelled coroutine would throw
+     * before reaching SQLite unless it runs NonCancellable.
+     */
+    @Test
+    fun cleanupRunsWhenTheCoroutineIsCancelledMidOperation() = runBlocking {
+        c.exec("PRAGMA foreign_keys=OFF")
+        c.exec("ATTACH DATABASE ':memory:' AS other")
+        val entered = CompletableDeferred<Unit>()
+        val job = launch {
+            runWithCleanup(listOf("PRAGMA foreign_keys=ON", "DETACH DATABASE other"), { yield(); c.exec(it) }) {
+                entered.complete(Unit)
+                awaitCancellation()
+            }
+        }
+        entered.await()
+        job.cancelAndJoin()
+        assertEquals(1L, c.queryLong("PRAGMA foreign_keys"))
+        assertFalse("other" in c.queryRows("PRAGMA database_list") { it.getText(1) })
+    }
+
+    @Test
+    fun aFailingCleanupDoesNotMaskTheOriginalExceptionAndTheRestStillRuns() = runBlocking {
+        c.exec("PRAGMA foreign_keys=OFF")
+        val e = assertThrows(IllegalStateException::class.java) {
+            runBlocking { runWithCleanup(listOf("DETACH DATABASE nonexistent", "PRAGMA foreign_keys=ON"), { c.exec(it) }) { error("original") } }
+        }
+        assertEquals("original", e.message)
+        assertEquals(1, e.suppressed.size)
+        assertEquals(1L, c.queryLong("PRAGMA foreign_keys"))
+    }
+
+    @Test
+    fun aFailingCleanupSurfacesWhenTheBodySucceeded() = runBlocking {
+        c.exec("PRAGMA foreign_keys=OFF")
+        assertThrows(Exception::class.java) {
+            runBlocking { runWithCleanup(listOf("DETACH DATABASE nonexistent", "PRAGMA foreign_keys=ON"), { c.exec(it) }) { 42 } }
+        }
+        assertEquals(1L, c.queryLong("PRAGMA foreign_keys"))
     }
 }
