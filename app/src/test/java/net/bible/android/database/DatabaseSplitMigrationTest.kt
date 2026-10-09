@@ -112,7 +112,7 @@ class DatabaseSplitMigrationTest {
         DatabaseContainer.reset() // close everything so the files can be read
 
         assertFalse("the old file is consumed", old.exists())
-        assertTrue("no journal leftovers", dbDir.listFiles()!!.none { it.name.startsWith(OLD_MONOLITHIC_DATABASE_NAME) })
+        assertEquals("no journal leftovers", emptyList<String>(), dbDir.listFiles()!!.map { it.name }.filter { it.startsWith(OLD_MONOLITHIC_DATABASE_NAME) })
 
         // Bookmarks: ids became UUID blobs and references follow
         val labels = read(BookmarkDatabase.dbFileName, "SELECT id, name, color FROM Label ORDER BY name") { Triple(it.getBlob(0), it.getText(1), it.getLong(2)) }

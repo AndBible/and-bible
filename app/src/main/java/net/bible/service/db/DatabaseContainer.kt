@@ -133,6 +133,9 @@ class DatabaseContainer {
                 migrations.migrateAll()
             }
             application.deleteDatabase(OLD_MONOLITHIC_DATABASE_NAME) // the file and any journal/WAL leftovers
+            // Room 3 serialises opening/migrating through a `<name>.lck` lock file beside the database, which
+            // deleteDatabase does not know about.
+            File(oldDbFile.path + ".lck").delete()
         }
     }
     fun getBookmarkDb(filename: String = BookmarkDatabase.dbFileName) = Room.databaseBuilder<BookmarkDatabase>(application, filename)

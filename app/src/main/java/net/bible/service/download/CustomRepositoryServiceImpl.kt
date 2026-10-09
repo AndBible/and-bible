@@ -16,8 +16,8 @@
  */
 package net.bible.service.download
 
-import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
+import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -55,9 +55,12 @@ class CustomRepositoryServiceImpl : CustomRepositoryService {
 
     /**
      * Classic `handleResult`'s duplicate handling, collapsed to a boolean: an [InstallManager]
-     * built-in repository name clash OR a caught [SQLiteConstraintException] (the DB's unique
-     * index on `name`) both surface here as `false` rather than throwing or toasting directly --
-     * the host (`CustomRepositoryController.onDuplicate`) decides how to report it.
+     * built-in repository name clash OR a constraint violation (the DB's unique index on `name`)
+     * both surface here as `false` rather than throwing or toasting directly -- the host
+     * (`CustomRepositoryController.onDuplicate`) decides how to report it. The bundled SQLite driver
+     * (D1 Task 17) throws a plain [SQLiteException] ("... constraint failed ...") rather than the
+     * framework's `SQLiteConstraintException`, so the violation is recognised by its message; any
+     * other SQLite error still propagates.
      */
     override suspend fun upsert(repo: CustomRepositoryData): Boolean = withContext(Dispatchers.IO) {
         if (InstallManager().installers.keys.contains(repo.name)) return@withContext false
@@ -65,7 +68,8 @@ class CustomRepositoryServiceImpl : CustomRepositoryService {
         try {
             if (repo.id != 0L) dao.update(entity) else dao.insert(entity)
             true
-        } catch (e: SQLiteConstraintException) {
+        } catch (e: SQLiteException) {
+            if (!isConstraintViolation(e)) throw e
             Log.e(TAG, "Constraint exception", e)
             false
         }
@@ -221,3 +225,7 @@ fun CustomRepositoryData.toEntity(): CustomRepository = CustomRepository(
     packageDirectory = packageDirectory,
     manifestUrl = manifestUrl,
 )
+
+/** True for SQLite's constraint errors (UNIQUE, FOREIGN KEY, NOT NULL, CHECK...), from either driver. */
+internal fun isConstraintViolation(e: SQLiteException): Boolean =
+    e.message.orEmpty().contains("constraint failed", ignoreCase = true)
