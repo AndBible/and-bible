@@ -140,9 +140,9 @@ object GetGenBookKeysTool : Tool {
 
             val encodedInitials = Uri.encode(args.book)
             val keyInfos = pageKeys.map { key ->
-                val ref = key.osisRef ?: key.name
+                val ref = key.getOsisRef() ?: key.getName()
                 KeyInfo(
-                    name = key.name,
+                    name = key.getName(),
                     osisRef = ref,
                     linkUrl = "sword://$encodedInitials/${Uri.encode(ref)}"
                 )
@@ -168,7 +168,7 @@ object GetGenBookKeysTool : Tool {
         } else {
             val keys = mutableListOf<Key>()
             for (key in book.globalKeyList) {
-                if (key.name.isNotBlank()) {
+                if (key.getName().isNotBlank()) {
                     keys.add(key)
                 }
             }

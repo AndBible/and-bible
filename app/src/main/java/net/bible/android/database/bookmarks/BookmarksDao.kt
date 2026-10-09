@@ -563,7 +563,7 @@ interface BookmarkDao {
     @Query("SELECT * FROM GenericBookmarkWithNotes WHERE bookInitials=:document AND `key`=:key")
     fun genericBookmarksFor(document: String, key: String): List<GenericBookmarkWithNotes>
     fun genericBookmarksFor(document: Book, key: Key): List<GenericBookmarkWithNotes> =
-        genericBookmarksFor(document.initials, key.osisRef)
+        genericBookmarksFor(document.initials, key.getOsisRef())
 
     @Query("SELECT * from BibleBookmarkWithNotes WHERE primaryLabelId IN (:labelIdList)")
     fun bibleBookmarksWithPrimaryLabel(labelIdList: List<IdType>): List<BibleBookmarkWithNotes>

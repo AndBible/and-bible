@@ -178,7 +178,7 @@ object CreateWindowTool : Tool {
                 windowId = window.id.toString(),
                 state = window.windowState.toString(),
                 documentInitials = page.currentDocument?.initials,
-                currentKey = page.key?.osisRef
+                currentKey = page.key?.getOsisRef()
             ))
         } catch (e: Exception) {
             ToolResult.error("Failed to create window: ${e.message}", "CREATE_ERROR")

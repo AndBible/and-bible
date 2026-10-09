@@ -740,7 +740,7 @@ class AgentExecutor(
             if (prompt.autoIncludeCommentaries && context.selectedVerseRange != null) {
                 val result = try {
                     val args = JSONObject().apply {
-                        put("verseRef", context.selectedVerseRange.osisRef)
+                        put("verseRef", context.selectedVerseRange.getOsisRef())
                     }
                     GetCommentariesTool.execute(args, context)
                 } catch (e: CancellationException) {

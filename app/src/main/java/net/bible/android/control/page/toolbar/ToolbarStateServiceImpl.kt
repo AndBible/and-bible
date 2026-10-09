@@ -137,7 +137,7 @@ class ToolbarStateServiceImpl(
         val doc = page.currentDocument
         var key = page.displayKey
         if (doc?.bookCategory == BookCategory.BIBLE) key = pageControl.currentBibleVerse
-        return if (key is Verse && key.verse == 0) CommonUtils.getWholeChapter(key, false).name
-        else key?.name ?: ""
+        return if (key is Verse && key.verse == 0) CommonUtils.getWholeChapter(key, false).getName()
+        else key?.getName() ?: ""
     }
 }

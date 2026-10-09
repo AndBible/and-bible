@@ -76,7 +76,7 @@ object UpdateBookmarkNoteTool : Tool {
     override suspend fun formatActionDescription(arguments: JSONObject): String? {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
         val bookmark = try { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) } catch (_: Exception) { null }
-        val verseName = bookmark?.verseRange?.name ?: shortId(bookmarkId)
+        val verseName = bookmark?.verseRange?.getName() ?: shortId(bookmarkId)
         return BibleApplication.application.getString(R.string.action_update_note_on_bookmark_at, verseName)
     }
 

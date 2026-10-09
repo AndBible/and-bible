@@ -101,7 +101,7 @@ class DocumentSwitchHistoryPinTest {
         pm.currentBible.setKey(verse("Exod.2.10"), true)
         idle()
 
-        fun here() = pm.currentBible.currentDocument?.initials to pm.currentBible.singleKey?.osisID
+        fun here() = pm.currentBible.currentDocument?.initials to pm.currentBible.singleKey?.getOsisID()
         val seen = mutableListOf<Pair<String?, String?>>()
         repeat(3) {
             history.goBack()

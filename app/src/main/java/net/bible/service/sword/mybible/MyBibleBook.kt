@@ -299,7 +299,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     private fun indexOfDictionary(that: Key): Int {
         if(that !is DefaultLeafKeyList) return -1;
-        val keyName = that.name
+        val keyName = that.getName()
         state.sqlDb.rawQuery("select _rowid_ from dictionary WHERE topic = ?", arrayOf(keyName)).use {
             it.moveToNext() || return -1
             return it.getInt(0)
@@ -329,11 +329,11 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         }
     }
 
-    override fun indexOf(that: Key): Int = try {
+    override fun indexOf(that: Key?): Int = try {
         when (bookMetaData.bookCategory) {
-            BookCategory.BIBLE -> indexOfBible(that)
-            BookCategory.COMMENTARY -> indexOfCommentary(that)
-            BookCategory.DICTIONARY -> indexOfDictionary(that)
+            BookCategory.BIBLE -> indexOfBible(that!!)
+            BookCategory.COMMENTARY -> indexOfCommentary(that!!)
+            BookCategory.DICTIONARY -> indexOfDictionary(that!!)
             else -> -1
         }
     } catch (e: SQLiteException) {
@@ -377,7 +377,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     }
     private fun readDictionary(state: SqliteVerseBackendState, key: Key): String {
         if(key !is DefaultLeafKeyList) throw RuntimeException("Invalid key");
-        val keyName = key.name
+        val keyName = key.getName()
         return state.sqlDb.rawQuery("select definition from dictionary WHERE topic = ?", arrayOf(keyName)
         ).use {
             it.moveToNext() || throw IOException("Can't read $key")

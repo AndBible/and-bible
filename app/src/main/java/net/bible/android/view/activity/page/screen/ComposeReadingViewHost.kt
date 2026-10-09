@@ -2081,7 +2081,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 navigateToVerse = true,
                 onFinish = { osisId ->
                     val verse = VerseFactory.fromString(navigationControl.versification, osisId)
-                    speakRangeEditor.set(pickingEnd, PickedVerse(verse.osisID, verse.name, verse.ordinal))
+                    speakRangeEditor.set(pickingEnd, PickedVerse(verse.getOsisID(), verse.getName(), verse.ordinal))
                     speakSheet.pop()
                 },
             )
@@ -2127,7 +2127,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 pickGridChapter(chapter, selectedBookNo, navigateToVerse, navigationControl, windowControl)
             },
             onPickVerse = { verse ->
-                Verse(v11n, BibleBook.values()[selectedBookNo], selectedChapter, verse).osisID
+                Verse(v11n, BibleBook.values()[selectedBookNo], selectedChapter, verse).getOsisID()
             },
             onFinish = onFinish,
         )

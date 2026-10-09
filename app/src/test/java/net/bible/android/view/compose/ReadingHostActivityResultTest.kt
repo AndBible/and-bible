@@ -92,7 +92,7 @@ class ReadingHostActivityResultTest {
         .putExtra("verse", osisRef)
 
     private val NavHostComposeActivity.activeKey: String?
-        get() = hostWindowRepository.activeWindow.pageManager.currentPage.key?.osisRef
+        get() = hostWindowRepository.activeWindow.pageManager.currentPage.key?.getOsisRef()
 
     @Test
     fun aChooserResultIsHeldUntilTheHostHasResumedAndIsThenApplied() {

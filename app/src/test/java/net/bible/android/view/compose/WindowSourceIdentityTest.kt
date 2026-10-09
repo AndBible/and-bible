@@ -161,7 +161,7 @@ class WindowSourceIdentityTest : KoinComponent {
 
         // Verify we're back at the original key
         val after = a.hostWindowRepository.activeWindow.pageManager.currentPage.singleKey
-        assertEquals(before.osisRef, after?.osisRef, "back navigation must restore the original key")
+        assertEquals(before.getOsisRef(), after?.getOsisRef(), "back navigation must restore the original key")
         println("backReplaysTheVisibleWindowsHistory: back navigation restored original key")
     }
 }

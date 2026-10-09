@@ -104,7 +104,7 @@ class Converters {
 
     @TypeConverter
     fun verseRangeToStr(v: VerseRange?): String? =
-        if (v!=null) "${v.versification.name}::${v.osisRef}" else null
+        if (v!=null) "${v.versification.name}::${v.getOsisRef()}" else null
 
     @TypeConverter
     fun strToVerseRange(s: String?): VerseRange? {

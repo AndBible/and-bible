@@ -809,11 +809,11 @@ class ReadingSearchEntryPointsTest {
 
         val kjv = Books.installed().getBook("KJV") as SwordBook
         assertEquals(
-            kjv.getKey("Gen.1.5").osisRef,
+            kjv.getKey("Gen.1.5").getOsisRef(),
             // `currentBible.key` (non-single) reports the whole DISPLAYED unit (e.g. a whole
             // chapter) rather than the exact verse last navigated to; `singleKey` is the precise
             // verse `setCurrentDocumentAndKey` was actually called with.
-            windowRepository.activeWindow.pageManager.currentBible.singleKey.osisRef,
+            windowRepository.activeWindow.pageManager.currentBible.singleKey.getOsisRef(),
         )
         assertFalse(host.searchController.sheetVisible.value, "the sheet closes")
         assertTrue(host.searchController.searchModeActive.value, "search mode itself stays open")

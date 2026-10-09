@@ -172,7 +172,7 @@ internal fun pickGridBook(
     val v11n = navigationControl.versification
     val book = BibleBook.values()[bookNo]
     return if (!navigationControl.hasChapters(book)) {
-        if (!navigateToVerse) BookPick.Finish(Verse(v11n, book, 1, 1).osisID)
+        if (!navigateToVerse) BookPick.Finish(Verse(v11n, book, 1, 1).getOsisID())
         else { onSelectedChapter(1); BookPick.GoVerse }
     } else BookPick.GoChapter
 }
@@ -187,7 +187,7 @@ internal fun pickGridChapter(
     val v11n = navigationControl.versification
     val book = BibleBook.values()[selectedBookNo]
     val notSingleKey = !windowControl.activeWindowPageManager.currentPage.isSingleKey
-    return if (!navigateToVerse && notSingleKey) ChapterPick.Finish(Verse(v11n, book, chapter, 1).osisID)
+    return if (!navigateToVerse && notSingleKey) ChapterPick.Finish(Verse(v11n, book, chapter, 1).getOsisID())
     else ChapterPick.GoVerse
 }
 

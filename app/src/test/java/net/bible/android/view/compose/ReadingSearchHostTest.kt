@@ -1097,7 +1097,7 @@ class ReadingSearchHostTest {
 
         val key = epubKeyFor(kjv, docId = "KJV", keyId = "KJV:Gen.1.1", ordinal = 12)
 
-        assertEquals("Gen.1.1", key.key.osisRef, "the docId prefix must be stripped before re-resolving")
+        assertEquals("Gen.1.1", key.key.getOsisRef(), "the docId prefix must be stripped before re-resolving")
         assertEquals(12, key.ordinal?.start, "the hit's ordinal must reach the returned BookAndKey")
         assertNull(
             key.ordinal?.end,

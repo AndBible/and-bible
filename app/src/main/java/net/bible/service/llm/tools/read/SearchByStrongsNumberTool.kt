@@ -211,7 +211,7 @@ object SearchByStrongsNumberTool : Tool {
 
     private fun performSearch(bible: SwordBook, query: String): List<VerseResult> {
         return SwordContentFacade.search(bible, query).map { key ->
-            VerseResult(bible.initials, key.osisRef, key.name)
+            VerseResult(bible.initials, key.getOsisRef(), key.getName())
         }
     }
 }

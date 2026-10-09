@@ -117,7 +117,7 @@ abstract class CurrentPageBase protected constructor(
     override fun isAtSameLocationAs(key: Key): Boolean = key == this.key
 
     override fun updateKeyFromScrolledOsisRef(osisRef: String): Boolean {
-        if(key?.osisRef == osisRef) return false
+        if(key?.getOsisRef() == osisRef) return false
         val newKey = try {
             currentDocument?.getKey(osisRef)
         } catch (e: Exception) {
@@ -179,7 +179,7 @@ abstract class CurrentPageBase protected constructor(
         // For MyDocument pages, pass page metadata so Vue.js can render the AI footer
         val myDocumentPage = if (currentDocument.isMyDocument) {
             val documentId = currentDocument.myDocumentId
-            val pageKey = key.osisRef?.takeIf { it.isNotEmpty() } ?: key.name
+            val pageKey = key.getOsisRef()?.takeIf { it.isNotEmpty() } ?: key.getName()
             if (documentId != null) {
                 DatabaseContainer.instance.myDocumentDb.myDocumentDao().pageByKey(documentId, pageKey)
             } else null
@@ -196,7 +196,7 @@ abstract class CurrentPageBase protected constructor(
 
         val effectiveKey = annotateKey ?: key
         val aiDocMarkers = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-            .aiDocMarkersForPage(currentDocument.initials, effectiveKey.osisRef)
+            .aiDocMarkersForPage(currentDocument.initials, effectiveKey.getOsisRef())
 
         OsisDocument(
             book = currentDocument,
@@ -306,7 +306,7 @@ abstract class CurrentPageBase protected constructor(
     val pageEntity: WorkspaceEntities.Page get() {
             return WorkspaceEntities.Page(
                 currentDocument?.initials,
-                key?.osisRef,
+                key?.getOsisRef(),
                 anchorOrdinal?.start
             )
         }

@@ -219,7 +219,7 @@ object SearchBibleTool : Tool {
             if (book.indexStatus != IndexStatus.DONE) continue
 
             for (key in SwordContentFacade.search(book, query)) {
-                results.add(VerseResult(bookInitial, key.osisRef, key.name))
+                results.add(VerseResult(bookInitial, key.getOsisRef(), key.getName()))
             }
         }
         return results

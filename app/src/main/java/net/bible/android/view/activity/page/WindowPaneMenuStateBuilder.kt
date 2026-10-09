@@ -290,7 +290,7 @@ class WindowPaneMenuStateBuilder(
                 WindowPaneMenuItem(
                     id = idForMoveItem(order),
                     label = app.getString(
-                        R.string.move_window_to_position2, order + 1, page.currentDocument?.abbreviation, page.key?.name,
+                        R.string.move_window_to_position2, order + 1, page.currentDocument?.abbreviation, page.key?.getName(),
                     ),
                 )
             }
@@ -404,7 +404,7 @@ class WindowPaneMenuStateBuilder(
                     items += WindowPaneMenuItem(
                         id = idForCopySettingsToWindow(order),
                         label = app.getString(
-                            R.string.copy_settings_to_window, order + 1, page.currentDocument?.abbreviation, page.key?.name,
+                            R.string.copy_settings_to_window, order + 1, page.currentDocument?.abbreviation, page.key?.getName(),
                         ),
                     )
                 }

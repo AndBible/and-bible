@@ -115,7 +115,7 @@ class ToolbarStateServiceImplTest {
         val state = service.toolbar.value
         val pageManager = windowControl.activeWindowPageManager
         assertThat(state.documentTitle, equalTo(PassageTestData.ESV.name))
-        assertThat(state.pageTitle, equalTo(pageControl.currentBibleVerse.name))
+        assertThat(state.pageTitle, equalTo(pageControl.currentBibleVerse.getName()))
         assertThat(state.showBible, equalTo(true)) // at least one bible (ESV/KJV) is installed
         assertThat(state.showStrongs, equalTo(pageManager.hasStrongs))
         assertThat(state.searchable, equalTo(true))

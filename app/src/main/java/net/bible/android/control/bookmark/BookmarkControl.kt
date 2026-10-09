@@ -569,7 +569,7 @@ open class BookmarkControl constructor(
 
     fun isSpeakBookmark(bookmark: BaseBookmarkWithNotes): Boolean = labelsForBookmark(bookmark).contains(speakLabel)
     fun speakBookmarkForVerse(verse: Verse) = dao.bookmarksForVerseStartWithLabel(verse, speakLabel).firstOrNull()
-    fun speakBookmarkForKey(key: BookAndKey): GenericBookmarkWithNotes?  = dao.bookmarksForKeyStartWithLabel(key.document!!.initials, key.key.osisRef, key.ordinal!!.start, speakLabel.id).firstOrNull()
+    fun speakBookmarkForKey(key: BookAndKey): GenericBookmarkWithNotes?  = dao.bookmarksForKeyStartWithLabel(key.document!!.initials, key.key.getOsisRef(), key.ordinal!!.start, speakLabel.id).firstOrNull()
     fun changeLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labelIds: List<IdType>) {
         dao.clearLabels(bookmark)
         when(bookmark) {

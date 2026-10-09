@@ -104,7 +104,7 @@ class LinkControl constructor(
                 else -> throw Exception("Unknown key type: ${k.javaClass}")
             }
         }
-        key.name = key.joinToString(", ") { (it as BookAndKey).key.name }
+        key.setName(key.joinToString(", ") { (it as BookAndKey).key.getName() })
         showLink(FakeBookFactory.multiDocument, key)
         return true
     }
@@ -437,7 +437,7 @@ class LinkControl constructor(
     private fun checkStrongs(bible: Book): Boolean {
         return try {
             bible.indexStatus == IndexStatus.DONE &&
-                (bible.find("+[Gen 1:1] strong:h7225").cardinality > 0 || bible.find("+[John 1:1] strong:g746").cardinality > 0 || bible.find("+[Gen 1:1] strong:g746").cardinality > 0)
+                (bible.find("+[Gen 1:1] strong:h7225").getCardinality() > 0 || bible.find("+[John 1:1] strong:g746").getCardinality() > 0 || bible.find("+[Gen 1:1] strong:g746").getCardinality() > 0)
         } catch (be: BookException) {
             Log.e(TAG, "Error checking strongs numbers", be)
             false
@@ -574,7 +574,7 @@ class LinkControl constructor(
         }
 
         val keyList = bookAndKeyListOf(bookAndKeys)
-        keyList.name = text
+        keyList.setName(text)
         showLink(FakeBookFactory.multiDocument, keyList)
         return true
     }

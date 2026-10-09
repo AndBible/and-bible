@@ -541,7 +541,7 @@ class BookmarkEntities {
         )
 
         constructor(key: Key, book: Book, textRange: TextRange?, ordinalStart: Int?): this(
-            key = key.osisRef,
+            key = key.getOsisRef(),
             playbackSettings = null,
             ordinalStart = ordinalStart,
             ordinalEnd = ordinalStart,

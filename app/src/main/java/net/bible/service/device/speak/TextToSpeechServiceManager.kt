@@ -352,7 +352,7 @@ class TextToSpeechServiceManager constructor(
         val doc = key.document ?: return null
         if (!doc.isMyDocument) return null
         val documentId = doc.myDocumentId ?: return null
-        val pageKey = key.key?.osisRef ?: return null
+        val pageKey = key.key?.getOsisRef() ?: return null
         return DatabaseContainer.instance.myDocumentDb.myDocumentDao()
             .pageByKey(documentId, pageKey)?.languageCode
     }

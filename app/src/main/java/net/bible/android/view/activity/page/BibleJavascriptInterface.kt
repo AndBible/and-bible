@@ -110,7 +110,7 @@ internal fun refChooserVerseName(verseStr: String?): String {
         val oldValue = BookName.isFullBookName()
         BookName.setFullBookName(false)
         try {
-            verse?.name ?: ""
+            verse?.getName() ?: ""
         } finally {
             BookName.setFullBookName(oldValue)
         }

@@ -354,7 +354,7 @@ Like that one above."""
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Multi-line notes should be preserved exactly", multiLineNote, importedBookmark?.notes)
         assertEquals("Custom icon should be preserved", "heart", importedBookmark?.customIcon)
-        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.osisRef)
+        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -538,7 +538,7 @@ Final line"""
         // Record the original KJVA ordinals and verse reference
         val originalKjvOrdinalStart = savedBookmark.kjvOrdinalStart
         val originalKjvOrdinalEnd = savedBookmark.kjvOrdinalEnd
-        val originalOsisRef = savedBookmark.verseRange.osisRef
+        val originalOsisRef = savedBookmark.verseRange.getOsisRef()
         
         // When - Export and then reimport
         val outputStream = ByteArrayOutputStream()
@@ -566,7 +566,7 @@ Final line"""
         // The key assertion: KJVA ordinals should match after round-trip
         assertEquals("KJVA ordinal start should be preserved", originalKjvOrdinalStart, importedBookmark?.kjvOrdinalStart)
         assertEquals("KJVA ordinal end should be preserved", originalKjvOrdinalEnd, importedBookmark?.kjvOrdinalEnd)
-        assertEquals("OSIS reference should be preserved", originalOsisRef, importedBookmark?.verseRange?.osisRef)
+        assertEquals("OSIS reference should be preserved", originalOsisRef, importedBookmark?.verseRange?.getOsisRef())
         assertEquals("Notes should be preserved", "Test bookmark for Acts 8:14-17", importedBookmark?.notes)
     }
     
@@ -634,7 +634,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
         assertNotNull("Bookmark should be created from osisRef only", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
-        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.osisRef)
+        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -655,7 +655,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
         assertNotNull("Bookmark should be created from bibleRef only", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
-        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.osisRef)
+        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -676,7 +676,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
         assertNotNull("Bookmark should be created from book/chapter/verse fields", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
-        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.osisRef)
+        assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -697,7 +697,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
         assertNotNull("Bookmark should be created from book/chapter/verse fields", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
-        assertEquals("OsisRef should match", "Gen.1-Gen.2.2", importedBookmark?.verseRange?.osisRef)
+        assertEquals("OsisRef should match", "Gen.1-Gen.2.2", importedBookmark?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -718,7 +718,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
         assertNotNull("Bookmark should be created from ordinals only", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
-        assertEquals("OsisRef should match", "Intro.OT", importedBookmark?.verseRange?.osisRef)
+        assertEquals("OsisRef should match", "Intro.OT", importedBookmark?.verseRange?.getOsisRef())
     }
 
     @Test
@@ -924,8 +924,8 @@ Gen.1.2;Another note"""
         assertNotNull("Second bookmark should exist", bookmark2)
         assertTrue("Should be whole verse bookmarks", bookmark1?.wholeVerse == true)
         assertTrue("Should be whole verse bookmarks", bookmark2?.wholeVerse == true)
-        assertEquals("First bookmark osisRef", "Gen.1.1", bookmark1?.verseRange?.osisRef)
-        assertEquals("Second bookmark osisRef", "Gen.1.2", bookmark2?.verseRange?.osisRef)
+        assertEquals("First bookmark osisRef", "Gen.1.1", bookmark1?.verseRange?.getOsisRef())
+        assertEquals("Second bookmark osisRef", "Gen.1.2", bookmark2?.verseRange?.getOsisRef())
     }
 
     @Test

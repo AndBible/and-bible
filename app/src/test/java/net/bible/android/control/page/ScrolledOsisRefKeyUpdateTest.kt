@@ -80,8 +80,8 @@ class ScrolledOsisRefKeyUpdateTest {
     fun commentaryPageKeyIsTheEntryStartVerseNotTheEntryRange() {
         val page = commentaryPageAtEntry5to8()
 
-        assertThat(page.key?.osisRef, equalTo(heb11v5.osisRef))
-        assertThat(page.key?.osisRef, not(equalTo(entry5to8.osisRef)))
+        assertThat(page.key?.getOsisRef(), equalTo(heb11v5.getOsisRef()))
+        assertThat(page.key?.getOsisRef(), not(equalTo(entry5to8.getOsisRef())))
     }
 
     /**
@@ -93,8 +93,8 @@ class ScrolledOsisRefKeyUpdateTest {
     fun scrollingWithinMultiVerseCommentaryEntryIsNotAMove() {
         val page = commentaryPageAtEntry5to8()
 
-        assertThat(page.updateKeyFromScrolledOsisRef(entry5to8.osisRef), equalTo(false))
-        assertThat(page.key?.osisRef, equalTo(heb11v5.osisRef))
+        assertThat(page.updateKeyFromScrolledOsisRef(entry5to8.getOsisRef()), equalTo(false))
+        assertThat(page.key?.getOsisRef(), equalTo(heb11v5.getOsisRef()))
     }
 
     /** ...but scrolling on into the next entry still is a move, as in 5.0. */
@@ -102,8 +102,8 @@ class ScrolledOsisRefKeyUpdateTest {
     fun scrollingIntoNextCommentaryEntryIsAMove() {
         val page = commentaryPageAtEntry5to8()
 
-        assertThat(page.updateKeyFromScrolledOsisRef(entry9to10.osisRef), equalTo(true))
-        assertThat(page.key?.osisRef, equalTo(heb11v9.osisRef))
+        assertThat(page.updateKeyFromScrolledOsisRef(entry9to10.getOsisRef()), equalTo(true))
+        assertThat(page.key?.getOsisRef(), equalTo(heb11v9.getOsisRef()))
     }
 
     /** A move is reported once, not again for each further scroll tick inside the new entry. */
@@ -111,9 +111,9 @@ class ScrolledOsisRefKeyUpdateTest {
     fun repeatedScrollTicksInTheSameEntryReportTheMoveOnlyOnce() {
         val page = commentaryPageAtEntry5to8()
 
-        assertThat(page.updateKeyFromScrolledOsisRef(entry9to10.osisRef), equalTo(true))
-        assertThat(page.updateKeyFromScrolledOsisRef(entry9to10.osisRef), equalTo(false))
-        assertThat(page.updateKeyFromScrolledOsisRef(entry9to10.osisRef), equalTo(false))
+        assertThat(page.updateKeyFromScrolledOsisRef(entry9to10.getOsisRef()), equalTo(true))
+        assertThat(page.updateKeyFromScrolledOsisRef(entry9to10.getOsisRef()), equalTo(false))
+        assertThat(page.updateKeyFromScrolledOsisRef(entry9to10.getOsisRef()), equalTo(false))
     }
 
     /**
@@ -133,8 +133,8 @@ class ScrolledOsisRefKeyUpdateTest {
         val page = commentaryPageAtEntry5to8()
         page.doSetKey(heb11v7)      // what window sync does when the Bible window scrolls to v7
 
-        assertThat(page.updateKeyFromScrolledOsisRef(entry5to8.osisRef), equalTo(false))
-        assertThat(page.key?.osisRef, equalTo(heb11v7.osisRef))
+        assertThat(page.updateKeyFromScrolledOsisRef(entry5to8.getOsisRef()), equalTo(false))
+        assertThat(page.key?.getOsisRef(), equalTo(heb11v7.getOsisRef()))
     }
 
     /** The same, one verse further in: any verse of the entry counts as being in that entry. */
@@ -145,10 +145,10 @@ class ScrolledOsisRefKeyUpdateTest {
         for (verse in entry5to8.toVerseArray()) {
             page.doSetKey(verse)
             assertThat(
-                "reporting the entry while the page is at ${verse.osisRef} must not be a move",
-                page.updateKeyFromScrolledOsisRef(entry5to8.osisRef), equalTo(false)
+                "reporting the entry while the page is at ${verse.getOsisRef()} must not be a move",
+                page.updateKeyFromScrolledOsisRef(entry5to8.getOsisRef()), equalTo(false)
             )
-            assertThat(page.key?.osisRef, equalTo(verse.osisRef))
+            assertThat(page.key?.getOsisRef(), equalTo(verse.getOsisRef()))
         }
     }
 
@@ -158,8 +158,8 @@ class ScrolledOsisRefKeyUpdateTest {
         val page = commentaryPageAtEntry5to8()
         page.doSetKey(heb11v7)
 
-        assertThat(page.updateKeyFromScrolledOsisRef(heb11v9.osisRef), equalTo(true))
-        assertThat(page.key?.osisRef, equalTo(heb11v9.osisRef))
+        assertThat(page.updateKeyFromScrolledOsisRef(heb11v9.getOsisRef()), equalTo(true))
+        assertThat(page.key?.getOsisRef(), equalTo(heb11v9.getOsisRef()))
     }
 
     /** An osisRef the document cannot resolve leaves the page where it is, without throwing. */
@@ -168,7 +168,7 @@ class ScrolledOsisRefKeyUpdateTest {
         val page = commentaryPageAtEntry5to8()
 
         assertThat(page.updateKeyFromScrolledOsisRef("NoSuchBook.1.1"), equalTo(false))
-        assertThat(page.key?.osisRef, equalTo(heb11v5.osisRef))
+        assertThat(page.key?.getOsisRef(), equalTo(heb11v5.getOsisRef()))
     }
 
     /**
@@ -180,11 +180,11 @@ class ScrolledOsisRefKeyUpdateTest {
     fun pagesThatStoreTheKeyAsGivenMoveOnlyWhenTheKeyChanges() {
         val page = pageManager().currentGeneralBook.apply {
             onlySetCurrentDocument(book)
-            doSetKey(book.getKey(heb11v5.osisRef))
+            doSetKey(book.getKey(heb11v5.getOsisRef()))
         }
 
-        assertThat(page.updateKeyFromScrolledOsisRef(heb11v5.osisRef), equalTo(false))
-        assertThat(page.updateKeyFromScrolledOsisRef(heb11v9.osisRef), equalTo(true))
-        assertThat(page.key?.osisRef, equalTo(heb11v9.osisRef))
+        assertThat(page.updateKeyFromScrolledOsisRef(heb11v5.getOsisRef()), equalTo(false))
+        assertThat(page.updateKeyFromScrolledOsisRef(heb11v9.getOsisRef()), equalTo(true))
+        assertThat(page.key?.getOsisRef(), equalTo(heb11v9.getOsisRef()))
     }
 }

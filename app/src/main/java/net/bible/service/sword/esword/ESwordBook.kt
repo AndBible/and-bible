@@ -196,8 +196,8 @@ class SqliteBackend(
         return arrayOf("$bookNum", "${verse.chapter}", "${verse.verse}")
     }
 
-    override fun indexOf(that: Key): Int = try {
-        val verse = KeyUtil.getVerse(that)
+    override fun indexOf(that: Key?): Int = try {
+        val verse = KeyUtil.getVerse(that!!)
         state.sqlDb.rawQuery(
             "select _rowid_ from Bible WHERE Book = ? AND Chapter = ? AND Verse = ?",
             verseParams(verse)

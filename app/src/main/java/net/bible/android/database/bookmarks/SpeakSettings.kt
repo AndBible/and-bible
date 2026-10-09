@@ -34,7 +34,7 @@ const val TAG = "SpeakSettings"
 object VerseRangeSerializer: KSerializer<VerseRange?> {
     override fun serialize(encoder: Encoder, obj: VerseRange?) {
         if(obj != null) {
-            encoder.encodeString("${obj.versification.name}::${obj.osisRef}")
+            encoder.encodeString("${obj.versification.name}::${obj.getOsisRef()}")
         }
         else {
             encoder.encodeNull()

@@ -62,10 +62,10 @@ class SpeakSettingsServiceImpl : SpeakSettingsService, KoinComponent {
             speakTitles = p.speakTitles,
             speakFootnotes = p.speakFootnotes,
             sleepTimerMinutes = s.sleepTimer,
-            repeatRangeName = range?.name,
+            repeatRangeName = range?.getName(),
             lastSleepTimerMinutes = s.lastSleepTimer,
-            repeatRangeStart = range?.start?.let { PickedVerse(it.osisID, it.name, it.ordinal) },
-            repeatRangeEnd = range?.end?.let { PickedVerse(it.osisID, it.name, it.ordinal) },
+            repeatRangeStart = range?.start?.let { PickedVerse(it.getOsisID(), it.getName(), it.ordinal) },
+            repeatRangeEnd = range?.end?.let { PickedVerse(it.getOsisID(), it.getName(), it.ordinal) },
         )
     }
 

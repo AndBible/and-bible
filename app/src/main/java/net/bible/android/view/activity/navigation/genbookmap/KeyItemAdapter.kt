@@ -49,7 +49,7 @@ class KeyItemAdapter(
             convertView as TextView
         }
 
-        view.text = item.name
+        view.text = item.getName()
         return view
     }
 

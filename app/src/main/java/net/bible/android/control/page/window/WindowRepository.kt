@@ -300,7 +300,7 @@ open class WindowRepository(val scope: CoroutineScope) : KoinComponent {
             BookName.setFullBookName(false)
             try {
                 for (it in windowList) {
-                    keyTitle.add("${it.pageManager.currentPage.singleKey?.name} (${it.pageManager.currentPage.currentDocument?.abbreviation})")
+                    keyTitle.add("${it.pageManager.currentPage.singleKey?.getName()} (${it.pageManager.currentPage.currentDocument?.abbreviation})")
                 }
             } finally {
                 BookName.setFullBookName(prevFullBookNameValue)

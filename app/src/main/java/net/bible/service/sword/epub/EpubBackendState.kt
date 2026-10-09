@@ -145,7 +145,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             .evaluateFirst(content)?.value
     }
 
-    private fun getFragment(key: Key): EpubFragment? = dao.getFragment(key.osisRef.toLong())
+    private fun getFragment(key: Key): EpubFragment? = dao.getFragment(key.getOsisRef().toLong())
 
     fun fileForOriginalId(id: String): File? = idToFile[id]?.let {File(rootFolder, it) }
 

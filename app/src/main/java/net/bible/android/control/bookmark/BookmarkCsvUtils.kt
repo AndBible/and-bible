@@ -135,8 +135,8 @@ object BookmarkCsvUtils {
 
                     // Create map of all possible values
                     val allValues = mapOf(
-                        HEADER_OSIS_REF to verseRange.osisRef,
-                        HEADER_BIBLE_REF to escapeField(verseRange.name),
+                        HEADER_OSIS_REF to verseRange.getOsisRef(),
+                        HEADER_BIBLE_REF to escapeField(verseRange.getName()),
                         HEADER_DOCUMENT to escapeField(bookmark.book?.initials ?: ""),
                         HEADER_BOOK to escapeField(start.book.osis),
                         HEADER_CHAPTER_START to start.chapter.toString(),

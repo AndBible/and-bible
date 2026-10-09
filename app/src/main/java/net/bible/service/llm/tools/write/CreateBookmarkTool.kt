@@ -118,7 +118,7 @@ object CreateBookmarkTool : Tool {
 
     /** Test seam (F121): how the saved range is described (OSIS reference, localized name). */
     @VisibleForTesting
-    internal var describeRange: (VerseRange) -> Pair<String, String> = { it.osisRef to it.name }
+    internal var describeRange: (VerseRange) -> Pair<String, String> = { it.getOsisRef() to it.getName() }
 
     override val requiresPermission = true
     override val displayNameResId = R.string.tool_create_bookmark

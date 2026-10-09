@@ -83,7 +83,7 @@ object RemoveLabelFromBookmarkTool : Tool {
                 ?: bookmarkControl.genericBookmarkById(IdType(bookmarkId))
         } catch (_: Exception) { null }
         val label = try { bookmarkControl.labelById(IdType(labelId)) } catch (_: Exception) { null }
-        val verseName = (bookmark as? BibleBookmarkWithNotes)?.verseRange?.name ?: shortId(bookmarkId)
+        val verseName = (bookmark as? BibleBookmarkWithNotes)?.verseRange?.getName() ?: shortId(bookmarkId)
         val labelName = label?.name ?: shortId(labelId)
         return BibleApplication.application.getString(R.string.action_remove_label_from_bookmark, labelName, verseName)
     }

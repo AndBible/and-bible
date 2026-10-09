@@ -231,8 +231,8 @@ class SpeakWidgetManager : KoinComponent {
         for (b in speakBookmarks){
             val repeatSymbol = if(b.playbackSettings?.verseRange != null) "\uD83D\uDD01" else ""
             addButton(when(b) {
-                is BookmarkEntities.BibleBookmarkWithNotes -> "${b.verseRange.start.name} (${b.playbackSettings?.bookId ?: "?"}) $repeatSymbol"
-                is BookmarkEntities.GenericBookmarkWithNotes -> "${b.book?.abbreviation} ${b.bookKey?.name} $repeatSymbol"
+                is BookmarkEntities.BibleBookmarkWithNotes -> "${b.verseRange.start.getName()} (${b.playbackSettings?.bookId ?: "?"}) $repeatSymbol"
+                is BookmarkEntities.GenericBookmarkWithNotes -> "${b.book?.abbreviation} ${b.bookKey?.getName()} $repeatSymbol"
                 else -> throw RuntimeException("Illegal type")
             }, b)
             Log.i(TAG, "Added button for $b")

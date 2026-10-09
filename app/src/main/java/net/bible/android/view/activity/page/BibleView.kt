@@ -263,7 +263,7 @@ class Selection(
 
     fun copyToClipboard() {
         CommonUtils.copyToClipboard(
-            ClipData.newPlainText(verseRange?.name, CommonUtils.getShareableDocumentText(this))
+            ClipData.newPlainText(verseRange?.getName(), CommonUtils.getShareableDocumentText(this))
         )
     }
 }
@@ -708,7 +708,7 @@ class BibleView(
                     val wasFullBookName = BookName.isFullBookName()
                     BookName.setFullBookName(false)
                     try {
-                        item.title = context.getString(R.string.go_to_ref, ref.name)
+                        item.title = context.getString(R.string.go_to_ref, ref.getName())
                     } finally {
                         BookName.setFullBookName(wasFullBookName)
                     }
@@ -1878,7 +1878,7 @@ class BibleView(
                 ordinalEnd: ${initialAnchorOrdinal?.end},
                 highlight: ${initialAnchorOrdinal?.end != null},
                 bookInitials: ${wrapString(window.pageManager.currentPage.currentDocument?.initials)},
-                osisRef: ${wrapString(window.pageManager.currentPage.key?.osisRef)},
+                osisRef: ${wrapString(window.pageManager.currentPage.key?.getOsisRef())},
             });            
             bibleView.emit("set_title", "BibleView-${window.displayId}");
             """
@@ -2404,7 +2404,7 @@ class BibleView(
     }
 
     fun parseRef(callId: Long, s: String) {
-        val ref = wrapString(linkControl.resolveRef(s, (firstDocument as? BibleDocument)?.swordBook)?.osisRef)
+        val ref = wrapString(linkControl.resolveRef(s, (firstDocument as? BibleDocument)?.swordBook)?.getOsisRef())
         executeJavascriptOnUiThread("bibleView.response($callId, $ref);")
     }
 

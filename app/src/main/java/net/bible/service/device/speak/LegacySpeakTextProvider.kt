@@ -59,7 +59,7 @@ class LegacySpeakTextProvider : SpeakTextProvider {
 
     override fun getStatusText(showFlag: Int): String {
         return if (keyList != null && keyList!!.size > 0) {
-            keyList!![0].name
+            keyList!![0].getName()
         } else {
             ""
         }
@@ -95,7 +95,7 @@ class LegacySpeakTextProvider : SpeakTextProvider {
         try {
             for (key in keyList) {
                 // intro
-                textToSpeak.add(key.name + ". ")
+                textToSpeak.add(key.getName() + ". ")
 
                 // content
                 textToSpeak.add(getTextToSpeak(book!!, key))

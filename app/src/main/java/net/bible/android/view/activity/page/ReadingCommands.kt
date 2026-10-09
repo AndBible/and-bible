@@ -843,7 +843,7 @@ class ReadingCommands(
         return try {
             val curdoc = window.pageManager.currentPage.currentDocument ?: return " "
             if (curdoc.isStudyPad) {
-                (window.pageManager.currentPage.key as? StudyPadKey)?.name ?: " "
+                (window.pageManager.currentPage.key as? StudyPadKey)?.getName() ?: " "
             } else {
                 curdoc.abbreviation
             }
@@ -1124,7 +1124,7 @@ class ReadingCommands(
                 val book = currentPage.currentDocument
                 val key = currentPage.key
                 if (book != null && key != null) {
-                    window.bibleView?.createWholePageBookmark(book.initials, key.osisRef)
+                    window.bibleView?.createWholePageBookmark(book.initials, key.getOsisRef())
                 }
                 false
             }
@@ -1134,7 +1134,7 @@ class ReadingCommands(
                 val book = currentPage.currentDocument
                 val key = currentPage.key
                 if (book != null && key != null) {
-                    val selection = Selection(book.initials, key.osisRef, -1, -1)
+                    val selection = Selection(book.initials, key.getOsisRef(), -1, -1)
                     // This ☰ pane menu only exists on the Compose path (composeReadingViewHost
                     // installed), and slice 8 made NavHost the only reading host, so the classic
                     // `LlmDialogHelper` fallback this used to carry `?:` for "safety" is unreachable
@@ -1158,8 +1158,8 @@ class ReadingCommands(
                     val ordinalRange = window.pageManager.currentPage.anchorOrdinal
                     val ordinal = ordinalRange?.start
                     clipboardKey = BookAndKey(key, doc, ordinalRange)
-                    val url = CommonUtils.makeAndBibleUrl(keyStr = key.osisRef, docInitials = doc.initials, ordinal = ordinal)
-                    CommonUtils.copyToClipboard(ClipData.newPlainText(key.name, url), R.string.reference_copied_to_clipboard)
+                    val url = CommonUtils.makeAndBibleUrl(keyStr = key.getOsisRef(), docInitials = doc.initials, ordinal = ordinal)
+                    CommonUtils.copyToClipboard(ClipData.newPlainText(key.getName(), url), R.string.reference_copied_to_clipboard)
                 }
                 false
             }
@@ -1536,8 +1536,8 @@ class ReadingCommands(
                 key = pageControl.currentBibleVerse
             }
             return if(key is Verse && key.verse == 0) {
-                CommonUtils.getWholeChapter(key, false).name
-            } else key?.name ?: throw KeyIsNull()
+                CommonUtils.getWholeChapter(key, false).getName()
+            } else key?.getName() ?: throw KeyIsNull()
         }
 
     val bibleOverlayText: String

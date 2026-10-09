@@ -797,7 +797,7 @@ object CommonUtils : CommonUtilsBase() {
     fun getKeyDescription(key: Key): String {
         var name: String
         try {
-            name = key.name
+            name = key.getName()
 
             // do not show verse 0
             if (key is Verse) {
@@ -809,14 +809,14 @@ object CommonUtils : CommonUtilsBase() {
         } catch (e: Exception) {
             Log.e(TAG, "Error getting key name - could that Versification does not contain book")
             // but this normally works
-            name = key.osisRef.replace('.', ' ')
+            name = key.getOsisRef().replace('.', ' ')
         }
 
         return name
     }
 
     fun getWholeChapter(currentVerse: Verse, showIntros: Boolean = true): VerseRange {
-        Log.i(TAG, "getWholeChapter (Key) ${currentVerse.osisID}")
+        Log.i(TAG, "getWholeChapter (Key) ${currentVerse.getOsisID()}")
         val versification = currentVerse.versification
         val book = currentVerse.book
         val chapter = currentVerse.chapter
@@ -2034,7 +2034,7 @@ val BookAndKey.prev: BookAndKey get() {
             }
             val idx = backend.indexOf(this.key)
             try {
-                backend.get(idx - 1)
+                backend.get(idx - 1)!!
             } catch (e: IndexOutOfBoundsException) {
                 backend.last()
             }
@@ -2071,7 +2071,7 @@ val BookAndKey.next: BookAndKey get() {
                 is AbstractKeyBackend -> {
                     val idx = backend.indexOf(this.key)
                     try {
-                        backend.get(idx + 1)
+                        backend.get(idx + 1)!!
                     } catch (e: IndexOutOfBoundsException) {
                         backend.first()
                     }
@@ -2109,14 +2109,14 @@ val Key.tinyName: String get() =
                 var name: String
                 do {
                     BookName.setTruncateShortName(length--)
-                    name = this.name
+                    name = this.getName()
                 } while(length > 0 && name.length > 7)
                 name
             } finally {
                 BookName.setTruncateShortName(prevTruncateLength)
             }
         }
-    else name
+    else getName()
 
 
 val Key.shortName: String get() =
@@ -2125,12 +2125,12 @@ val Key.shortName: String get() =
             val oldValue = BookName.isFullBookName()
             BookName.setFullBookName(false)
             try {
-                return name
+                return getName()
             } finally {
                 BookName.setFullBookName(oldValue)
             }
         }
-    else name
+    else getName()
 
 enum class DbType {
     BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS, MYDOCUMENTS, AI_SETTINGS

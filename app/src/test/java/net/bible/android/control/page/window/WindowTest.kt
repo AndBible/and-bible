@@ -119,7 +119,7 @@ class WindowTest {
         //pageManager = window.pageManager
         biblePage = pageManager.currentBible
         assertThat<Book>(biblePage.currentDocument, equalTo<Book>(PassageTestData.ESV))
-        assertThat(biblePage.singleKey.name, equalTo(PassageTestData.PS_139_2.name))
+        assertThat(biblePage.singleKey.getName(), equalTo(PassageTestData.PS_139_2.getName()))
     }
     @Test
     fun switchingWorkspaceReleasesOutgoingWindowsAndPagesButKeepsReplacementLive() {
