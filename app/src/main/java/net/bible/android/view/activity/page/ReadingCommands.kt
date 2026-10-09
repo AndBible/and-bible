@@ -590,7 +590,7 @@ class ReadingCommands(
      */
     internal fun applyChosenVerse(verseStr: String, isFromBookmark: Boolean = false) {
         val verse = try {
-            VerseFactory.fromString(navigationControl.versification, verseStr)
+            VerseFactory.fromString(navigationControl.versification, verseStr)!!
         } catch (e: NoSuchVerseException) {
             UserMessages.toast(readingHost.getString(R.string.verse_not_found))
             return

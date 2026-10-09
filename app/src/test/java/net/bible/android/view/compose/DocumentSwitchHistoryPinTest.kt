@@ -69,7 +69,7 @@ class DocumentSwitchHistoryPinTest {
     private fun idle() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
     private fun verse(osis: String) =
-        VerseFactory.fromString(Versifications.instance().getVersification("KJV"), osis)
+        VerseFactory.fromString(Versifications.instance().getVersification("KJV"), osis)!!
 
     @Test
     fun backAfterADocumentSwitchWalksKjvGen24ThenKjvGen11ThenFinRkGen11() {

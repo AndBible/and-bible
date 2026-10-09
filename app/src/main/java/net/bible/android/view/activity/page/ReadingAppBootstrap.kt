@@ -453,7 +453,7 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
                 val doc = if (docStr != null) Books.installed().getBook(docStr) else null
                 val defV11n = if (doc is SwordBook) doc.versification else KJVA
 
-                val key = VerseFactory.fromString(defV11n, "$book.$chapter")
+                val key = VerseFactory.fromString(defV11n, "$book.$chapter")!!
                 windowControl.showLink(doc, key)
             }
         }

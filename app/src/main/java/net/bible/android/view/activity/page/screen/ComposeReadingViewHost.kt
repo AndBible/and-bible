@@ -2080,7 +2080,7 @@ class ComposeReadingViewHost(private val activity: ReadingHostActivity) : KoinCo
                 isScripture = true,
                 navigateToVerse = true,
                 onFinish = { osisId ->
-                    val verse = VerseFactory.fromString(navigationControl.versification, osisId)
+                    val verse = VerseFactory.fromString(navigationControl.versification, osisId)!!
                     speakRangeEditor.set(pickingEnd, PickedVerse(verse.getOsisID(), verse.getName(), verse.ordinal))
                     speakSheet.pop()
                 },
