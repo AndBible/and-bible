@@ -18,7 +18,10 @@
 package net.bible.android.database
 
 import android.database.sqlite.SQLiteDatabase
-import androidx.room.Room
+import androidx.room3.Room
+import androidx.room3.useReaderConnection
+import androidx.sqlite.SQLiteStatement
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -27,6 +30,8 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.migrations.bookmarkMigrations
+import net.bible.service.db.productionConfig
+import net.bible.service.db.queryRows
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -174,23 +179,23 @@ class BookmarkDatabaseMigration12To13Test {
         )
     }
 
+    /** Opens through the production configuration (bundled driver); the first connection runs the migrations. */
     private fun openMigrated(): BookmarkDatabase =
-        Room.databaseBuilder(application, BookmarkDatabase::class.java, dbFile.absolutePath)
-            .allowMainThreadQueries()
+        Room.databaseBuilder<BookmarkDatabase>(application, dbFile.absolutePath)
+            .productionConfig()
             .addMigrations(*bookmarkMigrations)
             .build()
-            .also { db = it; it.openHelper.writableDatabase }
+            .also { db = it; query("SELECT 1") { } }
 
-    private fun styles(): Map<String, Pair<Int, Int?>> {
-        val out = mutableMapOf<String, Pair<Int, Int?>>()
-        db!!.openHelper.readableDatabase
-            .query("SELECT name, displayStyle, displayStyleWholeVerse FROM Label").use { c ->
-                while (c.moveToNext()) {
-                    out[c.getString(0)] = c.getInt(1) to if (c.isNull(2)) null else c.getInt(2)
-                }
-            }
-        return out
+    /** Maps every row of [sql] on the migrated database with [row]. */
+    private fun <T> query(sql: String, row: (SQLiteStatement) -> T): List<T> = runBlocking {
+        db!!.useReaderConnection { c -> c.queryRows(sql, row = row) }
     }
+
+    private fun styles(): Map<String, Pair<Int, Int?>> =
+        query("SELECT name, displayStyle, displayStyleWholeVerse FROM Label") { c ->
+            c.getText(0) to (c.getInt(1) to if (c.isNull(2)) null else c.getInt(2))
+        }.toMap()
 
     @Test
     fun `every legacy flag combination migrates to the style the reader already drew`() {
@@ -233,31 +238,25 @@ class BookmarkDatabaseMigration12To13Test {
     @Test
     fun `the six legacy columns are gone and the new ones carry the right shape`() {
         openMigrated()
-        val columns = mutableMapOf<String, Pair<Int, String?>>()   // name -> notnull, default
-        db!!.openHelper.readableDatabase.query("PRAGMA table_info(Label)").use { c ->
-            while (c.moveToNext()) {
-                columns[c.getString(1)] = c.getInt(3) to c.getString(4)
-            }
-        }
+        val columns: Map<String, Pair<Int, String?>> =   // name -> notnull, default
+            query("PRAGMA table_info(Label)") { c -> c.getText(1) to (c.getInt(3) to if (c.isNull(4)) null else c.getText(4)) }.toMap()
         listOf("markerStyle", "markerStyleWholeVerse", "underlineStyle",
                "underlineStyleWholeVerse", "hideStyle", "hideStyleWholeVerse").forEach {
             assertFalse("$it should have been dropped", columns.containsKey(it))
         }
         assertEquals(1 to "0", columns["displayStyle"])
         assertEquals(0 to "1", columns["displayStyleWholeVerse"])
-        assertEquals(13, db!!.openHelper.readableDatabase.version)
+        assertEquals(listOf(13), query("PRAGMA user_version") { it.getInt(0) })
     }
 
     @Test
     fun `the Label rebuild does not cascade-delete BibleBookmarkToLabel rows`() {
         openMigrated()
-        db!!.openHelper.readableDatabase
-            .query("""
+        val labelIds = query("""
                 SELECT hex(bookmarkId), hex(labelId) FROM BibleBookmarkToLabel
                 WHERE hex(bookmarkId) = '${fkBookmarkIdHex.uppercase()}'
-            """).use { c ->
-                assertTrue("BibleBookmarkToLabel row must survive the Label rebuild", c.moveToFirst())
-                assertEquals(fkLabelIdHex.uppercase(), c.getString(1))
-            }
+            """) { c -> c.getText(1) }
+        assertTrue("BibleBookmarkToLabel row must survive the Label rebuild", labelIds.isNotEmpty())
+        assertEquals(fkLabelIdHex.uppercase(), labelIds.first())
     }
 }

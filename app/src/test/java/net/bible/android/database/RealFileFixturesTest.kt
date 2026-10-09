@@ -17,7 +17,7 @@
 
 package net.bible.android.database
 
-import android.database.sqlite.SQLiteException
+import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
@@ -161,9 +161,7 @@ class RealFileFixturesTest {
 
     /**
      * Opens the bookmarks file and returns how many bookmarks it serves, or the exception that
-     * rejected it. The platform's default corruption handler (and possibly the requery one) deletes
-     * a corrupt file and recreates it empty instead of throwing, so "rejected" means: it throws OR
-     * it serves no fixture data. Silently serving the bytes as valid data is the only failure.
+     * rejected it.
      */
     private fun openBookmarkCount(): Result<Int> {
         // Container creation must not be what throws: the rejection has to come from opening the file.
@@ -171,6 +169,11 @@ class RealFileFixturesTest {
         return runCatching { runBlocking { bookmarkDb.bookmarkDao().allBookmarks() }.size }
     }
 
+    /**
+     * With the bundled driver (Room 3, D1 Task 17) a corrupt file is rejected by throwing: Room 3 has no
+     * framework corruption handler that would delete and recreate it empty (what requery/the platform did,
+     * which forced the earlier "throws OR serves 0 rows" check). The file is also left in place, untouched.
+     */
     @Test fun corruptedFixtureIsRejected() {
         // Control: the very same open path on the intact file serves the 3 bookmarks, so the
         // assertion below cannot pass vacuously (e.g. a broken open path that always yields 0).
@@ -179,9 +182,13 @@ class RealFileFixturesTest {
         DatabaseContainer.reset()
 
         val file = application.getDatabasePath(BookmarkDatabase.dbFileName)
-        file.writeBytes(ByteArray(4096) { 7 })
+        val garbage = ByteArray(4096) { 7 }
+        file.writeBytes(garbage)
         val result = openBookmarkCount()
-        result.onSuccess { assertEquals("corrupt file must not serve fixture data", 0, it) }
-        result.onFailure { assertTrue(it.toString(), it is SQLiteException) }
+        val error = result.exceptionOrNull()
+        assertNotNull("corrupt file must be rejected, but it served ${result.getOrNull()} bookmarks", error)
+        assertTrue(error.toString(), error is SQLiteException)
+        assertTrue("SQLITE_NOTADB expected: $error", error!!.message.orEmpty().contains("not a database"))
+        assertTrue("the corrupt file must not be replaced", garbage.contentEquals(file.readBytes()))
     }
 }

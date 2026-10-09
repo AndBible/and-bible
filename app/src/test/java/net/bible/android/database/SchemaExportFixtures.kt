@@ -18,8 +18,8 @@
 package net.bible.android.database
 
 import android.database.sqlite.SQLiteDatabase
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
 import androidx.room3.useReaderConnection
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -34,8 +34,7 @@ import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.mydocument.MY_DOCUMENT_DATABASE_VERSION
 import net.bible.android.database.progress.PROGRESS_DATABASE_VERSION
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.sqliteDriverFactory
-import kotlinx.coroutines.Dispatchers
+import net.bible.service.db.productionConfig
 import net.bible.service.sword.epub.getEpubDatabase
 import java.io.File
 
@@ -80,105 +79,64 @@ object SchemaExportFixtures {
     }
 }
 
-/**
- * Versions whose migration chain runs `ALTER TABLE ... DROP COLUMN`. Under Robolectric the framework
- * SQLite predates 3.35 and rejects the syntax, so `MigrationChainTest` skips them and
- * `MigrationChainBundledDriverTest` runs them on the bundled driver instead. Remove this set when the
- * whole chain test runs on the bundled driver (D1 Task 17).
- */
-val NEEDS_MODERN_SQLITE: Map<String, Set<Int>> = mapOf(
-    "net.bible.android.database.BookmarkDatabase" to (1..10).toSet(),
-    "net.bible.android.database.WorkspaceDatabase" to setOf(1, 2),
-)
-
-/**
- * A database opened by [DbUnderTest.open]. Until D1 Task 17 the databases are split between Room 2 and Room 3,
- * whose `RoomDatabase` types are unrelated; this hides which one is behind it.
- */
-interface OpenedDb {
-    /** Opens the file (running any migrations) and reads `room_master_table`'s identity hash. */
-    fun identityHash(): String
-    fun close()
-}
-
-private class Room2Db(val db: RoomDatabase) : OpenedDb {
-    override fun identityHash(): String = db.openHelper.writableDatabase
-        .query("SELECT identity_hash FROM room_master_table WHERE id = 42")
-        .use { it.moveToFirst(); it.getString(0) }
-    override fun close() = db.close()
-}
-
-private class Room3Db(val db: androidx.room3.RoomDatabase) : OpenedDb {
-    override fun identityHash(): String = runBlocking {
-        db.useReaderConnection { c ->
-            c.usePrepared("SELECT identity_hash FROM room_master_table WHERE id = 42") { st -> st.step(); st.getText(0) }
-        }
+/** Opens the file (running any migrations) and reads `room_master_table`'s identity hash. */
+fun RoomDatabase.identityHash(): String = runBlocking {
+    useReaderConnection { c ->
+        c.usePrepared("SELECT identity_hash FROM room_master_table WHERE id = 42") { st -> st.step(); st.getText(0) }
     }
-    override fun close() = db.close()
 }
 
 /**
  * One Room database exercised by the schema tests. [open] must go through the production builder
- * (or an exact copy of it) so the tests see the same migrations and journal mode as the app.
+ * (or [productionConfig] with the production migrations) so the tests see the same driver, migrations and
+ * journal mode as the app.
  */
-data class DbUnderTest(val schemaDir: String, val currentVersion: Int, val open: (fileName: String) -> OpenedDb)
+data class DbUnderTest(val schemaDir: String, val currentVersion: Int, val open: (fileName: String) -> RoomDatabase)
 
 /**
- * Databases without a `getXDb(name)` factory in `DatabaseContainer` (Temporary, DocumentSync, Repo, Settings) are built here with the same
- * migrations array, flags and journal mode as the production builder (`DatabaseContainer.kt`,
- * `EpubBook.kt`). These copies must stay identical to production.
- * `dbFactory` is null under tests, so `openHelperFactory` is omitted.
+ * Databases without a `getXDb(name)` factory in `DatabaseContainer` (Temporary, DocumentSync, Repo, Settings) are
+ * built here with the production [productionConfig] and the same migrations array as their production builder
+ * (`DatabaseContainer.kt`). The migrations passed must stay identical to production.
  */
-private fun <T : RoomDatabase> copyOfProductionBuilder(
-    cls: Class<T>, name: String, vararg migrations: androidx.room.migration.Migration,
-): T = Room.databaseBuilder(application, cls, name)
-    .allowMainThreadQueries()
-    .addMigrations(*migrations)
-    .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-    .build()
-
-/** Room 3 counterpart of [copyOfProductionBuilder] (same driver, query context and journal mode as production). */
-private inline fun <reified T : androidx.room3.RoomDatabase> copyOfProductionRoom3Builder(
+private inline fun <reified T : RoomDatabase> copyOfProductionBuilder(
     name: String, vararg migrations: androidx.room3.migration.Migration,
-): T = androidx.room3.Room.databaseBuilder<T>(application, name)
+): T = Room.databaseBuilder<T>(application, name)
+    .productionConfig()
     .addMigrations(*migrations)
-    .setDriver(sqliteDriverFactory())
-    .setQueryCoroutineContext(Dispatchers.IO)
-    .setJournalMode(androidx.room3.RoomDatabase.JournalMode.TRUNCATE)
     .build()
 
 val DB_UNDER_TEST: List<DbUnderTest> = listOf(
     DbUnderTest("net.bible.android.database.BookmarkDatabase", BOOKMARK_DATABASE_VERSION) {
-        Room2Db(DatabaseContainer.instance.getBookmarkDb(it))
+        DatabaseContainer.instance.getBookmarkDb(it)
     },
     DbUnderTest("net.bible.android.database.ReadingPlanDatabase", READING_PLAN_DATABASE_VERSION) {
-        Room2Db(DatabaseContainer.instance.getReadingPlanDb(it))
+        DatabaseContainer.instance.getReadingPlanDb(it)
     },
     DbUnderTest("net.bible.android.database.WorkspaceDatabase", WORKSPACE_DATABASE_VERSION) {
-        Room2Db(DatabaseContainer.instance.getWorkspaceDb(it))
+        DatabaseContainer.instance.getWorkspaceDb(it)
     },
     DbUnderTest("net.bible.android.database.mydocument.MyDocumentDatabase", MY_DOCUMENT_DATABASE_VERSION) {
-        Room2Db(DatabaseContainer.instance.getMyDocumentDb(it))
+        DatabaseContainer.instance.getMyDocumentDb(it)
     },
     DbUnderTest("net.bible.android.database.AiSettingsDatabase", AI_SETTINGS_DATABASE_VERSION) {
-        Room2Db(DatabaseContainer.instance.getAiSettingsDb(it))
+        DatabaseContainer.instance.getAiSettingsDb(it)
     },
     DbUnderTest("net.bible.android.database.progress.ProgressDatabase", PROGRESS_DATABASE_VERSION) {
-        Room2Db(DatabaseContainer.instance.getProgressDb(it))
+        DatabaseContainer.instance.getProgressDb(it)
     },
     DbUnderTest("net.bible.android.database.TemporaryDatabase", TEMPORARY_DATABASE_VERSION) {
-        Room2Db(copyOfProductionBuilder(TemporaryDatabase::class.java, it, *temporaryMigrations))
+        copyOfProductionBuilder<TemporaryDatabase>(it, *temporaryMigrations)
     },
     DbUnderTest("net.bible.android.database.DocumentSyncDatabase", DOCUMENT_SYNC_DATABASE_VERSION) {
-        Room2Db(copyOfProductionBuilder(DocumentSyncDatabase::class.java, it))
+        copyOfProductionBuilder<DocumentSyncDatabase>(it)
     },
     DbUnderTest("net.bible.android.database.RepoDatabase", REPO_DATABASE_VERSION) {
-        Room2Db(copyOfProductionBuilder(RepoDatabase::class.java, it))
+        copyOfProductionBuilder<RepoDatabase>(it)
     },
     DbUnderTest("net.bible.android.database.SettingsDatabase", SETTINGS_DATABASE_VERSION) {
-        Room3Db(copyOfProductionRoom3Builder<SettingsDatabase>(it))
+        copyOfProductionBuilder<SettingsDatabase>(it)
     },
     DbUnderTest("net.bible.android.database.EpubDatabase", EPUB_DATABASE_VERSION) {
-        Room2Db(getEpubDatabase(it))
+        getEpubDatabase(it)
     },
 )

@@ -59,7 +59,7 @@ class SchemaIdentityTest {
             val name = "identity-${db.schemaDir}.sqlite3"
             application.deleteDatabase(name)
             val room = db.open(name)
-            val hash = room.identityHash()   // Room 3 databases read it through useReaderConnection
+            val hash = room.identityHash()
             room.close()
             assertEquals(db.schemaDir, pinned.getValue(db.schemaDir), hash)
             assertEquals(db.schemaDir, pinned.getValue(db.schemaDir), SchemaExportFixtures.identityHash(db.schemaDir, db.currentVersion))

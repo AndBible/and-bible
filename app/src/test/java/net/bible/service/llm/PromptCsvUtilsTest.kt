@@ -588,7 +588,7 @@ class PromptCsvUtilsTest {
         val imported = dao.allPrompts()[0]
         assertNull(imported.description)
         assertNull(imported.permissionMode)
-        // Note: Room's TypeConverter converts null Set<String>? to empty set on read,
+        // Note: Room's ColumnTypeConverter converts null Set<String>? to empty set on read,
         // so after DB round-trip these are empty sets rather than null.
         assertTrue(imported.allowedTools.isNullOrEmpty())
         assertTrue(imported.deniedTools.isNullOrEmpty())

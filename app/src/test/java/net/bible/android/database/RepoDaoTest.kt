@@ -17,7 +17,8 @@
 
 package net.bible.android.database
 
-import androidx.room.Room
+import androidx.room3.Room
+import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
@@ -38,7 +39,7 @@ class RepoDaoTest {
     private lateinit var db: RepoDatabase
 
     @Before fun setUp() {
-        db = Room.inMemoryDatabaseBuilder(application, RepoDatabase::class.java).allowMainThreadQueries().build()
+        db = Room.inMemoryDatabaseBuilder(application, RepoDatabase::class.java).setDriver(sqliteDriverFactory()).build()
     }
 
     @After fun tearDown() { db.close() }

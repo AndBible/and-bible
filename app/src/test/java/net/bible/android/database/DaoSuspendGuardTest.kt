@@ -39,12 +39,10 @@ import java.lang.reflect.Modifier
  * blocking Room function anywhere fails [everyRoomDaoFunctionIsSuspend].
  */
 class DaoSuspendGuardTest {
-    // Both Room 2 (androidx/room) and Room 3 (androidx/room3) annotations while the databases are split between
-    // them (D1 Task 16, SettingsDatabase on Room 3); Task 17 leaves only androidx/room3.
-    private val roomPackages = listOf("androidx/room", "androidx/room3")
+    // Room 3 (androidx/room3) annotations only: every database is on Room 3 since D1 Task 17.
     private val roomAnnotations = setOf("Query", "Insert", "Update", "Delete", "Upsert", "Transaction", "RawQuery")
-        .flatMap { a -> roomPackages.map { "L$it/$a;" } }.toSet()
-    private val daoAnnotations = roomPackages.map { "L$it/Dao;" }.toSet()
+        .map { "Landroidx/room3/$it;" }.toSet()
+    private val daoAnnotation = "Landroidx/room3/Dao;"
 
     private val databases = listOf(
         BookmarkDatabase::class.java, WorkspaceDatabase::class.java, ReadingPlanDatabase::class.java,
@@ -72,7 +70,7 @@ class DaoSuspendGuardTest {
                 superName = sup; ifaces = i?.toList().orEmpty()
             }
             override fun visitAnnotation(desc: String, visible: Boolean): AnnotationVisitor? {
-                if (desc in daoAnnotations) isDao = true
+                if (desc == daoAnnotation) isDao = true
                 return null
             }
             override fun visitMethod(a: Int, n: String, d: String, sig: String?, ex: Array<String>?): MethodVisitor {
@@ -124,11 +122,11 @@ class DaoSuspendGuardTest {
         assertEquals("checked DAOs with no detected Room function: $empty", emptyList<Class<*>>(), empty)
     }
 
-    /** Test-only stand-in for a DAO; not processed by Room (KSP runs on main only), annotations are what we read. */
-    @androidx.room.Dao
+    /** Test-only Room 3 stand-in for a DAO; not processed by Room (KSP runs on main only), annotations are what we read. */
+    @androidx.room3.Dao
     interface FixtureDao {
-        @androidx.room.Query("SELECT 1") fun blocking(): Int
-        @androidx.room.Query("SELECT 2") suspend fun suspending(): Int
+        @androidx.room3.Query("SELECT 1") fun blocking(): Int
+        @androidx.room3.Query("SELECT 2") suspend fun suspending(): Int
         fun plainHelper(): Int = 3
     }
 
@@ -145,10 +143,10 @@ class DaoSuspendGuardTest {
         assertTrue("no Room functions detected on EpubDao", epub.roomFunctions.isNotEmpty())
         assertTrue(epub.roomFunctions.all { isSuspend(it.second) })
 
-        // A Room 3 DAO (androidx/room3 annotations) is detected too.
+        // Another production DAO, from the database converted first (Task 16).
         val settings = read("net/bible/android/database/BooleanSettingDao")!!
         assertTrue(settings.isDao)
-        assertTrue("no Room 3 functions detected on BooleanSettingDao", settings.roomFunctions.isNotEmpty())
+        assertTrue("no Room functions detected on BooleanSettingDao", settings.roomFunctions.isNotEmpty())
         assertTrue(settings.roomFunctions.all { isSuspend(it.second) })
     }
 

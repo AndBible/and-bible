@@ -17,9 +17,9 @@
 
 package net.bible.android.database
 
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.useWriterConnection
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
+import androidx.room3.useWriterConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication.Companion.application

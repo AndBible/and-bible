@@ -17,10 +17,8 @@
 
 package net.bible.service.db
 
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.useWriterConnection
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.room3.Room
+import androidx.room3.useWriterConnection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -41,19 +39,17 @@ import java.io.File
 
 /**
  * The pattern the sync, import and export sites use on a Room database: `useWriterConnection`, ATTACH and
- * `foreign_keys` outside a transaction, then `Transactor.inTransaction` with suspend DAO calls inside. Run in both
- * Room 2.8 modes: compatibility mode (open helper, what production runs until D1 Task 17; with requery there,
- * the framework helper here) and the bundled driver (production from Task 17).
+ * `foreign_keys` outside a transaction, then `Transactor.inTransaction` with suspend DAO calls inside. Runs on the
+ * production configuration (Room 3, bundled driver, TRUNCATE; D1 Task 17). The Room 2.8 compatibility mode the
+ * earlier version also covered no longer exists.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class RoomConnectionTransactionTest {
     private fun bothModes(block: suspend (mode: String, db: BookmarkDatabase) -> Unit) = runBlocking {
-        for (mode in listOf("compat", "driver")) {
+        for (mode in listOf("driver")) {
             val file = File.createTempFile("roomconn-", ".sqlite3").apply { delete() }
-            val builder = Room.databaseBuilder(application, BookmarkDatabase::class.java, file.absolutePath)
-                .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            val db = (if (mode == "driver") builder.setDriver(BundledSQLiteDriver()) else builder).build()
+            val db = Room.databaseBuilder<BookmarkDatabase>(application, file.absolutePath).productionConfig().build()
             try {
                 withTimeout(10_000) { block(mode, db) }
             } finally {

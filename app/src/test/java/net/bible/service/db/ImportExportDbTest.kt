@@ -18,9 +18,9 @@
 package net.bible.service.db
 
 import android.database.sqlite.SQLiteDatabase
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.useWriterConnection
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
+import androidx.room3.useWriterConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -49,8 +49,8 @@ import java.io.File
 /**
  * Bookmark database import (`importDatabaseFile`, `bookmarksDbStats`) and StudyPad export
  * (`writeStudyPadExportDb`) end to end: the ImportDb and ExportStudyPads transaction sites (D1 Task 15). Import
- * runs against the live container's (compatibility-mode) bookmark database. Export runs on Room with the bundled
- * driver: its primary-label fix uses `pragma_foreign_key_check(table)`, which Robolectric's SQLite lacks.
+ * runs against the live container's bookmark database, export on a Room database built like production (bundled
+ * driver; its primary-label fix uses `pragma_foreign_key_check(table)`, which Robolectric's framework SQLite lacks).
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])

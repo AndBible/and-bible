@@ -2,7 +2,7 @@ package net.bible.service.cloudsync
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import androidx.room.useWriterConnection
+import androidx.room3.useWriterConnection
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication

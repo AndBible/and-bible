@@ -46,7 +46,7 @@ class MigrationChainTest {
         val failures = mutableListOf<String>()
         var tested = 0
         for (db in DB_UNDER_TEST) {
-            val skip = knownUnmigratable[db.schemaDir].orEmpty() + NEEDS_MODERN_SQLITE[db.schemaDir].orEmpty()
+            val skip = knownUnmigratable[db.schemaDir].orEmpty()
             for (v in SchemaExportFixtures.exportedVersions(db.schemaDir).filter { it < db.currentVersion && it !in skip }) {
                 val name = "chain-${db.schemaDir}-$v.sqlite3"
                 application.deleteDatabase(name)
@@ -62,11 +62,11 @@ class MigrationChainTest {
         println("MigrationChainTest: $tested old versions migrated, ${failures.size} failed")
         assertEquals(failures.joinToString("\n"), 0, failures.size)
         // Not vacuous: the count is derived from the data, not from the loop above. Every exported version below
-        // current is tested except the known-unmigratable and the needs-modern-SQLite ones (an empty
-        // NEEDS_MODERN_SQLITE after Task 17 simply subtracts nothing).
+        // current is tested except the known-unmigratable ones; since D1 Task 17 the chain runs on the production
+        // (bundled) driver, so the ALTER TABLE ... DROP COLUMN chains (Bookmark v1-10, Workspace v1-2) run here too.
         val expected = DB_UNDER_TEST.sumOf { db ->
             val below = SchemaExportFixtures.exportedVersions(db.schemaDir).filter { it < db.currentVersion }.toSet()
-            val excluded = knownUnmigratable[db.schemaDir].orEmpty() + NEEDS_MODERN_SQLITE[db.schemaDir].orEmpty()
+            val excluded = knownUnmigratable[db.schemaDir].orEmpty()
             below.size - below.count { it in excluded }
         }
         assertTrue("no old schema version was tested", tested > 0)

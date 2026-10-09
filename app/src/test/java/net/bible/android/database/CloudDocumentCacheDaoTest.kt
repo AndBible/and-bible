@@ -17,7 +17,8 @@
 
 package net.bible.android.database
 
-import androidx.room.Room
+import androidx.room3.Room
+import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
@@ -41,7 +42,7 @@ class CloudDocumentCacheDaoTest {
     private lateinit var dao: CloudDocumentCacheDao
 
     @Before fun setUp() {
-        db = Room.inMemoryDatabaseBuilder(application, DocumentSyncDatabase::class.java).allowMainThreadQueries().build()
+        db = Room.inMemoryDatabaseBuilder(application, DocumentSyncDatabase::class.java).setDriver(sqliteDriverFactory()).build()
         dao = db.cloudDocumentCacheDao()
     }
 

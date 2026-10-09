@@ -17,7 +17,8 @@
 
 package net.bible.android.database
 
-import androidx.room.Room
+import androidx.room3.Room
+import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
@@ -45,7 +46,7 @@ class WorkspaceDaoTest {
     private lateinit var db: WorkspaceDatabase
 
     @Before fun setUp() {
-        db = Room.inMemoryDatabaseBuilder(application, WorkspaceDatabase::class.java).allowMainThreadQueries().build()
+        db = Room.inMemoryDatabaseBuilder(application, WorkspaceDatabase::class.java).setDriver(sqliteDriverFactory()).build()
     }
 
     @After fun tearDown() { db.close() }

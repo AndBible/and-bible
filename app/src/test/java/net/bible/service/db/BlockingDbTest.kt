@@ -17,7 +17,7 @@
 
 package net.bible.service.db
 
-import androidx.room.Room
+import androidx.room3.Room
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -44,7 +44,7 @@ class BlockingDbTest {
 
     @Before
     fun setUp() {
-        db = Room.inMemoryDatabaseBuilder(application, EpubDatabase::class.java).allowMainThreadQueries().build()
+        db = Room.inMemoryDatabaseBuilder(application, EpubDatabase::class.java).setDriver(sqliteDriverFactory()).build()
     }
 
     @After

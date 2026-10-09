@@ -17,9 +17,9 @@
 
 package net.bible.service.cloudsync
 
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.useWriterConnection
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
+import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
@@ -59,8 +59,8 @@ import java.util.UUID
  *
  * The round trips run on Room with the bundled driver: the sync triggers use `UNIXEPOCH('subsec')` (SQLite
  * 3.42) and the merge `pragma_foreign_key_check(table)`, which Robolectric's framework SQLite lacks (production
- * runs them on requery's, and from Task 17 on the bundled SQLite). [creatingAPatchWorksInCompatibilityMode]
- * covers the compatibility-mode connection (an open-helper Room database, as production is until Task 17).
+ * runs them on the bundled SQLite too). [creatingAPatchWorksThroughTheContainerBuilder] goes through
+ * `DatabaseContainer.getBookmarkDb`, the production builder itself.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -209,10 +209,10 @@ class SyncPatchTransactionTest {
     }
 
     /**
-     * Site `createPatchForDatabase` on a compatibility-mode connection (open-helper Room, what production runs
-     * until Task 17). No triggers here (Robolectric's SQLite has no UNIXEPOCH): the log entries are written by hand.
+     * Site `createPatchForDatabase` on a database from the production builder (`DatabaseContainer.getBookmarkDb`).
+     * No triggers here: the log entries are written by hand, so exactly one row is logged.
      */
-    @Test fun creatingAPatchWorksInCompatibilityMode() = run {
+    @Test fun creatingAPatchWorksThroughTheContainerBuilder() = run {
         val file = File.createTempFile("bookmarks-compat-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
         val db = DatabaseContainer.instance.getBookmarkDb(file.absolutePath)
         try {

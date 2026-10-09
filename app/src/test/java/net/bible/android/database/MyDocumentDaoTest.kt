@@ -17,7 +17,8 @@
 
 package net.bible.android.database
 
-import androidx.room.Room
+import androidx.room3.Room
+import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.BibleApplication.Companion.application
@@ -50,7 +51,7 @@ class MyDocumentDaoTest {
     private lateinit var db: MyDocumentDatabase
 
     @Before fun setUp() {
-        db = Room.inMemoryDatabaseBuilder(application, MyDocumentDatabase::class.java).allowMainThreadQueries().build()
+        db = Room.inMemoryDatabaseBuilder(application, MyDocumentDatabase::class.java).setDriver(sqliteDriverFactory()).build()
     }
 
     @After fun tearDown() { db.close() }
@@ -95,7 +96,9 @@ class MyDocumentDaoTest {
             try {
                 dao.insertPageWithCacheEntry(p, "body", bad)
                 fail("expected a constraint failure")
-            } catch (_: android.database.sqlite.SQLiteConstraintException) {
+            } catch (e: androidx.sqlite.SQLiteException) {
+                // The bundled driver throws a plain SQLiteException, not the framework's SQLiteConstraintException.
+                assertTrue(e.toString(), e.message.orEmpty().contains("FOREIGN KEY constraint failed"))
             }
             assertNull("page insert must be rolled back", dao.pageById(p.id))
             assertNull("content insert must be rolled back", dao.getContent(p.id))

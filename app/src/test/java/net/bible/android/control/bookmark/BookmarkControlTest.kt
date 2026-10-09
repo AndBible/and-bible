@@ -22,7 +22,6 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
-import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
@@ -38,6 +37,9 @@ import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
+import androidx.room3.useWriterConnection
+import net.bible.android.BibleApplication.Companion.application
+import net.bible.service.db.exec
 import net.bible.android.database.migrations.deduplicateSpecialLabels
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter.resetDatabase
@@ -317,13 +319,14 @@ class BookmarkControlTest {
     }
 
     /**
-     * `deduplicateSpecialLabels` now takes a driver `SQLiteConnection`, which Room 2.8 does not hand
-     * out outside migrations. Run it on a second (bundled-driver) connection to the same database file,
-     * with foreign keys on like the Room connection the old test used. Room's own connection has
-     * already committed everything (TRUNCATE journal), so the two do not conflict.
+     * `deduplicateSpecialLabels` takes a driver `SQLiteConnection`, which Room 3 does not hand out
+     * outside migrations (its connections are `PooledConnection`s). Run it on a second (bundled-driver)
+     * connection to the container's bookmark database file, with foreign keys on like the Room connection
+     * the old test used. Room's own connection has already committed everything (TRUNCATE journal), so the
+     * two do not conflict.
      */
-    private fun runDeduplicateSpecialLabels(bookmarkDb: net.bible.android.database.BookmarkDatabase) {
-        val path = bookmarkDb.openHelper.writableDatabase.path!!
+    private fun runDeduplicateSpecialLabels() {
+        val path = application.getDatabasePath(net.bible.android.database.BookmarkDatabase.dbFileName).path
         BundledSQLiteDriver().open(path).use { connection ->
             connection.execSQL("PRAGMA foreign_keys=ON")
             deduplicateSpecialLabels(connection)
@@ -337,10 +340,12 @@ class BookmarkControlTest {
      * database, so put the legacy columns back first. What is under test is the reference remapping,
      * not the style columns the dedup copies along.
      */
-    private fun addLegacyLabelStyleColumns(db: SupportSQLiteDatabase) {
-        for (column in listOf("markerStyle", "markerStyleWholeVerse", "underlineStyle",
-                              "underlineStyleWholeVerse", "hideStyle", "hideStyleWholeVerse")) {
-            db.execSQL("ALTER TABLE Label ADD COLUMN $column INTEGER NOT NULL DEFAULT 0")
+    private fun addLegacyLabelStyleColumns(db: net.bible.android.database.BookmarkDatabase) = runBlocking {
+        db.useWriterConnection { c ->
+            for (column in listOf("markerStyle", "markerStyleWholeVerse", "underlineStyle",
+                                  "underlineStyleWholeVerse", "hideStyle", "hideStyleWholeVerse")) {
+                c.exec("ALTER TABLE Label ADD COLUMN $column INTEGER NOT NULL DEFAULT 0")
+            }
         }
     }
 
@@ -359,10 +364,12 @@ class BookmarkControlTest {
 
         // 2. BibleBookmark.primaryLabelId (set via raw SQL since there's no DAO method for this)
         val bibleBookmark2 = addTestVerse()!!
-        bookmarkDb.openHelper.writableDatabase.execSQL(
-            "UPDATE BibleBookmark SET primaryLabelId = ? WHERE id = ?",
-            arrayOf(oldId.toByteArray(), bibleBookmark2.id.toByteArray())
-        )
+        runBlocking {
+            bookmarkDb.useWriterConnection {
+                it.exec("UPDATE BibleBookmark SET primaryLabelId = ? WHERE id = ?",
+                    oldId.toByteArray(), bibleBookmark2.id.toByteArray())
+            }
+        }
 
         // 3. GenericBookmarkToLabel
         val genericBookmark = GenericBookmark(
@@ -385,8 +392,8 @@ class BookmarkControlTest {
         runBlocking { dao.insert(StudyPadTextEntryText(studyPadTextEntryId = studyPadEntry.id, text = "test")) }
 
         // Run migration dedup logic
-        addLegacyLabelStyleColumns(bookmarkDb.openHelper.writableDatabase)
-        runDeduplicateSpecialLabels(bookmarkDb)
+        addLegacyLabelStyleColumns(bookmarkDb)
+        runDeduplicateSpecialLabels()
 
         // Old label gone, canonical exists with inherited properties
         Assert.assertNull("Old label should be deleted", runBlocking { dao.labelById(oldId) })
@@ -437,8 +444,8 @@ class BookmarkControlTest {
         runBlocking { dao.insert(BibleBookmarkToLabel(bookmark2.id, oldId2)) }
 
         // Run migration dedup logic
-        addLegacyLabelStyleColumns(bookmarkDb.openHelper.writableDatabase)
-        runDeduplicateSpecialLabels(bookmarkDb)
+        addLegacyLabelStyleColumns(bookmarkDb)
+        runDeduplicateSpecialLabels()
 
         // Both old labels should be gone
         Assert.assertNull("Old label 1 should be deleted", runBlocking { dao.labelById(oldId1) })

@@ -17,7 +17,8 @@
 
 package net.bible.android.database
 
-import androidx.room.Room
+import androidx.room3.Room
+import net.bible.service.db.sqliteDriverFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -51,7 +52,7 @@ class EpubDaoTest {
     @Before
     fun setUp() {
         db = Room.inMemoryDatabaseBuilder(application, EpubDatabase::class.java)
-            .allowMainThreadQueries()
+            .setDriver(sqliteDriverFactory())
             .build()
         dao = db.epubDao()
     }
