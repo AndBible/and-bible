@@ -5,6 +5,9 @@ slug: using-clipboard-to-navigate-to-copied-reference-within-andbible
 summary: In addition to standard usage of clipboard, you can use clipboard conveniently to navigate to copied references within AndBible. In this video I will demonstrate how you can do this.…
 tags:
 - tips & tricks
+- navigation
+- clipboard
+- video
 image: blog/2024/01/clipboard.webp
 image_alt: Using clipboard to navigate to copied reference within AndBible
 ---

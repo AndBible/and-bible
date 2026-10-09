@@ -3,6 +3,9 @@ title: 'New feature: Reading Progress indicator for ePub documents'
 date: '2026-07-05'
 slug: new-feature-reading-progress-indicator-for-epub-documents
 summary: Ever found yourself deep in a lengthy EPUB commentary or Bible book, wondering how much further you have to go? AndBible's new Reading Progress indicator answers exactly that — at…
+tags:
+- epub
+- new features
 image: blog/2025/08/new-andbible-features.webp
 image_alt: 'New feature: Reading Progress indicator for ePub documents'
 ---

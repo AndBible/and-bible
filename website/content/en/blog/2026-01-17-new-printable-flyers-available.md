@@ -3,6 +3,8 @@ title: New Printable Flyers Available
 date: '2026-01-17'
 slug: new-printable-flyers-available
 summary: Want to help spread the word about AndBible Bible Study? We've created printable promotional flyers that you can download and share with your church, Bible study group, or community.
+tags:
+- promotion
 image: blog/2026/01/banner-both-pages-v3.webp
 image_alt: New Printable Flyers Available
 ---

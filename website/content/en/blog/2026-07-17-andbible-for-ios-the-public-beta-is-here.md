@@ -3,6 +3,10 @@ title: 'AndBible for iOS: The Public Beta Is Here'
 date: '2026-07-17'
 slug: andbible-for-ios-the-public-beta-is-here
 summary: 'For years, one of the most frequent requests we have received has been for an iOS version of AndBible. We’re glad to say that it is now within reach: the…'
+tags:
+- ios
+- beta
+- news
 image: blog/2026/07/ios-public-beta-kuva2.webp
 image_alt: 'AndBible for iOS: The Public Beta Is Here'
 ---

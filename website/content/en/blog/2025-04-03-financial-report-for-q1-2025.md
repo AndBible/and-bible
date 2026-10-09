@@ -8,6 +8,7 @@ categories:
 tags:
 - financial support
 - transparency
+- video
 image: blog/2025/04/screenshot-from-2025-04-03-18-01-26.webp
 image_alt: Financial report for Q1 / 2025
 ---
