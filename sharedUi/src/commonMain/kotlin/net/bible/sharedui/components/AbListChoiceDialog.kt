@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -93,7 +92,7 @@ fun AbListChoiceContent(
 }
 
 /**
- * A single-choice list dialog: an M3 [AlertDialog] presenting [choices] as a scrollable column of
+ * A single-choice list dialog: an M3 [AbAlertDialog] presenting [choices] as a scrollable column of
  * radio-button rows. Selecting a row invokes [onSelect] with the choice's stable value and then
  * dismisses. Theme-aware (uses the ambient M3 colour scheme). Renders gracefully with no choices —
  * an empty dialog with only the cancel button (the settings framework never sends an empty list in
@@ -108,7 +107,7 @@ fun AbListChoiceDialog(
     onDismiss: () -> Unit,
 ) {
     val strings = LocalStrings.current
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {

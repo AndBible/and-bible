@@ -20,7 +20,6 @@ package net.bible.sharedui.components
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -37,7 +36,7 @@ private val maxMessageHeight = 420.dp
  *  visible dialog on a real phone-sized window). */
 @Composable
 fun AbErrorDialog(message: String, confirmText: String, onDismiss: () -> Unit) {
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = { TextButton(onClick = onDismiss) { Text(confirmText) } },
         text = {
@@ -68,7 +67,7 @@ fun AbConfirmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = onDismiss,
         title = if (title != null) { { Text(title) } } else null,
         text = {

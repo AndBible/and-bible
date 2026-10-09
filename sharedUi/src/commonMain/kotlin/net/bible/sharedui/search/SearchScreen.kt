@@ -27,7 +27,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.AlertDialog
+import net.bible.sharedui.components.AbAlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -160,7 +160,7 @@ internal fun TranslationsDialog(
     val working: SnapshotStateList<String> =
         remember { selectedTranslationIds.toMutableStateList() }
 
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(strings.chooseTranslations) },
         text = {

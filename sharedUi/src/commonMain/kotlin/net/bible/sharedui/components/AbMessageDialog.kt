@@ -20,7 +20,6 @@ package net.bible.sharedui.components
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.foundation.layout.Row
@@ -50,7 +49,7 @@ fun AbMessageDialog(
     onNeutral: () -> Unit = {},
     cancellable: Boolean = true,
 ) {
-    AlertDialog(
+    AbAlertDialog(
         onDismissRequest = { if (cancellable) onDismissRequest() },
         properties = DialogProperties(dismissOnBackPress = cancellable, dismissOnClickOutside = cancellable),
         title = if (title != null) { { Text(title) } } else null,
