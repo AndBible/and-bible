@@ -85,5 +85,14 @@ class TestBibleApplication : BibleApplication() {
         DocumentChanges.resetSubscribersForTest()
         DatabaseContainer.resetPhase8StreamsForTest()
         AndBibleAddons.resetSubscribersForTest()
+        // D1 final review M9: the one-JVM suite's safety net. A test that touched the settings or a DAO without
+        // DatabaseContainer.reset() would otherwise leave a container whose files live in this test's (now dead)
+        // Robolectric data dir for the next class. Closes (flushing settings) only a container that exists;
+        // never builds one. Last, so nothing above reopens it.
+        try {
+            DatabaseContainer.dropInstanceWithoutOpening()
+        } catch (e: Throwable) {
+            Log.e("TestBibleApplication", "Dropping the database container failed", e)
+        }
     }
 }
