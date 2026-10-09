@@ -18,14 +18,13 @@
 package net.bible.service.db
 
 import android.util.Log
+import androidx.room.useReaderConnection
+import androidx.room.useWriterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
-import net.bible.service.db.getColumnNamesJoined
 import net.bible.android.view.activity.page.application
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
-import net.bible.service.common.getFirst
-import net.bible.service.common.getFirstOrNull
 import java.io.File
 import java.lang.Exception
 
@@ -34,43 +33,51 @@ private const val TAG = "ImportDb"
 suspend fun bookmarksDbStats(category: SyncableDatabaseDefinition, dbFile: File): String = withContext(Dispatchers.IO) {
     val dbDef = category.accessor
     val importDbFile = dbDef.dbFactory(dbFile.absolutePath)
-    importDbFile.openHelper.writableDatabase.use {
-        it.run {
-            val firstLabel = query("""SELECT name from Label WHERE name NOT LIKE '\_\_%' ESCAPE '\'""").getFirstOrNull { it.getString(0) } ?: '-'
-            val labels = query("""SELECT count(*) from Label""").getFirst { it.getLong(0) }
-            val bookmarks =
-                query("""SELECT count(*) from BibleBookmark""").getFirst { it.getLong(0) } +
-                    query("""SELECT count(*) from GenericBookmark""").getFirst { it.getLong(0) }
-            return@withContext application.getString(R.string.bookmarks_db_stats, firstLabel, (labels - 1).toString(), bookmarks.toString())
+    try {
+        importDbFile.useReaderConnection {
+            it.run {
+                val firstLabel = queryRows("""SELECT name from Label WHERE name NOT LIKE '\_\_%' ESCAPE '\'""") { st -> st.getText(0) }.firstOrNull() ?: '-'
+                val labels = queryLong("""SELECT count(*) from Label""")!!
+                val bookmarks =
+                    queryLong("""SELECT count(*) from BibleBookmark""")!! +
+                        queryLong("""SELECT count(*) from GenericBookmark""")!!
+                application.getString(R.string.bookmarks_db_stats, firstLabel, (labels - 1).toString(), bookmarks.toString())
+            }
         }
+    } finally {
+        importDbFile.close()
     }
 }
 
+/**
+ * Copies every synced table of [dbFile] (a database of [category]'s kind, migrated to the current schema first)
+ * into the local database with `INSERT OR IGNORE`: rows already present locally win. One transaction; a failure
+ * rolls the whole import back and is rethrown.
+ */
 suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: File) = withContext(Dispatchers.IO) {
     val dbDef = category.accessor
     val importDbFile = dbDef.dbFactory(dbFile.absolutePath)
-    importDbFile.openHelper.writableDatabase.use {}
-    dbDef.writableDb.run {
-        execSQL("ATTACH DATABASE '${dbFile.absolutePath}' AS import")
-        execSQL("PRAGMA foreign_keys=OFF;")
-        beginTransaction()
+    try { importDbFile.useWriterConnection { } } finally { importDbFile.close() }
+    dbDef.localDb.useWriterConnection { db ->
+        db.exec("ATTACH DATABASE '${dbFile.absolutePath}' AS import")
+        db.exec("PRAGMA foreign_keys=OFF;")
         try {
-            for (tableDef in dbDef.tableDefinitions) {
-                val table = tableDef.tableName
-                val cols = getColumnNamesJoined(this, table)
-                execSQL("""
+            db.inTransaction<Unit> {
+                for (tableDef in dbDef.tableDefinitions) {
+                    val table = tableDef.tableName
+                    val cols = columnNamesJoined(table)
+                    exec("""
                         INSERT OR IGNORE INTO $table ($cols)
                         SELECT $cols FROM import.$table 
                     """.trimIndent())
+                }
             }
-            setTransactionSuccessful()
         } catch (e: Exception) {
             Log.e(TAG, "Error occurred in importDatabaseFile", e)
             throw e
         } finally {
-            endTransaction()
-            execSQL("PRAGMA foreign_keys=ON;")
-            execSQL("DETACH DATABASE import")
+            db.exec("PRAGMA foreign_keys=ON;")
+            db.exec("DETACH DATABASE import")
         }
     }
 }
