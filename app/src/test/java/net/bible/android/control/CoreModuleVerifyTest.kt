@@ -19,6 +19,8 @@ class CoreModuleVerifyTest {
             extraTypes = listOf(
                 Application::class,
                 android.content.Context::class,
+                // OrderedLauncher is bound with the AppCoroutineScope explicitly; verify() only sees its declared CoroutineScope parameter.
+                kotlinx.coroutines.CoroutineScope::class,
             )
         )
     }
