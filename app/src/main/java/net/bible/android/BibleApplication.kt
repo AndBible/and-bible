@@ -33,7 +33,8 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import io.requery.android.database.sqlite.SQLiteDatabase
+import net.bible.service.db.openSqlite
+import net.bible.service.db.queryRows
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 
@@ -254,13 +255,10 @@ open class BibleApplication : Application() {
 
     private fun logSqliteVersion() {
         try {
-            val db = SQLiteDatabase.openOrCreateDatabase(":memory:", null)
-            val cursor = db.rawQuery("select sqlite_version() AS sqlite_version", null)
-            while (cursor.moveToNext()) {
-                sqliteVersion += cursor.getString(0)
+            // The bundled SQLite: what openSqlite uses, and (from D1 Task 17) Room too.
+            openSqlite(":memory:").use { db ->
+                db.queryRows("select sqlite_version() AS sqlite_version") { it.getText(0) }.forEach { sqliteVersion += it }
             }
-            cursor.close()
-            db.close()
         } catch (e: Throwable) {
             Log.e(TAG, "Couldn't figure out SQLite version due to error: ", e)
         }

@@ -20,6 +20,7 @@ import androidx.annotation.VisibleForTesting
 import android.util.Log
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.useWriterConnection
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
@@ -71,6 +72,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 const val OLD_MONOLITHIC_DATABASE_NAME = "andBibleDatabase.db"
+private const val TEMPORARY_DOWNLOAD_DB_FILENAME = "temporary.sqlite3"
+private const val TEMPORARY_CHOOSE_DB_FILENAME = "choose-document.sqlite3"
+private const val DOCUMENT_SYNC_DB_FILENAME = "document-sync.sqlite3"
 
 private const val TAG = "DbContainer"
 
@@ -119,7 +123,7 @@ class DatabaseContainer {
             // Room opens the old file only to run its legacy migrations; its connection must be closed
             // before the split reopens the same file outside Room.
             getOldDatabase().apply {
-                try { openHelper.writableDatabase } finally { close() }
+                try { blockingDb { useWriterConnection { } } } finally { close() }
             }
             openSqlite(oldDbFile.path).use {
                 val migrations = DatabaseSplitMigrations(it, application)
@@ -246,7 +250,7 @@ class DatabaseContainer {
 
     val downloadDocumentsDb: TemporaryDatabase =
         Room.databaseBuilder(
-            application, TemporaryDatabase::class.java, "temporary.sqlite3"
+            application, TemporaryDatabase::class.java, TEMPORARY_DOWNLOAD_DB_FILENAME
         )
             .allowMainThreadQueries()
             .addMigrations(*temporaryMigrations)
@@ -256,7 +260,7 @@ class DatabaseContainer {
 
     val chooseDocumentsDb: TemporaryDatabase =
         Room.databaseBuilder(
-            application, TemporaryDatabase::class.java, "choose-document.sqlite3"
+            application, TemporaryDatabase::class.java, TEMPORARY_CHOOSE_DB_FILENAME
         )
             .allowMainThreadQueries()
             .addMigrations(*temporaryMigrations)
@@ -266,7 +270,7 @@ class DatabaseContainer {
 
     val documentSyncDb: DocumentSyncDatabase =
         Room.databaseBuilder(
-            application, DocumentSyncDatabase::class.java, "document-sync.sqlite3"
+            application, DocumentSyncDatabase::class.java, DOCUMENT_SYNC_DB_FILENAME
         )
             .allowMainThreadQueries()
             .openHelperFactory(dbFactory)
@@ -355,18 +359,31 @@ class DatabaseContainer {
     // leaks and the next container opens a second handle to the same file (SQLite lock risk).
     private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, documentSyncDb)
 
-    val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
+    /** Keyed by the file name each database was built with (what the open helper's database name used to answer). */
+    val dbByFilename: Map<String, RoomDatabase> = mapOf(
+        BookmarkDatabase.dbFileName to bookmarkDb,
+        ReadingPlanDatabase.dbFileName to readingPlanDb,
+        WorkspaceDatabase.dbFileName to workspaceDb,
+        RepoDatabase.dbFileName to repoDb,
+        SettingsDatabase.dbFileName to settingsDb,
+        MyDocumentDatabase.dbFileName to myDocumentDb,
+        AiSettingsDatabase.dbFileName to aiSettingsDb,
+        ProgressDatabase.dbFileName to progressDb,
+        TEMPORARY_DOWNLOAD_DB_FILENAME to downloadDocumentsDb,
+        TEMPORARY_CHOOSE_DB_FILENAME to chooseDocumentsDb,
+        DOCUMENT_SYNC_DB_FILENAME to documentSyncDb,
+    )
 
-    internal fun sync() = allDatabases.forEach {
-        it.openHelper.writableDatabase
+    internal suspend fun sync() = allDatabases.forEach {
+        it.useWriterConnection { c ->
             // we are not using WAL mode any more, but it does not hurt either. Just in case we switch back to WAL.
-            .query("PRAGMA wal_checkpoint(FULL)").use { c -> c.moveToFirst() }
+            c.exec("PRAGMA wal_checkpoint(FULL)")
+        }
     }
 
-    internal fun vacuum() {
+    internal suspend fun vacuum() {
         backedUpDatabases.forEach {
-            it.openHelper.writableDatabase
-                .query("VACUUM;").use { c -> c.moveToFirst() }
+            it.useWriterConnection { c -> c.exec("VACUUM;") }
         }
     }
 
@@ -532,8 +549,8 @@ class DatabaseContainer {
             try { blockingDb { _instance?.settingsStore?.flush() } } catch (e: Exception) { Log.e(TAG, "Settings flush failed", e) }
         }
 
-        fun sync() = instance.sync()
-        fun vacuum() = instance.vacuum()
+        suspend fun sync() = instance.sync()
+        suspend fun vacuum() = instance.vacuum()
         fun reset() {
             synchronized(this) {
                 try {
