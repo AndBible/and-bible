@@ -183,13 +183,12 @@ class HistoryManager constructor(
                     Log.i(TAG, "Going back to:$previousItem")
                     previousItem.revertTo()
 
-                    // Leave the screen on top when it is not the reading view. Since slice 8 this is
-                    // a HOST operation (ActivityBase.leaveCurrentScreen): a classic Activity finishes,
-                    // NavHostComposeActivity pops its back stack -- finishing it would close the app,
-                    // because the reading view is a destination of the same host (finding M4).
-                    // `ReadingViewVisibility.isVisible` is the predicate createHistoryItem also records
-                    // on, keyed by host and gated on ReadingHostPresence (R7b), so a destination
-                    // composed under a backgrounded host does not count.
+                    // Leave the screen on top when it is not the reading view. Both questions are asked
+                    // of the platform: leaving is a HOST operation (a classic Activity finishes, the
+                    // nav host pops its back stack -- finishing it would close the app, finding M4),
+                    // and isOnReadingScreen is the same predicate createHistoryItem records on
+                    // (Android: ReadingViewVisibility, keyed by host and gated on ReadingHostPresence
+                    // (R7b), so a destination composed under a backgrounded host does not count).
                     if (!platform.isOnReadingScreen()) {
                         platform.leaveCurrentScreen()
                     }

@@ -13,7 +13,7 @@ import net.bible.sharedcore.reading.ReadingViewVisibility
 class AndroidHistoryPlatform : HistoryPlatform {
     override fun screenHistoryItem(window: Window, screenToken: Any?): HistoryItem? {
         if (screenToken != null) {
-            val intent = screenToken as Intent
+            val intent = (screenToken as? Intent) ?: error("screenToken must be an Intent")
             return IntentHistoryItem(intent.getStringExtra("description") ?: "-", intent, window)
         }
         val currentActivity = CurrentActivityHolder.currentActivity
