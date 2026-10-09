@@ -332,6 +332,10 @@ class BookmarkControlTest {
     private fun runDeduplicateSpecialLabels() {
         val path = application.getDatabasePath(net.bible.android.database.BookmarkDatabase.dbFileName).path
         BundledSQLiteDriver().open(path).use { connection ->
+            // Room may still be reading this file (its invalidation tracker refreshes asynchronously after the
+            // writer-connection ALTERs above); without a busy timeout a write here fails at once with
+            // "database is locked" instead of waiting for that read to finish.
+            connection.execSQL("PRAGMA busy_timeout=10000")
             connection.execSQL("PRAGMA foreign_keys=ON")
             deduplicateSpecialLabels(connection)
         }
