@@ -81,7 +81,7 @@ private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
                 val myNote = c.getString(myNoteIdx)
                 val newValues = ContentValues()
                 newValues.apply {
-                    put("v11n", v11n.name)
+                    put("v11n", v11n!!.name)
                     put("kjvOrdinalStart", verseRangeInKjv.start.ordinal)
                     put("kjvOrdinalEnd", verseRangeInKjv.end.ordinal)
                     put("ordinalStart", verseRange.start.ordinal)

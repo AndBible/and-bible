@@ -191,10 +191,10 @@ class ReadingPlanTextFileDao {
     private fun getReadingPlanVersification(properties: ReadingPlanProperties, versificationString: String? = null): Versification =
         try {
             val versificationName = versificationString ?: properties.getProperty(VERSIFICATION, DEFAULT_VERSIFICATION)
-            Versifications.instance().getVersification(versificationName)
+            Versifications.instance().getVersification(versificationName)!!
         } catch (e: Exception) {
             Log.e(TAG, "Error loading versification from Reading plan:${properties.planCode}")
-            Versifications.instance().getVersification(INCLUSIVE_VERSIFICATION)
+            Versifications.instance().getVersification(INCLUSIVE_VERSIFICATION)!!
         }
 
     fun getReadingPlanInfoDto(planCode: String): ReadingPlanInfoDto {

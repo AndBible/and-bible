@@ -119,7 +119,7 @@ class Converters {
 
     @TypeConverter
     fun strToVersification(s: String): Versification {
-        return Versifications.instance().getVersification(s)
+        return Versifications.instance().getVersification(s)!!
     }
 
     @TypeConverter

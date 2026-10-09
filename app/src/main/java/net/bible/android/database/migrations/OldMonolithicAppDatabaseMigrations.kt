@@ -609,7 +609,7 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
                 val newValues = ContentValues()
                 newValues.apply {
                     put("id", id)
-                    put("v11n", v11n.name)
+                    put("v11n", v11n!!.name)
                     put("kjvOrdinalStart", verseRangeInKjv.start.ordinal)
                     put("kjvOrdinalEnd", verseRangeInKjv.end.ordinal)
                     put("ordinalStart", verseRange.start.ordinal)

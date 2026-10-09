@@ -25,6 +25,6 @@ import org.crosswire.jsword.versification.BibleBook
 
 object PassageTestData {
     val ESV: Book = Books.installed().getBook("ESV2011")
-    val KJV_V11N: Versification = Versifications.instance().getVersification("KJV")
+    val KJV_V11N: Versification = Versifications.instance().getVersification("KJV")!!
     val PS_139_2: Verse = Verse(KJV_V11N, BibleBook.PS, 139, 2)
 }

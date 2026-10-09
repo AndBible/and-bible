@@ -59,7 +59,7 @@ import java.util.concurrent.ConcurrentHashMap
  * [ProgressControl.ChapterReadEntry] for [ProgressControl.deleteReadHistoryEntries].
  */
 class ReadingProgressServiceImpl : ReadingProgressService {
-    private val kjva get() = Versifications.instance().getVersification("KJVA")
+    private val kjva get() = Versifications.instance().getVersification("KJVA")!!
 
     /**
      * Last-loaded read-history entries, keyed by [ChapterReadEntry.id]'s string form. A
