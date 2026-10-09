@@ -38,7 +38,9 @@ jobs:
         if: always()
         with:
           name: jsword-ios-tests
-          path: jsword/build/reports/tests/iosSimulatorArm64Test
+          path: |
+            jsword/build/reports/tests/iosSimulatorArm64Test
+            sharedCore/build/reports/tests/iosSimulatorArm64Test
   ios:
     runs-on: macos-15
     timeout-minutes: 90
