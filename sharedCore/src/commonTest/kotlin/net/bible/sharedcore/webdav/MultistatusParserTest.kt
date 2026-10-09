@@ -52,4 +52,25 @@ class MultistatusParserTest {
             MultistatusParser.parse("<d:multistatus xmlns:d=\"DAV:\"><d:response>", DavPath("https://h/"))
         }
     }
+
+    @Test fun nonSuccessPropstatValuesAreIgnored() {
+        val xml = """
+            <d:multistatus xmlns:d="DAV:"><d:response><d:href>/dav/sync/f</d:href>
+            <d:propstat><d:prop><d:resourcetype/><d:getcontentlength>5</d:getcontentlength></d:prop>
+            <d:status>HTTP/1.1 200 OK</d:status></d:propstat>
+            <d:propstat><d:prop>
+            <d:resourcetype><d:collection/></d:resourcetype>
+            <d:getetag>"x"</d:getetag>
+            <d:getcontentlength>99</d:getcontentlength>
+            <d:getlastmodified>Thu, 01 Oct 2026 10:05:00 GMT</d:getlastmodified>
+            <d:creationdate>2026-10-01T10:00:00Z</d:creationdate>
+            </d:prop><d:status>HTTP/1.1 404 Not Found</d:status></d:propstat>
+            </d:response></d:multistatus>
+        """.trimIndent()
+        val r = MultistatusParser.parse(xml, DavPath("https://h/dav/")).single()
+        assertEquals("sync/f", r.path)
+        assertEquals(false, r.isCollection)
+        assertEquals(5L, r.contentLength)
+        assertNull(r.etag); assertNull(r.lastModified); assertNull(r.creationDate)
+    }
 }
