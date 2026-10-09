@@ -17,13 +17,15 @@
 
 package net.bible.android.control.readingplan
 
+import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.readingplan.ReadingPlanInfoDto
 
 /** return isRead' for all historical readings
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class HistoricReadingStatus(planCode: String, day: Int, numReadings: Int) : ReadingStatus(planCode, day, numReadings) {
+class HistoricReadingStatus(planCode: String, day: Int, numReadings: Int, repo: ReadingPlanRepository) :
+    ReadingStatus(planCode, day, numReadings, repo) {
 
     override fun setRead(readingNo: Int) {
         // do nothing - all readings are already read

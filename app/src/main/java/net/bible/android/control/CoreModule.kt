@@ -84,6 +84,9 @@ import net.bible.service.readingplan.ReadingPlanTextFileDao
 import net.bible.sharedcore.readingplan.ReadingPlanSource
 import net.bible.service.device.speak.TextToSpeechServiceManager
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.AndBibleAddons
+import net.bible.service.db.DatabaseContainer
+import net.bible.android.SharedConstants
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.OrderedLauncher
@@ -137,11 +140,13 @@ val coreModule = module {
     singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() }
     singleOf(::PageControl)
     singleOf(::ReadingPlanControl)
-    single { ReadingPlanRepository() }
+    single { ReadingPlanRepository(daoProvider = { DatabaseContainer.instance.readingPlanDb.readingPlanDao() }) }
     single<ReadingPlanSource> { AndroidReadingPlanSource() }
     single {
         ReadingPlanTextFileDao(
             source = get(), repository = get(), coreStrings = get(),
+            userPlanFolder = { SharedConstants.manualReadingPlanDir },
+            providedPlans = { AndBibleAddons.providedReadingPlans },
             // evaluated per lookup: ReadingPlanCatalog resolves its localized strings when first touched
             distributedPlans = { ReadingPlanCatalog.ABDistributedPlanDetailArray.map { DistributedPlanDetails(it.planCode, it.planName, it.planDescription) } },
         )

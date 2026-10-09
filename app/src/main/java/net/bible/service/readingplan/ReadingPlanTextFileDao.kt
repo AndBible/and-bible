@@ -19,8 +19,6 @@ package net.bible.service.readingplan
 
 import net.bible.sharedcore.log.Log
 
-import net.bible.android.SharedConstants
-import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndRuntimeException
 import net.bible.service.common.ProvidedReadingPlan
 import net.bible.service.db.readingplan.ReadingPlanRepository
@@ -58,8 +56,8 @@ class ReadingPlanTextFileDao(
     private val source: ReadingPlanSource,
     private val repository: ReadingPlanRepository,
     private val coreStrings: CoreStrings,
-    private val userPlanFolder: () -> File = { SharedConstants.manualReadingPlanDir },
-    private val providedPlans: () -> Map<String, ProvidedReadingPlan> = { AndBibleAddons.providedReadingPlans },
+    private val userPlanFolder: () -> File,
+    private val providedPlans: () -> Map<String, ProvidedReadingPlan>,
     private val distributedPlans: () -> List<DistributedPlanDetails> = { emptyList() },
 ) {
     private var cachedPlanProperties: ReadingPlanProperties? = null

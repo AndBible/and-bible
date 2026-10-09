@@ -167,9 +167,9 @@ class ReadingPlanControl constructor(
             val oneDaysReadingsDto = readingPlanTextDao.getReading(planCode, day)
             // if Historic then return historic status that returns read=true for all passages
             readingStatus = if (!oneDaysReadingsDto.isDateBasedPlan && day < currentPlanDay()) {
-                HistoricReadingStatus(planCode, day, oneDaysReadingsDto.numReadings)
+                HistoricReadingStatus(planCode, day, oneDaysReadingsDto.numReadings, readingPlanRepo)
             } else {
-                ReadingStatus(planCode, day, oneDaysReadingsDto.numReadings)
+                ReadingStatus(planCode, day, oneDaysReadingsDto.numReadings, readingPlanRepo)
             }
             this.readingStatus = readingStatus.apply { reloadStatus() }
         }

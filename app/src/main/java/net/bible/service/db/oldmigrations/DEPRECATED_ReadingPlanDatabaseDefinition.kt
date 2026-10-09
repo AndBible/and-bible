@@ -23,6 +23,7 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 import net.bible.service.db.insertOr
 import net.bible.android.control.readingplan.ReadingStatus
+import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.common.CommonUtils
 import net.bible.service.readingplan.ReadingPlanTextFileDao
 import org.koin.core.context.GlobalContext
@@ -167,7 +168,10 @@ class ReadingPlanDatabaseOperations {
     }
 
     private fun enterStatusToDb(prefDayStatus: String, planCode: String, day: Int, db: SQLiteConnection) {
-        val status = ReadingStatus(planCode, day, prefDayStatus.length)
+        // only used to serialise the status (saveStatus=false below): the repository is never touched, and the
+        // old database is not the live one, so it must not be bound to it
+        val unusedRepo = ReadingPlanRepository(daoProvider = { error("migration serialises only; no repository access") })
+        val status = ReadingStatus(planCode, day, prefDayStatus.length, unusedRepo)
         for (i in prefDayStatus.indices) {
             val isRead = prefDayStatus[i].toString().toInt().toBoolean()
             status.setStatus(i+1, isRead,false

@@ -28,14 +28,13 @@ import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlanStatus
 import net.bible.android.control.readingplan.truncatedDate
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.readingplan.ReadingPlanInfoDto
 import java.util.Calendar
 import java.util.Date
 import kotlin.math.max
 
 class ReadingPlanRepository(
-    private val daoProvider: () -> ReadingPlanDao = { DatabaseContainer.instance.readingPlanDb.readingPlanDao() },
+    private val daoProvider: () -> ReadingPlanDao,
     private val today: () -> Date = { truncatedDate },
 ) {
     private val readingPlanDao: ReadingPlanDao get() = daoProvider()

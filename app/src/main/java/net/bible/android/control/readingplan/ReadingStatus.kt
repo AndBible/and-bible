@@ -21,16 +21,17 @@ import kotlinx.serialization.Serializable
 import net.bible.sharedcore.platform.AppJson
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.readingplan.ReadingPlanInfoDto
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-open class ReadingStatus(val planCode: String, val day: Int, private val numReadings: Int) : KoinComponent {
-    val readingPlanRepo: ReadingPlanRepository by inject()
-
+open class ReadingStatus(
+    val planCode: String,
+    val day: Int,
+    private val numReadings: Int,
+    val readingPlanRepo: ReadingPlanRepository,
+) {
 
     @Serializable
     private data class ChapterRead(val readingNumber: Int, var isRead: Boolean = false)

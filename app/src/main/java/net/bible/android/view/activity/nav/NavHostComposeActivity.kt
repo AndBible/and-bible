@@ -125,6 +125,7 @@ import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
+import net.bible.android.control.readingplan.ReadingPlanDayWrites
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
@@ -528,6 +529,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val promptService: PromptService by inject()
     private val rawLogService: RawLogService by inject()
     private val readingPlanControl: ReadingPlanControl by inject()
+    /** Reading-plan writes that must land even if this screen goes away mid-way (app scope). */
+    private val readingPlanWrites by lazy { ReadingPlanDayWrites(readingPlanControl, appScope.coroutineContext) }
     private val speakControl: SpeakControl by inject()
     private val appScope: AppCoroutineScope by inject()
     private val speakTransportServiceImpl: SpeakTransportServiceImpl by inject()
@@ -6242,8 +6245,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     ): DailyReadingController = DailyReadingController(
         onToggleRead = { readingNo ->
             lifecycleScope.launch {
-                val status = readingPlanControl.getReadingStatus(dayLoaded)
-                if (status.isRead(readingNo)) status.setUnread(readingNo) else status.setRead(readingNo)
+                readingPlanWrites.toggleRead(dayLoaded, readingNo)
                 pushReadingPlanUi()
             }
         },
@@ -6381,7 +6383,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val dto = readingsDto ?: return
         lifecycleScope.launch {
             try {
-                val nextDayToShow = readingPlanControl.done(dto.readingPlanInfo, dayLoaded, false)
+                val nextDayToShow = readingPlanWrites.done(dto.readingPlanInfo, dayLoaded)
                 if (nextDayToShow > 0) loadReadingPlanDayNow(planCodeLoaded, nextDayToShow) else finish()
             } catch (e: Exception) {
                 Log.e(TAG_READING_PLAN, "Error when Done daily reading", e)
@@ -6394,10 +6396,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val dto = readingsDto ?: return
         lifecycleScope.launch {
             try {
-                val planStartDate = Calendar.getInstance()
-                planStartDate.add(Calendar.DATE, -(dayLoaded - 1))
-                readingPlanControl.setStartDate(dto.readingPlanInfo, planStartDate.time)
-                readingPlanControl.done(dto.readingPlanInfo, dayLoaded - 1, true)
+                readingPlanWrites.setCurrentDay(dto.readingPlanInfo, dayLoaded)
                 loadReadingPlanDayNow(planCodeLoaded, dayLoaded)
             } catch (e: Exception) {
                 Log.e(TAG_READING_PLAN, "Error setting current day", e)
@@ -6445,7 +6444,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         planStartDate.time = dto.readingPlanInfo.startDate ?: planStartDate.time
         planStartDate.set(year, month1to12 - 1, day)
         lifecycleScope.launch {
-            readingPlanControl.setStartDate(dto.readingPlanInfo, planStartDate.time)
+            readingPlanWrites.setStartDate(dto.readingPlanInfo, planStartDate.time)
             loadReadingPlanDayNow(planCodeLoaded, dayLoaded)
         }
     }
