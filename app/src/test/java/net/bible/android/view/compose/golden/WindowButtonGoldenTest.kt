@@ -204,6 +204,7 @@ class WindowButtonGoldenTest {
     private fun statesContent(): @androidx.compose.runtime.Composable () -> Unit = { states() }
 
     @Test
+    @Config(sdk = [TEST_SDK], application = android.app.Application::class, qualifiers = "w720dp-land")
     fun states_mono() {
         MONO_MODES.forEach { mode -> captureGolden("WindowButton", "states", mode, content = statesContent()) }
     }

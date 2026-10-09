@@ -43,6 +43,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
@@ -221,7 +222,7 @@ fun SplitContent(
                         averageExtentPx = { axisExtentPx / windows.size },
                         onDragChange = { drag = it },
                         onSeparatorCommitted = onSeparatorCommitted,
-                        modifier = separatorModifier,
+                        modifier = if (isPureMonochrome() && drag?.index == index) separatorModifier.zIndex(1f) else separatorModifier,
                     )
                 }
             }

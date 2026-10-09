@@ -1,6 +1,6 @@
 package net.bible.sharedui.search
 
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.text.AnnotatedString
 import net.bible.android.TEST_SDK
 import net.bible.service.common.DisplayColorMode
