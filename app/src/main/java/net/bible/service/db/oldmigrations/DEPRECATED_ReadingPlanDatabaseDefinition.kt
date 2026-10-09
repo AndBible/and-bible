@@ -25,6 +25,7 @@ import net.bible.service.db.insertOr
 import net.bible.android.control.readingplan.ReadingStatus
 import net.bible.service.common.CommonUtils
 import net.bible.service.readingplan.ReadingPlanTextFileDao
+import org.koin.core.context.GlobalContext
 import java.lang.Exception
 import kotlin.collections.ArrayList
 import kotlin.math.max
@@ -112,7 +113,7 @@ class ReadingPlanDatabaseOperations {
         try {
             val DAY_EXT = "_day"
             val START_EXT = "_start"
-            val readingPlanDao = ReadingPlanTextFileDao()
+            val readingPlanDao = GlobalContext.get().get<ReadingPlanTextFileDao>()
 
             val readingPlans: ArrayList<String> = ArrayList(readingPlanDao.internalPlanCodes)
             val userPlans = readingPlanDao.userPlanCodes()

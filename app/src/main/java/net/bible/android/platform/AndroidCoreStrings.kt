@@ -9,4 +9,5 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override val labelAll: String get() = context.getString(R.string.all)
     override val errorOccurred: String get() = context.getString(R.string.error_occurred)
     override fun somethingWithParenthesis(a: String, b: String): String = context.getString(R.string.something_with_parenthesis, a, b)
+    override fun readingPlanDay(day: String): String = context.getString(R.string.rdg_plan_day, day)
 }

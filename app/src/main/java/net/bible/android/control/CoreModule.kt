@@ -77,6 +77,11 @@ import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton
 import net.bible.service.db.readingplan.ReadingPlanRepository
+import net.bible.android.platform.AndroidReadingPlanSource
+import net.bible.android.view.activity.readingplan.ReadingPlanCatalog
+import net.bible.service.readingplan.DistributedPlanDetails
+import net.bible.service.readingplan.ReadingPlanTextFileDao
+import net.bible.sharedcore.readingplan.ReadingPlanSource
 import net.bible.service.device.speak.TextToSpeechServiceManager
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.platform.AppSettings
@@ -133,6 +138,14 @@ val coreModule = module {
     singleOf(::PageControl)
     singleOf(::ReadingPlanControl)
     single { ReadingPlanRepository() }
+    single<ReadingPlanSource> { AndroidReadingPlanSource() }
+    single {
+        ReadingPlanTextFileDao(
+            source = get(), repository = get(), coreStrings = get(),
+            // evaluated per lookup: ReadingPlanCatalog resolves its localized strings when first touched
+            distributedPlans = { ReadingPlanCatalog.ABDistributedPlanDetailArray.map { DistributedPlanDetails(it.planCode, it.planName, it.planDescription) } },
+        )
+    }
     singleOf(::SearchControl)
     singleOf(::BibleSearchServiceImpl) { bind<BibleSearchService>() }
     // F26: shared across SearchResultsComposeActivity recreations (history-revert Back) so returning

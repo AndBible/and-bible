@@ -18,8 +18,7 @@
 package net.bible.android.control.readingplan
 
 import kotlinx.serialization.Serializable
-import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils.json
+import net.bible.sharedcore.platform.AppJson
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.readingplan.ReadingPlanInfoDto
 import org.koin.core.component.KoinComponent
@@ -41,12 +40,12 @@ open class ReadingStatus(val planCode: String, val day: Int, private val numRead
         constructor(jsonString: String) : this(toArrayList(jsonString))
         companion object {
             private fun toArrayList(jsonString: String): ArrayList<ChapterRead> {
-                return json.decodeFromString(serializer(), jsonString).chapterReadArray
+                return AppJson.decodeFromString(serializer(), jsonString).chapterReadArray
             }
         }
 
         override fun toString(): String {
-            return json.encodeToString(serializer(), this)
+            return AppJson.encodeToString(serializer(), this)
         }
     }
 
@@ -98,7 +97,7 @@ open class ReadingStatus(val planCode: String, val day: Int, private val numRead
         readingPlanRepo.deleteOldStatuses(planInfo, day)
     }
 
-    open fun reloadStatus() {
+    open suspend fun reloadStatus() {
         val status: String? = readingPlanRepo.getReadingStatus(planCode, day)
         status?.let { this.status = ReadingStatus(status) }
     }

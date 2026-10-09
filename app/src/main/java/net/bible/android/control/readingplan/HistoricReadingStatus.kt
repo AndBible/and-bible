@@ -42,7 +42,7 @@ class HistoricReadingStatus(planCode: String, day: Int, numReadings: Int) : Read
         // do nothing
     }
 
-    override fun reloadStatus() {
+    override suspend fun reloadStatus() {
         // do nothing
     }
 

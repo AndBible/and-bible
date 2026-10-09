@@ -80,7 +80,7 @@ class ReadingPlanRepositoryStartDateTest {
         assertEquals(real, db.readingPlanDao().getPlan("p")!!.planStartDate)
     }
 
-    @Test fun aMissingPlanHasNoStartDate() {
+    @Test fun aMissingPlanHasNoStartDate() = runBlocking {
         assertNull(repo.getStartDate("nope"))
     }
 }

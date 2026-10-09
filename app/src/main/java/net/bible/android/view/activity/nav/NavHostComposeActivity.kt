@@ -3499,7 +3499,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             controllerFor = { onSelect ->
                                 DailyReadingListController(
                                     loadDays = {
-                                        readingPlanControl.currentPlansReadingList.map {
+                                        // DailyReadingListController.loadDays is a synchronous sharedCore contract
+                                        blockingDb { readingPlanControl.currentPlansReadingList() }.map { // L1-pending(view)
                                             DayEntry(it.day, readingPlanDayPrimaryText(it), it.readingsDesc)
                                         }
                                     },
@@ -3515,7 +3516,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             controllerFor = { onSelect ->
                                 ReadingPlanSelectorController(
                                     loadPlans = {
-                                        readingPlanControl.readingPlanList.map {
+                                        // ReadingPlanSelectorController.loadPlans is a synchronous sharedCore contract
+                                        blockingDb { readingPlanControl.readingPlanList() }.map { // L1-pending(view)
                                             PlanEntry(it.planCode, it.planName ?: "", it.planDescription ?: "")
                                         }
                                     },
@@ -3523,11 +3525,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                                     onSelect = { planCode ->
                                         // Classic's guard, kept host-side: the plan may have
                                         // vanished (sync) between the list load and the tap.
-                                        val dto = readingPlanControl.readingPlanList
-                                            .firstOrNull { it.planCode == planCode }
-                                        if (dto != null) {
-                                            readingPlanControl.startReadingPlan(dto)
-                                            onSelect(planCode)
+                                        lifecycleScope.launch {
+                                            val dto = readingPlanControl.readingPlanList()
+                                                .firstOrNull { it.planCode == planCode }
+                                            if (dto != null) {
+                                                // the start write must land even if the screen goes away; the next
+                                                // screen reads it, so report the selection only after it
+                                                withContext(appScope.coroutineContext) { readingPlanControl.startReadingPlan(dto) }
+                                                onSelect(planCode)
+                                            }
                                         }
                                     },
                                     onReset = { planCode -> readingPlanControl.reset(planCode) },
@@ -6235,9 +6241,11 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         onChangeDay: () -> Unit,
     ): DailyReadingController = DailyReadingController(
         onToggleRead = { readingNo ->
-            val status = readingPlanControl.getReadingStatus(dayLoaded)
-            if (status.isRead(readingNo)) status.setUnread(readingNo) else status.setRead(readingNo)
-            pushReadingPlanUi()
+            lifecycleScope.launch {
+                val status = readingPlanControl.getReadingStatus(dayLoaded)
+                if (status.isRead(readingNo)) status.setUnread(readingNo) else status.setRead(readingNo)
+                pushReadingPlanUi()
+            }
         },
         onRead = { readingNo ->
             val dto = readingsDto ?: return@DailyReadingController
@@ -6250,18 +6258,24 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             // flag independently of `historyRoute`, and a true flag with a null route falls back to
             // super.intentForHistoryList — the argument-free route, i.e. the wrong day. The two
             // halves of the seam only ever move together, through setHistoryRoute.
-            readingPlanControl.read(dayLoaded, readingNo, key)
-            returnToReadingOrFinish()
+            lifecycleScope.launch {
+                readingPlanControl.read(dayLoaded, readingNo, key)
+                returnToReadingOrFinish()
+            }
         },
         onSpeak = { readingNo ->
             val dto = readingsDto ?: return@DailyReadingController
-            readingPlanControl.speak(dayLoaded, readingNo, dto.getReadingKey(readingNo))
-            pushReadingPlanUi()
+            lifecycleScope.launch {
+                readingPlanControl.speak(dayLoaded, readingNo, dto.getReadingKey(readingNo))
+                pushReadingPlanUi()
+            }
         },
         onSpeakAll = {
             val dto = readingsDto ?: return@DailyReadingController
-            readingPlanControl.speak(dayLoaded, dto.getReadingKeys)
-            pushReadingPlanUi()
+            lifecycleScope.launch {
+                readingPlanControl.speak(dayLoaded, dto.getReadingKeys)
+                pushReadingPlanUi()
+            }
         },
         onDone = { onReadingPlanDone() },
         onPauseSpeak = { if (speakControl.isPaused) speakControl.continueAfterPause() else speakControl.pause() },
@@ -6286,13 +6300,18 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * selector, or from a history re-launch) a plan IS selected, because the selector calls
      * `startReadingPlan` before reporting the code back.
      */
-    private fun loadReadingPlanDay(plan: String?, day: Int?): DailyReadingLoad {
-        if (!readingPlanControl.isReadingPlanSelected || !readingPlanControl.currentPlanExists) {
+    private fun loadReadingPlanDay(plan: String?, day: Int?): DailyReadingLoad =
+        // DailyReadingDeps.loadDay is a synchronous sharedUi contract returning the outcome
+        blockingDb { loadReadingPlanDayNow(plan, day) } // L1-pending(view)
+
+    /** [loadReadingPlanDay] for callers that already run in a coroutine. */
+    private suspend fun loadReadingPlanDayNow(plan: String?, day: Int?): DailyReadingLoad {
+        if (!readingPlanControl.isReadingPlanSelected || !readingPlanControl.currentPlanExists()) {
             return DailyReadingLoad.NO_PLAN
         }
         return try {
             plan?.let { readingPlanControl.setReadingPlan(it) }
-            dayLoaded = day ?: readingPlanControl.currentPlanDay
+            dayLoaded = day ?: readingPlanControl.currentPlanDay()
             planCodeLoaded = readingPlanControl.currentPlanCode
             readingsDto = readingPlanControl.getDaysReading(dayLoaded)
             pushReadingPlanUi()
@@ -6321,7 +6340,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /** Classic's `pushUi()`: the DTO + ReadingStatus snapshot, passage names formatted host-side. */
-    private fun pushReadingPlanUi() {
+    private suspend fun pushReadingPlanUi() {
         val dto = readingsDto ?: return
         val status = readingPlanControl.getReadingStatus(dayLoaded)
         val readings = synchronized(BookName::class.java) {
@@ -6360,26 +6379,30 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     private fun onReadingPlanDone() {
         val dto = readingsDto ?: return
-        try {
-            val nextDayToShow = readingPlanControl.done(dto.readingPlanInfo, dayLoaded, false)
-            if (nextDayToShow > 0) loadReadingPlanDay(planCodeLoaded, nextDayToShow) else finish()
-        } catch (e: Exception) {
-            Log.e(TAG_READING_PLAN, "Error when Done daily reading", e)
-            dailyReadingController?.showError()
+        lifecycleScope.launch {
+            try {
+                val nextDayToShow = readingPlanControl.done(dto.readingPlanInfo, dayLoaded, false)
+                if (nextDayToShow > 0) loadReadingPlanDayNow(planCodeLoaded, nextDayToShow) else finish()
+            } catch (e: Exception) {
+                Log.e(TAG_READING_PLAN, "Error when Done daily reading", e)
+                dailyReadingController?.showError()
+            }
         }
     }
 
     private fun setReadingPlanCurrentDay() {
         val dto = readingsDto ?: return
-        try {
-            val planStartDate = Calendar.getInstance()
-            planStartDate.add(Calendar.DATE, -(dayLoaded - 1))
-            readingPlanControl.setStartDate(dto.readingPlanInfo, planStartDate.time)
-            readingPlanControl.done(dto.readingPlanInfo, dayLoaded - 1, true)
-            loadReadingPlanDay(planCodeLoaded, dayLoaded)
-        } catch (e: Exception) {
-            Log.e(TAG_READING_PLAN, "Error setting current day", e)
-            dailyReadingController?.showError()
+        lifecycleScope.launch {
+            try {
+                val planStartDate = Calendar.getInstance()
+                planStartDate.add(Calendar.DATE, -(dayLoaded - 1))
+                readingPlanControl.setStartDate(dto.readingPlanInfo, planStartDate.time)
+                readingPlanControl.done(dto.readingPlanInfo, dayLoaded - 1, true)
+                loadReadingPlanDayNow(planCodeLoaded, dayLoaded)
+            } catch (e: Exception) {
+                Log.e(TAG_READING_PLAN, "Error setting current day", e)
+                dailyReadingController?.showError()
+            }
         }
     }
 
@@ -6421,8 +6444,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val planStartDate = Calendar.getInstance()
         planStartDate.time = dto.readingPlanInfo.startDate ?: planStartDate.time
         planStartDate.set(year, month1to12 - 1, day)
-        readingPlanControl.setStartDate(dto.readingPlanInfo, planStartDate.time)
-        loadReadingPlanDay(planCodeLoaded, dayLoaded)
+        lifecycleScope.launch {
+            readingPlanControl.setStartDate(dto.readingPlanInfo, planStartDate.time)
+            loadReadingPlanDayNow(planCodeLoaded, dayLoaded)
+        }
     }
 
     /** Classic's day-row primary line (date for a date-based plan, otherwise the day description). */

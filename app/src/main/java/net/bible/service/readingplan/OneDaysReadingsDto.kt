@@ -18,8 +18,7 @@
 package net.bible.service.readingplan
 
 import net.bible.sharedcore.log.Log
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
+import net.bible.sharedcore.platform.CoreStrings
 
 import org.crosswire.jsword.passage.Key
 
@@ -33,7 +32,7 @@ import java.util.Locale
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val readingPlanInfo: ReadingPlanInfoDto)
+class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val readingPlanInfo: ReadingPlanInfoDto, private val coreStrings: CoreStrings)
     : Comparable<OneDaysReadingsDto>
 {
     private val dateBasedWithYearUsaFormat = SimpleDateFormat("MMM-d/yyyy", Locale.US)
@@ -48,7 +47,7 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
         checkKeysGenerated()
     }
 
-    val dayDesc: String get() = BibleApplication.application.getString(R.string.rdg_plan_day, day.toString())
+    val dayDesc: String get() = coreStrings.readingPlanDay(day.toString())
     val isDateBasedPlan: Boolean get() = readingPlanInfo.isDateBasedPlan
 
     /** get a string representing the date this reading is planned for

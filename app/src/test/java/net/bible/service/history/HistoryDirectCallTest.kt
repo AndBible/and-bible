@@ -137,7 +137,7 @@ class HistoryDirectCallTest {
     }
 
     @Test
-    fun readingPlanRecordsBeforeResolvingTheNavigationWindow() {
+    fun readingPlanRecordsBeforeResolvingTheNavigationWindow() = kotlinx.coroutines.runBlocking {
         val navigationSnapshots = mutableListOf<List<HistoryItem>>()
         val navigationControl = object : WindowControl() {
             override var windowRepository: WindowRepository
@@ -148,7 +148,7 @@ class HistoryDirectCallTest {
                 set(_) {}
         }
         val koin = GlobalContext.get()
-        val control = ReadingPlanControl(koin.get(), navigationControl, koin.get())
+        val control = ReadingPlanControl(koin.get(), navigationControl, koin.get(), koin.get(), koin.get())
         val originalPlan = control.currentPlanCode
         try {
             control.setReadingPlan("y1ntpspr")

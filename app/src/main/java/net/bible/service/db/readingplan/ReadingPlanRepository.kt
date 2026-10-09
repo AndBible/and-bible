@@ -21,11 +21,13 @@ import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlanStatus
-import net.bible.service.common.CommonUtils
+import net.bible.android.control.readingplan.truncatedDate
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.readingplan.ReadingPlanInfoDto
 import java.util.Calendar
@@ -34,27 +36,30 @@ import kotlin.math.max
 
 class ReadingPlanRepository(
     private val daoProvider: () -> ReadingPlanDao = { DatabaseContainer.instance.readingPlanDb.readingPlanDao() },
-    private val today: () -> Date = { CommonUtils.truncatedDate },
+    private val today: () -> Date = { truncatedDate },
 ) {
     private val readingPlanDao: ReadingPlanDao get() = daoProvider()
     val scope = CoroutineScope(Dispatchers.Default)
 
-    fun getReadingStatus(planCode: String, planDay: Int): String? = runBlocking {
-        readingPlanDao.getStatus(planCode, planDay)?.readingStatus }
+    /** Serialises the read-modify-write of a plan row (start date, current day). */
+    private val planMutex = Mutex()
+
+    suspend fun getReadingStatus(planCode: String, planDay: Int): String? =
+        readingPlanDao.getStatus(planCode, planDay)?.readingStatus
 
     /**
      * The plan's start date, healing a row the pre-fix INSERT corrupted (it stored the day number
      * as the start date: see ReadingPlanDao.updatePlan). Healed to "today is the day you are on",
      * written back once; progress is untouched.
      */
-    fun getStartDate(planCode: String): Date? = runBlocking {
-        val plan = readingPlanDao.getPlan(planCode) ?: return@runBlocking null
-        if (plan.planStartDate.time >= CORRUPT_START_DATE_LIMIT_MS) return@runBlocking plan.planStartDate
+    suspend fun getStartDate(planCode: String): Date? {
+        val plan = readingPlanDao.getPlan(planCode) ?: return null
+        if (plan.planStartDate.time >= CORRUPT_START_DATE_LIMIT_MS) return plan.planStartDate
         val healed = healedStartDate(today(), plan.planCurrentDay)
         Log.i(TAG, "Healing corrupt start date ${plan.planStartDate.time} of plan $planCode -> $healed")
         plan.planStartDate = healed
         readingPlanDao.updatePlan(plan)
-        healed
+        return healed
     }
 
     /**
@@ -74,8 +79,7 @@ class ReadingPlanRepository(
         )
     }
 
-    @Synchronized
-    fun startPlan(planCode: String, date: Date = today()) = runBlocking {
+    suspend fun startPlan(planCode: String, date: Date = today()) = planMutex.withLock {
         var readPlan = readingPlanDao.getPlan(planCode)
         readPlan = readPlan?.apply { planStartDate = date } ?: ReadingPlan(planCode, date)
 
@@ -88,17 +92,18 @@ class ReadingPlanRepository(
         readingPlanDao.deletePlanInfo(planCode)
     }
 
-    fun getCurrentDay(planCode: String): Int = runBlocking {
+    suspend fun getCurrentDay(planCode: String): Int =
         max(readingPlanDao.getPlan(planCode)?.planCurrentDay ?: 0,1)
-    }
 
-    @Synchronized
-    fun setCurrentDay(planCode: String, dayNo: Int) = scope.launch {
-        var readPlan = readingPlanDao.getPlan(planCode)
-        readPlan = readPlan?.apply { planCurrentDay = dayNo } ?:
-            ReadingPlan(planCode, today(), dayNo)
+    /** The write is launched; a caller that reads the day back afterwards must join the returned [Job]. */
+    fun setCurrentDay(planCode: String, dayNo: Int): Job = scope.launch {
+        planMutex.withLock {
+            var readPlan = readingPlanDao.getPlan(planCode)
+            readPlan = readPlan?.apply { planCurrentDay = dayNo } ?:
+                ReadingPlan(planCode, today(), dayNo)
 
-        readingPlanDao.updatePlan(readPlan)
+            readingPlanDao.updatePlan(readPlan)
+        }
     }
 
     companion object {

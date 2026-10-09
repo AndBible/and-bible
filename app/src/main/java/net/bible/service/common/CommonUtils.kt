@@ -503,15 +503,6 @@ object CommonUtils : CommonUtilsBase() {
     val realSharedPreferences: SharedPreferences
         get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
 
-    val truncatedDate: Date
-        get() = Calendar.getInstance().let { date ->
-            date.set(Calendar.HOUR_OF_DAY, 0)
-            date.set(Calendar.MINUTE, 0)
-            date.set(Calendar.SECOND, 0)
-            date.set(Calendar.MILLISECOND, 0)
-            date.time
-        }
-
     val deviceIdentifier: String get() =
         Settings.Secure.getString(application.contentResolver, Settings.Secure.ANDROID_ID)
             ?: realSharedPreferences.getString("android_id", null).let {

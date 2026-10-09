@@ -17,24 +17,22 @@
 
 package net.bible.service.readingplan
 
-import org.koin.core.context.GlobalContext
 import net.bible.sharedcore.log.Log
 
-import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
-import net.bible.android.view.activity.readingplan.ReadingPlanCatalog
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.AndRuntimeException
-import net.bible.service.common.CommonUtils
+import net.bible.service.common.ProvidedReadingPlan
+import net.bible.service.db.readingplan.ReadingPlanRepository
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.readingplan.ReadingPlanSource
 
-import org.crosswire.common.util.IOUtil
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.SystemKJV
 import org.crosswire.jsword.versification.system.SystemNRSVA
 import org.crosswire.jsword.versification.system.Versifications
 
-import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -47,13 +45,28 @@ import kotlin.math.max
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class ReadingPlanTextFileDao {
+/** Name and description of a plan the app distributes, localized (shown instead of the file's header comments). */
+class DistributedPlanDetails(val planCode: String, val planName: String, val planDescription: String)
+
+/**
+ * Reads reading plans: the bundled ones through [source], user-installed ones from [userPlanFolder]
+ * and from add-on modules ([providedPlans]).
+ *
+ * @param distributedPlans evaluated lazily at each lookup, so localized names resolve when first needed.
+ */
+class ReadingPlanTextFileDao(
+    private val source: ReadingPlanSource,
+    private val repository: ReadingPlanRepository,
+    private val coreStrings: CoreStrings,
+    private val userPlanFolder: () -> File = { SharedConstants.manualReadingPlanDir },
+    private val providedPlans: () -> Map<String, ProvidedReadingPlan> = { AndBibleAddons.providedReadingPlans },
+    private val distributedPlans: () -> List<DistributedPlanDetails> = { emptyList() },
+) {
     private var cachedPlanProperties: ReadingPlanProperties? = null
     private var cachedReadingList: List<OneDaysReadingsDto>? = null
-    private val readingPlanRepo = GlobalContext.get().get<net.bible.service.db.readingplan.ReadingPlanRepository>()
 
-    val readingPlanList: List<ReadingPlanInfoDto>
-        get() {
+    /** All plans (bundled, user, add-on) the user can choose from. */
+    suspend fun readingPlanList(): List<ReadingPlanInfoDto> {
             try {
                 val codes = allReadingPlanCodes
 
@@ -68,8 +81,7 @@ class ReadingPlanTextFileDao {
                 Log.e(TAG, "Error getting reading plans", e)
                 throw AndRuntimeException("Error getting reading plans", e)
             }
-
-        }
+    }
 
     /** look in assets/readingplan and sdcard/jsword/readingplan for reading plans and return a list of all codes
      */
@@ -86,7 +98,7 @@ class ReadingPlanTextFileDao {
                 allCodes.addAll(userPlans.filter { s -> !allCodes.contains(s) })
             }
 
-            val userPlanModules = AndBibleAddons.providedReadingPlans.keys
+            val userPlanModules = providedPlans().keys
             allCodes.addAll(userPlanModules.filter { s -> !allCodes.contains(s) })
 
             return allCodes
@@ -94,15 +106,10 @@ class ReadingPlanTextFileDao {
 
     val internalPlanCodes: List<String>
         @Throws(IOException::class)
-        get() {
-            val resources = CommonUtils.resources
-            val assetManager = resources.assets
-            val internalPlans = assetManager.list(READING_PLAN_FOLDER)
-            return getReadingPlanCodes(internalPlans!!)
-        }
+        get() = source.builtInPlanCodes()
 
     fun userPlanCodes(filterDuplicates: Boolean = true): List<String>? {
-            val userPlans = USER_READING_PLAN_FOLDER.list()
+            val userPlans = userPlanFolder().list()
             return if (userPlans != null) {
                 if (filterDuplicates) {
                     getReadingPlanCodes(userPlans).filter { userPlan ->
@@ -118,7 +125,7 @@ class ReadingPlanTextFileDao {
 
     /** get a list of all days readings in a plan
      */
-    fun getReadingList(planCode: String): List<OneDaysReadingsDto> {
+    suspend fun getReadingList(planCode: String): List<OneDaysReadingsDto> {
         var list: ArrayList<OneDaysReadingsDto>? = null
         val cachedReadingList = cachedReadingList
         if (cachedReadingList == null || planCode != cachedReadingList[0].readingPlanInfo.planCode) {
@@ -131,7 +138,7 @@ class ReadingPlanTextFileDao {
                 val dayNumber = (key1 as String).toIntOrNull() ?: continue
                 val readingString = value1 as String
 
-                list.add(OneDaysReadingsDto(dayNumber, readingString, planInfo))
+                list.add(OneDaysReadingsDto(dayNumber, readingString, planInfo, coreStrings))
             }
             list.sort()
             this.cachedReadingList = list
@@ -142,12 +149,12 @@ class ReadingPlanTextFileDao {
 
     /** get readings for one day
      */
-    fun getReading(planName: String, dayNo: Int): OneDaysReadingsDto {
+    suspend fun getReading(planName: String, dayNo: Int): OneDaysReadingsDto {
         val properties = getPlanProperties(planName)
 
         val readings = properties[dayNo.toString()] as String?
         Log.i(TAG, "Readings for day:$readings")
-        return OneDaysReadingsDto(dayNo, readings, getReadingPlanInfoDto(planName))
+        return OneDaysReadingsDto(dayNo, readings, getReadingPlanInfoDto(planName), coreStrings)
     }
 
     /** get last day number - there may be missed days so cannot simply do props.size()
@@ -197,7 +204,7 @@ class ReadingPlanTextFileDao {
             Versifications.instance().getVersification(INCLUSIVE_VERSIFICATION)
         }
 
-    fun getReadingPlanInfoDto(planCode: String): ReadingPlanInfoDto {
+    suspend fun getReadingPlanInfoDto(planCode: String): ReadingPlanInfoDto {
         Log.i(TAG, "Get reading plan info:$planCode")
         val info = ReadingPlanInfoDto(planCode)
 
@@ -206,18 +213,18 @@ class ReadingPlanTextFileDao {
         info.numberOfPlanDays = getNumberOfPlanDays(planCode)
         info.versification = getReadingPlanVersification(planCode)
         info.isDateBasedPlan = getPlanProperties(planCode).isDateBasedPlan
-        info.startDate = readingPlanRepo.getStartDate(planCode)
+        info.startDate = repository.getStartDate(planCode)
 
         return info
     }
 
     private fun getPlanName(planCode: String): String {
-        return ReadingPlanCatalog.ABDistributedPlanDetailArray.find { it.planCode == planCode }?.planName
+        return distributedPlans().find { it.planCode == planCode }?.planName
             ?: getPlanProperties(planCode).planName ?: planCode
     }
 
     private fun getPlanDescription(planCode: String): String {
-        return ReadingPlanCatalog.ABDistributedPlanDetailArray.find { it.planCode == planCode } ?.planDescription
+        return distributedPlans().find { it.planCode == planCode } ?.planDescription
             ?: getPlanProperties(planCode).planDescription ?: ""
     }
 
@@ -238,30 +245,28 @@ class ReadingPlanTextFileDao {
     @Synchronized
     private fun getPlanProperties(planCode: String): ReadingPlanProperties {
         if (planCode != cachedPlanProperties?.planCode) {
-            val resources = CommonUtils.resources
-            val assetManager = resources.assets
             val filename = planCode + DOT_PROPERTIES
 
             // Read from the /assets directory
             val properties = ReadingPlanProperties()
-            var inputStreamRaw: InputStream? = null
             try {
                 // check to see if a user has created his own reading plan with this name
-                val userReadingPlanFile = File(USER_READING_PLAN_FOLDER, filename)
-                val userReadingPlanModule = AndBibleAddons.providedReadingPlans[planCode]
+                val userReadingPlanFile = File(userPlanFolder(), filename)
+                val userReadingPlanModule = providedPlans()[planCode]
                 val isUserPlan = userReadingPlanFile.exists() || userReadingPlanModule?.file?.exists() == true
 
-                inputStreamRaw = if (!isUserPlan) {
-                    assetManager.open(READING_PLAN_FOLDER + File.separator + filename)
+                val planBytes: ByteArray = if (!isUserPlan) {
+                    // see ReadingPlanSource: Latin-1 text is the file's bytes one to one
+                    (source.openBuiltInPlan(planCode) ?: throw IOException("No bundled reading plan $planCode"))
+                        .toByteArray(Charsets.ISO_8859_1)
                 } else {
                     if (userReadingPlanModule?.file?.exists() == true)
-                        FileInputStream(userReadingPlanModule.file)
+                        FileInputStream(userReadingPlanModule.file).use { it.readBytes() }
                     else
-                        FileInputStream(userReadingPlanFile)
+                        FileInputStream(userReadingPlanFile).use { it.readBytes() }
                 }
 
-                val byteArrayForReuse = ByteArrayOutputStream().apply { write(inputStreamRaw.readBytes()) }
-                properties.load(ByteArrayInputStream(byteArrayForReuse.toByteArray()))
+                properties.load(ByteArrayInputStream(planBytes))
                 properties.planCode = planCode
                 properties.numberOfPlanDays = getNumberOfPlanDays(properties)
                 properties.versification = getReadingPlanVersification(properties, userReadingPlanModule?.book?.getProperty(VERSIFICATION))
@@ -270,7 +275,7 @@ class ReadingPlanTextFileDao {
                     properties.planName = userReadingPlanModule.book.name
                     properties.planDescription = userReadingPlanModule.book.getProperty(SwordBookMetaData.KEY_SHORT_PROMO)
                 } else {
-                    getNameAndDescFromProperties(ByteArrayInputStream(byteArrayForReuse.toByteArray()), properties)
+                    getNameAndDescFromProperties(ByteArrayInputStream(planBytes), properties)
                 }
 
                 Log.i(TAG, "The properties are now loaded")
@@ -281,8 +286,6 @@ class ReadingPlanTextFileDao {
 
             } catch (e: IOException) {
                 Log.e(TAG, "Failed to open reading plan property file", e)
-            } finally {
-                IOUtil.close(inputStreamRaw)
             }
         }
         return cachedPlanProperties!!
@@ -320,8 +323,6 @@ class ReadingPlanTextFileDao {
 
     companion object {
 
-        private val USER_READING_PLAN_FOLDER = SharedConstants.manualReadingPlanDir
-        private const val READING_PLAN_FOLDER = SharedConstants.READINGPLAN_DIR_NAME
         private const val DOT_PROPERTIES = ".properties"
         private const val VERSIFICATION = "Versification"
         private const val DEFAULT_VERSIFICATION = SystemKJV.V11N_NAME
