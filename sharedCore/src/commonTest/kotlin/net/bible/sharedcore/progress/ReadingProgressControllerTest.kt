@@ -30,10 +30,10 @@ class ReadingProgressControllerTest {
         var setCycleTo: Int? = null
         var startedNew = false
         val emptyCal = CalendarSkeleton(emptyList(), emptyList(), 53, listOf("","M","","W","","F",""))
-        override fun currentCycle() = cycle
-        override fun latestCycle() = latest
-        override fun setActiveCycle(c: Int) { setCycleTo = c; cycle = c }
-        override fun startNewCycle(): Int { startedNew = true; latest += 1; cycle = latest; return cycle }
+        override suspend fun currentCycle() = cycle
+        override suspend fun latestCycle() = latest
+        override suspend fun setActiveCycle(c: Int) { setCycleTo = c; cycle = c }
+        override suspend fun startNewCycle(): Int { startedNew = true; latest += 1; cycle = latest; return cycle }
         override suspend fun readingSummary(c: Int) = ReadingSummary(10, 3, 100, 10f)
         override suspend fun bookReadProgress(c: Int) =
             listOf(BookHeat("GEN", "Gen", false, 0.5f, false), BookHeat("MATT", "Mat", true, 1.0f, true))

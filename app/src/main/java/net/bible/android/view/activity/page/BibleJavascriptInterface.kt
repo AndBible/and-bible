@@ -33,7 +33,7 @@ import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.control.progress.ProgressControl
+import net.bible.android.control.progress.ProgressJsActions
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.event.UserMessages
@@ -121,6 +121,7 @@ class BibleJavascriptInterface(
 	private val bibleView: BibleView
 ) : KoinComponent {
     private val currentPageManager: CurrentPageManager get() = bibleView.window.pageManager
+    private val progressJsActions: ProgressJsActions by inject()
     val linkControl get() = bibleView.linkControl
     val bookmarkControl get() = bibleView.bookmarkControl
     val downloadControl get() = bibleView.downloadControl
@@ -548,7 +549,7 @@ class BibleJavascriptInterface(
     fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, verseOrdinal, endOrdinal)
         if (verseRange != null) {
-            ProgressControl.addMemorizationTargetIfNeeded(verseRange)
+            progressJsActions.addTargetIfNeeded(bibleView.window.id, verseRange)
         }
         scope.launch(Dispatchers.Main) {
             bibleView.memorizeSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
@@ -565,25 +566,25 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun markAsMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
-        ProgressControl.markVerseMemorized(verseRange)
+        progressJsActions.markMemorized(bibleView.window.id, verseRange)
     }
 
     @JavascriptInterface
     fun addMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
-        ProgressControl.addMemorizationTarget(verseRange)
+        progressJsActions.addTarget(bibleView.window.id, verseRange)
     }
 
     @JavascriptInterface
     fun unmarkMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
-        ProgressControl.unmarkVerseMemorized(verseRange)
+        progressJsActions.unmarkMemorized(bibleView.window.id, verseRange)
     }
 
     @JavascriptInterface
     fun removeMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
-        ProgressControl.removeMemorizationTargetByRange(verseRange)
+        progressJsActions.removeTargetByRange(bibleView.window.id, verseRange)
     }
 
     @JavascriptInterface
@@ -653,7 +654,7 @@ class BibleJavascriptInterface(
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
         val verse = Verse(v11n, startOrdinal)
         val readingSource = try { ReadingSource.valueOf(source) } catch (_: Exception) { ReadingSource.MANUAL }
-        ProgressControl.recordChapterRead(v11n, verse.book, chapter, bookInitials, readingSource)
+        progressJsActions.recordChapterRead(bibleView.window.id, v11n, verse.book, chapter, bookInitials, readingSource)
     }
 
     @JavascriptInterface

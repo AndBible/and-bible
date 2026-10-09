@@ -17,7 +17,14 @@
 
 package net.bible.android.control.progress
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.bookmarks.KJVA
@@ -26,6 +33,8 @@ import net.bible.android.database.progress.DailyReadingCount
 import net.bible.android.database.progress.MemorizedVerse
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.event.Subscription
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -62,7 +71,7 @@ class ProgressControlTest {
     // --- Memorized verses ---
 
     @Test
-    fun `markVerseMemorized marks single verse`() {
+    fun `markVerseMemorized marks single verse`() = runTest {
         val verse = Verse(KJVA, BibleBook.GEN, 1, 1)
         val range = VerseRange(KJVA, verse)
 
@@ -72,7 +81,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `markVerseMemorized marks verse range`() {
+    fun `markVerseMemorized marks verse range`() = runTest {
         val start = Verse(KJVA, BibleBook.GEN, 1, 1)
         val end = Verse(KJVA, BibleBook.GEN, 1, 3)
         val range = VerseRange(KJVA, start, end)
@@ -86,7 +95,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `markVerseMemorized is idempotent`() {
+    fun `markVerseMemorized is idempotent`() = runTest {
         val verse = Verse(KJVA, BibleBook.GEN, 1, 1)
         val range = VerseRange(KJVA, verse)
 
@@ -97,7 +106,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `unmarkVerseMemorized removes verses`() {
+    fun `unmarkVerseMemorized removes verses`() = runTest {
         val start = Verse(KJVA, BibleBook.GEN, 1, 1)
         val end = Verse(KJVA, BibleBook.GEN, 1, 5)
         val range = VerseRange(KJVA, start, end)
@@ -118,7 +127,7 @@ class ProgressControlTest {
     // --- Memorization progress ---
 
     @Test
-    fun `getMemorizationProgress for chapter returns correct fraction`() {
+    fun `getMemorizationProgress for chapter returns correct fraction`() = runTest {
         val lastVerse = KJVA.getLastVerse(BibleBook.GEN, 1)
         // Memorize first 5 verses of Gen 1
         val range = VerseRange(
@@ -133,7 +142,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getMemorizationProgress for book returns correct fraction`() {
+    fun `getMemorizationProgress for book returns correct fraction`() = runTest {
         // Memorize Gen 1:1-3
         val range = VerseRange(
             KJVA,
@@ -148,14 +157,14 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getMemorizationProgress returns zero when nothing memorized`() {
+    fun `getMemorizationProgress returns zero when nothing memorized`() = runTest {
         assertEquals(0f, ProgressControl.getMemorizationProgress(KJVA, BibleBook.GEN, 1), 0.001f)
     }
 
     // --- Chapter reading ---
 
     @Test
-    fun `recordChapterRead and isChapterRead`() {
+    fun `recordChapterRead and isChapterRead`() = runTest {
         assertFalse(ProgressControl.isChapterRead(KJVA, BibleBook.GEN, 1))
 
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
@@ -165,7 +174,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getReadingProgress returns correct fraction`() {
+    fun `getReadingProgress returns correct fraction`() = runTest {
         val totalChapters = KJVA.getLastChapter(BibleBook.GEN)
 
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
@@ -176,12 +185,12 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getReadingProgress returns zero when nothing read`() {
+    fun `getReadingProgress returns zero when nothing read`() = runTest {
         assertEquals(0f, ProgressControl.getReadingProgress(KJVA, BibleBook.GEN), 0.001f)
     }
 
     @Test
-    fun `getReadChaptersForBook returns read chapters`() {
+    fun `getReadChaptersForBook returns read chapters`() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 3)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 7)
 
@@ -192,18 +201,18 @@ class ProgressControlTest {
     // --- Cycles ---
 
     @Test
-    fun `getCurrentCycle returns 1 by default`() {
+    fun `getCurrentCycle returns 1 by default`() = runTest {
         assertEquals(1, ProgressControl.getCurrentCycle())
     }
 
     @Test
-    fun `startNewCycle increments cycle`() {
+    fun `startNewCycle increments cycle`() = runTest {
         val newCycle = ProgressControl.startNewCycle()
         assertEquals(2, newCycle)
     }
 
     @Test
-    fun `reading records are cycle-specific`() {
+    fun `reading records are cycle-specific`() = runTest {
         // Read in cycle 1
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         assertTrue(ProgressControl.isChapterRead(KJVA, BibleBook.GEN, 1))
@@ -232,7 +241,7 @@ class ProgressControlTest {
     // --- Statistics ---
 
     @Test
-    fun `getTotalReadChapters counts correctly`() {
+    fun `getTotalReadChapters counts correctly`() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
         ProgressControl.recordChapterRead(KJVA, BibleBook.EXOD, 1)
@@ -241,7 +250,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getBookReadingProgress returns progress for read books only`() {
+    fun `getBookReadingProgress returns progress for read books only`() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.EXOD, 1)
 
@@ -254,7 +263,7 @@ class ProgressControlTest {
     // --- Chapter read history ---
 
     @Test
-    fun `recordChapterRead increases count for that chapter`() {
+    fun `recordChapterRead increases count for that chapter`() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
@@ -263,12 +272,12 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getChapterReadCount returns zero for unread chapter`() {
+    fun `getChapterReadCount returns zero for unread chapter`() = runTest {
         assertEquals(0, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 1))
     }
 
     @Test
-    fun `getChapterReadCount is independent per chapter`() {
+    fun `getChapterReadCount is independent per chapter`() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
@@ -279,7 +288,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getChapterReadCountsForBook returns map of chapter to count`() {
+    fun `getChapterReadCountsForBook returns map of chapter to count`() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 3)
@@ -291,12 +300,12 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getChapterReadCountsForBook returns empty map when nothing read`() {
+    fun `getChapterReadCountsForBook returns empty map when nothing read`() = runTest {
         assertTrue(ProgressControl.getChapterReadCountsForBook(BibleBook.GEN).isEmpty())
     }
 
     @Test
-    fun `getDistinctReadChaptersCountForBook counts unique chapters only`() {
+    fun `getDistinctReadChaptersCountForBook counts unique chapters only`() = runTest {
         // Chapter 1 read 3 times, chapter 2 once — distinct count is 2
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
@@ -307,7 +316,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getBookCountProgress readPercent equals totalReads divided by totalChapters`() {
+    fun `getBookCountProgress readPercent equals totalReads divided by totalChapters`() = runTest {
         val totalChapters = KJVA.getLastChapter(BibleBook.GEN)
         // Read chapter 1 twice and chapter 2 once → 3 total reads
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
@@ -321,7 +330,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getBookCountProgress readPercent exceeds 1 when chapters read multiple times`() {
+    fun `getBookCountProgress readPercent exceeds 1 when chapters read multiple times`() = runTest {
         // 3 John has 1 chapter; reading it 6 times should give readPercent = 6.0
         val john3 = BibleBook.JOHN3
         val totalChapters = KJVA.getLastChapter(john3)
@@ -333,7 +342,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getBookCountProgress excludes books with no reads`() {
+    fun `getBookCountProgress excludes books with no reads`() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
 
         val progress = ProgressControl.getBookCountProgress()
@@ -342,7 +351,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `deleteReadHistoryEntry removes one read instance only`() {
+    fun `deleteReadHistoryEntry removes one read instance only`() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
 
@@ -354,7 +363,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `deleteReadHistoryEntries removes only selected instances`() {
+    fun `deleteReadHistoryEntries removes only selected instances`() = runTest {
         repeat(3) { ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1) }
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
 
@@ -369,7 +378,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getReadHistoryForDay returns entries for tapped calendar day`() {
+    fun `getReadHistoryForDay returns entries for tapped calendar day`() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
 
@@ -380,7 +389,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getReadHistoryForDay returns recordChapterRead entries across books`() {
+    fun `getReadHistoryForDay returns recordChapterRead entries across books`() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 3)
         ProgressControl.recordChapterRead(KJVA, BibleBook.EXOD, 1)
 
@@ -399,70 +408,78 @@ class ProgressControlTest {
     // distinct-day counting, and per-day history all align with the *local* calendar day.
 
     @Test
-    fun `getReadingCalendar buckets reads by local day in non-UTC timezone`() = withTimeZone("Etc/GMT-10") {
-        // Three reads spanning a UTC midnight that sits at 14:00 local (UTC+10):
-        //   2025-11-08T13:00:00Z = 2025-11-08 23:00 local → local day Nov 8
-        //   2025-11-08T15:00:00Z = 2025-11-09 01:00 local → local day Nov 9
-        //   2025-11-08T23:30:00Z = 2025-11-09 09:30 local → local day Nov 9
-        insertRead(BibleBook.GEN, 1, parseUtc("2025-11-08T13:00:00Z"))
-        insertRead(BibleBook.GEN, 2, parseUtc("2025-11-08T15:00:00Z"))
-        insertRead(BibleBook.GEN, 3, parseUtc("2025-11-08T23:30:00Z"))
+    fun `getReadingCalendar buckets reads by local day in non-UTC timezone`() = runTest {
+        withTimeZone("Etc/GMT-10") {
+            // Three reads spanning a UTC midnight that sits at 14:00 local (UTC+10):
+            //   2025-11-08T13:00:00Z = 2025-11-08 23:00 local → local day Nov 8
+            //   2025-11-08T15:00:00Z = 2025-11-09 01:00 local → local day Nov 9
+            //   2025-11-08T23:30:00Z = 2025-11-09 09:30 local → local day Nov 9
+            insertRead(BibleBook.GEN, 1, parseUtc("2025-11-08T13:00:00Z"))
+            insertRead(BibleBook.GEN, 2, parseUtc("2025-11-08T15:00:00Z"))
+            insertRead(BibleBook.GEN, 3, parseUtc("2025-11-08T23:30:00Z"))
 
-        val records = ProgressControl.getReadingCalendar(
-            parseUtc("2025-11-01T00:00:00Z"),
-            parseUtc("2025-11-30T23:59:00Z"),
-        )
+            val records = ProgressControl.getReadingCalendar(
+                parseUtc("2025-11-01T00:00:00Z"),
+                parseUtc("2025-11-30T23:59:00Z"),
+            )
 
-        // Local midnights expressed in UTC ms (UTC+10):
-        //   2025-11-08 00:00+10:00 = 2025-11-07T14:00:00Z
-        //   2025-11-09 00:00+10:00 = 2025-11-08T14:00:00Z
-        val nov8Local = parseUtc("2025-11-07T14:00:00Z")
-        val nov9Local = parseUtc("2025-11-08T14:00:00Z")
-        assertEquals(
-            listOf(DailyReadingCount(nov8Local, 1), DailyReadingCount(nov9Local, 2)),
-            records,
-        )
+            // Local midnights expressed in UTC ms (UTC+10):
+            //   2025-11-08 00:00+10:00 = 2025-11-07T14:00:00Z
+            //   2025-11-09 00:00+10:00 = 2025-11-08T14:00:00Z
+            val nov8Local = parseUtc("2025-11-07T14:00:00Z")
+            val nov9Local = parseUtc("2025-11-08T14:00:00Z")
+            assertEquals(
+                listOf(DailyReadingCount(nov8Local, 1), DailyReadingCount(nov9Local, 2)),
+                records,
+            )
+        }
     }
 
     @Test
-    fun `getDistinctReadDays counts distinct local days not UTC days`() = withTimeZone("Etc/GMT-10") {
-        // Two reads on the same local day (Nov 9 +10) that span UTC midnight,
-        // and one read on the next local day. Must report 2 local days, not 3.
-        insertRead(BibleBook.GEN, 1, parseUtc("2025-11-08T15:00:00Z"))  // Nov 9 local
-        insertRead(BibleBook.GEN, 2, parseUtc("2025-11-08T23:30:00Z"))  // Nov 9 local
-        insertRead(BibleBook.GEN, 3, parseUtc("2025-11-09T15:00:00Z"))  // Nov 10 local
+    fun `getDistinctReadDays counts distinct local days not UTC days`() = runTest {
+        withTimeZone("Etc/GMT-10") {
+            // Two reads on the same local day (Nov 9 +10) that span UTC midnight,
+            // and one read on the next local day. Must report 2 local days, not 3.
+            insertRead(BibleBook.GEN, 1, parseUtc("2025-11-08T15:00:00Z"))  // Nov 9 local
+            insertRead(BibleBook.GEN, 2, parseUtc("2025-11-08T23:30:00Z"))  // Nov 9 local
+            insertRead(BibleBook.GEN, 3, parseUtc("2025-11-09T15:00:00Z"))  // Nov 10 local
 
-        assertEquals(2, ProgressControl.getDistinctReadDays())
+            assertEquals(2, ProgressControl.getDistinctReadDays())
+        }
     }
 
     @Test
-    fun `getReadHistoryForDay returns reads from the local calendar day`() = withTimeZone("Etc/GMT-10") {
-        // r1 belongs to local Nov 9 (06:00 local), r2 to local Nov 8 (23:00 local).
-        // Querying the Nov 9 local-midnight key must return r1 only.
-        insertRead(BibleBook.GEN, 1, parseUtc("2025-11-08T20:00:00Z"))
-        insertRead(BibleBook.GEN, 2, parseUtc("2025-11-08T13:00:00Z"))
+    fun `getReadHistoryForDay returns reads from the local calendar day`() = runTest {
+        withTimeZone("Etc/GMT-10") {
+            // r1 belongs to local Nov 9 (06:00 local), r2 to local Nov 8 (23:00 local).
+            // Querying the Nov 9 local-midnight key must return r1 only.
+            insertRead(BibleBook.GEN, 1, parseUtc("2025-11-08T20:00:00Z"))
+            insertRead(BibleBook.GEN, 2, parseUtc("2025-11-08T13:00:00Z"))
 
-        val nov9LocalMidnight = parseUtc("2025-11-08T14:00:00Z")
-        val entries = ProgressControl.getReadHistoryForDay(nov9LocalMidnight)
+            val nov9LocalMidnight = parseUtc("2025-11-08T14:00:00Z")
+            val entries = ProgressControl.getReadHistoryForDay(nov9LocalMidnight)
 
-        assertEquals(listOf(1), entries.map { it.chapter })
+            assertEquals(listOf(1), entries.map { it.chapter })
+        }
     }
 
     @Test
-    fun `getMemorizationCalendar buckets memorizations by local day`() = withTimeZone("Etc/GMT-10") {
-        // Two memorizations on the same local day split by UTC midnight.
-        runBlocking { dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = 1, memorizedAt = parseUtc("2025-11-08T15:00:00Z"))) }
-        runBlocking { dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = 2, memorizedAt = parseUtc("2025-11-08T23:30:00Z"))) }
+    fun `getMemorizationCalendar buckets memorizations by local day`() = runTest {
+        withTimeZone("Etc/GMT-10") {
+            // Two memorizations on the same local day split by UTC midnight.
+            runBlocking { dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = 1, memorizedAt = parseUtc("2025-11-08T15:00:00Z"))) }
+            runBlocking { dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = 2, memorizedAt = parseUtc("2025-11-08T23:30:00Z"))) }
 
-        val records = ProgressControl.getMemorizationCalendar(
-            parseUtc("2025-11-01T00:00:00Z"),
-            parseUtc("2025-11-30T23:59:00Z"),
-        )
+            val records = ProgressControl.getMemorizationCalendar(
+                parseUtc("2025-11-01T00:00:00Z"),
+                parseUtc("2025-11-30T23:59:00Z"),
+            )
 
-        assertEquals(
-            listOf(DailyReadingCount(parseUtc("2025-11-08T14:00:00Z"), 2)),
-            records,
-        )
+            assertEquals(
+                listOf(DailyReadingCount(parseUtc("2025-11-08T14:00:00Z"), 2)),
+                records,
+            )
+        }
     }
 
     private fun localMidnightToday(): Long = Calendar.getInstance().apply {
@@ -494,7 +511,7 @@ class ProgressControlTest {
     // --- Memorization targets ---
 
     @Test
-    fun `addMemorizationTarget and getAllMemorizationTargets`() {
+    fun `addMemorizationTarget and getAllMemorizationTargets`() = runTest {
         val range = VerseRange(
             KJVA,
             Verse(KJVA, BibleBook.GEN, 1, 1),
@@ -509,7 +526,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `removeMemorizationTarget removes by id`() {
+    fun `removeMemorizationTarget removes by id`() = runTest {
         val range = VerseRange(
             KJVA,
             Verse(KJVA, BibleBook.GEN, 1, 1),
@@ -523,7 +540,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `removeMemorizationTargetByRange splits partially overlapping target`() {
+    fun `removeMemorizationTargetByRange splits partially overlapping target`() = runTest {
         // Target: Gen 1:1-10
         val targetRange = VerseRange(
             KJVA,
@@ -552,7 +569,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `removeMemorizationTargetByRange fully covering target removes it`() {
+    fun `removeMemorizationTargetByRange fully covering target removes it`() = runTest {
         val targetRange = VerseRange(
             KJVA,
             Verse(KJVA, BibleBook.GEN, 1, 3),
@@ -572,7 +589,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `removeMemorizationTargetByRange with no overlap does nothing`() {
+    fun `removeMemorizationTargetByRange with no overlap does nothing`() = runTest {
         val targetRange = VerseRange(
             KJVA,
             Verse(KJVA, BibleBook.GEN, 1, 1),
@@ -592,7 +609,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getTargetTotalVerses sums across targets`() {
+    fun `getTargetTotalVerses sums across targets`() = runTest {
         ProgressControl.addMemorizationTarget(
             VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 1, 1), Verse(KJVA, BibleBook.GEN, 1, 5))
         )
@@ -604,7 +621,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getMemorizationTargetProgress tracks memorized within targets`() {
+    fun `getMemorizationTargetProgress tracks memorized within targets`() = runTest {
         val range = VerseRange(
             KJVA,
             Verse(KJVA, BibleBook.GEN, 1, 1),
@@ -626,7 +643,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getMemorizationTargetProgress returns zero when no targets`() {
+    fun `getMemorizationTargetProgress returns zero when no targets`() = runTest {
         val (memorized, total) = ProgressControl.getMemorizationTargetProgress()
         assertEquals(0, memorized)
         assertEquals(0, total)
@@ -635,7 +652,7 @@ class ProgressControlTest {
     // --- getMemorizedVerseRanges ---
 
     @Test
-    fun `getMemorizedVerseRanges groups consecutive verses`() {
+    fun `getMemorizedVerseRanges groups consecutive verses`() = runTest {
         // Memorize Gen 1:1-3 and Gen 1:5-6 (gap at v4)
         ProgressControl.markVerseMemorized(
             VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 1, 1), Verse(KJVA, BibleBook.GEN, 1, 3))
@@ -652,12 +669,12 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getMemorizedVerseRanges returns empty for no memorized verses`() {
+    fun `getMemorizedVerseRanges returns empty for no memorized verses`() = runTest {
         assertTrue(ProgressControl.getMemorizedVerseRanges().isEmpty())
     }
 
     @Test
-    fun `getMemorizedVerseRanges merges adjacent ranges into one`() {
+    fun `getMemorizedVerseRanges merges adjacent ranges into one`() = runTest {
         // Memorize Gen 1:1-5 as one block
         ProgressControl.markVerseMemorized(
             VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 1, 1), Verse(KJVA, BibleBook.GEN, 1, 5))
@@ -671,7 +688,7 @@ class ProgressControlTest {
     // --- getTargetOrdinalsInRange ---
 
     @Test
-    fun `getTargetOrdinalsInRange returns ordinals within query range`() {
+    fun `getTargetOrdinalsInRange returns ordinals within query range`() = runTest {
         // Target: Gen 1:5-10
         val v5 = Verse(KJVA, BibleBook.GEN, 1, 5).ordinal
         val v10 = Verse(KJVA, BibleBook.GEN, 1, 10).ordinal
@@ -688,7 +705,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getTargetOrdinalsInRange returns empty when no overlap`() {
+    fun `getTargetOrdinalsInRange returns empty when no overlap`() = runTest {
         ProgressControl.addMemorizationTarget(
             VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 1, 5), Verse(KJVA, BibleBook.GEN, 1, 10))
         )
@@ -703,7 +720,7 @@ class ProgressControlTest {
     // --- getMemorizedOrdinalsInRange ---
 
     @Test
-    fun `getMemorizedOrdinalsInRange returns memorized ordinals in range`() {
+    fun `getMemorizedOrdinalsInRange returns memorized ordinals in range`() = runTest {
         ProgressControl.markVerseMemorized(
             VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 1, 1), Verse(KJVA, BibleBook.GEN, 1, 10))
         )
@@ -726,7 +743,7 @@ class ProgressControlTest {
     fun stopListening() { subscription?.cancel() }
 
     @Test
-    fun `markVerseMemorized emits the added KJV ordinals, and nothing when already memorized`() {
+    fun `markVerseMemorized emits the added KJV ordinals, and nothing when already memorized`() = runTest {
         val range = VerseRange(KJVA, Verse(KJVA, BibleBook.JOHN, 3, 16), Verse(KJVA, BibleBook.JOHN, 3, 17))
         listen()
         ProgressControl.markVerseMemorized(range)
@@ -738,7 +755,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `unmarkVerseMemorized emits the removed ordinals`() {
+    fun `unmarkVerseMemorized emits the removed ordinals`() = runTest {
         val range = VerseRange(KJVA, Verse(KJVA, BibleBook.JOHN, 3, 16))
         ProgressControl.markVerseMemorized(range)
         listen()
@@ -747,7 +764,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `recordChapterRead emits the KJV book ordinal, chapter and new count`() {
+    fun `recordChapterRead emits the KJV book ordinal, chapter and new count`() = runTest {
         listen()
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
@@ -761,7 +778,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `deleteReadHistoryEntries emits exactly one status per chapter`() {
+    fun `deleteReadHistoryEntries emits exactly one status per chapter`() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
@@ -779,7 +796,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `memorization targets emit added and removed ordinals`() {
+    fun `memorization targets emit added and removed ordinals`() = runTest {
         val range = VerseRange(KJVA, Verse(KJVA, BibleBook.PS, 23, 1), Verse(KJVA, BibleBook.PS, 23, 2))
         listen()
         val target = ProgressControl.addMemorizationTarget(range)
@@ -792,7 +809,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `removeMemorizationTargetByRange emits only the removed part`() {
+    fun `removeMemorizationTargetByRange emits only the removed part`() = runTest {
         val whole = VerseRange(KJVA, Verse(KJVA, BibleBook.PS, 23, 1), Verse(KJVA, BibleBook.PS, 23, 3))
         val middle = VerseRange(KJVA, Verse(KJVA, BibleBook.PS, 23, 2))
         ProgressControl.addMemorizationTarget(whole)
@@ -802,11 +819,47 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `setActiveCycle emits ActiveCycle after earlier changes, in order`() {
+    fun `setActiveCycle emits ActiveCycle after earlier changes, in order`() = runTest {
         listen()
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.setActiveCycle(3)
         assertEquals(ProgressChange.ActiveCycle(3), received.last())
         assertEquals(2, received.size)
     }
+
+    // --- JS edge: fire-and-forget writes survive the screen (spec L1a section 4) ---
+
+    @Test
+    fun `a JS memorize write completes after the screen scope is cancelled`() = runTest {
+        val appScope = AppCoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler))
+        val screenScope = CoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler))
+        val actions = ProgressJsActions(OrderedLauncher(appScope))
+        val range = VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 1, 1), Verse(KJVA, BibleBook.GEN, 1, 2))
+
+        // The JS call arrives on the screen's behalf, then the screen goes away before it ran.
+        val job = screenScope.async { actions.markMemorized("window-1", range) }.await()
+        screenScope.cancel()
+        advanceUntilIdle()
+        job.join()
+
+        assertTrue(ProgressControl.isVerseMemorized(KJVA, BibleBook.GEN, 1, 1))
+        assertTrue(ProgressControl.isVerseMemorized(KJVA, BibleBook.GEN, 1, 2))
+        appScope.cancel()
+    }
+
+    @Test
+    fun `JS writes for one window apply in call order`() = runTest {
+        val appScope = AppCoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler))
+        val actions = ProgressJsActions(OrderedLauncher(appScope))
+        val range = VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 1, 1))
+
+        actions.markMemorized("w", range)
+        val last = actions.unmarkMemorized("w", range)
+        advanceUntilIdle()
+        last.join()
+
+        assertFalse(ProgressControl.isVerseMemorized(KJVA, BibleBook.GEN, 1, 1))
+        appScope.cancel()
+    }
 }
+

@@ -17,6 +17,7 @@
 
 package net.bible.android.control.page
 
+import kotlinx.coroutines.test.runTest
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.progress.ProgressControl
@@ -39,13 +40,13 @@ import org.robolectric.annotation.Config
 class InitialChapterReadCountTest {
     @After fun tearDown() = resetDatabase()
 
-    @Test fun aDocumentStartingAtTheIntroGetsChapterOnesCount() {
+    @Test fun aDocumentStartingAtTheIntroGetsChapterOnesCount() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         assertEquals(2, initialChapterReadCount(KJVA, BibleBook.GEN, 0))
     }
 
-    @Test fun aNormalChapterKeepsItsOwnCount() {
+    @Test fun aNormalChapterKeepsItsOwnCount() = runTest {
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 3)
         assertEquals(1, initialChapterReadCount(KJVA, BibleBook.GEN, 3))

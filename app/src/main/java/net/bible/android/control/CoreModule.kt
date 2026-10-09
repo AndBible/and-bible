@@ -18,6 +18,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.page.toolbar.ToolbarStateServiceImpl
 import net.bible.sharedcore.reading.ToolbarStateService
+import net.bible.android.control.progress.ProgressJsActions
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.search.BibleSearchServiceImpl
@@ -102,6 +103,7 @@ val coreModule = module {
     single<AppSettings> { CommonUtils.settings }
     single { AppCoroutineScope() }
     single { OrderedLauncher(get<AppCoroutineScope>()) }
+    single { ProgressJsActions(get()) }
     single<UserNotifier> { AndroidUserNotifier() }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
     single<DateTimeFormats> { AndroidDateTimeFormats(androidContext()) }

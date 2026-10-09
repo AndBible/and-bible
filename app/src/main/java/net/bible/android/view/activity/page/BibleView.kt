@@ -1195,11 +1195,14 @@ class BibleView(
         if (minChapter < 0 || maxChapter < 0) return
         val v11n = doc.swordBook.versification
         val book = doc.verseRange.start.book
-        for (chapter in minChapter..maxChapter) {
-            val count = ProgressControl.getChapterReadCount(v11n, book, chapter)
-            executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-                chapter: $chapter, count: $count
-            });""")
+        val chapters = minChapter..maxChapter
+        scope.launch {
+            for (chapter in chapters) {
+                val count = ProgressControl.getChapterReadCount(v11n, book, chapter)
+                executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
+                    chapter: $chapter, count: $count
+                });""")
+            }
         }
     }
 

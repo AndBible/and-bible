@@ -58,6 +58,7 @@ import kotlin.math.abs
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
+import net.bible.service.db.blockingDb
 
 /*
  * Serializable classes and utils that are used when transferring stuff to JS side
@@ -194,7 +195,7 @@ open class OsisDocument(
  * shows chapter 1's count; this must use the same chapter or the persisted count never appears on load.
  */
 internal fun initialChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int): Int =
-    ProgressControl.getChapterReadCount(v11n, book, maxOf(1, chapter))
+    blockingDb { ProgressControl.getChapterReadCount(v11n, book, maxOf(1, chapter)) } // L1-pending(page)
 
 class BibleDocument(
     val bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>,
@@ -214,9 +215,9 @@ class BibleDocument(
         } else "null"
         val v11n = swordBook.versification
         val kjvRange = verseRange.toV11n(KJVA)
-        val memorizedOrdinals = ProgressControl.getMemorizedOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+        val memorizedOrdinals = blockingDb { ProgressControl.getMemorizedOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal) } // L1-pending(page)
             .map { Verse(KJVA, it).toV11n(v11n).ordinal }
-        val targetOrdinals = ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+        val targetOrdinals = blockingDb { ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal) } // L1-pending(page)
             .map { Verse(KJVA, it).toV11n(v11n).ordinal }
         return super.asHashMap.toMutableMap().apply {
             put("bookmarks", listToJson(bookmarks))

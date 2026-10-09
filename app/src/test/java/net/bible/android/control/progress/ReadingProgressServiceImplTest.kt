@@ -17,7 +17,10 @@
 package net.bible.android.control.progress
 
 import kotlinx.coroutines.runBlocking
+import androidx.test.core.app.ApplicationProvider
 import net.bible.android.TestBibleApplication
+import net.bible.android.platform.AndroidDateTimeFormats
+import net.bible.sharedcore.platform.DateTimeFormats
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.versification.BibleBook
@@ -34,7 +37,7 @@ import org.robolectric.annotation.Config
 class ReadingProgressServiceImplTest {
     @After fun tearDown() = DatabaseResetter.resetDatabase()
 
-    private val service = ReadingProgressServiceImpl()
+    private val service by lazy { ReadingProgressServiceImpl(AndroidDateTimeFormats(ApplicationProvider.getApplicationContext())) }
 
     @Test fun emptyDb_summary_is_zero_but_total_positive() = runBlocking {
         val s = service.readingSummary(1)
@@ -48,6 +51,18 @@ class ReadingProgressServiceImplTest {
         assertTrue(books.any { it.bookId == "GEN" && !it.isNT })
         assertTrue(books.any { it.bookId == "MATT" && it.isNT })
         assertTrue(books.none { it.readPercent > 0f }) // empty db
+    }
+
+    @Test fun display_helpers_delegate_to_DateTimeFormats() {
+        val fake = object : DateTimeFormats {
+            override fun shortDate(epochMs: Long) = "date:$epochMs"
+            override fun shortTime(epochMs: Long) = "time:$epochMs"
+            override fun relativeTimeSpan(epochMs: Long, nowMs: Long) = "rel:$epochMs"
+        }
+        val s = ReadingProgressServiceImpl(fake)
+        assertEquals("date:5", s.dayTitle(5))
+        assertEquals("date:6", s.formatEntryDate(6))
+        assertEquals("time:7", s.formatEntryTime(7))
     }
 
     @Test fun osisId_for_chapter() {
