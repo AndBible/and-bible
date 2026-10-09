@@ -21,10 +21,10 @@ import net.bible.sharedcore.log.Log
 import net.bible.android.control.page.OrdinalRange
 
 import net.bible.android.control.page.window.Window
-import net.bible.service.common.CommonUtils
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.Verse
 import java.util.*
 
 /**
@@ -44,7 +44,7 @@ class KeyHistoryItem(
         get() {
             val desc = StringBuilder()
             try {
-                val verseDesc = CommonUtils.getKeyDescription(key)
+                val verseDesc = keyDescription(key)
                 desc.append(verseDesc).append(" ").append(document.abbreviation)
             } catch (e: Exception) {
                 Log.e(TAG, "Error getting description", e)
@@ -95,4 +95,26 @@ class KeyHistoryItem(
 
         private val TAG = "KeyHistoryItem"
     }
+}
+
+/** Display name of a [Key]; a verse 0 loses its trailing " 0" (chapter introductions). */
+internal fun keyDescription(key: Key): String {
+    var name: String
+    try {
+        name = key.name
+
+        // do not show verse 0
+        if (key is Verse) {
+            if (key.verse == 0 && name.endsWith("0")) {
+                val verse0 = "[\\W]0$"
+                name = name.replace(verse0.toRegex(), "")
+            }
+        }
+    } catch (e: Exception) {
+        Log.e("KeyHistoryItem", "Error getting key name - could that Versification does not contain book")
+        // but this normally works
+        name = key.osisRef.replace('.', ' ')
+    }
+
+    return name
 }

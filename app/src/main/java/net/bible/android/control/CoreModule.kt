@@ -78,6 +78,7 @@ import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButt
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.android.platform.AndroidReadingPlanSource
+import net.bible.android.platform.AndroidHistoryPlatform
 import net.bible.android.view.activity.readingplan.ReadingPlanCatalog
 import net.bible.service.readingplan.DistributedPlanDetails
 import net.bible.service.readingplan.ReadingPlanTextFileDao
@@ -98,6 +99,7 @@ import net.bible.android.platform.AndroidDateTimeFormats
 import net.bible.android.platform.AndroidUserNotifier
 import org.koin.android.ext.koin.androidContext
 import net.bible.service.history.HistoryManager
+import net.bible.service.history.HistoryPlatform
 import net.bible.service.history.HistoryTraversalFactory
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -131,6 +133,7 @@ val coreModule = module {
     singleOf(::WindowStateServiceImpl) { bind<WindowStateService>() }
     singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() }
     singleOf(::LinkControl)
+    single<HistoryPlatform> { AndroidHistoryPlatform() }
     singleOf(::HistoryManager)
     singleOf(::HistoryTraversalFactory)
     singleOf(::DocumentControl)

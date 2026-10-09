@@ -49,7 +49,7 @@ class HistoryDirectCallTest {
         repository.initialize()
         HistoryManager.resetInstanceForTest()
         window.pageManager.setCurrentDocumentAndKey(kjv, verse(BibleBook.GEN, 1, 1), false)
-        history = HistoryManager(CommonUtils.windowControl)
+        history = HistoryManager(CommonUtils.windowControl, net.bible.android.platform.AndroidHistoryPlatform())
         ReadingViewVisibility.setVisible(true)
     }
 
@@ -69,7 +69,7 @@ class HistoryDirectCallTest {
     fun recordBeforeAnyManagerExistsDoesNothing() {
         HistoryManager.resetInstanceForTest()
         HistoryManager.recordIfCreated(null)
-        val created = HistoryManager(CommonUtils.windowControl)
+        val created = HistoryManager(CommonUtils.windowControl, net.bible.android.platform.AndroidHistoryPlatform())
         assertTrue(created.getHistory(window.id).isEmpty())
     }
 
@@ -91,7 +91,7 @@ class HistoryDirectCallTest {
     @Test
     fun traversalRecordsOnlyWhenIntegratedAndUsesTheLiveManager() {
         val traversal = HistoryTraversal(history, false)
-        val live = HistoryManager(CommonUtils.windowControl)
+        val live = HistoryManager(CommonUtils.windowControl, net.bible.android.platform.AndroidHistoryPlatform())
         traversal.beforeStartActivity()
         assertTrue(live.getHistory(window.id).isEmpty())
         traversal.isIntegrateWithHistoryManager = true
@@ -107,7 +107,7 @@ class HistoryDirectCallTest {
                 get() = throw IllegalStateException("boom")
                 set(_) {}
         }
-        val manager = HistoryManager(broken)
+        val manager = HistoryManager(broken, net.bible.android.platform.AndroidHistoryPlatform())
         assertFailsWith<IllegalStateException> { manager.addHistoryItem(null) }
         HistoryManager.recordIfCreated(null)
     }

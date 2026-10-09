@@ -759,26 +759,7 @@ object CommonUtils : CommonUtilsBase() {
         return hms.toString()
     }
 
-    fun getKeyDescription(key: Key): String {
-        var name: String
-        try {
-            name = key.name
-
-            // do not show verse 0
-            if (key is Verse) {
-                if (key.verse == 0 && name.endsWith("0")) {
-                    val verse0 = "[\\W]0$"
-                    name = name.replace(verse0.toRegex(), "")
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting key name - could that Versification does not contain book")
-            // but this normally works
-            name = key.osisRef.replace('.', ' ')
-        }
-
-        return name
-    }
+    fun getKeyDescription(key: Key): String = net.bible.service.history.keyDescription(key)
 
     fun getWholeChapter(currentVerse: Verse, showIntros: Boolean = true): VerseRange {
         Log.i(TAG, "getWholeChapter (Key) ${currentVerse.osisID}")

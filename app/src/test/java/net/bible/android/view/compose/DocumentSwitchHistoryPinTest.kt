@@ -86,7 +86,7 @@ class DocumentSwitchHistoryPinTest {
         // A fresh manager becomes the live instance on construction. The Koin singleton is not
         // live after TestBibleApplication.onTerminate resets the holder; constructing a manager
         // here re-arms history recording, as ReadingHistoryAnchorTest does too.
-        val history = HistoryManager(CommonUtils.windowControl)
+        val history = HistoryManager(CommonUtils.windowControl, net.bible.android.platform.AndroidHistoryPlatform())
         val window = CommonUtils.windowControl.activeWindow
         val pm = window.pageManager
 
