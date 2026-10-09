@@ -8,8 +8,11 @@ import kotlin.math.abs
 
 /**
  * Allows ink, paper and MonoDisabled (within two per channel), plus achromatic anti-aliased
- * edges (adjacent channel differences at most four). A 3x3 all-other block is a fill, not an edge.
- * Alpha is ignored: the harness audits rendered RGB, not source paint colours.
+ * edges (adjacent channel differences at most four) within three pixels of ink or paper.
+ * All-other 3x3 blocks with channel range at most four are rejected as low-variation fills;
+ * high-variation blocks occur in real opaque glyph rasterization and are not fill evidence.
+ * Alpha is ignored: the harness audits rendered RGB, not source paint colours. This bounded
+ * heuristic cannot distinguish source paint for thin grey motifs or steep, edge-like gradients.
  */
 object MonochromePaletteAudit {
     data class AuditResult(val badPixels: Int, val bounds: Rectangle?, val chromatic: Int) {
@@ -44,19 +47,29 @@ object MonochromePaletteAudit {
         for (x in 0 until w) for (y in 0 until h) {
             if (!other[x][y]) continue
             val isChroma = chroma(rgb(x, y))
-            val hasEdgeNeighbour = (-1..1).any { dx -> (-1..1).any { dy ->
+            // Radius two still rejects four pixels in the six original glyph renders.
+            val hasEdgeNeighbour = (-3..3).any { dx -> (-3..3).any { dy ->
                 val nx = x + dx
                 val ny = y + dy
                 (dx != 0 || dy != 0) && nx in 0 until w && ny in 0 until h && inkOrPaper(rgb(nx, ny))
             } }
-            val inBlock = (-2..0).any { ox -> (-2..0).any { oy ->
-                (0..2).all { dx -> (0..2).all { dy ->
+            val inFillBlock = (-2..0).any { ox -> (-2..0).any { oy ->
+                var min = 255
+                var max = 0
+                val allOther = (0..2).all { dx -> (0..2).all { dy ->
                     val nx = x + ox + dx
                     val ny = y + oy + dy
-                    nx in 0 until w && ny in 0 until h && other[nx][ny]
+                    if (nx !in 0 until w || ny !in 0 until h || !other[nx][ny]) false else {
+                        val c = rgb(nx, ny)
+                        min = minOf(min, c shr 16 and 0xFF, c shr 8 and 0xFF, c and 0xFF)
+                        max = maxOf(max, c shr 16 and 0xFF, c shr 8 and 0xFF, c and 0xFF)
+                        true
+                    }
                 } }
+                // Four is the diameter of the unchanged +/-2 per-channel palette tolerance.
+                allOther && max - min <= 4
             } }
-            if (isChroma || !hasEdgeNeighbour || inBlock) {
+            if (isChroma || !hasEdgeNeighbour || inFillBlock) {
                 bad++
                 if (isChroma) chromatic++
                 minX = minOf(minX, x); minY = minOf(minY, y)
