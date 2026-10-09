@@ -16,6 +16,7 @@
  */
 package net.bible.android.control.versification
 
+import androidx.annotation.VisibleForTesting
 import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.sharedcore.log.Log
 import net.bible.sharedcore.platform.OrderedLauncher
@@ -43,15 +44,24 @@ class BookInstallWatcher(
     private val launcher: OrderedLauncher,
     private val syncStarter: DocumentSyncStarter,
 ) {
-    /** Test seam: runs at the start of every backup-db write, inside the ordered launch. */
+    /** For tests only: runs at the start of every backup-db write, inside the ordered launch. */
+    @VisibleForTesting
     internal var beforeWrite: suspend () -> Unit = {}
 
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
-    /** Idempotent: a repeated call (e.g. a second application onCreate) leaves exactly one registration. */
+    /**
+     * Idempotent per PROCESS: JSword's installed-books list is static, while a Koin restart builds a new
+     * watcher instance. The previously registered listener (of any instance) is removed first, so exactly
+     * one watcher listener, the latest, stays registered.
+     */
     fun startListening() {
-        Books.installed().removeBooksListener(listener)
-        Books.installed().addBooksListener(listener)
+        synchronized(Companion) {
+            registered?.let { Books.installed().removeBooksListener(it) }
+            Books.installed().removeBooksListener(listener)
+            Books.installed().addBooksListener(listener)
+            registered = listener
+        }
     }
 
     /**
@@ -132,6 +142,10 @@ class BookInstallWatcher(
     }
 
     private companion object {
+        /** Listener most recently registered by any instance; guarded by synchronized(Companion). */
+        @Volatile
+        var registered: BooksListener? = null
+
         const val TAG = "BookInstallWatcher"
         const val DB_KEY = "book-install"
     }

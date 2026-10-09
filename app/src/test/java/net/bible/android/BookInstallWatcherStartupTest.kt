@@ -17,10 +17,15 @@
 package net.bible.android
 
 import net.bible.android.control.versification.BookInstallWatcher
+import net.bible.sharedcore.cloud.DocumentSyncStarter
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.service.sword.SwordEnvironmentInitialisation
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.BooksListener
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
@@ -66,8 +71,31 @@ class BookInstallWatcherStartupTest {
 
     @Test
     fun startBookInstallWatcherIsIdempotent() {
+        // stale watchers from earlier Koin restarts in this JVM must not skew the count
+        watcherListeners().forEach { listeners().remove(it) }
         SwordEnvironmentInitialisation.startBookInstallWatcher()
         SwordEnvironmentInitialisation.startBookInstallWatcher()
         assertEquals(1, watcherListeners().size)
+    }
+
+    /** A Koin restart builds a new watcher; the old instance's listener must not stay on the static JSword list. */
+    @Test
+    fun separateWatcherInstancesLeaveExactlyOneListener() {
+        val starter = object : DocumentSyncStarter {
+            override fun pushDocuments(initials: List<String>) {}
+        }
+        val scope = AppCoroutineScope()
+        watcherListeners().forEach { listeners().remove(it) }
+        val first = BookInstallWatcher(OrderedLauncher(scope), starter)
+        val second = BookInstallWatcher(OrderedLauncher(scope), starter)
+        try {
+            first.startListening()
+            second.startListening()
+            assertEquals(1, watcherListeners().size)
+            assertTrue("latest instance stays registered", listeners().contains(second.listener))
+            assertFalse("old instance removed", listeners().contains(first.listener))
+        } finally {
+            watcherListeners().forEach { listeners().remove(it) }
+        }
     }
 }
