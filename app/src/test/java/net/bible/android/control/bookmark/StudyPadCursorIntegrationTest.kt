@@ -529,7 +529,7 @@ class StudyPadCursorIntegrationTest {
         val bookmarkToLabel = bookmarkControl!!.getBookmarkToLabel(bookmark, label.id)
         Assert.assertNotNull("Bookmark should be linked to label", bookmarkToLabel)
         Assert.assertEquals(
-            "Bookmark ${bookmark.verseRange.name} should be at position $expectedOrder in label ${label.name}",
+            "Bookmark ${bookmark.verseRange.getName()} should be at position $expectedOrder in label ${label.name}",
             expectedOrder,
             bookmarkToLabel!!.orderNumber
         )

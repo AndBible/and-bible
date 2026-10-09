@@ -85,7 +85,7 @@ class ModuleBackupRoundTripTest {
         }
         File(SharedConstants.modulesDir, "ttf").deleteRecursively()
         File(SharedConstants.modulesDir, "mods.d/FontPack.conf").delete()
-        for (b in Books.installed().books.filter { it.isBackgroundImageModule }) {
+        for (b in Books.installed().getBooks().filter { it.isBackgroundImageModule }) {
             Books.installed().removeBook(b)
         }
         File(SharedConstants.modulesDir, BACKGROUND_IMAGE_DIR).deleteRecursively()
@@ -109,7 +109,7 @@ class ModuleBackupRoundTripTest {
 
         val zipFile = File(CommonUtils.tmpDir, "ttf-roundtrip.abmd.zip")
         if (zipFile.exists()) zipFile.delete()
-        BackupControl.createSingleModuleZip(book, zipFile)
+        BackupControl.createSingleModuleZip(book!!, zipFile)
 
         ZipFile(zipFile).use { zf ->
             assertNotNull(
@@ -120,7 +120,7 @@ class ModuleBackupRoundTripTest {
 
         // Simulate restoring onto a device that doesn't have the font yet.
         ttfDir.deleteRecursively()
-        Books.installed().removeBook(book)
+        Books.installed().removeBook(book!!)
         assertNull(Books.installed().getBook("TTF_TestFont"))
 
         val installed = BackupControl.installModuleArchive(zipFile, "TTF_TestFont")
@@ -142,7 +142,7 @@ class ModuleBackupRoundTripTest {
         File(imgDir, "sunset.jpg").writeBytes(byteArrayOf(0x00, 0x01, 0x02, 0x03))
 
         addManuallyInstalledBackgroundImageBooks()
-        val book = Books.installed().books.first { it.isBackgroundImageModule }
+        val book = Books.installed().getBooks().first { it.isBackgroundImageModule }
         val initials = book.initials
 
         val zipFile = File(CommonUtils.tmpDir, "bgimg-roundtrip.abmd.zip")
@@ -273,7 +273,7 @@ class ModuleBackupRoundTripTest {
         assertNotNull(restored)
         assertTrue(
             "Restored module content must be intact",
-            restored.getRawText(restored.getKey("strong")).contains("The test definition body.")
+            restored!!.getRawText(restored!!.getKey("strong")).contains("The test definition body.")
         )
     }
 
@@ -310,8 +310,8 @@ class ModuleBackupRoundTripTest {
         File(dataDir, "test.idx").writeBytes(idxBytes)
 
         val bmd = SwordBookMetaData(confFile, NetUtil.getURI(downloadDir))
-        bmd.driver = SwordBookDriver.instance()
+        bmd.setDriver(SwordBookDriver.instance())
         SwordBookDriver.registerNewBook(bmd)
-        return Books.installed().getBook("TestDict")
+        return Books.installed().getBook("TestDict")!!
     }
 }

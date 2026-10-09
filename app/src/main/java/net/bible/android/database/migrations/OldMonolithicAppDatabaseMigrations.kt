@@ -633,7 +633,7 @@ private val MIGRATION_33_34_Bookmarks = object : Migration(33, 34) {
                 val playbackSettingsStr = c.speakSettings
                 db.insertOr("FAIL", "Bookmark",
                     "id" to id,
-                    "v11n" to v11n.name,
+                    "v11n" to v11n!!.name,
                     "kjvOrdinalStart" to verseRangeInKjv.start.ordinal,
                     "kjvOrdinalEnd" to verseRangeInKjv.end.ordinal,
                     "ordinalStart" to verseRange.start.ordinal,

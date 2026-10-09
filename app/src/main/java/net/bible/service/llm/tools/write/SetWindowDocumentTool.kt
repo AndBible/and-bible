@@ -177,8 +177,8 @@ object SetWindowDocumentTool : Tool {
                 windowId = window.id.toString(),
                 documentInitials = book.initials,
                 documentName = book.name,
-                currentKey = page.key?.osisRef,
-                currentKeyName = page.key?.name
+                currentKey = page.key?.getOsisRef(),
+                currentKeyName = page.key?.getName()
             ))
         } catch (e: Exception) {
             ToolResult.error("Failed to set window document: ${e.message}", "SET_ERROR")

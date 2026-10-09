@@ -18,7 +18,7 @@ class BookAndKeyNameTest {
     fun stripsTheDocumentPrefixFromABookAndKey() {
         val book = FakeBookFactory.giveDoesNotExist("MyEpub")
         val key = BookAndKey(DefaultLeafKeyList("Chapter 1", "1"), book)
-        assertNotEquals("Chapter 1", key.name)          // the prefix really is there
+        assertNotEquals("Chapter 1", key.getName())          // the prefix really is there
         assertEquals("Chapter 1", key.nameWithoutDocument)
     }
 

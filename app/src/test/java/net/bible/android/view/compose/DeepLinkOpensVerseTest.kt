@@ -72,7 +72,7 @@ class DeepLinkOpensVerseTest {
         val repo = controller.get().hostWindowRepository
         val links = repo.sortedWindows.single { it.isLinksWindow }
         val doc = links.pageManager.currentPage.currentDocument?.initials
-        val key = links.pageManager.currentPage.singleKey?.osisID
+        val key = links.pageManager.currentPage.singleKey?.getOsisID()
         assertEquals("KJV" to "Ps.23.1", doc to key, "the links window does not hold the deep-linked verse")
         assertTrue(
             links.isVisible && !links.isMinimised && links.windowState != WindowState.CLOSED,

@@ -53,7 +53,7 @@ import kotlin.test.assertNotNull
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ReadingHostSaveOnPauseTest {
     private val controllers = mutableListOf<ActivityController<NavHostComposeActivity>>()
-    private val rom81 = VerseFactory.fromString(Versifications.instance().getVersification("KJV"), "Rom.8.1")
+    private val rom81 = VerseFactory.fromString(Versifications.instance().getVersification("KJV"), "Rom.8.1")!!
 
     @After
     fun tearDown() {

@@ -186,7 +186,7 @@ class ReadingChooserInGraphResultTest {
 
         assertEquals(
             "Ps.23.1",
-            (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as Verse).osisID,
+            (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as Verse).getOsisID(),
         )
     }
 
@@ -325,7 +325,7 @@ class ReadingChooserInGraphResultTest {
     }
 
     private fun activeOsisRef(): String? =
-        (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as? Verse)?.osisID
+        (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as? Verse)?.getOsisID()
 
     @Test
     fun anAbandonedAwaitedChooserGoesBackToThePriorHistoryItemAndStaysOnReading() {

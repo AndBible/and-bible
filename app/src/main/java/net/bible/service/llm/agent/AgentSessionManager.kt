@@ -488,7 +488,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         null -> null
         is VerseRange -> key
         is Verse -> VerseRange(key.versification, key, key)
-        is RangedPassage -> if (!key.isEmpty) key.toVerseRange else null
+        is RangedPassage -> if (!key.isEmpty()) key.toVerseRange else null
         else -> null
     }
 
@@ -616,7 +616,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 selection.startOrdinal.takeIf { it >= 0 } else null,
             selectionEndOrdinal = if (book is SwordBook && book.bookCategory != BookCategory.BIBLE)
                 selection.endOrdinal.takeIf { it >= 0 } else null,
-            sourceBookKey = selection.osisRef ?: pageKey?.osisRef,
+            sourceBookKey = selection.osisRef ?: pageKey?.getOsisRef(),
         )
     }
 
@@ -639,7 +639,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 val doc = page.currentDocument
                 val key = page.key
                 append("- ${doc?.initials ?: "unknown"} (${doc?.name ?: "unknown"})")
-                if (key != null) append(" at ${key.name}")
+                if (key != null) append(" at ${key.getName()}")
                 if (w.id == activeWindowId) append(" [ACTIVE]")
                 append("\n")
             }

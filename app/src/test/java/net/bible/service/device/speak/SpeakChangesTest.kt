@@ -90,7 +90,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
             assertSame(book, progress.book)
             assertSame(command, progress.speakCommand)
             assertTrue(progress.key is VerseRange)
-            assertEquals("Rom.1.1-Rom.1.3", progress.key.osisRef)
+            assertEquals("Rom.1.1-Rom.1.3", progress.key.getOsisRef())
             assertFalse(progress.forceFollow)
         }
     }
@@ -113,7 +113,7 @@ class SpeakChangesTest : SpeakIntegrationTestBase() {
         assertSame(command, progress.speakCommand)
         val emittedKey = progress.key as BookAndKey
         assertSame(dictionary, emittedKey.document)
-        assertEquals(key.osisRef, emittedKey.key.osisRef)
+        assertEquals(key.getOsisRef(), emittedKey.key.getOsisRef())
         assertEquals(ordinal, emittedKey.ordinal!!.start)
         assertEquals(ordinal, emittedKey.ordinal.end)
         assertTrue(progress.forceFollow)

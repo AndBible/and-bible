@@ -110,7 +110,7 @@ internal fun refChooserVerseName(verseStr: String?): String {
         val oldValue = BookName.isFullBookName()
         BookName.setFullBookName(false)
         try {
-            verse?.name ?: ""
+            verse?.getName() ?: ""
         } finally {
             BookName.setFullBookName(oldValue)
         }
@@ -736,9 +736,9 @@ class BibleJavascriptInterface(
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials)
             val origKey = try {
-                book.getKey(osisRef)
+                book!!.getKey(osisRef)
             } catch (e: NoSuchKeyException) {
-                val bookAndKey = linkControl.getStrongsKey(book, osisRef)
+                val bookAndKey = linkControl.getStrongsKey(book!!, osisRef)
                 bookAndKey?.key ?: return@launch
             }
             val key = (origKey as? RangedPassage)?.toVerseRange ?:  try {KeyUtil.getVerse(origKey)} catch (e: ClassCastException) {origKey}

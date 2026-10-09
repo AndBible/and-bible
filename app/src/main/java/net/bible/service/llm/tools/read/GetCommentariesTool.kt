@@ -232,7 +232,7 @@ object GetCommentariesTool : Tool {
                     } catch (_: Exception) {
                         null
                     }
-                    RenderedVerse(verse.osisID, content)
+                    RenderedVerse(verse.getOsisID(), content)
                 }
 
                 val blocks = deduplicateConsecutiveBlocks(renderedVerses)

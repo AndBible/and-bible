@@ -68,7 +68,7 @@ class BackgroundImageImporterTest {
 
     @After
     fun tearDown() {
-        for (b in Books.installed().books.filter { it.isBackgroundImageModule }) {
+        for (b in Books.installed().getBooks().filter { it.isBackgroundImageModule }) {
             Books.installed().removeBook(b)
         }
         AndBibleAddons.clearCaches()
@@ -82,14 +82,14 @@ class BackgroundImageImporterTest {
         assertNotNull(out)
         assertTrue(out!!.parentFile!!.name == BACKGROUND_IMAGE_DIR)
         AndBibleAddons.clearCaches()
-        assertTrue(Books.installed().books.any { it.isBackgroundImageModule && it.backgroundImageFile == out })
+        assertTrue(Books.installed().getBooks().any { it.isBackgroundImageModule && it.backgroundImageFile == out })
     }
 
     @Test fun deleteRemovesModuleAndFile() {
         val src = File(tmp, "sky.png").apply { writeBytes(onePixelPng()) }
         val out = BackgroundImageImporter.copyAndRegister(app, Uri.fromFile(src))!!
         AndBibleAddons.clearCaches()
-        val initials = Books.installed().books.first { it.isBackgroundImageModule && it.backgroundImageFile == out }.initials
+        val initials = Books.installed().getBooks().first { it.isBackgroundImageModule && it.backgroundImageFile == out }.initials
         impl.deleteBackgroundImage(initials)
         assertFalse(out.exists())
         assertFalse(AndBibleAddons.providedBackgroundImages.containsKey(initials))

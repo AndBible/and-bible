@@ -78,7 +78,7 @@ class OneDaysReadingsDto(val day: Int, private val readingsString: String?, val 
                 if (i > 0) {
                     readingsBldr.append(", ")
                 }
-                readingsBldr.append(readingKeys!![i].name)
+                readingsBldr.append(readingKeys!![i].getName())
             }
             return readingsBldr.toString()
         }

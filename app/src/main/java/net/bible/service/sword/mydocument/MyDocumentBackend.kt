@@ -97,8 +97,8 @@ class MyDocumentBackend(
         return DefaultLeafKeyList(page.title, page.pageKey)
     }
 
-    override fun indexOf(that: Key): Int {
-        val searchKey = that.osisRef?.takeIf { it.isNotEmpty() } ?: that.name
+    override fun indexOf(that: Key?): Int {
+        val searchKey = that!!.getOsisRef()?.takeIf { it.isNotEmpty() } ?: that.getName()
         return getPages().indexOfFirst { it.pageKey == searchKey }
     }
 
@@ -114,7 +114,7 @@ class MyDocumentBackend(
         // An empty index is cached by SwordGenBook until the book is deactivated,
         // and every getKey() on it then throws NoSuchKeyException. Log it so a
         // document that silently loses its table of contents is traceable.
-        if (key.cardinality == 0) {
+        if (key.getCardinality() == 0) {
             Log.w(TAG, "Empty key index built for document $documentId (${bookMetaData.initials})")
         }
         return key
@@ -126,10 +126,10 @@ class MyDocumentBackend(
         }.toMutableList().iterator()
     }
 
-    override fun readRawContent(state: MyDocumentOpenFileState?, key: Key?): String {
+    override fun readRawContent(state: MyDocumentOpenFileState, key: Key?): String {
         if (key == null) return ""
 
-        val pageKey = key.osisRef?.takeIf { it.isNotEmpty() } ?: key.name
+        val pageKey = key.getOsisRef()?.takeIf { it.isNotEmpty() } ?: key.getName()
         val page = blockingDb { dao.pageByKeyWithContent(documentId, pageKey) }
 
         if (page == null) {
@@ -181,7 +181,7 @@ internal fun createMyDocumentMetadata(document: MyDocument): SwordBookMetaData {
         "AndBibleMyDocumentId=${document.id}"
 
     return SwordBookMetaData(conf.toByteArray(), document.initials).also {
-        it.driver = SwordBookDriver.instance()
+        it.setDriver(SwordBookDriver.instance())
     }
 }
 

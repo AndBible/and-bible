@@ -182,12 +182,12 @@ class WindowControlPageChangeTest {
             if (it is PageChange.VerseChanged) changes.add(it)
         }
         try {
-            bridge.scrolledToOrdinal(oldKey.osisRef, 5)
+            bridge.scrolledToOrdinal(oldKey.getOsisRef(), 5)
             assertTrue(changes.isEmpty())
-            bridge.scrolledToOrdinal(nextKey.osisRef, 9)
+            bridge.scrolledToOrdinal(nextKey.getOsisRef(), 9)
             assertEquals(listOf<PageChange>(PageChange.VerseChanged(window)), changes)
-            assertEquals(nextKey.osisRef, page.key.osisRef)
-            bridge.scrolledToOrdinal(nextKey.osisRef, 10)
+            assertEquals(nextKey.getOsisRef(), page.key.getOsisRef())
+            bridge.scrolledToOrdinal(nextKey.getOsisRef(), 10)
             assertEquals(listOf<PageChange>(PageChange.VerseChanged(window)), changes)
         } finally {
             subscription.cancel()

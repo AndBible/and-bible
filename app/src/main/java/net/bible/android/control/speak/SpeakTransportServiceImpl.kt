@@ -41,8 +41,8 @@ import org.koin.core.component.inject
  * instance, mirroring `mapEntry` in `AgentSessionServiceImpl`.
  */
 internal fun labelOf(b: BookmarkEntities.BaseBookmarkWithNotes): String = when (b) {
-    is BibleBookmarkWithNotes -> "${b.verseRange.start.name} (${b.playbackSettings?.bookId ?: "?"})"
-    is BookmarkEntities.GenericBookmarkWithNotes -> "${b.book?.abbreviation} - ${b.bookKey?.name}"
+    is BibleBookmarkWithNotes -> "${b.verseRange.start.getName()} (${b.playbackSettings?.bookId ?: "?"})"
+    is BookmarkEntities.GenericBookmarkWithNotes -> "${b.book?.abbreviation} - ${b.bookKey?.getName()}"
     else -> throw RuntimeException("Illegal bookmark type")
 }
 

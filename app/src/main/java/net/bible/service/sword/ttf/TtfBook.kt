@@ -92,7 +92,7 @@ AndBibleMinimumVersion=892
 
     val metadata = SwordBookMetaData(conf.toByteArray(), moduleInitials)
     metadata.location = file.parentFile.toURI()
-    metadata.driver = TtfSwordDriver()
+    metadata.setDriver(TtfSwordDriver())
     val backend = NullBackend()
     val book = SwordBook(metadata, backend)
     Books.installed().addBook(book)

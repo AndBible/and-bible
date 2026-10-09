@@ -182,7 +182,7 @@ class ChapterVerseRangeTest {
 
     private interface TestData {
         companion object {
-            val V11N = Versifications.instance().getVersification(Versifications.DEFAULT_V11N)
+            val V11N = Versifications.instance().getVersification(Versifications.DEFAULT_V11N)!!
             const val CHAPTER = 3
         }
     }

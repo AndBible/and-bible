@@ -29,7 +29,7 @@ import java.util.ArrayList
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 object Scripture {
-    private val SCRIPTURAL_V11N = Versifications.instance().getVersification("KJV")
+    private val SCRIPTURAL_V11N = Versifications.instance().getVersification("KJV")!!
     private val INTROS: MutableList<BibleBook> = ArrayList()
 
     init {

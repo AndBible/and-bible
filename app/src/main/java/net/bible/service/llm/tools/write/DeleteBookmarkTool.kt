@@ -77,7 +77,7 @@ object DeleteBookmarkTool : Tool {
             bookmarkControl.bibleBookmarkById(IdType(bookmarkId))
                 ?: bookmarkControl.genericBookmarkById(IdType(bookmarkId))
         } catch (_: Exception) { null }
-        val verseName = (bookmark as? BibleBookmarkWithNotes)?.verseRange?.name ?: shortId(bookmarkId)
+        val verseName = (bookmark as? BibleBookmarkWithNotes)?.verseRange?.getName() ?: shortId(bookmarkId)
         return BibleApplication.application.getString(R.string.action_delete_bookmark, verseName)
     }
 
@@ -103,7 +103,7 @@ object DeleteBookmarkTool : Tool {
                 ?: bookmarkControl.genericBookmarkById(args.bookmarkId)
                 ?: return ToolResult.error("Bookmark not found: ${args.bookmarkId}", "BOOKMARK_NOT_FOUND")
 
-            val verseName = (bookmark as? BibleBookmarkWithNotes)?.verseRange?.name ?: args.bookmarkId.toString()
+            val verseName = (bookmark as? BibleBookmarkWithNotes)?.verseRange?.getName() ?: args.bookmarkId.toString()
 
             bookmarkControl.deleteBookmark(bookmark)
 

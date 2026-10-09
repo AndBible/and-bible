@@ -59,7 +59,7 @@ class BackgroundImageBookTest {
 
     @After
     fun tearDown() {
-        for (b in Books.installed().books.filter { it.isBackgroundImageModule }) {
+        for (b in Books.installed().getBooks().filter { it.isBackgroundImageModule }) {
             Books.installed().removeBook(b)
         }
         dir.deleteRecursively()
@@ -70,7 +70,7 @@ class BackgroundImageBookTest {
         File(dir, "sunset.jpg").writeBytes(byteArrayOf(0x00, 0x01, 0x02, 0x03))
         addManuallyInstalledBackgroundImageBooks()
 
-        val book = Books.installed().books.firstOrNull { it.isBackgroundImageModule }
+        val book = Books.installed().getBooks().firstOrNull { it.isBackgroundImageModule }
         assertNotNull("A background-image module should register", book)
         assertTrue(book!!.initials.startsWith("BGIMG_"))
         assertEquals("sunset.jpg", book.backgroundImageFile.name)
@@ -82,7 +82,7 @@ class BackgroundImageBookTest {
         File(dir, "sunset.jpg").writeBytes(byteArrayOf(0x00, 0x01, 0x02, 0x03))
         addManuallyInstalledBackgroundImageBooks()
         addManuallyInstalledBackgroundImageBooks()
-        val count = Books.installed().books.count { it.isBackgroundImageModule }
+        val count = Books.installed().getBooks().count { it.isBackgroundImageModule }
         assertEquals("re-scanning the same image must not register duplicates", 1, count)
     }
 
@@ -92,7 +92,7 @@ class BackgroundImageBookTest {
         addManuallyInstalledBackgroundImageBooks()
         AndBibleAddons.clearCaches()
 
-        val book = Books.installed().books.first { it.isBackgroundImageModule }
+        val book = Books.installed().getBooks().first { it.isBackgroundImageModule }
         val provided = AndBibleAddons.providedBackgroundImages[book.initials]
         assertNotNull("registry should expose the image by module initials", provided)
         assertEquals("hills", provided!!.name)

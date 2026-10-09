@@ -443,7 +443,7 @@ class SpeakControl constructor(
         val osisRef = if(key is BookAndKey) {
             key.serialized
         } else {
-            key?.osisRef
+            key?.getOsisRef()
         }
         if(bookRef != null && osisRef != null) {
             CommonUtils.settings.setString("lastSpeakBook",bookRef);

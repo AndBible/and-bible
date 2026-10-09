@@ -70,7 +70,7 @@ class MyBibleBookReaderTest {
 
     private fun backend(file: File): SqliteBackend {
         state = SqliteVerseBackendState(file).also { states.add(it) }
-        return SqliteBackend(state, state.bookMetaData)
+        return SqliteBackend(state, state.getBookMetaData())
     }
 
     private val genesis = bibleBookToMyBibleInt.getValue(BibleBook.GEN)
@@ -136,7 +136,7 @@ class MyBibleBookReaderTest {
     @Test
     fun cardinalityAndIndexOf() {
         val b = backend(bible())
-        assertEquals(2, b.cardinality)
+        assertEquals(2, b.getCardinality())
         assertEquals(2, b.indexOf(verse(BibleBook.GEN, 1, 2)))
         assertEquals(-1, b.indexOf(verse(BibleBook.GEN, 9, 9)))
     }
@@ -169,8 +169,8 @@ class MyBibleBookReaderTest {
         )
         val b = backend(file)
         assertEquals(BookCategory.DICTIONARY, b.bookMetaData.bookCategory)
-        assertEquals(listOf("alpha", "beta"), b.iterator().asSequence().map { it.name }.toList())
-        assertEquals("beta", b.get(2).name)
+        assertEquals(listOf("alpha", "beta"), b.iterator().asSequence().map { it.getName() }.toList())
+        assertEquals("beta", b.get(2).getName())
         assertEquals(2, b.indexOf(DefaultLeafKeyList("beta")))
         assertEquals(-1, b.indexOf(DefaultLeafKeyList("gamma")))
         assertEquals("second", b.readRawContent(state, DefaultLeafKeyList("beta")))
@@ -180,10 +180,10 @@ class MyBibleBookReaderTest {
     @Test
     fun theModuleIsOpenedReadOnly() {
         val b = backend(bible())
-        assertEquals(2, b.cardinality)
+        assertEquals(2, b.getCardinality())
         assertThrows(SQLiteException::class.java) {
             state.sqlDb.exec("INSERT INTO verses VALUES (1, 1, 3, 'x')")
         }
-        assertEquals(2, b.cardinality)
+        assertEquals(2, b.getCardinality())
     }
 }

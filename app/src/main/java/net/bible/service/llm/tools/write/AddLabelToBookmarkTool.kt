@@ -79,7 +79,7 @@ object AddLabelToBookmarkTool : Tool {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         val bookmark = try { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) } catch (_: Exception) { null }
         val label = try { bookmarkControl.labelById(IdType(labelId)) } catch (_: Exception) { null }
-        val verseName = bookmark?.verseRange?.name ?: shortId(bookmarkId)
+        val verseName = bookmark?.verseRange?.getName() ?: shortId(bookmarkId)
         val labelName = label?.name ?: shortId(labelId)
         return BibleApplication.application.getString(R.string.action_add_label_to_bookmark, labelName, verseName)
     }

@@ -214,7 +214,7 @@ class UsableBibleGateTest {
         assertEquals(NavRoutes.READING, route(activity))
         // showLink opens it in the links window (WindowControl.showLink); that window's page is the chapter.
         val linksKeys = CommonUtils.windowControl.windowRepository.windowList
-            .filter { it.isLinksWindow }.map { it.pageManager.currentPage.key?.osisRef }
+            .filter { it.isLinksWindow }.map { it.pageManager.currentPage.key?.getOsisRef() }
         assertTrue("the deep link's passage is open in the links window: $linksKeys", linksKeys.any { it == "Rev.22" })
     }
 

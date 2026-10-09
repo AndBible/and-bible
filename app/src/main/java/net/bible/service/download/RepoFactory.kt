@@ -78,7 +78,7 @@ class RepoFactory(private val downloadManager: DownloadManager) {
     val repositories get() = normalRepositories + betaRepositories + customRepositories
 
     fun getRepoForBook(document: Book): Repository {
-        return getRepo(document.getProperty(DownloadManager.REPOSITORY_KEY))
+        return getRepo(document.getProperty(DownloadManager.REPOSITORY_KEY)!!)
     }
 
     private fun getRepo(repoName: String): Repository =

@@ -144,7 +144,7 @@ class StdSelfLaunchInGraphTest {
         assertNull(shadowOf(activity).nextStartedActivity)
         channel<PassageResult>(activity, "passageResults").deliver(nav(activity), PassageResult("Ps.23.1"))
         idle()
-        assertEquals("Ps.23.1", (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as Verse).osisID)
+        assertEquals("Ps.23.1", (CommonUtils.windowControl.activeWindowPageManager.currentPage.singleKey as Verse).getOsisID())
     }
 
     /** Review Focus 1: no graph yet (first frame) -- the launch must still reach the platform. */

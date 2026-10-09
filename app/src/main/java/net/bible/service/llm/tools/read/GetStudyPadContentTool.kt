@@ -204,8 +204,8 @@ object GetStudyPadContentTool : Tool {
                 type = "bibleBookmark",
                 id = bookmark.id,
                 orderNumber = btl.orderNumber,
-                verseRange = bookmark.verseRange.osisRef,
-                verseName = bookmark.verseRange.name,
+                verseRange = bookmark.verseRange.getOsisRef(),
+                verseName = bookmark.verseRange.getName(),
                 notes = bookmark.notes
             )))
         }
@@ -313,8 +313,8 @@ object GetStudyPadContentTool : Tool {
                         type = "bibleBookmark",
                         id = bookmark.id,
                         position = position,
-                        verseRange = bookmark.verseRange.osisRef,
-                        verseName = bookmark.verseRange.name,
+                        verseRange = bookmark.verseRange.getOsisRef(),
+                        verseName = bookmark.verseRange.getName(),
                         hasNotes = bookmark.notes != null
                     )
                 }
@@ -369,8 +369,8 @@ object GetStudyPadContentTool : Tool {
                         type = "bibleBookmark",
                         id = bookmark.id,
                         orderNumber = stub.orderNumber,
-                        verseRange = bookmark.verseRange.osisRef,
-                        verseName = bookmark.verseRange.name,
+                        verseRange = bookmark.verseRange.getOsisRef(),
+                        verseName = bookmark.verseRange.getName(),
                         notes = bookmark.notes
                     )
                 }

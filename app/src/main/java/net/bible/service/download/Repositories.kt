@@ -47,7 +47,7 @@ class Repository(
             // SwordBookMetaData must not persist these properties because many downloadable books may have the same name,
             // and we set the props every time so they do not need to be persisted
             if (book is SwordBook) {
-                (book.getBookMetaData() as SwordBookMetaData).setProperty(DownloadManager.REPOSITORY_KEY, repoName)
+                (book.bookMetaData as SwordBookMetaData).setProperty(DownloadManager.REPOSITORY_KEY, repoName)
             } else {
                 book.bookMetaData.putProperty(DownloadManager.REPOSITORY_KEY, repoName)
             }

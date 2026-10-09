@@ -139,7 +139,7 @@ object SwordContentFacade {
                 bibleNames.enableFuzzy = orig
                 k
             } ?:
-            if (lang != MyLocaleProvider.userLocale.language) {
+            if (lang != MyLocaleProvider.getUserLocale().language) {
                 synchronized(bibleNames) {
                     MyLocaleProvider.override = Locale(lang)
                     val orig = bibleNames.enableFuzzy
@@ -155,7 +155,7 @@ object SwordContentFacade {
     }
     @Throws(OsisError::class)
     fun readOsisFragment(book: Book?, key: Key?): Element {
-        val cacheKey = "${book?.initials}-${key?.osisRef}"
+        val cacheKey = "${book?.initials}-${key?.getOsisRef()}"
 
         if(book == null || key == null) {
             Log.e(TAG, "Key or book was null")
@@ -173,8 +173,8 @@ object SwordContentFacade {
                 throw DocumentNotFound(errorXml, errorMsg)
             }
             !bookContainsAnyOf(book, key) -> {
-                Log.w(TAG, "KEY:" + key.osisID + " not found in doc:" + book)
-                throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.name, book.initials))
+                Log.w(TAG, "KEY:" + key.getOsisID() + " not found in doc:" + book)
+                throw DocumentNotFound(application.getString(R.string.error_key_not_in_document2, key.getName(), book.initials))
             }
         }
 
@@ -312,7 +312,7 @@ object SwordContentFacade {
                     if (!isRef) {
                         span.addContent(Text(t))
                     } else {
-                        val osisRef = resolveRef(t, lang, KJVA)?.osisRef
+                        val osisRef = resolveRef(t, lang, KJVA)?.getOsisRef()
                         if (osisRef == null) {
                             Log.e(TAG, "Failed parsing ref $t")
                             span.addContent(Text(t))
@@ -351,18 +351,18 @@ object SwordContentFacade {
     }
     @Throws(OsisError::class)
     private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
-        Log.d(TAG, "readXmlTextStandardJSwordMethod: book=${book.initials}, key=${key.osisRef}")
+        Log.d(TAG, "readXmlTextStandardJSwordMethod: book=${book.initials}, key=${key.getOsisRef()}")
         return try {
             val data = BookData(book, key)
             val frag = data.osisFragment
 
             val bookCategory = book.bookCategory
-            if (bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
+            if (bookCategory == BookCategory.COMMENTARY && key.getCardinality() == 1) {
                 val verse = frag.getChild("verse")
                     ?: throw DocumentNotFound(
                         application.getString(
                             R.string.error_key_not_in_document2,
-                            key.name,
+                            key.getName(),
                             book.initials
                         )
                     )
@@ -400,7 +400,7 @@ object SwordContentFacade {
     private val bvaQuery = XPathFactory.instance().compile(".//ns:BVA", Filters.element(), null, xhtmlNamespace)
 
     private fun cachedText(book: Book, key: Key): Map<Int, String> = synchronized(this) {
-        val cacheKey = "${book.initials}-${key.osisRef}"
+        val cacheKey = "${book.initials}-${key.getOsisRef()}"
         plainTextCache.get(cacheKey) ?: run {
             val frag = try {
                 readOsisFragment(book, key)
@@ -452,7 +452,7 @@ object SwordContentFacade {
     open fun getCanonicalText(book: Book?, key: Key?, compatibleOffsets: Boolean = false): String {
         return try {
             val data = BookData(book, key)
-            val osissep = data.saxEventProvider
+            val osissep = data.getSAXEventProvider()
             val osisHandler: ContentHandler = OsisToCanonicalTextSaxHandler(compatibleOffsets)
             osissep.provideSAXEvents(osisHandler)
             osisHandler.toString()
@@ -792,7 +792,7 @@ object SwordContentFacade {
     fun getTextToSpeak(book: Book, key: Key?): String {
         return try {
             val data = BookData(book, key)
-            val osissep = data.saxEventProvider
+            val osissep = data.getSAXEventProvider()
             val sayReferences = BookCategory.GENERAL_BOOK == book.bookCategory
             val osisHandler = OsisToSpeakTextSaxHandler(sayReferences)
             osissep.provideSAXEvents(osisHandler)
@@ -813,7 +813,7 @@ object SwordContentFacade {
         // This does a standard operator search. See the search
         // documentation for more examples of how to search
         val key = bible.find(searchText) //$NON-NLS-1$
-        Log.i(TAG, "There are " + key.cardinality + " verses containing " + searchText)
+        Log.i(TAG, "There are " + key!!.getCardinality() + " verses containing " + searchText)
         return key
     }
 

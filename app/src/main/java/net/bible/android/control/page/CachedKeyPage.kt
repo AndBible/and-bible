@@ -76,8 +76,8 @@ abstract class CachedKeyPage internal constructor(
                     Log.i(TAG, "Start to create cached key list for $doc")
                     // this cache is cleared in setCurrentDoc
                     keylist = ArrayList()
-                    for (key in doc.globalKeyList) { // root key has no name and can be ignored but also check for any other keys with no name
-                        if (!StringUtils.isEmpty(key.name)) {
+                    for (key in doc.getGlobalKeyList()) { // root key has no name and can be ignored but also check for any other keys with no name
+                        if (!StringUtils.isEmpty(key.getName())) {
                             keylist.add(key)
                         }
                     }

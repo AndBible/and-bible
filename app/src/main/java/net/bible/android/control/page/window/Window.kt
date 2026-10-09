@@ -137,7 +137,7 @@ class Window (
                     if (e.key !is BookAndKey) return@subscribe
                     val curPage = pageManager.currentPage
                     val commentaryRange = (curPage as? CurrentCommentaryPage)?.annotateKey
-                    val osisRef = (commentaryRange ?: speakKey).osisRef
+                    val osisRef = (commentaryRange ?: speakKey).getOsisRef()
                     bibleView?.highlightOrdinalRange(
                         bookInitials,
                         osisRef,
@@ -155,7 +155,7 @@ class Window (
                     if(e.key is BookAndKey) {
                         bibleView?.highlightOrdinalRange(
                             bookInitials,
-                            e.key.key.osisRef,
+                            e.key.key.getOsisRef(),
                             e.key.ordinal!!.start .. (e.key.ordinal.end ?: e.key.ordinal.start)
                         )
                     }
@@ -378,7 +378,7 @@ class Window (
         val anchorOrdinal = pageManager.currentPage.anchorOrdinal
         val htmlId = pageManager.currentPage.htmlId
         if(prevKey == key && (anchorOrdinal != null || htmlId != null)) {
-            bibleView?.scrollOrJumpToOrdinal(anchorOrdinal, htmlId, document?.initials, pageManager.currentPage.displayKey?.osisRef)
+            bibleView?.scrollOrJumpToOrdinal(anchorOrdinal, htmlId, document?.initials, pageManager.currentPage.displayKey?.getOsisRef())
             return
         }
         loadText(notifyLocationChange = true)
@@ -424,7 +424,7 @@ class Window (
                 currentPage.anchorOrdinal,
                 currentPage.htmlId,
                 currentPage.currentDocument?.initials,
-                currentPage.displayKey?.osisRef,
+                currentPage.displayKey?.getOsisRef(),
                 true
             )
         }

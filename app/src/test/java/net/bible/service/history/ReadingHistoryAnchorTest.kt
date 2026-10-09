@@ -204,7 +204,7 @@ class ReadingHistoryAnchorTest {
         manager.restoreFrom(window, entities)
         val restored = manager.getHistory(window.id)
         assertEquals(1, restored.size)
-        assertEquals(verse.osisID, (restored.single() as KeyHistoryItem).key.osisID)
+        assertEquals(verse.getOsisID(), (restored.single() as KeyHistoryItem).key.getOsisID())
     }
 
     // ------------------------------------------------------------------ the production wiring
@@ -456,9 +456,9 @@ class ReadingHistoryAnchorTest {
         val psalm23 = Verse(Versifications.instance().getVersification("KJV"), BibleBook.PS, 23, 1)
 
         val restored = listOf(
-            WorkspaceEntities.HistoryItem(window.id, Date(1_000), "KJV", verse.osisID, 7),
-            WorkspaceEntities.HistoryItem(window.id, Date(2_000), "KJV", verse.osisID, 9),
-            WorkspaceEntities.HistoryItem(window.id, Date(3_000), "KJV", psalm23.osisID, null),
+            WorkspaceEntities.HistoryItem(window.id, Date(1_000), "KJV", verse.getOsisID(), 7),
+            WorkspaceEntities.HistoryItem(window.id, Date(2_000), "KJV", verse.getOsisID(), 9),
+            WorkspaceEntities.HistoryItem(window.id, Date(3_000), "KJV", psalm23.getOsisID(), null),
         )
         manager.restoreFrom(window, restored)
 
@@ -468,7 +468,7 @@ class ReadingHistoryAnchorTest {
         assertEquals(3, items.size, "restoreFrom pushes every entity, duplicates included")
         assertEquals(
             listOf(7, 9),
-            items.filter { it.key.osisID == verse.osisID }.map { it.anchorOrdinal?.start },
+            items.filter { it.key.getOsisID() == verse.getOsisID() }.map { it.anchorOrdinal?.start },
             "each restored anchorOrdinal must become an OrdinalRange with the same start",
         )
         assertEquals(
@@ -483,7 +483,7 @@ class ReadingHistoryAnchorTest {
                 entities.map { "${it.document}/${it.key}@${it.anchorOrdinal}" },
         )
         assertEquals(
-            listOf(verse.osisID, psalm23.osisID), entities.map { it.key },
+            listOf(verse.getOsisID(), psalm23.getOsisID()), entities.map { it.key },
             "the FIRST of the duplicate pair is the one kept",
         )
         assertEquals(

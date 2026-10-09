@@ -190,7 +190,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
 
-            metadata.driver = SqliteSwordDriver()
+            metadata.setDriver(SqliteSwordDriver())
             this.metadata = metadata
             return@synchronized metadata
         }
@@ -264,7 +264,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
 
     private fun indexOfDictionary(that: Key): Int {
         if(that !is DefaultLeafKeyList) return -1;
-        val keyName = that.name
+        val keyName = that.getName()
         return state.firstRow("select _rowid_ from dictionary WHERE topic = ?", keyName) { it.getInt(0) } ?: -1
     }
 
@@ -286,11 +286,11 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             "${bibleBookToMyBibleInt[verse.book]}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}", "${verse.chapter}", "${verse.verse}") { it.getInt(0) } ?: -1
     }
 
-    override fun indexOf(that: Key): Int = try {
+    override fun indexOf(that: Key?): Int = try {
         when (bookMetaData.bookCategory) {
-            BookCategory.BIBLE -> indexOfBible(that)
-            BookCategory.COMMENTARY -> indexOfCommentary(that)
-            BookCategory.DICTIONARY -> indexOfDictionary(that)
+            BookCategory.BIBLE -> indexOfBible(that!!)
+            BookCategory.COMMENTARY -> indexOfCommentary(that!!)
+            BookCategory.DICTIONARY -> indexOfDictionary(that!!)
             else -> -1
         }
     } catch (e: SQLiteException) {
@@ -325,7 +325,7 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
     }
     private fun readDictionary(state: SqliteVerseBackendState, key: Key): String {
         if(key !is DefaultLeafKeyList) throw RuntimeException("Invalid key");
-        val keyName = key.name
+        val keyName = key.getName()
         return state.firstRow("select definition from dictionary WHERE topic = ?", keyName) { it.getText(0) }
             ?: throw IOException("Can't read $key")
     }
@@ -368,12 +368,12 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         ) { it.getText(0) }.joinToString {"<div>$it</div>"}
     }
 
-    override fun readRawContent(state: SqliteVerseBackendState, key: Key): String =
+    override fun readRawContent(state: SqliteVerseBackendState, key: Key?): String =
         try {
             when (bookMetaData.bookCategory) {
-                BookCategory.BIBLE -> readBible(state, key)
-                BookCategory.COMMENTARY -> readCommentary(state, key)
-                BookCategory.DICTIONARY -> readDictionary(state, key)
+                BookCategory.BIBLE -> readBible(state, key!!)
+                BookCategory.COMMENTARY -> readCommentary(state, key!!)
+                BookCategory.DICTIONARY -> readDictionary(state, key!!)
                 else -> ""
             }
         } catch (e: SQLiteException) {
@@ -421,7 +421,7 @@ val myBibleDictionary = object: BookType("MyBibleDictionary", BookCategory.DICTI
 fun addMyBibleBook(file: File) {
     if(!(file.canRead() && file.isFile)) return
     val state = SqliteVerseBackendState(file)
-    val metadata = try { state.bookMetaData } catch (err: SQLiteException) {
+    val metadata = try { state.getBookMetaData() } catch (err: SQLiteException) {
         Log.e(TAG, "Failed to load MyBible module $file", err)
         return
     }
@@ -454,4 +454,4 @@ fun addManuallyInstalledMyBibleBooks() {
 }
 
 val Book.isManuallyInstalledMyBibleBook get() = bookMetaData.getProperty("AndBibleMyBibleModule") != null
-val Book.myBibleDownloadUrl: String get() = bookMetaData.getProperty("AndBibleDownloadUrl")
+val Book.myBibleDownloadUrl: String get() = bookMetaData.getProperty("AndBibleDownloadUrl")!!

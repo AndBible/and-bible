@@ -102,7 +102,7 @@ private fun formatJsonObjectForLog(obj: JSONObject): String =
  * Falls back to the original reference on any error.
  */
 fun localizeVerseRef(osisRef: String): String = try {
-    PassageKeyFactory.instance().getKey(KJVA, osisRef).name
+    PassageKeyFactory.instance().getKey(KJVA, osisRef).getName()
 } catch (_: Exception) {
     osisRef
 }

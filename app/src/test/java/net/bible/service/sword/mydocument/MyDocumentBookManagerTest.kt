@@ -111,8 +111,8 @@ class MyDocumentBookManagerTest {
 
         val key = book.getKey("page_one")
 
-        assertEquals("page_one", key.osisRef)
-        assertEquals("First page", key.name)
+        assertEquals("page_one", key.getOsisRef())
+        assertEquals("First page", key.getName())
     }
 
     @Test
@@ -124,7 +124,7 @@ class MyDocumentBookManagerTest {
         addPage("page_two", "Second page")
         MyDocumentBookManager.refreshDocument("MyDoc_Test")
 
-        assertEquals("page_two", book.getKey("page_two").osisRef)
+        assertEquals("page_two", book.getKey("page_two").getOsisRef())
     }
 
     @Test
@@ -135,12 +135,12 @@ class MyDocumentBookManagerTest {
         val book = Books.installed().getBook("MyDoc_Empty")!!
         // Activating with no pages freezes an empty key map. Without a rebuild
         // it stays empty for the rest of the session and every getKey() throws.
-        assertEquals(0, book.globalKeyList.cardinality)
+        assertEquals(0, book.getGlobalKeyList().getCardinality())
 
         addPage("page_late", "Late page", documentId = empty.id)
         MyDocumentBookManager.refreshDocument("MyDoc_Empty")
 
-        assertEquals("page_late", book.getKey("page_late").osisRef)
+        assertEquals("page_late", book.getKey("page_late").getOsisRef())
     }
 
     @Test
@@ -152,8 +152,8 @@ class MyDocumentBookManagerTest {
         MyDocumentBookManager.handleSyncEvent(syncEventForPages("page_two"))
 
         val refreshed = Books.installed().getBook("MyDoc_Test")!!
-        assertEquals("page_two", refreshed.getKey("page_two").osisRef)
-        assertEquals("page_one", refreshed.getKey("page_one").osisRef)
+        assertEquals("page_two", refreshed.getKey("page_two").getOsisRef())
+        assertEquals("page_one", refreshed.getKey("page_one").getOsisRef())
     }
 
     @Test
@@ -169,7 +169,7 @@ class MyDocumentBookManagerTest {
             book,
             Books.installed().getBook("MyDoc_Test")
         )
-        assertEquals("page_two", book.getKey("page_two").osisRef)
+        assertEquals("page_two", book.getKey("page_two").getOsisRef())
     }
 
     @Test
@@ -177,7 +177,7 @@ class MyDocumentBookManagerTest {
         addPage("page_two", "Second page")
         MyDocumentBookManager.refreshDocument("MyDoc_Test")
         val book = Books.installed().getBook("MyDoc_Test")!!
-        assertEquals("page_two", book.getKey("page_two").osisRef)
+        assertEquals("page_two", book.getKey("page_two").getOsisRef())
 
         val deleted = runBlocking { dao.pageByKeyWithContent(document.id, "page_two") }!!
         val entry = LogEntry(
@@ -191,8 +191,8 @@ class MyDocumentBookManagerTest {
         runBlocking { dao.deletePageWithContent(dao.pageById(deleted.id)!!) }
         MyDocumentBookManager.handleSyncEvent(listOf(entry))
 
-        assertTrue(book.globalKeyList.none { it.osisRef == "page_two" })
-        assertEquals("page_one", book.getKey("page_one").osisRef)
+        assertTrue(book.getGlobalKeyList().none { it.getOsisRef() == "page_two" })
+        assertEquals("page_one", book.getKey("page_one").getOsisRef())
     }
 
     @Test
@@ -217,7 +217,7 @@ class MyDocumentBookManagerTest {
 
         val book = Books.installed().getBook("MyDoc_Other")
         assertNotNull("document created on another device must be registered", book)
-        assertEquals("page_other", book!!.getKey("page_other").osisRef)
+        assertEquals("page_other", book!!.getKey("page_other").getOsisRef())
     }
 
     @Test
@@ -263,7 +263,7 @@ class MyDocumentBookManagerTest {
 
         val current = Books.installed().getBook("MyDoc_Test")!!
         assertEquals("Renamed document", current.name)
-        assertEquals("page_one", current.getKey("page_one").osisRef)
+        assertEquals("page_one", current.getKey("page_one").getOsisRef())
     }
 
     @Test
@@ -286,7 +286,7 @@ class MyDocumentBookManagerTest {
             worker.join()
             assertTrue("sync must wait for main before refreshing registrations", seen.isEmpty())
             shadowOf(Looper.getMainLooper()).idle()
-            assertEquals("page_synced", Books.installed().getBook("MyDoc_Test")!!.getKey("page_synced").osisRef)
+            assertEquals("page_synced", Books.installed().getBook("MyDoc_Test")!!.getKey("page_synced").getOsisRef())
             assertEquals(listOf(MyDocumentChange.DocumentUpdated("MyDoc_Test")), seen)
             assertSame(Looper.getMainLooper(), deliveryLooper)
         } finally {
@@ -301,7 +301,7 @@ class MyDocumentBookManagerTest {
         var resolved = false
         val subscription = MyDocumentBookManager.changes.subscribe {
             if (it == MyDocumentChange.DocumentUpdated("MyDoc_Test")) {
-                resolved = Books.installed().getBook("MyDoc_Test")!!.getKey("page_synced").osisRef == "page_synced"
+                resolved = Books.installed().getBook("MyDoc_Test")!!.getKey("page_synced").getOsisRef() == "page_synced"
             }
         }
         try {

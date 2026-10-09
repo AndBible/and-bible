@@ -81,7 +81,7 @@ fun addBackgroundImageBook(file: File) {
     // Skip a file that already backs a registered module, so repeated scans stay idempotent.
     // (Done before generating initials: otherwise dedup would mint a fresh _N initials and the
     // existing-book guard below would fail to fire, registering a duplicate module each scan.)
-    if (Books.installed().books.any { it.isBackgroundImageModule && it.backgroundImageFile == file }) return
+    if (Books.installed().getBooks().any { it.isBackgroundImageModule && it.backgroundImageFile == file }) return
 
     val displayName = file.nameWithoutExtension
     val moduleInitials = backgroundImageModuleInitials(file.name) {
@@ -103,7 +103,7 @@ AndBibleMinimumVersion=1112
 
     val metadata = SwordBookMetaData(conf.toByteArray(), moduleInitials)
     metadata.location = file.parentFile.toURI()
-    metadata.driver = BackgroundImageSwordDriver()
+    metadata.setDriver(BackgroundImageSwordDriver())
     val book = SwordBook(metadata, NullBackend())
     Books.installed().addBook(book)
 }

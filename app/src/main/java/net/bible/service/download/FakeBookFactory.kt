@@ -55,7 +55,7 @@ class NullKeyBackend(private val metadata: SwordBookMetaData): AbstractKeyBacken
         lastKey = that
         return 0
     }
-    override fun readRawContent(state: NullOpenFileState?, key: Key?): String = ""
+    override fun readRawContent(state: NullOpenFileState, key: Key?): String = ""
 }
 
 
@@ -84,7 +84,7 @@ object FakeBookFactory {
     fun createRepoSBMD(module: String?, conf: String): SwordBookMetaData {
         val sbmd = SwordBookMetaData(conf.toByteArray(), module)
         val fake = SwordBookDriver.instance()
-        sbmd.driver = fake
+        sbmd.setDriver(fake)
         return sbmd
     }
 

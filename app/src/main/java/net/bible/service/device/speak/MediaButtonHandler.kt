@@ -148,7 +148,7 @@ class MediaButtonHandler(val speakControl: SpeakControl) {
                     ms.setMetadata(
                         MediaMetadataCompat.Builder(nothingPlaying)
                             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, ev.book.name)
-                            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, ev.key.name)
+                            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, ev.key.getName())
                             .build()
                     )
                 }

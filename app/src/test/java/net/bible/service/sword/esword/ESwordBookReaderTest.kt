@@ -69,7 +69,7 @@ class ESwordBookReaderTest {
 
     private fun backend(file: File): SqliteBackend {
         state = SqliteVerseBackendState(file).also { states.add(it) }
-        return SqliteBackend(state, state.bookMetaData)
+        return SqliteBackend(state, state.getBookMetaData())
     }
 
     private fun bible(name: String = "esv.bblx") = module(
@@ -128,7 +128,7 @@ class ESwordBookReaderTest {
     @Test
     fun cardinalityAndIndexOf() {
         val b = backend(bible())
-        assertEquals(3, b.cardinality)
+        assertEquals(3, b.getCardinality())
         assertEquals(3, b.indexOf(verse(BibleBook.EXOD, 3, 4)))
         assertEquals(-1, b.indexOf(verse(BibleBook.GEN, 9, 9)))
     }
@@ -136,10 +136,10 @@ class ESwordBookReaderTest {
     @Test
     fun theModuleIsOpenedReadOnly() {
         val b = backend(bible())
-        assertEquals(3, b.cardinality)
+        assertEquals(3, b.getCardinality())
         assertThrows(SQLiteException::class.java) {
             state.sqlDb.exec("INSERT INTO Bible VALUES (1, 1, 3, 'x')")
         }
-        assertEquals(3, b.cardinality)
+        assertEquals(3, b.getCardinality())
     }
 }

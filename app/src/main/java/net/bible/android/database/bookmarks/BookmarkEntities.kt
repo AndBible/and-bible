@@ -46,7 +46,7 @@ import org.crosswire.jsword.passage.RangedPassage
 import java.util.*
 import kotlin.math.abs
 
-val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
+val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)!!
 
 const val SPEAK_LABEL_NAME = "__SPEAK_LABEL__"
 const val PARAGRAH_BREAK_LABEL_NAME = "__PARAGRAPH_BREAK_LABEL__"
@@ -541,7 +541,7 @@ class BookmarkEntities {
         )
 
         constructor(key: Key, book: Book, textRange: TextRange?, ordinalStart: Int?): this(
-            key = key.osisRef,
+            key = key.getOsisRef(),
             playbackSettings = null,
             ordinalStart = ordinalStart,
             ordinalEnd = ordinalStart,

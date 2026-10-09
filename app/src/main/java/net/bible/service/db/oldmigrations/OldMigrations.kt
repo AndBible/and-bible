@@ -78,7 +78,7 @@ private val MIGRATION_37_38_MyNotes_To_Bookmarks = object : Migration(37, 38) {
                 }
 
                 val bookmarkId = db.insertOr("FAIL", "Bookmark",
-                    "v11n" to v11n.name,
+                    "v11n" to v11n!!.name,
                     "kjvOrdinalStart" to verseRangeInKjv.start.ordinal,
                     "kjvOrdinalEnd" to verseRangeInKjv.end.ordinal,
                     "ordinalStart" to verseRange.start.ordinal,

@@ -48,7 +48,7 @@ class DocumentFilterServiceImpl : DocumentFilterService {
 
     override fun groups(): List<AiDocGroupVd> {
         val excluded = settings.aiExcludedDocuments
-        val allBooks = Books.installed().books
+        val allBooks = Books.installed().getBooks()
         return ORDERED_CATEGORIES.mapNotNull { category ->
             val booksInCategory = allBooks
                 .filter { it.bookCategory == category }

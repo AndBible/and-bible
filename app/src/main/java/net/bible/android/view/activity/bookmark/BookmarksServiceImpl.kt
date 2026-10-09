@@ -99,13 +99,13 @@ class BookmarksServiceImpl(
 
         val title = when (bm) {
             is BibleBookmarkWithNotes -> {
-                val verseName = bm.verseRange.toV11n(versification).name
+                val verseName = bm.verseRange.toV11n(versification).getName()
                 val speakBook = bm.speakBook
                 if (isSpeak && speakBook != null) {
                     CommonUtils.getResourceString(R.string.something_with_parenthesis, verseName, speakBook.abbreviation)
                 } else verseName
             }
-            is GenericBookmarkWithNotes -> "${bm.book?.abbreviation ?: bm.bookInitials}: ${bm.bookKey?.name ?: bm.key}"
+            is GenericBookmarkWithNotes -> "${bm.book?.abbreviation ?: bm.bookInitials}: ${bm.bookKey?.getName() ?: bm.key}"
             else -> ""
         }
 

@@ -46,7 +46,7 @@ abstract class VersePage protected constructor(
     // Bibles must be a PassageBook
     val versification: Versification
         get() {
-            val kjv = Versifications.instance().getVersification("KJV")
+            val kjv = Versifications.instance().getVersification("KJV")!!
             return try { // Bibles must be a PassageBook
                 (currentDocument as AbstractPassageBook?)?.versification?: kjv
             } catch (e: Exception) {

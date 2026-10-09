@@ -132,8 +132,8 @@ object GetBookmarksForVerseTool : Tool {
                 val labels = labelsMap[bookmark.id] ?: emptyList()
                 BookmarkInfo(
                     id = bookmark.id,
-                    verseRange = bookmark.verseRange.osisRef,
-                    verseName = bookmark.verseRange.name,
+                    verseRange = bookmark.verseRange.getOsisRef(),
+                    verseName = bookmark.verseRange.getName(),
                     notes = bookmark.notes,
                     createdAt = bookmark.createdAt.time,
                     lastUpdatedOn = bookmark.lastUpdatedOn.time,

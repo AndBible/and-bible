@@ -501,14 +501,14 @@ class TextDisplaySettingsServiceImpl(
         val file = withContext(Dispatchers.IO) { BackgroundImageImporter.copyAndRegister(app, Uri.parse(uriStr)) } ?: return null
         AndBibleAddons.clearCaches()
         // find the freshly-registered module whose file == the written file
-        val initials = Books.installed().books.firstOrNull { it.isBackgroundImageModule && it.backgroundImageFile == file }?.initials ?: return null
+        val initials = Books.installed().getBooks().firstOrNull { it.isBackgroundImageModule && it.backgroundImageFile == file }?.initials ?: return null
         val p = AndBibleAddons.providedBackgroundImages[initials] ?: return null
         return BackgroundImageOption(initials, p.name, initials)
     }
 
     override fun deleteBackgroundImage(initials: String) {
         val book = Books.installed().getBook(initials) ?: return
-        book.driver.delete(book)          // BackgroundImageSwordDriver: deletes file + removeBook
+        book.driver!!.delete(book)          // BackgroundImageSwordDriver: deletes file + removeBook
         AndBibleAddons.clearCaches()
     }
 

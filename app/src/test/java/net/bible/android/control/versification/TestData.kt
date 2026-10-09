@@ -34,7 +34,7 @@ import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.passage.VerseRange
 
 object TestData {
-    val KJV = Versifications.instance().getVersification(SystemKJV.V11N_NAME)
+    val KJV = Versifications.instance().getVersification(SystemKJV.V11N_NAME)!!
     val KJVA = Versifications.instance().getVersification(SystemKJVA.V11N_NAME)
     val SYNODAL_PROT = Versifications.instance().getVersification(SystemSynodalProt.V11N_NAME)
     val NRSV = Versifications.instance().getVersification(SystemNRSV.V11N_NAME)

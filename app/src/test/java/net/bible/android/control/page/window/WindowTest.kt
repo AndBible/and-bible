@@ -120,7 +120,7 @@ class WindowTest {
         //pageManager = window.pageManager
         biblePage = pageManager.currentBible
         assertThat<Book>(biblePage.currentDocument, equalTo<Book>(PassageTestData.ESV))
-        assertThat(biblePage.singleKey.name, equalTo(PassageTestData.PS_139_2.name))
+        assertThat(biblePage.singleKey.getName(), equalTo(PassageTestData.PS_139_2.getName()))
     }
     @Test
     fun switchingWorkspaceReleasesOutgoingWindowsAndPagesButKeepsReplacementLive() {
@@ -136,7 +136,7 @@ class WindowTest {
         val book = mock(Book::class.java).apply {
             `when`(bookMetaData).thenReturn(meta)
             `when`(initials).thenReturn("MyDoc_Switch")
-            `when`(globalKeyList).thenReturn(DefaultKeyList().apply {
+            `when`(getGlobalKeyList()).thenReturn(DefaultKeyList().apply {
                 addAll(DefaultLeafKeyList("p1", "p1"))
             })
         }
@@ -201,7 +201,7 @@ class WindowTest {
         val book = mock(Book::class.java).apply {
             `when`(bookMetaData).thenReturn(meta)
             `when`(initials).thenReturn("MyDoc_A")
-            `when`(globalKeyList).thenReturn(DefaultKeyList().apply {
+            `when`(getGlobalKeyList()).thenReturn(DefaultKeyList().apply {
                 addAll(DefaultLeafKeyList("p1", "p1"))
             })
         }

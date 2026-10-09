@@ -159,7 +159,7 @@ object SearchBibleTool : Tool {
         val bookInitials = args.books.ifEmpty {
             // Find first indexed Bible
             val indexedBible = AiDocumentFilter.filterAllowed(
-                Books.installed().books.filterIsInstance<SwordBook>()
+                Books.installed().getBooks().filterIsInstance<SwordBook>()
             ).firstOrNull { it.indexStatus == IndexStatus.DONE }
 
             if (indexedBible == null) {
@@ -219,7 +219,7 @@ object SearchBibleTool : Tool {
             if (book.indexStatus != IndexStatus.DONE) continue
 
             for (key in SwordContentFacade.search(book, query)) {
-                results.add(VerseResult(bookInitial, key.osisRef, key.name))
+                results.add(VerseResult(bookInitial, key.getOsisRef(), key.getName()))
             }
         }
         return results

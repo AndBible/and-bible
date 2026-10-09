@@ -69,7 +69,7 @@ AndBibleMinimumVersion=892
 
     val metadata = SwordBookMetaData(conf.toByteArray(), moduleInitials)
     metadata.location = file.parentFile.toURI()
-    metadata.driver = CsvPromptSwordDriver()
+    metadata.setDriver(CsvPromptSwordDriver())
     val book = SwordBook(metadata, NullBackend())
     Books.installed().addBook(book)
 }

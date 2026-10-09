@@ -56,7 +56,7 @@ class AndroidEpubSearchService : EpubSearchService {
                 .take(SearchControl.MAX_SEARCH_RESULTS + 1)
                 .map { kt ->
                     EpubResultRow(
-                        keyId = kt.key.osisRef,   // fully-qualified BookAndKey id (fragment address)
+                        keyId = kt.key.getOsisRef(),   // fully-qualified BookAndKey id (fragment address)
                         // The hit's position inside that fragment. `BookAndKey.ordinal` is
                         // @Transient and absent from osisRef, which is why the fragment address
                         // alone collided as a list key (F44/B1).

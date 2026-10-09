@@ -73,6 +73,6 @@ class CrosswireRepoIT {
                 .filter {testBooks.contains(it.initials)}
                 .filter {Books.installed().getBook(it.initials) == null}
                 .forEach {crosswireRepo.downloadDocument(it)}
-        assertThat(Books.installed().books.size, greaterThanOrEqualTo(testBooks.size))
+        assertThat(Books.installed().getBooks().size, greaterThanOrEqualTo(testBooks.size))
     }
 }

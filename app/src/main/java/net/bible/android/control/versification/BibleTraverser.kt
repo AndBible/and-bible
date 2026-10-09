@@ -71,7 +71,7 @@ open class BibleTraverser constructor(private val documentBibleBooksFactory: Doc
 
     fun getNextVerseRange(document: AbstractPassageBook, verseRange: VerseRange, continueToNextChapter: Boolean): VerseRange {
         val v11n = verseRange.versification
-        val verseCount = verseRange.cardinality
+        val verseCount = verseRange.getCardinality()
 
         // shuffle forward
         var start = verseRange.start
@@ -90,7 +90,7 @@ open class BibleTraverser constructor(private val documentBibleBooksFactory: Doc
 
     private fun getPreviousVerseRange(document: AbstractPassageBook, verseRange: VerseRange, continueToPreviousChapter: Boolean): VerseRange {
         val v11n = verseRange.versification
-        val verseCount = verseRange.cardinality
+        val verseCount = verseRange.getCardinality()
 
         // shuffle backward
         var start = verseRange.start

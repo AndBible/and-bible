@@ -139,7 +139,7 @@ object GetGenBookContentTool : Tool {
                     book = args.book,
                     bookName = book.name,
                     key = args.key,
-                    keyName = resolvedKey.name,
+                    keyName = resolvedKey.getName(),
                     linkUrl = linkUrl,
                     osisXml = outputter.outputString(fragment)
                 ))
@@ -148,7 +148,7 @@ object GetGenBookContentTool : Tool {
                     book = args.book,
                     bookName = book.name,
                     key = args.key,
-                    keyName = resolvedKey.name,
+                    keyName = resolvedKey.getName(),
                     linkUrl = linkUrl,
                     text = OsisToPlainText.convert(fragment, injectAnchors = true)
                 ))

@@ -44,7 +44,7 @@ import net.bible.service.sword.mydocument.isMyDocument
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
-import org.crosswire.jsword.book.sword.SwordBookMetaData.KEY_SOURCE_TYPE
+import org.crosswire.jsword.book.sword.SwordBookMetaData.Companion.KEY_SOURCE_TYPE
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
@@ -68,12 +68,12 @@ fun mapToJson(map: Map<String, String>?): String =
     map?.map {(key, value) -> "'$key': $value"}?.joinToString(",", "{", "}")?:"null"
 
 fun listToJson(list: List<String>) = list.joinToString(",", "[", "]")
-val VerseRange.onlyNumber: String get() = if(cardinality > 1) "${start.verse}-${end.verse}" else "${start.verse}"
+val VerseRange.onlyNumber: String get() = if(getCardinality() > 1) "${start.verse}-${end.verse}" else "${start.verse}"
 val VerseRange.abbreviated: String get() = synchronized(BookName::class.java) {
     val wasFullBookName = BookName.isFullBookName()
     BookName.setFullBookName(false)
     try {
-        return name
+        return getName()
     } finally {
         BookName.setFullBookName(wasFullBookName)
     }
@@ -170,8 +170,8 @@ open class OsisDocument(
             "bookAbbreviation" to wrapString(book.abbreviation),
             "bookName" to wrapString(book.name),
             "key" to wrapString(key.uniqueId),
-            "annotateRef" to wrapString(osisFragment.annotateRef?.osisRef?: key.osisRef),
-            "osisRef" to wrapString((osisFragment.annotateRef ?: key).osisRef),
+            "annotateRef" to wrapString(osisFragment.annotateRef?.getOsisRef()?: key.getOsisRef()),
+            "osisRef" to wrapString((osisFragment.annotateRef ?: key).getOsisRef()),
             "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
             "genericBookmarks" to listToJson(genericBookmarks.map { ClientGenericBookmark(it).asJson }),
             "highlightedOrdinalRange" to highlightedOrdinalRange,
@@ -302,7 +302,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.BibleBookmarkWithNote
                 "type" to wrapString("notes"),
                 "bookmarks" to listToJson(bookmarks),
                 "ordinalRange" to json.encodeToString(serializer(), listOf(verseRange.start.ordinal, verseRange.end.ordinal)),
-                "verseRange" to wrapString(verseRange.name),
+                "verseRange" to wrapString(verseRange.getName()),
             )
         }
 }
@@ -356,11 +356,11 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
             "lastUpdatedOn" to bookmark.lastUpdatedOn.time.toString(),
             "notes" to notes,
             "hasNote" to (notes != "null").toString(),
-            "verseRange" to wrapString(bookmark.verseRange.name),
+            "verseRange" to wrapString(bookmark.verseRange.getName()),
             "verseRangeOnlyNumber" to wrapString(bookmark.verseRange.onlyNumber),
             "verseRangeAbbreviated" to wrapString(bookmark.verseRange.abbreviated),
             "text" to wrapString(bookmark.text),
-            "osisRef" to wrapString(bookmark.verseRange.osisRef),
+            "osisRef" to wrapString(bookmark.verseRange.getOsisRef()),
             "v11n" to wrapString((bookmark.book?.versification?: KJVA).name),
             "fullText" to wrapString(bookmark.fullText),
             "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
@@ -384,7 +384,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
         return mapOf(
             "id" to wrapString(bookmark.id.toString()),
             "key" to wrapString(bookmark.key),
-            "keyName" to wrapString(bookmark.originalKey?.name?: bookmark.key),
+            "keyName" to wrapString(bookmark.originalKey?.getName()?: bookmark.key),
             "hashCode" to (abs(bookmark.id.hashCode())).toString(),
             "ordinalRange" to json.encodeToString(serializer(), listOf(bookmark.ordinalStart, bookmark.ordinalEnd)),
             "offsetRange" to json.encodeToString(serializer(), if(bookmark.wholeVerse) null else bookmark.textRange?.clientList),

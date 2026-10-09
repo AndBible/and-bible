@@ -49,11 +49,11 @@ class StudyPadKey(
     }
 
     override fun getName(base: Key?): String {
-        return name
+        return getName()
     }
 
     override fun getRootName(): String {
-        return name
+        return getName()
     }
 
     override fun getOsisRef(): String {
@@ -61,7 +61,7 @@ class StudyPadKey(
     }
 
     override fun getOsisID(): String {
-        return osisRef
+        return getOsisRef()
     }
 
     override fun getParent(): Key? {

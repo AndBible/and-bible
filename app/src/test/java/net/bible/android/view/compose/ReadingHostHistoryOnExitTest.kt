@@ -94,7 +94,7 @@ class ReadingHostHistoryOnExitTest {
         val history = historyManager().getHistory(CommonUtils.windowControl.activeWindow.id)
         assertEquals("exactly one item for the exit (M3)", before + 1, history.size)
         val top = history.first() as KeyHistoryItem
-        assertEquals("the item names the verse the user left from", "Ps.23.1", top.key.osisID)
+        assertEquals("the item names the verse the user left from", "Ps.23.1", top.key.getOsisID())
     }
 
     /**

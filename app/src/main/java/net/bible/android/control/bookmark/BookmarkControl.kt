@@ -642,7 +642,7 @@ open class BookmarkControl constructor(
     fun isSpeakBookmark(bookmark: BaseBookmarkWithNotes): Boolean = blocking { dao.labelsForBookmark(bookmark).contains(speakLabelSus()) }
     fun speakBookmarkForVerse(verse: Verse) = blocking { dao.bookmarksForVerseStartWithLabel(verse, speakLabelSus()).firstOrNull() }
     fun speakBookmarkForKey(key: BookAndKey): GenericBookmarkWithNotes? = blocking {
-        dao.bookmarksForKeyStartWithLabel(key.document!!.initials, key.key.osisRef, key.ordinal!!.start, speakLabelSus().id).firstOrNull()
+        dao.bookmarksForKeyStartWithLabel(key.document!!.initials, key.key.getOsisRef(), key.ordinal!!.start, speakLabelSus().id).firstOrNull()
     }
     fun changeLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labelIds: List<IdType>) = blockingDb { changeLabelsForBookmarkSus(bookmark, labelIds) }
 

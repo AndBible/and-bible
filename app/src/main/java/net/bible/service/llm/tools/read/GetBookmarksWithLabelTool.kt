@@ -141,8 +141,8 @@ object GetBookmarksWithLabelTool : Tool {
                 results.add(BookmarkEntry(
                     id = bookmark.id,
                     type = "bible",
-                    verseRange = if ("verseRange" in fields) bookmark.verseRange.osisRef else null,
-                    verseName = if ("verseName" in fields) bookmark.verseRange.name else null,
+                    verseRange = if ("verseRange" in fields) bookmark.verseRange.getOsisRef() else null,
+                    verseName = if ("verseName" in fields) bookmark.verseRange.getName() else null,
                     notes = if ("notes" in fields) bookmark.notes else null,
                     createdAt = if ("createdAt" in fields) bookmark.createdAt.time else null
                 ))

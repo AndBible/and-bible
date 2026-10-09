@@ -56,9 +56,9 @@ class DownloadManager(
             val installer = when(r.type) {
                 "sword-https" -> {
                     HttpsSwordInstaller().apply {
-                        host = r.host
-                        packageDirectory = r.packageDirectory
-                        catalogDirectory = r.catalogDirectory
+                        setHost(r.host)
+                        setPackageDirectory(r.packageDirectory)
+                        setCatalogDirectory(r.catalogDirectory)
                     }
                 }
                 "mybible-https" -> {
@@ -103,10 +103,10 @@ class DownloadManager(
                 // Now we can get the list of books
                 log.debug("getting downloadable books")
 
-                if (refresh || installer.books.size == 0) {
+                if (refresh || installer.getBooks().size == 0) {
                     log.warn("Reloading book list")
 
-                    val indexLastUpdated = installer.indexLastUpdated()
+                    val indexLastUpdated = installer.indexLastUpdated()!!
                     if(indexLastUpdated == 0L || indexLastUpdated > CommonUtils.settings.getLong("repo-$repo-updated", 0)) {
                         installer.reloadBookList()
                         CommonUtils.settings.setLong("repo-$repo-updated", indexLastUpdated)
@@ -149,7 +149,7 @@ class DownloadManager(
     fun installBook(repositoryName: String, book: Book) {
         val bookInitials = book.initials
 
-        val installer = installManager.getInstaller(repositoryName)
+        val installer = installManager.getInstaller(repositoryName)!!
         val jobId = Progress.INSTALL_BOOK.format(book.repoIdentity)
         installer.install(book, jobId)
         // Make sure it refreshes existing doc

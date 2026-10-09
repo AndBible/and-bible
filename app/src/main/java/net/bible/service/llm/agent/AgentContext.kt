@@ -88,7 +88,7 @@ data class AgentContext(
     val sourceBookKey: String? = null
 ) {
     val verseRefString: String?
-        get() = selectedVerseRange?.osisRef
+        get() = selectedVerseRange?.getOsisRef()
 
     fun withWritePermissionGranted() = copy(grantedWritePermission = true)
     fun withAllToolsPermissionGranted() = copy(grantedAllToolsPermission = true, grantedWritePermission = true)

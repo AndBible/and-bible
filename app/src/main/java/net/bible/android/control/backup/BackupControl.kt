@@ -593,7 +593,7 @@ object BackupControl {
         val books = Dialogs.multiselect(
             callingActivity,
             R.string.backup_modules_title,
-            Books.installed().books.filter { !it.isPseudoBook && !it.isMyDocument }.sortedBy { it.language }
+            Books.installed().getBooks().filter { !it.isPseudoBook && !it.isMyDocument }.sortedBy { it.language }
         ) {
             callingActivity.getString(R.string.something_with_parenthesis, it.name, "${it.initials}, ${it.language.code}")
         }
@@ -1100,7 +1100,7 @@ object BackupControl {
         val bookDriver = SwordBookDriver.instance()
         for (confFile in confFiles) {
             val me = SwordBookMetaData(confFile, NetUtil.getURI(targetDirectory))
-            me.driver = bookDriver
+            me.setDriver(bookDriver)
             SwordBookDriver.registerNewBook(me)
         }
         // Discover & register all other (manually installed) book types
@@ -1125,7 +1125,7 @@ object BackupControl {
      */
     suspend fun installModuleArchive(file: File, expectedInitials: String? = null): Boolean =
         withContext(Dispatchers.IO) {
-            val countBefore = Books.installed().books.size
+            val countBefore = Books.installed().getBooks().size
             try {
                 extractAndRegisterModuleArchive({ FileInputStream(file) })
             } catch (e: Exception) {
@@ -1136,7 +1136,7 @@ object BackupControl {
             val ok = if (expectedInitials != null) {
                 installed.getBook(expectedInitials) != null
             } else {
-                installed.books.size > countBefore
+                installed.getBooks().size > countBefore
             }
             if (ok) {
                 DocumentChanges.notifyInstalledChanged()

@@ -59,7 +59,7 @@ import java.util.concurrent.ConcurrentHashMap
  * [ProgressControl.ChapterReadEntry] for [ProgressControl.deleteReadHistoryEntries].
  */
 class ReadingProgressServiceImpl : ReadingProgressService {
-    private val kjva get() = Versifications.instance().getVersification("KJVA")
+    private val kjva get() = Versifications.instance().getVersification("KJVA")!!
 
     /**
      * Last-loaded read-history entries, keyed by [ChapterReadEntry.id]'s string form. A
@@ -307,7 +307,7 @@ class ReadingProgressServiceImpl : ReadingProgressService {
     override suspend fun memorizedPassages(): List<PassageRow> = withContext(Dispatchers.IO) {
         ProgressControl.getMemorizedVerseRangesWithTimestamps().map { r ->
             PassageRow(
-                rangeName = r.verseRange.name,
+                rangeName = r.verseRange.getName(),
                 startOrdinal = r.verseRange.start.ordinal,
                 endOrdinal = r.verseRange.end.ordinal,
                 relativeTime = formatRelative(r.latestMemorizedAt),
@@ -322,7 +322,7 @@ class ReadingProgressServiceImpl : ReadingProgressService {
                 if (memorized >= t.verseCount) return@mapNotNull null
                 TargetRow(
                     id = t.id.toString(),
-                    rangeName = t.verseRange.name,
+                    rangeName = t.verseRange.getName(),
                     memorized = memorized,
                     total = t.verseCount,
                     startOrdinal = t.verseRange.start.ordinal,
@@ -344,5 +344,5 @@ class ReadingProgressServiceImpl : ReadingProgressService {
 
     /** OSIS id (e.g. "Gen.1.1") for a chapter, used by the host for the chapter-tap result `Intent`. */
     fun osisIdForChapter(bookId: String, chapter: Int): String =
-        Verse(kjva, BibleBook.valueOf(bookId), chapter, 1).osisID
+        Verse(kjva, BibleBook.valueOf(bookId), chapter, 1).getOsisID()
 }

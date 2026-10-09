@@ -147,7 +147,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             .evaluateFirst(content)?.value
     }
 
-    private fun getFragment(key: Key): EpubFragment? = blockingDb { dao.getFragment(key.osisRef.toLong()) }
+    private fun getFragment(key: Key): EpubFragment? = blockingDb { dao.getFragment(key.getOsisRef().toLong()) }
 
     fun fileForOriginalId(id: String): File? = idToFile[id]?.let {File(rootFolder, it) }
 
@@ -172,7 +172,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             xp.compile("//ns:navPoint/ns:content", Filters.element(), null, tocNamespace)
                 .evaluate(toc)
         }
-        val book = Books.installed().getBook(bookMetaData.initials)
+        val book = Books.installed().getBook(getBookMetaData().initials)
         return content.mapNotNull { c ->
             val label =
                 useXPathInstance { xp2 ->
@@ -230,8 +230,8 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     val optimizerVersion get() = try { String(versionFile.readBytes()).toLong() } catch (e: Exception) {1}
 
     private val epubDbFilename = "optimized.sqlite3.gz"
-    internal val appDbFilename = "epub-${bookMetaData.initials}.sqlite3"
-    private val searchDbFilename = "epub-${bookMetaData.initials}-search.sqlite3"
+    internal val appDbFilename = "epub-${getBookMetaData().initials}.sqlite3"
+    private val searchDbFilename = "epub-${getBookMetaData().initials}-search.sqlite3"
     private val searchDbFile = File(epubDir, searchDbFilename)
     private val alternativeEpubDbFilename = "${appDbFilename}.gz"
 
@@ -268,7 +268,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     private val readDb = getEpubDatabase(appDbFilename)
     private val search = EpubSearch(searchDbFile)
     init {
-        bookMetaData.indexStatus = if(search.isIndexed) IndexStatus.DONE else IndexStatus.UNDONE
+        getBookMetaData().indexStatus = if(search.isIndexed) IndexStatus.DONE else IndexStatus.UNDONE
     }
 
     private val dao = readDb.epubDao()
@@ -291,10 +291,10 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         // has not deleted first — it is correct and cheap, but it has no test and no device-checklist
         // item, and nothing in the F43 batch exercises it.
         if (search.isIndexed) {
-            bookMetaData.indexStatus = IndexStatus.DONE
+            getBookMetaData().indexStatus = IndexStatus.DONE
             return
         }
-        bookMetaData.indexStatus = IndexStatus.CREATING
+        getBookMetaData().indexStatus = IndexStatus.CREATING
         // This whole build is wrapped because it runs on a bare `Thread`
         // (`SwordDocumentFacade.scheduleIndexCreation`) with nothing but the platform's default
         // uncaught-exception handler behind it. An escaping exception used to leave `indexStatus`
@@ -305,7 +305,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
         // reason: an abandoned JobManager job keeps a progress row alive with no one to finish it.
         var job: Progress? = null
         try {
-            val jobName = application.getString(R.string.creating_index_for, bookMetaData.name)
+            val jobName = application.getString(R.string.creating_index_for, getBookMetaData().name)
             job = JobManager.createJob("index-creation-${epubDir.path}", jobName, null)
             job.isNotifyUser = true
             job.beginJob(jobName)
@@ -323,17 +323,17 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
                     search.addContent(bva.text, frag.id, ordinal)
                 }
             }
-            bookMetaData.indexStatus = IndexStatus.DONE
+            getBookMetaData().indexStatus = IndexStatus.DONE
         } catch (e: Exception) {
-            Log.e(TAG, "buildSearchIndex failed for ${bookMetaData.initials}", e)
-            bookMetaData.indexStatus = IndexStatus.UNDONE
+            Log.e(TAG, "buildSearchIndex failed for ${getBookMetaData().initials}", e)
+            getBookMetaData().indexStatus = IndexStatus.UNDONE
         } finally {
             job?.done()
         }
     }
 
     fun search(search: String): List<KeyAndText> {
-        val book = Books.installed().getBook(bookMetaData.initials)
+        val book = Books.installed().getBook(getBookMetaData().initials)
         val hits = this.search.search(search)
         return blockingDb {
             hits.mapNotNull {
@@ -366,7 +366,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
             )
             Log.i(TAG, "Creating EpubBook metadata $initials, $description $language")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
-            metadata.driver = EpubSwordDriver()
+            metadata.setDriver(EpubSwordDriver())
             this._metadata = metadata
             return@synchronized metadata
         }

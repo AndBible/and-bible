@@ -16,12 +16,12 @@ val Installer.urlPrefix: String? get()
     if (this !is AbstractSwordInstaller)
         { return null }
 
-    val protocol = when (type)
+    val protocol = when (getType())
         {
         "sword-http" -> "http"
         "sword-https" -> "https"
         else -> null
         }
 
-    return protocol?.let { "${protocol}://${host}/" }
+    return protocol?.let { "${protocol}://${getHost()}/" }
     }

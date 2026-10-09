@@ -103,10 +103,10 @@ open class CurrentCommentaryPage internal constructor(
                 val targetOrdinals = ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
                     .map { Verse(KJVA, it).toV11n(v11n).ordinal }
                 MemorizeDocument(
-                    verseRange.name, texts, pageManager.jsState,
+                    verseRange.getName(), texts, pageManager.jsState,
                     bookInitials = doc?.initials,
                     v11nName = v11n.name,
-                    osisRef = verseRange.osisRef,
+                    osisRef = verseRange.getOsisRef(),
                     startOrdinal = verseRange.start.ordinal,
                     endOrdinal = verseRange.end.ordinal,
                     memorizedOrdinals = memorizedOrdinals,
@@ -173,9 +173,9 @@ open class CurrentCommentaryPage internal constructor(
         val verse = KeyUtil.getVerse(key)
         val block = resolver.resolveBlock(verse)
         if (block.content == null) return null
-        val name = if (block.start == block.end) block.start.name
-            else VerseRange(versification, block.start, block.end).name
-        return CommentaryRangeInfo(block.start.osisRef, block.end.osisRef, name)
+        val name = if (block.start == block.end) block.start.getName()
+            else VerseRange(versification, block.start, block.end).getName()
+        return CommentaryRangeInfo(block.start.getOsisRef(), block.end.getOsisRef(), name)
     }
 
     /** Start verse of the next block after the block containing [verse], or null at the end. */

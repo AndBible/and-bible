@@ -4328,7 +4328,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val description = title?.toString().orEmpty()
             when (bookmark) {
                 is BookmarkEntities.BibleBookmarkWithNotes -> BookmarkResult(
-                    verse = bookmark.verseRange.start.osisID,
+                    verse = bookmark.verseRange.start.getOsisID(),
                     description = description,
                     labelNo = labelNo,
                     listPosition = listPosition,
@@ -6312,7 +6312,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             BookName.setFullBookName(!CommonUtils.isPortrait)
             try {
                 (1..dto.numReadings).map { i ->
-                    ReadingItem(i, dto.getReadingKey(i).name, status.isRead(i))
+                    ReadingItem(i, dto.getReadingKey(i).getName(), status.isRead(i))
                 }
             } finally {
                 BookName.setFullBookName(save)
@@ -7492,7 +7492,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Latching check: once a Bible is installed, OK stays enabled (classic `enableOkayButtonIfBibles`). */
     private fun updateHasBible() {
         if (!downloadHasBible.value) {
-            downloadHasBible.value = Books.installed().books.any { it.bookCategory == BookCategory.BIBLE }
+            downloadHasBible.value = Books.installed().getBooks().any { it.bookCategory == BookCategory.BIBLE }
         }
     }
 
@@ -7925,7 +7925,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
             try {
                 Log.i(TAG_DOWNLOAD, "Deleting:$document")
-                documentControl.deleteDocument(document.installedDocument)
+                documentControl.deleteDocument(document.installedDocument!!)
             } catch (e: Exception) {
                 Log.e(TAG_DOWNLOAD, "Deleting document crashed", e)
                 Dialogs.showErrorMsg(R.string.error_occurred, e)
@@ -8831,7 +8831,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             KeyChooserResult(bookAndKeyJson = key.serialized)
         } else {
             KeyChooserResult(
-                key = key?.osisRef ?: doc!!.globalKeyList.first().osisRef,
+                key = key?.getOsisRef() ?: doc!!.getGlobalKeyList().first().getOsisRef(),
                 book = doc?.initials,
             )
         }
@@ -8877,7 +8877,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Classic `buildResult` (`:47-53`): `key`+`book` unconditionally -- the map chooser never
      *  produces a `bookAndKey`, unlike [generalBookKeyResult]. */
     private fun mapKeyResult(key: Key?): KeyChooserResult = KeyChooserResult(
-        key = key?.osisRef,
+        key = key?.getOsisRef(),
         book = chooseMapPage.currentDocument?.initials,
     )
 
@@ -8936,7 +8936,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // Classic `:58-63`: the dictionary shares ChooseGeneralBookKey's result shape.
                 onResult(
                     KeyChooserResult(
-                        key = key.osisRef,
+                        key = key.getOsisRef(),
                         book = chooseDictionaryPage.currentDocument?.initials,
                     ),
                 )
@@ -8958,7 +8958,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             session.keys = withContext(Dispatchers.IO) {
                 chooseDictionaryPage.cachedGlobalKeyList ?: emptyList()
             }
-            session.keys.mapIndexed { i, k -> DictRow(i.toString(), k.name) }
+            session.keys.mapIndexed { i, k -> DictRow(i.toString(), k.getName()) }
         } catch (e: CancellationException) {
             // Classic ran this in `lifecycleScope`, where leaving the screen simply cancelled the
             // job. In-graph it runs in the arm's `LaunchedEffect`, whose job is cancelled on every
@@ -9065,7 +9065,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                     BibleBook.values()[selectedBookNo],
                     selectedChapter,
                     verse,
-                ).osisID
+                ).getOsisID()
             },
             // Classic `finishWithVerse` (`:101-107`) with the Intent removed.
             onFinish = { osisId -> onResult(PassageResult(verse = osisId)) },
@@ -9224,7 +9224,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
             try {
                 Log.i(TAG_CHOOSE_DOCUMENT, "Deleting:$document")
-                documentControl.deleteDocument(document.installedDocument)
+                documentControl.deleteDocument(document.installedDocument!!)
             } catch (e: Exception) {
                 Log.e(TAG_CHOOSE_DOCUMENT, "Deleting document crashed", e)
                 Dialogs.showErrorMsg(R.string.error_occurred, e)

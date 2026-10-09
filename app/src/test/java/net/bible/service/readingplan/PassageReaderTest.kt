@@ -38,18 +38,18 @@ class PassageReaderTest {
     @Test
     fun testSongOfSongsChapter() {
         val key = passageReader!!.getKey("Song.8")
-        MatcherAssert.assertThat(key.cardinality, Matchers.greaterThan(10))
+        MatcherAssert.assertThat(key.getCardinality(), Matchers.greaterThan(10))
     }
 
     @Test
     fun testSongOfSongsChapters() {
         val key = passageReader!!.getKey("Song.1-Song.3")
-        MatcherAssert.assertThat(key.cardinality, Matchers.greaterThan(30))
+        MatcherAssert.assertThat(key.getCardinality(), Matchers.greaterThan(30))
     }
 
     @Test
     fun testSongOfSongsBook() {
         val key = passageReader!!.getKey("Song")
-        MatcherAssert.assertThat(key.cardinality, Matchers.greaterThan(100))
+        MatcherAssert.assertThat(key.getCardinality(), Matchers.greaterThan(100))
     }
 }

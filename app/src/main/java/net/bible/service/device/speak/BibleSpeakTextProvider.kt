@@ -264,7 +264,7 @@ class BibleSpeakTextProvider(
             ((currentState.startVerse.ordinal - verseRange.start.ordinal).toFloat()
                     / (verseRange.end.ordinal-verseRange.start.ordinal) * 100).toInt()
         }
-        var result = this.verseRange.name
+        var result = this.verseRange.getName()
 
         if(showFlag and FLAG_SHOW_STATUSITEMS != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(verseRange != null) {
@@ -514,7 +514,7 @@ class BibleSpeakTextProvider(
     override fun persistState() {
         CommonUtils.settings.apply {
             setString(PERSIST_BOOK, book.abbreviation)
-            setString(PERSIST_VERSE, startVerse.osisID)
+            setString(PERSIST_VERSE, startVerse.getOsisID())
         }
     }
 

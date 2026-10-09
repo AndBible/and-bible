@@ -167,7 +167,7 @@ class SqliteVerseBackendState(private val sqliteFile: File) : OpenFileState {
             val conf = getConfig(data)
             Log.i(TAG, "Creating ESwordBook metadata $initials")
             val metadata = SwordBookMetaData(conf.toByteArray(), initials)
-            metadata.driver = SqliteSwordDriver()
+            metadata.setDriver(SqliteSwordDriver())
             this.metadata = metadata
             return@synchronized metadata
         }
@@ -208,8 +208,8 @@ class SqliteBackend(
         return arrayOf("$bookNum", "${verse.chapter}", "${verse.verse}")
     }
 
-    override fun indexOf(that: Key): Int = try {
-        val verse = KeyUtil.getVerse(that)
+    override fun indexOf(that: Key?): Int = try {
+        val verse = KeyUtil.getVerse(that!!)
         state.firstRow(
             "select _rowid_ from Bible WHERE Book = ? AND Chapter = ? AND Verse = ?",
             *verseParams(verse)
@@ -229,8 +229,8 @@ class SqliteBackend(
         ) { it.textOrNull(0) ?: "" } ?: throw IOException("Can't read $key")
     }
 
-    override fun readRawContent(state: SqliteVerseBackendState, key: Key): String = try {
-        val raw = readBible(state, key)
+    override fun readRawContent(state: SqliteVerseBackendState, key: Key?): String = try {
+        val raw = readBible(state, key!!)
         if (state.isBblx) convertRtfToOsis(raw) else raw
     } catch (e: SQLiteException) {
         throw IOException("Can't read $key", e)
@@ -254,7 +254,7 @@ fun addESwordBook(file: File) {
     if (!(file.canRead() && file.isFile)) return
     val state = SqliteVerseBackendState(file)
     val metadata = try {
-        state.bookMetaData
+        state.getBookMetaData()
     } catch (err: SQLiteException) {
         Log.e(TAG, "Failed to load e-Sword module $file", err)
         return

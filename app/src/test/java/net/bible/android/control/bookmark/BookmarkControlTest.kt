@@ -93,7 +93,7 @@ class BookmarkControlTest {
     fun testAddBookmark() {
         try {
             val newDto = addTestVerse()
-            Assert.assertEquals("New Bookmark key incorrect.  Test:" + currentTestVerse + " was:" + newDto!!.verseRange.name, newDto.verseRange.name, currentTestVerse)
+            Assert.assertEquals("New Bookmark key incorrect.  Test:" + currentTestVerse + " was:" + newDto!!.verseRange.getName(), newDto.verseRange.getName(), currentTestVerse)
         } catch (e: Exception) {
             e.printStackTrace()
             Assert.fail("Exception:" + e.message)

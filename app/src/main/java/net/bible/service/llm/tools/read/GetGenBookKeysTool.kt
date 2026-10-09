@@ -140,9 +140,9 @@ object GetGenBookKeysTool : Tool {
 
             val encodedInitials = Uri.encode(args.book)
             val keyInfos = pageKeys.map { key ->
-                val ref = key.osisRef ?: key.name
+                val ref = key.getOsisRef() ?: key.getName()
                 KeyInfo(
-                    name = key.name,
+                    name = key.getName(),
                     osisRef = ref,
                     linkUrl = "sword://$encodedInitials/${Uri.encode(ref)}"
                 )
@@ -167,8 +167,8 @@ object GetGenBookKeysTool : Tool {
             book.epubBackend?.tocKeys ?: emptyList()
         } else {
             val keys = mutableListOf<Key>()
-            for (key in book.globalKeyList) {
-                if (key.name.isNotBlank()) {
+            for (key in book.getGlobalKeyList()) {
+                if (key.getName().isNotBlank()) {
                     keys.add(key)
                 }
             }

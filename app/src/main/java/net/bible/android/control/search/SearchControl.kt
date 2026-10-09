@@ -53,7 +53,7 @@ data class GroupedSearchResult(
     val normalizedVerse: Verse,  // Used for grouping and sorting
     val translationMatches: List<TranslationMatch>
 ) {
-    val displayName: String get() = normalizedVerse.name
+    val displayName: String get() = normalizedVerse.getName()
 }
 
 class MultiSearchResultsDto {
@@ -178,7 +178,7 @@ class SearchControl constructor(
 
             try {
                 val result = search(book, searchText)
-                val count = minOf(result.cardinality, MAX_SEARCH_RESULTS + 1)
+                val count = minOf(result.getCardinality(), MAX_SEARCH_RESULTS + 1)
                 val keyIterator = result.iterator()
 
                 for (i in 0 until count) {

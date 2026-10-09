@@ -63,7 +63,7 @@ class BookAndKey(
     @Transient val htmlId: String? = null
 ): Key {
     val serialized: String get() {
-        val s = BookAndKeySerialized(key.osisRef, documentInitials, ordinal, htmlId)
+        val s = BookAndKeySerialized(key.getOsisRef(), documentInitials, ordinal, htmlId)
         return json.encodeToString(serializer(), s)
     }
 
@@ -99,19 +99,19 @@ class BookAndKey(
 
     override fun clone(): Key = BookAndKey(key.clone(), document)
 
-    override fun getName(): String = if(document == null) key.name else "${document?.abbreviation}: ${key.name}"
+    override fun getName(): String = if(document == null) key.getName() else "${document?.abbreviation}: ${key.getName()}"
 
     val shortName: String get() {
         return if(document == null) key.shortName else "${document?.abbreviation}: ${key.shortName}"
     }
 
-    override fun getName(base: Key?): String = name
+    override fun getName(base: Key?): String = getName()
 
-    override fun getRootName(): String = name
+    override fun getRootName(): String = getName()
 
-    override fun getOsisRef(): String = "${document?.initials}:${key.osisRef}"
+    override fun getOsisRef(): String = "${document?.initials}:${key.getOsisRef()}"
 
-    override fun getOsisID(): String = "${document?.initials}:${key.osisID}"
+    override fun getOsisID(): String = "${document?.initials}:${key.getOsisID()}"
 
     override fun getParent(): Key? = null
 
@@ -155,7 +155,7 @@ class BookAndKey(
 
 class BookAndKeyList: DefaultKeyList() {
     override fun getOsisRef(): String {
-        return this.joinToString("||") { it.osisRef }
+        return this.joinToString("||") { it.getOsisRef() }
     }
 
     companion object {
@@ -182,4 +182,4 @@ fun bookAndKeyListOf(keys: Collection<BookAndKey>): BookAndKeyList {
  * A no-op for any key that is not a [BookAndKey], which is why all three `KeyRow` builders can call
  * it uniformly rather than the general-book one alone.
  */
-val Key.nameWithoutDocument: String get() = (this as? BookAndKey)?.key?.name ?: name
+val Key.nameWithoutDocument: String get() = (this as? BookAndKey)?.key?.getName() ?: getName()

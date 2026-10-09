@@ -104,7 +104,7 @@ class Converters {
 
     @ColumnTypeConverter
     fun verseRangeToStr(v: VerseRange?): String? =
-        if (v!=null) "${v.versification.name}::${v.osisRef}" else null
+        if (v!=null) "${v.versification.name}::${v.getOsisRef()}" else null
 
     @ColumnTypeConverter
     fun strToVerseRange(s: String?): VerseRange? {
@@ -119,7 +119,7 @@ class Converters {
 
     @ColumnTypeConverter
     fun strToVersification(s: String): Versification {
-        return Versifications.instance().getVersification(s)
+        return Versifications.instance().getVersification(s)!!
     }
 
     @ColumnTypeConverter

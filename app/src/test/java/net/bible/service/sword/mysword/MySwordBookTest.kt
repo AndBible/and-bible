@@ -69,7 +69,7 @@ class MySwordBookTest {
 
     private fun backend(file: File): SqliteBackend {
         val state = SqliteVerseBackendState(file).also { states.add(it) }
-        return SqliteBackend(state, state.bookMetaData)
+        return SqliteBackend(state, state.getBookMetaData())
     }
 
     private fun bible() = module(
@@ -122,7 +122,7 @@ class MySwordBookTest {
     @Test
     fun cardinalityAndIndexOf() {
         val b = backend(bible())
-        assertEquals(3, b.cardinality)
+        assertEquals(3, b.getCardinality())
         assertEquals(2, b.indexOf(verse(BibleBook.GEN, 1, 2)))
         assertEquals(-1, b.indexOf(verse(BibleBook.GEN, 9, 9)))
     }
@@ -158,8 +158,8 @@ class MySwordBookTest {
     fun dictionaryIteratesGetsIndexesAndReads() {
         val b = backend(dictionary())
         assertEquals(BookCategory.DICTIONARY, b.bookMetaData.bookCategory)
-        assertEquals(listOf("alpha", "beta"), b.iterator().asSequence().map { it.name }.toList())
-        assertEquals("beta", b.get(2).name)
+        assertEquals(listOf("alpha", "beta"), b.iterator().asSequence().map { it.getName() }.toList())
+        assertEquals("beta", b.get(2).getName())
         assertEquals(2, b.indexOf(DefaultLeafKeyList("beta")))
         assertEquals(-1, b.indexOf(DefaultLeafKeyList("gamma")))
         assertEquals("second", b.readRawContent(b.state, DefaultLeafKeyList("beta")))
@@ -169,11 +169,11 @@ class MySwordBookTest {
     @Test
     fun theModuleIsOpenedReadOnly() {
         val b = backend(bible())
-        assertEquals(3, b.cardinality)
+        assertEquals(3, b.getCardinality())
         assertThrows(SQLiteException::class.java) {
             b.state.sqlDb.exec("INSERT INTO Bible VALUES (1, 1, 3, 'x')")
         }
-        assertEquals(3, b.cardinality)
+        assertEquals(3, b.getCardinality())
     }
 
     private fun walModule() = module(

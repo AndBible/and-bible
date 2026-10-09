@@ -134,10 +134,10 @@ class GeneralSpeakTextProvider(
         val cmds = SpeakCommandArray()
         val res = localizedResources
 
-        if(prevKey.osisRef != key.osisRef) {
+        if(prevKey.getOsisRef() != key.getOsisRef()) {
             if(settings.playbackSettings.speakChapterChanges) {
                 cmds.add(PreChapterChangeCommand(settings))
-                cmds.add(TextCommand("${res.getString(R.string.speak_chapter_changed)} ${key.name}. "))
+                cmds.add(TextCommand("${res.getString(R.string.speak_chapter_changed)} ${key.getName()}. "))
                 cmds.add(SilenceCommand())
             }
         }

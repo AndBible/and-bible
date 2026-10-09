@@ -69,7 +69,7 @@ class DocumentSwitchHistoryPinTest {
     private fun idle() = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
     private fun verse(osis: String) =
-        VerseFactory.fromString(Versifications.instance().getVersification("KJV"), osis)
+        VerseFactory.fromString(Versifications.instance().getVersification("KJV"), osis)!!
 
     @Test
     fun backAfterADocumentSwitchWalksKjvGen24ThenKjvGen11ThenFinRkGen11() {
@@ -101,7 +101,7 @@ class DocumentSwitchHistoryPinTest {
         pm.currentBible.setKey(verse("Exod.2.10"), true)
         idle()
 
-        fun here() = pm.currentBible.currentDocument?.initials to pm.currentBible.singleKey?.osisID
+        fun here() = pm.currentBible.currentDocument?.initials to pm.currentBible.singleKey?.getOsisID()
         val seen = mutableListOf<Pair<String?, String?>>()
         repeat(3) {
             history.goBack()

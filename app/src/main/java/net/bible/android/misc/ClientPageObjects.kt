@@ -45,7 +45,7 @@ val Key.uniqueId: String get() {
     return if (this is VerseRange) {
         "ordinal-${start.ordinal}-${end.ordinal}"
     } else {
-        sanitizeId(this.osisID)
+        sanitizeId(this.getOsisID())
     }
 }
 
@@ -104,7 +104,7 @@ class OsisFragment(
         return if (type != null) {
             hashMapOf(
                 "type" to type,
-                "keyName" to key.name
+                "keyName" to key.getName()
             )
         } else emptyMap()
     }
@@ -132,12 +132,12 @@ class OsisFragment(
         return mapOf(
             "xml" to wrapString(xmlStr),
             "key" to wrapString(keyStr),
-            "keyName" to wrapString(key.name),
+            "keyName" to wrapString(key.getName()),
             "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
             "bookCategory" to wrapString(book.bookCategory.name),
             "bookInitials" to wrapString(book.initials),
             "bookAbbreviation" to wrapString(book.abbreviation),
-            "osisRef" to wrapString(key.osisRef),
+            "osisRef" to wrapString(key.getOsisRef()),
             "isNewTestament" to json.encodeToString(serializer(), isNewTestament),
             "features" to json.encodeToString(serializer(), features),
             "ordinalRange" to ordinalRangeStr,

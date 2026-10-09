@@ -628,7 +628,7 @@ class AgentExecutor(
             }
             if (prompt.allowedTools == null || AgentTool.SEARCH_BIBLE in prompt.allowedTools!!) {
                 val defaultSearchBible = AiDocumentFilter.filterAllowed(
-                    Books.installed().books.filterIsInstance<SwordBook>()
+                    Books.installed().getBooks().filterIsInstance<SwordBook>()
                 ).firstOrNull { it.indexStatus == IndexStatus.DONE }
                 if (defaultSearchBible != null) {
                     append("Default search Bible (for searchBible tool): ${defaultSearchBible.initials} (${defaultSearchBible.language?.name ?: "unknown language"})\n")
@@ -741,7 +741,7 @@ class AgentExecutor(
             if (prompt.autoIncludeCommentaries && context.selectedVerseRange != null) {
                 val result = try {
                     val args = JSONObject().apply {
-                        put("verseRef", context.selectedVerseRange.osisRef)
+                        put("verseRef", context.selectedVerseRange.getOsisRef())
                     }
                     GetCommentariesTool.execute(args, context)
                 } catch (e: CancellationException) {

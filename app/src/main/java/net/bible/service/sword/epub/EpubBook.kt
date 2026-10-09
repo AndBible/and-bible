@@ -107,13 +107,13 @@ class EpubBackend(val state: EpubBackendState, metadata: SwordBookMetaData): Abs
             .iterator()
     fun getKey(originalKey: String, htmlId: String): Key? = state.getKey(originalKey, htmlId)
     override fun get(index: Int): Key = state.get(index)
-    override fun indexOf(that: Key): Int = state.indexOf(that)
+    override fun indexOf(that: Key?): Int = state.indexOf(that!!)
 
     val tocKeys: List<Key> get() = state.tocKeys
 
     fun getResource(resourcePath: String): File = state.getResource(resourcePath)
     fun styleSheets(key: Key): List<File> = state.styleSheets(key)
-    override fun readRawContent(state: EpubBackendState, key: Key): String = state.read(key)
+    override fun readRawContent(state: EpubBackendState, key: Key?): String = state.read(key!!)
     fun delete() = state.delete()
     fun getOrdinalRange(key: Key) = state.getOrdinalRange(key)
     val bookOrdinalSpan get() = state.bookOrdinalSpan
@@ -155,7 +155,7 @@ fun addEpubBook(epubDir: File) {
     }
 
     val state = EpubBackendState(epubDir)
-    val metadata = state.bookMetaData
+    val metadata = state.getBookMetaData()
     if(Books.installed().getBook(metadata.initials) != null) return
     val backend = EpubBackend(state, metadata)
     val book = SwordGenBook(metadata, backend)

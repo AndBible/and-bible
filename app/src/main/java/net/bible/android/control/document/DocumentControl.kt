@@ -43,7 +43,7 @@ import org.crosswire.jsword.versification.BibleBook
 
 val Book.canDelete: Boolean get () {
     val lastBible = BookCategory.BIBLE == bookCategory && SwordDocumentFacade.bibles.size == 1
-    return !lastBible && driver.isDeletable(this)
+    return !lastBible && driver!!.isDeletable(this)
 }
 
 /** Control use of different documents/books/modules - used by front end
@@ -97,7 +97,7 @@ class DocumentControl constructor(
                 val verse = requiredVerseForSuggestions.toV11n(book.versification)
                 if (!book.contains(verse)) {
                     false
-                } else book.getInitials() != "TDavid" || verse.book == BibleBook.PS
+                } else book.initials != "TDavid" || verse.book == BibleBook.PS
             } catch (e: BookException) {
                 // Module may have missing/corrupted data files (see issue #788)
                 false
