@@ -20,6 +20,7 @@
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius: 12px;
   --star: #feba2a; --star-edge: color-mix(in srgb, var(--accent-ink) 85%, var(--ink));
+  --badge: #feba2a; --badge-ink: #2a2620;
   --bezel: #16171a;
   --video-bg: #000;
   --video-fg: #fff;
@@ -32,6 +33,7 @@
     --accent: #FEBA2A; --accent-ink: #FEBA2A;
     --button-bg: #efe9dd; --button-ink: #161616;
     --star: color-mix(in srgb, var(--accent-ink) 70%, var(--ink)); --star-edge: transparent;
+    --badge: #FEBA2A; --badge-ink: #1c1c1b;
     --glow-a: #feba2a33; --glow-b: #d97e3514;
     --panel-base: linear-gradient(150deg, #22211f, #1a1a19 55%, #141414);
     --shadow: none;
@@ -44,6 +46,7 @@
   --accent: #FEBA2A; --accent-ink: #FEBA2A;
   --button-bg: #efe9dd; --button-ink: #161616;
   --star: color-mix(in srgb, var(--accent-ink) 70%, var(--ink)); --star-edge: transparent;
+  --badge: #FEBA2A; --badge-ink: #1c1c1b;
   --glow-a: #feba2a33; --glow-b: #d97e3514;
   --panel-base: linear-gradient(150deg, #22211f, #1a1a19 55%, #141414);
   --shadow: none;
@@ -71,7 +74,7 @@ a { color: var(--accent-ink); }
 .news { display: flex; width: fit-content; flex-wrap: wrap; align-items: center; gap: 6px 14px;
   max-width: 100%; margin: 0 auto 14px; padding: 6px 14px 6px 6px; border: 1px solid var(--border); border-radius: 999px;
   background: var(--surface); font-size: .9rem; line-height: 1.4; }
-.news__label { padding: 2px 10px; border-radius: 999px; background: var(--accent-ink); color: var(--surface);
+.news__label { padding: 2px 10px; border-radius: 999px; background: var(--badge); color: var(--badge-ink);
   font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
 .news__link { color: var(--ink); font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
 .news__link:hover, .news__link:focus-visible { color: var(--accent-ink); text-decoration: underline; }
