@@ -223,8 +223,8 @@ class SqliteBackend(
         }
     }
 
-    override fun readRawContent(state: SqliteVerseBackendState, key: Key): String = try {
-        val raw = readBible(state, key)
+    override fun readRawContent(state: SqliteVerseBackendState, key: Key?): String = try {
+        val raw = readBible(state, key!!)
         if (state.isBblx) convertRtfToOsis(raw) else raw
     } catch (e: SQLiteException) {
         throw IOException("Can't read $key", e)

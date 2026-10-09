@@ -55,7 +55,7 @@ class NullKeyBackend(private val metadata: SwordBookMetaData): AbstractKeyBacken
         lastKey = that
         return 0
     }
-    override fun readRawContent(state: NullOpenFileState?, key: Key?): String = ""
+    override fun readRawContent(state: NullOpenFileState, key: Key?): String = ""
 }
 
 

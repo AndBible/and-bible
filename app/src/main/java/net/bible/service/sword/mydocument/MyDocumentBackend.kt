@@ -125,7 +125,7 @@ class MyDocumentBackend(
         }.toMutableList().iterator()
     }
 
-    override fun readRawContent(state: MyDocumentOpenFileState?, key: Key?): String {
+    override fun readRawContent(state: MyDocumentOpenFileState, key: Key?): String {
         if (key == null) return ""
 
         val pageKey = key.getOsisRef()?.takeIf { it.isNotEmpty() } ?: key.getName()

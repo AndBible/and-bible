@@ -375,11 +375,11 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
             "<${m.groups[1]!!.value}/>"
         }
 
-    override fun readRawContent(state: SqliteVerseBackendState, key: Key): String = try {
+    override fun readRawContent(state: SqliteVerseBackendState, key: Key?): String = try {
         when (bookMetaData.bookCategory) {
-            BookCategory.BIBLE -> transformMySwordTags(readBible(state, key))
-            BookCategory.COMMENTARY -> transformMySwordTags(readCommentary(state, key))
-            BookCategory.DICTIONARY -> transformMySwordTags(readDictionary(state, key))
+            BookCategory.BIBLE -> transformMySwordTags(readBible(state, key!!))
+            BookCategory.COMMENTARY -> transformMySwordTags(readCommentary(state, key!!))
+            BookCategory.DICTIONARY -> transformMySwordTags(readDictionary(state, key!!))
             else -> ""
         }
     } catch (e: SQLiteException) {

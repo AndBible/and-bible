@@ -429,12 +429,12 @@ class SqliteBackend(val state: SqliteVerseBackendState, metadata: SwordBookMetaD
         }.joinToString {"<div>$it</div>"}
     }
 
-    override fun readRawContent(state: SqliteVerseBackendState, key: Key): String =
+    override fun readRawContent(state: SqliteVerseBackendState, key: Key?): String =
         try {
             when (bookMetaData.bookCategory) {
-                BookCategory.BIBLE -> readBible(state, key)
-                BookCategory.COMMENTARY -> readCommentary(state, key)
-                BookCategory.DICTIONARY -> readDictionary(state, key)
+                BookCategory.BIBLE -> readBible(state, key!!)
+                BookCategory.COMMENTARY -> readCommentary(state, key!!)
+                BookCategory.DICTIONARY -> readDictionary(state, key!!)
                 else -> ""
             }
         } catch (e: SQLiteException) {
