@@ -63,8 +63,8 @@ class WebDavIntegrationTest {
 
     private suspend fun signedIn(): WebDavCloudAdapter {
         val a = newAdapter()
-        assertTrue(a.signIn(activity.value))
         main = a
+        assertTrue(a.signIn(activity.value))
         return a
     }
 
@@ -72,10 +72,11 @@ class WebDavIntegrationTest {
 
     private suspend fun WebDavCloudAdapter.bytesOf(f: CloudFile) = ByteArrayOutputStream().also { download(f.id, it) }.toByteArray()
 
+    /** Requires a server with a self-signed certificate (rclone via the script, or Nextcloud behind tls-proxy.py). */
     @Test fun signIn_trustsSelfSignedOnce() = runBlocking {
         val a = newAdapter()
-        assertTrue(a.signIn(activity.value))
         main = a
+        assertTrue(a.signIn(activity.value))
         assertEquals(1, ui.asked)
         val second = CountingUi()
         assertTrue(newAdapter(state, second).signIn(activity.value))
@@ -121,9 +122,10 @@ class WebDavIntegrationTest {
         Thread.sleep(2000)
         val beforeUpload = System.currentTimeMillis()
         val uploaded = a.upload("new.gz", tmp(byteArrayOf(7)), fb.id)
-        a.getFolders(base)
+        // The 120 s clock margin means this does not prove the folder-mtime skip path, only that new files are listed.
         val newer = a.listFiles(parentsIds = listOf(fa.id, fb.id), createdTimeAtLeast = beforeUpload)
         assertEquals(listOf(uploaded.id), newer.map { it.id })
+        assertTrue(a.listFiles(parentsIds = listOf(fa.id, fb.id), createdTimeAtLeast = System.currentTimeMillis() + 3_600_000L).isEmpty())
     }
 
     @Test fun specialCharacters() = runBlocking {

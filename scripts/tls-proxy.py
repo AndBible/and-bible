@@ -15,17 +15,23 @@ def hostport(s):
 
 
 async def pipe(reader, writer):
+    """Copy one direction; half-close the peer when this side hits EOF."""
     try:
         while data := await reader.read(65536):
             writer.write(data)
             await writer.drain()
-    except (ConnectionError, asyncio.CancelledError):
+        if writer.can_write_eof():
+            writer.write_eof()
+    except OSError:
         pass
-    finally:
-        try:
-            writer.close()
-        except Exception:
-            pass
+
+
+async def close(writer):
+    try:
+        writer.close()
+        await writer.wait_closed()
+    except OSError:
+        pass
 
 
 async def main():
@@ -44,9 +50,12 @@ async def main():
         try:
             tr, tw = await asyncio.open_connection(th, tp)
         except OSError:
-            cw.close()
+            await close(cw)
             return
-        await asyncio.gather(pipe(cr, tw), pipe(tr, cw))
+        try:
+            await asyncio.gather(pipe(cr, tw), pipe(tr, cw))
+        finally:
+            await asyncio.gather(close(cw), close(tw))
 
     server = await asyncio.start_server(handle, lh, lp, ssl=ctx)
     print(f"TLS proxy {lh}:{lp} -> {th}:{tp}", flush=True)
