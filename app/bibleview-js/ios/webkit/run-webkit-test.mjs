@@ -80,7 +80,10 @@ await page.evaluate(([d]) => {
 }, [doc]);
 await page.waitForFunction(() => document.body.innerText.includes("quickened"), null, {timeout: 10000})
     .catch(() => fail("document did not render"));
-await page.mouse.wheel(0, 2000);
+// Stay inside the text: the fixture (Eph 2) is ~2600 px tall, and a 2000 px wheel scrolls past the last verse
+// into the #bottom spacer, where the verse notifier finds no .ordinal under its probe and posts nothing.
+await page.mouse.move(195, 422);
+await page.mouse.wheel(0, 400);
 await page.waitForFunction(() => window.__posted__.some(m => m.method === "scrolledToOrdinal"), null, {timeout: 5000})
     .catch(() => fail("scrolledToOrdinal never posted"));
 await page.screenshot({path: resolve(root, "ios/webkit/last-run.png")});
