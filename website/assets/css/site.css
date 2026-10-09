@@ -70,9 +70,10 @@ a { color: var(--accent-ink); }
 }
 @media (min-width: 900px) { .hero__panel { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); } }
 
-/* "Latest" row above the hero panel: the newest day's blog posts. */
+/* "Latest" row above the hero panel: the newest day's blog posts. The negative top margin evens the
+   space around it (12px each side) out of the hero's 24px top padding. */
 .news { display: flex; width: fit-content; flex-wrap: wrap; align-items: center; gap: 6px 14px;
-  max-width: 100%; margin: 0 auto 14px; padding: 6px 14px 6px 6px; border: 1px solid var(--border); border-radius: 999px;
+  max-width: 100%; margin: -12px auto 12px; padding: 6px 14px 6px 6px; border: 1px solid var(--border); border-radius: 999px;
   background: var(--surface); font-size: .9rem; line-height: 1.4; }
 .news__label { padding: 2px 10px; border-radius: 999px; background: var(--badge); color: var(--badge-ink);
   font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
