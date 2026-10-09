@@ -32,6 +32,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNo
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.blockingDb
 import net.bible.sharedcore.event.Subscription
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.VerseRangeFactory
@@ -91,6 +92,36 @@ class BookmarkControlSideEffectsTest {
         assertFalse("the bridge deadlocked", worker.isAlive)
         assertTrue("subscriber's bridged read failed: ${result?.exceptionOrNull()}", result?.isSuccess == true)
         assertTrue(result!!.getOrThrow().any { it.name == "second" })
+    }
+
+    /**
+     * Review Focus #2: a subscriber that bridges (as BibleView's handler does) must run only once the outermost call is
+     * over, never inside its transaction/bridge. [BookmarkControl.deleteLabels] with orphan deletion emits
+     * BookmarksDeleted from a nested step BEFORE it deletes the label; the handler's own read must already see the
+     * label gone (effects run at the end of the outermost call), every change must arrive, in emission order, and the
+     * handler's bridge must not throw BlockingDbInTransaction.
+     */
+    @Test fun aBridgingSubscriberRunsAfterTheOutermostCallAndSeesItsFinalStateInEmissionOrder() {
+        val label = control.insertOrUpdateLabel(Label(new = true).apply { name = "doomed" })
+        val b = bookmark(labels = setOf(label.id))
+        seen.clear()
+        val labelSeenByHandler = mutableListOf<Label?>()
+        val handlerFailures = mutableListOf<Throwable>()
+        subscriptions += control.changes.subscribe {
+            try {
+                labelSeenByHandler += blockingDb { control.labelById(label.id) }
+            } catch (e: Throwable) { handlerFailures += e }
+        }
+
+        control.deleteLabels(listOf(label.id), deleteOrphanedBookmarks = true)
+
+        assertEquals("handler bridge failed: $handlerFailures", emptyList<Throwable>(), handlerFailures)
+        assertEquals(
+            listOf(BookmarkChange.BookmarksDeleted::class, BookmarkChange.BookmarksUpserted::class, BookmarkChange.LabelsDeleted::class),
+            seen.map { it::class },
+        )
+        assertEquals(b.id, (seen[0] as BookmarkChange.BookmarksDeleted).bookmarkIds.single())
+        assertEquals("handlers saw the label before the outermost call finished", listOf<Label?>(null, null, null), labelSeenByHandler)
     }
 
     /** A sync entry for a StudyPadTextEntryText row that does not exist makes the core throw (NPE) after it queued two events. */
