@@ -21,7 +21,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.VisibleForTesting
-import androidx.room3.useWriterConnection
+import net.bible.service.db.useWriterConnectionMarked
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -322,7 +322,7 @@ object CloudSync {
     private suspend fun createAndUploadInitial(dbDef: SyncableDatabaseAccessor<*>) {
         dbDef.dao.clearLog()
         dbDef.dao.clearSyncStatus()
-        dbDef.localDb.useWriterConnection { it.exec("VACUUM;") }
+        dbDef.localDb.useWriterConnectionMarked { it.exec("VACUUM;") }
         val tmpFile = CommonUtils.tmpFile
         val gzippedTmpFile = CommonUtils.tmpFile
         dbDef.localDbFile.copyTo(tmpFile, overwrite = true)

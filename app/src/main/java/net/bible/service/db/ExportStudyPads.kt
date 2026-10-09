@@ -153,10 +153,11 @@ internal suspend fun writeStudyPadExportDb(
 ) {
     val exportDb = openExportDb(exportDbFile.absolutePath)
     try { exportDb.useWriterConnection { } } finally { exportDb.close() }
-    source.useWriterConnection { db ->
-        db.exec("ATTACH DATABASE '${exportDbFile.absolutePath}' AS export")
-        db.exec("PRAGMA foreign_keys=OFF;")
+    source.useWriterConnectionMarked { db ->
+        // ATTACH inside the protected region, so DETACH always runs once it may have succeeded.
         db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE export") {
+            db.exec("ATTACH DATABASE '${exportDbFile.absolutePath}' AS export")
+            db.exec("PRAGMA foreign_keys=OFF;")
             db.inTransaction<Unit> {
                 for (label in labels) {
                     copyStudyPad(this, label)

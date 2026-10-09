@@ -19,7 +19,6 @@ package net.bible.service.cloudsync
 
 import android.util.Log
 import androidx.room3.PooledConnection
-import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
 import net.bible.android.activity.R
 import net.bible.android.database.BookmarkDatabase
@@ -37,6 +36,8 @@ import net.bible.service.db.columnNamesJoined
 import net.bible.service.db.exec
 import net.bible.service.db.inTransaction
 import net.bible.service.db.queryLong
+import net.bible.service.db.useReaderConnectionMarked
+import net.bible.service.db.useWriterConnectionMarked
 import net.bible.service.db.withCleanup
 import java.io.File
 import java.lang.Exception
@@ -185,7 +186,7 @@ class SyncableDatabaseAccessor<T: SyncableRoomDatabase>(
     val dao get() = localDb.syncDao()
     val tableDefinitions get() = category.tables
     /** `PRAGMA user_version` of the local database. */
-    suspend fun version(): Int = localDb.useReaderConnection { it.queryLong("PRAGMA user_version")!!.toInt() }
+    suspend fun version(): Int = localDb.useReaderConnectionMarked { it.queryLong("PRAGMA user_version")!!.toInt() }
 }
 
 private suspend fun createTriggersForTable(
@@ -245,13 +246,13 @@ private suspend fun dropTriggersForTable(
 }
 
 
-suspend fun createTriggers(dbDef: SyncableDatabaseAccessor<*>) = dbDef.localDb.useWriterConnection { db ->
+suspend fun createTriggers(dbDef: SyncableDatabaseAccessor<*>) = dbDef.localDb.useWriterConnectionMarked { db ->
     for(tableDef in dbDef.tableDefinitions) {
         createTriggersForTable(db, dbDef, tableDef)
     }
 }
 
-suspend fun dropTriggers(dbDef: SyncableDatabaseAccessor<*>) = dbDef.localDb.useWriterConnection { db ->
+suspend fun dropTriggers(dbDef: SyncableDatabaseAccessor<*>) = dbDef.localDb.useWriterConnectionMarked { db ->
     for(tableDef in dbDef.tableDefinitions) {
         dropTriggersForTable(db, tableDef)
     }
@@ -362,10 +363,12 @@ suspend fun createPatchForDatabase(dbDef: SyncableDatabaseAccessor<*>, updateTim
     // let's create empty database with correct schema first.
     createWithSchema(dbDef, patchDbFile)
     Log.i(TAG, "Creating patch for ${dbDef.categoryName}: $amountUpdated updated")
-    dbDef.localDb.useWriterConnection { db ->
-        db.exec("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
-        db.exec("PRAGMA patch.foreign_keys=OFF;")
+    dbDef.localDb.useWriterConnectionMarked { db ->
+        // ATTACH inside the protected region: if anything fails after it, DETACH still runs (the pool has one
+        // connection, and a schema left attached would fail every later sync until restart).
         db.withCleanup("PRAGMA patch.foreign_keys=ON;", "DETACH DATABASE patch") {
+            db.exec("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
+            db.exec("PRAGMA patch.foreign_keys=OFF;")
             db.inTransaction<Unit> {
                 for (tableDef in dbDef.tableDefinitions) {
                     writePatchData(this, tableDef, lastPatchWritten)
@@ -406,10 +409,11 @@ suspend fun applyPatchesForDatabase(dbDef: SyncableDatabaseAccessor<*>, vararg p
         CommonUtils.gunzipFile(gzippedPatchFile, patchDbFile)
         // Let's apply possible migrations first
         createWithSchema(dbDef, patchDbFile)
-        dbDef.localDb.useWriterConnection { db ->
-            db.exec("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
-            db.exec("PRAGMA foreign_keys=OFF;")
+        dbDef.localDb.useWriterConnectionMarked { db ->
+            // ATTACH inside the protected region, as in createPatchForDatabase.
             db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE patch") {
+                db.exec("ATTACH DATABASE '${patchDbFile.absolutePath}' AS patch")
+                db.exec("PRAGMA foreign_keys=OFF;")
                 try {
                     db.inTransaction<Unit> {
                         for (tableDef in dbDef.tableDefinitions) {

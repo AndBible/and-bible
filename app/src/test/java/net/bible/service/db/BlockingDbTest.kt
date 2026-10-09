@@ -31,6 +31,8 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import java.io.File
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,20 +65,69 @@ class BlockingDbTest {
         assertEquals(3, blockingDb { 3 })
     }
 
-    @Test fun refusesInsideRoomTransaction() = runBlocking {
-        val e = runCatching {
-            withTimeout(30_000) { db.roomTransaction { blockingDb { 1 } } }
-        }.exceptionOrNull()
+    /**
+     * Runs [block] on its own thread and fails, with a dump of every thread, if it has not finished after
+     * [timeoutMs]. A deadlock here is a blocked `runBlocking` (or native SQLite wait), which `withTimeout` cannot
+     * interrupt; a watchdog thread can at least turn the hang into a failure (D1 final review M7).
+     */
+    private fun <T> withWatchdog(timeoutMs: Long = 30_000, block: () -> T): Result<T> {
+        var result: Result<T>? = null
+        val worker = Thread({ result = runCatching(block) }, "blockingdb-test-worker").apply { isDaemon = true; start() }
+        worker.join(timeoutMs)
+        if (worker.isAlive) {
+            val dump = Thread.getAllStackTraces().entries.joinToString("\n\n") { (t, st) ->
+                "\"${t.name}\" ${t.state}\n" + st.joinToString("\n") { "    at $it" }
+            }
+            worker.interrupt()
+            fail("still running after ${timeoutMs}ms (deadlock?)\n$dump")
+        }
+        return result!!
+    }
+
+    private fun assertRefusedWithin(block: () -> Unit) {
+        val e = withWatchdog { block() }.exceptionOrNull()
         assertTrue("expected BlockingDbInTransaction but was $e", e is BlockingDbInTransaction)
     }
 
-    @Test fun refusesInsideRoomTransactionAfterHoppingThreads() = runBlocking {
-        val e = runCatching {
-            withTimeout(30_000) {
-                db.roomTransaction { withContext(Dispatchers.IO) { blockingDb { 1 } } }
-            }
-        }.exceptionOrNull()
-        assertTrue("expected BlockingDbInTransaction but was $e", e is BlockingDbInTransaction)
+    @Test fun refusesInsideRoomTransaction() = assertRefusedWithin {
+        runBlocking { db.roomTransaction { blockingDb { 1 } } }
+    }
+
+    @Test fun refusesInsideRoomTransactionAfterHoppingThreads() = assertRefusedWithin {
+        runBlocking { db.roomTransaction { withContext(Dispatchers.IO) { blockingDb { 1 } } } }
+    }
+
+    // D1 final review I3: with one pooled connection, a nested blockingDb DAO call inside a connection block waits
+    // for that connection forever; the marked helpers turn the hang into BlockingDbInTransaction.
+    @Test fun refusesInsideAMarkedWriterConnection() = assertRefusedWithin {
+        runBlocking { db.useWriterConnectionMarked { blockingDb { db.epubDao().getMeta() } } }
+    }
+
+    @Test fun refusesInsideAMarkedReaderConnection() = assertRefusedWithin {
+        runBlocking { db.useReaderConnectionMarked { blockingDb { db.epubDao().getMeta() } } }
+    }
+
+    @Test fun refusesInsideAMarkedWriterConnectionAfterHoppingThreads() = assertRefusedWithin {
+        runBlocking { db.useWriterConnectionMarked { withContext(Dispatchers.IO) { blockingDb { db.epubDao().getMeta() } } } }
+    }
+
+    @Test fun markedConnectionsReturnTheBlockValueAndClearTheMarkAfterwards() {
+        assertEquals(1L, withWatchdog { runBlocking { db.useWriterConnectionMarked { it.queryLong("SELECT 1") } } }.getOrThrow())
+        assertEquals(2L, withWatchdog { runBlocking { db.useReaderConnectionMarked { it.queryLong("SELECT 2") } } }.getOrThrow())
+        assertEquals(3, blockingDb { 3 })
+    }
+
+    /** Every non-empty Room connection block in app code is a marked one (the empty `{ }` open/migrate calls hold nothing). */
+    @Test fun noUnmarkedNonEmptyConnectionBlockInAppCode() {
+        val root = File("src/main/java")
+        assertTrue("run from app/", root.isDirectory)
+        val unmarked = Regex("""\.use(Writer|Reader)Connection\s*\{(?!\s*\})""")
+        val offenders = root.walkTopDown().filter { it.extension == "kt" }.flatMap { f ->
+            f.readLines().mapIndexedNotNull { i, line -> if (unmarked.containsMatchIn(line)) "${f.name}:${i + 1}: ${line.trim()}" else null }
+        }.toList()
+        assertEquals(emptyList<String>(), offenders)
+        assertTrue(unmarked.containsMatchIn("db.useWriterConnection { c -> c.exec(x) }"))
+        assertTrue(!unmarked.containsMatchIn("db.useWriterConnection { }") && !unmarked.containsMatchIn("db.useWriterConnectionMarked { c -> }"))
     }
 
     @Test fun roomTransactionReturnsItsValueAndCommits() = runBlocking {

@@ -156,8 +156,10 @@ suspend fun <T> PooledConnection.withCleanup(vararg cleanupSql: String, body: su
  * or its coroutine is cancelled: the cleanup runs in [NonCancellable], so a cancelled caller cannot skip it
  * (`foreign_keys` left OFF, a schema left ATTACHed). A failing cleanup statement is logged and does not stop the
  * next one; it never replaces an exception from [body] (it is attached as suppressed). When [body] succeeded, the
- * first cleanup failure is thrown after all statements ran. Each statement is bounded by [CLEANUP_TIMEOUT_MS]:
- * a connection that died with the cancellation must not hang the caller.
+ * first cleanup failure is thrown after all statements ran. Each statement is wrapped in a [CLEANUP_TIMEOUT_MS]
+ * `withTimeout`, which is best effort only: a timeout fires at suspension points (Room's suspend statement calls),
+ * but it cannot interrupt a statement already blocked inside native SQLite code; such a statement still blocks the
+ * caller until SQLite returns (busy_timeout bounds lock waits).
  */
 internal suspend fun <T> runWithCleanup(
     cleanupSql: List<String>,

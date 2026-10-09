@@ -18,7 +18,6 @@
 package net.bible.service.db
 
 import android.util.Log
-import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -34,7 +33,7 @@ suspend fun bookmarksDbStats(category: SyncableDatabaseDefinition, dbFile: File)
     val dbDef = category.accessor
     val importDbFile = dbDef.dbFactory(dbFile.absolutePath)
     try {
-        importDbFile.useReaderConnection {
+        importDbFile.useReaderConnectionMarked {
             it.run {
                 val firstLabel = queryRows("""SELECT name from Label WHERE name NOT LIKE '\_\_%' ESCAPE '\'""") { st -> st.getText(0) }.firstOrNull() ?: '-'
                 val labels = queryLong("""SELECT count(*) from Label""")!!
@@ -58,10 +57,11 @@ suspend fun importDatabaseFile(category: SyncableDatabaseDefinition, dbFile: Fil
     val dbDef = category.accessor
     val importDbFile = dbDef.dbFactory(dbFile.absolutePath)
     try { importDbFile.useWriterConnection { } } finally { importDbFile.close() }
-    dbDef.localDb.useWriterConnection { db ->
-        db.exec("ATTACH DATABASE '${dbFile.absolutePath}' AS import")
-        db.exec("PRAGMA foreign_keys=OFF;")
+    dbDef.localDb.useWriterConnectionMarked { db ->
+        // ATTACH inside the protected region, so DETACH always runs once it may have succeeded.
         db.withCleanup("PRAGMA foreign_keys=ON;", "DETACH DATABASE import") {
+            db.exec("ATTACH DATABASE '${dbFile.absolutePath}' AS import")
+            db.exec("PRAGMA foreign_keys=OFF;")
             try {
                 db.inTransaction<Unit> {
                     for (tableDef in dbDef.tableDefinitions) {
