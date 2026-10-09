@@ -57,7 +57,7 @@ class AbAlertDialogTest {
         for (oldMode in listOf(DisplayColorMode.BW, DisplayColorMode.COLOR_EINK)) {
             rule.runOnIdle { mode.value = oldMode }
             rule.waitForIdle()
-            assertTrue(original.attributes.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND != 0)
+            assertTrue(window!!.attributes.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND != 0)
         }
     }
 
