@@ -35,6 +35,8 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.event.Subscription
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.sharedcore.platform.OrderedLauncher
+import kotlinx.coroutines.CompletableDeferred
+import kotlin.coroutines.EmptyCoroutineContext
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -830,36 +832,53 @@ class ProgressControlTest {
     // --- JS edge: fire-and-forget writes survive the screen (spec L1a section 4) ---
 
     @Test
-    fun `a JS memorize write completes after the screen scope is cancelled`() = runTest {
+    fun `memorize target write is not cancelled with the caller scope and runs before the follow-up`() = runTest {
         val appScope = AppCoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler))
-        val screenScope = CoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler))
+        val callerJob = SupervisorJob()
+        val callerScope = CoroutineScope(callerJob + StandardTestDispatcher(testScheduler))
         val actions = ProgressJsActions(OrderedLauncher(appScope))
         val range = VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 1, 1), Verse(KJVA, BibleBook.GEN, 1, 2))
+        var targetsSeenByFollowUp: Int? = null
 
-        // The JS call arrives on the screen's behalf, then the screen goes away before it ran.
-        val job = screenScope.async { actions.markMemorized("window-1", range) }.await()
-        screenScope.cancel()
+        val follow = actions.addTargetIfNeededThen("w", range, callerScope, EmptyCoroutineContext) {
+            targetsSeenByFollowUp = ProgressControl.getTargetOrdinalsInRange(range.start.ordinal, range.end.ordinal).size
+        }
         advanceUntilIdle()
-        job.join()
+        follow.join()
+        assertEquals("follow-up must see the target written before it", 2, targetsSeenByFollowUp)
 
-        assertTrue(ProgressControl.isVerseMemorized(KJVA, BibleBook.GEN, 1, 1))
-        assertTrue(ProgressControl.isVerseMemorized(KJVA, BibleBook.GEN, 1, 2))
+        // Caller scope cancelled right after the call: the write must still complete.
+        val range2 = VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 2, 1))
+        val follow2 = actions.addTargetIfNeededThen("w", range2, callerScope, EmptyCoroutineContext) { }
+        callerScope.cancel()
+        advanceUntilIdle()
+        follow2.join()
+        assertEquals(1, ProgressControl.getTargetOrdinalsInRange(range2.start.ordinal, range2.end.ordinal).size)
         appScope.cancel()
     }
 
     @Test
-    fun `JS writes for one window apply in call order`() = runTest {
+    fun `JS writes for one window wait for the earlier one even when it suspends, other windows do not`() = runTest {
         val appScope = AppCoroutineScope(SupervisorJob() + StandardTestDispatcher(testScheduler))
-        val actions = ProgressJsActions(OrderedLauncher(appScope))
+        val launcher = OrderedLauncher(appScope)
+        val actions = ProgressJsActions(launcher)
         val range = VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 1, 1))
+        val other = VerseRange(KJVA, Verse(KJVA, BibleBook.GEN, 3, 1))
+        val gate = CompletableDeferred<Unit>()
 
-        actions.markMemorized("w", range)
+        // First write for "w" suspends on the gate before marking.
+        launcher.launch("w") { gate.await(); ProgressControl.markVerseMemorized(range) }
         val last = actions.unmarkMemorized("w", range)
+        val otherJob = actions.markMemorized("w2", other)
+        advanceUntilIdle()
+        otherJob.join() // completes while the gate is still closed, or this hangs/fails
+        assertFalse("same window must wait for the gate", last.isCompleted)
+        gate.complete(Unit)
         advanceUntilIdle()
         last.join()
 
-        assertFalse(ProgressControl.isVerseMemorized(KJVA, BibleBook.GEN, 1, 1))
+        assertFalse("unmark ran after mark, so the verse ends unmarked", ProgressControl.isVerseMemorized(KJVA, BibleBook.GEN, 1, 1))
+        assertTrue(ProgressControl.isVerseMemorized(KJVA, BibleBook.GEN, 3, 1))
         appScope.cancel()
     }
 }
-

@@ -548,10 +548,7 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun memorize(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, verseOrdinal, endOrdinal)
-        if (verseRange != null) {
-            progressJsActions.addTargetIfNeeded(bibleView.window.id, verseRange)
-        }
-        scope.launch(Dispatchers.Main) {
+        progressJsActions.addTargetIfNeededThen(bibleView.window.id, verseRange, scope, Dispatchers.Main) {
             bibleView.memorizeSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
         }
     }

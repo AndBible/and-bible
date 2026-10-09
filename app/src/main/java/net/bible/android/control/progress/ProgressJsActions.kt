@@ -17,6 +17,10 @@
 
 package net.bible.android.control.progress
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 import net.bible.android.database.progress.ReadingSource
 import net.bible.sharedcore.platform.OrderedLauncher
 import org.crosswire.jsword.passage.VerseRange
@@ -29,6 +33,24 @@ class ProgressJsActions(private val launcher: OrderedLauncher) {
     fun unmarkMemorized(windowId: Any, range: VerseRange) = launcher.launch(windowId) { ProgressControl.unmarkVerseMemorized(range) }
     fun addTarget(windowId: Any, range: VerseRange) = launcher.launch(windowId) { ProgressControl.addMemorizationTarget(range) }
     fun addTargetIfNeeded(windowId: Any, range: VerseRange) = launcher.launch(windowId) { ProgressControl.addMemorizationTargetIfNeeded(range) }
+    /**
+     * Writes the memorization target (if [range] is non-null) on the launcher's own scope, then runs [after]
+     * in [callerScope] strictly after that write finished. Cancelling [callerScope] never cancels the write.
+     */
+    fun addTargetIfNeededThen(
+        windowId: Any,
+        range: VerseRange?,
+        callerScope: CoroutineScope,
+        callerContext: CoroutineContext,
+        after: suspend () -> Unit,
+    ): Job {
+        val write = range?.let { addTargetIfNeeded(windowId, it) }
+        return callerScope.launch(callerContext) {
+            write?.join()
+            after()
+        }
+    }
+
     fun removeTargetByRange(windowId: Any, range: VerseRange) = launcher.launch(windowId) { ProgressControl.removeMemorizationTargetByRange(range) }
     fun recordChapterRead(
         windowId: Any,
