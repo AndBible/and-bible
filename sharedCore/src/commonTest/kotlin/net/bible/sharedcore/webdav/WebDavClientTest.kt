@@ -61,6 +61,17 @@ class WebDavClientTest {
         assertEquals(401, assertFailsWith<DavAuthException> { c.propfind("sync", 0) }.status)
     }
 
+    @Test fun unrelatedEngineFailureOnNon401_isNotAnAuthException() = runTest {
+        val npe = assertFailsWith<NullPointerException> {
+            client { throw NullPointerException("engine bug") }.propfind("sync", 0)
+        }
+        assertEquals("engine bug", npe.message)
+        val ise = assertFailsWith<IllegalStateException> {
+            client { throw IllegalStateException("client closed") }.propfind("sync", 0)
+        }
+        assertEquals("client closed", ise.message)
+    }
+
     @Test fun bare403WithoutChallenge_isAuthException() = runTest {
         val c = client { respond("", HttpStatusCode.Forbidden) }
         assertEquals(403, assertFailsWith<DavAuthException> { c.propfind("sync", 0) }.status)
