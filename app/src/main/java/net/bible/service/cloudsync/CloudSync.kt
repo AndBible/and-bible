@@ -160,10 +160,14 @@ object CloudSync {
             return null
         }
         var errorMessage: String? = null
+        var cancelledByUser = false
         val success = signInMutex.withLock {
             _adapter = CloudAdapters.current.newAdapter
             try {
                 adapter.signIn(activity)
+            } catch (e: CloudSyncUserCancelledException) {
+                cancelledByUser = true
+                false
             } catch (e: Exception){
                 errorMessage = e.message
                 false
@@ -171,7 +175,7 @@ object CloudSync {
         }
         if(!success) {
             _adapter = null
-            Dialogs.showMsg2(activity, activity.getString(R.string.sign_in_failed) + " " + (errorMessage?:""))
+            if (!cancelledByUser) Dialogs.showMsg2(activity, activity.getString(R.string.sign_in_failed) + " " + (errorMessage?:""))
         }
         return success
     }

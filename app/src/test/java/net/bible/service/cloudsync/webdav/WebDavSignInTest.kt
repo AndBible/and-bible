@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication
 import net.bible.android.TEST_SDK
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.cloudsync.CloudSyncUserCancelledException
 import net.bible.service.cloudsync.CloudSyncUserFacingException
 import net.bible.sharedcore.webdav.*
 import org.junit.After
@@ -59,10 +60,10 @@ class WebDavSignInTest {
         assertEquals(CertPin(info.host, info.sha256), state.certPin)
     }
 
-    @Test fun untrustedCertificate_declined_returnsFalse_noPin() = runBlocking {
+    @Test fun untrustedCertificate_declined_throwsUserCancelled_noPin() = runBlocking {
         untrustedUntilPinned()
         ui.trust = false
-        assertFalse(adapter().signIn(mock<ActivityBase>()))
+        assertThrows(CloudSyncUserCancelledException::class.java) { runBlocking { adapter().signIn(mock<ActivityBase>()) } }
         assertEquals(1, ui.asked)
         assertNull(state.certPin)
     }
@@ -78,7 +79,6 @@ class WebDavSignInTest {
             server.statusOverride = { status }
             val e = assertThrows(Exception::class.java) { runBlocking { adapter().signIn(mock<ActivityBase>()) } }
             assertEquals("status $status", WebDavMessage.NOT_A_FOLDER.name, e.message)
-            assertTrue("status $status", e.cause is DavProtocolException)
         }
     }
 

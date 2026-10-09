@@ -7,3 +7,9 @@ package net.bible.service.cloudsync
  */
 class CloudSyncUserFacingException(message: String, val requiresReconnect: Boolean, cause: Throwable? = null) :
     Exception(message, cause)
+
+/**
+ * Thrown by [CloudAdapter.signIn] when the user themselves declined to continue (for example refused a
+ * certificate trust prompt). [CloudSync.signIn] treats it as a quiet failed sign-in: no "Sign in failed" dialog.
+ */
+class CloudSyncUserCancelledException : Exception("Sign-in cancelled by the user")
