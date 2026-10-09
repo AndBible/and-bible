@@ -76,6 +76,7 @@ import net.bible.service.device.speak.TextToSpeechServiceManager
 import net.bible.service.common.CommonUtils
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.DateTimeFormats
 import net.bible.sharedcore.platform.UserNotifier
@@ -100,6 +101,7 @@ val coreModule = module {
 
     single<AppSettings> { CommonUtils.settings }
     single { AppCoroutineScope() }
+    single { OrderedLauncher(get<AppCoroutineScope>()) }
     single<UserNotifier> { AndroidUserNotifier() }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }
     single<DateTimeFormats> { AndroidDateTimeFormats(androidContext()) }
