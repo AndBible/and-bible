@@ -44,7 +44,7 @@ import net.bible.service.sword.mydocument.isMyDocument
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
-import org.crosswire.jsword.book.sword.SwordBookMetaData.KEY_SOURCE_TYPE
+import org.crosswire.jsword.book.sword.SwordBookMetaData.Companion.KEY_SOURCE_TYPE
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
