@@ -84,10 +84,24 @@ object SwordEnvironmentInitialisation {
                 WebResource.setTimeout(5000)
                 // because the above line causes initialisation set the is initialised flag here
                 isSwordLoaded = true
-                get<BookInstallWatcher>(BookInstallWatcher::class.java).startListening()
             }
         } catch (e: Exception) {
             log.error("Error initialising", e)
+        }
+    }
+
+    /**
+     * Registers the book install/uninstall listener (backup db + sync). Must run AFTER Koin has started
+     * (the watcher is Koin-resolved) and after [initialiseJSwordFolders]; a no-op if JSword was never
+     * initialised. Idempotent: [BookInstallWatcher.startListening] never registers twice.
+     */
+    fun startBookInstallWatcher() {
+        if (!isSwordLoaded) return
+        try {
+            get<BookInstallWatcher>(BookInstallWatcher::class.java).startListening()
+        } catch (e: Exception) {
+            // Not rethrown (must not stop app startup), but never silent: without it no installed book is backed up.
+            log.error("BookInstallWatcher failed to start; book installs will not be tracked", e)
         }
     }
 

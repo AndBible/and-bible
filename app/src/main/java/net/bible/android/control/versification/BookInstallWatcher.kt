@@ -48,7 +48,9 @@ class BookInstallWatcher(
 
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
+    /** Idempotent: a repeated call (e.g. a second application onCreate) leaves exactly one registration. */
     fun startListening() {
+        Books.installed().removeBooksListener(listener)
         Books.installed().addBooksListener(listener)
     }
 

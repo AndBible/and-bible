@@ -180,6 +180,9 @@ open class BibleApplication : Application() {
         // ideally this would be installed before initialiseJSwordFolders but the listener depends on Koin being started
         SwordEnvironmentInitialisation.installJSwordErrorReportListener()
 
+        // BookInstallWatcher is Koin-resolved, so it can only start once Koin is up (not inside initialiseJSwordFolders)
+        SwordEnvironmentInitialisation.startBookInstallWatcher()
+
         // some changes may be required for different versions
         upgradeSharedPreferences()
 
