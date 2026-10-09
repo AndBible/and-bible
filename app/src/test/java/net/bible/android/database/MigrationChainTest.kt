@@ -21,6 +21,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -60,5 +61,15 @@ class MigrationChainTest {
         }
         println("MigrationChainTest: $tested old versions migrated, ${failures.size} failed")
         assertEquals(failures.joinToString("\n"), 0, failures.size)
+        // Not vacuous: the count is derived from the data, not from the loop above. Every exported version below
+        // current is tested except the known-unmigratable and the needs-modern-SQLite ones (an empty
+        // NEEDS_MODERN_SQLITE after Task 17 simply subtracts nothing).
+        val expected = DB_UNDER_TEST.sumOf { db ->
+            val below = SchemaExportFixtures.exportedVersions(db.schemaDir).filter { it < db.currentVersion }.toSet()
+            val excluded = knownUnmigratable[db.schemaDir].orEmpty() + NEEDS_MODERN_SQLITE[db.schemaDir].orEmpty()
+            below.size - below.count { it in excluded }
+        }
+        assertTrue("no old schema version was tested", tested > 0)
+        assertEquals("tested count differs from the exported versions that should have been tested", expected, tested)
     }
 }
