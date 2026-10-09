@@ -5,15 +5,13 @@ kotlin = "2.3.21"
 ksp = "2.3.9"
 gradle = "9.5.1"                 # informational; the wrapper is the source of truth
 # AndBible libraries — current values, moved verbatim into the catalog
-room = "2.8.4"                   # bumped from 2.7.2 to a KSP-2.3.9-compatible Room
-room3 = "3.0.3"                  # D1.5: Room 3 (androidx.room3), alongside room until Task 17
+room3 = "3.0.3"                  # D1.5: Room 3 (androidx.room3) with the bundled SQLite driver
 coroutines = "1.11.0"            # bumped from 1.10.2 to the reference level
 kotlinxSerialization = "1.8.1"
 atomicfu = "0.33.0"
 coreKtx = "1.16.0"
 jdom = "2.0.6.1"
 commonsText = "1.9"
-sqliteAndroid = "3.49.0"
 androidxSqlite = "2.7.1"
 appcompat = "1.7.1"
 lifecycle = "2.9.1"
@@ -45,9 +43,6 @@ androidx-sqlite = { module = "androidx.sqlite:sqlite", version.ref = "androidxSq
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
-androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3" }
 androidx-room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
@@ -87,5 +82,4 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref 
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version = "1.11.1" }
 android-kotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
-androidx-room = { id = "androidx.room", version.ref = "room" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }

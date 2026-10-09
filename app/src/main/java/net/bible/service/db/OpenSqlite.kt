@@ -34,9 +34,7 @@ var sqliteDriverFactory: () -> SQLiteDriver = { BundledSQLiteDriver() }
 /**
  * Opens a non-Room SQLite file (third-party modules, legacy files) with the bundled SQLite. Read-write opens
  * create the file when missing. Read-only opens are exercised only on the emulator (Task 18).
- *
- * Until D1 Task 17 two SQLite libraries share the process: never point this at a file a Room database currently has
- * open (closing a bundled connection drops requery's POSIX locks on that file).
+ * Room uses the same bundled library, so POSIX locks on a file are shared with Room's connections.
  */
 fun openSqlite(path: String, readOnly: Boolean = false): SQLiteConnection {
     val driver = sqliteDriverFactory()
@@ -48,11 +46,8 @@ fun openSqlite(path: String, readOnly: Boolean = false): SQLiteConnection {
 }
 
 /**
- * `PRAGMA user_version` of the SQLite file [file]. Opened read-write like requery's `openDatabase(OPEN_READWRITE)`
- * that this replaces, so a hot journal left by a crash is rolled back first; unlike it, a missing file is created
+ * `PRAGMA user_version` of the SQLite file [file]. Opened read-write like the `openDatabase(OPEN_READWRITE)`
+ * that this replaced, so a hot journal left by a crash is rolled back first; unlike it, a missing file is created
  * (every caller checks the file exists first).
- *
- * Until D1 Task 17 two SQLite libraries share the process: never point this at a file a Room database currently has
- * open (closing a bundled connection drops requery's POSIX locks on that file).
  */
 fun readUserVersion(file: File): Int = openSqlite(file.path).use { it.queryLong("PRAGMA user_version")!!.toInt() }

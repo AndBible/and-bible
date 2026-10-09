@@ -31,7 +31,7 @@ data class EpubSearchResult(val fragId: Long, val ordinal: Int, val text: String
 
 class EpubSearch(val file: File) {
     // Every use of the connection holds the lock: a bundled-driver connection is not safe for concurrent
-    // use (requery's database was), and the index is built on a bare thread while the UI may query it.
+    // use (the old framework-style database was), and the index is built on a bare thread while the UI may query it.
     private val db = try {
         openSqlite(file.path)
     } catch (e: SQLiteException) {

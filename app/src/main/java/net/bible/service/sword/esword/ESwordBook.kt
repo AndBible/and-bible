@@ -98,7 +98,7 @@ class SqliteVerseBackendState(private val sqliteFile: File) : OpenFileState {
 
     /**
      * Runs [sql] on the shared read-only connection and maps every row. A bundled-driver connection is
-     * not safe for concurrent use (requery's database was), so every query goes through the state's lock.
+     * not safe for concurrent use (the old framework-style database was), so every query goes through the state's lock.
      */
     fun <T> rows(sql: String, vararg args: Any?, row: (SQLiteStatement) -> T): List<T> =
         synchronized(this) { sqlDb.queryRows(sql, *args, row = row) }

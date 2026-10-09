@@ -78,7 +78,7 @@ fun SQLiteStatement.textOrNull(i: Int): String? = if (isNull(i)) null else getTe
 
 /**
  * Runs `INSERT OR [conflict] INTO [table] (cols) VALUES (?, ...)` with the values of [values] in the given
- * order, replacing requery's `insert(table, CONFLICT_x, ContentValues)`. [conflict] is one of
+ * order, replacing the old `SQLiteDatabase.insert(table, CONFLICT_x, ContentValues)`. [conflict] is one of
  * `IGNORE`, `FAIL`, `ABORT`, `REPLACE`, `ROLLBACK`. Returns the new row id, or -1 when no row was
  * inserted. Like `SQLiteDatabase.insertWithOnConflict`, it logs and returns -1 on any SQLite error
  * (a constraint violation under FAIL/ABORT, say) instead of throwing.
