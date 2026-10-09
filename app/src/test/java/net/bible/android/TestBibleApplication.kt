@@ -85,7 +85,7 @@ class TestBibleApplication : BibleApplication() {
         PassageChangeMediator.resetSubscribersForTest()
         net.bible.service.history.HistoryManager.resetInstanceForTest()
         ScreenSettings.resetSubscribersForTest()
-        CurrentActivityHolder.resetSubscribersForTest()
+        CurrentActivityHolder.resetForTest()
         SystemBarSettingChanges.resetSubscribersForTest()
         DocumentChanges.resetSubscribersForTest()
         DatabaseContainer.resetPhase8StreamsForTest()

@@ -41,6 +41,16 @@ object CurrentActivityHolder {
 
     @VisibleForTesting fun resetSubscribersForTest() { positionSource = EventSource() }
 
+    /**
+     * Test teardown: forgets the activities too. Robolectric destroys a test's application but not necessarily the
+     * activities a test built and never stopped, so without this the next test (any class, one JVM) starts with
+     * "an activity is already active" and never sees its first activation as [AppPosition.FOREGROUND].
+     */
+    @VisibleForTesting fun resetForTest() {
+        activities.clear()
+        resetSubscribersForTest()
+    }
+
     val currentActivity: ActivityBase? get() = try { activities.last() } catch (e: NoSuchElementException) {null}
 
     /**
