@@ -221,10 +221,10 @@ class SpeakWidgetManager : KoinComponent {
             bookmarksAdded = true
         }
 
-        val label = blockingDb { bookmarkControl.speakLabel() } // L1-edge: AppWidgetProvider callback
+        val label = blockingDb { bookmarkControl.speakLabel() } // L1-edge: synchronous widget update (AppWidgetProvider callback on main; also the BookmarkChange subscriber, on the emitting write's thread, often Dispatchers.Default)
 
-        val bibleBookmarks = blockingDb { bookmarkControl.getBibleBookmarksWithLabel(label) }.sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) } // L1-edge: AppWidgetProvider callback
-        val genBookmarks = blockingDb { bookmarkControl.getGenericBookmarksWithLabel(label) } // L1-edge: AppWidgetProvider callback
+        val bibleBookmarks = blockingDb { bookmarkControl.getBibleBookmarksWithLabel(label) }.sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) } // L1-edge: synchronous widget update (AppWidgetProvider callback on main; also the BookmarkChange subscriber, on the emitting write's thread, often Dispatchers.Default)
+        val genBookmarks = blockingDb { bookmarkControl.getGenericBookmarksWithLabel(label) } // L1-edge: synchronous widget update (AppWidgetProvider callback on main; also the BookmarkChange subscriber, on the emitting write's thread, often Dispatchers.Default)
         val speakBookmarks = bibleBookmarks + genBookmarks
         if(!AdvancedSpeakSettings.autoBookmark && speakBookmarks.isEmpty()) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
