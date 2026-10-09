@@ -73,6 +73,8 @@ import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButt
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton
 import net.bible.service.db.readingplan.ReadingPlanRepository
 import net.bible.service.device.speak.TextToSpeechServiceManager
+import net.bible.service.common.CommonUtils
+import net.bible.sharedcore.platform.AppSettings
 import net.bible.service.history.HistoryManager
 import net.bible.service.history.HistoryTraversalFactory
 import org.koin.core.module.dsl.bind
@@ -87,6 +89,8 @@ val coreModule = module {
     // DownloadControl (was ApplicationModule.provideDownloadControl)
     single { DownloadControl() }
     singleOf(::CustomRepositoryServiceImpl) { bind<CustomRepositoryService>() }
+
+    single<AppSettings> { CommonUtils.settings }
 
     // @ApplicationScope singletons
     singleOf(::BibleTraverser)
