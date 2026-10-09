@@ -30,3 +30,16 @@ sealed interface BookmarkChange {
     ) : BookmarkChange
     data class StudyPadTextEntryDeleted(val studyPadTextEntryId: IdType) : BookmarkChange
 }
+
+/**
+ * [current] favourite label ids after a label [change]: an upserted label joins or leaves the
+ * favourites by its own `favourite` flag, deleted labels leave. Other changes leave it as is.
+ */
+fun favouriteIdsAfter(current: List<IdType>, change: BookmarkChange): List<IdType> = when (change) {
+    is BookmarkChange.LabelUpserted -> {
+        val id = change.label.id
+        if (change.label.favourite) { if (current.contains(id)) current else current + id } else current - id
+    }
+    is BookmarkChange.LabelsDeleted -> current.filterNot { change.labelIds.contains(it) }
+    else -> current
+}

@@ -2,6 +2,8 @@ package net.bible.sharedcore.bookmark
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.bible.sharedcore.search.StyledText
@@ -45,7 +47,7 @@ class BookmarksControllerTest {
         /** Mutable so a test can change the label set between construction and a later refresh(). */
         var currentLabels: List<BookmarkFilterLabel> = labels
 
-        override fun filterLabels(): List<BookmarkFilterLabel> = currentLabels
+        override suspend fun filterLabels(): List<BookmarkFilterLabel> = currentLabels
         override suspend fun loadRows(filterIndex: Int, sort: BookmarkSortMode, search: String?, showNotes: Boolean): List<BookmarkRow> {
             loadCalls.add(LoadCall(filterIndex, sort, search, showNotes))
             return rowsToReturn(filterIndex, sort, search, showNotes)
@@ -379,5 +381,24 @@ class BookmarksControllerTest {
         assertEquals(setOf("b2"), c.selection.value)
         c.clearSelection()
         assertEquals(setOf("b1"), c.expandedIds.value)
+    }
+
+    /** L1a: the filter labels come from a suspending service call, so the constructor cannot read
+     *  them; they, the index clamp and the first row load all land on [scope], in that order. */
+    @Test fun filter_labels_load_on_the_scope_before_the_clamped_first_row_load() = runTest {
+        val service = FakeService() // 3 labels: indices 0..2
+        val scope = TestScope(StandardTestDispatcher(testScheduler))
+        val c = controller(service, scope, initialFilterIndex = 99)
+
+        assertEquals(emptyList(), c.filterLabels.value)
+        assertTrue(c.loading.value)
+        assertEquals(emptyList(), service.loadCalls)
+
+        scope.testScheduler.advanceUntilIdle()
+
+        assertEquals(service.currentLabels, c.filterLabels.value)
+        assertEquals(2, c.selectedFilterIndex.value)
+        assertEquals(listOf(2), service.loadCalls.map { it.filterIndex })
+        assertFalse(c.loading.value)
     }
 }

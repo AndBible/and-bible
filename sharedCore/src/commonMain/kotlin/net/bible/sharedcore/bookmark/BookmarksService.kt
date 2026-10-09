@@ -9,7 +9,7 @@ package net.bible.sharedcore.bookmark
  */
 interface BookmarksService {
     /** allLabels displayNames, classic spinner order (0=All, 1=Unlabeled, …). */
-    fun filterLabels(): List<BookmarkFilterLabel>
+    suspend fun filterLabels(): List<BookmarkFilterLabel>
 
     /** Loads the filtered/sorted/searched rows. [search] is `null` when there's no active search text. */
     suspend fun loadRows(filterIndex: Int, sort: BookmarkSortMode, search: String?, showNotes: Boolean): List<BookmarkRow>

@@ -89,7 +89,7 @@ class BookmarksInGraphResultTest {
     private val scope = CoroutineScope(Dispatchers.Unconfined)
 
     private class FakeBookmarksService : BookmarksService {
-        override fun filterLabels(): List<BookmarkFilterLabel> =
+        override suspend fun filterLabels(): List<BookmarkFilterLabel> =
             listOf(BookmarkFilterLabel(0, "All"), BookmarkFilterLabel(1, "Unlabeled"))
         override suspend fun loadRows(
             filterIndex: Int,
@@ -104,11 +104,11 @@ class BookmarksInGraphResultTest {
     }
 
     private class FakeManageLabelsService : ManageLabelsService {
-        override fun assignableLabels(): List<LabelItem> =
+        override suspend fun assignableLabels(): List<LabelItem> =
             listOf(LabelItem("L1", "Grace", 0, false, false, false, null))
-        override fun unlabeledLabel(): LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null)
+        override suspend fun unlabeledLabel(): LabelItem = LabelItem("UNL", "Unlabeled", 0, false, true, true, null)
         override fun recentLabelIds(): List<String> = emptyList()
-        override fun overriddenLabelStyles(): Map<String, BookmarkDisplayStyle> = emptyMap()
+        override suspend fun overriddenLabelStyles(): Map<String, BookmarkDisplayStyle> = emptyMap()
         override fun randomColorArgb(): Int = 0
         override suspend fun searchStudyPadsByContent(text: String): List<ManageLabelsRow.SearchResult> = emptyList()
         override fun styleTagsVisible(): Boolean = false

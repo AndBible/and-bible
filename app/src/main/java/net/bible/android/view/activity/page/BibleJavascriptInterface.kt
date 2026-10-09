@@ -673,14 +673,16 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun openStudyPad(labelId: String, bookmarkId: String) {
-        scope.launch(Dispatchers.Main) {
+        // After this window's queued writes (e.g. the note save JS sent just before), so the opened
+        // document is loaded with them.
+        bookmarkJsActions.afterQueuedWrites(bibleView.window.id, scope, Dispatchers.Main) {
             linkControl.openStudyPad(IdType(labelId), IdType(bookmarkId))
         }
     }
 
     @JavascriptInterface
     fun openMyNotes(v11n: String, ordinal: Int) {
-        scope.launch(Dispatchers.Main) {
+        bookmarkJsActions.afterQueuedWrites(bibleView.window.id, scope, Dispatchers.Main) {
             linkControl.openMyNotes(v11n, ordinal)
         }
     }

@@ -17,7 +17,6 @@
 package net.bible.android.view.activity.bookmark
 
 import android.text.format.DateFormat
-import net.bible.service.db.blockingDb
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.common.toV11n
@@ -65,8 +64,9 @@ class BookmarksServiceImpl(
      *  `associateBy` on a freshly-built map, so [loadedBookmarks] can be used for CSV export. */
     private var loaded: Map<String, BaseBookmarkWithNotes> = emptyMap()
 
-    override fun filterLabels(): List<BookmarkFilterLabel> =
-        blockingDb { bookmarkControl.allLabels() }.mapIndexed { i, l -> BookmarkFilterLabel(i, l.displayName) } // L1-edge: BookmarksController reads filterLabels() synchronously in its constructor and refresh()
+    override suspend fun filterLabels(): List<BookmarkFilterLabel> = withContext(Dispatchers.IO) {
+        bookmarkControl.allLabels().mapIndexed { i, l -> BookmarkFilterLabel(i, l.displayName) }
+    }
 
     override suspend fun loadRows(
         filterIndex: Int,

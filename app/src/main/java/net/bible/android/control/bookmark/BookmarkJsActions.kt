@@ -17,7 +17,11 @@
 
 package net.bible.android.control.bookmark
 
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import net.bible.sharedcore.log.Log
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
@@ -34,6 +38,31 @@ class BookmarkJsActions(
 ) {
     /** Runs a compound write (read, modify, write, follow-up) in this window's order. */
     fun launch(windowId: Any, block: suspend () -> Unit): Job = launcher.launch(windowId, block)
+
+    /**
+     * Runs [after] in [callerScope] once every write already queued for [windowId] has finished, e.g.
+     * opening a StudyPad right after a note save so the opened document reads the saved note. [after]
+     * runs outside the window's queue (it may itself queue writes for the window), and cancelling
+     * [callerScope] never cancels a queued write.
+     */
+    fun afterQueuedWrites(
+        windowId: Any,
+        callerScope: CoroutineScope,
+        callerContext: CoroutineContext,
+        after: suspend () -> Unit,
+    ): Job {
+        val marker = launch(windowId) {}
+        return callerScope.launch(callerContext) {
+            marker.join()
+            after()
+        }
+    }
+
+    /** A JS write naming an entry that no longer exists (deleted meanwhile) is skipped, not an error. */
+    private fun <T> T?.orSkip(what: String, id: IdType): T? {
+        if (this == null) Log.w(TAG, "Skipping JS write: $what $id no longer exists")
+        return this
+    }
 
     private fun normalize(note: String?) = if (note?.trim()?.isEmpty() == true) null else note
 
@@ -56,9 +85,12 @@ class BookmarkJsActions(
     fun createStudyPadEntry(windowId: Any, labelId: IdType, entryType: String, afterEntryId: IdType?) =
         launch(windowId) {
             val orderNumber: Int = when (entryType) {
-                "bookmark" -> bookmarkControl.getBibleBookmarkToLabel(afterEntryId!!, labelId)!!.orderNumber
-                "generic-bookmark" -> bookmarkControl.getGenericBookmarkToLabel(afterEntryId!!, labelId)!!.orderNumber
-                "journal" -> bookmarkControl.getStudyPadById(afterEntryId!!)!!.orderNumber
+                "bookmark" -> bookmarkControl.getBibleBookmarkToLabel(afterEntryId!!, labelId)
+                    .orSkip("bookmark-to-label", afterEntryId)?.orderNumber ?: return@launch
+                "generic-bookmark" -> bookmarkControl.getGenericBookmarkToLabel(afterEntryId!!, labelId)
+                    .orSkip("generic-bookmark-to-label", afterEntryId)?.orderNumber ?: return@launch
+                "journal" -> bookmarkControl.getStudyPadById(afterEntryId!!)
+                    .orSkip("study pad entry", afterEntryId)?.orderNumber ?: return@launch
                 "none" -> -1
                 else -> throw RuntimeException("Illegal entry type")
             }
@@ -82,9 +114,16 @@ class BookmarkJsActions(
         bookmarkItems: List<Pair<String, Int>>,
         genericBookmarkItems: List<Pair<String, Int>>,
     ) = launch(windowId) {
-        val studyPadTextItems = studyPadItems.map { bookmarkControl.getStudyPadById(IdType(it.first))!!.apply { orderNumber = it.second } }
-        val bookmarksToLabels = bookmarkItems.map { bookmarkControl.getBibleBookmarkToLabel(IdType(it.first), labelId)!!.apply { orderNumber = it.second } }
-        val genericToLabels = genericBookmarkItems.map { bookmarkControl.getGenericBookmarkToLabel(IdType(it.first), labelId)!!.apply { orderNumber = it.second } }
+        // An entry deleted meanwhile is left out; the rest are still renumbered.
+        val studyPadTextItems = studyPadItems.mapNotNull { (id, order) ->
+            bookmarkControl.getStudyPadById(IdType(id)).orSkip("study pad entry", IdType(id))?.apply { orderNumber = order }
+        }
+        val bookmarksToLabels = bookmarkItems.mapNotNull { (id, order) ->
+            bookmarkControl.getBibleBookmarkToLabel(IdType(id), labelId).orSkip("bookmark-to-label", IdType(id))?.apply { orderNumber = order }
+        }
+        val genericToLabels = genericBookmarkItems.mapNotNull { (id, order) ->
+            bookmarkControl.getGenericBookmarkToLabel(IdType(id), labelId).orSkip("generic-bookmark-to-label", IdType(id))?.apply { orderNumber = order }
+        }
         bookmarkControl.updateOrderNumbers(labelId, bookmarksToLabels, genericToLabels, studyPadTextItems)
     }
 
@@ -107,7 +146,7 @@ class BookmarkJsActions(
     /** Makes [labelId] the primary label (unless it is the Unlabeled label); [onSet] runs after the write. */
     fun setAsPrimaryLabel(windowId: Any, bookmarkId: IdType, labelId: IdType, generic: Boolean, onSet: () -> Unit) =
         launch(windowId) {
-            val label = bookmarkControl.labelById(labelId) ?: return@launch
+            val label = bookmarkControl.labelById(labelId).orSkip("label", labelId) ?: return@launch
             if (label.isUnlabeledLabel) return@launch
             if (generic) bookmarkControl.setAsPrimaryLabelForGeneric(bookmarkId, labelId)
             else bookmarkControl.setAsPrimaryLabelForBible(bookmarkId, labelId)
@@ -115,23 +154,23 @@ class BookmarkJsActions(
         }
 
     fun toggleBibleBookmarkLabel(windowId: Any, bookmarkId: IdType, labelId: String) = launch(windowId) {
-        val bookmark = bookmarkControl.bibleBookmarkById(bookmarkId) ?: return@launch
+        val bookmark = bookmarkControl.bibleBookmarkById(bookmarkId).orSkip("bookmark", bookmarkId) ?: return@launch
         bookmarkControl.toggleBookmarkLabel(bookmark, labelId)
     }
 
     fun toggleGenericBookmarkLabel(windowId: Any, bookmarkId: IdType, labelId: String) = launch(windowId) {
-        val bookmark = bookmarkControl.genericBookmarkById(bookmarkId) ?: return@launch
+        val bookmark = bookmarkControl.genericBookmarkById(bookmarkId).orSkip("generic bookmark", bookmarkId) ?: return@launch
         bookmarkControl.toggleBookmarkLabel(bookmark, labelId)
     }
 
     fun setBibleBookmarkCustomIcon(windowId: Any, bookmarkId: IdType, icon: String?) = launch(windowId) {
-        val bookmark = bookmarkControl.bibleBookmarkById(bookmarkId) ?: return@launch
+        val bookmark = bookmarkControl.bibleBookmarkById(bookmarkId).orSkip("bookmark", bookmarkId) ?: return@launch
         bookmark.customIcon = icon
         bookmarkControl.addOrUpdateBibleBookmark(bookmark)
     }
 
     fun setGenericBookmarkCustomIcon(windowId: Any, bookmarkId: IdType, icon: String?) = launch(windowId) {
-        val bookmark = bookmarkControl.genericBookmarkById(bookmarkId) ?: return@launch
+        val bookmark = bookmarkControl.genericBookmarkById(bookmarkId).orSkip("generic bookmark", bookmarkId) ?: return@launch
         bookmark.customIcon = icon
         bookmarkControl.addOrUpdateGenericBookmark(bookmark)
     }
@@ -139,7 +178,7 @@ class BookmarkJsActions(
     /** [onRefused] runs instead of the write when whole-verse is turned off on a bookmark without a text range. */
     fun setBibleBookmarkWholeVerse(windowId: Any, bookmarkId: IdType, value: Boolean, onRefused: () -> Unit, onTurnedOn: () -> Unit) =
         launch(windowId) {
-            val bookmark = bookmarkControl.bibleBookmarkById(bookmarkId) ?: return@launch
+            val bookmark = bookmarkControl.bibleBookmarkById(bookmarkId).orSkip("bookmark", bookmarkId) ?: return@launch
             if (!value && bookmark.textRange == null) { onRefused(); return@launch }
             bookmark.wholeVerse = value
             bookmarkControl.addOrUpdateBibleBookmark(bookmark)
@@ -148,10 +187,14 @@ class BookmarkJsActions(
 
     fun setGenericBookmarkWholeVerse(windowId: Any, bookmarkId: IdType, value: Boolean, onRefused: () -> Unit, onTurnedOn: () -> Unit) =
         launch(windowId) {
-            val bookmark = bookmarkControl.genericBookmarkById(bookmarkId) ?: return@launch
+            val bookmark = bookmarkControl.genericBookmarkById(bookmarkId).orSkip("generic bookmark", bookmarkId) ?: return@launch
             if (!value && bookmark.textRange == null) { onRefused(); return@launch }
             bookmark.wholeVerse = value
             bookmarkControl.addOrUpdateGenericBookmark(bookmark)
             if (value) onTurnedOn()
         }
+
+    private companion object {
+        const val TAG = "BookmarkJsActions"
+    }
 }

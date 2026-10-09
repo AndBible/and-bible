@@ -166,6 +166,7 @@ import org.koin.core.component.inject
 import org.koin.core.context.GlobalContext
 import net.bible.service.db.blockingDb
 import net.bible.android.control.bookmark.BookmarkJsActions
+import net.bible.android.control.bookmark.favouriteIdsAfter
 
 const val MAX_DOC_STR_LENGTH = 4000000;
 private val notFound = WebResourceResponse(null, null, null)
@@ -1135,6 +1136,7 @@ class BibleView(
                 val workspaceId = windowControl.windowRepository.id
                 val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
                 labelOverridesMap = blockingDb { dao.labelOverrides(workspaceId) }.associateBy { it.labelId }
+                favouriteLabelIds = favouriteIdsAfter(favouriteLabelIds, change)
                 val overriddenLabel = change.label.withStyleOverrides(labelOverridesMap[change.label.id])
                 val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(overriddenLabel))
                 executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
@@ -1144,6 +1146,7 @@ class BibleView(
                 executeJavascriptOnUiThread("bibleView.emit('delete_bookmarks', $bookmarkIds)")
             }
             is BookmarkChange.LabelsDeleted -> {
+                favouriteLabelIds = favouriteIdsAfter(favouriteLabelIds, change)
                 val labelIds = json.encodeToString(serializer(), change.labelIds)
                 executeJavascriptOnUiThread("bibleView.emit('delete_labels', $labelIds)")
             }
@@ -1776,7 +1779,8 @@ class BibleView(
 
     private val showErrorBox get() = if(CommonUtils.isBeta) CommonUtils.settings.getBoolean("show_errorbox", false) else false
 
-    /** Favourite label ids as of the last [refreshFavouriteLabels]; [getUpdateConfigCommand] is synchronous and reads this. */
+    /** Favourite label ids for [getUpdateConfigCommand] (synchronous): read in [loadDocument], kept
+     *  current from label changes in [onBookmarkChange] via [favouriteIdsAfter]. */
     @Volatile private var favouriteLabelIds: List<IdType> = emptyList()
 
     private suspend fun refreshFavouriteLabels() {
@@ -1841,11 +1845,11 @@ class BibleView(
                 """
     }
 
+    // Synchronous, so set_config keeps its place in the JS task queue relative to what is emitted
+    // right after it (an `initial` config must never land after a later one). Favourites come from
+    // the [favouriteLabelIds] cache.
     private fun updateConfig(initial: Boolean = false) {
-        scope.launch {
-            refreshFavouriteLabels()
-            executeJavascriptOnUiThread(getUpdateConfigCommand(initial))
-        }
+        executeJavascriptOnUiThread(getUpdateConfigCommand(initial))
     }
 
     fun updateBackgroundColor() {
@@ -2448,3 +2452,4 @@ class BibleView(
 
 
 }
+

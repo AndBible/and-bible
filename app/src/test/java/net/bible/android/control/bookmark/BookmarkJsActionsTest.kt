@@ -29,6 +29,8 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.log.Log
@@ -61,11 +63,15 @@ class BookmarkJsActionsTest {
     private val appScope = AppCoroutineScope(SupervisorJob() + Dispatchers.Default)
     private lateinit var control: BookmarkControl
     private lateinit var actions: BookmarkJsActions
-    private val errors = mutableListOf<String>()
+    private val errors = java.util.Collections.synchronizedList(mutableListOf<String>())
+    private val warnings = java.util.Collections.synchronizedList(mutableListOf<String>())
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
     @Before fun setUp() {
-        Log.sinkOverride = { level, tag, msg, tr -> if (level == LogLevel.ERROR) errors += "$tag: $msg ${tr ?: ""}" }
+        Log.sinkOverride = { level, tag, msg, tr ->
+            if (level == LogLevel.ERROR) errors += "$tag: $msg ${tr ?: ""}"
+            if (level == LogLevel.WARN) warnings += "$tag: $msg"
+        }
         val launcher = OrderedLauncher(appScope)
         control = BookmarkControl(mock(WindowControl::class.java), mock(AndroidResourceProvider::class.java), launcher)
         actions = BookmarkJsActions(launcher, control)
@@ -127,5 +133,52 @@ class BookmarkJsActionsTest {
         assertEquals("x", note(b))
         gate.complete(Unit)
         runBlocking { withTimeout(10_000) { stuck.join() } }
+    }
+
+    /** Fix round 1, finding 2: "save note, then open StudyPad/MyNotes" must open on the saved note. */
+    @Test fun `an open after a slow note save of the same window runs only after the save landed`() {
+        val b = bookmark()
+        val gate = CompletableDeferred<Unit>()
+        val save = actions.launch("w") { gate.await(); control.saveBibleBookmarkNote(b.id, "saved") }
+        val seen = CompletableDeferred<String?>()
+        val callerScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        try {
+            val open = actions.afterQueuedWrites("w", callerScope, Dispatchers.Default) {
+                seen.complete(dao.bibleBookmarkById(b.id)?.notes)
+            }
+            runBlocking {
+                delay(300) // an open that does not wait for the queue has run by now
+                assertFalse("the open ran before the queued save", seen.isCompleted)
+                gate.complete(Unit)
+                withTimeout(10_000) { save.join(); open.join() }
+            }
+            assertEquals("saved", runBlocking { seen.await() })
+        } finally {
+            callerScope.cancel()
+        }
+    }
+
+    /** The open runs OUTSIDE the window's queue: it may queue (and wait for) writes of its own. */
+    @Test fun `an open that itself waits for a write of the same window does not deadlock`() {
+        val b = bookmark()
+        val callerScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        try {
+            val open = actions.afterQueuedWrites("w", callerScope, Dispatchers.Default) {
+                actions.saveBibleBookmarkNote("w", b.id, "inner").join()
+            }
+            runBlocking { withTimeout(10_000) { open.join() } }
+            assertEquals("inner", note(b))
+        } finally {
+            callerScope.cancel()
+        }
+    }
+
+    /** Minor (a): a write naming an entry deleted meanwhile is skipped with a warning, not an ERROR. */
+    @Test fun `a study pad entry after a vanished entry is skipped with a warning`() {
+        val label = runBlocking { control.insertOrUpdateLabel(BookmarkEntities.Label(new = true).apply { name = "Pad" }) }
+        val missing = IdType()
+        runBlocking { withTimeout(10_000) { actions.createStudyPadEntry("w", label.id, "journal", missing).join() } }
+        assertTrue("no ERROR expected, got $errors", errors.isEmpty())
+        assertTrue(warnings.toString(), warnings.any { it.startsWith("BookmarkJsActions:") && it.contains(missing.toString()) })
     }
 }

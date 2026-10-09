@@ -170,6 +170,8 @@ import net.bible.android.view.activity.bookmark.ManageLabelsMapper
 import net.bible.android.view.activity.bookmark.customIconMap
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.bookmark.toLabelItem
+import net.bible.android.view.activity.bookmark.ManageLabelsWrites
+import net.bible.android.view.activity.bookmark.assignableLabelItems
 import net.bible.android.view.activity.download.BadDocumentAction
 import net.bible.android.view.activity.download.DownloadProgressBridge
 import net.bible.android.view.activity.download.RowDownloadStatus
@@ -301,6 +303,7 @@ import net.bible.sharedcore.bookmark.LabelEditState
 import net.bible.sharedcore.bookmark.ManageLabelsController
 import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsService
+import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedcore.bookmark.defaultLabelName
 import net.bible.sharedcore.bookmark.LabelEditResult as ControllerLabelEditResult
@@ -4162,8 +4165,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // boolean — see the note above; `&&` short-circuits left to right, so the state is
                 // still read on every composition of this scope.
                 if (manageLabelsExportOpen && manageLabelsSession != null) {
-                    val exportableLabels by produceState(emptyList<BookmarkEntities.Label>(), manageLabelsExportOpen) { value = bookmarkControl.assignableLabels() }
-                    AbMultiSelectSheet(
+                    val loadedExportableLabels by produceState<List<BookmarkEntities.Label>?>(null, manageLabelsExportOpen) { value = bookmarkControl.assignableLabels() }
+                    // Not shown until the list has loaded, so it never opens with an empty option list.
+                    val exportableLabels = loadedExportableLabels
+                    if (exportableLabels != null) AbMultiSelectSheet(
                         open = true,
                         title = getString(R.string.export_something, getString(R.string.studypads)),
                         options = exportableLabels,
@@ -4502,6 +4507,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private class ManageLabelsSession(
         val data: ManageLabelsContract.ManageLabelsData,
         val labelsById: MutableMap<String, BookmarkEntities.Label>,
+        val writes: ManageLabelsWrites,
     ) {
         lateinit var controller: ManageLabelsController
         var pendingEdit: PendingLabelEdit? = null
@@ -4533,14 +4539,25 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val parsed = ManageLabelsContract.ManageLabelsData.fromJSON(data)
         val session = ManageLabelsSession(
             data = parsed,
-            labelsById = blockingDb { bookmarkControl.assignableLabels() }.associateByTo(mutableMapOf()) { it.id.toString() }, // L1-edge: ManageLabelsDeps.controllerFor is a synchronous composition-time factory and the label list seeds ManageLabelsController's constructor
+            labelsById = mutableMapOf(),
+            writes = ManageLabelsWrites(bookmarkControl, appScope),
         )
+        // labelsById is filled by the controller's own initial label load (on lifecycleScope, so on
+        // Main), from the same entities its rows are built from. An entry an editor round trip already
+        // put there wins over the loaded copy.
+        val sessionService = object : ManageLabelsService by manageLabelsService {
+            override suspend fun assignableLabels(): List<LabelItem> {
+                val all = withContext(Dispatchers.IO) { bookmarkControl.assignableLabels() }
+                all.forEach { session.labelsById.getOrPut(it.id.toString()) { it } }
+                return all.assignableLabelItems()
+            }
+        }
         val highlightId = (windowControl.activeWindowPageManager.currentPage.key as? StudyPadKey)
             ?.takeIf { parsed.mode == ManageLabelsContract.Mode.STUDYPAD }
             ?.label?.id?.toString()
         session.controller = ManageLabelsController(
             mode = ManageLabelsMapper.toMode(parsed.mode),
-            service = manageLabelsService,
+            service = sessionService,
             scope = lifecycleScope,
             initialSelected = ManageLabelsMapper.seedSelected(parsed),
             initialAutoAssign = ManageLabelsMapper.seedAutoAssign(parsed),
@@ -4592,7 +4609,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val workspaceOverride = if (!workspaceContext) null else {
             val workspaceId = windowControl.windowRepository.id
             val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-            val existingOverrides = if (!isNew) blockingDb { workspaceDao.labelOverrides(workspaceId) } else emptyList()
+            val existingOverrides = if (!isNew) workspaceDao.labelOverrides(workspaceId) else emptyList()
             existingOverrides.find { it.labelId == label.id } ?: WorkspaceEntities.WorkspaceLabelOverride(
                 workspaceId = workspaceId,
                 labelId = label.id,
@@ -4727,13 +4744,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         session: ManageLabelsSession,
         onResult: (ManageLabelsResult) -> Unit,
     ) {
+        // Already saving (a second Save tap or a StudyPad pick): leave the running save alone.
+        if (session.writes.isStarted) return
         val controller = session.controller
-
-        // Classic `ManageLabelsComposeActivity.kt:576-578` (itself classic `ManageLabels`'
-        // saveFilteringSettings): STUDYPAD only, because it is the only mode with a content search.
-        if (session.data.mode == ManageLabelsContract.Mode.STUDYPAD) {
-            CommonUtils.settings.setInt(MANAGE_LABELS_SEARCH_MODE_KEY, controller.searchMode.value.ordinal)
-        }
 
         val deletedIds = controller.resultDeleted()
         val orphanedIds = controller.resultDeletedWithOrphaned()
@@ -4748,38 +4761,20 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val currentFavourites = controller.currentLabelItems().associate { it.id to it.favourite }
         toSave.forEach { label -> currentFavourites[label.id.toString()]?.let { label.favourite = it } }
 
-        val newLabels = toSave.filter { it.new }
-        val existingLabels = toSave.filter { !it.new }
-
         // The writes must land even if this screen is closed right away (app scope); the result is
-        // delivered only after they have, on the host's own scope.
-        val writes = appScope.async {
-            if (withoutOrphaned.isNotEmpty()) {
-                bookmarkControl.deleteLabels(withoutOrphaned, deleteOrphanedBookmarks = false)
-            }
-            if (withOrphaned.isNotEmpty()) {
-                bookmarkControl.deleteLabels(withOrphaned, deleteOrphanedBookmarks = true)
-            }
+        // delivered only after they have, on the host's own scope. A second Save (or a StudyPad pick)
+        // while they are running is ignored: it would write every new label again and deliver twice.
+        val writes = session.writes.start(withoutOrphaned, withOrphaned, toSave) ?: return
 
-            // New-label id remap (classic `ManageLabels.kt:695-711`): a label created via the editor only
-            // gets a real, DB-assigned id here, and every set/primary tracked under its temporary id must
-            // follow it.
-            val idRemap = mutableMapOf<String, String>()
-            for (label in newLabels) {
-                val oldId = label.id.toString()
-                val saved = bookmarkControl.insertOrUpdateLabel(label)
-                label.id = saved.id
-                label.new = false
-                idRemap[oldId] = saved.id.toString()
-            }
-            for (label in existingLabels) {
-                bookmarkControl.insertOrUpdateLabel(label)
-            }
-            idRemap
+        // Classic `ManageLabelsComposeActivity.kt:576-578` (itself classic `ManageLabels`'
+        // saveFilteringSettings): STUDYPAD only, because it is the only mode with a content search.
+        if (session.data.mode == ManageLabelsContract.Mode.STUDYPAD) {
+            CommonUtils.settings.setInt(MANAGE_LABELS_SEARCH_MODE_KEY, controller.searchMode.value.ordinal)
         }
 
         lifecycleScope.launch {
-            val idRemap = writes.await()
+            // A failed write was already logged by the app scope's handler; stay on the screen.
+            val idRemap = try { writes.await() } catch (e: Exception) { return@launch }
 
             fun remapSet(ids: Set<String>) = ids.map { idRemap[it] ?: it }.toSet()
             fun remapId(id: String?) = id?.let { idRemap[it] ?: it }

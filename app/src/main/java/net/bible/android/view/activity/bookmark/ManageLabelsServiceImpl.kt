@@ -32,7 +32,6 @@ import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.bookmark.displayStyle
 import net.bible.sharedcore.platform.AppSettings
 import kotlin.random.Random.Default.nextInt
-import net.bible.service.db.blockingDb
 
 /** Android-side impl of the [ManageLabelsService] seam, backed by [BookmarkControl]/[WindowControl]. */
 class ManageLabelsServiceImpl(
@@ -41,18 +40,20 @@ class ManageLabelsServiceImpl(
     private val settings: AppSettings,
 ) : ManageLabelsService {
 
-    override fun assignableLabels(): List<LabelItem> =
-        blockingDb { bookmarkControl.assignableLabels() }.filter { !it.isUnlabeledLabel }.map { it.toLabelItem() } // L1-edge: ManageLabelsController reads assignableLabels() synchronously in its constructor
+    // Off the main thread: the controller loads on the host's (Main) lifecycle scope.
+    override suspend fun assignableLabels(): List<LabelItem> =
+        withContext(Dispatchers.IO) { bookmarkControl.assignableLabels() }.assignableLabelItems()
 
-    override fun unlabeledLabel(): LabelItem = blockingDb { bookmarkControl.labelUnlabelled() }.toLabelItem() // L1-edge: ManageLabelsController reads unlabeledLabel() synchronously while rebuilding its rows
+    override suspend fun unlabeledLabel(): LabelItem =
+        withContext(Dispatchers.IO) { bookmarkControl.labelUnlabelled() }.toLabelItem()
 
     override fun recentLabelIds(): List<String> =
         windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId.toString() }
 
-    override fun overriddenLabelStyles(): Map<String, BookmarkDisplayStyle> {
+    override suspend fun overriddenLabelStyles(): Map<String, BookmarkDisplayStyle> {
         val workspaceId = windowControl.windowRepository.id
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        return blockingDb { workspaceDao.labelOverrides(workspaceId) }
+        return withContext(Dispatchers.IO) { workspaceDao.labelOverrides(workspaceId) }
             .mapNotNull { override ->
                 overrideDisplayStyle(override.overrideMode)?.let { override.labelId.toString() to it }
             }
@@ -97,6 +98,10 @@ fun StudyPadSearchResult.toSearchResultRow(): ManageLabelsRow.SearchResult {
         firstMatchEntryId = first?.entryId?.toString(),
     )
 }
+
+/** The label manager's list: every label but the Unlabeled special (classic: filter !isUnlabeledLabel). */
+fun List<BookmarkEntities.Label>.assignableLabelItems(): List<LabelItem> =
+    filter { !it.isUnlabeledLabel }.map { it.toLabelItem() }
 
 /** [LabelItem] view of a Room [BookmarkEntities.Label]. `overrideStyle` is always `null` here — the
  *  controller relinks it from [ManageLabelsService.overriddenLabelStyles] on every rebuild. */
