@@ -76,6 +76,10 @@ class MonochromeAuditPolicyTest {
     private fun policy(allow: Set<String> = emptySet(), exempt: Set<String> = emptySet()) =
         MonochromeAuditPolicy(allow, exempt)
 
+    private fun MonochromeAuditPolicy.check(key: String, tag: String, result: MonochromePaletteAudit.AuditResult, image: File, report: String?) =
+        check(key, listOf(MonochromeAuditPolicy.Render(tag, result, image),
+            MonochromeAuditPolicy.Render(if (tag == "mono") "mono_dark" else "mono", result, image)), report)
+
     @Test fun `parses blank comments and inline reasons`() {
         assertEquals(setOf("Screen_state", "Other_state"), MonochromeAuditPolicy.parseEntries(
             "# header\n\n Screen_state # reason\nOther_state\nScreen_state\n".reader()))
@@ -96,6 +100,18 @@ class MonochromeAuditPolicyTest {
         assertTrue(error.message!!.contains("java.awt.Rectangle[x=2,y=3,width=4,height=5]"))
         assertTrue(error.message!!.contains("build/mono-audit/scene.png"))
     }
+    @Test fun `allowlisted light pass dark fail is not stale`() {
+        val p = policy(setOf("Scene_state"))
+        p.check("Scene_state", listOf(
+            MonochromeAuditPolicy.Render("mono", pass, File("scene.png")),
+            MonochromeAuditPolicy.Render("mono_dark", fail, File("scene-dark.png"))), null)
+    }
+    @Test fun `allowlisted light fail dark pass is not stale`() {
+        val p = policy(setOf("Scene_state"))
+        p.check("Scene_state", listOf(
+            MonochromeAuditPolicy.Render("mono", fail, File("scene.png")),
+            MonochromeAuditPolicy.Render("mono_dark", pass, File("scene-dark.png"))), null)
+    }
     @Test fun `stale allowlist throws`() {
         val error = assertThrows(AssertionError::class.java) {
             policy(setOf("Scene_state")).check("Scene_state", "mono", pass, File("scene.png"), null)
@@ -106,8 +122,9 @@ class MonochromeAuditPolicyTest {
         val report = File(temporaryFolder.root, "nested/report.txt")
         policy().check("Bad_state", "mono", fail, File("scene.png"), report.path)
         policy(setOf("Clean_state")).check("Clean_state", "mono", pass, File("scene.png"), report.path)
-        assertEquals(2, report.readLines().size)
+        assertEquals(3, report.readLines().size)
         assertTrue(report.readLines()[0].startsWith("Bad_state_mono:"))
-        assertTrue(report.readLines()[1].startsWith("Clean_state passes"))
+        assertTrue(report.readLines()[1].startsWith("Bad_state_mono_dark:"))
+        assertTrue(report.readLines()[2].startsWith("Clean_state passes"))
     }
 }

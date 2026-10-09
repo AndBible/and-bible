@@ -149,6 +149,7 @@ private fun capture(
  * [heightDp] > 0 overrides only the device height so a long list renders in full (default: clip
  * at the standard viewport, keeping every existing golden byte-identical).
  */
+@OptIn(ExperimentalRoborazziApi::class)
 fun captureGolden(
     screen: String,
     state: String,
@@ -164,6 +165,7 @@ fun captureGolden(
  * forces the layout direction. [heightDp] > 0 overrides the device height (default 0 keeps the
  * standard viewport clip, same as [captureGolden]).
  */
+@OptIn(ExperimentalRoborazziApi::class)
 fun captureRtl(
     screen: String,
     state: String,
@@ -180,6 +182,7 @@ fun captureRtl(
  * Capture [content] across the full four-mode LTR matrix. [heightDp] > 0 overrides the device
  * height for every mode (default 0 keeps the standard viewport clip, same as [captureGolden]).
  */
+@OptIn(ExperimentalRoborazziApi::class)
 fun captureMatrix(
     screen: String,
     state: String,
@@ -203,13 +206,13 @@ private fun auditMono(
     val key = "${screen}_${state}"
     val policy = MonochromeAuditPolicy.fromResources()
     if (!policy.shouldAudit(key)) return
-    MONO_MODES.forEach { mode ->
+    val renders = MONO_MODES.map { mode ->
         val file = File("build/mono-audit/${key}_${mode.tag}.png")
         file.parentFile?.mkdirs()
         capture(file.path, mode.dark, mode.colorMode, mode.rtl, heightDp, captureOptions,
             roborazziOptions = RoborazziOptions(taskType = RoborazziTaskType.Record), content = content)
         val image = checkNotNull(ImageIO.read(file)) { "Cannot read monochrome audit capture: $file" }
-        policy.check(key, mode.tag, MonochromePaletteAudit.audit(image, mode.dark), file,
-            System.getProperty("mono.audit.report"))
+        MonochromeAuditPolicy.Render(mode.tag, MonochromePaletteAudit.audit(image, mode.dark), file)
     }
+    policy.check(key, renders, System.getProperty("mono.audit.report"))
 }

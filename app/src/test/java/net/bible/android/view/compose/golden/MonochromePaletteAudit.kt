@@ -72,19 +72,24 @@ object MonochromePaletteAudit {
 internal class MonochromeAuditPolicy(private val allowlist: Set<String>, private val exempt: Set<String>) {
     fun shouldAudit(key: String): Boolean = key !in exempt
 
-    fun check(key: String, tag: String, result: MonochromePaletteAudit.AuditResult, image: File, report: String?) {
+    data class Render(val tag: String, val result: MonochromePaletteAudit.AuditResult, val image: File)
+
+    /** A scene leaves the allowlist only after every audited theme passes. */
+    fun check(key: String, renders: List<Render>, report: String?) {
         if (!shouldAudit(key)) return
-        val message = when {
-            key in allowlist && result.passed ->
-                "$key passes the monochrome audit; remove it from monochrome-audit-allowlist.txt"
-            key !in allowlist && !result.passed ->
-                "${key}_${tag}: ${result.badPixels} non-monochrome px (${result.chromatic} chromatic) in ${result.bounds}; see ${image.path}"
-            else -> return
+        require(renders.size == 2) { "A scene audit requires both monochrome themes" }
+        val messages = if (key in allowlist) {
+            if (renders.all { it.result.passed }) {
+                listOf("$key passes the monochrome audit; remove it from monochrome-audit-allowlist.txt")
+            } else emptyList()
+        } else renders.filter { !it.result.passed }.map { (tag, result, image) ->
+            "${key}_${tag}: ${result.badPixels} non-monochrome px (${result.chromatic} chromatic) in ${result.bounds}; see ${image.path}"
         }
-        if (report.isNullOrEmpty()) throw AssertionError(message)
+        if (messages.isEmpty()) return
+        if (report.isNullOrEmpty()) throw AssertionError(messages.joinToString("\n"))
         val file = File(report)
         file.parentFile?.mkdirs()
-        file.appendText("$message\n")
+        file.appendText(messages.joinToString("\n", postfix = "\n"))
     }
 
     companion object {
