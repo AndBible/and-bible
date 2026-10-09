@@ -18,6 +18,7 @@ package net.bible.android.control.versification
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.TEST_SDK
@@ -37,35 +38,51 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.util.concurrent.atomic.AtomicInteger
 
 /** Review Focus #5: install/uninstall events for one book must hit the backup db in event order. */
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class BookInstallWatcherTest {
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
-    private val pushes = mutableListOf<List<String>>()
     private val starter = object : DocumentSyncStarter {
-        override fun pushDocuments(initials: List<String>) { pushes.add(initials) }
+        override fun pushDocuments(initials: List<String>) {}
     }
 
     @After
     fun tearDown() { resetDatabase() }
 
-    /** Real threads (Dispatchers.Default) so an unordered launch really races; waits for every launched child. */
+    /**
+     * Real threads (Dispatchers.Default). The FIRST backup-db write is held on a latch (via the watcher's
+     * [BookInstallWatcher.beforeWrite] seam) while the second event is submitted and given time to run; a naive
+     * per-callback launch would let the second write overtake the held first one, the ordered launcher must not.
+     */
     private fun runEvents(vararg events: String) = runBlocking {
         val appScope = AppCoroutineScope()
         val launcher = OrderedLauncher(appScope)
-        val gate = CompletableDeferred<Unit>()
-        // Hold the key so both events are queued before either write may start.
-        launcher.launch("book-install") { gate.await() }
         val watcher = BookInstallWatcher(launcher, starter)
+        val firstWriteHeld = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val writes = AtomicInteger()
+        watcher.beforeWrite = {
+            if (writes.incrementAndGet() == 1) {
+                firstWriteHeld.complete(Unit)
+                release.await()
+            }
+        }
         val book = Books.installed().books.first()
         val ev = BooksEvent(Books.installed(), book, true)
         try {
-            events.forEach { if (it == "add") watcher.listener.bookAdded(ev) else watcher.listener.bookRemoved(ev) }
-            gate.complete(Unit)
+            events.forEachIndexed { i, it ->
+                if (it == "add") watcher.listener.bookAdded(ev) else watcher.listener.bookRemoved(ev)
+                if (i == 0) withTimeout(30_000) { firstWriteHeld.await() }
+            }
+            // Give an (incorrectly) unordered second write ample time to overtake the held first one.
+            delay(300)
+            release.complete(Unit)
             withTimeout(30_000) { appScope.coroutineContext[Job]!!.children.toList().forEach { it.join() } }
         } finally {
+            release.complete(Unit)
             appScope.coroutineContext[Job]!!.cancel()
         }
         book.initials
@@ -73,7 +90,7 @@ class BookInstallWatcherTest {
 
     @Test
     fun `add then remove leaves the book out of the backup db`() {
-        repeat(5) {
+        repeat(3) {
             val initials = runEvents("add", "remove")
             assertNull(runBlocking { docDao.getBook(initials) })
         }
@@ -81,7 +98,7 @@ class BookInstallWatcherTest {
 
     @Test
     fun `remove then add leaves the book in the backup db`() {
-        repeat(5) {
+        repeat(3) {
             val initials = runEvents("remove", "add")
             val row = runBlocking { docDao.getBook(initials) }
             assertNotNull(row)

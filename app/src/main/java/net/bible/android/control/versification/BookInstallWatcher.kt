@@ -43,6 +43,9 @@ class BookInstallWatcher(
     private val launcher: OrderedLauncher,
     private val syncStarter: DocumentSyncStarter,
 ) {
+    /** Test seam: runs at the start of every backup-db write, inside the ordered launch. */
+    internal var beforeWrite: suspend () -> Unit = {}
+
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     fun startListening() {
@@ -54,44 +57,45 @@ class BookInstallWatcher(
      * are launched under one key so they land in event order (add then remove leaves the book absent).
      */
     internal val listener: BooksListener = object : BooksListener {
-            override fun bookAdded(ev: BooksEvent) {
-                val book = ev.book
-                Activator.deactivate(book)
-                initialiseRequiredMapping(book)
-                launcher.launch(DB_KEY) { addBookToDb(book) }
-                // Suppress the echo: a module installed *by* a sync download must not immediately
-                // be auto-pushed back to the cloud it just came from.
-                //
-                // isSyncableDocument is essential here, not merely defensive: this listener fires for
-                // *every* book registered into JSword, including the MyDocument pseudo-books that
-                // MyDocumentBookManager registers at startup. Those have no configFile, so packaging
-                // them threw an NPE and raised a user-facing error notification (OSTicket 3392).
-                if (book.isSyncableDocument
-                    && !DocumentSync.isInstallingFromSync(book.initials)
-                    && shouldAutoUpload(
-                        DocumentSyncSettings.enabled,
-                        DocumentSyncSettings.autoUpload,
-                        DocumentSyncSettings.blockList.isBlocked(book.initials),
-                        DocumentSyncSettings.isAutoTransferAllowed,
-                    )
-                ) {
-                    syncStarter.pushDocuments(listOf(book.initials))
-                }
-                AndBibleAddons.clearCaches()
-                SwordContentFacade.clearCaches()
+        override fun bookAdded(ev: BooksEvent) {
+            val book = ev.book
+            Activator.deactivate(book)
+            initialiseRequiredMapping(book)
+            launcher.launch(DB_KEY) { addBookToDb(book) }
+            // Suppress the echo: a module installed *by* a sync download must not immediately
+            // be auto-pushed back to the cloud it just came from.
+            //
+            // isSyncableDocument is essential here, not merely defensive: this listener fires for
+            // *every* book registered into JSword, including the MyDocument pseudo-books that
+            // MyDocumentBookManager registers at startup. Those have no configFile, so packaging
+            // them threw an NPE and raised a user-facing error notification (OSTicket 3392).
+            if (book.isSyncableDocument
+                && !DocumentSync.isInstallingFromSync(book.initials)
+                && shouldAutoUpload(
+                    DocumentSyncSettings.enabled,
+                    DocumentSyncSettings.autoUpload,
+                    DocumentSyncSettings.blockList.isBlocked(book.initials),
+                    DocumentSyncSettings.isAutoTransferAllowed,
+                )
+            ) {
+                syncStarter.pushDocuments(listOf(book.initials))
             }
+            AndBibleAddons.clearCaches()
+            SwordContentFacade.clearCaches()
+        }
 
-            override fun bookRemoved(ev: BooksEvent) {
-                // Document sync: local uninstall does NOT propagate to the cloud by default.
-                // "Remove from sync" (tombstone) is an explicit action in CloudDocumentsActivity.
-                AndBibleAddons.clearCaches()
-                val book = ev.book
-                launcher.launch(DB_KEY) { removeBookFromDb(book) }
-                SwordContentFacade.clearCaches()
-            }
+        override fun bookRemoved(ev: BooksEvent) {
+            // Document sync: local uninstall does NOT propagate to the cloud by default.
+            // "Remove from sync" (tombstone) is an explicit action in CloudDocumentsActivity.
+            AndBibleAddons.clearCaches()
+            val book = ev.book
+            launcher.launch(DB_KEY) { removeBookFromDb(book) }
+            SwordContentFacade.clearCaches()
+        }
     }
 
     private suspend fun addBookToDb(book: Book) {
+        beforeWrite()
         // if book is already installed, we remove it, else it deletes nothing
         Log.i(DownloadManager.TAG, "Adding ${book.name} to document backup database")
         docDao.deleteByOsisId(book.initials)
@@ -106,6 +110,7 @@ class BookInstallWatcher(
     }
 
     private suspend fun removeBookFromDb(book: Book) {
+        beforeWrite()
         docDao.deleteByOsisId(book.initials)
     }
 

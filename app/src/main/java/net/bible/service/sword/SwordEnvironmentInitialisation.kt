@@ -31,6 +31,7 @@ import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.isAndroid
 import net.bible.service.common.Logger
 import org.apache.commons.lang3.StringUtils
+import org.koin.java.KoinJavaComponent.get
 import org.crosswire.common.util.CWProject
 import org.crosswire.common.util.Reporter
 import org.crosswire.common.util.ReporterEvent
@@ -83,7 +84,7 @@ object SwordEnvironmentInitialisation {
                 WebResource.setTimeout(5000)
                 // because the above line causes initialisation set the is initialised flag here
                 isSwordLoaded = true
-                org.koin.java.KoinJavaComponent.get<BookInstallWatcher>(BookInstallWatcher::class.java).startListening()
+                get<BookInstallWatcher>(BookInstallWatcher::class.java).startListening()
             }
         } catch (e: Exception) {
             log.error("Error initialising", e)
