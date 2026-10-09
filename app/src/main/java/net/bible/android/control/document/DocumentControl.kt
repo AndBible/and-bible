@@ -40,6 +40,7 @@ import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.android.database.SwordDocumentInfoDao
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 
 
@@ -47,6 +48,12 @@ val Book.canDelete: Boolean get () {
     val lastBible = BookCategory.BIBLE == bookCategory && SwordDocumentFacade.bibles.size == 1
     return !lastBible && driver.isDeletable(this)
 }
+
+/** The file-deleting step of [DocumentControl.deleteDocument] (a named seam, so the DI graph can be verified). */
+fun interface DocumentFileDeleter { fun delete(book: Book) }
+
+/** Outcome of [DocumentControl.deleteDocuments]: [skipped] = some documents failed the `canDelete` recheck; [failures] = per-document errors. */
+class DeleteDocumentsResult(val skipped: Boolean, val failures: List<Pair<Book, Exception>>)
 
 /** Control use of different documents/books/modules - used by front end
  *
@@ -59,7 +66,7 @@ class DocumentControl constructor(
     private val strings: CoreStrings,
     private val appScope: AppCoroutineScope,
     /** Bound in CoreModule (L1a: no platform defaults); seam for the file-deleting step of [deleteDocument]. */
-    private val deleteFiles: (Book) -> Unit,
+    private val deleteFiles: DocumentFileDeleter,
     /** Bound in CoreModule. */
     private val backupDaoProvider: () -> SwordDocumentInfoDao,
 )
@@ -200,12 +207,35 @@ class DocumentControl constructor(
         // The files and the backup row go together or not at all: run both in the app scope so that a caller
         // that goes away mid-delete (back, finish) cannot leave a deleted book with a stale backup row.
         withContext(appScope.coroutineContext) {
-            deleteFiles(document)
+            deleteFiles.delete(document)
             if (document.bookCategory != BookCategory.AND_BIBLE) documentBackupDao.deleteByOsisId(document.initials)
         }
         if(document.bookCategory == BookCategory.AND_BIBLE) return
         val currentPage = windowControl.activeWindowPageManager.getBookPage(document, null)
         currentPage?.checkCurrentDocumenInstalled()
+    }
+
+    /**
+     * Delete [documents] in order, re-checking [canDelete] for each (deleting one of two installed Bibles flips the
+     * other's flag). The whole loop, the per-document tidy-up and the installed-changed notification run in the app
+     * scope: a screen going away mid-way (cancelling the caller) cannot leave the remaining documents installed or
+     * other observers of the installed list stale. Per-document failures are collected in the result, not thrown.
+     */
+    suspend fun deleteDocuments(documents: List<Book>): DeleteDocumentsResult = withContext(appScope.coroutineContext) {
+        var skipped = false
+        val failures = mutableListOf<Pair<Book, Exception>>()
+        for (document in documents) {
+            if (!canDelete(document)) { skipped = true; continue }
+            try {
+                deleteDocument(document)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                failures += document to e
+            }
+        }
+        DocumentChanges.notifyInstalledChanged()
+        DeleteDocumentsResult(skipped, failures)
     }
 
     /**

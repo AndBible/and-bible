@@ -93,6 +93,7 @@ import net.bible.android.SharedConstants
 import net.bible.sharedcore.platform.AppSettings
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.android.control.document.DocumentFileDeleter
 import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.sharedcore.platform.CoreStrings
 import net.bible.sharedcore.platform.DateTimeFormats
@@ -142,7 +143,7 @@ val coreModule = module {
     singleOf(::HistoryTraversalFactory)
     single {
         DocumentControl(get(), get(), get(), get(), get<AppCoroutineScope>(),
-            deleteFiles = { SwordDocumentFacade.deleteDocument(it) },
+            deleteFiles = DocumentFileDeleter { SwordDocumentFacade.deleteDocument(it) },
             backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() })
     }
     singleOf(::BookmarkControl)
