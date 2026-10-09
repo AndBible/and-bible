@@ -17,6 +17,8 @@
 
 package net.bible.service.db.readingplan
 
+import kotlinx.coroutines.Job
+import net.bible.sharedcore.platform.AppCoroutineScope
 import androidx.room3.Room
 import net.bible.service.db.sqliteDriverFactory
 import kotlinx.coroutines.runBlocking
@@ -49,14 +51,18 @@ class ReadingPlanRepositoryStartDateTest {
         set(2026, Calendar.OCTOBER, 2, 0, 0, 0); set(Calendar.MILLISECOND, 0)
     }.time
     private lateinit var repo: ReadingPlanRepository
+    private val appScope = AppCoroutineScope()
 
     @Before fun setUp() {
         db = Room.inMemoryDatabaseBuilder(application, ReadingPlanDatabase::class.java)
             .setDriver(sqliteDriverFactory()).build()
-        repo = ReadingPlanRepository(daoProvider = { db.readingPlanDao() }, today = { today })
+        repo = ReadingPlanRepository(daoProvider = { db.readingPlanDao() }, appScope = appScope, today = { today })
     }
 
-    @After fun tearDown() { db.close() }
+    @After fun tearDown() {
+        appScope.coroutineContext[Job]?.cancel()
+        db.close()
+    }
 
     private fun daysBefore(n: Int): Date =
         Calendar.getInstance().apply { time = today; add(Calendar.DAY_OF_YEAR, -n) }.time
@@ -80,7 +86,7 @@ class ReadingPlanRepositoryStartDateTest {
         assertEquals(real, db.readingPlanDao().getPlan("p")!!.planStartDate)
     }
 
-    @Test fun aMissingPlanHasNoStartDate() {
+    @Test fun aMissingPlanHasNoStartDate() = runBlocking {
         assertNull(repo.getStartDate("nope"))
     }
 }

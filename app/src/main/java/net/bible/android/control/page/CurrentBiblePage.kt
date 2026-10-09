@@ -16,7 +16,7 @@
  */
 package net.bible.android.control.page
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.common.toV11n
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
@@ -76,7 +76,7 @@ class CurrentBiblePage(
         val verseRange = key as VerseRange
         val doc = super.getPageContent(verseRange)
         return if(doc is OsisDocument) {
-            val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
+            val bookmarksForChapter = blockingDb { pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true) } // L1-pending(page)
             val kjvRange = verseRange.toV11n(KJVA)
             val myDocumentDao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
             val aiDocMarkers = blockingDb { myDocumentDao.aiDocMarkersForRange(kjvRange.start.ordinal, kjvRange.end.ordinal) }

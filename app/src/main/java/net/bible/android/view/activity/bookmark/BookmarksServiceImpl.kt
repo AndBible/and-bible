@@ -16,10 +16,8 @@
  */
 package net.bible.android.view.activity.bookmark
 
-import android.text.format.DateFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.window.WindowControl
@@ -27,11 +25,13 @@ import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNot
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkSortOrder
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.sharedcore.bookmark.BookmarkFilterLabel
 import net.bible.sharedcore.bookmark.BookmarkRow
 import net.bible.sharedcore.bookmark.BookmarkSortMode
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.DateTimeFormats
 import net.bible.sharedcore.bookmark.BookmarksService
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText
@@ -55,6 +55,9 @@ private const val BOOKMARK_SHOW_NOTES_PREF = "bookmark_show_notes"
 class BookmarksServiceImpl(
     private val bookmarkControl: BookmarkControl,
     private val windowControl: WindowControl,
+    private val settings: AppSettings,
+    private val coreStrings: CoreStrings,
+    private val dateTimeFormats: DateTimeFormats,
 ) : BookmarksService {
 
     /** The bookmarks behind the most recent [loadRows] result, keyed by `id.toString()`. Insertion
@@ -62,8 +65,9 @@ class BookmarksServiceImpl(
      *  `associateBy` on a freshly-built map, so [loadedBookmarks] can be used for CSV export. */
     private var loaded: Map<String, BaseBookmarkWithNotes> = emptyMap()
 
-    override fun filterLabels(): List<BookmarkFilterLabel> =
-        bookmarkControl.allLabels.mapIndexed { i, l -> BookmarkFilterLabel(i, l.displayName) }
+    override suspend fun filterLabels(): List<BookmarkFilterLabel> = withContext(Dispatchers.IO) {
+        bookmarkControl.allLabels().mapIndexed { i, l -> BookmarkFilterLabel(i, l.displayName) }
+    }
 
     override suspend fun loadRows(
         filterIndex: Int,
@@ -71,7 +75,7 @@ class BookmarksServiceImpl(
         search: String?,
         showNotes: Boolean,
     ): List<BookmarkRow> = withContext(Dispatchers.IO) {
-        val label = bookmarkControl.allLabels.getOrNull(filterIndex) ?: run {
+        val label = bookmarkControl.allLabels().getOrNull(filterIndex) ?: run {
             loaded = emptyMap()
             return@withContext emptyList()
         }
@@ -86,7 +90,7 @@ class BookmarksServiceImpl(
         rows
     }
 
-    private fun toRow(bm: BaseBookmarkWithNotes, versification: Versification, showNotes: Boolean): BookmarkRow {
+    private suspend fun toRow(bm: BaseBookmarkWithNotes, versification: Versification, showNotes: Boolean): BookmarkRow {
         // Classic's BookmarkItemAdapter.getView lazily resolves text the first time a row is bound.
         if (bm.text == null) bookmarkControl.addText(bm)
 
@@ -95,24 +99,24 @@ class BookmarksServiceImpl(
         // first so the title branch below can reuse `isSpeak` instead of re-querying
         // `isSpeakBookmark` (which just re-runs `labelsForBookmark`).
         val labels = bookmarkControl.labelsForBookmark(bm)
-        val isSpeak = labels.contains(bookmarkControl.speakLabel)
+        val isSpeak = labels.contains(bookmarkControl.speakLabel())
 
         val title = when (bm) {
             is BibleBookmarkWithNotes -> {
                 val verseName = bm.verseRange.toV11n(versification).getName()
                 val speakBook = bm.speakBook
                 if (isSpeak && speakBook != null) {
-                    CommonUtils.getResourceString(R.string.something_with_parenthesis, verseName, speakBook.abbreviation)
+                    coreStrings.somethingWithParenthesis(verseName, speakBook.abbreviation)
                 } else verseName
             }
             is GenericBookmarkWithNotes -> "${bm.book?.abbreviation ?: bm.bookInitials}: ${bm.bookKey?.getName() ?: bm.key}"
             else -> ""
         }
 
-        val chipLabels = labels.ifEmpty { listOf(bookmarkControl.labelUnlabelled) }
+        val chipLabels = labels.ifEmpty { listOf(bookmarkControl.labelUnlabelled()) }
         val labelColors = chipLabels.filterNot { it.isSpeakLabel }.map { it.color }
 
-        val dateText = DateFormat.format("EEE, yyyy-MM-dd HH:mm", bm.createdAt).toString()
+        val dateText = dateTimeFormats.pattern("EEE, yyyy-MM-dd HH:mm", bm.createdAt.time)
         val notes = bm.notes
         return BookmarkRow(
             id = bm.id.toString(),
@@ -137,7 +141,7 @@ class BookmarksServiceImpl(
     fun loadedBookmarks(): List<BaseBookmarkWithNotes> = loaded.values.toList()
 
     override fun loadSortMode(): BookmarkSortMode {
-        val str = CommonUtils.getSharedPreference(BOOKMARK_SORT_ORDER_PREF, BookmarkSortOrder.BIBLE_ORDER.toString())
+        val str = settings.getString(BOOKMARK_SORT_ORDER_PREF, BookmarkSortOrder.BIBLE_ORDER.toString())
         val order = try {
             BookmarkSortOrder.valueOf(str!!)
         } catch (e: IllegalArgumentException) {
@@ -147,13 +151,13 @@ class BookmarksServiceImpl(
     }
 
     override fun saveSortMode(mode: BookmarkSortMode) {
-        CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER_PREF, mode.toClassicSortOrder().toString())
+        settings.setString(BOOKMARK_SORT_ORDER_PREF, mode.toClassicSortOrder().toString())
     }
 
-    override fun loadShowNotes(): Boolean = CommonUtils.settings.getBoolean(BOOKMARK_SHOW_NOTES_PREF, true)
+    override fun loadShowNotes(): Boolean = settings.getBoolean(BOOKMARK_SHOW_NOTES_PREF, true)
 
     override fun saveShowNotes(v: Boolean) {
-        CommonUtils.settings.setBoolean(BOOKMARK_SHOW_NOTES_PREF, v)
+        settings.setBoolean(BOOKMARK_SHOW_NOTES_PREF, v)
     }
 }
 

@@ -16,7 +16,7 @@
  */
 package net.bible.android.control.page
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.common.toV11n
 import net.bible.android.control.progress.ProgressControl
 import net.bible.service.common.ReadingProgressSettings
@@ -46,6 +46,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
+import net.bible.service.db.blockingDb
 
 /** Reference to current passage shown by viewer
  *
@@ -98,9 +99,9 @@ open class CurrentCommentaryPage internal constructor(
                 }
                 val kjvRange = verseRange.toV11n(KJVA)
                 val v11n = verseRange.versification
-                val memorizedOrdinals = ProgressControl.getMemorizedOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+                val memorizedOrdinals = blockingDb { ProgressControl.getMemorizedOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal) } // L1-pending(page)
                     .map { Verse(KJVA, it).toV11n(v11n).ordinal }
-                val targetOrdinals = ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+                val targetOrdinals = blockingDb { ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal) } // L1-pending(page)
                     .map { Verse(KJVA, it).toV11n(v11n).ordinal }
                 MemorizeDocument(
                     verseRange.getName(), texts, pageManager.jsState,

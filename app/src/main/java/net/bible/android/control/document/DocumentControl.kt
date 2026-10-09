@@ -17,15 +17,11 @@
 
 package net.bible.android.control.document
 
-import net.bible.service.db.blockingDb
-import android.util.Log
-import net.bible.android.activity.R
+import net.bible.sharedcore.log.Log
 import net.bible.android.common.toV11n
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.hideFromSelector
@@ -39,6 +35,14 @@ import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.UserNotifier
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.android.database.SwordDocumentInfoDao
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 val Book.canDelete: Boolean get () {
@@ -46,14 +50,29 @@ val Book.canDelete: Boolean get () {
     return !lastBible && driver!!.isDeletable(this)
 }
 
+/** The file-deleting step of [DocumentControl.deleteDocument] (a named seam, so the DI graph can be verified). */
+fun interface DocumentFileDeleter { fun delete(book: Book) }
+
+/** Outcome of [DocumentControl.deleteDocuments]: [skipped] = some documents failed the `canDelete` recheck; [failures] = per-document errors. */
+class DeleteDocumentsResult(val skipped: Boolean, val failures: List<Pair<Book, Exception>>)
+
 /** Control use of different documents/books/modules - used by front end
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class DocumentControl constructor(
-    private val windowControl: WindowControl)
+    private val windowControl: WindowControl,
+    private val settings: AppSettings,
+    private val notifier: UserNotifier,
+    private val strings: CoreStrings,
+    private val appScope: AppCoroutineScope,
+    /** Bound in CoreModule (L1a: no platform defaults); seam for the file-deleting step of [deleteDocument]. */
+    private val deleteFiles: DocumentFileDeleter,
+    /** Bound in CoreModule. */
+    private val backupDaoProvider: () -> SwordDocumentInfoDao,
+)
 {
-    private val documentBackupDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
+    private val documentBackupDao get() = backupDaoProvider()
 
     val isNewTestament get() = windowControl.activeWindowPageManager.currentVersePage.currentBibleVerse.currentBibleBook.ordinal >= BibleBook.MATT.ordinal
 
@@ -167,13 +186,13 @@ class DocumentControl constructor(
         try {
             SwordEnvironmentInitialisation.enableDefaultAndManualInstallFolder()
         } catch (e: BookException) {
-            Dialogs.showErrorMsg(R.string.error_occurred)
+            notifier.showError(strings.errorOccurred)
         }
 
     }
 
     fun turnOffManualInstallFolderSetting() {
-        CommonUtils.settings.setBoolean("request_sdcard_permission_pref", false)
+        settings.setBoolean("request_sdcard_permission_pref", false)
     }
 
     /**
@@ -185,12 +204,42 @@ class DocumentControl constructor(
     /** delete selected document, even of current doc (Map and Gen Book only currently) and tidy up CurrentPage
      */
     @Throws(BookException::class)
-    fun deleteDocument(document: Book) {
-        SwordDocumentFacade.deleteDocument(document)
-        if(document.bookCategory == BookCategory.AND_BIBLE) return
-        blockingDb { documentBackupDao.deleteByOsisId(document.initials) }
-        val currentPage = windowControl.activeWindowPageManager.getBookPage(document, null)
-        currentPage?.checkCurrentDocumenInstalled()
+    suspend fun deleteDocument(document: Book): Unit = withContext(appScope.coroutineContext) {
+        // The files, the backup row and the page tidy-up go together or not at all: all run in the app scope so
+        // that a caller that goes away mid-delete (back, finish) cannot leave a deleted book with a stale backup
+        // row or a window still showing it.
+        deleteFiles.delete(document)
+        if (document.bookCategory == BookCategory.AND_BIBLE) return@withContext
+        documentBackupDao.deleteByOsisId(document.initials)
+        // Window/page state belongs to the main thread (it was always tidied there).
+        withContext(Dispatchers.Main) {
+            windowControl.activeWindowPageManager.getBookPage(document, null)?.checkCurrentDocumenInstalled()
+        }
+    }
+
+    /**
+     * Delete [documents] in order, re-checking [canDelete] for each (deleting one of two installed Bibles flips the
+     * other's flag). The whole loop, the per-document tidy-up and the installed-changed notification run in the app
+     * scope: a screen going away mid-way (cancelling the caller) cannot leave the remaining documents installed or
+     * other observers of the installed list stale. The per-document tidy-up and the notification run on the main
+     * thread (their observers are UI state), still inside the app-scope block. Per-document failures are collected in
+     * the result, not thrown.
+     */
+    suspend fun deleteDocuments(documents: List<Book>): DeleteDocumentsResult = withContext(appScope.coroutineContext) {
+        var skipped = false
+        val failures = mutableListOf<Pair<Book, Exception>>()
+        for (document in documents) {
+            if (!canDelete(document)) { skipped = true; continue }
+            try {
+                deleteDocument(document)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                failures += document to e
+            }
+        }
+        withContext(Dispatchers.Main) { DocumentChanges.notifyInstalledChanged() }
+        DeleteDocumentsResult(skipped, failures)
     }
 
     /**

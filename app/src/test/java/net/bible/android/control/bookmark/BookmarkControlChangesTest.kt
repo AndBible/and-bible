@@ -1,9 +1,19 @@
 package net.bible.android.control.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.joinAll
+import net.bible.sharedcore.platform.OrderedLauncher
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntry
@@ -35,32 +45,34 @@ class BookmarkControlChangesTest {
     private lateinit var control: BookmarkControl
     private lateinit var subscription: Subscription
     private val seen = mutableListOf<BookmarkChange>()
+    private val syncScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
     @Before fun setUp() {
-        control = BookmarkControl(mock(WindowControl::class.java), mock(AndroidResourceProvider::class.java))
+        control = BookmarkControl(mock(WindowControl::class.java), testAppSettings(), testCoreStrings(), OrderedLauncher(syncScope))
         subscription = control.changes.subscribe { seen += it }
     }
 
     @After fun tearDown() {
         subscription.cancel()
+        syncScope.cancel()
         resetDatabase()
     }
 
     private fun bookmark(verse: Int = 1, labels: Set<IdType>? = null): BibleBookmarkWithNotes =
-        control.addOrUpdateBibleBookmark(BibleBookmarkWithNotes(
+        runBlocking { control.addOrUpdateBibleBookmark(BibleBookmarkWithNotes(
             VerseRangeFactory.fromString(Versifications.instance().getVersification("KJV"), "Ps 119:$verse"),
             null, true, null,
-        ), labels)
+        ), labels) }
 
-    private fun label() = control.insertOrUpdateLabel(Label(new = true).apply { name = "X" })
+    private fun label() = runBlocking { control.insertOrUpdateLabel(Label(new = true).apply { name = "X" }) }
 
-    @Test fun addingABookmarkEmitsBookmarksUpserted() {
+    @Test fun addingABookmarkEmitsBookmarksUpserted() = runTest {
         val saved = bookmark()
         assertEquals(saved.id, seen.filterIsInstance<BookmarkChange.BookmarksUpserted>().single().bookmarks.single().id)
     }
 
-    @Test fun deletingBookmarksEmitsBookmarksDeleted() {
+    @Test fun deletingBookmarksEmitsBookmarksDeleted() = runTest {
         val b = bookmark()
         seen.clear()
         control.deleteBookmark(b)
@@ -72,25 +84,25 @@ class BookmarkControlChangesTest {
         assertEquals(setOf(b1.id, b2.id), seen.filterIsInstance<BookmarkChange.BookmarksDeleted>().single().bookmarkIds.toSet())
     }
 
-    @Test fun insertingALabelEmitsLabelUpserted() {
+    @Test fun insertingALabelEmitsLabelUpserted() = runTest {
         val saved = label()
         assertEquals(saved.id, seen.filterIsInstance<BookmarkChange.LabelUpserted>().single().label.id)
     }
 
-    @Test fun specialLabelCreationEmitsOnlyWhenCreated() {
+    @Test fun specialLabelCreationEmitsOnlyWhenCreated() = runTest {
         assertNull(runBlocking { dao.labelById(UNLABELED_LABEL_ID) })
-        val saved = control.labelUnlabelled
+        val saved = control.labelUnlabelled()
         assertEquals(UNLABELED_LABEL_ID, saved.id)
         assertEquals(UNLABELED_LABEL_ID, seen.filterIsInstance<BookmarkChange.LabelUpserted>().single().label.id)
         assertNotNull(runBlocking { dao.labelById(UNLABELED_LABEL_ID) })
         seen.clear()
-        control.labelUnlabelled
+        control.labelUnlabelled()
         assertTrue(seen.isEmpty())
     }
 
     // SDK 33's native test SQLite does not support the DAO's UPSERT syntax.
     @Config(sdk = [35])
-    @Test fun savingANoteEmitsNoteModified() {
+    @Test fun savingANoteEmitsNoteModified() = runTest {
         val b = bookmark()
         seen.clear()
         control.saveBibleBookmarkNote(b.id, "n")
@@ -105,7 +117,7 @@ class BookmarkControlChangesTest {
     }
 
     @Config(sdk = [35])
-    @Test fun savingAGenericNoteEmitsNoteModified() {
+    @Test fun savingAGenericNoteEmitsNoteModified() = runTest {
         val b = control.addOrUpdateGenericBookmark(GenericBookmarkWithNotes(
             key = "test-key", bookInitials = "missing-test-document", ordinalStart = null, ordinalEnd = null,
             startOffset = null, endOffset = null, playbackSettings = null, new = true,
@@ -123,7 +135,7 @@ class BookmarkControlChangesTest {
         assertNull(runBlocking { dao.genericBookmarkById(b.id) }!!.notes)
     }
 
-    @Test fun deleteLabelsEmitsBookmarksBeforeLabelsDeleted() {
+    @Test fun deleteLabelsEmitsBookmarksBeforeLabelsDeleted() = runTest {
         val l = label()
         val b = bookmark(labels = setOf(l.id))
         seen.clear()
@@ -135,7 +147,7 @@ class BookmarkControlChangesTest {
         assertEquals(emptyList<IdType>(), refreshed.labelIds)
     }
 
-    @Test fun updateBookmarkToLabelEmitsBookmarkToLabelUpserted() {
+    @Test fun updateBookmarkToLabelEmitsBookmarkToLabelUpserted() = runTest {
         val l = label()
         val b = bookmark(labels = setOf(l.id))
         val link = control.getBibleBookmarkToLabel(b.id, l.id)!!.apply { indentLevel = 2 }
@@ -145,7 +157,7 @@ class BookmarkControlChangesTest {
         assertEquals(2, control.getBibleBookmarkToLabel(b.id, l.id)!!.indentLevel)
     }
 
-    @Test fun studyPadMutationsEmitStudyPadOrder() {
+    @Test fun studyPadMutationsEmitStudyPadOrder() = runTest {
         val l = label()
         seen.clear()
         control.createStudyPadEntry(l.id, 0)
@@ -159,7 +171,7 @@ class BookmarkControlChangesTest {
         assertNull(runBlocking { dao.studyPadTextEntryById(entry.id) })
     }
 
-    @Test fun updatingStudyPadEntryPersistsMetadataAndEmitsHydratedEntry() {
+    @Test fun updatingStudyPadEntryPersistsMetadataAndEmitsHydratedEntry() = runTest {
         val l = label()
         control.createStudyPadEntry(l.id, 0)
         val entry = runBlocking { dao.studyPadTextEntriesByLabelId(l.id) }.single()
@@ -182,7 +194,7 @@ class BookmarkControlChangesTest {
         assertTrue(change.studyPadOrderChanged.isEmpty())
     }
 
-    @Test fun explicitStudyPadReorderPersistsAllKindsAndEmitsTheirNewOrders() {
+    @Test fun explicitStudyPadReorderPersistsAllKindsAndEmitsTheirNewOrders() = runTest {
         val l = label()
         val bible = bookmark(labels = setOf(l.id))
         val generic = control.addOrUpdateGenericBookmark(GenericBookmarkWithNotes(
@@ -209,7 +221,7 @@ class BookmarkControlChangesTest {
         assertEquals(listOf(entry), change.studyPadOrderChanged)
     }
 
-    @Test fun changeLabelsForBookmarksEmitsOnceWithHydratedLabels() {
+    @Test fun changeLabelsForBookmarksEmitsOnceWithHydratedLabels() = runTest {
         val l = label()
         val ids = listOf(bookmark().id, bookmark(2).id)
         val loaded = runBlocking { dao.bibleBookmarksByIds(ids) }
@@ -223,14 +235,14 @@ class BookmarkControlChangesTest {
         assertTrue(loaded.all { control.labelsForBookmark(it).map { label -> label.id } == listOf(l.id) })
     }
 
-    @Test fun notifyLabelChangedEmitsLabelUpserted() {
+    @Test fun notifyLabelChangedEmitsLabelUpserted() = runTest {
         val l = label()
         seen.clear()
         control.notifyLabelChanged(l)
         assertEquals(l.id, seen.filterIsInstance<BookmarkChange.LabelUpserted>().single().label.id)
     }
 
-    @Test fun insertBookmarkToLabelWritesAndEmits() {
+    @Test fun insertBookmarkToLabelWritesAndEmits() = runTest {
         val l = label()
         val b = bookmark()
         val link = BibleBookmarkToLabel(bookmarkId = b.id, labelId = l.id, orderNumber = 0, indentLevel = 0)
@@ -240,7 +252,7 @@ class BookmarkControlChangesTest {
         assertEquals(link, control.getBibleBookmarkToLabel(b.id, l.id))
     }
 
-    @Test fun insertGenericBookmarkToLabelWritesAndEmits() {
+    @Test fun insertGenericBookmarkToLabelWritesAndEmits() = runTest {
         val l = label()
         val b = control.addOrUpdateGenericBookmark(GenericBookmarkWithNotes(
             key = "test-key", bookInitials = "missing-test-document", ordinalStart = null, ordinalEnd = null,
@@ -257,7 +269,7 @@ class BookmarkControlChangesTest {
         assertEquals(2, stored.indentLevel)
     }
 
-    @Test fun syncEmitsInLabelDeleteStudyPadBookmarkOrder() {
+    @Test fun syncEmitsInLabelDeleteStudyPadBookmarkOrder() = runTest {
         val l = label()
         val b = bookmark(labels = setOf(l.id))
         control.createStudyPadEntry(l.id, 0)
@@ -279,6 +291,8 @@ class BookmarkControlChangesTest {
             val accessor = DatabaseContainer.getDatabaseAccessorFactories(DatabaseContainer.instance)
                 .map { it() }.single { it.category == SyncableDatabaseDefinition.BOOKMARKS }
             accessor._reactToUpdates!!.invoke(entries)
+            // The sync notification is handled asynchronously, in order, by the control's OrderedLauncher.
+            syncScope.coroutineContext[Job]!!.children.toList().joinAll()
         } finally {
             syncSubscription.cancel()
         }

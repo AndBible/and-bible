@@ -126,7 +126,7 @@ class ReadingHistoryAnchorTest {
         windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl.windowRepository = windowRepository
         windowRepository.initialize()
-        historyManager = HistoryManager(windowControl)
+        historyManager = HistoryManager(windowControl, net.bible.android.platform.AndroidHistoryPlatform())
     }
 
     @After

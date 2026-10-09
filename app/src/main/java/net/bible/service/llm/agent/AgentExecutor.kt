@@ -19,7 +19,7 @@ package net.bible.service.llm.agent
 
 import org.koin.core.context.GlobalContext
 import android.app.Activity
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay

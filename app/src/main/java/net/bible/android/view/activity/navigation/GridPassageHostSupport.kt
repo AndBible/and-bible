@@ -22,6 +22,7 @@ import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.progress.ProgressControl
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.blockingDb
 import net.bible.sharedcore.navigation.BookPick
 import net.bible.sharedcore.navigation.ChapterPick
 import net.bible.sharedcore.navigation.GridButton
@@ -65,13 +66,15 @@ internal fun buildGridStep(
     selectedChapter: Int,
     navigationControl: NavigationControl,
     windowControl: WindowControl,
-): GridUi = when (step) {
-    GridStep.BOOK -> buildBookStep(opts, baseTitle, workspaceName, navigationControl, windowControl)
-    GridStep.CHAPTER -> buildChapterStep(opts, selectedBookNo, navigationControl, windowControl)
-    GridStep.VERSE -> buildVerseStep(opts, selectedBookNo, selectedChapter, navigationControl, windowControl)
+): GridUi = blockingDb { // L1-pending(view): view code serving the synchronous :sharedUi contract GridChoosePassageController.buildStep; make it suspend later
+    when (step) {
+        GridStep.BOOK -> buildBookStep(opts, baseTitle, workspaceName, navigationControl, windowControl)
+        GridStep.CHAPTER -> buildChapterStep(opts, selectedBookNo, navigationControl, windowControl)
+        GridStep.VERSE -> buildVerseStep(opts, selectedBookNo, selectedChapter, navigationControl, windowControl)
+    }
 }
 
-private fun buildBookStep(
+private suspend fun buildBookStep(
     opts: GridOptions,
     baseTitle: String,
     workspaceName: String,
@@ -103,7 +106,7 @@ private fun buildBookStep(
         buttons = ordered, sections = sections)
 }
 
-private fun buildChapterStep(
+private suspend fun buildChapterStep(
     opts: GridOptions,
     selectedBookNo: Int,
     navigationControl: NavigationControl,
@@ -129,7 +132,7 @@ private fun buildChapterStep(
         showLongNames = false, showProgress = opts.showProgress, showDeutToggle = false, buttons = ordered)
 }
 
-private fun buildVerseStep(
+private suspend fun buildVerseStep(
     opts: GridOptions,
     selectedBookNo: Int,
     selectedChapter: Int,

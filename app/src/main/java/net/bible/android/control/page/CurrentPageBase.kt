@@ -16,7 +16,7 @@
  */
 package net.bible.android.control.page
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
@@ -203,7 +203,7 @@ abstract class CurrentPageBase protected constructor(
             book = currentDocument,
             key = key,
             osisFragment = frag,
-            genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, effectiveKey, withLabels = true),
+            genericBookmarks = blockingDb { pageManager.bookmarkControl.genericBookmarksFor(currentDocument, effectiveKey, withLabels = true) }, // L1-pending(page)
             myDocumentPageId = myDocumentPage?.id?.toString(),
             sourcePromptId = myDocumentPage?.sourcePromptId?.toString(),
             sourcePromptName = promptName,

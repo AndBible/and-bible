@@ -1,0 +1,3 @@
+service/history/IntentHistoryItem.kt	Android Activity-stack history item (holds an Intent); iOS gets its own HistoryPlatform
+android/control/report/ErrorReportControl.kt	Android bug/crash report host: screenshots, logcat, FileProvider, Intent, WebViewCompat; iOS gets its own reporting
+android/control/report/AiBugReport.kt	Android bug/crash report host: screenshots, logcat, FileProvider, Intent, WebViewCompat; iOS gets its own reporting

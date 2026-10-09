@@ -66,6 +66,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -96,6 +97,7 @@ import kotlin.reflect.KFunction1
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import net.bible.sharedcore.platform.AppCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -123,6 +125,7 @@ import net.bible.android.control.download.repoIdentity
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
+import net.bible.android.control.readingplan.ReadingPlanDayWrites
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.page.window.WindowChange
 import net.bible.android.control.page.window.WindowControl
@@ -160,6 +163,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.download.DocumentConfiguration
 import net.bible.android.view.activity.download.PseudoBook
 import net.bible.android.view.activity.download.installedDocument
+import net.bible.android.view.activity.bookmark.BookmarkCsvFlow
 import net.bible.android.view.activity.bookmark.BookmarksServiceImpl
 import net.bible.android.view.activity.bookmark.LabelEditContract
 import net.bible.android.view.activity.bookmark.LabelEditMapper
@@ -168,6 +172,8 @@ import net.bible.android.view.activity.bookmark.ManageLabelsMapper
 import net.bible.android.view.activity.bookmark.customIconMap
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.bookmark.toLabelItem
+import net.bible.android.view.activity.bookmark.ManageLabelsWrites
+import net.bible.android.view.activity.bookmark.assignableLabelItems
 import net.bible.android.view.activity.download.BadDocumentAction
 import net.bible.android.view.activity.download.DownloadProgressBridge
 import net.bible.android.view.activity.download.RowDownloadStatus
@@ -299,6 +305,7 @@ import net.bible.sharedcore.bookmark.LabelEditState
 import net.bible.sharedcore.bookmark.ManageLabelsController
 import net.bible.sharedcore.bookmark.ManageLabelsMode
 import net.bible.sharedcore.bookmark.ManageLabelsService
+import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.SearchMode
 import net.bible.sharedcore.bookmark.defaultLabelName
 import net.bible.sharedcore.bookmark.LabelEditResult as ControllerLabelEditResult
@@ -522,7 +529,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private val promptService: PromptService by inject()
     private val rawLogService: RawLogService by inject()
     private val readingPlanControl: ReadingPlanControl by inject()
+    /** Reading-plan writes that must land even if this screen goes away mid-way (app scope). */
+    private val readingPlanWrites by lazy { ReadingPlanDayWrites(readingPlanControl, appScope.coroutineContext) }
     private val speakControl: SpeakControl by inject()
+    private val appScope: AppCoroutineScope by inject()
     private val speakTransportServiceImpl: SpeakTransportServiceImpl by inject()
     private val windowStateService: WindowStateServiceImpl by inject()
     private val searchControl: SearchControl by inject()
@@ -2838,7 +2848,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * event that arrives while this host is showing its Download destination is exactly the event
      * the reading view must honour when it comes back.
      */
-    private var updateDocumentsPending = false
+    @Volatile private var updateDocumentsPending = false
 
     /** Classic `MainBibleActivity.updateDocuments()` (`:1706-1710`). */
     private fun updateDocuments() {
@@ -2857,7 +2867,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 linkControl.openAIDocument(result.documentInitials, result.pageKey)
             }
             is PendingAgentResult.OpenStudyPad -> {
-                linkControl.openStudyPad(result.labelId, result.scrollToEntryId)
+                lifecycleScope.launch { linkControl.openStudyPad(result.labelId, result.scrollToEntryId) }
             }
         }
     }
@@ -3492,7 +3502,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             controllerFor = { onSelect ->
                                 DailyReadingListController(
                                     loadDays = {
-                                        readingPlanControl.currentPlansReadingList.map {
+                                        // DailyReadingListController.loadDays is a synchronous sharedCore contract
+                                        blockingDb { readingPlanControl.currentPlansReadingList() }.map { // L1-pending(view)
                                             DayEntry(it.day, readingPlanDayPrimaryText(it), it.readingsDesc)
                                         }
                                     },
@@ -3508,7 +3519,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                             controllerFor = { onSelect ->
                                 ReadingPlanSelectorController(
                                     loadPlans = {
-                                        readingPlanControl.readingPlanList.map {
+                                        // ReadingPlanSelectorController.loadPlans is a synchronous sharedCore contract
+                                        blockingDb { readingPlanControl.readingPlanList() }.map { // L1-pending(view)
                                             PlanEntry(it.planCode, it.planName ?: "", it.planDescription ?: "")
                                         }
                                     },
@@ -3516,11 +3528,15 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                                     onSelect = { planCode ->
                                         // Classic's guard, kept host-side: the plan may have
                                         // vanished (sync) between the list load and the tap.
-                                        val dto = readingPlanControl.readingPlanList
-                                            .firstOrNull { it.planCode == planCode }
-                                        if (dto != null) {
-                                            readingPlanControl.startReadingPlan(dto)
-                                            onSelect(planCode)
+                                        lifecycleScope.launch {
+                                            val dto = readingPlanControl.readingPlanList()
+                                                .firstOrNull { it.planCode == planCode }
+                                            if (dto != null) {
+                                                // the start write must land even if the screen goes away; the next
+                                                // screen reads it, so report the selection only after it
+                                                withContext(appScope.coroutineContext) { readingPlanControl.startReadingPlan(dto) }
+                                                onSelect(planCode)
+                                            }
                                         }
                                     },
                                     onReset = { planCode -> readingPlanControl.reset(planCode) },
@@ -4159,8 +4175,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                 // boolean — see the note above; `&&` short-circuits left to right, so the state is
                 // still read on every composition of this scope.
                 if (manageLabelsExportOpen && manageLabelsSession != null) {
-                    val exportableLabels = remember(manageLabelsExportOpen) { bookmarkControl.assignableLabels }
-                    AbMultiSelectSheet(
+                    val loadedExportableLabels by produceState<List<BookmarkEntities.Label>?>(null, manageLabelsExportOpen) { value = bookmarkControl.assignableLabels() }
+                    // Not shown until the list has loaded, so it never opens with an empty option list.
+                    val exportableLabels = loadedExportableLabels
+                    if (exportableLabels != null) AbMultiSelectSheet(
                         open = true,
                         title = getString(R.string.export_something, getString(R.string.studypads)),
                         options = exportableLabels,
@@ -4289,8 +4307,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             scope = lifecycleScope,
             initialFilterIndex = initialFilterIndex,
             onSelectBookmark = { id, listPosition ->
-                bookmarkResultFor(id, listPosition, session.controller.selectedFilterIndex.value)
-                    ?.let(onSelectBookmark)
+                val labelNo = session.controller.selectedFilterIndex.value
+                lifecycleScope.launch {
+                    bookmarkResultFor(id, listPosition, labelNo)?.let(onSelectBookmark)
+                }
             },
             onAssignLabels = { ids -> requestAssignLabels(session, ids, navigateToManageLabels) },
             onDeleteSelected = { ids -> confirmDeleteBookmarks(session, ids) },
@@ -4316,7 +4336,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * what the caller saw: it is `controller.selectedFilterIndex.value` at the moment of the tap,
      * which is what classic put in the extra (`:185`).
      */
-    private fun bookmarkResultFor(id: String, listPosition: Int, labelNo: Int): BookmarkResult? {
+    private suspend fun bookmarkResultFor(id: String, listPosition: Int, labelNo: Int): BookmarkResult? {
         val bookmark = bookmarksService.bookmarkById(id) ?: return null
         Log.i(TAG_BOOKMARKS, "Bookmark selected:$bookmark")
         return try {
@@ -4431,18 +4451,24 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private fun confirmDeleteBookmarks(session: BookmarksSession, ids: List<String>) {
         val bookmarks = bookmarksService.bookmarksByIds(ids)
-        for (bookmark in bookmarks) {
-            bookmarkControl.deleteBookmark(bookmark)
+        // The delete must complete even if this screen closes at once (app scope); the refresh follows it.
+        val write = appScope.launch {
+            for (bookmark in bookmarks) {
+                bookmarkControl.deleteBookmark(bookmark)
+            }
         }
-        session.controller.refresh()
+        lifecycleScope.launch {
+            write.join()
+            session.controller.refresh()
+        }
     }
 
-    /** Classic `onExportCsv` (`:244-248`) -- `exportBookmarksToCSV` wants an `Activity`, hence host-side. */
+    /** Classic `onExportCsv` (`:244-248`) -- `BookmarkCsvFlow.exportBookmarksToCSV` wants an `Activity`, hence host-side. */
     private fun exportBookmarksCsv(session: BookmarksSession) {
         lifecycleScope.launch {
             val bibleBookmarks = bookmarksService.loadedBookmarks()
                 .filterIsInstance<BookmarkEntities.BibleBookmarkWithNotes>()
-            bookmarkControl.exportBookmarksToCSV(this@NavHostComposeActivity, bibleBookmarks)
+            BookmarkCsvFlow(bookmarkControl).exportBookmarksToCSV(this@NavHostComposeActivity, bibleBookmarks)
             session.controller.refresh()
         }
     }
@@ -4450,7 +4476,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     /** Classic `onImportCsv` (`:250-253`). */
     private fun importBookmarksCsv(session: BookmarksSession) {
         lifecycleScope.launch(Dispatchers.Main) {
-            bookmarkControl.importBookmarksFromCSV(this@NavHostComposeActivity)
+            BookmarkCsvFlow(bookmarkControl).importBookmarksFromCSV(this@NavHostComposeActivity)
             session.controller.refresh()
         }
     }
@@ -4491,6 +4517,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private class ManageLabelsSession(
         val data: ManageLabelsContract.ManageLabelsData,
         val labelsById: MutableMap<String, BookmarkEntities.Label>,
+        val writes: ManageLabelsWrites,
     ) {
         lateinit var controller: ManageLabelsController
         var pendingEdit: PendingLabelEdit? = null
@@ -4522,14 +4549,25 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val parsed = ManageLabelsContract.ManageLabelsData.fromJSON(data)
         val session = ManageLabelsSession(
             data = parsed,
-            labelsById = bookmarkControl.assignableLabels.associateByTo(mutableMapOf()) { it.id.toString() },
+            labelsById = mutableMapOf(),
+            writes = ManageLabelsWrites(bookmarkControl, appScope),
         )
+        // labelsById is filled by the controller's own initial label load (on lifecycleScope, so on
+        // Main), from the same entities its rows are built from. An entry an editor round trip already
+        // put there wins over the loaded copy.
+        val sessionService = object : ManageLabelsService by manageLabelsService {
+            override suspend fun assignableLabels(): List<LabelItem> {
+                val all = withContext(Dispatchers.IO) { bookmarkControl.assignableLabels() }
+                all.forEach { session.labelsById.getOrPut(it.id.toString()) { it } }
+                return all.assignableLabelItems()
+            }
+        }
         val highlightId = (windowControl.activeWindowPageManager.currentPage.key as? StudyPadKey)
             ?.takeIf { parsed.mode == ManageLabelsContract.Mode.STUDYPAD }
             ?.label?.id?.toString()
         session.controller = ManageLabelsController(
             mode = ManageLabelsMapper.toMode(parsed.mode),
-            service = manageLabelsService,
+            service = sessionService,
             scope = lifecycleScope,
             initialSelected = ManageLabelsMapper.seedSelected(parsed),
             initialAutoAssign = ManageLabelsMapper.seedAutoAssign(parsed),
@@ -4539,8 +4577,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             // Classic launched an Intent here; the payload is built the same way and the GRAPH turns
             // it into a destination. A label that cannot be resolved navigates nowhere, exactly as
             // classic's `?: return` did.
-            onEditLabel = { id -> buildLabelEditPayload(session, id)?.let(onEditLabel) },
-            onSelectStudyPad = { id, entryId -> selectStudyPad(session, id, entryId, onResult) },
+            onEditLabel = { id -> lifecycleScope.launch { buildLabelEditPayload(session, id)?.let(onEditLabel) } },
+            onSelectStudyPad = { id, entryId -> lifecycleScope.launch { selectStudyPad(session, id, entryId, onResult) } },
             onSave = { saveManageLabelsAndExit(session, onResult) },
             onReset = { resetManageLabels(session, onResult) },
         )
@@ -4554,7 +4592,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * .LabelData` JSON the `bookmarks/labelEdit` route carries, or null when the label cannot be
      * resolved (classic's bare `return`).
      */
-    private fun buildLabelEditPayload(session: ManageLabelsSession, id: String?): String? {
+    private suspend fun buildLabelEditPayload(session: ManageLabelsSession, id: String?): String? {
         val controller = session.controller
         val isNew = id == null
         val label: BookmarkEntities.Label = if (id != null) {
@@ -4581,7 +4619,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val workspaceOverride = if (!workspaceContext) null else {
             val workspaceId = windowControl.windowRepository.id
             val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-            val existingOverrides = if (!isNew) blockingDb { workspaceDao.labelOverrides(workspaceId) } else emptyList()
+            val existingOverrides = if (!isNew) workspaceDao.labelOverrides(workspaceId) else emptyList()
             existingOverrides.find { it.labelId == label.id } ?: WorkspaceEntities.WorkspaceLabelOverride(
                 workspaceId = workspaceId,
                 labelId = label.id,
@@ -4665,7 +4703,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val returnedOverride = newLabelData.workspaceOverride
             if (returnedOverride != null) {
                 val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-                blockingDb {
+                blockingDb { // L1-pending(view)
                     if (returnedOverride.hasOverride) {
                         dao.insertOrUpdateLabelOverride(returnedOverride)
                     } else {
@@ -4682,7 +4720,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * Classic `onSelectStudyPad` (`:557-569`): point the active window at the StudyPad, then leave
      * the way every other exit leaves.
      */
-    private fun selectStudyPad(
+    private suspend fun selectStudyPad(
         session: ManageLabelsSession,
         id: String,
         firstMatchEntryId: String?,
@@ -4716,24 +4754,14 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         session: ManageLabelsSession,
         onResult: (ManageLabelsResult) -> Unit,
     ) {
+        // Already saving (a second Save tap or a StudyPad pick): leave the running save alone.
+        if (session.writes.isStarted) return
         val controller = session.controller
-
-        // Classic `ManageLabelsComposeActivity.kt:576-578` (itself classic `ManageLabels`'
-        // saveFilteringSettings): STUDYPAD only, because it is the only mode with a content search.
-        if (session.data.mode == ManageLabelsContract.Mode.STUDYPAD) {
-            CommonUtils.settings.setInt(MANAGE_LABELS_SEARCH_MODE_KEY, controller.searchMode.value.ordinal)
-        }
 
         val deletedIds = controller.resultDeleted()
         val orphanedIds = controller.resultDeletedWithOrphaned()
         val withoutOrphaned = deletedIds.filterNot { orphanedIds.contains(it) }.map { IdType(it) }
         val withOrphaned = orphanedIds.map { IdType(it) }
-        if (withoutOrphaned.isNotEmpty()) {
-            bookmarkControl.deleteLabels(withoutOrphaned, deleteOrphanedBookmarks = false)
-        }
-        if (withOrphaned.isNotEmpty()) {
-            bookmarkControl.deleteLabels(withOrphaned, deleteOrphanedBookmarks = true)
-        }
 
         val changedIds = controller.resultChanged()
         val toSave = changedIds.filterNot { deletedIds.contains(it) }.mapNotNull { session.labelsById[it] }
@@ -4743,39 +4771,37 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val currentFavourites = controller.currentLabelItems().associate { it.id to it.favourite }
         toSave.forEach { label -> currentFavourites[label.id.toString()]?.let { label.favourite = it } }
 
-        val newLabels = toSave.filter { it.new }
-        val existingLabels = toSave.filter { !it.new }
+        // The writes must land even if this screen is closed right away (app scope); the result is
+        // delivered only after they have, on the host's own scope. A second Save (or a StudyPad pick)
+        // while they are running is ignored: it would write every new label again and deliver twice.
+        val writes = session.writes.start(withoutOrphaned, withOrphaned, toSave) ?: return
 
-        // New-label id remap (classic `ManageLabels.kt:695-711`): a label created via the editor only
-        // gets a real, DB-assigned id here, and every set/primary tracked under its temporary id must
-        // follow it.
-        val idRemap = mutableMapOf<String, String>()
-        for (label in newLabels) {
-            val oldId = label.id.toString()
-            val saved = bookmarkControl.insertOrUpdateLabel(label)
-            label.id = saved.id
-            label.new = false
-            idRemap[oldId] = saved.id.toString()
-        }
-        for (label in existingLabels) {
-            bookmarkControl.insertOrUpdateLabel(label)
+        // Classic `ManageLabelsComposeActivity.kt:576-578` (itself classic `ManageLabels`'
+        // saveFilteringSettings): STUDYPAD only, because it is the only mode with a content search.
+        if (session.data.mode == ManageLabelsContract.Mode.STUDYPAD) {
+            CommonUtils.settings.setInt(MANAGE_LABELS_SEARCH_MODE_KEY, controller.searchMode.value.ordinal)
         }
 
-        fun remapSet(ids: Set<String>) = ids.map { idRemap[it] ?: it }.toSet()
-        fun remapId(id: String?) = id?.let { idRemap[it] ?: it }
+        lifecycleScope.launch {
+            // A failed write was already logged by the app scope's handler; stay on the screen.
+            val idRemap = try { writes.await() } catch (e: Exception) { return@launch }
 
-        ManageLabelsMapper.applyResult(
-            data = session.data,
-            selected = remapSet(controller.resultSelected()),
-            autoAssign = remapSet(controller.resultAutoAssign()),
-            changed = remapSet(controller.resultChanged()),
-            deleted = controller.resultDeleted(),
-            deletedWithOrphaned = controller.resultDeletedWithOrphaned(),
-            autoAssignPrimary = remapId(controller.resultAutoAssignPrimary()),
-            bookmarkPrimary = remapId(controller.resultBookmarkPrimary()),
-        )
+            fun remapSet(ids: Set<String>) = ids.map { idRemap[it] ?: it }.toSet()
+            fun remapId(id: String?) = id?.let { idRemap[it] ?: it }
 
-        deliverManageLabelsResult(session, onResult)
+            ManageLabelsMapper.applyResult(
+                data = session.data,
+                selected = remapSet(controller.resultSelected()),
+                autoAssign = remapSet(controller.resultAutoAssign()),
+                changed = remapSet(controller.resultChanged()),
+                deleted = controller.resultDeleted(),
+                deletedWithOrphaned = controller.resultDeletedWithOrphaned(),
+                autoAssignPrimary = remapId(controller.resultAutoAssignPrimary()),
+                bookmarkPrimary = remapId(controller.resultBookmarkPrimary()),
+            )
+
+            deliverManageLabelsResult(session, onResult)
+        }
     }
 
     /**
@@ -6218,9 +6244,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         onChangeDay: () -> Unit,
     ): DailyReadingController = DailyReadingController(
         onToggleRead = { readingNo ->
-            val status = readingPlanControl.getReadingStatus(dayLoaded)
-            if (status.isRead(readingNo)) status.setUnread(readingNo) else status.setRead(readingNo)
-            pushReadingPlanUi()
+            lifecycleScope.launch {
+                readingPlanWrites.toggleRead(dayLoaded, readingNo)
+                pushReadingPlanUi()
+            }
         },
         onRead = { readingNo ->
             val dto = readingsDto ?: return@DailyReadingController
@@ -6233,18 +6260,24 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             // flag independently of `historyRoute`, and a true flag with a null route falls back to
             // super.intentForHistoryList — the argument-free route, i.e. the wrong day. The two
             // halves of the seam only ever move together, through setHistoryRoute.
-            readingPlanControl.read(dayLoaded, readingNo, key)
-            returnToReadingOrFinish()
+            lifecycleScope.launch {
+                readingPlanControl.read(dayLoaded, readingNo, key)
+                returnToReadingOrFinish()
+            }
         },
         onSpeak = { readingNo ->
             val dto = readingsDto ?: return@DailyReadingController
-            readingPlanControl.speak(dayLoaded, readingNo, dto.getReadingKey(readingNo))
-            pushReadingPlanUi()
+            lifecycleScope.launch {
+                readingPlanControl.speak(dayLoaded, readingNo, dto.getReadingKey(readingNo))
+                pushReadingPlanUi()
+            }
         },
         onSpeakAll = {
             val dto = readingsDto ?: return@DailyReadingController
-            readingPlanControl.speak(dayLoaded, dto.getReadingKeys)
-            pushReadingPlanUi()
+            lifecycleScope.launch {
+                readingPlanControl.speak(dayLoaded, dto.getReadingKeys)
+                pushReadingPlanUi()
+            }
         },
         onDone = { onReadingPlanDone() },
         onPauseSpeak = { if (speakControl.isPaused) speakControl.continueAfterPause() else speakControl.pause() },
@@ -6269,13 +6302,18 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * selector, or from a history re-launch) a plan IS selected, because the selector calls
      * `startReadingPlan` before reporting the code back.
      */
-    private fun loadReadingPlanDay(plan: String?, day: Int?): DailyReadingLoad {
-        if (!readingPlanControl.isReadingPlanSelected || !readingPlanControl.currentPlanExists) {
+    private fun loadReadingPlanDay(plan: String?, day: Int?): DailyReadingLoad =
+        // DailyReadingDeps.loadDay is a synchronous sharedUi contract returning the outcome
+        blockingDb { loadReadingPlanDayNow(plan, day) } // L1-pending(view)
+
+    /** [loadReadingPlanDay] for callers that already run in a coroutine. */
+    private suspend fun loadReadingPlanDayNow(plan: String?, day: Int?): DailyReadingLoad {
+        if (!readingPlanControl.isReadingPlanSelected || !readingPlanControl.currentPlanExists()) {
             return DailyReadingLoad.NO_PLAN
         }
         return try {
             plan?.let { readingPlanControl.setReadingPlan(it) }
-            dayLoaded = day ?: readingPlanControl.currentPlanDay
+            dayLoaded = day ?: readingPlanControl.currentPlanDay()
             planCodeLoaded = readingPlanControl.currentPlanCode
             readingsDto = readingPlanControl.getDaysReading(dayLoaded)
             pushReadingPlanUi()
@@ -6304,7 +6342,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     }
 
     /** Classic's `pushUi()`: the DTO + ReadingStatus snapshot, passage names formatted host-side. */
-    private fun pushReadingPlanUi() {
+    private suspend fun pushReadingPlanUi() {
         val dto = readingsDto ?: return
         val status = readingPlanControl.getReadingStatus(dayLoaded)
         val readings = synchronized(BookName::class.java) {
@@ -6343,26 +6381,27 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     private fun onReadingPlanDone() {
         val dto = readingsDto ?: return
-        try {
-            val nextDayToShow = readingPlanControl.done(dto.readingPlanInfo, dayLoaded, false)
-            if (nextDayToShow > 0) loadReadingPlanDay(planCodeLoaded, nextDayToShow) else finish()
-        } catch (e: Exception) {
-            Log.e(TAG_READING_PLAN, "Error when Done daily reading", e)
-            dailyReadingController?.showError()
+        lifecycleScope.launch {
+            try {
+                val nextDayToShow = readingPlanWrites.done(dto.readingPlanInfo, dayLoaded)
+                if (nextDayToShow > 0) loadReadingPlanDayNow(planCodeLoaded, nextDayToShow) else finish()
+            } catch (e: Exception) {
+                Log.e(TAG_READING_PLAN, "Error when Done daily reading", e)
+                dailyReadingController?.showError()
+            }
         }
     }
 
     private fun setReadingPlanCurrentDay() {
         val dto = readingsDto ?: return
-        try {
-            val planStartDate = Calendar.getInstance()
-            planStartDate.add(Calendar.DATE, -(dayLoaded - 1))
-            readingPlanControl.setStartDate(dto.readingPlanInfo, planStartDate.time)
-            readingPlanControl.done(dto.readingPlanInfo, dayLoaded - 1, true)
-            loadReadingPlanDay(planCodeLoaded, dayLoaded)
-        } catch (e: Exception) {
-            Log.e(TAG_READING_PLAN, "Error setting current day", e)
-            dailyReadingController?.showError()
+        lifecycleScope.launch {
+            try {
+                readingPlanWrites.setCurrentDay(dto.readingPlanInfo, dayLoaded)
+                loadReadingPlanDayNow(planCodeLoaded, dayLoaded)
+            } catch (e: Exception) {
+                Log.e(TAG_READING_PLAN, "Error setting current day", e)
+                dailyReadingController?.showError()
+            }
         }
     }
 
@@ -6404,8 +6443,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         val planStartDate = Calendar.getInstance()
         planStartDate.time = dto.readingPlanInfo.startDate ?: planStartDate.time
         planStartDate.set(year, month1to12 - 1, day)
-        readingPlanControl.setStartDate(dto.readingPlanInfo, planStartDate.time)
-        loadReadingPlanDay(planCodeLoaded, dayLoaded)
+        lifecycleScope.launch {
+            readingPlanWrites.setStartDate(dto.readingPlanInfo, planStartDate.time)
+            loadReadingPlanDayNow(planCodeLoaded, dayLoaded)
+        }
     }
 
     /** Classic's day-row primary line (date for a date-based plan, otherwise the day description). */
@@ -7920,20 +7961,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private fun handleDownloadDeleteConfirmed(session: DownloadSession) {
         val deletable = session.pendingDelete
-        var skipped = false
-        for (document in deletable) {
-            if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
-            try {
-                Log.i(TAG_DOWNLOAD, "Deleting:$document")
-                documentControl.deleteDocument(document.installedDocument!!)
-            } catch (e: Exception) {
+        // deleteDocument suspends (it clears the backup row); launch, and keep the tail in order after it.
+        lifecycleScope.launch {
+            // The loop, the per-document tidy-up and the installed-changed notification complete in the app scope.
+            val result = documentControl.deleteDocuments(deletable.map { it.installedDocument })
+            for ((_, e) in result.failures) {
                 Log.e(TAG_DOWNLOAD, "Deleting document crashed", e)
                 Dialogs.showErrorMsg(R.string.error_occurred, e)
             }
+            if (result.skipped) UserMessages.toast(R.string.cant_delete_document)
+            loadDownloadDocuments(session, false)
         }
-        if (skipped) UserMessages.toast(R.string.cant_delete_document)
-        lifecycleScope.launch { loadDownloadDocuments(session, false) }
-        DocumentChanges.notifyInstalledChanged()
     }
 
     /**
@@ -9219,20 +9257,17 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      *  ChooseDocument counterpart, unchanged apart from which session/log tag it reads. */
     private fun handleChooseDocumentDeleteConfirmed(session: ChooseDocumentSession) {
         val deletable = session.pendingDelete
-        var skipped = false
-        for (document in deletable) {
-            if (!documentControl.canDelete(document.installedDocument)) { skipped = true; continue }
-            try {
-                Log.i(TAG_CHOOSE_DOCUMENT, "Deleting:$document")
-                documentControl.deleteDocument(document.installedDocument!!)
-            } catch (e: Exception) {
+        // deleteDocument suspends (it clears the backup row); launch, and keep the tail in order after it.
+        lifecycleScope.launch {
+            // The loop, the per-document tidy-up and the installed-changed notification complete in the app scope.
+            val result = documentControl.deleteDocuments(deletable.map { it.installedDocument })
+            for ((_, e) in result.failures) {
                 Log.e(TAG_CHOOSE_DOCUMENT, "Deleting document crashed", e)
                 Dialogs.showErrorMsg(R.string.error_occurred, e)
             }
+            if (result.skipped) UserMessages.toast(R.string.cant_delete_document)
+            loadChooseDocuments()
         }
-        if (skipped) UserMessages.toast(R.string.cant_delete_document)
-        lifecycleScope.launch { loadChooseDocuments() }
-        DocumentChanges.notifyInstalledChanged()
     }
 
     /** Task 16 (D8-3 fix, NH row 9333) -- see [handleDownloadDeleteIndexConfirmed]'s kdoc, this is its

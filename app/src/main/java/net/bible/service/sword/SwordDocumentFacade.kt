@@ -16,7 +16,7 @@
  */
 package net.bible.service.sword
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope

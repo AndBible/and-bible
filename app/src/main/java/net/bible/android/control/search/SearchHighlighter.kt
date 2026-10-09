@@ -19,7 +19,7 @@ package net.bible.android.control.search
 import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.StyleSpan
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.service.common.htmlToSpan
 import net.bible.sharedcore.search.StyledRun
 import net.bible.sharedcore.search.StyledText

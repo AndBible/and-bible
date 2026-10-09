@@ -22,7 +22,7 @@ import net.bible.sharedcore.bookmark.LabelEditService
 
 /** Android-side impl of the [LabelEditService] seam, backed by [BookmarkControl]. */
 class LabelEditServiceImpl(private val bookmarkControl: BookmarkControl) : LabelEditService {
-    override fun orphanedBookmarkCount(labelId: String): Int =
+    override suspend fun orphanedBookmarkCount(labelId: String): Int =
         if (labelId.isEmpty()) 0
         else bookmarkControl.findOrphanedBookmarks(listOf(IdType(labelId))).size
 }

@@ -16,14 +16,12 @@
  */
 package net.bible.android.view.activity.bookmark
 
-import android.graphics.Color
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.StudyPadSearchResult
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.db.DatabaseContainer
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
@@ -31,27 +29,30 @@ import net.bible.sharedcore.bookmark.LabelItem
 import net.bible.sharedcore.bookmark.ManageLabelsRow
 import net.bible.sharedcore.bookmark.ManageLabelsService
 import net.bible.sharedcore.bookmark.displayStyle
+import net.bible.sharedcore.platform.AppSettings
 import kotlin.random.Random.Default.nextInt
-import net.bible.service.db.blockingDb
 
 /** Android-side impl of the [ManageLabelsService] seam, backed by [BookmarkControl]/[WindowControl]. */
 class ManageLabelsServiceImpl(
     private val bookmarkControl: BookmarkControl,
     private val windowControl: WindowControl,
+    private val settings: AppSettings,
 ) : ManageLabelsService {
 
-    override fun assignableLabels(): List<LabelItem> =
-        bookmarkControl.assignableLabels.filter { !it.isUnlabeledLabel }.map { it.toLabelItem() }
+    // Off the main thread: the controller loads on the host's (Main) lifecycle scope.
+    override suspend fun assignableLabels(): List<LabelItem> =
+        withContext(Dispatchers.IO) { bookmarkControl.assignableLabels() }.assignableLabelItems()
 
-    override fun unlabeledLabel(): LabelItem = bookmarkControl.labelUnlabelled.toLabelItem()
+    override suspend fun unlabeledLabel(): LabelItem =
+        withContext(Dispatchers.IO) { bookmarkControl.labelUnlabelled() }.toLabelItem()
 
     override fun recentLabelIds(): List<String> =
         windowControl.windowRepository.workspaceSettings.recentLabels.map { it.labelId.toString() }
 
-    override fun overriddenLabelStyles(): Map<String, BookmarkDisplayStyle> {
+    override suspend fun overriddenLabelStyles(): Map<String, BookmarkDisplayStyle> {
         val workspaceId = windowControl.windowRepository.id
         val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        return blockingDb { workspaceDao.labelOverrides(workspaceId) }
+        return withContext(Dispatchers.IO) { workspaceDao.labelOverrides(workspaceId) }
             .mapNotNull { override ->
                 overrideDisplayStyle(override.overrideMode)?.let { override.labelId.toString() to it }
             }
@@ -60,7 +61,7 @@ class ManageLabelsServiceImpl(
 
     // Matches classic ManageLabels.randomColor() (ManageLabels.kt:526) exactly, including the
     // (0, 255)-exclusive-upper-bound nextInt calls.
-    override fun randomColorArgb(): Int = Color.argb(255, nextInt(0, 255), nextInt(0, 255), nextInt(0, 255))
+    override fun randomColorArgb(): Int = packArgb(255, nextInt(0, 255), nextInt(0, 255), nextInt(0, 255))
 
     // Run off the main thread: classic ManageLabels.kt:804-842 dispatches this search on
     // Dispatchers.IO (Room DAO queries), and the controller launches it on its own scope, which
@@ -71,10 +72,10 @@ class ManageLabelsServiceImpl(
         }
 
     override fun styleTagsVisible(): Boolean =
-        CommonUtils.settings.getBoolean(STYLE_TAGS_PREF, true)
+        settings.getBoolean(STYLE_TAGS_PREF, true)
 
     override fun setStyleTagsVisible(visible: Boolean) =
-        CommonUtils.settings.setBoolean(STYLE_TAGS_PREF, visible)
+        settings.setBoolean(STYLE_TAGS_PREF, visible)
 }
 
 private const val STYLE_TAGS_PREF = "manage_labels_style_tags"
@@ -96,6 +97,10 @@ fun StudyPadSearchResult.toSearchResultRow(): ManageLabelsRow.SearchResult {
         firstMatchEntryId = first?.entryId?.toString(),
     )
 }
+
+/** The label manager's list: every label but the Unlabeled special (classic: filter !isUnlabeledLabel). */
+fun List<BookmarkEntities.Label>.assignableLabelItems(): List<LabelItem> =
+    filter { !it.isUnlabeledLabel }.map { it.toLabelItem() }
 
 /** [LabelItem] view of a Room [BookmarkEntities.Label]. `overrideStyle` is always `null` here — the
  *  controller relinks it from [ManageLabelsService.overriddenLabelStyles] on every rebuild. */
@@ -122,3 +127,6 @@ fun BookmarkEntities.Label.toLabelItem(): LabelItem = LabelItem(
  *  function's `null` fallback ([OverrideMode.NONE]'s `displayStyle` is `null`). */
 internal fun overrideDisplayStyle(overrideMode: Int?): BookmarkDisplayStyle? =
     LabelEditMapper.overrideModeFromInt(overrideMode).displayStyle
+
+/** `android.graphics.Color.argb`'s packing, without Android: components in the order alpha, red, green, blue. */
+internal fun packArgb(alpha: Int, red: Int, green: Int, blue: Int): Int = (alpha shl 24) or (red shl 16) or (green shl 8) or blue

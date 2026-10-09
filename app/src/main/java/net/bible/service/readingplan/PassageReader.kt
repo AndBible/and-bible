@@ -22,7 +22,7 @@ import org.crosswire.jsword.passage.OsisParser
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.versification.Versification
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 
 /**
  * Get a Key from either a simple reference or an OSIS reference

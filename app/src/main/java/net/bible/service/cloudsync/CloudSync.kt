@@ -19,7 +19,7 @@ package net.bible.service.cloudsync
 
 import android.content.Intent
 import android.os.Build
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import net.bible.service.db.useWriterConnectionMarked
 import kotlinx.coroutines.CompletableDeferred

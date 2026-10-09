@@ -50,14 +50,11 @@ import net.bible.sharedcore.nav.WorkspaceResult
  * that builds the destination. As of slice 2, Task 6 there is no such placeholder left: all four
  * result types below have a live destination.
  *
- * [readingProgressService] is a fresh, stateless instance (as
- * `ReadingProgressServiceImplTest` builds its own) rather than the host's Koin-injected one:
- * `osisIdForChapter` reads no instance state — it re-resolves the KJVA versification on every call
- * — so this object needs no DI wiring to reuse the exact same conversion the host used.
+ * It uses `ReadingProgressServiceImpl.osisIdForChapter` (the companion form): that reads no instance
+ * state — it re-resolves the KJVA versification on every call — so this object needs no DI wiring
+ * to reuse the exact same conversion the host used.
  */
 object NavResultIntents {
-    private val readingProgressService = ReadingProgressServiceImpl()
-
     /**
      * `MainBibleActivity.kt:2930-2957` reads exactly these extras — same keys, same order, same
      * [ActivityResultKind.EXTRA] tag — and is not touched by this move.
@@ -65,7 +62,7 @@ object NavResultIntents {
     fun forReadingProgress(result: ReadingProgressResult): Intent = when (result) {
         is ReadingProgressResult.Chapter ->
             Intent()
-                .putExtra("verse", readingProgressService.osisIdForChapter(result.bookId, result.chapter))
+                .putExtra("verse", ReadingProgressServiceImpl.osisIdForChapter(result.bookId, result.chapter))
                 .putExtra(ActivityResultKind.EXTRA, ActivityResultKind.ReadingProgress.name)
 
         is ReadingProgressResult.Memorize ->

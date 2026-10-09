@@ -1,0 +1,145 @@
+package net.bible.android.control.readingplan
+
+import net.bible.sharedcore.platform.AppCoroutineScope
+import androidx.room3.Room
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.runBlocking
+import net.bible.android.database.readingplan.ReadingPlanDao
+import net.bible.android.database.readingplan.ReadingPlanEntities
+import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.TestBibleApplication
+import net.bible.android.database.ReadingPlanDatabase
+import net.bible.service.db.readingplan.ReadingPlanRepository
+import net.bible.service.db.sqliteDriverFactory
+import net.bible.service.readingplan.ReadingPlanTextFileDao
+import net.bible.sharedcore.readingplan.ReadingPlanSource
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.koin.core.context.GlobalContext
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import java.io.File
+
+/**
+ * The writes of the daily-reading screen must finish in the app scope even when the screen's own scope is
+ * cancelled while the first write is in flight (Done then Back, recreation).
+ */
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk = [35]) // 35: in-memory Room, see ReadingPlanRepositoryStartDateTest
+class ReadingPlanDayWritesTest {
+    private lateinit var db: ReadingPlanDatabase
+    private lateinit var control: ReadingPlanControl
+    private val settings = testAppSettings()
+    private var originalPlan: String? = null
+    private val entered = CompletableDeferred<Unit>()
+    private val gate = CompletableDeferred<Unit>()
+    /** Armed by the toggle test: the first status READ after arming parks (holding its stale snapshot) until released. */
+    @Volatile private var statusGateArmed = false
+    private val statusReadHeld = CompletableDeferred<Unit>()
+    private val statusReadRelease = CompletableDeferred<Unit>()
+    private lateinit var repo: ReadingPlanRepository
+    private val appScope = AppCoroutineScope()
+
+    @Before fun setUp() {
+        db = Room.inMemoryDatabaseBuilder(application, ReadingPlanDatabase::class.java)
+            .setDriver(sqliteDriverFactory()).build()
+        val real = db.readingPlanDao()
+        // the FIRST plan-row write parks until the test has cancelled the caller's scope
+        var first = true
+        val gated = object : ReadingPlanDao by real {
+            override suspend fun updatePlan(plan: ReadingPlanEntities.ReadingPlan) {
+                if (first) { first = false; entered.complete(Unit); gate.await() }
+                real.updatePlan(plan)
+            }
+            override suspend fun getStatus(planCode: String, planDay: Int): ReadingPlanEntities.ReadingPlanStatus? {
+                val snapshot = real.getStatus(planCode, planDay)
+                if (statusGateArmed) { statusGateArmed = false; statusReadHeld.complete(Unit); statusReadRelease.await() }
+                return snapshot
+            }
+        }
+        repo = ReadingPlanRepository(daoProvider = { gated }, appScope = appScope)
+        val source = object : ReadingPlanSource {
+            override fun builtInPlanCodes() = listOf("three")
+            override fun openBuiltInPlan(code: String) = "# Three\n1=Gen.1\n2=Gen.2\n3=Gen.3\n"
+        }
+        val dao = ReadingPlanTextFileDao(source, repo, testCoreStrings(), userPlanFolder = { File("/nonexistent") }, providedPlans = { emptyMap() })
+        val koin = GlobalContext.get()
+        control = ReadingPlanControl(koin.get(), koin.get(), repo, dao, settings)
+        originalPlan = settings.getString("reading_plan", null)
+        control.setReadingPlan("three")
+    }
+
+    @After fun tearDown() {
+        appScope.coroutineContext[Job]?.cancel()
+        settings.setString("reading_plan", originalPlan)
+        db.close()
+    }
+
+    // one instance, as the screen holds it (its lock serialises that instance's writes)
+    private val writes by lazy { ReadingPlanDayWrites(control, appScope.coroutineContext) }
+
+    /** Starts [block] in a caller scope, cancels that scope once the first write is parked, then lets the write go. */
+    private fun cancelCallerMidWay(block: suspend () -> Unit) = runBlocking {
+        val caller = CoroutineScope(Job() + Dispatchers.Default)
+        caller.launch { block() }
+        withTimeout(10_000) { entered.await() }
+        caller.coroutineContext[Job]!!.cancel()
+        gate.complete(Unit)
+    }
+
+    private suspend fun eventually(check: suspend () -> Boolean): Boolean =
+        withTimeoutOrNull(3000) { while (!check()) delay(20); true } ?: false
+
+    @Test fun setCurrentDayIsNotLeftHalfAppliedWhenTheCallerIsCancelledMidWay() {
+        val info = runBlocking { control.getDaysReading(1).readingPlanInfo }
+        cancelCallerMidWay { writes.setCurrentDay(info, 3) }
+        // day 2 stored then advanced to 3: both steps of the sequence landed
+        assertEquals(true, runBlocking { eventually { control.currentPlanDay() == 3 } })
+    }
+
+    /**
+     * Two quick taps on different readings: the first is held after reading its (empty) status snapshot while
+     * the second is given time to run. Unserialised, the second builds its own status, stores its tick, and the
+     * released first then stores a status without it. Both ticks must be stored.
+     */
+    @Test fun twoQuickTogglesOfDifferentReadingsAreBothStored() {
+        runBlocking { control.getDaysReading(1) } // plan started; any status read during setup is done
+        statusGateArmed = true
+        val caller = CoroutineScope(Job() + Dispatchers.Default)
+        try {
+            runBlocking {
+                val first = caller.launch { writes.toggleRead(1, 1) }
+                withTimeout(10_000) { statusReadHeld.await() }
+                val second = caller.launch { writes.toggleRead(1, 2) }
+                delay(300) // ample time for an unserialised second toggle to finish
+                statusReadRelease.complete(Unit)
+                withTimeout(10_000) { first.join(); second.join() }
+            }
+            val stored = ReadingStatus("three", 1, 3, repo)
+            val bothStored = runBlocking { eventually { stored.reloadStatus(); stored.isRead(1) && stored.isRead(2) } }
+            assertEquals("stored status: ${runBlocking { repo.getReadingStatus("three", 1) }}", true, bothStored)
+        } finally {
+            statusReadRelease.complete(Unit)
+            caller.coroutineContext[Job]!!.cancel()
+        }
+    }
+
+    @Test fun startDateIsStoredWhenTheCallerIsCancelledMidWay() {
+        val info = runBlocking { control.getDaysReading(1).readingPlanInfo }
+        val start = java.util.Date(86_400_000L * 10_000)
+        cancelCallerMidWay { writes.setStartDate(info, start) }
+        assertEquals(true, runBlocking { eventually { control.getDaysReading(1).readingPlanInfo.startDate == start } })
+    }
+}

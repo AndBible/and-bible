@@ -18,8 +18,9 @@
 package net.bible.service.device.speak
 
 import android.content.res.Resources
+import net.bible.service.db.blockingDb
 import android.os.Build
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.util.LruCache
 import net.bible.android.control.speak.SpeakChange
 import net.bible.android.control.speak.SpeakChanges
@@ -123,7 +124,7 @@ class BibleSpeakTextProvider(
                 }
             }
             bookmark.playbackSettings = newPlaybackSettings
-            this.bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
+            this.bookmark = blockingDb { bookmarkControl.addOrUpdateBibleBookmark(bookmark) } // L1-pending(speak)
         }
     }
 
@@ -331,9 +332,9 @@ class BibleSpeakTextProvider(
     private fun readBookmark() {
         val verse = currentVerse
 
-        val bookmark = bookmarkControl.speakBookmarkForVerse(verse)?: return
-        val labelList = bookmarkControl.labelsForBookmark(bookmark)
-        val speakLabel = bookmarkControl.speakLabel
+        val bookmark = blockingDb { bookmarkControl.speakBookmarkForVerse(verse) }?: return // L1-pending(speak)
+        val labelList = blockingDb { bookmarkControl.labelsForBookmark(bookmark) } // L1-pending(speak)
+        val speakLabel = blockingDb { bookmarkControl.speakLabel() } // L1-pending(speak)
         val ttsLabel = labelList.find { it.id == speakLabel.id }
 
         if(ttsLabel != null) {
@@ -353,8 +354,8 @@ class BibleSpeakTextProvider(
     private fun removeBookmark(): Boolean {
         var bookmark: BibleBookmarkWithNotes = this.bookmark ?: return false
 
-        val labelList = bookmarkControl.labelsForBookmark(bookmark).toMutableList()
-        val speakLabel = bookmarkControl.speakLabel
+        val labelList = blockingDb { bookmarkControl.labelsForBookmark(bookmark) }.toMutableList() // L1-pending(speak)
+        val speakLabel = blockingDb { bookmarkControl.speakLabel() } // L1-pending(speak)
         val ttsLabel = labelList.find { it.id == speakLabel.id }
         var wasRemoved = false
 
@@ -362,12 +363,12 @@ class BibleSpeakTextProvider(
             if(labelList.size > 1 || bookmark.playbackSettings?.bookmarkWasCreated == false) {
                 labelList.remove(ttsLabel)
                 bookmark.playbackSettings = null
-                bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
-                bookmarkControl.setLabelsForBookmark(bookmark, labelList)
+                bookmark = blockingDb { bookmarkControl.addOrUpdateBibleBookmark(bookmark) } // L1-pending(speak)
+                blockingDb { bookmarkControl.setLabelsForBookmark(bookmark, labelList) } // L1-pending(speak)
                 Log.i("SpeakBookmark", "Removed speak label from bookmark $bookmark")
             }
             else {
-                bookmarkControl.deleteBookmark(bookmark)
+                blockingDb { bookmarkControl.deleteBookmark(bookmark) } // L1-pending(speak)
                 Log.i("SpeakBookmark", "Removed bookmark from $bookmark")
             }
             wasRemoved = true
@@ -386,10 +387,10 @@ class BibleSpeakTextProvider(
 
             var bookmark = BibleBookmarkWithNotes(VerseRange(startVerse.versification, startVerse), null, true, null)
             bookmark.playbackSettings = playbackSettings
-            bookmark = bookmarkControl.addOrUpdateBibleBookmark(bookmark)
-            labelList.add(bookmarkControl.speakLabel)
+            bookmark = blockingDb { bookmarkControl.addOrUpdateBibleBookmark(bookmark) } // L1-pending(speak)
+            labelList.add(blockingDb { bookmarkControl.speakLabel() }) // L1-pending(speak)
 
-            bookmarkControl.setLabelsForBookmark(bookmark, labelList.toList())
+            blockingDb { bookmarkControl.setLabelsForBookmark(bookmark, labelList.toList()) } // L1-pending(speak)
             Log.i("SpeakBookmark", "Saved bookmark into $bookmark, ${settings.playbackSettings.speed}")
             this.bookmark = bookmark
         }

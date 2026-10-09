@@ -17,7 +17,7 @@
 
 package net.bible.service.llm.tools
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.service.llm.llmJson
 import org.json.JSONArray
 import org.json.JSONObject

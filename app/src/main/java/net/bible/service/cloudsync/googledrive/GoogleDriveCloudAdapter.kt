@@ -21,7 +21,7 @@ import android.accounts.Account
 import android.app.Activity
 import android.os.Parcel
 import android.util.Base64
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient

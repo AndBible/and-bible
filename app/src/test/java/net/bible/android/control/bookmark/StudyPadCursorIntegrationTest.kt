@@ -17,11 +17,16 @@
 
 package net.bible.android.control.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
+import net.bible.test.testOrderedLauncher
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.database.IdType
@@ -63,22 +68,21 @@ class StudyPadCursorIntegrationTest {
         windowControl!!.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowRepository.initialize()
 
-        val mockedResourceProvider = org.mockito.Mockito.mock(AndroidResourceProvider::class.java)
-        bookmarkControl = BookmarkControl(windowControl!!, mockedResourceProvider)
+        bookmarkControl = BookmarkControl(windowControl!!, testAppSettings(), testCoreStrings(), testOrderedLauncher())
     }
 
     @After
     fun tearDown() {
         // Clean up bookmarks
-        val bookmarks = bookmarkControl!!.allBibleBookmarks
+        val bookmarks = runBlocking { bookmarkControl!!.allBibleBookmarks() }
         for (bookmark in bookmarks) {
-            bookmarkControl!!.deleteBookmark(bookmark)
+            runBlocking { bookmarkControl!!.deleteBookmark(bookmark) }
         }
 
         // Clean up labels
-        val labels = bookmarkControl!!.allLabels
+        val labels = runBlocking { bookmarkControl!!.allLabels() }
         for (label in labels) {
-            bookmarkControl!!.deleteLabel(label)
+            runBlocking { bookmarkControl!!.deleteLabel(label) }
         }
 
         DatabaseResetter.resetDatabase()
@@ -90,7 +94,7 @@ class StudyPadCursorIntegrationTest {
     // ========== CURSOR SET/GET TESTS ==========
 
     @Test
-    fun testSetAndGetCursor() {
+    fun testSetAndGetCursor() = runTest {
         val label = createTestLabel()
         val cursorPosition = 5
 
@@ -105,7 +109,7 @@ class StudyPadCursorIntegrationTest {
     }
 
     @Test
-    fun testGetNonExistentCursor() {
+    fun testGetNonExistentCursor() = runTest {
         val label = createTestLabel()
 
         // Try to get cursor that was never set
@@ -115,7 +119,7 @@ class StudyPadCursorIntegrationTest {
     }
 
     @Test
-    fun testUpdateCursor() {
+    fun testUpdateCursor() = runTest {
         val label = createTestLabel()
 
         // Set initial cursor
@@ -132,7 +136,7 @@ class StudyPadCursorIntegrationTest {
     // ========== BOOKMARK INSERTION AT CURSOR TESTS ==========
 
     @Test
-    fun testAddBookmarkAtCursorPosition() {
+    fun testAddBookmarkAtCursorPosition() = runTest {
         val label = createTestLabel()
 
         // Add 3 bookmarks normally (no cursor)
@@ -167,7 +171,7 @@ class StudyPadCursorIntegrationTest {
     }
 
     @Test
-    fun testAddBookmarkAtStartPosition() {
+    fun testAddBookmarkAtStartPosition() = runTest {
         val label = createTestLabel()
 
         // Add 2 bookmarks
@@ -193,7 +197,7 @@ class StudyPadCursorIntegrationTest {
     }
 
     @Test
-    fun testAddBookmarkAtEndPosition() {
+    fun testAddBookmarkAtEndPosition() = runTest {
         val label = createTestLabel()
 
         // Add 2 bookmarks
@@ -219,7 +223,7 @@ class StudyPadCursorIntegrationTest {
     }
 
     @Test
-    fun testAddBookmarkWithoutCursor() {
+    fun testAddBookmarkWithoutCursor() = runTest {
         val label = createTestLabel()
 
         // Add 2 bookmarks without cursor
@@ -244,7 +248,7 @@ class StudyPadCursorIntegrationTest {
     // ========== ORDER NUMBER INCREMENT TESTS ==========
 
     @Test
-    fun testOrderNumberIncrementForMultipleBookmarks() {
+    fun testOrderNumberIncrementForMultipleBookmarks() = runTest {
         val label = createTestLabel()
 
         // Add 5 bookmarks
@@ -268,7 +272,7 @@ class StudyPadCursorIntegrationTest {
     }
 
     @Test
-    fun testConsecutiveInsertionsAtCursor() {
+    fun testConsecutiveInsertionsAtCursor() = runTest {
         val label = createTestLabel()
 
         // Set cursor to 0
@@ -296,7 +300,7 @@ class StudyPadCursorIntegrationTest {
     // ========== MULTI-STUDYPAD CURSOR INDEPENDENCE TESTS ==========
 
     @Test
-    fun testIndependentCursorsForDifferentLabels() {
+    fun testIndependentCursorsForDifferentLabels() = runTest {
         val label1 = createTestLabel()
         val label2 = createTestLabel()
 
@@ -326,7 +330,7 @@ class StudyPadCursorIntegrationTest {
     }
 
     @Test
-    fun testCursorDoesNotAffectOtherLabels() {
+    fun testCursorDoesNotAffectOtherLabels() = runTest {
         val label1 = createTestLabel()
         val label2 = createTestLabel()
 
@@ -351,7 +355,7 @@ class StudyPadCursorIntegrationTest {
     }
 
     @Test
-    fun testMultipleLabelsWithDifferentCursorPositions() {
+    fun testMultipleLabelsWithDifferentCursorPositions() = runTest {
         val label1 = createTestLabel()
         val label2 = createTestLabel()
         val label3 = createTestLabel()
@@ -387,7 +391,7 @@ class StudyPadCursorIntegrationTest {
     // ========== WORKSPACE PERSISTENCE TESTS ==========
 
     @Test
-    fun testCursorPersistenceAfterSave() {
+    fun testCursorPersistenceAfterSave() = runTest {
         val label = createTestLabel()
         val cursorPosition = 5
 
@@ -411,7 +415,7 @@ class StudyPadCursorIntegrationTest {
     }
 
     @Test
-    fun testMultipleCursorsPersistence() {
+    fun testMultipleCursorsPersistence() = runTest {
         val label1 = createTestLabel()
         val label2 = createTestLabel()
         val label3 = createTestLabel()
@@ -445,7 +449,7 @@ class StudyPadCursorIntegrationTest {
     // ========== EDGE CASE TESTS ==========
 
     @Test
-    fun testCursorWithEmptyStudyPad() {
+    fun testCursorWithEmptyStudyPad() = runTest {
         val label = createTestLabel()
 
         // Set cursor in empty study pad
@@ -463,7 +467,7 @@ class StudyPadCursorIntegrationTest {
     }
 
     @Test
-    fun testCursorBeyondStudyPadLength() {
+    fun testCursorBeyondStudyPadLength() = runTest {
         val label = createTestLabel()
 
         // Add 2 bookmarks
@@ -491,7 +495,7 @@ class StudyPadCursorIntegrationTest {
     }
 
     @Test
-    fun testRemoveCursorForLabel() {
+    fun testRemoveCursorForLabel() = runTest {
         val label = createTestLabel()
 
         // Set cursor
@@ -515,18 +519,18 @@ class StudyPadCursorIntegrationTest {
     private fun createTestLabel(): Label {
         val label = Label(new = true)
         label.name = "Test Label ${++testLabelCounter}"
-        return bookmarkControl!!.insertOrUpdateLabel(label)
+        return runBlocking { bookmarkControl!!.insertOrUpdateLabel(label) }
     }
 
     private fun createTestBookmark(): BibleBookmarkWithNotes {
         val verse = "Psalms 119:${++testVerseCounter}"
         val verseRange = VerseRangeFactory.fromString(KJV_VERSIFICATION, verse)
         val bookmark = BibleBookmarkWithNotes(verseRange, null, true, null)
-        return bookmarkControl!!.addOrUpdateBibleBookmark(bookmark, null)
+        return runBlocking { bookmarkControl!!.addOrUpdateBibleBookmark(bookmark, null) }
     }
 
     private fun assertBookmarkOrder(bookmark: BibleBookmarkWithNotes, label: Label, expectedOrder: Int) {
-        val bookmarkToLabel = bookmarkControl!!.getBookmarkToLabel(bookmark, label.id)
+        val bookmarkToLabel = runBlocking { bookmarkControl!!.getBookmarkToLabel(bookmark, label.id) }
         Assert.assertNotNull("Bookmark should be linked to label", bookmarkToLabel)
         Assert.assertEquals(
             "Bookmark ${bookmark.verseRange.getName()} should be at position $expectedOrder in label ${label.name}",

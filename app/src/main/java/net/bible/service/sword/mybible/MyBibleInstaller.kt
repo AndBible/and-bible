@@ -17,7 +17,7 @@
 
 package net.bible.service.sword.mybible
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import net.bible.android.BibleApplication.Companion.application

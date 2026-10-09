@@ -24,7 +24,7 @@ import android.media.MediaPlayer
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.media.session.MediaButtonReceiver
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R

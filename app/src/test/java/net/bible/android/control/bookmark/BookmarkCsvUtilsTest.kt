@@ -17,10 +17,17 @@
 
 package net.bible.android.control.bookmark
 
+import net.bible.test.testAppSettings
+import net.bible.test.testCoreStrings
+
+import net.bible.test.testOrderedLauncher
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.runBlocking
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
-import net.bible.android.common.resource.AndroidResourceProvider
+import net.bible.android.activity.R
+import net.bible.android.view.activity.bookmark.AndroidCsvColumnTitles
+import org.robolectric.RuntimeEnvironment
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
@@ -53,20 +60,19 @@ class BookmarkCsvUtilsTest {
     fun setUp() {
         // Create a real BookmarkControl instance for testing
         val mockedWindowControl = Mockito.mock(WindowControl::class.java)
-        val mockedResourceProvider = Mockito.mock(AndroidResourceProvider::class.java)
-        bookmarkControl = BookmarkControl(mockedWindowControl, mockedResourceProvider)
+        bookmarkControl = BookmarkControl(mockedWindowControl, testAppSettings(), testCoreStrings(), testOrderedLauncher())
     }
 
     @After
     fun tearDown() {
         // Clean up any created bookmarks/labels
-        val bookmarks = bookmarkControl.allBibleBookmarks
+        val bookmarks = runBlocking { bookmarkControl.allBibleBookmarks() }
         for (bookmark in bookmarks) {
-            bookmarkControl.deleteBookmark(bookmark)
+            runBlocking { bookmarkControl.deleteBookmark(bookmark) }
         }
-        val labels = bookmarkControl.allLabels.filter { !it.isSpecialLabel }
+        val labels = runBlocking { bookmarkControl.allLabels() }.filter { !it.isSpecialLabel }
         for (label in labels) {
-            bookmarkControl.deleteLabel(label)
+            runBlocking { bookmarkControl.deleteLabel(label) }
         }
         resetDatabase()
     }
@@ -134,6 +140,57 @@ class BookmarkCsvUtilsTest {
         assertTrue("Data should contain labels", dataLine.contains("Label 1") || dataLine.contains("Label;2"))
     }
 
+    /**
+     * The header row carries the column KEYS (machine-readable, what import matches on), in
+     * [BookmarkCsvUtils.availableColumns] order whatever order the selection came in, never the
+     * translated titles the column-selection dialog shows.
+     */
+    @Test
+    fun exportHeaderRow_isTheSelectedColumnKeysInColumnOrder_notTheirTitles(): Unit = runBlocking {
+        val bookmark = bookmarkControl.addOrUpdateBibleBookmark(BookmarkEntities.BibleBookmarkWithNotes(
+            verseRange = VerseRangeFactory.fromString(KJVA, "Gen.1.1"), textRange = null, wholeVerse = true, book = null,
+        ).apply { notes = "n"; new = true })
+        val out = ByteArrayOutputStream()
+
+        BookmarkCsvUtils.exportBookmarksToCsv(out, listOf(bookmark), bookmarkControl, selectedColumns = listOf("notes", "osisRef"))
+
+        val lines = out.toString("UTF-8").split("\n")
+        assertEquals("osisRef;notes", lines[0])
+        assertEquals("Gen.1.1;n", lines[1])
+    }
+
+    /** Every column's dialog title comes from [CsvColumnTitles]; the Android one keeps each column's resource. */
+    @Test
+    fun columnTitles_comeFromCsvColumnTitles_eachColumnItsOwnResource() {
+        val context = RuntimeEnvironment.getApplication()
+        val expected = linkedMapOf(
+            "osisRef" to R.string.osis_reference,
+            "bibleRef" to R.string.bible_reference,
+            "document" to R.string.document,
+            "book" to R.string.book,
+            "chapterStart" to R.string.chapter_start,
+            "verseStart" to R.string.verse_start,
+            "chapterEnd" to R.string.chapter_end,
+            "verseEnd" to R.string.verse_end,
+            "id" to R.string.id,
+            "ordinalStart" to R.string.ordinal_start,
+            "ordinalEnd" to R.string.ordinal_end,
+            "createdAt" to R.string.created_at,
+            "lastUpdatedOn" to R.string.last_updated_at,
+            "startOffset" to R.string.start_offset,
+            "endOffset" to R.string.end_offset,
+            "labels" to R.string.labels,
+            "notes" to R.string.bookmark_notes,
+            "customIcon" to R.string.custom_icon,
+        )
+        assertEquals(expected.keys.toList(), BookmarkCsvUtils.availableColumns.map { it.key })
+
+        val titles: CsvColumnTitles = AndroidCsvColumnTitles(context)
+        for (column in BookmarkCsvUtils.availableColumns) {
+            assertEquals(column.key, context.getString(expected.getValue(column.key)), titles.title(column))
+        }
+    }
+
     @Test
     fun testImportBookmarksFromCsv_Success(): Unit = runBlocking {
         // Given
@@ -151,7 +208,7 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;test-id;1;1;2022-01-01T00:00:00Z;2022-01
         assertThat(result.errors, equalTo(0))
         
         // Verify bookmark was created
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertTrue("Bookmark should be created", allBookmarks.isNotEmpty())
         
         val importedBookmark = allBookmarks.find { it.notes == "Test note" }
@@ -174,14 +231,14 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;test-id;1;1;2022-01-01T00:00:00Z;2022-01
         assertThat(result.created, equalTo(1))
         
         // Verify bookmark was created with the label
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertTrue("Bookmark should be created", allBookmarks.isNotEmpty())
         
         val importedBookmark = allBookmarks.find { it.notes == "Test note" }
         assertNotNull("Imported bookmark should exist", importedBookmark)
         
         // Check if the label was created (may or may not be, depending on implementation)
-        val labels = bookmarkControl.allLabels
+        val labels = bookmarkControl.allLabels()
         val hasNewLabel = labels.any { it.name == "NewTestLabel" }
         // We don't assert this must be true since the implementation might handle labels differently
         // This is more of an informational test
@@ -267,7 +324,7 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;test-id;1;1;2022-01-01T00:00:00Z;2022-01
         // Then
         assertThat(result.created, equalTo(1))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         val importedBookmark = allBookmarks.firstOrNull()
         assertNotNull("Bookmark should be created", importedBookmark)
         assertEquals("Start offset should be set", 10, importedBookmark?.startOffset)
@@ -350,7 +407,7 @@ Like that one above."""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Multi-line notes should be preserved exactly", multiLineNote, importedBookmark?.notes)
         assertEquals("Custom icon should be preserved", "heart", importedBookmark?.customIcon)
@@ -374,7 +431,7 @@ With various ""quotes"" and; semicolons.";star"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         
         val expectedNote = """This is a multi-line note.
@@ -401,7 +458,7 @@ With various ""quotes"" and; semicolons.";star"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         
         val expectedNote = """This is a multi-line note.
@@ -430,7 +487,7 @@ Gen.1.3;Another single line;bookmark"""
         assertThat(result.created, equalTo(3))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks.sortedBy { it.verseRange.start.verse }
+        val allBookmarks = bookmarkControl.allBibleBookmarks().sortedBy { it.verseRange.start.verse }
         assertEquals("Should import 3 bookmarks", 3, allBookmarks.size)
         
         // Check first bookmark (single line)
@@ -495,13 +552,13 @@ Final line"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Round-trip imported bookmark should exist", importedBookmark)
         assertEquals("Round-trip should preserve exact multi-line content", complexNote, importedBookmark?.notes)
     }
 
     @Test
-    fun testImportResult() {
+    fun testImportResult() = runTest {
         // Test ImportResult data class
         val result = BookmarkCsvUtils.ImportResult(
             created = 5,
@@ -560,7 +617,7 @@ Final line"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be reimported", importedBookmark)
         
         // The key assertion: KJVA ordinals should match after round-trip
@@ -631,7 +688,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created from osisRef only", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
         assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.getOsisRef())
@@ -652,7 +709,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created from bibleRef only", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
         assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.getOsisRef())
@@ -673,7 +730,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created from book/chapter/verse fields", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
         assertEquals("OsisRef should match", "Gen.1.1", importedBookmark?.verseRange?.getOsisRef())
@@ -694,7 +751,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
 
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created from book/chapter/verse fields", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
         assertEquals("OsisRef should match", "Gen.1-Gen.2.2", importedBookmark?.verseRange?.getOsisRef())
@@ -715,7 +772,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created from ordinals only", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
         assertEquals("OsisRef should match", "Intro.OT", importedBookmark?.verseRange?.getOsisRef())
@@ -736,7 +793,7 @@ Gen.1.1;;;;;;;;;;;;;;;;My note;"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created", importedBookmark)
         assertEquals("Notes should be preserved", "My note", importedBookmark?.notes)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
@@ -757,12 +814,12 @@ Gen.1.1;;;;;;;;;;;;;;;MinimalLabel;;"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
         
         // Check if label was processed (implementation may vary)
-        val labels = bookmarkControl.allLabels
+        val labels = bookmarkControl.allLabels()
         val hasMinimalLabel = labels.any { it.name == "MinimalLabel" }
         println("MinimalLabel created: $hasMinimalLabel")
     }
@@ -782,7 +839,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;heart"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created", importedBookmark)
         assertEquals("Custom icon should be preserved", "heart", importedBookmark?.customIcon)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
@@ -803,7 +860,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;heart"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created with document specified", importedBookmark)
         assertTrue("Should be whole verse", importedBookmark?.wholeVerse ?: false)
     }
@@ -823,7 +880,7 @@ Gen.1.1;;;;;;;;;;2022-01-01T10:30:00Z;2022-01-01T10:30:00Z;;;;;"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created with timestamps", importedBookmark)
         assertNotNull("Created date should be set", importedBookmark?.createdAt)
         assertNotNull("Last updated date should be set", importedBookmark?.lastUpdatedOn)
@@ -848,7 +905,7 @@ Gen.1.1;;;;;;;;;;;;;;;;;
         assertEquals("Should create multiple bookmarks", result.created, 4)
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertEquals("Should have multiple bookmarks", allBookmarks.size, 4)
         
         // All should be whole verse bookmarks
@@ -872,7 +929,7 @@ Gen.1.1;Genesis 1:1;ESV2011;Gen;1;1;1;1;;;;;;5;15;;;;"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be created with text selection", importedBookmark!!)
         assertEquals("Start offset should be set", 5, importedBookmark.startOffset)
         assertEquals("End offset should be set", 15, importedBookmark.endOffset)
@@ -914,7 +971,7 @@ Gen.1.2;Another note"""
         assertThat(result.created, equalTo(2))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
         val bookmark1 = allBookmarks.find { it.notes == "My simple note" }
@@ -944,10 +1001,10 @@ Genesis 1:2;StudyNote"""
         assertThat(result.created, equalTo(2))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
-        val labels = bookmarkControl.allLabels
+        val labels = bookmarkControl.allLabels()
         val hasImportantVerse = labels.any { it.name == "ImportantVerse" }
         val hasStudyNote = labels.any { it.name == "StudyNote" }
         assertTrue("ImportantVerse label should be created", hasImportantVerse)
@@ -971,7 +1028,7 @@ Matt;5;3;Blessed are the poor"""
         assertThat(result.created, equalTo(3))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 3 bookmarks", allBookmarks.size, equalTo(3))
         
         val bookmark1 = allBookmarks.find { it.notes == "First verse" }
@@ -999,7 +1056,7 @@ Matt;5;3;Blessed are the poor"""
         // Then - May create bookmarks or errors depending on implementation
         assertTrue("Should process ordinal-only CSV", (result.created + result.errors) > 0)
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertTrue("Should create some bookmarks", allBookmarks.isNotEmpty())
             
         // Check if custom icons are preserved
@@ -1025,7 +1082,7 @@ Gen.1.2;2022-01-02T11:30:00Z;2022-01-02T11:30:00Z"""
         assertThat(result.created, equalTo(2))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
         allBookmarks.forEach { bookmark ->
@@ -1050,7 +1107,7 @@ Gen.1.2;5;20;Selected text in second verse"""
         assertThat(result.created, equalTo(2))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
         val bookmark1 = allBookmarks.find { it.notes == "Selected text in first verse" }
@@ -1082,7 +1139,7 @@ John;3;16;3;16;For God so loved the world"""
         assertThat(result.created, equalTo(3))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 3 bookmarks", allBookmarks.size, equalTo(3))
         
         val creationBookmark = allBookmarks.find { it.notes == "Creation story beginning" }
@@ -1115,7 +1172,7 @@ Gen.1.1;KJV;KJV translation note"""
         assertThat(result.created, equalTo(2))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
         val esvBookmark = allBookmarks.find { it.notes == "ESV translation note" && it.book?.initials == "ESV2011" }
@@ -1142,7 +1199,7 @@ Gen.1.3;Important;heart"""
         assertThat(result.created, equalTo(3))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 3 bookmarks", allBookmarks.size, equalTo(3))
         
         val starBookmark = allBookmarks.find { it.customIcon == "star" }
@@ -1154,7 +1211,7 @@ Gen.1.3;Important;heart"""
         assertNotNull("Heart bookmark should exist", heartBookmark)
 
         // Check that labels are created
-        val labels = bookmarkControl.allLabels
+        val labels = bookmarkControl.allLabels()
         assertTrue("Favorite label should exist", labels.any { it.name == "Favorite" })
         assertTrue("Study label should exist", labels.any { it.name == "Study" })
         assertTrue("Important label should exist", labels.any { it.name == "Important" })
@@ -1188,7 +1245,7 @@ My second note;heart;Gen.1.2"""
         assertThat(result.created, equalTo(2))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 2 bookmarks", allBookmarks.size, equalTo(2))
         
         val firstBookmark = allBookmarks.find { it.notes == "My first note" }
@@ -1219,7 +1276,7 @@ John.3.16"""
         assertThat(result.created, equalTo(4))
         assertThat(result.errors, equalTo(0))
         
-        val allBookmarks = bookmarkControl.allBibleBookmarks
+        val allBookmarks = bookmarkControl.allBibleBookmarks()
         assertThat("Should create 4 bookmarks", allBookmarks.size, equalTo(4))
         
         // All should be whole verse bookmarks with no additional data
@@ -1291,7 +1348,7 @@ Also includes <strong>strong emphasis</strong> and <em>emphasis</em>."""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML basic formatting should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1340,7 +1397,7 @@ Also includes <strong>strong emphasis</strong> and <em>emphasis</em>."""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML lists should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1383,7 +1440,7 @@ Cross-reference: <a href="verse://John.3.16">John 3:16</a>"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML links should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1439,7 +1496,7 @@ Cross-reference: <a href="verse://John.3.16">John 3:16</a>"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML tables should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1484,7 +1541,7 @@ Cross-reference: <a href="verse://John.3.16">John 3:16</a>"""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML images should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1544,7 +1601,7 @@ function processVerse(verse) {
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML block elements should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1616,7 +1673,7 @@ function processVerse(verse) {
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Complex nested HTML should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1680,7 +1737,7 @@ function processVerse(verse) {
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML with attributes should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1736,7 +1793,7 @@ and	tabs	preserved
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("HTML with special characters should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1805,7 +1862,7 @@ Final line of mixed content."""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Mixed HTML and plain text content should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -1867,7 +1924,7 @@ Final line of mixed content."""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Malformed HTML should be preserved exactly as-is", htmlNote, importedBookmark?.notes)
     }
@@ -1898,7 +1955,7 @@ Gen.1.12;"${htmlNote.replace("\"", "\"\"")}""""
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Direct HTML import should work correctly", htmlNote, importedBookmark?.notes)
     }
@@ -1945,7 +2002,7 @@ Gen.1.12;"${htmlNote.replace("\"", "\"\"")}""""
         assertThat(result.created, equalTo(5))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmarks = bookmarkControl.allBibleBookmarks.sortedBy { it.verseRange.start.verse }
+        val importedBookmarks = bookmarkControl.allBibleBookmarks().sortedBy { it.verseRange.start.verse }
         assertEquals("Should import all bookmarks", 5, importedBookmarks.size)
         
         // Verify each bookmark's HTML content is preserved
@@ -2008,7 +2065,7 @@ newlines
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Imported bookmark should exist", importedBookmark)
         assertEquals("Complex HTML with CSV edge cases should be preserved exactly", htmlNote, importedBookmark?.notes)
     }
@@ -2066,7 +2123,7 @@ newlines
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be reimported", importedBookmark)
         
         val importedLabels = bookmarkControl.labelsForBookmark(importedBookmark!!)
@@ -2079,7 +2136,7 @@ newlines
         assertTrue("Should have LabelB", labelNames.contains("LabelB"))
         
         // Verify the labels are stored correctly in the database
-        val allLabels = bookmarkControl.allLabels.filter { !it.isSpecialLabel }
+        val allLabels = bookmarkControl.allLabels().filter { !it.isSpecialLabel }
         val labelAExists = allLabels.any { it.name == "LabelA" }
         val labelBExists = allLabels.any { it.name == "LabelB" }
         val combinedLabelExists = allLabels.any { it.name == "LabelA;LabelB" }
@@ -2142,7 +2199,7 @@ newlines
         bookmarkControl.deleteBookmark(savedBookmark)
         
         // Verify bookmark is deleted
-        val bookmarksAfterDelete = bookmarkControl.allBibleBookmarks
+        val bookmarksAfterDelete = bookmarkControl.allBibleBookmarks()
         assertEquals("Bookmark should be deleted", 0, bookmarksAfterDelete.size)
 
         // Step 5: Import the CSV file
@@ -2153,7 +2210,7 @@ newlines
         assertThat(result.created, equalTo(1))
         assertThat(result.errors, equalTo(0))
         
-        val importedBookmark = bookmarkControl.allBibleBookmarks.firstOrNull()
+        val importedBookmark = bookmarkControl.allBibleBookmarks().firstOrNull()
         assertNotNull("Bookmark should be recreated", importedBookmark)
         
         val importedLabels = bookmarkControl.labelsForBookmark(importedBookmark!!)
@@ -2168,7 +2225,7 @@ newlines
         assertFalse("Bookmark should not be unlabeled", importedLabels.isEmpty())
         
         // Verify there is NO label with combined name "A;B"
-        val allLabels = bookmarkControl.allLabels.filter { !it.isSpecialLabel }
+        val allLabels = bookmarkControl.allLabels().filter { !it.isSpecialLabel }
         val hasCombinedLabel = allLabels.any { it.name == "A;B" }
         assertFalse("Should NOT have a combined 'A;B' label", hasCombinedLabel)
         

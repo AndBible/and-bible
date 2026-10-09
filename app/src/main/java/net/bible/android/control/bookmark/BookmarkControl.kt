@@ -16,14 +16,8 @@
  */
 package net.bible.android.control.bookmark
 
-import android.app.Activity.RESULT_OK
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.util.Log
-import android.widget.Toast
+import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -31,14 +25,10 @@ import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import net.bible.android.database.LogEntry
-import net.bible.android.BibleApplication.Companion.application
-import net.bible.android.activity.R
-import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.common.toV11n
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WorkspaceChanges
-import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkToLabel
@@ -64,20 +54,13 @@ import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.database.bookmarks.AI_LABEL_ID
 import net.bible.android.database.bookmarks.AI_LABEL_NAME
-import android.graphics.Color
 import net.bible.android.misc.OsisFragment
-import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.sharedcore.event.EventSource
 import net.bible.sharedcore.event.Events
-import net.bible.sharedcore.ui.dialog.AppDialogController
-import net.bible.sharedcore.ui.dialog.AppDialogRequest
-import net.bible.sharedcore.ui.dialog.plainTextToHtml
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
@@ -85,13 +68,11 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-import org.koin.java.KoinJavaComponent
-import java.lang.IllegalArgumentException
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
-import net.bible.service.db.blockingDb
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.OrderedLauncher
 
 val LABEL_ALL_ID = IdType.empty()
 
@@ -106,21 +87,25 @@ private class PendingSideEffects : AbstractCoroutineContextElement(Key) {
 
 open class BookmarkControl constructor(
     val windowControl: WindowControl,
-    resourceProvider: ResourceProvider,
+    private val settings: AppSettings,
+    private val strings: CoreStrings,
+    private val launcher: OrderedLauncher,
 ) {
     private val _changes = EventSource<BookmarkChange>()
     /** Every bookmark/label/StudyPad change, in emission order, on the emitter's thread. */
     val changes: Events<BookmarkChange> get() = _changes
 
     init {
-        DatabaseContainer.bookmarksSynced.subscribe { updated -> blocking { onBookmarksSyncedSus(updated) } }
+        DatabaseContainer.bookmarksSynced.subscribe { updated ->
+            launcher.launch("bookmark-sync") { deferringEffects { onBookmarksSynced(updated) } }
+        }
     }
 
     /**
-     * Turns the rows a sync applied into [BookmarkChange]s. Runs as one bridged unit (see [blocking]);
+     * Turns the rows a sync applied into [BookmarkChange]s. Runs as one unit (see [deferringEffects]);
      * the events are posted after the DAO reads are done.
      */
-    private suspend fun onBookmarksSyncedSus(updated: List<LogEntry>) {
+    private suspend fun onBookmarksSynced(updated: List<LogEntry>) {
         val labelUpserts = updated.filter { it.type == LogEntryTypes.UPSERT && it.tableName == "Label" }.map { it.entityId1 }
         val labels = dao.labelsById(labelUpserts)
         for(l in labels) {
@@ -189,45 +174,45 @@ open class BookmarkControl constructor(
         }
 
         for(labelId in labelIds) {
-            sanitizeStudyPadOrderSus(labelId, true)
+            sanitizeStudyPadOrder(labelId, true)
         }
 
         for(b in dao.bibleBookmarksByIds(bookmarkUpserts.toList())) {
-            addLabelsSus(b)
+            addLabels(b)
             addText(b)
             emitChange(BookmarkChange.BookmarksUpserted(listOf(b)))
         }
         for(b in dao.genericBookmarksByIds(genericBookmarkUpserts.toList())) {
-            addLabelsSus(b)
+            addLabels(b)
             addText(b)
             emitChange(BookmarkChange.BookmarksUpserted(listOf(b)))
         }
     }
 
-    val favouriteLabels: List<Label> get() = blockingDb { dao.favouriteLabels() }
+    suspend fun favouriteLabels(): List<Label> = dao.favouriteLabels()
 
     // Dummy labels for all / unlabelled
-    private val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
+    private val labelAll = Label(LABEL_ALL_ID, strings.labelAll, color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
 
     private val bookmarkDb get() = DatabaseContainer.instance.bookmarkDb
+    /** The content type new notes and StudyPad entries get (same key and default as `AndBibleSettings.notesContentType`). */
+    private val notesContentType: String get() = settings.getString("notes_content_type", "HTML") ?: "HTML"
     private val dao get() = bookmarkDb.bookmarkDao()
 
     /**
-     * The public API of this class stays blocking (its callers are not coroutines yet); each public
-     * function that touches the DAO is a thin [blocking] bridge around a private `...Sus` suspend
-     * twin that calls the suspend DAO directly. Twins call each other, never the public blocking
-     * functions, so no bridge is ever nested.
+     * The public API of this class is `suspend`. Everything with an observable side effect beyond the database
+     * (a [BookmarkChange], a workspace notification) goes through [emitChange]/[afterBridge]. Those are queued and
+     * run when the OUTERMOST public call returns, in their original order: a subscriber that itself bridges
+     * (for example BibleView's `LabelUpserted` handler) must never run inside the call's own database work.
+     * A public function called from another one joins the outer call's queue.
      *
-     * Everything with an observable side effect beyond the database (a [BookmarkChange], a workspace
-     * notification) goes through [emitChange]/[afterBridge] inside the twin. Those are queued and run
-     * AFTER the bridge has returned, in their original order: a subscriber that itself bridges (for
-     * example BibleView's `LabelUpserted` handler) must never run inside the runBlocking that carries
-     * the DAO calls, nor inside a database transaction.
+     * Every public function with such an effect wraps its body in [deferringEffects].
      */
-    private fun <T> blocking(core: suspend () -> T): T {
+    internal suspend fun <T> deferringEffects(core: suspend () -> T): T {
+        if (coroutineContext[PendingSideEffects] != null) return core()
         val pending = PendingSideEffects()
         try {
-            return blockingDb { withContext(pending) { core() } }
+            return withContext(pending) { core() }
         } finally {
             // Every queued effect runs, even when one throws or the core failed: an effect's failure is logged (it must
             // not mask the core's exception nor drop the effects after it); cancellation is the one thing not swallowed.
@@ -237,45 +222,42 @@ open class BookmarkControl constructor(
         }
     }
 
-    /** Posts [change] now, or, inside [blocking], once the bridge has returned. */
+    /** Posts [change] now, or, inside [deferringEffects], once the outermost call has returned. */
     private suspend fun emitChange(change: BookmarkChange) = afterBridge { _changes.emit(change) }
 
-    /** Runs [effect] now, or, inside [blocking], once the bridge has returned (in call order). */
-    private suspend fun afterBridge(effect: () -> Unit) {
+    /** Runs [effect] now, or, inside [deferringEffects], once the outermost call has returned (in call order). */
+    internal suspend fun afterBridge(effect: () -> Unit) {
         val pending = coroutineContext[PendingSideEffects]
         if (pending != null) pending.effects.add(effect) else effect()
     }
 
-	fun updateBookmarkPlaybackSettings(settings: PlaybackSettings) {
+	suspend fun updateBookmarkPlaybackSettings(settings: PlaybackSettings) {
         val pageManager = windowControl.activeWindowPageManager
         if (pageManager.currentPage.documentCategory == DocumentCategory.BIBLE) {
             updateBookmarkPlaybackSettings(pageManager.currentBible.singleKey, settings)
         }
     }
 
-    private fun updateBookmarkPlaybackSettings(v: Verse, settings: PlaybackSettings) = blocking {
+    private suspend fun updateBookmarkPlaybackSettings(v: Verse, settings: PlaybackSettings) = deferringEffects {
         val verse = if (v.verse == 0) Verse(v.versification, v.book, v.chapter, 1) else v
 
-        val bookmark = dao.bookmarksForVerseStartWithLabel(verse, speakLabelSus()).firstOrNull()
+        val bookmark = dao.bookmarksForVerseStartWithLabel(verse, speakLabel()).firstOrNull()
         if (bookmark?.playbackSettings != null) {
             bookmark.playbackSettings = settings
-            addOrUpdateBookmarkSus(bookmark)
+            addOrUpdateBookmark(bookmark)
             Log.i("SpeakBookmark", "Updated bookmark settings " + bookmark + settings.speed)
         }
     }
 
-    val allBibleBookmarks: List<BibleBookmarkWithNotes> get() = blockingDb { dao.allBookmarks() }
+    suspend fun allBibleBookmarks(): List<BibleBookmarkWithNotes> = dao.allBookmarks()
 
-    fun addOrUpdateBibleBookmark(bookmark: BibleBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BibleBookmarkWithNotes =
+    suspend fun addOrUpdateBibleBookmark(bookmark: BibleBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BibleBookmarkWithNotes =
         addOrUpdateBookmark(bookmark, labels, updateNotes) as BibleBookmarkWithNotes
 
-    fun addOrUpdateGenericBookmark(bookmark: GenericBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): GenericBookmarkWithNotes =
+    suspend fun addOrUpdateGenericBookmark(bookmark: GenericBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): GenericBookmarkWithNotes =
         addOrUpdateBookmark(bookmark, labels, updateNotes) as GenericBookmarkWithNotes
 
-    fun addOrUpdateBookmark(bookmark: BaseBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BaseBookmarkWithNotes =
-        blocking { addOrUpdateBookmarkSus(bookmark, labels, updateNotes) }
-
-    private suspend fun addOrUpdateBookmarkSus(bookmark: BaseBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BaseBookmarkWithNotes {
+    suspend fun addOrUpdateBookmark(bookmark: BaseBookmarkWithNotes, labels: Set<IdType>?=null, updateNotes: Boolean = false): BaseBookmarkWithNotes = deferringEffects {
         val notes = bookmark.noteEntity
         if(bookmark.new) {
             dao.insert(bookmark.bookmarkEntity)
@@ -310,7 +292,7 @@ open class BookmarkControl constructor(
                         val maxOrder = dao.countStudyPadEntities(labelId)
                         val orderNumber = cursor?.coerceAtMost(maxOrder) ?: maxOrder
                         if (cursor != null) {
-                            incrementOrderNumbersFromSus(labelId, orderNumber)
+                            incrementOrderNumbersFrom(labelId, orderNumber)
                             workspaceSettings.studyPadCursors[labelId] = orderNumber + 1
                         }
                         BibleBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
@@ -323,7 +305,7 @@ open class BookmarkControl constructor(
                         val maxOrder = dao.countStudyPadEntities(labelId)
                         val orderNumber = cursor?.coerceAtMost(maxOrder) ?: maxOrder
                         if (cursor != null) {
-                            incrementOrderNumbersFromSus(labelId, orderNumber)
+                            incrementOrderNumbersFrom(labelId, orderNumber)
                             workspaceSettings.studyPadCursors[labelId] = orderNumber + 1
                         }
                         GenericBookmarkToLabel(bookmark.id, labelId, orderNumber = orderNumber)
@@ -344,19 +326,19 @@ open class BookmarkControl constructor(
         }
 
         addText(bookmark)
-        addLabelsSus(bookmark)
+        addLabels(bookmark)
         emitChange(BookmarkChange.BookmarksUpserted(listOf(bookmark)))
-        return bookmark
+        bookmark
     }
     
-    fun updateBookmarkEditAction(bookmarkId: IdType, editAction: EditAction) = blocking {
-        val bookmark = dao.bibleBookmarkById(bookmarkId) ?: dao.genericBookmarkById(bookmarkId) ?: return@blocking
+    suspend fun updateBookmarkEditAction(bookmarkId: IdType, editAction: EditAction) = deferringEffects {
+        val bookmark = dao.bibleBookmarkById(bookmarkId) ?: dao.genericBookmarkById(bookmarkId) ?: return@deferringEffects
         bookmark.editAction = editAction
-        addOrUpdateBookmarkSus(bookmark)
+        addOrUpdateBookmark(bookmark)
         Unit
     }
 
-    fun toggleBookmarkLabel(bookmark: BaseBookmarkWithNotes, labelId: String) = blocking {
+    suspend fun toggleBookmarkLabel(bookmark: BaseBookmarkWithNotes, labelId: String) = deferringEffects {
         val labels = dao.labelsForBookmark(bookmark).toMutableList()
         val foundLabel = labels.find { it.id == IdType(labelId) }
         if(foundLabel != null) {
@@ -364,48 +346,48 @@ open class BookmarkControl constructor(
         } else {
             labels.add(dao.labelById(IdType(labelId))!!)
         }
-        addOrUpdateBookmarkSus(bookmark, labels.map { it.id }.toSet())
+        addOrUpdateBookmark(bookmark, labels.map { it.id }.toSet())
         Unit
     }
 
-    fun bibleBookmarksByIds(ids: List<IdType>): List<BibleBookmarkWithNotes> = blockingDb { dao.bibleBookmarksByIds(ids) }
+    suspend fun bibleBookmarksByIds(ids: List<IdType>): List<BibleBookmarkWithNotes> = dao.bibleBookmarksByIds(ids)
 
-    fun bibleBookmarkById(id: IdType): BibleBookmarkWithNotes? = blockingDb { dao.bibleBookmarkById(id) }
+    suspend fun bibleBookmarkById(id: IdType): BibleBookmarkWithNotes? = dao.bibleBookmarkById(id)
 
-    fun genericBookmarkById(id: IdType): GenericBookmarkWithNotes? = blockingDb { dao.genericBookmarkById(id) }
+    suspend fun genericBookmarkById(id: IdType): GenericBookmarkWithNotes? = dao.genericBookmarkById(id)
 
-    fun hasBookmarksForVerse(verse: Verse): Boolean = blockingDb { dao.hasBookmarksForVerse(verse) }
+    suspend fun hasBookmarksForVerse(verse: Verse): Boolean = dao.hasBookmarksForVerse(verse)
 
-    fun bibleBookmarkStartingAtVerse(key: Verse): List<BibleBookmarkWithNotes> = blockingDb { dao.bookmarksStartingAtVerse(key) }
+    suspend fun bibleBookmarkStartingAtVerse(key: Verse): List<BibleBookmarkWithNotes> = dao.bookmarksStartingAtVerse(key)
 
-    fun deleteBookmark(bookmark: BaseBookmarkWithNotes) = blocking {
+    suspend fun deleteBookmark(bookmark: BaseBookmarkWithNotes) = deferringEffects {
         dao.delete(bookmark)
-        sanitizeStudyPadOrderSus(bookmark)
+        sanitizeStudyPadOrder(bookmark)
         emitChange(BookmarkChange.BookmarksDeleted(listOf(bookmark.id)))
     }
 
-    private suspend fun deleteBookmarksSus(bookmarks: List<BaseBookmarkWithNotes>) {
+    private suspend fun deleteBookmarks(bookmarks: List<BaseBookmarkWithNotes>) {
         val labels = mutableSetOf<IdType>()
         for(b in bookmarks) {
             labels.addAll(dao.labelsForBookmark(b).map { it.id })
         }
         dao.deleteBookmarks(bookmarks)
         for (l in labels) {
-            sanitizeStudyPadOrderSus(l)
+            sanitizeStudyPadOrder(l)
         }
         emitChange(BookmarkChange.BookmarksDeleted(bookmarks.map { it.id }))
     }
 
-    fun deleteBibleBookmarksById(bookmarkIds: List<IdType>) = blocking { deleteBookmarksSus(dao.bibleBookmarksByIds(bookmarkIds)) }
+    suspend fun deleteBibleBookmarksById(bookmarkIds: List<IdType>) = deferringEffects { deleteBookmarks(dao.bibleBookmarksByIds(bookmarkIds)) }
 
-    fun deleteGenericBookmarksById(bookmarkIds: List<IdType>) = blocking { deleteBookmarksSus(dao.genericBookmarksByIds(bookmarkIds)) }
+    suspend fun deleteGenericBookmarksById(bookmarkIds: List<IdType>) = deferringEffects { deleteBookmarks(dao.genericBookmarksByIds(bookmarkIds)) }
 
-    fun getBibleBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false, search:String? = null): List<BibleBookmarkWithNotes> = blocking {
+    suspend fun getBibleBookmarksWithLabel(label: Label, orderBy: BookmarkSortOrder = BookmarkSortOrder.BIBLE_ORDER, addData: Boolean = false, search:String? = null): List<BibleBookmarkWithNotes> = deferringEffects {
         val bookmarks = when {
             labelAll == label ->
                 if (search == null) dao.allBookmarks(orderBy)
                 else dao.searchAllBookmarks(orderBy, search)
-            labelUnlabelledSus() == label ->
+            labelUnlabelled() == label ->
                 if (search == null) dao.unlabelledBookmarks(orderBy)
                 else dao.searchUnlabelledBookmarks(orderBy, search)
             else ->
@@ -414,17 +396,17 @@ open class BookmarkControl constructor(
         }
         if(addData) for (it in bookmarks) {
             addText(it)
-            addLabelsSus(it)
+            addLabels(it)
         }
         bookmarks
     }
 
-    fun getGenericBookmarksWithLabel(label: Label, addData: Boolean = false, search:String? = null): List<GenericBookmarkWithNotes> = blocking {
+    suspend fun getGenericBookmarksWithLabel(label: Label, addData: Boolean = false, search:String? = null): List<GenericBookmarkWithNotes> = deferringEffects {
         val bookmarks = when {
             labelAll == label ->
                 if (search == null) dao.allGenericBookmarks()
                 else dao.searchAllGenericBookmarks(search)
-            labelUnlabelledSus() == label ->
+            labelUnlabelled() == label ->
                 if (search == null) dao.unlabelledGenericBookmarks()
                 else dao.searchUnlabelledGenericBookmarks(search)
             else ->
@@ -433,7 +415,7 @@ open class BookmarkControl constructor(
         }
         if(addData) for (it in bookmarks) {
             addText(it)
-            addLabelsSus(it)
+            addLabels(it)
         }
         bookmarks
     }
@@ -442,7 +424,7 @@ open class BookmarkControl constructor(
      * Search for study pads that contain the given search text in their text entries or bookmark notes.
      * Returns a list of StudyPadSearchResult objects, each containing the matching label and list of matches.
      */
-    fun searchStudyPadsByContent(searchText: String): List<StudyPadSearchResult> = blockingDb {
+    suspend fun searchStudyPadsByContent(searchText: String): List<StudyPadSearchResult> {
         val searchPattern = "%$searchText%"
         val results = mutableMapOf<IdType, MutableList<ContentMatch>>()
 
@@ -508,7 +490,7 @@ open class BookmarkControl constructor(
         }
 
         // Sort by match count (descending), then by label name (ascending)
-        searchResults.sortedWith(
+        return searchResults.sortedWith(
             compareByDescending<StudyPadSearchResult> { it.matchCount }
                 .thenBy { it.label.name.lowercase() }
         )
@@ -545,12 +527,12 @@ open class BookmarkControl constructor(
         return StudyPadSearchResultTextSnippet(snippet, matchStartInSnippet, matchEndInSnippet)
     }
 
-    fun labelsForBookmark(bookmark: BaseBookmarkWithNotes): List<Label> = blockingDb { dao.labelsForBookmark(bookmark) }
+    suspend fun labelsForBookmark(bookmark: BaseBookmarkWithNotes): List<Label> = dao.labelsForBookmark(bookmark)
 
-    fun setLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labels: List<Label>) =
+    suspend fun setLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labels: List<Label>) =
         addOrUpdateBookmark(bookmark, labels.map { it.id }.toSet())
 
-    fun insertOrUpdateLabel(label: Label): Label = blocking {
+    suspend fun insertOrUpdateLabel(label: Label): Label = deferringEffects {
         label.name = label.name.trim()
         if(label.id.isEmpty) throw RuntimeException("Illegal empty label.id")
         if(label.new) {
@@ -563,30 +545,29 @@ open class BookmarkControl constructor(
         label
     }
 
-    fun deleteLabel(label: Label) = blockingDb { dao.delete(label) }
+    suspend fun deleteLabel(label: Label) = dao.delete(label)
 
     // add special label that is automatically associated with all-bookmarks
-    val allLabels: List<Label>
-        get() = blocking {
-            val labelList = dao.allLabelsSortedByName().toMutableList()
-            labelList.sortBy { it.name.lowercase(Locale.getDefault()) }
-            // add special label that is automatically associated with all-bookmarks
-            labelList.add(0, labelUnlabelledSus())
-            labelList.add(0, labelAll)
-            labelList
-        }
+    suspend fun allLabels(): List<Label> = deferringEffects {
+        val labelList = dao.allLabelsSortedByName().toMutableList()
+        labelList.sortBy { it.name.lowercase(Locale.getDefault()) }
+        // add special label that is automatically associated with all-bookmarks
+        labelList.add(0, labelUnlabelled())
+        labelList.add(0, labelAll)
+        labelList
+    }
 
-    val assignableLabels: List<Label> get() = blockingDb { dao.allLabelsSortedByName() }
+    suspend fun assignableLabels(): List<Label> = dao.allLabelsSortedByName()
 
     /**
      * Backs [speakLabel], [labelUnlabelled], [paragraphBreakLabel] and [aiLabel]. Takes
      * [SPECIAL_LABEL_LOCK], so **never call those getters inside a database transaction**: another
      * coroutine may hold the lock while waiting for that transaction's write lock.
      */
-    private suspend fun getOrCreateSpecialLabelSus(
+    private suspend fun getOrCreateSpecialLabel(
         canonicalId: IdType,
         create: () -> Label
-    ): Label {
+    ): Label = deferringEffects {
         // The check and the insert must be one step: every caller (BibleView.loadDocument runs for
         // several windows at once, on Dispatchers.IO) would otherwise both see "no label" on a fresh
         // database and the loser's insert dies with UNIQUE constraint failed: Label.id. The lock is
@@ -603,50 +584,40 @@ open class BookmarkControl constructor(
         created?.let {
             emitChange(BookmarkChange.LabelUpserted(it))
         }
-        return label
+        label
     }
 
-    private suspend fun speakLabelSus(): Label = getOrCreateSpecialLabelSus(SPEAK_LABEL_ID) {
+    suspend fun speakLabel(): Label = getOrCreateSpecialLabel(SPEAK_LABEL_ID) {
         Label(id = SPEAK_LABEL_ID, name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor)
     }
 
-    private suspend fun labelUnlabelledSus(): Label = getOrCreateSpecialLabelSus(UNLABELED_LABEL_ID) {
+    suspend fun labelUnlabelled(): Label = getOrCreateSpecialLabel(UNLABELED_LABEL_ID) {
         Label(id = UNLABELED_LABEL_ID, name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor)
     }
 
-    private suspend fun paragraphBreakLabelSus(): Label = getOrCreateSpecialLabelSus(PARAGRAPH_BREAK_LABEL_ID) {
+    suspend fun paragraphBreakLabel(): Label = getOrCreateSpecialLabel(PARAGRAPH_BREAK_LABEL_ID) {
         Label(id = PARAGRAPH_BREAK_LABEL_ID, name = PARAGRAH_BREAK_LABEL_NAME, displayStyle = BookmarkDisplayStyle.HIDDEN, displayStyleWholeVerse = null)
     }
 
-    private suspend fun aiLabelSus(): Label = getOrCreateSpecialLabelSus(AI_LABEL_ID) {
+    suspend fun aiLabel(): Label = getOrCreateSpecialLabel(AI_LABEL_ID) {
         Label(
             id = AI_LABEL_ID,
             name = AI_LABEL_NAME,
-            color = Color.argb(255, 100, 100, 255),
+            color = 0xFF6464FF.toInt(),
             displayStyle = BookmarkDisplayStyle.MARKER,
             displayStyleWholeVerse = null,
             customIcon = "robot"
         )
     }
 
-    val speakLabel: Label get() = blocking { speakLabelSus() }
-
-    val labelUnlabelled: Label get() = blocking { labelUnlabelledSus() }
-
-    val paragraphBreakLabel: Label get() = blocking { paragraphBreakLabelSus() }
-
-    val aiLabel: Label get() = blocking { aiLabelSus() }
-
     fun reset() {}
 
-    fun isSpeakBookmark(bookmark: BaseBookmarkWithNotes): Boolean = blocking { dao.labelsForBookmark(bookmark).contains(speakLabelSus()) }
-    fun speakBookmarkForVerse(verse: Verse) = blocking { dao.bookmarksForVerseStartWithLabel(verse, speakLabelSus()).firstOrNull() }
-    fun speakBookmarkForKey(key: BookAndKey): GenericBookmarkWithNotes? = blocking {
-        dao.bookmarksForKeyStartWithLabel(key.document!!.initials, key.key.getOsisRef(), key.ordinal!!.start, speakLabelSus().id).firstOrNull()
+    suspend fun isSpeakBookmark(bookmark: BaseBookmarkWithNotes): Boolean = deferringEffects { dao.labelsForBookmark(bookmark).contains(speakLabel()) }
+    suspend fun speakBookmarkForVerse(verse: Verse) = deferringEffects { dao.bookmarksForVerseStartWithLabel(verse, speakLabel()).firstOrNull() }
+    suspend fun speakBookmarkForKey(key: BookAndKey): GenericBookmarkWithNotes? = deferringEffects {
+        dao.bookmarksForKeyStartWithLabel(key.document!!.initials, key.key.getOsisRef(), key.ordinal!!.start, speakLabel().id).firstOrNull()
     }
-    fun changeLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labelIds: List<IdType>) = blockingDb { changeLabelsForBookmarkSus(bookmark, labelIds) }
-
-    private suspend fun changeLabelsForBookmarkSus(bookmark: BaseBookmarkWithNotes, labelIds: List<IdType>) {
+    suspend fun changeLabelsForBookmark(bookmark: BaseBookmarkWithNotes, labelIds: List<IdType>) {
         dao.clearLabels(bookmark)
         when(bookmark) {
             is BibleBookmarkWithNotes -> dao.insertBookmarkToLabels(labelIds.map { BibleBookmarkToLabel(bookmark.id, it)})
@@ -663,10 +634,10 @@ open class BookmarkControl constructor(
      * `ClientBibleBookmark.asJson` throws on `labelIds!!` and the WebView never updates.
      * [changeLabelsForBookmark] itself still announces nothing: its other caller is the CSV bulk import.
      */
-    fun changeLabelsForBookmarks(bookmarks: List<BaseBookmarkWithNotes>, labelIds: List<IdType>) = blocking {
+    suspend fun changeLabelsForBookmarks(bookmarks: List<BaseBookmarkWithNotes>, labelIds: List<IdType>) = deferringEffects {
         for (bookmark in bookmarks) {
-            changeLabelsForBookmarkSus(bookmark, labelIds)
-            refreshTextAndLabelsSus(bookmark)
+            changeLabelsForBookmark(bookmark, labelIds)
+            refreshTextAndLabels(bookmark)
         }
         emitChange(BookmarkChange.BookmarksUpserted(bookmarks))
     }
@@ -685,36 +656,34 @@ open class BookmarkControl constructor(
      * refresh it first. Mirrors the `addText`/`addLabels` pair [addOrUpdateBookmark] runs on its own
      * bookmark right before its own emission.
      */
-    fun refreshTextAndLabels(bookmark: BaseBookmarkWithNotes) = blockingDb { refreshTextAndLabelsSus(bookmark) }
-
-    private suspend fun refreshTextAndLabelsSus(bookmark: BaseBookmarkWithNotes) {
+    suspend fun refreshTextAndLabels(bookmark: BaseBookmarkWithNotes) {
         addText(bookmark)
-        addLabelsSus(bookmark)
+        addLabels(bookmark)
     }
 
-    fun saveBibleBookmarkNote(bookmarkId: IdType, note: String?) = blocking {
+    suspend fun saveBibleBookmarkNote(bookmarkId: IdType, note: String?) = deferringEffects {
         if(note == null) {
             dao.deleteBookmarkNotes(bookmarkId)
         } else {
             val existingContentType = dao.bibleBookmarkById(bookmarkId)?.notesContentType?.name
-            val contentType = existingContentType ?: CommonUtils.settings.notesContentType
+            val contentType = existingContentType ?: notesContentType
             dao.saveBookmarkNote(bookmarkId, note, contentType)
         }
         val bookmark = dao.bibleBookmarkById(bookmarkId)!!
-        addLabelsSus(bookmark)
+        addLabels(bookmark)
         addText(bookmark)
         emitChange(BookmarkChange.NoteModified(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
     }
-    fun saveGenericBookmarkNote(bookmarkId: IdType, note: String?) = blocking {
+    suspend fun saveGenericBookmarkNote(bookmarkId: IdType, note: String?) = deferringEffects {
         if(note == null) {
             dao.deleteGenericBookmarkNotes(bookmarkId)
         } else {
             val existingContentType = dao.genericBookmarkById(bookmarkId)?.notesContentType?.name
-            val contentType = existingContentType ?: CommonUtils.settings.notesContentType
+            val contentType = existingContentType ?: notesContentType
             dao.saveGenericBookmarkNote(bookmarkId, note, contentType)
         }
         val bookmark = dao.genericBookmarkById(bookmarkId)!!
-        addLabelsSus(bookmark)
+        addLabels(bookmark)
         addText(bookmark)
         emitChange(BookmarkChange.NoteModified(bookmark.id, bookmark.notes, bookmark.lastUpdatedOn.time))
     }
@@ -722,9 +691,7 @@ open class BookmarkControl constructor(
     /**
      * Find bookmarks that would become orphaned (have no labels) when the specified labels are deleted
      */
-    fun findOrphanedBookmarks(labelIdsToDelete: List<IdType>): List<BaseBookmarkWithNotes> = blockingDb { findOrphanedBookmarksSus(labelIdsToDelete) }
-
-    private suspend fun findOrphanedBookmarksSus(labelIdsToDelete: List<IdType>): List<BaseBookmarkWithNotes> {
+    suspend fun findOrphanedBookmarks(labelIdsToDelete: List<IdType>): List<BaseBookmarkWithNotes> {
         val bookmarksToDelete = mutableListOf<BaseBookmarkWithNotes>()
         
         for (labelId in labelIdsToDelete) {
@@ -748,11 +715,11 @@ open class BookmarkControl constructor(
         return bookmarksToDelete.distinct()
     }
 
-    fun deleteLabels(labelIdList: List<IdType>, deleteOrphanedBookmarks: Boolean = false) = blocking {
+    suspend fun deleteLabels(labelIdList: List<IdType>, deleteOrphanedBookmarks: Boolean = false) = deferringEffects {
         if (deleteOrphanedBookmarks) {
-            val bookmarksToDelete = findOrphanedBookmarksSus(labelIdList)
+            val bookmarksToDelete = findOrphanedBookmarks(labelIdList)
             if (bookmarksToDelete.isNotEmpty()) {
-                deleteBookmarksSus(bookmarksToDelete)
+                deleteBookmarks(bookmarksToDelete)
             }
         }
         var bookmarks: List<BaseBookmarkWithNotes> =
@@ -769,37 +736,35 @@ open class BookmarkControl constructor(
             dao.genericBookmarksByIds(bookmarks.map { it.id })
         for (b in bookmarks) {
             addText(b)
-            addLabelsSus(b)
+            addLabels(b)
         }
         emitChange(BookmarkChange.BookmarksUpserted(bookmarks))
         emitChange(BookmarkChange.LabelsDeleted(labelIdList))
     }
 
-    fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false, withText: Boolean = true): List<BibleBookmarkWithNotes> = blockingDb {
+    suspend fun bookmarksForVerseRange(verseRange: VerseRange, withLabels: Boolean = false, withText: Boolean = true): List<BibleBookmarkWithNotes> {
         val bookmarks = dao.bookmarksForVerseRange(verseRange)
         if(withLabels) for (b in bookmarks) {
-            addLabelsSus(b)
+            addLabels(b)
         }
         if(withText) for (b in bookmarks) {
             addText(b)
         }
-        bookmarks
+        return bookmarks
     }
-    fun genericBookmarksFor(document: Book, key: Key, withLabels: Boolean = false, withText: Boolean = true): List<GenericBookmarkWithNotes> {
+    suspend fun genericBookmarksFor(document: Book, key: Key, withLabels: Boolean = false, withText: Boolean = true): List<GenericBookmarkWithNotes> {
         if (document.bookCategory == BookCategory.BIBLE) return emptyList()
-        return blockingDb {
-            val bookmarks = dao.genericBookmarksFor(document, key)
-            if(withLabels) for (b in bookmarks) {
-                addLabelsSus(b)
-            }
-            if(withText) for (b in bookmarks) {
-                addText(b)
-            }
-            bookmarks
+        val bookmarks = dao.genericBookmarksFor(document, key)
+        if(withLabels) for (b in bookmarks) {
+            addLabels(b)
         }
+        if(withText) for (b in bookmarks) {
+            addText(b)
+        }
+        return bookmarks
     }
 
-    private suspend fun addLabelsSus(b: BaseBookmarkWithNotes) {
+    private suspend fun addLabels(b: BaseBookmarkWithNotes) {
         val bookmarkToLabels = dao.getBookmarkToLabelsForBookmark(b)
         b.setBaseBookmarkToLabels(bookmarkToLabels)
         b.labelIds = bookmarkToLabels.map { it.labelId }
@@ -845,7 +810,7 @@ open class BookmarkControl constructor(
         val result = computeBookmarkTexts(texts, b.startOffset, b.endOffset, wholeVerse) ?: run {
             b.startText = ""
             b.endText = ""
-            b.text = application.getString(R.string.error_occurred)
+            b.text = strings.errorOccurred
             b.fullText = b.text
             return
         }
@@ -870,20 +835,19 @@ open class BookmarkControl constructor(
         addText(b, verseTexts, wholeVerse)
     }
 
-    fun labelById(id: IdType): Label? = blockingDb { dao.labelById(id) }
+    suspend fun labelById(id: IdType): Label? = dao.labelById(id)
 
-    fun getStudyPadTextEntriesForLabel(label: Label): List<StudyPadTextEntryWithText> = blockingDb {
+    suspend fun getStudyPadTextEntriesForLabel(label: Label): List<StudyPadTextEntryWithText> =
         dao.studyPadTextEntriesByLabelId(label.id)
-    }
 
-    fun updateStudyPadTextEntry(entry: StudyPadTextEntry) = blocking {
+    suspend fun updateStudyPadTextEntry(entry: StudyPadTextEntry) = deferringEffects {
         dao.update(entry)
         val withText = dao.studyPadTextEntryById(entry.id)
         emitChange(BookmarkChange.StudyPadOrder(entry.labelId, withText, emptyList(), emptyList(), emptyList()))
     }
 
     /** Inserts a new bookmark-to-label link and announces it after the write succeeds. */
-    fun insertBookmarkToLabel(bookmarkToLabel: BaseBookmarkToLabel) = blocking {
+    suspend fun insertBookmarkToLabel(bookmarkToLabel: BaseBookmarkToLabel) = deferringEffects {
         when (bookmarkToLabel) {
             is BibleBookmarkToLabel -> dao.insert(bookmarkToLabel)
             is GenericBookmarkToLabel -> dao.insertGenericBookmarkToLabels(listOf(bookmarkToLabel))
@@ -892,36 +856,36 @@ open class BookmarkControl constructor(
         emitChange(BookmarkChange.BookmarkToLabelUpserted(bookmarkToLabel))
     }
 
-    fun updateBookmarkToLabel(bookmarkToLabel: BaseBookmarkToLabel) = blocking {
+    suspend fun updateBookmarkToLabel(bookmarkToLabel: BaseBookmarkToLabel) = deferringEffects {
         dao.update(bookmarkToLabel)
         emitChange(BookmarkChange.BookmarkToLabelUpserted(bookmarkToLabel))
     }
 
-    fun updateBibleBookmarkTimestamp(bookmarkId: IdType) = blockingDb {
+    suspend fun updateBibleBookmarkTimestamp(bookmarkId: IdType) {
         dao.updateBibleBookmarkDate(dao.bibleBookmarkById(bookmarkId)!!.id)
     }
 
-    fun updateGenericBookmarkTimestamp(bookmarkId: IdType) = blockingDb {
+    suspend fun updateGenericBookmarkTimestamp(bookmarkId: IdType) {
         dao.updateGenericBookmarkDate(dao.genericBookmarkById(bookmarkId)!!.id)
     }
 
-    fun getBibleBookmarkToLabel(bookmarkId: IdType, labelId: IdType): BibleBookmarkToLabel? = blockingDb { dao.getBibleBookmarkToLabel(bookmarkId, labelId) }
+    suspend fun getBibleBookmarkToLabel(bookmarkId: IdType, labelId: IdType): BibleBookmarkToLabel? = dao.getBibleBookmarkToLabel(bookmarkId, labelId)
 
-    fun getGenericBookmarkToLabel(bookmarkId: IdType, labelId: IdType): GenericBookmarkToLabel? = blockingDb { dao.getGenericBookmarkToLabel(bookmarkId, labelId) }
+    suspend fun getGenericBookmarkToLabel(bookmarkId: IdType, labelId: IdType): GenericBookmarkToLabel? = dao.getGenericBookmarkToLabel(bookmarkId, labelId)
 
-    fun getBookmarkToLabel(bookmark: BaseBookmarkWithNotes, labelId: IdType): BaseBookmarkToLabel? = blockingDb { dao.getBookmarkToLabel(bookmark, labelId) }
+    suspend fun getBookmarkToLabel(bookmark: BaseBookmarkWithNotes, labelId: IdType): BaseBookmarkToLabel? = dao.getBookmarkToLabel(bookmark, labelId)
 
-    fun getStudyPadById(journalTextEntryId: IdType): StudyPadTextEntryWithText? = blockingDb { dao.studyPadTextEntryById(journalTextEntryId) }
+    suspend fun getStudyPadById(journalTextEntryId: IdType): StudyPadTextEntryWithText? = dao.studyPadTextEntryById(journalTextEntryId)
 
-    private suspend fun updateStudyPadTextEntriesSus(studyPadTextEntries: List<StudyPadTextEntryWithText>) = dao.updateStudyPadTextEntries(studyPadTextEntries.map { it.studyPadTextEntryEntity })
-    fun deleteStudyPadTextEntry(textEntryId: IdType) = blocking {
+    private suspend fun updateStudyPadTextEntries(studyPadTextEntries: List<StudyPadTextEntryWithText>) = dao.updateStudyPadTextEntries(studyPadTextEntries.map { it.studyPadTextEntryEntity })
+    suspend fun deleteStudyPadTextEntry(textEntryId: IdType) = deferringEffects {
         val entry = dao.studyPadTextEntryById(textEntryId)!!
         dao.delete(entry.studyPadTextEntryEntity)
         emitChange(BookmarkChange.StudyPadTextEntryDeleted(textEntryId))
-        sanitizeStudyPadOrderSus(entry.labelId)
+        sanitizeStudyPadOrder(entry.labelId)
     }
 
-    private suspend fun sanitizeStudyPadOrderSus(labelId: IdType, updateAllInUi: Boolean = false) {
+    private suspend fun sanitizeStudyPadOrder(labelId: IdType, updateAllInUi: Boolean = false) {
         val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId)
         val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId)
         val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId)
@@ -976,13 +940,13 @@ open class BookmarkControl constructor(
         }
     }
 
-    private suspend fun sanitizeStudyPadOrderSus(bookmark: BaseBookmarkWithNotes) {
+    private suspend fun sanitizeStudyPadOrder(bookmark: BaseBookmarkWithNotes) {
         for (it in dao.labelsForBookmark(bookmark)) {
-            sanitizeStudyPadOrderSus(it.id)
+            sanitizeStudyPadOrder(it.id)
         }
     }
 
-    private suspend fun incrementOrderNumbersFromSus(labelId: IdType, fromOrder: Int, newStudyPadTextEntry: StudyPadTextEntryWithText? = null) {
+    private suspend fun incrementOrderNumbersFrom(labelId: IdType, fromOrder: Int, newStudyPadTextEntry: StudyPadTextEntryWithText? = null) {
         val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
         val genericBookmarkToLabels = dao.getGenericBookmarkToLabelsForLabel(labelId).filter { it.orderNumber >= fromOrder }.onEach { it.orderNumber++ }
         val studyPadTextEntries = dao.studyPadTextEntriesByLabelId(labelId)
@@ -991,7 +955,7 @@ open class BookmarkControl constructor(
 
         dao.updateBibleBookmarkToLabels(bookmarkToLabels)
         dao.updateGenericBookmarkToLabels(genericBookmarkToLabels)
-        updateStudyPadTextEntriesSus(studyPadTextEntries)
+        updateStudyPadTextEntries(studyPadTextEntries)
 
         if (newStudyPadTextEntry != null || bookmarkToLabels.isNotEmpty() || genericBookmarkToLabels.isNotEmpty() || studyPadTextEntries.isNotEmpty()) {
             emitChange(BookmarkChange.StudyPadOrder(
@@ -1013,24 +977,24 @@ open class BookmarkControl constructor(
         }
     }
 
-    fun createStudyPadEntry(labelId: IdType, entryOrderNumber: Int) = blocking {
-        val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1, contentType = TextContentType.valueOf(CommonUtils.settings.notesContentType))
+    suspend fun createStudyPadEntry(labelId: IdType, entryOrderNumber: Int) = deferringEffects {
+        val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1, contentType = TextContentType.valueOf(notesContentType))
 
         dao.insert(entry.studyPadTextEntryEntity)
         dao.insert(entry.studyPadTextEntryTextEntity)
 
-        incrementOrderNumbersFromSus(labelId, entryOrderNumber + 1, newStudyPadTextEntry = entry)
+        incrementOrderNumbersFrom(labelId, entryOrderNumber + 1, newStudyPadTextEntry = entry)
         updateStudyPadCursorIfNeeded(labelId, entryOrderNumber + 1)
     }
 
-    fun createStudyPadEntryWithText(
+    suspend fun createStudyPadEntryWithText(
         labelId: IdType,
         orderNumber: Int? = null,
         text: String,
         contentType: TextContentType? = null,
         sourcePromptId: IdType? = null,
         indentLevel: Int = 0
-    ): StudyPadTextEntryWithText = blocking {
+    ): StudyPadTextEntryWithText = deferringEffects {
         val actualOrderNumber = orderNumber ?: dao.countStudyPadEntities(labelId)
 
         val entry = StudyPadTextEntryWithText(
@@ -1045,203 +1009,69 @@ open class BookmarkControl constructor(
         dao.insert(entry.studyPadTextEntryEntity)
         dao.insert(entry.studyPadTextEntryTextEntity)
 
-        incrementOrderNumbersFromSus(labelId, actualOrderNumber, newStudyPadTextEntry = entry)
+        incrementOrderNumbersFrom(labelId, actualOrderNumber, newStudyPadTextEntry = entry)
         updateStudyPadCursorIfNeeded(labelId, actualOrderNumber)
 
         entry
     }
 
-    fun removeBibleBookmarkLabel(bookmarkId: IdType, labelId: IdType) = blocking {
+    suspend fun removeBibleBookmarkLabel(bookmarkId: IdType, labelId: IdType) = deferringEffects {
         val bookmark = dao.bibleBookmarkById(bookmarkId)!!
         val labels = dao.labelsForBookmark(bookmark).filter { it.id != labelId }
-        addOrUpdateBookmarkSus(bookmark, labels.map { it.id }.toSet())
+        addOrUpdateBookmark(bookmark, labels.map { it.id }.toSet())
         Unit
     }
 
-    fun removeGenericBookmarkLabel(bookmarkId: IdType, labelId: IdType) = blocking {
+    suspend fun removeGenericBookmarkLabel(bookmarkId: IdType, labelId: IdType) = deferringEffects {
         val bookmark = dao.genericBookmarkById(bookmarkId)!!
         val labels = dao.labelsForBookmark(bookmark).filter { it.id != labelId }
-        addOrUpdateBookmarkSus(bookmark, labels.map { it.id }.toSet())
+        addOrUpdateBookmark(bookmark, labels.map { it.id }.toSet())
         Unit
     }
 
-    fun getNextLabel(label: Label): Label {
-        val allLabels = blockingDb { dao.allLabelsSortedByName() }.filter { !it.isSpecialLabel }
+    suspend fun getNextLabel(label: Label): Label {
+        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpecialLabel }
         val thisIndex = allLabels.indexOf(label)
         return try {allLabels[thisIndex+1]} catch (e: IndexOutOfBoundsException) {allLabels[0]}
     }
 
-    fun getPrevLabel(label: Label): Label {
-        val allLabels = blockingDb { dao.allLabelsSortedByName() }.filter { !it.isSpecialLabel }
+    suspend fun getPrevLabel(label: Label): Label {
+        val allLabels = dao.allLabelsSortedByName().filter { !it.isSpecialLabel }
         val thisIndex = allLabels.indexOf(label)
         return try {allLabels[thisIndex-1]} catch (e: IndexOutOfBoundsException) {allLabels[allLabels.size - 1]}
     }
 
-    fun updateOrderNumbers(
+    suspend fun updateOrderNumbers(
         labelId: IdType,
         bookmarksToLabels: List<BibleBookmarkToLabel>,
         genericBookmarksToLabels: List<GenericBookmarkToLabel>,
         studyPadTextEntries: List<StudyPadTextEntryWithText>
-    ) = blocking {
+    ) = deferringEffects {
         dao.updateStudyPadTextEntries(studyPadTextEntries.map { it.studyPadTextEntryEntity })
         dao.updateBibleBookmarkToLabels(bookmarksToLabels)
         dao.updateGenericBookmarkToLabels(genericBookmarksToLabels)
         emitChange(BookmarkChange.StudyPadOrder(labelId, null, bookmarksToLabels, genericBookmarksToLabels, studyPadTextEntries))
     }
 
-    fun setAsPrimaryLabelForBible(bookmarkId: IdType, labelId: IdType) = blocking {
-        val bookmark = dao.bibleBookmarkById(bookmarkId)?: return@blocking
+    suspend fun setAsPrimaryLabelForBible(bookmarkId: IdType, labelId: IdType) = deferringEffects {
+        val bookmark = dao.bibleBookmarkById(bookmarkId)?: return@deferringEffects
         bookmark.primaryLabelId = labelId
-        addOrUpdateBookmarkSus(bookmark)
+        addOrUpdateBookmark(bookmark)
         Unit
     }
 
-    fun setAsPrimaryLabelForGeneric(bookmarkId: IdType, labelId: IdType) = blocking {
-        val bookmark = dao.genericBookmarkById(bookmarkId)?: return@blocking
+    suspend fun setAsPrimaryLabelForGeneric(bookmarkId: IdType, labelId: IdType) = deferringEffects {
+        val bookmark = dao.genericBookmarkById(bookmarkId)?: return@deferringEffects
         bookmark.primaryLabelId = labelId
-        addOrUpdateBookmarkSus(bookmark)
+        addOrUpdateBookmark(bookmark)
         Unit
     }
 
-    fun updateStudyPadTextEntryText(id: IdType, text: String) = blocking {
+    suspend fun updateStudyPadTextEntryText(id: IdType, text: String) = deferringEffects {
         val textEntry = StudyPadTextEntryText(id, text)
         dao.update(textEntry)
         val withText = dao.studyPadTextEntryById(id)!!
         emitChange(BookmarkChange.StudyPadOrder(withText.labelId, withText, emptyList(), emptyList(), emptyList()))
-    }
-
-    suspend fun exportBookmarksToCSV(context: ActivityBase, exportBookmarks: List<BibleBookmarkWithNotes>) = context.run {
-        try {
-            if (exportBookmarks.isEmpty()) {
-                Toast.makeText(context, getString(R.string.no_bookmarks_to_export), Toast.LENGTH_SHORT)
-                    .show()
-                return
-            }
-
-            // Show column selection dialog
-            val selectedColumns = showColumnSelectionDialog(context)
-            if (selectedColumns.isEmpty()) return // User cancelled or selected no columns
-
-            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "text/csv"
-                val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.US).format(Date())
-                putExtra(Intent.EXTRA_TITLE, "bible_bookmarks_$timestamp.csv")
-            }
-
-            val result = awaitIntent(intent)
-            if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { exportToUri(context, it, exportBookmarks, selectedColumns) }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error starting CSV export", e)
-            ErrorReportControl.showErrorDialog(
-                context,
-                getString(R.string.csv_export_failed, e.message),
-                exception = e
-            )
-        }
-    }
-
-    suspend fun importBookmarksFromCSV(context: ActivityBase) = context.run {
-        try {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "text/*"
-                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/csv", "text/plain", "text/comma-separated-values"))
-            }
-
-            val result = awaitIntent(intent)
-            if (result.resultCode == RESULT_OK) {
-                result.data?.data?.let { importFromUri(context, it) }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error starting CSV import", e)
-            ErrorReportControl.showErrorDialog(
-                context,
-                getString(R.string.csv_import_failed, e.message),
-                exception = e
-            )
-        }
-    }
-
-
-    private suspend fun showColumnSelectionDialog(context: ActivityBase): List<String> {
-        val columns = BookmarkCsvUtils.availableColumns
-        
-        // Load previously unchecked columns from settings
-        val uncheckedColumns = CommonUtils.settings.getStringSet("csv_export_unchecked_columns", emptySet())
-        
-        // Pre-select columns (all columns except those that were previously unchecked)
-        val selectedColumns = Dialogs.multiselect(
-            context,
-            context.getString(R.string.csv_column_selection_title),
-            columns,
-            itemToString = { column -> column.displayName },
-            preSelected = { column -> !uncheckedColumns.contains(column.key) }
-        )
-        
-        // Save the inverse selection (unchecked items) to settings
-        val selectedKeys = selectedColumns.map { it.key }.toSet()
-        val newUncheckedColumns = columns.map { it.key }.filter { !selectedKeys.contains(it) }.toSet()
-        CommonUtils.settings.setStringSet("csv_export_unchecked_columns", newUncheckedColumns)
-        
-        return selectedColumns.map { it.key }
-    }
-
-    private suspend fun exportToUri(context: Context, uri: Uri, bookmarks: List<BibleBookmarkWithNotes>, selectedColumns: List<String>) = context.run {
-        withContext(Dispatchers.IO) {
-            contentResolver.openOutputStream(uri)?.use { outputStream ->
-                BookmarkCsvUtils.exportBookmarksToCsv(outputStream, bookmarks, this@BookmarkControl, selectedColumns)
-            } ?: throw IllegalArgumentException("Could not open output stream for URI: $uri")
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    getString(R.string.csv_export_success, bookmarks.size),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    /**
-     * `internal`, not `private`: exercised directly by `BookmarkControlImportFromUriDialogTest` (Task
-     * 19 Step 5's error dialog) rather than through the full `importBookmarksFromCSV` SAF round trip.
-     */
-    internal suspend fun importFromUri(context: Context, uri: Uri) = context.run {
-        withContext(Dispatchers.IO) {
-            contentResolver.openInputStream(uri)?.use { inputStream ->
-                val result = BookmarkCsvUtils.importBookmarksFromCsv(inputStream, this@BookmarkControl)
-
-                withContext(Dispatchers.Main) {
-                    if (result.errors > 0) {
-                        // Show detailed error dialog. I2 fix: AppDialogRequest.Message is always
-                        // parsed as HTML (parseHtmlRuns) -- a plain "\n"-joined summary collapses
-                        // onto one line, and any "<...>" an exception's own message happens to
-                        // contain is silently dropped as an unknown tag. plainTextToHtml keeps both.
-                        val plainMessage =
-                            getString(R.string.csv_import_errors, result.created, result.updated, result.errors) +
-                                "\n\n" + result.errorMessages.take(5).joinToString("\n") +
-                                if (result.errorMessages.size > 5) "\n..." else ""
-
-                        KoinJavaComponent.get<AppDialogController>(AppDialogController::class.java).post(
-                            AppDialogRequest.Message(
-                                title = getString(R.string.import_items, "CSV"),
-                                message = plainTextToHtml(plainMessage),
-                                confirmText = getString(R.string.okay),
-                                cancellable = true,
-                            ),
-                        )
-                    } else {
-                        Toast.makeText(
-                            context,
-                            getString(R.string.csv_import_success, result.created, result.updated),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            } ?: throw IllegalArgumentException("Could not open input stream for URI: $uri")
-        }
     }
 
     companion object {

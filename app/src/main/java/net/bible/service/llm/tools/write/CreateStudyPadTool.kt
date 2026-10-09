@@ -185,7 +185,7 @@ object CreateStudyPadTool : Tool {
         }
 
         // Generate unique name if needed
-        val existingNames = bookmarkControl.assignableLabels.map { it.name }
+        val existingNames = bookmarkControl.assignableLabels().map { it.name }
         val uniqueName = uniqueLabelName(name, existingNames)
 
         // Create the label (insertOrUpdateLabel announces it on BookmarkControl.changes)
@@ -197,7 +197,7 @@ object CreateStudyPadTool : Tool {
         }
 
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-        val aiLabelId = bookmarkControl.aiLabel.id
+        val aiLabelId = bookmarkControl.aiLabel().id
         val errors = mutableListOf<ItemError>()
         var textCount = 0
         var bookmarkCount = 0

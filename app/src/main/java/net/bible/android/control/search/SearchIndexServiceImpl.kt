@@ -16,7 +16,7 @@
  */
 package net.bible.android.control.search
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.sharedcore.search.SearchIndexService
 

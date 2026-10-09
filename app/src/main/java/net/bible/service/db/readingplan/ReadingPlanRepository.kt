@@ -17,44 +17,53 @@
 
 package net.bible.service.db.readingplan
 
-import android.util.Log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import net.bible.sharedcore.log.Log
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlan
 import net.bible.android.database.readingplan.ReadingPlanEntities.ReadingPlanStatus
-import net.bible.service.common.CommonUtils
-import net.bible.service.db.DatabaseContainer
+import net.bible.android.control.readingplan.truncatedDate
 import net.bible.service.readingplan.ReadingPlanInfoDto
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.sharedcore.platform.OrderedLauncher
 import java.util.Calendar
 import java.util.Date
 import kotlin.math.max
 
+/**
+ * The fire-and-forget writes ([deleteOldStatuses], [setReadingStatus], [resetPlan], [setCurrentDay]) run in the
+ * application scope (they outlive the screen; a failure is logged, not a crash) and land in call order: a status
+ * write queued before a reset cannot resurrect a status after it, and two quick ticks cannot land out of order.
+ */
 class ReadingPlanRepository(
-    private val daoProvider: () -> ReadingPlanDao = { DatabaseContainer.instance.readingPlanDb.readingPlanDao() },
-    private val today: () -> Date = { CommonUtils.truncatedDate },
+    private val daoProvider: () -> ReadingPlanDao,
+    appScope: AppCoroutineScope,
+    private val today: () -> Date = { truncatedDate },
 ) {
     private val readingPlanDao: ReadingPlanDao get() = daoProvider()
-    val scope = CoroutineScope(Dispatchers.Default)
+    private val writes = OrderedLauncher(appScope)
 
-    fun getReadingStatus(planCode: String, planDay: Int): String? = runBlocking {
-        readingPlanDao.getStatus(planCode, planDay)?.readingStatus }
+    /** Serialises the read-modify-write of a plan row (start date, current day). */
+    private val planMutex = Mutex()
+
+    suspend fun getReadingStatus(planCode: String, planDay: Int): String? =
+        readingPlanDao.getStatus(planCode, planDay)?.readingStatus
 
     /**
      * The plan's start date, healing a row the pre-fix INSERT corrupted (it stored the day number
      * as the start date: see ReadingPlanDao.updatePlan). Healed to "today is the day you are on",
      * written back once; progress is untouched.
      */
-    fun getStartDate(planCode: String): Date? = runBlocking {
-        val plan = readingPlanDao.getPlan(planCode) ?: return@runBlocking null
-        if (plan.planStartDate.time >= CORRUPT_START_DATE_LIMIT_MS) return@runBlocking plan.planStartDate
+    suspend fun getStartDate(planCode: String): Date? {
+        val plan = readingPlanDao.getPlan(planCode) ?: return null
+        if (plan.planStartDate.time >= CORRUPT_START_DATE_LIMIT_MS) return plan.planStartDate
         val healed = healedStartDate(today(), plan.planCurrentDay)
         Log.i(TAG, "Healing corrupt start date ${plan.planStartDate.time} of plan $planCode -> $healed")
         plan.planStartDate = healed
         readingPlanDao.updatePlan(plan)
-        healed
+        return healed
     }
 
     /**
@@ -62,47 +71,47 @@ class ReadingPlanRepository(
      * Date-based plan statuses are never deleted
      * @param day The current day, all day statuses before this day will be deleted
      */
-    fun deleteOldStatuses(planInfo: ReadingPlanInfoDto, day: Int) = scope.launch {
+    fun deleteOldStatuses(planInfo: ReadingPlanInfoDto, day: Int) = writes.launch(WRITE_KEY) {
         if (!planInfo.isDateBasedPlan)
             readingPlanDao.deleteStatusesBeforeDay(planInfo.planCode, day)
     }
 
-    @Synchronized
-    fun setReadingStatus(planCode: String, dayNo: Int, status: String) = scope.launch {
+    fun setReadingStatus(planCode: String, dayNo: Int, status: String) = writes.launch(WRITE_KEY) {
         readingPlanDao.addPlanStatus(
             ReadingPlanStatus(planCode, dayNo, status)
         )
     }
 
-    @Synchronized
-    fun startPlan(planCode: String, date: Date = today()) = runBlocking {
+    suspend fun startPlan(planCode: String, date: Date = today()) = planMutex.withLock {
         var readPlan = readingPlanDao.getPlan(planCode)
         readPlan = readPlan?.apply { planStartDate = date } ?: ReadingPlan(planCode, date)
 
         readingPlanDao.updatePlan(readPlan)
     }
 
-    fun resetPlan(planCode: String) = scope.launch {
+    fun resetPlan(planCode: String) = writes.launch(WRITE_KEY) {
         Log.i(TAG, "Now resetting plan $planCode in database. Removing start date, current day, and read statuses")
         readingPlanDao.deleteStatusesForPlan(planCode)
         readingPlanDao.deletePlanInfo(planCode)
     }
 
-    fun getCurrentDay(planCode: String): Int = runBlocking {
+    suspend fun getCurrentDay(planCode: String): Int =
         max(readingPlanDao.getPlan(planCode)?.planCurrentDay ?: 0,1)
-    }
 
-    @Synchronized
-    fun setCurrentDay(planCode: String, dayNo: Int) = scope.launch {
-        var readPlan = readingPlanDao.getPlan(planCode)
-        readPlan = readPlan?.apply { planCurrentDay = dayNo } ?:
-            ReadingPlan(planCode, today(), dayNo)
+    /** The write is launched; a caller that reads the day back afterwards must join the returned [Job]. */
+    fun setCurrentDay(planCode: String, dayNo: Int): Job = writes.launch(WRITE_KEY) {
+        planMutex.withLock {
+            var readPlan = readingPlanDao.getPlan(planCode)
+            readPlan = readPlan?.apply { planCurrentDay = dayNo } ?:
+                ReadingPlan(planCode, today(), dayNo)
 
-        readingPlanDao.updatePlan(readPlan)
+            readingPlanDao.updatePlan(readPlan)
+        }
     }
 
     companion object {
-        private val TAG = ReadingPlanRepository::class.simpleName
+        private val TAG = ReadingPlanRepository::class.simpleName ?: "ReadingPlanRepository"
+        private const val WRITE_KEY = "reading-plan-writes"
 
         /** No real start date is before 2 Jan 1970; the corrupt rows hold a day number (ms). */
         const val CORRUPT_START_DATE_LIMIT_MS = 100_000_000L

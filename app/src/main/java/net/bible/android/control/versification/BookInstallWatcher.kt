@@ -16,12 +16,13 @@
  */
 package net.bible.android.control.versification
 
-import net.bible.service.db.blockingDb
-import android.util.Log
-import net.bible.android.BibleApplication
+import androidx.annotation.VisibleForTesting
+import kotlinx.coroutines.Job
+import net.bible.sharedcore.cloud.DocumentSyncStarter
+import net.bible.sharedcore.log.Log
+import net.bible.sharedcore.platform.OrderedLauncher
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.service.cloudsync.documents.DocumentSync
-import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
 import net.bible.service.cloudsync.documents.isSyncableDocument
 import net.bible.service.cloudsync.documents.shouldAutoUpload
@@ -40,69 +41,113 @@ import org.crosswire.jsword.versification.VersificationsMapper
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-object BookInstallWatcher {
+class BookInstallWatcher(
+    private val launcher: OrderedLauncher,
+    private val syncStarter: DocumentSyncStarter,
+) {
+    /** For tests only: runs at the start of every backup-db write, inside the ordered launch. */
+    @VisibleForTesting
+    internal var beforeWrite: suspend () -> Unit = {}
+
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
+    /**
+     * Idempotent per PROCESS: JSword's installed-books list is static, while a Koin restart builds a new
+     * watcher instance. The previously registered listener (of any instance) is removed first, so exactly
+     * one watcher listener, the latest, stays registered.
+     */
     fun startListening() {
-        Books.installed().addBooksListener(object : BooksListener {
-            override fun bookAdded(ev: BooksEvent) {
-                val book = ev.book!!
-                Activator.deactivate(book)
-                initialiseRequiredMapping(book)
-                addBookToDb(book)
-                // Suppress the echo: a module installed *by* a sync download must not immediately
-                // be auto-pushed back to the cloud it just came from.
-                //
-                // isSyncableDocument is essential here, not merely defensive: this listener fires for
-                // *every* book registered into JSword, including the MyDocument pseudo-books that
-                // MyDocumentBookManager registers at startup. Those have no configFile, so packaging
-                // them threw an NPE and raised a user-facing error notification (OSTicket 3392).
-                if (book.isSyncableDocument
-                    && !DocumentSync.isInstallingFromSync(book.initials)
-                    && shouldAutoUpload(
-                        DocumentSyncSettings.enabled,
-                        DocumentSyncSettings.autoUpload,
-                        DocumentSyncSettings.blockList.isBlocked(book.initials),
-                        DocumentSyncSettings.isAutoTransferAllowed,
-                    )
-                ) {
-                    DocumentSyncService.start(
-                        BibleApplication.application,
-                        pushInitials = listOf(book.initials),
-                        downloadInitials = emptyList(),
-                    )
-                }
-                AndBibleAddons.clearCaches()
-                SwordContentFacade.clearCaches()
-            }
-
-            override fun bookRemoved(ev: BooksEvent) {
-                // Document sync: local uninstall does NOT propagate to the cloud by default.
-                // "Remove from sync" (tombstone) is an explicit action in CloudDocumentsActivity.
-                AndBibleAddons.clearCaches()
-                removeBookFromDb(ev.book!!)
-                SwordContentFacade.clearCaches()
-            }
-        })
-    }
-    private fun addBookToDb(book: Book) {
-        // if book is already installed, we remove it, else it deletes nothing
-        Log.i(DownloadManager.TAG, "Adding ${book.name} to document backup database")
-        blockingDb {
-            docDao.deleteByOsisId(book.initials)
-            // insert the new book info into backup db
-            docDao.insert(SwordDocumentInfo(
-                book.initials,
-                book.name,
-                book.abbreviation,
-                book.language.name,
-                ""
-            ))
+        synchronized(Companion) {
+            registered?.let { Books.installed().removeBooksListener(it) }
+            Books.installed().removeBooksListener(listener)
+            Books.installed().addBooksListener(listener)
+            registered = listener
         }
     }
 
-    private fun removeBookFromDb(book: Book) {
-        blockingDb { docDao.deleteByOsisId(book.initials) }
+    /**
+     * Install/uninstall events fire in quick succession (e.g. replace = remove + add); the backup-db writes
+     * are launched under one key so they land in event order (add then remove leaves the book absent).
+     */
+    internal val listener: BooksListener = object : BooksListener {
+        override fun bookAdded(ev: BooksEvent) {
+            val book = ev.book!!
+            Activator.deactivate(book)
+            initialiseRequiredMapping(book)
+            launcher.launch(DB_KEY) { addBookToDb(book) }
+            // Suppress the echo: a module installed *by* a sync download must not immediately
+            // be auto-pushed back to the cloud it just came from.
+            //
+            // isSyncableDocument is essential here, not merely defensive: this listener fires for
+            // *every* book registered into JSword, including the MyDocument pseudo-books that
+            // MyDocumentBookManager registers at startup. Those have no configFile, so packaging
+            // them threw an NPE and raised a user-facing error notification (OSTicket 3392).
+            if (book.isSyncableDocument
+                && !DocumentSync.isInstallingFromSync(book.initials)
+                && shouldAutoUpload(
+                    DocumentSyncSettings.enabled,
+                    DocumentSyncSettings.autoUpload,
+                    DocumentSyncSettings.blockList.isBlocked(book.initials),
+                    DocumentSyncSettings.isAutoTransferAllowed,
+                )
+            ) {
+                syncStarter.pushDocuments(listOf(book.initials))
+            }
+            AndBibleAddons.clearCaches()
+            SwordContentFacade.clearCaches()
+        }
+
+        override fun bookRemoved(ev: BooksEvent) {
+            // Document sync: local uninstall does NOT propagate to the cloud by default.
+            // "Remove from sync" (tombstone) is an explicit action in CloudDocumentsActivity.
+            AndBibleAddons.clearCaches()
+            val book = ev.book!!
+            launcher.launch(DB_KEY) { removeBookFromDb(book) }
+            SwordContentFacade.clearCaches()
+        }
+    }
+
+    private suspend fun addBookToDb(book: Book) {
+        beforeWrite()
+        // if book is already installed, we remove it, else it deletes nothing
+        Log.i(DownloadManager.TAG, "Adding ${book.name} to document backup database")
+        docDao.deleteByOsisId(book.initials)
+        // insert the new book info into backup db
+        docDao.insert(SwordDocumentInfo(
+            book.initials,
+            book.name,
+            book.abbreviation,
+            book.language.name,
+            ""
+        ))
+    }
+
+    /**
+     * Changes the backup-db row of [initials] AFTER every install/uninstall write already queued.
+     *
+     * JSword fires [BooksListener.bookAdded] synchronously inside `install()`, but the row insert it causes is
+     * queued under [DB_KEY]. Code that amends the row right after an install (the repository name in
+     * `DownloadManager.installBook`, the cipher key in `DocumentSync`) must therefore queue behind it:
+     * a direct DAO read/update could run before the insert (row missing: change lost) or be overwritten by it
+     * (reinstall: delete-and-reinsert without the field).
+     *
+     * [update] gets the current row (null when there is none) and returns the row to store, or null to leave
+     * the table unchanged. The write runs in the application scope, so cancelling a caller cannot skip it.
+     */
+    fun launchRowUpdate(initials: String, update: (SwordDocumentInfo?) -> SwordDocumentInfo?): Job =
+        launcher.launch(DB_KEY) {
+            val updated = update(docDao.getBook(initials)) ?: return@launch
+            docDao.insert(updated) // REPLACE: updates an existing row, inserts a missing one
+        }
+
+    /** [launchRowUpdate], suspending until the row write has run. */
+    suspend fun updateRow(initials: String, update: (SwordDocumentInfo?) -> SwordDocumentInfo?) {
+        launchRowUpdate(initials, update).join()
+    }
+
+    private suspend fun removeBookFromDb(book: Book) {
+        beforeWrite()
+        docDao.deleteByOsisId(book.initials)
     }
 
     /**
@@ -120,5 +165,12 @@ object BookInstallWatcher {
         }
     }
 
-    private const val TAG = "BookInstallWatcher"
+    private companion object {
+        /** Listener most recently registered by any instance; guarded by synchronized(Companion). */
+        @Volatile
+        var registered: BooksListener? = null
+
+        const val TAG = "BookInstallWatcher"
+        const val DB_KEY = "book-install"
+    }
 }

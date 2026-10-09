@@ -17,6 +17,7 @@
 package net.bible.android.control.speak
 
 import android.content.Intent
+import net.bible.service.db.blockingDb
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -98,10 +99,10 @@ class SpeakTransportServiceImpl : SpeakTransportService, KoinComponent {
 
     // Classic SpeakTransportWidget.speakBookmarks (:179-184)
     private fun rawSpeakBookmarks(): List<BookmarkEntities.BaseBookmarkWithNotes> {
-        val label = bookmarkControl.speakLabel
-        val bible = bookmarkControl.getBibleBookmarksWithLabel(label)
+        val label = blockingDb { bookmarkControl.speakLabel() } // L1-pending(speak)
+        val bible = blockingDb { bookmarkControl.getBibleBookmarksWithLabel(label) } // L1-pending(speak)
             .sortedWith { a, b -> a.verseRange.start.compareTo(b.verseRange.start) }
-        val generic = bookmarkControl.getGenericBookmarksWithLabel(label)
+        val generic = blockingDb { bookmarkControl.getGenericBookmarksWithLabel(label) } // L1-pending(speak)
         return bible + generic
     }
 

@@ -129,20 +129,26 @@ class ReadingProgressController(
     fun prevCycle() {
         val m = _model.value
         if (!m.canPrevCycle) return
-        service.setActiveCycle(m.cycle - 1)
-        refresh()
+        scope.launch {
+            service.setActiveCycle(m.cycle - 1)
+            refresh()
+        }
     }
 
     fun nextCycle() {
         val m = _model.value
         if (!m.canNextCycle) return
-        service.setActiveCycle(m.cycle + 1)
-        refresh()
+        scope.launch {
+            service.setActiveCycle(m.cycle + 1)
+            refresh()
+        }
     }
 
     fun newCycle() {
-        service.startNewCycle()
-        refresh()
+        scope.launch {
+            service.startNewCycle()
+            refresh()
+        }
     }
 
     fun openChapterDetail(bookId: String) {

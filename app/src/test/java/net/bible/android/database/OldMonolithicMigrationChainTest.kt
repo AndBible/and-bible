@@ -141,7 +141,7 @@ class OldMonolithicMigrationChainTest {
     @Test fun readingPlanPrefsMigrationFillsBothTables() {
         val name = "old-chain-plans.sqlite3"
         application.deleteDatabase(name)
-        val code = net.bible.service.readingplan.ReadingPlanTextFileDao().internalPlanCodes.first()
+        val code = org.koin.core.context.GlobalContext.get().get<net.bible.service.readingplan.ReadingPlanTextFileDao>().internalPlanCodes.first()
         CommonUtils.realSharedPreferences.edit().clear().putLong("${code}_start", 1234L).putInt("${code}_day", 2).putString("${code}_2", "101").apply()
         openSqlite(application.getDatabasePath(name).path).use { db ->
             ReadingPlanDatabaseOperations.instance.onCreate(db)

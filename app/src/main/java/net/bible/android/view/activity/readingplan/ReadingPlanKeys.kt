@@ -47,9 +47,9 @@ object ReadingPlanKeys {
  * Still an eagerly-initialised `val` calling `app.getString(...)`, deliberately: that resolves the
  * localized strings when the holder is first touched. Strictly, the TRIGGER SET narrowed by the
  * move: previously any touch of `DailyReading`'s companion initialised this catalogue; now only
- * `ReadingPlanTextFileDao`'s first touch does. What is unchanged is that the touch happens
- * later-or-equal to before, and it resolves the same strings once per process — both at the same
- * call site in `ReadingPlanTextFileDao`. Turning it into a `by lazy` or a function would change when
+ * the first touch of the `distributedPlans` lambda in `CoreModule` (when `ReadingPlanTextFileDao` is first asked) does. What is unchanged is that the touch happens
+ * later-or-equal to before, and it resolves the same strings once per process — both inside
+ * that `CoreModule` lambda. Turning it into a `by lazy` or a function would change when
  * the locale is read, which is a behaviour change.
  */
 object ReadingPlanCatalog {

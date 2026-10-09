@@ -67,7 +67,6 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
@@ -101,6 +100,10 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.sharedcore.docs.DocsLinks
+import net.bible.sharedcore.platform.AppJson
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.getEnumSet
+import net.bible.sharedcore.platform.setEnumSet
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
@@ -305,10 +308,7 @@ object CommonUtils : CommonUtilsBase() {
     private const val DEFAULT_MAX_TEXT_LENGTH = 250
     private const val ELLIPSIS = "..."
 
-	val json = Json {
-        ignoreUnknownKeys = true
-        encodeDefaults = true
-    }
+	val json get() = AppJson
 
     private const val TAG = "CommonUtils"
     var isAndroid = true
@@ -396,13 +396,13 @@ object CommonUtils : CommonUtilsBase() {
 
     private val store get() = DatabaseContainer.instance.settingsStore
 
-    class AndBibleSettings {
-        fun getString(key: String, default: String? = null) = orDefaultIfDbNotReady(default) { store.getString(key, default) }
-        fun getLong(key: String, default: Long) = orDefaultIfDbNotReady(default) { store.getLong(key, default) }
-        fun getInt(key: String, default: Int) = orDefaultIfDbNotReady(default) { store.getLong(key, default.toLong()).toInt() }
-        fun getBoolean(key: String, default: Boolean) = if(initialized) store.getBoolean(key, default) else default
-        fun getDouble(key: String, default: Double) = orDefaultIfDbNotReady(default) { store.getDouble(key, default) }
-        fun getFloat(key: String, default: Float): Float = orDefaultIfDbNotReady(default) { store.getDouble(key, default.toDouble()).toFloat() }
+    class AndBibleSettings : AppSettings {
+        override fun getString(key: String, default: String?) = orDefaultIfDbNotReady(default) { store.getString(key, default) }
+        override fun getLong(key: String, default: Long) = orDefaultIfDbNotReady(default) { store.getLong(key, default) }
+        override fun getInt(key: String, default: Int) = orDefaultIfDbNotReady(default) { store.getLong(key, default.toLong()).toInt() }
+        override fun getBoolean(key: String, default: Boolean) = if(initialized) store.getBoolean(key, default) else default
+        override fun getDouble(key: String, default: Double) = orDefaultIfDbNotReady(default) { store.getDouble(key, default) }
+        override fun getFloat(key: String, default: Float): Float = orDefaultIfDbNotReady(default) { store.getDouble(key, default.toDouble()).toFloat() }
 
         /**
          * Nav-graph slice 8 C3 (Review Focus #1): a read before the database exists answers [default]
@@ -423,36 +423,12 @@ object CommonUtils : CommonUtilsBase() {
         private inline fun <T> orDefaultIfDbNotReady(default: T, read: () -> T): T =
             try { read() } catch (e: DataBaseNotReady) { default }
 
-        fun setString(key: String, value: String?) = store.setString(key, value)
-        fun setLong(key: String, value: Long?) = store.setLong(key, value)
-        fun setInt(key: String, value: Int?) = store.setLong(key, value?.toLong())
-        fun setBoolean(key: String, value: Boolean?) = store.setBoolean(key, value)
-        fun setDouble(key: String, value: Double?) = store.setDouble(key, value)
-        fun setFloat(key: String, value: Float?) = store.setDouble(key, value?.toDouble())
-
-        fun getStringSet(key: String, defValues: Set<String> = emptySet()): Set<String> {
-            val s = getString(key, null) ?: return defValues
-            return try { json.decodeFromString(serializer(), s) } catch (e: SerializationException) { defValues }
-        }
-
-        fun setStringSet(key: String, values: Set<String>?) {
-            if(values == null) removeString(key)
-            else setString(key, json.encodeToString(serializer(), values))
-        }
-
-        inline fun <reified T> getEnumSet(key: String, defValues: Set<T> = emptySet()): Set<T> {
-            val s = getString(key, null) ?: return defValues
-            return try { json.decodeFromString(s) } catch (e: SerializationException) { defValues }
-        }
-
-        inline fun <reified T> setEnumSet(key: String, values: Set<T>) {
-            setString(key, json.encodeToString(values))
-        }
-
-        fun removeString(key: String) = setString(key, null)
-        fun removeDouble(key: String) = setDouble(key, null)
-        fun removeLong(key: String) = setLong(key, null)
-        fun removeBoolean(key: String) = setBoolean(key, null)
+        override fun setString(key: String, value: String?) = store.setString(key, value)
+        override fun setLong(key: String, value: Long?) = store.setLong(key, value)
+        override fun setInt(key: String, value: Int?) = store.setLong(key, value?.toLong())
+        override fun setBoolean(key: String, value: Boolean?) = store.setBoolean(key, value)
+        override fun setDouble(key: String, value: Double?) = store.setDouble(key, value)
+        override fun setFloat(key: String, value: Float?) = store.setDouble(key, value?.toDouble())
 
         val displayColorMode: DisplayColorMode get() =
             DisplayColorMode.fromValue(getString("display_color_mode", null))
@@ -526,15 +502,6 @@ object CommonUtils : CommonUtilsBase() {
     // dependency would still not be safe, and not because of them -- because of the call below.
     val realSharedPreferences: SharedPreferences
         get() = PreferenceManager.getDefaultSharedPreferences(application.applicationContext)
-
-    val truncatedDate: Date
-        get() = Calendar.getInstance().let { date ->
-            date.set(Calendar.HOUR_OF_DAY, 0)
-            date.set(Calendar.MINUTE, 0)
-            date.set(Calendar.SECOND, 0)
-            date.set(Calendar.MILLISECOND, 0)
-            date.time
-        }
 
     val deviceIdentifier: String get() =
         Settings.Secure.getString(application.contentResolver, Settings.Secure.ANDROID_ID)
@@ -792,26 +759,7 @@ object CommonUtils : CommonUtilsBase() {
         return hms.toString()
     }
 
-    fun getKeyDescription(key: Key): String {
-        var name: String
-        try {
-            name = key.getName()
-
-            // do not show verse 0
-            if (key is Verse) {
-                if (key.verse == 0 && name.endsWith("0")) {
-                    val verse0 = "[\\W]0$"
-                    name = name.replace(verse0.toRegex(), "")
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting key name - could that Versification does not contain book")
-            // but this normally works
-            name = key.getOsisRef().replace('.', ' ')
-        }
-
-        return name
-    }
+    fun getKeyDescription(key: Key): String = net.bible.service.history.keyDescription(key)
 
     fun getWholeChapter(currentVerse: Verse, showIntros: Boolean = true): VerseRange {
         Log.i(TAG, "getWholeChapter (Key) ${currentVerse.getOsisID()}")

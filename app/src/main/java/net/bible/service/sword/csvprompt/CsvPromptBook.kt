@@ -17,7 +17,7 @@
 
 package net.bible.service.sword.csvprompt
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.SharedConstants
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books

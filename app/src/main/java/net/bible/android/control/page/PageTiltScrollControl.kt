@@ -21,7 +21,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.view.Display
 import android.view.Surface
 import android.view.WindowManager

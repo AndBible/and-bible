@@ -25,7 +25,7 @@ import android.os.Build
 import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.annotation.RequiresApi
 
 import net.bible.android.BibleApplication.Companion.application

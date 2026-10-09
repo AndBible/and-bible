@@ -16,7 +16,7 @@
  */
 package net.bible.android.control.link
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books

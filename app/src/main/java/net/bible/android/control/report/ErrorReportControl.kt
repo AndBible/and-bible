@@ -23,7 +23,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Build
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.webkit.WebViewCompat

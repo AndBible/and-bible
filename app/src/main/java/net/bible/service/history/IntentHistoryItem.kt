@@ -18,7 +18,7 @@
 package net.bible.service.history
 
 import android.content.Intent
-import android.util.Log
+import net.bible.sharedcore.log.Log
 
 import net.bible.android.control.page.window.Window
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE

@@ -19,7 +19,7 @@ package net.bible.service.sword
 import net.bible.service.common.CommonUtils
 import android.text.TextUtils
 import android.util.LayoutDirection
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.util.LruCache
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.MyLocaleProvider

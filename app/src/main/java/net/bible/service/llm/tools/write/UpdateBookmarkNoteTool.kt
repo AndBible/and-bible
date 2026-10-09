@@ -114,7 +114,7 @@ object UpdateBookmarkNoteTool : Tool {
 
             // Ensure AI label is present on the bookmark
             val existingLabelIds = bookmarkControl.labelsForBookmark(bookmark).map { it.id }.toSet()
-            val aiLabelId = bookmarkControl.aiLabel.id
+            val aiLabelId = bookmarkControl.aiLabel().id
             val labels = if (aiLabelId !in existingLabelIds) existingLabelIds + aiLabelId else null
 
             bookmarkControl.addOrUpdateBibleBookmark(bookmark, labels = labels, updateNotes = true)

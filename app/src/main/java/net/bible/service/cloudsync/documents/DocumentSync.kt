@@ -19,9 +19,10 @@
 
 package net.bible.service.cloudsync.documents
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.BibleApplication
 import net.bible.android.control.document.canDelete
+import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.toMeta
 import net.bible.service.cloudsync.CloudSync
@@ -34,6 +35,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
+import org.koin.java.KoinJavaComponent
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
 import net.bible.sharedcore.event.EventSource
@@ -298,15 +300,18 @@ object DocumentSync {
         if (cipherKey == null) return
         val book = Books.installed().getBook(initials) ?: return
         book.unlock(cipherKey)
-        val dao = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
-        // bookAdded inserts a row (cipherKey = null) during install, so normally update it; insert
-        // as a fallback in case the row is missing.
-        val existing = dao.getBook(initials)
-        if (existing != null) {
-            existing.cipherKey = cipherKey
-            dao.update(existing)
-        } else {
-            dao.insert(SwordDocumentInfo(initials, book.name, book.abbreviation, book.language.name, "", cipherKey))
+        persistCipherKey(KoinJavaComponent.get(BookInstallWatcher::class.java), book, cipherKey)
+    }
+
+    /**
+     * bookAdded queues a row insert (cipherKey = null) during install; the key update is queued behind it on
+     * the watcher's key ([BookInstallWatcher.updateRow]), so the insert cannot overwrite it or run after it.
+     * Normally updates that row; inserts one as a fallback if it is missing.
+     */
+    internal suspend fun persistCipherKey(watcher: BookInstallWatcher, book: Book, cipherKey: String) {
+        watcher.updateRow(book.initials) { existing ->
+            existing?.apply { this.cipherKey = cipherKey }
+                ?: SwordDocumentInfo(book.initials, book.name, book.abbreviation, book.language.name, "", cipherKey)
         }
     }
 

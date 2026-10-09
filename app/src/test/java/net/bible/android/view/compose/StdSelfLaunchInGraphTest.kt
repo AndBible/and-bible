@@ -18,6 +18,7 @@
 package net.bible.android.view.compose
 
 import android.os.Looper
+import kotlinx.coroutines.runBlocking
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.navigation.NavHostController
 import androidx.test.core.app.ApplicationProvider
@@ -94,7 +95,7 @@ class StdSelfLaunchInGraphTest {
 
     private fun composedReadingHost(): NavHostComposeActivity {
         // Pre-create the special labels (see ReadingChooserInGraphResultTest.composedReadingHost).
-        GlobalContext.get().get<BookmarkControl>().apply { labelUnlabelled; speakLabel; paragraphBreakLabel }
+        GlobalContext.get().get<BookmarkControl>().apply { runBlocking { labelUnlabelled(); speakLabel(); paragraphBreakLabel() } }
         return host().create().start().resume().visible().get()
     }
 

@@ -20,7 +20,7 @@ package net.bible.service.cloudsync.nextcloud
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import com.owncloud.android.lib.common.OwnCloudClient
 import com.owncloud.android.lib.common.OwnCloudClientFactory
 import com.owncloud.android.lib.common.OwnCloudCredentialsFactory

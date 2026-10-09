@@ -17,7 +17,7 @@
 
 package net.bible.android.control.page.window
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import kotlinx.coroutines.CoroutineScope
 import net.bible.android.activity.R
 import net.bible.android.control.page.CurrentPageManager

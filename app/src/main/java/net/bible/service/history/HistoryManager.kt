@@ -17,18 +17,14 @@
 
 package net.bible.service.history
 
-import android.content.Intent
-import android.util.Log
+import net.bible.sharedcore.log.Log
 
 import androidx.annotation.VisibleForTesting
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
-import net.bible.android.view.activity.base.AndBibleActivity
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.database.WorkspaceEntities
-import net.bible.sharedcore.reading.ReadingViewVisibility
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
@@ -47,7 +43,10 @@ import java.util.Stack
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 
-class HistoryManager constructor(private val windowControl: WindowControl) {
+class HistoryManager constructor(
+    private val windowControl: WindowControl,
+    private val platform: HistoryPlatform,
+) {
 
     private val windowHistoryStackMap = HashMap<IdType, Stack<HistoryItem>>()
 
@@ -124,13 +123,15 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
     }
 
     /**
-     * called when a verse is changed to allow current Activity to be saved in History list
+     * called when a verse is changed to allow current Activity to be saved in History list.
+     * [screenToken] is an opaque platform screen token (on Android the Intent a screen is
+     * leaving with); when given, the platform turns it into the item.
      */
-    fun addHistoryItem(window: Window?, intent: Intent? = null) {
+    fun addHistoryItem(window: Window?, screenToken: Any? = null) {
         // if we cause the change by requesting Back then ignore it
         val activeWindow = window ?: windowControl.activeWindow
         if (!isGoingBack) {
-            val item = createHistoryItem(activeWindow, intent)
+            val item = createHistoryItem(activeWindow, screenToken)
             add(getHistoryStack(activeWindow.id), item)
         }
     }
@@ -139,14 +140,12 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
         getHistoryStack(windowControl.activeWindow.id).pop()
     }
 
-    private fun createHistoryItem(window: Window, intent: Intent?): HistoryItem? {
+    private fun createHistoryItem(window: Window, screenToken: Any?): HistoryItem? {
         var historyItem: HistoryItem? = null
 
-        val currentActivity = CurrentActivityHolder.currentActivity
-        if (intent != null) {
-            val title = intent.getStringExtra("description")?: "-"
-            historyItem = IntentHistoryItem(title, intent, window)
-        } else if (ReadingViewVisibility.isVisible) {
+        if (screenToken != null) {
+            historyItem = platform.screenHistoryItem(window, screenToken)
+        } else if (platform.isOnReadingScreen()) {
             // Slice 7 / spec §5.1: was `currentActivity is MainBibleActivity`. This is the ONLY
             // branch that produces a KeyHistoryItem — the verse back-stack and the only item type
             // getEntities()/restoreFrom() persist — so it must be anchored on "the reading view is
@@ -164,13 +163,8 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
                 if(key != null) KeyHistoryItem(doc, key, anchorOrdinal, window)
                 else null
 
-        } else if (currentActivity is AndBibleActivity) {
-            val andBibleActivity = currentActivity as AndBibleActivity
-            if (andBibleActivity.isIntegrateWithHistoryManager) {
-                historyItem = IntentHistoryItem(currentActivity.title,
-                    (currentActivity as AndBibleActivity).intentForHistoryList,
-                    window)
-            }
+        } else {
+            historyItem = platform.screenHistoryItem(window, null)
         }
         return historyItem
     }
@@ -189,16 +183,14 @@ class HistoryManager constructor(private val windowControl: WindowControl) {
                     Log.i(TAG, "Going back to:$previousItem")
                     previousItem.revertTo()
 
-                    // Leave the screen on top when it is not the reading view. Since slice 8 this is
-                    // a HOST operation (ActivityBase.leaveCurrentScreen): a classic Activity finishes,
-                    // NavHostComposeActivity pops its back stack -- finishing it would close the app,
-                    // because the reading view is a destination of the same host (finding M4).
-                    // `ReadingViewVisibility.isVisible` is the predicate createHistoryItem also records
-                    // on, keyed by host and gated on ReadingHostPresence (R7b), so a destination
-                    // composed under a backgrounded host does not count.
-                    val currentActivity = CurrentActivityHolder.currentActivity
-                    if (!ReadingViewVisibility.isVisible) {
-                        currentActivity?.leaveCurrentScreen()
+                    // Leave the screen on top when it is not the reading view. Both questions are asked
+                    // of the platform: leaving is a HOST operation (a classic Activity finishes, the
+                    // nav host pops its back stack -- finishing it would close the app, finding M4),
+                    // and isOnReadingScreen is the same predicate createHistoryItem records on
+                    // (Android: ReadingViewVisibility, keyed by host and gated on ReadingHostPresence
+                    // (R7b), so a destination composed under a backgrounded host does not count).
+                    if (!platform.isOnReadingScreen()) {
+                        platform.leaveCurrentScreen()
                     }
                 }
             } finally {

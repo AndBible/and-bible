@@ -17,7 +17,7 @@
 
 package net.bible.service.sword.mydocument
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType

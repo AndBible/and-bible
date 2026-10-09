@@ -17,7 +17,7 @@
 
 package net.bible.android.control.speak
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.sharedcore.event.EventSource

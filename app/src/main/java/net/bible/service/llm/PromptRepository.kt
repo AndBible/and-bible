@@ -17,7 +17,7 @@
 
 package net.bible.service.llm
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
 import net.bible.service.common.AndBibleAddons

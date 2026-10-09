@@ -16,11 +16,8 @@
  */
 package net.bible.android.control.progress
 
-import android.text.format.DateFormat
-import android.text.format.DateUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.progress.ProgressControl.ChapterReadEntry
 import net.bible.android.control.versification.Scripture
 import net.bible.android.database.IdType
@@ -36,13 +33,13 @@ import net.bible.sharedcore.progress.ReadHistoryEntry
 import net.bible.sharedcore.progress.ReadingProgressScale
 import net.bible.sharedcore.progress.ReadingProgressService
 import net.bible.sharedcore.progress.ReadingSummary
+import net.bible.sharedcore.platform.DateTimeFormats
 import net.bible.sharedcore.progress.TargetRow
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
@@ -58,7 +55,7 @@ import java.util.concurrent.ConcurrentHashMap
  * last history load so [deleteReadHistoryEntries] can resolve them back to
  * [ProgressControl.ChapterReadEntry] for [ProgressControl.deleteReadHistoryEntries].
  */
-class ReadingProgressServiceImpl : ReadingProgressService {
+class ReadingProgressServiceImpl(private val dateTimeFormats: DateTimeFormats) : ReadingProgressService {
     private val kjva get() = Versifications.instance().getVersification("KJVA")!!
 
     /**
@@ -70,10 +67,10 @@ class ReadingProgressServiceImpl : ReadingProgressService {
 
     // --- cycles ---
 
-    override fun currentCycle(): Int = ProgressControl.getCurrentCycle()
-    override fun latestCycle(): Int = ProgressControl.getLatestCycle()
-    override fun setActiveCycle(cycle: Int) = ProgressControl.setActiveCycle(cycle)
-    override fun startNewCycle(): Int = ProgressControl.startNewCycle()
+    override suspend fun currentCycle(): Int = ProgressControl.getCurrentCycle()
+    override suspend fun latestCycle(): Int = ProgressControl.getLatestCycle()
+    override suspend fun setActiveCycle(cycle: Int) = ProgressControl.setActiveCycle(cycle)
+    override suspend fun startNewCycle(): Int = ProgressControl.startNewCycle()
 
     // --- reading data ---
 
@@ -95,6 +92,7 @@ class ReadingProgressServiceImpl : ReadingProgressService {
         val bookCountProgress = ProgressControl.getBookCountProgress(cycle)
         kjva.bookIterator.asSequence()
             .filter { Scripture.isScripture(it) }
+            .toList() // List.map is inline, so the suspend ProgressControl call below is allowed
             .map { book ->
                 val cp = bookCountProgress[book]
                 val isComplete = ProgressControl.getDistinctReadChaptersCountForBook(book, cycle) >= kjva.getLastChapter(book)
@@ -105,7 +103,7 @@ class ReadingProgressServiceImpl : ReadingProgressService {
                     readPercent = cp?.readPercent ?: 0f,
                     isComplete = isComplete,
                 )
-            }.toList()
+            }
     }
 
     override suspend fun chapterReadCounts(bookId: String, cycle: Int): ChapterDetail = withContext(Dispatchers.IO) {
@@ -172,12 +170,12 @@ class ReadingProgressServiceImpl : ReadingProgressService {
         )
     }
 
-    override suspend fun dailyReadCounts(cycle: Int): Map<Long, Int> = withContext(Dispatchers.IO) {
+    override suspend fun dailyReadCounts(cycle: Int): Map<Long, Int> {
         val cal = Calendar.getInstance()
         val endMs = cal.timeInMillis
         cal.add(Calendar.WEEK_OF_YEAR, -52)
         val startMs = cal.timeInMillis
-        ProgressControl.getReadingCalendar(startMs, endMs, cycle).associate { it.dayTimestamp to it.count }
+        return ProgressControl.getReadingCalendar(startMs, endMs, cycle).associate { it.dayTimestamp to it.count }
     }
 
     // --- read history ---
@@ -198,39 +196,32 @@ class ReadingProgressServiceImpl : ReadingProgressService {
     }
 
     override suspend fun readHistoryForBook(bookId: String, cycle: Int): List<ReadHistoryEntry> =
-        withContext(Dispatchers.IO) {
-            ProgressControl.getReadHistoryForBook(BibleBook.valueOf(bookId), cycle).map { it.toReadHistoryEntry() }
-        }
+        ProgressControl.getReadHistoryForBook(BibleBook.valueOf(bookId), cycle).map { it.toReadHistoryEntry() }
 
     override suspend fun readHistoryForChapter(bookId: String, chapter: Int, cycle: Int): List<ReadHistoryEntry> =
-        withContext(Dispatchers.IO) {
-            ProgressControl.getReadHistoryForChapter(BibleBook.valueOf(bookId), chapter, cycle)
-                .map { it.toReadHistoryEntry() }
-        }
+        ProgressControl.getReadHistoryForChapter(BibleBook.valueOf(bookId), chapter, cycle)
+            .map { it.toReadHistoryEntry() }
 
     override suspend fun readHistoryForDay(dayTimestamp: Long, cycle: Int): List<ReadHistoryEntry> =
-        withContext(Dispatchers.IO) {
-            ProgressControl.getReadHistoryForDay(dayTimestamp, cycle).map { it.toReadHistoryEntry() }
-        }
+        ProgressControl.getReadHistoryForDay(dayTimestamp, cycle).map { it.toReadHistoryEntry() }
 
-    override suspend fun deleteReadHistoryEntries(ids: List<String>, cycle: Int): Unit =
-        withContext(Dispatchers.IO) {
-            val entries = ids.mapNotNull { historyCache[it] }
-            if (entries.isEmpty()) return@withContext
-            ProgressControl.deleteReadHistoryEntries(entries, cycle)
-            entries.forEach { historyCache.remove(it.id.toString()) }
-        }
+    override suspend fun deleteReadHistoryEntries(ids: List<String>, cycle: Int) {
+        val entries = ids.mapNotNull { historyCache[it] }
+        if (entries.isEmpty()) return
+        ProgressControl.deleteReadHistoryEntries(entries, cycle)
+        entries.forEach { historyCache.remove(it.id.toString()) }
+    }
 
     // --- display helpers ---
 
     override fun dayTitle(dayTimestamp: Long): String =
-        DateFormat.getDateFormat(application).format(Date(dayTimestamp))
+        dateTimeFormats.shortDate(dayTimestamp)
 
     override fun formatEntryDate(readAt: Long): String =
-        DateFormat.getDateFormat(application).format(Date(readAt))
+        dateTimeFormats.shortDate(readAt)
 
     override fun formatEntryTime(readAt: Long): String =
-        DateFormat.getTimeFormat(application).format(Date(readAt))
+        dateTimeFormats.shortTime(readAt)
 
     override fun bookShortName(bookId: String): String =
         if (bookId.isEmpty()) "?" else kjva.getShortName(BibleBook.valueOf(bookId))
@@ -241,17 +232,12 @@ class ReadingProgressServiceImpl : ReadingProgressService {
     // --- memorize ---
 
     private fun formatRelative(timestampMs: Long): String =
-        DateUtils.getRelativeTimeSpanString(
-            timestampMs,
-            System.currentTimeMillis(),
-            DateUtils.MINUTE_IN_MILLIS,
-            DateUtils.FORMAT_ABBREV_RELATIVE,
-        ).toString()
+        dateTimeFormats.relativeTimeSpan(timestampMs, System.currentTimeMillis())
 
-    override suspend fun memorizeSummary(): MemorizeSummaryData = withContext(Dispatchers.IO) {
+    override suspend fun memorizeSummary(): MemorizeSummaryData {
         val memorizedCount = ProgressControl.getTotalMemorizedVerses()
         val (targetMemorized, targetTotal) = ProgressControl.getMemorizationTargetProgress()
-        MemorizeSummaryData(memorizedCount = memorizedCount, targetMemorized = targetMemorized, targetTotal = targetTotal)
+        return MemorizeSummaryData(memorizedCount = memorizedCount, targetMemorized = targetMemorized, targetTotal = targetTotal)
     }
 
     override suspend fun bookMemorizationProgress(): List<BookHeat> = withContext(Dispatchers.IO) {
@@ -296,12 +282,12 @@ class ReadingProgressServiceImpl : ReadingProgressService {
         )
     }
 
-    override suspend fun dailyMemorizationCounts(): Map<Long, Int> = withContext(Dispatchers.IO) {
+    override suspend fun dailyMemorizationCounts(): Map<Long, Int> {
         val cal = Calendar.getInstance()
         val endMs = cal.timeInMillis
         cal.add(Calendar.WEEK_OF_YEAR, -52)
         val startMs = cal.timeInMillis
-        ProgressControl.getMemorizationCalendar(startMs, endMs).associate { it.dayTimestamp to it.count }
+        return ProgressControl.getMemorizationCalendar(startMs, endMs).associate { it.dayTimestamp to it.count }
     }
 
     override suspend fun memorizedPassages(): List<PassageRow> = withContext(Dispatchers.IO) {
@@ -336,13 +322,18 @@ class ReadingProgressServiceImpl : ReadingProgressService {
         ProgressControl.unmarkVerseMemorized(VerseRange(kjva, Verse(kjva, startOrdinal), Verse(kjva, endOrdinal)))
     }
 
-    override suspend fun removeMemorizationTarget(id: String): Unit = withContext(Dispatchers.IO) {
+    override suspend fun removeMemorizationTarget(id: String) {
         ProgressControl.removeMemorizationTarget(IdType(id))
     }
 
     // --- extra: host-only helper for the chapter-tap result Intent ---
 
     /** OSIS id (e.g. "Gen.1.1") for a chapter, used by the host for the chapter-tap result `Intent`. */
-    fun osisIdForChapter(bookId: String, chapter: Int): String =
-        Verse(kjva, BibleBook.valueOf(bookId), chapter, 1).getOsisID()
+    fun osisIdForChapter(bookId: String, chapter: Int): String = Companion.osisIdForChapter(bookId, chapter)
+
+    companion object {
+        /** Instance-free form of [osisIdForChapter] (reads no instance state), for callers without DI. */
+        fun osisIdForChapter(bookId: String, chapter: Int): String =
+            Verse(Versifications.instance().getVersification("KJVA")!!, BibleBook.valueOf(bookId), chapter, 1).getOsisID()
+    }
 }

@@ -28,7 +28,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
 import net.bible.service.llm.tools.ToolDefinition
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import org.json.JSONObject
 
 /** Shared Json instance for all LLM serialization. */

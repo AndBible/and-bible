@@ -3,6 +3,7 @@ package net.bible.android.control
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.common.resource.ResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.bookmark.BookmarkJsActions
 import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.download.DownloadControl
 import net.bible.android.control.download.DownloadQueue
@@ -18,6 +19,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowStateServiceImpl
 import net.bible.android.control.page.toolbar.ToolbarStateServiceImpl
 import net.bible.sharedcore.reading.ToolbarStateService
+import net.bible.android.control.progress.ProgressJsActions
 import net.bible.android.control.progress.ReadingProgressServiceImpl
 import net.bible.android.control.readingplan.ReadingPlanControl
 import net.bible.android.control.search.BibleSearchServiceImpl
@@ -69,11 +71,39 @@ import net.bible.sharedcore.settings.TextDisplaySettingsService
 import net.bible.sharedcore.window.WindowCommands
 import net.bible.sharedcore.window.WindowStateService
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.control.versification.BookInstallWatcher
+import net.bible.android.platform.AndroidDocumentSyncStarter
+import net.bible.sharedcore.cloud.DocumentSyncStarter
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton
 import net.bible.service.db.readingplan.ReadingPlanRepository
+import net.bible.android.platform.AndroidReadingPlanSource
+import net.bible.android.platform.AndroidHistoryPlatform
+import net.bible.android.platform.AndroidLinkPlatform
+import net.bible.android.control.link.LinkPlatform
+import net.bible.android.view.activity.readingplan.ReadingPlanCatalog
+import net.bible.service.readingplan.DistributedPlanDetails
+import net.bible.service.readingplan.ReadingPlanTextFileDao
+import net.bible.sharedcore.readingplan.ReadingPlanSource
 import net.bible.service.device.speak.TextToSpeechServiceManager
+import net.bible.service.common.CommonUtils
+import net.bible.service.common.AndBibleAddons
+import net.bible.service.db.DatabaseContainer
+import net.bible.android.SharedConstants
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.AppCoroutineScope
+import net.bible.service.sword.SwordDocumentFacade
+import net.bible.android.control.document.DocumentFileDeleter
+import net.bible.sharedcore.platform.OrderedLauncher
+import net.bible.sharedcore.platform.CoreStrings
+import net.bible.sharedcore.platform.DateTimeFormats
+import net.bible.sharedcore.platform.UserNotifier
+import net.bible.android.platform.AndroidCoreStrings
+import net.bible.android.platform.AndroidDateTimeFormats
+import net.bible.android.platform.AndroidUserNotifier
+import org.koin.android.ext.koin.androidContext
 import net.bible.service.history.HistoryManager
+import net.bible.service.history.HistoryPlatform
 import net.bible.service.history.HistoryTraversalFactory
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -81,12 +111,32 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
-val coreModule = module {
+/** The application's Koin module; the one instance every `startKoin` loads. */
+val coreModule = buildCoreModule()
+
+/**
+ * Builds a NEW instance of the application's module. A Koin `Module` holds its definitions' instance factories, and
+ * with them the cached singletons, so two Koin applications loading the same `Module` object share (and, on
+ * `close()`, drop) each other's singletons. A test that builds the graph in an isolated application must load its own
+ * instance from here, never [coreModule].
+ */
+fun buildCoreModule() = module {
     // ResourceProvider interface binding (was ApplicationModule.provideResourceProvider)
     singleOf(::AndroidResourceProvider) { bind<ResourceProvider>() }
     // DownloadControl (was ApplicationModule.provideDownloadControl)
     single { DownloadControl() }
     singleOf(::CustomRepositoryServiceImpl) { bind<CustomRepositoryService>() }
+
+    single<AppSettings> { CommonUtils.settings }
+    single { AppCoroutineScope() }
+    single { OrderedLauncher(get<AppCoroutineScope>()) }
+    single { ProgressJsActions(get()) }
+    single { BookmarkJsActions(get(), get()) }
+    single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }
+    single { BookInstallWatcher(get(), get()) }
+    single<UserNotifier> { AndroidUserNotifier() }
+    single<CoreStrings> { AndroidCoreStrings(androidContext()) }
+    single<DateTimeFormats> { AndroidDateTimeFormats(androidContext()) }
 
     // @ApplicationScope singletons
     singleOf(::BibleTraverser)
@@ -96,16 +146,32 @@ val coreModule = module {
     singleOf(::WindowStateServiceImpl) { bind<WindowStateService>() }
     singleOf(::ToolbarStateServiceImpl) { bind<ToolbarStateService>() }
     singleOf(::LinkControl)
+    single<HistoryPlatform> { AndroidHistoryPlatform() }
+    single<LinkPlatform> { AndroidLinkPlatform() }
     singleOf(::HistoryManager)
     singleOf(::HistoryTraversalFactory)
-    singleOf(::DocumentControl)
+    single {
+        DocumentControl(get(), get(), get(), get(), get<AppCoroutineScope>(),
+            deleteFiles = DocumentFileDeleter { SwordDocumentFacade.deleteDocument(it) },
+            backupDaoProvider = { DatabaseContainer.instance.repoDb.swordDocumentInfoDao() })
+    }
     singleOf(::BookmarkControl)
     singleOf(::LabelEditServiceImpl) { bind<LabelEditService>() }
     singleOf(::ManageLabelsServiceImpl) { bind<ManageLabelsService>() }
     singleOf(::BookmarksServiceImpl) { bind<BookmarksService>() }
     singleOf(::PageControl)
     singleOf(::ReadingPlanControl)
-    single { ReadingPlanRepository() }
+    single { ReadingPlanRepository(daoProvider = { DatabaseContainer.instance.readingPlanDb.readingPlanDao() }, appScope = get()) }
+    single<ReadingPlanSource> { AndroidReadingPlanSource() }
+    single {
+        ReadingPlanTextFileDao(
+            source = get(), repository = get(), coreStrings = get(),
+            userPlanFolder = { SharedConstants.manualReadingPlanDir },
+            providedPlans = { AndBibleAddons.providedReadingPlans },
+            // evaluated per lookup: ReadingPlanCatalog resolves its localized strings when first touched
+            distributedPlans = { ReadingPlanCatalog.ABDistributedPlanDetailArray.map { DistributedPlanDetails(it.planCode, it.planName, it.planDescription) } },
+        )
+    }
     singleOf(::SearchControl)
     singleOf(::BibleSearchServiceImpl) { bind<BibleSearchService>() }
     // F26: shared across SearchResultsComposeActivity recreations (history-revert Back) so returning

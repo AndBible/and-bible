@@ -355,8 +355,9 @@ class DatabaseContainer {
         private var _bookmarksSynced = EventSource<List<LogEntry>>()
         /**
          * Fires on the sync thread after a cloud sync applied bookmark-database changes (replaces
-         * `BookmarksUpdatedViaSyncEvent`). Subscribers: [BookmarkControl] (synchronous, re-emits the
-         * domain changes on the sync thread) and the bookmarks list (on main).
+         * `BookmarksUpdatedViaSyncEvent`). Subscribers: [BookmarkControl] (queues the DAO reads and the
+         * re-emitted domain changes on its `"bookmark-sync"` [net.bible.sharedcore.platform.OrderedLauncher]
+         * key, so they arrive asynchronously, in sync order, off the sync thread) and the bookmarks list (on main).
          */
         val bookmarksSynced: Events<List<LogEntry>> get() = _bookmarksSynced
         @VisibleForTesting fun resetBookmarksSyncedForTest() { _bookmarksSynced = EventSource() }

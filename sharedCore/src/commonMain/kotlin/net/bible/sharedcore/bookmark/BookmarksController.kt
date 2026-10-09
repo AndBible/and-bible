@@ -31,12 +31,12 @@ class BookmarksController(
     private val onImportCsv: () -> Unit,
     private val onManageLabels: () -> Unit,
 ) {
-    private val _filterLabels = MutableStateFlow(service.filterLabels())
+    /** Empty until the initial load in `init` has read them (the service call is `suspend`). */
+    private val _filterLabels = MutableStateFlow<List<BookmarkFilterLabel>>(emptyList())
     val filterLabels: StateFlow<List<BookmarkFilterLabel>> = _filterLabels.asStateFlow()
 
-    private val _selectedFilterIndex = MutableStateFlow(
-        initialFilterIndex.coerceIn(0, (_filterLabels.value.size - 1).coerceAtLeast(0))
-    )
+    /** Holds the raw [initialFilterIndex] until the labels are loaded; the initial load clamps it. */
+    private val _selectedFilterIndex = MutableStateFlow(initialFilterIndex)
     val selectedFilterIndex: StateFlow<Int> = _selectedFilterIndex.asStateFlow()
 
     private val _sortMode = MutableStateFlow(service.loadSortMode())
@@ -66,7 +66,18 @@ class BookmarksController(
     private val _dialog = MutableStateFlow<BookmarksDialog>(BookmarksDialog.None)
     val dialog: StateFlow<BookmarksDialog> = _dialog.asStateFlow()
 
-    init { reload() }
+    // The filter labels are read first, then the selected index is clamped against them and the
+    // rows load, all on [scope] (the service calls are `suspend`). Rows were already loaded
+    // asynchronously, so the screen shows its loading state for the same first frames as before.
+    init {
+        _loading.value = true
+        scope.launch {
+            val labels = service.filterLabels()
+            _filterLabels.value = labels
+            _selectedFilterIndex.value = _selectedFilterIndex.value.coerceIn(0, (labels.size - 1).coerceAtLeast(0))
+            reload()
+        }
+    }
 
     private fun reload() {
         _loading.value = true
@@ -161,8 +172,10 @@ class BookmarksController(
 
     /** Host calls this after assign/delete/import round-trips. */
     fun refresh() {
-        _filterLabels.value = service.filterLabels()
-        reload()
         clearSelection()
+        scope.launch {
+            _filterLabels.value = service.filterLabels()
+            reload()
+        }
     }
 }

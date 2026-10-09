@@ -54,6 +54,7 @@ import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.SettingsLevel
+import net.bible.android.view.activity.bookmark.BookmarkCsvFlow
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.download.imageResource
@@ -1114,7 +1115,7 @@ class ReadingCommands(
                 (window.bibleView?.firstDocument as? StudyPadDocument)?.label?.let { label ->
                     readingHost.lifecycleScope.launch {
                         val bookmarks = bookmarkControl.getBibleBookmarksWithLabel(label)
-                        bookmarkControl.exportBookmarksToCSV(hostActivity, bookmarks)
+                        BookmarkCsvFlow(bookmarkControl).exportBookmarksToCSV(hostActivity, bookmarks)
                     }
                 }
                 false

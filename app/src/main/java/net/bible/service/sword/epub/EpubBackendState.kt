@@ -19,7 +19,7 @@ package net.bible.service.sword.epub
 
 import net.bible.service.db.blockingDb
 import net.bible.service.db.deleteAppDatabase
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants

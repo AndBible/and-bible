@@ -18,7 +18,7 @@ package net.bible.service.sword
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import android.util.LruCache
 import androidx.core.content.ContextCompat
 import net.bible.android.BibleApplication.Companion.application
@@ -31,6 +31,7 @@ import net.bible.service.common.CommonUtils.getResourceString
 import net.bible.service.common.CommonUtils.isAndroid
 import net.bible.service.common.Logger
 import org.apache.commons.lang3.StringUtils
+import org.koin.java.KoinJavaComponent.get
 import org.crosswire.common.util.CWProject
 import org.crosswire.common.util.Reporter
 import org.crosswire.common.util.ReporterEvent
@@ -83,10 +84,24 @@ object SwordEnvironmentInitialisation {
                 WebResource.setTimeout(5000)
                 // because the above line causes initialisation set the is initialised flag here
                 isSwordLoaded = true
-                BookInstallWatcher.startListening()
             }
         } catch (e: Exception) {
             log.error("Error initialising", e)
+        }
+    }
+
+    /**
+     * Registers the book install/uninstall listener (backup db + sync). Must run AFTER Koin has started
+     * (the watcher is Koin-resolved) and after [initialiseJSwordFolders]; a no-op if JSword was never
+     * initialised. Idempotent: [BookInstallWatcher.startListening] never registers twice.
+     */
+    fun startBookInstallWatcher() {
+        if (!isSwordLoaded) return
+        try {
+            get<BookInstallWatcher>(BookInstallWatcher::class.java).startListening()
+        } catch (e: Exception) {
+            // Not rethrown (must not stop app startup), but never silent: without it no installed book is backed up.
+            log.error("BookInstallWatcher failed to start; book installs will not be tracked", e)
         }
     }
 

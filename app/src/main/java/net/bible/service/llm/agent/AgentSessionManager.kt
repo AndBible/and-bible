@@ -17,7 +17,7 @@
 
 package net.bible.service.llm.agent
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import kotlinx.serialization.json.Json.Default.decodeFromString
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R

@@ -162,7 +162,7 @@ class LabelEditDeps(
  *   (`Dispatchers.IO`) -- hence a callback rather than a return value.
  *
  *   Everything else classic's controller was built with stays inside this factory, host-side and
- *   invisible here: the CSV export/import (`bookmarkControl.exportBookmarksToCSV` wants an
+ *   invisible here: the CSV export/import (`BookmarkCsvFlow.exportBookmarksToCSV` wants an
  *   `Activity`), the delete confirmation (an `android.app.AlertDialog`; converting platform dialogs
  *   is a separate, queued port goal) and the `bookmarks-last-used` setting classic wrote in
  *   `onCreate`. Each of them ends by refreshing the controller it was built around, which only the

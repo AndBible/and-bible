@@ -50,7 +50,12 @@ class ManageLabelsController(
     private val deletedWithOrphaned = mutableSetOf<String>()
     private var autoAssignPrimary = initialAutoAssignPrimary
     private var bookmarkPrimary = initialBookmarkPrimary
-    private var labels = service.assignableLabels().toMutableList()
+    /** Empty until the initial [load] has read them (the service calls are `suspend`). */
+    private var labels = mutableListOf<LabelItem>()
+    private var labelsLoaded = false
+    /** Cached service values [rebuild] reads; refreshed by [load] (initially and on [refresh]). */
+    private var unlabeled: LabelItem? = null
+    private var overrides: Map<String, BookmarkDisplayStyle> = emptyMap()
 
     private val _searchText = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText.asStateFlow()
@@ -92,7 +97,29 @@ class ManageLabelsController(
     // label had vanished into another section.
     private var lastOrder: List<String>? = null
 
-    init { rebuild(reorder = true) }
+    // Rows stay empty until the first load lands (one frame on device); the rows are then built
+    // exactly as a synchronous constructor built them.
+    init { scope.launch { load(); rebuild(reorder = true) } }
+
+    /**
+     * Reads the service's label data. The label list itself is read only once (later changes come
+     * through [applyLabelChanged]/[applyLabelDeleted], as before); a change applied before this first
+     * read landed wins over the loaded copy, and a label deleted meanwhile stays deleted. The
+     * Unlabeled label and the workspace overrides are re-read on every call.
+     */
+    private suspend fun load() {
+        val loadedLabels = if (labelsLoaded) null else service.assignableLabels()
+        val loadedUnlabeled = service.unlabeledLabel()
+        val loadedOverrides = service.overriddenLabelStyles()
+        if (loadedLabels != null && !labelsLoaded) {
+            labelsLoaded = true
+            val applied = labels.associateBy { it.id }
+            val merged = loadedLabels.filterNot { deleted.contains(it.id) }.map { applied[it.id] ?: it }
+            labels = (merged + labels.filter { l -> merged.none { it.id == l.id } }).toMutableList()
+        }
+        unlabeled = loadedUnlabeled
+        overrides = loadedOverrides
+    }
 
     private fun dispatchSearchOrRebuild() {
         contentSearchJob?.cancel()
@@ -181,13 +208,12 @@ class ManageLabelsController(
 
     private fun rebuild(reorder: Boolean = false) {
         val recent = service.recentLabelIds().toSet()
-        val overrides = service.overriddenLabelStyles()
         val ctx = contextSelected()
         // relink override style onto labels
         val shown = labels.filter { matches(it) }
             .map { it.copy(overrideStyle = overrides[it.id]) }.toMutableList<Any>()
-        if (mode.showUnassigned) {
-            val unl = service.unlabeledLabel()
+        val unl = unlabeled
+        if (mode.showUnassigned && unl != null) {
             // Same relink as every real label above (:148-149) -- classic's adapter marks the ⚙
             // override tag for ANY overridden id, Unlabeled included (ManageLabelItemAdapter.kt:236).
             if (matches(unl) && !changed.contains(unl.id)) shown.add(unl.copy(overrideStyle = overrides[unl.id]))
@@ -384,7 +410,8 @@ class ManageLabelsController(
         ensureNotAutoAssignPrimary(id)
         rebuild(reorder = true)
     }
-    fun refresh() = rebuild(reorder = true)
+    /** Re-reads the Unlabeled label and the workspace overrides, then re-sorts (on [scope]). */
+    fun refresh() { scope.launch { load(); rebuild(reorder = true) } }
 
     // ---- current in-memory label items (host save-time favourite sourcing) ----
     // The list's quick favourite-toggle (toggleFavourite) only flips this controller's own LabelItem

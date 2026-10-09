@@ -105,7 +105,7 @@ object CreateLabelTool : Tool {
         }
 
         return try {
-            val existingNames = bookmarkControl.assignableLabels.map { it.name }
+            val existingNames = bookmarkControl.assignableLabels().map { it.name }
             val uniqueName = uniqueLabelName(name.trim(), existingNames)
 
             // Create label using BookmarkControl (sends UI events)

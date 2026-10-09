@@ -1217,10 +1217,10 @@ class ReadHistoryApplyDeletesTest {
     private class RecordingReadingProgressService : ReadingProgressService {
         val deleteCalls = mutableListOf<Pair<List<String>, Int>>()
 
-        override fun currentCycle() = 0
-        override fun latestCycle() = 0
-        override fun setActiveCycle(cycle: Int) {}
-        override fun startNewCycle() = 0
+        override suspend fun currentCycle() = 0
+        override suspend fun latestCycle() = 0
+        override suspend fun setActiveCycle(cycle: Int) {}
+        override suspend fun startNewCycle() = 0
         override suspend fun readingSummary(cycle: Int) = error("not needed")
         override suspend fun bookReadProgress(cycle: Int) = error("not needed")
         override suspend fun chapterReadCounts(bookId: String, cycle: Int) = error("not needed")

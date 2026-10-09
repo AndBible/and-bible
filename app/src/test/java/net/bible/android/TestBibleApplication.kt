@@ -60,6 +60,8 @@ class TestBibleApplication : BibleApplication() {
     override fun getLocalizedResources(language: String): Resources = application.resources
 
     override fun onCreate() {
+        // At the start, not in onTerminate: a test may terminate the application mid-way with its activity still live.
+        CurrentActivityHolder.forgetActivitiesForTest()
         super.onCreate()
         CommonUtils.initializeApp()
     }

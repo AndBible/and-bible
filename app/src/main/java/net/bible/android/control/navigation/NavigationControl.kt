@@ -16,15 +16,13 @@
  */
 package net.bible.android.control.navigation
 
-import net.bible.service.common.CommonUtils.getSharedPreference
-import net.bible.service.common.CommonUtils.saveSharedPreference
-import net.bible.service.common.CommonUtils.getResourceString
+import net.bible.sharedcore.platform.AppSettings
+import net.bible.sharedcore.platform.CoreStrings
 import net.bible.android.control.page.PageControl
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import net.bible.android.control.versification.Scripture
 import org.crosswire.jsword.versification.Versification
-import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.isSpecial
@@ -37,7 +35,10 @@ import java.util.*
  */
 class NavigationControl constructor(
     private val pageControl: PageControl,
-    private val documentBibleBooksFactory: DocumentBibleBooksFactory)
+    private val documentBibleBooksFactory: DocumentBibleBooksFactory,
+    private val settings: AppSettings,
+    private val strings: CoreStrings,
+)
 {
     /**
      * Get books in current Document - either all Scripture books or all non-Scripture books
@@ -107,11 +108,11 @@ class NavigationControl constructor(
 
     var bibleBookSortOrder: BibleBookSortOrder
         get() {
-            val bibleBookSortOrderStr = getSharedPreference(BIBLE_BOOK_SORT_ORDER, BibleBookSortOrder.BIBLE_BOOK.toString())
+            val bibleBookSortOrderStr = settings.getString(BIBLE_BOOK_SORT_ORDER, BibleBookSortOrder.BIBLE_BOOK.toString())
             return BibleBookSortOrder.valueOf(bibleBookSortOrderStr!!)
         }
         set(bibleBookSortOrder) {
-            saveSharedPreference(BIBLE_BOOK_SORT_ORDER, bibleBookSortOrder.toString())
+            settings.setString(BIBLE_BOOK_SORT_ORDER, bibleBookSortOrder.toString())
         }
 
     /**
@@ -119,9 +120,9 @@ class NavigationControl constructor(
      */
     val bibleBookSortOrderButtonDescription: String
         get() = if (BibleBookSortOrder.BIBLE_BOOK == bibleBookSortOrder) {
-            getResourceString(R.string.sort_by_alphabetical)
+            strings.sortByAlphabetical
         } else {
-            getResourceString(R.string.sort_by_bible_book)
+            strings.sortByBibleBook
         }
 
     /**

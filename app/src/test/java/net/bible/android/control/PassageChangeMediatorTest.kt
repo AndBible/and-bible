@@ -22,6 +22,7 @@ import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.versification.BibleBook
 import org.junit.After
+import net.bible.android.view.activity.page.BibleView
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -40,11 +41,21 @@ class PassageChangeMediatorTest {
     private val received = mutableListOf<PageChange>()
     private lateinit var subscription: Subscription
 
+    /** A BibleView an earlier test (any class, one JVM) left on the shared window; detached for this test. */
+    private var leftoverBibleView: BibleView? = null
+
     @Before fun setUp() {
         PassageChangeMediator.resetSubscribersForTest()
+        // With a view attached that already shows the chapter, updateText() scrolls it, and the scroll reports its
+        // own VerseChanged: the mediator's single emission is what is under test here, on a window with no view.
+        leftoverBibleView = window.bibleView
+        window.bibleView = null
         subscription = PassageChangeMediator.changes.subscribe { received += it }
     }
-    @After fun tearDown() { subscription.cancel() }
+    @After fun tearDown() {
+        subscription.cancel()
+        window.bibleView = leftoverBibleView
+    }
 
     private val window get() = CommonUtils.windowControl.activeWindow
 

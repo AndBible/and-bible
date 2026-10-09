@@ -16,7 +16,7 @@
  */
 package net.bible.android.control.page
 
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.Dialogs

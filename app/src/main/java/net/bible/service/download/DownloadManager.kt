@@ -17,9 +17,10 @@
 package net.bible.service.download
 
 import net.bible.service.db.blockingDb
-import android.util.Log
+import net.bible.sharedcore.log.Log
 import net.bible.android.activity.R
 import net.bible.android.control.download.repoIdentity
+import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
@@ -35,6 +36,7 @@ import org.crosswire.jsword.book.install.InstallManager
 import org.crosswire.jsword.book.install.Installer
 import org.crosswire.jsword.book.install.sword.HttpsSwordInstaller
 import org.crosswire.jsword.book.sword.SwordBookMetaData
+import org.koin.java.KoinJavaComponent
 import java.util.*
 
 /**
@@ -133,8 +135,6 @@ class DownloadManager(
         return documents
     }
 
-    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
-
     /**
      * Install a book, overwriting it if the book to be installed is newer.
      *
@@ -163,15 +163,19 @@ class DownloadManager(
         // InstallWatcher does not know about repository, so let's add it here
         book.putProperty(REPOSITORY_KEY, repositoryName)
         Books.installed().getBook(bookInitials)?.putProperty(REPOSITORY_KEY, repositoryName)
-        blockingDb {
-            docDao.getBook(bookInitials)?.let {
-                it.repository = repositoryName
-                docDao.update(it)
-            }
-        }
+        blockingDb { recordRepository(KoinJavaComponent.get(BookInstallWatcher::class.java), bookInitials, repositoryName) }
     }
 
     companion object {
+        /**
+         * Stores [repositoryName] in the backup-db row of [bookInitials]. Queued behind the row insert that
+         * `install()`'s bookAdded event queued ([BookInstallWatcher.updateRow]); a direct DAO update would find
+         * no row yet, or be overwritten by the delete-and-reinsert of a reinstall.
+         */
+        internal suspend fun recordRepository(watcher: BookInstallWatcher, bookInitials: String, repositoryName: String) {
+            watcher.updateRow(bookInitials) { row -> row?.apply { repository = repositoryName } }
+        }
+
         const val REPOSITORY_KEY = "SourceRepository"
         const val TAG = "DownloadManager"
         private val log = Logger(DownloadManager::class.java.name)
