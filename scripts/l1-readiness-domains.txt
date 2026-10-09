@@ -26,4 +26,3 @@ llm	android/view/activity/ai
 page	android/control/page
 search	android/control/search
 event	android/control/event
-report	android/control/report
