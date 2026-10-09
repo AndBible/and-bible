@@ -30,6 +30,10 @@ kotlin {
         withHostTest {}
     }
 
+    // jvm() exists ONLY for fast Linux shared-tests (./gradlew :sharedUi:jvmTest), as in :sharedCore:
+    // headless desktop Compose with real Skia, so iOS-host logic is tested without a Mac (I0 spec §2).
+    jvm()
+
     // iOS targets: configure + compile-check on Linux; the framework LINK tasks run only
     // on a Mac. The static framework (baseName "SharedUi") is what the iOS host embeds.
     listOf(iosArm64(), iosSimulatorArm64()).forEach { iosTarget ->
@@ -56,6 +60,8 @@ kotlin {
             // `implementation`: only AiNavGraph.kt's LifecycleEventEffect uses it, never exposed
             // through :app's compile classpath the way NavHostController is.
             implementation(libs.jetbrains.lifecycle.runtime.compose)
+            // JsonElement parsing for the BibleView bridge (no plugin needed):
+            implementation(libs.kotlinx.serialization.json)
         }
         androidMain.dependencies {
             // PlatformBackHandler's android actual delegates to androidx.activity.compose.BackHandler.
@@ -70,6 +76,16 @@ kotlin {
             implementation(kotlin("test"))
         }
         iosMain { kotlin.srcDir(iosStringsOutDir) }
+        jvmTest {
+            // The generated iOS strings holder is pure Kotlin; reusing it gives JVM tests real English text.
+            kotlin.srcDir(iosStringsOutDir)
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+                implementation(compose.uiTest)
+                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
     }
 }
 
@@ -87,5 +103,11 @@ val generateIosStrings by tasks.registering(JavaExec::class) {
     outputs.dir(iosStringsOutDir)
 }
 
-listOf("compileKotlinIosArm64", "compileKotlinIosSimulatorArm64", "compileIosMainKotlinMetadata")
+listOf("compileKotlinIosArm64", "compileKotlinIosSimulatorArm64", "compileIosMainKotlinMetadata",
+    "compileTestKotlinJvm")
     .forEach { name -> tasks.matching { it.name == name }.configureEach { dependsOn(generateIosStrings) } }
+
+// Headless desktop Compose (no X server in the container / CI).
+tasks.matching { it.name == "jvmTest" }.configureEach {
+    (this as Test).systemProperty("java.awt.headless", "true")
+}
