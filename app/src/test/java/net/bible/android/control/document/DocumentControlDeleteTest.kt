@@ -7,6 +7,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import java.util.concurrent.Executors
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import java.util.Collections
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.bible.android.control.page.window.WindowControl
@@ -20,7 +23,9 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookDriver
 import net.bible.android.control.document.DocumentChanges
 import org.junit.Assert.assertEquals
+import org.junit.After
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 
@@ -55,7 +60,21 @@ class DocumentControlDeleteTest {
     // The subclass mock maker cannot stub WindowControl's final activeWindowPageManager, so the page tidy-up after each
     // delete throws here (an NPE from the real getter); deleteDocuments collects that per document and carries on, which
     // is why the asserts below cover the files, rows and notification rather than checkCurrentDocumenInstalled itself.
-    private val windowControl = Mockito.mock(WindowControl::class.java)
+    // The real getter does reach the open windowRepository getter, though: that records the thread the tidy-up ran on.
+    private val tidyUpThreads = Collections.synchronizedList(mutableListOf<String>())
+    private val windowControl = Mockito.mock(WindowControl::class.java).also {
+        Mockito.`when`(it.windowRepository).thenAnswer { tidyUpThreads += Thread.currentThread().name.substringBefore(" @"); null }
+    }
+
+    /** Stands in for the Android main thread: the tidy-up and the notification must run here. */
+    private val mainExecutor = Executors.newSingleThreadExecutor { r -> Thread(r, MAIN) }
+
+    @Before fun setMain() { Dispatchers.setMain(mainExecutor.asCoroutineDispatcher()) }
+
+    @After fun resetMain() {
+        Dispatchers.resetMain()
+        mainExecutor.shutdownNow()
+    }
 
     private fun deletableBook(initials: String) = Mockito.mock(Book::class.java).also {
         Mockito.`when`(it.initials).thenReturn(initials)
@@ -73,25 +92,30 @@ class DocumentControlDeleteTest {
     @Test fun backupRowIsDeletedEvenWhenTheCallerIsCancelledBetweenFilesAndRow() = runBlocking {
         val callerScope = CoroutineScope(Job() + Dispatchers.Default)
         try {
-            val caller = callerScope.launch { control().deleteDocument(book) }
+            // runCatching: the mocked window tidy-up throws (see windowControl); that must not leak as an uncaught
+            // coroutine exception into the one-JVM suite (runTest elsewhere reports those)
+            val caller = callerScope.launch { runCatching { control().deleteDocument(book) } }
             withTimeout(10_000) { daoEntered.await() } // files are gone, the row delete is in flight
             caller.cancel()                             // the screen went away (withContext still waits for the app-scope work)
             daoGate.complete(Unit)
             caller.join()
             withTimeout(10_000) { while (backupRowsDeleted.isEmpty()) kotlinx.coroutines.delay(10) }
+            withTimeout(10_000) { while (tidyUpThreads.isEmpty()) kotlinx.coroutines.delay(10) }
         } finally {
             callerScope.coroutineContext[Job]?.cancel()
             appScope.coroutineContext[Job]?.cancel()
         }
         assertEquals(listOf("GoneBook"), filesDeleted)
         assertEquals("backup row must go with the files", listOf("GoneBook"), backupRowsDeleted)
+        assertEquals("the page tidy-up runs (on the main thread) although the caller went away", listOf(MAIN), tidyUpThreads)
         assertTrue("cancelling the screen is not an error: $errors", errors.isEmpty())
     }
 
     @Test fun cancellingTheCallerStillDeletesEveryDocumentAndNotifiesInstalledChanged() = runBlocking {
         val books = listOf(deletableBook("A"), deletableBook("B"), deletableBook("C"))
         var notified = 0
-        val sub = DocumentChanges.installedChanged.subscribe { notified++ }
+        val notifyThreads = Collections.synchronizedList(mutableListOf<String>())
+        val sub = DocumentChanges.installedChanged.subscribe { notified++; notifyThreads += Thread.currentThread().name.substringBefore(" @") }
         // a dispatcher other than the app scope's, like the Main thread in production: with the same one, withContext
         // returns undispatched and a caller cancellation is never observed between documents
         val callerDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
@@ -112,6 +136,12 @@ class DocumentControlDeleteTest {
         assertEquals("every document's files must go", listOf("A", "B", "C"), filesDeleted)
         assertEquals("every document's backup row must go", listOf("A", "B", "C"), backupRowsDeleted)
         assertEquals("observers of the installed list must be told exactly once", 1, notified)
+        assertEquals("the installed-changed notification runs on the main thread", listOf(MAIN), notifyThreads)
+        assertEquals("each document's page tidy-up runs on the main thread", listOf(MAIN, MAIN, MAIN), tidyUpThreads)
         assertTrue("cancelling the screen is not an error: $errors", errors.isEmpty())
+    }
+
+    private companion object {
+        const val MAIN = "test-main"
     }
 }

@@ -41,6 +41,7 @@ import net.bible.sharedcore.platform.UserNotifier
 import net.bible.sharedcore.platform.AppCoroutineScope
 import net.bible.android.database.SwordDocumentInfoDao
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 
@@ -203,23 +204,26 @@ class DocumentControl constructor(
     /** delete selected document, even of current doc (Map and Gen Book only currently) and tidy up CurrentPage
      */
     @Throws(BookException::class)
-    suspend fun deleteDocument(document: Book) {
-        // The files and the backup row go together or not at all: run both in the app scope so that a caller
-        // that goes away mid-delete (back, finish) cannot leave a deleted book with a stale backup row.
-        withContext(appScope.coroutineContext) {
-            deleteFiles.delete(document)
-            if (document.bookCategory != BookCategory.AND_BIBLE) documentBackupDao.deleteByOsisId(document.initials)
+    suspend fun deleteDocument(document: Book): Unit = withContext(appScope.coroutineContext) {
+        // The files, the backup row and the page tidy-up go together or not at all: all run in the app scope so
+        // that a caller that goes away mid-delete (back, finish) cannot leave a deleted book with a stale backup
+        // row or a window still showing it.
+        deleteFiles.delete(document)
+        if (document.bookCategory == BookCategory.AND_BIBLE) return@withContext
+        documentBackupDao.deleteByOsisId(document.initials)
+        // Window/page state belongs to the main thread (it was always tidied there).
+        withContext(Dispatchers.Main) {
+            windowControl.activeWindowPageManager.getBookPage(document, null)?.checkCurrentDocumenInstalled()
         }
-        if(document.bookCategory == BookCategory.AND_BIBLE) return
-        val currentPage = windowControl.activeWindowPageManager.getBookPage(document, null)
-        currentPage?.checkCurrentDocumenInstalled()
     }
 
     /**
      * Delete [documents] in order, re-checking [canDelete] for each (deleting one of two installed Bibles flips the
      * other's flag). The whole loop, the per-document tidy-up and the installed-changed notification run in the app
      * scope: a screen going away mid-way (cancelling the caller) cannot leave the remaining documents installed or
-     * other observers of the installed list stale. Per-document failures are collected in the result, not thrown.
+     * other observers of the installed list stale. The per-document tidy-up and the notification run on the main
+     * thread (their observers are UI state), still inside the app-scope block. Per-document failures are collected in
+     * the result, not thrown.
      */
     suspend fun deleteDocuments(documents: List<Book>): DeleteDocumentsResult = withContext(appScope.coroutineContext) {
         var skipped = false
@@ -234,7 +238,7 @@ class DocumentControl constructor(
                 failures += document to e
             }
         }
-        DocumentChanges.notifyInstalledChanged()
+        withContext(Dispatchers.Main) { DocumentChanges.notifyInstalledChanged() }
         DeleteDocumentsResult(skipped, failures)
     }
 

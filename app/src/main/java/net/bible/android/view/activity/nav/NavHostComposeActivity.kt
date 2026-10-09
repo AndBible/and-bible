@@ -2848,7 +2848,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * event that arrives while this host is showing its Download destination is exactly the event
      * the reading view must honour when it comes back.
      */
-    private var updateDocumentsPending = false
+    @Volatile private var updateDocumentsPending = false
 
     /** Classic `MainBibleActivity.updateDocuments()` (`:1706-1710`). */
     private fun updateDocuments() {
