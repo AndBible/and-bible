@@ -6,9 +6,9 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.runBlocking
 import net.bible.android.database.readingplan.ReadingPlanDao
@@ -45,6 +45,11 @@ class ReadingPlanDayWritesTest {
     private var originalPlan: String? = null
     private val entered = CompletableDeferred<Unit>()
     private val gate = CompletableDeferred<Unit>()
+    /** Armed by the toggle test: the first status READ after arming parks (holding its stale snapshot) until released. */
+    @Volatile private var statusGateArmed = false
+    private val statusReadHeld = CompletableDeferred<Unit>()
+    private val statusReadRelease = CompletableDeferred<Unit>()
+    private lateinit var repo: ReadingPlanRepository
     private val appScope = AppCoroutineScope()
 
     @Before fun setUp() {
@@ -58,8 +63,13 @@ class ReadingPlanDayWritesTest {
                 if (first) { first = false; entered.complete(Unit); gate.await() }
                 real.updatePlan(plan)
             }
+            override suspend fun getStatus(planCode: String, planDay: Int): ReadingPlanEntities.ReadingPlanStatus? {
+                val snapshot = real.getStatus(planCode, planDay)
+                if (statusGateArmed) { statusGateArmed = false; statusReadHeld.complete(Unit); statusReadRelease.await() }
+                return snapshot
+            }
         }
-        val repo = ReadingPlanRepository(daoProvider = { gated }, appScope = appScope)
+        repo = ReadingPlanRepository(daoProvider = { gated }, appScope = appScope)
         val source = object : ReadingPlanSource {
             override fun builtInPlanCodes() = listOf("three")
             override fun openBuiltInPlan(code: String) = "# Three\n1=Gen.1\n2=Gen.2\n3=Gen.3\n"
@@ -77,13 +87,14 @@ class ReadingPlanDayWritesTest {
         db.close()
     }
 
-    private val writes get() = ReadingPlanDayWrites(control, appScope.coroutineContext)
+    // one instance, as the screen holds it (its lock serialises that instance's writes)
+    private val writes by lazy { ReadingPlanDayWrites(control, appScope.coroutineContext) }
 
     /** Starts [block] in a caller scope, cancels that scope once the first write is parked, then lets the write go. */
     private fun cancelCallerMidWay(block: suspend () -> Unit) = runBlocking {
         val caller = CoroutineScope(Job() + Dispatchers.Default)
         caller.launch { block() }
-        entered.await()
+        withTimeout(10_000) { entered.await() }
         caller.coroutineContext[Job]!!.cancel()
         gate.complete(Unit)
     }
@@ -96,6 +107,33 @@ class ReadingPlanDayWritesTest {
         cancelCallerMidWay { writes.setCurrentDay(info, 3) }
         // day 2 stored then advanced to 3: both steps of the sequence landed
         assertEquals(true, runBlocking { eventually { control.currentPlanDay() == 3 } })
+    }
+
+    /**
+     * Two quick taps on different readings: the first is held after reading its (empty) status snapshot while
+     * the second is given time to run. Unserialised, the second builds its own status, stores its tick, and the
+     * released first then stores a status without it. Both ticks must be stored.
+     */
+    @Test fun twoQuickTogglesOfDifferentReadingsAreBothStored() {
+        runBlocking { control.getDaysReading(1) } // plan started; any status read during setup is done
+        statusGateArmed = true
+        val caller = CoroutineScope(Job() + Dispatchers.Default)
+        try {
+            runBlocking {
+                val first = caller.launch { writes.toggleRead(1, 1) }
+                withTimeout(10_000) { statusReadHeld.await() }
+                val second = caller.launch { writes.toggleRead(1, 2) }
+                delay(300) // ample time for an unserialised second toggle to finish
+                statusReadRelease.complete(Unit)
+                withTimeout(10_000) { first.join(); second.join() }
+            }
+            val stored = ReadingStatus("three", 1, 3, repo)
+            val bothStored = runBlocking { eventually { stored.reloadStatus(); stored.isRead(1) && stored.isRead(2) } }
+            assertEquals("stored status: ${runBlocking { repo.getReadingStatus("three", 1) }}", true, bothStored)
+        } finally {
+            statusReadRelease.complete(Unit)
+            caller.coroutineContext[Job]!!.cancel()
+        }
     }
 
     @Test fun startDateIsStoredWhenTheCallerIsCancelledMidWay() {
