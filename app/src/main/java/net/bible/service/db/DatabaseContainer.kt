@@ -18,7 +18,6 @@ package net.bible.service.db
 
 import androidx.annotation.VisibleForTesting
 import android.util.Log
-import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.useWriterConnection
 import net.bible.android.BibleApplication.Companion.application
@@ -90,16 +89,6 @@ val ALL_DB_FILENAMES = arrayOf(
 
 class DataBaseNotReady: Exception()
 
-/**
- * The configuration every app database is built with: the bundled SQLite driver ([sqliteDriverFactory]),
- * queries on [Dispatchers.IO] and TRUNCATE journaling (which makes Room 3's pool a single connection).
- * Migrations are added per database by the caller.
- */
-internal fun <T : RoomDatabase> RoomDatabase.Builder<T>.productionConfig(): RoomDatabase.Builder<T> =
-    setDriver(sqliteDriverFactory())
-        .setQueryCoroutineContext(Dispatchers.IO)
-        .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-
 class DatabaseContainer {
     init {
         backupDatabaseIfNeeded()
@@ -109,13 +98,7 @@ class DatabaseContainer {
     }
 
     private fun getOldDatabase(): OldMonolithicAppDatabase =
-        Room.databaseBuilder<OldMonolithicAppDatabase>(application, OLD_MONOLITHIC_DATABASE_NAME)
-            .productionConfig()
-            .addMigrations(
-                *oldMonolithicAppDatabaseMigrations,
-                *oldMigrations,
-            )
-            .build()
+        buildAppDatabase<OldMonolithicAppDatabase>(OLD_MONOLITHIC_DATABASE_NAME, *oldMonolithicAppDatabaseMigrations, *oldMigrations)
 
     private fun migrateOldDatabaseIfNeeded() {
         val oldDbFile = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
@@ -132,16 +115,10 @@ class DatabaseContainer {
                 val migrations = DatabaseSplitMigrations(it, application)
                 migrations.migrateAll()
             }
-            application.deleteDatabase(OLD_MONOLITHIC_DATABASE_NAME) // the file and any journal/WAL leftovers
-            // Room 3 serialises opening/migrating through a `<name>.lck` lock file beside the database, which
-            // deleteDatabase does not know about.
-            File(oldDbFile.path + ".lck").delete()
+            deleteAppDatabase(OLD_MONOLITHIC_DATABASE_NAME) // the file, any journal/WAL leftovers and Room's .lck
         }
     }
-    fun getBookmarkDb(filename: String = BookmarkDatabase.dbFileName) = Room.databaseBuilder<BookmarkDatabase>(application, filename)
-        .productionConfig()
-        .addMigrations(*bookmarkMigrations)
-        .build()
+    fun getBookmarkDb(filename: String = BookmarkDatabase.dbFileName) = buildAppDatabase<BookmarkDatabase>(filename, *bookmarkMigrations)
 
     var bookmarkDb: BookmarkDatabase = getBookmarkDb()
     fun resetBookmarkDb(): BookmarkDatabase {
@@ -151,10 +128,7 @@ class DatabaseContainer {
     }
 
     fun getReadingPlanDb(filename: String = ReadingPlanDatabase.dbFileName) =
-        Room.databaseBuilder<ReadingPlanDatabase>(application, filename)
-            .productionConfig()
-            .addMigrations(*readingPlanMigrations)
-            .build()
+        buildAppDatabase<ReadingPlanDatabase>(filename, *readingPlanMigrations)
 
     var readingPlanDb: ReadingPlanDatabase = getReadingPlanDb()
     fun resetReadingPlanDb(): ReadingPlanDatabase {
@@ -164,10 +138,7 @@ class DatabaseContainer {
     }
 
     fun getWorkspaceDb(filename: String = WorkspaceDatabase.dbFileName) =
-        Room.databaseBuilder<WorkspaceDatabase>(application, filename)
-            .productionConfig()
-            .addMigrations(*workspacesMigrations)
-            .build()
+        buildAppDatabase<WorkspaceDatabase>(filename, *workspacesMigrations)
 
     var workspaceDb: WorkspaceDatabase = getWorkspaceDb()
 
@@ -178,10 +149,7 @@ class DatabaseContainer {
     }
 
     fun getMyDocumentDb(filename: String = MyDocumentDatabase.dbFileName) =
-        Room.databaseBuilder<MyDocumentDatabase>(application, filename)
-            .productionConfig()
-            .addMigrations(*myDocumentMigrations)
-            .build()
+        buildAppDatabase<MyDocumentDatabase>(filename, *myDocumentMigrations)
 
     var myDocumentDb: MyDocumentDatabase = getMyDocumentDb()
 
@@ -192,10 +160,7 @@ class DatabaseContainer {
     }
 
     fun getAiSettingsDb(filename: String = AiSettingsDatabase.dbFileName) =
-        Room.databaseBuilder<AiSettingsDatabase>(application, filename)
-            .productionConfig()
-            .addMigrations(*aiSettingsMigrations)
-            .build()
+        buildAppDatabase<AiSettingsDatabase>(filename, *aiSettingsMigrations)
 
     var aiSettingsDb: AiSettingsDatabase = getAiSettingsDb()
 
@@ -206,10 +171,7 @@ class DatabaseContainer {
     }
 
     fun getProgressDb(filename: String = ProgressDatabase.dbFileName) =
-        Room.databaseBuilder<ProgressDatabase>(application, filename)
-            .productionConfig()
-            .addMigrations(*progressMigrations)
-            .build()
+        buildAppDatabase<ProgressDatabase>(filename, *progressMigrations)
 
     var progressDb: ProgressDatabase = getProgressDb()
 
@@ -231,32 +193,19 @@ class DatabaseContainer {
     }
 
     val downloadDocumentsDb: TemporaryDatabase =
-        Room.databaseBuilder<TemporaryDatabase>(application, TEMPORARY_DOWNLOAD_DB_FILENAME)
-            .productionConfig()
-            .addMigrations(*temporaryMigrations)
-            .build()
+        buildAppDatabase<TemporaryDatabase>(TEMPORARY_DOWNLOAD_DB_FILENAME, *temporaryMigrations)
 
     val chooseDocumentsDb: TemporaryDatabase =
-        Room.databaseBuilder<TemporaryDatabase>(application, TEMPORARY_CHOOSE_DB_FILENAME)
-            .productionConfig()
-            .addMigrations(*temporaryMigrations)
-            .build()
+        buildAppDatabase<TemporaryDatabase>(TEMPORARY_CHOOSE_DB_FILENAME, *temporaryMigrations)
 
     val documentSyncDb: DocumentSyncDatabase =
-        Room.databaseBuilder<DocumentSyncDatabase>(application, DOCUMENT_SYNC_DB_FILENAME)
-            .productionConfig()
-            .build()
+        buildAppDatabase<DocumentSyncDatabase>(DOCUMENT_SYNC_DB_FILENAME)
 
     val repoDb: RepoDatabase =
-        Room.databaseBuilder<RepoDatabase>(application, RepoDatabase.dbFileName)
-            .productionConfig()
-            .addMigrations()
-            .build()
+        buildAppDatabase<RepoDatabase>(RepoDatabase.dbFileName)
 
     val settingsDb: SettingsDatabase =
-        Room.databaseBuilder<SettingsDatabase>(application, SettingsDatabase.dbFileName)
-            .productionConfig()
-            .build()
+        buildAppDatabase<SettingsDatabase>(SettingsDatabase.dbFileName)
 
     /** `internal` only so a test can occupy the writer thread; not for production use. */
     internal val settingsScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(1))
@@ -270,7 +219,7 @@ class DatabaseContainer {
     private fun backupDatabaseIfNeeded() {
         if(application.isRunningTests) return
         val oldDb = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
-        if(oldDb.exists()) {
+        if(oldDb.exists() && recoverIfCorrupt(oldDb) == null) {
             backupOldDatabase(oldDb)
         } else {
             backupNewDatabaseIfNeeded()
@@ -288,14 +237,7 @@ class DatabaseContainer {
 
     private fun backupNewDatabaseIfNeeded() {
         Log.i(TAG, "backupDatabaseIfNeeded")
-        val versions = ALL_DB_FILENAMES.map {
-            val file = application.getDatabasePath(it)
-            if(file.exists()) {
-                readUserVersion(file)
-            } else {
-                0
-            }
-        }
+        val versions = ALL_DB_FILENAMES.map { userVersionRecoveringCorruption(application.getDatabasePath(it)) }
 
         val maxVersions = ALL_DB_FILENAMES.map { maxDatabaseVersion(it) }
         val needBackup = maxVersions != versions
@@ -314,14 +256,17 @@ class DatabaseContainer {
         }
     }
 
-    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, aiSettingsDb, progressDb)
+    // Computed, not captured: the resetXDb() functions (a first cloud sync swapping in the downloaded file) replace
+    // the instances, and a captured array would keep vacuuming/closing the closed old one (a closed Room 3 database
+    // throws) while never closing the live one.
+    private val backedUpDatabases get() = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, aiSettingsDb, progressDb)
     // documentSyncDb is intentionally NOT backed up or vacuumed (device-local, sign-out-scoped cache),
     // but it must still be closed by closeAll() on reset()/restore — otherwise the old Room handle
     // leaks and the next container opens a second handle to the same file (SQLite lock risk).
-    private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, documentSyncDb)
+    private val allDatabases get() = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, documentSyncDb)
 
-    /** Keyed by the file name each database was built with. */
-    val dbByFilename: Map<String, RoomDatabase> = mapOf(
+    /** Keyed by the file name each database was built with; the current instances (see [backedUpDatabases]). */
+    val dbByFilename: Map<String, RoomDatabase> get() = mapOf(
         BookmarkDatabase.dbFileName to bookmarkDb,
         ReadingPlanDatabase.dbFileName to readingPlanDb,
         WorkspaceDatabase.dbFileName to workspaceDb,
@@ -350,10 +295,13 @@ class DatabaseContainer {
      * Closes one database by file name ahead of its file being replaced or deleted. For the settings database
      * the settings store is flushed first, so no write still queued is lost or lands in the replaced file.
      *
-     * A Room 3 database never reopens after `close()`: any DAO call on it afterwards fails. Between this call
-     * and the [reset] that builds a new container (the restore flow's hazard window), a DAO call on the closed
-     * database (a settings write from another thread reaching the store's writer, a UI save) throws instead of
-     * reaching either file; settings writes made then are logged by the store's `onWriteError` and dropped.
+     * A Room 3 database never reopens after `close()`: a DAO call on it afterwards throws `IllegalStateException`
+     * ("Database is closed"); a call already under way when the close lands gets `androidx.sqlite.SQLiteException`
+     * (SQLITE_MISUSE, "Connection pool is closed"), which code catching `SQLiteException` around a database call
+     * (e.g. `insertOr`, which returns -1) swallows silently. Between this call and the [reset] that builds a new
+     * container (the restore flow's hazard window), a DAO call on the closed database (a settings write from another
+     * thread reaching the store's writer, a UI save) throws instead of reaching either file; settings writes made
+     * then are logged by the store's `onWriteError` and dropped.
      * Closing an already closed database is a no-op, so [closeAll] after this is safe.
      */
     internal fun closeForReplace(fileName: String) {

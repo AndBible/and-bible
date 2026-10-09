@@ -18,6 +18,7 @@
 package net.bible.service.sword.epub
 
 import net.bible.service.db.blockingDb
+import net.bible.service.db.deleteAppDatabase
 import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
@@ -382,7 +383,7 @@ class EpubBackendState(private val epubDir: File): OpenFileState {
     fun delete() {
         epubDir.deleteRecursively()
         readDb.close()
-        BibleApplication.application.deleteDatabase(appDbFilename)
+        deleteAppDatabase(appDbFilename)
     }
 
     fun getKey(originalKey: String, htmlId: String): Key? {

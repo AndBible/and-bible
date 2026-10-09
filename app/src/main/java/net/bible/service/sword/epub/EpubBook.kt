@@ -18,15 +18,13 @@
 package net.bible.service.sword.epub
 
 import android.util.Log
-import androidx.room3.Room
-import androidx.room3.RoomDatabase
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.database.EpubDatabase
 import net.bible.android.database.epubMigrations
-import net.bible.service.db.sqliteDriverFactory
-import kotlinx.coroutines.Dispatchers
+import net.bible.service.db.buildAppDatabase
+import net.bible.service.db.deleteAppDatabase
 import net.bible.android.view.activity.base.Dialogs
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -70,13 +68,8 @@ About=$about
 
 const val TAG = "EpubBook"
 
-fun getEpubDatabase(name: String): EpubDatabase =
-    Room.databaseBuilder<EpubDatabase>(application, name)
-        .setDriver(sqliteDriverFactory())
-        .setQueryCoroutineContext(Dispatchers.IO)
-        .addMigrations(*epubMigrations)
-        .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-        .build()
+/** A regenerable cache; a corrupt file is moved aside and recreated empty like every app database ([buildAppDatabase]). */
+fun getEpubDatabase(name: String): EpubDatabase = buildAppDatabase<EpubDatabase>(name, *epubMigrations)
 
 class EpubSwordDriver: AbstractBookDriver() {
     override fun getBooks(): Array<Book> {
@@ -147,7 +140,7 @@ val epubBookType = object: BookType("EpubBook", BookCategory.GENERAL_BOOK, KeyTy
 fun deleteEpubModule(epubDir: File) {
     epubDir.deleteRecursively()
     val appDbFilename = "epub-${epubInitials(epubDir.name)}.sqlite3"
-    application.deleteDatabase(appDbFilename)
+    deleteAppDatabase(appDbFilename)
 }
 
 fun addEpubBook(epubDir: File) {

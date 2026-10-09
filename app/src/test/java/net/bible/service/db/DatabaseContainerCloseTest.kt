@@ -27,6 +27,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,5 +64,30 @@ class DatabaseContainerCloseTest {
         old.closeForReplace(BookmarkDatabase.dbFileName)
         val error = runCatching { runBlocking { old.bookmarkDb.bookmarkDao().allLabelsSortedByName() } }.exceptionOrNull()
         assertNotNull("a closed Room 3 database must not reopen on a DAO call", error)
+        // Room 3's RoomDatabase.throwIfClosed(); only a call racing the close sees SQLiteException(MISUSE) instead.
+        assertTrue(error.toString(), error is IllegalStateException)
+    }
+
+    /**
+     * A first cloud sync swaps the downloaded file in and calls resetXDb(), which replaces the instance. The container's
+     * database lists must follow: sync()/vacuum() (run by every backup) must use the live instance, not throw on the
+     * closed old one, and closeForReplace/closeAll must close the live one.
+     */
+    @Test fun aResetDatabaseIsTheOneSyncedVacuumedAndClosed() {
+        val c = DatabaseContainer.instance
+        val oldBookmarks = c.bookmarkDb
+        val liveBookmarks = c.resetBookmarkDb()
+        val liveWorkspaces = c.resetWorkspaceDb()
+        assertNotSame(oldBookmarks, liveBookmarks)
+
+        runBlocking { c.sync(); c.vacuum() } // threw "Connection pool is closed" on the stale instances
+
+        c.closeForReplace(BookmarkDatabase.dbFileName)
+        assertNotNull("closeForReplace must close the live bookmark database",
+            runCatching { runBlocking { liveBookmarks.bookmarkDao().allLabelsSortedByName() } }.exceptionOrNull())
+
+        DatabaseContainer.reset() // closeAll()
+        assertNotNull("closeAll must close the live workspace database",
+            runCatching { runBlocking { liveWorkspaces.workspaceDao().allWorkspaces() } }.exceptionOrNull())
     }
 }

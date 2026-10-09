@@ -17,7 +17,6 @@
 
 package net.bible.android.database
 
-import androidx.sqlite.SQLiteException
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.TEST_SDK
@@ -170,13 +169,13 @@ class RealFileFixturesTest {
     }
 
     /**
-     * With the bundled driver (Room 3, D1 Task 17) a corrupt file is rejected by throwing: Room 3 has no
-     * framework corruption handler that would delete and recreate it empty (what requery/the platform did,
-     * which forced the earlier "throws OR serves 0 rows" check). The file is also left in place, untouched.
+     * A corrupt file must neither crash every start nor be lost: the container moves it aside to
+     * `<name>.corrupt-<timestamp>` (bytes intact) and Room recreates the database empty (D1 Task 17 fix round 1;
+     * before, the framework/requery handler deleted it; a bare Room 3 throws SQLITE_NOTADB on every access).
      */
-    @Test fun corruptedFixtureIsRejected() {
-        // Control: the very same open path on the intact file serves the 3 bookmarks, so the
-        // assertion below cannot pass vacuously (e.g. a broken open path that always yields 0).
+    @Test fun corruptedFixtureIsMovedAsideAndRecreatedEmpty() {
+        // Control: the very same open path on the intact file serves the 3 bookmarks, so the 0 below
+        // cannot pass vacuously (e.g. a broken open path that always yields 0).
         install(BookmarkDatabase.dbFileName)
         assertEquals(3, openBookmarkCount().getOrThrow())
         DatabaseContainer.reset()
@@ -184,11 +183,11 @@ class RealFileFixturesTest {
         val file = application.getDatabasePath(BookmarkDatabase.dbFileName)
         val garbage = ByteArray(4096) { 7 }
         file.writeBytes(garbage)
-        val result = openBookmarkCount()
-        val error = result.exceptionOrNull()
-        assertNotNull("corrupt file must be rejected, but it served ${result.getOrNull()} bookmarks", error)
-        assertTrue(error.toString(), error is SQLiteException)
-        assertTrue("SQLITE_NOTADB expected: $error", error!!.message.orEmpty().contains("not a database"))
-        assertTrue("the corrupt file must not be replaced", garbage.contentEquals(file.readBytes()))
+        assertEquals("a corrupt file is recreated empty", 0, openBookmarkCount().getOrThrow())
+
+        val aside = file.parentFile!!.listFiles()!!.filter { Regex(Regex.escape(file.name) + "\\.corrupt-[0-9-]+").matches(it.name) }
+        assertEquals("exactly one moved-aside copy: ${aside.map { it.name }}", 1, aside.size)
+        assertTrue("the moved-aside copy keeps the corrupt bytes", garbage.contentEquals(aside.single().readBytes()))
+        assertFalse("the recreated file is a real database", garbage.contentEquals(file.readBytes()))
     }
 }

@@ -18,7 +18,6 @@
 package net.bible.android.database
 
 import android.database.sqlite.SQLiteDatabase
-import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.useReaderConnection
 import kotlinx.coroutines.runBlocking
@@ -34,7 +33,7 @@ import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.mydocument.MY_DOCUMENT_DATABASE_VERSION
 import net.bible.android.database.progress.PROGRESS_DATABASE_VERSION
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.productionConfig
+import net.bible.service.db.buildAppDatabase
 import net.bible.service.sword.epub.getEpubDatabase
 import java.io.File
 
@@ -88,22 +87,19 @@ fun RoomDatabase.identityHash(): String = runBlocking {
 
 /**
  * One Room database exercised by the schema tests. [open] must go through the production builder
- * (or [productionConfig] with the production migrations) so the tests see the same driver, migrations and
+ * (or [buildAppDatabase] with the production migrations) so the tests see the same driver, migrations and
  * journal mode as the app.
  */
 data class DbUnderTest(val schemaDir: String, val currentVersion: Int, val open: (fileName: String) -> RoomDatabase)
 
 /**
  * Databases without a `getXDb(name)` factory in `DatabaseContainer` (Temporary, DocumentSync, Repo, Settings) are
- * built here with the production [productionConfig] and the same migrations array as their production builder
+ * built here with the production [buildAppDatabase] and the same migrations array as their production builder
  * (`DatabaseContainer.kt`). The migrations passed must stay identical to production.
  */
 private inline fun <reified T : RoomDatabase> copyOfProductionBuilder(
     name: String, vararg migrations: androidx.room3.migration.Migration,
-): T = Room.databaseBuilder<T>(application, name)
-    .productionConfig()
-    .addMigrations(*migrations)
-    .build()
+): T = buildAppDatabase<T>(name, *migrations)
 
 val DB_UNDER_TEST: List<DbUnderTest> = listOf(
     DbUnderTest("net.bible.android.database.BookmarkDatabase", BOOKMARK_DATABASE_VERSION) {
