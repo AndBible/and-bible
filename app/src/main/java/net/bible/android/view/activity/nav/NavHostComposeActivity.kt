@@ -7114,6 +7114,9 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         resetConfirmMessage = getString(R.string.sync_confirmation),
         invalidUrlMessage = getString(R.string.invalid_url_message),
         documentsEnableDialogTitle = getString(R.string.document_sync_enable_dialog_title),
+        certificateTitle = getString(R.string.webdav_certificate_title),
+        forgetCertificateMessage = getString(R.string.webdav_forget_certificate_message),
+        httpsRequiredMessage = getString(R.string.webdav_https_required),
     )
 
     // --- Reading-progress host baggage (slice 6, Task 8) ---------------------------------------

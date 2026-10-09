@@ -41,7 +41,7 @@ import net.bible.sharedui.strings.LocalStrings
  * [GenericSettingsEditorSheet]) rather than the dialogs this screen used to render inline — this
  * screen owns the [SettingsEditorStack] driving that sheet, the same way [AbSettingsScreen] does.
  * Overlaid with an [AbLoadingOverlay] while a blocking flow runs, plus the screen's confirm/error
- * modals ([AbConfirmDialog] for the document-enable + reset confirmations, [AbErrorDialog] for an
+ * modals ([AbConfirmDialog] for the document-enable, reset and forget-certificate confirmations, [AbErrorDialog] for an
  * invalid server URL). All state comes from [uiState]; every user action flows up through the
  * callbacks to the [SyncSettingsController].
  */
@@ -55,6 +55,7 @@ fun SyncSettingsScreen(
     onNavigate: (String) -> Unit,
     onConfirmReset: () -> Unit,
     onConfirmEnableDocuments: () -> Unit,
+    onConfirmForgetCertificate: () -> Unit,
     onDismissDialog: () -> Unit,
 ) {
     val strings = LocalStrings.current
@@ -98,6 +99,14 @@ fun SyncSettingsScreen(
             confirmText = strings.okay,
             dismissText = strings.cancel,
             onConfirm = onConfirmReset,
+            onDismiss = onDismissDialog,
+        )
+        is SyncDialog.ForgetCertificate -> AbConfirmDialog(
+            title = null,
+            message = d.message,
+            confirmText = strings.okay,
+            dismissText = strings.cancel,
+            onConfirm = onConfirmForgetCertificate,
             onDismiss = onDismissDialog,
         )
         is SyncDialog.UrlError -> AbErrorDialog(

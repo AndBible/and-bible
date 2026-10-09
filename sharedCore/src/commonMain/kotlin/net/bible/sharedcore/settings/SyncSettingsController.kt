@@ -57,6 +57,7 @@ class SyncSettingsController(
             ))
             add(SettingsItem.TextInputRow(
                 key = "cloud_sync_server_url", title = labels.serverUrlTitle, value = s.serverUrl,
+                summary = s.serverUrlHint?.takeIf { s.serverUrl.isBlank() },
                 visible = s.credsVisible, enabled = s.credsEnabled, iconKey = "cloud_sync_server_url",
             ))
             add(SettingsItem.TextInputRow(
@@ -76,6 +77,11 @@ class SyncSettingsController(
                 summary = s.folderPath.ifBlank { labels.folderPathSummary },
                 value = s.folderPath, visible = s.credsVisible, enabled = s.credsEnabled,
                 iconKey = "cloud_sync_folder_path",
+            ))
+            // Hidden unless a WebDAV TOFU pin exists; tapping offers to forget it.
+            add(SettingsItem.NavigationRow(
+                key = "webdav_sync_cert", title = labels.certificateTitle, summary = s.certificateSummary,
+                visible = s.certificateVisible, enabled = s.certificateEnabled, iconKey = "webdav_sync_cert",
             ))
             // ---- Synchronization categories ----
             add(SettingsItem.Category(key = "sync_category", title = labels.syncCat))
@@ -175,15 +181,21 @@ class SyncSettingsController(
 
     fun onTextInput(key: String, value: String) {
         val ok = service.setText(key, value)
-        if (!ok) setDialog(SyncDialog.UrlError(labels.invalidUrlMessage)) else service.refresh()
+        if (!ok) {
+            val httpsOnly = key == "cloud_sync_server_url" && service.snapshot.value.httpsOnly
+            setDialog(SyncDialog.UrlError(if (httpsOnly) labels.httpsRequiredMessage else labels.invalidUrlMessage))
+        } else service.refresh()
     }
 
     fun onNavigate(key: String) {
         when (key) {
             "cloud_sync_reset" -> setDialog(SyncDialog.ResetConfirm(labels.resetConfirmMessage))
             "document_sync_manage" -> onOpenCloudDocuments()
+            "webdav_sync_cert" -> setDialog(SyncDialog.ForgetCertificate(labels.forgetCertificateMessage))
         }
     }
+
+    fun confirmForgetCertificate() { service.forgetCertificate(); service.refresh(); dismissDialog() }
 
     fun confirmReset() {
         dismissDialog()
