@@ -587,4 +587,4 @@ bundletool {
 
 // Unit tests (Robolectric, on the JVM) need the bundled SQLite's JVM natives instead of the Android ones.
 configurations.matching { it.name.endsWith("UnitTestRuntimeClasspath") }.configureEach { exclude(group = "androidx.sqlite", module = "sqlite-bundled-android") }
-dependencies { testImplementation("androidx.sqlite:sqlite-bundled-jvm:2.7.1") }
+dependencies { testImplementation(libs.androidx.sqlite.bundled.jvm) }

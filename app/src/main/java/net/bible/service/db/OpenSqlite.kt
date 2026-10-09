@@ -26,14 +26,14 @@ import androidx.sqlite.driver.bundled.SQLITE_OPEN_READWRITE
 import java.io.File
 
 /**
- * Driver for every non-Room open and (Task 16-17) every Room builder. The unit tests use the bundled
- * driver too (decided in D1 Task 1), so they never replace this.
+ * Driver for every non-Room open and every Room builder ([buildAppDatabase]). The unit tests use the bundled
+ * driver too, so nothing replaces this.
  */
-var sqliteDriverFactory: () -> SQLiteDriver = { BundledSQLiteDriver() }
+val sqliteDriverFactory: () -> SQLiteDriver = { BundledSQLiteDriver() }
 
 /**
  * Opens a non-Room SQLite file (third-party modules, legacy files) with the bundled SQLite. Read-write opens
- * create the file when missing. Read-only opens are exercised only on the emulator (Task 18).
+ * create the file when missing. Read-only opens are exercised only on the emulator, not by the unit tests.
  * Room uses the same bundled library, so POSIX locks on a file are shared with Room's connections.
  */
 fun openSqlite(path: String, readOnly: Boolean = false): SQLiteConnection {
