@@ -64,6 +64,11 @@ settings hierarchy described above.
     - *Manual* (default) – toggle dark mode from the three-dot menu.
     - *Automatic* – switch based on time of day.
     - *System* – follow the Android system dark mode setting (Android 10+).
+- **Theme style:** Choose how the app's colors are derived from the
+    workspace color. *Fidelity* (default) uses the chosen color as is;
+    *Tonal spot* gives soft pastel tones; *Neutral* and *Monochrome* are muted
+    or grey; the other styles are more playful. Applies only when **Color
+    mode** is *Normal*.
 - **Format for new bookmark notes:** Choose whether new [notes](notes.md)
     are created with the **HTML** editor or the **Markdown** editor. Existing
     notes keep the format they were created with.
@@ -74,6 +79,10 @@ settings hierarchy described above.
     Recommended for e-ink displays where color rendering is limited.
 - **Disable animations:** Turns off smooth scrolling and transition animations.
     Improves responsiveness on e-ink screens and very old devices.
+
+In *Black & white* and *Color e-ink* color modes the **Theme style** setting is
+not used: the interface stays grey so that contrast is the same for every
+workspace color.
 
 These two settings work well together for an optimal e-ink reading experience.
 
