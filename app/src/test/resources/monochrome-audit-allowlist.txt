@@ -1,1 +1,0 @@
-# Scenes not yet monochrome-clean. Each fixing commit deletes its line. Must end empty (spec 8.1).

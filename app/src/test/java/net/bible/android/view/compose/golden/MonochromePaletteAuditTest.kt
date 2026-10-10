@@ -264,58 +264,49 @@ class MonochromeAuditPolicyTest {
     @get:Rule val temporaryFolder = TemporaryFolder()
     private val pass = MonochromePaletteAudit.AuditResult(0, null, 0)
     private val fail = MonochromePaletteAudit.AuditResult(5, Rectangle(2, 3, 4, 5), 1)
-    private fun policy(allow: Set<String> = emptySet(), exempt: Set<String> = emptySet()) =
-        MonochromeAuditPolicy(allow, exempt)
+    private fun policy(exempt: Set<String> = emptySet()) = MonochromeAuditPolicy(exempt)
 
     private fun MonochromeAuditPolicy.check(key: String, tag: String, result: MonochromePaletteAudit.AuditResult, image: File, report: String?) =
         check(key, listOf(MonochromeAuditPolicy.Render(tag, result, image),
             MonochromeAuditPolicy.Render(if (tag == "mono") "mono_dark" else "mono", result, image)), report)
 
-    @Test fun `parses blank comments and inline reasons`() {
-        assertEquals(setOf("Screen_state", "Other_state"), MonochromeAuditPolicy.parseEntries(
-            "# header\n\n Screen_state # reason\nOther_state\nScreen_state\n".reader()))
+    @Test fun `exempt scene skips audit`() {
+        assertFalse(policy(setOf("Scene_state")).shouldAudit("Scene_state"))
+        policy(exempt = setOf("Scene_state")).check("Scene_state", listOf(
+            MonochromeAuditPolicy.Render("mono", fail, File("scene.png")),
+            MonochromeAuditPolicy.Render("mono_dark", fail, File("scene-dark.png"))), null)
     }
-    @Test fun `exempt scene skips audit even when also allowlisted`() {
-        assertFalse(policy(setOf("Scene_state"), setOf("Scene_state")).shouldAudit("Scene_state"))
-        policy(exempt = setOf("Scene_state")).check("Scene_state", "mono", fail, File("scene.png"), null)
-    }
-    @Test fun `unlisted clean and allowlisted failing scenes pass`() {
-        policy().check("Scene_state", "mono", pass, File("scene.png"), null)
-        policy(setOf("Scene_state")).check("Scene_state", "mono_dark", fail, File("scene.png"), null)
-    }
-    @Test fun `unlisted failure reports pixels tag bounds and image path`() {
+    @Test fun `unexempt clean renders pass and any failed theme throws`() {
+        policy().check("Scene_state", listOf(
+            MonochromeAuditPolicy.Render("mono", pass, File("scene.png")),
+            MonochromeAuditPolicy.Render("mono_dark", pass, File("scene-dark.png"))), null)
         val error = assertThrows(AssertionError::class.java) {
-            policy().check("Scene_state", "mono_dark", fail, File("build/mono-audit/scene.png"), "")
+            policy().check("Scene_state", listOf(
+                MonochromeAuditPolicy.Render("mono", pass, File("scene.png")),
+                MonochromeAuditPolicy.Render("mono_dark", fail, File("scene-dark.png"))), null)
+        }
+        assertTrue(error.message!!.contains("Scene_state_mono_dark: 5 non-monochrome px"))
+    }
+    @Test fun `failure reports pixels tag bounds and image path`() {
+        val error = assertThrows(AssertionError::class.java) {
+            policy().check("Scene_state", listOf(
+                MonochromeAuditPolicy.Render("mono", pass, File("scene.png")),
+                MonochromeAuditPolicy.Render("mono_dark", fail, File("build/mono-audit/scene.png"))), "")
         }
         assertTrue(error.message!!.contains("Scene_state_mono_dark: 5 non-monochrome px (1 chromatic)"))
         assertTrue(error.message!!.contains("java.awt.Rectangle[x=2,y=3,width=4,height=5]"))
         assertTrue(error.message!!.contains("build/mono-audit/scene.png"))
     }
-    @Test fun `allowlisted light pass dark fail is not stale`() {
-        val p = policy(setOf("Scene_state"))
-        p.check("Scene_state", listOf(
-            MonochromeAuditPolicy.Render("mono", pass, File("scene.png")),
-            MonochromeAuditPolicy.Render("mono_dark", fail, File("scene-dark.png"))), null)
-    }
-    @Test fun `allowlisted light fail dark pass is not stale`() {
-        val p = policy(setOf("Scene_state"))
-        p.check("Scene_state", listOf(
-            MonochromeAuditPolicy.Render("mono", fail, File("scene.png")),
-            MonochromeAuditPolicy.Render("mono_dark", pass, File("scene-dark.png"))), null)
-    }
-    @Test fun `stale allowlist throws`() {
-        val error = assertThrows(AssertionError::class.java) {
-            policy(setOf("Scene_state")).check("Scene_state", "mono", pass, File("scene.png"), null)
-        }
-        assertTrue(error.message!!.contains("remove it from monochrome-audit-allowlist.txt"))
-    }
-    @Test fun `report mode appends both failure types without throwing`() {
+    @Test fun `report mode appends both theme failures without throwing`() {
         val report = File(temporaryFolder.root, "nested/report.txt")
-        policy().check("Bad_state", "mono", fail, File("scene.png"), report.path)
-        policy(setOf("Clean_state")).check("Clean_state", "mono", pass, File("scene.png"), report.path)
-        assertEquals(3, report.readLines().size)
+        policy().check("Bad_state", listOf(
+            MonochromeAuditPolicy.Render("mono", fail, File("scene.png")),
+            MonochromeAuditPolicy.Render("mono_dark", fail, File("scene-dark.png"))), report.path)
+        policy().check("Clean_state", listOf(
+            MonochromeAuditPolicy.Render("mono", pass, File("scene.png")),
+            MonochromeAuditPolicy.Render("mono_dark", pass, File("scene-dark.png"))), report.path)
+        assertEquals(2, report.readLines().size)
         assertTrue(report.readLines()[0].startsWith("Bad_state_mono:"))
         assertTrue(report.readLines()[1].startsWith("Bad_state_mono_dark:"))
-        assertTrue(report.readLines()[2].startsWith("Clean_state passes"))
     }
 }

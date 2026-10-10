@@ -3,7 +3,6 @@ package net.bible.android.view.compose.golden
 import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import java.io.File
-import java.io.Reader
 import kotlin.math.abs
 
 /**
@@ -81,21 +80,16 @@ object MonochromePaletteAudit {
     }
 }
 
-/** Classpath scene lists and failure handling, separate from Compose so the policy is cheaply testable. */
-internal class MonochromeAuditPolicy(private val allowlist: Set<String>, private val exempt: Set<String>) {
+/** Permanent purpose-colour exemptions and failure handling, separate from Compose for cheap testing. */
+internal class MonochromeAuditPolicy(private val exempt: Set<String>) {
     fun shouldAudit(key: String): Boolean = key !in exempt
 
     data class Render(val tag: String, val result: MonochromePaletteAudit.AuditResult, val image: File)
 
-    /** A scene leaves the allowlist only after every audited theme passes. */
     fun check(key: String, renders: List<Render>, report: String?) {
         if (!shouldAudit(key)) return
         require(renders.size == 2) { "A scene audit requires both monochrome themes" }
-        val messages = if (key in allowlist) {
-            if (renders.all { it.result.passed }) {
-                listOf("$key passes the monochrome audit; remove it from monochrome-audit-allowlist.txt")
-            } else emptyList()
-        } else renders.filter { !it.result.passed }.map { (tag, result, image) ->
+        val messages = renders.filter { !it.result.passed }.map { (tag, result, image) ->
             "${key}_${tag}: ${result.badPixels} non-monochrome px (${result.chromatic} chromatic) in ${result.bounds}; see ${image.path}"
         }
         if (messages.isEmpty()) return
@@ -106,18 +100,14 @@ internal class MonochromeAuditPolicy(private val allowlist: Set<String>, private
     }
 
     companion object {
-        fun parseEntries(reader: Reader): Set<String> = reader.buffered().useLines { lines ->
-            lines.map { it.substringBefore('#').trim() }.filter { it.isNotEmpty() }.toSet()
-        }
-
         fun fromResources(): MonochromeAuditPolicy {
-            fun entries(name: String): Set<String> {
-                val stream = checkNotNull(MonochromeAuditPolicy::class.java.getResourceAsStream("/$name")) {
-                    "Missing monochrome audit resource: $name"
-                }
-                return parseEntries(stream.reader())
+            val stream = checkNotNull(MonochromeAuditPolicy::class.java.getResourceAsStream("/monochrome-audit-exempt.txt")) {
+                "Missing monochrome audit resource: monochrome-audit-exempt.txt"
             }
-            return MonochromeAuditPolicy(entries("monochrome-audit-allowlist.txt"), entries("monochrome-audit-exempt.txt"))
+            val exempt = stream.bufferedReader().useLines { lines ->
+                lines.map { it.substringBefore('#').trim() }.filter { it.isNotEmpty() }.toSet()
+            }
+            return MonochromeAuditPolicy(exempt)
         }
     }
 }
