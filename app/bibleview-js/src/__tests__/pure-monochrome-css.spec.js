@@ -16,7 +16,53 @@ function declaration(css, selector, text) {
     expect(blocks.some(([, selectors, body]) => selectors.split(",").map(s => s.trim()).includes(selector) && body.includes(text))).toBe(true);
 }
 
+// Resolve matching compiled selectors in specificity/source order (jsdom ignores specificity).
+function cascaded(css, element, property) {
+    const matches = [];
+    for (const [, selectors, body] of css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+        for (const selector of selectors.split(",").map(s => s.trim())) {
+            if (selector.includes("@") || /^(from|to|[\d.]+%)$/.test(selector) || !element.matches(selector)) continue;
+            const specificity = (selector.match(/[.:#][\w-]+/g) || []).length;
+            for (const [, name, value] of body.matchAll(/([\w-]+)\s*:\s*([^;]+);/g)) {
+                if (name === property) matches.push({specificity, value: value.trim()});
+            }
+        }
+    }
+    return matches.sort((a, b) => a.specificity - b.specificity).at(-1)?.value;
+}
+function stateElement(rootClasses, classes) {
+    const root = document.createElement("div");
+    root.className = rootClasses;
+    const element = document.createElement("div");
+    element.className = classes;
+    root.appendChild(element);
+    return element;
+}
+
 describe("pure monochrome compiled styles", () => {
+    it("memorized menu uses ink in the winning cascade, leaving BW and normal unchanged", () => {
+        const css = rules("../components/documents/MemorizeDocument.vue");
+        expect(cascaded(css, stateElement("monochrome pureMonochrome", "menu-item memorized"), "color")).toBe("black");
+        expect(cascaded(css, stateElement("monochrome pureMonochrome night", "menu-item memorized"), "color")).toBe("white");
+        expect(cascaded(css, stateElement("monochrome", "menu-item memorized"), "color")).toBe("#4CAF50");
+        expect(cascaded(css, stateElement("", "menu-item memorized"), "color")).toBe("#4CAF50");
+    });
+    it("pure settings popup cannot animate even with animations enabled", () => {
+        const css = rules("../components/memorize/WordType.vue");
+        for (const theme of ["monochrome pureMonochrome", "monochrome pureMonochrome night"]) {
+            expect(cascaded(css, stateElement(theme, "settings-popup"), "animation")).toBe("none");
+        }
+        expect(cascaded(css, stateElement("", "settings-popup"), "animation")).toBe("settings-fade 0.15s ease");
+    });
+    it("pure completed text cannot animate even with animations enabled", () => {
+        const css = rules("../components/memorize/WordType.vue");
+        for (const theme of ["monochrome pureMonochrome", "monochrome pureMonochrome night"]) {
+            expect(cascaded(css, stateElement(theme, "type-text completed"), "animation")).toBe("none");
+            expect(cascaded(css, stateElement(theme, "settings-popup"), "animation")).toBe("none");
+        }
+        expect(cascaded(css, stateElement("monochrome", "type-text completed"), "animation")).toBe("completionPulse 2s");
+        expect(cascaded(css, stateElement("", "settings-popup"), "animation")).toBe("settings-fade 0.15s ease");
+    });
     it("uses ink tokens and a one-pixel frame, inverted at night", () => {
         const css = rules("../common.scss");
         declaration(css, ":root .pureMonochrome", "--primary-color: black");

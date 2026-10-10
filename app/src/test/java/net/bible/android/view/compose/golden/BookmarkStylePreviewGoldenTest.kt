@@ -8,8 +8,7 @@ import net.bible.sharedcore.bookmark.BookmarkDisplayStyle
 import net.bible.sharedui.bookmark.BookmarkStylePreview
 import net.bible.sharedui.components.AbColor
 import net.bible.sharedui.theme.isPureMonochrome
-import net.bible.sharedui.theme.monoInk
-import net.bible.sharedui.theme.LocalIsDarkTheme
+import net.bible.sharedui.bookmark.bookmarkMarkerTint
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -38,7 +37,7 @@ class BookmarkStylePreviewGoldenTest {
                     // Color(colorArgb) mirrors what LabelEditScreen's real preview call passes for
                     // a non-null custom icon (the label's own colour, since this background is the
                     // neutral card, not a same-coloured disc).
-                    iconSlot = { bookmarkIcon(null, if (isPureMonochrome()) monoInk(LocalIsDarkTheme.current) else Color(AbColor.palette.first())) },
+                    iconSlot = { bookmarkIcon(null, if (isPureMonochrome()) bookmarkMarkerTint(AbColor.palette.first()) else Color(AbColor.palette.first())) },
                 )
             }
         }
@@ -55,7 +54,7 @@ class BookmarkStylePreviewGoldenTest {
                     colorArgb = AbColor.palette.first(),
                     sampleText = "For God so loved the world",
                     decoratePartially = true,
-                    iconSlot = { bookmarkIcon(null, if (isPureMonochrome()) monoInk(LocalIsDarkTheme.current) else Color(AbColor.palette.first())) },
+                    iconSlot = { bookmarkIcon(null, if (isPureMonochrome()) bookmarkMarkerTint(AbColor.palette.first()) else Color(AbColor.palette.first())) },
                 )
             }
         }

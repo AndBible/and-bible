@@ -665,4 +665,7 @@ onBeforeUnmount(() => {
   &.heatmap-2 { border-bottom-width: 2px; }
   &.heatmap-3 { border-bottom-width: 3px; }
 }
+.pureMonochrome .type-text.completed, .pureMonochrome .settings-popup {
+  animation: none;
+}
 </style>

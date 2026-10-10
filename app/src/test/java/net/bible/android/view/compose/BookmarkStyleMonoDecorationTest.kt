@@ -85,6 +85,37 @@ class BookmarkStyleMonoDecorationTest {
         bitmap.recycle()
     }
 
+    private fun checkEditorMarker(dark: Boolean) {
+        val seed = 0xFF43A9D7.toInt()
+        val tints = mutableListOf<Color>()
+        compose.setContent {
+            ProvideAppLocals {
+                AbTheme(darkTheme = dark, colorMode = DisplayColorMode.MONOCHROME, disableAnimations = false) {
+                    net.bible.sharedui.bookmark.LabelEditScreen(
+                        state = net.bible.sharedcore.bookmark.LabelEditState(
+                            labelId = "L1", name = "Study", color = seed, customIcon = "star",
+                            selectionStyle = BookmarkDisplayStyle.MARKER, wholeVerseStyle = BookmarkDisplayStyle.MARKER,
+                            favourite = false, isAssigning = false, thisBookmarkSelected = false, thisBookmarkPrimary = false,
+                            hasWorkspaceContext = false, autoAssign = false, autoAssignPrimary = false,
+                            overrideMode = net.bible.sharedcore.bookmark.OverrideMode.NONE, isSpecialLabel = false, isSpeakLabel = false,
+                        ),
+                        onName = {}, onColor = {}, onCustomIcon = {}, onSelectionStyle = {}, onWholeVerseStyle = {},
+                        onToggleFavourite = {}, onToggleSelected = {}, onTogglePrimary = {}, onToggleAutoAssign = {},
+                        onToggleAutoAssignPrimary = {}, onOverrideMode = {}, onUp = {}, iconKeys = listOf("star"),
+                        iconSlot = { _, tint -> tints.add(tint); Box(Modifier.size(24.dp).background(tint)) }, actions = {},
+                    )
+                }
+            }
+        }
+        compose.runOnIdle {
+            kotlin.test.assertTrue(tints.size >= 3, "identity and both actual marker previews render")
+            tints.forEach { assertEquals(if (dark) Color.White else Color.Black, it, "stored seed must not leak grey into preview markers") }
+        }
+    }
+
+    @Test fun actual_editor_marker_light_uses_ink() = checkEditorMarker(false)
+    @Test fun actual_editor_marker_dark_uses_ink() = checkEditorMarker(true)
+
     @Test fun mono_light_paints_transparent_fill_and_ink_edges() = checkPixels(false)
     @Test fun mono_dark_paints_transparent_fill_and_ink_edges() = checkPixels(true)
 

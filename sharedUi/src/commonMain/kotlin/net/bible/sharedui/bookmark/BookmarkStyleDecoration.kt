@@ -51,6 +51,12 @@ import net.bible.sharedui.theme.LocalIsDarkTheme
 import net.bible.sharedui.theme.isPureMonochrome
 import net.bible.sharedui.theme.monoInk
 
+/** Marker previews share the editor's tint: pure ink only in MONO, legacy accent in other modes. */
+@Composable
+fun bookmarkMarkerTint(colorArgb: Int): Color =
+    if (isPureMonochrome()) monoInk(LocalIsDarkTheme.current)
+    else Color(net.bible.sharedcore.theme.accentArgbFor(colorArgb, LocalDisplayColorMode.current))
+
 /** The band drawn under UNDERLINE text. Odd-looking as a constant, but the underline has to read as
  *  a band rather than a hairline at every font scale, and 3dp is what the reading view's underline
  *  gradient occupies at default text size. */
