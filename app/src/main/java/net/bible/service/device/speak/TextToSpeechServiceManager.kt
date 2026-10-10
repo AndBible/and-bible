@@ -123,7 +123,7 @@ class TextToSpeechServiceManager constructor(
 
     private var temporary = false
     private var pendingGenericKey: BookAndKey? = null
-    // Automated settings resume reports speaking before a replacement engine is ready.
+    // Replacement initialization can retain speaking state after the old engine stops.
     private var forceQueueAfterEngineRestart = false
 
     init {
@@ -416,6 +416,8 @@ class TextToSpeechServiceManager constructor(
                 TAG,
                 "TTS engine preference changed from '$configuredEnginePackage' to '$preferredEnginePackage', reinitialising"
             )
+            // Replacement stops the old queue while retaining the active playback state.
+            forceQueueAfterEngineRestart = forceQueueAfterEngineRestart || isSpeaking
             shutdownTtsEngine()
             initializeTts(preferredEnginePackage)
         } else if (engineReady) {

@@ -130,6 +130,35 @@ class TextToSpeechServiceManagerEngineTest : SpeakIntegrationTestBase() {
     }
 
     @Test
+    fun queuedReadingPlanPassageResumesAfterEnginePreferenceChanges() {
+        engine.languages = supportedFinnish()
+        configureFreshControl()
+        val launcher = GlobalContext.get().get<net.bible.sharedcore.platform.OrderedLauncher>()
+        speakControl.speakKeyListLegacy(book, listOf(book.getKey("Gen.1.1")), true)
+        platform.listener!!.onInit(true)
+        kotlinx.coroutines.runBlocking { launcher.join(SPEAK_KEY) }
+        platform.listener!!.onUtteranceStart("AND-BIBLE-0")
+        val manager = GlobalContext.get().get<TextToSpeechServiceManager>()
+        val provider = org.robolectric.util.ReflectionHelpers.getField<LegacySpeakTextProvider>(manager, "legacySpeakTextProvider")
+        val currentText = provider.getText("AND-BIBLE-0")
+        val queuedBefore = engine.calls.count { it.startsWith("speak:") }
+        platform.preferredEnginePackage = "replacement.engine"
+        try {
+            speakControl.speakKeyListLegacy(book, listOf(book.getKey("Gen.2.1")), true)
+            assertEquals(2, platform.creations)
+            assertEquals("Replacement must await real initialization", queuedBefore, engine.calls.count { it.startsWith("speak:") })
+            assertEquals("Pending replacement must retain the current text", currentText, provider.getText("AND-BIBLE-0"))
+            platform.listener!!.onInit(true)
+            kotlinx.coroutines.runBlocking { launcher.join(SPEAK_KEY) }
+            assertTrue("Replacement engine must receive the next queued chunk", engine.calls.count { it.startsWith("speak:") } > queuedBefore)
+            assertTrue(speakControl.isSpeaking)
+            assertNotEquals("A replacement must advance text after the old engine stops", currentText, provider.getText("AND-BIBLE-1"))
+        } finally {
+            speakControl.stop(force = true)
+        }
+    }
+
+    @Test
     fun stopBeforeLoopEngineInitRestoresOriginalSettings() {
         verifyPendingLoopCleanup { assertFalse("Stop must restore non-loop playback settings", net.bible.android.database.bookmarks.SpeakSettings.load().playbackSettings.isMemorizationLoop) }
     }
