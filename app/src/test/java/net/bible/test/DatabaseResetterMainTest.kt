@@ -47,6 +47,70 @@ class DatabaseResetterMainTest {
         DatabaseResetter.resetDatabase()
     }
 
+    @Test fun committedActualDbResetWaitsPastDeadlineForDatabaseMonitor() {
+        val settings = get<DocumentSyncSettings>(DocumentSyncSettings::class.java)
+        runBlocking { settings.ensureLoaded() }
+        val launcher = get<OrderedLauncher>(OrderedLauncher::class.java)
+        val old = DatabaseContainer.instance
+        val monitorHeld = java.util.concurrent.CountDownLatch(1)
+        val resetCalled = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val holder = Thread {
+            synchronized(DatabaseContainer.Companion) {
+                monitorHeld.countDown()
+                release.await()
+            }
+        }.apply { start() }
+        assertTrue(monitorHeld.await(5, java.util.concurrent.TimeUnit.SECONDS))
+        val releaser = Thread {
+            resetCalled.await(5, java.util.concurrent.TimeUnit.SECONDS)
+            Thread.sleep(250)
+            release.countDown()
+        }.apply { start() }
+        try {
+            DatabaseResetter.runResetBlocking(timeoutMs = 100) {
+                DatabaseResetter.resetDocumentSyncFixture(settings, launcher) {
+                    resetCalled.countDown()
+                    DatabaseContainer.reset()
+                }
+            }
+            assertEquals("committed reset cannot return before monitor release", 0L, release.count)
+            assertNotSame(old, DatabaseContainer.instance)
+            runBlocking { settings.ensureLoaded() }
+        } finally {
+            release.countDown()
+            holder.join(5_000)
+            releaser.join(5_000)
+            DatabaseResetter.resetDatabase()
+        }
+    }
+
+    @Test fun abortedPreparationCannotCommitActualResetLater() {
+        val old = DatabaseContainer.instance
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val finished = java.util.concurrent.CountDownLatch(1)
+        val denied = java.util.concurrent.atomic.AtomicBoolean(false)
+        try {
+            assertThrows(IllegalStateException::class.java) {
+                DatabaseResetter.runResetBlocking(timeoutMs = 100) {
+                    withContext(NonCancellable) {
+                        entered.complete(Unit)
+                        release.await()
+                        try { commitReset { DatabaseContainer.reset() } }
+                        catch (e: IllegalStateException) { denied.set(true) }
+                        finally { finished.countDown() }
+                    }
+                }
+            }
+            assertTrue(entered.isCompleted)
+            release.complete(Unit)
+            assertTrue(finished.await(5, java.util.concurrent.TimeUnit.SECONDS))
+            assertTrue("abort decision must reject even a NonCancellable late commit", denied.get())
+            assertSame("actual DB must remain open after aborted reset", old, DatabaseContainer.instance)
+        } finally { release.complete(Unit) }
+    }
+
     @Test fun timeoutDoesNotRunResetAfterNonCancellableProducerEventuallyFinishes() {
         val release = CompletableDeferred<Unit>()
         val entered = CompletableDeferred<Unit>()

@@ -66,7 +66,7 @@ object DatabaseResetter {
             jobs.forEach { it.join() }
             val settings = koin?.getOrNull<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
             kotlinx.coroutines.currentCoroutineContext().ensureActive()
-            if (settings == null) DatabaseContainer.reset()
+            if (settings == null) commitReset { DatabaseContainer.reset() }
             else resetDocumentSyncFixture(settings, koin.get()) { DatabaseContainer.reset() }
         }
         DatabaseContainer.forgetReplacesForTest()
@@ -74,14 +74,15 @@ object DatabaseResetter {
     }
 
     /** Drive one Main task at a time; idle() can loop forever with a Compose popup open. */
-    internal fun runResetBlocking(timeoutMs: Long = 30_000, block: suspend () -> Unit) {
+    internal fun runResetBlocking(timeoutMs: Long = 30_000, block: suspend ResetDecision.() -> Unit) {
+        val decision = ResetDecision()
         val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
-        val cleanup = scope.async { block() }
+        val cleanup = scope.async(decision) { decision.block() }
         val main = android.os.Looper.getMainLooper()
         val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(timeoutMs)
         try {
             while (!cleanup.isCompleted) {
-                if (System.nanoTime() >= deadline) {
+                if (System.nanoTime() >= deadline && decision.abortBeforeCommit()) {
                     cleanup.cancel()
                     throw IllegalStateException("Database fixture cleanup timed out before reset (${timeoutMs}ms)")
                 }
@@ -95,6 +96,29 @@ object DatabaseResetter {
         } finally { scope.cancel() }
     }
 
+    /** Deadline is abortable only before the irreversible DB reset starts. */
+    internal class ResetDecision : kotlin.coroutines.AbstractCoroutineContextElement(Key) {
+        companion object Key : kotlin.coroutines.CoroutineContext.Key<ResetDecision>
+        private enum class Phase { PREPARING, COMMITTED, ABORTED }
+        private var phase = Phase.PREPARING
+
+        @Synchronized fun abortBeforeCommit(): Boolean {
+            if (phase == Phase.COMMITTED) return false
+            phase = Phase.ABORTED
+            return true
+        }
+
+        private fun beginCommit() = synchronized(this) {
+            check(phase == Phase.PREPARING) { "Database fixture reset cannot commit after timeout or twice" }
+            phase = Phase.COMMITTED
+        }
+
+        suspend fun commitReset(reset: suspend () -> Unit) {
+            beginCommit()
+            kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { reset() }
+        }
+    }
+
     internal suspend fun resetDocumentSyncFixture(
         settings: net.bible.service.cloudsync.documents.DocumentSyncSettings,
         launcher: net.bible.sharedcore.platform.OrderedLauncher,
@@ -106,11 +130,15 @@ object DatabaseResetter {
         mutex.lock()
         try {
             kotlinx.coroutines.currentCoroutineContext().ensureActive()
-            reset()
-            val field = settings.javaClass.getDeclaredField("state").apply { isAccessible = true }
-            @Suppress("UNCHECKED_CAST")
-            val state = field.get(settings) as kotlinx.coroutines.flow.MutableStateFlow<net.bible.android.database.DocumentSyncPreferences?>
-            state.value = null
+            val commit: suspend () -> Unit = {
+                reset()
+                val field = settings.javaClass.getDeclaredField("state").apply { isAccessible = true }
+                @Suppress("UNCHECKED_CAST")
+                val state = field.get(settings) as kotlinx.coroutines.flow.MutableStateFlow<net.bible.android.database.DocumentSyncPreferences?>
+                state.value = null
+            }
+            val decision = kotlinx.coroutines.currentCoroutineContext()[ResetDecision]
+            if (decision == null) commit() else decision.commitReset(commit)
         } finally { mutex.unlock() }
     }
 
