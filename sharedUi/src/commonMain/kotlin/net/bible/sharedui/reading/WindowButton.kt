@@ -45,9 +45,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
@@ -79,7 +80,21 @@ import net.bible.sharedcore.reading.railLabelFontScale
 enum class WindowButtonMode { Rail, Pane }
 
 private val WindowButtonSize = 40.dp
+/** Floating Pane buttons keep their all-round 8dp corners. */
 private val WindowButtonCorner = 8.dp
+/** Classic rail tab corners: pinned/links windows 6dp, plain windows 1dp, top only. */
+private val RailPinnedTabCorner = 6.dp
+private val RailPlainTabCorner = 1.dp
+
+/**
+ * Classic restore-rail tab shape: rounded top, square bottom. Classic used
+ * `bar_window_button*` (6dp) for `isPinMode || isLinksWindow` and `bar_window_unpinned_button*` (1dp)
+ * otherwise, so the corner radius is the rail's only pinned-ness cue (it draws no pin glyph).
+ */
+private fun railTabShape(isPinned: Boolean, isLinks: Boolean): Shape {
+    val r = if (isPinned || isLinks) RailPinnedTabCorner else RailPlainTabCorner
+    return RoundedCornerShape(topStart = r, topEnd = r, bottomEnd = 0.dp, bottomStart = 0.dp)
+}
 private val BadgeIconSize = 14.dp
 /** Shared inset for the top-end/top-start badges' `Modifier.padding(...)` — also the basis of [RailBadgeRowHeight]. */
 private val BadgeInset = 2.dp
@@ -171,10 +186,9 @@ private val RailBadgeRowHeight = BadgeIconSize + BadgeInset
  *   start edge under the sync badge — `window_button.xml:97-107`
  *   `Top_toBottomOf="@id/synchronize"`, matching classic's `pinMode.visibility` requiring
  *   `!isRestoreButton` (`WindowButtonWidget.kt:86-95`). Rail mode never draws it — classic instead
- *   conveys a pinned rail window via a different background drawable (`WindowButtonWidget.kt:106-116`,
- *   not yet replicated by this composable) — so a caller passing `isPinned = true` with
- *   `mode = Rail` renders no visible indicator (fix-round-1: an earlier version drew it regardless of
- *   [mode] and it collided with the rail's two-row label).
+ *   conveys pinned/links windows through [railTabShape]: 6dp top corners instead of 1dp, with square
+ *   bottoms (`WindowButtonWidget.kt:106-116`). The rail uses raw `isPinMode`, like classic: auto-pin
+ *   gives all tabs uniform 6dp corners, without a pin glyph colliding with the two-row label.
  * - [isLinks] → a link glyph (classic `docType` force-swapped to `ic_link_black_24dp`); takes the
  *   SAME top-end corner as [leadingIcon] and always wins over it, exactly like classic always
  *   overwriting `docType`'s image when `window.isLinksWindow`.
@@ -222,7 +236,10 @@ fun WindowButton(
         else -> colors.onSurfaceVariant
     }
     val outlineColor = if (mono) monoInk(dark) else colors.outline
-    val cornerShape = RoundedCornerShape(WindowButtonCorner)
+    val cornerShape = when (mode) {
+        WindowButtonMode.Rail -> railTabShape(isPinned, isLinks)
+        WindowButtonMode.Pane -> RoundedCornerShape(WindowButtonCorner)
+    }
 
     Box(
         modifier = modifier
@@ -234,9 +251,9 @@ fun WindowButton(
                 if (isMinimised) {
                     Modifier.drawWithContent {
                         drawContent()
-                        drawRoundRect(
+                        drawOutline(
+                            outline = cornerShape.createOutline(size, layoutDirection, this),
                             color = outlineColor,
-                            cornerRadius = CornerRadius(WindowButtonCorner.toPx(), WindowButtonCorner.toPx()),
                             style = Stroke(
                                 width = MinimisedBorderWidth.toPx(),
                                 pathEffect = PathEffect.dashPathEffect(
@@ -345,8 +362,8 @@ fun WindowButton(
         // Pane only, fix-round-1: classic's `pinMode.visibility` requires `!isRestoreButton`
         // (`WindowButtonWidget.kt:86-95`) — the pin indicator is a Pane-only badge in classic; the
         // rail instead conveys pinned-ness through a different BACKGROUND drawable
-        // (`bar_window_button*` vs `bar_window_unpinned_button*`, `WindowButtonWidget.kt:106-116`,
-        // not replicated by this composable yet — tracked separately, not part of this task).
+        // (`bar_window_button*` vs `bar_window_unpinned_button*`, `WindowButtonWidget.kt:106-116`),
+        // now replicated by railTabShape's pinned/links vs plain top corners.
         // Position (Pane): start edge, directly under the sync badge — `top = RailBadgeRowHeight`
         // DERIVES that from the badge reservation rather than restating it as a literal, which is
         // the Compose equivalent of classic's `Top_toBottomOf="@id/synchronize"`. This is only a

@@ -166,14 +166,11 @@ fun WindowTabBar(
                                     label = windowLabel(window),
                                     isActive = entry.isActive,
                                     isMinimised = window.state == WindowStateValue.MINIMISED,
-                                    // Raw `isPinMode`, not `shouldShowPinIndicator`, on purpose: Rail mode
-                                    // draws no pin indicator at all (WindowButton.kt ignores `isPinned`
-                                    // when `mode == Rail`), so the auto-pin false-positive that indicator
-                                    // exists to suppress (F47) cannot show up here today. If a future
-                                    // change ports classic's pinned-rail-background drawable
-                                    // (WindowButtonWidget.kt:106-116, still unported — see WindowButton.kt's
-                                    // kdoc on `isPinned`), it must read `shouldShowPinIndicator(...)` here
-                                    // instead, or every auto-pinned window will show as pinned on the rail.
+                                    // Raw `isPinMode`, on purpose for classic parity: the rail draws no
+                                    // pin glyph; `isPinned` only picks railTabShape's top corner radius.
+                                    // Classic also used raw isPinMode, so auto-pin gives every tab the
+                                    // same pinned shape, not a false "this one is pinned" glyph signal.
+                                    // shouldShowPinIndicator remains a Pane-glyph concern.
                                     isPinned = window.isPinMode,
                                     isLinks = window.isLinksWindow,
                                     // WindowSnapshot.syncGroup is the raw 0-based Window.syncGroup;

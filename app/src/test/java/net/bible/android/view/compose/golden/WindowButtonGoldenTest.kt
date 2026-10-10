@@ -83,7 +83,7 @@ class WindowButtonGoldenTest {
                 onLongPress = {},
                 leadingIcon = painterResource(R.drawable.ic_commentary),
             )
-            // rail-minimised: dimmed (0.62 alpha) + dashed outline.
+            // rail-minimised: dashed outline; dimmed outside true MONO, full ink in MONO.
             WindowButton(
                 label = "M",
                 isActive = false,
@@ -95,9 +95,8 @@ class WindowButtonGoldenTest {
                 onClick = {},
                 onLongPress = {},
             )
-            // rail-pinned: fix-round-1 — isPinned=true renders NO indicator on a Rail button (classic's
-            // pinMode is Pane-only, WindowButtonWidget.kt:85-96); this case exists to prove that
-            // absence, so it must look identical to an unpinned rail button.
+            // rail-pinned: no pin glyph (classic's pinMode is Pane-only), but the classic
+            // background shape has 6dp top corners instead of the plain rail's 1dp corners.
             WindowButton(
                 label = "P",
                 isActive = false,
@@ -160,8 +159,8 @@ class WindowButtonGoldenTest {
                 onLongPress = {},
             )
             // rail-twoRow: classic's two-row rail geometry — page title above the abbreviation,
-            // doc-type icon top-end, sync badge on the start edge. isPinned=false (fix-round-1: a
-            // pinned RAIL case asserts nothing, since Rail never draws the indicator — see rail-pinned above).
+            // doc-type icon top-end, sync badge on the start edge. isPinned=false keeps the plain
+            // top corners; the separate rail-pinned case covers the rounder pinned tab shape.
             WindowButton(
                 label = "KJV",
                 isActive = false,

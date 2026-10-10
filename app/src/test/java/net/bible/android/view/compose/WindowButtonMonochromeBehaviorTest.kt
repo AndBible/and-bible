@@ -3,10 +3,16 @@ package net.bible.android.view.compose
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.res.painterResource
+import net.bible.android.activity.R
+import net.bible.sharedui.reading.LocalPinIcon
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import net.bible.android.TEST_SDK
@@ -28,6 +34,62 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class WindowButtonMonochromeBehaviorTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
+
+    @Test fun railButtonsUseClassicTabShapePaneKeepsRoundCorners() {
+        data class Case(val mode: WindowButtonMode, val pinned: Boolean, val links: Boolean, val minimised: Boolean)
+        val case = mutableStateOf(Case(WindowButtonMode.Rail, false, false, false))
+        var density = 1f
+        compose.setContent {
+            density = LocalDensity.current.density
+            AbTheme(darkTheme = false, colorMode = DisplayColorMode.MONOCHROME) {
+                Box(Modifier.fillMaxSize().background(Color.White)) {
+                    val c = case.value
+                    CompositionLocalProvider(LocalPinIcon provides { painterResource(R.drawable.ic_pin) }) {
+                        WindowButton("", false, c.minimised, c.pinned, c.links, 0, c.mode, {}, {})
+                    }
+                }
+            }
+        }
+        fun capture(c: Case, block: (Bitmap) -> Unit) {
+            compose.runOnIdle { case.value = c }
+            compose.waitForIdle()
+            val content = compose.activity.findViewById<android.view.ViewGroup>(android.R.id.content)
+            val bitmap = Bitmap.createBitmap(content.width, content.height, Bitmap.Config.ARGB_8888)
+            compose.runOnUiThread { content.draw(Canvas(bitmap)) }
+            try { block(bitmap) } finally { bitmap.recycle() }
+        }
+        // Darkness of the 2x2dp corner patch: sum over pixels of (255 - luminance). A rounded corner
+        // leaves that patch mostly paper/background; a square corner puts border ink in it.
+        fun cornerInk(b: Bitmap, top: Boolean): Int {
+            val d = density
+            val y0 = if (top) 0 else (38 * d).toInt()
+            var sum = 0
+            for (x in 0 until (2 * d).toInt()) for (y in y0 until y0 + (2 * d).toInt())
+                sum += 255 - (b.getPixel(x, y) and 0xFF)
+            return sum
+        }
+        for (minimised in listOf(false, true)) {
+            var plainTop = 0; var pinnedTop = 0; var linksTop = 0
+            capture(Case(WindowButtonMode.Rail, false, false, minimised)) { b ->
+                plainTop = cornerInk(b, top = true)
+                assertTrue("Rail bottom-left corner must be square (minimised=$minimised)",
+                    cornerInk(b, top = false) > 0)
+            }
+            capture(Case(WindowButtonMode.Rail, true, false, minimised)) { b ->
+                pinnedTop = cornerInk(b, top = true)
+                assertTrue("Pinned rail bottom-left corner must be square (minimised=$minimised)",
+                    cornerInk(b, top = false) > 0)
+            }
+            capture(Case(WindowButtonMode.Rail, false, true, minimised)) { b -> linksTop = cornerInk(b, top = true) }
+            assertTrue("Plain (1dp) top corner must be squarer than pinned (6dp): $plainTop vs $pinnedTop",
+                plainTop > pinnedTop)
+            assertEquals("Links window uses the pinned 6dp shape", pinnedTop, linksTop)
+        }
+        capture(Case(WindowButtonMode.Pane, true, false, false)) { b ->
+            assertEquals("Pane keeps rounded 8dp bottom corners (no ink in the corner patch)", 0,
+                cornerInk(b, top = false))
+        }
+    }
 
     @Test fun minimisedButtonUsesInkContentAndInkDashesWithoutGrey() {
         val dark = mutableStateOf(false)
