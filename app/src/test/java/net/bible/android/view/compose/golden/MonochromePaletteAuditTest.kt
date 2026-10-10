@@ -266,10 +266,6 @@ class MonochromeAuditPolicyTest {
     private val fail = MonochromePaletteAudit.AuditResult(5, Rectangle(2, 3, 4, 5), 1)
     private fun policy(exempt: Set<String> = emptySet()) = MonochromeAuditPolicy(exempt)
 
-    private fun MonochromeAuditPolicy.check(key: String, tag: String, result: MonochromePaletteAudit.AuditResult, image: File, report: String?) =
-        check(key, listOf(MonochromeAuditPolicy.Render(tag, result, image),
-            MonochromeAuditPolicy.Render(if (tag == "mono") "mono_dark" else "mono", result, image)), report)
-
     @Test fun `exempt scene skips audit`() {
         assertFalse(policy(setOf("Scene_state")).shouldAudit("Scene_state"))
         policy(exempt = setOf("Scene_state")).check("Scene_state", listOf(
