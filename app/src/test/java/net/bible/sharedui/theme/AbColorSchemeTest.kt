@@ -101,6 +101,31 @@ class AbColorSchemeTest {
         )
     }
 
+    /** Independent pre-change contract: set seeds use TonalSpot; unset seeds use stock roles. */
+    @Test
+    fun `COLOR_EINK preserves TonalSpot set-seed roles in light and dark`() {
+        for (dark in listOf(false, true)) {
+            val tonal = abColorScheme(ORANGE, dark, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT)
+            for (style in ThemePaletteStyle.entries) {
+                assertLegacyGreyRoles("set dark=$dark style=$style", tonal,
+                    abColorScheme(ORANGE, dark, DisplayColorMode.COLOR_EINK, style))
+            }
+        }
+    }
+
+    @Test
+    fun `COLOR_EINK preserves stock unset-seed roles in light and dark`() {
+        for (dark in listOf(false, true)) {
+            val stock = if (dark) darkColorScheme() else lightColorScheme()
+            for (seed in listOf(null, DEFAULT_WORKSPACE_COLOR_ARGB)) {
+                for (style in ThemePaletteStyle.entries) {
+                    assertLegacyGreyRoles("unset seed=$seed dark=$dark style=$style", stock,
+                        abColorScheme(seed, dark, DisplayColorMode.COLOR_EINK, style))
+                }
+            }
+        }
+    }
+
     @Test
     fun `a seed moves primary towards the seed's hue`() {
         val seeded = abColorScheme(ORANGE, false, DisplayColorMode.NORMAL, ThemePaletteStyle.TONAL_SPOT)
@@ -177,6 +202,23 @@ private fun rolesOf(s: androidx.compose.material3.ColorScheme): List<Pair<String
     "outline" to s.outline.toArgb(),
     "surfaceTint" to s.surfaceTint.toArgb(),
 )
+
+/** Legacy integer BT.601 transform, independent of production's grayscale helper. */
+private fun assertLegacyGreyRoles(
+    what: String,
+    base: androidx.compose.material3.ColorScheme,
+    actual: androidx.compose.material3.ColorScheme,
+) {
+    val actualRoles = rolesOf(actual).toMap()
+    for ((name, argb) in rolesOf(base)) {
+        val r = (argb ushr 16) and 0xFF
+        val g = (argb ushr 8) and 0xFF
+        val b = argb and 0xFF
+        val y = (299 * r + 587 * g + 114 * b) / 1000
+        val expected = (argb and 0xFF000000.toInt()) or (y shl 16) or (y shl 8) or y
+        assertEquals("$what role=$name", expected, actualRoles.getValue(name))
+    }
+}
 
 private fun isGrey(argb: Int): Boolean {
     val r = (argb shr 16) and 0xFF
