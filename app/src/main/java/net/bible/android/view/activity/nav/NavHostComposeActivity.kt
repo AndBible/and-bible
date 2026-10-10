@@ -2951,7 +2951,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             if (!readingAppBootstrapped) return@subscribeOnMain
             readingCommands.applyWorkspacesUpdatedViaSync(updated)
         })
-        hostSubscriptions.add(CloudSync.workspaceRefreshRequired.subscribeOnMain {
+        hostSubscriptions.add(cloudSync.workspaceRefreshRequired.subscribeOnMain {
             if (!readingAppBootstrapped) return@subscribeOnMain
             readingCommands.applyWorkspaceRefreshRequired()
         })
@@ -8308,7 +8308,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             onAction = { action, initials -> handleCloudDocumentsAction(entry.controller, action, initials) },
             onBulkAction = { action, initials -> handleCloudDocumentsBulkAction(entry.controller, action, initials) },
             onSyncNow = { download, upload, delete -> handleCloudDocumentsSyncNowConfirm(entry, download, upload, delete) },
-            onRescan = { cloudDocumentsRunSyncAction(entry.controller) { DocumentSync.resetListingCache() } },
+            onRescan = { cloudDocumentsRunSyncAction(entry.controller) { org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).resetListingCache() } },
             onShowRemovedChange = { show -> handleCloudDocumentsShowRemovedChange(entry.controller, show) },
             onConfirmRemove = { initials -> handleCloudDocumentsRemoveConfirmed(entry.controller, initials) },
             onConfirmPurge = { initials -> handleCloudDocumentsPurgeConfirmed(entry.controller, initials) },
@@ -8343,8 +8343,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      */
     private suspend fun cloudDocumentsOpenOrGate(): Boolean {
         val controller = cloudDocumentsController
-        var signedIn = CloudSync.signedIn
-        if (!signedIn) signedIn = CloudSync.signIn(this@NavHostComposeActivity) == true
+        var signedIn = cloudSync.signedIn
+        if (!signedIn) signedIn = cloudSync.signIn() == true
         val items = cloudDocumentsSeedItems()
         if (!signedIn && items.isEmpty()) {
             Toast.makeText(this, R.string.document_sync_signin_required, Toast.LENGTH_LONG).show()
@@ -8365,7 +8365,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * inside this function would recurse through that callback forever.
      */
     private suspend fun cloudDocumentsSeedItems(): List<CloudDocItem> = withContext(Dispatchers.IO) {
-        DocumentSync.scanCached(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
+        org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scanCached(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
     }
 
     /**
@@ -8382,7 +8382,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         controller.pushBusy(true)
         try {
             val items = withContext(Dispatchers.IO) {
-                DocumentSync.scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
+                org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
             }
             controller.setItems(items)
         } finally {
@@ -8420,7 +8420,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
      * exists to skip.
      */
     private fun cloudDocumentsSubscribeProgress(onRunning: (Boolean) -> Unit): () -> Unit =
-        subscribeToDocumentSyncRunning(lifecycleScope, DocumentSync.runningChanged, onRunning)
+        subscribeToDocumentSyncRunning(lifecycleScope, org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).runningChanged, onRunning)
 
     /**
      * Classic `runSyncAction` (`:234-241`), used by [buildCloudDocumentsController]'s `onRescan`.
@@ -8433,7 +8433,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         try {
             withContext(Dispatchers.IO) { block() }
             val items = withContext(Dispatchers.IO) {
-                DocumentSync.scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
+                org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan(includeDeleted = DocumentSyncSettings.showRemovedDocuments).map { it.toCloudDocItem() }
             }
             controller.setItems(items)
         } finally {
@@ -8559,7 +8559,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         lifecycleScope.launch {
             controller.pushBusy(true)
             val plan = try {
-                withContext(Dispatchers.IO) { DocumentSync.computeSyncPlan(download = true, upload = true, delete = true) }
+                withContext(Dispatchers.IO) { org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).computeSyncPlan(download = true, upload = true, delete = true) }
             } catch (e: Exception) {
                 Toast.makeText(this@NavHostComposeActivity, R.string.sync_error, Toast.LENGTH_SHORT).show()
                 return@launch
@@ -8640,7 +8640,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private fun CloudDocumentsOverflowMenu() {
         val entry = cloudDocumentsEntry
         AbOverflowMenu(contentDescription = null) { close ->
-            if (CloudSync.signedIn) {
+            if (cloudSync.signedIn) {
                 AbMenuItem(
                     text = getString(R.string.cloud_doc_sync_now),
                     onClick = { close(); cloudDocumentsShowSyncNow(entry) },
@@ -9656,6 +9656,8 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
         }
     }
 
+
+    private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
     companion object {
         /** Classic `ReadingProgressComposeActivity.kt:54`'s file-private constant. */
         private const val PREF_READING_PROGRESS_LAST_TAB = "reading_progress_last_tab"

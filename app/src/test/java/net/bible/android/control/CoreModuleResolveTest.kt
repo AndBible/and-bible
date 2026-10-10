@@ -1,5 +1,6 @@
 package net.bible.android.control
 
+import org.koin.android.ext.koin.androidContext
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.control.speak.SpeakControl
@@ -74,6 +75,32 @@ class CoreModuleResolveTest {
         val bound = koin.get<TextDisplaySettingsService>()
         assertNotNull(concrete)
         assertSame(concrete, bound)
+    }
+
+    @Test
+    fun `cloud engines resolve reciprocal providers and watcher in isolated fresh modules`() {
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val first = org.koin.dsl.koinApplication {
+            androidContext(context)
+            modules(buildCoreModule())
+        }
+        val second = org.koin.dsl.koinApplication {
+            androidContext(context)
+            modules(buildCoreModule())
+        }
+        try {
+            val cloud = first.koin.get<net.bible.service.cloudsync.CloudSync>()
+            val documents = first.koin.get<net.bible.service.cloudsync.documents.DocumentSync>()
+            assertSame(cloud, first.koin.get<net.bible.service.cloudsync.CloudSyncProvider>().get())
+            assertSame(documents, first.koin.get<net.bible.service.cloudsync.DocumentSyncProvider>().get())
+            assertNotNull(first.koin.get<net.bible.android.control.versification.BookInstallWatcher>())
+            assertSame(first.koin.get<net.bible.android.platform.AndroidSyncScheduler>(), first.koin.get<net.bible.service.cloudsync.SyncScheduler>())
+            org.junit.Assert.assertNotSame(cloud, second.koin.get<net.bible.service.cloudsync.CloudSync>())
+            org.junit.Assert.assertNotSame(documents, second.koin.get<net.bible.service.cloudsync.documents.DocumentSync>())
+        } finally {
+            first.close()
+            second.close()
+        }
     }
 
     @After

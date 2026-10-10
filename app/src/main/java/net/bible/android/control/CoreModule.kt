@@ -137,8 +137,15 @@ fun buildCoreModule() = module {
     single { OrderedLauncher(get<AppCoroutineScope>()) }
     single { ProgressJsActions(get()) }
     single { BookmarkJsActions(get(), get()) }
+    single<net.bible.service.cloudsync.CloudAdapterFactory> { net.bible.android.platform.AndroidCloudAdapterFactory(androidContext()) }
+    single { net.bible.android.platform.AndroidSyncScheduler(androidContext()) }
+    single<net.bible.service.cloudsync.SyncScheduler> { get<net.bible.android.platform.AndroidSyncScheduler>() }
+    single<net.bible.service.cloudsync.CloudSyncProvider> { net.bible.service.cloudsync.CloudSyncProvider { get() } }
+    single<net.bible.service.cloudsync.DocumentSyncProvider> { net.bible.service.cloudsync.DocumentSyncProvider { get() } }
+    single { net.bible.service.cloudsync.CloudSync(get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { net.bible.service.cloudsync.documents.DocumentSync(get(), get(), get(), get()) }
     single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }
-    single { BookInstallWatcher(get(), get()) }
+    single { BookInstallWatcher(get(), get(), get()) }
     single<UserNotifier> { AndroidUserNotifier() }
     single<net.bible.sharedcore.platform.AppEnvironment> { net.bible.android.platform.AndroidAppEnvironment(androidContext()) }
     single<CoreStrings> { AndroidCoreStrings(androidContext()) }

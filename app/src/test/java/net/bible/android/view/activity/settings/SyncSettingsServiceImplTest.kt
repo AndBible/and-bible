@@ -105,7 +105,7 @@ class SyncSettingsServiceImplTest {
     @Test fun categoryEnabled_persistsToSyncableDatabaseDefinition() {
         val service = impl()
         service.setCategoryEnabled("sync_enable_bookmarks", true)
-        assertTrue(SyncableDatabaseDefinition.BOOKMARKS.syncEnabled)
+        assertTrue(SyncableDatabaseDefinition.BOOKMARKS.isSyncEnabled(CommonUtils.settings))
         assertTrue(CommonUtils.settings.getBoolean("sync_enable_bookmarks", false))
     }
 

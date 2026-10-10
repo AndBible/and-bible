@@ -59,6 +59,8 @@ class ToolbarStateServiceImpl(
     private val speakControl: SpeakControl,
     private val windowStateService: WindowStateServiceImpl,
 ) : ToolbarStateService {
+
+    private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
     private val _toolbar = MutableStateFlow(ToolbarState.EMPTY)
     override val toolbar: StateFlow<ToolbarState> = _toolbar.asStateFlow()
 
@@ -74,7 +76,7 @@ class ToolbarStateServiceImpl(
         // Process lifetime: never cancelled. A/B batch 4a F1: the workspace colour feeds
         // ToolbarState.workspaceColorArgb, and no other trigger fires when it is written.
         WorkspaceChanges.changes.subscribeOnMain { if (it == WorkspaceChange.ColorEdited) refresh() }
-        CloudSync.runningChanged.subscribeOnMain { running -> _toolbar.value = _toolbar.value.copy(syncRunning = running) }
+        cloudSync.runningChanged.subscribeOnMain { running -> _toolbar.value = _toolbar.value.copy(syncRunning = running) }
         // Process lifetime: never cancelled.
         SpeakChanges.changes.subscribeOnMain { if (it is SpeakChange.State) refresh() }
     }
@@ -106,7 +108,7 @@ class ToolbarStateServiceImpl(
         return ToolbarState(
             pageTitle = pageTitleText(),
             documentTitle = page.currentDocumentName,
-            syncRunning = false, // overwritten by refresh()'s copy(); CloudSync.runningChanged sets it directly
+            syncRunning = false, // overwritten by refresh()'s copy(); cloudSync.runningChanged sets it directly
             showBible = showBible,
             showCommentary = showCommentary,
             showStrongs = documentControl.isStrongsInBook,

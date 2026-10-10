@@ -45,7 +45,7 @@ class DocumentSyncSignOutTest {
         )
 
         // onSignOut runs a Room transaction over four DAOs: it must finish, not deadlock
-        withTimeout(10_000) { DocumentSync.onSignOut() }
+        withTimeout(10_000) { org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).onSignOut() }
 
         assertFalse(DocumentSyncSettings.enabled)
         assertEquals(0L, DocumentSyncSettings.watermark)

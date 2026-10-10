@@ -62,14 +62,14 @@ class CloudSyncInitialSwapTest {
 
     @Test fun aSaveAfterTheSwapDoesNotOverwriteTheDownload() {
         val downloaded = downloadNamed("C")
-        runBlocking { CloudSync.swapInInitialDb(workspaces, downloaded) { } }
+        runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloaded) { } }
         repo.name = "B" // pre-download in-memory state, not yet reloaded
         repo.saveIntoDb(false)
         assertEquals("C", runBlocking { dao.workspace(repo.id) }!!.name)
     }
 
     @Test fun saveWorksAgainAfterTheReload() {
-        runBlocking { CloudSync.swapInInitialDb(workspaces, downloadNamed("C")) { } }
+        runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C")) { } }
         repo.loadFromDb(repo.id)
         repo.name = "D"
         repo.saveIntoDb(false)
@@ -79,11 +79,11 @@ class CloudSyncInitialSwapTest {
     /** Review Focus 2: one release when the last overlapping swap ends, not one per category. */
     @Test fun theRefreshIsPostedOnlyWhenTheLastSwapEnds() {
         val streamed = mutableListOf<Unit>()
-        val streamSub = CloudSync.workspaceRefreshRequired.subscribe { streamed += it }
+        val streamSub = org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).workspaceRefreshRequired.subscribe { streamed += it }
         try {
             runBlocking {
                 DatabaseContainer.replacingDatabases {
-                    CloudSync.swapInInitialDb(workspaces, downloadNamed("C")) { }
+                    org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C")) { }
                     assertEquals("still inside an outer replace (stream)", 0, streamed.size)
                 }
             }
@@ -94,9 +94,9 @@ class CloudSyncInitialSwapTest {
     /** The post is what triggers `loadFromDb` and ends the save freeze: a lone swap must release exactly once. */
     @Test fun aLoneSwapPostsTheRefreshExactlyOnce() {
         val streamed = mutableListOf<Unit>()
-        val streamSub = CloudSync.workspaceRefreshRequired.subscribe { streamed += it }
+        val streamSub = org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).workspaceRefreshRequired.subscribe { streamed += it }
         try {
-            runBlocking { CloudSync.swapInInitialDb(workspaces, downloadNamed("C")) { } }
+            runBlocking { org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).swapInInitialDb(workspaces, downloadNamed("C")) { } }
             assertEquals(1, streamed.size)
         } finally { streamSub.cancel() }
     }

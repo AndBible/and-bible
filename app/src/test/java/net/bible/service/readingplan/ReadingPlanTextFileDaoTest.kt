@@ -38,7 +38,7 @@ class ReadingPlanTextFileDaoTest {
         override fun openBuiltInPlan(code: String): String? { opened += code; return plans[code] }
     }
 
-    private val strings = object : CoreStrings {
+    private val strings = object : CoreStrings by net.bible.test.testCoreStrings() {
         override val storageSpaceWarning = "storageSpaceWarning"
         override val errorDownloading = "errorDownloading"
         override val journalDescription = "journalDescription"

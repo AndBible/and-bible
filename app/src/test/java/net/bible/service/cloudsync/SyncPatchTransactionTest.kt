@@ -123,8 +123,8 @@ class SyncPatchTransactionTest {
         dao1.insert(bookmark.bookmarkEntity)
         dao1.insert(BookmarkEntities.BibleBookmarkToLabel(bookmark.bookmarkEntity, label))
 
-        val patch = createPatchForDatabase(dbDef1)!!
-        applyPatchesForDatabase(dbDef2, patch)
+        val patch = createPatchForDatabase(dbDef1, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!
+        applyPatchesForDatabase(dbDef2, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), patch)
 
         assertEquals(listOf("label 1", "label 2"), labelNames(dbDef2))
         assertEquals(listOf(label.id), dbDef2.localDb.bookmarkDao().getBookmarkToLabelsForBookmark(bookmark.id).map { it.labelId })
@@ -138,9 +138,9 @@ class SyncPatchTransactionTest {
         dbDef2.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 3"))
         assertEquals(listOf(dbDef2.deviceId), dbDef2.dao.newLogEntries(0, dbDef1.deviceId).map { it.sourceDevice })
 
-        assertNull(createPatchForDatabase(dbDef1))
+        assertNull(createPatchForDatabase(dbDef1, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java)))
         // Device 2 has written no patch yet: its first one carries every logged row (label 3 and the merged ones).
-        assertEquals(3, labelCountInPatch(createPatchForDatabase(dbDef2)!!))
+        assertEquals(3, labelCountInPatch(createPatchForDatabase(dbDef2, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!))
     }
 
     /** Ported from androidTest `DatabasePatchingTests.testBookmarkToLabelUpdates`: needs `foreign_keys=OFF` while applying. */
@@ -157,17 +157,17 @@ class SyncPatchTransactionTest {
         dao1.insert(label1)
         dao1.insert(BookmarkEntities.BibleBookmarkToLabel(bookmark1.bookmarkEntity, label1))
 
-        applyPatchesForDatabase(dbDef2, createPatchForDatabase(dbDef1)!!)
+        applyPatchesForDatabase(dbDef2, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), createPatchForDatabase(dbDef1, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!)
         dao2.insert(BookmarkEntities.BibleBookmarkToLabel(bookmark2.bookmarkEntity, label1))
         dao1.delete(label1)
         assertEquals(1, dbDef1.dao.findLogEntries("BibleBookmarkToLabel", "DELETE").size)
 
-        val patch1b = createPatchForDatabase(dbDef1)!!
-        val patch2 = createPatchForDatabase(dbDef2)!!
-        applyPatchesForDatabase(dbDef2, patch1b)
+        val patch1b = createPatchForDatabase(dbDef1, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!
+        val patch2 = createPatchForDatabase(dbDef2, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!
+        applyPatchesForDatabase(dbDef2, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), patch1b)
         assertEquals(0, dao2.getBookmarkToLabelsForBookmark(bookmark1.id).size)
         // The patch references a label that no longer exists here: the foreign-key cleanup removes it.
-        applyPatchesForDatabase(dbDef1, patch2)
+        applyPatchesForDatabase(dbDef1, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), patch2)
         assertEquals(0, dao1.getBookmarkToLabelsForBookmark(bookmark2.id).size)
         assertEquals(0, dao1.allLabelsSortedByName().size)
         assertEquals(log(dbDef1), log(dbDef2))
@@ -177,18 +177,18 @@ class SyncPatchTransactionTest {
         val dbDef1 = accessor(fromSchemaExport = true)
         val dbDef2 = accessor(fromSchemaExport = false)
         dbDef1.localDb.bookmarkDao().insert(BookmarkEntities.Label(name = "label 1"))
-        val good = createPatchForDatabase(dbDef1)!!
+        val good = createPatchForDatabase(dbDef1, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!
         // The last synced table is missing from this copy: Label rows are applied first, then the copy fails.
         val broken = tamperedPatch(good) { it.execSQL("DROP TABLE StudyPadTextEntryText") }
 
-        val e = runCatching { applyPatchesForDatabase(dbDef2, broken) }.exceptionOrNull()
+        val e = runCatching { applyPatchesForDatabase(dbDef2, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), broken) }.exceptionOrNull()
         assertTrue("expected the apply to fail, got $e", e != null && "StudyPadTextEntryText" in e.toString())
         assertEquals(emptyList<String>(), labelNames(dbDef2))
         assertEquals(emptyList<Any>(), log(dbDef2))
         assertNotEquals(true, dbDef2.dao.getBoolean(TRIGGERS_DISABLED_KEY))
 
         // The patch database was detached and foreign keys restored: the good patch applies normally afterwards.
-        applyPatchesForDatabase(dbDef2, good)
+        applyPatchesForDatabase(dbDef2, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java), good)
         assertEquals(listOf("label 1"), labelNames(dbDef2))
     }
 
@@ -225,7 +225,7 @@ class SyncPatchTransactionTest {
                 it.exec("INSERT INTO LogEntry VALUES ('Label', ?, '', 'UPSERT', 1000, 'compat-device')", label.id.toString().replace("-", "").chunked(2).map { h -> h.toInt(16).toByte() }.toByteArray())
             }
 
-            val patch = createPatchForDatabase(dbDef)!!
+            val patch = createPatchForDatabase(dbDef, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))!!
 
             val plain = File.createTempFile("patch-", ".sqlite3", CommonUtils.tmpDir).also { files += it }
             CommonUtils.gunzipFile(patch, plain)
@@ -234,7 +234,7 @@ class SyncPatchTransactionTest {
                 assertEquals(1L, it.queryLong("SELECT COUNT(*) FROM Label"))
                 assertEquals(1L, it.queryLong("SELECT COUNT(*) FROM LogEntry WHERE sourceDevice = 'compat-device'"))
             }
-            assertNull(createPatchForDatabase(dbDef)) // lastPatchWritten moved past the entry
+            assertNull(createPatchForDatabase(dbDef, org.koin.java.KoinJavaComponent.get(net.bible.sharedcore.platform.AppEnvironment::class.java))) // lastPatchWritten moved past the entry
             val attached = db.useWriterConnection { t -> t.usePrepared("PRAGMA database_list") { st -> buildList { while (st.step()) add(st.getText(1)) } } }
             assertTrue("patch must be detached: $attached", "patch" !in attached)
         } finally {

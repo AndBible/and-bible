@@ -88,12 +88,14 @@ class BookInstallWatcherStartupTest {
     @Test
     fun separateWatcherInstancesLeaveExactlyOneListener() {
         val starter = object : DocumentSyncStarter {
+                override fun start(push: List<String>, download: List<String>, remove: List<String>, purge: List<String>, uninstall: List<String>) = Unit
+                override fun stop() = Unit
             override fun pushDocuments(initials: List<String>) {}
         }
         val scope = AppCoroutineScope()
         watcherListeners().forEach { listeners().remove(it) }
-        val first = BookInstallWatcher(OrderedLauncher(scope), starter)
-        val second = BookInstallWatcher(OrderedLauncher(scope), starter)
+        val first = BookInstallWatcher(OrderedLauncher(scope), starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java))
+        val second = BookInstallWatcher(OrderedLauncher(scope), starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java))
         try {
             first.startListening()
             second.startListening()

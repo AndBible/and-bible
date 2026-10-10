@@ -79,7 +79,7 @@ class ToolbarStateServiceLoadGuardTest {
         PassageChangeMediator.resetSubscribersForTest()
         windowStateService.resetSubscribersForTest()
         WorkspaceChanges.resetSubscribersForTest()
-        CloudSync.resetSubscribersForTest()
+        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).resetSubscribersForTest()
         SpeakChanges.resetSubscribersForTest()
     }
 

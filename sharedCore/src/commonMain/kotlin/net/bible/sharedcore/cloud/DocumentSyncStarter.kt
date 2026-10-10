@@ -19,4 +19,6 @@ package net.bible.sharedcore.cloud
 /** Kicks off a background document-sync push; the platform decides how (Android: a foreground service). */
 interface DocumentSyncStarter {
     fun pushDocuments(initials: List<String>)
+    fun start(push: List<String>, download: List<String>, remove: List<String> = emptyList(), purge: List<String> = emptyList(), uninstall: List<String> = emptyList())
+    fun stop()
 }

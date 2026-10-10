@@ -24,4 +24,8 @@ class AndroidDocumentSyncStarter(private val context: Context) : DocumentSyncSta
     override fun pushDocuments(initials: List<String>) {
         DocumentSyncService.start(context, pushInitials = initials, downloadInitials = emptyList())
     }
+    override fun start(push: List<String>, download: List<String>, remove: List<String>, purge: List<String>, uninstall: List<String>) {
+        DocumentSyncService.start(context, pushInitials = push, downloadInitials = download, removeInitials = remove, purgeInitials = purge, uninstallInitials = uninstall)
+    }
+    override fun stop() = DocumentSyncService.stop(context)
 }

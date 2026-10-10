@@ -729,7 +729,7 @@ object CommonUtils : CommonUtilsBase() {
     private fun forceStopApp() {
         Log.i(TAG, "forceStopApp!")
         scope.launch {
-            CloudSync.waitUntilFinished()
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).waitUntilFinished()
             DatabaseContainer.flushSettingsBeforeExit()
             exitProcess(2)
         }
@@ -1565,7 +1565,7 @@ object CommonUtils : CommonUtilsBase() {
     val isCloudSyncAvailable get() = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     val isCloudSyncEnabled: Boolean get () =
         if(!isCloudSyncAvailable) false
-        else SyncableDatabaseDefinition.ALL.any { it.syncEnabled }
+        else SyncableDatabaseDefinition.ALL.any { it.isSyncEnabled(CommonUtils.settings) }
     val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 

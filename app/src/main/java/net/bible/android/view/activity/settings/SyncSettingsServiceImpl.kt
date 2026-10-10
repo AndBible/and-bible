@@ -32,7 +32,7 @@ import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.cloudsync.CloudAdapters
+
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.documents.DocumentSync
@@ -56,7 +56,7 @@ import java.util.Locale
  *  - `cloud_sync_*` creds → `CommonUtils.realSharedPreferences` (classic `SharedPrefsDataStore`).
  *  - `sync_documents_*` → [DocumentSyncSettings] (classic `DocumentSyncPrefsDataStore`).
  *  - `sync_enable_*` → [SyncableDatabaseDefinition] `.syncEnabled` (backed by `CommonUtils.settings`).
- *  - `sync_adapter` → [CloudAdapters.current] (default `PreferenceStore`).
+ *  - `sync_adapter` → [CloudSync.adapterId] (default `PreferenceStore`).
  *
  * The interactive OAuth methods need the current Activity, supplied lazily via [activityProvider]
  * (so this is NOT a global Koin singleton — the host constructs it with `this`). Async work (the
@@ -70,11 +70,13 @@ class SyncSettingsServiceImpl(
     private val _snapshot = MutableStateFlow(build())
     override val snapshot: StateFlow<SyncSettingsSnapshot> = _snapshot.asStateFlow()
 
+
+    private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
     private val prefs get() = CommonUtils.realSharedPreferences
 
     private fun adapterSummary(): String {
-        val current = CloudAdapters.current
-        val isGoogleDrive = current == CloudAdapters.GOOGLE_DRIVE
+        val current = cloudSync.adapterId
+        val isGoogleDrive = current == "GOOGLE_DRIVE"
         var result = application.getString(R.string.prefs_sync_introduction_summary1)
         if (isGoogleDrive) {
             result += " " + application.getString(
@@ -82,7 +84,7 @@ class SyncSettingsServiceImpl(
                 application.getString(syncSummaryAppName(CommonUtils.isDiscrete)),
             )
         }
-        result += " " + application.getString(R.string.sync_adapter_summary, current.displayName)
+        result += " " + application.getString(R.string.sync_adapter_summary, org.koin.java.KoinJavaComponent.get<net.bible.service.cloudsync.CloudAdapterFactory>(net.bible.service.cloudsync.CloudAdapterFactory::class.java).displayName(current))
         return result
     }
 
@@ -97,15 +99,15 @@ class SyncSettingsServiceImpl(
     }
 
     private fun build(cloudInfoSummary: String? = null): SyncSettingsSnapshot {
-        val signedIn = CloudSync.signedIn
+        val signedIn = cloudSync.signedIn
         val isCloudSyncEnabled = CommonUtils.isCloudSyncEnabled
-        val isGoogleDrive = CloudAdapters.current == CloudAdapters.GOOGLE_DRIVE
+        val isGoogleDrive = cloudSync.adapterId == "GOOGLE_DRIVE"
         val documentsEnabled = DocumentSyncSettings.enabled
         val displayed = SyncCategoryKeys.DISPLAY.map { SyncableDatabaseDefinition.nameToCategory[it.removePrefix("sync_enable_").uppercase()]!! }
-        val lastSynchronized = blockingDb { displayed.associateWith { it.lastSynchronized() } }
+        val lastSynchronized = blockingDb { displayed.associateWith { it.lastSynchronized(CommonUtils.settings) } }
         return SyncSettingsSnapshot(
-            adapter = CloudAdapters.current.name,
-            adapterChoices = CloudAdapters.allEnabled.map { Choice2(it.name, it.displayName) },
+            adapter = cloudSync.adapterId,
+            adapterChoices = cloudSync.adapterChoices.map { Choice2(it.value, it.label) },
             adapterSummary = adapterSummary(),
             adapterEnabled = !signedIn,
             cloudInfoSummary = cloudInfoSummary,
@@ -118,7 +120,7 @@ class SyncSettingsServiceImpl(
             resetVisible = isCloudSyncEnabled && signedIn,
             cloudInfoVisible = isCloudSyncEnabled && signedIn,
             categoryEnabled = SyncCategoryKeys.DISPLAY.associateWith { key ->
-                SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!.syncEnabled
+                SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!.isSyncEnabled(CommonUtils.settings)
             },
             categorySummary = SyncCategoryKeys.DISPLAY.associateWith { key ->
                 val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
@@ -137,9 +139,9 @@ class SyncSettingsServiceImpl(
 
     override fun refresh() {
         _snapshot.value = build()
-        if (CommonUtils.isCloudSyncEnabled && CloudSync.signedIn) {
+        if (CommonUtils.isCloudSyncEnabled && cloudSync.signedIn) {
             scope.launch {
-                val mb = CloudSync.bytesUsed() / (1024.0 * 1024)
+                val mb = cloudSync.bytesUsed() / (1024.0 * 1024)
                 _snapshot.value = build(
                     cloudInfoSummary = application.getString(R.string.cloud_info_summary, String.format("%.2f", mb)),
                 )
@@ -148,12 +150,12 @@ class SyncSettingsServiceImpl(
     }
 
     override suspend fun signIn(): Boolean {
-        if (CloudSync.signedIn) return true
-        return CloudSync.signIn(activityProvider()) == true
+        if (cloudSync.signedIn) return true
+        return cloudSync.signIn() == true
     }
 
     override suspend fun scanDocuments(): DocSyncSummaryData {
-        val items = withContext(Dispatchers.IO) { DocumentSync.scan() }
+        val items = withContext(Dispatchers.IO) { org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).scan() }
         val summary = computeDocumentSyncSummary(items, DocumentSyncSettings.blockList.all())
         return DocSyncSummaryData(
             uploadInitials = summary.uploadInitials,
@@ -165,14 +167,14 @@ class SyncSettingsServiceImpl(
 
     override fun setCategoryEnabled(key: String, enabled: Boolean) {
         val cat = SyncableDatabaseDefinition.nameToCategory[key.removePrefix("sync_enable_").uppercase()]!!
-        cat.syncEnabled = enabled
+        cat.setSyncEnabled(CommonUtils.settings, enabled)
         if (enabled) {
             // Classic setupDrivePref ran the sync-start sequence + broadcast the restore (now `notifyDatabaseRestored`) after
             // sign-in, then recreate()d. We refresh the snapshot instead; the sequence is fire-and-forget.
             scope.launch {
-                CloudSync.waitUntilFinished()
-                CloudSync.start()
-                CloudSync.waitUntilFinished()
+                cloudSync.waitUntilFinished()
+                cloudSync.start()
+                cloudSync.waitUntilFinished()
                 DatabaseContainer.notifyDatabaseRestored()
                 refresh()
             }
@@ -208,11 +210,11 @@ class SyncSettingsServiceImpl(
     }
 
     override fun setAdapter(value: String) {
-        CloudAdapters.current = CloudAdapters.valueOf(value)
+        cloudSync.adapterId = value
     }
 
     override suspend fun resetSync() {
-        CloudSync.signOut()
+        cloudSync.signOut()
     }
 
     override fun formatEnableDocumentsMessage(summary: DocSyncSummaryData): String {

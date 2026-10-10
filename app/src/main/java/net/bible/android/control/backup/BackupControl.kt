@@ -176,6 +176,8 @@ val databaseTitleResIds: Map<String, Int> = mapOf(
 )
 
 object BackupControl {
+    private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
+
     private val strings: CoreStrings get() = KoinJavaComponent.get(CoreStrings::class.java)
     private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
@@ -752,17 +754,17 @@ object BackupControl {
     }
 
     private suspend fun beforeRestore(category: SyncableDatabaseDefinition) {
-        if(DatabaseContainer.ready && CloudSync.signedIn) {
-            category.syncEnabled = false
+        if(DatabaseContainer.ready && cloudSync.signedIn) {
+            category.setSyncEnabled(CommonUtils.settings, false)
             UserMessages.toast(R.string.disabling_sync)
-            CloudSync.waitUntilFinished()
+            cloudSync.waitUntilFinished()
         }
     }
 
     private suspend fun afterRestore(restoredSelection: List<SyncableDatabaseDefinition>? = null) {
         val selection: List<SyncableDatabaseDefinition> = restoredSelection?: SyncableDatabaseDefinition.ALL.toList()
         for(s in selection) {
-            s.syncEnabled = false
+            s.setSyncEnabled(CommonUtils.settings, false)
             val db: SyncableRoomDatabase? = when(s) {
                 SyncableDatabaseDefinition.BOOKMARKS -> DatabaseContainer.instance.bookmarkDb
                 SyncableDatabaseDefinition.READINGPLANS -> DatabaseContainer.instance.readingPlanDb

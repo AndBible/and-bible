@@ -41,4 +41,19 @@ interface CoreStrings {
     val speakStatusStopped: String // R.string.speak_status_stopped
     val ttsLangNotAvailable: String // R.string.tts_lang_not_available
     fun sleepTimerStarted(minutes: Int): String // R.string.sleep_timer_started
+    val signInFailed: String
+    val cloudSyncTitle: String
+    val cloudFetchAndRestoreInitial: String
+    val cloudCreateNew: String
+    val cloudDisableSync: String
+    val syncCantFetch: String
+    val syncUpdateApp: String
+    val syncError: String
+    val okay: String
+    val cancel: String
+    val areYouSure: String
+    fun overrideBackup(contents: String): String
+    fun areYouSureResetLocal(what: String): String
+    fun areYouSureResetCloud(what: String): String
+    fun syncDisabling(what: String): String
 }

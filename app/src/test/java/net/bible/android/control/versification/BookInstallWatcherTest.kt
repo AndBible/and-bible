@@ -52,6 +52,8 @@ import java.util.concurrent.atomic.AtomicInteger
 class BookInstallWatcherTest {
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
     private val starter = object : DocumentSyncStarter {
+                override fun start(push: List<String>, download: List<String>, remove: List<String>, purge: List<String>, uninstall: List<String>) = Unit
+                override fun stop() = Unit
         override fun pushDocuments(initials: List<String>) {}
     }
 
@@ -66,7 +68,7 @@ class BookInstallWatcherTest {
     private fun runEvents(vararg events: String) = runBlocking {
         val appScope = AppCoroutineScope()
         val launcher = OrderedLauncher(appScope)
-        val watcher = BookInstallWatcher(launcher, starter)
+        val watcher = BookInstallWatcher(launcher, starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java))
         val firstWriteHeld = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
         val writes = AtomicInteger()
@@ -121,7 +123,7 @@ class BookInstallWatcherTest {
     private fun installThenAmend(preexisting: SwordDocumentInfo?, amend: suspend (BookInstallWatcher, Book) -> Unit): SwordDocumentInfo? =
         runBlocking {
             val appScope = AppCoroutineScope()
-            val watcher = BookInstallWatcher(OrderedLauncher(appScope), starter)
+            val watcher = BookInstallWatcher(OrderedLauncher(appScope), starter, org.koin.java.KoinJavaComponent.get(net.bible.service.cloudsync.DocumentSyncProvider::class.java))
             val firstWriteHeld = CompletableDeferred<Unit>()
             val release = CompletableDeferred<Unit>()
             val writes = AtomicInteger()
@@ -161,14 +163,14 @@ class BookInstallWatcherTest {
 
     @Test
     fun `cipher key stored after a sync install survives the queued row insert`() {
-        val row = installThenAmend(null) { watcher, book -> DocumentSync.persistCipherKey(watcher, book, "secret") }
+        val row = installThenAmend(null) { watcher, book -> org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).persistCipherKey(watcher, book, "secret") }
         assertEquals("secret", row?.cipherKey)
     }
 
     @Test
     fun `cipher key stored after a reinstall survives the delete-and-reinsert`() {
         val old = SwordDocumentInfo("x", "Old", "OLD", "English", "OldRepo", "old-key")
-        val row = installThenAmend(old) { watcher, book -> DocumentSync.persistCipherKey(watcher, book, "new-key") }
+        val row = installThenAmend(old) { watcher, book -> org.koin.java.KoinJavaComponent.get<DocumentSync>(DocumentSync::class.java).persistCipherKey(watcher, book, "new-key") }
         assertEquals("new-key", row?.cipherKey)
     }
 }

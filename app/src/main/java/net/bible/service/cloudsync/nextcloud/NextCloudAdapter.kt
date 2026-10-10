@@ -87,7 +87,8 @@ class NextCloudAdapter(
 
     override val signedIn: Boolean get() = _client != null
 
-    override suspend fun signIn(activity: ActivityBase): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun signIn(): Boolean = withContext(Dispatchers.IO) {
+        val activity = net.bible.android.view.activity.base.CurrentActivityHolder.currentActivity ?: return@withContext false
         try {
             val serverUri = Uri.parse(serverUrl)
             _client = OwnCloudClientFactory.createOwnCloudClient(serverUri, activity, true).apply {

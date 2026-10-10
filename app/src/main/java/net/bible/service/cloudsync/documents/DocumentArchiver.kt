@@ -20,7 +20,6 @@
 package net.bible.service.cloudsync.documents
 
 import net.bible.android.control.backup.BackupControl
-import net.bible.service.common.CommonUtils
 import net.bible.service.sword.epub.isManuallyInstalledEpub
 import net.bible.service.sword.esword.isManuallyInstalledESwordBook
 import net.bible.service.sword.mybible.isManuallyInstalledMyBibleBook
@@ -54,8 +53,8 @@ object DocumentArchiver {
      * Package [book] into a fresh temporary `.abmd.zip` archive and return the file.
      * Any pre-existing temp file for the same document is overwritten.
      */
-    suspend fun packageDocument(book: Book): File {
-        val zipFile = File(CommonUtils.tmpDir, "doc-${book.initials}.abmd.zip")
+    suspend fun packageDocument(book: Book, env: net.bible.sharedcore.platform.AppEnvironment): File {
+        val zipFile = File(env.tmpDir, "doc-${book.initials}.abmd.zip")
         if (zipFile.exists()) zipFile.delete()
         BackupControl.createSingleModuleZip(book, zipFile)
         return zipFile

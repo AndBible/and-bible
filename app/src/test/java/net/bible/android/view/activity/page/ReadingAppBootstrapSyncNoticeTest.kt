@@ -63,7 +63,7 @@ class ReadingAppBootstrapSyncNoticeTest {
     @Before
     fun setUp() {
         prefs.setInt(NOTICE_PREF, 0)
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = false
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, false)
     }
 
     @After
@@ -71,7 +71,7 @@ class ReadingAppBootstrapSyncNoticeTest {
         controllers.forEach { runCatching { it.close() } }
         controllers.clear()
         prefs.setInt(NOTICE_PREF, 0)
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = false
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, false)
         dialogs.cancelAll()
     }
 
@@ -92,7 +92,7 @@ class ReadingAppBootstrapSyncNoticeTest {
 
     @Test(timeout = 30000)
     fun syncEnabledPostsAConfirmWithBothButtonTexts() {
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = true
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
         val activity = buildActivity()
         activity.readingAppBootstrap.showNewSyncTargetsNotice()
 
@@ -106,7 +106,7 @@ class ReadingAppBootstrapSyncNoticeTest {
 
     @Test(timeout = 30000)
     fun dismissMarksItSeenWithoutOpeningSettings() {
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = true
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
         val activity = buildActivity()
         activity.readingAppBootstrap.showNewSyncTargetsNotice()
 
@@ -118,7 +118,7 @@ class ReadingAppBootstrapSyncNoticeTest {
 
     @Test(timeout = 30000)
     fun openSettingsMarksItSeenAndOpensSyncSettings() {
-        SyncableDatabaseDefinition.BOOKMARKS.syncEnabled = true
+        SyncableDatabaseDefinition.BOOKMARKS.setSyncEnabled(CommonUtils.settings, true)
         val activity = buildActivity()
         activity.readingAppBootstrap.showNewSyncTargetsNotice()
 

@@ -130,13 +130,13 @@ class ToolbarStateServiceImplTest {
         val before = service.toolbar.value
         assertThat(before.syncRunning, equalTo(false))
 
-        CloudSync.notifySyncRunning(true)
+        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifySyncRunning(true)
         val duringSync = service.toolbar.value
         assertThat(duringSync.syncRunning, equalTo(true))
         // every other field is untouched
         assertThat(duringSync.copy(syncRunning = false), equalTo(before))
 
-        CloudSync.notifySyncRunning(false)
+        org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).notifySyncRunning(false)
         assertThat(service.toolbar.value, equalTo(before))
     }
 

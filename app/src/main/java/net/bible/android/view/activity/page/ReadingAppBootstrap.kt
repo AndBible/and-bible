@@ -152,6 +152,8 @@ private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pr
  * `ReadingAppBootstrapTest.destroyingOneHostLeavesTheOtherLiveHostsCallbackRegistered` measures it.
  */
 class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : ActivityBase, T : ReadingHostActivity {
+    private val cloudSync: CloudSync get() = org.koin.java.KoinJavaComponent.get(CloudSync::class.java)
+
     private val windowControl: WindowControl by inject()
     private val appDialogs: AppDialogController by inject()
     private val preferences get() = CommonUtils.settings
@@ -599,13 +601,13 @@ class ReadingAppBootstrap<T>(private val host: T) : KoinComponent where T : Acti
         if (DatabaseContainer.replacing) return
         if(CommonUtils.isCloudSyncEnabled && networkAvailable) {
             windowRepository.saveIntoDb(false)
-            if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && CloudSync.hasChanges())) {
+            if (force || (now - max(lastSynchronized, lastTouched) > syncInterval && cloudSync.hasChanges())) {
                 Log.i(TAG, "Performing periodic sync")
-                if(!CloudSync.signedIn) {
-                    CloudSync.signIn(host)
+                if(!cloudSync.signedIn) {
+                    cloudSync.signIn()
                 }
-                CloudSync.start()
-                CloudSync.waitUntilFinished()
+                cloudSync.start()
+                cloudSync.waitUntilFinished()
             }
         }
     }

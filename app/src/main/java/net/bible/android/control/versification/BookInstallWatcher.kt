@@ -44,6 +44,7 @@ import org.crosswire.jsword.versification.VersificationsMapper
 class BookInstallWatcher(
     private val launcher: OrderedLauncher,
     private val syncStarter: DocumentSyncStarter,
+    private val documentSync: net.bible.service.cloudsync.DocumentSyncProvider,
 ) {
     /** For tests only: runs at the start of every backup-db write, inside the ordered launch. */
     @VisibleForTesting
@@ -83,7 +84,7 @@ class BookInstallWatcher(
             // MyDocumentBookManager registers at startup. Those have no configFile, so packaging
             // them threw an NPE and raised a user-facing error notification (OSTicket 3392).
             if (book.isSyncableDocument
-                && !DocumentSync.isInstallingFromSync(book.initials)
+                && !documentSync.get().isInstallingFromSync(book.initials)
                 && shouldAutoUpload(
                     DocumentSyncSettings.enabled,
                     DocumentSyncSettings.autoUpload,

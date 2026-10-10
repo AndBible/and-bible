@@ -73,7 +73,7 @@ class CloudSyncAskInitialSyncOperationTest {
     fun raisesAnUncancellableThreeWayOptionsWithTheDatabaseDescription() = runTest {
         val activity = activity()
         val answer = async {
-            CloudSync.askInitialSyncOperation(activity, SyncableDatabaseDefinition.WORKSPACES)
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).askInitialSyncOperation( SyncableDatabaseDefinition.WORKSPACES)
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
@@ -98,13 +98,16 @@ class CloudSyncAskInitialSyncOperationTest {
     fun fetchThenConfirmedReturnsFetchInitial() = runTest {
         val activity = activity()
         val answer = async {
-            CloudSync.askInitialSyncOperation(activity, SyncableDatabaseDefinition.WORKSPACES)
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).askInitialSyncOperation( SyncableDatabaseDefinition.WORKSPACES)
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[0].value))
         advanceUntilIdle()
         val confirm = dialogs.pending.value!!.request as AppDialogRequest.Confirm
+        assertEquals(activity.getString(R.string.are_you_sure), confirm.title)
+        assertEquals(activity.getString(R.string.okay), confirm.confirmText)
+        assertEquals(activity.getString(R.string.cancel), confirm.dismissText)
         assertEquals(
             activity.getString(R.string.are_you_sure_reset_local, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
             confirm.message,
@@ -117,7 +120,7 @@ class CloudSyncAskInitialSyncOperationTest {
     fun fetchThenDeclinedConfirmationReturnsNull() = runTest {
         val activity = activity()
         val answer = async {
-            CloudSync.askInitialSyncOperation(activity, SyncableDatabaseDefinition.WORKSPACES)
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).askInitialSyncOperation( SyncableDatabaseDefinition.WORKSPACES)
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
@@ -131,13 +134,16 @@ class CloudSyncAskInitialSyncOperationTest {
     fun createNewThenConfirmedReturnsCreateNew() = runTest {
         val activity = activity()
         val answer = async {
-            CloudSync.askInitialSyncOperation(activity, SyncableDatabaseDefinition.WORKSPACES)
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).askInitialSyncOperation( SyncableDatabaseDefinition.WORKSPACES)
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(head.options[1].value))
         advanceUntilIdle()
         val confirm = dialogs.pending.value!!.request as AppDialogRequest.Confirm
+        assertEquals(activity.getString(R.string.are_you_sure), confirm.title)
+        assertEquals(activity.getString(R.string.okay), confirm.confirmText)
+        assertEquals(activity.getString(R.string.cancel), confirm.dismissText)
         assertEquals(
             activity.getString(R.string.are_you_sure_reset_cloud, net.bible.test.testCoreStrings().syncCategoryContents("WORKSPACES")),
             confirm.message,
@@ -150,7 +156,7 @@ class CloudSyncAskInitialSyncOperationTest {
     fun disableSyncSelectionReturnsNullWithNoConfirmation() = runTest {
         val activity = activity()
         val answer = async {
-            CloudSync.askInitialSyncOperation(activity, SyncableDatabaseDefinition.WORKSPACES)
+            org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).askInitialSyncOperation( SyncableDatabaseDefinition.WORKSPACES)
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options

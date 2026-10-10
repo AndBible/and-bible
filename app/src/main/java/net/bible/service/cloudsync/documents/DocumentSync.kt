@@ -20,13 +20,11 @@
 package net.bible.service.cloudsync.documents
 
 import net.bible.sharedcore.log.Log
-import net.bible.android.BibleApplication
 import net.bible.android.control.document.canDelete
 import net.bible.android.control.versification.BookInstallWatcher
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.toMeta
 import net.bible.service.cloudsync.CloudSync
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.roomTransaction
 import net.bible.service.sword.SwordDocumentFacade
@@ -35,7 +33,6 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.koin.java.KoinJavaComponent
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.Dispatchers
 import net.bible.sharedcore.event.EventSource
@@ -44,8 +41,31 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.util.Collections
 
-object DocumentSync {
-    private const val TAG = "DocumentSync"
+class DocumentSync(
+    private val env: net.bible.sharedcore.platform.AppEnvironment,
+    private val cloud: net.bible.service.cloudsync.CloudSyncProvider,
+    private val starter: net.bible.sharedcore.cloud.DocumentSyncStarter,
+    private val watcher: BookInstallWatcher,
+) {
+    companion object {
+        private const val TAG = "DocumentSync"
+    /**
+     * Whether [cloudVersion] is strictly newer than [localVersion].
+     *
+     * Equal raw version strings short-circuit to `false` (not newer) *before* attempting a
+     * numeric parse. This matters because JSword's [Version] only accepts `\d+(.\d+){0,3}` and
+     * throws on anything else — and MyBible/MySword/eSword/EPUB documents (exactly the kinds this
+     * feature targets) frequently carry non-numeric or date versions. Without the equality check,
+     * a non-parseable version would always compare as "not newer", which is fine for the equal
+     * case but means a non-numeric version that genuinely differs is treated conservatively as
+     * not-newer (no auto-propagation) rather than guessing an order we cannot reliably determine.
+     */
+        fun versionIsNewer(cloudVersion: String, localVersion: String): Boolean {
+            if (cloudVersion == localVersion) return false
+            return try { Version(cloudVersion) > Version(localVersion) } catch (e: Exception) { false }
+        }
+    }
+
 
     private var runningSource = EventSource<Boolean>()
 
@@ -60,26 +80,10 @@ object DocumentSync {
     @VisibleForTesting
     fun resetSubscribersForTest() { runningSource = EventSource() }
 
-    /**
-     * Whether [cloudVersion] is strictly newer than [localVersion].
-     *
-     * Equal raw version strings short-circuit to `false` (not newer) *before* attempting a
-     * numeric parse. This matters because JSword's [Version] only accepts `\d+(.\d+){0,3}` and
-     * throws on anything else — and MyBible/MySword/eSword/EPUB documents (exactly the kinds this
-     * feature targets) frequently carry non-numeric or date versions. Without the equality check,
-     * a non-parseable version would always compare as "not newer", which is fine for the equal
-     * case but means a non-numeric version that genuinely differs is treated conservatively as
-     * not-newer (no auto-propagation) rather than guessing an order we cannot reliably determine.
-     */
-    fun versionIsNewer(cloudVersion: String, localVersion: String): Boolean {
-        if (cloudVersion == localVersion) return false
-        return try { Version(cloudVersion) > Version(localVersion) } catch (e: Exception) { false }
-    }
-
     private suspend fun store(): DocumentStore? {
-        val adapter = CloudSync.cloudAdapter ?: return null
-        val folderId = CloudSync.documentsSyncFolderId() ?: return null
-        return DocumentStore(adapter, folderId)
+        val adapter = cloud.get().cloudAdapter ?: return null
+        val folderId = cloud.get().documentsSyncFolderId() ?: return null
+        return DocumentStore(adapter, folderId, env)
     }
 
     private fun installedSyncableBooks(): List<Book> =
@@ -231,7 +235,7 @@ object DocumentSync {
         if (existing != null && !versionIsNewer(localVersion, existing.version)) {
             Log.i(TAG, "Cloud has same/newer ${book.initials}; skipping upload"); return
         }
-        val archive = DocumentArchiver.packageDocument(book)
+        val archive = DocumentArchiver.packageDocument(book, env)
         try {
             val cipherKey = DatabaseContainer.instance.repoDb.swordDocumentInfoDao().getBook(book.initials)?.cipherKey
             val meta = DocumentSyncMeta(
@@ -242,7 +246,7 @@ object DocumentSync {
                 size = archive.length(),
                 language = book.language.code,
                 category = book.bookCategory.name,
-                sourceDevice = CommonUtils.deviceIdentifier,
+                sourceDevice = env.deviceIdentifier,
                 timestamp = System.currentTimeMillis(),
                 cipherKey = cipherKey,
             )
@@ -300,7 +304,7 @@ object DocumentSync {
         if (cipherKey == null) return
         val book = Books.installed().getBook(initials) ?: return
         book.unlock(cipherKey)
-        persistCipherKey(KoinJavaComponent.get(BookInstallWatcher::class.java), book, cipherKey)
+        persistCipherKey(watcher, book, cipherKey)
     }
 
     /**
@@ -325,11 +329,10 @@ object DocumentSync {
     suspend fun runSync(download: Boolean, upload: Boolean, delete: Boolean, manual: Boolean) {
         if (!manual && (!DocumentSyncSettings.enabled || !DocumentSyncSettings.isAutoTransferAllowed)) return
         val plan = computeSyncPlan(download, upload, delete)
-        DocumentSyncService.start(
-            BibleApplication.application,
-            pushInitials = plan.toUpload,
-            downloadInitials = plan.toDownload,
-            uninstallInitials = plan.toUninstall,
+        starter.start(
+            push = plan.toUpload,
+            download = plan.toDownload,
+            uninstall = plan.toUninstall,
         )
     }
 
@@ -418,7 +421,7 @@ object DocumentSync {
             // the fallback just guards against a race where it disappeared.
             val meta = (existing ?: DocumentSyncMeta(
                 initials = initials, name = initials, documentType = DocumentType.SWORD, version = "0.0",
-                size = 0, language = "", sourceDevice = CommonUtils.deviceIdentifier,
+                size = 0, language = "", sourceDevice = env.deviceIdentifier,
                 timestamp = 0,
             )).copy(timestamp = now)
             store.writeTombstone(meta)

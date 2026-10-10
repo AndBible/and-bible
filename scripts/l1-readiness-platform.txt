@@ -4,3 +4,9 @@ android/control/report/AiBugReport.kt	Android bug/crash report host: screenshots
 service/device/speak/MediaButtonHandler.kt	Android media session and headset buttons
 service/device/speak/TextToSpeechNotificationManager.kt	Android speech notification host
 service/installzip/DocumentInstallService.kt	Android foreground Service: Intents, ClipData URI grants, ContentResolver, notifications; iOS gets its own install host
+service/cloudsync/SyncService.kt	Android foreground Service, wakelock and notification host
+service/cloudsync/documents/DocumentSyncService.kt	Android foreground Service, wakelock, notification and Intent extras; drain loop remains platform-owned for a follow-up
+service/cloudsync/googledrive/GoogleDriveCloudAdapter.kt	Play Services one-tap sign-in, Android Account/Parcel and Google API client
+service/cloudsync/nextcloud/NextCloudAdapter.kt	Nextcloud Android SDK credentials/sign-in and commons-httpclient/jackrabbit transport
+service/cloudsync/nextcloud/GenericRemoteOperation.kt	Nextcloud Android library operation over JVM commons-httpclient (deliberately classified even without scanner violations)
+service/cloudsync/nextcloud/NextCloudSearchMethod.kt	Nextcloud JVM commons-httpclient and jackrabbit search method (deliberately classified even without scanner violations)

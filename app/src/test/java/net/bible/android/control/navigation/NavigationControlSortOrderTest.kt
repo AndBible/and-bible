@@ -24,7 +24,7 @@ class NavigationControlSortOrderTest {
         override fun setDouble(key: String, value: Double?) = TODO()
         override fun setFloat(key: String, value: Float?) = TODO()
     }
-    private val strings = object : CoreStrings {
+    private val strings = object : CoreStrings by net.bible.test.testCoreStrings() {
         override val storageSpaceWarning = "storageSpaceWarning"
         override val errorDownloading = "errorDownloading"
         override val journalDescription = "journalDescription"

@@ -33,16 +33,16 @@ class SyncFinishedTest {
     @Test fun theTimestampIsWrittenBeforeTheFalseEdge() {
         CommonUtils.settings.setLong("globalLastSynchronized", 0L)
         var seenAtEmit = -1L
-        val subscription = CloudSync.runningChanged.subscribe { running ->
+        val subscription = org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java).runningChanged.subscribe { running ->
             if (!running) seenAtEmit = CommonUtils.settings.getLong("globalLastSynchronized", 0L)
         }
-        try { recordSyncFinished(now = 1234L) } finally { subscription.cancel() }
+        try { recordSyncFinished(CommonUtils.settings, org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java), now = 1234L) } finally { subscription.cancel() }
         assertEquals(1234L, seenAtEmit)
     }
 
     @Test fun noReadingHostIsNeeded() {
         CommonUtils.settings.setLong("globalLastSynchronized", 0L)
-        recordSyncFinished(now = 99L)
+        recordSyncFinished(CommonUtils.settings, org.koin.java.KoinJavaComponent.get<CloudSync>(CloudSync::class.java), now = 99L)
         assertEquals(99L, CommonUtils.settings.getLong("globalLastSynchronized", 0L))
     }
 }

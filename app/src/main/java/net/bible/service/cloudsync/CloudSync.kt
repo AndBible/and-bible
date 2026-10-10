@@ -19,29 +19,16 @@ package net.bible.service.cloudsync
 
 import net.bible.sharedcore.platform.CoreStrings
 
-import android.content.Intent
-import android.os.Build
 import net.bible.sharedcore.log.Log
 import androidx.annotation.VisibleForTesting
 import net.bible.service.db.useWriterConnectionMarked
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import net.bible.android.BibleApplication
-import net.bible.android.activity.R
 import net.bible.android.control.event.UserMessages
 import net.bible.android.database.SyncStatus
-import net.bible.android.view.activity.base.ActivityBase
-import net.bible.android.view.activity.base.CurrentActivityHolder
-import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.cloudsync.nextcloud.NextCloudAdapter
-import net.bible.service.cloudsync.documents.DocumentSync
-import net.bible.service.cloudsync.documents.DocumentSyncService
 import net.bible.service.cloudsync.documents.DocumentSyncSettings
-import net.bible.service.common.BuildVariant
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.db.exec
@@ -53,10 +40,8 @@ import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedcore.ui.dialog.AppDialogController
 import net.bible.sharedcore.ui.dialog.AppDialogRequest
 import net.bible.sharedcore.ui.dialog.AppDialogResult
-import org.koin.java.KoinJavaComponent
 import java.io.File
 import java.io.IOException
-import kotlin.IllegalStateException
 
 const val GZIP_MIMETYPE = "application/gzip"
 
@@ -69,45 +54,21 @@ const val TAG = "DeviceSync"
 
 class CancelStartedSync: Exception()
 
-val app get() = BibleApplication.application
+class CloudSync(
+    private val dialogs: AppDialogController,
+    private val strings: CoreStrings,
+    private val env: net.bible.sharedcore.platform.AppEnvironment,
+    private val settings: net.bible.sharedcore.platform.AppSettings,
+    private val adapters: CloudAdapterFactory,
+    private val scheduler: SyncScheduler,
+    private val documentSyncStarter: net.bible.sharedcore.cloud.DocumentSyncStarter,
+    private val documents: DocumentSyncProvider,
+) {
+    var adapterId: String
+        get() = settings.getString("sync_adapter") ?: adapters.available.first()
+        set(value) = settings.setString("sync_adapter", value)
+    val adapterChoices get() = adapters.available.map { SettingsItem.Choice(it, adapters.displayName(it)) }
 
-enum class CloudAdapters(val isEnabled: Boolean = true) {
-    GOOGLE_DRIVE(!BuildVariant.DistributionChannel.isFdroid), NEXT_CLOUD;
-
-    val displayName: String get() = when(this) {
-        GOOGLE_DRIVE -> app.getString(R.string.adapters_google_drive)
-        NEXT_CLOUD -> app.getString(R.string.adapters_next_cloud)
-    }
-    val newAdapter: CloudAdapter get() = when(this) {
-        GOOGLE_DRIVE -> {
-            val adapter = Class.forName("net.bible.service.cloudsync.googledrive.GoogleDriveCloudAdapter")
-            val constructor = adapter.getDeclaredConstructor()
-            constructor.newInstance() as CloudAdapter
-        }
-        NEXT_CLOUD -> CommonUtils.realSharedPreferences.let { prefs ->
-            NextCloudAdapter(
-                prefs.getString("cloud_sync_server_url", null),
-                prefs.getString("cloud_sync_username", null),
-                prefs.getString("cloud_sync_password", null),
-                prefs.getString("cloud_sync_folder_path", null)
-            )
-        }
-    }
-
-    companion object {
-        val allEnabled: List<CloudAdapters> get() = CloudAdapters.entries.filter { it.isEnabled }
-        var current: CloudAdapters
-            get() {
-                val adapterStr = CommonUtils.settings.getString("sync_adapter")
-                return adapterStr?.let { CloudAdapters.valueOf(it) }?: allEnabled.first()
-            }
-            set(value) {
-                CommonUtils.settings.setString("sync_adapter", value.name)
-            }
-    }
-}
-
-object CloudSync {
     private var runningSource = EventSource<Boolean>()
 
     /** `true` when a cloud sync starts, `false` when it finishes (replaces `CloudSyncEvent`). */
@@ -127,13 +88,11 @@ object CloudSync {
     @VisibleForTesting
     fun resetSubscribersForTest() { runningSource = EventSource(); refreshSource = EventSource() }
 
-    private val strings: CoreStrings get() = KoinJavaComponent.get(CoreStrings::class.java)
-    private val dialogs: AppDialogController get() = KoinJavaComponent.get(AppDialogController::class.java)
 
     // AppDialogRequest.Options ids for initializeSync's "which way?" question (Task 24 Step 3).
-    private const val FETCH_VALUE = "fetch"
-    private const val CREATE_VALUE = "create"
-    private const val DISABLE_VALUE = "disable"
+    private val FETCH_VALUE = "fetch"
+    private val CREATE_VALUE = "create"
+    private val DISABLE_VALUE = "disable"
 
     private var _adapter: CloudAdapter? = null
     private val adapter: CloudAdapter get() = _adapter!!
@@ -142,26 +101,26 @@ object CloudSync {
 
     internal val cloudAdapter: CloudAdapter? get() = _adapter
 
-    const val DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX = "documents"
+    val DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX = "documents"
 
     suspend fun documentsSyncFolderId(): String? {
         val adapter = _adapter ?: return null
-        val name = "${app.applicationInfo.packageName}-sync-$DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX"
+        val name = "${env.packageName}-sync-$DOCUMENTS_SYNC_FOLDER_NAME_SUFFIX"
         val existing = adapter.listFiles(name = name).firstOrNull()
         return existing?.id ?: adapter.createNewFolder(name).id
     }
 
     private val signInMutex = Mutex()
-    suspend fun signIn(activity: ActivityBase): Boolean? {
+    suspend fun signIn(): Boolean? {
         if(signInMutex.isLocked) {
             Log.i(TAG, "Already signing in!")
             return null
         }
         var errorMessage: String? = null
         val success = signInMutex.withLock {
-            _adapter = CloudAdapters.current.newAdapter
+            _adapter = adapters.create(adapterId)
             try {
-                adapter.signIn(activity)
+                adapter.signIn()
             } catch (e: Exception){
                 errorMessage = e.message
                 false
@@ -169,7 +128,7 @@ object CloudSync {
         }
         if(!success) {
             _adapter = null
-            Dialogs.showMsg2(activity, activity.getString(R.string.sign_in_failed) + " " + (errorMessage?:""))
+            dialogs.await(AppDialogRequest.Message(null, strings.signInFailed + " " + (errorMessage?:""), strings.okay, cancellable = false))
         }
         return success
     }
@@ -179,12 +138,12 @@ object CloudSync {
         // Stop any in-flight document transfers before wiping their state: they belong to the
         // account just disconnected. store() already returns null now (_adapter == null), so a
         // running drain would no-op anyway, but cancelling it promptly avoids a needless drain.
-        DocumentSyncService.stop(app)
-        DocumentSync.onSignOut()
+        documentSyncStarter.stop()
+        documents.get().onSignOut()
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
             val category = dbDef.category
-            category.syncEnabled = false
+            category.setSyncEnabled(settings, false)
             dbDef.dao.clearSyncStatus()
             dbDef.dao.clearSyncConfiguration()
         }
@@ -196,21 +155,21 @@ object CloudSync {
     /**
      * `initializeSync`'s "fetch from cloud, create new, or disable?" question (Task 24 Step 3): an
      * owner-less `AppDialogController` dialog in place of the old `android.app.AlertDialog`,
-     * followed by its existing confirmation (`Dialogs.simpleQuestion`, already a shim). Declining
+     * followed by its existing confirmation through the same dialog controller. Declining
      * that confirmation reverts to null, same as choosing "Cancel & disable synchronization"
      * outright. `internal`, not private, so a test can pin the mapping directly against just a
      * [SyncableDatabaseDefinition] -- without building a whole [SyncableDatabaseAccessor].
      */
-    internal suspend fun askInitialSyncOperation(activity: ActivityBase, category: SyncableDatabaseDefinition): InitialOperation? {
+    internal suspend fun askInitialSyncOperation(category: SyncableDatabaseDefinition): InitialOperation? {
         val containsStr = strings.syncCategoryContents(category.name)
         val dialogResult = dialogs.await(
             AppDialogRequest.Options(
-                title = activity.getString(R.string.cloud_sync_title),
-                message = activity.getString(R.string.overrideBackup, containsStr),
+                title = strings.cloudSyncTitle,
+                message = strings.overrideBackup(containsStr),
                 options = listOf(
-                    SettingsItem.Choice(FETCH_VALUE, activity.getString(R.string.cloud_fetch_and_restore_initial)),
-                    SettingsItem.Choice(CREATE_VALUE, activity.getString(R.string.cloud_create_new)),
-                    SettingsItem.Choice(DISABLE_VALUE, activity.getString(R.string.cloud_disable_sync)),
+                    SettingsItem.Choice(FETCH_VALUE, strings.cloudFetchAndRestoreInitial),
+                    SettingsItem.Choice(CREATE_VALUE, strings.cloudCreateNew),
+                    SettingsItem.Choice(DISABLE_VALUE, strings.cloudDisableSync),
                 ),
                 dismissText = null,
                 asActionSheet = false,
@@ -223,12 +182,11 @@ object CloudSync {
             else -> null // "Cancel & disable synchronization", or (uncancellable) Cancel/back/scrim.
         }
         if (q1 != null) {
-            val message = when (q1) {
-                InitialOperation.FETCH_INITIAL -> R.string.are_you_sure_reset_local
-                InitialOperation.CREATE_NEW -> R.string.are_you_sure_reset_cloud
+            val msgString = when (q1) {
+                InitialOperation.FETCH_INITIAL -> strings.areYouSureResetLocal(containsStr)
+                InitialOperation.CREATE_NEW -> strings.areYouSureResetCloud(containsStr)
             }
-            val msgString = activity.getString(message, strings.syncCategoryContents(category.name))
-            val confirmed = Dialogs.simpleQuestion(activity, msgString)
+            val confirmed = dialogs.await(AppDialogRequest.Confirm(strings.areYouSure, msgString, strings.okay, strings.cancel)) == AppDialogResult.Ok
             if (!confirmed) return null
         }
         return q1
@@ -236,7 +194,7 @@ object CloudSync {
 
     private suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>) {
         var initialOperation: InitialOperation?= null
-        val syncFolderName = "${app.applicationInfo.packageName}-sync-${dbDef.categoryName}"
+        val syncFolderName = "${env.packageName}-sync-${dbDef.categoryName}"
 
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if (syncFolderId != null) {
@@ -262,13 +220,12 @@ object CloudSync {
                 Log.i(TAG, "uiMutex ahead ${dbDef.categoryName}...")
                 initialOperation = uiMutex.withLock {
                     Log.i(TAG, "... got through uiMutex ${dbDef.categoryName}!")
-                    val activity = CurrentActivityHolder.currentActivity ?: throw CancelStartedSync()
                     withContext(Dispatchers.Main) {
-                        askInitialSyncOperation(activity, dbDef.category)
+                        askInitialSyncOperation(dbDef.category)
                     }
                 }
                 if (initialOperation == null) {
-                    dbDef.category.syncEnabled = false
+                    dbDef.category.setSyncEnabled(settings, false)
                     throw CancelStartedSync()
                 } else {
                     dbDef.dao.setConfig(SYNC_FOLDER_FILE_ID_KEY, preliminarySyncFolderId!!)
@@ -296,7 +253,7 @@ object CloudSync {
         }
 
         suspend fun createNewDeviceSyncFolder() {
-            val deviceIdentifier = CommonUtils.deviceIdentifier
+            val deviceIdentifier = env.deviceIdentifier
             Log.i(TAG, "Creating new device sync folder $syncFolderName/$deviceIdentifier")
             adapter.createNewFolder(
                 name = deviceIdentifier,
@@ -326,10 +283,10 @@ object CloudSync {
         dbDef.dao.clearLog()
         dbDef.dao.clearSyncStatus()
         dbDef.localDb.useWriterConnectionMarked { it.exec("VACUUM;") }
-        val tmpFile = CommonUtils.tmpFile
-        val gzippedTmpFile = CommonUtils.tmpFile
+        val tmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
+        val gzippedTmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
         dbDef.localDbFile.copyTo(tmpFile, overwrite = true)
-        CommonUtils.gzipFile(tmpFile, gzippedTmpFile)
+        net.bible.service.common.ArchiveUtils.gzipFile(tmpFile, gzippedTmpFile)
         tmpFile.delete()
 
         Log.i(TAG, "uploading initial db, ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
@@ -338,7 +295,7 @@ object CloudSync {
             file = gzippedTmpFile,
             parentId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)!!
         )
-        dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, 0, result.size, result.createdTime))
+        dbDef.dao.addStatus(SyncStatus(env.deviceIdentifier, 0, result.size, result.createdTime))
         gzippedTmpFile.delete()
     }
 
@@ -352,19 +309,18 @@ object CloudSync {
                 name = INITIAL_BACKUP_FILENAME
             )
             .first()
-        val gzippedTmpFile = CommonUtils.tmpFile
+        val gzippedTmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
         gzippedTmpFile.outputStream().use { adapter.download(initialFile.id, it) }
         Log.i(TAG, "Downloaded initial db for ${dbDef.categoryName}, ${gzippedTmpFile.length()}")
-        val tmpFile = CommonUtils.tmpFile
-        CommonUtils.gunzipFile(gzippedTmpFile, tmpFile)
+        val tmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
+        net.bible.service.common.ArchiveUtils.gunzipFile(gzippedTmpFile, tmpFile)
         gzippedTmpFile.delete()
         val initialDbVersion = openSqlite(tmpFile.path).use { it.queryLong("PRAGMA user_version")!!.toInt() }
         val localVersion = dbDef.version()
         if(initialDbVersion > localVersion) {
             tmpFile.delete()
-            val activity = CurrentActivityHolder.currentActivity ?: throw CancelStartedSync()
-            Dialogs.showMsg2(activity, cantFetchString(strings.syncCategoryContents(dbDef.category.name)))
-            dbDef.category.syncEnabled = false
+            dialogs.await(AppDialogRequest.Message(null, cantFetchString(strings.syncCategoryContents(dbDef.category.name)), strings.okay, cancellable = false))
+            dbDef.category.setSyncEnabled(settings, false)
             Log.e(TAG, "Initial db version is newer than this app version: $initialDbVersion > $localVersion")
             throw CancelStartedSync()
         } else {
@@ -377,7 +333,7 @@ object CloudSync {
                 createTriggers(dbDef)
                 dbDef.dao.addStatus(
                     SyncStatus(
-                        CommonUtils.deviceIdentifier,
+                        env.deviceIdentifier,
                         0,
                         initialFile.size,
                         initialFile.createdTime
@@ -415,33 +371,12 @@ object CloudSync {
 
     private val syncMutex = Mutex()
 
-    fun start(): CompletableDeferred<Boolean> = synchronized(this) {
-        if (syncStarted != null || syncMutex.isLocked) {
-            Log.i(TAG, "Sync already started!")
-        }
-        val syncStarted = CompletableDeferred<Boolean>()
-        this.syncStarted = syncStarted
-
-        val intent = Intent(app, SyncService::class.java)
-        intent.action = SyncService.START_SERVICE
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            try {
-                app.startForegroundService(intent)
-            } catch (e: IllegalStateException) {
-                Log.e(TAG, "Could not start sync due to ", e)
-                syncStarted.complete(false)
-                this.syncStarted = null
-                return@synchronized syncStarted
-            }
-            Log.i(TAG, "Foreground service started")
-        } else {
-            app.startService(intent)
-        }
-        syncStarted
+    fun start(): kotlinx.coroutines.Deferred<Boolean> = synchronized(this) {
+        syncStarted?.takeUnless { it.isCompleted }?.let { return@synchronized it }
+        scheduler.startDatabaseSync().also { syncStarted = it }
     }
 
-    private var syncStarted: CompletableDeferred<Boolean>? = null
+    @Volatile private var syncStarted: kotlinx.coroutines.Deferred<Boolean>? = null
 
     suspend fun waitUntilFinished(fromService: Boolean = false) {
         if(!fromService) {
@@ -460,14 +395,12 @@ object CloudSync {
             return@withContext
         }
         syncMutex.withLock {
-            syncStarted?.complete(true)
-            syncStarted = null
             Log.i(TAG, "Synchronizing starts")
             val timerStart = System.currentTimeMillis()
 
             DatabaseContainer.databaseAccessorFactories.asyncMap {
                 val dbDef = it.invoke()
-                if(!dbDef.category.syncEnabled) return@asyncMap
+                if(!dbDef.category.isSyncEnabled(settings)) return@asyncMap
                 if(dbDef.dao.getLong("disabledForVersion") == dbDef.version().toLong()) return@asyncMap
                 try {
                     initializeSync(dbDef)
@@ -479,7 +412,7 @@ object CloudSync {
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "Some other exception happened in initializeSync!", e)
-                    UserMessages.errorNotification(R.string.sync_error)
+                    UserMessages.errorNotification(strings.syncError)
                     return@asyncMap
                 }
                 try {
@@ -489,7 +422,7 @@ object CloudSync {
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "createAndUploadNewPatch failed due to error", e)
-                    UserMessages.errorNotification(R.string.sync_error)
+                    UserMessages.errorNotification(strings.syncError)
                 }
                 try {
                     try {
@@ -507,11 +440,11 @@ object CloudSync {
                     return@asyncMap
                 } catch (e: Exception) {
                     Log.e(TAG, "downloadAndApplyNewPatches failed due to error", e)
-                    UserMessages.errorNotification(R.string.sync_error)
+                    UserMessages.errorNotification(strings.syncError)
                 }
             }
             try {
-                DocumentSync.runSync(
+                documents.get().runSync(
                     download = DocumentSyncSettings.autoDownload,
                     upload = DocumentSyncSettings.autoUpload,
                     delete = DocumentSyncSettings.autoDelete,
@@ -525,9 +458,9 @@ object CloudSync {
     }
 
     private fun cantFetchString(contentDescription: String): String {
-       val s1 = app.getString(R.string.sync_cant_fetch)
-       val s2 = app.getString(R.string.sync_disabling, contentDescription)
-       val s3 = app.getString(R.string.sync_update_app)
+       val s1 = strings.syncCantFetch
+       val s2 = strings.syncDisabling(contentDescription)
+       val s3 = strings.syncUpdateApp
        return "$s1 $s2 $s3"
     }
 
@@ -543,7 +476,7 @@ object CloudSync {
         val deviceSyncFolder = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
 
         Log.i(TAG, "Downloading new patches ${dbDef.categoryName}, last Synced: $lastSynchronized. ")
-        Log.i(TAG, "This device ${CommonUtils.deviceIdentifier} (id: ${deviceSyncFolder})")
+        Log.i(TAG, "This device ${env.deviceIdentifier} (id: ${deviceSyncFolder})")
 
         dbDef.dao.setConfig(LAST_SYNCHRONIZED_KEY, System.currentTimeMillis())
 
@@ -607,7 +540,7 @@ object CloudSync {
 
         val downloadedFiles = patches.asyncMap(6) { f ->
             Log.i(TAG, "Downloading ${f.file.name}, ${f.file.size} bytes")
-            val tmpFile = CommonUtils.tmpFile
+            val tmpFile = java.io.File.createTempFile("andbible-", ".tmp", File(env.tmpDir))
             tmpFile.outputStream().use {
                 adapter.download(f.file.id, it)
             }
@@ -618,16 +551,16 @@ object CloudSync {
             SyncStatus(it.parentFolderName, patchNumber(it.file.name), it.file.size, it.file.createdTime)
         }
 
-        applyPatchesForDatabase(dbDef, *downloadedFiles.toTypedArray())
+        applyPatchesForDatabase(dbDef, env, *downloadedFiles.toTypedArray())
         downloadedFiles.forEach { it.delete() }
         dbDef.reactToUpdates(lastSynchronized)
         dbDef.dao.addStatuses(syncStatuses)
     }
     private suspend fun createAndUploadNewPatch(dbDef: SyncableDatabaseAccessor<*>) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Uploading new patches ${dbDef.categoryName}")
-        val file = createPatchForDatabase(dbDef, false)?: return@withContext
+        val file = createPatchForDatabase(dbDef, env, false)?: return@withContext
         val syncDeviceFolderId = dbDef.dao.getString(SYNC_DEVICE_FOLDER_FILE_ID_KEY)!!
-        val count = (dbDef.dao.lastPatchNum(CommonUtils.deviceIdentifier)?: 0) + 1
+        val count = (dbDef.dao.lastPatchNum(env.deviceIdentifier)?: 0) + 1
         val fileName = "$count.${dbDef.version()}.sqlite3.gz"
         val lastWritten = System.currentTimeMillis();
 
@@ -640,20 +573,20 @@ object CloudSync {
         }
         Log.i(TAG, "Uploaded ${dbDef.categoryName} $fileName, ${file.length()} bytes, ${result.createdTime}")
         dbDef.dao.setConfig(LAST_PATCH_WRITTEN_KEY, lastWritten)
-        dbDef.dao.addStatus(SyncStatus(CommonUtils.deviceIdentifier, count, file.length(), result.createdTime))
+        dbDef.dao.addStatus(SyncStatus(env.deviceIdentifier, count, file.length(), result.createdTime))
         file.delete()
     }
 
     suspend fun hasChanges(): Boolean =
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
-            dbDef.category.syncEnabled && dbDef.hasChanges()
+            dbDef.category.isSyncEnabled(settings) && dbDef.hasChanges()
         }.any { it }
 
     suspend fun bytesUsed(): Long =
         DatabaseContainer.databaseAccessorFactories.asyncMap {
             val dbDef = it.invoke()
             dbDef.bytesUsed()
-        }.sum() + DocumentSync.cloudBytesUsed()
+        }.sum() + documents.get().cloudBytesUsed()
 
 }
