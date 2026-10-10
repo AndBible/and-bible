@@ -8,6 +8,7 @@ categories:
 tags:
 - financial support
 - transparency
+- video
 image: blog/2025/07/financial2.webp
 image_alt: Financial report Q2/2025
 ---

@@ -102,6 +102,21 @@ def test_taxonomy_and_date_archives(site):
     assert "Post 99" in (site / "2023/12/23/index.html").read_text()
 
 
+def test_tags_index_lists_tags_with_counts(site):
+    html = (site / "tags/index.html").read_text()
+    assert '<a href="/tag/tips/">tips</a>' in html
+    assert "(19)" in html  # all 19 posts carry the "tips" tag
+    assert "/category/" not in html.split("<main", 1)[1]
+
+
+def test_tags_index_is_in_sitemap_and_linked_from_tag_archives_only(site):
+    assert "https://andbible.org/tags/" in (site / "sitemap.xml").read_text()
+    assert 'href="/tags/"' in (site / "tag/tips/index.html").read_text()
+    assert 'href="/tags/"' in (site / "tag/tips/page/2/index.html").read_text()
+    assert 'href="/tags/"' not in (site / "blog/index.html").read_text()
+    assert 'href="/tags/"' not in (site / "category/new-features/index.html").read_text()
+
+
 def test_feed_is_rss_with_full_content(site):
     root = ET.parse(site / "feed/index.xml").getroot()
     items = root.findall("./channel/item")

@@ -24,7 +24,7 @@ File name `YYYY-MM-DD-slug.md`, with YAML front matter:
 | Key | Required | Notes |
 |---|---|---|
 | `title` | yes | |
-| `date` | yes | `YYYY-MM-DD`, must equal the file name prefix |
+| `date` | yes | `YYYY-MM-DD`, must equal the file name prefix. Optionally `'YYYY-MM-DD HH:MM'` (quoted): the time only orders posts of the same day (later first; no time counts as 00:00, then slug order). It does not change the URL |
 | `slug` | yes | lowercase-kebab-case, not `page` |
 | `summary` | yes | used in lists, feeds and meta tags |
 | `url_date` | no | `YYYY-MM-DD`; only for migrated posts whose old WordPress URL date differs from `date`. Leave it out for new posts: the URL is `/<url_date as YYYY/MM/DD>/<slug>/` and defaults to `date` |

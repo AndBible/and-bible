@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 import xml.etree.ElementTree as ET
-from datetime import UTC, datetime, time
+from datetime import UTC, datetime
 from email.utils import format_datetime
 from pathlib import Path
 
@@ -87,7 +87,7 @@ def _feed(posts: list[Post], bodies: dict[str, str], strings: dict, out: Path) -
         link = f"{BASE_URL}{post.path}"
         for tag, value in (("title", post.title), ("link", link), ("guid", link),
                            ("description", post.summary),
-                           ("pubDate", format_datetime(datetime.combine(post.date, time.min, UTC), usegmt=True))):
+                           ("pubDate", format_datetime(datetime.combine(post.date, post.time, UTC), usegmt=True))):
             ET.SubElement(item, tag).text = value
         for category in post.categories:
             ET.SubElement(item, "category").text = category
@@ -95,6 +95,18 @@ def _feed(posts: list[Post], bodies: dict[str, str], strings: dict, out: Path) -
     (out / "feed").mkdir(parents=True, exist_ok=True)
     ET.ElementTree(rss).write(out / "feed" / "index.xml", encoding="utf-8", xml_declaration=True)
     (out / "feed" / "index.html").write_bytes((out / "feed" / "index.xml").read_bytes())
+
+
+def _tags_index(env: Environment, strings: dict, posts: list[Post], out: Path, common: dict) -> str:
+    """`/tags/`: every tag with its post count, alphabetical. Linked from tag archives only."""
+    names = {taxonomy_slug(t): t for post in posts for t in post.tags}  # first spelling wins, like the archives
+    counts = {slug: sum(taxonomy_slug(t) == slug for post in posts for t in post.tags) for slug in names}
+    tags = [(names[slug], f"/tag/{slug}/", counts[slug]) for slug in sorted(names, key=str.casefold)]
+    title = strings["blog"]["tags_title"]
+    _write(out, "/tags/", env.get_template("tags.html").render(
+        heading=title, tags=tags, title=f"{title} – AndBible", description=strings["meta"]["description"],
+        canonical=f"{BASE_URL}/tags/", og_type="website", **common))
+    return "/tags/"
 
 
 def render_blog(env: Environment, strings: dict, posts: list[Post], out: Path, media_dir: Path) -> list[str]:
@@ -118,12 +130,13 @@ def render_blog(env: Environment, strings: dict, posts: list[Post], out: Path, m
                 newer=_page_url(base, number - 1) if number > 1 else None,
                 older=_page_url(base, number + 1) if number < len(chunks) else None,
                 page_links=[(n, _page_url(base, n) if n else None) for n in page_window(number, len(chunks))],
-                current_page=number, page_count=len(chunks),
+                current_page=number, page_count=len(chunks), tags_index="/tags/" if base.startswith("/tag/") else None,
                 title=f"{heading} – AndBible" + (f" (page {number})" if number > 1 else ""),
                 description=strings["meta"]["description"], canonical=f"{BASE_URL}{url}",
                 og_type="website", **common))
             if base == "/blog/":
                 written.append(url)
+    written.append(_tags_index(env, strings, posts, out, common))
     _feed(posts, bodies, strings, out)
     return written
 

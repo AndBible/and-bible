@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="archive">
+  <h1>{{ heading }}</h1>
+  <ul class="tag-index">
+    {% for name, url, count in tags %}<li><a href="{{ url }}">{{ name }}</a> <span class="tag-index__count">({{ count }})</span></li>{% endfor %}
+  </ul>
+</section>
+{% endblock %}

@@ -18,7 +18,7 @@ figures, only touch them if the user hands over the generated text.
 2. **Voice.** Read two recent posts in `website/content/en/blog/` (for example
    `2026-07-04-new-feature-document-sync.md`) and match the plain, friendly voice.
 3. **File.** `website/content/en/blog/YYYY-MM-DD-slug.md`, date = today unless told, slug
-   lowercase-kebab-case (not `page`). Front matter: `title`, `date` (equals the file prefix),
+   lowercase-kebab-case (not `page`). Front matter: `title`, `date` (equals the file prefix; `'YYYY-MM-DD HH:MM'` orders same-day posts, later first),
    `slug`, `summary` (required; used in lists, feeds, meta tags). Optional `categories`, `tags`:
    reuse existing ones (`grep -h -A3 '^categories' website/content/en/blog/*.md`; in use: "New features",
    "tips & tricks", "Developer diaries", "roadmap", "Sponsoring AndBible"). No `url_date` for new posts.

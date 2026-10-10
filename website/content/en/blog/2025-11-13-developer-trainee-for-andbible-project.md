@@ -5,6 +5,8 @@ slug: developer-trainee-for-andbible-project
 summary: I'm excited to share some news with the AndBible community! Thanks to your continued support through sponsorships, I have decided to employ a developer trainee for AndBible open source project.…
 tags:
 - news
+- development
+- community
 image: blog/2025/11/toby-andbible-2.webp
 image_alt: Developer trainee for AndBible project
 ---

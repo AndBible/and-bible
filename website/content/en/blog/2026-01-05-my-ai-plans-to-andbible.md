@@ -7,6 +7,7 @@ tags:
 - planned features
 - roadmap
 - transparency
+- ai
 image: blog/2026/01/screenshot-from-2026-01-05-14-39-33.webp
 image_alt: My AI plans to AndBible
 ---

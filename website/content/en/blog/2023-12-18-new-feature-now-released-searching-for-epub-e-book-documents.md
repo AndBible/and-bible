@@ -7,6 +7,10 @@ categories:
 - New features
 tags:
 - tips & tricks
+- epub
+- search
+- new features
+- video
 image: blog/2023/12/newfeature.webp
 image_alt: 'New feature in today''s release (5.0.792): search inside ePub e-book documents'
 ---

@@ -5,6 +5,10 @@ slug: new-video-how-to-add-links-to-bookmark-notes
 summary: If you want to create an independent document that contains a lot of bible references, you should use studypads feature. If you, however, are just making bookmarks and writing notes…
 tags:
 - tips & tricks
+- bookmarks
+- notes
+- links
+- video
 image: blog/2023/12/adding-links.webp
 image_alt: 'New video: How to add Bible links to bookmark notes'
 ---

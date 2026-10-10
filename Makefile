@@ -91,7 +91,7 @@ accrescent-debug:
 	@cp app/build/outputs/apkset/standardAccrescentDebug/app-standardAccrescentDebug.apks app/standardAccrescent/debug/
 	@echo "✓ APK set: app/standardAccrescent/debug/app-standardAccrescentDebug.apks"
 
-# Push the current branch, pushing jsword and our other submodules first so the
+# Push the current branch, pushing our own submodules (jsword, goldens, superpowers, media) first so the
 # gitlinks never point at unpublished commits. Each submodule pushes the commit the committed
 # gitlink names (not its checkout, which can lag behind) to the superproject's branch name,
 # fast-forward only. --recurse-submodules=check refuses the final push if any gitlink is unpushed.

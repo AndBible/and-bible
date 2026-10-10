@@ -5,6 +5,10 @@ slug: how-to-change-how-a-bookmark-is-visualized-with-main-label
 summary: In AndBible, bookmark labels are used for tagging / categorizing bookmarks into different categories to mark that a bookmark belongs to a specific studypad to adjust how a bookmark looks…
 tags:
 - tips & tricks
+- bookmarks
+- labels
+- customization
+- video
 image: blog/2024/01/customizingbookmarks.webp
 image_alt: How to change how a bookmark is visualized with Main Label
 ---

@@ -5,6 +5,9 @@ slug: new-video-how-to-setup-custom-document-repositories-in-andbible
 summary: In this video I'll show how you can set up custom document repositories in AndBible. There are not many custom repositories available at the moment, but users can create those…
 tags:
 - tips & tricks
+- documents
+- document repositories
+- video
 image: blog/2023/12/adding.webp
 image_alt: 'New video: How to setup custom document repositories in AndBible'
 ---

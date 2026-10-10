@@ -8,6 +8,7 @@ categories:
 tags:
 - financial support
 - transparency
+- video
 image: blog/2023/12/paid-or-not2.webp
 image_alt: What do I consider as 'paid/sponsored AndBible development'?
 ---
