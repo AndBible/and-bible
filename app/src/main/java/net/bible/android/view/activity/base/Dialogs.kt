@@ -89,8 +89,23 @@ object Dialogs {
         showMsg(msg, false, okayCallback, null)
     }
 
+    /**
+     * Error message whose confirm button, labelled [actionTextId], runs [action] (e.g. opens the
+     * settings screen that fixes the problem); Cancel just closes it. No report button: meant for
+     * problems in the device setup, not in AndBible.
+     */
+    fun showErrorMsgWithAction(msgId: Int, actionTextId: Int, action: () -> Unit) {
+        showMsg(application.getString(msgId), true, action, null, application.getString(actionTextId))
+    }
+
     // TODO: use instead ErrorReportControl.showErrorDialog coroutine for error messages.
-    private fun showMsg(msg: String?, isCancelable: Boolean, okayCallback: (() -> Unit)?, reportCallback: (() -> Unit)?) {
+    private fun showMsg(
+        msg: String?,
+        isCancelable: Boolean,
+        okayCallback: (() -> Unit)?,
+        reportCallback: (() -> Unit)?,
+        confirmText: String = application.getString(R.string.okay),
+    ) {
         Log.i(TAG, "showErrorMessage message:$msg")
         if (CurrentActivityHolder.currentActivity == null) {
             // No host will ever draw it (app in background with no Activity): today's Toast fallback.
@@ -101,7 +116,7 @@ object Dialogs {
             AppDialogRequest.Message(
                 title = null,
                 message = msg.orEmpty(),
-                confirmText = application.getString(R.string.okay),
+                confirmText = confirmText,
                 dismissText = if (isCancelable) application.getString(R.string.cancel) else null,
                 neutralText = if (reportCallback != null) application.getString(R.string.report_error) else null,
                 cancellable = isCancelable,

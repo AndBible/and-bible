@@ -559,6 +559,8 @@
     <string name="rewind">Rewind</string>
     <string name="forward">Forward</string>
     <string name="tts_lang_not_available">Language is not available.</string>
+    <string name="tts_engine_not_available">Text-to-speech is not working on this device. Check that a speech engine is installed and enabled in the system\'s text-to-speech settings.</string>
+    <string name="tts_audio_focus_denied">Speech could not start because another app is using the audio.</string>
 
     <!-- Speak - Bible -->
     <string name="speak_speed_title">Speak speed</string>

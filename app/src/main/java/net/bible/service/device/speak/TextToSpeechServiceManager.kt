@@ -17,7 +17,9 @@
 
 package net.bible.service.device.speak
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
@@ -31,6 +33,7 @@ import androidx.annotation.RequiresApi
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.UserMessages
 import net.bible.android.control.event.phonecall.PhoneCallMonitor
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
@@ -40,6 +43,7 @@ import net.bible.android.control.speak.SpeakSettingsChange
 import net.bible.android.control.speak.load
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -145,7 +149,10 @@ class TextToSpeechServiceManager constructor(
     private var wasPaused = false
 
     // Implements TextToSpeech.OnInitListener.
-    private var onInitListener: TextToSpeech.OnInitListener = TextToSpeech.OnInitListener { status ->
+    private var onInitListener: TextToSpeech.OnInitListener = TextToSpeech.OnInitListener { status -> onTtsInit(status) }
+
+    /** Handles the engine's init result: [TextToSpeech.SUCCESS] picks a locale and starts speaking. */
+    internal fun onTtsInit(status: Int) {
         Log.i(TAG, "Tts initialised")
         var isOk = false
 
@@ -189,7 +196,7 @@ class TextToSpeechServiceManager constructor(
                 Log.e(TAG, "TTS missing or not supported")
                 // Language data is missing or the language is not supported.
                 if(locale != null) ttsLanguageSupport.addUnsupportedLocale(locale)
-                showError(R.string.tts_lang_not_available, Exception("Tts missing or not supported"))
+                showTtsSetupProblem(R.string.tts_lang_not_available)
             } else {
                 // The TTS engine has been successfully initialized.
                 if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
@@ -205,7 +212,7 @@ class TextToSpeechServiceManager constructor(
             }
         } else {
             Log.i(TAG, "Tts initialisation failed")
-            showError(R.string.error_occurred, Exception("Tts Initialisation failed"))
+            showTtsSetupProblem(R.string.tts_engine_not_available)
         }
 
         if (!isOk) {
@@ -416,7 +423,7 @@ class TextToSpeechServiceManager constructor(
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error initialising Tts", e)
-            showError(R.string.error_occurred, e)
+            showTtsSetupProblem(R.string.tts_engine_not_available)
         }
     }
 
@@ -571,6 +578,7 @@ class TextToSpeechServiceManager constructor(
                 val granted = am.requestAudioFocus(req)
                 if (granted != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                     Log.i(TAG, "Could not gain audio focus, not starting")
+                    UserMessages.toast(R.string.tts_audio_focus_denied, long = true)
                     shutdown()
                     return
                 } else {
@@ -623,8 +631,26 @@ class TextToSpeechServiceManager constructor(
         isSpeaking = false
     }
 
-    private fun showError(msgId: Int, e: Exception) {
-        Dialogs.showErrorMsg(msgId)
+    /** The device's speech setup (engine or voice data) is at fault: explain and offer its settings. */
+    private fun showTtsSetupProblem(msgId: Int) {
+        Dialogs.showErrorMsgWithAction(msgId, R.string.open_settings) { openSystemTtsSettings() }
+    }
+
+    /** Opens the system text-to-speech settings, or the general settings where that screen is missing. */
+    private fun openSystemTtsSettings() {
+        val context: Context = CurrentActivityHolder.currentActivity ?: application
+        val flags = if (context is Activity) 0 else Intent.FLAG_ACTIVITY_NEW_TASK
+        // Exception, not just ActivityNotFoundException: some OEM settings screens are not exported.
+        try {
+            context.startActivity(Intent(ACTION_TTS_SETTINGS).addFlags(flags))
+        } catch (e: Exception) {
+            Log.w(TAG, "No TTS settings screen, opening general settings", e)
+            try {
+                context.startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(flags))
+            } catch (e2: Exception) {
+                Log.e(TAG, "No settings screen at all", e2)
+            }
+        }
     }
 
     fun shutdown(willContinueAfter: Boolean = false) {
@@ -773,6 +799,7 @@ class TextToSpeechServiceManager constructor(
         var EARCON_PRE_TITLE = "[pre-title]"
         var EARCON_PRE_CHAPTER_CHANGE = "[pre-chapter-change]"
         var EARCON_PRE_BOOK_CHANGE = "[pre-book-change]"
+        private const val ACTION_TTS_SETTINGS = "com.android.settings.TTS_SETTINGS"
 
         private const val UTTERANCE_PREFIX = "AND-BIBLE-"
     }
