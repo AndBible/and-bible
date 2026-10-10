@@ -95,7 +95,7 @@ class DocumentInstallService : Service() {
          *  bound host UI (Plan B), so both observe the very same [InstallServiceController.jobs]. */
         private val _controller: InstallServiceController by lazy {
             InstallServiceController(
-                runnerFactory = { InstallJobRunner(InstallInspector { file -> determineLocalFileType(file) }, DefaultInstallCommitter()) },
+                runnerFactory = { InstallJobRunner(InstallInspector { file -> determineLocalFileType(file) }, DefaultInstallCommitter(org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java))) },
                 newJobId = { UUID.randomUUID().toString() },
                 onTerminal = { _, phase -> postTerminalEvents(phase) },
                 scope = KoinJavaComponent.get(AppCoroutineScope::class.java),
@@ -233,7 +233,7 @@ class DocumentInstallService : Service() {
         isStudyPadExport = { source ->
             AndBibleBackupManifest.fromUri(Uri.parse(source.uri))?.backupType == BackupType.STUDYPAD_EXPORT
         },
-        studyPadStats = { localFile -> studyPadStatsFor(localFile) },
+        studyPadStats = { localFile -> studyPadStatsFor(localFile, org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java)) },
         swordZipScan = { localFile -> scanSwordZip(localFile) },
         epubUpgradeCheck = { displayName -> checkEpubUpgrade(displayName) },
     )

@@ -11,3 +11,13 @@ fun testAppSettings(): AppSettings = CommonUtils.settings
 
 /** The real resource-backed strings (Robolectric tests). */
 fun testCoreStrings(): CoreStrings = AndroidCoreStrings(ApplicationProvider.getApplicationContext())
+
+/** An engine using this test's application paths rather than a previous Robolectric application's context. */
+fun testBackupControl(): net.bible.android.control.backup.BackupControl {
+    val koin = org.koin.core.context.GlobalContext.get()
+    val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+    return net.bible.android.control.backup.BackupControl(
+        koin.get(), AndroidCoreStrings(context), net.bible.android.platform.AndroidAppEnvironment(context),
+        testAppSettings(), koin.get(), koin.get(), koin.get(),
+    )
+}

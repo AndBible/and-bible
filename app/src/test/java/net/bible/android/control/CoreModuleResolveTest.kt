@@ -89,6 +89,12 @@ class CoreModuleResolveTest {
             modules(buildCoreModule())
         }
         try {
+            val backup = first.koin.get<net.bible.android.control.backup.BackupControl>()
+            assertSame(backup, first.koin.get<net.bible.android.control.backup.BackupControl>())
+            assertNotNull(first.koin.get<net.bible.android.control.page.window.WindowControl>())
+            // The pre-migration backup is synchronous and must not open a database while resolving its graph.
+            assertNotNull(backup.zipDatabaseFiles())
+            org.junit.Assert.assertNotSame(backup, second.koin.get<net.bible.android.control.backup.BackupControl>())
             val cloud = first.koin.get<net.bible.service.cloudsync.CloudSync>()
             val documents = first.koin.get<net.bible.service.cloudsync.documents.DocumentSync>()
             assertSame(cloud, first.koin.get<net.bible.service.cloudsync.CloudSyncProvider>().get())

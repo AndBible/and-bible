@@ -80,10 +80,10 @@ interface InstallCommitter {
  * `installEpub`/`installTtf`/`installPromptCsv`/`installBackgroundImage`/`installStudyPads`) for
  * the logic this mirrors -- deliberately not re-implemented here.
  */
-class DefaultInstallCommitter : InstallCommitter {
+class DefaultInstallCommitter(private val backup: BackupControl) : InstallCommitter {
 
     override suspend fun commitSwordZip(localFile: File, totalEntries: Int, onProgress: (Int) -> Unit) {
-        BackupControl.extractAndRegisterModuleArchive(
+        backup.extractAndRegisterModuleArchive(
             newInputStream = { localFile.inputStream() },
             totalEntries = totalEntries,
             onProgress = { percent -> onProgress(percent) },

@@ -8,3 +8,6 @@ navigation
 link
 speak
 cloudsync
+backup
+download
+installzip

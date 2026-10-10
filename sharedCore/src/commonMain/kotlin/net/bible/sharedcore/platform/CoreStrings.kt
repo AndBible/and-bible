@@ -56,4 +56,37 @@ interface CoreStrings {
     fun areYouSureResetLocal(what: String): String
     fun areYouSureResetCloud(what: String): String
     fun syncDisabling(what: String): String
+
+    fun databaseTitle(dbFileName: String): String
+    val share: String
+    val backupPhoneStorage: String
+    val sendBackupFile: String
+    val backupBackupTitle: String
+    val backupBackupMessage: String
+    val backupSuccess2: String
+    val pleaseWait: String
+    val restoreBackupSections: String
+    val backupModulesTitle: String
+    val backupModulesSuccess: String
+    val apkFile: String
+    val backupApp2: String
+    val disablingSync: String
+    val downloadingBackup: String
+    val loadingBackup: String
+    val restoreUnsuccessfull: String
+    val restoreSuccess: String
+    val restoreConfirmation: String
+    val restore: String
+    val import2: String
+    val resetDatabaseSuccess: String
+    val selectAll: String
+    val selectNone: String
+    fun backupEmailSubject2(name: String): String
+    fun backupEmailMessage2(name: String): String
+    fun backupModulesEmailSubject2(name: String): String
+    fun backupModulesEmailMessage2(name: String, modules: String): String
+    fun overwriteSomething(contents: String): String
+    fun askRestoreOrImport(contents: String): String
+    fun resetDatabaseConfirm(name: String): String
+    fun backupFileInfo(version: Int, size: String): String
 }

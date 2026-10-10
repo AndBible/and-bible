@@ -164,7 +164,7 @@ class ErrorReportControlTest {
         val firstHead = dialogs.pending.value!!.request as AppDialogRequest.Options
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Selected(firstHead.options[1].value))
         advanceUntilIdle()
-        // BackupControl.backupPopup(activity) -- not a NavHostComposeActivity here, so it opens
+        // BackupNavigation.backupPopup(activity) -- not a NavHostComposeActivity here, so it opens
         // Backup via activity.awaitIntent(...) (BackupControl.awaitBackupFromAnotherActivity).
         // Simulate the user leaving that screen (first awaitIntent on a fresh activity -> request
         // code ASYNC_REQUEST_CODE_START + 0), so the loop's askAgain = true re-shows the sheet.

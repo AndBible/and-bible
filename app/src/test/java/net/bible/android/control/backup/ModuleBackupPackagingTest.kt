@@ -64,7 +64,7 @@ class ModuleBackupPackagingTest {
     private suspend fun entriesOf(book: Book, zipName: String): Set<String> {
         val zipFile = File(CommonUtils.tmpDir, zipName)
         if (zipFile.exists()) zipFile.delete()
-        BackupControl.createSingleModuleZip(book, zipFile)
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).createSingleModuleZip(book, zipFile)
         return ZipFile(zipFile).use { zf -> zf.entries().toList().map { it.name }.toSet() }
     }
 

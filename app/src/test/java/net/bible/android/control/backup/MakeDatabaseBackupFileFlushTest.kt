@@ -34,6 +34,7 @@ import java.util.zip.ZipFile
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class MakeDatabaseBackupFileFlushTest {
+    private val backup by lazy { net.bible.test.testBackupControl() }
     private lateinit var repo: WindowRepository
     private var wasReady = false
 
@@ -61,7 +62,7 @@ class MakeDatabaseBackupFileFlushTest {
         val watchdog = Thread { Thread.sleep(500); gate.countDown() }.apply { isDaemon = true; start() }
         val zip = try {
             CommonUtils.settings.setString("backup-now", "included") // queued behind the gated task
-            runBlocking { BackupControl.makeDatabaseBackupFile() }!!
+            runBlocking { backup.makeDatabaseBackupFile() }!!
         } finally {
             gate.countDown(); watchdog.join()
         }

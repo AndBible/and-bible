@@ -17,5 +17,6 @@ interface AppEnvironment {
     val dbBackupPath: String
     fun databasePath(name: String): String
     fun deleteDatabase(name: String): Boolean
+    val lastCrashTime: Long
     val apkPath: String?
 }

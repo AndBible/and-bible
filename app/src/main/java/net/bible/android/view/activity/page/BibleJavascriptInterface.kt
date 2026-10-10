@@ -858,7 +858,7 @@ class BibleJavascriptInterface(
 
         val titleStr = hostActivity.getString(R.string.export_fileformat, "HTML")
         scope.launch {
-            BackupControl.saveOrShare(
+            org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).saveOrShare(
                 AndroidBackupHost { hostActivity },
                 targetFile,
                 fileName = "shared.html",

@@ -77,7 +77,7 @@ class BackupServiceImplTest {
     @Before
     fun setup() {
         activity = Robolectric.buildActivity(TestHostActivity::class.java).create().get()
-        service = BackupServiceImpl(activity)
+        service = BackupServiceImpl(net.bible.android.platform.AndroidBackupHost { activity }, org.koin.java.KoinJavaComponent.get(net.bible.android.control.backup.BackupControl::class.java), CommonUtils.settings, net.bible.android.platform.AndroidAppEnvironment(activity), net.bible.android.platform.AndroidCoreStrings(activity))
         CommonUtils.dbBackupPath.listFiles()?.forEach { it.delete() }
     }
 

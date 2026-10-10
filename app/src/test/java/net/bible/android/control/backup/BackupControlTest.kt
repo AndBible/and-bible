@@ -101,31 +101,15 @@ class BackupControlTest {
      */
     @Test
     fun everyBackedUpDatabaseHasATitle() {
-        val missing = ALL_DB_FILENAMES.filterNot { databaseTitleResIds.containsKey(it) }
-        assertTrue(
-            "Database filenames missing from databaseTitleResIds: $missing",
-            missing.isEmpty()
-        )
-    }
-
-    @Test
-    fun allTitleResourcesResolveToNonBlankStrings() {
-        val context = RuntimeEnvironment.getApplication()
-        for ((filename, resId) in databaseTitleResIds) {
-            assertNotEquals("Title resId for $filename must not be 0", 0, resId)
-            val title = context.getString(resId)
-            assertFalse("Title for $filename must not be blank", title.isBlank())
+        val strings = net.bible.android.platform.AndroidCoreStrings(RuntimeEnvironment.getApplication())
+        for (name in ALL_DB_FILENAMES + SyncableDatabaseDefinition.ALL.map { it.filename }) {
+            assertFalse("Title for $name must not be blank", strings.databaseTitle(name).isBlank())
         }
     }
 
-    @Test
-    fun databaseTitlesHaveNoExtraEntries() {
-        // Keeps the map in sync with the canonical list — no orphaned/typo'd filenames.
-        val unexpected = databaseTitleResIds.keys.filterNot { it in ALL_DB_FILENAMES }
-        assertTrue(
-            "databaseTitleResIds has entries not in ALL_DB_FILENAMES: $unexpected",
-            unexpected.isEmpty()
-        )
+    @Test(expected = IllegalStateException::class)
+    fun unknownDatabaseTitleIsRejected() {
+        net.bible.android.platform.AndroidCoreStrings(RuntimeEnvironment.getApplication()).databaseTitle("unknown.sqlite3")
     }
 
     /**
@@ -161,7 +145,7 @@ class BackupControlTest {
         val activity = activity()
         val file = File(activity.filesDir, "backup.zip")
         val answer = async {
-            BackupControl.askIfRestoreOrImport(SyncableDatabaseDefinition.WORKSPACES, file, activity)
+            org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).askIfRestoreOrImport(SyncableDatabaseDefinition.WORKSPACES, file)
         }
         advanceUntilIdle()
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)
@@ -173,7 +157,7 @@ class BackupControlTest {
         val activity = activity()
         val file = File(activity.filesDir, "backup.zip")
         val answer = async {
-            BackupControl.askIfRestoreOrImport(SyncableDatabaseDefinition.WORKSPACES, file, activity)
+            org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).askIfRestoreOrImport(SyncableDatabaseDefinition.WORKSPACES, file)
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
@@ -187,7 +171,7 @@ class BackupControlTest {
         val activity = activity()
         val file = File(activity.filesDir, "backup.zip")
         val answer = async {
-            BackupControl.askIfRestoreOrImport(SyncableDatabaseDefinition.WORKSPACES, file, activity)
+            org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).askIfRestoreOrImport(SyncableDatabaseDefinition.WORKSPACES, file)
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
@@ -206,7 +190,7 @@ class BackupControlTest {
     fun classicDestinationPromptSelectingShareReturnsShare() = runTest {
         val activity = activity()
         val answer = async {
-            BackupControl.classicDestinationPrompt(activity, R.string.backup_backup_title, R.string.backup_backup_message)
+            org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).classicDestinationPrompt(activity.getString(R.string.backup_backup_title), activity.getString(R.string.backup_backup_message))
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
@@ -220,7 +204,7 @@ class BackupControlTest {
     fun classicDestinationPromptSelectingPhoneStorageReturnsSave() = runTest {
         val activity = activity()
         val answer = async {
-            BackupControl.classicDestinationPrompt(activity, R.string.backup_backup_title, R.string.backup_backup_message)
+            org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).classicDestinationPrompt(activity.getString(R.string.backup_backup_title), activity.getString(R.string.backup_backup_message))
         }
         advanceUntilIdle()
         val head = dialogs.pending.value!!.request as AppDialogRequest.Options
@@ -232,7 +216,7 @@ class BackupControlTest {
     fun classicDestinationPromptDismissReturnsNull() = runTest {
         val activity = activity()
         val answer = async {
-            BackupControl.classicDestinationPrompt(activity, R.string.backup_backup_title, R.string.backup_backup_message)
+            org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).classicDestinationPrompt(activity.getString(R.string.backup_backup_title), activity.getString(R.string.backup_backup_message))
         }
         advanceUntilIdle()
         dialogs.respond(dialogs.pending.value!!.id, AppDialogResult.Cancel)

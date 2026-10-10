@@ -109,7 +109,7 @@ class ModuleBackupRoundTripTest {
 
         val zipFile = File(CommonUtils.tmpDir, "ttf-roundtrip.abmd.zip")
         if (zipFile.exists()) zipFile.delete()
-        BackupControl.createSingleModuleZip(book!!, zipFile)
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).createSingleModuleZip(book!!, zipFile)
 
         ZipFile(zipFile).use { zf ->
             assertNotNull(
@@ -123,7 +123,7 @@ class ModuleBackupRoundTripTest {
         Books.installed().removeBook(book!!)
         assertNull(Books.installed().getBook("TTF_TestFont"))
 
-        val installed = BackupControl.installModuleArchive(zipFile, "TTF_TestFont")
+        val installed = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).installModuleArchive(zipFile, "TTF_TestFont")
         assertTrue("TTF font should reinstall from the backup archive", installed)
         assertNotNull(Books.installed().getBook("TTF_TestFont"))
     }
@@ -147,7 +147,7 @@ class ModuleBackupRoundTripTest {
 
         val zipFile = File(CommonUtils.tmpDir, "bgimg-roundtrip.abmd.zip")
         if (zipFile.exists()) zipFile.delete()
-        BackupControl.createSingleModuleZip(book, zipFile)
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).createSingleModuleZip(book, zipFile)
 
         ZipFile(zipFile).use { zf ->
             assertNotNull(
@@ -160,7 +160,7 @@ class ModuleBackupRoundTripTest {
         Books.installed().removeBook(book)
         assertNull(Books.installed().getBook(initials))
 
-        val installed = BackupControl.installModuleArchive(zipFile, initials)
+        val installed = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).installModuleArchive(zipFile, initials)
         assertTrue("background image should reinstall from the archive", installed)
         assertNotNull(Books.installed().getBook(initials))
     }
@@ -213,7 +213,7 @@ class ModuleBackupRoundTripTest {
 
         val zipFile = File(CommonUtils.tmpDir, "fontpack-pkg.abmd.zip")
         if (zipFile.exists()) zipFile.delete()
-        BackupControl.createSingleModuleZip(book, zipFile)
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).createSingleModuleZip(book, zipFile)
 
         ZipFile(zipFile).use { zf ->
             val entries = zf.entries().toList().map { it.name }.toSet()
@@ -246,7 +246,7 @@ class ModuleBackupRoundTripTest {
 
         val zipFile = File(CommonUtils.tmpDir, "rawld-roundtrip.abmd.zip")
         if (zipFile.exists()) zipFile.delete()
-        BackupControl.createSingleModuleZip(book, zipFile)
+        org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).createSingleModuleZip(book, zipFile)
 
         ZipInputStream(FileInputStream(zipFile)).use { zis ->
             assertEquals(
@@ -267,7 +267,7 @@ class ModuleBackupRoundTripTest {
         Books.installed().removeBook(book)
         assertNull(Books.installed().getBook("TestDict"))
 
-        val installed = BackupControl.installModuleArchive(zipFile, "TestDict")
+        val installed = org.koin.java.KoinJavaComponent.get<net.bible.android.control.backup.BackupControl>(net.bible.android.control.backup.BackupControl::class.java).installModuleArchive(zipFile, "TestDict")
         assertTrue("Dictionary should reinstall from the backup archive", installed)
         val restored = Books.installed().getBook("TestDict")
         assertNotNull(restored)

@@ -73,4 +73,47 @@ class AndroidCoreStrings(private val context: Context) : CoreStrings {
     override fun areYouSureResetLocal(what: String): String = context.getString(R.string.are_you_sure_reset_local, what)
     override fun areYouSureResetCloud(what: String): String = context.getString(R.string.are_you_sure_reset_cloud, what)
     override fun syncDisabling(what: String): String = context.getString(R.string.sync_disabling, what)
+
+    override fun databaseTitle(dbFileName: String): String = context.getString(when (dbFileName) {
+        "bookmarks.sqlite3" -> R.string.db_bookmarks
+        "readingplans.sqlite3" -> R.string.reading_plans_plural
+        "workspaces.sqlite3" -> R.string.help_workspaces_title
+        "repositories.sqlite3" -> R.string.db_repositories
+        "settings.sqlite3" -> R.string.settings
+        "mydocuments.sqlite3" -> R.string.my_documents_title
+        "ai_settings.sqlite3" -> R.string.ai_settings_sync_title
+        "progress.sqlite3" -> R.string.progress_sync_title
+        else -> throw IllegalStateException("Unknown database file: $dbFileName")
+    })
+    override val share: String get() = context.getString(R.string.share)
+    override val backupPhoneStorage: String get() = context.getString(R.string.backup_phone_storage)
+    override val sendBackupFile: String get() = context.getString(R.string.send_backup_file)
+    override val backupBackupTitle: String get() = context.getString(R.string.backup_backup_title)
+    override val backupBackupMessage: String get() = context.getString(R.string.backup_backup_message)
+    override val backupSuccess2: String get() = context.getString(R.string.backup_success2)
+    override val pleaseWait: String get() = context.getString(R.string.please_wait)
+    override val restoreBackupSections: String get() = context.getString(R.string.restore_backup_sections)
+    override val backupModulesTitle: String get() = context.getString(R.string.backup_modules_title)
+    override val backupModulesSuccess: String get() = context.getString(R.string.backup_modules_success)
+    override val apkFile: String get() = context.getString(R.string.apk_file)
+    override val backupApp2: String get() = context.getString(R.string.backup_app2)
+    override val disablingSync: String get() = context.getString(R.string.disabling_sync)
+    override val downloadingBackup: String get() = context.getString(R.string.downloading_backup)
+    override val loadingBackup: String get() = context.getString(R.string.loading_backup)
+    override val restoreUnsuccessfull: String get() = context.getString(R.string.restore_unsuccessfull)
+    override val restoreSuccess: String get() = context.getString(R.string.restore_success)
+    override val restoreConfirmation: String get() = context.getString(R.string.restore_confirmation)
+    override val restore: String get() = context.getString(R.string.restore)
+    override val import2: String get() = context.getString(R.string.import2)
+    override val resetDatabaseSuccess: String get() = context.getString(R.string.reset_database_success)
+    override val selectAll: String get() = context.getString(R.string.select_all)
+    override val selectNone: String get() = context.getString(R.string.select_none)
+    override fun backupEmailSubject2(name: String): String = context.getString(R.string.backup_email_subject_2, name)
+    override fun backupEmailMessage2(name: String): String = context.getString(R.string.backup_email_message_2, name)
+    override fun backupModulesEmailSubject2(name: String): String = context.getString(R.string.backup_modules_email_subject_2, name)
+    override fun backupModulesEmailMessage2(name: String, modules: String): String = context.getString(R.string.backup_modules_email_message_2, name, modules)
+    override fun overwriteSomething(contents: String): String = context.getString(R.string.overwrite_something, contents)
+    override fun askRestoreOrImport(contents: String): String = context.getString(R.string.ask_restore_or_import, contents)
+    override fun resetDatabaseConfirm(name: String): String = context.getString(R.string.reset_database_confirm, name)
+    override fun backupFileInfo(version: Int, size: String): String = context.getString(R.string.backup_file_info, version, size)
 }

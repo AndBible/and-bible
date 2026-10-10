@@ -248,7 +248,7 @@ class DatabaseContainer {
 
         if(needBackup) {
             // Not makeDatabaseBackupFile: with ready cleared it would skip its vacuum and checkpoint anyway.
-            val backupZipFile = withReadyCleared { BackupControl.zipDatabaseFiles() }
+            val backupZipFile = withReadyCleared { org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).zipDatabaseFiles() }
             backupZipFile ?: return
             val versionString = versions.joinToString("-")
             Log.i(TAG, "backupping database of version $versionString (current: ${maxVersions.joinToString("-") })")

@@ -78,6 +78,10 @@ class AndroidBackupHost(private val activityProvider: () -> ActivityBase) : Back
         ErrorReportControl.showErrorDialog(activityProvider(), message, exception = cause)
     }
 
+    override suspend fun restoreModules() = withContext(Dispatchers.Main) {
+        net.bible.android.view.activity.backup.BackupNavigation.restoreModulesViaIntent(activityProvider())
+    }
+
     companion object {
         fun fromUri(uri: Uri): PickedSource = PickedSource(uri.toString(), null, null)
     }

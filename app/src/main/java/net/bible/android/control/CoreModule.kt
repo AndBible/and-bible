@@ -151,7 +151,7 @@ fun buildCoreModule() = module {
         )
     }
     single { net.bible.service.cloudsync.CloudSync(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-    single { net.bible.service.cloudsync.documents.DocumentSync(get(), get(), get(), get(), get()) }
+    single { net.bible.service.cloudsync.documents.DocumentSync(get(), get(), get(), get(), get(), { get() }) }
     single<DocumentSyncStarter> { AndroidDocumentSyncStarter(androidContext()) }
     single { BookInstallWatcher(get(), get(), get(), get()) }
     single<UserNotifier> { AndroidUserNotifier() }
@@ -162,6 +162,7 @@ fun buildCoreModule() = module {
     // @ApplicationScope singletons
     singleOf(::BibleTraverser)
     singleOf(::NavigationControl)
+    single { net.bible.android.control.backup.BackupControl(get(), get(), get(), get(), get(), get(), get()) }
     singleOf(::WindowControl)
     singleOf(::WindowCommandsImpl) { bind<WindowCommands>() }
     singleOf(::WindowStateServiceImpl) { bind<WindowStateService>() }

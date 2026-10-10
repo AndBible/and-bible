@@ -525,6 +525,10 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     override fun onBibleViewTouched() { composeReadingViewHost?.onBibleViewTouched() }
 
+    private val backupControl: BackupControl by inject()
+    private val backupSettings: net.bible.sharedcore.platform.AppSettings by inject()
+    private val backupEnvironment: net.bible.sharedcore.platform.AppEnvironment by inject()
+    private val coreStrings: net.bible.sharedcore.platform.CoreStrings by inject()
     private val documentFilterService: DocumentFilterService by inject()
     private val toolPermissionService: ToolPermissionService by inject()
     private val llmModelService: LlmModelService by inject()
@@ -2640,7 +2644,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
     private var backupReturn: CompletableDeferred<Unit>? = null
 
     /**
-     * Open Backup & restore in-graph and suspend until the user has left it. `BackupControl.backupPopup`
+     * Open Backup & restore in-graph and suspend until the user has left it. `BackupNavigation.backupPopup`
      * calls this on the nav host; its other callers' `showErrorDialog` loop re-shows its dialog only once
      * this returns. A second request supersedes the first (the first returns).
      *
@@ -4000,7 +4004,12 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
                         exitHost = { finish() },
                         setWindowTitle = { title -> setTitle(title) },
                         windowTitle = getString(R.string.backup_and_restore),
-                        controllerFor = { BackupController(BackupServiceImpl(this@NavHostComposeActivity, AndroidBackupHost { this@NavHostComposeActivity }), lifecycleScope) },
+                        controllerFor = {
+                            BackupController(BackupServiceImpl(
+                                AndroidBackupHost { this@NavHostComposeActivity },
+                                backupControl, backupSettings, backupEnvironment, coreStrings,
+                            ), lifecycleScope)
+                        },
                     )
                 }
                 val installZipDeps = remember {
@@ -5826,7 +5835,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
             val targetFile = File(targetDir, fileName)
             targetFile.writeText(pageWithContent.content ?: "")
             val mimeType = if (ext == "html") "text/html" else "text/markdown"
-            BackupControl.saveOrShare(
+            backupControl.saveOrShare(
                 host = AndroidBackupHost { this@NavHostComposeActivity },
                 file = targetFile,
                 fileName = fileName,
@@ -9402,7 +9411,7 @@ class NavHostComposeActivity : ActivityBase(), ReadingHostActivity, SystemBarPol
 
     /** Classic `onBackup()` (`:410-412`). */
     private fun onChooseDocumentBackup() {
-        lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@NavHostComposeActivity, AndroidBackupHost { this@NavHostComposeActivity }) }
+        lifecycleScope.launch { backupControl.backupModulesViaIntent(AndroidBackupHost { this@NavHostComposeActivity }) }
     }
 
     /** Classic `onInstallZip()` (`:414-421`). Slice 8 D2: in-graph, answered through [openInstallZip] (M5). */

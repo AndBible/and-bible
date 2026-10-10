@@ -14,4 +14,5 @@ interface BackupHost {
     suspend fun sniffFileType(source: PickedSource): BackupFileType
     /** Error dialog with Report/Backup buttons. */
     suspend fun showErrorReport(message: String, cause: Throwable?)
+    suspend fun restoreModules()
 }

@@ -39,7 +39,6 @@ import net.bible.service.db.queryRows
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidgetManager
 
-import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.UserMessage
 import net.bible.android.control.event.UserMessages
 import net.bible.sharedcore.event.Subscription
@@ -120,7 +119,6 @@ open class BibleApplication : Application() {
         Log.i(TAG, "BibleApplication:onCreate, AndBible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
         CommonUtils.tmpDir.deleteRecursively()
-        BackupControl.setupDirs(this)
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             val crashTime = System.currentTimeMillis()

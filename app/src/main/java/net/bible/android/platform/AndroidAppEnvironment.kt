@@ -22,5 +22,6 @@ class AndroidAppEnvironment(context: Context) : AppEnvironment {
     override val dbBackupPath get() = CommonUtils.dbBackupPath.path
     override fun databasePath(name: String) = application.getDatabasePath(name).path
     override fun deleteDatabase(name: String) = application.deleteDatabase(name)
+    override val lastCrashTime get() = CommonUtils.realSharedPreferences.getLong("app-crashed-time", 0L)
     override val apkPath: String? get() = application.applicationInfo.sourceDir
 }

@@ -47,6 +47,7 @@ class DocumentSync(
     private val starter: net.bible.sharedcore.cloud.DocumentSyncStarter,
     private val watcher: BookInstallWatcher,
     private val documentSettings: DocumentSyncSettings,
+    private val backup: () -> net.bible.android.control.backup.BackupControl,
 ) {
     companion object {
         private const val TAG = "DocumentSync"
@@ -244,7 +245,7 @@ class DocumentSync(
         if (existing != null && !versionIsNewer(localVersion, existing.version)) {
             Log.i(TAG, "Cloud has same/newer ${book.initials}; skipping upload"); return
         }
-        val archive = DocumentArchiver.packageDocument(book, env)
+        val archive = DocumentArchiver.packageDocument(book, env, backup())
         try {
             val cipherKey = DatabaseContainer.instance.repoDb.swordDocumentInfoDao().getBook(book.initials)?.cipherKey
             val meta = DocumentSyncMeta(
@@ -295,7 +296,7 @@ class DocumentSync(
                 Log.w(TAG, "Downloaded $initials size ${archive.length()} != expected ${meta.size}; skipping install")
                 return
             }
-            if (DocumentArchiver.installArchive(archive, initials)) {
+            if (DocumentArchiver.installArchive(archive, initials, backup())) {
                 applyCipherKey(initials, meta.cipherKey)
                 documentSettings.setSyncTimestamp(initials, meta.timestamp)
             }

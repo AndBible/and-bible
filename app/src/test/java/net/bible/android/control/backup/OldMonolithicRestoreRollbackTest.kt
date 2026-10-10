@@ -32,17 +32,18 @@ import java.security.MessageDigest
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class OldMonolithicRestoreRollbackTest {
+    private val backup by lazy { net.bible.test.testBackupControl() }
     private lateinit var repo: WindowRepository
     private val app get() = BibleApplication.application
     private val dbDir: File get() = app.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME).parentFile!!
     private val rollbackParent: File get() = dbDir.parentFile!!
     private val rollbackDir: File get() = File(rollbackParent, "db-restore-rollback")
-    private val realCopy = BackupControl.copyStagedDatabase
+    private val realCopy = backup.copyStagedDatabase
     private var wasReady = false
 
     @Before fun setUp() {
         // FileManager.copyFile refuses under Robolectric (StatFs reports 0 free bytes); copy plainly instead.
-        BackupControl.copyStagedDatabase = { from, to -> from.copyTo(to, overwrite = true); true }
+        backup.copyStagedDatabase = { from, to -> from.copyTo(to, overwrite = true); true }
         DatabaseResetter.resetDatabase()
         wasReady = DatabaseContainer.ready
         DatabaseContainer.ready = true // the restore opens and migrates only when the DB is ready
@@ -56,7 +57,7 @@ class OldMonolithicRestoreRollbackTest {
     }
 
     @After fun tearDown() {
-        BackupControl.copyStagedDatabase = realCopy
+        backup.copyStagedDatabase = realCopy
         DatabaseResetter.resetDatabase()
         DatabaseContainer.ready = wasReady
         repo.clear()
@@ -76,12 +77,12 @@ class OldMonolithicRestoreRollbackTest {
         f.name to MessageDigest.getInstance("SHA-256").digest(f.readBytes()).joinToString("") { "%02x".format(it) }
     }
 
-    private fun restore(f: File = fixture()) = runBlocking { BackupControl.restoreOldMonolithicDatabase(f.inputStream()) }
+    private fun restore(f: File = fixture()) = runBlocking { backup.restoreOldMonolithicDatabase(f.inputStream()) }
 
     @Test fun aFailedCopyLeavesThePreRestoreDatabasesAsTheyWere() {
         val before = fingerprint()
         assertTrue("the setup must have written databases", before.isNotEmpty())
-        BackupControl.copyStagedDatabase = { _, _ -> false }
+        backup.copyStagedDatabase = { _, _ -> false }
         assertFalse(restore())
         assertEquals(before, fingerprint())
         assertFalse(rollbackDir.exists())
@@ -146,7 +147,7 @@ class OldMonolithicRestoreRollbackTest {
     @Test fun aLeftoverRollbackFromAnEarlierCrashIsKeptAside() {
         val before = fingerprint()
         rollbackDir.mkdirs(); File(rollbackDir, "workspaces.sqlite3").writeText("old")
-        BackupControl.copyStagedDatabase = { _, _ -> false }
+        backup.copyStagedDatabase = { _, _ -> false }
         restore()
         val kept = rollbackParent.listFiles()!!.filter { it.name.startsWith("db-restore-rollback-") }
         assertEquals(1, kept.size)

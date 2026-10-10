@@ -43,8 +43,8 @@ import java.util.zip.ZipInputStream
 
 /** Mirrors classic `InstallZip.installStudyPads`'s unzip + stats step, operating on the
  *  already-acquired local file instead of re-opening the original uri. */
-internal suspend fun studyPadStatsFor(localFile: File): Pair<String, File> {
-    val unzipFolder = File(BackupControl.internalDbBackupDir, "unzip")
+internal suspend fun studyPadStatsFor(localFile: File, backup: BackupControl): Pair<String, File> {
+    val unzipFolder = File(backup.internalDbBackupDir, "unzip")
     unzipInputStream(localFile.inputStream(), unzipFolder)
     val dbFile = File(unzipFolder, "db/${BookmarkDatabase.dbFileName}")
     val stats = bookmarksDbStats(SyncableDatabaseDefinition.BOOKMARKS, dbFile)

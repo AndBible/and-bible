@@ -15,6 +15,7 @@ import org.junit.runner.RunWith
 import org.koin.core.context.GlobalContext
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
+import org.koin.android.ext.koin.androidContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
@@ -27,21 +28,19 @@ import java.io.InputStream
 class BackupControlDeliveryTest {
     private val dispatcher = StandardTestDispatcher()
     private val dialogs = AppDialogController()
-    private lateinit var previous: AppDialogController
-    private lateinit var overrideModule: org.koin.core.module.Module
     private lateinit var isolated: org.koin.core.KoinApplication
+    private lateinit var backup: BackupControl
 
     @Before fun setup() {
         Dispatchers.setMain(dispatcher)
-        previous = GlobalContext.get().get()
-        isolated = koinApplication { modules(module { single { dialogs } }) }
-        overrideModule = module { single { isolated.koin.get<AppDialogController>() } }
-        GlobalContext.get().loadModules(listOf(overrideModule))
+        isolated = koinApplication {
+            androidContext(RuntimeEnvironment.getApplication())
+            modules(net.bible.android.control.buildCoreModule(), module { single { dialogs } })
+        }
+        backup = isolated.koin.get()
     }
     @After fun cleanup() {
         dialogs.cancelAll()
-        GlobalContext.get().unloadModules(listOf(overrideModule))
-        GlobalContext.get().loadModules(listOf(module { single { previous } }))
         isolated.close()
         Dispatchers.resetMain()
     }
@@ -56,11 +55,12 @@ class BackupControlDeliveryTest {
         override suspend fun pickBackupFile(mime: String): PickedSource? = error("unused")
         override suspend fun openInput(source: PickedSource): InputStream = error("unused")
         override suspend fun sniffFileType(source: PickedSource): BackupFileType = error("unused")
+        override suspend fun restoreModules() = Unit
         override suspend fun showErrorReport(message: String, cause: Throwable?) { errors += message }
     }
-    private suspend fun deliver(host: Host, mode: SaveOrShare = SaveOrShare.SAVE) = BackupControl.saveOrShare(
+    private suspend fun deliver(host: Host, mode: SaveOrShare = SaveOrShare.SAVE) = backup.saveOrShare(
         host = host, file = File("backup.zip"), fileName = "backup.zip", chooserTitle = "Backup",
-        successMsg = R.string.backup_success2, shareMimeType = "*/*", saveMimeType = "application/vnd.android.package-archive",
+        successMsg = org.robolectric.RuntimeEnvironment.getApplication().getString(R.string.backup_success2), shareMimeType = "*/*", saveMimeType = "application/vnd.android.package-archive",
         chooseDestination = { mode },
     )
 

@@ -46,7 +46,7 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
 /**
- * Slice 8 C3 (plan Correction 4): `BackupControl.backupPopup` on the nav host navigates IN-GRAPH and
+ * Slice 8 C3 (plan Correction 4): `BackupNavigation.backupPopup` on the nav host navigates IN-GRAPH and
  * suspends until the Backup entry leaves the back stack. `ErrorReportControl.showErrorDialog`'s loop
  * re-shows its dialog after `backupPopup` returns; an F53-shaped self-launch would return at once
  * (synthetic cancel) and put the dialog back over the Backup screen.
@@ -90,7 +90,7 @@ class BackupPopupInGraphTest {
         val nav = awaitReadingGraph(activity)
         var returned = false
 
-        activity.lifecycleScope.launch { BackupControl.backupPopup(activity); returned = true }
+        activity.lifecycleScope.launch { net.bible.android.view.activity.backup.BackupNavigation.backupPopup(activity); returned = true }
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
         assertNull("no platform launch: Backup is a destination of this host", shadowOf(activity).nextStartedActivityForResult)
@@ -122,7 +122,7 @@ class BackupPopupInGraphTest {
         assertEquals(NavRoutes.BACKUP, nav.currentDestination?.route)
         var returned = false
 
-        activity.lifecycleScope.launch { BackupControl.backupPopup(activity); returned = true }
+        activity.lifecycleScope.launch { net.bible.android.view.activity.backup.BackupNavigation.backupPopup(activity); returned = true }
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(2))
 
         assertTrue("backupPopup must return at once when Backup is already on screen", returned)

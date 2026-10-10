@@ -158,7 +158,7 @@ internal class WelcomeFlow(private val host: NavHostComposeActivity) {
             CurrentActivityHolder.activate(host)
             if (result.resultCode == Activity.RESULT_OK) {
                 val uri = result.data?.data ?: return@launch
-                if (BackupControl.restoreAppDatabaseFromSourceWithUI(AndroidBackupHost { host }, AndroidBackupHost.fromUri(uri))) host.welcomeAfterFlow()
+                if (org.koin.java.KoinJavaComponent.get<BackupControl>(BackupControl::class.java).restoreAppDatabaseFromSourceWithUI(AndroidBackupHost { host }, AndroidBackupHost.fromUri(uri))) host.welcomeAfterFlow()
             }
         }
     }
