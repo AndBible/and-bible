@@ -20,7 +20,7 @@ function declaration(css, selector, text) {
 function cascaded(css, element, property) {
     const matches = [];
     for (const [, selectors, body] of css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
-        for (const selector of selectors.split(",").map(s => s.trim())) {
+        for (const selector of selectors.split(",").map(s => s.trim().replace(/:deep\(([^)]+)\)/g, "$1"))) {
             if (selector.includes("@") || /^(from|to|[\d.]+%)$/.test(selector) || !element.matches(selector)) continue;
             const specificity = (selector.match(/[.:#][\w-]+/g) || []).length;
             for (const [, name, value] of body.matchAll(/([\w-]+)\s*:\s*([^;]+);/g)) {
@@ -125,6 +125,40 @@ describe("pure monochrome compiled styles", () => {
             }
         });
     }
+    for (const dark of [false, true]) for (const noAnimation of [false, true]) {
+        const theme = `monochrome pureMonochrome${dark ? " night" : ""}${noAnimation ? " noAnimation" : ""}`;
+        it(`nested bookmark strip and all info links win over global anchors dark=${dark} noAnimation=${noAnimation}`, () => {
+            const strip = stateElement(theme, "ambiguous");
+            expect(cascaded(rules("../components/BookmarkButtons.vue"), strip, "background-color")).toBe(dark ? "black" : "white");
+            const info = stateElement(theme, "info");
+            const links = document.createElement("div");
+            links.className = "links";
+            info.appendChild(links);
+            const css = rules("../components/BibleView.vue") + rules("../components/modals/BookmarkModal.vue");
+            for (const parent of [links, info]) {
+                const anchor = document.createElement("a");
+                anchor.href = "osis://?osis=KJV:Gen.1.1";
+                parent.appendChild(anchor);
+                expect(cascaded(css, anchor, "color")).toBe(dark ? "white" : "black");
+            }
+            const icon = document.createElement("span");
+            icon.className = "link-icon";
+            links.appendChild(icon);
+            expect(cascaded(css, icon, "color")).toBe(dark ? "white" : "black");
+        });
+    }
+    it("legacy ambiguous strip and info links retain their original paints", () => {
+        const stripCss = rules("../components/BookmarkButtons.vue");
+        const linkCss = rules("../components/BibleView.vue") + rules("../components/modals/BookmarkModal.vue");
+        for (const mode of ["", "monochrome", "monochrome colorEink"]) for (const dark of [false, true]) {
+            const theme = mode + (dark ? " night" : "");
+            expect(cascaded(stripCss, stateElement(theme, "ambiguous"), "background-color")).toBe(dark ? "rgb(33, 33, 33)" : "#fefefe");
+            const info = stateElement(theme, "info");
+            const link = document.createElement("a");
+            info.appendChild(link);
+            expect(cascaded(linkCss, link, "color")).toBe(dark ? "#7b7bff" : "blue");
+        }
+    });
     it("uses ink tokens and a one-pixel frame, inverted at night", () => {
         const css = rules("../common.scss");
         declaration(css, ":root .pureMonochrome", "--primary-color: black");

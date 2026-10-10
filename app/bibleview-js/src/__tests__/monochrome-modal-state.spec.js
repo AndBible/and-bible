@@ -2,9 +2,12 @@ import {describe, it, expect, vi} from "vitest";
 import {mount, flushPromises} from "@vue/test-utils";
 import {reactive, nextTick} from "vue";
 import BookmarkModal from "@/components/modals/BookmarkModal.vue";
+import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
+import {addEventFunction, addEventOrdinalInfo} from "@/utils";
+import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import AskBookmarkSettings from "@/components/modals/AskBookmarkSettings.vue";
 import {emit} from "@/eventbus";
-import {appSettingsKey, configKey, androidKey, stringsKey, modalKey, globalBookmarksKey} from "@/types/constants";
+import {appSettingsKey, configKey, androidKey, stringsKey, modalKey, globalBookmarksKey, keyboardKey, ordinalHighlightKey} from "@/types/constants";
 
 function context(experimental = false) {
     const appSettings = reactive({enabledExperimentalFeatures: experimental ? ["bookmark_edit_actions"] : [], topOffset: 0, bottomOffset: 0});
@@ -22,6 +25,70 @@ function mounted(component, experimental = false) {
     }}});
     return {wrapper, cleanup() {wrapper.unmount(); document.body.innerHTML = ""; window.ResizeObserver = oldObserver;}};
 }
+
+describe("actual nested bookmark paints", () => {
+    it("real bookmark_clicked info removes only pure inline label tint and includes missing-book default link", async () => {
+        const provide = context();
+        const settings = provide[appSettingsKey];
+        Object.assign(settings, {pureMonochromeMode: false, monochromeMode: false, nightMode: false});
+        provide[stringsKey] = {bookmarkInaccurate: "Missing book %s", defaultBook: "Default Bible", openStudyPad: "StudyPad %s"};
+        const b = provide[globalBookmarksKey].bookmarkMap.get("b");
+        Object.assign(b, {labels: ["red"], bookInitials: "Missing", osisRef: "Gen.1.1", v11n: "KJV", editAction: {}, customIcon: null});
+        provide[globalBookmarksKey].bookmarkLabels.set("red", {id: "red", name: "Red", color: 0xFFFF0000, isRealLabel: true});
+        document.body.innerHTML = '<div id="modals"></div>';
+        const observer = window.ResizeObserver;
+        window.ResizeObserver = class {observe() {} disconnect() {}};
+        const wrapper = mount(BookmarkModal, {attachTo: document.body, global: {provide,
+            stubs: {EditableText: true, LabelList: true, BookmarkText: true}}});
+        try {
+            emit("bookmark_clicked", "b", {openInfo: true});
+            await flushPromises();
+            expect(wrapper.findComponent(BookmarkButtons).exists()).toBe(true);
+            const labelIcon = () => document.querySelector('.links a[href^="journal:"]').previousElementSibling;
+            const legacyColor = labelIcon().style.color;
+            expect(legacyColor).not.toBe("");
+            expect(document.querySelector('.info-text a[href^="osis:"]').textContent).toBe("Default Bible");
+            for (const nightMode of [false, true]) {
+                Object.assign(settings, {pureMonochromeMode: true, monochromeMode: true, nightMode});
+                await nextTick();
+                expect(labelIcon().style.color).toBe("");
+                expect(document.querySelectorAll(".info a")).toHaveLength(3);
+                settings.pureMonochromeMode = false;
+                await nextTick();
+                expect(labelIcon().style.color).not.toBe("");
+            }
+            Object.assign(settings, {monochromeMode: false, nightMode: false});
+            await nextTick();
+            expect(labelIcon().style.color).toBe(legacyColor);
+        } finally {wrapper.unmount(); document.body.innerHTML = ""; window.ResizeObserver = observer;}
+    });
+    it("ambiguous bookmark button renders real BookmarkButtons strip", async () => {
+        const provide = context();
+        provide[keyboardKey] = {setupKeyboardListener() {}};
+        provide[ordinalHighlightKey] = {resetHighlights() {}, highlightOrdinal() {}, hasHighlights: {value: false}};
+        provide[modalKey] = {register() {}, closeModals() {}, modalOpen: {value: false}};
+        provide[configKey].showBookmarks = true;
+        provide[globalBookmarksKey].bookmarkIdsByOrdinal = new Map();
+        Object.assign(provide[globalBookmarksKey].bookmarkMap.get("b"), {labels: ["red"], text: "verse", editAction: {}, customIcon: null});
+        provide[globalBookmarksKey].bookmarkLabels.set("red", {id: "red", name: "Red", color: 0xFFFF0000, isRealLabel: true});
+        document.body.innerHTML = '<div id="modals"></div>';
+        const observer = window.ResizeObserver;
+        window.ResizeObserver = class {observe() {} disconnect() {}};
+        const wrapper = mount(AmbiguousSelection, {attachTo: document.body,
+            global: {provide, stubs: {LabelList: true, AmbiguousActionButtons: true}}});
+        try {
+            const event = new MouseEvent("click");
+            addEventOrdinalInfo(event, {ordinal: 1, osisRef: "BIBLE"});
+            addEventFunction(event, null, {bookmarkId: "b", priority: 0});
+            const handled = wrapper.vm.handle(event);
+            await flushPromises();
+            expect(wrapper.findComponent(BookmarkButtons).exists()).toBe(true);
+            expect(document.querySelector(".ambiguous .bookmark-button")).not.toBeNull();
+            wrapper.findComponent({name: "ModalDialog"}).vm.$emit("close");
+            await handled;
+        } finally {wrapper.unmount(); document.body.innerHTML = ""; window.ResizeObserver = observer;}
+    });
+});
 
 describe("actual ordinary bookmark modal states", () => {
     it("opens via live bookmark_clicked trigger with real ModalDialog header and body", async () => {
