@@ -79,6 +79,7 @@ import net.bible.sharedcore.ai.reading.LogEntryKind
 import net.bible.sharedcore.ai.reading.LogEntryStatus
 import net.bible.sharedcore.settings.SettingsItem
 import net.bible.sharedui.components.AbListChoiceDialog
+import net.bible.sharedui.components.toggleStateSemantics
 import net.bible.sharedui.reading.readingRailInsetPadding
 import net.bible.sharedui.strings.LocalStrings
 
@@ -271,7 +272,7 @@ private fun AgentLogHeader(
         // (agent_log_widget.xml:47-60), and maps collapsed -> ic_expand_less (UP): the panel is
         // bottom-anchored and expanding grows it upward. The five downward-expanding Compose
         // surfaces keep the opposite mapping -- see the plan's global constraints.
-        IconButton(onClick = onToggleExpanded) {
+        IconButton(onClick = onToggleExpanded, modifier = Modifier.toggleStateSemantics(expanded)) {
             Icon(
                 imageVector = if (expanded) Icons.Filled.ExpandMore else Icons.Filled.ExpandLess,
                 contentDescription = strings.agentLogExpand,

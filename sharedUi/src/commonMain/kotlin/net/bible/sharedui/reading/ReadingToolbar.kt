@@ -119,6 +119,7 @@ import net.bible.sharedcore.reading.fitToolbarButtons
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.reading.readingToolbarContainerArgb
 import net.bible.sharedui.components.AbActionIconSize
+import net.bible.sharedui.components.toggleStateSemantics
 import net.bible.sharedui.components.AbHelpMenuIcon
 import net.bible.sharedui.components.AbInfoDialog
 import net.bible.sharedui.components.AbMenuItem
@@ -610,6 +611,7 @@ private fun QuickToolbarButton(
             contentDescription = strings.prefsShowStrongsTitle,
             onClick = callbacks.onStrongs,
             onLongClick = callbacks.onStrongsLong,
+            modifier = Modifier.toggleStateSemantics(state.strongsMode != 0),
             alpha = if (isPureMonochrome()) 1f else if (state.strongsMode == 0) 0.5f else 1f,
             tint = if (isPureMonochrome() && state.strongsMode == 0) LocalAbColors.current.monoDisabled else LocalContentColor.current,
         )
@@ -656,9 +658,10 @@ private fun ToolbarIconButton(
     onLongClick: (() -> Unit)? = null,
     alpha: Float = 1f,
     tint: Color = LocalContentColor.current,
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxHeight()
             .width(ToolbarButtonWidth)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick),
