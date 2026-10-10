@@ -20,6 +20,8 @@ package net.bible.test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.ensureActive
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import java.lang.IllegalStateException
@@ -54,7 +56,7 @@ object DatabaseResetter {
 
         Thread.sleep(300)
         val koin = org.koin.core.context.GlobalContext.getOrNull()
-        kotlinx.coroutines.runBlocking {
+        runResetBlocking {
             // Cancel producers, then wait for their finally blocks and late submissions before draining.
             val appJob = koin?.getOrNull<net.bible.sharedcore.platform.AppCoroutineScope>()
                 ?.coroutineContext?.get(kotlinx.coroutines.Job)
@@ -63,11 +65,34 @@ object DatabaseResetter {
             jobs.forEach { it.cancel() }
             jobs.forEach { it.join() }
             val settings = koin?.getOrNull<net.bible.service.cloudsync.documents.DocumentSyncSettings>()
+            kotlinx.coroutines.currentCoroutineContext().ensureActive()
             if (settings == null) DatabaseContainer.reset()
             else resetDocumentSyncFixture(settings, koin.get()) { DatabaseContainer.reset() }
         }
         DatabaseContainer.forgetReplacesForTest()
         //resetSingleton(DatabaseContainer::class.java, "instance")
+    }
+
+    /** Drive one Main task at a time; idle() can loop forever with a Compose popup open. */
+    internal fun runResetBlocking(timeoutMs: Long = 30_000, block: suspend () -> Unit) {
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default)
+        val cleanup = scope.async { block() }
+        val main = android.os.Looper.getMainLooper()
+        val deadline = System.nanoTime() + java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(timeoutMs)
+        try {
+            while (!cleanup.isCompleted) {
+                if (System.nanoTime() >= deadline) {
+                    cleanup.cancel()
+                    throw IllegalStateException("Database fixture cleanup timed out before reset (${timeoutMs}ms)")
+                }
+                if (android.os.Looper.myLooper() === main) {
+                    org.robolectric.Shadows.shadowOf(main).runOneTask()
+                }
+                Thread.sleep(1)
+            }
+            // Already complete: await only propagates an error; it cannot block Main.
+            kotlinx.coroutines.runBlocking { cleanup.await() }
+        } finally { scope.cancel() }
     }
 
     internal suspend fun resetDocumentSyncFixture(
@@ -80,6 +105,7 @@ object DatabaseResetter {
         val mutex = mutexField.get(settings) as kotlinx.coroutines.sync.Mutex
         mutex.lock()
         try {
+            kotlinx.coroutines.currentCoroutineContext().ensureActive()
             reset()
             val field = settings.javaClass.getDeclaredField("state").apply { isAccessible = true }
             @Suppress("UNCHECKED_CAST")
