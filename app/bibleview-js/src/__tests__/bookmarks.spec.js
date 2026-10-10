@@ -568,6 +568,49 @@ describe("pure monochrome bookmark DOM", () => {
         expect(document.querySelectorAll("#doc-mono .mono-frame-start")).toHaveLength(1);
         expect(document.querySelectorAll("#doc-mono .mono-frame-end")).toHaveLength(1);
     };
+    it.each(["HIGHLIGHT", "MARKER", "SPEAK"])("%s actual note/custom markers regenerate ink on theme and mode changes", async style => {
+        gb.updateBookmarkLabels([{id: 1, color: 0xFFFF0000, isSpeak: style === "SPEAK",
+            displayStyle: style === "SPEAK" ? "HIGHLIGHT" : style,
+            displayStyleWholeVerse: style === "SPEAK" ? "HIGHLIGHT" : style}]);
+        gb.updateBookmarks([{...bookmark(1, [1, 1]), notes: "real note"}]);
+        await nextTick();
+        const markers = () => [...document.querySelectorAll("#doc-mono .bookmark-marker")];
+        const ink = color => {
+            expect(markers().length).toBeGreaterThan(0);
+            markers().forEach(e => expect(Color(e.style.color).hex()).toBe(color === "white" ? "#FFFFFF" : "#000000"));
+            expect(document.querySelector('#doc-mono svg[data-icon="pen-to-square"]')).not.toBeNull();
+        };
+        ink("black");
+        const count = markers().length;
+        expect(count).toBe(style === "SPEAK" ? 2 : 1);
+        appSettings.nightMode = true;
+        await nextTick();
+        ink("white");
+        appSettings.pureMonochromeMode = false;
+        await nextTick();
+        expect(markers().every(e => e.style.color === "rgb(0, 0, 0)")).toBe(true);
+        Object.assign(appSettings, {monochromeMode: false, pureMonochromeMode: false});
+        await nextTick();
+        expect(markers().at(-1).style.color).toBe("rgb(255, 0, 0)");
+        Object.assign(appSettings, {monochromeMode: true, colorEinkMode: true});
+        await nextTick();
+        expect(markers().at(-1).style.color).toBe("rgb(255, 0, 0)");
+        Object.assign(appSettings, {pureMonochromeMode: true, colorEinkMode: false, nightMode: false});
+        await nextTick();
+        ink("black");
+        gb.updateBookmarks([{...bookmark(1, [1, 1]), notes: "real note", customIcon: "star"}]);
+        await nextTick();
+        expect(document.querySelector('#doc-mono svg[data-icon="star"]')).not.toBeNull();
+        expect(document.querySelector('#doc-mono svg[data-icon="pen-to-square"]')).not.toBeNull();
+        appSettings.nightMode = true;
+        await nextTick();
+        ink("white");
+        expect(markers()).toHaveLength(count);
+        expect(document.querySelectorAll("#doc-mono .bookmark-marker-note")).toHaveLength(1);
+        gb.updateBookmarks([{...bookmark(1, [1, 1]), notes: null}]);
+        await nextTick();
+        expect(document.querySelector('#doc-mono svg[data-icon="pen-to-square"]')).toBeNull();
+    });
     it("whole-verse overlap has one frame and cleans up", async () => {
         gb.updateBookmarks([bookmark(1, [1, 2]), bookmark(2, [2, 3])]);
         await nextTick();

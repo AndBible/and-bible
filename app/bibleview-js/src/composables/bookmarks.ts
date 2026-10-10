@@ -828,7 +828,8 @@ export function useBookmarks(
             for (const b of bookmarks.filter(b => arrayEq(combinedRange(b)[0], [startOrdinal, startOff]))) {
                 if (hasSpeakLabel(b)) {
                     const label = getBookmarkStyleLabel(b);
-                    const color = adjustedColor((appSettings.monochromeMode && !appSettings.colorEinkMode) ? "black" : "red").string();
+                    const color = appSettings.pureMonochromeMode ? (appSettings.nightMode ? "white" : "black")
+                        : adjustedColor((appSettings.monochromeMode && !appSettings.colorEinkMode) ? "black" : "red").string();
                     const resolvedIcon = resolveIcon(b, label) ?? speakIcon;
                     const iconElement = getIconElement(resolvedIcon, color, false);
                     iconElement.addEventListener("click", event => addEventFunction(event,
@@ -860,7 +861,8 @@ export function useBookmarks(
             const bookmark = bookmarkList[0];
             if (bookmark) {
                 const bookmarkLabel = getBookmarkStyleLabel(bookmark);
-                const color = adjustedColor((appSettings.monochromeMode && !appSettings.colorEinkMode) ? "black" : bookmarkLabel.color).string();
+                const color = appSettings.pureMonochromeMode ? (appSettings.nightMode ? "white" : "black")
+                    : adjustedColor((appSettings.monochromeMode && !appSettings.colorEinkMode) ? "black" : bookmarkLabel.color).string();
                 const defaultIcon = hasNote ? editIcon : bookmarkIcon;
                 const resolvedIcon = resolveIcon(bookmark, bookmarkLabel);
                 const iconElement = getIconElement(resolvedIcon ?? defaultIcon, color, resolvedIcon !== null && hasNote);
@@ -951,7 +953,8 @@ export function useBookmarks(
             const lastElement = document.querySelector(`#doc-${documentId} #o-${lastOrdinal}`) as HTMLElement;
             const b = bookmarkList[0];
             const bookmarkLabel = getBookmarkStyleLabel(b);
-            const color = adjustedColor((appSettings.monochromeMode && !appSettings.colorEinkMode) ? "black" : bookmarkLabel.color).string();
+            const color = appSettings.pureMonochromeMode ? (appSettings.nightMode ? "white" : "black")
+                : adjustedColor((appSettings.monochromeMode && !appSettings.colorEinkMode) ? "black" : bookmarkLabel.color).string();
             const defaultIcon = b.hasNote ? editIcon : bookmarkIcon;
             const resolvedIcon = resolveIcon(b, bookmarkLabel);
             const iconElement = getIconElement(resolvedIcon ?? defaultIcon, color, resolvedIcon != null && b.hasNote);
@@ -994,7 +997,8 @@ export function useBookmarks(
         addHighLights();
     }, {flush: 'post'});
 
-    watch(markerBookmarks, () => {
+    watch([markerBookmarks, () => [appSettings.monochromeMode, appSettings.colorEinkMode,
+        appSettings.pureMonochromeMode, appSettings.nightMode]], () => {
         if (!isMounted.value) return;
         removeMarkers();
         addMarkers();
