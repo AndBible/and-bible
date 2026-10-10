@@ -25,6 +25,8 @@ import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
 import androidx.compose.ui.graphics.toArgb
 import net.bible.service.common.DisplayColorMode
+import net.bible.service.common.ThemePaletteStyle
+import net.bible.sharedcore.reading.DEFAULT_WORKSPACE_COLOR_ARGB
 import net.bible.sharedcore.reading.isWorkspaceColorSet
 import net.bible.sharedcore.theme.toGrayscaleArgb
 
@@ -79,6 +81,24 @@ private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
     surfaceContainerLowest = grayed(surfaceContainerLowest, mode),
 )
 
+/** materialkolor's style for each user-facing [ThemePaletteStyle]; exhaustive `when`, no else. */
+internal fun ThemePaletteStyle.toPaletteStyle(): PaletteStyle = when (this) {
+    ThemePaletteStyle.FIDELITY -> PaletteStyle.Fidelity
+    ThemePaletteStyle.TONAL_SPOT -> PaletteStyle.TonalSpot
+    ThemePaletteStyle.CONTENT -> PaletteStyle.Content
+    ThemePaletteStyle.NEUTRAL -> PaletteStyle.Neutral
+    ThemePaletteStyle.MONOCHROME -> PaletteStyle.Monochrome
+    ThemePaletteStyle.VIBRANT -> PaletteStyle.Vibrant
+    ThemePaletteStyle.EXPRESSIVE -> PaletteStyle.Expressive
+    ThemePaletteStyle.RAINBOW -> PaletteStyle.Rainbow
+    ThemePaletteStyle.FRUIT_SALAD -> PaletteStyle.FruitSalad
+}
+
+private fun seeded(seedArgb: Int, dark: Boolean, style: PaletteStyle): ColorScheme =
+    // Named arguments only: the positional list carries six optional role overrides between
+    // `isAmoled` and `style`. `isAmoled` has NO default in the real signature — pass it explicitly.
+    dynamicColorScheme(seedColor = Color(seedArgb), isDark = dark, isAmoled = false, style = style)
+
 /**
  * The single seed → [ColorScheme] derivation for the whole app (A/B batch 4b).
  *
@@ -93,31 +113,26 @@ private fun ColorScheme.grayscale(mode: DisplayColorMode): ColorScheme = copy(
  * pass in makes that drift impossible by construction rather than by a second condition that both
  * call sites must remember to write.
  *
- * - **No seed** (null, or `DEFAULT_WORKSPACE_COLOR_ARGB` — see [isWorkspaceColorSet]) → today's
- *   stock Material 3 scheme, unchanged. This is an identity requirement, not an approximation:
- *   it is what keeps every existing golden and every colourless workspace pixel-identical. (In
- *   NORMAL the greyscale pass is a no-op, so the identity holds exactly.)
- * - **BW** → the seed is ignored. A hue carries no information on a black-and-white screen, and
- *   seeding would give each workspace *different greys*, i.e. different contrast for the same UI
- *   on exactly the devices where contrast matters most.
- * - **COLOR_EINK** → seeded, *then* greyscaled like every other role (spec §5), matching the line
- *   `accentArgbFor` already draws: the base scheme greys, the deliberate accents stay coloured.
+ * - **NORMAL** -> a missing seed uses [DEFAULT_WORKSPACE_COLOR_ARGB], derived with [style].
+ *   Goldens and previews with `seedArgb = null` render the default grey theme, exactly as the app does.
+ * - **BW** -> the seed and style are ignored: the stock scheme is greyscaled so contrast is
+ *   consistent across workspaces on black-and-white screens.
+ * - **COLOR_EINK** -> a set colour (see [isWorkspaceColorSet]) seeds TonalSpot regardless of
+ *   [style], then the scheme is greyscaled. An unset colour uses the stock scheme, greyscaled.
+ *   This keeps equal contrast for every workspace colour on e-ink; deliberate accents stay coloured.
  */
-fun abColorScheme(seedArgb: Int?, dark: Boolean, colorMode: DisplayColorMode): ColorScheme {
+fun abColorScheme(
+    seedArgb: Int?,
+    dark: Boolean,
+    colorMode: DisplayColorMode,
+    style: ThemePaletteStyle = ThemePaletteStyle.DEFAULT,
+): ColorScheme {
     val stock = if (dark) darkColorScheme() else lightColorScheme()
-    val seeded = if (!isWorkspaceColorSet(seedArgb) || colorMode == DisplayColorMode.BW) {
-        stock
-    } else {
-        // Named arguments only: the positional list carries six optional role overrides between
-        // `isAmoled` and `style` (signature read out of the artifact with javap, Step 2). Unlike the
-        // role overrides, `isAmoled` has NO default in the real signature (confirmed by the Kotlin
-        // compiler's own overload-resolution error when it was omitted) — it must be passed explicitly.
-        dynamicColorScheme(
-            seedColor = Color(seedArgb!!),
-            isDark = dark,
-            isAmoled = false,
-            style = PaletteStyle.TonalSpot,
-        )
+    return when (colorMode) {
+        DisplayColorMode.NORMAL -> seeded(seedArgb ?: DEFAULT_WORKSPACE_COLOR_ARGB, dark, style.toPaletteStyle())
+        DisplayColorMode.BW -> stock.grayscale(colorMode)
+        DisplayColorMode.COLOR_EINK ->
+            (if (isWorkspaceColorSet(seedArgb)) seeded(seedArgb!!, dark, PaletteStyle.TonalSpot) else stock)
+                .grayscale(colorMode)
     }
-    return if (colorMode == DisplayColorMode.NORMAL) seeded else seeded.grayscale(colorMode)
 }
