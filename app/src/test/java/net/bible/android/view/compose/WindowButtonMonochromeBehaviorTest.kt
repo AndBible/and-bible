@@ -128,9 +128,9 @@ class WindowButtonMonochromeBehaviorTest {
                         val c = bitmap.getPixel(x, y) and 0xFFFFFF
                         val lum = c and 0xFF
                         when {
-                            // A centred 1.5dp stroke leaves 0.75px inside the clip at mdpi:
-                            // ink becomes #3f3f3f (light) / #c0c0c0 (dark) through antialiasing.
-                            (if (theme) lum >= 0xBF else lum <= 0x40) -> dashPx++
+                            // MONO dashes are whole pixels inside the clip (fractional densities:
+                            // WindowButtonMonochromeStrokeTest), so dash pixels are exact ink.
+                            c == ink -> dashPx++
                             c == paper -> gapPx++
                             lum in 0x60..0xA0 -> greyPx++
                         }

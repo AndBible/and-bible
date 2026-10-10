@@ -49,11 +49,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.bible.sharedcore.reading.railLabelFontScale
@@ -134,6 +137,9 @@ private val SyncBadgeDigitSize = 8.dp
 private val PinIconSize = 9.5.dp
 private val BorderWidth = 1.dp
 private val MinimisedBorderWidth = 1.5.dp
+/** MONO borders: active is heavier than inactive, but not double (2dp read too heavy on e-ink). */
+private val MonoActiveBorderWidth = 1.5.dp
+private val MonoBorderWidth = 1.dp
 private const val MinimisedAlpha = 0.62f
 /** Minimised outline dash/gap in dp, so they stay legible on high-density e-ink. */
 private val MinimisedDashOn = 4.dp
@@ -240,6 +246,10 @@ fun WindowButton(
         WindowButtonMode.Rail -> railTabShape(isPinned, isLinks)
         WindowButtonMode.Pane -> RoundedCornerShape(WindowButtonCorner)
     }
+    // MONO strokes snap to whole pixels: a fractional width (1dp = 1.875px on a 300 dpi e-ink panel)
+    // antialiases its inner edge into grey.
+    val density = LocalDensity.current
+    fun Dp.wholePx(): Dp = with(density) { roundToPx().coerceAtLeast(1).toDp() }
 
     Box(
         modifier = modifier
@@ -251,19 +261,35 @@ fun WindowButton(
                 if (isMinimised) {
                     Modifier.drawWithContent {
                         drawContent()
-                        drawOutline(
-                            outline = cornerShape.createOutline(size, layoutDirection, this),
-                            color = outlineColor,
-                            style = Stroke(
-                                width = MinimisedBorderWidth.toPx(),
-                                pathEffect = PathEffect.dashPathEffect(
-                                    floatArrayOf(MinimisedDashOn.toPx(), MinimisedDashOff.toPx()),
-                                ),
-                            ),
+                        val dash = PathEffect.dashPathEffect(
+                            floatArrayOf(MinimisedDashOn.toPx(), MinimisedDashOff.toPx()),
                         )
+                        if (mono) {
+                            // Inset by half the stroke so the whole stroke lies inside the clip: a
+                            // centred stroke loses its outer half and leaves a grey fractional pixel.
+                            val width = MinimisedBorderWidth.wholePx().toPx()
+                            translate(width / 2, width / 2) {
+                                drawOutline(
+                                    outline = cornerShape.createOutline(
+                                        Size(size.width - width, size.height - width), layoutDirection, this,
+                                    ),
+                                    color = outlineColor,
+                                    style = Stroke(width = width, pathEffect = dash),
+                                )
+                            }
+                        } else {
+                            drawOutline(
+                                outline = cornerShape.createOutline(size, layoutDirection, this),
+                                color = outlineColor,
+                                style = Stroke(width = MinimisedBorderWidth.toPx(), pathEffect = dash),
+                            )
+                        }
                     }
                 } else if (mono) {
-                    Modifier.monoBorder(cornerShape, if (isActive) 2.dp else 1.dp)
+                    Modifier.monoBorder(
+                        cornerShape,
+                        (if (isActive) MonoActiveBorderWidth else MonoBorderWidth).wholePx(),
+                    )
                 } else {
                     Modifier.border(BorderWidth, colors.outlineVariant, cornerShape)
                 },
